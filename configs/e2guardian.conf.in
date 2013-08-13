@@ -1,6 +1,6 @@
-# DansGuardian config file for version 2.12.0.7 http://numsys.eu - Unofficial Release ! -
+# DansGuardian config file for version @PACKAGE_VERSION@
 
-# **NOTE** as of version 2.7.5 most of the list files are now in dansguardianf1.conf
+# **NOTE** as of version 2.7.5 most of the list files are now in e2guardianf1.conf
 
 
 # Web Access Denied Reporting (does not affect logging)
@@ -20,7 +20,7 @@ reportinglevel = 3
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
 #
-languagedir = '/usr/share/dansguardian/languages'
+languagedir = '@DGDATADIR@/languages'
 
 # language to use from languagedir.
 language = 'ukenglish'
@@ -62,7 +62,7 @@ logfileformat = 1
 # Log file location
 # 
 # Defines the log directory and filename.
-#loglocation = '/var/log/dansguardian/access.log'
+#loglocation = '@DGLOGLOCATION@/access.log'
 
 # POST protection (web upload and forms)
 # does not block forms without any file upload, i.e. this is just for
@@ -83,7 +83,7 @@ logfileformat = 1
 # Once every 3 minutes, the current number of IPs in the cache, and the most
 # that have been in the cache since the daemon was started, are written to this
 # file. IPs persist in the cache for 7 days.
-#statlocation = '/var/log/dansguardian/stats'
+#statlocation = '@DGLOGLOCATION@/stats'
 
 
 # Network Settings
@@ -120,10 +120,10 @@ proxyport = 3128
 #
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
-#!! Not compiled !! originalip = on
+@ORIGIPSUPPORT@originalip = on
 
 # accessdeniedaddress is the address of your web server to which the cgi
-# dansguardian reporting script was copied. Only used in reporting levels 1 and 2.
+# e2guardian reporting script was copied. Only used in reporting levels 1 and 2.
 #
 # This webserver must be either:
 #  1. Non-proxied. Either a machine on the local network, or listed as an exception
@@ -134,7 +134,7 @@ proxyport = 3128
 #
 # Individual filter groups can override this setting in their own configuration.
 #
-accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/dansguardian.pl'
+accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # Non standard delimiter (only used with accessdeniedaddress)
 # To help preserve the full banned URL, including parameters, the variables
@@ -154,36 +154,36 @@ nonstandarddelimiter = on
 # icons from banned domains.
 # on (default) | off
 usecustombannedimage = on
-custombannedimagefile = '/usr/share/dansguardian/transparent1x1.gif'
+custombannedimagefile = '@DGDATADIR@/transparent1x1.gif'
 
 
 #Banned flash replacement
 usecustombannedflash = on
-custombannedflashfile = '/usr/share/dansguardian/blockedflash.swf'
+custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 
 
 
 # Filter groups options
 # filtergroups sets the number of filter groups. A filter group is a set of content
 # filtering options you can apply to a group of users.  The value must be 1 or more.
-# DansGuardian will automatically look for dansguardianfN.conf where N is the filter
+# DansGuardian will automatically look for e2guardianfN.conf where N is the filter
 # group.  To assign users to groups use the filtergroupslist option.  All users default
 # to filter group 1.  You must have some sort of authentication to be able to map users
 # to a group.  The more filter groups the more copies of the lists will be in RAM so
 # use as few as possible.
 filtergroups = 1
-filtergroupslist = '/etc/dansguardian/lists/filtergroupslist'
+filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 
 
 
 # Authentication files location
-bannediplist = '/etc/dansguardian/lists/bannediplist'
-exceptioniplist = '/etc/dansguardian/lists/exceptioniplist'
+bannediplist = '@DGCONFDIR@/lists/bannediplist'
+exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 
 # Per-Room blocking definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
 # Think of it as bannediplist on crack
-perroomblockingdirectory = '/etc/dansguardian/lists/bannedrooms/'
+perroomblockingdirectory = '@DGCONFDIR@/lists/bannedrooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -454,9 +454,9 @@ trickledelay = 10
 # one is forced to match as the default, regardless of user agent
 # and other matching mechanisms.
 #
-downloadmanager = '/etc/dansguardian/downloadmanagers/fancy.conf'
-#downloadmanager = '/etc/dansguardian/downloadmanagers/trickle.conf'
-downloadmanager = '/etc/dansguardian/downloadmanagers/default.conf'
+@FANCYSUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/fancy.conf'
+#@TRICKLESUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/trickle.conf'
+downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 
 
 
@@ -470,11 +470,11 @@ downloadmanager = '/etc/dansguardian/downloadmanagers/default.conf'
 # Some of the scanner(s) require 3rd party software and libraries eg clamav.
 # See the individual plugin conf file for more options (if any).
 #
-#!! Not compiled !! contentscanner = '/etc/dansguardian/contentscanners/clamdscan.conf'
-#!! Not compiled !! contentscanner = '/etc/dansguardian/contentscanners/avastdscan.conf'
-#!! Not compiled !! contentscanner = '/etc/dansguardian/contentscanners/kavdscan.conf'
-#!! Not compiled !! contentscanner = '/etc/dansguardian/contentscanners/icapscan.conf'
-#contentscanner = '/etc/dansguardian/contentscanners/commandlinescan.conf'
+#@CLAMDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/kavdscan.conf'
+#@ICAPSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/icapscan.conf'
+#@COMMANDLINESUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/commandlinescan.conf'
 
 
 
@@ -507,11 +507,11 @@ contentscanexceptions = off
 #
 # If you do not use multiple filter groups, you need not specify this option.
 #
-#authplugin = '/etc/dansguardian/authplugins/proxy-basic.conf'
-#authplugin = '/etc/dansguardian/authplugins/proxy-digest.conf'
-#!! Not compiled !! authplugin = '/etc/dansguardian/authplugins/proxy-ntlm.conf'
-#authplugin = '/etc/dansguardian/authplugins/ident.conf'
-#authplugin = '/etc/dansguardian/authplugins/ip.conf'
+#authplugin = '@DGCONFDIR@/authplugins/proxy-basic.conf'
+#authplugin = '@DGCONFDIR@/authplugins/proxy-digest.conf'
+#@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
+#authplugin = '@DGCONFDIR@/authplugins/ident.conf'
+#authplugin = '@DGCONFDIR@/authplugins/ip.conf'
 
 
 
@@ -622,7 +622,7 @@ ipipcfilename = '/tmp/.dguardianipipc'
 # PID filename
 # 
 # Defines process id directory and filename.
-#pidfilename = '/var/run/dansguardian.pid'
+#pidfilename = '@DGPIDDIR@/e2guardian.pid'
 
 # Disable daemoning
 # If enabled the process will not fork into the background.
@@ -649,8 +649,8 @@ loguseragent = off
 # Temp files created during virus scanning are given owner and group read
 # permissions; to use content scanners based on external processes, such as
 # clamdscan, the two processes must run with either the same group or user ID.
-#daemonuser = 'dansguardian'
-#daemongroup = 'dansguardian'
+#daemonuser = '@DGPROXYUSER@'
+#daemongroup = '@DGPROXYGROUP@'
 
 # Soft restart
 # When on this disables the forced killing off all processes in the process group.
@@ -661,7 +661,7 @@ softrestart = off
 # Mail program
 # Path (sendmail-compatible) email program, with options.
 # Not used if usesmtp is disabled (filtergroup specific).
-#!! Not compiled !!mailer = '/usr/sbin/sendmail -t'
+@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'
 
 #SSL certificate checking path
 #Path to CA certificates used to validate the certificates of https sites.

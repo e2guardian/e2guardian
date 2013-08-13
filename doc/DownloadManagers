@@ -15,7 +15,7 @@ There are two standard mechanisms by which downloads are paired to a handler: a 
 	- Prevent text-only or non-JavaScript-capable browsers from having downloads handled by a download manager which relies on JavaScript, such as the "fancy" plugin.
 	- Prevent the download manager being triggered for "in-line" files; for example, a browser receiving an HTML progress bar instead of a page's title JPEG will be unable to render its content correctly.
 
-When something is downloaded and needs to be virus scanned, details of the query are passed to the download managers in the order in which they are specified (in dansguardian.conf), and the download handled by the first manager that agrees to do so. The last download manager to be loaded is treated as a fall-back, and always handles any downloads not taken by preceding plugins; therefore, only managers which do not break the standard download process (default, trickle) are recommended for use as default.
+When something is downloaded and needs to be virus scanned, details of the query are passed to the download managers in the order in which they are specified (in e2guardian.conf), and the download handled by the first manager that agrees to do so. The last download manager to be loaded is treated as a fall-back, and always handles any downloads not taken by preceding plugins; therefore, only managers which do not break the standard download process (default, trickle) are recommended for use as default.
 
 
 The DMPlugin base class

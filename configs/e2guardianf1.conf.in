@@ -1,4 +1,4 @@
-# DansGuardian filter group config file for version 2.12.0.7 http://numsys.eu - Unofficial Release ! -
+# DansGuardian filter group config file for version @PACKAGE_VERSION@
 
 
 # Filter group mode
@@ -25,20 +25,20 @@ groupmode = 1
 #groupname = ''
 
 # Content filtering files location
-bannedphraselist = '/etc/dansguardian/lists/bannedphraselist'
-weightedphraselist = '/etc/dansguardian/lists/weightedphraselist'
-exceptionphraselist = '/etc/dansguardian/lists/exceptionphraselist'
-bannedsitelist = '/etc/dansguardian/lists/bannedsitelist'
-greysitelist = '/etc/dansguardian/lists/greysitelist'
-exceptionsitelist = '/etc/dansguardian/lists/exceptionsitelist'
-bannedurllist = '/etc/dansguardian/lists/bannedurllist'
-greyurllist = '/etc/dansguardian/lists/greyurllist'
-exceptionurllist = '/etc/dansguardian/lists/exceptionurllist'
-exceptionregexpurllist = '/etc/dansguardian/lists/exceptionregexpurllist'
-bannedregexpurllist = '/etc/dansguardian/lists/bannedregexpurllist'
-picsfile = '/etc/dansguardian/lists/pics'
-contentregexplist = '/etc/dansguardian/lists/contentregexplist'
-urlregexplist = '/etc/dansguardian/lists/urlregexplist'
+bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
+weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
+exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
+bannedsitelist = '@DGCONFDIR@/lists/bannedsitelist'
+greysitelist = '@DGCONFDIR@/lists/greysitelist'
+exceptionsitelist = '@DGCONFDIR@/lists/exceptionsitelist'
+bannedurllist = '@DGCONFDIR@/lists/bannedurllist'
+greyurllist = '@DGCONFDIR@/lists/greyurllist'
+exceptionurllist = '@DGCONFDIR@/lists/exceptionurllist'
+exceptionregexpurllist = '@DGCONFDIR@/lists/exceptionregexpurllist'
+bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
+picsfile = '@DGCONFDIR@/lists/pics'
+contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
+urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
 
 # Filetype filtering
 #
@@ -56,20 +56,20 @@ urlregexplist = '/etc/dansguardian/lists/urlregexplist'
 # (on | off)
 #
 blockdownloads = off
-exceptionextensionlist = '/etc/dansguardian/lists/exceptionextensionlist'
-exceptionmimetypelist = '/etc/dansguardian/lists/exceptionmimetypelist'
+exceptionextensionlist = '@DGCONFDIR@/lists/exceptionextensionlist'
+exceptionmimetypelist = '@DGCONFDIR@/lists/exceptionmimetypelist'
 #
 # Use the following lists to block specific kinds of file downloads.
 # The two exception lists above can be used to override these.
 #
-bannedextensionlist = '/etc/dansguardian/lists/bannedextensionlist'
-bannedmimetypelist = '/etc/dansguardian/lists/bannedmimetypelist'
+bannedextensionlist = '@DGCONFDIR@/lists/bannedextensionlist'
+bannedmimetypelist = '@DGCONFDIR@/lists/bannedmimetypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
 #
-exceptionfilesitelist = '/etc/dansguardian/lists/exceptionfilesitelist'
-exceptionfileurllist = '/etc/dansguardian/lists/exceptionfileurllist'
+exceptionfilesitelist = '@DGCONFDIR@/lists/exceptionfilesitelist'
+exceptionfileurllist = '@DGCONFDIR@/lists/exceptionfileurllist'
 
 # POST protection (web upload and forms)
 # does not block forms without any file upload, i.e. this is just for
@@ -86,9 +86,9 @@ maxuploadsize = -1
 # Supply categorised lists here and the category string shall be logged against
 # matching requests, but matching these lists does not perform any filtering
 # action.
-#logsitelist = '/etc/dansguardian/lists/logsitelist'
-#logurllist = '/etc/dansguardian/lists/logurllist'
-#logregexpurllist = '/etc/dansguardian/lists/logregexpurllist'
+#logsitelist = '@DGCONFDIR@/lists/logsitelist'
+#logurllist = '@DGCONFDIR@/lists/logurllist'
+#logregexpurllist = '@DGCONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
@@ -99,11 +99,11 @@ maxuploadsize = -1
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove cookies or prevent certain user-agents.
-headerregexplist = '/etc/dansguardian/lists/headerregexplist'
-bannedregexpheaderlist = '/etc/dansguardian/lists/bannedregexpheaderlist'
+headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
+bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
 
 # Weighted phrase mode
-# Optional; overrides the weightedphrasemode option in dansguardian.conf
+# Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in
 # that file.
 #weightedphrasemode = 0
@@ -127,7 +127,7 @@ naughtynesslimit = 50
 # List of regular expressions for matching search engine URLs.  It is assumed
 # that the search terms themselves will be contained within the first submatch
 # of each expression.
-#searchengineregexplist = '/etc/dansguardian/lists/searchengineregexplist'
+#searchengineregexplist = '@DGCONFDIR@/lists/searchengineregexplist'
 #
 # Search term limit
 # The limit over which requests will be blocked for containing search terms
@@ -149,9 +149,9 @@ naughtynesslimit = 50
 # of text.
 # Please note that all or none of the below should be uncommented, not a
 # mixture.
-#bannedsearchtermlist = '/etc/dansguardian/lists/bannedsearchtermlist'
-#weightedsearchtermlist = '/etc/dansguardian/lists/weightedsearchtermlist'
-#exceptionsearchtermlist = '/etc/dansguardian/lists/exceptionsearchtermlist'
+#bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
+#weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
+#exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'
 
 # Category display threshold
 # This option only applies to pages blocked by weighted phrase filtering.
@@ -175,7 +175,7 @@ categorydisplaythreshold = 0
 #
 # NB: Currently, this feature uses regular expressions that require the PCRE library.
 # As such, it is only available if you compiled DansGuardian with '--enable-pcre=yes'.
-# You can check compile-time options by running 'dansguardian -v'.
+# You can check compile-time options by running 'e2guardian -v'.
 #
 # Set to 0 to disable.
 # Defaults to 0.
@@ -193,7 +193,7 @@ enablepics = off
 # secure it uses a random hashed secret generated at daemon startup.  You define the
 # number of seconds the bypass will function for before the deny will appear again.
 # To allow the link on the denied page to appear you will need to edit the template.html
-# or dansguardian.pl file for your language.
+# or e2guardian.pl file for your language.
 # 300 = enable for 5 minutes
 # 0 = disable ( defaults to 0 )
 # -1 = enable but you require a separate program/CGI to generate a valid link
@@ -250,13 +250,13 @@ deepurlanalysis = off
 #  2 = report fully
 #  3 = use HTML template file (accessdeniedaddress ignored) - recommended
 #
-# If defined, this overrides the global setting in dansguardian.conf for
+# If defined, this overrides the global setting in e2guardian.conf for
 # members of this filter group.
 #
 #reportinglevel = 3
 
 # accessdeniedaddress is the address of your web server to which the cgi
-# dansguardian reporting script was copied. Only used in reporting levels
+# e2guardian reporting script was copied. Only used in reporting levels
 # 1 and 2.
 #
 # This webserver must be either:
@@ -266,13 +266,13 @@ deepurlanalysis = off
 #     only for users using both transparent proxying and a non-local server
 #     to host this script.
 #
-# If defined, this overrides the global setting in dansguardian.conf for
+# If defined, this overrides the global setting in e2guardian.conf for
 # members of this filter group.
 #
-#accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/dansguardian.pl'
+#accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
-# dansguardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
+# e2guardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
 
 #sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
@@ -282,16 +282,16 @@ deepurlanalysis = off
 
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
-# filter group, overriding the global setting in dansguardian.conf. This is
+# filter group, overriding the global setting in e2guardian.conf. This is
 # only used in reporting level 3.
 #
 # The default template file path is <languagedir>/<language>/template.html
-# e.g. /usr/share/dansguardian/languages/ukenglish/template.html when using 'ukenglish'
+# e.g. @DGDATADIR@/languages/ukenglish/template.html when using 'ukenglish'
 # language.
 #
 # This option generates a file path of the form:
 # <languagedir>/<language>/<htmltemplate>
-# e.g. /usr/share/dansguardian/languages/ukenglish/custom.html
+# e.g. @DGDATADIR@/languages/ukenglish/custom.html
 #
 #htmltemplate = 'custom.html'
 
@@ -302,63 +302,63 @@ deepurlanalysis = off
 # need to configure mail program (see 'mailer' in global config)
 # and email recipients
 # default usesmtp = off
-#!! Not compiled !!usesmtp = off
+@EMAILSUPPORT@usesmtp = off
 
 # mailfrom
 # who the email would come from
-# example: mailfrom = 'dansguardian@mycompany.com'
-#!! Not compiled !!mailfrom = ''
+# example: mailfrom = 'e2guardian@mycompany.com'
+@EMAILSUPPORT@mailfrom = ''
 
 # avadmin
 # who the virus emails go to (if notify av is on)
 # example: avadmin = 'admin@mycompany.com'
-#!! Not compiled !!avadmin = ''
+@EMAILSUPPORT@avadmin = ''
 
 # contentdmin
 # who the content emails go to (when thresholds are exceeded)
 # and contentnotify is on
 # example: contentadmin = 'admin@mycompany.com'
-#!! Not compiled !!contentadmin = ''
+@EMAILSUPPORT@contentadmin = ''
 
 # avsubject
 # Subject of the email sent when a virus is caught.
 # only applicable if notifyav is on
-# default avsubject = 'dansguardian virus block'
-#!! Not compiled !!avsubject = 'dansguardian virus block'
+# default avsubject = 'e2guardian virus block'
+@EMAILSUPPORT@avsubject = 'e2guardian virus block'
 
 # content
 # Subject of the email sent when violation thresholds are exceeded
-# default contentsubject = 'dansguardian violation'
-#!! Not compiled !!contentsubject = 'dansguardian violation'
+# default contentsubject = 'e2guardian violation'
+@EMAILSUPPORT@contentsubject = 'e2guardian violation'
 
 # notifyAV
 # This will send a notification, if usesmtp/notifyav is on, any time an
 # infection is found.
 # Important: If this option is off, viruses will still be recorded like a
 # content infraction.
-#!! Not compiled !!notifyav = off
+@EMAILSUPPORT@notifyav = off
 
 # notifycontent
 # This will send a notification, if usesmtp is on, based on thresholds
 # below
-#!! Not compiled !!notifycontent = off
+@EMAILSUPPORT@notifycontent = off
 
 # thresholdbyuser
 # results are only predictable with user authenticated configs
 # if enabled the violation/threshold count is kept track of by the user
-#!! Not compiled !!thresholdbyuser = off
+@EMAILSUPPORT@thresholdbyuser = off
 
 #violations
 # number of violations before notification
 # setting to 0 will never trigger a notification
-#!! Not compiled !!violations = 0
+@EMAILSUPPORT@violations = 0
 
 #threshold
 # this is in seconds. If 'violations' occur in 'threshold' seconds, then
 # a notification is made.
 # if this is set to 0, then whenever the set number of violations are made a 
 # notifaction will be sent.
-#!! Not compiled !!threshold = 0
+@EMAILSUPPORT@threshold = 0
 
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid

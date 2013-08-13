@@ -7,6 +7,6 @@
 # by default.
 #
 # If you would like to enable this feature, uncomment "logurllist" in your
-# dansguardianf*.conf file(s), and place .Include<> statements here for the
+# e2guardianf*.conf file(s), and place .Include<> statements here for the
 # categories you would like to log.  Included list files must contain a
 # "#listcategory" directive.

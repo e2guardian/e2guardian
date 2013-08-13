@@ -17,7 +17,7 @@ Need to recompile DansGuardian with the --with-filedescriptors=N compile option
 configure option --with-filedescriptors=N N=MaxChildren Max
 
 January 2013 - Dansguardian 2.12.0.4 - alpha
-- Set persistent cnx timeout in dansguardian.conf by Frederic Bourgeois 
+- Set persistent cnx timeout in e2guardian.conf by Frederic Bourgeois 
 - Multiple auth fixed - checked only with one port - (crash fixed before patch #9) - by Frédéric Bourgeois
 - French translation update (accents problem) - by Frédéric Bourgeois 
 - Added allow regex header filtering with greylist - Frédéric Bourgeois 
@@ -50,7 +50,7 @@ September 2012 - Dansguardian 2.12.0.2 - alpha
 May 2012 - Dansguardian 2.12.0.1 - alpha - UNRELEASED
 - Applied patch 3438750 (GCC 4.4 and 4.6 compatibility) by Mathieu PARENT
 - Applied patch 3438749 (French translation update) by Mathieu PARENT
-- Applied patch 3418297 (Set proxy timeout in dansguardian.conf) by Frederic Bourgeois
+- Applied patch 3418297 (Set proxy timeout in e2guardian.conf) by Frederic Bourgeois
 - Applied patch 3419088 (login/password in URL is dropped) by Mathieu PARENT
 - Applied patch 3419089 ("Expect" header should be dropped) by Mathieu PARENT
 - Applied patch 3438751 (Fix queue handling in OptionContainer) by Mathieu PARENT
@@ -86,7 +86,7 @@ August 2011 - DansGuardian 2.12.0.0 - alpha
 
 
 Fri 5th June 2009 - DansGuardian 2.10.1.1 - stable
-- Add "originalip" option to dansguardian.conf, for determining
+- Add "originalip" option to e2guardian.conf, for determining
  the original destination IP in transparent proxy set-ups, and
  ensuring that the destination domain of the request resolves to
  that IP.  This can help to address a particular transparent
@@ -118,7 +118,7 @@ authentication plugins.
 been updated directly, from Harry Mason.
 - Chop carriage return off useragent strings when "loguseragent" is
 enabled.
-- Don't force contents of dansguardianf*.conf files to lower-case on
+- Don't force contents of e2guardianf*.conf files to lower-case on
 loading, so as not to destroy the case of group names.
 - Make temporary bypass cookies valid for subdomains of the original
 bypassed domain, including stripping "www.".
@@ -453,7 +453,7 @@ them.
 - Changed handling of POST uploads; large files should no longer cause
 timeouts.
 - There are now default managed extension/MIME type lists under.
-"/etc/dansguardian/lists/downloadmanagers", and the latter is enabled by
+"/etc/e2guardian/lists/downloadmanagers", and the latter is enabled by
 default in the fancy download manager's config file.Götz Babin-Ebell.
 - Optional blanket download blocking, with new exception MIME and
 extension lists for overriding the block (existing banned MIME &
@@ -601,7 +601,7 @@ demonstrate this feature).
 don't obey standards.
 - PCRE support is now optional at configure time (--with-pcre; disabled by
 default).
-- dansguardian.org removed from exceptionsitelist, and a rule added to
+- e2guardian.org removed from exceptionsitelist, and a rule added to
 bannedregexpurllist, to prevent accidental access to the DG sample virus repository.
 - Firefox DoS fix in contentregexplist (commented out by default to conserve CPU).
 - Fixed Grey URL list checking scans greyurllist, not bannedurllist.
@@ -788,7 +788,7 @@ Sun 14th December 2003 - DansGuardian 2.7.6-5
 Thu 11th December 2003 - DansGuardian 2.7.6-4
 - Fixed segfault with -N option.
 - Fixed typo in bannedurllist.
-- Fixed cross site scripting vuln in dansguardian.pl.
+- Fixed cross site scripting vuln in e2guardian.pl.
 - Fixed error in Solaris Makefile.
 - Fixed '//' detection yet again to use a further different approach due to broken sites.
 
@@ -814,7 +814,7 @@ Thu 20th November 2003 - DansGuardian 2.7.6
 - Added processed file support for grey and exception URL and site lists.
 - Fixed bug where it would not exit when there was a mistake in the f1 conf file on start up.
 - Made non-standard redirector delimiting optional.
-- 'dansguardian -s' now works as non-root.
+- 'e2guardian -s' now works as non-root.
 - Generally improved errors with the -s -r -g and -q options.
 - Ident now uses X-Forwarded-For when DansGuardian is configured to use it.
 - Bug fixed in exceptionurllist using wrong list file.
@@ -822,7 +822,7 @@ Thu 20th November 2003 - DansGuardian 2.7.6
 - OSX compiler warnings solved.
 
 Sun 16th November 2003 - DansGuardian 2.7.5
-- Improved URL encoding for dansguardian.pl.
+- Improved URL encoding for e2guardian.pl.
 - Added greysitelist and greyurllist to allow sites past the URL filtering but to still have the
 content filtering applied.
 - Added chineasegb2312.
@@ -927,7 +927,7 @@ Wed 24th December 2003 - DansGuardian 2.6.1-11
 - Fixed broken bannedphraselist file included by default.
 
 Thu 11th December 2003 - DansGuardian 2.6.1-10
-- Fixed cross site scripting vuln in dansguardian.pl.
+- Fixed cross site scripting vuln in e2guardian.pl.
 - Fixed '//' detection yet again to use a further different approach due to broken sites.
 
 Thu 4th December 2003 pm - DansGuardian 2.6.1-9
@@ -1117,7 +1117,7 @@ Sun 31st March 2002 - DansGuardian-2.4.2-1
 Thu 28th March 2002 - DansGuardian-2.4.2
 - The default included PICS settings are less strict and so more useable.
 - A bug in the zlib deflation code causing partial display of some pages has been fixed.
-- A problem with the 'dansguardian -r' feature on FreeBSD and OpenBSD has been fixed.
+- A problem with the 'e2guardian -r' feature on FreeBSD and OpenBSD has been fixed.
 - Added a HTML template feature where DansGuardian displays a HTML file for the access denied
 page which makes installation easier as no perl script or web server are needed.  It also makes
 modifying the page much simpler.  And finally the addition does not use URL encoding to pass the
@@ -1141,7 +1141,7 @@ Sun 10th March 2002 - DansGuardian-2.4.0
 - Fixed a problem with URL matching not comparing the final character and so causing overblocking.
 
 Fri 1st March 2002 - DansGuardian-2.3.3
-- Added -HUP and 'dansguardian -r' support.
+- Added -HUP and 'e2guardian -r' support.
 - Better handling of tabs in list files.
 - Optional CSV format log file format.
 - Better banned file extension list.
@@ -1282,7 +1282,7 @@ Thu 1st November 2001 - DansGuardian-2.1.0-3
 specifically affected exceptionuserlist and exceptioniplist.
 - Fixed bug where the main parent process lost count of number of child processes due to a
 race condition.
-- Fixed mistake in configure file which missed off an option in the dansguardian.conf file.
+- Fixed mistake in configure file which missed off an option in the e2guardian.conf file.
 - Slightly more colourful perl script.
 
 Mon 29th October 2001 - DansGuardian-2.1.0-2
@@ -1301,7 +1301,7 @@ large.
 conf file.
 
 Sat 13th October 2001 - DansGuardian-2.0.0-pre9
-- dansguardian -v gives proper message now.
+- e2guardian -v gives proper message now.
 - LICENSE file included now.
 - Missing steath-mode option in conf file reinstated.
 - Fixed mistake in logrotation script.
@@ -1354,7 +1354,7 @@ groups of additional phrases can be included.
 Mon 27th August 2001 - DansGuardian-2.0.0-pre5
 - Made minor adjustments to improve tunneling code speed.
 - Fixed bug where a 47 was added to the hostname.
-- Fixed bug where RPM did not create and permission the /var/log/dansguardian directory.
+- Fixed bug where RPM did not create and permission the /var/log/e2guardian directory.
 
 Sun 19th August 2001 - DansGuardian-2.0.0-pre4
 - Fixed bug in phrase checking that caused it to overwrite the wrong memory.
@@ -1362,7 +1362,7 @@ Sun 19th August 2001 - DansGuardian-2.0.0-pre4
 - Fixed minor bug with content type checking (typo).
 - Added process spawning capping to prevent DoS attacks killing the server.
 - Added stealth mode - logs, but does not block.
-- dansguardian.conf format modified slightly
+- e2guardian.conf format modified slightly
 
 Sun 5th August 2001 - DansGuardian-2.0.0-pre3
 - Fixed bug with compressed HTML support.

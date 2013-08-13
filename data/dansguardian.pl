@@ -45,7 +45,7 @@ print '<P><table border=1 bgcolor="#FFEE00"><tr><td>You are seeing this error be
 print 'to access contains, or is labelled as containing, material that';
 print '<br>has been deemed inappropriate.</td></tr></table>';
 print '<P><table border=1 bgcolor="#44dd44"><tr><td>If you have any queries contact your ICT Co-ordinator or Network Manager.</td></tr></table>';
-print '<P><font size=-3>Powered by <a href="http://dansguardian.org" target="_blank">DansGuardian</a></font>';
+print '<P><font size=-3>Powered by <a href="http://e2guardian.org" target="_blank">DansGuardian</a></font>';
 print '</center></BODY></HTML>';
 
 exit;

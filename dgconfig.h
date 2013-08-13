@@ -5,13 +5,13 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Maximum number of open filedescriptors */
-#define DANS_MAXFD 8196
+#define DANS_MAXFD 1024
 
 /* Define to enable debug build mode */
 /* #undef DGDEBUG */
 
 /* Record configure-time options */
-#define DG_CONFIGURE_OPTIONS " '--mandir=/usr/share/man/' '--with-proxyuser=dansguardian' '--with-proxygroup=dansguardian' '--prefix=/usr' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-commandline=yes' '--enable-trickledm=yes' 'CXX=g++' 'CXXFLAGS=-g -O2' 'LDFLAGS=' 'CPPFLAGS=' 'CC=cc' 'CFLAGS=-g -O2' '--enable-email=no' '--enable-ntlm=no' '--enable-pcre=yes' '--with-filedescriptors=8196'"
+#define DG_CONFIGURE_OPTIONS ""
 
 /* Define to enable AvastD content scanner */
 /* #undef ENABLE_AVASTD */
@@ -20,7 +20,7 @@
 /* #undef ENABLE_CLAMD */
 
 /* Define to enable command-line content scanner */
-#define ENABLE_COMMANDLINE /**/
+/* #undef ENABLE_COMMANDLINE */
 
 /* Define to enable email reporting */
 /* #undef ENABLE_EMAIL */
@@ -44,7 +44,7 @@
 /* #undef ENABLE_SEGV_BACKTRACE */
 
 /* Define to enable trickle download manager */
-#define ENABLE_TRICKLEDM /**/
+/* #undef ENABLE_TRICKLEDM */
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
@@ -189,22 +189,22 @@
 
 /* Define if type "off_t" is a typedef of another type for which String
    already has a constructor */
-/* #undef OFFT_COLLISION */
+#define OFFT_COLLISION /**/
 
 /* Name of package */
-#define PACKAGE "dansguardian"
+#define PACKAGE "e2guardian"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "dansguardian"
+#define PACKAGE_NAME "e2guardian"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "dansguardian 2.12.0.7"
+#define PACKAGE_STRING "e2guardian 2.12.0.7"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "dansguardian"
+#define PACKAGE_TARNAME "e2guardian"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""

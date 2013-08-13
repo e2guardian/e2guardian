@@ -2,7 +2,7 @@
 // including the banned/grey/exception site lists and the content/site/url regexp lists
 
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -192,7 +192,7 @@ bool FOptionContainer::read(const char *filename)
 	try {			// all sorts of exceptions could occur reading conf files
 		std::string linebuffer;
 		String temp;  // for tempory conversion and storage
-		std::ifstream conffiles(filename, std::ios::in);  // dansguardianfN.conf
+		std::ifstream conffiles(filename, std::ios::in);  // e2guardianfN.conf
 		if (!conffiles.good()) {
 			if (!is_daemonised) {
 				std::cerr << "Error reading: " << filename << std::endl;
@@ -374,7 +374,7 @@ bool FOptionContainer::read(const char *filename)
                 }               
 
 #ifdef DGDEBUG
-                std::cout << "Group " <<  findoptionS("groupname") << "(" << filtergroup << ") Max upload size in dansguardian group file: " << temp_max_upload_size << std::endl;
+                std::cout << "Group " <<  findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
 		// override default access denied address
 		if (reporting_level == 1 || reporting_level == 2) {
@@ -471,7 +471,7 @@ bool FOptionContainer::read(const char *filename)
 			std::cout << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
-			// the dansguardian.conf and pics files get amalgamated into one
+			// the e2guardian.conf and pics files get amalgamated into one
 			// deque.  They are only seperate files for clarity.
 
 			if (findoptionS("enablepics") == "on") {

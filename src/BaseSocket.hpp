@@ -1,7 +1,7 @@
 // BaseSocket class - inherit & implement to make UNIX/INET domain sockets
 
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 #ifndef __HPP_BASESOCKET

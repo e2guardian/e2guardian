@@ -10,8 +10,8 @@ See the AuthPlugins, DownloadManagers and ContentScanners documents for more inf
 How plugins are hooked into the build system
 ============================================
 
-The source files for plugins themselves live in "src/contentscanners", "src/downloadmanagers" or "src/authplugins", according to plugin type. Configuration files live in "configs/<type>" ("/etc/e2guardian/<type>" after installation).
-	For a plugin to be built, its source file must be included in the "e2guardian_SOURCES" variable in "src/Makefile.am", and code to instance the plugin when encountering the relevant "plugname" string - taken from the "plugname" directive in the configuration file - must be added to the relevant top-level source file. The top-level source files are Auth.cpp for authentication plugins, ContentScanner.cpp for content scanning plugins, and DownloadManager.cpp for download management plugins. These files contain a list of externs referring to builder functions for the various plugin classes, the default implementations of any non-abstract methods of the base class, and a "*_plugin_load" function consisting mainly of code to check the plugname and return an instance of the desired plugin.
+The source files for plugins themselves live in "src/contentscanners", "src/downloadmanagers" or "src/authplugins", according to plugin type. Configuration files live in "configs/<type>" ("/etc/dansguardian/<type>" after installation).
+	For a plugin to be built, its source file must be included in the "dansguardian_SOURCES" variable in "src/Makefile.am", and code to instance the plugin when encountering the relevant "plugname" string - taken from the "plugname" directive in the configuration file - must be added to the relevant top-level source file. The top-level source files are Auth.cpp for authentication plugins, ContentScanner.cpp for content scanning plugins, and DownloadManager.cpp for download management plugins. These files contain a list of externs referring to builder functions for the various plugin classes, the default implementations of any non-abstract methods of the base class, and a "*_plugin_load" function consisting mainly of code to check the plugname and return an instance of the desired plugin.
 	As an example, here's the bare minimum necessary to build and load a new, hypothetical "fooscan" content scanner. To create and compile the plugin:
 
 -----
@@ -27,18 +27,18 @@ src/ContentScanner.cpp:
 	Add an 'if (plugname == "fooscan")' section to cs_plugin_load.
 
 src/Makefile.am:
-	Add "contentscanners/fooscan.cpp" to the end of "e2guardian_SOURCES".
+	Add "contentscanners/fooscan.cpp" to the end of "dansguardian_SOURCES".
 
 -----
 
-	For a plugin to be loaded, there must be a line in e2guardian.conf referencing a config file which contains your new plugin's plugname, e.g.:
+	For a plugin to be loaded, there must be a line in dansguardian.conf referencing a config file which contains your new plugin's plugname, e.g.:
 
 -----
 
-/etc/e2guardian/e2guardian.conf:
-	contentscanner = "/etc/e2guardian/contentscanners/fooscan.conf"
+/etc/dansguardian/dansguardian.conf:
+	contentscanner = "/etc/dansguardian/contentscanners/fooscan.conf"
 
-/etc/e2guardian/contentscanners/fooscan.conf:
+/etc/dansguardian/contentscanners/fooscan.conf:
 	plugname = "fooscan"
 
 -----

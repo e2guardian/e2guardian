@@ -1,5 +1,5 @@
 MAINTAINERCLEANFILES = Makefile.in \
-                       dansguardian.conf dansguardianf1.conf
+                       e2guardian.conf e2guardianf1.conf
 
 SUBDIRS = lists downloadmanagers authplugins .
 
@@ -7,9 +7,9 @@ if NEED_CSCONFIGS
 SUBDIRS += contentscanners
 endif
 
-FLISTS = dansguardian.conf dansguardianf1.conf
+FLISTS = e2guardian.conf e2guardianf1.conf
 
-EXTRA_DIST = dansguardian.conf.in dansguardianf1.conf.in
+EXTRA_DIST = e2guardian.conf.in e2guardianf1.conf.in
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGCONFDIR) && \

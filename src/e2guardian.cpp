@@ -1,5 +1,5 @@
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -73,8 +73,8 @@ void read_config(const char *configfile, int type)
 	close(rc);
 
 	if (!o.read(configfile, type)) {
-		syslog(LOG_ERR, "%s", "Error parsing the dansguardian.conf file or other DansGuardian configuration files");
-		std::cerr << "Error parsing the dansguardian.conf file or other DansGuardian configuration files" << std::endl;
+		syslog(LOG_ERR, "%s", "Error parsing the e2guardian.conf file or other DansGuardian configuration files");
+		std::cerr << "Error parsing the e2guardian.conf file or other DansGuardian configuration files" << std::endl;
 		exit(1);  // OptionContainer class had an error reading the conf or other files so exit with error
 	}
 }
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 	srand(time(NULL));
 	int rc;
 
-	openlog("dansguardian", LOG_PID | LOG_CONS, LOG_USER);
+	openlog("e2guardian", LOG_PID | LOG_CONS, LOG_USER);
 
 #ifdef DGDEBUG
 	std::cout << "Running in debug mode..." << std::endl;
@@ -293,8 +293,8 @@ int main(int argc, char *argv[])
 #else
 	if ((o.max_children + 6) > DANS_MAXFD) {
 #endif
-		syslog(LOG_ERR, "%s", "maxchildren option in dansguardian.conf has a value too high.");
-		std::cerr << "maxchildren option in dansguardian.conf has a value too high." << std::endl;
+		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
+		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
 		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
 		return 1;  // we can't have rampant proccesses can we?
 	}
@@ -398,9 +398,9 @@ int main(int argc, char *argv[])
 #endif
 			o.reset();
 			if (!o.read(configfile.c_str(), 2)) {
-				syslog(LOG_ERR, "%s", "Error re-parsing the dansguardian.conf file or other DansGuardian configuration files");
+				syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other DansGuardian configuration files");
 #ifdef DGDEBUG
-				std::cerr << "Error re-parsing the dansguardian.conf file or other DansGuardian configuration files" << std::endl;
+				std::cerr << "Error re-parsing the e2guardian.conf file or other DansGuardian configuration files" << std::endl;
 #endif
 				return 1;
 				// OptionContainer class had an error reading the conf or

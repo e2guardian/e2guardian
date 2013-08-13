@@ -10,7 +10,7 @@ A. There are certain common elements, such as the naming of some of the virus sc
 
 Q. How do I set up virus scanning?
 
-A. Make sure DG is built with at least one content scanning plugin enabled ("--enable-clamd", "--enable-kavd", "--enable-icap", or "--enable-commandline"). After compilation and installation, uncomment the relevant "contentscanner" line in dansguardian.conf to enable loading the plugin. Also take a look in the plugin's own configuration file, the path of which is in the "contentscanner" option, and perform any necessary customisations - for example, settings the "clamdudsfile" option in clamdscan.conf.
+A. Make sure DG is built with at least one content scanning plugin enabled ("--enable-clamd", "--enable-kavd", "--enable-icap", or "--enable-commandline"). After compilation and installation, uncomment the relevant "contentscanner" line in e2guardian.conf to enable loading the plugin. Also take a look in the plugin's own configuration file, the path of which is in the "contentscanner" option, and perform any necessary customisations - for example, settings the "clamdudsfile" option in clamdscan.conf.
 	For new installations, the "clamdscan" plugin is recommended; this requires you to have ClamD running on the same machine as DG, but is flexible (using ClamD's own configuration file for extra control) and simple to set up.
 
 
@@ -53,29 +53,29 @@ A. Any content that has been scanned is marked with "*SCANNED*" in DG's access l
 
 Q. How do I set up multiple filter groups?
 
-A. Duplicate the dansguardianf1.conf file, so that there is one per group (dansguardianf2.conf, dansguardianf3.conf, etc.). Set the "filtergroups" parameter in dansguardian.conf accordingly. Duplicate the list files referenced by the filter group config - "bannedsitelist", "bannedurllist" etc. - once per group, if you wish to customise them separately. (These are the "top-level" list files, in that they mostly consist of include statements for other lists.)
-	Uncomment one of the "authplugin" lines in dansguardian.conf and, if choosing proxy-basic or proxy-ntlm, configure Squid to require basic or NTLM authentication accordingly. Fill in the username/group mappings in the "filtergroupslist" file. If you wish to enforce authentication, map all users to groups higher than 1, and set group 1's groupmode to 0 (banned), as this is the default group for unidentified users.
+A. Duplicate the e2guardianf1.conf file, so that there is one per group (e2guardianf2.conf, e2guardianf3.conf, etc.). Set the "filtergroups" parameter in e2guardian.conf accordingly. Duplicate the list files referenced by the filter group config - "bannedsitelist", "bannedurllist" etc. - once per group, if you wish to customise them separately. (These are the "top-level" list files, in that they mostly consist of include statements for other lists.)
+	Uncomment one of the "authplugin" lines in e2guardian.conf and, if choosing proxy-basic or proxy-ntlm, configure Squid to require basic or NTLM authentication accordingly. Fill in the username/group mappings in the "filtergroupslist" file. If you wish to enforce authentication, map all users to groups higher than 1, and set group 1's groupmode to 0 (banned), as this is the default group for unidentified users.
 
 
 Q. How do I assign users to groups when using the "ip" auth plugin?
 
-A. Use the "/etc/dansguardian/lists/authplugins/ipgroups" file. This is separate from the filtergroupslist because it has a different syntax, catering for IP range and subnet matches instead of static usernames, and is only used by the one plugin.
+A. Use the "/etc/e2guardian/lists/authplugins/ipgroups" file. This is separate from the filtergroupslist because it has a different syntax, catering for IP range and subnet matches instead of static usernames, and is only used by the one plugin.
 
 
 Q. I cannot use the exceptionuserlist and banneduserlist any more. What happened?
 
-A. These lists were abandoned when the "groupmode" parameter was added to the filter group configuration (dansguardianf*.conf). Banned and exception IP lists still exist, but they are intended for identifying particular machines, not people, and primarily for temporary use only - for example, quickly banning access from a spyware-infested machine, or providing unfiltered access for servers needing to download updates. If you want full identification by IP, use the "ip" auth plugin and multiple filter groups.
+A. These lists were abandoned when the "groupmode" parameter was added to the filter group configuration (e2guardianf*.conf). Banned and exception IP lists still exist, but they are intended for identifying particular machines, not people, and primarily for temporary use only - for example, quickly banning access from a spyware-infested machine, or providing unfiltered access for servers needing to download updates. If you want full identification by IP, use the "ip" auth plugin and multiple filter groups.
 
 
 Q. Looking in Squid's access.log, all entries have the client IP given as the box running DansGuardian (typically 127.0.0.1). How can I log the original client IPs?
 
-A. Turn on the "forwardedfor" option in dansguardian.conf, and get Squid to obey the "X-Forwarded-For" header in incoming requests. For Squid 2.5, you will have to apply the following patch: http://devel.squid-cache.org/follow_xff/follow_xff-2.5.patch
+A. Turn on the "forwardedfor" option in e2guardian.conf, and get Squid to obey the "X-Forwarded-For" header in incoming requests. For Squid 2.5, you will have to apply the following patch: http://devel.squid-cache.org/follow_xff/follow_xff-2.5.patch
 	This has become a core feature in Squid 2.6-STABLE1 and above. Be wary of also enabling the "usexforwardedfor" option in DG, as it is trivial for clients to spoof headers in the original request.
 
 
 Q. I used to use a "sandwich" configuration (Squid -> DG -> Squid) to implement NTLM support; how do I migrate to DG's native NTLM support?
 
-A. Disable the first Squid entirely, and configure the second Squid for NTLM instead of "basic" authentication. Make sure you configure your DG build with "--enable-ntlm" (enabled by default), and uncomment the "authplugin" line in dansguardian.conf corresponding to the "proxy-ntlm" plugin.
+A. Disable the first Squid entirely, and configure the second Squid for NTLM instead of "basic" authentication. Make sure you configure your DG build with "--enable-ntlm" (enabled by default), and uncomment the "authplugin" line in e2guardian.conf corresponding to the "proxy-ntlm" plugin.
 
 
 Q. How can I disable persistent connections? Will this break NTLM?
@@ -95,7 +95,7 @@ A. DansGuardian does not verify passwords, and will never initiate an authentica
 
 Q. Is it possible to disable content filtering, and perform AV scanning only?
 
-A. Yes! There are two options; the easy way, and the hard way. The hard way consists of turning off the individual filtering options one by one: setting "weightedphrasemode = 0", blanking the bannedsitelist, etc. The easy way is simply to set "groupmode = 2" in your filter group configuration files (dansguardianf*.conf), and enable "contentscanexceptions" in dansguardian.conf.
+A. Yes! There are two options; the easy way, and the hard way. The hard way consists of turning off the individual filtering options one by one: setting "weightedphrasemode = 0", blanking the bannedsitelist, etc. The easy way is simply to set "groupmode = 2" in your filter group configuration files (e2guardianf*.conf), and enable "contentscanexceptions" in e2guardian.conf.
 
 
 Q. Can I use DG as a pure URL filter?

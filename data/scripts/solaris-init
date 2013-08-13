@@ -13,16 +13,16 @@
 
 case "$1" in
 start)
-        if [ -f /usr/sbin/dansguardian ] &&
-           [ -f /etc/dansguardian/dansguardian.conf ]; then
-                /usr/sbin/dansguardian
+        if [ -f /usr/local/sbin/dansguardian ] &&
+           [ -f /usr/local/etc/e2guardian/dansguardian.conf ]; then
+                /usr/local/sbin/dansguardian
                 echo "DansGuardian started."
         fi
         ;;
 stop)
-        if [ -f /var/run/dansguardian.pid ]; then
-                /usr/sbin/dansguardian -q
-                /bin/rm -f /var/run/dansguardian.pid
+        if [ -f /usr/local/var/run/dansguardian.pid ]; then
+                /usr/local/sbin/dansguardian -q
+                /bin/rm -f /usr/local/var/run/dansguardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 echo "DansGuardian stopped."
         fi
@@ -33,8 +33,8 @@ restart)
         $0 start
         ;;
 status)
-        if [ -f /usr/sbin/dansguardian ]; then
-                /usr/sbin/dansguardian -s
+        if [ -f /usr/local/sbin/dansguardian ]; then
+                /usr/local/sbin/dansguardian -s
         fi
         ;;
 *)

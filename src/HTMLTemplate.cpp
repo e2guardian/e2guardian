@@ -1,7 +1,7 @@
 //Implements the HTMLTemplate class, for displaying template-based banned pages to clients
 
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -57,7 +57,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
 	unsigned int offset;
 	String result;
 	String line;
-	std::ifstream templatefile(filename, std::ios::in);  // dansguardian.conf
+	std::ifstream templatefile(filename, std::ios::in);  // e2guardian.conf
 	if (!templatefile.good()) {
 		if (!is_daemonised) {
 			std::cerr << "error reading: " << filename << std::endl;

@@ -137,7 +137,7 @@ index a154bac..8dd0478 100644
  // Socket class - implements BaseSocket for INET domain sockets
 +// IPv6 support added by Sascha Hlusiak, 2011.
  
- //Please refer to http://dansguardian.org/?page=copyright2
+ //Please refer to http://e2guardian.org/?page=copyright2
  //for the license for this code.
 @@ -34,6 +35,8 @@
  #include <unistd.h>
@@ -476,7 +476,7 @@ index a0dd92b..cb8c3ad 100644
 @@ -1,67 +1,67 @@
 -// SocketArray - wrapper for clean handling of an array of Sockets
 -
--//Please refer to http://dansguardian.org/?page=copyright2
+-//Please refer to http://e2guardian.org/?page=copyright2
 -//for the license for this code.
 -
 -//  This program is free software; you can redistribute it and/or modify
@@ -526,7 +526,7 @@ index a0dd92b..cb8c3ad 100644
 
 +
 
-+//Please refer to http://dansguardian.org/?page=copyright2
++//Please refer to http://e2guardian.org/?page=copyright2
 
 +//for the license for this code.
 

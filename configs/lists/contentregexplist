@@ -6,12 +6,12 @@
 # of extended regular expressions.
 
 # These are just some examples.  If you write any, for example, to
-# remove popups etc, please send them to author at dansguardian.org.
+# remove popups etc, please send them to author at e2guardian.org.
 #
 #"<script language.*open\(.*script>"->"<!-- its gone -->"
 #"fuck|cunt|shit"->"**censored**"
 #
-# For ALL of these to work it requires dansguardian to be built with PCRE support,
+# For ALL of these to work it requires e2guardian to be built with PCRE support,
 # but some may work with the default C library regular expression support.
 #
 # Some of these are based on regular expressions from Privoxy.

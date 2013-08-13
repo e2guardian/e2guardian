@@ -1,5 +1,5 @@
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -108,12 +108,12 @@ bool OptionContainer::read(const char *filename, int type)
 	try {
 		std::string linebuffer;
 		String temp;  // for tempory conversion and storage
-		std::ifstream conffiles(filename, std::ios::in);  // dansguardian.conf
+		std::ifstream conffiles(filename, std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
 			if (!is_daemonised) {
 				std::cerr << "error reading: " << filename << std::endl;
 			}
-			syslog(LOG_ERR, "%s", "error reading dansguardian.conf");
+			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
 			return false;
 		}
 		while (!conffiles.eof()) {
@@ -145,7 +145,7 @@ bool OptionContainer::read(const char *filename, int type)
 
 			if ((pid_filename = findoptionS("pidfilename")) == "") {
 				pid_filename = __PIDDIR;
-				pid_filename += "/dansguardian.pid";
+				pid_filename += "/e2guardian.pid";
 			}
 
 			if (findoptionS("logsyslog") == "on") {
@@ -236,7 +236,7 @@ bool OptionContainer::read(const char *filename, int type)
 		mailer = findoptionS("mailer");
 #endif
 	   
-		// the dansguardian.conf and pics files get amalgamated into one
+		// the e2guardian.conf and pics files get amalgamated into one
 		// deque.  They are only seperate files for clarity.
 
 		max_logitem_length = findoptionI("maxlogitemlength");

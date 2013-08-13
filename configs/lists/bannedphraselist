@@ -22,7 +22,7 @@
 #
 #
 # Extra phrase-list files to include
-# .Include</etc/dansguardian/testphrase>
+# .Include</etc/e2guardian/testphrase>
 #
 #
 # All phrases need to be within < and > to work, othewise they will be
@@ -38,20 +38,20 @@
 
 # The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
 
-.Include</etc/dansguardian/lists/phraselists/safelabel/banned>
-#.Include</etc/dansguardian/lists/phraselists/rta/banned_portuguese>
+.Include</usr/local/etc/e2guardian/lists/phraselists/safelabel/banned>
+#.Include</usr/local/etc/e2guardian/lists/phraselists/rta/banned_portuguese>
 
 # The following banned phraselists are included in the default DG distribution.
 
-.Include</etc/dansguardian/lists/phraselists/pornography/banned>
-##.Include</etc/dansguardian/lists/phraselists/pornography/banned_portuguese>
+.Include</usr/local/etc/e2guardian/lists/phraselists/pornography/banned>
+##.Include</usr/local/etc/e2guardian/lists/phraselists/pornography/banned_portuguese>
 
-#.Include</etc/dansguardian/lists/phraselists/illegaldrugs/banned>
+#.Include</usr/local/etc/e2guardian/lists/phraselists/illegaldrugs/banned>
 
-#.Include</etc/dansguardian/lists/phraselists/gambling/banned>
-##.Include</etc/dansguardian/lists/phraselists/gambling/banned_portuguese>
+#.Include</usr/local/etc/e2guardian/lists/phraselists/gambling/banned>
+##.Include</usr/local/etc/e2guardian/lists/phraselists/gambling/banned_portuguese>
 
-#.Include</etc/dansguardian/lists/phraselists/googlesearches/banned>
+#.Include</usr/local/etc/e2guardian/lists/phraselists/googlesearches/banned>
 
 
 

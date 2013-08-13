@@ -222,7 +222,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
-dist_man_MANS = dansguardian.8
+dist_man_MANS = e2guardian.8
 dist_doc_DATA = AuthPlugins ContentScanners DownloadManagers FAQ FAQ.html Plugins
 EXTRA_DIST = faqconv.pl
 all: all-am

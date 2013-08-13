@@ -22,7 +22,7 @@
 #
 #
 # Extra phrase-list files to include
-# .Include</etc/dansguardian/testphrase>
+# .Include</etc/e2guardian/testphrase>
 #
 #
 # All phrases need to be within < and > to work, othewise they will be

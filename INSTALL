@@ -75,7 +75,7 @@ You may change with the configure options:
   sysconfdir       (where the config and data files gets placed eg /etc)
   mandir           (where the man docs get placed)
   localstatedir    (where var/run and /var/logs are)
-  with-logdir      (where the logs get placed eg /var/log/dansguardian)
+  with-logdir      (where the logs get placed eg /var/log/e2guardian)
   with-piddir      (where the pid file gets placed eg /var/run)
   with-sysconfsubdir
                    (subdirectory of sysconfdir in which to place config files)
@@ -126,10 +126,10 @@ MACOSX:
 
 *** Note DG2.7.x does not currently work as it uses poll() which OSX ***
 *   lacks.  There is a workaround though.  See:                        *
-*** http://groups.yahoo.com/group/dansguardian/message/5027          ***
+*** http://groups.yahoo.com/group/e2guardian/message/5027          ***
 
 *** Note OS X version 10.3 now has poll() support see:      ***
-*   http://groups.yahoo.com/group/dansguardian/message/6072   *
+*   http://groups.yahoo.com/group/e2guardian/message/6072   *
 
 
 A standard configure script that should work, provided you have installed
@@ -140,9 +140,9 @@ MACOSX and the associated programs in their default locations.
         --bindir=/usr/local/sbin/
 
 You might consider changing the location of the log files to
-'--with-logdir=/usr/local/dansguardian/logs/' and use the provided
+'--with-logdir=/usr/local/e2guardian/logs/' and use the provided
 log rotation script.  Alternatively stick with the default
-(/var/log/dansguardian/) and read newsyslog(8).
+(/var/log/e2guardian/) and read newsyslog(8).
 
 
 NETBSD:
@@ -156,9 +156,9 @@ NetBSD and the associated programs in their default locations.
         --bindir=/usr/pkg/sbin/
 
 For NetBSD you might consider changing the location of the log files
-to '--with-logdir=/usr/local/dansguardian/logs/' and use the
+to '--with-logdir=/usr/local/e2guardian/logs/' and use the
 provided log rotation script.  Alternatively stick with the default
-(/var/log/dansguardian/) and read newsyslog(8).
+(/var/log/e2guardian/) and read newsyslog(8).
 Be sure that /usr/sbin/ is in your PATH before make install (for chown).
 
 
@@ -170,9 +170,9 @@ FreeBSD and the associated programs in their default locations.
     ./configure  --localstatedir=/var
 
 For FreeBSD and OpenBSD you might consider changing the location of the
-log files to '--with-logdir=/usr/local/dansguardian/logs/' and use the
+log files to '--with-logdir=/usr/local/e2guardian/logs/' and use the
 provided log rotation script.  Alternatively stick with the default
-(/var/log/dansguardian/) and read newsyslog(8).
+(/var/log/e2guardian/) and read newsyslog(8).
 
 
 OPENBSD:
@@ -205,9 +205,9 @@ Also, to ensure that the right libraries are used, simply do:
 Before you *compile* (not necessary during run-time).
 
 To configure and compile, do:
-    ./configure --prefix=/opt/dansguardian \
-      --bindir=/opt/dansguardian/sbin \
-      --with-logdir=/opt/dansguardian/log \
+    ./configure --prefix=/opt/e2guardian \
+      --bindir=/opt/e2guardian/sbin \
+      --with-logdir=/opt/e2guardian/log \
       --with-piddir=/var/run
 
 
@@ -217,7 +217,7 @@ To configure and compile, do:
 HOW TO CONFIGURE:
 -----------------
 
-Edit the dansguardian.conf, dansguardianf1.conf and other files.
+Edit the e2guardian.conf, e2guardianf1.conf and other files.
 The files are commented well.
 
 
@@ -226,14 +226,14 @@ The files are commented well.
 ADDITIONAL SCRIPTS:
 -------------------
 
-In /usr/local/share/dansguardian/scripts (or wherever you configured
+In /usr/local/share/e2guardian/scripts (or wherever you configured
 it to be) you will find at least the following files:
 bsd-init - a BSD style startup script to be put in your rc.d
 solaris-init - a Solaris style startup script to be put in your rc.d
 systemv-init - a Linux style startup script to be put in your rc.d
-dansguardian - a logrotate.d file
+e2guardian - a logrotate.d file
 logrotation - a sh script to rotate the logs
-../dansguardian.pl - a cgi script for an access denied page
+../e2guardian.pl - a cgi script for an access denied page
 
 The installation of startup scripts used to be done by the
 DansGuardian build scripts but since moving to autotools it is
@@ -244,13 +244,13 @@ This is also true of log rotation scripts.  You can choose to use
 the example logrotate.d file or you could crontab the logrotation
 script thus:
 crontab -e
-59 23 * * sat /usr/local/share/dansguardian/scripts/logrotation
+59 23 * * sat /usr/local/share/e2guardian/scripts/logrotation
 (now save)
 I.e. 23:59 every Saturday.  Or change to as pleases you.
 
 If you wish to use the cgi denied script rather than the template
 html denied page you will find it in:
-/usr/local/share/dansguardian/ (or wherever you configured it to
+/usr/local/share/e2guardian/ (or wherever you configured it to
 be).  This is not usually recommended but if you do want to do
 this copy it to your web servers' cgi-bin directory.
 This used to be mandatory and automatic in earlier versions of
@@ -262,14 +262,14 @@ HOW TO RUN:
 -----------
 
 You can start it by just running the binary.  You can stop it by
-appending a ' -q' to the end, thus: 'dansguardian -q'.  Or you can use
+appending a ' -q' to the end, thus: 'e2guardian -q'.  Or you can use
 the SysV(-like) script provided.
 
 
 
 HOW TO GET HELP:
 ----------------
-http://dansguardian.org/
+http://e2guardian.org/
 
 Here is the first place to start for getting support.  There is a mailing
 list available for those that do not find the answers to their questions

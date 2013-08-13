@@ -33,10 +33,10 @@ am__make_dryrun = \
     esac; \
     test $$am__dry = yes; \
   }
-pkgdatadir = $(datadir)/dansguardian
-pkgincludedir = $(includedir)/dansguardian
-pkglibdir = $(libdir)/dansguardian
-pkglibexecdir = $(libexecdir)/dansguardian
+pkgdatadir = $(datadir)/e2guardian
+pkgincludedir = $(includedir)/e2guardian
+pkglibdir = $(libdir)/e2guardian
+pkglibexecdir = $(libexecdir)/e2guardian
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -49,8 +49,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i686-pc-linux-gnu
-sbin_PROGRAMS = dansguardian$(EXEEXT)
+build_triplet = x86_64-unknown-linux-gnu
+sbin_PROGRAMS = e2guardian$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -63,7 +63,7 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(sbindir)"
 PROGRAMS = $(sbin_PROGRAMS)
-am__dansguardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
+am__e2guardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 	FDTunnel.hpp ConnectionHandler.cpp ConnectionHandler.hpp \
 	DataBuffer.cpp DataBuffer.hpp HTTPHeader.cpp HTTPHeader.hpp \
 	NaughtyFilter.cpp NaughtyFilter.hpp BackedStore.cpp \
@@ -79,7 +79,7 @@ am__dansguardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 	FOptionContainer.hpp ListManager.cpp ListManager.hpp md5.cpp \
 	md5.hpp DownloadManager.cpp DownloadManager.hpp ConfigVar.cpp \
 	ConfigVar.hpp ContentScanner.cpp ContentScanner.hpp \
-	SocketArray.cpp SocketArray.hpp dansguardian.cpp Plugin.hpp \
+	SocketArray.cpp SocketArray.hpp e2guardian.cpp Plugin.hpp \
 	CertificateAuthority.cpp CertificateAuthority.hpp \
 	contentscanners/icapscan.cpp contentscanners/kavdscan.cpp \
 	contentscanners/clamdscan.cpp contentscanners/avastdscan.cpp \
@@ -88,56 +88,56 @@ am__dansguardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 	downloadmanagers/trickle.cpp authplugins/proxy.cpp \
 	authplugins/ident.cpp authplugins/ip.cpp authplugins/ntlm.cpp \
 	authplugins/digest.cpp
-#am__objects_1 = dansguardian-icapscan.$(OBJEXT)
-#am__objects_2 = dansguardian-kavdscan.$(OBJEXT)
-#am__objects_3 = dansguardian-clamdscan.$(OBJEXT)
-#am__objects_4 = dansguardian-avastdscan.$(OBJEXT)
-am__objects_5 = dansguardian-commandlinescan.$(OBJEXT)
-am__objects_6 = dansguardian-default.$(OBJEXT)
-am__objects_7 = dansguardian-fancy.$(OBJEXT)
-am__objects_8 = dansguardian-trickle.$(OBJEXT)
-am__objects_9 = dansguardian-proxy.$(OBJEXT)
-am__objects_10 = dansguardian-ident.$(OBJEXT)
-am__objects_11 = dansguardian-ip.$(OBJEXT)
-#am__objects_12 = dansguardian-ntlm.$(OBJEXT)
-am__objects_13 = dansguardian-digest.$(OBJEXT)
-am_dansguardian_OBJECTS = dansguardian-String.$(OBJEXT) \
-	dansguardian-FDTunnel.$(OBJEXT) \
-	dansguardian-ConnectionHandler.$(OBJEXT) \
-	dansguardian-DataBuffer.$(OBJEXT) \
-	dansguardian-HTTPHeader.$(OBJEXT) \
-	dansguardian-NaughtyFilter.$(OBJEXT) \
-	dansguardian-BackedStore.$(OBJEXT) \
-	dansguardian-RegExp.$(OBJEXT) dansguardian-FDFuncs.$(OBJEXT) \
-	dansguardian-BaseSocket.$(OBJEXT) \
-	dansguardian-Socket.$(OBJEXT) \
-	dansguardian-FatController.$(OBJEXT) \
-	dansguardian-UDSocket.$(OBJEXT) dansguardian-SysV.$(OBJEXT) \
-	dansguardian-ListContainer.$(OBJEXT) \
-	dansguardian-Auth.$(OBJEXT) \
-	dansguardian-HTMLTemplate.$(OBJEXT) \
-	dansguardian-LanguageContainer.$(OBJEXT) \
-	dansguardian-DynamicURLList.$(OBJEXT) \
-	dansguardian-DynamicIPList.$(OBJEXT) \
-	dansguardian-ImageContainer.$(OBJEXT) \
-	dansguardian-IPList.$(OBJEXT) \
-	dansguardian-OptionContainer.$(OBJEXT) \
-	dansguardian-FOptionContainer.$(OBJEXT) \
-	dansguardian-ListManager.$(OBJEXT) dansguardian-md5.$(OBJEXT) \
-	dansguardian-DownloadManager.$(OBJEXT) \
-	dansguardian-ConfigVar.$(OBJEXT) \
-	dansguardian-ContentScanner.$(OBJEXT) \
-	dansguardian-SocketArray.$(OBJEXT) \
-	dansguardian-dansguardian.$(OBJEXT) \
-	dansguardian-CertificateAuthority.$(OBJEXT) $(am__objects_1) \
+#am__objects_1 = e2guardian-icapscan.$(OBJEXT)
+#am__objects_2 = e2guardian-kavdscan.$(OBJEXT)
+#am__objects_3 = e2guardian-clamdscan.$(OBJEXT)
+#am__objects_4 = e2guardian-avastdscan.$(OBJEXT)
+#am__objects_5 = e2guardian-commandlinescan.$(OBJEXT)
+am__objects_6 = e2guardian-default.$(OBJEXT)
+am__objects_7 = e2guardian-fancy.$(OBJEXT)
+#am__objects_8 = e2guardian-trickle.$(OBJEXT)
+am__objects_9 = e2guardian-proxy.$(OBJEXT)
+am__objects_10 = e2guardian-ident.$(OBJEXT)
+am__objects_11 = e2guardian-ip.$(OBJEXT)
+#am__objects_12 = e2guardian-ntlm.$(OBJEXT)
+am__objects_13 = e2guardian-digest.$(OBJEXT)
+am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
+	e2guardian-FDTunnel.$(OBJEXT) \
+	e2guardian-ConnectionHandler.$(OBJEXT) \
+	e2guardian-DataBuffer.$(OBJEXT) \
+	e2guardian-HTTPHeader.$(OBJEXT) \
+	e2guardian-NaughtyFilter.$(OBJEXT) \
+	e2guardian-BackedStore.$(OBJEXT) \
+	e2guardian-RegExp.$(OBJEXT) e2guardian-FDFuncs.$(OBJEXT) \
+	e2guardian-BaseSocket.$(OBJEXT) \
+	e2guardian-Socket.$(OBJEXT) \
+	e2guardian-FatController.$(OBJEXT) \
+	e2guardian-UDSocket.$(OBJEXT) e2guardian-SysV.$(OBJEXT) \
+	e2guardian-ListContainer.$(OBJEXT) \
+	e2guardian-Auth.$(OBJEXT) \
+	e2guardian-HTMLTemplate.$(OBJEXT) \
+	e2guardian-LanguageContainer.$(OBJEXT) \
+	e2guardian-DynamicURLList.$(OBJEXT) \
+	e2guardian-DynamicIPList.$(OBJEXT) \
+	e2guardian-ImageContainer.$(OBJEXT) \
+	e2guardian-IPList.$(OBJEXT) \
+	e2guardian-OptionContainer.$(OBJEXT) \
+	e2guardian-FOptionContainer.$(OBJEXT) \
+	e2guardian-ListManager.$(OBJEXT) e2guardian-md5.$(OBJEXT) \
+	e2guardian-DownloadManager.$(OBJEXT) \
+	e2guardian-ConfigVar.$(OBJEXT) \
+	e2guardian-ContentScanner.$(OBJEXT) \
+	e2guardian-SocketArray.$(OBJEXT) \
+	e2guardian-e2guardian.$(OBJEXT) \
+	e2guardian-CertificateAuthority.$(OBJEXT) $(am__objects_1) \
 	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
 	$(am__objects_5) $(am__objects_6) $(am__objects_7) \
 	$(am__objects_8) $(am__objects_9) $(am__objects_10) \
 	$(am__objects_11) $(am__objects_12) $(am__objects_13)
-dansguardian_OBJECTS = $(am_dansguardian_OBJECTS)
+e2guardian_OBJECTS = $(am_e2guardian_OBJECTS)
 am__DEPENDENCIES_1 =
-dansguardian_DEPENDENCIES = $(am__DEPENDENCIES_1)
-dansguardian_LINK = $(CXXLD) $(dansguardian_CXXFLAGS) $(CXXFLAGS) \
+e2guardian_DEPENDENCIES = $(am__DEPENDENCIES_1)
+e2guardian_LINK = $(CXXLD) $(e2guardian_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -152,8 +152,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(dansguardian_SOURCES)
-DIST_SOURCES = $(am__dansguardian_SOURCES_DIST)
+SOURCES = $(e2guardian_SOURCES)
+DIST_SOURCES = $(am__e2guardian_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -162,36 +162,36 @@ am__can_run_installinfo = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/fred/dansguardian-2.12.0.7/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/philip/e2guardian/v0.9/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
-AUTOCONF = ${SHELL} /home/fred/dansguardian-2.12.0.7/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/fred/dansguardian-2.12.0.7/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/fred/dansguardian-2.12.0.7/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/philip/e2guardian/v0.9/missing --run automake-1.11
 AVASTDSUPPORT = !! Not compiled !! 
-AWK = mawk
-CC = cc
+AWK = gawk
+CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CLAMDSUPPORT = !! Not compiled !! 
-COMMANDLINESUPPORT = 
-CPP = cc -E
+COMMANDLINESUPPORT = !! Not compiled !! 
+CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
+CXXFLAGS = -g -O2 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-DGBINDIR = /usr/sbin
-DGCONFDIR = /etc/dansguardian
-DGCONFFILE = /etc/dansguardian/dansguardian.conf
-DGDATADIR = /usr/share/dansguardian
-DGLIBDIR = /usr/lib/dansguardian
-DGLOGLOCATION = /var/log/dansguardian
-DGPIDDIR = /var/run
-DGPROXYGROUP = dansguardian
-DGPROXYUSER = dansguardian
+DGBINDIR = /usr/local/sbin
+DGCONFDIR = /usr/local/etc/e2guardian
+DGCONFFILE = /usr/local/etc/e2guardian/e2guardian.conf
+DGDATADIR = /usr/local/share/e2guardian
+DGLIBDIR = /usr/local/lib/e2guardian
+DGLOGLOCATION = /usr/local/var/log/e2guardian
+DGPIDDIR = /usr/local/var/run
+DGPROXYGROUP = nobody
+DGPROXYUSER = nobody
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
@@ -212,16 +212,16 @@ LIBOBJS =
 LIBS = -lz  
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/fred/dansguardian-2.12.0.7/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/philip/e2guardian/v0.9/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 NTLMSUPPORT = !! Not compiled !! 
 OBJEXT = o
 ORIGIPSUPPORT = #!! Not compiled !! 
-PACKAGE = dansguardian
+PACKAGE = e2guardian
 PACKAGE_BUGREPORT = 
-PACKAGE_NAME = dansguardian
-PACKAGE_STRING = dansguardian 2.12.0.7
-PACKAGE_TARNAME = dansguardian
+PACKAGE_NAME = e2guardian
+PACKAGE_STRING = e2guardian 2.12.0.7
+PACKAGE_TARNAME = e2guardian
 PACKAGE_URL = 
 PACKAGE_VERSION = 2.12.0.7 http://numsys.eu - Unofficial Release ! -
 PATH_SEPARATOR = :
@@ -231,27 +231,27 @@ PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
 SET_MAKE = 
-SHELL = /bin/bash
+SHELL = /bin/sh
 STRIP = 
-TRICKLESUPPORT = 
+TRICKLESUPPORT = #!! Not compiled !! 
 VERSION = 2.12.0.4
-abs_builddir = /home/fred/dansguardian-2.12.0.7/src
-abs_srcdir = /home/fred/dansguardian-2.12.0.7/src
-abs_top_builddir = /home/fred/dansguardian-2.12.0.7
-abs_top_srcdir = /home/fred/dansguardian-2.12.0.7
-ac_ct_CC = cc
-ac_ct_CXX = 
+abs_builddir = /home/philip/e2guardian/v0.9/src
+abs_srcdir = /home/philip/e2guardian/v0.9/src
+abs_top_builddir = /home/philip/e2guardian/v0.9
+abs_top_srcdir = /home/philip/e2guardian/v0.9
+ac_ct_CC = gcc
+ac_ct_CXX = g++
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = i686-pc-linux-gnu
+build = x86_64-unknown-linux-gnu
 build_alias = 
-build_cpu = i686
+build_cpu = x86_64
 build_os = linux-gnu
-build_vendor = pc
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
@@ -261,23 +261,23 @@ exec_prefix = ${prefix}
 host_alias = 
 htmldir = ${docdir}
 includedir = ${prefix}/include
-infodir = ${prefix}/share/info
-install_sh = ${SHELL} /home/fred/dansguardian-2.12.0.7/install-sh
-libdir = ${exec_prefix}/lib/dansguardian
+infodir = ${datarootdir}/info
+install_sh = ${SHELL} /home/philip/e2guardian/v0.9/install-sh
+libdir = ${exec_prefix}/lib/e2guardian
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
-localstatedir = /var
-mandir = ${prefix}/share/man
+localstatedir = ${prefix}/var
+mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-sysconfdir = /etc
+sysconfdir = ${prefix}/etc
 target_alias = 
 top_build_prefix = ../
 top_builddir = ..
@@ -300,22 +300,22 @@ ICAPSCAN_SOURCE =
 #ICAPSCAN_SOURCE = contentscanners/icapscan.cpp
 KAVDSCAN_SOURCE = 
 #KAVDSCAN_SOURCE = contentscanners/kavdscan.cpp
-#COMMANDLINE_SOURCE = 
-COMMANDLINE_SOURCE = contentscanners/commandlinescan.cpp
+COMMANDLINE_SOURCE = 
+#COMMANDLINE_SOURCE = contentscanners/commandlinescan.cpp
 DEFAULTDM_SOURCE = downloadmanagers/default.cpp
 #FANCYDM_SOURCE = 
 FANCYDM_SOURCE = downloadmanagers/fancy.cpp
-#TRICKLEDM_SOURCE = 
-TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
+TRICKLEDM_SOURCE = 
+#TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
 PROXYAUTH_SOURCE = authplugins/proxy.cpp
 IDENTAUTH_SOURCE = authplugins/ident.cpp
 IPAUTH_SOURCE = authplugins/ip.cpp
 DIGESTAUTH_SOURCE = authplugins/digest.cpp
 NTLMAUTH_SOURCE = 
 #NTLMAUTH_SOURCE = authplugins/ntlm.cpp
-dansguardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
-dansguardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
-dansguardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
+e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
+e2guardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
+e2guardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
 			-D__LOGLOCATION='"$(DGLOGLOCATION)/"' \
 			-D__PIDDIR='"$(DGPIDDIR)"' \
 			-D__PROXYUSER='"$(DGPROXYUSER)"' \
@@ -323,7 +323,7 @@ dansguardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
 			-D__CONFDIR='"$(DGCONFDIR)"' \
 			$(AM_CPPFLAGS)
 
-dansguardian_SOURCES = String.cpp String.hpp \
+e2guardian_SOURCES = String.cpp String.hpp \
                        FDTunnel.cpp FDTunnel.hpp \
                        ConnectionHandler.cpp ConnectionHandler.hpp \
                        DataBuffer.cpp DataBuffer.hpp \
@@ -353,7 +353,7 @@ dansguardian_SOURCES = String.cpp String.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
 		       SocketArray.cpp SocketArray.hpp \
-                       dansguardian.cpp \
+                       e2guardian.cpp \
 		       Plugin.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
 		       $(ICAPSCAN_SOURCE) \
@@ -439,9 +439,9 @@ uninstall-sbinPROGRAMS:
 
 clean-sbinPROGRAMS:
 	-test -z "$(sbin_PROGRAMS)" || rm -f $(sbin_PROGRAMS)
-dansguardian$(EXEEXT): $(dansguardian_OBJECTS) $(dansguardian_DEPENDENCIES) $(EXTRA_dansguardian_DEPENDENCIES) 
-	@rm -f dansguardian$(EXEEXT)
-	$(dansguardian_LINK) $(dansguardian_OBJECTS) $(dansguardian_LDADD) $(LIBS)
+e2guardian$(EXEEXT): $(e2guardian_OBJECTS) $(e2guardian_DEPENDENCIES) $(EXTRA_e2guardian_DEPENDENCIES) 
+	@rm -f e2guardian$(EXEEXT)
+	$(e2guardian_LINK) $(e2guardian_OBJECTS) $(e2guardian_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -449,51 +449,51 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/dansguardian-Auth.Po
-include ./$(DEPDIR)/dansguardian-BackedStore.Po
-include ./$(DEPDIR)/dansguardian-BaseSocket.Po
-include ./$(DEPDIR)/dansguardian-CertificateAuthority.Po
-include ./$(DEPDIR)/dansguardian-ConfigVar.Po
-include ./$(DEPDIR)/dansguardian-ConnectionHandler.Po
-include ./$(DEPDIR)/dansguardian-ContentScanner.Po
-include ./$(DEPDIR)/dansguardian-DataBuffer.Po
-include ./$(DEPDIR)/dansguardian-DownloadManager.Po
-include ./$(DEPDIR)/dansguardian-DynamicIPList.Po
-include ./$(DEPDIR)/dansguardian-DynamicURLList.Po
-include ./$(DEPDIR)/dansguardian-FDFuncs.Po
-include ./$(DEPDIR)/dansguardian-FDTunnel.Po
-include ./$(DEPDIR)/dansguardian-FOptionContainer.Po
-include ./$(DEPDIR)/dansguardian-FatController.Po
-include ./$(DEPDIR)/dansguardian-HTMLTemplate.Po
-include ./$(DEPDIR)/dansguardian-HTTPHeader.Po
-include ./$(DEPDIR)/dansguardian-IPList.Po
-include ./$(DEPDIR)/dansguardian-ImageContainer.Po
-include ./$(DEPDIR)/dansguardian-LanguageContainer.Po
-include ./$(DEPDIR)/dansguardian-ListContainer.Po
-include ./$(DEPDIR)/dansguardian-ListManager.Po
-include ./$(DEPDIR)/dansguardian-NaughtyFilter.Po
-include ./$(DEPDIR)/dansguardian-OptionContainer.Po
-include ./$(DEPDIR)/dansguardian-RegExp.Po
-include ./$(DEPDIR)/dansguardian-Socket.Po
-include ./$(DEPDIR)/dansguardian-SocketArray.Po
-include ./$(DEPDIR)/dansguardian-String.Po
-include ./$(DEPDIR)/dansguardian-SysV.Po
-include ./$(DEPDIR)/dansguardian-UDSocket.Po
-include ./$(DEPDIR)/dansguardian-avastdscan.Po
-include ./$(DEPDIR)/dansguardian-clamdscan.Po
-include ./$(DEPDIR)/dansguardian-commandlinescan.Po
-include ./$(DEPDIR)/dansguardian-dansguardian.Po
-include ./$(DEPDIR)/dansguardian-default.Po
-include ./$(DEPDIR)/dansguardian-digest.Po
-include ./$(DEPDIR)/dansguardian-fancy.Po
-include ./$(DEPDIR)/dansguardian-icapscan.Po
-include ./$(DEPDIR)/dansguardian-ident.Po
-include ./$(DEPDIR)/dansguardian-ip.Po
-include ./$(DEPDIR)/dansguardian-kavdscan.Po
-include ./$(DEPDIR)/dansguardian-md5.Po
-include ./$(DEPDIR)/dansguardian-ntlm.Po
-include ./$(DEPDIR)/dansguardian-proxy.Po
-include ./$(DEPDIR)/dansguardian-trickle.Po
+include ./$(DEPDIR)/e2guardian-Auth.Po
+include ./$(DEPDIR)/e2guardian-BackedStore.Po
+include ./$(DEPDIR)/e2guardian-BaseSocket.Po
+include ./$(DEPDIR)/e2guardian-CertificateAuthority.Po
+include ./$(DEPDIR)/e2guardian-ConfigVar.Po
+include ./$(DEPDIR)/e2guardian-ConnectionHandler.Po
+include ./$(DEPDIR)/e2guardian-ContentScanner.Po
+include ./$(DEPDIR)/e2guardian-DataBuffer.Po
+include ./$(DEPDIR)/e2guardian-DownloadManager.Po
+include ./$(DEPDIR)/e2guardian-DynamicIPList.Po
+include ./$(DEPDIR)/e2guardian-DynamicURLList.Po
+include ./$(DEPDIR)/e2guardian-FDFuncs.Po
+include ./$(DEPDIR)/e2guardian-FDTunnel.Po
+include ./$(DEPDIR)/e2guardian-FOptionContainer.Po
+include ./$(DEPDIR)/e2guardian-FatController.Po
+include ./$(DEPDIR)/e2guardian-HTMLTemplate.Po
+include ./$(DEPDIR)/e2guardian-HTTPHeader.Po
+include ./$(DEPDIR)/e2guardian-IPList.Po
+include ./$(DEPDIR)/e2guardian-ImageContainer.Po
+include ./$(DEPDIR)/e2guardian-LanguageContainer.Po
+include ./$(DEPDIR)/e2guardian-ListContainer.Po
+include ./$(DEPDIR)/e2guardian-ListManager.Po
+include ./$(DEPDIR)/e2guardian-NaughtyFilter.Po
+include ./$(DEPDIR)/e2guardian-OptionContainer.Po
+include ./$(DEPDIR)/e2guardian-RegExp.Po
+include ./$(DEPDIR)/e2guardian-Socket.Po
+include ./$(DEPDIR)/e2guardian-SocketArray.Po
+include ./$(DEPDIR)/e2guardian-String.Po
+include ./$(DEPDIR)/e2guardian-SysV.Po
+include ./$(DEPDIR)/e2guardian-UDSocket.Po
+include ./$(DEPDIR)/e2guardian-avastdscan.Po
+include ./$(DEPDIR)/e2guardian-clamdscan.Po
+include ./$(DEPDIR)/e2guardian-commandlinescan.Po
+include ./$(DEPDIR)/e2guardian-e2guardian.Po
+include ./$(DEPDIR)/e2guardian-default.Po
+include ./$(DEPDIR)/e2guardian-digest.Po
+include ./$(DEPDIR)/e2guardian-fancy.Po
+include ./$(DEPDIR)/e2guardian-icapscan.Po
+include ./$(DEPDIR)/e2guardian-ident.Po
+include ./$(DEPDIR)/e2guardian-ip.Po
+include ./$(DEPDIR)/e2guardian-kavdscan.Po
+include ./$(DEPDIR)/e2guardian-md5.Po
+include ./$(DEPDIR)/e2guardian-ntlm.Po
+include ./$(DEPDIR)/e2guardian-proxy.Po
+include ./$(DEPDIR)/e2guardian-trickle.Po
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -509,635 +509,635 @@ include ./$(DEPDIR)/dansguardian-trickle.Po
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-dansguardian-String.o: String.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-String.o -MD -MP -MF $(DEPDIR)/dansguardian-String.Tpo -c -o dansguardian-String.o `test -f 'String.cpp' || echo '$(srcdir)/'`String.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-String.Tpo $(DEPDIR)/dansguardian-String.Po
-#	source='String.cpp' object='dansguardian-String.o' libtool=no \
+e2guardian-String.o: String.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-String.o -MD -MP -MF $(DEPDIR)/e2guardian-String.Tpo -c -o e2guardian-String.o `test -f 'String.cpp' || echo '$(srcdir)/'`String.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-String.Tpo $(DEPDIR)/e2guardian-String.Po
+#	source='String.cpp' object='e2guardian-String.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-String.o `test -f 'String.cpp' || echo '$(srcdir)/'`String.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-String.o `test -f 'String.cpp' || echo '$(srcdir)/'`String.cpp
 
-dansguardian-String.obj: String.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-String.obj -MD -MP -MF $(DEPDIR)/dansguardian-String.Tpo -c -o dansguardian-String.obj `if test -f 'String.cpp'; then $(CYGPATH_W) 'String.cpp'; else $(CYGPATH_W) '$(srcdir)/String.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-String.Tpo $(DEPDIR)/dansguardian-String.Po
-#	source='String.cpp' object='dansguardian-String.obj' libtool=no \
+e2guardian-String.obj: String.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-String.obj -MD -MP -MF $(DEPDIR)/e2guardian-String.Tpo -c -o e2guardian-String.obj `if test -f 'String.cpp'; then $(CYGPATH_W) 'String.cpp'; else $(CYGPATH_W) '$(srcdir)/String.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-String.Tpo $(DEPDIR)/e2guardian-String.Po
+#	source='String.cpp' object='e2guardian-String.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-String.obj `if test -f 'String.cpp'; then $(CYGPATH_W) 'String.cpp'; else $(CYGPATH_W) '$(srcdir)/String.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-String.obj `if test -f 'String.cpp'; then $(CYGPATH_W) 'String.cpp'; else $(CYGPATH_W) '$(srcdir)/String.cpp'; fi`
 
-dansguardian-FDTunnel.o: FDTunnel.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FDTunnel.o -MD -MP -MF $(DEPDIR)/dansguardian-FDTunnel.Tpo -c -o dansguardian-FDTunnel.o `test -f 'FDTunnel.cpp' || echo '$(srcdir)/'`FDTunnel.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-FDTunnel.Tpo $(DEPDIR)/dansguardian-FDTunnel.Po
-#	source='FDTunnel.cpp' object='dansguardian-FDTunnel.o' libtool=no \
+e2guardian-FDTunnel.o: FDTunnel.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FDTunnel.o -MD -MP -MF $(DEPDIR)/e2guardian-FDTunnel.Tpo -c -o e2guardian-FDTunnel.o `test -f 'FDTunnel.cpp' || echo '$(srcdir)/'`FDTunnel.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-FDTunnel.Tpo $(DEPDIR)/e2guardian-FDTunnel.Po
+#	source='FDTunnel.cpp' object='e2guardian-FDTunnel.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FDTunnel.o `test -f 'FDTunnel.cpp' || echo '$(srcdir)/'`FDTunnel.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FDTunnel.o `test -f 'FDTunnel.cpp' || echo '$(srcdir)/'`FDTunnel.cpp
 
-dansguardian-FDTunnel.obj: FDTunnel.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FDTunnel.obj -MD -MP -MF $(DEPDIR)/dansguardian-FDTunnel.Tpo -c -o dansguardian-FDTunnel.obj `if test -f 'FDTunnel.cpp'; then $(CYGPATH_W) 'FDTunnel.cpp'; else $(CYGPATH_W) '$(srcdir)/FDTunnel.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-FDTunnel.Tpo $(DEPDIR)/dansguardian-FDTunnel.Po
-#	source='FDTunnel.cpp' object='dansguardian-FDTunnel.obj' libtool=no \
+e2guardian-FDTunnel.obj: FDTunnel.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FDTunnel.obj -MD -MP -MF $(DEPDIR)/e2guardian-FDTunnel.Tpo -c -o e2guardian-FDTunnel.obj `if test -f 'FDTunnel.cpp'; then $(CYGPATH_W) 'FDTunnel.cpp'; else $(CYGPATH_W) '$(srcdir)/FDTunnel.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-FDTunnel.Tpo $(DEPDIR)/e2guardian-FDTunnel.Po
+#	source='FDTunnel.cpp' object='e2guardian-FDTunnel.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FDTunnel.obj `if test -f 'FDTunnel.cpp'; then $(CYGPATH_W) 'FDTunnel.cpp'; else $(CYGPATH_W) '$(srcdir)/FDTunnel.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FDTunnel.obj `if test -f 'FDTunnel.cpp'; then $(CYGPATH_W) 'FDTunnel.cpp'; else $(CYGPATH_W) '$(srcdir)/FDTunnel.cpp'; fi`
 
-dansguardian-ConnectionHandler.o: ConnectionHandler.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ConnectionHandler.o -MD -MP -MF $(DEPDIR)/dansguardian-ConnectionHandler.Tpo -c -o dansguardian-ConnectionHandler.o `test -f 'ConnectionHandler.cpp' || echo '$(srcdir)/'`ConnectionHandler.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ConnectionHandler.Tpo $(DEPDIR)/dansguardian-ConnectionHandler.Po
-#	source='ConnectionHandler.cpp' object='dansguardian-ConnectionHandler.o' libtool=no \
+e2guardian-ConnectionHandler.o: ConnectionHandler.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ConnectionHandler.o -MD -MP -MF $(DEPDIR)/e2guardian-ConnectionHandler.Tpo -c -o e2guardian-ConnectionHandler.o `test -f 'ConnectionHandler.cpp' || echo '$(srcdir)/'`ConnectionHandler.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ConnectionHandler.Tpo $(DEPDIR)/e2guardian-ConnectionHandler.Po
+#	source='ConnectionHandler.cpp' object='e2guardian-ConnectionHandler.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ConnectionHandler.o `test -f 'ConnectionHandler.cpp' || echo '$(srcdir)/'`ConnectionHandler.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ConnectionHandler.o `test -f 'ConnectionHandler.cpp' || echo '$(srcdir)/'`ConnectionHandler.cpp
 
-dansguardian-ConnectionHandler.obj: ConnectionHandler.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ConnectionHandler.obj -MD -MP -MF $(DEPDIR)/dansguardian-ConnectionHandler.Tpo -c -o dansguardian-ConnectionHandler.obj `if test -f 'ConnectionHandler.cpp'; then $(CYGPATH_W) 'ConnectionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/ConnectionHandler.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ConnectionHandler.Tpo $(DEPDIR)/dansguardian-ConnectionHandler.Po
-#	source='ConnectionHandler.cpp' object='dansguardian-ConnectionHandler.obj' libtool=no \
+e2guardian-ConnectionHandler.obj: ConnectionHandler.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ConnectionHandler.obj -MD -MP -MF $(DEPDIR)/e2guardian-ConnectionHandler.Tpo -c -o e2guardian-ConnectionHandler.obj `if test -f 'ConnectionHandler.cpp'; then $(CYGPATH_W) 'ConnectionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/ConnectionHandler.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ConnectionHandler.Tpo $(DEPDIR)/e2guardian-ConnectionHandler.Po
+#	source='ConnectionHandler.cpp' object='e2guardian-ConnectionHandler.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ConnectionHandler.obj `if test -f 'ConnectionHandler.cpp'; then $(CYGPATH_W) 'ConnectionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/ConnectionHandler.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ConnectionHandler.obj `if test -f 'ConnectionHandler.cpp'; then $(CYGPATH_W) 'ConnectionHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/ConnectionHandler.cpp'; fi`
 
-dansguardian-DataBuffer.o: DataBuffer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DataBuffer.o -MD -MP -MF $(DEPDIR)/dansguardian-DataBuffer.Tpo -c -o dansguardian-DataBuffer.o `test -f 'DataBuffer.cpp' || echo '$(srcdir)/'`DataBuffer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-DataBuffer.Tpo $(DEPDIR)/dansguardian-DataBuffer.Po
-#	source='DataBuffer.cpp' object='dansguardian-DataBuffer.o' libtool=no \
+e2guardian-DataBuffer.o: DataBuffer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DataBuffer.o -MD -MP -MF $(DEPDIR)/e2guardian-DataBuffer.Tpo -c -o e2guardian-DataBuffer.o `test -f 'DataBuffer.cpp' || echo '$(srcdir)/'`DataBuffer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-DataBuffer.Tpo $(DEPDIR)/e2guardian-DataBuffer.Po
+#	source='DataBuffer.cpp' object='e2guardian-DataBuffer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DataBuffer.o `test -f 'DataBuffer.cpp' || echo '$(srcdir)/'`DataBuffer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DataBuffer.o `test -f 'DataBuffer.cpp' || echo '$(srcdir)/'`DataBuffer.cpp
 
-dansguardian-DataBuffer.obj: DataBuffer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DataBuffer.obj -MD -MP -MF $(DEPDIR)/dansguardian-DataBuffer.Tpo -c -o dansguardian-DataBuffer.obj `if test -f 'DataBuffer.cpp'; then $(CYGPATH_W) 'DataBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/DataBuffer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-DataBuffer.Tpo $(DEPDIR)/dansguardian-DataBuffer.Po
-#	source='DataBuffer.cpp' object='dansguardian-DataBuffer.obj' libtool=no \
+e2guardian-DataBuffer.obj: DataBuffer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DataBuffer.obj -MD -MP -MF $(DEPDIR)/e2guardian-DataBuffer.Tpo -c -o e2guardian-DataBuffer.obj `if test -f 'DataBuffer.cpp'; then $(CYGPATH_W) 'DataBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/DataBuffer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-DataBuffer.Tpo $(DEPDIR)/e2guardian-DataBuffer.Po
+#	source='DataBuffer.cpp' object='e2guardian-DataBuffer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DataBuffer.obj `if test -f 'DataBuffer.cpp'; then $(CYGPATH_W) 'DataBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/DataBuffer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DataBuffer.obj `if test -f 'DataBuffer.cpp'; then $(CYGPATH_W) 'DataBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/DataBuffer.cpp'; fi`
 
-dansguardian-HTTPHeader.o: HTTPHeader.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-HTTPHeader.o -MD -MP -MF $(DEPDIR)/dansguardian-HTTPHeader.Tpo -c -o dansguardian-HTTPHeader.o `test -f 'HTTPHeader.cpp' || echo '$(srcdir)/'`HTTPHeader.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-HTTPHeader.Tpo $(DEPDIR)/dansguardian-HTTPHeader.Po
-#	source='HTTPHeader.cpp' object='dansguardian-HTTPHeader.o' libtool=no \
+e2guardian-HTTPHeader.o: HTTPHeader.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-HTTPHeader.o -MD -MP -MF $(DEPDIR)/e2guardian-HTTPHeader.Tpo -c -o e2guardian-HTTPHeader.o `test -f 'HTTPHeader.cpp' || echo '$(srcdir)/'`HTTPHeader.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-HTTPHeader.Tpo $(DEPDIR)/e2guardian-HTTPHeader.Po
+#	source='HTTPHeader.cpp' object='e2guardian-HTTPHeader.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-HTTPHeader.o `test -f 'HTTPHeader.cpp' || echo '$(srcdir)/'`HTTPHeader.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-HTTPHeader.o `test -f 'HTTPHeader.cpp' || echo '$(srcdir)/'`HTTPHeader.cpp
 
-dansguardian-HTTPHeader.obj: HTTPHeader.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-HTTPHeader.obj -MD -MP -MF $(DEPDIR)/dansguardian-HTTPHeader.Tpo -c -o dansguardian-HTTPHeader.obj `if test -f 'HTTPHeader.cpp'; then $(CYGPATH_W) 'HTTPHeader.cpp'; else $(CYGPATH_W) '$(srcdir)/HTTPHeader.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-HTTPHeader.Tpo $(DEPDIR)/dansguardian-HTTPHeader.Po
-#	source='HTTPHeader.cpp' object='dansguardian-HTTPHeader.obj' libtool=no \
+e2guardian-HTTPHeader.obj: HTTPHeader.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-HTTPHeader.obj -MD -MP -MF $(DEPDIR)/e2guardian-HTTPHeader.Tpo -c -o e2guardian-HTTPHeader.obj `if test -f 'HTTPHeader.cpp'; then $(CYGPATH_W) 'HTTPHeader.cpp'; else $(CYGPATH_W) '$(srcdir)/HTTPHeader.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-HTTPHeader.Tpo $(DEPDIR)/e2guardian-HTTPHeader.Po
+#	source='HTTPHeader.cpp' object='e2guardian-HTTPHeader.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-HTTPHeader.obj `if test -f 'HTTPHeader.cpp'; then $(CYGPATH_W) 'HTTPHeader.cpp'; else $(CYGPATH_W) '$(srcdir)/HTTPHeader.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-HTTPHeader.obj `if test -f 'HTTPHeader.cpp'; then $(CYGPATH_W) 'HTTPHeader.cpp'; else $(CYGPATH_W) '$(srcdir)/HTTPHeader.cpp'; fi`
 
-dansguardian-NaughtyFilter.o: NaughtyFilter.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-NaughtyFilter.o -MD -MP -MF $(DEPDIR)/dansguardian-NaughtyFilter.Tpo -c -o dansguardian-NaughtyFilter.o `test -f 'NaughtyFilter.cpp' || echo '$(srcdir)/'`NaughtyFilter.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-NaughtyFilter.Tpo $(DEPDIR)/dansguardian-NaughtyFilter.Po
-#	source='NaughtyFilter.cpp' object='dansguardian-NaughtyFilter.o' libtool=no \
+e2guardian-NaughtyFilter.o: NaughtyFilter.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-NaughtyFilter.o -MD -MP -MF $(DEPDIR)/e2guardian-NaughtyFilter.Tpo -c -o e2guardian-NaughtyFilter.o `test -f 'NaughtyFilter.cpp' || echo '$(srcdir)/'`NaughtyFilter.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-NaughtyFilter.Tpo $(DEPDIR)/e2guardian-NaughtyFilter.Po
+#	source='NaughtyFilter.cpp' object='e2guardian-NaughtyFilter.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-NaughtyFilter.o `test -f 'NaughtyFilter.cpp' || echo '$(srcdir)/'`NaughtyFilter.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-NaughtyFilter.o `test -f 'NaughtyFilter.cpp' || echo '$(srcdir)/'`NaughtyFilter.cpp
 
-dansguardian-NaughtyFilter.obj: NaughtyFilter.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-NaughtyFilter.obj -MD -MP -MF $(DEPDIR)/dansguardian-NaughtyFilter.Tpo -c -o dansguardian-NaughtyFilter.obj `if test -f 'NaughtyFilter.cpp'; then $(CYGPATH_W) 'NaughtyFilter.cpp'; else $(CYGPATH_W) '$(srcdir)/NaughtyFilter.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-NaughtyFilter.Tpo $(DEPDIR)/dansguardian-NaughtyFilter.Po
-#	source='NaughtyFilter.cpp' object='dansguardian-NaughtyFilter.obj' libtool=no \
+e2guardian-NaughtyFilter.obj: NaughtyFilter.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-NaughtyFilter.obj -MD -MP -MF $(DEPDIR)/e2guardian-NaughtyFilter.Tpo -c -o e2guardian-NaughtyFilter.obj `if test -f 'NaughtyFilter.cpp'; then $(CYGPATH_W) 'NaughtyFilter.cpp'; else $(CYGPATH_W) '$(srcdir)/NaughtyFilter.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-NaughtyFilter.Tpo $(DEPDIR)/e2guardian-NaughtyFilter.Po
+#	source='NaughtyFilter.cpp' object='e2guardian-NaughtyFilter.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-NaughtyFilter.obj `if test -f 'NaughtyFilter.cpp'; then $(CYGPATH_W) 'NaughtyFilter.cpp'; else $(CYGPATH_W) '$(srcdir)/NaughtyFilter.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-NaughtyFilter.obj `if test -f 'NaughtyFilter.cpp'; then $(CYGPATH_W) 'NaughtyFilter.cpp'; else $(CYGPATH_W) '$(srcdir)/NaughtyFilter.cpp'; fi`
 
-dansguardian-BackedStore.o: BackedStore.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-BackedStore.o -MD -MP -MF $(DEPDIR)/dansguardian-BackedStore.Tpo -c -o dansguardian-BackedStore.o `test -f 'BackedStore.cpp' || echo '$(srcdir)/'`BackedStore.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-BackedStore.Tpo $(DEPDIR)/dansguardian-BackedStore.Po
-#	source='BackedStore.cpp' object='dansguardian-BackedStore.o' libtool=no \
+e2guardian-BackedStore.o: BackedStore.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-BackedStore.o -MD -MP -MF $(DEPDIR)/e2guardian-BackedStore.Tpo -c -o e2guardian-BackedStore.o `test -f 'BackedStore.cpp' || echo '$(srcdir)/'`BackedStore.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-BackedStore.Tpo $(DEPDIR)/e2guardian-BackedStore.Po
+#	source='BackedStore.cpp' object='e2guardian-BackedStore.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-BackedStore.o `test -f 'BackedStore.cpp' || echo '$(srcdir)/'`BackedStore.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-BackedStore.o `test -f 'BackedStore.cpp' || echo '$(srcdir)/'`BackedStore.cpp
 
-dansguardian-BackedStore.obj: BackedStore.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-BackedStore.obj -MD -MP -MF $(DEPDIR)/dansguardian-BackedStore.Tpo -c -o dansguardian-BackedStore.obj `if test -f 'BackedStore.cpp'; then $(CYGPATH_W) 'BackedStore.cpp'; else $(CYGPATH_W) '$(srcdir)/BackedStore.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-BackedStore.Tpo $(DEPDIR)/dansguardian-BackedStore.Po
-#	source='BackedStore.cpp' object='dansguardian-BackedStore.obj' libtool=no \
+e2guardian-BackedStore.obj: BackedStore.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-BackedStore.obj -MD -MP -MF $(DEPDIR)/e2guardian-BackedStore.Tpo -c -o e2guardian-BackedStore.obj `if test -f 'BackedStore.cpp'; then $(CYGPATH_W) 'BackedStore.cpp'; else $(CYGPATH_W) '$(srcdir)/BackedStore.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-BackedStore.Tpo $(DEPDIR)/e2guardian-BackedStore.Po
+#	source='BackedStore.cpp' object='e2guardian-BackedStore.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-BackedStore.obj `if test -f 'BackedStore.cpp'; then $(CYGPATH_W) 'BackedStore.cpp'; else $(CYGPATH_W) '$(srcdir)/BackedStore.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-BackedStore.obj `if test -f 'BackedStore.cpp'; then $(CYGPATH_W) 'BackedStore.cpp'; else $(CYGPATH_W) '$(srcdir)/BackedStore.cpp'; fi`
 
-dansguardian-RegExp.o: RegExp.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-RegExp.o -MD -MP -MF $(DEPDIR)/dansguardian-RegExp.Tpo -c -o dansguardian-RegExp.o `test -f 'RegExp.cpp' || echo '$(srcdir)/'`RegExp.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-RegExp.Tpo $(DEPDIR)/dansguardian-RegExp.Po
-#	source='RegExp.cpp' object='dansguardian-RegExp.o' libtool=no \
+e2guardian-RegExp.o: RegExp.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-RegExp.o -MD -MP -MF $(DEPDIR)/e2guardian-RegExp.Tpo -c -o e2guardian-RegExp.o `test -f 'RegExp.cpp' || echo '$(srcdir)/'`RegExp.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-RegExp.Tpo $(DEPDIR)/e2guardian-RegExp.Po
+#	source='RegExp.cpp' object='e2guardian-RegExp.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-RegExp.o `test -f 'RegExp.cpp' || echo '$(srcdir)/'`RegExp.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-RegExp.o `test -f 'RegExp.cpp' || echo '$(srcdir)/'`RegExp.cpp
 
-dansguardian-RegExp.obj: RegExp.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-RegExp.obj -MD -MP -MF $(DEPDIR)/dansguardian-RegExp.Tpo -c -o dansguardian-RegExp.obj `if test -f 'RegExp.cpp'; then $(CYGPATH_W) 'RegExp.cpp'; else $(CYGPATH_W) '$(srcdir)/RegExp.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-RegExp.Tpo $(DEPDIR)/dansguardian-RegExp.Po
-#	source='RegExp.cpp' object='dansguardian-RegExp.obj' libtool=no \
+e2guardian-RegExp.obj: RegExp.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-RegExp.obj -MD -MP -MF $(DEPDIR)/e2guardian-RegExp.Tpo -c -o e2guardian-RegExp.obj `if test -f 'RegExp.cpp'; then $(CYGPATH_W) 'RegExp.cpp'; else $(CYGPATH_W) '$(srcdir)/RegExp.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-RegExp.Tpo $(DEPDIR)/e2guardian-RegExp.Po
+#	source='RegExp.cpp' object='e2guardian-RegExp.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-RegExp.obj `if test -f 'RegExp.cpp'; then $(CYGPATH_W) 'RegExp.cpp'; else $(CYGPATH_W) '$(srcdir)/RegExp.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-RegExp.obj `if test -f 'RegExp.cpp'; then $(CYGPATH_W) 'RegExp.cpp'; else $(CYGPATH_W) '$(srcdir)/RegExp.cpp'; fi`
 
-dansguardian-FDFuncs.o: FDFuncs.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FDFuncs.o -MD -MP -MF $(DEPDIR)/dansguardian-FDFuncs.Tpo -c -o dansguardian-FDFuncs.o `test -f 'FDFuncs.cpp' || echo '$(srcdir)/'`FDFuncs.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-FDFuncs.Tpo $(DEPDIR)/dansguardian-FDFuncs.Po
-#	source='FDFuncs.cpp' object='dansguardian-FDFuncs.o' libtool=no \
+e2guardian-FDFuncs.o: FDFuncs.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FDFuncs.o -MD -MP -MF $(DEPDIR)/e2guardian-FDFuncs.Tpo -c -o e2guardian-FDFuncs.o `test -f 'FDFuncs.cpp' || echo '$(srcdir)/'`FDFuncs.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-FDFuncs.Tpo $(DEPDIR)/e2guardian-FDFuncs.Po
+#	source='FDFuncs.cpp' object='e2guardian-FDFuncs.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FDFuncs.o `test -f 'FDFuncs.cpp' || echo '$(srcdir)/'`FDFuncs.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FDFuncs.o `test -f 'FDFuncs.cpp' || echo '$(srcdir)/'`FDFuncs.cpp
 
-dansguardian-FDFuncs.obj: FDFuncs.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FDFuncs.obj -MD -MP -MF $(DEPDIR)/dansguardian-FDFuncs.Tpo -c -o dansguardian-FDFuncs.obj `if test -f 'FDFuncs.cpp'; then $(CYGPATH_W) 'FDFuncs.cpp'; else $(CYGPATH_W) '$(srcdir)/FDFuncs.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-FDFuncs.Tpo $(DEPDIR)/dansguardian-FDFuncs.Po
-#	source='FDFuncs.cpp' object='dansguardian-FDFuncs.obj' libtool=no \
+e2guardian-FDFuncs.obj: FDFuncs.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FDFuncs.obj -MD -MP -MF $(DEPDIR)/e2guardian-FDFuncs.Tpo -c -o e2guardian-FDFuncs.obj `if test -f 'FDFuncs.cpp'; then $(CYGPATH_W) 'FDFuncs.cpp'; else $(CYGPATH_W) '$(srcdir)/FDFuncs.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-FDFuncs.Tpo $(DEPDIR)/e2guardian-FDFuncs.Po
+#	source='FDFuncs.cpp' object='e2guardian-FDFuncs.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FDFuncs.obj `if test -f 'FDFuncs.cpp'; then $(CYGPATH_W) 'FDFuncs.cpp'; else $(CYGPATH_W) '$(srcdir)/FDFuncs.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FDFuncs.obj `if test -f 'FDFuncs.cpp'; then $(CYGPATH_W) 'FDFuncs.cpp'; else $(CYGPATH_W) '$(srcdir)/FDFuncs.cpp'; fi`
 
-dansguardian-BaseSocket.o: BaseSocket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-BaseSocket.o -MD -MP -MF $(DEPDIR)/dansguardian-BaseSocket.Tpo -c -o dansguardian-BaseSocket.o `test -f 'BaseSocket.cpp' || echo '$(srcdir)/'`BaseSocket.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-BaseSocket.Tpo $(DEPDIR)/dansguardian-BaseSocket.Po
-#	source='BaseSocket.cpp' object='dansguardian-BaseSocket.o' libtool=no \
+e2guardian-BaseSocket.o: BaseSocket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-BaseSocket.o -MD -MP -MF $(DEPDIR)/e2guardian-BaseSocket.Tpo -c -o e2guardian-BaseSocket.o `test -f 'BaseSocket.cpp' || echo '$(srcdir)/'`BaseSocket.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-BaseSocket.Tpo $(DEPDIR)/e2guardian-BaseSocket.Po
+#	source='BaseSocket.cpp' object='e2guardian-BaseSocket.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-BaseSocket.o `test -f 'BaseSocket.cpp' || echo '$(srcdir)/'`BaseSocket.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-BaseSocket.o `test -f 'BaseSocket.cpp' || echo '$(srcdir)/'`BaseSocket.cpp
 
-dansguardian-BaseSocket.obj: BaseSocket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-BaseSocket.obj -MD -MP -MF $(DEPDIR)/dansguardian-BaseSocket.Tpo -c -o dansguardian-BaseSocket.obj `if test -f 'BaseSocket.cpp'; then $(CYGPATH_W) 'BaseSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/BaseSocket.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-BaseSocket.Tpo $(DEPDIR)/dansguardian-BaseSocket.Po
-#	source='BaseSocket.cpp' object='dansguardian-BaseSocket.obj' libtool=no \
+e2guardian-BaseSocket.obj: BaseSocket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-BaseSocket.obj -MD -MP -MF $(DEPDIR)/e2guardian-BaseSocket.Tpo -c -o e2guardian-BaseSocket.obj `if test -f 'BaseSocket.cpp'; then $(CYGPATH_W) 'BaseSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/BaseSocket.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-BaseSocket.Tpo $(DEPDIR)/e2guardian-BaseSocket.Po
+#	source='BaseSocket.cpp' object='e2guardian-BaseSocket.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-BaseSocket.obj `if test -f 'BaseSocket.cpp'; then $(CYGPATH_W) 'BaseSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/BaseSocket.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-BaseSocket.obj `if test -f 'BaseSocket.cpp'; then $(CYGPATH_W) 'BaseSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/BaseSocket.cpp'; fi`
 
-dansguardian-Socket.o: Socket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-Socket.o -MD -MP -MF $(DEPDIR)/dansguardian-Socket.Tpo -c -o dansguardian-Socket.o `test -f 'Socket.cpp' || echo '$(srcdir)/'`Socket.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-Socket.Tpo $(DEPDIR)/dansguardian-Socket.Po
-#	source='Socket.cpp' object='dansguardian-Socket.o' libtool=no \
+e2guardian-Socket.o: Socket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-Socket.o -MD -MP -MF $(DEPDIR)/e2guardian-Socket.Tpo -c -o e2guardian-Socket.o `test -f 'Socket.cpp' || echo '$(srcdir)/'`Socket.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-Socket.Tpo $(DEPDIR)/e2guardian-Socket.Po
+#	source='Socket.cpp' object='e2guardian-Socket.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-Socket.o `test -f 'Socket.cpp' || echo '$(srcdir)/'`Socket.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-Socket.o `test -f 'Socket.cpp' || echo '$(srcdir)/'`Socket.cpp
 
-dansguardian-Socket.obj: Socket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-Socket.obj -MD -MP -MF $(DEPDIR)/dansguardian-Socket.Tpo -c -o dansguardian-Socket.obj `if test -f 'Socket.cpp'; then $(CYGPATH_W) 'Socket.cpp'; else $(CYGPATH_W) '$(srcdir)/Socket.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-Socket.Tpo $(DEPDIR)/dansguardian-Socket.Po
-#	source='Socket.cpp' object='dansguardian-Socket.obj' libtool=no \
+e2guardian-Socket.obj: Socket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-Socket.obj -MD -MP -MF $(DEPDIR)/e2guardian-Socket.Tpo -c -o e2guardian-Socket.obj `if test -f 'Socket.cpp'; then $(CYGPATH_W) 'Socket.cpp'; else $(CYGPATH_W) '$(srcdir)/Socket.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-Socket.Tpo $(DEPDIR)/e2guardian-Socket.Po
+#	source='Socket.cpp' object='e2guardian-Socket.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-Socket.obj `if test -f 'Socket.cpp'; then $(CYGPATH_W) 'Socket.cpp'; else $(CYGPATH_W) '$(srcdir)/Socket.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-Socket.obj `if test -f 'Socket.cpp'; then $(CYGPATH_W) 'Socket.cpp'; else $(CYGPATH_W) '$(srcdir)/Socket.cpp'; fi`
 
-dansguardian-FatController.o: FatController.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FatController.o -MD -MP -MF $(DEPDIR)/dansguardian-FatController.Tpo -c -o dansguardian-FatController.o `test -f 'FatController.cpp' || echo '$(srcdir)/'`FatController.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-FatController.Tpo $(DEPDIR)/dansguardian-FatController.Po
-#	source='FatController.cpp' object='dansguardian-FatController.o' libtool=no \
+e2guardian-FatController.o: FatController.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FatController.o -MD -MP -MF $(DEPDIR)/e2guardian-FatController.Tpo -c -o e2guardian-FatController.o `test -f 'FatController.cpp' || echo '$(srcdir)/'`FatController.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-FatController.Tpo $(DEPDIR)/e2guardian-FatController.Po
+#	source='FatController.cpp' object='e2guardian-FatController.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FatController.o `test -f 'FatController.cpp' || echo '$(srcdir)/'`FatController.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FatController.o `test -f 'FatController.cpp' || echo '$(srcdir)/'`FatController.cpp
 
-dansguardian-FatController.obj: FatController.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FatController.obj -MD -MP -MF $(DEPDIR)/dansguardian-FatController.Tpo -c -o dansguardian-FatController.obj `if test -f 'FatController.cpp'; then $(CYGPATH_W) 'FatController.cpp'; else $(CYGPATH_W) '$(srcdir)/FatController.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-FatController.Tpo $(DEPDIR)/dansguardian-FatController.Po
-#	source='FatController.cpp' object='dansguardian-FatController.obj' libtool=no \
+e2guardian-FatController.obj: FatController.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FatController.obj -MD -MP -MF $(DEPDIR)/e2guardian-FatController.Tpo -c -o e2guardian-FatController.obj `if test -f 'FatController.cpp'; then $(CYGPATH_W) 'FatController.cpp'; else $(CYGPATH_W) '$(srcdir)/FatController.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-FatController.Tpo $(DEPDIR)/e2guardian-FatController.Po
+#	source='FatController.cpp' object='e2guardian-FatController.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FatController.obj `if test -f 'FatController.cpp'; then $(CYGPATH_W) 'FatController.cpp'; else $(CYGPATH_W) '$(srcdir)/FatController.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FatController.obj `if test -f 'FatController.cpp'; then $(CYGPATH_W) 'FatController.cpp'; else $(CYGPATH_W) '$(srcdir)/FatController.cpp'; fi`
 
-dansguardian-UDSocket.o: UDSocket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-UDSocket.o -MD -MP -MF $(DEPDIR)/dansguardian-UDSocket.Tpo -c -o dansguardian-UDSocket.o `test -f 'UDSocket.cpp' || echo '$(srcdir)/'`UDSocket.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-UDSocket.Tpo $(DEPDIR)/dansguardian-UDSocket.Po
-#	source='UDSocket.cpp' object='dansguardian-UDSocket.o' libtool=no \
+e2guardian-UDSocket.o: UDSocket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-UDSocket.o -MD -MP -MF $(DEPDIR)/e2guardian-UDSocket.Tpo -c -o e2guardian-UDSocket.o `test -f 'UDSocket.cpp' || echo '$(srcdir)/'`UDSocket.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-UDSocket.Tpo $(DEPDIR)/e2guardian-UDSocket.Po
+#	source='UDSocket.cpp' object='e2guardian-UDSocket.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-UDSocket.o `test -f 'UDSocket.cpp' || echo '$(srcdir)/'`UDSocket.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-UDSocket.o `test -f 'UDSocket.cpp' || echo '$(srcdir)/'`UDSocket.cpp
 
-dansguardian-UDSocket.obj: UDSocket.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-UDSocket.obj -MD -MP -MF $(DEPDIR)/dansguardian-UDSocket.Tpo -c -o dansguardian-UDSocket.obj `if test -f 'UDSocket.cpp'; then $(CYGPATH_W) 'UDSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/UDSocket.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-UDSocket.Tpo $(DEPDIR)/dansguardian-UDSocket.Po
-#	source='UDSocket.cpp' object='dansguardian-UDSocket.obj' libtool=no \
+e2guardian-UDSocket.obj: UDSocket.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-UDSocket.obj -MD -MP -MF $(DEPDIR)/e2guardian-UDSocket.Tpo -c -o e2guardian-UDSocket.obj `if test -f 'UDSocket.cpp'; then $(CYGPATH_W) 'UDSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/UDSocket.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-UDSocket.Tpo $(DEPDIR)/e2guardian-UDSocket.Po
+#	source='UDSocket.cpp' object='e2guardian-UDSocket.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-UDSocket.obj `if test -f 'UDSocket.cpp'; then $(CYGPATH_W) 'UDSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/UDSocket.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-UDSocket.obj `if test -f 'UDSocket.cpp'; then $(CYGPATH_W) 'UDSocket.cpp'; else $(CYGPATH_W) '$(srcdir)/UDSocket.cpp'; fi`
 
-dansguardian-SysV.o: SysV.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-SysV.o -MD -MP -MF $(DEPDIR)/dansguardian-SysV.Tpo -c -o dansguardian-SysV.o `test -f 'SysV.cpp' || echo '$(srcdir)/'`SysV.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-SysV.Tpo $(DEPDIR)/dansguardian-SysV.Po
-#	source='SysV.cpp' object='dansguardian-SysV.o' libtool=no \
+e2guardian-SysV.o: SysV.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-SysV.o -MD -MP -MF $(DEPDIR)/e2guardian-SysV.Tpo -c -o e2guardian-SysV.o `test -f 'SysV.cpp' || echo '$(srcdir)/'`SysV.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-SysV.Tpo $(DEPDIR)/e2guardian-SysV.Po
+#	source='SysV.cpp' object='e2guardian-SysV.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-SysV.o `test -f 'SysV.cpp' || echo '$(srcdir)/'`SysV.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-SysV.o `test -f 'SysV.cpp' || echo '$(srcdir)/'`SysV.cpp
 
-dansguardian-SysV.obj: SysV.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-SysV.obj -MD -MP -MF $(DEPDIR)/dansguardian-SysV.Tpo -c -o dansguardian-SysV.obj `if test -f 'SysV.cpp'; then $(CYGPATH_W) 'SysV.cpp'; else $(CYGPATH_W) '$(srcdir)/SysV.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-SysV.Tpo $(DEPDIR)/dansguardian-SysV.Po
-#	source='SysV.cpp' object='dansguardian-SysV.obj' libtool=no \
+e2guardian-SysV.obj: SysV.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-SysV.obj -MD -MP -MF $(DEPDIR)/e2guardian-SysV.Tpo -c -o e2guardian-SysV.obj `if test -f 'SysV.cpp'; then $(CYGPATH_W) 'SysV.cpp'; else $(CYGPATH_W) '$(srcdir)/SysV.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-SysV.Tpo $(DEPDIR)/e2guardian-SysV.Po
+#	source='SysV.cpp' object='e2guardian-SysV.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-SysV.obj `if test -f 'SysV.cpp'; then $(CYGPATH_W) 'SysV.cpp'; else $(CYGPATH_W) '$(srcdir)/SysV.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-SysV.obj `if test -f 'SysV.cpp'; then $(CYGPATH_W) 'SysV.cpp'; else $(CYGPATH_W) '$(srcdir)/SysV.cpp'; fi`
 
-dansguardian-ListContainer.o: ListContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ListContainer.o -MD -MP -MF $(DEPDIR)/dansguardian-ListContainer.Tpo -c -o dansguardian-ListContainer.o `test -f 'ListContainer.cpp' || echo '$(srcdir)/'`ListContainer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ListContainer.Tpo $(DEPDIR)/dansguardian-ListContainer.Po
-#	source='ListContainer.cpp' object='dansguardian-ListContainer.o' libtool=no \
+e2guardian-ListContainer.o: ListContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ListContainer.o -MD -MP -MF $(DEPDIR)/e2guardian-ListContainer.Tpo -c -o e2guardian-ListContainer.o `test -f 'ListContainer.cpp' || echo '$(srcdir)/'`ListContainer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ListContainer.Tpo $(DEPDIR)/e2guardian-ListContainer.Po
+#	source='ListContainer.cpp' object='e2guardian-ListContainer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ListContainer.o `test -f 'ListContainer.cpp' || echo '$(srcdir)/'`ListContainer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ListContainer.o `test -f 'ListContainer.cpp' || echo '$(srcdir)/'`ListContainer.cpp
 
-dansguardian-ListContainer.obj: ListContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ListContainer.obj -MD -MP -MF $(DEPDIR)/dansguardian-ListContainer.Tpo -c -o dansguardian-ListContainer.obj `if test -f 'ListContainer.cpp'; then $(CYGPATH_W) 'ListContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ListContainer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ListContainer.Tpo $(DEPDIR)/dansguardian-ListContainer.Po
-#	source='ListContainer.cpp' object='dansguardian-ListContainer.obj' libtool=no \
+e2guardian-ListContainer.obj: ListContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ListContainer.obj -MD -MP -MF $(DEPDIR)/e2guardian-ListContainer.Tpo -c -o e2guardian-ListContainer.obj `if test -f 'ListContainer.cpp'; then $(CYGPATH_W) 'ListContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ListContainer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ListContainer.Tpo $(DEPDIR)/e2guardian-ListContainer.Po
+#	source='ListContainer.cpp' object='e2guardian-ListContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ListContainer.obj `if test -f 'ListContainer.cpp'; then $(CYGPATH_W) 'ListContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ListContainer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ListContainer.obj `if test -f 'ListContainer.cpp'; then $(CYGPATH_W) 'ListContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ListContainer.cpp'; fi`
 
-dansguardian-Auth.o: Auth.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-Auth.o -MD -MP -MF $(DEPDIR)/dansguardian-Auth.Tpo -c -o dansguardian-Auth.o `test -f 'Auth.cpp' || echo '$(srcdir)/'`Auth.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-Auth.Tpo $(DEPDIR)/dansguardian-Auth.Po
-#	source='Auth.cpp' object='dansguardian-Auth.o' libtool=no \
+e2guardian-Auth.o: Auth.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-Auth.o -MD -MP -MF $(DEPDIR)/e2guardian-Auth.Tpo -c -o e2guardian-Auth.o `test -f 'Auth.cpp' || echo '$(srcdir)/'`Auth.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-Auth.Tpo $(DEPDIR)/e2guardian-Auth.Po
+#	source='Auth.cpp' object='e2guardian-Auth.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-Auth.o `test -f 'Auth.cpp' || echo '$(srcdir)/'`Auth.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-Auth.o `test -f 'Auth.cpp' || echo '$(srcdir)/'`Auth.cpp
 
-dansguardian-Auth.obj: Auth.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-Auth.obj -MD -MP -MF $(DEPDIR)/dansguardian-Auth.Tpo -c -o dansguardian-Auth.obj `if test -f 'Auth.cpp'; then $(CYGPATH_W) 'Auth.cpp'; else $(CYGPATH_W) '$(srcdir)/Auth.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-Auth.Tpo $(DEPDIR)/dansguardian-Auth.Po
-#	source='Auth.cpp' object='dansguardian-Auth.obj' libtool=no \
+e2guardian-Auth.obj: Auth.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-Auth.obj -MD -MP -MF $(DEPDIR)/e2guardian-Auth.Tpo -c -o e2guardian-Auth.obj `if test -f 'Auth.cpp'; then $(CYGPATH_W) 'Auth.cpp'; else $(CYGPATH_W) '$(srcdir)/Auth.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-Auth.Tpo $(DEPDIR)/e2guardian-Auth.Po
+#	source='Auth.cpp' object='e2guardian-Auth.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-Auth.obj `if test -f 'Auth.cpp'; then $(CYGPATH_W) 'Auth.cpp'; else $(CYGPATH_W) '$(srcdir)/Auth.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-Auth.obj `if test -f 'Auth.cpp'; then $(CYGPATH_W) 'Auth.cpp'; else $(CYGPATH_W) '$(srcdir)/Auth.cpp'; fi`
 
-dansguardian-HTMLTemplate.o: HTMLTemplate.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-HTMLTemplate.o -MD -MP -MF $(DEPDIR)/dansguardian-HTMLTemplate.Tpo -c -o dansguardian-HTMLTemplate.o `test -f 'HTMLTemplate.cpp' || echo '$(srcdir)/'`HTMLTemplate.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-HTMLTemplate.Tpo $(DEPDIR)/dansguardian-HTMLTemplate.Po
-#	source='HTMLTemplate.cpp' object='dansguardian-HTMLTemplate.o' libtool=no \
+e2guardian-HTMLTemplate.o: HTMLTemplate.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-HTMLTemplate.o -MD -MP -MF $(DEPDIR)/e2guardian-HTMLTemplate.Tpo -c -o e2guardian-HTMLTemplate.o `test -f 'HTMLTemplate.cpp' || echo '$(srcdir)/'`HTMLTemplate.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-HTMLTemplate.Tpo $(DEPDIR)/e2guardian-HTMLTemplate.Po
+#	source='HTMLTemplate.cpp' object='e2guardian-HTMLTemplate.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-HTMLTemplate.o `test -f 'HTMLTemplate.cpp' || echo '$(srcdir)/'`HTMLTemplate.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-HTMLTemplate.o `test -f 'HTMLTemplate.cpp' || echo '$(srcdir)/'`HTMLTemplate.cpp
 
-dansguardian-HTMLTemplate.obj: HTMLTemplate.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-HTMLTemplate.obj -MD -MP -MF $(DEPDIR)/dansguardian-HTMLTemplate.Tpo -c -o dansguardian-HTMLTemplate.obj `if test -f 'HTMLTemplate.cpp'; then $(CYGPATH_W) 'HTMLTemplate.cpp'; else $(CYGPATH_W) '$(srcdir)/HTMLTemplate.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-HTMLTemplate.Tpo $(DEPDIR)/dansguardian-HTMLTemplate.Po
-#	source='HTMLTemplate.cpp' object='dansguardian-HTMLTemplate.obj' libtool=no \
+e2guardian-HTMLTemplate.obj: HTMLTemplate.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-HTMLTemplate.obj -MD -MP -MF $(DEPDIR)/e2guardian-HTMLTemplate.Tpo -c -o e2guardian-HTMLTemplate.obj `if test -f 'HTMLTemplate.cpp'; then $(CYGPATH_W) 'HTMLTemplate.cpp'; else $(CYGPATH_W) '$(srcdir)/HTMLTemplate.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-HTMLTemplate.Tpo $(DEPDIR)/e2guardian-HTMLTemplate.Po
+#	source='HTMLTemplate.cpp' object='e2guardian-HTMLTemplate.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-HTMLTemplate.obj `if test -f 'HTMLTemplate.cpp'; then $(CYGPATH_W) 'HTMLTemplate.cpp'; else $(CYGPATH_W) '$(srcdir)/HTMLTemplate.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-HTMLTemplate.obj `if test -f 'HTMLTemplate.cpp'; then $(CYGPATH_W) 'HTMLTemplate.cpp'; else $(CYGPATH_W) '$(srcdir)/HTMLTemplate.cpp'; fi`
 
-dansguardian-LanguageContainer.o: LanguageContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-LanguageContainer.o -MD -MP -MF $(DEPDIR)/dansguardian-LanguageContainer.Tpo -c -o dansguardian-LanguageContainer.o `test -f 'LanguageContainer.cpp' || echo '$(srcdir)/'`LanguageContainer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-LanguageContainer.Tpo $(DEPDIR)/dansguardian-LanguageContainer.Po
-#	source='LanguageContainer.cpp' object='dansguardian-LanguageContainer.o' libtool=no \
+e2guardian-LanguageContainer.o: LanguageContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-LanguageContainer.o -MD -MP -MF $(DEPDIR)/e2guardian-LanguageContainer.Tpo -c -o e2guardian-LanguageContainer.o `test -f 'LanguageContainer.cpp' || echo '$(srcdir)/'`LanguageContainer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-LanguageContainer.Tpo $(DEPDIR)/e2guardian-LanguageContainer.Po
+#	source='LanguageContainer.cpp' object='e2guardian-LanguageContainer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-LanguageContainer.o `test -f 'LanguageContainer.cpp' || echo '$(srcdir)/'`LanguageContainer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-LanguageContainer.o `test -f 'LanguageContainer.cpp' || echo '$(srcdir)/'`LanguageContainer.cpp
 
-dansguardian-LanguageContainer.obj: LanguageContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-LanguageContainer.obj -MD -MP -MF $(DEPDIR)/dansguardian-LanguageContainer.Tpo -c -o dansguardian-LanguageContainer.obj `if test -f 'LanguageContainer.cpp'; then $(CYGPATH_W) 'LanguageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LanguageContainer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-LanguageContainer.Tpo $(DEPDIR)/dansguardian-LanguageContainer.Po
-#	source='LanguageContainer.cpp' object='dansguardian-LanguageContainer.obj' libtool=no \
+e2guardian-LanguageContainer.obj: LanguageContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-LanguageContainer.obj -MD -MP -MF $(DEPDIR)/e2guardian-LanguageContainer.Tpo -c -o e2guardian-LanguageContainer.obj `if test -f 'LanguageContainer.cpp'; then $(CYGPATH_W) 'LanguageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LanguageContainer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-LanguageContainer.Tpo $(DEPDIR)/e2guardian-LanguageContainer.Po
+#	source='LanguageContainer.cpp' object='e2guardian-LanguageContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-LanguageContainer.obj `if test -f 'LanguageContainer.cpp'; then $(CYGPATH_W) 'LanguageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LanguageContainer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-LanguageContainer.obj `if test -f 'LanguageContainer.cpp'; then $(CYGPATH_W) 'LanguageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LanguageContainer.cpp'; fi`
 
-dansguardian-DynamicURLList.o: DynamicURLList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DynamicURLList.o -MD -MP -MF $(DEPDIR)/dansguardian-DynamicURLList.Tpo -c -o dansguardian-DynamicURLList.o `test -f 'DynamicURLList.cpp' || echo '$(srcdir)/'`DynamicURLList.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-DynamicURLList.Tpo $(DEPDIR)/dansguardian-DynamicURLList.Po
-#	source='DynamicURLList.cpp' object='dansguardian-DynamicURLList.o' libtool=no \
+e2guardian-DynamicURLList.o: DynamicURLList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DynamicURLList.o -MD -MP -MF $(DEPDIR)/e2guardian-DynamicURLList.Tpo -c -o e2guardian-DynamicURLList.o `test -f 'DynamicURLList.cpp' || echo '$(srcdir)/'`DynamicURLList.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-DynamicURLList.Tpo $(DEPDIR)/e2guardian-DynamicURLList.Po
+#	source='DynamicURLList.cpp' object='e2guardian-DynamicURLList.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DynamicURLList.o `test -f 'DynamicURLList.cpp' || echo '$(srcdir)/'`DynamicURLList.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DynamicURLList.o `test -f 'DynamicURLList.cpp' || echo '$(srcdir)/'`DynamicURLList.cpp
 
-dansguardian-DynamicURLList.obj: DynamicURLList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DynamicURLList.obj -MD -MP -MF $(DEPDIR)/dansguardian-DynamicURLList.Tpo -c -o dansguardian-DynamicURLList.obj `if test -f 'DynamicURLList.cpp'; then $(CYGPATH_W) 'DynamicURLList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicURLList.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-DynamicURLList.Tpo $(DEPDIR)/dansguardian-DynamicURLList.Po
-#	source='DynamicURLList.cpp' object='dansguardian-DynamicURLList.obj' libtool=no \
+e2guardian-DynamicURLList.obj: DynamicURLList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DynamicURLList.obj -MD -MP -MF $(DEPDIR)/e2guardian-DynamicURLList.Tpo -c -o e2guardian-DynamicURLList.obj `if test -f 'DynamicURLList.cpp'; then $(CYGPATH_W) 'DynamicURLList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicURLList.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-DynamicURLList.Tpo $(DEPDIR)/e2guardian-DynamicURLList.Po
+#	source='DynamicURLList.cpp' object='e2guardian-DynamicURLList.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DynamicURLList.obj `if test -f 'DynamicURLList.cpp'; then $(CYGPATH_W) 'DynamicURLList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicURLList.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DynamicURLList.obj `if test -f 'DynamicURLList.cpp'; then $(CYGPATH_W) 'DynamicURLList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicURLList.cpp'; fi`
 
-dansguardian-DynamicIPList.o: DynamicIPList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DynamicIPList.o -MD -MP -MF $(DEPDIR)/dansguardian-DynamicIPList.Tpo -c -o dansguardian-DynamicIPList.o `test -f 'DynamicIPList.cpp' || echo '$(srcdir)/'`DynamicIPList.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-DynamicIPList.Tpo $(DEPDIR)/dansguardian-DynamicIPList.Po
-#	source='DynamicIPList.cpp' object='dansguardian-DynamicIPList.o' libtool=no \
+e2guardian-DynamicIPList.o: DynamicIPList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DynamicIPList.o -MD -MP -MF $(DEPDIR)/e2guardian-DynamicIPList.Tpo -c -o e2guardian-DynamicIPList.o `test -f 'DynamicIPList.cpp' || echo '$(srcdir)/'`DynamicIPList.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-DynamicIPList.Tpo $(DEPDIR)/e2guardian-DynamicIPList.Po
+#	source='DynamicIPList.cpp' object='e2guardian-DynamicIPList.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DynamicIPList.o `test -f 'DynamicIPList.cpp' || echo '$(srcdir)/'`DynamicIPList.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DynamicIPList.o `test -f 'DynamicIPList.cpp' || echo '$(srcdir)/'`DynamicIPList.cpp
 
-dansguardian-DynamicIPList.obj: DynamicIPList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DynamicIPList.obj -MD -MP -MF $(DEPDIR)/dansguardian-DynamicIPList.Tpo -c -o dansguardian-DynamicIPList.obj `if test -f 'DynamicIPList.cpp'; then $(CYGPATH_W) 'DynamicIPList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicIPList.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-DynamicIPList.Tpo $(DEPDIR)/dansguardian-DynamicIPList.Po
-#	source='DynamicIPList.cpp' object='dansguardian-DynamicIPList.obj' libtool=no \
+e2guardian-DynamicIPList.obj: DynamicIPList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DynamicIPList.obj -MD -MP -MF $(DEPDIR)/e2guardian-DynamicIPList.Tpo -c -o e2guardian-DynamicIPList.obj `if test -f 'DynamicIPList.cpp'; then $(CYGPATH_W) 'DynamicIPList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicIPList.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-DynamicIPList.Tpo $(DEPDIR)/e2guardian-DynamicIPList.Po
+#	source='DynamicIPList.cpp' object='e2guardian-DynamicIPList.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DynamicIPList.obj `if test -f 'DynamicIPList.cpp'; then $(CYGPATH_W) 'DynamicIPList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicIPList.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DynamicIPList.obj `if test -f 'DynamicIPList.cpp'; then $(CYGPATH_W) 'DynamicIPList.cpp'; else $(CYGPATH_W) '$(srcdir)/DynamicIPList.cpp'; fi`
 
-dansguardian-ImageContainer.o: ImageContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ImageContainer.o -MD -MP -MF $(DEPDIR)/dansguardian-ImageContainer.Tpo -c -o dansguardian-ImageContainer.o `test -f 'ImageContainer.cpp' || echo '$(srcdir)/'`ImageContainer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ImageContainer.Tpo $(DEPDIR)/dansguardian-ImageContainer.Po
-#	source='ImageContainer.cpp' object='dansguardian-ImageContainer.o' libtool=no \
+e2guardian-ImageContainer.o: ImageContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ImageContainer.o -MD -MP -MF $(DEPDIR)/e2guardian-ImageContainer.Tpo -c -o e2guardian-ImageContainer.o `test -f 'ImageContainer.cpp' || echo '$(srcdir)/'`ImageContainer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ImageContainer.Tpo $(DEPDIR)/e2guardian-ImageContainer.Po
+#	source='ImageContainer.cpp' object='e2guardian-ImageContainer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ImageContainer.o `test -f 'ImageContainer.cpp' || echo '$(srcdir)/'`ImageContainer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ImageContainer.o `test -f 'ImageContainer.cpp' || echo '$(srcdir)/'`ImageContainer.cpp
 
-dansguardian-ImageContainer.obj: ImageContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ImageContainer.obj -MD -MP -MF $(DEPDIR)/dansguardian-ImageContainer.Tpo -c -o dansguardian-ImageContainer.obj `if test -f 'ImageContainer.cpp'; then $(CYGPATH_W) 'ImageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ImageContainer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ImageContainer.Tpo $(DEPDIR)/dansguardian-ImageContainer.Po
-#	source='ImageContainer.cpp' object='dansguardian-ImageContainer.obj' libtool=no \
+e2guardian-ImageContainer.obj: ImageContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ImageContainer.obj -MD -MP -MF $(DEPDIR)/e2guardian-ImageContainer.Tpo -c -o e2guardian-ImageContainer.obj `if test -f 'ImageContainer.cpp'; then $(CYGPATH_W) 'ImageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ImageContainer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ImageContainer.Tpo $(DEPDIR)/e2guardian-ImageContainer.Po
+#	source='ImageContainer.cpp' object='e2guardian-ImageContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ImageContainer.obj `if test -f 'ImageContainer.cpp'; then $(CYGPATH_W) 'ImageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ImageContainer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ImageContainer.obj `if test -f 'ImageContainer.cpp'; then $(CYGPATH_W) 'ImageContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/ImageContainer.cpp'; fi`
 
-dansguardian-IPList.o: IPList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-IPList.o -MD -MP -MF $(DEPDIR)/dansguardian-IPList.Tpo -c -o dansguardian-IPList.o `test -f 'IPList.cpp' || echo '$(srcdir)/'`IPList.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-IPList.Tpo $(DEPDIR)/dansguardian-IPList.Po
-#	source='IPList.cpp' object='dansguardian-IPList.o' libtool=no \
+e2guardian-IPList.o: IPList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-IPList.o -MD -MP -MF $(DEPDIR)/e2guardian-IPList.Tpo -c -o e2guardian-IPList.o `test -f 'IPList.cpp' || echo '$(srcdir)/'`IPList.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-IPList.Tpo $(DEPDIR)/e2guardian-IPList.Po
+#	source='IPList.cpp' object='e2guardian-IPList.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-IPList.o `test -f 'IPList.cpp' || echo '$(srcdir)/'`IPList.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-IPList.o `test -f 'IPList.cpp' || echo '$(srcdir)/'`IPList.cpp
 
-dansguardian-IPList.obj: IPList.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-IPList.obj -MD -MP -MF $(DEPDIR)/dansguardian-IPList.Tpo -c -o dansguardian-IPList.obj `if test -f 'IPList.cpp'; then $(CYGPATH_W) 'IPList.cpp'; else $(CYGPATH_W) '$(srcdir)/IPList.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-IPList.Tpo $(DEPDIR)/dansguardian-IPList.Po
-#	source='IPList.cpp' object='dansguardian-IPList.obj' libtool=no \
+e2guardian-IPList.obj: IPList.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-IPList.obj -MD -MP -MF $(DEPDIR)/e2guardian-IPList.Tpo -c -o e2guardian-IPList.obj `if test -f 'IPList.cpp'; then $(CYGPATH_W) 'IPList.cpp'; else $(CYGPATH_W) '$(srcdir)/IPList.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-IPList.Tpo $(DEPDIR)/e2guardian-IPList.Po
+#	source='IPList.cpp' object='e2guardian-IPList.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-IPList.obj `if test -f 'IPList.cpp'; then $(CYGPATH_W) 'IPList.cpp'; else $(CYGPATH_W) '$(srcdir)/IPList.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-IPList.obj `if test -f 'IPList.cpp'; then $(CYGPATH_W) 'IPList.cpp'; else $(CYGPATH_W) '$(srcdir)/IPList.cpp'; fi`
 
-dansguardian-OptionContainer.o: OptionContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-OptionContainer.o -MD -MP -MF $(DEPDIR)/dansguardian-OptionContainer.Tpo -c -o dansguardian-OptionContainer.o `test -f 'OptionContainer.cpp' || echo '$(srcdir)/'`OptionContainer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-OptionContainer.Tpo $(DEPDIR)/dansguardian-OptionContainer.Po
-#	source='OptionContainer.cpp' object='dansguardian-OptionContainer.o' libtool=no \
+e2guardian-OptionContainer.o: OptionContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-OptionContainer.o -MD -MP -MF $(DEPDIR)/e2guardian-OptionContainer.Tpo -c -o e2guardian-OptionContainer.o `test -f 'OptionContainer.cpp' || echo '$(srcdir)/'`OptionContainer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-OptionContainer.Tpo $(DEPDIR)/e2guardian-OptionContainer.Po
+#	source='OptionContainer.cpp' object='e2guardian-OptionContainer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-OptionContainer.o `test -f 'OptionContainer.cpp' || echo '$(srcdir)/'`OptionContainer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-OptionContainer.o `test -f 'OptionContainer.cpp' || echo '$(srcdir)/'`OptionContainer.cpp
 
-dansguardian-OptionContainer.obj: OptionContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-OptionContainer.obj -MD -MP -MF $(DEPDIR)/dansguardian-OptionContainer.Tpo -c -o dansguardian-OptionContainer.obj `if test -f 'OptionContainer.cpp'; then $(CYGPATH_W) 'OptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionContainer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-OptionContainer.Tpo $(DEPDIR)/dansguardian-OptionContainer.Po
-#	source='OptionContainer.cpp' object='dansguardian-OptionContainer.obj' libtool=no \
+e2guardian-OptionContainer.obj: OptionContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-OptionContainer.obj -MD -MP -MF $(DEPDIR)/e2guardian-OptionContainer.Tpo -c -o e2guardian-OptionContainer.obj `if test -f 'OptionContainer.cpp'; then $(CYGPATH_W) 'OptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionContainer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-OptionContainer.Tpo $(DEPDIR)/e2guardian-OptionContainer.Po
+#	source='OptionContainer.cpp' object='e2guardian-OptionContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-OptionContainer.obj `if test -f 'OptionContainer.cpp'; then $(CYGPATH_W) 'OptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionContainer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-OptionContainer.obj `if test -f 'OptionContainer.cpp'; then $(CYGPATH_W) 'OptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionContainer.cpp'; fi`
 
-dansguardian-FOptionContainer.o: FOptionContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FOptionContainer.o -MD -MP -MF $(DEPDIR)/dansguardian-FOptionContainer.Tpo -c -o dansguardian-FOptionContainer.o `test -f 'FOptionContainer.cpp' || echo '$(srcdir)/'`FOptionContainer.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-FOptionContainer.Tpo $(DEPDIR)/dansguardian-FOptionContainer.Po
-#	source='FOptionContainer.cpp' object='dansguardian-FOptionContainer.o' libtool=no \
+e2guardian-FOptionContainer.o: FOptionContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FOptionContainer.o -MD -MP -MF $(DEPDIR)/e2guardian-FOptionContainer.Tpo -c -o e2guardian-FOptionContainer.o `test -f 'FOptionContainer.cpp' || echo '$(srcdir)/'`FOptionContainer.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-FOptionContainer.Tpo $(DEPDIR)/e2guardian-FOptionContainer.Po
+#	source='FOptionContainer.cpp' object='e2guardian-FOptionContainer.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FOptionContainer.o `test -f 'FOptionContainer.cpp' || echo '$(srcdir)/'`FOptionContainer.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FOptionContainer.o `test -f 'FOptionContainer.cpp' || echo '$(srcdir)/'`FOptionContainer.cpp
 
-dansguardian-FOptionContainer.obj: FOptionContainer.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-FOptionContainer.obj -MD -MP -MF $(DEPDIR)/dansguardian-FOptionContainer.Tpo -c -o dansguardian-FOptionContainer.obj `if test -f 'FOptionContainer.cpp'; then $(CYGPATH_W) 'FOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/FOptionContainer.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-FOptionContainer.Tpo $(DEPDIR)/dansguardian-FOptionContainer.Po
-#	source='FOptionContainer.cpp' object='dansguardian-FOptionContainer.obj' libtool=no \
+e2guardian-FOptionContainer.obj: FOptionContainer.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FOptionContainer.obj -MD -MP -MF $(DEPDIR)/e2guardian-FOptionContainer.Tpo -c -o e2guardian-FOptionContainer.obj `if test -f 'FOptionContainer.cpp'; then $(CYGPATH_W) 'FOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/FOptionContainer.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-FOptionContainer.Tpo $(DEPDIR)/e2guardian-FOptionContainer.Po
+#	source='FOptionContainer.cpp' object='e2guardian-FOptionContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-FOptionContainer.obj `if test -f 'FOptionContainer.cpp'; then $(CYGPATH_W) 'FOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/FOptionContainer.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-FOptionContainer.obj `if test -f 'FOptionContainer.cpp'; then $(CYGPATH_W) 'FOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/FOptionContainer.cpp'; fi`
 
-dansguardian-ListManager.o: ListManager.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ListManager.o -MD -MP -MF $(DEPDIR)/dansguardian-ListManager.Tpo -c -o dansguardian-ListManager.o `test -f 'ListManager.cpp' || echo '$(srcdir)/'`ListManager.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ListManager.Tpo $(DEPDIR)/dansguardian-ListManager.Po
-#	source='ListManager.cpp' object='dansguardian-ListManager.o' libtool=no \
+e2guardian-ListManager.o: ListManager.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ListManager.o -MD -MP -MF $(DEPDIR)/e2guardian-ListManager.Tpo -c -o e2guardian-ListManager.o `test -f 'ListManager.cpp' || echo '$(srcdir)/'`ListManager.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ListManager.Tpo $(DEPDIR)/e2guardian-ListManager.Po
+#	source='ListManager.cpp' object='e2guardian-ListManager.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ListManager.o `test -f 'ListManager.cpp' || echo '$(srcdir)/'`ListManager.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ListManager.o `test -f 'ListManager.cpp' || echo '$(srcdir)/'`ListManager.cpp
 
-dansguardian-ListManager.obj: ListManager.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ListManager.obj -MD -MP -MF $(DEPDIR)/dansguardian-ListManager.Tpo -c -o dansguardian-ListManager.obj `if test -f 'ListManager.cpp'; then $(CYGPATH_W) 'ListManager.cpp'; else $(CYGPATH_W) '$(srcdir)/ListManager.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ListManager.Tpo $(DEPDIR)/dansguardian-ListManager.Po
-#	source='ListManager.cpp' object='dansguardian-ListManager.obj' libtool=no \
+e2guardian-ListManager.obj: ListManager.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ListManager.obj -MD -MP -MF $(DEPDIR)/e2guardian-ListManager.Tpo -c -o e2guardian-ListManager.obj `if test -f 'ListManager.cpp'; then $(CYGPATH_W) 'ListManager.cpp'; else $(CYGPATH_W) '$(srcdir)/ListManager.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ListManager.Tpo $(DEPDIR)/e2guardian-ListManager.Po
+#	source='ListManager.cpp' object='e2guardian-ListManager.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ListManager.obj `if test -f 'ListManager.cpp'; then $(CYGPATH_W) 'ListManager.cpp'; else $(CYGPATH_W) '$(srcdir)/ListManager.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ListManager.obj `if test -f 'ListManager.cpp'; then $(CYGPATH_W) 'ListManager.cpp'; else $(CYGPATH_W) '$(srcdir)/ListManager.cpp'; fi`
 
-dansguardian-md5.o: md5.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-md5.o -MD -MP -MF $(DEPDIR)/dansguardian-md5.Tpo -c -o dansguardian-md5.o `test -f 'md5.cpp' || echo '$(srcdir)/'`md5.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-md5.Tpo $(DEPDIR)/dansguardian-md5.Po
-#	source='md5.cpp' object='dansguardian-md5.o' libtool=no \
+e2guardian-md5.o: md5.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-md5.o -MD -MP -MF $(DEPDIR)/e2guardian-md5.Tpo -c -o e2guardian-md5.o `test -f 'md5.cpp' || echo '$(srcdir)/'`md5.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-md5.Tpo $(DEPDIR)/e2guardian-md5.Po
+#	source='md5.cpp' object='e2guardian-md5.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-md5.o `test -f 'md5.cpp' || echo '$(srcdir)/'`md5.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-md5.o `test -f 'md5.cpp' || echo '$(srcdir)/'`md5.cpp
 
-dansguardian-md5.obj: md5.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-md5.obj -MD -MP -MF $(DEPDIR)/dansguardian-md5.Tpo -c -o dansguardian-md5.obj `if test -f 'md5.cpp'; then $(CYGPATH_W) 'md5.cpp'; else $(CYGPATH_W) '$(srcdir)/md5.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-md5.Tpo $(DEPDIR)/dansguardian-md5.Po
-#	source='md5.cpp' object='dansguardian-md5.obj' libtool=no \
+e2guardian-md5.obj: md5.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-md5.obj -MD -MP -MF $(DEPDIR)/e2guardian-md5.Tpo -c -o e2guardian-md5.obj `if test -f 'md5.cpp'; then $(CYGPATH_W) 'md5.cpp'; else $(CYGPATH_W) '$(srcdir)/md5.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-md5.Tpo $(DEPDIR)/e2guardian-md5.Po
+#	source='md5.cpp' object='e2guardian-md5.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-md5.obj `if test -f 'md5.cpp'; then $(CYGPATH_W) 'md5.cpp'; else $(CYGPATH_W) '$(srcdir)/md5.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-md5.obj `if test -f 'md5.cpp'; then $(CYGPATH_W) 'md5.cpp'; else $(CYGPATH_W) '$(srcdir)/md5.cpp'; fi`
 
-dansguardian-DownloadManager.o: DownloadManager.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DownloadManager.o -MD -MP -MF $(DEPDIR)/dansguardian-DownloadManager.Tpo -c -o dansguardian-DownloadManager.o `test -f 'DownloadManager.cpp' || echo '$(srcdir)/'`DownloadManager.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-DownloadManager.Tpo $(DEPDIR)/dansguardian-DownloadManager.Po
-#	source='DownloadManager.cpp' object='dansguardian-DownloadManager.o' libtool=no \
+e2guardian-DownloadManager.o: DownloadManager.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DownloadManager.o -MD -MP -MF $(DEPDIR)/e2guardian-DownloadManager.Tpo -c -o e2guardian-DownloadManager.o `test -f 'DownloadManager.cpp' || echo '$(srcdir)/'`DownloadManager.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-DownloadManager.Tpo $(DEPDIR)/e2guardian-DownloadManager.Po
+#	source='DownloadManager.cpp' object='e2guardian-DownloadManager.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DownloadManager.o `test -f 'DownloadManager.cpp' || echo '$(srcdir)/'`DownloadManager.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DownloadManager.o `test -f 'DownloadManager.cpp' || echo '$(srcdir)/'`DownloadManager.cpp
 
-dansguardian-DownloadManager.obj: DownloadManager.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-DownloadManager.obj -MD -MP -MF $(DEPDIR)/dansguardian-DownloadManager.Tpo -c -o dansguardian-DownloadManager.obj `if test -f 'DownloadManager.cpp'; then $(CYGPATH_W) 'DownloadManager.cpp'; else $(CYGPATH_W) '$(srcdir)/DownloadManager.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-DownloadManager.Tpo $(DEPDIR)/dansguardian-DownloadManager.Po
-#	source='DownloadManager.cpp' object='dansguardian-DownloadManager.obj' libtool=no \
+e2guardian-DownloadManager.obj: DownloadManager.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-DownloadManager.obj -MD -MP -MF $(DEPDIR)/e2guardian-DownloadManager.Tpo -c -o e2guardian-DownloadManager.obj `if test -f 'DownloadManager.cpp'; then $(CYGPATH_W) 'DownloadManager.cpp'; else $(CYGPATH_W) '$(srcdir)/DownloadManager.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-DownloadManager.Tpo $(DEPDIR)/e2guardian-DownloadManager.Po
+#	source='DownloadManager.cpp' object='e2guardian-DownloadManager.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-DownloadManager.obj `if test -f 'DownloadManager.cpp'; then $(CYGPATH_W) 'DownloadManager.cpp'; else $(CYGPATH_W) '$(srcdir)/DownloadManager.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-DownloadManager.obj `if test -f 'DownloadManager.cpp'; then $(CYGPATH_W) 'DownloadManager.cpp'; else $(CYGPATH_W) '$(srcdir)/DownloadManager.cpp'; fi`
 
-dansguardian-ConfigVar.o: ConfigVar.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ConfigVar.o -MD -MP -MF $(DEPDIR)/dansguardian-ConfigVar.Tpo -c -o dansguardian-ConfigVar.o `test -f 'ConfigVar.cpp' || echo '$(srcdir)/'`ConfigVar.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ConfigVar.Tpo $(DEPDIR)/dansguardian-ConfigVar.Po
-#	source='ConfigVar.cpp' object='dansguardian-ConfigVar.o' libtool=no \
+e2guardian-ConfigVar.o: ConfigVar.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ConfigVar.o -MD -MP -MF $(DEPDIR)/e2guardian-ConfigVar.Tpo -c -o e2guardian-ConfigVar.o `test -f 'ConfigVar.cpp' || echo '$(srcdir)/'`ConfigVar.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ConfigVar.Tpo $(DEPDIR)/e2guardian-ConfigVar.Po
+#	source='ConfigVar.cpp' object='e2guardian-ConfigVar.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ConfigVar.o `test -f 'ConfigVar.cpp' || echo '$(srcdir)/'`ConfigVar.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ConfigVar.o `test -f 'ConfigVar.cpp' || echo '$(srcdir)/'`ConfigVar.cpp
 
-dansguardian-ConfigVar.obj: ConfigVar.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ConfigVar.obj -MD -MP -MF $(DEPDIR)/dansguardian-ConfigVar.Tpo -c -o dansguardian-ConfigVar.obj `if test -f 'ConfigVar.cpp'; then $(CYGPATH_W) 'ConfigVar.cpp'; else $(CYGPATH_W) '$(srcdir)/ConfigVar.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ConfigVar.Tpo $(DEPDIR)/dansguardian-ConfigVar.Po
-#	source='ConfigVar.cpp' object='dansguardian-ConfigVar.obj' libtool=no \
+e2guardian-ConfigVar.obj: ConfigVar.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ConfigVar.obj -MD -MP -MF $(DEPDIR)/e2guardian-ConfigVar.Tpo -c -o e2guardian-ConfigVar.obj `if test -f 'ConfigVar.cpp'; then $(CYGPATH_W) 'ConfigVar.cpp'; else $(CYGPATH_W) '$(srcdir)/ConfigVar.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ConfigVar.Tpo $(DEPDIR)/e2guardian-ConfigVar.Po
+#	source='ConfigVar.cpp' object='e2guardian-ConfigVar.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ConfigVar.obj `if test -f 'ConfigVar.cpp'; then $(CYGPATH_W) 'ConfigVar.cpp'; else $(CYGPATH_W) '$(srcdir)/ConfigVar.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ConfigVar.obj `if test -f 'ConfigVar.cpp'; then $(CYGPATH_W) 'ConfigVar.cpp'; else $(CYGPATH_W) '$(srcdir)/ConfigVar.cpp'; fi`
 
-dansguardian-ContentScanner.o: ContentScanner.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ContentScanner.o -MD -MP -MF $(DEPDIR)/dansguardian-ContentScanner.Tpo -c -o dansguardian-ContentScanner.o `test -f 'ContentScanner.cpp' || echo '$(srcdir)/'`ContentScanner.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ContentScanner.Tpo $(DEPDIR)/dansguardian-ContentScanner.Po
-#	source='ContentScanner.cpp' object='dansguardian-ContentScanner.o' libtool=no \
+e2guardian-ContentScanner.o: ContentScanner.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ContentScanner.o -MD -MP -MF $(DEPDIR)/e2guardian-ContentScanner.Tpo -c -o e2guardian-ContentScanner.o `test -f 'ContentScanner.cpp' || echo '$(srcdir)/'`ContentScanner.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ContentScanner.Tpo $(DEPDIR)/e2guardian-ContentScanner.Po
+#	source='ContentScanner.cpp' object='e2guardian-ContentScanner.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ContentScanner.o `test -f 'ContentScanner.cpp' || echo '$(srcdir)/'`ContentScanner.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ContentScanner.o `test -f 'ContentScanner.cpp' || echo '$(srcdir)/'`ContentScanner.cpp
 
-dansguardian-ContentScanner.obj: ContentScanner.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ContentScanner.obj -MD -MP -MF $(DEPDIR)/dansguardian-ContentScanner.Tpo -c -o dansguardian-ContentScanner.obj `if test -f 'ContentScanner.cpp'; then $(CYGPATH_W) 'ContentScanner.cpp'; else $(CYGPATH_W) '$(srcdir)/ContentScanner.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ContentScanner.Tpo $(DEPDIR)/dansguardian-ContentScanner.Po
-#	source='ContentScanner.cpp' object='dansguardian-ContentScanner.obj' libtool=no \
+e2guardian-ContentScanner.obj: ContentScanner.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ContentScanner.obj -MD -MP -MF $(DEPDIR)/e2guardian-ContentScanner.Tpo -c -o e2guardian-ContentScanner.obj `if test -f 'ContentScanner.cpp'; then $(CYGPATH_W) 'ContentScanner.cpp'; else $(CYGPATH_W) '$(srcdir)/ContentScanner.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ContentScanner.Tpo $(DEPDIR)/e2guardian-ContentScanner.Po
+#	source='ContentScanner.cpp' object='e2guardian-ContentScanner.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ContentScanner.obj `if test -f 'ContentScanner.cpp'; then $(CYGPATH_W) 'ContentScanner.cpp'; else $(CYGPATH_W) '$(srcdir)/ContentScanner.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ContentScanner.obj `if test -f 'ContentScanner.cpp'; then $(CYGPATH_W) 'ContentScanner.cpp'; else $(CYGPATH_W) '$(srcdir)/ContentScanner.cpp'; fi`
 
-dansguardian-SocketArray.o: SocketArray.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-SocketArray.o -MD -MP -MF $(DEPDIR)/dansguardian-SocketArray.Tpo -c -o dansguardian-SocketArray.o `test -f 'SocketArray.cpp' || echo '$(srcdir)/'`SocketArray.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-SocketArray.Tpo $(DEPDIR)/dansguardian-SocketArray.Po
-#	source='SocketArray.cpp' object='dansguardian-SocketArray.o' libtool=no \
+e2guardian-SocketArray.o: SocketArray.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-SocketArray.o -MD -MP -MF $(DEPDIR)/e2guardian-SocketArray.Tpo -c -o e2guardian-SocketArray.o `test -f 'SocketArray.cpp' || echo '$(srcdir)/'`SocketArray.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-SocketArray.Tpo $(DEPDIR)/e2guardian-SocketArray.Po
+#	source='SocketArray.cpp' object='e2guardian-SocketArray.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-SocketArray.o `test -f 'SocketArray.cpp' || echo '$(srcdir)/'`SocketArray.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-SocketArray.o `test -f 'SocketArray.cpp' || echo '$(srcdir)/'`SocketArray.cpp
 
-dansguardian-SocketArray.obj: SocketArray.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-SocketArray.obj -MD -MP -MF $(DEPDIR)/dansguardian-SocketArray.Tpo -c -o dansguardian-SocketArray.obj `if test -f 'SocketArray.cpp'; then $(CYGPATH_W) 'SocketArray.cpp'; else $(CYGPATH_W) '$(srcdir)/SocketArray.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-SocketArray.Tpo $(DEPDIR)/dansguardian-SocketArray.Po
-#	source='SocketArray.cpp' object='dansguardian-SocketArray.obj' libtool=no \
+e2guardian-SocketArray.obj: SocketArray.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-SocketArray.obj -MD -MP -MF $(DEPDIR)/e2guardian-SocketArray.Tpo -c -o e2guardian-SocketArray.obj `if test -f 'SocketArray.cpp'; then $(CYGPATH_W) 'SocketArray.cpp'; else $(CYGPATH_W) '$(srcdir)/SocketArray.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-SocketArray.Tpo $(DEPDIR)/e2guardian-SocketArray.Po
+#	source='SocketArray.cpp' object='e2guardian-SocketArray.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-SocketArray.obj `if test -f 'SocketArray.cpp'; then $(CYGPATH_W) 'SocketArray.cpp'; else $(CYGPATH_W) '$(srcdir)/SocketArray.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-SocketArray.obj `if test -f 'SocketArray.cpp'; then $(CYGPATH_W) 'SocketArray.cpp'; else $(CYGPATH_W) '$(srcdir)/SocketArray.cpp'; fi`
 
-dansguardian-dansguardian.o: dansguardian.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-dansguardian.o -MD -MP -MF $(DEPDIR)/dansguardian-dansguardian.Tpo -c -o dansguardian-dansguardian.o `test -f 'dansguardian.cpp' || echo '$(srcdir)/'`dansguardian.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-dansguardian.Tpo $(DEPDIR)/dansguardian-dansguardian.Po
-#	source='dansguardian.cpp' object='dansguardian-dansguardian.o' libtool=no \
+e2guardian-e2guardian.o: e2guardian.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-e2guardian.o -MD -MP -MF $(DEPDIR)/e2guardian-e2guardian.Tpo -c -o e2guardian-e2guardian.o `test -f 'e2guardian.cpp' || echo '$(srcdir)/'`e2guardian.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-e2guardian.Tpo $(DEPDIR)/e2guardian-e2guardian.Po
+#	source='e2guardian.cpp' object='e2guardian-e2guardian.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-dansguardian.o `test -f 'dansguardian.cpp' || echo '$(srcdir)/'`dansguardian.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-e2guardian.o `test -f 'e2guardian.cpp' || echo '$(srcdir)/'`e2guardian.cpp
 
-dansguardian-dansguardian.obj: dansguardian.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-dansguardian.obj -MD -MP -MF $(DEPDIR)/dansguardian-dansguardian.Tpo -c -o dansguardian-dansguardian.obj `if test -f 'dansguardian.cpp'; then $(CYGPATH_W) 'dansguardian.cpp'; else $(CYGPATH_W) '$(srcdir)/dansguardian.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-dansguardian.Tpo $(DEPDIR)/dansguardian-dansguardian.Po
-#	source='dansguardian.cpp' object='dansguardian-dansguardian.obj' libtool=no \
+e2guardian-e2guardian.obj: e2guardian.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-e2guardian.obj -MD -MP -MF $(DEPDIR)/e2guardian-e2guardian.Tpo -c -o e2guardian-e2guardian.obj `if test -f 'e2guardian.cpp'; then $(CYGPATH_W) 'e2guardian.cpp'; else $(CYGPATH_W) '$(srcdir)/e2guardian.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-e2guardian.Tpo $(DEPDIR)/e2guardian-e2guardian.Po
+#	source='e2guardian.cpp' object='e2guardian-e2guardian.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-dansguardian.obj `if test -f 'dansguardian.cpp'; then $(CYGPATH_W) 'dansguardian.cpp'; else $(CYGPATH_W) '$(srcdir)/dansguardian.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-e2guardian.obj `if test -f 'e2guardian.cpp'; then $(CYGPATH_W) 'e2guardian.cpp'; else $(CYGPATH_W) '$(srcdir)/e2guardian.cpp'; fi`
 
-dansguardian-CertificateAuthority.o: CertificateAuthority.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-CertificateAuthority.o -MD -MP -MF $(DEPDIR)/dansguardian-CertificateAuthority.Tpo -c -o dansguardian-CertificateAuthority.o `test -f 'CertificateAuthority.cpp' || echo '$(srcdir)/'`CertificateAuthority.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-CertificateAuthority.Tpo $(DEPDIR)/dansguardian-CertificateAuthority.Po
-#	source='CertificateAuthority.cpp' object='dansguardian-CertificateAuthority.o' libtool=no \
+e2guardian-CertificateAuthority.o: CertificateAuthority.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-CertificateAuthority.o -MD -MP -MF $(DEPDIR)/e2guardian-CertificateAuthority.Tpo -c -o e2guardian-CertificateAuthority.o `test -f 'CertificateAuthority.cpp' || echo '$(srcdir)/'`CertificateAuthority.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-CertificateAuthority.Tpo $(DEPDIR)/e2guardian-CertificateAuthority.Po
+#	source='CertificateAuthority.cpp' object='e2guardian-CertificateAuthority.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-CertificateAuthority.o `test -f 'CertificateAuthority.cpp' || echo '$(srcdir)/'`CertificateAuthority.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-CertificateAuthority.o `test -f 'CertificateAuthority.cpp' || echo '$(srcdir)/'`CertificateAuthority.cpp
 
-dansguardian-CertificateAuthority.obj: CertificateAuthority.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-CertificateAuthority.obj -MD -MP -MF $(DEPDIR)/dansguardian-CertificateAuthority.Tpo -c -o dansguardian-CertificateAuthority.obj `if test -f 'CertificateAuthority.cpp'; then $(CYGPATH_W) 'CertificateAuthority.cpp'; else $(CYGPATH_W) '$(srcdir)/CertificateAuthority.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-CertificateAuthority.Tpo $(DEPDIR)/dansguardian-CertificateAuthority.Po
-#	source='CertificateAuthority.cpp' object='dansguardian-CertificateAuthority.obj' libtool=no \
+e2guardian-CertificateAuthority.obj: CertificateAuthority.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-CertificateAuthority.obj -MD -MP -MF $(DEPDIR)/e2guardian-CertificateAuthority.Tpo -c -o e2guardian-CertificateAuthority.obj `if test -f 'CertificateAuthority.cpp'; then $(CYGPATH_W) 'CertificateAuthority.cpp'; else $(CYGPATH_W) '$(srcdir)/CertificateAuthority.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-CertificateAuthority.Tpo $(DEPDIR)/e2guardian-CertificateAuthority.Po
+#	source='CertificateAuthority.cpp' object='e2guardian-CertificateAuthority.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-CertificateAuthority.obj `if test -f 'CertificateAuthority.cpp'; then $(CYGPATH_W) 'CertificateAuthority.cpp'; else $(CYGPATH_W) '$(srcdir)/CertificateAuthority.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-CertificateAuthority.obj `if test -f 'CertificateAuthority.cpp'; then $(CYGPATH_W) 'CertificateAuthority.cpp'; else $(CYGPATH_W) '$(srcdir)/CertificateAuthority.cpp'; fi`
 
-dansguardian-icapscan.o: contentscanners/icapscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-icapscan.o -MD -MP -MF $(DEPDIR)/dansguardian-icapscan.Tpo -c -o dansguardian-icapscan.o `test -f 'contentscanners/icapscan.cpp' || echo '$(srcdir)/'`contentscanners/icapscan.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-icapscan.Tpo $(DEPDIR)/dansguardian-icapscan.Po
-#	source='contentscanners/icapscan.cpp' object='dansguardian-icapscan.o' libtool=no \
+e2guardian-icapscan.o: contentscanners/icapscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-icapscan.o -MD -MP -MF $(DEPDIR)/e2guardian-icapscan.Tpo -c -o e2guardian-icapscan.o `test -f 'contentscanners/icapscan.cpp' || echo '$(srcdir)/'`contentscanners/icapscan.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-icapscan.Tpo $(DEPDIR)/e2guardian-icapscan.Po
+#	source='contentscanners/icapscan.cpp' object='e2guardian-icapscan.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-icapscan.o `test -f 'contentscanners/icapscan.cpp' || echo '$(srcdir)/'`contentscanners/icapscan.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-icapscan.o `test -f 'contentscanners/icapscan.cpp' || echo '$(srcdir)/'`contentscanners/icapscan.cpp
 
-dansguardian-icapscan.obj: contentscanners/icapscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-icapscan.obj -MD -MP -MF $(DEPDIR)/dansguardian-icapscan.Tpo -c -o dansguardian-icapscan.obj `if test -f 'contentscanners/icapscan.cpp'; then $(CYGPATH_W) 'contentscanners/icapscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/icapscan.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-icapscan.Tpo $(DEPDIR)/dansguardian-icapscan.Po
-#	source='contentscanners/icapscan.cpp' object='dansguardian-icapscan.obj' libtool=no \
+e2guardian-icapscan.obj: contentscanners/icapscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-icapscan.obj -MD -MP -MF $(DEPDIR)/e2guardian-icapscan.Tpo -c -o e2guardian-icapscan.obj `if test -f 'contentscanners/icapscan.cpp'; then $(CYGPATH_W) 'contentscanners/icapscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/icapscan.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-icapscan.Tpo $(DEPDIR)/e2guardian-icapscan.Po
+#	source='contentscanners/icapscan.cpp' object='e2guardian-icapscan.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-icapscan.obj `if test -f 'contentscanners/icapscan.cpp'; then $(CYGPATH_W) 'contentscanners/icapscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/icapscan.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-icapscan.obj `if test -f 'contentscanners/icapscan.cpp'; then $(CYGPATH_W) 'contentscanners/icapscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/icapscan.cpp'; fi`
 
-dansguardian-kavdscan.o: contentscanners/kavdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-kavdscan.o -MD -MP -MF $(DEPDIR)/dansguardian-kavdscan.Tpo -c -o dansguardian-kavdscan.o `test -f 'contentscanners/kavdscan.cpp' || echo '$(srcdir)/'`contentscanners/kavdscan.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-kavdscan.Tpo $(DEPDIR)/dansguardian-kavdscan.Po
-#	source='contentscanners/kavdscan.cpp' object='dansguardian-kavdscan.o' libtool=no \
+e2guardian-kavdscan.o: contentscanners/kavdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-kavdscan.o -MD -MP -MF $(DEPDIR)/e2guardian-kavdscan.Tpo -c -o e2guardian-kavdscan.o `test -f 'contentscanners/kavdscan.cpp' || echo '$(srcdir)/'`contentscanners/kavdscan.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-kavdscan.Tpo $(DEPDIR)/e2guardian-kavdscan.Po
+#	source='contentscanners/kavdscan.cpp' object='e2guardian-kavdscan.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-kavdscan.o `test -f 'contentscanners/kavdscan.cpp' || echo '$(srcdir)/'`contentscanners/kavdscan.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-kavdscan.o `test -f 'contentscanners/kavdscan.cpp' || echo '$(srcdir)/'`contentscanners/kavdscan.cpp
 
-dansguardian-kavdscan.obj: contentscanners/kavdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-kavdscan.obj -MD -MP -MF $(DEPDIR)/dansguardian-kavdscan.Tpo -c -o dansguardian-kavdscan.obj `if test -f 'contentscanners/kavdscan.cpp'; then $(CYGPATH_W) 'contentscanners/kavdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/kavdscan.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-kavdscan.Tpo $(DEPDIR)/dansguardian-kavdscan.Po
-#	source='contentscanners/kavdscan.cpp' object='dansguardian-kavdscan.obj' libtool=no \
+e2guardian-kavdscan.obj: contentscanners/kavdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-kavdscan.obj -MD -MP -MF $(DEPDIR)/e2guardian-kavdscan.Tpo -c -o e2guardian-kavdscan.obj `if test -f 'contentscanners/kavdscan.cpp'; then $(CYGPATH_W) 'contentscanners/kavdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/kavdscan.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-kavdscan.Tpo $(DEPDIR)/e2guardian-kavdscan.Po
+#	source='contentscanners/kavdscan.cpp' object='e2guardian-kavdscan.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-kavdscan.obj `if test -f 'contentscanners/kavdscan.cpp'; then $(CYGPATH_W) 'contentscanners/kavdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/kavdscan.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-kavdscan.obj `if test -f 'contentscanners/kavdscan.cpp'; then $(CYGPATH_W) 'contentscanners/kavdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/kavdscan.cpp'; fi`
 
-dansguardian-clamdscan.o: contentscanners/clamdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-clamdscan.o -MD -MP -MF $(DEPDIR)/dansguardian-clamdscan.Tpo -c -o dansguardian-clamdscan.o `test -f 'contentscanners/clamdscan.cpp' || echo '$(srcdir)/'`contentscanners/clamdscan.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-clamdscan.Tpo $(DEPDIR)/dansguardian-clamdscan.Po
-#	source='contentscanners/clamdscan.cpp' object='dansguardian-clamdscan.o' libtool=no \
+e2guardian-clamdscan.o: contentscanners/clamdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-clamdscan.o -MD -MP -MF $(DEPDIR)/e2guardian-clamdscan.Tpo -c -o e2guardian-clamdscan.o `test -f 'contentscanners/clamdscan.cpp' || echo '$(srcdir)/'`contentscanners/clamdscan.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-clamdscan.Tpo $(DEPDIR)/e2guardian-clamdscan.Po
+#	source='contentscanners/clamdscan.cpp' object='e2guardian-clamdscan.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-clamdscan.o `test -f 'contentscanners/clamdscan.cpp' || echo '$(srcdir)/'`contentscanners/clamdscan.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-clamdscan.o `test -f 'contentscanners/clamdscan.cpp' || echo '$(srcdir)/'`contentscanners/clamdscan.cpp
 
-dansguardian-clamdscan.obj: contentscanners/clamdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-clamdscan.obj -MD -MP -MF $(DEPDIR)/dansguardian-clamdscan.Tpo -c -o dansguardian-clamdscan.obj `if test -f 'contentscanners/clamdscan.cpp'; then $(CYGPATH_W) 'contentscanners/clamdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/clamdscan.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-clamdscan.Tpo $(DEPDIR)/dansguardian-clamdscan.Po
-#	source='contentscanners/clamdscan.cpp' object='dansguardian-clamdscan.obj' libtool=no \
+e2guardian-clamdscan.obj: contentscanners/clamdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-clamdscan.obj -MD -MP -MF $(DEPDIR)/e2guardian-clamdscan.Tpo -c -o e2guardian-clamdscan.obj `if test -f 'contentscanners/clamdscan.cpp'; then $(CYGPATH_W) 'contentscanners/clamdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/clamdscan.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-clamdscan.Tpo $(DEPDIR)/e2guardian-clamdscan.Po
+#	source='contentscanners/clamdscan.cpp' object='e2guardian-clamdscan.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-clamdscan.obj `if test -f 'contentscanners/clamdscan.cpp'; then $(CYGPATH_W) 'contentscanners/clamdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/clamdscan.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-clamdscan.obj `if test -f 'contentscanners/clamdscan.cpp'; then $(CYGPATH_W) 'contentscanners/clamdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/clamdscan.cpp'; fi`
 
-dansguardian-avastdscan.o: contentscanners/avastdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-avastdscan.o -MD -MP -MF $(DEPDIR)/dansguardian-avastdscan.Tpo -c -o dansguardian-avastdscan.o `test -f 'contentscanners/avastdscan.cpp' || echo '$(srcdir)/'`contentscanners/avastdscan.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-avastdscan.Tpo $(DEPDIR)/dansguardian-avastdscan.Po
-#	source='contentscanners/avastdscan.cpp' object='dansguardian-avastdscan.o' libtool=no \
+e2guardian-avastdscan.o: contentscanners/avastdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-avastdscan.o -MD -MP -MF $(DEPDIR)/e2guardian-avastdscan.Tpo -c -o e2guardian-avastdscan.o `test -f 'contentscanners/avastdscan.cpp' || echo '$(srcdir)/'`contentscanners/avastdscan.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-avastdscan.Tpo $(DEPDIR)/e2guardian-avastdscan.Po
+#	source='contentscanners/avastdscan.cpp' object='e2guardian-avastdscan.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-avastdscan.o `test -f 'contentscanners/avastdscan.cpp' || echo '$(srcdir)/'`contentscanners/avastdscan.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-avastdscan.o `test -f 'contentscanners/avastdscan.cpp' || echo '$(srcdir)/'`contentscanners/avastdscan.cpp
 
-dansguardian-avastdscan.obj: contentscanners/avastdscan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-avastdscan.obj -MD -MP -MF $(DEPDIR)/dansguardian-avastdscan.Tpo -c -o dansguardian-avastdscan.obj `if test -f 'contentscanners/avastdscan.cpp'; then $(CYGPATH_W) 'contentscanners/avastdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/avastdscan.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-avastdscan.Tpo $(DEPDIR)/dansguardian-avastdscan.Po
-#	source='contentscanners/avastdscan.cpp' object='dansguardian-avastdscan.obj' libtool=no \
+e2guardian-avastdscan.obj: contentscanners/avastdscan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-avastdscan.obj -MD -MP -MF $(DEPDIR)/e2guardian-avastdscan.Tpo -c -o e2guardian-avastdscan.obj `if test -f 'contentscanners/avastdscan.cpp'; then $(CYGPATH_W) 'contentscanners/avastdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/avastdscan.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-avastdscan.Tpo $(DEPDIR)/e2guardian-avastdscan.Po
+#	source='contentscanners/avastdscan.cpp' object='e2guardian-avastdscan.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-avastdscan.obj `if test -f 'contentscanners/avastdscan.cpp'; then $(CYGPATH_W) 'contentscanners/avastdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/avastdscan.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-avastdscan.obj `if test -f 'contentscanners/avastdscan.cpp'; then $(CYGPATH_W) 'contentscanners/avastdscan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/avastdscan.cpp'; fi`
 
-dansguardian-commandlinescan.o: contentscanners/commandlinescan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-commandlinescan.o -MD -MP -MF $(DEPDIR)/dansguardian-commandlinescan.Tpo -c -o dansguardian-commandlinescan.o `test -f 'contentscanners/commandlinescan.cpp' || echo '$(srcdir)/'`contentscanners/commandlinescan.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-commandlinescan.Tpo $(DEPDIR)/dansguardian-commandlinescan.Po
-#	source='contentscanners/commandlinescan.cpp' object='dansguardian-commandlinescan.o' libtool=no \
+e2guardian-commandlinescan.o: contentscanners/commandlinescan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-commandlinescan.o -MD -MP -MF $(DEPDIR)/e2guardian-commandlinescan.Tpo -c -o e2guardian-commandlinescan.o `test -f 'contentscanners/commandlinescan.cpp' || echo '$(srcdir)/'`contentscanners/commandlinescan.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-commandlinescan.Tpo $(DEPDIR)/e2guardian-commandlinescan.Po
+#	source='contentscanners/commandlinescan.cpp' object='e2guardian-commandlinescan.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-commandlinescan.o `test -f 'contentscanners/commandlinescan.cpp' || echo '$(srcdir)/'`contentscanners/commandlinescan.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-commandlinescan.o `test -f 'contentscanners/commandlinescan.cpp' || echo '$(srcdir)/'`contentscanners/commandlinescan.cpp
 
-dansguardian-commandlinescan.obj: contentscanners/commandlinescan.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-commandlinescan.obj -MD -MP -MF $(DEPDIR)/dansguardian-commandlinescan.Tpo -c -o dansguardian-commandlinescan.obj `if test -f 'contentscanners/commandlinescan.cpp'; then $(CYGPATH_W) 'contentscanners/commandlinescan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/commandlinescan.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-commandlinescan.Tpo $(DEPDIR)/dansguardian-commandlinescan.Po
-#	source='contentscanners/commandlinescan.cpp' object='dansguardian-commandlinescan.obj' libtool=no \
+e2guardian-commandlinescan.obj: contentscanners/commandlinescan.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-commandlinescan.obj -MD -MP -MF $(DEPDIR)/e2guardian-commandlinescan.Tpo -c -o e2guardian-commandlinescan.obj `if test -f 'contentscanners/commandlinescan.cpp'; then $(CYGPATH_W) 'contentscanners/commandlinescan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/commandlinescan.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-commandlinescan.Tpo $(DEPDIR)/e2guardian-commandlinescan.Po
+#	source='contentscanners/commandlinescan.cpp' object='e2guardian-commandlinescan.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-commandlinescan.obj `if test -f 'contentscanners/commandlinescan.cpp'; then $(CYGPATH_W) 'contentscanners/commandlinescan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/commandlinescan.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-commandlinescan.obj `if test -f 'contentscanners/commandlinescan.cpp'; then $(CYGPATH_W) 'contentscanners/commandlinescan.cpp'; else $(CYGPATH_W) '$(srcdir)/contentscanners/commandlinescan.cpp'; fi`
 
-dansguardian-default.o: downloadmanagers/default.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-default.o -MD -MP -MF $(DEPDIR)/dansguardian-default.Tpo -c -o dansguardian-default.o `test -f 'downloadmanagers/default.cpp' || echo '$(srcdir)/'`downloadmanagers/default.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-default.Tpo $(DEPDIR)/dansguardian-default.Po
-#	source='downloadmanagers/default.cpp' object='dansguardian-default.o' libtool=no \
+e2guardian-default.o: downloadmanagers/default.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-default.o -MD -MP -MF $(DEPDIR)/e2guardian-default.Tpo -c -o e2guardian-default.o `test -f 'downloadmanagers/default.cpp' || echo '$(srcdir)/'`downloadmanagers/default.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-default.Tpo $(DEPDIR)/e2guardian-default.Po
+#	source='downloadmanagers/default.cpp' object='e2guardian-default.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-default.o `test -f 'downloadmanagers/default.cpp' || echo '$(srcdir)/'`downloadmanagers/default.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-default.o `test -f 'downloadmanagers/default.cpp' || echo '$(srcdir)/'`downloadmanagers/default.cpp
 
-dansguardian-default.obj: downloadmanagers/default.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-default.obj -MD -MP -MF $(DEPDIR)/dansguardian-default.Tpo -c -o dansguardian-default.obj `if test -f 'downloadmanagers/default.cpp'; then $(CYGPATH_W) 'downloadmanagers/default.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/default.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-default.Tpo $(DEPDIR)/dansguardian-default.Po
-#	source='downloadmanagers/default.cpp' object='dansguardian-default.obj' libtool=no \
+e2guardian-default.obj: downloadmanagers/default.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-default.obj -MD -MP -MF $(DEPDIR)/e2guardian-default.Tpo -c -o e2guardian-default.obj `if test -f 'downloadmanagers/default.cpp'; then $(CYGPATH_W) 'downloadmanagers/default.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/default.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-default.Tpo $(DEPDIR)/e2guardian-default.Po
+#	source='downloadmanagers/default.cpp' object='e2guardian-default.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-default.obj `if test -f 'downloadmanagers/default.cpp'; then $(CYGPATH_W) 'downloadmanagers/default.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/default.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-default.obj `if test -f 'downloadmanagers/default.cpp'; then $(CYGPATH_W) 'downloadmanagers/default.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/default.cpp'; fi`
 
-dansguardian-fancy.o: downloadmanagers/fancy.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-fancy.o -MD -MP -MF $(DEPDIR)/dansguardian-fancy.Tpo -c -o dansguardian-fancy.o `test -f 'downloadmanagers/fancy.cpp' || echo '$(srcdir)/'`downloadmanagers/fancy.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-fancy.Tpo $(DEPDIR)/dansguardian-fancy.Po
-#	source='downloadmanagers/fancy.cpp' object='dansguardian-fancy.o' libtool=no \
+e2guardian-fancy.o: downloadmanagers/fancy.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-fancy.o -MD -MP -MF $(DEPDIR)/e2guardian-fancy.Tpo -c -o e2guardian-fancy.o `test -f 'downloadmanagers/fancy.cpp' || echo '$(srcdir)/'`downloadmanagers/fancy.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-fancy.Tpo $(DEPDIR)/e2guardian-fancy.Po
+#	source='downloadmanagers/fancy.cpp' object='e2guardian-fancy.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-fancy.o `test -f 'downloadmanagers/fancy.cpp' || echo '$(srcdir)/'`downloadmanagers/fancy.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-fancy.o `test -f 'downloadmanagers/fancy.cpp' || echo '$(srcdir)/'`downloadmanagers/fancy.cpp
 
-dansguardian-fancy.obj: downloadmanagers/fancy.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-fancy.obj -MD -MP -MF $(DEPDIR)/dansguardian-fancy.Tpo -c -o dansguardian-fancy.obj `if test -f 'downloadmanagers/fancy.cpp'; then $(CYGPATH_W) 'downloadmanagers/fancy.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/fancy.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-fancy.Tpo $(DEPDIR)/dansguardian-fancy.Po
-#	source='downloadmanagers/fancy.cpp' object='dansguardian-fancy.obj' libtool=no \
+e2guardian-fancy.obj: downloadmanagers/fancy.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-fancy.obj -MD -MP -MF $(DEPDIR)/e2guardian-fancy.Tpo -c -o e2guardian-fancy.obj `if test -f 'downloadmanagers/fancy.cpp'; then $(CYGPATH_W) 'downloadmanagers/fancy.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/fancy.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-fancy.Tpo $(DEPDIR)/e2guardian-fancy.Po
+#	source='downloadmanagers/fancy.cpp' object='e2guardian-fancy.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-fancy.obj `if test -f 'downloadmanagers/fancy.cpp'; then $(CYGPATH_W) 'downloadmanagers/fancy.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/fancy.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-fancy.obj `if test -f 'downloadmanagers/fancy.cpp'; then $(CYGPATH_W) 'downloadmanagers/fancy.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/fancy.cpp'; fi`
 
-dansguardian-trickle.o: downloadmanagers/trickle.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-trickle.o -MD -MP -MF $(DEPDIR)/dansguardian-trickle.Tpo -c -o dansguardian-trickle.o `test -f 'downloadmanagers/trickle.cpp' || echo '$(srcdir)/'`downloadmanagers/trickle.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-trickle.Tpo $(DEPDIR)/dansguardian-trickle.Po
-#	source='downloadmanagers/trickle.cpp' object='dansguardian-trickle.o' libtool=no \
+e2guardian-trickle.o: downloadmanagers/trickle.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-trickle.o -MD -MP -MF $(DEPDIR)/e2guardian-trickle.Tpo -c -o e2guardian-trickle.o `test -f 'downloadmanagers/trickle.cpp' || echo '$(srcdir)/'`downloadmanagers/trickle.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-trickle.Tpo $(DEPDIR)/e2guardian-trickle.Po
+#	source='downloadmanagers/trickle.cpp' object='e2guardian-trickle.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-trickle.o `test -f 'downloadmanagers/trickle.cpp' || echo '$(srcdir)/'`downloadmanagers/trickle.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-trickle.o `test -f 'downloadmanagers/trickle.cpp' || echo '$(srcdir)/'`downloadmanagers/trickle.cpp
 
-dansguardian-trickle.obj: downloadmanagers/trickle.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-trickle.obj -MD -MP -MF $(DEPDIR)/dansguardian-trickle.Tpo -c -o dansguardian-trickle.obj `if test -f 'downloadmanagers/trickle.cpp'; then $(CYGPATH_W) 'downloadmanagers/trickle.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/trickle.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-trickle.Tpo $(DEPDIR)/dansguardian-trickle.Po
-#	source='downloadmanagers/trickle.cpp' object='dansguardian-trickle.obj' libtool=no \
+e2guardian-trickle.obj: downloadmanagers/trickle.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-trickle.obj -MD -MP -MF $(DEPDIR)/e2guardian-trickle.Tpo -c -o e2guardian-trickle.obj `if test -f 'downloadmanagers/trickle.cpp'; then $(CYGPATH_W) 'downloadmanagers/trickle.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/trickle.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-trickle.Tpo $(DEPDIR)/e2guardian-trickle.Po
+#	source='downloadmanagers/trickle.cpp' object='e2guardian-trickle.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-trickle.obj `if test -f 'downloadmanagers/trickle.cpp'; then $(CYGPATH_W) 'downloadmanagers/trickle.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/trickle.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-trickle.obj `if test -f 'downloadmanagers/trickle.cpp'; then $(CYGPATH_W) 'downloadmanagers/trickle.cpp'; else $(CYGPATH_W) '$(srcdir)/downloadmanagers/trickle.cpp'; fi`
 
-dansguardian-proxy.o: authplugins/proxy.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-proxy.o -MD -MP -MF $(DEPDIR)/dansguardian-proxy.Tpo -c -o dansguardian-proxy.o `test -f 'authplugins/proxy.cpp' || echo '$(srcdir)/'`authplugins/proxy.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-proxy.Tpo $(DEPDIR)/dansguardian-proxy.Po
-#	source='authplugins/proxy.cpp' object='dansguardian-proxy.o' libtool=no \
+e2guardian-proxy.o: authplugins/proxy.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-proxy.o -MD -MP -MF $(DEPDIR)/e2guardian-proxy.Tpo -c -o e2guardian-proxy.o `test -f 'authplugins/proxy.cpp' || echo '$(srcdir)/'`authplugins/proxy.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-proxy.Tpo $(DEPDIR)/e2guardian-proxy.Po
+#	source='authplugins/proxy.cpp' object='e2guardian-proxy.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-proxy.o `test -f 'authplugins/proxy.cpp' || echo '$(srcdir)/'`authplugins/proxy.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-proxy.o `test -f 'authplugins/proxy.cpp' || echo '$(srcdir)/'`authplugins/proxy.cpp
 
-dansguardian-proxy.obj: authplugins/proxy.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-proxy.obj -MD -MP -MF $(DEPDIR)/dansguardian-proxy.Tpo -c -o dansguardian-proxy.obj `if test -f 'authplugins/proxy.cpp'; then $(CYGPATH_W) 'authplugins/proxy.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/proxy.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-proxy.Tpo $(DEPDIR)/dansguardian-proxy.Po
-#	source='authplugins/proxy.cpp' object='dansguardian-proxy.obj' libtool=no \
+e2guardian-proxy.obj: authplugins/proxy.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-proxy.obj -MD -MP -MF $(DEPDIR)/e2guardian-proxy.Tpo -c -o e2guardian-proxy.obj `if test -f 'authplugins/proxy.cpp'; then $(CYGPATH_W) 'authplugins/proxy.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/proxy.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-proxy.Tpo $(DEPDIR)/e2guardian-proxy.Po
+#	source='authplugins/proxy.cpp' object='e2guardian-proxy.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-proxy.obj `if test -f 'authplugins/proxy.cpp'; then $(CYGPATH_W) 'authplugins/proxy.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/proxy.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-proxy.obj `if test -f 'authplugins/proxy.cpp'; then $(CYGPATH_W) 'authplugins/proxy.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/proxy.cpp'; fi`
 
-dansguardian-ident.o: authplugins/ident.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ident.o -MD -MP -MF $(DEPDIR)/dansguardian-ident.Tpo -c -o dansguardian-ident.o `test -f 'authplugins/ident.cpp' || echo '$(srcdir)/'`authplugins/ident.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ident.Tpo $(DEPDIR)/dansguardian-ident.Po
-#	source='authplugins/ident.cpp' object='dansguardian-ident.o' libtool=no \
+e2guardian-ident.o: authplugins/ident.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ident.o -MD -MP -MF $(DEPDIR)/e2guardian-ident.Tpo -c -o e2guardian-ident.o `test -f 'authplugins/ident.cpp' || echo '$(srcdir)/'`authplugins/ident.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ident.Tpo $(DEPDIR)/e2guardian-ident.Po
+#	source='authplugins/ident.cpp' object='e2guardian-ident.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ident.o `test -f 'authplugins/ident.cpp' || echo '$(srcdir)/'`authplugins/ident.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ident.o `test -f 'authplugins/ident.cpp' || echo '$(srcdir)/'`authplugins/ident.cpp
 
-dansguardian-ident.obj: authplugins/ident.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ident.obj -MD -MP -MF $(DEPDIR)/dansguardian-ident.Tpo -c -o dansguardian-ident.obj `if test -f 'authplugins/ident.cpp'; then $(CYGPATH_W) 'authplugins/ident.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ident.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ident.Tpo $(DEPDIR)/dansguardian-ident.Po
-#	source='authplugins/ident.cpp' object='dansguardian-ident.obj' libtool=no \
+e2guardian-ident.obj: authplugins/ident.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ident.obj -MD -MP -MF $(DEPDIR)/e2guardian-ident.Tpo -c -o e2guardian-ident.obj `if test -f 'authplugins/ident.cpp'; then $(CYGPATH_W) 'authplugins/ident.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ident.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ident.Tpo $(DEPDIR)/e2guardian-ident.Po
+#	source='authplugins/ident.cpp' object='e2guardian-ident.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ident.obj `if test -f 'authplugins/ident.cpp'; then $(CYGPATH_W) 'authplugins/ident.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ident.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ident.obj `if test -f 'authplugins/ident.cpp'; then $(CYGPATH_W) 'authplugins/ident.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ident.cpp'; fi`
 
-dansguardian-ip.o: authplugins/ip.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ip.o -MD -MP -MF $(DEPDIR)/dansguardian-ip.Tpo -c -o dansguardian-ip.o `test -f 'authplugins/ip.cpp' || echo '$(srcdir)/'`authplugins/ip.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ip.Tpo $(DEPDIR)/dansguardian-ip.Po
-#	source='authplugins/ip.cpp' object='dansguardian-ip.o' libtool=no \
+e2guardian-ip.o: authplugins/ip.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ip.o -MD -MP -MF $(DEPDIR)/e2guardian-ip.Tpo -c -o e2guardian-ip.o `test -f 'authplugins/ip.cpp' || echo '$(srcdir)/'`authplugins/ip.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ip.Tpo $(DEPDIR)/e2guardian-ip.Po
+#	source='authplugins/ip.cpp' object='e2guardian-ip.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ip.o `test -f 'authplugins/ip.cpp' || echo '$(srcdir)/'`authplugins/ip.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ip.o `test -f 'authplugins/ip.cpp' || echo '$(srcdir)/'`authplugins/ip.cpp
 
-dansguardian-ip.obj: authplugins/ip.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ip.obj -MD -MP -MF $(DEPDIR)/dansguardian-ip.Tpo -c -o dansguardian-ip.obj `if test -f 'authplugins/ip.cpp'; then $(CYGPATH_W) 'authplugins/ip.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ip.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ip.Tpo $(DEPDIR)/dansguardian-ip.Po
-#	source='authplugins/ip.cpp' object='dansguardian-ip.obj' libtool=no \
+e2guardian-ip.obj: authplugins/ip.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ip.obj -MD -MP -MF $(DEPDIR)/e2guardian-ip.Tpo -c -o e2guardian-ip.obj `if test -f 'authplugins/ip.cpp'; then $(CYGPATH_W) 'authplugins/ip.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ip.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ip.Tpo $(DEPDIR)/e2guardian-ip.Po
+#	source='authplugins/ip.cpp' object='e2guardian-ip.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ip.obj `if test -f 'authplugins/ip.cpp'; then $(CYGPATH_W) 'authplugins/ip.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ip.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ip.obj `if test -f 'authplugins/ip.cpp'; then $(CYGPATH_W) 'authplugins/ip.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ip.cpp'; fi`
 
-dansguardian-ntlm.o: authplugins/ntlm.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ntlm.o -MD -MP -MF $(DEPDIR)/dansguardian-ntlm.Tpo -c -o dansguardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-ntlm.Tpo $(DEPDIR)/dansguardian-ntlm.Po
-#	source='authplugins/ntlm.cpp' object='dansguardian-ntlm.o' libtool=no \
+e2guardian-ntlm.o: authplugins/ntlm.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ntlm.o -MD -MP -MF $(DEPDIR)/e2guardian-ntlm.Tpo -c -o e2guardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-ntlm.Tpo $(DEPDIR)/e2guardian-ntlm.Po
+#	source='authplugins/ntlm.cpp' object='e2guardian-ntlm.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp
 
-dansguardian-ntlm.obj: authplugins/ntlm.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-ntlm.obj -MD -MP -MF $(DEPDIR)/dansguardian-ntlm.Tpo -c -o dansguardian-ntlm.obj `if test -f 'authplugins/ntlm.cpp'; then $(CYGPATH_W) 'authplugins/ntlm.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ntlm.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-ntlm.Tpo $(DEPDIR)/dansguardian-ntlm.Po
-#	source='authplugins/ntlm.cpp' object='dansguardian-ntlm.obj' libtool=no \
+e2guardian-ntlm.obj: authplugins/ntlm.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ntlm.obj -MD -MP -MF $(DEPDIR)/e2guardian-ntlm.Tpo -c -o e2guardian-ntlm.obj `if test -f 'authplugins/ntlm.cpp'; then $(CYGPATH_W) 'authplugins/ntlm.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ntlm.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-ntlm.Tpo $(DEPDIR)/e2guardian-ntlm.Po
+#	source='authplugins/ntlm.cpp' object='e2guardian-ntlm.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-ntlm.obj `if test -f 'authplugins/ntlm.cpp'; then $(CYGPATH_W) 'authplugins/ntlm.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ntlm.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ntlm.obj `if test -f 'authplugins/ntlm.cpp'; then $(CYGPATH_W) 'authplugins/ntlm.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ntlm.cpp'; fi`
 
-dansguardian-digest.o: authplugins/digest.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-digest.o -MD -MP -MF $(DEPDIR)/dansguardian-digest.Tpo -c -o dansguardian-digest.o `test -f 'authplugins/digest.cpp' || echo '$(srcdir)/'`authplugins/digest.cpp
-	$(am__mv) $(DEPDIR)/dansguardian-digest.Tpo $(DEPDIR)/dansguardian-digest.Po
-#	source='authplugins/digest.cpp' object='dansguardian-digest.o' libtool=no \
+e2guardian-digest.o: authplugins/digest.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-digest.o -MD -MP -MF $(DEPDIR)/e2guardian-digest.Tpo -c -o e2guardian-digest.o `test -f 'authplugins/digest.cpp' || echo '$(srcdir)/'`authplugins/digest.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-digest.Tpo $(DEPDIR)/e2guardian-digest.Po
+#	source='authplugins/digest.cpp' object='e2guardian-digest.o' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-digest.o `test -f 'authplugins/digest.cpp' || echo '$(srcdir)/'`authplugins/digest.cpp
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-digest.o `test -f 'authplugins/digest.cpp' || echo '$(srcdir)/'`authplugins/digest.cpp
 
-dansguardian-digest.obj: authplugins/digest.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -MT dansguardian-digest.obj -MD -MP -MF $(DEPDIR)/dansguardian-digest.Tpo -c -o dansguardian-digest.obj `if test -f 'authplugins/digest.cpp'; then $(CYGPATH_W) 'authplugins/digest.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/digest.cpp'; fi`
-	$(am__mv) $(DEPDIR)/dansguardian-digest.Tpo $(DEPDIR)/dansguardian-digest.Po
-#	source='authplugins/digest.cpp' object='dansguardian-digest.obj' libtool=no \
+e2guardian-digest.obj: authplugins/digest.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-digest.obj -MD -MP -MF $(DEPDIR)/e2guardian-digest.Tpo -c -o e2guardian-digest.obj `if test -f 'authplugins/digest.cpp'; then $(CYGPATH_W) 'authplugins/digest.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/digest.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-digest.Tpo $(DEPDIR)/e2guardian-digest.Po
+#	source='authplugins/digest.cpp' object='e2guardian-digest.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dansguardian_CPPFLAGS) $(CPPFLAGS) $(dansguardian_CXXFLAGS) $(CXXFLAGS) -c -o dansguardian-digest.obj `if test -f 'authplugins/digest.cpp'; then $(CYGPATH_W) 'authplugins/digest.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/digest.cpp'; fi`
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-digest.obj `if test -f 'authplugins/digest.cpp'; then $(CYGPATH_W) 'authplugins/digest.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/digest.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

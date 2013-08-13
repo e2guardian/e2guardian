@@ -64,18 +64,18 @@ else
 NTLMAUTH_SOURCE =
 endif
 
-sbin_PROGRAMS = dansguardian 
+sbin_PROGRAMS = e2guardian 
 
-dansguardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
-dansguardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
-dansguardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
+e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
+e2guardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
+e2guardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
 			-D__LOGLOCATION='"$(DGLOGLOCATION)/"' \
 			-D__PIDDIR='"$(DGPIDDIR)"' \
 			-D__PROXYUSER='"$(DGPROXYUSER)"' \
 			-D__PROXYGROUP='"$(DGPROXYGROUP)"' \
 			-D__CONFDIR='"$(DGCONFDIR)"' \
 			$(AM_CPPFLAGS)
-dansguardian_SOURCES = String.cpp String.hpp \
+e2guardian_SOURCES = String.cpp String.hpp \
                        FDTunnel.cpp FDTunnel.hpp \
                        ConnectionHandler.cpp ConnectionHandler.hpp \
                        DataBuffer.cpp DataBuffer.hpp \
@@ -105,7 +105,7 @@ dansguardian_SOURCES = String.cpp String.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
 		       SocketArray.cpp SocketArray.hpp \
-                       dansguardian.cpp \
+                       e2guardian.cpp \
 		       Plugin.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
 		       $(ICAPSCAN_SOURCE) \

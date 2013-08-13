@@ -11,17 +11,17 @@ This file documents the DansGuardian release process.
 
 As root on a modern Linux with build tools and subversion installed do:
 
-rm -fr dansguardian (if you have a dansguardian directory)
-svn co https://dansguardian.svn.sourceforge.net/svnroot/dansguardian/trunk dansguardian
-cd dansguardian/dansguardian
+rm -fr e2guardian (if you have a e2guardian directory)
+svn co https://e2guardian.svn.sourceforge.net/svnroot/e2guardian/trunk e2guardian
+cd e2guardian/e2guardian
 ./tarballup.sh
 
-7. Eventually a tarball called dansguardian-VERSION.tar.gz will be created in the current
+7. Eventually a tarball called e2guardian-VERSION.tar.gz will be created in the current
 directory
 
 8. Test build the tarball contents.  Ideally test run it too!
 
-9. Emailed the tarball off to the dansguardian.org website maintainer along with text for
+9. Emailed the tarball off to the e2guardian.org website maintainer along with text for
 a news item.
 
 10. When the file is uploaded and the news item live, you should email the DansGuardian

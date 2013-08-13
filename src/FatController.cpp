@@ -1,5 +1,5 @@
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -2208,7 +2208,7 @@ int fc_controlit()
 	// this has to be done after daemonise to ensure we get the correct PID.
 	rc = sysv_writepidfile(pidfilefd);  // also closes the fd
 	if (rc != 0) {
-		syslog(LOG_ERR, "Error writing to the dansguardian.pid file: %s", strerror(errno));
+		syslog(LOG_ERR, "Error writing to the e2guardian.pid file: %s", strerror(errno));
 		free(serversockfds);
 		return false;
 	}

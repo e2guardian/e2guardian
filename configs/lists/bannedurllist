@@ -18,7 +18,7 @@
 #to allow part of it.
 
 #To include additional files in this list use this example:
-#.Include</etc/dansguardian/anotherbannedurllist>
+#.Include</usr/local/etc/e2guardian/anotherbannedurllist>
 
 #You can have multiple .Includes.
 
@@ -31,29 +31,29 @@ members.home.net/uporn
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-.Include</etc/dansguardian/lists/blacklists/ads/urls>
+.Include</usr/local/etc/e2guardian/lists/blacklists/ads/urls>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklist blacklists collection.
-#.Include</etc/dansguardian/lists/blacklists/adult/urls>
-#.Include</etc/dansguardian/lists/blacklists/aggressive/urls>
-#.Include</etc/dansguardian/lists/blacklists/audio-video/urls>
-#.Include</etc/dansguardian/lists/blacklists/chat/urls>
-#.Include</etc/dansguardian/lists/blacklists/drugs/urls>
-#.Include</etc/dansguardian/lists/blacklists/entertainment/urls>
-#.Include</etc/dansguardian/lists/blacklists/frencheducation/urls>
-#.Include</etc/dansguardian/lists/blacklists/gambling/urls>
-#.Include</etc/dansguardian/lists/blacklists/government/urls>
-#.Include</etc/dansguardian/lists/blacklists/hacking/urls>
-#.Include</etc/dansguardian/lists/blacklists/jobsearch/urls>
-#.Include</etc/dansguardian/lists/blacklists/kidstimewasting/urls>
-#.Include</etc/dansguardian/lists/blacklists/mail/urls>
-#.Include</etc/dansguardian/lists/blacklists/news/urls>
-#.Include</etc/dansguardian/lists/blacklists/porn/urls>
-#.Include</etc/dansguardian/lists/blacklists/proxy/urls>
-#.Include</etc/dansguardian/lists/blacklists/publicite/urls>
-#.Include</etc/dansguardian/lists/blacklists/redirector/urls>
-#.Include</etc/dansguardian/lists/blacklists/violence/urls>
-#.Include</etc/dansguardian/lists/blacklists/virusinfected/urls>
-#.Include</etc/dansguardian/lists/blacklists/warez/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/adult/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/aggressive/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/audio-video/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/chat/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/drugs/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/entertainment/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/frencheducation/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/gambling/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/government/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/hacking/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/jobsearch/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/kidstimewasting/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/mail/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/news/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/porn/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/proxy/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/publicite/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/redirector/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/violence/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/virusinfected/urls>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/warez/urls>
 # You will need to edit to add and remove categories you want

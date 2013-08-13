@@ -113,7 +113,7 @@
 #Music - supplied by David Burkholder
 #(rock|pop|jazz|rap|punk)+.*(cult|roll|geek|drum|music|history|band)
 
-# WARNING: This is part of the URL for the dansguardian.org sample virus archive.
+# WARNING: This is part of the URL for the e2guardian.org sample virus archive.
 # You probably don't want to go there unintentionally.
 (Variants/AVTest)
 

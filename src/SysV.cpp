@@ -1,5 +1,5 @@
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 
@@ -28,7 +28,7 @@ extern OptionContainer o;
 
 // DECLARATIONS
 
-// get the PID from the given file, or by looking for "dansguardian" process by name - returns -1 if process not running
+// get the PID from the given file, or by looking for "e2guardian" process by name - returns -1 if process not running
 pid_t getpid(std::string pidfile);
 // read process number from file (straight file read, no is-it-running check)
 pid_t getpidfromfile(std::string pidfile);
@@ -50,7 +50,7 @@ pid_t getpid(std::string pidfile)
 			return p;  // it is so return it
 		}
 	}
-	pid_t t = getpidfromcommand("dansguardian");  // pid file method failed
+	pid_t t = getpidfromcommand("e2guardian");  // pid file method failed
 	// so try a search from the
 	// command
 	return t;  // if it failed t will be -1

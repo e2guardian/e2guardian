@@ -2,7 +2,7 @@
 // Based on contribution by Darryl Sutherland <darryl@weblink.co.za>
 
 // For all support, instructions and copyright go to:
-// http://dansguardian.org/
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 

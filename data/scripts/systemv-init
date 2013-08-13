@@ -8,8 +8,8 @@
 #              banned phrases, MIME types, filename \
 #              extensions and PICS labelling.
 # processname: dansguardian
-# pidfile: /var/run/dansguardian.pid
-# config: /etc/dansguardian/dansguardian.conf
+# pidfile: /usr/local/var/run/dansguardian.pid
+# config: /usr/local/etc/e2guardian/dansguardian.conf
 
 ### BEGIN INIT INFO
 # Provides:     dansguardian
@@ -55,10 +55,10 @@ function wait_for_pid()
 
 case "$1" in
 start)
-        if [ -f /usr/sbin/dansguardian ] &&
-           [ -f /etc/dansguardian/dansguardian.conf ]; then
+        if [ -f /usr/local/sbin/dansguardian ] &&
+           [ -f /usr/local/etc/e2guardian/dansguardian.conf ]; then
                 echo -n "Starting dansguardian: "
-                if /usr/sbin/dansguardian 2> /dev/null; then
+                if /usr/local/sbin/dansguardian 2> /dev/null; then
                         echo -e "\\033[60G\c"
                         echo -e "[ \\033[1;32m\c"
                         echo -e "OK\c"
@@ -77,10 +77,10 @@ start)
 stop)
         echo -n "Shutting down dansguardian: "
         WAITPID=0
-        if [ -f /var/run/dansguardian.pid ] ; then
-            WAITPID=`cat /var/run/dansguardian.pid`
+        if [ -f /usr/local/var/run/dansguardian.pid ] ; then
+            WAITPID=`cat /usr/local/var/run/dansguardian.pid`
         fi
-        if /usr/sbin/dansguardian -q 2> /dev/null; then
+        if /usr/local/sbin/dansguardian -q 2> /dev/null; then
                 if wait_for_pid $WAITPID ; then
                     echo -e "\\033[60G\c"
                     echo -e "[ \\033[1;32m\c"
@@ -94,7 +94,7 @@ stop)
                     echo -e "\\033[0;39m\c"
                     echo " ]"
                 fi
-                /bin/rm -f /var/run/dansguardian.pid
+                /bin/rm -f /usr/local/var/run/dansguardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 [ -d /var/lock/subsys ] && /bin/rm -f /var/lock/subsys/dansguardian
         else
@@ -110,8 +110,8 @@ restart)
         $0 start
         ;;
 status)
-        if [ -f /usr/sbin/dansguardian ]; then
-                /usr/sbin/dansguardian -s
+        if [ -f /usr/local/sbin/dansguardian ]; then
+                /usr/local/sbin/dansguardian -s
         fi
         ;;
         

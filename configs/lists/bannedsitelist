@@ -21,7 +21,7 @@
 #to allow part of it.
 
 #To include additional files in this list use this example:
-#.Include</etc/dansguardian/anotherbannedurllist>
+#.Include</usr/local/etc/e2guardian/anotherbannedurllist>
 
 #You can have multiple .Includes.
 
@@ -65,50 +65,50 @@ badboys.com
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-.Include</etc/dansguardian/lists/blacklists/ads/domains>
+.Include</usr/local/etc/e2guardian/lists/blacklists/ads/domains>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklists collection.
-#.Include</etc/dansguardian/lists/blacklists/adult/domains>
-#.Include</etc/dansguardian/lists/blacklists/aggressive/domains>
-#.Include</etc/dansguardian/lists/blacklists/artnudes/domains>
-#.Include</etc/dansguardian/lists/blacklists/audio-video/domains>
-#.Include</etc/dansguardian/lists/blacklists/beerliquorinfo/domains>
-#.Include</etc/dansguardian/lists/blacklists/beerliquorsale/domains>
-#.Include</etc/dansguardian/lists/blacklists/chat/domains>
-#.Include</etc/dansguardian/lists/blacklists/childcare/domains>
-#.Include</etc/dansguardian/lists/blacklists/clothing/domains>
-#.Include</etc/dansguardian/lists/blacklists/culinary/domains>
-#.Include</etc/dansguardian/lists/blacklists/dialers/domains>
-#.Include</etc/dansguardian/lists/blacklists/drugs/domains>
-#.Include</etc/dansguardian/lists/blacklists/entertainment/domains>
-#.Include</etc/dansguardian/lists/blacklists/forums/domains>
-#.Include</etc/dansguardian/lists/blacklists/frencheducation/domains>
-#.Include</etc/dansguardian/lists/blacklists/gambling/domains>
-#.Include</etc/dansguardian/lists/blacklists/government/domains>
-#.Include</etc/dansguardian/lists/blacklists/hacking/domains>
-#.Include</etc/dansguardian/lists/blacklists/homerepair/domains>
-#.Include</etc/dansguardian/lists/blacklists/hygiene/domains>
-#.Include</etc/dansguardian/lists/blacklists/jewelry/domains>
-#.Include</etc/dansguardian/lists/blacklists/jobsearch/domains>
-#.Include</etc/dansguardian/lists/blacklists/kidstimewasting/domains>
-#.Include</etc/dansguardian/lists/blacklists/mail/domains>
-#.Include</etc/dansguardian/lists/blacklists/news/domains>
-#.Include</etc/dansguardian/lists/blacklists/onlineauctions/domains>
-#.Include</etc/dansguardian/lists/blacklists/onlinegames/domains>
-#.Include</etc/dansguardian/lists/blacklists/onlinepayment/domains>
-#.Include</etc/dansguardian/lists/blacklists/personalfinance/domains>
-#.Include</etc/dansguardian/lists/blacklists/pets/domains>
-#.Include</etc/dansguardian/lists/blacklists/porn/domains>
-#.Include</etc/dansguardian/lists/blacklists/proxy/domains>
-#.Include</etc/dansguardian/lists/blacklists/publicite/domains>
-#.Include</etc/dansguardian/lists/blacklists/redirector/domains>
-#.Include</etc/dansguardian/lists/blacklists/ringtones/domains>
-#.Include</etc/dansguardian/lists/blacklists/sportnews/domains>
-#.Include</etc/dansguardian/lists/blacklists/sports/domains>
-#.Include</etc/dansguardian/lists/blacklists/vacation/domains>
-#.Include</etc/dansguardian/lists/blacklists/violence/domains>
-#.Include</etc/dansguardian/lists/blacklists/virusinfected/domains>
-#.Include</etc/dansguardian/lists/blacklists/warez/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/adult/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/aggressive/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/artnudes/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/audio-video/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/beerliquorinfo/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/beerliquorsale/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/chat/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/childcare/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/clothing/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/culinary/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/dialers/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/drugs/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/entertainment/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/forums/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/frencheducation/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/gambling/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/government/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/hacking/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/homerepair/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/hygiene/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/jewelry/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/jobsearch/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/kidstimewasting/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/mail/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/news/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/onlineauctions/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/onlinegames/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/onlinepayment/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/personalfinance/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/pets/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/porn/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/proxy/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/publicite/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/redirector/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/ringtones/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/sportnews/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/sports/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/vacation/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/violence/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/virusinfected/domains>
+#.Include</usr/local/etc/e2guardian/lists/blacklists/warez/domains>
 
 # You will need to edit to add and remove categories you want

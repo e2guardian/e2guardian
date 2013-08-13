@@ -3,7 +3,7 @@
 # 2004,2005 - Daniel Barron
 
 AC_PREREQ(2.57)
-AC_INIT(dansguardian, 2.12.0.0)
+AC_INIT(e2guardian, 2.12.0.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
@@ -622,7 +622,7 @@ AC_DEFINE_UNQUOTED([DG_CONFIGURE_OPTIONS], ["$ac_configure_args"], [Record confi
 libdir="${libdir}/${PACKAGE_NAME}"
 
 AC_ARG_WITH(sysconfsubdir,
-	[AC_HELP_STRING([--with-sysconfsubdir@<:@=dansguardian@:>@], [subdirectory under sysconfdir in which to place config files])],
+	[AC_HELP_STRING([--with-sysconfsubdir@<:@=e2guardian@:>@], [subdirectory under sysconfdir in which to place config files])],
 	[if test "x$withval" != "x"; then
 		dgsysconfdir="${sysconfdir}/${withval}"
 	else
@@ -646,13 +646,13 @@ AC_CONFIG_FILES([Makefile
 	        data/languages/Makefile
 	        data/scripts/Makefile
 	        data/scripts/bsd-init
-	        data/scripts/dansguardian
+	        data/scripts/e2guardian
 	        data/scripts/logrotation
 	        data/scripts/solaris-init
 	        data/scripts/systemv-init
 	        doc/Makefile
-	        configs/dansguardian.conf
-	        configs/dansguardianf1.conf
+	        configs/e2guardian.conf
+	        configs/e2guardianf1.conf
 	        configs/Makefile
 	        configs/lists/Makefile
 	        configs/lists/phraselists/Makefile

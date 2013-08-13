@@ -11,12 +11,12 @@ recommended that you start from the new version and re-do any customisations.
 
 Before installing the new copy, first make a backup of your existing config
 files.  For example:
-	cp -r /etc/e2guardian/ ~/e2guardian.old/
+	cp -r /etc/dansguardian/ ~/dansguardian.old/
 
 Then install the new copy.  After doing this, you should re-apply the old
 settings, importing them by hand; i.e. any setting you had changed from the
-default should be changed in the new e2guardian.conf file, and the same
-for other files such as e2guardianf1.conf.  Every option should be documented
+default should be changed in the new dansguardian.conf file, and the same
+for other files such as dansguardianf1.conf.  Every option should be documented
 by comments in the default configuration file; these comments are one of the
 best sources of information as to what a particular setting means.
 
@@ -28,7 +28,7 @@ incompatibility is almost certain.  If a new release changes C, there is
 incompatibility, but the change is minor.  When only D is incremented, the
 release is a bugfix release, and no changes should be necessary.
 
-If in doubt ask on the mailing list.  See http://e2guardian.org/ for details.
+If in doubt ask on the mailing list.  See http://dansguardian.org/ for details.
 
 Philip Allison
 2008-10-07
