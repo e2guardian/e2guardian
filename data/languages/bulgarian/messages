@@ -1,0 +1,54 @@
+# DansGuardian messages file in Bulgarian
+# by Pavel Constantinov <the_deepblade@hotmail.com>
+
+"1"," "
+
+"100","  IP      : "
+"101","  IP       ."
+"102","        : "
+
+"200"," URL  ."
+
+"300","   : "
+"301","   ."
+
+"400","     : "
+"401","     ."
+"402","     "
+"403","    ."
+
+"500"," : "
+"501"," URL: "
+"502"," Blanket Block          ."
+"503"," URL   : "
+"504","  URL    ."
+"505","   Blanket IP Block      IP address."
+
+"600","    IP ."
+"601","    IP ."
+"602","    ."
+"603","    URL-."
+"604","   : "
+"605","      : "
+"606","Bypass URL exception."
+"607","Bypass cookie exception."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","      ."
+"701","        ."
+
+"800","  MIME: "
+
+"900"," : "
+
+"1000","              ."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

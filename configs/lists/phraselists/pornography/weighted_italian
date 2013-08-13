@@ -1,0 +1,337 @@
+#
+
+#listcategory: "Pornography (Italian)"
+
+# parole
+< arrapa><100>
+< sborra><170>
+< pompin><170>
+< ditalin><170>
+< sperma><10>
+< fetic><40>
+< culo><20>
+< inculat><170>
+< lesbic><20>
+< capezzol><20>
+< vergin><20>
+< lucirosse><20>
+< vietatissim><20>
+< proibitissim><20>
+< vibrator><50>
+< sesso ><10>
+< erotic><20>
+< guardon><20>
+< chiapp><10>
+< tette><30>
+< cazzo ><40>
+< cazzi ><40>
+< cazzon><40>
+< troia ><50>
+< troie><50>
+< fica ><80>
+< figa ><80>
+< fiche ><80>
+< fighe ><80>
+< strafighe ><80>
+< strafiga ><80>
+< fichetta ><40>
+< fregna ><80>
+< fregne ><80>
+< porca ><10>
+< porcate ><20>
+< anale ><10>
+< anali ><40>
+< incest><20>
+< masturba><30>
+< oscen><5>
+< pedofil><40>
+< spogliarell><10>
+< orgia><20>
+< succhiacazz><170>
+< minchia ><30>
+< trombare ><40>
+< scopare ><40>
+< scopata ><100>
+< troiona ><100>
+< troione ><100>
+< porcona ><100>
+< porcone ><100>
+< puttanona ><100>
+< puttanone ><100>
+< puttanaccia ><100>
+< maialaccia ><100>
+< maialacce ><100>
+< perversion><20>
+< pervertit><20>
+
+# parole non offensive ma legate a porn site
+< ragazza ><5>
+< ragazze ><5>
+< donna ><5>
+< donne ><5>
+< studentesse><5>
+< soggetti ><5>
+< maturo ><5>
+< pubblico ><5>
+< maggiorenn><5>
+< minorenn><5>
+< visione ><5>
+< sconsigliata ><5>
+< sensibil><5>
+< offensivo ><5>
+< erotic><10>
+< materiale ><5>
+<attenzione><5>
+< severamente ><5>
+< proibito ><10>
+< penetrare ><10>
+< penetra ><10>
+< voglios><10>
+< materiale ><5>
+< contenuto ><5>
+< riprese><5>
+< rapporto><5>
+< rapporti><5>
+< coppie><5>
+< ninfoman><30>
+< accompagnatric><10>
+< prestazion><5>
+< trasgression><10>
+< case chiuse><10>
+< bordell><10>
+< appuntament><5>
+< in posa><10>
+< in calore><40>
+< pecorina><30>
+< bocchin ><20>
+
+# porn site: parole con aggettivo
+<sesso orale><170>
+<sesso di gruppo><170>
+<sesso spinto><170>
+<sesso anale><170>
+<sesso e basta><170>
+<sesso puro><170>
+<puro sesso><170>
+<scene di sesso><70>
+<culo aperto><170>
+<culi aperti><170>
+<culo sfondato><170>
+<culi sfondati><170>
+<culo rotto><170>
+<culi rotti><170>
+<rapporto anale><170>
+<rapporti anali><170>
+<orgasmo anale><170>
+<orge anali><170>
+<giocattoli anali><170>
+<penetrazioni anali><170>
+<penetrazione anale><170>
+<filmati porno gratis><70>
+<filmati hard gratis><70>
+<filmati hardcore gratis><70>
+<mega pompa><170>
+<mega pompe><170>
+<incontri extramatrimoniali ><50>
+<incontri erotici><40>
+<esibizionismo amatoriale><50>
+<donne troie><170>
+<mogli troie><170>
+<ragazze troie><170>
+<ragazza troia><170>
+<femmina troia><170>
+<femmine troie><170>
+<donne sexi><30>
+<donne vogliose><80>
+<sito del sesso><70>
+<sito hard><80>
+<siti hard><80>
+<circuito erotico><60>
+<ragazze porche><170>
+<donne porche><170>
+<femmine porche><170>
+<porno casalinghe><170>
+<solo per adulti><10>
+<sito per adulti><60>
+<web site per adulti><60>
+
+# porn site: frasi tipiche
+< di cazzo><150>
+< di cazzi><150>
+<divieto di accesso per minori><70>
+<divieto di accesso per minorenni><70>
+<devi essere maggiorenne><70>
+<non devi essere minorenne><70>
+<non devi essere un minorenne><70>
+<solo se hai più di ><70>
+<solo se hai piu' di ><70>
+<solo se sei maggiorenne ><70>
+<solo se dichiari di essere maggiorenne><70>
+<solo se dichiari di essere non essere minorenne><70>
+<solo se dichiari di essere non essere un minorenne><70>
+< destinat>,<pubblico maggiorenne><70>
+< destinat>,<pubblico maturo><70>
+< dichiari >,< di non sentirti offeso><70>
+< dichiari >,< di non ritenerti offeso><70>
+< salvaguarda>,< bambini>,< software ><20>
+< salvaguarda>,< minori>,< software ><20>
+< proteggere>,< bambini>,< software ><20>
+< proteggere>,< minori>,< software ><20>
+< tutela>,< bambini>,< software ><20>
+< tutela>,< minori>,< software ><20>
+<visione sconsigliata >,< impressionabili>,< soggetti ><70>
+<visione sconsigliata >,< impressionabili>,< persone > <70>
+<visione sconsigliata >,< sensibili>,< soggetti ><70>
+<visione sconsigliata >,< sensibili>,< persone ><70>
+< sconsiglia la visione >,< impressionabili>,< soggetti ><70>
+< sconsiglia la visione >,< impressionabili>,< persone ><70>
+< sconsiglia la visione >,< sensibili>,< soggetti ><70>
+< sconsiglia la visione >,< sensibili>,< persone ><70>
+< consentita >,< solo se hai compiuto il >,< anno ><70>
+<contiene >,< esplicit>,< porno><170>
+<contiene >,< esplicit>,< hard><170>
+<contiene >,< esplicit>,< sessuale ><170>
+<contiene >,< a sfondo >,< sessuale ><170>
+<contiene >,< a sfondo >,< porno><170>
+< adult>, < esplicit>,< offensiv><170>
+< offes>,< visione >, < materiale >,< hard><170>
+< offes>,< visione >, < materiale >,< porn><170>
+< vietato >,< minori di ><40>
+<solo per adulti >,<attenzione ><100>
+<solo per adulti >,< avviso ><100>
+<solo per adulti >,<avvisiamo ><100>
+<solo per adulti >,< avvisa ><100>
+<solo per adulti >,<si avvisa ><100>
+<solo per adulti >,<informiamo ><100>
+<solo per adulti >,< informa ><100>
+<solo per adulti >,<si informa ><100>
+<per soli adulti >,<attenzione ><100>
+<per soli adulti >,<avviso ><100>
+<per soli adulti >,<avvisiamo ><100>
+<per soli adulti >,< avvisa ><100>
+<per soli adulti >,<si avvisa ><100>
+<per soli adulti >,<informiamo ><100>
+<per soli adulti >,< informa ><100>
+<per soli adulti >,<si informa ><100>
+<per soli adulti >,<riservato ><100>
+<sito per adulti >,<attenzione ><100>
+<sito per adulti >,<avviso ><100>
+<sito per adulti >,<avvisiamo ><100>
+<sito per adulti >,< avvisa ><100>
+<sito per adulti >,<si avvisa ><100>
+<sito per adulti >,<informiamo ><100>
+<sito per adulti >,< informa ><100>
+<sito per adulti >,<si informa ><100>
+<sito per soli adulti >,<attenzione ><100>
+<sito per soli adulti >,<avviso ><100>
+<sito per soli adulti >,<avvisiamo ><100>
+<sito per soli adulti >,< avvisa ><100>
+<sito per soli adulti >,<si avvisa ><100>
+<sito per soli adulti >,<informiamo ><100>
+<sito per soli adulti >,< informa ><100>
+<sito per soli adulti >,<si informa ><100>
+< offendere >,< sensibilità><40>
+< offendere >,< sensibilita'><40>
+< offende >,< sensibilità><40>
+< offende >,< sensibilita'><40>
+<verifica >,< maggiore >,< età><100>
+<verifica >,< maggiore >,< eta'><100>
+< essere maggiorenne>,< entrare><100>
+< essere maggiorenne>,< visitare ><100>
+< essere maggiorenne>,< visionare ><100>
+< essere maggiorenne>,< accedere><100>
+< essere maggiorenne>,< dichiaro ><170>
+< essere maggiorenne>,< dichiari ><170>
+< essere maggiorenne>,< accerti ><100>
+< essere maggiorenne>,< certifichi ><100>
+< non essere minorenne>,< dichiaro ><170>
+< non essere minorenne>,< dichiari ><170>
+< non essere un minorenne>,< dichiaro ><170>
+< non essere un minorenne>,< dichiari ><170>
+< non essere un minorenne>,< accerti ><100>
+< non essere un minorenne>,< certifichi ><100>
+<accesso >,< proibito >,< minori><100>
+<accesso >,< proibito >,< minore età><100>
+<accesso >,< proibito >,< minore eta'><100>
+<accesso >,< proibito >,< minorenni><100>
+< uscire>,< non sei maggiorenne ><170>
+< non entrare>,< minorenne ><170>
+< tutti >,< modelli >,< maggiore >,< età><170>
+< tutti >,< modelli >,< maggiore >,< eta'><170>
+< tutti >,< modelli >,< sono maggiorenni><170>
+< tutte >,< modelle >,< maggiore >,< età><170>
+< tutte >,< modelle >,< maggiore >,< eta'><170>
+< tutte >,< modelle >,< sono maggiorenni><170>
+< uscire immediatamente >,< invitato ><100>
+< uscire immediatamente >,< invitiamo ><100>
+< consigliata ad un pubblico maggiorenne >,<visione ><100>
+< consigliata ad un pubblico maturo >,<visione ><100>
+< consigliata ad un pubblico adulto >,<visione ><100>
+< orientato >,< pubblico maturo><40>
+< orientato >,< pubblico maggiorenne><40>
+<accesso assolutamente anonim><40>
+<assolutamente anonim><20>
+<100% >,< anonim><40>
+<senza nessun riferimento><20>
+< sesso esplicito >,<scene ><170>
+< sesso esplicito >,<materiale ><170>
+< sesso esplicito >,<foto ><170>
+< sesso esplicito >,<filmati ><170>
+< sesso estremo >,<scene ><170>
+< sesso estremo >,<materiale ><170>
+< sesso estremo >,<foto ><170>
+< sesso estremo >,<filmati ><170>
+< hardcore estremo>,<scene><170>
+< hardcore estremo>,<materiale><170>
+< hardcore estremo>,<foto ><170>
+< hardcore estremo>,<filmati ><170>
+< hardcore estremo>,<film ><170>
+< hardcore estremo>,<video ><170>
+< video >,< porno>,< amatorial><170>
+< video >,< hard>,< amatorial><170>
+< trovare >,< film>,< porno>,< dove ><170>
+< trovare >,< film>,< hard>,< dove ><170>
+< trovare >,< video >,< porno>,< dove ><170>
+< trovare >,< video >,< hard>,< dove ><170>
+< nude dal vivo><70>
+<penetrare in italiano><170>
+<penetrare in inglese><170>
+<penetrate in italiano><170>
+<penetrate in inglese><170>
+<penetra in italiano><170>
+<penetra in inglese><170>
+<adult check id><170>
+<software di collegamento><60>
+<programma di collegamento><60>
+<software per il collegamento><60>
+<programma per il collegamento><60>
+<software per collegarsi><60>
+<programma per collegarsi><60>
+<legg>,< attentamente>,< le condizioni><20>
+<scaric>,< il programma><10>
+<scaric>,< il software><10>
+<segui>,<le istruzioni><10>
+<accett>,<le condizioni><10>
+<accett>,< i termini><10>
+<ingresso immediato><20>
+<senza carta di credito><40>
+<nessuna carta di credito><40>
+<non mostrare>,<minor><40>
+<pedofil>,<sito><100>
+<pedofil>,<materiale><100>
+<pedofil>,<contro><40>
+<sezione>,<dedicata>,<sesso><100>
+
+# sexy sites
+<senza censura><10>
+<senza alcuna censura><30>
+< spogliarsi><10>
+< pronta a spogliarsi><50>
+< pronte a spogliarsi><50>
+< pronta a obbedire><50>
+< pronte a obbedire><50>
+< pronta a soddisfare><50>
+< pronte a soddisfare><50>
+< lei obbedisce><20>
+< soddisfare ogni tuo ><50>
+

@@ -1,0 +1,557 @@
+#
+# Phraselists to block sports sites 
+# Originally created by Fernand Jonker
+# Greatly improved by David Burkholder in 2007
+#
+# Please send feedback to phrasemaster@dansguardian.org
+# 
+
+#listcategory: "Sport"
+
+#Sites
+<sportsillustrated><100>
+< si.com ><100>
+< espn><100>
+
+#Skating
+<skate><20>
+<stating><20>
+
+#Sports words
+<sports scores><25>
+<season pass><15>
+<season ticket><15>
+<scores>,<stats>,<sport><25>
+<tournament><15>
+<team player><10>
+<dressing room><15>
+<teammate><15>
+<train with the team><35>
+<spring training><35>
+<professional player><15>
+<national team><15>
+< regionals ><15>
+<midfield><15>
+<outfield><15>
+<outfitter><20>
+<clubhouse><30>
+<club member><30>
+<club due><30>
+<club fee><30>
+< nfl ><30>
+< cfl ><30>
+< rink ><15>
+< nba ><30>
+< wnba ><30>
+< ncaa ><30>
+< nhl ><30>
+< lpga ><30>
+< pga ><30>
+< tpc ><30>
+< wta ><30>
+< mls ><30>
+< uefa ><30>
+< atp ><30>
+<home match><15>
+<gymnasium><15>
+<team tryout><15>
+<players association><30>
+<trading deadline><15>
+<global cup><30>
+<world cup><30>
+<gladiator><65>
+<referee><20>
+
+#Games & Terms
+<basketball><15>
+<football><15>
+<soccer><15>
+<volleyball><15>
+<badminton><15>
+<hockey><15>
+<lacrosse><15>
+<fox hunting><15>
+<rugby><15>
+<baseball><15>
+<boxing><15>
+<wrestling><15>
+<tennis><15>
+<racquetball><15>
+<cricket><15>
+<snooker><15>
+<motorsport><15>
+<athletics><15>
+<playoff><20>
+<hall of fame><20>
+<pro bowl><30>
+<pre-game><30>
+<half-time><30>
+<halftime><30>
+<super bowl><30>
+<home run><15>
+<badminton><20>
+<racket><10>
+<shuttlecock><20>
+<billiards><20>
+<bowling><20>
+<boxing><20>
+<cricket><20>
+<cycling><20>
+<hockey><20>
+<figure skating><20>
+<gymnastics><20>
+<lacrosse><20>
+< polo ><20>
+<rodeo><20>
+< rowing ><20>
+<rugby><20>
+<marathon><20>
+<softball><20>
+<squash><20>
+<swim><20>
+<diving><20>
+<diver><20>
+<triathlon><20>
+<stadium><20>
+<volleyball><20>
+<weightlift><15>
+<wrestling><15>
+<hollywood award><20>
+<kiteboard><15>
+
+#Baseball teams
+<aberdeen ironbirds><30>
+<aguascalientes rieleros><30>
+<aiken foxhounds><30>
+<akron aeros><30>
+<albuquerque isotopes><30>
+<alexandria aces><30>
+<altoona curve><30>
+<amarillo dillas><30>
+<anderson joes><30>
+<angelópolis tigres><30>
+<arkansas travelers><30>
+<arizona league><30> 
+#following teams caught by <arizona league> no overblock so far
+#<arizona league angels><30>
+#<arizona league athletics><30>
+#<arizona league brewers><30>
+#<arizona league cubs><30>
+#<arizona league giants><30>
+#<arizona league mariners><30>
+#<arizona league padres><30>
+#<arizona league rangers><30>
+#<arizona league royals><30>
+<asheville tourists><30>
+<atlantic city surf><30>
+<auburn doubledays><30>
+<augusta greenjackets><30>
+<bakersfield blaze><30>
+<batavia muckdogs><30>
+<beloit snappers><30>
+<billings mustangs><30>
+<binghamton mets><30>
+<birmingham barons><30>
+<bluefield orioles><30>
+<boise hawks><30>
+<bowie baysox><30>
+<bradenton juice><30>
+<brevard county manatees><30>
+<bridgeport bluefish><30>
+<bristol white sox><30>
+<brockton rox><30>
+<brooklyn cyclones><30>
+<buffalo bisons><30>
+<burlington bees><30>
+<burlington royals><30>
+<calgary vipers><30>
+<camden riversharks><30>
+<campeche piratas><30>
+<carolina mudcats><30>
+<casper rockies><30>
+<cedar rapids kernels><30>
+<charleston riverdogs><30>
+<charlotte knights><30>
+<charlotte county redfish><30>
+<chattanooga lookouts><30>
+<chico outlaws><30>
+<chillicothe paints><30>
+<clearwater threshers><30>
+<clinton lumberkings><30>
+<coastal bend aviators><30>
+<colorado springs sky sox><30>
+<columbus catfish><30>
+<columbus clippers><30>
+<connecticut defenders><30>
+<corpus christi hooks><30>
+<danville braves><30>
+<dayton dragons><30>
+<daytona cubs><30>
+<delmarva shorebirds><30>
+<dunedin blue jays><30>
+<durham bulls><30>
+<edinburg coyotes><30>
+<edmonton cracker-cats><30>
+<el paso diablos><30>
+<elizabethton twins><30>
+<erie seawolves><30>
+<eugene emeralds><30>
+<evansville otters><30>
+<everett aquasox><30>
+<fargo-moorhead redhawks><30>
+<florence freedom><30>
+<fort myers miracle><30>
+<fort wayne wizards><30>
+<fort worth cats><30>
+<frederick keys><30>
+<fresno grizzlies><30>
+<frisco roughriders><30>
+<fullerton flyers><30>
+<gary southshore railcats><30>
+<gateway grizzlies><30>
+<grand canyon rafters><30>
+<great falls white sox><30>
+<great lakes loons><30>
+<greeneville astros><30>
+<greensboro grasshoppers><30>
+<greenville drive><30>
+<gulf coast braves><30>
+<gulf coast dodgers><30>
+<gulf coast indians><30>
+<gulf coast marlins><30>
+<gulf coast nationals><30>
+<gulf coast phillies><30>
+<gulf coast pirates><30>
+<gulf coast red><30>
+<gulf coast tigers><30>
+<gulf coast twins><30>
+<gulf coast yankees><30>
+<hagerstown suns><30>
+<harrisburg senators><30>
+<helena brewers><30>
+<hickory crawdads><30>
+<high desert mavericks><30>
+<honolulu sharks><30>
+<hudson valley renegades><30>
+<huntsville stars><30>
+<idaho falls chukars><30>
+<indianapolis indians><30>
+<inland empire 66ers of san bernardino><30>
+<iowa cubs><30>
+<jacksonville suns><30>
+<jamestown jammers><30>
+<johnson city cardinals><30>
+<joliet jackhammers><30>
+<jupiter hammerheads><30>
+<kalamazoo kings><30>
+<kane county cougars><30>
+<kannapolis intimidators><30>
+<kansas city t-bones><30>
+<kingsport mets><30>
+<kinston indians><30>
+<laguna vaqueros><30>
+<lake county captains><30>
+<lake elsinore storm><30>
+<lakeland flying tigers><30>
+<lakewood blueclaws><30>
+<lancaster barnstormers><30>
+<lancaster jethawks><30>
+<lansing lugnuts><30>
+<laredo broncos><30>
+<las vegas 51s><30>
+<lexington legends><30>
+<lincoln saltdogs><30>
+<long beach armada><30>
+<long island ducks><30>
+<louisville bats><30>
+<lowell spinners><30>
+<lynchburg hillcats><30>
+<macon music><30>
+<mahoning valley scrappers><30>
+<maryland road warriors><30>
+<memphis redbirds><30>
+<mesa solar sox><30>
+<méxico diablos rojos><30>
+<midland rockhounds><30>
+<mississippi braves><30>
+<missoula osprey><30>
+<mobile baybears><30>
+<modesto nuts><30>
+<monclova acereros><30>
+<monterrey sultanes><30>
+<montgomery biscuits><30>
+<myrtle beach pelicans><30>
+<nashua pride><30>
+<nashville sounds><30>
+<new britain rock cats><30>
+<new hampshire fisher cats><30>
+<new haven county cutters><30>
+<new jersey jackals><30>
+<new orleans Zephyrs><30>
+<newark bears><30>
+<norfolk tides><30>
+<north shore honu><30>
+<north shore spirit><30>
+<oaxaca guerreros><30>
+<ogden raptors><30>
+<oklahoma redhawks><30>
+<omaha royals><30>
+<oneonta tigers><30>
+<orem owlz><30>
+<ottawa lynx><30>
+<palm beach cardinals><30>
+<pawtucket red sox><30>
+<pensacola pelicans><30>
+<peoria chiefs><30>
+<peoria javelinas><30>
+<peoria saguaros><30>
+<phoenix desert dogs><30>
+<portland beavers><30>
+<portland sea dogs><30>
+<potomac nationals><30>
+<princeton devil rays><30>
+<puebla pericos><30>
+<Quebec capitales><30>
+<rancho cucamonga Quakes><30>
+<reading phillies><30>
+<reno silver sox><30>
+<richmond braves><30>
+<rio grande valley whitewings><30>
+<river city rascals><30>
+<rochester red wings><30>
+<rockford riverhawks><30>
+<rome braves><30>
+<round rock express><30>
+<sacramento river cats><30>
+<salem avalanche><30>
+<salem-keizer volcanoes><30>
+<salt lake bees><30>
+<saltillo saraperos><30>
+<san angelo colts><30>
+<san antonio missions><30>
+<san diego surf dawgs><30>
+<san jose giants><30>
+<san luis tuneros><30>
+<sarasota reds><30>
+<savannah sand gnats><30>
+<schaumburg flyers><30>
+<scranton/wilkes-barre red barons><30>
+<slippery rock sliders><30>
+<shreveport sports><30>
+<sioux city explorers><30>
+<sioux falls canaries><30>
+<somerset patriots><30>
+<south bend silver hawks><30>
+<south georgia peanuts><30>
+<southern illinois miners><30>
+<southern maryland blue crabs><30>
+<spokane indians><30>
+<springfield cardinals><30>
+<state college spikes><30>
+<staten island yankees><30>
+<stockton ports><30>
+<st. george roadrunners><30>
+<st. joe blacksnakes><30>
+<st. lucie mets><30>
+<st. paul saints><30>
+<surprise scorpions><30>
+<sussex skyhawks><30>
+<swing of the Quad cities><30>
+<syracuse chiefs><30>
+<tabasco olmecas><30>
+<tacoma rainiers><30>
+<tampa yankees><30>
+<tennessee smokies><30>
+<tijuana portros><30>
+<toledo mud hens><30>
+<traverse city beach bums><30>
+<trenton thunder><30>
+<tri-city dust devils><30>
+<tri-city valley cats><30>
+<tucson sidewinders><30>
+<tulsa drillers><30>
+<utica blue sox><30>
+<vancouver canadians><30>
+<rojos del Águila de veracruz><30>
+<vermont lake monsters><30>
+<vero beach dodgers><30>
+<visalia oaks><30>
+<waikiki beach boys><30>
+<washington wild things><30>
+<west michigan whitecaps><30>
+<west oahu canefires><30>
+<west tenn diamond jaxx><30>
+<west virginia power><30>
+<wichita wranglers><30>
+<williamsport crosscutters><30>
+<wilmington blue rocks><30>
+<windy city thunderbolts><30>
+<winnipeg goldeyes><30>
+<winston-salem warthogs><30>
+<wisconsin timber rattlers><30>
+<worcester tornadoes><30>
+<yakima bears><30>
+<york revolution><30>
+<yucatán leones><30>
+<yuma scorpions><30>
+
+#Hockey teams
+<atlanta thrashers><30>
+<boston bruins><30>
+<buffalo sabres><30>
+<calgary flames><30>
+<carolina hurricanes><30>
+<chicago blackhawks><30>
+<colorado avalanche><30>
+<columbus blue jackets><30>
+<dallas stars><30>
+<detroit red wings><30>
+<edmonton oilers><30>
+<florida panthers><30>
+<los angeles kings><30>
+<minnesota wild><30>
+<montreal canadiens><30>
+<nashville predators><30>
+<new jersey devils><30>
+<new york islanders><30>
+<new york rangers><30>
+<ottawa senators><30>
+<philadelphia flyers><30>
+<phoenix coyotes><30>
+<pittsburgh penguins><30>
+<san jose sharks><30>
+<st. louis blues><30>
+<stanley cup><30>
+<tampa bay lightning><30>
+<toronto maple leafs><30>
+<vancouver canucks><30>
+<washington capitals><30>
+
+#Football teams
+<arizona cardinals><30>
+<atlanta falcons><30>
+<baltimore colts><30>
+<baltimore ravens><30>
+<boston patriots><30>
+<buffalo bills><30>
+<carolina panthers><30>
+<chicago bears><30>
+<cincinnati bengals><30>
+<cleveland browns><30>
+<dallas cowboys><30>
+<dallas texans><30>
+<denver broncos><30>
+<detroit lions><30>
+<green bay packers><30>
+<houston oilers><30>
+<houston texans><30>
+<indianapolis colts><30>
+<jacksonville jaguars><30>
+<kansas city chiefs><30>
+<los angeles chargers><30>
+<los angeles raiders><30>
+<los angeles rams><30>
+<miami dolphins><30>
+<minnesota vikings><30>
+<new england patriots><30>
+<new orleans saints><30>
+<new york giants><30>
+<new york jets><30>
+<new york titans><30>
+<oakland raiders><30>
+<philadelphia eagles><30>
+<phoenix cardinals><30>
+<pittsburgh steelers><30>
+<san diego chargers><30>
+<san francisco 49ers><30>
+<seattle seahawks><30>
+<st. louis cardinals><30>
+<st. louis rams><30>
+<tampa bay buccaneers><30>
+<tennessee titans><30>
+<washington redskins><30>
+
+#Sailing
+<vuitton cup><35>
+<valencia><30>
+<boat race><35>
+<yacht race><35>
+<windsurf><15>
+<outboard><15>
+<canoeing><10>
+<rafting><15>
+<kayak><25>
+<yacht club><25>
+
+
+#Soccer
+<scottish premier league><30>
+<barclays premiership><30>
+<carling cup><30>
+<scottish league cup><30>
+<club deportivo chivas usa><30>
+<league champion><30>
+<fa cup><30>
+<lg cup><30>
+<fc dallas><30>
+<houston dynamo><30>
+<kansas city wizards><30>
+<los angeles galaxy><30>
+<new england revolution><30>
+<new york red bulls><30>
+<portuguese premier league><30>
+<real salt lake><30>
+<san jose earthquakes><30>
+<spanish primera liga><30>
+<scottish cup><30>
+<celtic cup><30>
+<african nations cup><30>
+
+#Tennis
+<australian open><30>
+<davis cup><30>
+<federation cup><30>
+<french open><30>
+<wimbledon><30>
+
+#Golf
+#< golf ><20> overblocks auto & lawn & garden sites
+<champions tour><30>
+<golf course><35>
+<golf club><30>
+<golf ball><30>
+<golf play><30>
+<golf swing><30>
+<golf score><30>
+<golf news><30>
+<golfer><30>
+<golfing><30>
+<golf>,<putt><30>
+<golf>,<tee><30>
+<european tour><30>
+<nationwide tour><20>
+<u.s. open><30>
+<u.s. senior open><30>
+<youth clinics><30>
+
+#racing
+< nhra ><30>
+< irl ><30>
+< iroc ><30>
+< wrc ><30>
+<drag racing><30>
+<horse racing><30>
+<car racing><30>
+<auto racing><30>
+<motorcycle racing><30>
+<formula 1><30>
+<indy car><30>
+<nascar><30>
+
+#Olympics
+<olympic games><40>
+<olympic team><40>
+< olympic ><15>
+
+
+

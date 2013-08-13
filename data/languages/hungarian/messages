@@ -1,0 +1,52 @@
+# DansGuardian 2.8 messages file in Hungarian
+
+"1","A hozzfrs tiltott"
+
+"100","Az n IP cme nem engedlyezett ehhez a bngszhz: "
+"101","Az n IP cme nem engedlyezett ehhez a bngszhz."
+"102","A felhasznlneve nem engedlyezett ehhez e abngszhz: "
+
+"200","A krt URL formtuma nem tnik biztonsgosnak."
+
+"300","Tiltott kifejezs: "
+"301","Tiltott kifejezs."
+
+"400","Tiltott sszettel kifejezs: "
+"401","Tiltott sszettel kifejezs."
+"402","A slyozott kifejezs hatra "
+"403","A slyozott kifejezs elrte a hatrt."
+
+"500","Tiltott oldal: "
+"501","Tiltott URL: "
+"502","A domain-alap szrs aktv s ez az oldal sem a 'fehr', sem a 'szrke' listn nincs fent."
+"503","Tiltott regulris kifejezs URL: "
+"504","Tiltott regulris kifejezs URL."
+"505","A cmtartomny alap szrs aktv s ez csak egy egyszer IP-cm."
+
+"600","Kifogsolhat kliens IP egyezs."
+"601","Kifogsolhat kliens felhasznl egyezs."
+"602","Kifogsolhat oldalegyezs."
+"603","Kifogsolhat URL-egyezs."
+"604","Kifogsolhat kifejezs: "
+"605","Kombincis kifogsolhat kifejezs: "
+"606","Tovbbugrat URL kifogs."
+"607","Tovbbugrat sti kifogs."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","A Webre trtn feltlts tiltva."
+"701","A Webre trtn feltlts korltjt elrte."
+
+"800","Tiltott MIME Tpus: "
+
+"900","Tiltott kiterjeszts: "
+
+"1000","A PICS szervezet jellsi szintjt elrte a fels oldal."
+
+"1100","Vrussal fetztt llomny."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

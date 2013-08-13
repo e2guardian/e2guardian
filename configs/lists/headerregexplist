@@ -1,0 +1,14 @@
+# Outgoing HTTP header modifying Regular Expressions
+#
+# The format is: "extended regular expression"->"replacement straight string"
+# E.g. "shit"->"censored" would replace all occurances of shit in any case.
+# Far more complicated matches are possible.  See other sources for examples
+# of extended regular expressions.
+#
+# Headers are run through replacements line-by-line, not as a single block.
+
+# "Expect:" header should be dropped because DG is HTTP/1.0 and not HTTP/1.1
+"expect:(.*)"->""
+
+# Windows Live Search cookie replacement - force filtering on
+#"cookie:(.*)&ADLT=(OFF|DEMOTE)"->"Cookie:$1&ADLT=STRICT"

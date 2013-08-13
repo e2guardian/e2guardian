@@ -1,0 +1,65 @@
+Plugins in DansGuardian
+=======================
+
+Since the 2.9 series, DansGuardian uses "plugins" for authentication, content scanning and download management. Originally, plugins were intended to be built as shared objects, allowing third-party plugins to be maintained as separate projects and easily integrated. However, getting initial implementations of this idea to compile on platforms other than Linux - in fact, even just on machines other than Daniel's development box, by some accounts - was problematic, and held up progress considerably.
+	Eventually the idea was dropped, opting instead for plugins simply being implementations of common base classes, compiled directly into the main binary. Although less elegant, and less conducive to the development of third-party plugins, this has proven simpler to develop and support across the various platforms supported by earlier releases, allowing us to stop wrestling with libtool and get some "real" work done.
+
+See the AuthPlugins, DownloadManagers and ContentScanners documents for more information about implementing a specific plugin type.
+
+
+How plugins are hooked into the build system
+============================================
+
+The source files for plugins themselves live in "src/contentscanners", "src/downloadmanagers" or "src/authplugins", according to plugin type. Configuration files live in "configs/<type>" ("/etc/dansguardian/<type>" after installation).
+	For a plugin to be built, its source file must be included in the "dansguardian_SOURCES" variable in "src/Makefile.am", and code to instance the plugin when encountering the relevant "plugname" string - taken from the "plugname" directive in the configuration file - must be added to the relevant top-level source file. The top-level source files are Auth.cpp for authentication plugins, ContentScanner.cpp for content scanning plugins, and DownloadManager.cpp for download management plugins. These files contain a list of externs referring to builder functions for the various plugin classes, the default implementations of any non-abstract methods of the base class, and a "*_plugin_load" function consisting mainly of code to check the plugname and return an instance of the desired plugin.
+	As an example, here's the bare minimum necessary to build and load a new, hypothetical "fooscan" content scanner. To create and compile the plugin:
+
+-----
+
+src/contentscanners/fooscan.cpp:
+	Include "../ContentScanner.hpp" here and implement the ContentScanner
+	class however you see fit.
+	Make sure there is a "foocreate" function, which accepts a ConfigVar&
+	and returns a CSPlugin*, i.e. creates an instance of your plugin.
+
+src/ContentScanner.cpp:
+	Add "extern cscreate_t foocreate;" to the top of the file.
+	Add an 'if (plugname == "fooscan")' section to cs_plugin_load.
+
+src/Makefile.am:
+	Add "contentscanners/fooscan.cpp" to the end of "dansguardian_SOURCES".
+
+-----
+
+	For a plugin to be loaded, there must be a line in dansguardian.conf referencing a config file which contains your new plugin's plugname, e.g.:
+
+-----
+
+/etc/dansguardian/dansguardian.conf:
+	contentscanner = "/etc/dansguardian/contentscanners/fooscan.conf"
+
+/etc/dansguardian/contentscanners/fooscan.conf:
+	plugname = "fooscan"
+
+-----
+
+This can be built and installed by adding a default fooscan.config file to "configs/contentscanners", and appending the filename to the FLISTS variable inside "configs/contentscanners/Makefile.am".
+	You will have to run autogen.sh after modifying any Makefile.am files, to regenerate the corresponding Makefile.in files, then configure, make and install as usual.
+
+
+Optional compilation of plugins
+===============================
+
+If you want compilation of your plugin to be controllable by a configure argument, you will have to understand a thing or two about autotools. You will notice inside src/Makefile.am and configs/<type>/Makefile.am that the addition of source files to targets is bounded by "ENABLE_*" conditionals, and that entries in src/ContentScanner.cpp and friends are bounded by #ifdefs. These flags are set (or not set, if disabled) by calls to AM_CONDITIONAL and AC_DEFINE within configure.ac - it is recommended that you examine existing option tests in that file to see how this is typically done.
+	Run autogen.sh after modifying configure.ac, then configure, make, make install.
+
+
+Building multiple third-party plugins
+======================================
+
+This is not something that is currently handled well - or even at all. Since adding plugins requires additions to parts of the build system, the files are, unfortunately, moving targets and so not easily patched. If anyone wants to write a tool that aids in this process, perhaps scanning plugin directories for code snippets and automatically inserting them where necessary, please do so.
+	This is something that shall hopefully be addressed in future versions, possibly with a second attempt at going the libtool route. Note, however, that there aren't actually any third-party plugins available at time of writing.
+
+
+--
+Phil A. philip.allison/smoothwall.net

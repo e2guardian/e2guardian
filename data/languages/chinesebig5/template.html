@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>DansGuardian - 禁止讀取</TITLE>
+</HEAD>
+<BODY>
+<CENTER><H2>禁止 -USER- 讀取</H2>
+<br>讀取網頁：
+<P><strong><a href="-URL-">-URL-</a></strong>
+<P>... 被禁止因了以下理由：
+<P><strong><font color="#ff0000">-REASONGIVEN-</font></strong>
+<p><table border=1 bgcolor="#FFEE00">
+   <tr>
+      <td>您看到這個錯誤因為您要讀取的網頁有不適當的資料。
+      </td>
+   </tr>
+</table>
+<P><table border=1 bgcolor="#44dd44">
+   <tr>
+      <td>如您有問題請聯絡ICT協調員或網路管理員。
+      </td>
+   </tr>
+</table>
+<P><font size=-3>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font>
+</center>
+</BODY>
+</HTML>
+<!--
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+
+You need to remove the space between the - and the variable to use them
+in your HTML. They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+Daniel Barron 2002-03-27
+
+Translated to Traditional Chinese (Big5) by: Fr. Visminlu Vicente L. Chua, S.J. 2002-10-10
+-->

@@ -1,0 +1,52 @@
+# DansGuardian 2.8 messages in Brazilian Portuguese
+# Mensagens do DansGuardian 2.8 file em Portugus do Brasil (pt-BR)
+# Translated/traduzido (?) by/por Henrique Araujo - Sys Admin
+# henrique@colegiosaogoncalo.g12.br
+# Cuiab - MT, Brasil
+
+"1","Acesso negado."
+"100","Seu endere&ccedil;o IP n&atilde;o tem permiss&atilde;o de acesso &agrave;&nbsp; web: "
+"101","Seu endere&ccedil;o IP n&atilde;o tem permiss&atilde;o de acesso &agrave;&nbsp; web: "
+"102","Esse nome de usu&aacute;rio n&atilde;o tem permiss&atilde;o de acesso &agrave;&nbsp; web: "
+"200","A URL requerida est&aacute; mal formada."
+"300","Encontrada frase proibida: "
+"301","Encontrada frase proibida: "
+"400","Encontrada combina&ccedil;&atilde;o de frases proibida: "
+"401","Encontrada combina&ccedil;&atilde;o de frases proibida: "
+"402","Limite de frase ponderada de "
+"403","Limite de frase ponderada excedido."
+"500","S&iacute;tio proibido: "
+"501","URL proibida: "
+"502","Bloqueio geral est&aacute; ativo e aquele s&iacute;tio n&atilde;o est&aacute; na lista livre."
+"503","Express&atilde;o Regular proibida em URL: "
+"504","Encontrada Express&atilde;o Regular proibida em URL: "
+"505","Bloqueio geral de IP est&aacute; ativo e aquele endere&ccedil;o n&atilde;o possui nome."
+"600","Cliente IP est&aacute; na lista de exce&ccedil;&otilde;es."
+"601","Usu&aacute;rio est&aacute; na lista de exce&ccedil;&otilde;es."
+"602","S&iacute;tio est&aacute; na lista de exce&ccedil;&otilde;es."
+"603","URL est&aacute; na lista de exce&ccedil;&otilde;es."
+"604","Encontrada frase na lista de exce&ccedil;&otilde;es: "
+"605","Encontrada combina&ccedil;&atilde;o de frases na lista de exce&ccedil;&otilde;es: "
+"606","Desvio tempor&aacute;rio de bloqueio (Bypass URL.)"
+"607","Desvio tempor&aacute;rio de bloqueio (Bypass cookie.)"
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","Transfer&ecirc;ncia de arquivos para web proibida."
+"701","Limite de transfer&ecirc;ncia de arquivos para web excedido."
+
+"800","Tipo MIME proibido: "
+
+"900","Extens&atilde;o proibida: "
+
+"1000","N&iacute;vel de rotulagem PICS excedido no s&iacute;tio acima."
+
+# 1,1000 by Andson Gomes - html internet
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

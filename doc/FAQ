@@ -1,0 +1,171 @@
+Q. Do I have to use Squid? Can other software be used as the parent proxy?
+
+A. In theory you can use any old HTTP proxy, however DG is only regularly tested with Squid.
+
+
+Q. Is the content (anti-virus) scanning support in DansGuardian 2.10 and above related to the "DansGuardian Anti-Virus Plugin" (DGAV) project?
+
+A. There are certain common elements, such as the naming of some of the virus scanning plugins and configuration options, but code itself has not been taken from the project, primarily for legal reasons (both projects are released under the GPL, but code contributed to anything other than DansGuardian itself has different ownership). With regards to the 2.8 series, DGAV is certainly viewed as a friendly fork.
+
+
+Q. How do I set up virus scanning?
+
+A. Make sure DG is built with at least one content scanning plugin enabled ("--enable-clamd", "--enable-kavd", "--enable-icap", or "--enable-commandline"). After compilation and installation, uncomment the relevant "contentscanner" line in dansguardian.conf to enable loading the plugin. Also take a look in the plugin's own configuration file, the path of which is in the "contentscanner" option, and perform any necessary customisations - for example, settings the "clamdudsfile" option in clamdscan.conf.
+	For new installations, the "clamdscan" plugin is recommended; this requires you to have ClamD running on the same machine as DG, but is flexible (using ClamD's own configuration file for extra control) and simple to set up.
+
+
+Q. Can the clamdscan plugin use a remote instance of ClamD?
+
+A. Not currently, no. The primary reason for this limitation is that by restricting it to local instances only, content does not have to be sent over the network for scanning. This could be achieved with the current version either by hooking up ClamD to an ICAP server and using DG's ICAP plugin. (Another potential method, which hasn't been tested, might be putting DG's filecachedir on NFS and using something like socat (http://www.dest-unreach.org/socat/) to mirror a remote ClamD's UNIX socket.)
+
+
+Q. Why do downloads take a long time to start when using virus scanning?
+
+A. Because DG has to download the whole file and perform scanning before it can be sent on to the client. Keep-alive data is sent to clients during this process by "download manager" plugins: "default" simply sends dummy HTTP headers, whilst "fancy" sends a full-blown HTML/JavaScript download progress bar (see the included DownloadManagers document for more info on how a manager is chosen for a given transfer).
+
+
+Q. Why doesn't streaming media work when using virus scanning?
+
+A. See above - whole files have to be downloaded before virus scanning can be performed. To DG, streaming media looks like either a single large file, or - in the case of "never ending" streams such as Icecast radio - an "infinitely large" file. In both cases, the streaming server will not have reported the size of the content in its HTTP response headers, so DG does not have any basis for immediately deciding that the file is too large. It will resort to downloading up to "maxcontentfilecachescansize" bytes of data (the maximum amount of data it is allowed to cache to a temporary file on disk) with the intention of performing a virus scan, after which it will give up and forward all data to the client, streaming any extra data that may arrive.
+	The virus exception lists - exceptionvirusmimetypelist, exceptionvirussitelist, etc. - will need to be used to let DG know not to scan streaming media.  The default extension and MIME type lists contain a variety of entries which should cover most types of media, but they are not exhaustive.
+	Streaming media accessed over HTTP can be argued to be an abuse of the protocol; any media accessed via dedicated streaming protocols will continue to function as normal, as it is not proxied by DG. Note that some (older?) Icecast servers do not actually output standard HTTP response headers, and notably do not output either a file extension or a MIME type, meaning that the media can only be excepted from scanning by matching the domain/URL.
+
+
+Q. Is there any way to send partial files to clients whilst a file is being virus scanned? DGAV does this and I miss it.
+
+A. If you have HTTP clients that don't work even with the "default" download manager, or really, really want to give end users the impression that files are downloading, then build and enable the "trickle" plugin. This slowly sends parts of not-yet-scanned files to clients, which enables them to report download progress (although reported progress will be slower than the actual download), and only lets the transfer complete for clean files. Note that there is some debate as whether or not this is entirely safe, as some malware is incredibly small, and some files can be processed before they are completely downloaded, e.g. progressive JPEGs. This explains the decision not to enable this mode by default.
+
+
+Q. There appear to be 2 content scanning plugins that invoke ClamAV ("clamdscan" and "commandlinescan"). What is the difference, and which should I be using?
+
+A. The "clamdscan" scanner saves all content to disk, and passes filenames to an instance of ClamD.  The example configuration for "commandlinescan" achieves the same thing, but does so by invoking an external command-line utility instead of communicating with ClamD directly.  This method should not be used to invoke ClamD - it *will* be slower than the "clamdscan" plugin, and is purely intended as an example of how to use "commandlinescan".
+
+
+Q. What happened to the "clamav" content scanning plugin?
+
+A. It has been removed.  This plugin used the ClamAV library directly, as opposed to the "clamdscan" plugin's usage of a running instance of ClamD.  However, it was awkward to maintain, provided no performance benefit (since the data still had to be saved to disk before scanning), didn't give full control over ClamAV's options, and generally served only to confuse people.
+
+
+Q. How do I know whether or not something was virus scanned? OR: I have my AV software set to ignore some file types, but DG is claiming the files have been scanned.
+
+A. Any content that has been scanned is marked with "*SCANNED*" in DG's access log. Technically, this means it was sent to the loaded content scanning plugins; what these and any external software they may rely on actually did with it is entirely their business. For example, an ICAP server may be configured not to virus scan JPEGs, but unless DG itself is configured similarly, it will send them to it all the same, and log that it has done so.
+
+
+Q. How do I set up multiple filter groups?
+
+A. Duplicate the dansguardianf1.conf file, so that there is one per group (dansguardianf2.conf, dansguardianf3.conf, etc.). Set the "filtergroups" parameter in dansguardian.conf accordingly. Duplicate the list files referenced by the filter group config - "bannedsitelist", "bannedurllist" etc. - once per group, if you wish to customise them separately. (These are the "top-level" list files, in that they mostly consist of include statements for other lists.)
+	Uncomment one of the "authplugin" lines in dansguardian.conf and, if choosing proxy-basic or proxy-ntlm, configure Squid to require basic or NTLM authentication accordingly. Fill in the username/group mappings in the "filtergroupslist" file. If you wish to enforce authentication, map all users to groups higher than 1, and set group 1's groupmode to 0 (banned), as this is the default group for unidentified users.
+
+
+Q. How do I assign users to groups when using the "ip" auth plugin?
+
+A. Use the "/etc/dansguardian/lists/authplugins/ipgroups" file. This is separate from the filtergroupslist because it has a different syntax, catering for IP range and subnet matches instead of static usernames, and is only used by the one plugin.
+
+
+Q. I cannot use the exceptionuserlist and banneduserlist any more. What happened?
+
+A. These lists were abandoned when the "groupmode" parameter was added to the filter group configuration (dansguardianf*.conf). Banned and exception IP lists still exist, but they are intended for identifying particular machines, not people, and primarily for temporary use only - for example, quickly banning access from a spyware-infested machine, or providing unfiltered access for servers needing to download updates. If you want full identification by IP, use the "ip" auth plugin and multiple filter groups.
+
+
+Q. Looking in Squid's access.log, all entries have the client IP given as the box running DansGuardian (typically 127.0.0.1). How can I log the original client IPs?
+
+A. Turn on the "forwardedfor" option in dansguardian.conf, and get Squid to obey the "X-Forwarded-For" header in incoming requests. For Squid 2.5, you will have to apply the following patch: http://devel.squid-cache.org/follow_xff/follow_xff-2.5.patch
+	This has become a core feature in Squid 2.6-STABLE1 and above. Be wary of also enabling the "usexforwardedfor" option in DG, as it is trivial for clients to spoof headers in the original request.
+
+
+Q. I used to use a "sandwich" configuration (Squid -> DG -> Squid) to implement NTLM support; how do I migrate to DG's native NTLM support?
+
+A. Disable the first Squid entirely, and configure the second Squid for NTLM instead of "basic" authentication. Make sure you configure your DG build with "--enable-ntlm" (enabled by default), and uncomment the "authplugin" line in dansguardian.conf corresponding to the "proxy-ntlm" plugin.
+
+
+Q. How can I disable persistent connections? Will this break NTLM?
+
+A. Disable "client_persistent_connections" in Squid to prevent clients making a persistent connection to the proxy. DansGuardian itself has no related configuration options, as it simply follows the relevant RFCs as best it can, obeying the instructions in the request and response headers (i.e. if Squid disallows persistency, so does DG). This won't break NTLM: it is true that NTLM-over-HTTP requires persistent connections, but Squid always allows persistency during the auth handshake. You can also disable "server_persistent_connections" if you don't want Squid to make persistent connections to origin servers; these are completely de-coupled from persistent connections to clients.
+
+
+Q. Can users be a member of more than one filter group?
+
+A. No, they cannot. A filter group in DG is a self-contained set of options, not something that can be stacked. If all you really want is to share customised lists between groups, create them as separate files, and put include statements for them in the top-level lists for all applicable groups.
+
+
+Q. How does DansGuardian verify passwords? Or: why am I getting authentication prompts with no authplugins enabled?
+
+A. DansGuardian does not verify passwords, and will never initiate an authentication handshake on its own. As per the "basic" auth support in the 2.8 series, DG simply passes authentication requests from Squid to the browser, and sniffs the username from the credentials the browser sends back. It is Squid that supplies the authentication request, and Squid that performs the password checking; it does such a good job that we see no reason to re-invent that particular wheel.
+
+
+Q. Is it possible to disable content filtering, and perform AV scanning only?
+
+A. Yes! There are two options; the easy way, and the hard way. The hard way consists of turning off the individual filtering options one by one: setting "weightedphrasemode = 0", blanking the bannedsitelist, etc. The easy way is simply to set "groupmode = 2" in your filter group configuration files (dansguardianf*.conf), and enable "contentscanexceptions" in dansguardian.conf.
+
+
+Q. Can I use DG as a pure URL filter?
+
+A. Yes, although you will be missing out on a lot. Set the "weightedphrasemode" to 0, comment out any "contentscanner" lines, and truncate the banned/exception MIME type, extension and regexp lists.
+
+
+Q. How does DG identify adverts?
+
+A. Adverts are identified on the basis of the string "ADs" appearing in the categories under which the site is blocked. For example, a URL list containing '#listcategory "ADs"' will identify its contents as adverts.
+
+
+Q. Why is the HTML block page not shown when blocking adverts?
+
+A. This is primarily so as not to disrupt the rendering of pages containing adverts in IFRAMEs. Showing the block page in an IFRAME would look just as distracting as the advert itself, and may break page layout.
+
+
+Q. How can I embed images into the HTML template?
+
+A. If customising the template to include images, you will need to run a webserver on your LAN to host them, and ensure that you use absolute URLs in your image tags. DG is not a webserver; even if you put the images in the same directory as the HTML template, it will not be capable of serving them.
+
+
+Q. How do I use reportinglevel 2?
+
+A. You need to run a webserver to host your custom block page/script, and configure DG's "accessdeniedaddress" to point at it. You cannot point the "accessdeniedaddress" at the filter IP and port; DG is not a webserver, it is only capable of serving its built-in HTML template.
+
+
+Q. How do I force users to enter a username and password to use the filter bypass feature?
+
+A. To do this, you need to be using reportinglevel 2, and create a CGI or similar for generating your own bypass URLs. Set the "bypass" option in your filter group configuration files to -1 to prevent DG generating bypass hashes automatically (as users would otherwise be able sniff these as they are passed to your block script, and bypass the authentication), and set a static "bypasskey" option, as this secret is used during both hash generation and verification to prevent forgery. Once you have your external bypass URL generator working, you can implement any desired form of web-based authentication as a required step before giving out bypass URLs.
+	A basic summary of what actually happens is as follows:
+	1. The user requests a webpage, and DG determines that it is blocked.
+	2. DG sends a redirect to the user's browser, pointing them at the URL configured in "accessdeniedaddress", and passing in various bits of information (denied site, reason, etc.) as URL parameters.
+	3. The user clicks the bypass link/button on your custom block page, which forwards them to your hash generation CGI (also forwarding the necessary info from DG, either as URL or form parameters).
+	4. The user is forced to enter a username and password, either by Apache htaccess or some other mechanism.
+	5. Assuming the user authenticates successfully, the hash generator runs, and redirects the user's browser straight to the bypass URL and/or presents it to them as a link.
+	More information can be found at http://contentfilter.futuragts.com/wiki/index.php?title=Bypass_Hash_Usage
+
+
+Q. How can I set up time-limited exceptions, e.g. allow webmail access during lunchtime?
+
+A. Create a new site or URL list containing a "#time:" directive (documentation for this can be found in the default bannedsitelist file). Add an include statement (".Include<filename>") for your new list to the top-level banned or exception site/URL list, e.g. exceptionurllist, depending on whether you want to create bans or exceptions. The contents of your new file will only be included in the list at the times specified in the time directive.
+
+
+Q. Why don't I see HTTPS requests in DG's access log?
+
+A. If you are using transparent/interception proxying, you won't, as HTTPS cannot be proxied in this manner due to the end-to-end encryption. Otherwise, first check to see if such requests are showing up in Squid's log - if not, then again, the requests probably aren't going through the filter. If the requests do show up in Squid's log, check DG's "loglevel" setting. The default is 2, which logs all requests for textual content (i.e. HTML but not images); the MIME type of HTTPS requests is not sent in the clear, and so they are not logged since it is not known whether or not content is text.
+
+
+Q. Why don't I get the full HTML template when an HTTPS request is blocked? Can I customise the message returned?
+
+A. Because some browsers cannot handle unencrypted error pages of more than a few bytes in response to an HTTPS request. Currently this message can only be customised by modifying source code.
+
+
+Q. Help! I have DansGuardian installed on my gateway, and strangers are using my proxy/filter. How do I stop them?
+
+A. Use a firewall (iptables) to prevent external connections to DG and Squid's listening ports, and/or configure DG and Squid to listen only on LAN interfaces. In DG, a non-blank "filterip" line causes DG to bind its listening socket to the given IP; multiple "filterip" lines can be given if needed. Squid allows specification of bind IPs in the "http_port" directive.
+	Also note that if you do not have any machines/users on your network which are allowed to bypass the filter, then Squid only needs to be configured to listen on the loopback interface (127.0.0.1).
+
+
+Q. DG seems to be very slow to access a site initially, but repeated accesses to the same site are fine. What's going on?
+
+A. You quite possibly have DNS performance issues. Enable the cache manager in Squid and monitor the average time for DNS requests; ideally values should be in the low single figures. One possibility for reducing DNS load is disabling the "reverseaddresslookups" option in DG; however, people will be able to bypass the site/URL filtering (but not the content or virus filtering) by visiting websites by IP directly.
+
+
+Q. What permissions does DG need to create its PID file, access.log file and IPC sockets?
+
+A. DG creates and updates its PID file as root, so permissions should not be an issue here. However, it must be able to write to its access.log file as an unprivileged user: this is the user/group set by the "daemonuser" and "daemongroup" options; by default, "nobody:nobody". The IPC sockets (UNIX domain sockets) must be in a location writable by the unprivileged user; by default they are in "/tmp" and so not generally an issue.
+
+
+Q. I want to stop people from using MSN, ban filesharing, virus-scan their FTP transfers, put quotas on their email usage, remove all spyware and implement world peace!
+
+A. DansGuardian is an HTTP proxy. It does not speak any other protocol. FTP via HTTP proxy only works because Squid is capable of translating between the two; if you want to use DG as a "real" FTP proxy, for clients other than web browsers, it will not work. It is true that some IM clients can tunnel conversations over HTTP - DG doesn't implement any special features to detect or block this, but incoming messages may be content filtered if they are in the clear, and usage of such clients blocked based on the destination IPs/domains in the HTTP requests.

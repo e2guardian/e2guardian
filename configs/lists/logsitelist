@@ -1,0 +1,12 @@
+# Log site list
+#
+# This acts as a list of domains which, when found, will have their category
+# recorded but no specific filtering action taken.  It is only really useful
+# in conjunction with log analysers, to perform meaningful categorisation and
+# analysis upon non-blocked/exception requests, and so is disabled and empty
+# by default.
+#
+# If you would like to enable this feature, uncomment "logsitelist" in your
+# dansguardianf*.conf file(s), and place .Include<> statements here for the
+# categories you would like to log.  Included list files must contain a
+# "#listcategory" directive.

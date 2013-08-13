@@ -1,0 +1,30 @@
+#
+# Phraselists to block nudism/naturaism sites 
+# Created by Fernand Jonker
+#
+
+#listcategory: "Nudism"
+
+<clothes-free><30>
+<clothing optional><30>
+< naturism ><30>
+< naturist ><30>
+<naturists and nudists><80>
+<nekkid><20>
+<nude beach ><30>
+<nude beaches ><30>
+<nude hik><30>
+<nude recreation><30>
+<nudism><30>
+<nudism ring><40>
+<nudist><30>
+<nudists paradise><70>
+<nudists-paradise><70>
+< nudity><20>
+<visual depiction>,<nude><50>
+<visual depiction>,<nudist><50>
+
+#Site Names
+<darebare><30>
+<cybernude><30>
+<holy nature><50>

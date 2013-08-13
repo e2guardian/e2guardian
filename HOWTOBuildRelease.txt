@@ -1,0 +1,30 @@
+HOWTOBuildRelease.txt
+
+This file documents the DansGuardian release process.
+
+1. Add the feature/fix the bug to your local source code.
+2. Test that it works.
+3. Update the ChangeLog file contents with details of the change and new version number.
+4. Update the configure.ac file with the new version number.
+5. Commit the changes to the SourceForge SVN.
+6. Building the actual tarball:
+
+As root on a modern Linux with build tools and subversion installed do:
+
+rm -fr dansguardian (if you have a dansguardian directory)
+svn co https://dansguardian.svn.sourceforge.net/svnroot/dansguardian/trunk dansguardian
+cd dansguardian/dansguardian
+./tarballup.sh
+
+7. Eventually a tarball called dansguardian-VERSION.tar.gz will be created in the current
+directory
+
+8. Test build the tarball contents.  Ideally test run it too!
+
+9. Emailed the tarball off to the dansguardian.org website maintainer along with text for
+a news item.
+
+10. When the file is uploaded and the news item live, you should email the DansGuardian
+and DansGuardian-Announce mailing lists.
+
+11. Await feedback on the mailing list.  Rinse and repeat.

@@ -1,0 +1,54 @@
+# DansGuardian messages file in Turkish
+# Translation by Ozgur Karatas
+# trdocmaster at dansguardian dot org
+
+"1","Erisim Engellendi"
+
+"100","Bu IP adresi ile internete erisim engellenmistir: "
+"101","Bu IP ile internete erisim engellenmistir."
+"102","Bu kullanici adi ile internete erisim engellenmistir.: "
+
+"200","Gitmek istediginiz URL hatalidir."
+
+"300","Yasaklanmis bir ifade iceren sayfaya girmeye calisiyorsunuz: "
+"301","Sistem yoneticisi tarafindan engellenmis bir ifade tespit edildi."
+
+"400","Yasaklanmis kelimeler bulundu: "
+"401","Yasaklanmis kelimeler tespit edildi."
+"402","Engellenmis ifadelerin limiti asildi: "
+"403","Engellenmis kelime limiti asildi."
+
+"500","Yasaklanmis Site: "
+"501","Yasaklanmis URL: "
+"502","Erisilebilir listesinde bulunmayan bir siteye giremezsiniz."
+"503","Yasaklanmis dzensiz ifade (URL): "
+"504","Yasaklanmis duzensiz ifadeye rastlandi."
+"505","Bu IP adresinin asagidaki siteye girisi engellenmistir."
+
+"600","Ayricalikli IP adresine sahipsiniz."
+"601","Ayricalikli kullanici adina sahipsiniz."
+"602","Ayricalikli bir siteye girdiniz."
+"603","Ayricalikli bir URL adresine girdiniz."
+"604","Ayricalikli ifade bulundu: "
+"605","Kombinasyonu ertelenmis ifade bulundu: "
+"606","URL adresi ayricalikli listesine alinmalidir."
+"607","Bu sitede cookie kesfedildi."
+"608","Ayricalikli URL adresi taraniyor."
+"609","Ayricalikli duzenlenmis url adresi: "
+
+"700","Internet zerinden dosya gnderimi yasaklanmistir."
+"701","Internet zerinden dosya gnderimi sinirini astiniz."
+
+"800","Yasaklanmis MIME Tr: "
+
+"900","Yasaklanmis dosya uzantisi: "
+
+"1000","Bu sitedeki resim siniri asildi."
+
+"1100","Virus ve kotu icerige rastlandi."
+"1101","Site bloklandi. Adware veya spyware tespit edildi."
+
+"1200","Lutfen bekleyiniz, icerik taranarak yukleniyor.."
+"1210","Yukleme bitti,  taramadan geciriliyor.."
+"1220","Tarama bitti. </p><p>Yuklemek icin tiklayiniz: "
+"1230","Dosya uzunlugu gecersizdir."

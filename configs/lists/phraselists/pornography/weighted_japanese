@@ -1,0 +1,265 @@
+#
+# Phraselists to block japanese pornographic and explicit sites.
+# Originally Created by Fernand Jonker 
+# Sponsored by Eric Duveau
+#
+# Some words and meanings from 
+# http://en.wikipedia.org/wiki/List_of_Japanese_sex_terms
+# http://en.wikipedia.org/wiki/Pornography_in_Japan
+#
+# Note that all phrases are in UFT-8, EUC-JP and SHIFT_JIS character sets. 
+
+#noconvert
+#listcategory: "Pornography (Japanese)"
+ 
+
+#Block Un-filtered character sets
+#<x-sjis><250>	#New character set - not used much
+#<ISO-2022-JP><250>	#Used primarily for email
+#<CP932><250>		#Unknown 
+
+#######################################
+#Shift_JIS
+#######################################
+
+#<Shift_JIS><1>	#CharSet Identifier for Troubleshooting
+
+<­—><50> #little woman (girl)
+<—><10> #woman
+<”ü><5> #beauty
+<—‡><10> #nude
+<—‡‘Ì><20> #nude
+<g‘Ì><10> #body
+<‹¹><10> breast
+<­™X•s‹X><50> #children not allowed
+<ŽÊ^WE‰æW><50> #fetish photos
+
+<21ÎˆÈã><100> #21 or older
+<18ÎˆÈã><100> #18 or older
+<18ÎˆÈã><200>
+<ƒIƒiƒj[><100> #masturbation
+<“û><20> #milk - semen
+<”N—î”FØ><50> #age verification
+<ƒAƒ_ƒ‹ƒg><50> #adult
+
+<ƒ|ƒ‹ƒmƒOƒ‰ƒtƒB[><100> #porn
+
+<‚¨‚Á‚Ï‚¢><50> #breasts
+<ƒI[ƒ‰ƒ‹ƒZƒbƒNƒX><50> #oral sex
+<ƒpƒCƒYƒŠ><50> #mammary intercourse
+<ŠÆŽo–…><50> #Pole Sisters; Two or more women that have had sex with the same man.
+<«Œð><50> #intercourse
+<¸Žq><20> #sperm
+<«—~><40> #sexual desire
+<ƒZƒbƒNƒX><50> #sex
+<’ª‚«><50> #female ejaculation
+<K><20> #buttocks
+<ˆ—><30> #virgin
+<ƒVƒ‡ƒ^ƒRƒ“><100> # fetish for underage boys
+<••½><50> #perverted, lecherous.
+<‚â‚é><5> #to have sex
+<ƒU[ƒƒ“><40> #The Japanese pronounciation of the German word "Samen" (semen).
+<’sŠ¿><50> #pervert/molestor
+<ƒ`ƒJƒ“><50> #pervert/molestor
+<‚¿‚©‚ñ><50> #pervert/molestor
+<”›‚è><50> #bondage
+
+<ˆ¤‰t><50> # love juice; male and/or female sexual secretions
+<ŒŠŒZ’í><50> #hole brothers, Two or more men that have had sex with the same woman.
+
+<‘Å‚ÁŠ|‚¯><50> #Bukakke
+<ƒƒbƒJƒP><50> #Bukakke
+<ƒoƒbƒN‚Å><50> #Doggy Style
+<”„t•w><50> #Prostitute
+<”ü­”N><50> # beautiful boy
+<”ü­—><50> #describes any pretty girl
+<‚Ú‚Ú><50> # the vulva or vagina
+<“ûéf><50> # nipple
+<ƒGƒbƒ`><40> # perverted
+<ƒGƒbƒ`‚È><40> # perverted
+
+<ƒtƒ@ƒbƒN><100> #fuck
+<ƒtƒFƒ‰><100> #fellatio
+<ƒtƒFƒ‰ƒ`ƒI><100> #fellatio
+
+<ƒnƒƒ‹><50> #to have sex
+
+<bŠ­><100> #beastiality
+
+<•Ï‘Ô><50> #hentai - used for explicit/perverted material in Japan
+<ƒGƒƒAƒjƒ><50> #erotica anime
+<¬”N><50> #adult
+<18‹Ö><100> #prohibited to those under 18
+<¬l–Ÿ‰æ><100> #adults only
+<ƒGƒ><50> #erotic/porn
+<ƒƒŠƒRƒ“><50> #lolicon / lolita
+
+<ŒŠ><10> #ass
+<‹“û><50> #big chest/breasts
+
+<’†o‚µ><60> #internal male ejaculation
+<ƒIƒiƒj[><100> #masturbation
+
+#######################################
+#UTF-8
+#######################################
+
+#<UTF-8><1>	#CharSet Identifier for Troubleshooting
+
+<å°‘å¥³><50> #little woman (girl)
+<å¥³><10> #woman
+<ç¾Ž><5> #beauty
+<è£¸><10> #nude
+<è£¸ä½“><20> #nude
+<èº«ä½“><10> #body
+<èƒ¸><10> breast
+<å°‘å„¿ä¸å®œ><50> #children not allowed
+<å†™çœŸé›†ãƒ»ç”»é›†><50> #fetish photos
+
+<21æ­³ä»¥ä¸Š><100> #21 or older
+<18æ­³ä»¥ä¸Š><100> #18 or older
+<ã‚ªãƒŠãƒ‹ãƒ¼><100> #masturbation
+<ä¹³><20> #milk - semen
+<å¹´é½¢èªè¨¼><50> #age verification
+<ã‚¢ãƒ€ãƒ«ãƒˆ><50> #adult
+
+<ãƒãƒ«ãƒŽã‚°ãƒ©ãƒ•ã‚£ãƒ¼><50> #porn
+
+<ãŠã£ã±ã„><50> #breasts
+<ã‚ªãƒ¼ãƒ©ãƒ«ã‚»ãƒƒã‚¯ã‚¹><50> #oral sex
+<ãƒ‘ã‚¤ã‚ºãƒª><50> #mammary intercourse
+<ç«¿å§‰å¦¹><50> #Pole Sisters; Two or more women that have had sex with the same man.
+<æ€§äº¤><50> #intercourse
+<ç²¾å­><20> #sperm
+<æ€§æ¬²><40> #sexual desire
+<ã‚»ãƒƒã‚¯ã‚¹><50> #sex
+<æ½®å¹ã><50> #female ejaculation
+<å°»><20> #buttocks
+<å‡¦å¥³><30> #virgin
+<ã‚·ãƒ§ã‚¿ã‚³ãƒ³><100> # fetish for underage boys
+<åŠ©å¹³><50> #perverted, lecherous.
+<ã‚„ã‚‹><5> #to have sex
+<ã‚¶ãƒ¼ãƒ¡ãƒ³><40> #The Japanese pronounciation of the German word "Samen" (semen).
+<ç—´æ¼¢><50> #pervert/molestor
+<ãƒã‚«ãƒ³><50> #pervert/molestor
+<ã¡ã‹ã‚“><50> #pervert/molestor
+<ç¸›ã‚Š><50> #bondage
+
+<æ„›æ¶²><50> # love juice; male and/or female sexual secretions
+<ç©´å…„å¼Ÿ><50> #hole brothers, Two or more men that have had sex with the same woman.
+
+<æ‰“ã£æŽ›ã‘><50> #Bukakke
+<ãƒ­ãƒƒã‚«ã‚±><50> #Bukakke
+<ãƒãƒƒã‚¯ã§><50> #Doggy Style
+<å£²æ˜¥å©¦><50> #Prostitute
+<ç¾Žå°‘å¹´><50> # beautiful boy
+<ç¾Žå°‘å¥³><50> #describes any pretty girl
+<ã¼ã¼><50> # the vulva or vagina
+<ä¹³é¦­><50> # nipple
+<ã‚¨ãƒƒãƒ><40> # perverted
+<ã‚¨ãƒƒãƒãª><40> # perverted
+
+<ãƒ•ã‚¡ãƒƒã‚¯><100> #fuck
+<ãƒ•ã‚§ãƒ©><100> #fellatio
+<ãƒ•ã‚§ãƒ©ãƒã‚ª><100> #fellatio
+
+<ãƒãƒ¡ãƒ«><50> #to have sex
+
+<ç£å§¦><100> #beastiality
+
+<å¤‰æ…‹><50> #hentai - used for explicit/perverted material in Japan
+<ã‚¨ãƒ­ã‚¢ãƒ‹ãƒ¡><50> #erotica anime
+<æˆå¹´><50> #adult
+<18ç¦><100> #prohibited to those under 18
+<æˆäººæ¼«ç”»><100> #adults only
+<ã‚¨ãƒ­><50> #erotic/porn
+<ãƒ­ãƒªã‚³ãƒ³><50> #lolicon / lolita
+
+<ç©´><10> #ass
+<å·¨ä¹³><50> #big chest/breasts
+
+<ä¸­å‡ºã—><60> #internal male ejaculation
+<ã‚ªãƒŠãƒ‹ãƒ¼><100> #masturbation
+
+#######################################
+#EUC-JP
+#######################################
+
+#<EUC-JP><1>	#CharSet Identifier for Troubleshooting
+
+<¾¯½÷><50> #little woman (girl)
+<½÷><10> #woman
+<¥ª¥Ê¥Ë¡¼><250> #masturbation
+<¥ª¥Ê¥><250> #masturbation
+<Èþ><5> #beauty
+<Íç><10> #nude
+<ÍçÂÎ><20> #nude
+<¿ÈÂÎ><10> #body
+<¶»><10> breast
+<¾¯Ñ¹ÉÔµ¹><50> #children not allowed
+<¼Ì¿¿½¸¡¦²è½¸><50> #fetish photos
+
+<21ºÐ°Ê¾å><100> #21 or older
+<18ºÐ°Ê¾å><100> #18 or older
+
+<Æý><20> #milk - semen
+<Ç¯ÎðÇ§¾Ú><50> #age verification
+<¥¢¥À¥ë¥È><50> #adult
+
+<¥Ý¥ë¥Î¥°¥é¥Õ¥£¡¼><100> #porn
+
+<¤ª¤Ã¤Ñ¤¤><50> #breasts
+<¥ª¡¼¥é¥ë¥»¥Ã¥¯¥¹><50> #oral sex
+<¥Ñ¥¤¥º¥ê><50> #mammary intercourse
+<´È»ÐËå><50> #Pole Sisters; Two or more women that have had sex with the same man.
+<À­¸ò><50> #intercourse
+<Àº»Ò><20> #sperm
+<À­Íß><40> #sexual desire
+<¥»¥Ã¥¯¥¹><50> #sex
+<Ä¬¿á¤­><50> #female ejaculation
+<¿¬><20> #buttocks
+<½è½÷><30> #virgin
+<¥·¥ç¥¿¥³¥ó><100> # fetish for underage boys
+<½õÊ¿><50> #perverted, lecherous.
+<¤ä¤ë><5> #to have sex
+<¥¶¡¼¥á¥ó><40> #The Japanese pronounciation of the German word "Samen" (semen).
+<ÃÔ´Á><50> #pervert/molestor
+<¥Á¥«¥ó><50> #pervert/molestor
+<¤Á¤«¤ó><50> #pervert/molestor
+<Çû¤ê><50> #bondage
+
+<°¦±Õ><50> # love juice; male and/or female sexual secretions
+<·ê·»Äï><50> #hole brothers, Two or more men that have had sex with the same woman.
+
+<ÂÇ¤Ã³Ý¤±><50> #Bukake
+<¥í¥Ã¥«¥±><50> #Bukake
+<¥Ð¥Ã¥¯¤Ç><50> #Doggy Style
+<Çä½ÕÉØ><50> #Prostitute
+<Èþ¾¯Ç¯><50> # beautiful boy
+<Èþ¾¯½÷><50> #describes any pretty girl
+<¤Ü¤Ü><50> # the vulva or vagina
+<ÆýñÇ><50> # nipple
+<¥¨¥Ã¥Á><40> # perverted
+<¥¨¥Ã¥Á¤Ê><40> # perverted
+
+<¥Õ¥¡¥Ã¥¯><100> #fuck
+<¥Õ¥§¥é><100> #fellatio
+<¥Õ¥§¥é¥Á¥ª><100> #fellatio
+
+<¥Ï¥á¥ë><50> #to have sex
+
+<½Ã´¯><100> #beastiality
+
+<ÊÑÂÖ><50> #hentai - used for explicit/perverted material in Japan
+<¥¨¥í¥¢¥Ë¥á><50> #erotica anime
+<À®Ç¯><50> #adult
+<18¶Ø><100> #prohibited to those under 18
+<À®¿ÍÌ¡²è><100> #adults only
+<¥¨¥í><50> #erotic/porn
+<¥í¥ê¥³¥ó><50> #lolicon / lolita
+
+<·ê><10> #ass
+<µðÆý><50> #big chest/breasts
+
+<Ãæ½Ð¤·><60> #internal male ejaculation
+<¥ª¥Ê¥Ë¡¼><100> #masturbation

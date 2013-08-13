@@ -1,0 +1,31 @@
+#
+# Phraselists to block parked domains - domains that are for sale
+# Originally created by Fernand Jonker
+#
+# If you use this list please send feedback to phrasemaster@dansguardian.org
+# Waiting for feedback and input
+#
+
+#listcategory: "Domain for Sale"
+
+<the domain>,<is for sale><150>
+<search our catalogue for more domains><50>
+<this domain may be for sale by its owner><50>
+<this website is for sale><50>
+<domain names for sale><50>
+<buy domains><50>
+<domain parking><50>
+<domain auction><50>
+<parking_form><50>
+<fabulousdomains><50>
+< sedo><50>
+<sedolinks><50>
+<this web page is parked><150>
+<not what you're looking for>,<popular searches><150>
+
+#Companies
+
+<buydomains.com><100>
+<fabulousdomains.com><50>
+<sedo.com><50>
+<sedoparking.com><50>

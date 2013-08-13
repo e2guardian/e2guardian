@@ -1,0 +1,54 @@
+# DansGuardian messages file in MX Spanish
+
+# Translated by Vladimir Gomez
+# Typo corrected by Pedro Fortuny 2003/10/13
+
+"1","Acceso Denegado"
+
+"100","Su direcci&oacute;n IP no tiene permiso para ver: "
+"101","Su direcci&oacute;n IP no esta autorizada a navegar en Internet."
+"102","Su usuario no tiene autorizaci&oacute; para ver: "
+
+"200","El URL solicitado esta mal formado."
+
+"300","Frase no permitida: "
+"301","Frase no permitida."
+
+"400","Combinaci&oacute;n de palabras/frases no permitida: "
+"401","Combinaci&oacute;n de palabras/frases no permitida."
+"402","La frase excede el nivel "
+"403","La p&aacute;gina solicitada excede el nivel de frases permitidas."
+
+"500","Sitio no permitido: "
+"501","URL no permitido: "
+"502","Blanket Block esta activado y el sitio no se encuentra en la lista de permitidos."
+"503","URL bloqueada por Expresi&oacute;n Regular: "
+"504","URL bloqueada por Expresi&oacute;n Regular."
+"505","No se puede accesar un sitio por su direcci&oacute;n IP cuando Blanket IP Block est&aacute; activado."
+
+"600","Direcci&oacute;n ip del cliente presente en la lista de excepciones."
+"601","Usuario presente en la lista de excepciones."
+"602","Sitio presente en la lista de excepciones."
+"603","URL presente en la lista de excepciones."
+"604","Frase presente en la lista de excepciones."
+"605","Combinaci&oacute;n de frases presente en la lista de excepciones: "
+"606","Puente URL excepciones."
+"607","Puente cookie excepciones."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","No esta permitido enviar archivos a sitios en Internet."
+"701","El archivo que intenta enviar excede el tama&ntilde;o permitido."
+
+"800","Clase MIME no permitida: "
+
+"900","Extensi&oacute;n de archivo bloqueada: "
+
+"1000","Las etiquetas del sitio exceden el nivel PICS."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

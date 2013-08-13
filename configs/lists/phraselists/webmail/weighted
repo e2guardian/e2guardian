@@ -1,0 +1,46 @@
+#
+# Contributed by Fernand Jonker
+#
+
+#listcategory: "Webmail"
+
+#General webmail
+< inbox >,< outbox >,< sent ><100>
+<compose>,< inbox >,< subject >,< date ><30>
+< webmail ><30>
+< drafts >,< spam >,< trash ><40>
+< date>,< from >,< subject >,< size >,<delete><100>
+< delete >,<empty trash>,< search ><100>
+<inbox><20>
+<mailbox><20>
+<free email><20>
+<free webmail><20>
+
+#Stalker Communigate
+<communigate>,<mailbox>,<compose><150>
+<from>,<subject>,<received>,<mailbox><150>
+<forward>,<delete>,<copy>,<move>,<mail><150>
+<stalker>,<mailbox>,<compose><150>
+
+#Squirrelmail
+<by the squirrelmail development team><100>
+<folders>,<inbox>,<sent>,<trash>,<check mail><100>
+<compose>,<addresses>,<folders>,<options>,<search>,<help><100>
+
+#Hotmail
+<today>,<mail>,<calendar>,<contacts>,<hotmail><100>
+<new message>,<new appointment>,<new contact>,<hotmail><100>
+<from my contacts>,<junk e-mail folder>,<hotmail><50>
+
+#GMail
+< gmail ><20>
+<Sign in to Gmail><75>
+<Search, don't sort><20>
+<Welcome to Gmail><40>
+<for you to use Gmail><30>
+
+#Horde
+<welcome to imp><30>
+<internet messaging program><20>
+
+

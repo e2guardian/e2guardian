@@ -1,0 +1,56 @@
+# DansGuardian messages file in Slovak
+# by Dušan Biroščák biroscak@gmail.com
+# corrections Peter Tuhársky tuharsky@misbb.sk
+# charset=utf-8
+
+"1","Prístup bol odopretý
+
+"100","Vašej IP adrese nie je dovolené prehliadať: "
+"101","Vaša IP adresa nemá dovolené prohliadanie."
+"102","Vaše používateľské meno nemá dovolené prehliadať: "
+
+"200","Požadovaná URL je chybne zadaná."
+
+"300","Našla sa zakázaná fráza: "
+"301","Našla sa zakázaná fráza."
+
+"400","Našla sa zakázaná kombinácia fráz: "
+"401","Našla sa zakázaná kombinácia fráz."
+"402","Limit vážených fráz: "
+"403","Bol prekročený limit pre vážené frázy."
+
+"500","Zakázaná doména: "
+"501","Zakázaná URL: "
+"502","Celoplošné blokovanie prístupu je aktivované a táto webová doména nie je povolená."
+"503","Našla sa zakázaná URL adresa podľa regulárneho výrazu: "
+"504","Našla sa zakázaná URL adresa podľa regulárneho výrazu."
+"505","Celoplošné blokovanie IP adries je aktivované a bola zadaná len IP adresa."
+
+"600","Našla sa výnimková IP adresa klienta."
+"601","Našiel sa výnimkový používateľ."
+"602","Našla sa výnimková webová doména."
+"603","Našla sa výnimková URL adresa."
+"604","Našla sa výnimková fráza: "
+"605","Našla sa kombinácia výnimkových fráz: "
+"606","Prekonať výnimku URL."
+"607","Prekonať cookie výnimku."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","Odosielanie na web je zakázané."
+"701","Limit pre odosielanie na web bol prekročený."
+
+"800","Zakázaný obsah súboru (MIME): "
+
+"900","Zakázaná prípona súboru: "
+
+"1000","Na tejto webovej doméne bola prekročená úroveň označovania PICS."
+
+"1100","V tomto obsahu sa našiel vírus."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"
+

@@ -1,0 +1,40 @@
+<HTML><HEAD><TITLE>DansGuardian - Dostęp Zabroniony</TITLE>
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=iso-8859-2">
+</HEAD>
+<BODY>
+<CENTER><H2>ZABRONIONO DOSTĘPU -USER-</H2>
+<br>Dostęp do strony:<P>
+<strong><a href="-URL-">-URL-</a></strong>
+<P>... został zabroniony z następującego powodu:<P>
+<strong><font color="#ff0000">-REASONGIVEN-</font></strong>
+<p><table border=1 bgcolor="#FFEE00">
+<tr><td>
+Ten błąd pojawia się, ponieważ strona, do której próbowano uzyskać dostęp,<br>
+zawiera lub też jest oznakowana jako zawierająca treści uznane za nieodpowiednie.
+</td></tr></table>
+<P><table border=1 bgcolor="#44dd44"><tr><td>Jeśli masz jakieś pytania lub wątpliwości skontaktuj się ze swoim Administratorem Sieci</td></tr></table>
+
+<P><font size=-3>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font>
+</center>
+</BODY>
+</HTML>
+
+<!--
+Dostępne są następujące zmienne:
+- URL- zwraca URL do którego próbował dostać się użytkownik.
+- REASONGIVEN- zwraca powód (np. bez cytowania zakazanej frazy).
+- REASONLOGGED- zwraca powód, który jest rejestrowany, włączając w to pełne szczegóły.
+- USER- zwraca nazwę użytkownika jeśli jest znana
+- IP- zwraca źródłowy adres IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+
+Aby używać tych zmiennych w swoim HTMLu usuń spację pomiędzy - a zmienną.
+Zmienne są już stosowane powyżej, tak więc nie ma potrzeby dokonywania dodatkowych przeróbek. 
+
+Więcej przykładowych szablonów można znaleźć na witrynie DansGuardiana, na stronie Extras.
+
+Daniel Barron 2002-03-27
+Tłumaczenie Piotr Kapczuk <piotr.kapczuk@hoop.pl>
+-->

@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# BSD startup script for dansguardian
+# partly based on httpd startup script
+#
+# description: A web content filtering plugin for web \
+#              proxies, developed to filter using lists of \
+#              banned phrases, MIME types, filename \
+#              extensions and PICS labelling.
+# processname: dansguardian
+
+
+# See how we were called.
+
+case "$1" in
+start)
+        [ -x @DGBINDIR@/dansguardian ] && @DGBINDIR@/dansguardian > /dev/null && echo -e ' dansguardian\c'
+        ;;
+stop)
+        @DGBINDIR@/dansguardian -q
+        [ -r /tmp/.dguardianipc ] && echo -e ' dansguardian\c'
+        rm -f /tmp/.dguardianipc
+        ;;
+restart)
+        $0 stop
+        $0 start
+        ;;
+*)
+        echo "Usage: configure {start|stop|restart}" >&2
+        ;;
+esac
+exit 0

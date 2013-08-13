@@ -1,0 +1,43 @@
+# DansGuardian 2.8 messages file in Malay language
+# Edited by Sazarul Izam <izam@oscc.org.my>
+
+"1","Akses Tidak Dibenarkan"			# Access Denied
+
+"100","IP anda tidak dibenarkan untuk melayari web: "
+"101","IP anda tidak dibenarkan untuk melayari web."
+"102","Nama pengguna anda tidak dibenarkan untuk melayari web: "
+
+"200","URL yang diminta adalah malformed."
+
+"300","Frasa larangan dikesan: "		# Banned Phrase found:
+"301","Frasa larangan dikesan."			# Banned phrase found.
+
+"400","Kombinasi frasa larangan dikesan: "	# Banned combination phrase found: 
+"401","Kombinasi frasa larangan dikesan."	# Banned combination phrase found.
+"402","Had beban frasa oleh "			# Weighted phrase limit of 
+"403","Melebihi had beban frasa."		# Weighted phrase limit exceeded.
+
+"500","Laman larangan: "			# Banned site: 
+"501","URL larangan: "				# Banned URL: 
+"502","Blok Blanket adalah aktif dan laman tersebut tidak tersenarai dalam white atau grey list." # Blanket Block is active and that site is not on the white or grey list.
+"503","URL Ekspresi Biasa larangan: " 		# Banned Regular Expression URL: 
+"504","URL Ekspresi Biasa larangan dikesan."	# Banned Regular Expression URL found.
+"505","Blok Blanket IP adalah aktif dan alamat tersebut hanyalah alamat IP."	#Blanket IP Block is active and that address is an IP only address.
+
+"600","IP pengecualian klien sepadan."		# Exception client IP match.
+"601","Pengguna pengecualian klien sepadan."	# Exception client user match.
+"602","Laman pengecualian sepadan."		# Exception site match.
+"603","URL pengecualian sepadan."		# Exception URL match.
+"604","Frasa pengecualian sepadan: "		# Exception phrase found: 
+"605","Kombinasi frasa pengecualian sepadan: "	# Combination exception phrase found: 
+"606","URL pintasan sepadan."			# Bypass URL exception.
+"607","Cookie pintasan sepadan."		# Bypass cookie exception.
+
+"700","Muatnaik laman dilarang."		# Web upload is banned.
+"701","Muatnaik laman melebihi had."		# Web upload limit exceeded.
+
+"800","Jenis MIME larangan: "			# Banned MIME Type: 
+
+"900","Extension larangan: "			# Banned extension: 
+
+"1000","Penglabelan PICS melebihi peringkat pada laman di atas."		# PICS labeling level exceeded on the above site.

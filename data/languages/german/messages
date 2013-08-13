@@ -1,0 +1,54 @@
+# DansGuardian 2.10 messages file in German
+#
+# Translated and adapted to Unicode by Peter Vollmar
+
+"1","Zugriff verweigert"
+
+"100","Ihre Arbeitsstation hat keine Erlaubnis zum Surfen auf: "
+"101","Ihre Arbeitsstation hat keine Erlaubnis zum Surfen"
+"102","Ihr Benutzername hat keine Erlaubnis zum Surfen auf: "
+
+"200","Die angeforderte URL ist ungültig"
+
+"300","Verbotener Ausdruck gefunden: "
+"301","Verbotener Ausdruck gefunden"
+
+"400","Verbotene Kombination von Ausdrücken gefunden: "
+"401","Verbotene Kombination von Ausdrücken gefunden"
+"402","Gewichtete Ausdrucksbeschränkung von "
+"403","Gewichtete Ausdrucksbeschränkung überschritten"
+
+"500","Verbotene Seite: "
+"501","Verbotene URL: "
+"502","Totalsperre für Nur-IP-Adressen aktiv, diese Seite ist nicht auf der Erlaubt-Liste"
+"503","Aufgrund von regulären Ausdrücken verbotene URL: "
+"504","Aufgrund von regulären Ausdrücken verbotene URL gefunden"
+"505","Totalsperre für IP-Adressen aktiv, diese Adresse ist nur eine IP."
+
+"600","Übereinstimmung mit Client-IP in Ausnahmeliste"
+"601","Übereinstimmung mit Client-Benutzer in Ausnahmeliste"
+"602","Übereinstimmung mit Seite in Ausnahmeliste"
+"603","Übereinstimmung mit URL in Ausnahmeliste"
+"604","Ausnahme-Ausdruck gefunden: "
+"605","Kombination von Ausnahme-Ausdrücken gefunden: "
+"606","Umgehungs-URL gefunden"
+"607","Umgehungs-Cookie gefunden"
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","Web-Upload verboten"
+"701","Web-Upload-Schwellwert erreicht"
+
+"800","Verbotener MIME-Typ: "
+
+"900","Verbotene Datei-Erweiterung: "
+
+"1000","PICS-Kennzeichnungsschwellwert überschritten"
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

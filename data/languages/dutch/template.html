@@ -1,0 +1,87 @@
+<html>
+
+<head>
+<title>DansGuardian - toegang geweigerd</title>
+</head>
+
+<body bgcolor=#FFFFFF>
+
+<center>
+<table border=0 cellspacing=0 cellpadding=2 height=540 width=700>
+<tr>
+	<td colspan=2 bgcolor=#FEA700 height=100 align=center>
+	<font face=arial,helvetica size=6>
+	<b>De toegang werd geweigerd!!</b>
+	</td>
+</tr>
+<tr>
+	<td colspan=2 bgcolor=#FFFACD height=30 align=right>
+	<font face=arial,helvetica size=3 color=black>
+	<b>-USER-&nbsp;</b>
+	</td>
+</tr>
+<tr>
+	<td align=center valign=bottom width=150 bgcolor=#B0C4DE>
+	<font face=arial,helvetica size=1 color=black>
+	YOUR ORG NAME
+	</td>
+	<td width=550 bgcolor=#FFFFFF align=center valign=center>
+	<font face=arial,helvetica color=black>
+	<font size=4>
+	Toegang tot de pagina:
+	<br><br>
+	<a href="-URL-" target="_blank">-URL-</a>
+	<br><br>
+	<font size=3>
+	... werd geweigerd om de volgende reden:
+	<br><br>
+	<font color=red>
+	<b>-REASONGIVEN-</b>
+	<font color=black>
+	<br><br>
+	Categorie&euml;n:
+	<br><br>
+	<font color=red>
+	<b>-CATEGORIES-</b>
+	<font color=black>
+	<br><br><br><br>
+	U ziet deze melding omdat de pagina die u probeerde te benaderen,
+	materiaal lijkt te bevatten dat ongeschikt is om te bekijken,
+	of gemarkeerd is als ongeschikt om te bekijken.
+	<br><br>
+	Als u hier vragen over heeft neem dan contact op met uw netwerkbeheerder.
+	<br><br><br><br>
+	<font size=1>
+	Verzorgd door <a href="http://www.dansguardian.org?block" target="_blank">DansGuardian</a>
+	</td>
+</tr>
+</table>
+
+</body>
+
+</html>
+
+<!--
+De beschikbare variablelen zijn als volgt:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- HOST- gives the originating hostname if known.
+- RAWFILTERGROUP- gives the group number.
+- FILTERGROUP- gives the group name.
+- SERVERIP- gives the IP address on which the filter is running (correct for multiple filterip lines, but not if filterip option is blank).
+- BYPASS- gives URL which allows temporary bypass of denied page
+- CATEGORIES- gives the categories assigned to the banned content
+
+U dient de spatie te verwijderen tussen de - en de variabele om deze in uw HTML te kunnen gebruiken. De spaties in de voorbeelden hierboven zijn bedoeld om ze niet onnodig te laten verwerken.
+
+Meer voorbeeld templates zijn wellicht te vinden op de DansGuardian web site, op de Extras pagina.
+
+Deze pagina werd ontworpen door Paul Richards. (http://www.ridney.com/)
+Vertaling door Eric Hameleers (http://www.slackware.com/~alien/)
+
+Daniel Barron 2003-09-01
+-->
+

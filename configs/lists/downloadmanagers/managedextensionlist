@@ -1,0 +1,42 @@
+# Managed extension list
+# For use as the 'managedextensionlist' option in the configuration of
+# download managers supporting this feature.
+#
+# When enabled, only content matching the extensions given in this list will
+# be handled by the download manager.
+# If a managedmimetypelist is also enabled, then only content matching both
+# a mimetype and an extension in the lists will be handled.
+
+.bat
+.cab
+.com
+.crt
+.exe
+.hlp
+.ini
+.hta
+.inf
+.lnk
+.mdb
+.pcd
+.sh
+.vbs
+.doc
+.xls
+.gz
+.tar
+.bz2
+.sit
+.bin
+.hqx
+.zip
+.sxw
+.doc
+.iso
+.pdf
+.rar
+.ace
+.arj
+.dll
+.mda
+.mde

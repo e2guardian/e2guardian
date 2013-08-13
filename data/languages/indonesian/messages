@@ -1,0 +1,57 @@
+# DansGuardian messages file in Indonesian
+#
+# Indonesian translation by: Kumoro Wisnu Wibowo <kum@ag-it.com>
+#
+
+"1","Akses Ditolak"
+
+"100","Alamat IP Anda tidak diperbolehkan untuk browsing: "
+"101","Alamat IP Anda tidak diperbolehkan untuk browsing."
+"102","Username Anda tidak diperbolehkan untuk browsing: "
+
+"200","Format alamat URL yang diminta tidak benar."
+
+"300","Frase yang ditolak ditemukan: "
+"301","Frase yang ditolak ditemukan."
+
+"400","Kombinasi frase yang ditolak ditemukan: "
+"401","Kombinasi frase yang ditolak ditemukan."
+"402","Bobot batas frase dari "
+"403","Bobot batas frase terlewati."
+
+"500","Situs yang ditolak: "
+"501","Alamat URL yang ditolak: "
+"502","Blanket Block aktif dan situs tersebut tidak dalam white list."
+"503","Alamat Regular Expression URL yang ditolak: "
+"504","Alamat Regular Expression URL ditemukan."
+"505","Blanket IP Block aktif dan alamat tersebut adalah hanya alamat IP saja."
+
+"600","IP klien pengecualian cocok."
+"601","User klien pengecualian cocok."
+"602","Situs pengecualian cocok."
+"603","Alamat URL pengecualian cocok."
+"604","Frase pengecualian ditemukan: "
+"605","Kombinasi frase pengecualian ditemukan: "
+"606","Bypass URL cocok."
+"607","Bypass cookie cocok."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","Web upload ditolak."
+"701","Batas untuk web upload terlewati."
+
+"800","Tipe MIME yang ditolak: "
+
+"900","Ekstensi yang ditolak: "
+
+"1000","Level Label PICS terlewati pada situs di atas."
+
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

@@ -1,0 +1,9 @@
+#Banned outgoing HTTP headers based on regular expressions
+#
+# E.g. 'User-Agent: .*MSIE' would block several versions of Internet Explorer
+# (assuming the user-agent is not being spoofed by the client)
+#
+# Headers are matched line-by-line, not as a single block.
+
+#listcategory: "Banned Regular Expression HTTP Headers"
+

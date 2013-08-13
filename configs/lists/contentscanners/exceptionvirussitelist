@@ -1,0 +1,12 @@
+#Sites in virus exception list will not be virus scanned
+#Don't bother with the www. or
+#the http://
+#
+#These are specifically domains and are not URLs.
+#For example 'foo.bar/porn/' is no good, you need
+#to just have 'foo.bar'.
+#
+#You can also match IPs here too.
+#
+
+example.com

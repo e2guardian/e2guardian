@@ -1,0 +1,51 @@
+# DansGuardian messages file in Russian KOI8-R 
+
+"1"," "
+
+"100","   IP-    web: "
+"101","   IP-    web."
+"102","       web: "
+
+"200"," URL   ."
+
+"300","  : "
+"301","  ."
+
+"400","   : "
+"401","   ."
+"402","Weighted phrase limit of "
+"403","   ."
+
+"500"," : "
+"501"," URL: "
+"502","Blanket Block is active and that site is not on the white list."
+"503","URL,   : "
+"504"," URL,   ."
+"505","Blanket IP Block is active and that address is an IP only address."
+
+"600","Exception client IP match."
+"601","Exception client user match."
+"602","Exception site match."
+"603","Exception URL match."
+"604","Exception phrase found: "
+"605","Combination exception phrase found: "
+"607","Bypass cookie exception."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","  ."
+"701","  ."
+
+"800"," MIME-: "
+
+"900","  : "
+
+"1000","PICS labeling level exceeded on the above site."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

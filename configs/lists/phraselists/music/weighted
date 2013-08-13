@@ -1,0 +1,87 @@
+#
+# Phraselists to block music and lyrics sites.  Includes blocking online radio sites.
+# Originally Created by Burt Carter
+#
+
+#listcategory: "Music"
+
+< music ><5>
+<record label><5>
+<recording artist><5>
+< lyrical ><10>
+< beats ><5>
+<beats per minute><10>
+< beat ><5>
+< radio ><10>
+<radio on demand><10>
+<music on demand><10>
+<artist search><10>
+< playlist ><10>
+< iplaylist ><10>
+< durty ><20>
+< music >,< dirty ><10>
+
+#Lyrics
+<lyrics><120>
+<lyrics archive><40>
+<lyrics by artist><150>
+<lyrics by title><150>
+<request lyrics><60>
+<submit lyrics><40>
+<archived lyrics><100>
+
+#music genres
+< music >,< gangster ><20>
+< music >,< gangsta ><20>
+< music >,< hiphop ><20>
+< music >,< hip-hop ><20>
+< music >,< country ><20>
+< music >,< punk ><20>
+< music >,< soul ><20>
+< music >,< pop ><20>
+<polka><20>
+<jazz><10>
+<classical><5>
+<hard rock><20>
+< rap ><5>
+<reggae><20>
+< rapper ><5>
+< gangsta ><20>
+< hip >,< hop ><20>
+< punk ><15>
+< r&b ><25>
+< r & b><25>
+<bluegrass><20>
+<ragtime><20>
+<progressive rock><20>
+<new age><10>
+< boogie ><10>
+<easy listening><10>
+
+#music producer companies
+<beats4cheap><30>
+<pepitup><30>
+
+< club ><5>
+< dj ><20>
+<deejay><20>
+<disk jockey>
+<disco><20>
+<rave><20>
+<beatbox><20>
+<producers><5>
+
+< music >,<record label><20>
+< music >,< randb ><20>
+< music >,< r&b ><20>
+< music >,< dirty ><20>
+< music >,< rap ><20>
+< music >,< rapper ><20>
+< music >,< gangsta ><20>
+< music >,<download><20>
+< music >,< free ><20>
+< music >,<video><20>
+< music >,<player><20>
+< music >,<producer><20>
+< music >,<promotion><20>
+< music >,<album><20>

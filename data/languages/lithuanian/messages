@@ -1,0 +1,68 @@
+# DansGuardian 2.10 messages file
+# Lithuanian version by Nerijus Baliūnas and Mantas Kriaučiūnas
+# charset=utf-8
+
+"1","Tinklalapis uždraustas"
+
+"100","Iš jūsų IP adreso negalima pasiekti tinklalapio: "
+"101","Draudžiama naršyti iš jūsų IP adreso."
+"102","Jūsų naudotojui negalima pasiekti tinklalapio: "
+
+"200","Neteisingas URL."
+
+"300","Rasta uždrausta frazė: "
+"301","Rasta uždrausta frazė."
+
+"400","Rasta uždrausta frazių kombinacija: "
+"401","Rasta uždrausta frazių kombinacija."
+"402","Sumuojamų frazių limitas "
+"403","Viršytas sumuojamų frazių limitas."
+
+"500","Uždraustas adresas (site): "
+"501","Uždraustas URL: "
+"502","Leidžiamas priėjimas tik prie tinklalapių, esančių 'baltame' ar 'pilkame' sąraše, bet šio tinklalapio juose nėra."
+"503","Draudžiamas URL regexp: "
+"504","Rastas draudžiamas URL regexp."
+"505","Priėjimas prie IP adresų uždraustas, o šis adresas yra tik IP adresas."
+"506","Aktyvus Blanket SSL Block ir šis tinklalapis nėra 'baltame' ar 'pilkame' sąraše."
+"507","Aktyvus Blanket SSL IP Block ir šis adresas yra tik IP adresas."
+"508","Uždrausta reguliarioji išraiška (regexp) HTTP antraštėje: ",
+"509","Rasta draudžiama reguliarioji išraiška (regexp) HTTP antraštėje."
+
+"600","Kliento IP yra išimčių sąraše."
+"601","Kliento vardas yra išimčių sąraše."
+"602","Adresas yra išimčių sąraše."
+"603","URL yra išimčių sąraše."
+"604","Rasta frazė iš išimčių sąrašo: "
+"605","Rasta frazių kombinacija iš išimčių sąrašo: "
+"606","URL apėjimo išimtis."
+"607","Slapuko apėjimo išimtis."
+"608","URL skanavimo apėjimo išimtis."
+"609","Regexp URL yra išimčių sąraše: "
+
+"700","Nusiuntimas (upload) yra uždraustas."
+"701","Viršytas nusiuntimo (upload) limitas."
+
+"750","Aktyvus Blanket failų atsiuntimas ir šis MIME tipas nėra 'baltame' sąraše: "
+"751","Aktyvus Blanket failų atsiuntimas ir šis failas netinka pagal 'baltus' sąrašus."
+
+"800","Uždraustas MIME tipas: "
+
+"900","Uždraustas praplėtimas: "
+
+"1000","Viršytas šio tinklalapio PICS vertinimo kriterijus."
+
+"1100","Aptiktas virusas arba negeras turinys."
+"1101","Reklama užblokuota"
+
+"1200","Palaukite - siunčiame tikrinimui nuo virusų..."
+"1201","Dėmesio: failo negalime patikrinti, nes jis per didelis. Jei manote, kad šis failas yra didesnis nei "
+"1202",", tuomet nueikite į šį puslapį iš naujo (refresh) ir atsisiųskite nepatikrintą failą."
+
+"1210","Atsiųsta. Tikriname nuo virusų..."
+
+"1220","Patikrinta.</p><p>Atsisiųskite: "
+"1221","Siuntimas baigtas; failas nebuvo patikrintas.</p><p>Spustelėkite čia jei norite atsisiųsti: "
+"1222","Failas per didelis.</p><p>Jei norite atsisiųsti nepatikrintą failą - spustelėkite čia: "
+
+"1230","Failas neprieinamas"

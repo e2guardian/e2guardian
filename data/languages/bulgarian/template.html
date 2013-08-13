@@ -1,0 +1,59 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (Win98; I) [Netscape]">
+   <title>DansGuardian - Access Denied</title>
+</head>
+<body>
+
+<center>
+<h2>
+ДОСТЪПЪТ Е ОТКАЗАН, -USER-</h2></center>
+
+<center>Достъпът до страницата:
+<p><b><a href="-URL-">-URL-</a></b>
+<p>... е отказан поради следната причина:
+<p><b><font color="#FF0000">-REASONGIVEN-</font></b></center>
+
+<center><table BORDER BGCOLOR="#FFEE00" >
+<tr>
+<td>
+<center>Вие виждате тази грешка, тъй като страницата, която се опитвате
+да
+<br>видите, съдържа или е означена като съдържаща неподходящ материал.</center>
+</td>
+</tr>
+</table></center>
+
+<center><table BORDER BGCOLOR="#44DD44" >
+<tr>
+<td>Ако имате някакви въпроси, свържете се със своя ICT координатор или
+Мрежови мениджър.</td>
+</tr>
+</table></center>
+
+<center>
+<p><font size=-2>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font></center>
+
+</body>
+<!C-
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+
+Daniel Barron 2002-03-27
+-->
+</html>

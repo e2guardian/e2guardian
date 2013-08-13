@@ -1,0 +1,66 @@
+# DansGuardian berichten in het Nederlands
+# Door S.A. de Heer
+# Updates door Eric Hameleers
+
+"1","Toegang geweigerd"
+
+"100","Uw IP adres mag niet websurfen: "
+"101","Uw IP adres mag niet websurfen."
+"102","Uw gebruikersnaam mag niet websurfen: "
+
+"200","De gevraagde URL is syntactisch incorrect."
+
+"300","Geblokkeerd woord gevonden: "
+"301","Geblokkeerd woord gevonden."
+
+"400","Geblokkerde combinatie van woorden gevonden: "
+"401","Geblokkerde combinatie van woorden gevonden."
+"402","Gewogen woorden limiet van: "
+"403","Gewogen woorden limiet overschreden."
+
+"500","Geblokkeerde website: "
+"501","Geblokkeerde URL: "
+"502","Web blokkade is actief en deze website is niet in de toegangslijst."
+"503","Geblokkeerde reguliere expressie in de URL: "
+"504","Geblokkeerde reguliere expressie in de URL gevonden."
+"505","IP adressen zijn geblokkeerd en dat adres is enkel een IP adres."
+"506","SSL is geblokkeerd en deze website komt niet voor op de toegangslijsten."
+"507","SSL IP adressen zijn geblokkeerd en dat adres is enkel een IP addres."
+
+"600","Uitzonderings IP adres gevonden."
+"601","Uitzonderings gebruiker gevonden."
+"602","Uitzonderings website gevonden."
+"603","Uitzonderings URL gevonden."
+"604","Uitzonderings woord gevonden: "
+"605","Uitzonderings combinatie van woorden gevonden: "
+"606","URL omzeiling uitzondering."
+"607","Cookie omzeiling uitzondering."
+"608","Scan omzeiling URL uitzondering."
+"609","Uitzondering reguliere expressie URL gevonden: "
+
+"700","Uploaden via het web is geblokkerd."
+"701","Web upload limiet overschreden."
+
+"750","Bestands-download is geblokkeerd en dit MIME type komt niet voor op de goedkeuringslijst: "
+"751","Bestands-download is geblokkeerd en dit bestand komt niet voor op de goedkeuringslijsten: "
+
+"800","Geblokkeerd MIME Type: "
+
+"900","Geblokkeerd bestandstype: "
+
+"1000","'PICS labeling' niveau overschrijding op bovenvermelde site."
+
+"1100","Virus of onbetamelijke inhoud ontdekt."
+"1101","Advertentie geblokkeerd."
+
+"1200","Geduld a.u.b. - bezig met downloaden om te scannen..."
+"1201","Waarschuwing: bestand te groot om te scannen. Vermoedt u dat dit bestand groter is dan "
+"1202",", ververs dan deze pagina om direct te downloaden."
+
+"1210","Download Compleet. Scan wordt gestart..."
+
+"1220","Scan compleet.</p><p>Klik hier om te downloaden: "
+"1221","Download compleet; bestand niet gescand.</p><p>Klik hier om te downloaden: "
+"1222","Bestand te groot voor tussenopslag.</p><p>Klik hier om opnieuw te downloaden zonder scan: "
+
+"1230","Bestand niet langer beschikbaar"

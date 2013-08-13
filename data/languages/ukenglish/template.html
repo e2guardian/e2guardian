@@ -1,0 +1,87 @@
+<html>
+
+<head>
+<title>DansGuardian - Access Denied</title>
+</head>
+
+<body bgcolor=#FFFFFF>
+
+<center>
+<table border=0 cellspacing=0 cellpadding=2 height=540 width=700>
+<tr>
+	<td colspan=2 bgcolor=#FEA700 height=100 align=center>
+	<font face=arial,helvetica size=6>
+	<b>Access has been Denied!</b>
+	</td>
+</tr>
+<tr>
+	<td colspan=2 bgcolor=#FFFACD height=30 align=right>
+	<font face=arial,helvetica size=3 color=black>
+	<b>-USER-&nbsp;</b>
+	</td>
+</tr>
+<tr>
+	<td align=center valign=bottom width=150 bgcolor=#B0C4DE>
+	<font face=arial,helvetica size=1 color=black>
+	YOUR ORG NAME
+	</td>
+	<td width=550 bgcolor=#FFFFFF align=center valign=center>
+	<font face=arial,helvetica color=black>
+	<font size=4>
+	Access to the page:
+	<br><br>
+	<a href="-URL-" target="_blank">-URL-</a>
+	<br><br>
+	<font size=3>
+	... has been denied for the following reason:
+	<br><br>
+	<font color=red>
+	<b>-REASONGIVEN-</b>
+	<font color=black>
+	<br><br>
+	Categories:
+	<br><br>
+	<font color=red>
+	<b>-CATEGORIES-</b>
+	<font color=black>
+	<br><br><br><br>
+	You are seeing this error because what you attempted to access appears to contain,
+	or is labeled as containing, material that has been deemed inappropriate.
+	<br><br>
+	If you have any queries contact your ICT Coordinator or Network Manager.
+	<br><br><br><br>
+	<font size=1>
+	Powered by <a href="http://www.dansguardian.org?block" target="_blank">DansGuardian</a>
+	</td>
+</tr>
+</table>
+
+</body>
+
+</html>
+
+<!--
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- HOST- gives the originating hostname if known.
+- RAWFILTERGROUP- gives the group number.
+- FILTERGROUP- gives the group name.
+- SERVERIP- gives the IP address on which the filter is running (correct for multiple filterip lines, but not if filterip option is blank).
+- BYPASS- gives URL which allows temporary bypass of denied page
+- CATEGORIES- gives the categories assigned to the banned content
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+
+This page was designed by Paul Richards.  (http://www.ridney.com/)
+
+Daniel Barron 2003-09-01
+-->
+

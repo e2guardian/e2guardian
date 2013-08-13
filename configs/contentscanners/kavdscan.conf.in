@@ -1,0 +1,17 @@
+plugname = 'kavdscan'
+
+# edit this to match the location of your KAVD UNIX domain socket
+#kavdudsfile = '/var/run/aveserver'
+
+# If this string is set, the text it contains shall be removed from the
+# beginning of filenames when passing them to KAVD.
+# Use it to - for example - support a KAVD running inside a chroot jail:
+# if DG's filecachedir is set to "/var/kavdchroot/downloads/" and pathprefix
+# is set to "/var/kavdchroot", then file names given to KAVD will be of the
+# form "/downloads/tf*" instead of "/var/kavdchroot/downloads/tf*".
+#pathprefix = '/var/kavdchroot'
+
+exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
+exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'

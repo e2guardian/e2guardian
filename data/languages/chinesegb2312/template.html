@@ -1,0 +1,33 @@
+<HTML><HEAD><TITLE>DansGuardian - Access Denied</TITLE></HEAD>
+<BODY>
+<CENTER><H2>访问被拒绝 -USER-</H2>
+<br>访问该网页:<P>
+<strong><a href="-URL-">-URL-</a></strong>
+<P>... 因以下原因而被拒绝:<P>
+<strong><font color="#ff0000">-REASONGIVEN-</font></strong>
+<p><table border=1 bgcolor="#FFEE00"><tr><td>出现这个错误信息的原因是由于您企图访问的网页含有不适当的内容。</td></tr></table>
+<P><table border=1 bgcolor="#44dd44"><tr><td>如有任何疑问，请联系您的 ICT 协调人员或网管。</td></tr></table>
+
+<P><font size=-3>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font>
+</center>
+</BODY>
+</HTML>
+<!--
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+
+Daniel Barron 2002-03-27
+-->

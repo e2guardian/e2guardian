@@ -1,0 +1,37 @@
+HOW TO UPGRADE FROM AN EARLIER VERSION OF DansGuardian
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Both the main configuration file and the filter group configuration file(s)
+have changed since the last stable release.  If you try to re-use the
+configuration from an existing copy of 2.8.0.6 or earlier, the daemon will
+not start.  On the other hand, list files (phrase lists, domain lists,
+etc.) have not changed format, and should largely "just work".  There have
+been improvements to the default list files, though, so again it is
+recommended that you start from the new version and re-do any customisations.
+
+Before installing the new copy, first make a backup of your existing config
+files.  For example:
+	cp -r /etc/dansguardian/ ~/dansguardian.old/
+
+Then install the new copy.  After doing this, you should re-apply the old
+settings, importing them by hand; i.e. any setting you had changed from the
+default should be changed in the new dansguardian.conf file, and the same
+for other files such as dansguardianf1.conf.  Every option should be documented
+by comments in the default configuration file; these comments are one of the
+best sources of information as to what a particular setting means.
+
+As a rough guide, when new releases are made, DG's version numbering will tell
+you if there are likely to be configuration changes needed.  Version numbers
+are in the form A.B.C.D, where A and B represent major and minor version
+number; these change in response to relatively large changes where
+incompatibility is almost certain.  If a new release changes C, there is
+incompatibility, but the change is minor.  When only D is incremented, the
+release is a bugfix release, and no changes should be necessary.
+
+If in doubt ask on the mailing list.  See http://dansguardian.org/ for details.
+
+Philip Allison
+2008-10-07
+
+Based on original text by Daniel Barron
+2003-08-31

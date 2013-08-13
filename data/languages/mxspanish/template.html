@@ -1,0 +1,40 @@
+<HTML><HEAD><TITLE>DansGuardian - Acceso Denegado</TITLE></HEAD>
+<BODY>
+<CENTER><H2>ACCESO DENEGADO -USER-</H2>
+<br>El acceso a la p&aacute;ina:<P>
+<strong><a href="-URL-">-URL-</a></strong>
+<P>... ha sido denegado por la siguiente raz&oacute;n:<P>
+<strong><font color="#ff0000">-REASONGIVEN-</font></strong>
+<p><table border=1 bgcolor="#FFEE00"><tr><td>Usted esta viendo esta 
+p&aacute;gina de error porque <BR>el sitio que est&aacute; tratando de ver 
+o su contenido <BR>han sido catalogados como inapropiados.</td></tr></table>
+<P><table border=1 bgcolor="#44dd44"><tr><td>Si requiere acceso a esta 
+p&aacute;gina por favor pongase en contacto <BR>con el Administrador de Sistemas 
+o el Administrador de la Red.</td></tr></table>
+
+<P><font size=-3>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font>
+</center>
+</BODY>
+</HTML>
+<!--
+
+Translated by Vladimir Gomez
+
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+
+Daniel Barron 2002-03-27
+-->

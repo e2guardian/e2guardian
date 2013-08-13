@@ -1,0 +1,425 @@
+#
+#Generally Good Phrases to balance out bad phrases tagged on a page.
+#
+
+#Following Added to exempt DansGuardian blocking sites
+<regexp>,<dansguardian><-200>
+<bannedsitelist><-20>
+<reportinglevel><-20>
+<transparent><-20>
+<authenticated><-20>
+< logrotat>,<dansguardian><-200>
+< weightedphraselist><-50>
+< weightedphrasemode>,<dansguardian><-200>
+< configuring>,<dansguardian><-200>
+< building><-20>
+< apache>,<web><-20>
+< binary><-20>
+< naughtynesslimit><-50>
+#
+
+< smoothwall ><-20>
+<smoothwall ><-20>
+<dansguardian><-50>
+< dns ><-20>
+< wikipedia ><-30>
+<network management><-50>
+<firewall><-50>
+< vpn ><-20>
+<network security><-50>
+<anti-virus><-50>
+<employment><-10>
+<security><-10>
+<networking><-10>
+<ebay listings :><-50>
+<make install><-10>
+<troubleshooting><-10>
+<howto><-10>
+<glibc><-10>
+<request lyrics><-20>
+<submit lyrics><-20>
+<rewrite><-20>
+<draft version><-30>
+<acknowledgment><-10>
+<adult education><-50>
+<advice><-20>
+<advice>,<help>,<gay><-50>
+<advice>,<help>,<lesbian><-50>
+<advice>,<help>,<rape><-50>
+<advice>,<help>,<sexual><-50>
+<aids>,<breakthrough><-50>
+<aids>,<cure>,<hiv><-50>
+<aids epidemic><-50>
+<aids>,<hospital><-30>
+<aids>,<information><-30>
+<aids>,<medical><-30>
+<album><-20>
+<albums>,<cd>,<cassette><-50>
+< amd ><-20>
+<analyse><-50>
+<analysis><-50>
+<andy warhol><-100>
+<anti child pornography><-20>
+<anti-piracy><-50>
+<antipiracy><-50>
+<anti pornography><-20>
+<apparel><-10>
+<archived lyrics><-50>
+<article>,<cancer><-30>
+<article>,<education><-30>
+<article>,<environment><-30>
+<article>,<health><-30>
+<article>,<medical><-30>
+<article>,<research><-30>
+<article>,<sexuality><-30>
+<article>,<social><-30>
+<article>,<study><-30>
+<assessment><-20>
+<association news><-30>
+<atari><-50>
+<athlet>,<event><-30>
+<athlet>,<record><-30>
+<athlet>,<venue><-30>
+<auditor><-10>
+<authoritative><-10>
+<back catalogue><-10>
+<background briefing><-50>
+<baptist><-20>
+<beaut>,<hair>,<skin><-20>
+<beauty facial><-20>
+<beauty product><-20>
+<beauty salon><-20>
+<being defined><-10>
+<benchmark><-20>
+<bible><-10>
+<bible study><-30>
+<biblical><-10>
+<bibliography><-50>
+<biggest selling newspaper><-20>
+<biology><-40>
+<birth control><-10>
+<body and spirit><-20>
+<book forum><-20>
+<book notes><-50>
+<breast cancer><-50>
+<breast>,<cancer>,<treatment><-50>
+<breast>,<medical><-30>
+<browse artists><-50>
+<by artist><-10>
+<cancer><-30>
+<cancer>,<cure><-30>
+<cancer>,<disease><-30>
+<cancer>,<hospital><-30>
+<cancer>,<medical><-30>
+<cancer>,<radiation><-30>
+<cancer>,<therapy><-30>
+<cancer>,<treatment><-30>
+<car accessories><-20>
+<careers><-10>
+<cat ><-10>
+<catholic><-20>
+<championship><-10>
+<chapter><-20>
+<character info><-50>
+<character list><-40>
+<chardonnay><-10>
+<chemistry><-40>
+<child psychologist><-40>
+<christology><-20>
+<church><-30>
+<classical><-40>
+<classicnote><-60>
+<commentary><-10>
+<commerce><-10>
+<commissioner><-30>
+<compensation><-20>
+<composition><-20>
+<conclusion><-20>
+<congregation><-20>
+<congress><-10>
+<constitute a criminal><-10>
+<content filter administrator><-1000>
+<contraception><-10>
+<contraceptive><-10>
+<counseling><-30>
+<crash kills><-20>
+<criminal investigation><-30>
+<cultural resources><-50>
+<dance mix><-50>
+<data about><-10>
+<data on><-10>
+<definition><-10>
+<democrat><-10>
+<dental care><-30>
+<department of health><-30>
+<dictionary>,<thesaurus><-50>
+<discussion forum><-50>
+<dj>,< vinyl><-50>
+<documentary><-50>
+<does not contain porn><-20>
+<domestic violence><-30>
+<donate><-20>
+<dreamcast><-50>
+<drug information><-20>
+<drug research><-20>
+<drum & bass><-40>
+<dvd review><-40>
+< e-card><-10>
+< ecard><-10>
+<education><-20>
+<education>,<learning><-20>
+<education>,<resource><-20>
+<elder ><-10>
+<elucidate><-20>
+<emails of support><-20>
+<encourages conduct><-10>
+<environment><-20>
+<essay><-30>
+<ethicist><-50>
+< ex-><-20>
+<excellence in><-10>
+<exodus><-5>
+<ex-rated><-40>
+<facial expression><-40>
+<facial>,<mask><-20>
+<facial>,<peel><-20>
+<facial>,<plastic surgery><-60>
+<facial>,<skin><-10>
+<fact sheet><-20>
+<fag break><-5>
+<fallacies><-5>
+<fallacy><-5>
+<family problems><-30>
+<fan site><-20>
+<faq><-30>
+<fda approved><-40>
+<fda-approved><-40>
+<federal court><-10>
+<fight pedophilia><-20>
+<first aid><-30>
+<for educators><-30>
+<fresh investigation><-50>
+<full article><-20>
+<full track list><-30>
+<gay aware><-30>
+<genre><-20>
+<glossary of terms><-50>
+<gospel><-20>
+<grammar><-30>
+<guitar><-50>
+<happy hardcore><-40>
+<hardback><-30>
+<hardcore techno><-40>
+<hard house><-40>
+<hard trance><-40>
+<hardware><-30>
+<headquarters><-20>
+< health ><-10>
+<health><-30>
+<health and beauty><-30>
+<health>,<disease><-10>
+<health>,<disorder><-20>
+<health>,<intercourse><-20>
+<health>,<penis><-20>
+<health>,<physician><-20>
+<health>,<virgina><-20>
+<herbal><-20>
+<hip-hop><-20>
+< h.i.v ><-50>
+< hiv ><-50>
+<homily><-20>
+<hormone>,<medical><-30>
+<hormone replacement><-50>
+<hormone>,<therapy><-30>
+<hormone>,<treatment><-30>
+<hospital><-10>
+<human nature><-10>
+<human rights><-30>
+<imdb><-40>
+< intel ><-20>
+<intellectual property><-20>
+<internet movie database><-80>
+<interview><-20>
+<intolerance><-10>
+<investigative><-50>
+<investigative documentary><-500>
+<isbn><-40>
+<is not porn><-20>
+<issue>,<environment><-30>
+<issue>,<medical><-30>
+<jesus christ><-10>
+<job search><-30>
+<journal>,<education><-50>
+<journal>,<findings><-50>
+<journalism><-10>
+<journal>,<medical><-50>
+<journal>,<science><-50>
+<legal aid><-30>
+<letters to the editor><-40>
+<literature><-20>
+<losing streak><-30>
+<lyrics><-60>
+<lyrics archive><-20>
+<lyrics by artist><-100>
+<lyrics by title><-100>
+<man charged><-20>
+<mathematics><-50>
+<mechanic><-30>
+<medical><-20>
+<medical>,<biology><-20>
+<medical care><-50>
+<medical condition><-50>
+<medical problem><-50>
+<message board><-10>
+<messagemate><-10>
+<metabolism><-50>
+<ministry><-20>
+<movie review><-40>
+<music entertainment><-20>
+<newsletter><-10>
+<nintendo><-50>
+<nonoxynol><-20>
+<no porn policy><-30>
+<official movie site><-50>
+<open source><-5>
+<ordination><-20>
+<ornithology><-50>
+<other articles><-20>
+<otherwise objectionable><-10>
+<overclocker><-80>
+<paperback><-40>
+<parliment><-10>
+<partnership><-5>
+<pathology><-20>
+<pediatric><-40>
+<pilot program><-50>
+<plant><-30>
+<plastic surgery><-30>
+<playstation><-50>
+<poems><-30>
+<poetry><-30>
+<police seized><-30>
+<police spokesman><-30>
+<police spokesperson><-30>
+<police spokeswoman><-30>
+<postmodern><-50>
+<praise and criticism><-50>
+<preface><-20>
+<presbyterian><-20>
+<prevent illegal distrubtion><-50>
+<priest><-10>
+<print article><-20>
+<printer friendly version><-20>
+<print story><-20>
+<print this article><-20>
+<print this story><-20>
+<promote sexual abstinence><-50>
+<proposal>,<draft><-30>
+<pursue legal action><-20>
+<radio national><-50>
+<rain forest><-40>
+<rape victim><-40>
+<recommended publications><-40>
+<recommended reading><-40>
+<record collect><-50>
+<record label><-50>
+<reference material><-50>
+<related stories><-40>
+<related subjects><-30>
+<remix>,<production>,<cd><-30>
+<report child porn><-15>
+<request song><-50>
+< research ><-20>
+<researcher><-20>
+<reserves the right><-10>
+<resource page><-30>
+<safe sex><-20>
+<satire><-50>
+<satirical><-50>
+<scholar><-20>
+<science><-30>
+<scientific><-30>
+<script review><-40>
+<servicemen><-30>
+<sermon><-50>
+<setting goals><-40>
+<sex compaign><-30>
+<sex education><-30>
+<sex education web circle><-30>
+<sexually transmitted><-30>
+<short summary><-40>
+<sign this guestbook><-50>
+<skin care><-30>
+<social issue><-30>
+<sony music><-40>
+<special investigation><-20>
+<spermicide><-20>
+<spiritual><-20>
+<spoof><-30>
+<starlet>,<toyota><-30>
+<stop child porn><-30>
+<stop child pornography><-30>
+<stop illegal distrubtion><-50>
+<stop pedophilia><-30>
+<stop porn><-30>
+<stop pornography><-30>
+<student of the year><-30>
+<study>,<character><-40>
+<study guide><-50>
+<study>,< poem><-50>
+<study>,< poet><-50>
+<study>,<reference><-50>
+<study>,<text><-50>
+<submit song><-50>
+<supreme court><-20>
+<sydney morning herald><-100>
+<symposium><-50>
+<syndrome><-50>
+<teach><-5>
+<term paper><-100>
+<thinktank><-40>
+<this is not a porn><-20>
+<tournament><-20>
+< trade ><-20>
+<travel><-5>
+<treatment><-20>
+<tumor><-20>
+<university><-5>
+<unlawful>,<defamatory>,<obscene>,<vulgar><-20>
+<vagina>,<education><-25>
+<various artists><-20>
+<video review><-40>
+<violates or infringes><-10>
+<vocation><-20>
+<war stories><-30>
+<war story><-30>
+<webquest><-40>
+<willow><-40>
+<woman charged><-20>
+<wrestlemania><-50>
+<wrestling><-50>
+< wwf><-50>
+<x-box><-50>
+<xbox><-50>
+<xxx>,< ale><-20>
+<xxx>,<beer><-10>
+<xxx>,<drought><-20>
+<you shall not>,<material>,<violates><-10>
+< flight><-10>
+< airline><-10>
+< chicken>,<breast><-50>
+< turkey>,<breast><-50>
+< museum><-30>
+<librar><-30>
+< marriage><-30>
+< lawyer><-30>
+< vacation><-5>
+<destination><-10>
+<guests>,<children><-30>
+<check-in><-10>
+<travel agent><-30>
+<booking><-5>
+<travel><-5>
+<flight><-10>
+<reservation><-5>
+

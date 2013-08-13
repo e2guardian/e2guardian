@@ -1,0 +1,114 @@
+#domains in banned list
+#Don't bother with the www. or the http://
+
+#The bannedurllist is for blocking PART of a site
+#The bannedsitelist is for blocking ALL of a site
+
+#As of DansGuardian 2.7.3 you can now include
+#.tld so for example you can match .gov for example
+
+#The 'grey' lists override the 'banned' lists.
+#The 'exception' lists override the 'banned' lists also.
+#The difference is that the 'exception' lists completely switch
+#off *all* other filtering for the match.  'grey' lists only
+#stop the URL filtering and allow the normal filtering to work.
+
+#An example of grey list use is when in Blanket Block (whitelist)
+#mode and you want to allow some sites but still filter as normal
+#on their content
+
+#Another example of grey list use is when you ban a site but want
+#to allow part of it.
+
+#To include additional files in this list use this example:
+#.Include<@DGCONFDIR@/anotherbannedurllist>
+
+#You can have multiple .Includes.
+
+# Time limiting syntax:
+# #time: <start hour> <start minute> <end hour> <end minute> <days>
+# Example:
+##time: 9 0 17 0 01234
+# Remove the first # from the line above to enable this list only from
+# 9am to 5pm, Monday to Friday.
+
+# List categorisation
+#listcategory: "Banned Sites"
+
+#List other sites to block:
+
+badboys.com
+
+
+
+#Blanket Block.  To block all sites except those in the
+#exceptionsitelist and greysitelist files, remove
+#the # from the next line to leave only a '**':
+#**
+
+#Blanket SSL/CONNECT Block.  To block all SSL
+#and CONNECT tunnels except to addresses in the
+#exceptionsitelist and greysitelist files, remove
+#the # from the next line to leave only a '**s':
+#**s
+
+#Blanket IP Block.  To block all sites specified only as an IP,
+#remove the # from the next line to leave only a '*ip':
+#*ip
+
+#Blanket SSL/CONNECT IP Block.  To block all SSL and CONNECT
+#tunnels to sites specified only as an IP,
+#remove the # from the next line to leave only a '*ips':
+#*ips
+
+
+# The squidGuard advert domain/URL lists are now included by default.
+# To work with advanced ad blocking & the logadblocks option, advert
+# phrase/site/URL lists should have the string "ADs" in their listcategory.
+.Include<@DGCONFDIR@/lists/blacklists/ads/domains>
+
+#Remove the # from the following and edit as needed to use a stock
+#squidGuard/urlblacklists collection.
+#.Include<@DGCONFDIR@/lists/blacklists/adult/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/aggressive/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/artnudes/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/audio-video/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/beerliquorinfo/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/beerliquorsale/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/chat/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/childcare/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/clothing/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/culinary/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/dialers/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/drugs/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/entertainment/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/forums/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/frencheducation/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/gambling/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/government/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/hacking/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/homerepair/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/hygiene/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/jewelry/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/jobsearch/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/kidstimewasting/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/mail/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/news/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/onlineauctions/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/onlinegames/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/onlinepayment/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/personalfinance/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/pets/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/porn/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/proxy/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/publicite/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/redirector/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/ringtones/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/sportnews/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/sports/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/vacation/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/violence/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/virusinfected/domains>
+#.Include<@DGCONFDIR@/lists/blacklists/warez/domains>
+
+# You will need to edit to add and remove categories you want

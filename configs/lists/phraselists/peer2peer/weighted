@@ -1,0 +1,53 @@
+#
+# Phraselists to block Peer to Peer websites 
+# Originally Created by Fernand Jonker
+#
+# This list is seriously ALPHA - it blocks many pages, but may overblock.
+# This list has NOT been tested in a production environment!
+# If you use this list please send feedback to phrasemaster@dansguardian.org
+# Waiting for input :-)
+#
+
+#listcategory: "Peer-to-peer"
+
+#Applications
+<applejuice><20>
+< ares><20>
+<areslite><20>
+<azureus><20>
+<bearshare><20>
+<bitcomet><20>
+<dshare><20>
+#< direct connect ><20>
+<edonkey><20>
+<emule><20>
+<grobster><20>
+<grokster><20>
+<gnotella><20>
+<gnucleus><20>
+<imesh><20>
+<kademlia><20>
+<kazaaliteressurection><20>
+<kazaa><20>
+<kazaalite><20>
+<klite><20>
+<limewire><20>
+<morpheus><20>
+<mutella><20>
+< phex><20>
+<qtella><20>
+<shareaza><20>
+<soulseek><20>
+<swapper><20>
+<toad node><20>
+<winmx><20>
+<xolox><20>
+
+#Networks
+<ed2k ><20>
+#<direct-connect><20>
+< fasttrack ><20>
+<gnutella ><20>
+<kad ><20>
+<opennap><20>
+<overnet><20>

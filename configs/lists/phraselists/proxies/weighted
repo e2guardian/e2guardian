@@ -1,0 +1,132 @@
+#
+# Phraselists to block web-based proxy services like phproxy and cgiproxy and to block lists of proxies.
+# Originally Created by Fernand Jonker
+#
+
+#listcategory: "Proxies"
+
+#PHProxy, Poxy
+<phproxy>,<post><150>
+<phproxy><100>
+<include form>,<remove scripts>,<accept cookies>,<show images>,<show referer><200>
+<proxy>,<Include mini URL><50>
+<proxy>,<Remove client-side scripting><50>
+<proxy>,<Strip page title><50>
+<FreeProxyTemplates><200>
+<proxnetwork><200>
+<remove_scripts><50>
+
+#Glype
+< glype ><150>
+<proxy>,<encode url><50>
+<proxy>,<allow cookies><50>
+
+#Zelune
+<__proxy_url><150>
+<__proxy_action><50>
+<redirect_browse><50>
+< zelune><100>
+<proxy_url><40>
+<proxy_options><30>
+<proxy>,<enter site url><150>
+<surf>,<enter url><50>
+<proxyshout><100>
+<proxy.com><100>
+
+#Surrogafier
+< surrogafy><100>
+< surrogafier><100>
+<proxy>,<encrypt urls><150>
+<proxy>,<remove scripts><150>
+
+
+#CGIPROXY
+<start browsing through this cgi-based proxy by entering a url below><200>
+<remove ads><20>
+<hide referrer information><30>
+<show url entry form><30>
+<remove all cookies><30>
+<recommended for anonymity><60>
+<remove all scripts><20>
+<dmirror><30>
+<cgi>,<prox>,<nph><30>
+<nph-proxy><100>
+<nph-pro><50>
+<cgiproxy><50>
+<location via proxy><100>
+
+#CECID
+<cecid><100>
+<censorship circumvention device><100>
+<remove banned words completely><30>
+<filter banned words><30>
+<please enter url to access><100>
+
+#Arbitroweb
+<arbitroweb><100>
+<Popular Places>,<arbitroweb><150>
+
+#Proxies that obfuscate html using javascript escape encoding (1st line may overblock)
+<script>,<document.write>,<unescape>,<tunnel><100>
+<%61%62%75%73%65%5B%61%74%5D%6F%76%65%72%6E%69%67%68%74%70%63%2E%6E%65%74><100>
+<%48%69%64%65%20%72%65%66%65%72%72%65%72%20%69%6E%66%6F%72%6D%61%74%69%6F%6E><100>
+<%65%6D%6F%76%65%20%63%6F%6F%6B%69%65%73><100>
+<%49%6E%73%74%61%6E%74%20%4D%65%73%73%65%6E%67%65%72%73><100>
+<%75%72%6C%20%6F%72%20%69%70%20%62%61%73%65%64%20%66%69%6C%74%65%72%73><100>
+
+#General Proxy Lists & Proxy Terms
+< anonymous >,< transparent >,< prox><50>
+<keep your identity hidden><50>
+<anonymous>,<proxy><50>
+<anonymous>,<surfing><50>
+<anonymous>,<internet><50>
+<bypass>,<website blocking><75>
+<bypass>,<website filter><75>
+<bypass>,<web filter><75>
+<bypass>,<content filter><75>
+<bypass>,<internet filter><75>
+<high anonymity><30>
+< anonymity>,<proxy><70>
+< proxy><5>
+< proxies><30>
+<public prox><30>
+<proxy list><20>
+<unblock websites><40>
+<unblock>,<myspace><40>
+<unblock>,< bebo><40>
+<unblock>,< facebook><40>
+<unblock>,< friendster><40>
+<unblock>,<myspace><40>
+<proxy>,<anonymous><50>
+<proxy>,<block><30>
+<proxy>,<bypass><75>
+<proxy>,<filter><30>
+<proxy>,<anonymous><30>
+<proxy>,<anonimity><30>
+<proxy>,< anonymity><70>
+<proxy>,<privacy><30>
+<surf>,<proxy><30>
+<surf>,<block><30>
+<surf>,<anonymous><30>
+<surf>,<anonimity><30>
+<surf>,<privacy><30>
+<anonymous>,<privacy><30>
+<anonimity>,<privacy><30>
+<avoidfilters><80> 
+
+#DansGuardian Bypass
+<hacking dansguardian><50>
+<hacking dans guardian><50>
+<hack dansguardian><50>
+<bypassing dansguardian><50>
+<bypassing dans guardian><50>
+<bypass dansguardian><50>
+<bypass web filter><30>
+
+#Proxy and Filter bypass
+<bypass>,<proxy><75>
+<bypass>,<website blocking><75>
+<bypass>,<website filter><75>
+<bypass>,<web filter><75>
+<bypass>,<content filter><75>
+<bypass>,<internet filter><75>

@@ -1,0 +1,12 @@
+plugname = 'icapscan'
+
+# ICAP URL
+# Use hostname rather than IP address
+# Always specify the port
+#
+icapurl = 'icap://icapserver:1344/avscan'
+
+exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
+exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'

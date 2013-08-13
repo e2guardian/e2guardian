@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# Solaris startup script for dansguardian
+# partly based on httpd startup script
+#
+# description: A web content filtering plugin for web \
+#              proxies, developed to filter using lists of \
+#              banned phrases, MIME types, filename \
+#              extensions and PICS labelling.
+#ident	"@(#)dansguardian  @PACKAGE_VERSION@     02/08/05 DB"
+
+# See how we were called.
+
+case "$1" in
+start)
+        if [ -f @DGBINDIR@/dansguardian ] &&
+           [ -f @DGCONFDIR@/dansguardian.conf ]; then
+                @DGBINDIR@/dansguardian
+                echo "DansGuardian started."
+        fi
+        ;;
+stop)
+        if [ -f @DGPIDDIR@/dansguardian.pid ]; then
+                @DGBINDIR@/dansguardian -q
+                /bin/rm -f @DGPIDDIR@/dansguardian.pid
+                /bin/rm -f /tmp/.dguardianipc
+                echo "DansGuardian stopped."
+        fi
+        ;;
+restart)
+        $0 stop
+        sleep 3
+        $0 start
+        ;;
+status)
+        if [ -f @DGBINDIR@/dansguardian ]; then
+                @DGBINDIR@/dansguardian -s
+        fi
+        ;;
+*)
+
+        echo "Usage: $0 {start|stop|restart}" >&2
+        ;;
+esac
+
+
+exit 0

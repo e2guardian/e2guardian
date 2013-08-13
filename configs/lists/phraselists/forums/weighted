@@ -1,0 +1,66 @@
+#
+# Phraselists to block forum sites
+# Originally Created by Fernand Jonker 
+#
+#listcategory: "Forums"
+
+#General
+< Member>,< register><20>
+< Search>,< faq><20>
+< Login>,< home><20>
+< Moderator><20>
+<Logged in users><20>
+<The newest registered user><20>
+<Last message on the forum><20>
+<Show favorite forums><20>
+<Registered User><20>
+<forum member><20>
+<Welcome to>,<new>,<member><20>
+<Max users online><20>
+<New posts><20>
+<who's online><20>
+<topics><20>
+<threads><20>
+<posts><20>
+<last post><20>
+<last topic><20>
+<forum><20>
+
+#PHPBB
+<Powered by PHPBB><100>
+
+#UBB
+<Powered by UBB><100>
+
+#Web Wiz Forums
+<by Web Wiz Forums><100>
+
+#vBulletin
+<Powered by vBulletin><100>
+<Powered by: vBulletin><100>
+
+#Simple Machines
+<Powered by SMF><100>
+< SMF >,<Lewis Media><100>
+
+#PostNuke
+<Powered by pnForum><100>
+
+#Snitz
+<Snitz Forums><100>
+
+#Invision Power Board
+<Invision Power Board><100>
+<IPS, Inc.><20>
+
+#FUDForum
+<Powered by: FUDforum><100>
+
+#Groupee Community
+<powered by groupee community><100>
+
+#Mailgust
+<Powered by Mailgust><100>
+
+#php Bulletin Board 
+<Bulletin Board Group><40>

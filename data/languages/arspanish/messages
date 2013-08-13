@@ -1,0 +1,56 @@
+# DansGuardian messages file in AR Spanish
+
+# Translated by Roberto Quiroga 
+
+"1","Acceso Denegado"
+
+"100","Su direcci&oacute;n IP no esta autorizada a visitar: "
+"101","Su direcci&oacute;n IP no esta autorizada navegar."
+"102","El usuario no esta autorizado a visitar: "
+
+"200","La URL solicitada esta mal formada."
+
+"300","Se encontr&oacute; la frase no permitida: "
+"301","Se encontr&oacute; una frase no permitida"
+
+"400","Combinaci&oacute;n de frases no permitida: "
+"401","Combinaci&oacute;n de frases no permitida."
+"402","L&iacute;mite de ponderaci&oacute;n de frases de "
+"403","L&iacute;mite de ponderaci&oacute;n de frases excedido"
+
+"500","Sitio no permitido: "
+"501","URL no permitida: "
+"502","El sitio no esta en la lista permitida por el bloqueo activo."
+"503","Banned Regular Expression URL: "
+"503","URL bloqueada por Expresion Regular: "
+"504","URL bloqueada por Expresion Regular."
+"505","Solo se suministro la direccion IP y el bloqueo esta activo."
+
+"600","Se encontr&oacute; una excepci&oacute;n por IP de origen."
+"601","Se encontr&oacute; una excepci&oacute;n por usuario de origen."
+"602","Se encontr&oacute; una excepci&oacute;n por lugar."
+"603","Se encontr&oacute; una excepci&oacute;n por URL."
+"604","Se encontr&oacute; una excepci&oacute;n por la frase: "
+"605","Se encontr&oacute; una excepci&oacute;n por la combinaci&oacute;n de frases: "
+"606","Bypass URL excepci&oacute;n."
+"607","Bypass cookie excepci&oacute;n."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","La subida esta bloqueada."
+"701","L&iacute;mite de subida excedido."
+
+"800","Clase MIME bloqueada: "
+
+"900","Extension bloqueada: "
+
+"1000","Clasificaci&oacute;n PICS excedida en el sitio indicado."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

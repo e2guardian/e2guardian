@@ -1,0 +1,11 @@
+#listcategory:"'SafeLabel' tag"
+#
+
+# For more information see http://www.safelabeling.org/ and http://www.html-reference.com/META_name_rating.htm
+#
+
+<meta name="Rating" content="Mature">
+<meta name="Rating" content="14 Years">  
+<meta name="Rating" content="Restricted">
+#<meta name="Rating" content="General">
+#<meta name="rating" content="Safe For Kids">

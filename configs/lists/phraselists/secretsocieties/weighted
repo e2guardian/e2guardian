@@ -1,0 +1,64 @@
+# Originally created by David Burkholder
+#
+# Created to block secret societies, lodges and fraternal organizations
+# Some gotten from exonumia.com. Much, much more there if you're 
+# wanting to expand this list.
+#
+# listcategory: "Secret Societies"
+#
+
+<secret societ><35>
+<fraternal order><35>
+<fraternal society><35>
+<fraternal association><35>
+<fraternal league><35>
+<superior general><35>
+
+<united order><35>
+<united society><35>
+<united association><35>
+<united league><35>
+<union league><35>
+
+#Secret Societies
+<bilderberg group><45>
+<skull and bones><45>
+<skull & bones><45>
+<ku klux klan><45>
+<loyal order><45>
+<jacobin><45>
+<job's daughters><45>
+<knights of the golden eagle><45>
+<jacobite><45>
+<jesuit order><45>
+<company of sion><45>
+<illuminati ><45> #illumination
+<fiat lux><45>
+<hibernians><45>
+<the red men><45>
+<freemason><45>
+<master mason><45>
+<masonic><45>
+< elks >,<protective><25>
+<odd fellows><45>
+<rosicrucians><45>
+<order of eastern star><45>
+
+#Groups
+<order of foresters><45>
+<order of freesmiths><45>
+<order of gleaners><45>
+<order of owls><45>
+<order of the><55>
+<order of druids><45>
+<loyal order of><30>
+<independent order of><30>
+
+<knights of pythias><45>
+<knights of malta><45>
+<knights templar><45>
+<knights of the holy sepulchre><45>
+<knights of the holy cross><45>
+<knights of the globe><45>
+<knights of the midnight mystery><45>
+<knights of the honor><45>

@@ -1,0 +1,35 @@
+#Exception Virus extension list
+
+#This file originally from:
+#http://dgav.sourceforge.net
+
+# The Virus scanning code will ignore files with these extensions.
+
+# File extensions with executable code 
+
+
+# Files which one normally things as non-executable but
+# can contain harmful macros and viruses
+
+
+# Other files which may contain files with executable code
+
+
+# Time/bandwidth wasting files
+
+.mp3  # Music file
+.mpeg # Movie file
+.mpg  # Movie file
+.avi  # Movie file
+.ra   # Real Audio
+.ram  #  "
+.rm   #  "
+
+# Image files not to scan
+.gif
+.png
+.tiff
+.ico
+# http://www.kb.cert.org/vuls/id/297462
+#.jpg
+#.jpeg

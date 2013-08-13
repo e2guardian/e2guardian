@@ -1,0 +1,173 @@
+<html>
+	<head>
+	<title>T&eacute;l&eacute;chargement de -FILENAME- (-FILESIZE- octets)</title>
+	<script	language='javascript'>
+	<!--
+		var scanned = 1;
+		var fs = -FILESIZE-;
+		function timestring(seconds) {
+			var hours = Math.floor(seconds/3600);
+			var minutes = Math.floor((seconds/60) - (hours*3600));
+			var seconds = seconds - (minutes*60) - (hours*3600);
+			var string = "";
+			if (hours > 0) {
+				if (hours < 10)
+					string = "0"+hours;
+				else
+					string = hours;
+				string += ":";
+			}
+			if (minutes > 0) {
+				if (minutes < 10)
+					string += "0"+minutes;
+				else
+					string += minutes;
+			} else {
+				string += "00";
+			}
+			string += ":";
+			if (seconds > 0) {
+				if (seconds < 10)
+					string += "0"+seconds;
+				else
+					string += seconds;
+			} else {
+				string += "00";
+			}
+			return string;
+		}
+		function filesizestring(bytes) {
+			var gb = Math.floor(bytes/1073741824);
+			if (gb > 0)
+				return gb.toString()+" Gb";
+			var mb = Math.floor(bytes/1048576);
+			if (mb > 0)
+				return mb.toString()+" Mb";
+			var kb = Math.floor(bytes/1024);
+			if (kb > 0)
+				return kb.toString()+" Kb";
+			return bytes.toString()+" bytes";
+		}
+		function progressupdate(got, speed) {
+			var msg;
+			if (fs > 0) {
+				var sofar = (got/fs)*16;
+				for (var i = 1; i <=sofar; i++)
+					document.getElementById('progress'+i).style.backgroundColor = 'blue';
+				msg = Math.round((got/-FILESIZE-)*100)+"%, temps restant : "+timestring(Math.round((fs-got)/speed))+"; "+filesizestring(speed)+"/s; total t&eacute;l&eacute;charg&eacute; : "+filesizestring(got);
+			} else {
+				msg = "Temps restant : inconnu; "+filesizestring(speed)+"/s; total t&eacute;l&eacute;charg&eacute; : "+filesizestring(got);
+			}
+			document.getElementById('message1').innerHTML = msg;
+		}
+		function nowscanning() {
+			for (var i = 1; i <=16; i++)
+				document.getElementById('progress'+i).style.backgroundColor = 'blue';
+			if (scanned == 1) {
+				var msg = "T&eacute;l&eacute;chargement termin&eacute;. Inspection des logiciels malveillants en cours ...";
+				document.getElementById('message1').innerHTML = msg;
+			}
+		}
+		function downloadlink(rawlink, prettylink, type) {
+			if (type == 0)
+				var msg = "Fichier inspect&eacute;";
+			else if (type == 1)
+				var msg = "Fichier t&eacute;l&eacute;charg&eacute;, mais non inspect&eacute; car trop volumineux";
+			else if (type == 2)
+				var msg = "Fichier trop volumineux pour &ecirc;tre mis en cache, veuillez le t&eacute;l&eacute;charg&eacute;r directement";
+			document.getElementById('message1').innerHTML = msg;
+			if (type != 2)
+				document.getElementById('message2').innerHTML = "<a href='"+rawlink+"'>"+prettylink+"</a>";
+			else
+				document.getElementById('message2').innerHTML = "<a href='"+prettylink+"'>"+prettylink+"</a>";
+			document.write("</body></html>");
+		}
+		function downloadwarning(sizelimit) {
+			scanned = 0;
+			document.getElementById('message2').innerHTML = "Avertissement : fichier trop volumineux pour &egrave;tre inspect&eacute;. Si vous pensez que le fichier est plus volumineux que "+filesizestring(sizelimit)+", raffra&icirc;chissez la page pour le t&eacute;l&eacute;charger directement.";
+		}
+	//-->
+	</script>
+	</head>
+<body>
+<script language='javascript'>
+<!--
+document.write(unescape("\
+<table align='center'><tr><td>\
+<div style='font-size:8pt;padding:2px;border:solid black 1px'>\
+<span id='progress1'>%26nbsp; %26nbsp;</span> \
+<span id='progress2'>%26nbsp; %26nbsp;</span> \
+<span id='progress3'>%26nbsp; %26nbsp;</span> \
+<span id='progress4'>%26nbsp; %26nbsp;</span> \
+<span id='progress5'>%26nbsp; %26nbsp;</span> \
+<span id='progress6'>%26nbsp; %26nbsp;</span> \
+<span id='progress7'>%26nbsp; %26nbsp;</span> \
+<span id='progress8'>%26nbsp; %26nbsp;</span> \
+<span id='progress9'>%26nbsp; %26nbsp;</span> \
+<span id='progress10'>%26nbsp; %26nbsp;</span> \
+<span id='progress11'>%26nbsp; %26nbsp;</span> \
+<span id='progress12'>%26nbsp; %26nbsp;</span> \
+<span id='progress13'>%26nbsp; %26nbsp;</span> \
+<span id='progress14'>%26nbsp; %26nbsp;</span> \
+<span id='progress15'>%26nbsp; %26nbsp;</span> \
+<span id='progress16'>%26nbsp; %26nbsp;</span> \
+</div>\
+</td></tr></table>\
+<center><p><tt id='message1'></tt></p><p id='message2' style='color: #600;'></p></center>"));
+//-->
+</script>
+
+<!--
+The available variables are as follows:
+- FILENAME- gives the name of the file being downloaded
+- FILESIZE- gives the size of the file in bytes
+
+- FILESIZE- of zero indicates that file size is not known
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+The following JavaScript functions must be defined:
+
+progressupdate(got, speed)
+	This is called when the page is initially displayed (i.e. after
+	initialtrickledelay has passed), and periodically afterwards to
+	update progress (once every trickledelay seconds).
+	Parameters:
+	got - how much of the file we have downloaded, in bytes.
+	speed - current estimate of download speed, in bytes per second.
+
+nowscanning()
+	This is called once downloading is complete, and scanning has
+	begun. (Note: scanning has not actually begun if downloadwarning()
+	has been called at some point.)
+
+downloadlink(rawlink, prettylink, type)
+	This is called after scanning has completed, and the file is
+	ready to be sent to the user.
+	Parameters:
+	rawlink - the URL from which the scanned file can be grabbed
+	prettylink - the original URL which triggered the fancy download manager
+	type - the status of the download/scan:
+		0 - downloaded & scanned
+		1 - downloaded, but too big to have been scanned
+		2 - too big to be completely downloaded
+	codes 1 and 2 can only be encountered on files for which the content
+	length is not known in advance. "rawlink" should be ignored for code 2.
+
+downloadwarning(sizelimit)
+	This is called when a file with unknown content-length has exceeded
+	the configured maxcontentfilecachescansize. Used to warn the user
+	that the fancy DM may not be able to retrieve the entire file,
+	and that they should download directly (refresh the page; the URL will
+	have been added to DG's clean cache) if they know it to be larger
+	than sizelimit.
+	sizelimit - the value of the fancy DM's maxdownloadsize. If a file
+		exceeds this limit also, the fancy DM cannot continue
+		(will trigger downloadlink status type 2).
+
+Please note that the fancy download manager also outputs content contained in
+<noscript> tags, for browsers which disable or do not support javascript. If you
+customise this template, you may wish to test its behaviour and appearance in
+such circumstances.
+-->

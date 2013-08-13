@@ -1,0 +1,53 @@
+# DansGuardian messages file in IT Italian
+# Translated by andrea at diclemente.net
+
+"1","Accesso Negato"
+
+"100","Al tuo indirizzo IP non e' permesso di navigare il web: "
+"101","Al tuo indirizzo IP non e' permesso di navigare il web."
+"102","Al tuo username non  permesso di navigare il web: "
+
+"200","L'URL richiesta e' malformata."
+
+"300","Trovata una frase vietata: "
+"301","Trovata una frase vietata."
+
+"400","Trovata una combinazione di frasi vietata: "
+"401","Trovata una combinazione di frasi vietata."
+"402","Il limite di frasi pesate di "
+"403","E' stato superato il limite per le frasi pesate."
+
+"500","Sito vietato: "
+"501","URL vietato: "
+"502","Il blocco 'Blanket' e' attivo e il sito non e' nella white list."
+"503","URL con espressione regolare vietata: "
+"504","URL con espressione regolare vietata trovato."
+"505","Il blocco 'Blanket' e' attivo e l'indirizzo e' formato dal solo indirizzo IP."
+
+"600","Exception client IP match."
+"601","Exception client user match."
+"602","Exception site match."
+"603","Exception URL match."
+"604","Exception phrase found: "
+"605","Combination exception phrase found: "
+"606","Bypass URL exception."
+"607","Bypass cookie exception."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","Il Web-upload e' vietato."
+"701","E' stato superato il limite per il Web upload."
+
+"800","MIME Type vietato: "
+
+"900","Extensione vietata: "
+
+"1000","Si e' oltrepassato il limite del livello PICS sul sito."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

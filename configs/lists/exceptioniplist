@@ -1,0 +1,31 @@
+# IP addresses of computers from which
+# web access should not be filtered.
+#
+# These would be servers which
+# need unfiltered access for
+# updates.  Also administrator
+# workstations which need to
+# download programs and check
+# out blocked sites should be
+# put here.
+#
+# Hostnames are allowed here, provided you
+# enable the reverseclientlookups option.
+#
+# This is not the IP of web servers
+# you don't want to filter.
+
+#192.168.0.1
+#192.168.0.2
+#192.168.42.2
+
+# Ranges and subnets can also be used,
+# e.g.
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#
+# Hostnames can also be used, provided
+# you cater for reverse DNS lookups
+# on your LAN and enable the
+# "reverseclientiplookups" option in
+# dansguardian.conf

@@ -1,0 +1,78 @@
+<html>
+
+<head>
+<title>DansGuardian - A hozzáférés tiltva</title>
+</head>
+
+<body bgcolor=#FFFFFF>
+
+<center>
+<table border=0 cellspacing=0 cellpadding=2 height=540 width=700>
+<tr>
+	<td colspan=2 bgcolor=#FEA700 height=100 align=center>
+	<font face=arial,helvetica size=6>
+	<b>A hozzáférés tiltva!</b>
+	</td>
+</tr>
+<tr>
+	<td colspan=2 bgcolor=#FFFACD height=30 align=right>
+	<font face=arial,helvetica size=3 color=black>
+	<b>-USER-&nbsp;</b>
+	</td>
+</tr>
+<tr>
+	<td align=center valign=bottom width=150 bgcolor=#B0C4DE>
+	<font face=arial,helvetica size=1 color=black>
+	YOUR ORG NAME
+	</td>
+	<td width=550 bgcolor=#FFFFFF align=center valign=center>
+	<font face=arial,helvetica color=black>
+	<font size=4>
+	A hozzáférés ehhez az oldalhoz:
+	<br><br>
+	<a href="-URL-" target="_blank">-URL-</a>
+	<br><br>
+	<font size=3>
+	... nem lehetséges a következõ ok miatt:
+	<br><br>
+	<font color=red>
+	<b>-REASONGIVEN-</b>
+	<font color=black>
+	<br><br><br><br>
+	Ön azért látja ezt a hibaüzenetet, mert úgy tûnik, amit Ön megkísérelt elérni tartalmaz
+	vagy besorolása alapján tartalmazhat helytelennek vélt anyagokat.
+	<br><br>
+	Amennyiben Önnek ezzel kapcsolatban aggályai merültek fel, vegye fel a kapcsolatot az Ön
+	Információs- és kommunkációtechnológiai koordinátorával vagy a hálózati menedzserével.
+	<br><br><br><br>
+	<font size=1>
+	Powered by <a href="http://www.dansguardian.org?block" target="_blank">DansGuardian</a>
+	</td>
+</tr>
+</table>
+
+</body>
+
+</html>
+
+<!--
+The available variables are as follows:
+- URL- gives the URL the user was trying to get to.
+- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+- REASONLOGGED- gives the reason that gets logged including full details.
+- USER- gives the username if known.
+- IP- gives the originating IP.
+- FILTERGROUP- gives the group number.
+- BYPASS- gives URL which allows temporary bypass of denied page
+
+You need to remove the space between the - and the variable to use them
+in your HTML.  They are there above so extra processing is not required.
+
+More example templates are likely to be found on the DansGuardian web site
+on the Extras page.
+
+This page was designed by Paul Richards.  (http://www.ridney.com/)
+
+Daniel Barron 2003-09-01
+-->
+

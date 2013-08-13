@@ -1,0 +1,45 @@
+#
+# Phraselists to block gambling sites
+#
+
+#listcategory: "Gambling"
+
+< bet >,<poker><40>
+< betting ><30>
+< blackjack ><30>
+< casino ><30>
+< casinon ><30>
+< casinos ><30>
+< gamblers ><30>
+< gambling ><30>
+< jackpot ><20>
+< jackpott ><20>
+< kasino><30>
+< kasinon ><30>
+< loto ><30>
+< lotteri ><30>
+< lotterier ><30>
+< lotteries ><20>
+< lottery ><30>
+< lotto ><30>
+< prispott ><20>
+< roulette ><30>
+< snake eyes ><20>
+< snakeeyes ><20>
+< sports book ><10>
+< sportsbook ><10>
+< totalisator ><30>
+< video poker ><30>
+< wagering ><50>
+< wager ><30>
+<card room><10>
+<green card lottery><30>
+<greencard lottery><30>
+<poker>,<online><50>
+<poker>,<tournament><50>
+<poker>,<virtual><50>
+<videopoker><30>
+<virtual casino><30>
+<virtual vegas><30>
+<virtualcasino><30>
+

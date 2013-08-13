@@ -1,0 +1,79 @@
+.\" ------> /usr/share/man/man8/dansguardian.8.gz <------
+.\" 
+.TH "DANSGUARDIAN" "8" "Oct 2008" "Daniel Barron" "dansguardian"
+.SH "NAME"
+DansGuardian2 \- web content filter
+
+.SH "SYNOPSIS"
+.PP 
+\fBdansguardian\fR [ \-\fBc\fR \fIconfig\-file\fR ] [ \-\fBv\fR ] [ \-\fBh\fR ] [ \-\fBN\fR ] [ \-\fBq\fR ] [ \-\fBQ\fR ] [ \-\fBs\fR ] [ \-\fBr\fR ] [ \-\fBg\fR ]
+.SH "SUMMARY"
+DansGuardian is a web content filtering proxy(1) for Linux, NetBSD, FreeBSD, OpenBSD, and Solaris that uses Squid(2) to do all the fetching.
+
+It filters using multiple methods. These methods include URL and domain filtering, content phrase filtering, PICS filtering, MIME type filtering, file extension filtering, POST limiting and content (AV) scanning.
+
+The content phrase filtering will check for pages that contain profanities and phrases often associated with pornography and other undesirable content.  The POST filtering allows you to block or limit web uploads.  The URL and domain filtering is able to handle huge lists and is significantly faster than squidGuard.
+
+Content scanning enables downloaded content to be passed through ClamD, KAVD, any local program with machine\-parseable console output, and any other AV scanner available as an ICAP server.
+
+The filtering has configurable domain, user and source IP exception lists.  SSL tunneling is supported; 
+however, due to the encrypted nature of HTTPS requests,
+filtering is only supported on destination domain.
+The configurable logging produces a log in an easy to read format which has the option to only log the text\-based pages, thus significantly reducing redundant
+information such as every image on a page.
+
+DansGuardian is under continuous development and so it is best to visit the web site for the latest information.
+
+ (1) Technically DansGuardian is more of a filtering pass\-through than a true proxy \- but don't let that worry you!
+
+ (2) DansGuardian should work with any proxy, not just Squid. For example, it is known to work with Oops.
+.SH "DOCUMENTATION"
+.PP 
+For all further information including copyright, support, FAQ, docs, mailing list \- please go to:
+
+  http://dansguardian.org/
+
+Available documentation can be found at 
+ http://www.dansguardian.org/?page=documentation
+
+The DansGuardian FAQ is at http://www.dansguardian.org/?page=faq
+
+Some useful HOWTOs that cover specific implimentations of DansGuardian and
+caching/filtering in general can be found at
+ http://www.dansguardian.org/?page=howto
+  
+Information about Debian specific changes
+and configuration can be found in
+/usr/share/doc/dansguardian/changelog.Debian.gz .
+.SH "OPTIONS"
+.TP 
+\-c \fIconfig\-file\fR
+Use the given \fIconfig\-file\fR\&.
+.TP 
+\-v
+gives the version number and build options\&.
+.TP 
+\-h
+Output a short summary of available command line options\&.
+.TP 
+\-N
+Do not go into the background\&.
+.TP 
+\-q
+causes DansGuardian to kill any running copy\&.
+.TP 
+\-Q
+kill any running copy AND start a new one with current options\&.
+.TP 
+\-s
+shows the parent process PID and exits\&.
+.TP 
+\-r
+closes all connections and reloads config files by issuing a HUP, but this does not reset the maxchildren option (amongst others)\&.
+.TP 
+\-g
+gently restarts by not closing all current connections; only reloads filter group config files. (Issues a USR1)\&
+.SH "COPYRIGHT"
+DansGuardian is copyright Daniel Barron 2011.
+
+  daniel/jadeb.com

@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>DansGuardian - Access Denied</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+		<!-- Ensure local favicon is loaded or site's is blanked, some sites have shady favicons. -->
+		<!-- <link rel="shortcut icon" href="favicon.ico"> -->
+		<style type="text/css">
+			body {
+				color:#000000;
+				background-color:#ffffff;
+				font-family:arial, helvetica, sans-serif;
+			}
+
+			img.valid {
+				width:88px;
+				height:31px;
+				border-width:0px;
+			}
+
+			table.main {
+				width:700px;
+				height:540px;
+				padding:2px;
+				border-width:0px;
+				margin-left:auto;
+				margin-right:auto;
+			}
+
+			td.content {
+				width:550px;
+				vertical-align:middle;
+				color:#000000;
+				background-color:#ffffff;
+				font-size:14pt;
+				text-align:center;
+			}
+			td.notice {
+				height:100px;
+				color:#000000;
+				/* background-color:#fea700; */
+				background-color:#ff0000;
+				font-size:22pt;
+				font-weight:bold;
+				text-align:center;
+			}
+			td.org {
+				width:150px;
+				vertical-align:bottom;
+				color:#000000;
+				background-color:#b0c4de;
+				font-size:8pt;
+				text-align:center;
+			}
+			td.user {
+				height:30px;
+				color:#000000;
+				/* background-color:#fffacd; */
+				background-color:#999999;
+				font-size:12pt;
+				font-weight:bold;
+				text-align:right;
+			}
+		</style>
+	</head>
+	<body>
+		<!--
+			The available variables are as follows:
+			- URL- gives the URL the user was trying to get to.
+			- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
+			- REASONLOGGED- gives the reason that gets logged including full details.
+			- USER- gives the username if known.
+			- IP- gives the originating IP.
+			- FILTERGROUP- gives the group number.
+			- BYPASS- gives URL which allows temporary bypass of denied page
+	
+			You need to remove the space between the - and the variable to use them
+			in your HTML.  They are there above so extra processing is not required.
+	
+			More example templates are likely to be found on the DansGuardian web site
+			on the Extras page.
+	
+			This page was designed by Paul Richards.  (http://www.ridney.com/)
+	
+			Daniel Barron 2003-09-01
+		-->
+		<table class="main">
+			<tr><td colspan="2" class="notice">
+				Access Denied!
+			</td></tr>
+			<tr><td colspan="2" class="user">
+				<!-- Hide this bar if user is null -->
+				-USER-&nbsp;
+			</td></tr>
+			<tr>
+				<td class="org">
+					<!-- Add -ORG- for dansguardian.conf option - "organization=" -->
+					Your Organization
+				</td>
+				<td class="content">
+					Access to the page:
+					<br /><br />
+					<a href="-URL-" target="_blank">-URL-</a>
+					<br /><br />
+					<span style="font-size:12pt">
+						... has been denied for the following reason:
+						<br /><br />
+						<span style="color:#ff0000; font-weight:bold">
+							-REASONGIVEN-
+						</span>
+						<br /><br /><br /><br />
+						You are seeing this error because what you attempted to access appears to contain,
+						or is labeled as containing, material that has been deemed inappropriate.
+						<br /><br />
+						<!-- Add -ADMIN- for dansguardian.conf option - "administrator=" -->
+						If you have any questions contact your <a href="mailto:-ADMIN-?subject=access%20denied&amp;body=-URL-%20--%20-REASON-">Network Administrator</a>.
+						<br /><br /><br /><br />
+					</span>
+					<span style="font-size:8pt">
+						Powered by <a href="http://www.dansguardian.org" target="_blank">DansGuardian</a>
+					</span>
+					<p>
+						<a href="http://validator.w3.org/check?uri=referer">
+							<img class="valid" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01 Transitional" />
+						</a>
+						<a href="http://jigsaw.w3.org/css-validator/">
+							<img class="valid" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!" />
+						</a>
+					</p>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

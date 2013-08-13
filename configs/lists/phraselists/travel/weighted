@@ -1,0 +1,108 @@
+# Originally created by David Burkholder
+# 
+# Phraselists to block Travel & Vacation sites.
+# If using this list for whatever reason, such as productivity I would recommend whitelisting
+# sites such as expedia.com / travelocity.com, etc to prevent overblocking.
+# listcategory: "Travel"
+#
+
+#Resort
+<alpine resort><35>
+<golf resort><35>
+<great resort><35>
+<dream resort><35>
+<luxury resort><35>
+<island resort><35>
+
+#Hotels
+<honeymoon suite><35>
+<bed & breakfast><35>
+<bed and breakfast><35>
+< b&b><35>
+<guest house><35>
+<room service><35>
+
+<travel agen><30>
+<travel guid><30>
+<travel wire><30>
+<travel book><30>
+<travelogue><30>
+<popular attraction><40>
+<popular destination><40>
+<destination guide><30>
+<best destination><30>
+<vacation info><30>
+<vacation spot><30>
+<vacation guide><30>
+<vacation getaway><30>
+<vacation package><30>
+<leisure><20>
+< touris><30>
+<touring><30>
+<tour operat><30>
+<tour guide><30>
+<things to do><30>
+<plan your trip><30>
+<plan your vacation><30>
+<recreation><30>
+<island playground><55>
+<private island><55>
+<islands for sale><55>
+<island for sale><55>
+<attractions><25>
+<accomodations><25>
+<ecotour><55>
+<sightsee><55>
+<scenic spot><30>
+
+
+<nature show><40>
+<national park><40>
+<park service><40>
+<park info><40>
+<vistor info><40>
+<park pass><40>
+<national forest><40>
+<national monument><40>
+<african safari><55>
+<hunting safari><55>
+<photo safari><55>
+<african safari><55>
+<baja><40>
+
+<historic village><40>
+
+#Theme parks
+<walt disney><55>
+< epcot><105>
+<six flags><55>
+<roller coast><55>
+<amusement park><55>
+<marine world><55>
+<thrill ride><55>
+<family ride><55>
+<live show><60>
+<theme park><55>
+<waterpark><55>
+<water park><55>
+<water slide><55>
+<daring adventur><55>
+<amusement park><55>
+<adventure park><55>
+<wild adventure><55>
+<wild fun><55>
+<thrill park><55>
+<miniature golf><55>
+
+
+#Cruises
+<cruise vacation><55>
+<family cruise><55>
+<river cruise><55>
+<passage cruise><55>
+<restaurant cruise><55>
+<holiday cruise><55>
+<cruise rout><55>
+<cruise ship><55>
+<cruise line><55>
+<expedition cruis><55>

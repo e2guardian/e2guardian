@@ -1,0 +1,44 @@
+#Sites in exception list
+#Don't bother with the www. or
+#the http://
+#
+#These are specifically domains and are not URLs.
+#For example 'foo.bar/porn/' is no good, you need
+#to just have 'foo.bar'.
+#
+#You can also match IPs here too.
+#
+#As of DansGuardian 2.7.3 you can now include
+#.tld so for example you can match .gov for example
+
+
+# Time limiting syntax:
+# #time: <start hour> <start minute> <end hour> <end minute> <days>
+# Example:
+##time: 9 0 17 0 01234
+# Remove the first # from the line above to enable this list only from
+# 9am to 5pm, Monday to Friday.
+
+
+# Blanket exception.  To allow all sites except those in the
+# exceptionsitelist and greysitelist files, remove
+# the # from the next line to leave only a '**':
+#**
+
+# Blanket SSL/CONNECT exception.  To allow all SSL 
+# and CONNECT tunnels except to addresses in the
+# exceptionsitelist and greysitelist files, remove
+# the # from the next line to leave only a '**s':
+#**s
+
+# Blanket IP exception.  To allow all sites specified only as an IP,
+# remove the # from the next line to leave only a '*ip':
+#*ip
+
+# Blanket SSL/CONNECT IP exception.  To allow all SSL and CONNECT
+# tunnels to sites specified only as an IP,
+# remove the # from the next line to leave only a '*ips':
+#*ips
+
+
+windowsupdate.microsoft.com

@@ -1,0 +1,54 @@
+# DansGuardian messages file in Czech
+# by Richard Bukovansky bukovansky@atcomp.cz
+
+"1","Pstup zamtnut"
+
+"100","Vai IP adrese nen povoleno prohlet: "
+"101","Vae IP adresa nem povoleno prohlen."
+"102","Vae uivatelsk jmno nem povoleno prohlet: "
+
+"200","Poadovan URL je patn zadna."
+
+"300","Nalezena zakzan frze: "
+"301","Nalezena zakzan frze."
+
+"400","Nalezena zakzan kombinace frzi: "
+"401","Nalezena zakzan kombinace frzi."
+"402","Limit vench frz: "
+"403","Byl pekroen limit pro ven frze."
+
+"500","Zakzan webov sdlo: "
+"501","Zakzan URL adresa: "
+"502","Celoplon blokovn pstupu je aktivovno a toto webov sdlo nen povoleno."
+"503","Nalezena zakzan URL adresa dle regularnho vrazu: "
+"504","Nalezena zakzan URL adresa dle regularnho vrazu."
+"505","Celoplon blokovan IP adres je aktivovno a byla zadna IP adresa."
+
+"600","Nalezena vyjmkov IP adresa."
+"601","Nalezen vyjmkov uivatel."
+"602","Nalezeno vyjmkov webov sdlo."
+"603","Nalezena vyjmkov URL adresa."
+"604","Nalezena vyjmkov frze: "
+"605","Nalezena kombinace vyjmkovch frzi: "
+"606","Bypass URL exception."
+"607","Bypass cookie exception."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","Web upload je zakzn."
+"701","Web upload limit byl pekroen."
+
+"800","Zakzan obsah souboru: "
+
+"900","Zakzan ppona souboru: "
+
+"1000","rove PICS oznaen byla pekroena na tomto webovm sdle."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

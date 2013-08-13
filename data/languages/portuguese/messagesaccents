@@ -1,0 +1,47 @@
+# DansGuardian 2.8 messages in Brazilian Portuguese
+# Mensagens do DansGuardian 2.8 file em Português do Brasil (pt-BR)
+# Translated/traduzido (?) by/por Henrique Araujo - Sys Admin
+# henrique@colegiosaogoncalo.g12.br
+# Cuiabá - MT, Brasil
+
+"1","Acesso negado."
+
+"100","Seu endereço IP não tem permissão de acesso à web: "
+"101","Seu endereço IP não tem permissão de acesso à web: "
+"102","Esse nome de usuário não tem permissão de acesso à web: "
+
+"200","A URL requerida está malformada."
+
+"300","Encontrada frase proibida: "
+"301","Encontrada frase proibida: "
+
+"400","Encontrada combinação de frases proibida: "
+"401","Encontrada combinação de frases proibida: "
+"402","Limite de frase ponderada de "
+"403","Limite de frase ponderada excedido."
+
+"500","Sítio proibido: "
+"501","URL proibida: "
+"502","Bloqueio geral está ativo e aquele sítio não está na lista livre."
+"503","Expressão Regular proibida em URL: "
+"504","Encontrada Expressão Regular proibida em URL: "
+"505","Bloqueio geral de IP está ativo e aquele endereço não possui nome."
+
+"600","Cliente IP está na lista de exceções."
+"601","Usuário está na lista de exceções."
+"602","Sítio está na lista de exceções."
+"603","URL está na lista de exceções."
+"604","Encontrada frase na lista de exceções: "
+"605","Encontrada combinação de frases na lista de exceções: "
+"606","Desvio temporário de bloqueio (Bypass URL.)"
+"607","Desvio temporário de bloqueio (Bypass cookie.)"
+
+"700","Transferência de arquivos para web proibida."
+"701","Limite de transferência de arquivos para web excedido."
+
+"800","Tipo MIME proibido: "
+
+"900","Extensão proibida: "
+
+"1000","Nível de rotulagem PICS excedido no sítio acima."
+

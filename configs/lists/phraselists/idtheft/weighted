@@ -1,0 +1,27 @@
+# Originally created by David Burkholder
+#
+# Created to limit access to ID theft tutorial sites. 
+# Hope it doesn't overblock ID theft prevention sites.
+#
+# listcategory: "ID Theft"
+#
+
+#ID theft
+<false id><30>
+<fake id><30>
+<change your identit><30>
+<whole new identit><30>
+<use a new ident><30>
+<steal someone's identit><30>
+<create new ident><30>
+<create a new ident><30>
+<counterfeit birth cert><30>
+<separate identit><30>
+<entirely new identit><30>
+<bulletproof new identit><30>
+<counterfeit><20>
+
+<prevent id theft><-20>
+<avoid id theft><-20>
+
+

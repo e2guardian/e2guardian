@@ -1,0 +1,93 @@
+#Content modifying Regular Expressions
+#
+# The format is: "extended regular expression"->"replacement straight string"
+# E.g. "shit"->"censored" would replace all occurances of shit in any case.
+# Far more complicated matches are possible.  See other sources for examples
+# of extended regular expressions.
+
+# These are just some examples.  If you write any, for example, to
+# remove popups etc, please send them to author at dansguardian.org.
+#
+#"<script language.*open\(.*script>"->"<!-- its gone -->"
+#"fuck|cunt|shit"->"**censored**"
+#
+# For ALL of these to work it requires dansguardian to be built with PCRE support,
+# but some may work with the default C library regular expression support.
+#
+# Some of these are based on regular expressions from Privoxy.
+
+#remove popups by AFN 2004/2/28
+#"<html>"->"<script language='javascript'>fwo=window.open;function NO(url,nam,atr){return(this.window);}window.open=NO;</script><html>"
+#"=[ ]*?window\.open[ ]*?\("->"=fwo("
+#"<html>"->"<script language='javascript'>function NO(url,nam,atr){return(this.window);}window.open=NO;</script><html>"
+
+# Fix Firefox <= 1.0.7 DoS
+# http://www.whitedust.net/speaks/1432/
+#"((<source)|(</source))text>"->"$1dosremovedtext"
+
+# Disable ActiveX objects.
+#"<object [^>]*application\/x-oleobject[^>]*>.*?<\/object>"->"<!-- Guardian Removed ActiveX Object -->"
+#"<embed [^>]*(application/x-oleobject).*?>(.*?</embed>)?"->"<!-- Guardian Removed ActiveX Embed -->"
+
+# Warn about address bar spoofing.
+#"(<a[^>]*href[^>]*)(\x01|\x02|\x03|%0[012])"->"$1MALICIOUS-LINK"
+
+# Disable all popups in JavaScript and HTML.  It may cause unavoidable
+# Javascript warnings or errors.  Do not enable at the same time as other
+# popup removing lines.
+#"((\W\s*)(window|this|parent)\.)open\s*\\?\("->"$1concat("
+#"\starget\s*=\s*(['"]?)_?(blank|new)\1?"->" notarget"
+
+# Removes the APPLET tag which is generally used Java applets.
+#"<applet[^>]*>.*?<\/applet>"->""
+
+# Disable the BLINK and MARQUEE tags.
+#"</?(blink|marquee)[^>]*>"->""
+
+# Warn about potential cross-site-scripting vulnerability described here:
+# http://online.securityfocus.com/archive/1/298748/2002-11-02/2002-11-08/2
+#"f\("javascript:location.replace\('mk:@MSITStore:C:'\)"\);"->"alert\("This page looks like it tries to use a vulnerability described here:\n http://online.securityfocus.com/archive/1/298748/2002-11-02/2002-11-08/2"\);"
+
+# Removes the SCRIPT tag with JavaScript.  This will likely break sites that are
+# badly written and thus rely on JavaScript.  This should not be used at the same
+# time as the 'script' category.
+#"<script [^>]*javascript[^>]*>.*?<\/script>"->""
+
+# Removes href=javascript: onmouseover=javascript: and other javascript actions.
+# This is a good category to tick if using 'script' or 'javascript' categories.
+# Beware that there are likely going to be a large number of matches and will
+# require more CPU.  Also this will break badly written sites that require
+# JavaScript for navigation.
+#"(onclick|ondblclick|onmousedown|onmouseup|onmouseover|onmousemove|onmouseout|onkeypress|onkeydown|onkeyup|href)(=("|')?)javascript:"->"guardianremoved$2none:"
+
+# Remove cookies set by JavaScript and HTML.
+#"(\w+\.)+cookie(?=[ \t\r\n]*=)(?!='aab)"->"GuardianRemovedCookie"
+#"<meta\s+http-equiv=['"]?set-cookie.*>"->"<!-- GuardianRemovedCookie -->"
+
+# Attempt to detect and stop Nimda infected servers's web pages. This is rare
+# and generally should be left unused.
+#"<script language="JavaScript">(window\.open|1;''\.concat)\("readme\.eml", null, "resizable=no,top=6000,left=6000"\)</script>"->"<br><font size="7"> WARNING: This Server is infected with <a href="http://www.cert.org/advisories/CA-2001-26.html">Nimda</a>!</font>"
+
+# Disable onunload (page close) popups.
+#"(<body\s+[^>]*)onunload"->"$1never"
+#"(<script.*)window\.onunload(?=.*</script>)"->"$1never"
+
+# Removes the SCRIPT tag which could include JavaScript, perlscript and vbscript.
+# This will likely break sites that are badly written and thus rely on client
+# side scripts.  This should not be used at the same time as the 'javascript' line.
+#"<script[^>]*>.*?<\/script>"->""
+
+# Disable Sockwave Flash objects.
+#"<object [^>]*macromedia[^>]*>.*?<\/object>"->"<!-- Guardian Removed Shockwave Object -->"
+#"<embed [^>]*(application/x-shockwave-flash\|\.swf).*?>(.*?</embed>)?"->"<!-- Guardian Removed Shockwave Flash Embed -->"
+
+# Disable unsolicited popups.
+#"([^'"]\s*<head.*>)(?=\s*[^'"])"->"$1<script>function SWGuardianWindowOpen(){return(null);}</script>"
+#"([^\w\s.]\s*)((window|this|parent)\.)?open\s*\("->"$1SWGuardianWindowOpen("
+#"([^'"]\s*</html>)(?!\s*(\\n|'|"))"->"$1<script>function PrivoxyWindowOpen(a, b, c){return(window.open(a, b, c));}</script>"
+
+# Remove 1x1 GIFs used for user tracking.
+#"<img\s+[^>]*(?:(width)|(height))\s*=\s*['"]?[01](?=\D)[^>]*(?:(width)|(height))\s*=\s*['"]?[01](?=\D)[^>]*?>"->""
+
+# Prevent windows from resizing and moving themselves.
+#"(?:window|this|self|top)\.(?:move|resize)(?:to|by)\("->"''.concat("

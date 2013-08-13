@@ -1,0 +1,114 @@
+#
+# Phraselists to block news sites 
+# Originally created by Fernand Jonker
+# Modified by David Burkholder
+#
+# 
+
+<cnn.com><100>
+<local news><30>
+
+
+<art>,<local>,<world>,<entertainment><30>
+#<sci>,<tech><30>
+<news>,<entertainment><30>
+<top stories><40>
+<in the news><30>
+<news>,<front page><30>
+<bbc news><50>
+<week at a glance><50>
+<week in pictures><50>
+<top stories><30>
+<in pictures><30>
+<interactive>,<news><30>
+<complete coverage>,<news><40>
+<biography>,<news><30>
+<columnists>,<news><30>
+<classifieds>,<news><30>
+
+#Don't use headline. Headlines works better
+<news headlines><30>
+<breaking headlines><45>
+<world>,<headlines><20>
+<newscast><20>
+
+<news report><30>
+<news>,<solicitor><30>
+<national news><50>
+<news article><30>
+<news>,<interview><30>
+<news>,<lawyer><30>
+
+<breaking news><70>
+<latest news><40>
+
+
+<business news><30>
+<national news><70>
+
+<canadian press><40>
+<reuters><40>
+<associated press><40>
+<united press international><40>
+
+
+#############################################
+#
+# News Weighted Phrases
+# Edited by David Burkholder
+#
+
+#News organizations
+< pbs><30>
+< nbc><30>
+< cbs><30>
+
+<co-write><30>
+<co-producer><30>
+
+<ombudsperson><30>
+<ombudsman><30>
+<news network><45>
+<ap network><40>
+<searchable news><40>
+<news site><45>
+<newscast><45>
+<current event><40>
+<press associat><65>
+<story highlight><40>
+<news coverage><45>
+<current news><45>
+<world news><45>
+<post news><45>
+<arab news><45>
+<times news><45>
+<timesnews><45>
+<daily news><45>
+<dailynews><45>
+<worldnews><45>
+<global news><45>
+<journalis><25>
+<investigative journalism><125>
+<news archive><65>
+<entertainment news><75>
+<entertainment directory><75>
+<politics>,<business>,<entertainment>,<science>,<sports>,<world><125>
+<newspaper><40>
+< telegraph >,<news>,<news><40>
+< daily mail >,<news>,<news><40>
+<new york times><40>
+<ny times><40>
+<la times><40>
+<post dispatch><40>
+<washington times><40>
+<boston globe><40>
+<boston herald><40>
+<bbc news><40>
+<tehran times><40>
+<atlanta journal><40>
+<morning herald><40>
+<post gazette><40>
+<post-gazette><40>
+#<press release><25> #too general, waaayyyy to overblocking
+<live video><75>
+<video feed><75>

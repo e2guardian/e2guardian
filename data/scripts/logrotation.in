@@ -1,0 +1,26 @@
+#!/bin/sh
+# DansGuardian logrotation script for version @PACKAGE_VERSION@
+
+
+LOG_DIR=@DGLOGLOCATION@
+NUM_LOGS=4
+LOG=$LOG_DIR/access.log
+
+@DGBINDIR@/dansguardian -q
+
+# Keep a maximum of $NUM_LOGS logs around.
+if [ -f $LOG.$NUM_LOGS ]; then rm -f $LOG.$NUM_LOGS; fi
+n=$(( $NUM_LOGS - 1 ))
+while [ $n -gt 0 ]; do
+  if [ -f $LOG.$n ]; then
+    mv $LOG.$n $LOG.$(( $n + 1 ))
+  fi
+  n=$(( $n - 1 ))
+done
+if [ -f $LOG ]; then
+  mv $LOG $LOG.1
+fi
+
+sleep 5
+
+@DGBINDIR@/dansguardian

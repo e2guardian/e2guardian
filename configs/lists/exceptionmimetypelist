@@ -1,0 +1,40 @@
+# Exception MIME type list
+# Use as a filter group's "exceptionmimetypelist",
+# to override a blanket download block.
+# (blockdownloads = on)
+#
+# DOES NOT override content/virus scanning or site/URL bans.
+#
+# Default list:
+# Unblock web pages & graphics
+
+# Text/web document types
+
+text/plain
+text/html
+text/css
+text/xml
+text/xsl
+text/richtext
+
+# Image types
+
+image/bmp
+image/cis-cod
+image/gif
+image/ief
+image/jpeg
+image/pipeg
+image/png
+image/tiff
+image/x-cmu-raster
+image/x-cmx
+image/x-icon
+image/x-portable-anymap
+image/x-portable-bitmap
+image/x-portable-graymap
+image/x-portable-pixmap
+image/x-rgb
+image/x-xbitmap
+image/x-xpixmap
+image/x-xwindowdump

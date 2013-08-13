@@ -1,0 +1,55 @@
+#URL modifying Regular Expressions
+#
+# The format is: "extended regular expression"->"replacement straight string"
+# E.g. "shit"->"censored" would replace all occurances of shit in any case.
+# Far more complicated matches are possible.  See other sources for examples
+# of extended regular expressions.
+#
+# Users are pointed at the replaced URL transparently.
+# Manipulates the URL to automatically switch on safe searching in Google,
+# Singingfish, Ilse, KEL, Lycos, Alltheweb, Yahoo, Hotbot, Wisenut,
+# Metacrawler.
+# Google, Go etc. - remove 'safe=...'
+#"(^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/images\?)(.*)(&?)(safe=[^&]*)"->"\1\2\3"
+# ... and add 'safe=vss'
+#"(^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/images\?)"->"\1safe=vss&"
+
+# Singingfish - remove 'ff=...' and add 'ff=1'
+#"(^http://search\.singingfish\.com/[-/%.0-9a-z]*\?)(.*)(&?)(ff=[^&]*)"->"\1\2\3"
+
+#"(^http://search\.singingfish\.com/[-/%.0-9a-z]*\?)"->"\1ff=1&"
+
+# Ilse - remove 'family=...' and add 'family=yes'
+#"(^http://www\.ilse\.nl/searchresults\.dbl\?)(.*)(&?)(family=[^&]*)"->"\1\2\3"
+#"(^http://www\.ilse\.nl/searchresults\.dbl\?)"->"\1family=yes&"
+
+# KEL - remove 'Realm%3AErotiek=...'
+#"(^http://www\.kel\.nl/search/search.cgi\?)(.*)(&?)(Realm%3AErotiek=[^&]*)"->"\1\2\3"
+
+# Lycos.com - family filter only available in advanced mode.
+# Remove 'adv=...' and 'adf=...' and add 'adv=1&adf=on'
+#"(^http://[^/]*search[^/]*\.lycos\.com/[-/%.0-9a-z]*\?)(.*)(&?)(adv=[^&]*)"->"\1\2\3"
+#"(^http://[^/]*search[^/]*\.lycos\.com/[-/%.0-9a-z]*\?)(.*)(&?)(xadult\.)(.*)(xadult\.)"->"\1\2\3\5"
+#"(^http://[^/]*search[^/]*\.lycos\.com/[-/%.0-9a-z]*\?)"->"\1adv=1&adf=on&"
+
+# Lycos.nl - remove 'family=...' and add 'family=on'
+#"(^http://zoek\.lycos\.nl/[-/%.0-9a-z]*\?)(.*)(&?)(family=[^&]*)"->"\1\2\3"
+#"(^http://zoek\.lycos\.nl/[-/%.0-9a-z]*\?)"->"\1family=on&"
+
+# Alltheweb - change the customize url so that 'offensive' cannot be turned off
+#"(^http://www\.alltheweb\.com/customize\?)(.*)(&?)(copt_offensive=[^&]*)"->"\1\2\3copt_offensive=on"
+
+# Yahoo - remove 'vm=...' and add 'vm=r'
+#"(^http://[.0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search)(.*)(&?)(vm=[^&]*)"->"\1\2\3"
+#"(^http://[.0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search+.*\?)"->"\1vm=r&"
+
+# Hotbot - remove 'adf=...' and add 'adf=on'
+#"(^http://[0-9a-z]+\.hotbot\.[a-z]+/default\.asp\?)(.*)(&?)(adf=[^&]*)"->"\1\2\3"
+#"(^http://[0-9a-z]+\.hotbot\.[a-z]+/default\.asp\?)"->"\1adf=on&"
+
+# Wisenut - change the customize url so that 'wisepatrol' cannot be turned off
+#"(^http://www\.wisenut\.com/preferences/savePreferences\.[^?]*\?)(.*)(&?)(wisepatrol=[^&]*)"->"\1\2\3wisepatrol=1"
+
+# Metacrawler - remove 'familyfilter=...' and add 'familyfilter=1'
+#"(^http://www\.metacrawler\.com/info\.metac/search/[-/%.0-9a-z]*\?)(.*)(&?)(familyfilter=[^&]*)"->"\1\2\3"
+#"(^http://www\.metacrawler\.com/info\.metac/search/[-/%.0-9a-z]*\?)"->"\1familyfilter=1&"

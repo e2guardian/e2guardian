@@ -1,0 +1,53 @@
+# DansGuardian messages file in chinese gb2312
+# By Chen YiFei
+"1","ܾ"
+
+"100"," IP ַȨ web : "
+"101"," IP ַȨ web ʡ"
+"102","ʺȨ web ʡ "
+
+"200"," URL ʽд"
+
+"300","ֱֹĶ: "
+"301","ֱֹĶ"
+
+"400","ֱֹ϶: "
+"401","ֱֹ϶"
+"402"," ȨΪ: "
+"403","Ȩơ"
+
+"500","ֹվ: "
+"501","ֹ URL: "
+"502","ȫֹЧվ㲢ڰС"
+"503","ʽֹ URL: "
+"504","ֱʽֹ URL"
+"505","ȫֹʹ IP Чõַһ IP ַ"
+
+"600","ƥһĿͻ IP ַ"
+"601","ƥһĿͻʺš"
+"602","ƥһվ㡣"
+"603","ƥһ URL"
+"604","Ķ:"
+"605","϶: "
+"606","Bypass URL exception."
+"607","Bypass cookie exception."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","ֹϴļ"
+"701","ļϴ޶"
+
+"800","ֹ MIME : "
+
+"900","ֹļչ: "
+
+"1000","վ PICS ǩ"
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

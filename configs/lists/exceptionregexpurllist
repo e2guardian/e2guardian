@@ -1,0 +1,15 @@
+#Exception URLs based on Regular Expressions
+#
+# E.g. 'news' would unblock news.bbc.com etc
+
+# Example
+#news
+
+# Prevent content scanning of CSS and/or JavaScript files
+#^[^?]*\.css($|\?)
+#^[^?]*\.jsp?($|\?)
+
+# Allow Facebook plugin applications like
+# http://apps.facebook.com/neighborhoods/Setup.aspx and others.
+mock_ajax_proxy.php
+

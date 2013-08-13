@@ -1,0 +1,30 @@
+# Exception file site list
+# Use this list to define sites from which files can be downloaded,
+# overriding a blanket download block (blockdownloads = on) or the
+# banned MIME type and extension lists (blockdownloads = off).
+#
+# DOES NOT override content/virus scanning or site/URL bans.
+
+# Don't bother with the www. or
+# the http://
+#
+# These are specifically domains and are not URLs.
+# For example 'foo.bar/porn/' is no good, you need
+# to just have 'foo.bar'.
+#
+# You can also match IPs here too.
+#
+# As of DansGuardian 2.7.3 you can now include
+# .tld so for example you can match .gov for example
+
+
+# Time limiting syntax:
+# #time: <start hour> <start minute> <end hour> <end minute> <days>
+# Example:
+##time: 9 0 17 0 01234
+# Remove the first # from the line above to enable this list only from
+# 9am to 5pm, Monday to Friday.
+
+windowsupdate.microsoft.com
+update.microsoft.com
+download.windowsupdate.com

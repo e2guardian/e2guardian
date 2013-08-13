@@ -1,0 +1,328 @@
+HOW TO BUILD:
+-------------
+As of DansGuardian 2.9, the distribution uses GNU autotools for building.
+Most users should therefore follow the standard
+"./configure; make; make install" process common to UNIX packages.  If for any
+reason you need to modify configure.ac or one of the Makefile.am files, use
+autoreconf or the supplied autogen.sh script to regenerate the configure script
+and Makefile.in files.
+
+Please read the sections below for your OS for the most widely used
+configuration options.
+
+*** Solaris users, please read the Solaris section first. ***
+
+*** xBSD users, please ensure you have bash1 installed first ***
+
+*** OS X / Darwin users, please read the OS X section first. ***
+
+As of DansGuardian 2.7.7-10 zlib 1.2.1 is required for gzip
+support.  This change was to fix a bug that could not be fixed
+with an earlier version.  If you do not want to upgrade zlib on
+your system see the notes at the end about compiling in zlib
+statically. As of 2.9.3.2, you can also specify a non-standard search
+path for the zlib headers & library (during linking stage) using the
+"--with-zlib" option.
+
+As of 2.9.1.0, DansGuardian can optionally be compiled and linked
+against PCRE instead of the standard GNU regular expression library.
+This overcomes certain limitations of the standard library, allowing
+- for example - character negations ([^w]). PCRE support is disabled
+by default; version 6.0 or above is required. The "pcre-config" program
+must be available in your PATH during build configuration.
+
+As of 2.9.3.1, iconv support is necessary for using the NTLM auth
+plugin. Some systems (e.g. Linux) provide this as part of their core
+API; others (e.g. FreeBSD) require an external iconv library to be
+installed. The "--with-libiconv" configure option enables linking with
+an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
+
+
+1.        Run the configure (./configure --help) script with
+        the help option to see the user selectable settings.
+        Default settings are shown in [].
+
+2.        Run the configure (./configure) script with your
+        options, if any.  It is HIGHLY LIKELY that you will
+        want to change some options.  Please read down for
+        suggested options for your platform.
+
+3.        "make"** or "gmake" will now build DansGuardian.
+
+4.        "make install" will create the directory structure and install
+        all the files in the chosen paths.  For a more efficient
+        install, try "make install-strip" which will strip symbol
+	information to the DG binary smaller.
+
+5.        "make clean" will remove the now un-needed object files etc.
+
+6.        See the section later called ADDITIONAL SCRIPTS to add
+        log rotation, optional CGI block page, startup scripts etc.
+
+
+** You can often use "make -j 2" or "make -j 5" to compile DG faster,
+   especially on multiple CPU computers.  As a general rule of thumb,
+   use the number of CPUs/cores plus one.
+   With Solaris and others you may need "gmake" instead of "make".
+   
+
+
+OPTIONS:
+--------
+You may change with the configure options:
+  prefix           (architecture-independent files root path eg /usr/local)
+  datadir          (where shared files and example scripts get placed)
+  sysconfdir       (where the config and data files gets placed eg /etc)
+  mandir           (where the man docs get placed)
+  localstatedir    (where var/run and /var/logs are)
+  with-logdir      (where the logs get placed eg /var/log/dansguardian)
+  with-piddir      (where the pid file gets placed eg /var/run)
+  with-sysconfsubdir
+                   (subdirectory of sysconfdir in which to place config files)
+  exec-prefix      (architecture-dependent files ie bin files)
+  bindir           (where the binary gets placed)
+  with-proxyuser   (the system user the daemon runs as)
+  with-proxygroup  (the system group the daemon runs as)
+  enable-static-zlib
+                   (enable static linking against zlib)
+  enable-clamd     (enable support for clamd antivirus scanner)
+  enable-avastd    (enable support for avastd antivirus scanner)
+  enable-icap      (enable support for ICAP-compatible av scanner)
+  enable-commandline
+                   (enable support for the command-line av scanner)
+  enable-kavd      (enable support for kaspersky av daemon scanner)
+  enable-fancydm   (enable support for the 'fancy' download manager)
+  enable-trickledm (enable support for the 'trickle' download manager)
+  enable-pcre      (enable support for PCRE instead of GNU regex library)
+  enable-ntlm      (enable support for the NTLM auth plugin)
+  enable-email     (enable support for email notification on block & virus
+                    occurrences)
+  with-libiconv    (non-standard search path for iconv library,
+                    for platforms without native iconv (only used in
+                    conjunction with enable-ntlm))
+  with-zlib        (specify optional non-standard prefix for zlib
+                    lib & include directories)
+  
+See ./configure --help for more details.
+
+These options have changed slightly from older versions of DansGuardian
+which did not use autotools.
+
+
+HP-UX:
+------
+
+No specific notes are available.  Consult your documentation for file paths.
+Otherwise follow the FreeBSD instructions which are likely to work.
+(Contributions welcome!)
+
+
+
+MACOSX:
+-------
+
+*** Note in order to do any compiling in OS X you need to install ***
+*   the Developer Tools - an additional pkg called BSDSDK.pkg.      *
+
+*** Note DG2.7.x does not currently work as it uses poll() which OSX ***
+*   lacks.  There is a workaround though.  See:                        *
+*** http://groups.yahoo.com/group/dansguardian/message/5027          ***
+
+*** Note OS X version 10.3 now has poll() support see:      ***
+*   http://groups.yahoo.com/group/dansguardian/message/6072   *
+
+
+A standard configure script that should work, provided you have installed
+MACOSX and the associated programs in their default locations.
+
+    ./configure --localstatedir=/var \
+        --mandir=/usr/share/man/ \
+        --bindir=/usr/local/sbin/
+
+You might consider changing the location of the log files to
+'--with-logdir=/usr/local/dansguardian/logs/' and use the provided
+log rotation script.  Alternatively stick with the default
+(/var/log/dansguardian/) and read newsyslog(8).
+
+
+NETBSD:
+-------
+
+A standard configure script that should work, provided you have installed
+NetBSD and the associated programs in their default locations.
+    ./configure  --localstatedir=/var \
+        --prefix=/usr/pkg
+        --sysconfdir=/usr/pkg/etc \
+        --bindir=/usr/pkg/sbin/
+
+For NetBSD you might consider changing the location of the log files
+to '--with-logdir=/usr/local/dansguardian/logs/' and use the
+provided log rotation script.  Alternatively stick with the default
+(/var/log/dansguardian/) and read newsyslog(8).
+Be sure that /usr/sbin/ is in your PATH before make install (for chown).
+
+
+FREEBSD:
+--------
+A standard configure script that should work, provided you have installed
+FreeBSD and the associated programs in their default locations.
+
+    ./configure  --localstatedir=/var
+
+For FreeBSD and OpenBSD you might consider changing the location of the
+log files to '--with-logdir=/usr/local/dansguardian/logs/' and use the
+provided log rotation script.  Alternatively stick with the default
+(/var/log/dansguardian/) and read newsyslog(8).
+
+
+OPENBSD:
+--------
+A standard configure script that should work, provided you have installed
+OpenBSD and the associated programs in their default locations.
+
+    ./configure  --localstatedir=/var \
+        --bindir=/usr/sbin \
+        --mandir=/usr/share/man \
+        --sysconfdir=/etc
+
+SOLARIS:
+--------
+
+Only Solaris 8 (7/01 and beyond) and Solaris 9 has been tested.
+DansGuardian requires the GNU version of make (gmake), and GCC version
+3.01 will *not* work; use 2.95.3 or a more recent version.
+
+Both gmake and GCC 2.95.3 are included with the OS on the "Companion CD",
+and are usually installed in /opt/sfw/bin.  To ensure these are in your
+path, simply do (in csh; bash syntax is different):
+
+    setenv PATH /opt/sfw/bin\:$PATH
+
+Also, to ensure that the right libraries are used, simply do:
+
+    setenv LD_RUN_PATH /opt/sfw/lib:/usr/lib
+
+Before you *compile* (not necessary during run-time).
+
+To configure and compile, do:
+    ./configure --prefix=/opt/dansguardian \
+      --bindir=/opt/dansguardian/sbin \
+      --with-logdir=/opt/dansguardian/log \
+      --with-piddir=/var/run
+
+
+
+
+
+HOW TO CONFIGURE:
+-----------------
+
+Edit the dansguardian.conf, dansguardianf1.conf and other files.
+The files are commented well.
+
+
+
+
+ADDITIONAL SCRIPTS:
+-------------------
+
+In /usr/local/share/dansguardian/scripts (or wherever you configured
+it to be) you will find at least the following files:
+bsd-init - a BSD style startup script to be put in your rc.d
+solaris-init - a Solaris style startup script to be put in your rc.d
+systemv-init - a Linux style startup script to be put in your rc.d
+dansguardian - a logrotate.d file
+logrotation - a sh script to rotate the logs
+../dansguardian.pl - a cgi script for an access denied page
+
+The installation of startup scripts used to be done by the
+DansGuardian build scripts but since moving to autotools it is
+deemed out of the scope of source code and is the playground of
+packagers and sysadmins.
+
+This is also true of log rotation scripts.  You can choose to use
+the example logrotate.d file or you could crontab the logrotation
+script thus:
+crontab -e
+59 23 * * sat /usr/local/share/dansguardian/scripts/logrotation
+(now save)
+I.e. 23:59 every Saturday.  Or change to as pleases you.
+
+If you wish to use the cgi denied script rather than the template
+html denied page you will find it in:
+/usr/local/share/dansguardian/ (or wherever you configured it to
+be).  This is not usually recommended but if you do want to do
+this copy it to your web servers' cgi-bin directory.
+This used to be mandatory and automatic in earlier versions of
+DansGuardian.
+
+
+
+HOW TO RUN:
+-----------
+
+You can start it by just running the binary.  You can stop it by
+appending a ' -q' to the end, thus: 'dansguardian -q'.  Or you can use
+the SysV(-like) script provided.
+
+
+
+HOW TO GET HELP:
+----------------
+http://dansguardian.org/
+
+Here is the first place to start for getting support.  There is a mailing
+list available for those that do not find the answers to their questions
+from the url above. The mailing list can be found at the url.  Please
+DO NOT email the author for support as you will be just directed at the
+mailing list.
+
+
+
+HOW TO COMPILE STATICALLY WITH ZLIB: (Provided by Ernest W. Lessenger)
+------------------------------------
+
+Note: these instructions might be now out of date due to changes in
+the DansGuardian build process. Instead of editing the Makefile (step 3
+below), you may instead wish to use the "--enable-static-zlib" and
+"--with-zlib" configure options.
+
+Step 0:
+Configure DansGuardian as usual
+        <start in the DG source directory>
+        ./configure (plus options see above)
+
+Step 1:
+Download zlib and decompress it as a subdirectory of your DG installation.
+Rename the decompressed folder as "zlib"
+        tar xvzf zlib-1.2.1.tar.gz
+        mv zlib-1.2.1 zlib
+
+Step 2:
+Configure and compile
+        cd zlib
+        ./configure
+        make (DO NOT 'make install')
+        cd ..
+
+Step 3:
+Minor tweaks to the DansGuardian source code and Makefile
+(note these instructions are based on DG2.8 and thus are
+out of date for 2.9 and later but you might be able to
+adapt them)
+        @@@ Makefile
+        - DGCFLAGS = $(OPTIMISE) $(PASSVARS) -lz $(STATIC)
+        + DGCFLAGS = $(OPTIMISE) $(PASSVARS) $(STATIC)
+        - LIBS = /usr/lib/libz.a
+        + LIBS = ./zlib/libz.a
+
+        @@@ All other files
+        - #include <zlib.h>
+        + #include "zlib/zlib.h"
+
+Step 4:
+Make DG
+        make
+
+That should be it. You shouldn't receive any warnings, and zlib should be
+compiled statically.

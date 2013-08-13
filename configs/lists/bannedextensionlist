@@ -1,0 +1,211 @@
+#Banned extension list
+
+# File extensions with executable code 
+
+# The following file extensions can contain executable code.
+# This means they can potentially carry a virus to infect your computer.
+
+.ade  # Microsoft Access project extension
+.adp  # Microsoft Access project
+.asx  # Windows Media Audio / Video
+.bas  # Microsoft Visual Basic class module
+.bat  # Batch file
+.cab  # Windows setup file
+.chm  # Compiled HTML Help file
+.cmd  # Microsoft Windows NT Command script
+.com  # Microsoft MS-DOS program
+.cpl  # Control Panel extension
+.crt  # Security certificate 
+.dll  # Windows system file
+.exe  # Program
+.hlp  # Help file
+.ini  # Windows system file
+.hta  # HTML program
+.inf  # Setup Information
+.ins  # Internet Naming Service
+.isp  # Internet Communication settings
+# .js   # JScript file - often needed in web pages
+# .jse  # Jscript Encoded Script file - often needed in web pages
+.lnk  # Windows Shortcut
+.mda  # Microsoft Access add-in program 
+.mdb  # Microsoft Access program
+.mde  # Microsoft Access MDE database
+.mdt  # Microsoft Access workgroup information 
+.mdw  # Microsoft Access workgroup information 
+.mdz  # Microsoft Access wizard program 
+.msc  # Microsoft Common Console document
+.msi  # Microsoft Windows Installer package
+.msp  # Microsoft Windows Installer patch
+.mst  # Microsoft Visual Test source files
+.pcd  # Photo CD image, Microsoft Visual compiled script
+.pif  # Shortcut to MS-DOS program
+.prf  # Microsoft Outlook profile settings
+.reg  # Windows registry entries
+.scf  # Windows Explorer command
+.scr  # Screen saver
+.sct  # Windows Script Component
+.sh   # Shell script
+.shs  # Shell Scrap object
+.shb  # Shell Scrap object
+.sys  # Windows system file
+.url  # Internet shortcut
+.vb   # VBScript file
+.vbe  # VBScript Encoded script file
+.vbs  # VBScript file
+.vxd  # Windows system file
+.wsc  # Windows Script Component
+.wsf  # Windows Script file
+.wsh  # Windows Script Host Settings file
+.otf  # Font file - can be used to instant reboot 2k and xp
+.ops  # Office XP settings 
+
+
+
+# Files which one normally things as non-executable but
+# can contain harmful macros and viruses
+
+.doc  # Word document
+.xls  # Excel document
+.pps
+
+
+# Other files which may contain files with executable code
+
+.gz   # Gziped file
+.tar  # Tape ARchive file
+.zip  # Windows compressed file
+.tgz  # Unix compressed file
+.bz2  # Unix compressed file
+.cdr  # Mac disk image
+.dmg  # Mac disk image
+.smi  # Mac self mounting disk image
+.sit  # Mac compressed file
+.sea  # Mac compressed file, self extracting
+.bin  # Mac binary compressed file
+.hqx  # Mac binhex encoded file
+.rar  # Similar to zip
+
+
+# Time/bandwidth wasting files
+
+.mp3  # Music file
+.mpeg # Movie file
+.mpg  # Movie file
+.avi  # Movie file
+.asf  # this can also exploit a security hole allowing virus infection
+.iso  # CD ISO image
+.ogg  # Music file
+.wmf  # Movie file
+.bin # CD ISO image
+.cue # CD ISO image
+
+# Banned Media extension list (Audio , Video , Streaming)
+# Arrange Alphabetically
+# Some have no Description
+#.3g2    #
+#.3gp      # Nokia Movie File
+#.3gp2
+#.3gpp
+#.3gpp2
+#.aac    # AAC Audio
+#.acp    # AAC for SD Media
+#.adts
+#.aif
+#.aifc
+#.aiff    # AIFF Audio
+#.amc    # AMC Media
+#.amr    # narrow-Band Content
+#.asf      # Media / this can also exploit a security hole allowing virus infection
+#.asx      # Windows Media Audio / Video
+#.au    # uLaw/AU Audio
+#.avi      # Movie file
+#.awb    # AMR Wide-Band Content
+#.bwf
+#.caf    # CAF Audio
+#.cda    # Audio CD File
+#.cdda    # Audio CD File
+#.cel
+#.cue     # CD ISO image
+#.dif
+#.divx    # Compress Movie
+#.dv    # Video Format used in Portable Camera
+#.flc      # Autodesk Animator
+#.fli
+#.flv      # Internet Movies
+#.gsm
+#.ivf
+#.kar    # Karaoke Media Files
+#.m15
+#.m1a
+#.m1s
+#.m1v
+#.m2v
+#.m3u    # MP3 Playlist
+#.m4a    # AAC Audio
+#.m4b
+#.m4e
+#.m4p    # AAC Audio (Protected)
+#.m4v    # Video (Protected)
+#.m75
+#.mid    # Midi Audio Files
+#.midi    # Midi Audio Files
+#.mjpg
+#.mov    # Movie Files
+#.mp1
+#.mp2
+#.mp3      # Music file
+#.mp4    # Mpeg-4 Media
+#.mpa
+#.mpe
+#.mpeg     # Movie file
+#.mpg      # Movie file
+#.mpga
+#.mpm
+#.mps
+#.mpv
+#.mpv2
+#.mqv      # Quicktime Movies
+#.mv
+#.ogg      # Music file
+#.ogm      # Ogg Based Movie Files
+#.pls      # Shoutcast type of radio
+#.qcp    # Qualcomm Purevoice Audio
+#.qt    # Quicktime File
+#.qtc
+#.qtl      # Quicktime Movies
+#.ra    # Real Audio
+#.ram    # Real Audio Media
+#.rm       # Real Media Files
+#.rmi
+#.rmm
+#.rmp
+#.rmvb    # Real Media Video
+#.rnx
+#.rp    # Real Player Files
+#.rt
+#.rts
+#.rtsp
+#.rv
+#.sd2    # Sound Designer II
+#.sdp      # Stream Descriptor
+#.sdv    # SD Video
+#.sf
+#.smf
+#.smi    #
+#.smil     # SMIL Multimedia Presentation (Video and Audio Presentation
+#.snd
+#.ssm      # Streaming Media Metafile
+#.swa    # MP3 Audio
+#.swf      # Shockwave Streaming files
+#.ulw
+#.vfw       # Video for Windows
+#.wav
+#.wax
+#.wm
+#.wma
+#.wmf      # Movie file
+#.wmp
+#.wmv     # Windows Media Video
+#.wmx
+#.wvx
+#.xpl

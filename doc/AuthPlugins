@@ -1,0 +1,48 @@
+Authentication plugins
+======================
+
+See the "Plugins" document for a more general overview of plugin implementation.
+
+An "authentication plugin" in DansGuardian encapsulates the functionality necessary for identifying users and assigning them to groups. To perform user identification, authentication plugins are given access to both the client and server (parent proxy) connections and the HTTP request headers from the client; a number of meaningful return values allow multiple authentications to be loaded at once, and queried in order. When an authentication plugin successfully identifies a user, the returned string is passed back to the plugin to allow it to determine their filter group number.
+
+
+The AuthPlugin base class
+=========================
+
+The AuthPlugin class provides the following methods:
+
+- init(): Called just after construction, allowing the plugin to load in any custom lists, etc. See the "ip.cpp" plugin for an example. Should return 0 on success, less than 0 on error, or greater than 0 to indicate a non-fatal warning condition. Default implementation just returns 0.
+
+- quit(): Called just before destruction. Interpretation of return values is the same as for init(). Default implementation just returns 0.
+
+- identify(): Called when the application wants to know the username, typically just after the client HTTP headers have been retrieved and before anything has yet been sent to the parent proxy (unless a badly-behaved auth plugin did something to the connections, failed, but gave a return value allowing plugins beneath it to continue being queried). Default implementation is a pure virtual, so this function MUST be implemented in plugins, if nothing else. Valid return values are as follows:
+	- DGAUTH_OK: Success; a username was found. Put the username in the "string" parameter ("std::string& string").
+	- DGAUTH_NOMATCH: Necessary information was not found; continue querying subsequent plugins. Example: NTLM plugin was queried when the client was not initiating an NTLM handshake.
+	- DGAUTH_REDIRECT: The user should be sent an HTTP redirect to the address specified in "string". Useful for integration with external web-based authentication services.
+	- Any return code less than zero indicates error. Connection will be terminated.
+
+- determineGroup(): Called after a call to identify() has returned DGAUTH_OK. The string returned from identify() is passed in, along with an integer reference into which the user's numeric filter group (starting at 0 for filter1) should be placed on success. Default implementation looks at the username/group pairs specified in the "filtergroupslist" file; for an example of overriding this behaviour, look at "ip.cpp". Return values:
+	- DGAUTH_OK: Success; a group number was found. Put the group number in the "fg" parameter ("int& fg").
+	- DGAUTH_NOMATCH: No group information was found for the user, continue querying subsequent plugins. Bear in mind that subsequent plugins may not be guaranteed to function correctly if a plugin has performed some action on the client or server connections during identify() prior to returning this.
+	- DGAUTH_NOUSER: The plugin did not fail, but there is no group mapping for the given user. Place the user in group 0 (filter1) and do not query subsequent plugins.
+	- Any return code less than 0 indicates error. Connection will be terminated.
+
+
+Considerations
+==============
+
+In ideal conditions, the auth plugins are queried with connections in their "virgin" states; i.e. the HTTP request headers have been retrieved, but no further I/O has been performed.
+
+Any plugin seeking to implement a multi-stage handshake should complete ALL stages of the handshake before returning control to the calling code - see the NTLM plugin for an example of this.
+
+Any plugin that sends HTTP headers to the upstream proxy, or that otherwise makes use of the client IP, should be sure to implement the behaviour of the "forwardedfor" and "usexforwardedfor" options unless there is good reason not to do so. See the NTLM and IP plugins for examples, in particular the usage of the HTTPHeader::getXForwardedForIP() and HTTPHeader::addXForwardedFor() functions.
+
+
+Ideas for the future
+====================
+
+A commonly requested feature in DansGuardian is LDAP integration for retrieving group mappings. This feature is present in SmoothGuardian, SmoothWall Limited's commercially-supported version, but relies upon integration with an external, proprietary authentication daemon. One elegant way of implementing this for the GPL release would be to create an authentication "meta-plugin": one that implemented an LDAP-capable determineGroup() method, but that was capable of containing instances of other plugins to make use of their identify() methods. That way, LDAP integration would "just work" for all existing plugins. This is left as an exercise for the reader.
+
+
+--
+Phil A. philip.allison/smoothwall.net

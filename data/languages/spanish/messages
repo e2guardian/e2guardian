@@ -1,0 +1,54 @@
+# DansGuardian 2.10 messages file in Spanish
+
+# Translated by Roberto Quiroga, adapted for Unicode by Peter Vollmar
+
+"1","Acceso Denegado"
+
+"100","Su dirección IP no está autorizada a visitar: "
+"101","Su dirección IP no está autorizada a navegar."
+"102","El usuario no está autorizado a visitar: "
+
+"200","La URL solicitada está mal formada."
+
+"300","Se encontró la frase no permitida: "
+"301","Se encontró una frase no permitida"
+
+"400","Combinación de frases no permitida: "
+"401","Combinación de frases no permitida."
+"402","Límite de ponderación de frases de "
+"403","Límite de ponderación de frases excedido"
+
+"500","Sitio no permitido: "
+"501","URL no permitida: "
+"502","Bloqueo general de IP está activo y el sitio deseado no está en la lista de IPs permitidas."
+"503","URL bloqueada por expresión regular: "
+"504","URL bloqueada por expresión regular."
+"505","Bloqueo general de IP está activo y la dirección deseada consiste únicamente en IP."
+
+"600","Dirección IP del cliente presente en la lista de excepciones."
+"601","Usuario presente en la lista de excepciones."
+"602","Sitio presente en la lista de excepciones."
+"603","URL presente en la lista de excepciones."
+"604","Frase presente en la lista de excepciones."
+"605","Combinación de frases presente en la lista de excepciones: "
+"606","Puente URL en la lista de excepciones."
+"607","Puente cookie en la lista de excepciones."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","La subida está bloqueada."
+"701","Límite de subida excedido."
+
+"800","Clase MIME bloqueada: "
+
+"900","Extensión bloqueada: "
+
+"1000","Clasificación PICS excedida en el sitio indicado."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

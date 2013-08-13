@@ -1,0 +1,56 @@
+# DansGuardian messages file in Danish
+#
+# Translated by Peter Kilsgaard
+
+
+"1","Adgang ngtet"
+
+"100","Din IP address har ikke lov til at bruge internet: "
+"101","Din IP address har ikke lov til at bruge internet."
+"102","Dit brugernavn har ikke lov til at bruge internet: "
+
+"200","Den indtastede adresse er ikke valid."
+
+"300","Forbudt stning fundet: "
+"301","Forbudt stning fundet."
+
+"400","Forbudt stningskombination fundet: "
+"401","Forbudt stningskombination fundet."
+"402","Vgtede stningsgrnse p "
+"403","Vgtede stningsgrnse overskredet."
+
+"500","Forbudt side: "
+"501","Forbudt Adresse: "
+"502","Total blokering er aktiveret og den forspurgte side er ikke p positiv listen."
+"503","Forbudt ord i adressefelt: "
+"504","Forbudt ord i adressefelt fundet."
+"505","IP Blokering er aktiveret og den forspurgte side har IP ingen DNS navn."
+
+"600","Undtagelse PC IP match."
+"601","Undtagelse brugernavn match."
+"602","Undtagelse side match."
+"603","Undtagelse adresse match."
+"604","Undtagelses stning fundet: "
+"605","Kombinations undtagelse stning fundet: "
+"606","Bypass URL undtagelse."
+"607","Bypass cookie undtagelse."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+# 606,607 by Daniel Barron - corrections welcome
+
+"700","Web upload er forbudt."
+"701","Web upload grnse overskredet."
+
+"800","Forbudt MIME Type: "
+
+"900","Forbudt fil format: "
+
+"1000","PICS niveau overskredet p den pgldende side."
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

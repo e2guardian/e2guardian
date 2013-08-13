@@ -1,0 +1,70 @@
+#
+# Phraselists to block web-based translation services since they can be used as proxies or to invent foreign language search terms.
+# Originally Created by Fernand Jonker
+#
+
+#listcategory: "Translation"
+
+<translate ><30>
+<translation service><100>
+<text translator><50>
+<translate text><50>
+<translate>,<web page><40>
+<instantly translates><50>
+<free translation><150>
+<web translator><50>
+<translation engine><150>
+<surf and translate><100>
+<translation direction><50>
+<machine translation><50>
+
+#Sites
+<babel fish><40>
+<babelfish><40>
+<freetranslation><40>
+<worldlingo><40>
+<foreignword.com><40>
+<beolingus><40>
+<foxlingo><40>
+<tranexp.com><40>
+<betranslated><40>
+<systran><40>
+<intertran><40>
+<imtranslator.com><40>
+<linguamatix><40>
+<lingvo><40>
+<online-translator><40>
+<opentrad.org><40>
+<translendium><40>
+<apertium><40>
+<appliedlanguage.com><50>
+<langenberg><50>
+<click2translate><50>
+
+
+#Languages
+<english to spanish><50>
+<spanish to english><50>
+<english to german><50>
+<english to russian><50>
+<english to japanese><50>
+<english to chinese><50>
+<english to korean><50>
+<english to greek><50>
+<english to italian><50>
+<english to dutch><50>
+<english to portuguese><50>
+<japanese to english><50>
+<russian to english><50>
+<chinese to english><50>
+<korean to english><50>
+<german to english><50>
+
+#French and other languages
+<traduction><50>
+<traducteur><50>
+<traduire><50>
+<translatica><50>
+<translendium><50>
+<traductor><50>
+

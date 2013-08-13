@@ -1,0 +1,97 @@
+#
+# Goodphrases in swedish
+# Contains news, medical,
+# goverment, education and more.
+# By Andreas Fors [srfiie@gmail.com]
+#
+<nyheter><-40>
+<aftonbladet><-100>
+<vårdcentral><-100>
+<expressen><-100>
+<test ><-5>
+< sport><-70>
+<bandy><-60>
+<hockey ><-60>
+< HVB ><-100>
+< vård ><-100>
+< LSS ><-100>
+< LVU ><-100>
+< damp ><-50>
+< adhd ><-50>
+< redaktion ><-30>
+< posten ><-90>
+<skola ><-50>
+<verksamhet><-30>
+< bolag><-40>
+< bolaget><-30>
+<uppslags><-30>
+<resultat><-10>
+< webmail ><-50>
+< epost ><-5>
+< skatt ><-30>
+<dormsjöskolan><-100>
+< tåg ><-40>
+<svt><-50>
+<webtv><-20>
+< boka ><-20>
+< microsoft ><-40>
+< ekonomi><-50>
+< husdjur><-50>
+< utbildning><-40>
+< webbhotell ><-20>
+< arbetsgivare ><-40>
+< arbetssökande ><-40>
+< tablå ><-30>
+<tv-tablå><-50>
+< hälsa ><-50>
+<hälsa>,<sjukvård><-60>
+<hälsa>,<sjukdom><-60>
+<hälsa>,<medecin><-60>
+< sjukvård ><-20>
+<bröst>,<nyheter><-20>
+< ansiktsmask ><-10>
+<ledare><-30>
+< jobb><-40>
+< ekonominyheter ><-100>
+< diplomat ><-40>
+<semester ><-30>
+< landslaget >,<sport><-50>
+<television><-20>
+<resa ><-30>
+< avslöjar >,< nyhet><-50>
+<annons><-20>
+<bröst>,<cancer><-60>
+<felsökning><-40>
+< barn >,<skola><-50>
+< barn >,<utbildning><-50>
+< behandling >,<barn><-50>
+<katt><-10>
+<bokning><-20>
+<flyg><-35>
+<präst><-30>
+< präst >,< kyrka><-50>
+<dikter><-40>
+<polis >,< myndighet ><-50>
+<polis >,< verksamhet ><-50>
+<polis >,< spaning ><-50>
+< kyrka ><-35>
+< domstol ><-40>
+< matematik ><-40>
+<skola>,<läxa><-50>
+< studier ><-40>
+< advokat ><-40>
+<byrå ><-25>
+<tumör ><-40>
+< sex >,< rådgivning ><-50>
+< kykling>,< bröst ><-40>
+< kalkon >,< bröst ><-40>
+< matlagning ><-40>
+< mat >,<recept ><-50>
+< mat >,< soppor><-50>
+<dator>,<hårdvara><-50>
+<dator>,<mjukvara><-50>
+< ekonomi >,< nyheter ><-50>
+< arbetslös ><-20>
+< häst>,<annonser ><-50>
+<social><-40>
+< kanal5 ><-60>

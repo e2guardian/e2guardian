@@ -1,0 +1,18 @@
+#
+# Phraselists to convert upstream filter blocking pages to DansGuardian block pages
+# Originally Created By Fernand Jonker (PhraseMaster)
+#
+# If you use this list please send feedback to phrasemaster@dansguardian.org
+# Waiting for feedback and input
+#
+
+# Allows network admins to use OpenDNS blocking (DNS-based) in conjuction with DG - DG will convert OpenDNS block page to DG Block Page.
+
+#listcategory: "(Blocked by OpenDNS)"
+
+<Adult site blocked><100>
+<is not allowed on this network><100>
+<This service is powered by OpenDNS with data from St. Bernard's iGuard><100>
+<This site was categorized as><100>
+<block.opendns.com><100>
+

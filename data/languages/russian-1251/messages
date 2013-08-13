@@ -1,0 +1,54 @@
+# DansGuardian 2.8 messages file in russian
+# charset=windows-1251
+# version by Shipitsin Igor <shipitsin@rduorel.ru>
+
+"1"," "
+
+"100","  IP   :"
+"101","  IP   ."
+"102","      :"
+
+"200"," URL  ."
+
+"300","  :"
+"301","  ."
+
+"400","   :"
+"401","   ."
+"402","   "
+"403","   ."
+
+"500"," :"
+"501"," URL:"
+"502","  -         ."
+"503","   URL:"
+"504","    URL."
+"505"," IP       - IP,   ."
+
+"600","  IP  ."
+"601","    ."
+"602","  ."
+"603","  URL."
+"604","  :"
+"605","   :"
+"606"," URL ."
+"607"," cookie ."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","  ."
+"701","   ."
+
+"800","   MIME:"
+
+"900"," :"
+
+"1000","  PICS    ."
+
+"1100","   "
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

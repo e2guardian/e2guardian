@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# Startup script for dansguardian
+#
+# chkconfig: 35 92 8
+# description: A web content filtering plugin for web \
+#              proxies, developed to filter using lists of \
+#              banned phrases, MIME types, filename \
+#              extensions and PICS labelling.
+# processname: dansguardian
+# pidfile: @DGPIDDIR@/dansguardian.pid
+# config: @DGCONFDIR@/dansguardian.conf
+
+### BEGIN INIT INFO
+# Provides:     dansguardian
+# Required-Start:       squid
+# Should-Start:
+# Required-Stop:        squid
+# Should-Stop:
+# Default-Start:        3 5
+# Default-Stop: 0 1 2 6
+# Short-Description:    Dansguardian web content filter
+# Description:  Dansguardian web content filter
+### END INIT INFO
+
+# File includes changes by Thomas Jarosch
+function wait_for_pid()
+{
+    local PID=$1
+    local RET=0
+    
+    if [ $PID -eq 0 ] ; then
+        return $RET
+    fi
+    
+    # give 60 secs then KILL
+    local COUNTDOWN=60
+
+    while [ -d /proc/${PID} ] && [ $COUNTDOWN -gt 0 ] ; do
+        sleep 1
+        COUNTDOWN=$[$COUNTDOWN-1]
+    done
+
+    if [ -d /proc/${PID} ]; then
+        COMMAND=`ps h -o command ${PID}`
+        logger "dansguardian: timeout waiting for PID ${PID}: ${COMMAND}; sending SIGKILL"
+        kill -KILL $PID >/dev/null 2>&1
+        RET=1
+    fi
+    
+    return $RET
+}
+
+# See how we were called.
+
+case "$1" in
+start)
+        if [ -f @DGBINDIR@/dansguardian ] &&
+           [ -f @DGCONFDIR@/dansguardian.conf ]; then
+                echo -n "Starting dansguardian: "
+                if @DGBINDIR@/dansguardian 2> /dev/null; then
+                        echo -e "\\033[60G\c"
+                        echo -e "[ \\033[1;32m\c"
+                        echo -e "OK\c"
+                        echo -e "\\033[0;39m\c"
+                        echo " ]"
+                        [ -d /var/lock/subsys ] && touch /var/lock/subsys/dansguardian
+                else
+                        echo -e "\\033[60G\c"
+                        echo -e "[ \\033[1;31m\c"
+                        echo -e "FAILED\c"
+                        echo -e "\\033[0;39m\c"
+                        echo " ]"
+                fi
+        fi
+        ;;
+stop)
+        echo -n "Shutting down dansguardian: "
+        WAITPID=0
+        if [ -f @DGPIDDIR@/dansguardian.pid ] ; then
+            WAITPID=`cat @DGPIDDIR@/dansguardian.pid`
+        fi
+        if @DGBINDIR@/dansguardian -q 2> /dev/null; then
+                if wait_for_pid $WAITPID ; then
+                    echo -e "\\033[60G\c"
+                    echo -e "[ \\033[1;32m\c"
+                    echo -e "OK\c"
+                    echo -e "\\033[0;39m\c"
+                    echo " ]"
+                else
+                    echo -e "\\033[60G\c"
+                    echo -e "[ \\033[1;31m\c"
+                    echo -e "FAILED\c"
+                    echo -e "\\033[0;39m\c"
+                    echo " ]"
+                fi
+                /bin/rm -f @DGPIDDIR@/dansguardian.pid
+                /bin/rm -f /tmp/.dguardianipc
+                [ -d /var/lock/subsys ] && /bin/rm -f /var/lock/subsys/dansguardian
+        else
+                echo -e "\\033[60G\c"
+                echo -e "[ \\033[1;31m\c"
+                echo -e "FAILED\c"
+                echo -e "\\033[0;39m\c"
+                echo " ]"
+        fi
+        ;;
+restart)
+        $0 stop
+        $0 start
+        ;;
+status)
+        if [ -f @DGBINDIR@/dansguardian ]; then
+                @DGBINDIR@/dansguardian -s
+        fi
+        ;;
+        
+*)
+
+        echo "Usage: $0 {start|stop|restart|status}" >&2
+        ;;
+esac
+
+exit 0

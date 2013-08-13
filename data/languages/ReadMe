@@ -1,0 +1,25 @@
+To use these messages files edit the language option in the
+dansguardian.conf file.
+
+If your language is not here, please email author/dansguardian.org
+with your translation and it will be included in a later release.
+
+Or, if you want to improve the existing messages I will consider
+using ones you submit instead.
+
+When editing, the line may not contain a " as this is used to
+denote the start and end.  Instead use a '.
+
+Daniel Barron
+Thu 16th January 2003
+
+
+Update Mon 2nd February 2004:
+
+I have added messages 606 and 607.  Please review and send me the
+correction.
+
+Update Dec 2004:
+
+I have added messages 1100, 1200, 1210, 1220, 1230.  Please review
+and send me the correction.

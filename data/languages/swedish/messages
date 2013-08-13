@@ -1,0 +1,53 @@
+# DansGuardian messages file in Swedish
+# Swedish translation by: David Hed
+
+"1","&aring;tkomst nekad"
+
+"100","Din IP adress har inte tillst&aring;nd att surfa: "
+"101","Din IP adress har inte tillst&aring;nd att surfa."
+"102","Din anv&auml;ndaridentitet har inte tillst&aring;nd att surfa: "
+
+"200","Beg&auml;rd URL &auml;r felformaterad."
+
+"300","F&ouml;rbjuden fras funnen: "
+"301","F&ouml;rbjuden fras funnen."
+
+"400","F&ouml;rbjuden kombination av fraser funnen: "
+"401","F&ouml;rbjuden kombination av fraser funnen."
+"402","Viktad frasbed&ouml;mning av "
+"403","Viktad fras begr&auml;nsning &ouml;verskriden."
+
+"500","F&ouml;rbjuden webbplats: "
+"501","F&ouml;rbjuden adress: "
+"502","Blanket Block &auml;r aktiverat och webbplatsen &auml;r inte gr&aring; eller vitlistad."
+"503","F&ouml;rbjudet ord i adressf&auml;ltet: "
+"504","F&ouml;rbjudet ord i adressf&auml;ltet funnen."
+"505","Blanket IP Block &auml;r aktiverat och denna adress &auml;r en endast IP adress."
+
+"600","Undantagen Dators IP-adress matchar."
+"601","Undantagen anv&auml;ndaridentitet matchar."
+"602","Undantagen webbplats matchar."
+"603","Undantagen URL matchar."
+"604","Undantagsfras funnen: "
+"605","Kombinerad undantagsfras funnen: "
+"606","Kringg&aring; URL begr&auml;nsning."
+"607","Kringg&aring; cookie begr&auml;nsning."
+"608","Scan bypass URL exception."
+"609","Exception regular expression URL match: "
+
+"700","Webbuppladdning &auml;r f&ouml;rbjuden."
+"701","Storlek f&ouml;r webbuppladdning &auml;r &ouml;verskriden."
+
+"800","F&ouml;rbjuden MIME typ: "
+
+"900","F&ouml;rbjuden fil&auml;ndelse: "
+
+"1000","PICS klassificiering &ouml;verskriden p&aring; ovanst&aring;ende webbplats."
+
+"1100","Virusinfekterat inneh&aring;ll funnet."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading to be scanned..."
+"1210","Download Complete.  Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1230","File no longer available"

@@ -1,0 +1,12 @@
+plugname = 'avastdscan'
+
+# edit this to match the location of your AvastD UNIX domain socket
+#avastdudsfile = '/var/run/avast4/local.sock'
+
+# edit this to block unscannable files (e.g. encrypted archives)
+#archivewarn = off
+
+exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
+exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'

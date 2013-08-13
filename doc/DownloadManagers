@@ -1,0 +1,64 @@
+Download management plugins
+===========================
+
+See the "Plugins" document for a more general overview of plugin implementation.
+
+Download managers are tasked with preventing client connections from timing out whilst large files are downloaded for virus scanning, bearing in mind that it is not acceptable to send the client the (whole) file before scanning has completed. Exactly what is sent in lieu of the actual download is up to the plugin implementation.
+	Given that interrupting the normal HTTP download process in this manner leaves clients unable to report download speeds and progress in the usual way, download managers may wish to present this information themselves in an alternative way. However, non-interactive HTTP clients - such as wget - will interpret any information sent to them as the content of the download itself, as they are unable to display HTML, interpret JavaScript, etc. Therefore, just as it is important to let users know that their downloads haven't stalled, it is equally important for any manager that breaks the normal HTTP download process to stay out of the way when this is not appropriate.
+
+
+Matching mechanisms
+===================
+
+There are two standard mechanisms by which downloads are paired to a handler: a regular expression applied to the User-Agent string, and a set of extensions/MIME types to be handled. These are both optional, but their intended use is:
+
+	- Prevent text-only or non-JavaScript-capable browsers from having downloads handled by a download manager which relies on JavaScript, such as the "fancy" plugin.
+	- Prevent the download manager being triggered for "in-line" files; for example, a browser receiving an HTML progress bar instead of a page's title JPEG will be unable to render its content correctly.
+
+When something is downloaded and needs to be virus scanned, details of the query are passed to the download managers in the order in which they are specified (in dansguardian.conf), and the download handled by the first manager that agrees to do so. The last download manager to be loaded is treated as a fall-back, and always handles any downloads not taken by preceding plugins; therefore, only managers which do not break the standard download process (default, trickle) are recommended for use as default.
+
+
+The DMPlugin base class
+=======================
+
+The DMPlugin class provides the following methods:
+
+- init(): Called just after construction, allowing the plugin to perform initialisation steps and return a value (which constructors can't do). Should return 0 for success, less than 0 on error, and greater than 0 to indicate a non-fatal warning. Default implementation compiles the User-Agent regular expression and reads in the extension and MIME type lists (if enabled).
+
+- quit(): Called just before destruction. Interpretation of return values is the same as for init(). Default implementation just returns 0.
+
+- willHandle(): Called to determine whether or not a download that needs virus scanning should be managed by this plugin. Passed in the original request and response headers (the actual object has obviously, at this point, not yet been downloaded). Return true to handle, or false to defer to subsequent plugins. Default implementation checks the client's user-agent against the given regular expression, and the file's MIME type and extension against the type lists, if enabled.
+
+- in(): Download the actual file. Called with the DataBuffer into which the object should be placed, the client and server (parent proxy) connections, the HTTP request and response headers, a flag indicating whether or not the file is being downloaded for virus scanning, and pointers to the current client header status (i.e. what portion, if any, of the response headers have already been sent to the client) and a boolean which should be set if the entire file is not downloaded.
+
+- sendLink(): Called after download if the file is not blocked, and if the in() method set the "dontsendbody" flag on the given DataBuffer. Download managers such as "fancy", which send the client content other than the file being requested, cannot function by appending the file content to what the client has already received; instead, they need a mechanism of providing a file download link which is compatible with whatever UI has been presented.
+
+Protected methods:
+
+- readStandardLists(): Read in the standard extension and MIME type lists based on the "managedextensionlist" and "managedmimetypelist" options in the plugin's configuration file. Returns 0 on success, less than 0 on error. Called from the default init() method; you only need to be concerned with calling this if your plugin overrides the init() method, yet you wish to use the default willHandle() (or a replacement which still makes use of the lists).
+
+Data members:
+
+- mimetypelist and extensionlist: ListContainers of MIME types and extensions which this plugin should handle. Set up by readStandardLists().
+
+- mimelistenabled and extensionlistenabled: Flags indicating whether or not each list is enabled. Set up by readStandardLists().
+
+You should only need to concern yourself with these members if you are overriding init() or willHandle().
+
+
+Considerations
+==============
+
+Download managers are complex. There are four "core" options which they can, and should, take into account:
+
+- maxcontentramcachescansize, above which the file should start being stored on disk; maxcontentfilecachescansize, above which the file will no longer be virus scanned (and so may or may not have its download halted)
+- maxcontentfiltersize, above which the file will no longer be phrase filtered (obey if the file is not being downloaded for AV scanning)
+- initialtrickledelay, the initial delay in seconds before *anything* should be sent to the client (such that smaller files can be downloaded without interrupting the standard HTTP download process)
+- trickledelay, the delay in seconds between sending portions of data (dummy headers, HTML, whatever the DM uses to stop the client timing out)
+
+Handling all the various situations robustly is an awkward task, not helped by the fact that the DataBuffer class itself contains various data members which must be kept up to date. Creating a new download manager from scratch is therefore not recommended; the source of the existing download managers should be studied before attempting this, to see which variables and flags should be updated in which cases, and it may be wise to use existing source as a starting point.
+	Luckily, it is not likely that new download managers will need to be created: there is one which does not send any parts of the file (default), one which sends real data but holds back part of it until scanning is complete (trickle), and one which sends something completely different, followed eventually by a link from which the actual file can be retrieved (fancy). Whilst these may contain bugs, requiring entirely new methods of download management is not likely, as it is a theme on which there are not many useful variations IMHO.
+
+
+--
+Phil A. philip.allison/smoothwall.net

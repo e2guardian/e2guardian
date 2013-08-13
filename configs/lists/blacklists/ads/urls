@@ -1,0 +1,77 @@
+# Advanced AD blocking & logadblocks options depend on having the phrase
+# "ADs" in a list's category.
+
+#listcategory: "ADs"
+
+# Example list taken from squidGuard on 2005-10-24
+
+#
+# !!! WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING !!!
+#
+# This list is entierly a product of a dumb robot (squidGuardRobot-2.3.7).
+# We strongly recommend that you review the lists before using them!
+# Don't blame us if there are mistakes, but please report errors with
+# the online tool at http://www.squidguard.org/blacklist/
+#
+# !!! WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING !!!
+#
+# This list was compiled in 0:50:02 on 2005.10.22 00:50:11.
+# This list was compiled from 0 link sources and 2172 links,
+# of which 928 tested successfully.
+#
+193.69.165.21/annonser
+194.67.246.5/system/img
+194.67.57.26/cgi-bin/splash
+194.67.57.50/cgi-bin/splash
+195.2.91.115/cgi-bin/export
+208.254.3.166/popupwrapper.jsp
+209.185.182.250/images
+212.100.234.54/images
+212.100.234.54/media
+213.180.204.11/gifs
+213.209.108.155/data
+216.34.32.118/banners
+217.76.32.61/gallery
+3dnews.ru/bs
+3dnews.ru/i/rus/a
+3dnews.ru/images/regular-3dnews
+64.14.49.241/main2
+64.157.224.6/frontdoor
+64.49.242.139/buy_now
+64.70.54.71/zm
+64.74.134.11/dpark
+64.74.134.61/dpark
+64.94.29.11/dpark
+64.94.29.61/dpark
+66.92.12.36/companysite
+67.18.144.234/consoles
+8.6.221.109/images
+adsrv.iol.co.za/admin
+affiliates.postmasterdirect.com/main2
+avantgo.com/frontdoor
+avault.com/consoles
+banners.adultfriendfinder.com/banners
+domainsystems.com/buy_now
+ezhe.ru/mirror/nedelki
+gazeta.ru/cgi-bin/export
+linux.org.ru/gallery
+mail.ru/cgi-bin/splash
+matrix.mediavantage.de/data
+moniker.qsrch.com/dpark
+osp.ru/system/img
+pcnews.ru/out
+postmasterbannernet.com/13355761570041/welcome.mhtml
+postmasterbannernet.com/139881249620972/welcome.mhtml
+search.com/banners
+seeq.com/lander.jsp
+seeq.com/popupwrapper.jsp
+sitecentric.com/companysite
+sitestat.hetnet.nl/cgi-bin/private/sitestat.exe
+telecom-pros.com/images
+theregister.co.uk/images
+theregister.co.uk/media
+tweaktown.com/images
+vg.no/annonser
+win.mail.ru/cgi-bin/splash
+yandex.ru/gifs
+zmedia.com/zm

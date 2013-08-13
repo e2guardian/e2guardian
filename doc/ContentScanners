@@ -1,0 +1,52 @@
+Content scanning plugins
+========================
+
+See the "Plugins" document for a more general overview of plugin implementation.
+
+Content scanning plugins are tasked with scanning content and giving a quick clean/not clean answer. They are queried as a last step, after all other forms of filtering; this is such that content from sites in the exceptionsitelist can still be scanned, and time is not wasted performing content scanning on content blocked by simpler filtering rules. Support for modification of content has not been implemented. The original focus for content scanners is performing anti-virus scanning; this is reflected in the naming of some of the return value constants, the default wording of a few translation strings, and in the decision to block content if scanning fails (as it may be harmful).
+	In similar fashion to how not all methods of download management are suitable for all HTTP clients, not all file types are suitable for content scanning. In particular, streaming audio and video cannot be scanned using the current implementation, as it relies upon downloading content in its entirety before scanning it. (Where AV is concerned, scanning of partial content is not generally useful or supported anyway.)
+
+
+Matching mechanisms
+===================
+
+To allow content to be exempted from scanning, either for administrative reasons or to work around "unscannable" content, plugins are queried as to whether or not they wish to scan an object. This happens after the HTTP response headers have been retrieved, but before the content itself - this is because download requirements change if an object is to be scanned. Typically, a non-text file such as a JPEG would be streamed directly to the client; if it needs scanning, it must be downloaded locally and scanned before forwarding to the client (hence the need for download management - see the DownloadManagers document).
+	In the base class, support has been implemented for exempting content from scanning based on domain name, URL, extension or MIME type.
+
+
+The CSPlugin base class
+=======================
+
+The CSPlugin base class provides the following methods:
+
+- init(): Called just after construction, allowing the plugin to perform initialisation steps and return a value (which constructors can't do). Should return 0 for success, less than 0 on error, and greater than 0 to indicate a non-fatal warning. Default implementation reads in the standard exception domain, URL, extension and MIME type lists.
+
+- quit(): Called just before destruction. Interpretation of return values is the same as for init(). Default implementation just returns 0.
+
+- scanTest(): Called to ask a plugin whether or not it would like to scan a particular object. This happens after the HTTP response headers have been retrieved, but before any of the actual content. The request headers, response headers, and the client's username, IP and filter group number are passed in. Return DGCS_NOSCAN if the plugin does not wish to scan the content, and DGCS_NEEDSCAN if it does. Any return code < 0 signifies error. Default implementation checks the exceptionvirusmimetypelist, exceptionvirusextensionlist, exceptionvirussitelist and exceptionvirusurllist, returning DGCS_NOSCAN if it any of these is matched.
+
+- scanFile(): Called to get a plugin to scan a temporary file containing some downloaded content. The request headers, response headers, user details (username, filter group and IP) and filename are passed in. The plugin is free to process the file in any way it sees fit, provided that the file is treated as read-only. Return values are: DGCS_CLEAN for clean files, DGCS_INFECTED for infected/otherwise undesirable files, and DGCS_SCANERROR or any other value less than 0 for error. This function is pure virtual in the base class, so it MUST be implemented by plugins.
+
+- scanMemory(): Called to get a plugin to scan an in-memory buffer containing some downloaded content. Parameters are similar to scanFile(), except the filename is replaced with a pointer to the buffer (type "const char*") and the buffer length. Return values are the same as for scanFile(). Default implementation writes the buffer to disk (using writeMemoryTempFile()), calls scanFile() on the resulting file, then deletes the file and returns the return value of scanFile().
+
+- getLastVirusName(): After scanFile() or scanMemory() has returned DGCS_INFECTED, this function may be called to retrieve the virus name (or other reason for denial), for display and logging purposes. The default implementation simply returns the value of the "lastvirusname" data member.
+
+- getLastMessage(): After scanFile() or scanMemory() has returned DGCS_SCANERROR or less than 0, this function may be called to retrieve the error message, for display and logging purposes. The default implementation simply returns the value of the "lastmessage" data member.
+
+Protected methods:
+
+- readStandardLists(): Reads in the exception site, URL, extension and MIME type lists. Returns true on success.
+
+- makeTempFile(): Creates a temporary file in filecachedir. Returns -1 on failure, or on success, returns an open file descriptor and puts the file's name in the passed-in String object.
+
+- writeMemoryTempFile(): Writes data from the given buffer into a temporary file. On success, returns DGCS_OK and fills in the given String object with the filename; returns DGCS_ERROR on failure. Uses makeTempFile() internally.
+
+
+Considerations
+==============
+
+Although client connections are kept alive by download management plugins during download, nothing is being sent to the client during scanning itself. For this reason, and also for general performance reasons (bearing in mind that multiple users may be using the filter concurrently), content scanners should endeavour not to perform overly time-consuming processing. If possible, the value of "contentscannertimeout" (o.content_scanner_timeout) should be obeyed in your scanFile() and scanMemory() implementations. The return value to use on timeout is entirely up to the implementor and the nature of scanning performed by the plugin, considering - for example - whether or not failure to scan files is a potential security risk.
+
+
+--
+Phil A. philip.allison/smoothwall.net
