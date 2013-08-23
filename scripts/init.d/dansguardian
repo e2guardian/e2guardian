@@ -1,4 +1,5 @@
 #! /bin/sh
+#
 # Startup script for dansguardian
 #
 # description: A web content filtering plugin for web \
