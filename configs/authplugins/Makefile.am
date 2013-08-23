@@ -4,14 +4,15 @@ DGDATADIR = $(DGCONFDIR)/authplugins
 
 SUBDIRS = .
 
-FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf
+FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf \
+	 port.conf dnsauth.conf
 
 if ENABLE_NTLM
 FLISTS += proxy-ntlm.conf
 endif
 
 EXTRA_DIST = proxy-basic.conf ident.conf ip.conf.in proxy-ntlm.conf \
-	     proxy-digest.conf
+	     proxy-digest.conf port.conf.in dnsauth.conf
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
