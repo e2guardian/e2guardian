@@ -25,6 +25,10 @@ extern authcreate_t proxycreate;
 extern authcreate_t digestcreate;
 extern authcreate_t identcreate;
 extern authcreate_t ipcreate;
+extern authcreate_t portcreate;
+#ifdef PRT_DNSAUTH
+extern authcreate_t dnsauthcreate;
+#endif
 
 #ifdef ENABLE_NTLM
 extern authcreate_t ntlmcreate;
@@ -144,6 +148,22 @@ AuthPlugin* auth_plugin_load(const char *pluginConfigPath)
 #endif
 		return ipcreate(cv);
 	}
+
+	if (plugname == "port") {
+#ifdef DGDEBUG
+		std::cout << "Enabling port-based auth plugin" << std::endl;
+#endif
+		return portcreate(cv);
+	}
+
+#ifdef PRT_DNSAUTH	
+	if (plugname == "dnsauth") {
+#ifdef DGDEBUG
+		std::cout << "Enabling DNS-based auth plugin" << std::endl;
+#endif
+		return dnsauthcreate(cv);
+	}
+#endif
 
 #ifdef ENABLE_NTLM
 	if (plugname == "proxy-ntlm") {

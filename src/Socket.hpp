@@ -53,6 +53,7 @@ public:
 	
 	// get local IP
 	std::string getLocalIP();
+        int getLocalPort();
 	
 #ifdef __SSLCERT
 	//use this socket as an ssl server

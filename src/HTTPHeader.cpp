@@ -48,6 +48,16 @@ void HTTPHeader::reset()
 
 		cachedurl = "";
 
+#ifdef ADDHEADER
+		addheaderchecked = false;
+		isheaderadded = false;
+#endif
+#ifdef SEARCHWORDS
+		searchwds = "";
+		issearch = false;
+		searchchecked = false;
+#endif
+
 		clcached = false;
 
 		phost = NULL;
@@ -622,6 +632,105 @@ bool HTTPHeader::urlRegExp(int filtergroup) {
 	}
 	return false;
 }
+
+#ifdef RXREDIRECTS
+// Perform searches and replacements on URL for redirect
+bool HTTPHeader::urlRedirectRegExp(int filtergroup) {
+	// exit immediately if list is empty
+	if (not o.fg[filtergroup]->url_redirect_regexp_list_comp.size())
+		return false;
+#ifdef DGDEBUG
+	std::cout << "Starting URL reg exp redirect " << std::endl;
+#endif
+	String newUrl(url());
+	if (regExp(newUrl, o.fg[filtergroup]->url_redirect_regexp_list_comp, o.fg[filtergroup]->url_redirect_regexp_list_rep)) {
+		redirect = newUrl;
+		return true;
+	}
+	return false;
+}
+
+String HTTPHeader::redirecturl() {
+	return redirect;
+}
+
+#endif
+
+#ifdef ADDHEADER
+// check if addheader regexp url
+bool HTTPHeader::isHeaderAdded(int filtergroup) {
+	if ( addheaderchecked )
+		return isheaderadded;
+	// exit immediately if list is empty
+	if (not o.fg[filtergroup]->addheader_regexp_list_comp.size()) {
+		addheaderchecked = true;
+		isheaderadded = false;
+#ifdef DGDEBUG
+	std::cout << "addheader regexplist empty" << std::endl;
+#endif
+		return false;
+	}
+#ifdef DGDEBUG
+	std::cout << "Starting addheader check on url" << std::endl;
+#endif
+	String newheader(url());
+	if (regExp(newheader, o.fg[filtergroup]->addheader_regexp_list_comp, o.fg[filtergroup]->addheader_regexp_list_rep)) {
+		isheaderadded = true;
+		addheaderchecked = true;
+		std::string line( newheader + "\r");
+		header.push_back(String(line.c_str()));
+#ifdef DGDEBUG
+	std::cout <<  "addheader = " << newheader << std::endl;
+#endif
+		return true;
+	}
+	addheaderchecked = true;
+	isheaderadded = false;
+	return false;
+}
+#endif
+
+#ifdef SEARCHWORDS
+// check if search 
+bool HTTPHeader::isSearch(int filtergroup) {
+	if ( searchchecked )
+		return issearch;
+	// exit immediately if list is empty
+	if (not o.fg[filtergroup]->search_regexp_list_comp.size()) {
+		searchchecked = true;
+#ifdef DGDEBUG
+	std::cout << "search regexplist empty" << std::endl;
+#endif
+		return false;
+	}
+#ifdef DGDEBUG
+	std::cout << "Starting search check on url" << std::endl;
+#endif
+	String searchwd(url());
+	if (regExp(searchwd, o.fg[filtergroup]->search_regexp_list_comp, o.fg[filtergroup]->search_regexp_list_rep)) {
+		searchwds = searchwd.sort_search().toCharArray();
+		issearch = true;
+		searchchecked = true;
+#ifdef DGDEBUG
+	std::cout << "issearch = " << issearch << "searchwords = " << searchwds << std::endl;
+#endif
+		return true;
+	}
+	searchchecked = true;
+#ifdef DGDEBUG
+	std::cout << "issearch = " << issearch  << std::endl;
+#endif
+	return false;
+}
+
+// return searchwords
+String HTTPHeader::searchwords() {
+	if ( issearch ) 
+		return searchwds;
+	return "";
+};
+
+#endif
 
 bool HTTPHeader::DenySSL(int filtergroup) {
         String newUrl(getUrl());
@@ -1599,6 +1708,38 @@ int HTTPHeader::decode1b64(char c)
 	}
 	return (int) i;
 }
+
+// *
+// *
+// * encode funcs
+// *
+// *
+
+// get encoded URL
+String HTTPHeader::URLEncode()
+{
+	std::string encoded;
+	String newurl(url());
+	const char *s = newurl.c_str();
+	char *buf = new char[3];
+	unsigned char c;
+	for (int i = 0; i < (signed) strlen(s); i++) {
+		c = s[i];
+		// allowed characters in a url that have non special meaning
+		if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')) {
+			encoded += c;
+			continue;
+		}
+		// all other characters get encoded
+		sprintf(buf, "%02x", c);
+		encoded += "%";
+		encoded += buf;
+	}
+	delete[]buf;
+	String returnS(encoded);
+	return returnS;
+}
+
 
 // *
 // *

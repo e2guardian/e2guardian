@@ -73,6 +73,17 @@ public:
 	bool isRedirection();
 	// see if content-type is something other than "identity"
 	bool isCompressed();
+#ifdef ADDHEADER
+	bool isHeaderAdded(int filtergroup);
+	bool addheaderchecked;
+	bool isheaderadded;
+#endif
+#ifdef SEARCHWORDS
+	// see if search usl and set searchwords
+	bool isSearch(int filtergroup);
+	String searchwords();
+	bool searchchecked;
+#endif
 	String contentEncoding();
 	// grab the contents of Proxy-Authorization header
 	// returns base64-decoding of the chunk of data after the auth type string
@@ -95,6 +106,11 @@ public:
 	String getAuthType();
 	String getUrl(bool withport = false, bool isssl = false);
 
+
+#ifdef RXREDIRECTS  
+	String redirecturl();
+#endif
+
 	// header modifications
 
 	void addXForwardedFor(const std::string &clientip);
@@ -103,6 +119,9 @@ public:
 	void setContentLength(int newlen);
 	// regexp search and replace
 	bool urlRegExp(int filtergroup);
+#ifdef RXREDIRECTS  
+	bool urlRedirectRegExp(int filtergroup);
+#endif
 	bool DenySSL(int filtergroup);
 	bool headerRegExp(int filtergroup);
 	// make a connection persistent - or not
@@ -134,6 +153,13 @@ public:
 	// add cookie to outgoing headers with given name & value
 	void setCookie(const char *cookie, const char *domain, const char *value);
 	
+	// encode url
+	String URLEncode();
+	
+	
+	// grab referer url from headers
+	String getReferer();
+
 	HTTPHeader():port(0), timeout(120), contentlength(0), postdata(NULL), dirty(true) { reset(); };
 	~HTTPHeader() { delete postdata; };
 
@@ -158,6 +184,16 @@ private:
 
 	// cached result of getUrl()
 	std::string cachedurl;
+
+#ifdef RXREDIRECTS  
+	String redirect;
+#endif
+#ifdef SEARCHWORDS
+	std::string searchwds;
+	bool issearch;
+#endif
+
+	char postdata[15];
 
 	// cached result of contentLength()
 	off_t contentlength;
