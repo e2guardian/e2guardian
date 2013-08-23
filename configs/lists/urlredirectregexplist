@@ -1,0 +1,4 @@
+#
+# redirect browser to different url
+#
+# 'regexp_pattern'->'url_to_redirect_to'
