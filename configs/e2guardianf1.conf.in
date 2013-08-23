@@ -273,12 +273,13 @@ deepurlanalysis = off
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
 # e2guardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
+# Work only in firefox with ssldeniedrewrite off
 
-#sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
+# sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
 # Break SSL protocol and redirect to another HTTPS website for denied page (sslaccessdeniedaddress url)
 
-# ssldeniedrewrite = 'on'
+#ssldeniedrewrite = 'on'
 
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
