@@ -11,7 +11,7 @@
 /* #undef DGDEBUG */
 
 /* Record configure-time options */
-#define DG_CONFIGURE_OPTIONS " '--with-filedescriptors=8192' '--localstatedir=/var' '--with-logdir=/var/log' '--with-piddir=/var/run' '--enable-pcre=yes' '--enable-fancydm' '--with-libiconv=/usr/local'"
+#define DG_CONFIGURE_OPTIONS " '--with-filedescriptors=8192' '--enable-ntlm=no' '--enable-clamd=no' '--localstatedir=/var' '--with-logdir=/var/log' '--with-piddir=/var/run' '--enable-pcre=yes' '--enable-fancydm' '--with-libiconv=/usr/local'"
 
 /* Define to enable AvastD content scanner */
 /* #undef ENABLE_AVASTD */
