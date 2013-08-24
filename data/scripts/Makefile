@@ -48,10 +48,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
+build_triplet = i686-pc-linux-gnu
 subdir = data/scripts
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/bsd-init.in $(srcdir)/dansguardian.in \
+	$(srcdir)/bsd-init.in $(srcdir)/e2guardian.in \
 	$(srcdir)/logrotation.in $(srcdir)/solaris-init.in \
 	$(srcdir)/systemv-init.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -60,7 +60,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/dgconfig.h
-CONFIG_CLEAN_FILES = bsd-init dansguardian logrotation solaris-init \
+CONFIG_CLEAN_FILES = bsd-init e2guardian logrotation solaris-init \
 	systemv-init
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
@@ -111,11 +111,11 @@ am__relativize = \
     dir1=`echo "$$dir1" | sed -e "$$sed_rest"`; \
   done; \
   reldir="$$dir2"
-ACLOCAL = ${SHELL} /home/philip/e2guardian/v0.9/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
-AUTOCONF = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/philip/e2guardian/v0.9/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run automake-1.11
 AVASTDSUPPORT = !! Not compiled !! 
 AWK = gawk
 CC = gcc
@@ -128,7 +128,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2 
+CXXFLAGS = -g -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -137,8 +137,8 @@ DGCONFDIR = /usr/local/etc/e2guardian
 DGCONFFILE = /usr/local/etc/e2guardian/e2guardian.conf
 DGDATADIR = /usr/local/share/e2guardian
 DGLIBDIR = /usr/local/lib/e2guardian
-DGLOGLOCATION = /usr/local/var/log/e2guardian
-DGPIDDIR = /usr/local/var/run
+DGLOGLOCATION = /var/log
+DGPIDDIR = /var/run
 DGPROXYGROUP = nobody
 DGPROXYUSER = nobody
 ECHO_C = 
@@ -161,7 +161,7 @@ LIBOBJS =
 LIBS = -lz  
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/philip/e2guardian/v0.9/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 NTLMSUPPORT = !! Not compiled !! 
 OBJEXT = o
@@ -180,14 +180,14 @@ PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = 
 TRICKLESUPPORT = #!! Not compiled !! 
 VERSION = 2.12.0.4
-abs_builddir = /home/philip/e2guardian/v0.9/data/scripts
-abs_srcdir = /home/philip/e2guardian/v0.9/data/scripts
-abs_top_builddir = /home/philip/e2guardian/v0.9
-abs_top_srcdir = /home/philip/e2guardian/v0.9
+abs_builddir = /home/fred/Documents/gitfredbcode/e2guardian/data/scripts
+abs_srcdir = /home/fred/Documents/gitfredbcode/e2guardian/data/scripts
+abs_top_builddir = /home/fred/Documents/gitfredbcode/e2guardian
+abs_top_srcdir = /home/fred/Documents/gitfredbcode/e2guardian
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -196,11 +196,11 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i686-pc-linux-gnu
 build_alias = 
-build_cpu = x86_64
+build_cpu = i686
 build_os = linux-gnu
-build_vendor = unknown
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
@@ -211,11 +211,11 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/philip/e2guardian/v0.9/install-sh
+install_sh = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/install-sh
 libdir = ${exec_prefix}/lib/e2guardian
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
-localstatedir = ${prefix}/var
+localstatedir = /var
 mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
@@ -275,7 +275,7 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 bsd-init: $(top_builddir)/config.status $(srcdir)/bsd-init.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-dansguardian: $(top_builddir)/config.status $(srcdir)/dansguardian.in
+e2guardian: $(top_builddir)/config.status $(srcdir)/e2guardian.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 logrotation: $(top_builddir)/config.status $(srcdir)/logrotation.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

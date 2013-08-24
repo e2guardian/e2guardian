@@ -1453,7 +1453,7 @@ Optional Packages:
                           subdirectory under sysconfdir in which to place
                           config files
   --with-filedescriptors=NUMBER
-                          Force DansGuardian to support NUMBER filedescriptors
+                          Force e2guardian to support NUMBER filedescriptors
 
 Some influential environment variables:
   CXX         C++ compiler command

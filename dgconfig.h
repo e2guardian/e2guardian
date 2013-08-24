@@ -5,13 +5,13 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Maximum number of open filedescriptors */
-#define DANS_MAXFD 1024
+#define DANS_MAXFD 8192
 
 /* Define to enable debug build mode */
 /* #undef DGDEBUG */
 
 /* Record configure-time options */
-#define DG_CONFIGURE_OPTIONS ""
+#define DG_CONFIGURE_OPTIONS " '--with-filedescriptors=8192' '--localstatedir=/var' '--with-logdir=/var/log' '--with-piddir=/var/run' '--enable-pcre=yes' '--enable-fancydm' '--with-libiconv=/usr/local'"
 
 /* Define to enable AvastD content scanner */
 /* #undef ENABLE_AVASTD */
@@ -189,7 +189,7 @@
 
 /* Define if type "off_t" is a typedef of another type for which String
    already has a constructor */
-#define OFFT_COLLISION /**/
+/* #undef OFFT_COLLISION */
 
 /* Name of package */
 #define PACKAGE "e2guardian"

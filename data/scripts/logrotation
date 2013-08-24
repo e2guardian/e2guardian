@@ -2,7 +2,7 @@
 # DansGuardian logrotation script for version 2.12.0.7 http://numsys.eu - Unofficial Release ! -
 
 
-LOG_DIR=/usr/local/var/log/e2guardian
+LOG_DIR=/var/log
 NUM_LOGS=4
 LOG=$LOG_DIR/access.log
 

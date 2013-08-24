@@ -20,9 +20,9 @@ start)
         fi
         ;;
 stop)
-        if [ -f /usr/local/var/run/dansguardian.pid ]; then
+        if [ -f /var/run/dansguardian.pid ]; then
                 /usr/local/sbin/dansguardian -q
-                /bin/rm -f /usr/local/var/run/dansguardian.pid
+                /bin/rm -f /var/run/dansguardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 echo "DansGuardian stopped."
         fi

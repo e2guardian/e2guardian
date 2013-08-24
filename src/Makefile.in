@@ -92,7 +92,8 @@ am__e2guardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 @ENABLE_KAVD_TRUE@am__objects_2 = e2guardian-kavdscan.$(OBJEXT)
 @ENABLE_CLAMD_TRUE@am__objects_3 = e2guardian-clamdscan.$(OBJEXT)
 @ENABLE_AVASTD_TRUE@am__objects_4 = e2guardian-avastdscan.$(OBJEXT)
-@ENABLE_COMMANDLINE_TRUE@am__objects_5 = e2guardian-commandlinescan.$(OBJEXT)
+@ENABLE_COMMANDLINE_TRUE@am__objects_5 =  \
+@ENABLE_COMMANDLINE_TRUE@	e2guardian-commandlinescan.$(OBJEXT)
 am__objects_6 = e2guardian-default.$(OBJEXT)
 @ENABLE_FANCYDM_TRUE@am__objects_7 = e2guardian-fancy.$(OBJEXT)
 @ENABLE_TRICKLEDM_TRUE@am__objects_8 = e2guardian-trickle.$(OBJEXT)
@@ -107,14 +108,11 @@ am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
 	e2guardian-DataBuffer.$(OBJEXT) \
 	e2guardian-HTTPHeader.$(OBJEXT) \
 	e2guardian-NaughtyFilter.$(OBJEXT) \
-	e2guardian-BackedStore.$(OBJEXT) \
-	e2guardian-RegExp.$(OBJEXT) e2guardian-FDFuncs.$(OBJEXT) \
-	e2guardian-BaseSocket.$(OBJEXT) \
-	e2guardian-Socket.$(OBJEXT) \
-	e2guardian-FatController.$(OBJEXT) \
+	e2guardian-BackedStore.$(OBJEXT) e2guardian-RegExp.$(OBJEXT) \
+	e2guardian-FDFuncs.$(OBJEXT) e2guardian-BaseSocket.$(OBJEXT) \
+	e2guardian-Socket.$(OBJEXT) e2guardian-FatController.$(OBJEXT) \
 	e2guardian-UDSocket.$(OBJEXT) e2guardian-SysV.$(OBJEXT) \
-	e2guardian-ListContainer.$(OBJEXT) \
-	e2guardian-Auth.$(OBJEXT) \
+	e2guardian-ListContainer.$(OBJEXT) e2guardian-Auth.$(OBJEXT) \
 	e2guardian-HTMLTemplate.$(OBJEXT) \
 	e2guardian-LanguageContainer.$(OBJEXT) \
 	e2guardian-DynamicURLList.$(OBJEXT) \
@@ -482,9 +480,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-avastdscan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-clamdscan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-commandlinescan.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-e2guardian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-default.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-digest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-e2guardian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-fancy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-icapscan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/e2guardian-ident.Po@am__quote@

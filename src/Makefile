@@ -49,7 +49,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
+build_triplet = i686-pc-linux-gnu
 sbin_PROGRAMS = e2guardian$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
@@ -92,7 +92,8 @@ am__e2guardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 #am__objects_2 = e2guardian-kavdscan.$(OBJEXT)
 #am__objects_3 = e2guardian-clamdscan.$(OBJEXT)
 #am__objects_4 = e2guardian-avastdscan.$(OBJEXT)
-#am__objects_5 = e2guardian-commandlinescan.$(OBJEXT)
+#am__objects_5 =  \
+#	e2guardian-commandlinescan.$(OBJEXT)
 am__objects_6 = e2guardian-default.$(OBJEXT)
 am__objects_7 = e2guardian-fancy.$(OBJEXT)
 #am__objects_8 = e2guardian-trickle.$(OBJEXT)
@@ -107,14 +108,11 @@ am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
 	e2guardian-DataBuffer.$(OBJEXT) \
 	e2guardian-HTTPHeader.$(OBJEXT) \
 	e2guardian-NaughtyFilter.$(OBJEXT) \
-	e2guardian-BackedStore.$(OBJEXT) \
-	e2guardian-RegExp.$(OBJEXT) e2guardian-FDFuncs.$(OBJEXT) \
-	e2guardian-BaseSocket.$(OBJEXT) \
-	e2guardian-Socket.$(OBJEXT) \
-	e2guardian-FatController.$(OBJEXT) \
+	e2guardian-BackedStore.$(OBJEXT) e2guardian-RegExp.$(OBJEXT) \
+	e2guardian-FDFuncs.$(OBJEXT) e2guardian-BaseSocket.$(OBJEXT) \
+	e2guardian-Socket.$(OBJEXT) e2guardian-FatController.$(OBJEXT) \
 	e2guardian-UDSocket.$(OBJEXT) e2guardian-SysV.$(OBJEXT) \
-	e2guardian-ListContainer.$(OBJEXT) \
-	e2guardian-Auth.$(OBJEXT) \
+	e2guardian-ListContainer.$(OBJEXT) e2guardian-Auth.$(OBJEXT) \
 	e2guardian-HTMLTemplate.$(OBJEXT) \
 	e2guardian-LanguageContainer.$(OBJEXT) \
 	e2guardian-DynamicURLList.$(OBJEXT) \
@@ -162,11 +160,11 @@ am__can_run_installinfo = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/philip/e2guardian/v0.9/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run aclocal-1.11
 AMTAR = $${TAR-tar}
-AUTOCONF = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/philip/e2guardian/v0.9/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/philip/e2guardian/v0.9/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run automake-1.11
 AVASTDSUPPORT = !! Not compiled !! 
 AWK = gawk
 CC = gcc
@@ -179,7 +177,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2 
+CXXFLAGS = -g -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -188,8 +186,8 @@ DGCONFDIR = /usr/local/etc/e2guardian
 DGCONFFILE = /usr/local/etc/e2guardian/e2guardian.conf
 DGDATADIR = /usr/local/share/e2guardian
 DGLIBDIR = /usr/local/lib/e2guardian
-DGLOGLOCATION = /usr/local/var/log/e2guardian
-DGPIDDIR = /usr/local/var/run
+DGLOGLOCATION = /var/log
+DGPIDDIR = /var/run
 DGPROXYGROUP = nobody
 DGPROXYUSER = nobody
 ECHO_C = 
@@ -212,7 +210,7 @@ LIBOBJS =
 LIBS = -lz  
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/philip/e2guardian/v0.9/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/missing --run makeinfo
 MKDIR_P = /bin/mkdir -p
 NTLMSUPPORT = !! Not compiled !! 
 OBJEXT = o
@@ -231,14 +229,14 @@ PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = 
 TRICKLESUPPORT = #!! Not compiled !! 
 VERSION = 2.12.0.4
-abs_builddir = /home/philip/e2guardian/v0.9/src
-abs_srcdir = /home/philip/e2guardian/v0.9/src
-abs_top_builddir = /home/philip/e2guardian/v0.9
-abs_top_srcdir = /home/philip/e2guardian/v0.9
+abs_builddir = /home/fred/Documents/gitfredbcode/e2guardian/src
+abs_srcdir = /home/fred/Documents/gitfredbcode/e2guardian/src
+abs_top_builddir = /home/fred/Documents/gitfredbcode/e2guardian
+abs_top_srcdir = /home/fred/Documents/gitfredbcode/e2guardian
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -247,11 +245,11 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i686-pc-linux-gnu
 build_alias = 
-build_cpu = x86_64
+build_cpu = i686
 build_os = linux-gnu
-build_vendor = unknown
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
@@ -262,11 +260,11 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/philip/e2guardian/v0.9/install-sh
+install_sh = ${SHELL} /home/fred/Documents/gitfredbcode/e2guardian/install-sh
 libdir = ${exec_prefix}/lib/e2guardian
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
-localstatedir = ${prefix}/var
+localstatedir = /var
 mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
@@ -482,9 +480,9 @@ include ./$(DEPDIR)/e2guardian-UDSocket.Po
 include ./$(DEPDIR)/e2guardian-avastdscan.Po
 include ./$(DEPDIR)/e2guardian-clamdscan.Po
 include ./$(DEPDIR)/e2guardian-commandlinescan.Po
-include ./$(DEPDIR)/e2guardian-e2guardian.Po
 include ./$(DEPDIR)/e2guardian-default.Po
 include ./$(DEPDIR)/e2guardian-digest.Po
+include ./$(DEPDIR)/e2guardian-e2guardian.Po
 include ./$(DEPDIR)/e2guardian-fancy.Po
 include ./$(DEPDIR)/e2guardian-icapscan.Po
 include ./$(DEPDIR)/e2guardian-ident.Po

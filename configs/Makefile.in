@@ -52,8 +52,7 @@ build_triplet = @build@
 @NEED_CSCONFIGS_TRUE@am__append_1 = contentscanners
 subdir = configs
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/e2guardian.conf.in \
-	$(srcdir)/e2guardianf1.conf.in
+	$(srcdir)/e2guardian.conf.in $(srcdir)/e2guardianf1.conf.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \

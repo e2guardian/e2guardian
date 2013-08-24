@@ -8,7 +8,7 @@
 #              banned phrases, MIME types, filename \
 #              extensions and PICS labelling.
 # processname: dansguardian
-# pidfile: /usr/local/var/run/dansguardian.pid
+# pidfile: /var/run/dansguardian.pid
 # config: /usr/local/etc/e2guardian/dansguardian.conf
 
 ### BEGIN INIT INFO
@@ -77,8 +77,8 @@ start)
 stop)
         echo -n "Shutting down dansguardian: "
         WAITPID=0
-        if [ -f /usr/local/var/run/dansguardian.pid ] ; then
-            WAITPID=`cat /usr/local/var/run/dansguardian.pid`
+        if [ -f /var/run/dansguardian.pid ] ; then
+            WAITPID=`cat /var/run/dansguardian.pid`
         fi
         if /usr/local/sbin/dansguardian -q 2> /dev/null; then
                 if wait_for_pid $WAITPID ; then
@@ -94,7 +94,7 @@ stop)
                     echo -e "\\033[0;39m\c"
                     echo " ]"
                 fi
-                /bin/rm -f /usr/local/var/run/dansguardian.pid
+                /bin/rm -f /var/run/dansguardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 [ -d /var/lock/subsys ] && /bin/rm -f /var/lock/subsys/dansguardian
         else

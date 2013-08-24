@@ -51,7 +51,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 subdir = data/scripts
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(srcdir)/bsd-init.in $(srcdir)/dansguardian.in \
+	$(srcdir)/bsd-init.in $(srcdir)/e2guardian.in \
 	$(srcdir)/logrotation.in $(srcdir)/solaris-init.in \
 	$(srcdir)/systemv-init.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -60,7 +60,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/dgconfig.h
-CONFIG_CLEAN_FILES = bsd-init dansguardian logrotation solaris-init \
+CONFIG_CLEAN_FILES = bsd-init e2guardian logrotation solaris-init \
 	systemv-init
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
@@ -275,7 +275,7 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 bsd-init: $(top_builddir)/config.status $(srcdir)/bsd-init.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-dansguardian: $(top_builddir)/config.status $(srcdir)/dansguardian.in
+e2guardian: $(top_builddir)/config.status $(srcdir)/e2guardian.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 logrotation: $(top_builddir)/config.status $(srcdir)/logrotation.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
