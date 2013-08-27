@@ -69,9 +69,9 @@ is_migration_configuration () {
 	mv -f $DG_LOG $DG_LOG".back"
 
         if [update-rc.d 2>/dev/null]; then
-                update-rc.d -f dansguardian remove
+        	update-rc.d -f dansguardian remove
         elif [ chkconfig 2>/dev/null ]; then
-              chkconfig e2guardian off
+        	chkconfig dansguardian off
         else
                 echo "DG init script still present, you MUST remove it after"
         fi
