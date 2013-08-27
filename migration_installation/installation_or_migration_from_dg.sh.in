@@ -127,8 +127,8 @@ if [ update-rc.d 2>/dev/null ]; then
 	cp init.d/e2guardian-rc.d /etc/init.d/e2guardian
 	update-rc.d e2guardian start 99 2 3 4 5 . stop 21 0 1 6 .
 elif [ chkconfig 2>/dev/null ]; then
-		cp init.d/e2guardian-chk /etc/init.d/e2guardian
-		chkconfig e2guardian on 
+	cp init.d/e2guardian-chk /etc/init.d/e2guardian
+	chkconfig e2guardian on 
 else
 	echo "ed2guardian is installed but init script is missing"
 
