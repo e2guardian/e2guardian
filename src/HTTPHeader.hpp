@@ -193,8 +193,6 @@ private:
 	bool issearch;
 #endif
 
-	char postdata[15];
-
 	// cached result of contentLength()
 	off_t contentlength;
 	bool clcached;

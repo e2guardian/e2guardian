@@ -29,6 +29,9 @@ public:
 	// create a new item list. re-uses existing lists if a reload is not necessary.
 	// calls readItemList.
 	int newItemList(const char *filename, bool startswith, int filters, bool parent);
+#ifdef TOTAL_BLOCK_LIST
+	int newStdinItemList(bool startswith, int filters, bool parent, const char *startstr);
+#endif
 	// create a new phrase list. re-uses existing lists, but cannot check nested lists (known limitation).
 	// does not call readPhraseList. (checkme: why?)
 	int newPhraseList(const char *exception, const char *banned, const char *weighted);

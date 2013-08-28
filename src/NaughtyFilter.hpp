@@ -8,6 +8,11 @@
 
 // INCLUDES
 
+// not sure if these are needed - but are in protexofe - PIP
+//#include "String.hpp"
+//#include "OptionContainer.hpp"
+//#include "DataBuffer.hpp"
+
 // DECLARATIONS
 
 class NaughtyFilter
@@ -17,6 +22,10 @@ public:
 	bool isItNaughty;
 	// should the content bypass any further filtering?
 	bool isException;
+	// is the url/site in Greylist - forces content check
+	bool isGrey;
+	// is the url a search request
+	bool isSearch;
 	// should the browser use the categories string or the displaycategories string?
 	// (related to category list thresholding)
 	bool usedisplaycats;
@@ -26,6 +35,11 @@ public:
 	// flag for use by ContentScanners to say whether data should be stored
 	// for future inspection.  storage only implemented for POST data.
 	bool store;
+
+	// not sure if these are needed - but are in protexofe - PIP
+	int filtergroup;
+	// Used in Protex format logs??
+	int message_no;
 
 	// the reason for banning, what to say about it in the logs, and the
 	// categories under which banning has taken place

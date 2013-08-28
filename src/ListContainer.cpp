@@ -443,11 +443,18 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 
 		// Strip off comments that don't necessarily start at the beginning of a line
 		// - but not regular expression comments
+                // - or '#' within a URL
+		// So only strings starting with ' #' are regarded as comments
+		// if the '#' is not at start of line
+		//
+		// Amended by Philip Pearce - included in e2g first release 2013:
 		std::string::size_type commentstart = 1;
 		while ((commentstart = temp.find_first_of('#', commentstart)) != std::string::npos)
 		{
 			// Don't treat "(?#...)" as a DG comment - it's a regex comment
-			if (temp[commentstart - 1] != '?')
+			// if (temp[commentstart - 1] != '?')
+			// Changed to only treat ' #' as an embeded comment
+			if (temp[commentstart - 1] == ' ')
 			{
 				temp = temp.substr(0, commentstart);
 				break;
@@ -490,6 +497,95 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 	return true;  // sucessful read
 }
 
+#ifdef TOTAL_BLOCK_LIST
+// for stdin item lists - read item list from stdin
+bool ListContainer::readStdinItemList(bool startswith, int filters, const char *startstr)
+{
+#ifdef DGDEBUG
+	if (filters != 32)
+		std::cout << "Converting to lowercase" << std::endl;
+#endif
+	int mem_used = 2;  // keep 2 bytes spare??
+	bool skip = true;
+	sourcestartswith = startswith;
+	sourcefilters = filters;
+	std::string linebuffer;
+	RegExp re;
+	re.comp("^.*\\:[0-9]+\\/.*");
+	size_t len = 0;
+	increaseMemoryBy(2048);  // Allocate some memory to hold list
+	if (!std::cin.good()) {
+		if (!is_daemonised) {
+			std::cerr << "Error reading stdin: " << std::endl;
+		}
+		syslog(LOG_ERR, "Error reading stdin");
+		return false;
+	}
+	String temp, inc, hostname, url;
+	while (!std::cin.eof()) {
+		getline(std::cin, linebuffer);
+		if (linebuffer.length() < 2)
+			continue;  // its jibberish
+
+		temp = linebuffer.c_str();
+
+		if (linebuffer[0] == '#') {
+			if ( skip && temp.startsWith( startstr )) {
+				skip = false;
+				continue;
+			}
+			if ( temp.startsWith("#ENDLIST") ) {
+				break;  // end of list
+			} else {
+				continue;  // it's a comment
+			}
+		}
+
+		if ( skip ) continue;
+
+		// Strip off comments that don't necessarily start at the beginning of a line
+		std::string::size_type commentstart = 1;
+		while ((commentstart = temp.find_first_of('#', commentstart)) != std::string::npos)
+		{
+			if (temp[commentstart - 1] == ' ')
+			{
+				temp = temp.substr(0, commentstart);
+				break;
+			}
+			++commentstart;
+		}
+
+		temp.removeWhiteSpace();  // tidy up and make it handle CRLF files
+		if (temp.endsWith("/")) {
+			temp.chop();  // tidy up
+		}
+		if (temp.startsWith("ftp://")) {
+			temp = temp.after("ftp://");  // tidy up
+		}
+		if (filters == 1) {	// remove port addresses
+			if (temp.before("/").contains(":")) {	// quicker than full regexp
+				if (re.match(temp.toCharArray())) {
+					hostname = temp.before(":");
+					url = temp.after("/");
+					temp = hostname + "/" + url;
+				}
+			}
+		}
+		if (filters != 32) {
+			temp.toLower();  // tidy up - but don't make regex lists lowercase!
+		}
+		if (temp.length() > 0)
+			mem_used += temp.length() + 1;
+			if (mem_used  > data_memory) {
+				increaseMemoryBy(2048); 
+			}
+			addToItemList(temp.toCharArray(), temp.length());  // add to unsorted list
+	}
+	//listfile.close();
+	return true;  // sucessful read
+}
+
+#endif
 // for item lists - read nested item lists
 bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)
 {

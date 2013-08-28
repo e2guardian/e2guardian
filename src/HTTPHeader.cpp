@@ -1719,7 +1719,7 @@ int HTTPHeader::decode1b64(char c)
 String HTTPHeader::URLEncode()
 {
 	std::string encoded;
-	String newurl(url());
+	String newurl(getUrl());
 	const char *s = newurl.c_str();
 	char *buf = new char[3];
 	unsigned char c;

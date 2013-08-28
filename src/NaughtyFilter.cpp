@@ -53,7 +53,9 @@ public:
 
 // constructor - set up defaults
 NaughtyFilter::NaughtyFilter()
-:	isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0)
+:	isItNaughty(false), isException(false), usedisplaycats(false), 
+	blocktype(0), store(false), naughtiness(0), filtergroup(0), 
+	isGrey(false), isSearch(false), message_no(0)
 {
 }
 
@@ -68,6 +70,10 @@ void NaughtyFilter::reset()
 	blocktype = 0;
 	store = false;
 	naughtiness = 0;
+	isGrey = false;
+	isSearch = false;
+	filtergroup = 0;
+	message_no = 0;
 }
 
 // check the given document body for banned, weighted, and exception phrases (and PICS, and regexes, &c.)
@@ -631,7 +637,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 					isException = true;
 					// Combination exception phrase found:
 					// Combination exception search term found:
-					whatIsNaughtyLog = o.language_list.getTranslation(searchterms ? 456 : 605);
+					message_no = searchterms ? 456 : 605;
+					whatIsNaughtyLog = o.language_list.getTranslation(message_no);
 					whatIsNaughtyLog += combisofar;
 					whatIsNaughty = "";
 					++combicurrent;
@@ -784,7 +791,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 			isItNaughty = false;
 			// Exception phrase found:
 			// Exception search term found:
-			whatIsNaughtyLog = o.language_list.getTranslation(searchterms ? 457 : 604);
+			message_no = searchterms ? 457 : 604;
+			whatIsNaughtyLog = o.language_list.getTranslation(message_no);
 			whatIsNaughtyLog += foundcurrent->first;
 			whatIsNaughty = "";
 			whatIsNaughtyCategories = o.lm.l[phraselist]->getListCategoryAt(foundcurrent->second.first, NULL);
@@ -812,7 +820,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 		isItNaughty = true;
 		// Banned combination phrase found:
 		// Banned combination search term found:
-		whatIsNaughtyLog = o.language_list.getTranslation(searchterms ? 452: 400);
+		message_no = searchterms ? 452: 400;
+		whatIsNaughtyLog = o.language_list.getTranslation(message_no);
 		whatIsNaughtyLog += combifound;
 		// Banned combination phrase found.
 		// Banned combination search term found.
@@ -824,7 +833,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 	if (isItNaughty) {
 		// Banned phrase found:
 		// Banned search term found:
-		whatIsNaughtyLog = o.language_list.getTranslation(searchterms ? 450 : 300);
+		message_no = searchterms ? 450: 300;
+		whatIsNaughtyLog = o.language_list.getTranslation(message_no);
 		whatIsNaughtyLog += bannedphrase;
 		// Banned phrase found.
 		// Banned search term found.
@@ -837,7 +847,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 		isItNaughty = true;
 		// Weighted phrase limit of
 		// Weighted search term limit of
-		whatIsNaughtyLog = o.language_list.getTranslation(searchterms ? 454 : 402);
+		message_no = searchterms ? 454: 401;
+		whatIsNaughtyLog = o.language_list.getTranslation(message_no);
 		whatIsNaughtyLog += String(limit).toCharArray();
 		whatIsNaughtyLog += " : ";
 		whatIsNaughtyLog += String(weighting).toCharArray();
@@ -1018,6 +1029,7 @@ void NaughtyFilter::checkPICSagainstoption(String s, const char *l, int opt, std
 			if (opt < i) {	// check its value against the option in config file
 				isItNaughty = true;  // must be over limit
 				whatIsNaughty = m + " ";
+				message_no = 1000;
 				whatIsNaughty += o.language_list.getTranslation(1000);
 				// PICS labeling level exceeded on the above site.
 				whatIsNaughtyCategories = "PICS";
