@@ -64,11 +64,12 @@ is_initial_configuration () {
 }
 
 is_migration_configuration () {
+	cd $STARTPATH
 	echo "save and remove DG"
-	mv -f $DG_ETC $DG_ETC".back"
-	mv -f $DG_LOG $DG_LOG".back"
+	mv $DG_ETC $DG_ETC".back" 2>/dev/null
+	mv $DG_LOG $DG_LOG".back" 2>/dev/null
 
-        if [update-rc.d 2>/dev/null]; then
+        if [ update-rc.d 2>/dev/null ]; then
         	update-rc.d -f dansguardian remove
         elif [ chkconfig 2>/dev/null ]; then
         	chkconfig dansguardian off
@@ -78,15 +79,10 @@ is_migration_configuration () {
 
 	# Make e2guardian configuration
 	is_initial_configuration
-	cp -Rf $DG_ETC".back"/* $E2_ETC_PATHS
+
+	cp -Rf /tmp/dansguardian/* $E2_ETC_PATHS/
 	chown -Rf e2guardian $E2_ETC_PATHS
-	if [ -f $E2_ETC_PATHS/dansguardian.conf ]; then	
-		cd $E2_ETC_PATHS
-		for i in *.* ; do sed -i 's/dansguardian/e2guardian/g' $i ; done
-		for i in *.* ; do sed -i 's/dansguardian/e2guardian/g' $i ; done
-		for i in dansguardian*;do mv $i e2guardian${i#dansguardian} ;done
-		cd $STARTPATH
-	fi	
+	cd $STARTPATH
 }
 
 # Installing e2guardian init conf
@@ -110,6 +106,9 @@ do
 	
 	  cd $STARTPATH
           echo "DansGuardian configuration file found at: ${p}/dansguardian/dansguardian.conf"
+	  cp -Rf $DG_ETC /tmp && cd /tmp/dansguardian
+       	  for i in *.conf; do sed -i -e 's/dansguardian/e2guardian/' "$i"; done
+          for i in dansguardian*;do mv $i e2guardian${i#dansguardian} ;done
 	  is_migration_configuration
 	  echo "DG is present, you MUST remove it after"
           break
@@ -117,7 +116,7 @@ do
 done
 
 
-if [ ! -f DG_ETC=${p}/dansguardian/dansguardian.conf ]; then	
+if [ ! -f $E2_ETC_PATHS/e2guardian.conf ]; then	
 	is_initial_configuration
 fi
 

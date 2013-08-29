@@ -50,7 +50,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 am__append_1 = contentscanners
-subdir = configs
+subdir = migration_installation 
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/installation_or_migration_from_dg.sh.in 
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -247,9 +247,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu configs/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu migration_installation/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu configs/Makefile
+	  $(AUTOMAKE) --gnu migration_installation/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
