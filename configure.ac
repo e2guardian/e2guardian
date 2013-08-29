@@ -588,10 +588,8 @@ else
   AC_MSG_NOTICE([forcing use of $dans_filedescriptors_num filedescriptors (user-forced)])
 fi
 if test "$dans_filedescriptors_num" -lt 512 ; then
-    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if your])
-    AC_MSG_WARN([cache will be very busy.  Please see the FAQ page])
-    AC_MSG_WARN([http://wiki.dans-cache.org/SquidFaq/TroubleShooting])
-    AC_MSG_WARN([on how to increase your filedescriptor limit])
+    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
+    AC_MSG_WARN([e2guardian will be very busy.])
 fi
 AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
 

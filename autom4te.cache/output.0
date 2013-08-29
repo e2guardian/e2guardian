@@ -660,7 +660,6 @@ CC
 am__fastdepCXX_FALSE
 am__fastdepCXX_TRUE
 CXXDEPMODE
-am__nodep
 AMDEPBACKSLASH
 AMDEP_FALSE
 AMDEP_TRUE
@@ -2872,11 +2871,11 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 
 # We need awk for the "check" target.  The system "awk" is bad on
 # some platforms.
-# Always define AMTAR for backward compatibility.  Yes, it's still used
-# in the wild :-(  We should find a proper way to deprecate it ...
-AMTAR='$${TAR-tar}'
+# Always define AMTAR for backward compatibility.
 
-am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
+AMTAR=${AMTAR-"${am_missing_run}tar"}
+
+am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 
@@ -3462,7 +3461,6 @@ fi
 if test "x$enable_dependency_tracking" != xno; then
   am_depcomp="$ac_aux_dir/depcomp"
   AMDEPBACKSLASH='\'
-  am__nodep='_no'
 fi
  if test "x$enable_dependency_tracking" != xno; then
   AMDEP_TRUE=
@@ -3487,7 +3485,6 @@ else
   # instance it was reported that on HP-UX the gcc test will end up
   # making a dummy file named `D' -- because `-MD' means `put the output
   # in D'.
-  rm -rf conftest.dir
   mkdir conftest.dir
   # Copy depcomp to subdir because otherwise we won't find it if we're
   # using a relative directory.
@@ -3547,7 +3544,7 @@ else
 	break
       fi
       ;;
-    msvc7 | msvc7msys | msvisualcpp | msvcmsys)
+    msvisualcpp | msvcmsys)
       # This compiler won't grok `-c -o', but also, the minuso test has
       # not run yet.  These depmodes are late enough in the game, and
       # so weak that their functioning should not be impacted.
@@ -4155,7 +4152,6 @@ else
   # instance it was reported that on HP-UX the gcc test will end up
   # making a dummy file named `D' -- because `-MD' means `put the output
   # in D'.
-  rm -rf conftest.dir
   mkdir conftest.dir
   # Copy depcomp to subdir because otherwise we won't find it if we're
   # using a relative directory.
@@ -4215,7 +4211,7 @@ else
 	break
       fi
       ;;
-    msvc7 | msvc7msys | msvisualcpp | msvcmsys)
+    msvisualcpp | msvcmsys)
       # This compiler won't grok `-c -o', but also, the minuso test has
       # not run yet.  These depmodes are late enough in the game, and
       # so weak that their functioning should not be impacted.
@@ -6242,7 +6238,6 @@ AC_FINALIZE_VAR(DGLOGLOCATION,"$logdir")
 
 
 
-
 if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
 	if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
@@ -6397,7 +6392,6 @@ if test -n "$PCRE_CFLAGS"; then
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   pkg_cv_PCRE_CFLAGS=`$PKG_CONFIG --cflags "libpcre >= 6.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes 
 else
   pkg_failed=yes
 fi
@@ -6414,7 +6408,6 @@ if test -n "$PCRE_LIBS"; then
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
   pkg_cv_PCRE_LIBS=`$PKG_CONFIG --libs "libpcre >= 6.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes 
 else
   pkg_failed=yes
 fi
@@ -6434,9 +6427,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        PCRE_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libpcre >= 6.0" 2>&1`
+	        PCRE_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "libpcre >= 6.0" 2>&1`
         else 
-	        PCRE_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libpcre >= 6.0" 2>&1`
+	        PCRE_PKG_ERRORS=`$PKG_CONFIG --print-errors "libpcre >= 6.0" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$PCRE_PKG_ERRORS" >&5
@@ -7305,14 +7298,10 @@ else
 $as_echo "$as_me: forcing use of $dans_filedescriptors_num filedescriptors (user-forced)" >&6;}
 fi
 if test "$dans_filedescriptors_num" -lt 512 ; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if your" >&5
-$as_echo "$as_me: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if your" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cache will be very busy.  Please see the FAQ page" >&5
-$as_echo "$as_me: WARNING: cache will be very busy.  Please see the FAQ page" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: http://wiki.dans-cache.org/SquidFaq/TroubleShooting" >&5
-$as_echo "$as_me: WARNING: http://wiki.dans-cache.org/SquidFaq/TroubleShooting" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: on how to increase your filedescriptor limit" >&5
-$as_echo "$as_me: WARNING: on how to increase your filedescriptor limit" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if" >&5
+$as_echo "$as_me: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: e2guardian will be very busy." >&5
+$as_echo "$as_me: WARNING: e2guardian will be very busy." >&2;}
 fi
 
 cat >>confdefs.h <<_ACEOF

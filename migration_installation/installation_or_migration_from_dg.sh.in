@@ -107,8 +107,8 @@ do
 	  cd $STARTPATH
           echo "DansGuardian configuration file found at: ${p}/dansguardian/dansguardian.conf"
 	  cp -Rf $DG_ETC /tmp && cd /tmp/dansguardian
-       	  for i in *.*; do sed -i -e 's/dansguardian/e2guardian/' "$i"; done
-       	  for i in *.*; do sed -i -e 's/DansGuardian/e2guardian/' "$i"; done
+	  find /tmp/dansguardian -name "*" -type f -exec sed -i -e 's/dansguardian/e2guardian/' {} \;
+	  find /tmp/dansguardian -name "*" -type f -exec sed -i -e 's/DansGuardian/e2guardian/' {} \;
           for i in dansguardian*;do mv $i e2guardian${i#dansguardian} ;done
 	  is_migration_configuration
 	  echo "DG is present, you MUST remove it after"
