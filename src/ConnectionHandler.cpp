@@ -3084,9 +3084,11 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	if (isbannedip) {
 		(*checkme).isItNaughty = true;
 		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
+		(*checkme).message_no = 100;
 		// Your IP address is not allowed to web browse:
 		(*checkme).whatIsNaughtyLog += clienthost ? *clienthost : *clientip;
 		(*checkme).whatIsNaughty = o.language_list.getTranslation(101);
+		(*checkme).message_no = 101;
 		// Your IP address is not allowed to web browse.
 		if (room.empty())
 			(*checkme).whatIsNaughtyCategories = "Banned Client IP";
@@ -3100,6 +3102,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	else if (isbanneduser) {
 		(*checkme).isItNaughty = true;
 		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(102);
+		(*checkme).message_no = 102;
 		// Your username is not allowed to web browse:
 		(*checkme).whatIsNaughtyLog += (*clientuser);
 		(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
@@ -3112,6 +3115,165 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	String temp;
 	temp = (*urld);
 	bool is_ssl = header->requestType() == "CONNECT";
+	bool is_ip = isIPHostnameStrip(temp);
+
+	// search term blocking - MOVED to after Banned checks
+
+
+        if (*o.fg[filtergroup]).enable_regex_grey) { 
+        	if ((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0)  { 
+                               (*checkme).isItNaughty = true;
+                               (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
+			       (*checkme).message_no = 503;
+                               // Banned Regular Expression URL
+                               (*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+                               (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
+                               // Banned Regular Expression URL found.
+                               (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+		}
+		else if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0)  {
+                                 checkme->isItNaughty = true;
+                                 checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
+				 (*checkme).message_no = 508;
+                                 checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
+                                 checkme->whatIsNaughty = o.language_list.getTranslation(509);
+                                 checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
+		}
+	}
+
+	if ( (*checkme.isItNaughty) ) {     // why bother with checking anything else!!!!
+		return;
+	}
+
+	if ( !(*checkme).isGrey ) 
+	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
+		(*checkme).isGrey = true;
+	}
+
+	// only apply bans to things not in the grey lists
+	if ( !(*checkme).isGrey) {
+		if ((i = (*o.fg[filtergroup]).inBannedSiteList(temp, true, is_ip, is_ssl)) != NULL) {
+				// need to reintroduce ability to produce the blanket block messages
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(500);  // banned site
+				(*checkme).message_no = 500;
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+				return;
+		}
+		if ((i = (*o.fg[filtergroup]).inBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+				(*checkme).message_no = 501;
+				// Banned URL:
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+				return;
+		}
+        	if (!(*o.fg[filtergroup]).enable_regex_grey) { 
+			if ((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0 )  
+ 			{
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
+				(*checkme).message_no = 503;
+				// Banned Regular Expression URL:
+				(*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(504);
+				// Banned Regular Expression URL found.
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+				return;
+			}
+			if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0) {
+				checkme->isItNaughty = true;
+				checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
+				checkme->message_no = 508;
+				checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
+				checkme->whatIsNaughty = o.language_list.getTranslation(509);
+				checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
+				return;
+			}
+		}
+
+		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
+		if ((*o.fg[filtergroup]).deep_url_analysis) {
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -starting deep analysis" << std::endl;
+#endif
+			String deepurl(temp.after("p://"));
+			deepurl = header->decode(deepurl,true);
+			while (deepurl.contains(":")) {
+				deepurl = deepurl.after(":");
+				while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
+					deepurl.lop();
+				}
+#ifdef DGDEBUG
+				std::cout << dbgPeerPort << " -deep analysing: " << deepurl << std::endl;
+#endif
+				if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
+					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
+				{
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
+#endif
+					continue;
+				}
+				if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).message_no = 500;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
+#endif
+				}
+				else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+					(*checkme).message_no = 501;
+					 // Banned URL:
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
+#endif
+				}
+			}
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -done deep analysis" << std::endl;
+#endif
+			if ( (*checkme.isItNaughty)) {
+				return;
+			}
+		}
+	}
+
+	 // if we get here it's to be content checked (so far!)
+	// So now check for search etc.
+
+	// NOTE dg/protex search term stuff needs combining!!!!
+
+
+#ifdef SEARCHWORDS
+	(*checkme).isSearch = (*header).isSearch(filtergroup);
+	if ((*checkme).isSearch) {
+		if ((i = (*o.fg[filtergroup]).inBannedSearchList((*header).searchwords())) != NULL) {
+			(*checkme).whatIsNaughty = o.language_list.getTranslation(521);
+			(*checkme).message_no = 521;
+			// Banned search term:
+			(*checkme).whatIsNaughty += i;
+			(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+			(*checkme).isItNaughty = true;
+			(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
+			return;
+		}
+	}
+#endif
+
 
 	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
 	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
@@ -3141,116 +3303,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 			}
 		}
 	}
-
-	// only apply bans to things not in the grey lists
-	bool is_ip = isIPHostnameStrip(temp);
-
-        if (((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0) && ((*o.fg[filtergroup]).enable_regex_grey == true)) { 
-                               (*checkme).isItNaughty = true;
-                               (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-                               // Banned Regular Expression URL
-                               (*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
-                               (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-                               // Banned Regular Expression URL found.
-                               (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-	}
-	if (((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0)  && ((*o.fg[filtergroup]).enable_regex_grey == true)) {
-                                 checkme->isItNaughty = true;
-                                 checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-                                 checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-                                 checkme->whatIsNaughty = o.language_list.getTranslation(509);
-                                 checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-	}
-
-	if (!((*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
-		if (!(*checkme).isItNaughty) {
-			if ((i = (*o.fg[filtergroup]).inBannedSiteList(temp, true, is_ip, is_ssl)) != NULL) {
-				// need to reintroduce ability to produce the blanket block messages
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(500);  // banned site
-				(*checkme).whatIsNaughty += i;
-				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
-			}
-		}
-
-		if (!(*checkme).isItNaughty) {
-			if ((i = (*o.fg[filtergroup]).inBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
-				// Banned URL:
-				(*checkme).whatIsNaughty += i;
-				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
-			}
-			else if (((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0) && ((*o.fg[filtergroup]).enable_regex_grey == false))  
- 			{
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-				// Banned Regular Expression URL:
-				(*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-				// Banned Regular Expression URL found.
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-			}
-			else if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0) {
-				checkme->isItNaughty = true;
-				checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-				checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-				checkme->whatIsNaughty = o.language_list.getTranslation(509);
-				checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-			}
-		}
-		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
-		if (!(*checkme).isItNaughty && (*o.fg[filtergroup]).deep_url_analysis) {
-#ifdef DGDEBUG
-			std::cout << dbgPeerPort << " -starting deep analysis" << std::endl;
-#endif
-			String deepurl(temp.after("p://"));
-			deepurl = header->decode(deepurl,true);
-			while (deepurl.contains(":")) {
-				deepurl = deepurl.after(":");
-				while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
-					deepurl.lop();
-				}
-#ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -deep analysing: " << deepurl << std::endl;
-#endif
-				if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
-					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
-				{
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
-#endif
-					continue;
-				}
-				if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
-#endif
-				}
-				else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
-					 // Banned URL:
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
-#endif
-				}
-			}
-#ifdef DGDEBUG
-			std::cout << dbgPeerPort << " -done deep analysis" << std::endl;
-#endif
-		}
-	} // grey site/URL list
 
 #ifdef __SSLCERT
 	//check the certificate if
@@ -3318,7 +3370,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 #endif //__SSLCERT
 
 }
-
 
 // based on patch by Aecio F. Neto (afn@harvest.com.br) - Harvest Consultoria (http://www.harvest.com.br)
 // show the relevant banned page/image/CGI based on report level setting, request type etc.
