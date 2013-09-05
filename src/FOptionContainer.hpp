@@ -226,8 +226,8 @@ public:
 	unsigned int local_banned_url_list;
 	unsigned int local_grey_site_list;
 	unsigned int local_grey_url_list;
-	bool use_only_local_allow_lists;
 #endif
+	bool use_only_local_allow_lists;
 
 #ifdef SSL_EXTRA_LISTS
 	unsigned int banned_ssl_site_list;

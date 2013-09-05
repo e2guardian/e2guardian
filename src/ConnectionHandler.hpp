@@ -55,6 +55,7 @@ private:
 	int filtergroup;
 	bool matchedip;
 	bool persistent_authed;
+	bool overide_persist;
 
 	std::string clientuser;
 	std::string *clienthost;
