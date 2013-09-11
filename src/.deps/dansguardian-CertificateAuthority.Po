@@ -1,1 +1,0 @@
-dansguardian-CertificateAuthority.o: CertificateAuthority.cpp

@@ -1,4 +1,4 @@
-m4trace:configure.ac:6: -1- AC_INIT([dansguardian], [2.12.0.0])
+m4trace:configure.ac:6: -1- AC_INIT([e2guardian], [2.12.0.0])
 m4trace:configure.ac:6: -1- m4_pattern_forbid([^_?A[CHUM]_])
 m4trace:configure.ac:6: -1- m4_pattern_forbid([_AC_])
 m4trace:configure.ac:6: -1- m4_pattern_forbid([^LIBOBJS$], [do not use LIBOBJS directly, use AC_LIBOBJ (see section `AC_LIBOBJ vs LIBOBJS'])
@@ -148,7 +148,7 @@ m4trace:configure.ac:6: -1- AC_SUBST_TRACE([target_alias])
 m4trace:configure.ac:6: -1- m4_pattern_allow([^target_alias$])
 m4trace:configure.ac:7: -1- AM_INIT_AUTOMAKE
 m4trace:configure.ac:7: -1- m4_pattern_allow([^AM_[A-Z]+FLAGS$])
-m4trace:configure.ac:7: -1- AM_AUTOMAKE_VERSION([1.11.6])
+m4trace:configure.ac:7: -1- AM_AUTOMAKE_VERSION([1.11.1])
 m4trace:configure.ac:7: -1- AC_REQUIRE_AUX_FILE([install-sh])
 m4trace:configure.ac:7: -1- AC_SUBST([INSTALL_PROGRAM])
 m4trace:configure.ac:7: -1- AC_SUBST_TRACE([INSTALL_PROGRAM])
@@ -221,7 +221,7 @@ m4trace:configure.ac:7: -1- m4_pattern_allow([^SET_MAKE$])
 m4trace:configure.ac:7: -1- AC_SUBST([am__leading_dot])
 m4trace:configure.ac:7: -1- AC_SUBST_TRACE([am__leading_dot])
 m4trace:configure.ac:7: -1- m4_pattern_allow([^am__leading_dot$])
-m4trace:configure.ac:7: -1- AC_SUBST([AMTAR], ['$${TAR-tar}'])
+m4trace:configure.ac:7: -1- AC_SUBST([AMTAR])
 m4trace:configure.ac:7: -1- AC_SUBST_TRACE([AMTAR])
 m4trace:configure.ac:7: -1- m4_pattern_allow([^AMTAR$])
 m4trace:configure.ac:7: -1- AC_SUBST([am__tar])
@@ -280,10 +280,6 @@ m4trace:configure.ac:13: -1- AC_SUBST([AMDEPBACKSLASH])
 m4trace:configure.ac:13: -1- AC_SUBST_TRACE([AMDEPBACKSLASH])
 m4trace:configure.ac:13: -1- m4_pattern_allow([^AMDEPBACKSLASH$])
 m4trace:configure.ac:13: -1- _AM_SUBST_NOTMAKE([AMDEPBACKSLASH])
-m4trace:configure.ac:13: -1- AC_SUBST([am__nodep])
-m4trace:configure.ac:13: -1- AC_SUBST_TRACE([am__nodep])
-m4trace:configure.ac:13: -1- m4_pattern_allow([^am__nodep$])
-m4trace:configure.ac:13: -1- _AM_SUBST_NOTMAKE([am__nodep])
 m4trace:configure.ac:13: -1- AC_SUBST([CXXDEPMODE], [depmode=$am_cv_CXX_dependencies_compiler_type])
 m4trace:configure.ac:13: -1- AC_SUBST_TRACE([CXXDEPMODE])
 m4trace:configure.ac:13: -1- m4_pattern_allow([^CXXDEPMODE$])
@@ -581,8 +577,7 @@ m4trace:configure.ac:185: -1- AC_SUBST([DGLOGLOCATION])
 m4trace:configure.ac:185: -1- AC_SUBST_TRACE([DGLOGLOCATION])
 m4trace:configure.ac:185: -1- m4_pattern_allow([^DGLOGLOCATION$])
 m4trace:configure.ac:187: -1- m4_pattern_forbid([^_?PKG_[A-Z_]+$])
-m4trace:configure.ac:187: -1- m4_pattern_allow([^PKG_CONFIG(_(PATH|LIBDIR|SYSROOT_DIR|ALLOW_SYSTEM_(CFLAGS|LIBS)))?$])
-m4trace:configure.ac:187: -1- m4_pattern_allow([^PKG_CONFIG_(DISABLE_UNINSTALLED|TOP_BUILD_DIR|DEBUG_SPEW)$])
+m4trace:configure.ac:187: -1- m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
 m4trace:configure.ac:187: -1- AC_SUBST([PKG_CONFIG])
 m4trace:configure.ac:187: -1- AC_SUBST_TRACE([PKG_CONFIG])
 m4trace:configure.ac:187: -1- m4_pattern_allow([^PKG_CONFIG$])
@@ -855,56 +850,56 @@ m4trace:configure.ac:567: -1- _AM_SUBST_NOTMAKE([ENABLE_NTLM_FALSE])
 m4trace:configure.ac:568: -1- AC_SUBST([NTLMSUPPORT])
 m4trace:configure.ac:568: -1- AC_SUBST_TRACE([NTLMSUPPORT])
 m4trace:configure.ac:568: -1- m4_pattern_allow([^NTLMSUPPORT$])
-m4trace:configure.ac:596: -1- AC_DEFINE_TRACE_LITERAL([DANS_MAXFD])
-m4trace:configure.ac:596: -1- m4_pattern_allow([^DANS_MAXFD$])
-m4trace:configure.ac:596: -1- AH_OUTPUT([DANS_MAXFD], [/* Maximum number of open filedescriptors */
+m4trace:configure.ac:594: -1- AC_DEFINE_TRACE_LITERAL([DANS_MAXFD])
+m4trace:configure.ac:594: -1- m4_pattern_allow([^DANS_MAXFD$])
+m4trace:configure.ac:594: -1- AH_OUTPUT([DANS_MAXFD], [/* Maximum number of open filedescriptors */
 @%:@undef DANS_MAXFD])
-m4trace:configure.ac:600: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
+m4trace:configure.ac:598: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:209: AC_HELP_STRING is expanded from...
 ../../lib/autoconf/general.m4:1463: AC_ARG_ENABLE is expanded from...
-configure.ac:600: the top level])
-m4trace:configure.ac:600: -1- AC_DEFINE_TRACE_LITERAL([ENABLE_EMAIL])
-m4trace:configure.ac:600: -1- m4_pattern_allow([^ENABLE_EMAIL$])
-m4trace:configure.ac:600: -1- AH_OUTPUT([ENABLE_EMAIL], [/* Define to enable email reporting */
+configure.ac:598: the top level])
+m4trace:configure.ac:598: -1- AC_DEFINE_TRACE_LITERAL([ENABLE_EMAIL])
+m4trace:configure.ac:598: -1- m4_pattern_allow([^ENABLE_EMAIL$])
+m4trace:configure.ac:598: -1- AH_OUTPUT([ENABLE_EMAIL], [/* Define to enable email reporting */
 @%:@undef ENABLE_EMAIL])
-m4trace:configure.ac:618: -1- AC_SUBST([EMAILSUPPORT])
-m4trace:configure.ac:618: -1- AC_SUBST_TRACE([EMAILSUPPORT])
-m4trace:configure.ac:618: -1- m4_pattern_allow([^EMAILSUPPORT$])
-m4trace:configure.ac:620: -1- AC_DEFINE_TRACE_LITERAL([DG_CONFIGURE_OPTIONS])
-m4trace:configure.ac:620: -1- m4_pattern_allow([^DG_CONFIGURE_OPTIONS$])
-m4trace:configure.ac:620: -1- AH_OUTPUT([DG_CONFIGURE_OPTIONS], [/* Record configure-time options */
+m4trace:configure.ac:616: -1- AC_SUBST([EMAILSUPPORT])
+m4trace:configure.ac:616: -1- AC_SUBST_TRACE([EMAILSUPPORT])
+m4trace:configure.ac:616: -1- m4_pattern_allow([^EMAILSUPPORT$])
+m4trace:configure.ac:618: -1- AC_DEFINE_TRACE_LITERAL([DG_CONFIGURE_OPTIONS])
+m4trace:configure.ac:618: -1- m4_pattern_allow([^DG_CONFIGURE_OPTIONS$])
+m4trace:configure.ac:618: -1- AH_OUTPUT([DG_CONFIGURE_OPTIONS], [/* Record configure-time options */
 @%:@undef DG_CONFIGURE_OPTIONS])
-m4trace:configure.ac:624: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
+m4trace:configure.ac:622: -1- _m4_warn([obsolete], [The macro `AC_HELP_STRING' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:209: AC_HELP_STRING is expanded from...
 ../../lib/autoconf/general.m4:1482: AC_ARG_WITH is expanded from...
-configure.ac:624: the top level])
-m4trace:configure.ac:634: -1- AC_SUBST([DGLIBDIR])
-m4trace:configure.ac:634: -1- AC_SUBST_TRACE([DGLIBDIR])
-m4trace:configure.ac:634: -1- m4_pattern_allow([^DGLIBDIR$])
-m4trace:configure.ac:636: -1- AC_SUBST([DGBINDIR])
-m4trace:configure.ac:636: -1- AC_SUBST_TRACE([DGBINDIR])
-m4trace:configure.ac:636: -1- m4_pattern_allow([^DGBINDIR$])
-m4trace:configure.ac:638: -1- AC_SUBST([DGCONFDIR])
-m4trace:configure.ac:638: -1- AC_SUBST_TRACE([DGCONFDIR])
-m4trace:configure.ac:638: -1- m4_pattern_allow([^DGCONFDIR$])
-m4trace:configure.ac:640: -1- AC_SUBST([DGDATADIR])
-m4trace:configure.ac:640: -1- AC_SUBST_TRACE([DGDATADIR])
-m4trace:configure.ac:640: -1- m4_pattern_allow([^DGDATADIR$])
-m4trace:configure.ac:642: -1- AC_SUBST([DGCONFFILE])
-m4trace:configure.ac:642: -1- AC_SUBST_TRACE([DGCONFFILE])
-m4trace:configure.ac:642: -1- m4_pattern_allow([^DGCONFFILE$])
-m4trace:configure.ac:644: -1- AC_CONFIG_FILES([Makefile
+configure.ac:622: the top level])
+m4trace:configure.ac:632: -1- AC_SUBST([DGLIBDIR])
+m4trace:configure.ac:632: -1- AC_SUBST_TRACE([DGLIBDIR])
+m4trace:configure.ac:632: -1- m4_pattern_allow([^DGLIBDIR$])
+m4trace:configure.ac:634: -1- AC_SUBST([DGBINDIR])
+m4trace:configure.ac:634: -1- AC_SUBST_TRACE([DGBINDIR])
+m4trace:configure.ac:634: -1- m4_pattern_allow([^DGBINDIR$])
+m4trace:configure.ac:636: -1- AC_SUBST([DGCONFDIR])
+m4trace:configure.ac:636: -1- AC_SUBST_TRACE([DGCONFDIR])
+m4trace:configure.ac:636: -1- m4_pattern_allow([^DGCONFDIR$])
+m4trace:configure.ac:638: -1- AC_SUBST([DGDATADIR])
+m4trace:configure.ac:638: -1- AC_SUBST_TRACE([DGDATADIR])
+m4trace:configure.ac:638: -1- m4_pattern_allow([^DGDATADIR$])
+m4trace:configure.ac:640: -1- AC_SUBST([DGCONFFILE])
+m4trace:configure.ac:640: -1- AC_SUBST_TRACE([DGCONFFILE])
+m4trace:configure.ac:640: -1- m4_pattern_allow([^DGCONFFILE$])
+m4trace:configure.ac:642: -1- AC_CONFIG_FILES([Makefile
 	        data/Makefile
 	        data/languages/Makefile
 	        data/scripts/Makefile
 	        data/scripts/bsd-init
-	        data/scripts/dansguardian
+	        data/scripts/e2guardian
 	        data/scripts/logrotation
 	        data/scripts/solaris-init
 	        data/scripts/systemv-init
 	        doc/Makefile
-	        configs/dansguardian.conf
-	        configs/dansguardianf1.conf
+	        configs/e2guardian.conf
+	        configs/e2guardianf1.conf
 	        configs/Makefile
 	        configs/lists/Makefile
 	        configs/lists/phraselists/Makefile
@@ -932,29 +927,29 @@ m4trace:configure.ac:644: -1- AC_CONFIG_FILES([Makefile
 		configs/lists/downloadmanagers/Makefile
                 src/Makefile
 		])
-m4trace:configure.ac:684: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([LIB@&t@OBJS])
-m4trace:configure.ac:684: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:684: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([LTLIBOBJS])
-m4trace:configure.ac:684: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:684: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
-m4trace:configure.ac:684: -1- AC_SUBST([am__EXEEXT_TRUE])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([am__EXEEXT_TRUE])
-m4trace:configure.ac:684: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
-m4trace:configure.ac:684: -1- AC_SUBST([am__EXEEXT_FALSE])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([am__EXEEXT_FALSE])
-m4trace:configure.ac:684: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
-m4trace:configure.ac:684: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
-m4trace:configure.ac:684: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([top_builddir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([top_build_prefix])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([srcdir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([abs_srcdir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([top_srcdir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([abs_top_srcdir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([builddir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([abs_builddir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([abs_top_builddir])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([INSTALL])
-m4trace:configure.ac:684: -1- AC_SUBST_TRACE([MKDIR_P])
+m4trace:configure.ac:682: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([LIB@&t@OBJS])
+m4trace:configure.ac:682: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:682: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([LTLIBOBJS])
+m4trace:configure.ac:682: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:682: -1- AM_CONDITIONAL([am__EXEEXT], [test -n "$EXEEXT"])
+m4trace:configure.ac:682: -1- AC_SUBST([am__EXEEXT_TRUE])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([am__EXEEXT_TRUE])
+m4trace:configure.ac:682: -1- m4_pattern_allow([^am__EXEEXT_TRUE$])
+m4trace:configure.ac:682: -1- AC_SUBST([am__EXEEXT_FALSE])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([am__EXEEXT_FALSE])
+m4trace:configure.ac:682: -1- m4_pattern_allow([^am__EXEEXT_FALSE$])
+m4trace:configure.ac:682: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_TRUE])
+m4trace:configure.ac:682: -1- _AM_SUBST_NOTMAKE([am__EXEEXT_FALSE])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([top_builddir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([top_build_prefix])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([srcdir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([abs_srcdir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([top_srcdir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([abs_top_srcdir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([builddir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([abs_builddir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([abs_top_builddir])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([INSTALL])
+m4trace:configure.ac:682: -1- AC_SUBST_TRACE([MKDIR_P])

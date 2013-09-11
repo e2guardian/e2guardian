@@ -21,7 +21,6 @@
 #include <vector>
 #include <syslog.h>
 
-
 // GLOBALS
 
 extern OptionContainer o;

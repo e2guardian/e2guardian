@@ -18,7 +18,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-
 // GLOBALS
 
 extern OptionContainer o;

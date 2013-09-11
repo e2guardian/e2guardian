@@ -28,7 +28,6 @@
 
 #include "FDTunnel.hpp"
 
-
 // IMPLEMENTATION
 
 FDTunnel::FDTunnel()
