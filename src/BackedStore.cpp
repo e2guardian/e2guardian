@@ -31,7 +31,6 @@
 #ifdef DGDEBUG
 #include <iostream>
 #endif
-
 // IMPLEMENTATION
 
 BackedStore::BackedStore(size_t _ramsize, size_t _disksize, const char *_tempdir)

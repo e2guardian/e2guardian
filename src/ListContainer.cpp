@@ -39,7 +39,6 @@ extern OptionContainer o;
 #define MAXLINKS GRAPHENTRYSIZE-4
 #define ROOTOFFSET ROOTNODESIZE - GRAPHENTRYSIZE
 
-
 // IMPLEMENTATION
 
 // Constructor - set default values

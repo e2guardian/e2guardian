@@ -18,7 +18,6 @@
 #include <syslog.h>
 #include <algorithm>
 
-
 // GLOBALS 
 
 extern OptionContainer o;

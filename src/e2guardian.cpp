@@ -34,8 +34,15 @@
 
 // GLOBALS
 #ifndef FD_SETSIZE
-#define FD_SETSIZE 256
+#define FD_SETSIZE 1024
 #endif
+
+/*
+#ifdef DANS_MAXFD
+#undef FD_SETSIZE
+#define FD_SETSIZE DANS_MAXFD
+#endif
+*/
 
 #ifndef DANS_MAXFD  
 #define DANS_MAXFD FD_SETSIZE 
@@ -285,14 +292,17 @@ int main(int argc, char *argv[])
 		o.no_daemon = 1;
 	}
 
-#ifdef linux
-	if ((o.max_children + 20) > DANS_MAXFD) {
-// let them do the config right!!
-//			o.max_children - 6;
-// 	}	
-#else
+	/* Fix ugly crash */
+	/* Temporary sucurity protection about FD_SETSIZE limit - for all system now - later for no epoll system */
+
+	if ((DANS_MAXFD + 6) > FD_SETSIZE) {
+		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
+		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
+		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << " e2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
+		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
+		return 1;  // we can't have rampant proccesses can we?
+	}
 	if ((o.max_children + 6) > DANS_MAXFD) {
-#endif
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
 		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;

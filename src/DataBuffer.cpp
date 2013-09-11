@@ -29,7 +29,6 @@
 #define __DGHEADER_SENDFIRSTLINE 1
 #define __DGHEADER_SENDREST 2
 
-
 // GLOBALS
 
 extern OptionContainer o;

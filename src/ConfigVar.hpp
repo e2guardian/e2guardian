@@ -14,7 +14,6 @@
 #include <map>
 #include "String.hpp"
 
-
 // DECLARATIONS
 class ConfigVar
 {
