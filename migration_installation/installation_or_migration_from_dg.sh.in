@@ -2,7 +2,7 @@
 # http://e2guardian.org/
 # Migration and installation script 
 # FredB 2013
-
+# Red Hat and debian
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 E2_ETC_PATHS=@DGCONFDIR@
