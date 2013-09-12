@@ -1,4 +1,4 @@
-HOW TO BUILD:
+HOW TO BUILD:v test
 -------------
 As of DansGuardian 2.9, the distribution uses GNU autotools for building.
 Most users should therefore follow the standard
