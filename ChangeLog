@@ -1,4 +1,4 @@
-August 2013 - e2guardian 1.1.0.1
+September 2013 - e2guardian 1.1.0.1
 - URLs with # no longer truncated when reading lists
 June 2013 - DansGuardian 2.12.0.7
 - Added, DansGuardian now supports epoll (partial and Linux only), bringing large increases in performance and scalability to Linux System - By Philip Pearce (e2bn.org)
