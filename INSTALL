@@ -1,6 +1,6 @@
 HOW TO BUILD:
 -------------
-As of e2guardian 2.9, the distribution uses GNU autotools for building.
+As of DansGuardian 2.9, the distribution uses GNU autotools for building.
 Most users should therefore follow the standard
 "./configure; make; make install" process common to UNIX packages.  If for any
 reason you need to modify configure.ac or one of the Makefile.am files, use
@@ -16,7 +16,7 @@ configuration options.
 
 *** OS X / Darwin users, please read the OS X section first. ***
 
-As of e2guardian 2.7.7-10 zlib 1.2.1 is required for gzip
+As of DansGuardian 2.7.7-10 zlib 1.2.1 is required for gzip
 support.  This change was to fix a bug that could not be fixed
 with an earlier version.  If you do not want to upgrade zlib on
 your system see the notes at the end about compiling in zlib
@@ -24,7 +24,7 @@ statically. As of 2.9.3.2, you can also specify a non-standard search
 path for the zlib headers & library (during linking stage) using the
 "--with-zlib" option.
 
-As of 2.9.1.0, e2guardian can optionally be compiled and linked
+As of 2.9.1.0, DansGuardian can optionally be compiled and linked
 against PCRE instead of the standard GNU regular expression library.
 This overcomes certain limitations of the standard library, allowing
 - for example - character negations ([^w]). PCRE support is disabled
@@ -47,7 +47,7 @@ an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
         want to change some options.  Please read down for
         suggested options for your platform.
 
-3.        "make"** or "gmake" will now build e2guardian.
+3.        "make"** or "gmake" will now build DansGuardian.
 
 4.        "make install" will create the directory structure and install
         all the files in the chosen paths.  For a more efficient
@@ -105,7 +105,7 @@ You may change with the configure options:
   
 See ./configure --help for more details.
 
-These options have changed slightly from older versions of e2guardian
+These options have changed slightly from older versions of DansGuardian
 which did not use autotools.
 
 
@@ -189,7 +189,7 @@ SOLARIS:
 --------
 
 Only Solaris 8 (7/01 and beyond) and Solaris 9 has been tested.
-e2guardian requires the GNU version of make (gmake), and GCC version
+DansGuardian requires the GNU version of make (gmake), and GCC version
 3.01 will *not* work; use 2.95.3 or a more recent version.
 
 Both gmake and GCC 2.95.3 are included with the OS on the "Companion CD",
@@ -236,7 +236,7 @@ logrotation - a sh script to rotate the logs
 ../e2guardian.pl - a cgi script for an access denied page
 
 The installation of startup scripts used to be done by the
-e2guardian build scripts but since moving to autotools it is
+DansGuardian build scripts but since moving to autotools it is
 deemed out of the scope of source code and is the playground of
 packagers and sysadmins.
 
@@ -254,7 +254,7 @@ html denied page you will find it in:
 be).  This is not usually recommended but if you do want to do
 this copy it to your web servers' cgi-bin directory.
 This used to be mandatory and automatic in earlier versions of
-e2guardian.
+DansGuardian.
 
 
 
@@ -283,12 +283,12 @@ HOW TO COMPILE STATICALLY WITH ZLIB: (Provided by Ernest W. Lessenger)
 ------------------------------------
 
 Note: these instructions might be now out of date due to changes in
-the e2guardian build process. Instead of editing the Makefile (step 3
+the DansGuardian build process. Instead of editing the Makefile (step 3
 below), you may instead wish to use the "--enable-static-zlib" and
 "--with-zlib" configure options.
 
 Step 0:
-Configure e2guardian as usual
+Configure DansGuardian as usual
         <start in the DG source directory>
         ./configure (plus options see above)
 
@@ -306,7 +306,7 @@ Configure and compile
         cd ..
 
 Step 3:
-Minor tweaks to the e2guardian source code and Makefile
+Minor tweaks to the DansGuardian source code and Makefile
 (note these instructions are based on DG2.8 and thus are
 out of date for 2.9 and later but you might be able to
 adapt them)
