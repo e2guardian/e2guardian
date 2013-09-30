@@ -356,7 +356,12 @@ bool FOptionContainer::read(const char *filename)
                 if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
                         return false;
                 }
-	
+		
+                if (reporting_level == 0) {
+                       std::cerr << "Reporting_level is : " << reporting_level << " file " << filename << std::endl;
+                       syslog(LOG_ERR, "Reporting_level is : %d file %s", reporting_level, filename);
+                }
+
 
                long temp_max_upload_size;
                temp_max_upload_size = findoptionI("maxuploadsize");
