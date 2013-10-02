@@ -3039,6 +3039,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 			data += cr;
 		data += urlparams + cr;
 		data += postdata.str().c_str() + cr;
+		data += String(message_no)+cr;
 
 #ifdef DGDEBUG   
 		std::cout << dbgPeerPort << " -...built" << std::endl;

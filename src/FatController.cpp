@@ -1072,7 +1072,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	//String where, what, how;
 	std::string cr("\n");
    
-	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params;
+	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
 	std::string stype, postdata;
 	int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
 	int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
@@ -1098,6 +1098,20 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	fd_set fdcpy;  // select modifies the set so we need to use a copy
 	FD_ZERO(&fdSet);  // clear the set
 	FD_SET(ipcsockfd, &fdSet);  // add ipcsock to the set
+
+
+// Get server name - only needed for format 5
+	String server("");
+	if ( o.log_file_format == 5 ) {
+		char sysname[256];
+		int r;
+                r = gethostname(sysname, 256);
+		if ( r == 0 ) {
+			server = sysname;
+			server = server.before(".");
+		}
+	}
+
 	while (true) {		// loop, essentially, for ever
 		fdcpy = fdSet;  // take a copy
 		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, NULL);  // block
@@ -1140,7 +1154,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			bool error = false;
 			int itemcount = 0;
 			
-			while(itemcount < 27) {
+			while(itemcount < 28) {
 				try {
 					// Loop around reading in data, because we might have huge URLs
 					std::string logline;
@@ -1250,6 +1264,10 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 						break;
 					case 26:
 						postdata = logline;
+						break;
+					case 27:
+						message_no = logline;
+						break;
 					}
 				}
 				catch(std::exception & e) {
@@ -1307,7 +1325,13 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 				what = "*DENIED" + stype + "* " + what;
 			}
 			else if (isexception && (o.log_exception_hits == 2)) {
+#ifdef LEGACY_LOG
 				what = "*EXCEPTION* " + what;
+#else
+				what = "*TRUSTED* " + what;
+#endif
+
+
 			}
 		   
 			if (wasinfected)
@@ -1464,11 +1488,43 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					+ stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" + o.fg[filtergroup]->name + "\",\""
 					+ useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" + postdata + "\"";
 				break;
-			default:
+			case 1:
 				builtline = when +" "+ who + " " + from + " " + where + " " + what + " "
 					+ how + " " + ssize + " " + sweight + " " + cat +  " " + stringgroup + " "
 					+ stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
 					+ useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+				break;
+			case 5:
+			case 6:
+			default:
+					std::string duration;
+					long durationsecs, durationusecs;
+					durationsecs = (theend.tv_sec - tv_sec);
+					durationusecs = theend.tv_usec - tv_usec;
+					durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+					String temp((int) durationusecs);
+					duration = temp;
+
+				builtline = utime + "\t"
+					+ server + "\t" 
+					+ who + "\t" 
+					+ from + "\t" 
+					+ clienthost + "\t" 
+					+ where + "\t" 
+					+ how + "\t" 
+					+ stringcode + "\t" 
+					+ ssize + "\t" 
+					+ mimetype + "\t" 
+					+ (o.log_user_agent ? useragent : "-") + "\t"
+					+ "-\t"   // squid result code
+					+ duration + "\t"
+					+ "-\t"   // squid peer code
+					+ message_no + "\t"   // dg message no
+					+ what + "\t" 
+					+ sweight + "\t" 
+					+ cat +  "\t" 
+					+ o.fg[filtergroup]->name + "\t" 
+					+ stringgroup ;
 			}
 
 			if (!logsyslog)
