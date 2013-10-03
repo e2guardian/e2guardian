@@ -54,6 +54,7 @@ public:
 	int preserve_case;
 	bool hex_decode_content;
 	bool force_quick_search;
+	bool map_auth_to_ports;
 	int filter_port;
 	int proxy_port;
 	std::string proxy_ip;

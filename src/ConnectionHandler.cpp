@@ -534,6 +534,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				urlparams.clear();
 				postparts.clear();
 				docsize = 0;  // to store the size of the returned document for logging
+				message_no = 0;
 				mimetype = "-";
 				exceptionreason = "";
 				exceptioncat = "";
@@ -654,23 +655,28 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						// auth plugin selection for multi ports
 //
 //
-// Logic will not work for Protex??? - add switch????  - PIP
+// Logic changed to allow auth scan with multiple ports as option to auth-port 
+//       fixed mapping
 //
-//
- 					 	if (o.filter_ports.size() > 1) {
+						if (o.map_auth_to_ports) {
+ 					 	    if (o.filter_ports.size() > 1) {
  							tmp = o.auth_map[peerconn.getPort()];
- 						}
- 						else { 
+ 						    }
+ 						    else { 
  							// auth plugin selection for one port
  							tmp = o.auth_map[authloop];
  							authloop++;
- 						}
+ 						    }
 
-						if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
+						    if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
 							rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
-						}
-						else {
+						    }
+						    else {
 							rc = DGAUTH_NOMATCH;
+						    }
+						} 
+						else {
+						    rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
 						}
 
 						if (rc == DGAUTH_NOMATCH) {

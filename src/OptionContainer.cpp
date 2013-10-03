@@ -411,6 +411,12 @@ bool OptionContainer::read(const char *filename, int type)
 			force_quick_search = false;
 		}
 		
+		if (findoptionS("mapauthtoports") == "off") {
+			map_auth_to_ports = false;
+		} else {
+			map_auth_to_ports  = true;
+		}
+		
 		if (findoptionS("usecustombannedimage") == "off") {
 			use_custom_banned_image = false;
 		} else {
