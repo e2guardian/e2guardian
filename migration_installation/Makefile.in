@@ -82,7 +82,6 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = lists downloadmanagers authplugins . contentscanners
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -231,8 +230,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in \
                        installation_or_migration_from_dg.sh 
-
-SUBDIRS = lists downloadmanagers authplugins . $(am__append_1)
+SUBDIRS = 
 FLISTS = installation_or_migration_from_dg.sh
 EXTRA_DIST = installation_or_migration_from_dg.sh.in
 all: all-recursive

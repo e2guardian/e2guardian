@@ -6,7 +6,7 @@
 
 #ifndef __HPP_REGEXP
 #define __HPP_REGEXP
-
+#define MAX_SUB_EXPRESSIONS 1024
 
 // INCLUDES
 
