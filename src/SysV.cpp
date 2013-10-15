@@ -124,7 +124,7 @@ int sysv_kill(std::string pidfile, bool dounlink)
 		}
 		return 0;
 	}
-	std::cerr << "No DansGuardian process found." << std::endl;
+	std::cerr << "No e2guardian process found." << std::endl;
 	return 1;
 }
 
@@ -143,7 +143,7 @@ int sysv_hup(std::string pidfile)
 		}
 		return 0;
 	}
-	std::cerr << "No DansGuardian process found." << std::endl;
+	std::cerr << "No e2guardian process found." << std::endl;
 	return 1;
 }
 
@@ -162,7 +162,7 @@ int sysv_usr1(std::string pidfile)
 		}
 		return 0;
 	}
-	std::cerr << "No DansGuardian process found." << std::endl;
+	std::cerr << "No e2guardian process found." << std::endl;
 	return 1;
 }
 
@@ -171,10 +171,10 @@ int sysv_showpid(std::string pidfile)
 {
 	pid_t p = getpid(pidfile);
 	if (p > 1) {
-		std::cout << "Parent DansGuardian pid:" << p << std::endl;
+		std::cout << "Parent e2guardian pid:" << p << std::endl;
 		return 0;
 	}
-	std::cerr << "No DansGuardian process found." << std::endl;
+	std::cerr << "No e2guardian process found." << std::endl;
 	return 1;
 }
 
