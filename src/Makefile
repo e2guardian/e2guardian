@@ -87,7 +87,7 @@ am__e2guardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 	downloadmanagers/default.cpp downloadmanagers/fancy.cpp \
 	downloadmanagers/trickle.cpp authplugins/proxy.cpp \
 	authplugins/ident.cpp authplugins/ip.cpp authplugins/ntlm.cpp \
-	authplugins/digest.cpp
+	authplugins/digest.cpp authplugins/port.cpp authplugins/dnsauth.cpp
 #am__objects_1 = e2guardian-icapscan.$(OBJEXT)
 #am__objects_2 = e2guardian-kavdscan.$(OBJEXT)
 #am__objects_3 = e2guardian-clamdscan.$(OBJEXT)
@@ -98,7 +98,7 @@ am__objects_7 = e2guardian-fancy.$(OBJEXT)
 #am__objects_8 = e2guardian-trickle.$(OBJEXT)
 am__objects_9 = e2guardian-proxy.$(OBJEXT)
 am__objects_10 = e2guardian-ident.$(OBJEXT)
-am__objects_11 = e2guardian-ip.$(OBJEXT)
+am__objects_11 = e2guardian-ip.$(OBJEXT) e2guardian-port.$(OBJEXT)
 #am__objects_12 = e2guardian-ntlm.$(OBJEXT)
 am__objects_13 = e2guardian-digest.$(OBJEXT)
 am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
@@ -181,7 +181,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2 
 CYGPATH_W = echo
-DEFS = -DHAVE_CONFIG_H
+DEFS = -DHAVE_CONFIG_H -DSEARCHWORDS
 DEPDIR = .deps
 DGBINDIR = /usr/local/sbin
 DGCONFDIR = /usr/local/etc/e2guardian
@@ -489,6 +489,7 @@ include ./$(DEPDIR)/e2guardian-fancy.Po
 include ./$(DEPDIR)/e2guardian-icapscan.Po
 include ./$(DEPDIR)/e2guardian-ident.Po
 include ./$(DEPDIR)/e2guardian-ip.Po
+include ./$(DEPDIR)/e2guardian-port.Po
 include ./$(DEPDIR)/e2guardian-kavdscan.Po
 include ./$(DEPDIR)/e2guardian-md5.Po
 include ./$(DEPDIR)/e2guardian-ntlm.Po
@@ -1110,6 +1111,20 @@ e2guardian-ip.obj: authplugins/ip.cpp
 #	source='authplugins/ip.cpp' object='e2guardian-ip.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-ip.obj `if test -f 'authplugins/ip.cpp'; then $(CYGPATH_W) 'authplugins/ip.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/ip.cpp'; fi`
+
+e2guardian-port.o: authplugins/port.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-port.o -MD -MP -MF $(DEPDIR)/e2guardian-port.Tpo -c -o e2guardian-port.o `test -f 'authplugins/port.cpp' || echo '$(srcdir)/'`authplugins/port.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-port.Tpo $(DEPDIR)/e2guardian-port.Po
+#	source='authplugins/port.cpp' object='e2guardian-port.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-port.o `test -f 'authplugins/port.cpp' || echo '$(srcdir)/'`authplugins/port.cpp
+
+e2guardian-port.obj: authplugins/port.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-port.obj -MD -MP -MF $(DEPDIR)/e2guardian-port.Tpo -c -o e2guardian-port.obj `if test -f 'authplugins/port.cpp'; then $(CYGPATH_W) 'authplugins/port.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/port.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-port.Tpo $(DEPDIR)/e2guardian-port.Po
+#	source='authplugins/port.cpp' object='e2guardian-port.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-port.obj `if test -f 'authplugins/port.cpp'; then $(CYGPATH_W) 'authplugins/port.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/port.cpp'; fi`
 
 e2guardian-ntlm.o: authplugins/ntlm.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ntlm.o -MD -MP -MF $(DEPDIR)/e2guardian-ntlm.Tpo -c -o e2guardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp

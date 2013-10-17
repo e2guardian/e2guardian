@@ -82,6 +82,7 @@ public:
 	// see if search usl and set searchwords
 	bool isSearch(int filtergroup);
 	String searchwords();
+	String searchterms();
 	bool searchchecked;
 #endif
 	String contentEncoding();
@@ -105,6 +106,7 @@ public:
 	bool malformedURL(const String& url);
 	String getAuthType();
 	String getUrl(bool withport = false, bool isssl = false);
+	String url();
 
 
 #ifdef RXREDIRECTS  
@@ -190,6 +192,7 @@ private:
 #endif
 #ifdef SEARCHWORDS
 	std::string searchwds;
+	std::string searchtms;
 	bool issearch;
 #endif
 

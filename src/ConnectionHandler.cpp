@@ -3306,6 +3306,11 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
 	// NOTE dg/protex search term stuff needs combining!!!!
 
+	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
+	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
+	// order for regexes to be able to split up parameters reliably.
+	if (!is_ssl) {
+
 
 #ifdef SEARCHWORDS
 	(*checkme).isSearch = (*header).isSearch(filtergroup);
@@ -3323,15 +3328,9 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	}
 #endif
 
-
-	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
-	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
-	// order for regexes to be able to split up parameters reliably.
-	if (!is_ssl) {
-		// for now, just call it so we can see the debug output
+	if ((*checkme).isSearch) {
 		String terms;
-		bool extracted = o.fg[filtergroup]->extractSearchTerms(*url, terms);
-		if (extracted) {
+		terms = (*header).searchterms();
 			// search terms are URL parameter type "0"
 			urlparams.append("0=").append(terms).append(";");
 			if (o.fg[filtergroup]->searchterm_limit > 0) {
@@ -3350,7 +3349,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 					return;
 				}
 			}
-		}
 	}
 
 #ifdef __SSLCERT
@@ -3506,6 +3504,11 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	// NOTE dg/protex search term stuff needs combining!!!!
 
 
+	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
+	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
+	// order for regexes to be able to split up parameters reliably.
+	if (!is_ssl) {
+
 #ifdef SEARCHWORDS
 	(*checkme).isSearch = (*header).isSearch(filtergroup);
 	if ((*checkme).isSearch) {
@@ -3522,15 +3525,10 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	}
 #endif
 
-
-	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
-	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
-	// order for regexes to be able to split up parameters reliably.
-	if (!is_ssl) {
-		// for now, just call it so we can see the debug output
+// dg code
 		String terms;
-		bool extracted = o.fg[filtergroup]->extractSearchTerms(*url, terms);
-		if (extracted) {
+		if ((*checkme).isSearch) {
+		terms = (*header).searchterms();
 			// search terms are URL parameter type "0"
 			urlparams.append("0=").append(terms).append(";");
 			if (o.fg[filtergroup]->searchterm_limit > 0) {
@@ -3548,11 +3546,11 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 					checkme->blocktype = 2;
 					return;
 				}
-			}
 		}
 	}
 }
 #endif
+}
 
 // based on patch by Aecio F. Neto (afn@harvest.com.br) - Harvest Consultoria (http://www.harvest.com.br)
 // show the relevant banned page/image/CGI based on report level setting, request type etc.

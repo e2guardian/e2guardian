@@ -708,6 +708,7 @@ bool HTTPHeader::isSearch(int filtergroup) {
 #endif
 	String searchwd(url());
 	if (regExp(searchwd, o.fg[filtergroup]->search_regexp_list_comp, o.fg[filtergroup]->search_regexp_list_rep)) {
+		searchtms = searchwd.toCharArray();
 		searchwds = searchwd.sort_search().toCharArray();
 		issearch = true;
 		searchchecked = true;
@@ -723,10 +724,17 @@ bool HTTPHeader::isSearch(int filtergroup) {
 	return false;
 }
 
-// return searchwords
+// return searchwords - in sorted order
 String HTTPHeader::searchwords() {
 	if ( issearch ) 
 		return searchwds;
+	return "";
+};
+
+// return searchterms - not sorted
+String HTTPHeader::searchterms() {
+	if ( issearch ) 
+		return searchtms;
 	return "";
 };
 
@@ -1184,6 +1192,12 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 	if (!withport)
 		cachedurl = answer.toCharArray();
 	return answer;
+}
+
+
+String HTTPHeader::url()
+{
+	return getUrl();
 }
 
 // *
