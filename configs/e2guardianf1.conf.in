@@ -296,6 +296,16 @@ deepurlanalysis = off
 #
 #htmltemplate = 'custom.html'
 
+# Non standard delimiter (only used with accessdeniedaddress)
+# To help preserve the full banned URL, including parameters, the variables
+# passed into the access denied CGI are separated using non-standard
+# delimiters. This can be useful to ensure correct operation of the filter
+# bypass modes. Parameters are split using "::" in place of "&", and "==" in
+# place of "=".
+# Default is enabled, but to go back to the standard mode, disable it.
+
+#nonstandarddelimiter = off
+
 # Email reporting - original patch by J. Gauthier
 
 # Use SMTP

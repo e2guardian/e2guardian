@@ -3222,11 +3222,76 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 				// Man in the middle problem with Firefox and IE (can't rewrite ssl page)
 				// 307 redirection 
 
-			
+
 				if (o.fg[filtergroup]->sslaccess_denied_address.length() != 0) {
+			        // grab either the full category list or the thresholded list
+                		        std::string cats;
+		                        cats = checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories;
+					String hashed;
+                        	// generate valid hash locally if enabled
+                        		if (dohash) {
+                                		hashed = hashedURL(url, filtergroup, clientip, virushash);
+                        		}
+                        	// otherwise, just generate flags showing what to generate
+                        		else if (filterhash) {
+                                		hashed = "1";
+                        		}
+                        		else if (virushash) {
+                                		hashed = "2";
+                        		}
+
 				        String writestring("HTTP/1.1 307 Temporary Redirect\n");
                                         writestring += "Location: ";
                                         writestring +=  o.fg[filtergroup]->sslaccess_denied_address;  // banned site for ssl
+					if (o.fg[filtergroup]->non_standard_delimiter) {
+						writestring += "?DENIEDURL==";
+						writestring += miniURLEncode((*url).toCharArray()).c_str();
+						writestring += "::IP==";
+						writestring += (*clientip).c_str();
+						writestring += "::USER==";
+						writestring += (*clientuser).c_str();
+						if (clienthost != NULL) {
+							writestring += "::HOST==";
+							writestring += clienthost->c_str();
+						} 
+						writestring += "::CATEGORIES==";
+						writestring += miniURLEncode(cats.c_str()).c_str();
+						writestring += "::REASON==";
+					} else {
+						writestring += "?DENIEDURL=";
+						writestring += miniURLEncode((*url).toCharArray()).c_str();
+						writestring += "&IP=";
+						writestring += (*clientip).c_str();
+						writestring += "&USER=";
+						writestring += (*clientuser).c_str();
+						if (clienthost != NULL) {
+							writestring += "&HOST=";
+							writestring += clienthost->c_str();
+						} 
+						writestring += "&CATEGORIES=";
+						writestring += miniURLEncode(cats.c_str()).c_str();
+						writestring += "&REASON="; 
+				} 
+				
+				if (reporting_level == 1) {
+					writestring += miniURLEncode((*checkme).whatIsNaughty.c_str()).c_str();
+				} else {
+					writestring += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
+				} 
+				writestring += "\nContent-Length: 0";
+                                writestring += "\nCache-control: no-cache";
+                                writestring += "\nConnection: close\n";  
+                                try { // writestring throws exception on error/timeout
+                                	(*peerconn).writeString(writestring.toCharArray());
+                                }
+                                	catch(std::exception & e) {
+                                }
+#ifdef DGDEBUG			// debug stuff surprisingly enough
+				std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
+				std::cout << dbgPeerPort << writestring << std::endl;
+				std::cout << dbgPeerPort << " -*******" << std::endl;
+#endif
+/*
                                         writestring += "\nContent-Length: 0";
                                         writestring += "\nCache-control: no-cache";
                                         writestring += "\nConnection: close\n";
@@ -3235,6 +3300,8 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
                                         }
                                                 catch(std::exception & e) {
                                         }
+
+*/
 				} else {
 					// sadly blank page for user 
 					String writestring("HTTP/1.0 403 ");
@@ -3388,7 +3455,7 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 			writestring += "Location: ";
 			writestring += o.fg[filtergroup]->access_denied_address;
 
-			if (o.non_standard_delimiter) {
+			if (o.fg[filtergroup]->non_standard_delimiter) {
 				writestring += "?DENIEDURL==";
 				writestring += miniURLEncode((*url).toCharArray()).c_str();
 				writestring += "::IP==";

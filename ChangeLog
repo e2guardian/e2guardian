@@ -1,6 +1,8 @@
 September 2013 - E2Guardian 1(?)
 - Warning message about reporting level by Frederic Bourgeois
 - Fix Libcre crash by Russell coker from Debian
+- Added, full banned URL, including parameters, for sslaccesdenied By frederic Bourgeois 
+- Added, nonstandarddelimiter per filtergroupe By frederic Bourgeois
 
 June 2013 - DansGuardian 2.12.0.7
 - Added, DansGuardian now supports epoll (partial and Linux only), bringing large increases in performance and scalability to Linux System - By Philip Pearce (e2bn.org)

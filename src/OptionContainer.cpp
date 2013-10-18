@@ -548,11 +548,6 @@ bool OptionContainer::read(const char *filename, int type)
 		if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
 			return false;
 		}
-		if (findoptionS("nonstandarddelimiter") == "off") {
-			non_standard_delimiter = false;
-		} else {
-			non_standard_delimiter = true;
-		}
 		if (findoptionS("createlistcachefiles") == "off") {
 			createlistcachefiles = false;
 		} else {
