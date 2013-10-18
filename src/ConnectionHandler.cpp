@@ -4,7 +4,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-	#include "dgconfig.h"
+#include "dgconfig.h"
 #endif
 #include "ConnectionHandler.hpp"
 #include "DataBuffer.hpp"
@@ -3218,10 +3218,12 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 				// hundred bytes so we have to use a crap boring one
 				// instead.  Nothing can be done about it - blame
 				// mickysoft.
-				// FredB Fixed 2013 
-				// Man in the middle problem with Firefox and IE (can't rewrite ssl page)
-				// 307 redirection 
-
+				//
+				// FredB 2013 
+				// Wrong Microsoft is right, no data will be accepted without hand shake 
+				// This is a Man in the middle problem with Firefox and IE (can't rewrite a ssl page)
+				// 307 redirection Fix the problem for Firefox - only ? -
+				// TODO: I guess the right thing to do should be a - SSL - DENIED Webpage 307 redirect and direct"  
 
 				if (o.fg[filtergroup]->sslaccess_denied_address.length() != 0) {
 			        // grab either the full category list or the thresholded list
@@ -3291,19 +3293,9 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 				std::cout << dbgPeerPort << writestring << std::endl;
 				std::cout << dbgPeerPort << " -*******" << std::endl;
 #endif
-/*
-                                        writestring += "\nContent-Length: 0";
-                                        writestring += "\nCache-control: no-cache";
-                                        writestring += "\nConnection: close\n";
-					try {   // writestring throws exception on error/timeout
-                                                (*peerconn).writeString(writestring.toCharArray());
-                                        }
-                                                catch(std::exception & e) {
-                                        }
-
-*/
 				} else {
-					// sadly blank page for user 
+					// Broken, sadly blank page for user
+					// See comment above HTTPS
 					String writestring("HTTP/1.0 403 ");
                                 	writestring += o.language_list.getTranslation(500);  // banned site
                                		writestring += "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>DansGuardian - ";
