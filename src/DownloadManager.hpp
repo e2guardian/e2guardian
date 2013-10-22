@@ -20,7 +20,6 @@
 
 #include <stdexcept>
 
-
 // DECLARATIONS
 
 class DMPlugin;

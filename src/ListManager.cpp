@@ -15,7 +15,6 @@
 #include <ctime>
 #include <sys/stat.h>
 
-
 // GLOBALS
 
 extern bool is_daemonised;
