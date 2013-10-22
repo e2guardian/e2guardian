@@ -1,5 +1,7 @@
 September 2013 - e2guardian 1.1.0.1
 - URLs with # no longer truncated when reading lists
+- mapauthtoports conf option added - when off scans all auth plugs on every listening addr/port, when on maps auth plugins to addr/ports, default on
+
 June 2013 - DansGuardian 2.12.0.7
 - Added, DansGuardian now supports epoll (partial and Linux only), bringing large increases in performance and scalability to Linux System - By Philip Pearce (e2bn.org)
 This feature must be used with --with-filedescriptors=N compile option
