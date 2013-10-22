@@ -662,8 +662,8 @@ void mopup_afterkids()
 
 	std::cout << "mopup deleting child" << pid  << std::endl;
 #endif
-		deletechild((int) pid);
 #endif
+		deletechild((int) pid);
 	}
 }
 
