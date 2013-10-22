@@ -1120,6 +1120,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				break;
 			}
 
+			char *retchar;
+
 			// being a banned user/IP overrides the fact that a site may be in the exception lists
 			// needn't check these lists in bypass modes
 			if (!(isbanneduser || isbannedip || isbypass)) {
@@ -1139,32 +1141,32 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				}
 #ifdef LOCAL_LISTS
 #ifdef SSL_EXTRA_LISTS
-				else if (is_ssl && ((retchar = (o.fg[filtergroup]).inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+				else if (is_ssl && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(580);  // banned site
 					message_no = 580;
 					checkme.whatIsNaughty += retchar;
 					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
 					checkme.isItNaughty = true;
-					checkme.whatIsNaughtyCategories = (*o.lm.l[(o.fg[filtergroup]).local_banned_ssl_site_list]).lastcategory.toCharArray();
+					checkme.whatIsNaughtyCategories = (*o.lm.l[o.fg[filtergroup]->local_banned_ssl_site_list]).lastcategory.toCharArray();
 				}
 #endif
-				else if ((o.fg[filtergroup]).inLocalExceptionSiteList(urld, false, is_ip, is_ssl)) {	// allowed site
-					if ((o.fg[0]).isOurWebserver(url)) {
+				else if (o.fg[filtergroup]->inLocalExceptionSiteList(urld, false, is_ip, is_ssl)) {	// allowed site
+					if (o.fg[0]->isOurWebserver(url)) {
 						isourwebserver = true;
 					} else {
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(662);
 						message_no = 662;
 						// Exception site match.
-						exceptioncat = (o.lm.l[(o.fg[filtergroup]).local_exception_site_list]).lastcategory.toCharArray();
+						exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_site_list]->lastcategory.toCharArray();
 					}
 				}
-				else if ((o.fg[filtergroup]).inLocalExceptionURLList(urld, false, is_ip, is_ssl)) {	// allowed url
+				else if (o.fg[filtergroup]->inLocalExceptionURLList(urld, false, is_ip, is_ssl)) {	// allowed url
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(663);
 					message_no = 663;
 					// Exception url match.
-					exceptioncat = (o.lm.l[(o.fg[filtergroup]).local_exception_url_list]).lastcategory.toCharArray();
+					exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 				} 
 #ifdef REFEREREXCEPT
 				else if ((o.fg[filtergroup]).inRefererExceptionLists(header.getReferer())) { // referer exception
@@ -1178,7 +1180,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				    // check if this is a search request
 				    checkme.isSearch = header.isSearch(filtergroup);
 				    // add local grey and black checks
-				    requestLocalChecks(&header, &checkme, &urld, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip);
+				    requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
 				    message_no = checkme.message_no;
 				};
 #endif
@@ -1194,9 +1196,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					checkme.whatIsNaughty += retchar;
 					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
 					checkme.isItNaughty = true;
-					checkme.whatIsNaughtyCategories = (o.lm.l[(o.fg[filtergroup]).banned_ssl_site_list]).lastcategory.toCharArray();
+					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
 				}
-				else if ((o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
+				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
 #else
 				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
 #endif
@@ -3415,7 +3417,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
 	}
 #endif //__SSLCERT
-
+    }
 }
 
 
@@ -3465,7 +3467,7 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	// search term blocking - MOVED to after Banned checks
 
 
-	if ( !(*checkme).isGrey ) 
+	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inLocalGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inLocalGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
 	}

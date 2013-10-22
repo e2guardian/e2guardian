@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 	is_daemonised = false;
 	bool nodaemon = false;
 	bool needreset = false;
+	bool total_block_list = false;
 	std::string configfile(__CONFFILE);
 	srand(time(NULL));
 	int rc;

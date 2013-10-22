@@ -83,7 +83,7 @@ private:
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
 
 #ifdef LOCAL_LISTS
-	void requestLocalChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, std::string *clientip,
+	void requestLocalChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url, std::string *clientip,
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
 #endif
 	// strip the URL down to just the IP/hostname, then do an isIPHostname on the result

@@ -98,7 +98,7 @@ am__objects_7 = e2guardian-fancy.$(OBJEXT)
 #am__objects_8 = e2guardian-trickle.$(OBJEXT)
 am__objects_9 = e2guardian-proxy.$(OBJEXT)
 am__objects_10 = e2guardian-ident.$(OBJEXT)
-am__objects_11 = e2guardian-ip.$(OBJEXT) e2guardian-port.$(OBJEXT)
+am__objects_11 = e2guardian-ip.$(OBJEXT) e2guardian-port.$(OBJEXT) e2guardian-dnsauth.$(OBJEXT)
 #am__objects_12 = e2guardian-ntlm.$(OBJEXT)
 am__objects_13 = e2guardian-digest.$(OBJEXT)
 am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
@@ -181,7 +181,7 @@ CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2 
 CYGPATH_W = echo
-DEFS = -DHAVE_CONFIG_H -DSEARCHWORDS
+DEFS = -DHAVE_CONFIG_H -DSEARCHWORDS -DPRT_DNSAUTH -DTOTAL_BLOCK_LIST -DLOCAL_LISTS -DREFEREXCEPT -DRXREDIRECTS -DADDHEADER -DSSL_EXTRA_LISTS
 DEPDIR = .deps
 DGBINDIR = /usr/local/sbin
 DGCONFDIR = /usr/local/etc/e2guardian
@@ -209,7 +209,7 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 KAVDSUPPORT = !! Not compiled !! 
 LDFLAGS =  
 LIBOBJS = 
-LIBS = -lz  
+LIBS = -lz  /usr/lib64/libresolv.a
 LN_S = ln -s
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/philip/e2guardian/v0.9/missing --run makeinfo
@@ -490,6 +490,7 @@ include ./$(DEPDIR)/e2guardian-icapscan.Po
 include ./$(DEPDIR)/e2guardian-ident.Po
 include ./$(DEPDIR)/e2guardian-ip.Po
 include ./$(DEPDIR)/e2guardian-port.Po
+#include ./$(DEPDIR)/e2guardian-dnsauth.Po
 include ./$(DEPDIR)/e2guardian-kavdscan.Po
 include ./$(DEPDIR)/e2guardian-md5.Po
 include ./$(DEPDIR)/e2guardian-ntlm.Po
@@ -1125,6 +1126,21 @@ e2guardian-port.obj: authplugins/port.cpp
 #	source='authplugins/port.cpp' object='e2guardian-port.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-port.obj `if test -f 'authplugins/port.cpp'; then $(CYGPATH_W) 'authplugins/port.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/port.cpp'; fi`
+
+
+e2guardian-dnsauth.o: authplugins/dnsauth.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-dnsauth.o -MD -MP -MF $(DEPDIR)/e2guardian-dnsauth.Tpo -c -o e2guardian-dnsauth.o `test -f 'authplugins/dnsauth.cpp' || echo '$(srcdir)/'`authplugins/dnsauth.cpp
+	$(am__mv) $(DEPDIR)/e2guardian-dnsauth.Tpo $(DEPDIR)/e2guardian-dnsauth.Po
+#	source='authplugins/dnsauth.cpp' object='e2guardian-dnsauth.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-dnsauth.o `test -f 'authplugins/dnsauth.cpp' || echo '$(srcdir)/'`authplugins/dnsauth.cpp
+
+e2guardian-dnsauth.obj: authplugins/dnsauth.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-dnsauth.obj -MD -MP -MF $(DEPDIR)/e2guardian-dnsauth.Tpo -c -o e2guardian-dnsauth.obj `if test -f 'authplugins/dnsauth.cpp'; then $(CYGPATH_W) 'authplugins/dnsauth.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/dnsauth.cpp'; fi`
+	$(am__mv) $(DEPDIR)/e2guardian-dnsauth.Tpo $(DEPDIR)/e2guardian-dnsauth.Po
+#	source='authplugins/dnsauth.cpp' object='e2guardian-dnsauth.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-dnsauth.obj `if test -f 'authplugins/dnsauth.cpp'; then $(CYGPATH_W) 'authplugins/dnsauth.cpp'; else $(CYGPATH_W) '$(srcdir)/authplugins/dnsauth.cpp'; fi`
 
 e2guardian-ntlm.o: authplugins/ntlm.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-ntlm.o -MD -MP -MF $(DEPDIR)/e2guardian-ntlm.Tpo -c -o e2guardian-ntlm.o `test -f 'authplugins/ntlm.cpp' || echo '$(srcdir)/'`authplugins/ntlm.cpp

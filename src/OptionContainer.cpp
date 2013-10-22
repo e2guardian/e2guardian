@@ -25,6 +25,9 @@
 
 extern bool is_daemonised;
 
+ListContainer total_block_site_list;
+ListContainer total_block_url_list;
+
 
 // IMPLEMENTATION
 
