@@ -414,6 +414,12 @@ bool OptionContainer::read(const char *filename, int type)
 			force_quick_search = false;
 		}
 		
+		if (findoptionS("mapportstoips") == "off") {
+			map_ports_to_ips = false;
+		} else {
+			map_ports_to_ips  = true;
+		}
+		
 		if (findoptionS("mapauthtoports") == "off") {
 			map_auth_to_ports = false;
 		} else {
@@ -452,7 +458,7 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}
 		filter_ports = findoptionM("filterports");
-		if (filter_ports.size() != filter_ip.size()) {
+		if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
 			if (!is_daemonised) {
 				std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips (" << filter_ip.size() << ")" << std::endl;
 			}
@@ -659,14 +665,14 @@ bool OptionContainer::read(const char *filename, int type)
 			AuthPlugin* tmpPlugin = (AuthPlugin*) authplugins[i];
 			String tmpStr = tmpPlugin->getPluginName();
 
-			if (filter_ports.size() == 1 )
+			if ((! map_auth_to_ports) || filter_ports.size() == 1 )
 				auth_map[i] = tmpStr;	
 			else
 				auth_map[filter_ports[i].toInteger()] = tmpStr;
 		}
 
 		// if the more than one port is being used, validate the combination of auth plugins
-		if (authplugins.size() > 1 and filter_ports.size() > 1) {
+		if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports ) {
 			std::deque<Plugin*>::iterator it = authplugins.begin();
 			String firstPlugin;
 			bool sslused = false;

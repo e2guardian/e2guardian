@@ -49,7 +49,33 @@ int SocketArray::bindSingle(int port)
 	if (socknum < 1) {
 		return -1;
 	}
+#ifdef DGDEBUG
+		std::cerr << "bindSingle binding port" << port  << std::endl;
+#endif
 	return drawer[0].bind(port);
+}
+
+// bind our first socket to any IP and one or more ports
+int SocketArray::bindSingleM(std::deque<String> &ports)
+{
+	if (socknum < ports.size()) {
+		return -1;
+	}
+	for (unsigned int i = 0; i < socknum; i++) {
+#ifdef DGDEBUG
+		std::cerr << "bindSingleM binding port" << ports[i]  << std::endl;
+#endif
+		if (drawer[i].bind(ports[i].toInteger())) {
+			if (!is_daemonised) {
+				std::cerr << "Error binding server socket: ["
+					<< ports[i] << " "  << i << "] (" << strerror(errno) << ")" << std::endl;
+			}
+			String p = ports[i];
+			syslog(LOG_ERR, "Error binding socket: [%s %d] (%s)", p.toCharArray(), i, strerror(errno));
+			return -1;
+		}
+	}
+	return 0;
 }
 
 // return an array of our socket FDs

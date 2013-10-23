@@ -1563,7 +1563,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 								fprintf(mail, "To: %s\n", o.fg[filtergroup]->avadmin.c_str());
 								fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
 								fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->avsubject.c_str());
-								fprintf(mail, "A virus was detected by DansGuardian.\n\n");
+								fprintf(mail, "A virus was detected by e2guardian.\n\n");
 								fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
 								if (who != "-")
 									fprintf(mail, "%-10s%s\n", "User:", who.c_str());
@@ -2033,7 +2033,17 @@ int fc_controlit()
 	o.lm.garbageCollect();
 
 	// allocate & create our server sockets
-	serversocketcount = o.filter_ip.size();
+	if (o.map_ports_to_ips) {
+		serversocketcount = o.filter_ip.size();
+	} 
+	else {
+             if ( o.filter_ip.size() > 0 ) {
+	     	serversocketcount = o.filter_ip.size() * o.filter_ports.size();
+	     }
+	     else {
+		serversocketcount = o.filter_ports.size();
+     	     }
+	}
 
 	serversockets.reset(serversocketcount);
 	int *serversockfds = serversockets.getFDAll();
@@ -2128,15 +2138,28 @@ int fc_controlit()
 		return 1;
 		}
 	} else {
-		// listen/bind to a port on any interface
-		if (serversockets.bindSingle(o.filter_port)) {
-			if (!is_daemonised) {
-				std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
+		// listen/bind to a port (or ports) on any interface
+		if (o.map_ports_to_ips) {
+			if (serversockets.bindSingle(o.filter_port)) {
+				if (!is_daemonised) {
+					std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
+				}
+				syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
+				close(pidfilefd);
+				free(serversockfds);
+				return 1;
 			}
-			syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
+		}
+		else {
+			if (serversockets.bindSingleM(o.filter_ports)) {
+				if (!is_daemonised) {
+					std::cerr << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
+				}
+				syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
+				close(pidfilefd);
+				free(serversockfds);
+				return 1;
+			}
 		}
 	}
 
@@ -2168,9 +2191,9 @@ int fc_controlit()
 	if (!o.no_logger) {
 		if (loggersock.bind(o.ipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding ipc server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
+				std::cerr << "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;
@@ -2190,9 +2213,9 @@ int fc_controlit()
 	if (o.url_cache_number > 0) {
 		if (urllistsock.bind(o.urlipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding urllistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
+				std::cerr << "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;
@@ -2212,9 +2235,9 @@ int fc_controlit()
 	if (o.max_ips > 0) {
 		if (iplistsock.bind(o.ipipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding iplistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
+				std::cerr << "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;

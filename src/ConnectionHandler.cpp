@@ -552,6 +552,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				// our filter
 				checkme.reset();
 			}
+#ifdef __SSLMITM
+			url = header.getUrl(false, peerconn.isSsl());
+#else
+			url = header.getUrl(false, false);
+#endif
+			urld = header.decode(url);
+			urldomain = url.getHostname();
 
 			// checks for bad URLs to prevent security holes/domain obfuscation.
 			if (header.malformedURL(url))
@@ -818,7 +825,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			// filter group modes are: 0 = banned, 1 = filtered, 2 = exception.
 			// is this user banned?
 			isbanneduser = (gmode == 0);
-
+/* moved to before auth check
 #ifdef __SSLMITM
 			url = header.getUrl(false, peerconn.isSsl());
 #else
@@ -826,6 +833,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 			urld = header.decode(url);
 			urldomain = url.getHostname();
+*/
 
 /* moved to before auth check
 			// checks for bad URLs to prevent security holes/domain obfuscation.
@@ -3561,6 +3569,11 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 	bool ispostblock, int headersent, bool wasinfected, bool scanerror, bool forceshow)
 {
 	int reporting_level = o.fg[filtergroup]->reporting_level;
+#ifdef DGDEBUG
+
+				std::cout << dbgPeerPort << " -reporting level is " << reporting_level << std::endl;
+
+#endif
 
 	try {  // writestring throws exception on error/timeout
 
