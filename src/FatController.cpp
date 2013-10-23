@@ -423,11 +423,11 @@ int prefork(int num)
 #ifdef linux
 /* Epoll linux only */
 		if ( sv[0] >= fds ) {
-	    		if (o.logchildprocs)
-		 		syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
-			close(sv[0]);
-			kill(child_pid,SIGTERM);
-			return(1);
+	    	if (o.logchildprocs)
+			syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
+		close(sv[0]);
+		kill(child_pid,SIGTERM);
+		return(1);
 		};
 #else
 		/* Fix BSD Crash -but  why we need "out of bound" checking/correction for getchildslot() ? -- */
@@ -446,7 +446,6 @@ int prefork(int num)
                         kill(child_pid,SIGTERM);
                         return(1);
                 }
-
 #endif
 
 #ifdef linux
@@ -675,8 +674,8 @@ void mopup_afterkids()
 
 	std::cout << "mopup deleting child" << pid  << std::endl;
 #endif
-		deletechild((int) pid);
 #endif
+	deletechild((int) pid);
 	}
 }
 

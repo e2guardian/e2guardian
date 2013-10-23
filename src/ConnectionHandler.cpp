@@ -1582,13 +1582,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			else
 #endif //__SSLMITM
                 // Banned rewrite SSL denied page 
-				bool is_ssl = header.requestType() == "CONNECT";
-            	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
-                	header.DenySSL(filtergroup);
-                    String rtype(header.requestType());
+			bool is_ssl = header.requestType() == "CONNECT";
+            		if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
+                		header.DenySSL(filtergroup);
+                    		String rtype(header.requestType());
 			        doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
 					checkme.isItNaughty = false;
-                }
+                	}
 
 			if (!checkme.isItNaughty && isconnect) {
 				// can't filter content of CONNECT
