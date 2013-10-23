@@ -422,15 +422,16 @@ int prefork(int num)
 		// add the child and its FD/PID to an empty child slot
 #ifdef linux
 /* Epoll linux only */
+
 		if ( sv[0] >= fds ) {
-	    	if (o.logchildprocs)
-			syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
-		close(sv[0]);
-		kill(child_pid,SIGTERM);
-		return(1);
+	    		if (o.logchildprocs)
+				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
+			close(sv[0]);
+			kill(child_pid,SIGTERM);
+			return(1);
 		};
 #else
-		/* Fix BSD Crash -but  why we need "out of bound" checking/correction for getchildslot() ? -- */
+		/* Fix BSD Crash */
 
 		if ((child_slot = getchildslot()) >= 0) {
 			if (o.logchildprocs) {
