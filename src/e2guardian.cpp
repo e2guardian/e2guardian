@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 	/* Fix ugly crash */
 	/* Temporary sucurity protection about FD_SETSIZE limit - for all system now - later for no epoll system */
 
-	if ((DANS_MAXFD + 6) > FD_SETSIZE) {
+	if (DANS_MAXFD > FD_SETSIZE) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
 		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << " e2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;

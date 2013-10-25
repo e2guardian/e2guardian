@@ -6,7 +6,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-	#include "dgconfig.h"
+#include "dgconfig.h"
 #endif
 
 #include <sstream>
@@ -422,18 +422,31 @@ int prefork(int num)
 		// add the child and its FD/PID to an empty child slot
 #ifdef linux
 /* Epoll linux only */
+
 		if ( sv[0] >= fds ) {
-	    	    if (o.logchildprocs)
-			    	syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
-				close(sv[0]);
-				kill(child_pid,SIGTERM);
-				return(1);
+	    		if (o.logchildprocs)
+				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
+			close(sv[0]);
+			kill(child_pid,SIGTERM);
+			return(1);
 		};
 #else
-		if ((child_slot = getchildslot()) >= 0) {
-				addchild(child_slot, sv[0], child_pid);
+		/* Fix BSD Crash */
 
-		};  
+		if ((child_slot = getchildslot()) >= 0) {
+			if (o.logchildprocs) {
+                                syslog(LOG_ERR, "Adding child to slot %d (pid %d)", child_slot, child_pid);
+                                }
+                	addchild(child_slot, sv[0], child_pid);
+                }
+                else {
+                	if (o.logchildprocs) {
+                        	syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], o.max_children);
+                        }
+                        close(sv[0]);
+                        kill(child_pid,SIGTERM);
+                        return(1);
+                }
 #endif
 
 #ifdef linux
@@ -662,8 +675,8 @@ void mopup_afterkids()
 
 	std::cout << "mopup deleting child" << pid  << std::endl;
 #endif
-		deletechild((int) pid);
 #endif
+	deletechild((int) pid);
 	}
 }
 

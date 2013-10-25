@@ -136,16 +136,6 @@ proxyport = 3128
 #
 accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
-# Non standard delimiter (only used with accessdeniedaddress)
-# To help preserve the full banned URL, including parameters, the variables
-# passed into the access denied CGI are separated using non-standard
-# delimiters. This can be useful to ensure correct operation of the filter
-# bypass modes. Parameters are split using "::" in place of "&", and "==" in
-# place of "=".
-# Default is enabled, but to go back to the standard mode, disable it.
-nonstandarddelimiter = on
-
-
 
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
@@ -559,23 +549,23 @@ logchildprocesshandling = off
 
 # sets the maximum number of processes to spawn to handle the incoming
 # connections.  Max value usually 250 depending on OS.
-# On large sites you might want to try 180.
-maxchildren = 120
+# On large sites you might want to try 380.
+maxchildren = 180
 
 
 # sets the minimum number of processes to spawn to handle the incoming connections.
-# On large sites you might want to try 32.
-minchildren = 8
+# On large sites you might want to try 64.
+minchildren = 20
 
 
 # sets the minimum number of processes to be kept ready to handle connections.
-# On large sites you might want to try 8.
-minsparechildren = 4
+# On large sites you might want to try 16.
+minsparechildren = 16
 
 
 # sets the minimum number of processes to spawn when it runs out
-# On large sites you might want to try 10.
-preforkchildren = 6
+# On large sites you might want to try 20.
+preforkchildren = 10
 
 
 # sets the maximum number of processes to have doing nothing.
@@ -594,7 +584,6 @@ maxagechildren = 500
 # Use this to set a hard limit on the number of users allowed to concurrently
 # browse the web. Set to 0 for no limit, and to disable the IP cache process.
 maxips = 0
-
 
 
 # Process options

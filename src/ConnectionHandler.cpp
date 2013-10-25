@@ -4,7 +4,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-	#include "dgconfig.h"
+#include "dgconfig.h"
 #endif
 #include "ConnectionHandler.hpp"
 #include "DataBuffer.hpp"
@@ -1582,13 +1582,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			else
 #endif //__SSLMITM
                 // Banned rewrite SSL denied page 
-				bool is_ssl = header.requestType() == "CONNECT";
-            	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
-                	header.DenySSL(filtergroup);
-                    String rtype(header.requestType());
+			bool is_ssl = header.requestType() == "CONNECT";
+            		if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
+                		header.DenySSL(filtergroup);
+                    		String rtype(header.requestType());
 			        doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
 					checkme.isItNaughty = false;
-                }
+                	}
 
 			if (!checkme.isItNaughty && isconnect) {
 				// can't filter content of CONNECT
@@ -3218,25 +3218,84 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 				// hundred bytes so we have to use a crap boring one
 				// instead.  Nothing can be done about it - blame
 				// mickysoft.
-				// FredB Fixed 2013 
-				// Man in the middle problem with Firefox and IE (can't rewrite ssl page)
-				// 307 redirection 
+				//
+				// FredB 2013 
+				// Wrong Microsoft is right, no data will be accepted without hand shake 
+				// This is a Man in the middle problem with Firefox and IE (can't rewrite a ssl page)
+				// 307 redirection Fix the problem for Firefox - only ? -
+				// TODO: I guess the right thing to do should be a - SSL - DENIED Webpage 307 redirect and direct"  
 
-			
 				if (o.fg[filtergroup]->sslaccess_denied_address.length() != 0) {
+			        // grab either the full category list or the thresholded list
+                		        std::string cats;
+		                        cats = checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories;
+					String hashed;
+                        	// generate valid hash locally if enabled
+                        		if (dohash) {
+                                		hashed = hashedURL(url, filtergroup, clientip, virushash);
+                        		}
+                        	// otherwise, just generate flags showing what to generate
+                        		else if (filterhash) {
+                                		hashed = "1";
+                        		}
+                        		else if (virushash) {
+                                		hashed = "2";
+                        		}
+
 				        String writestring("HTTP/1.1 307 Temporary Redirect\n");
                                         writestring += "Location: ";
                                         writestring +=  o.fg[filtergroup]->sslaccess_denied_address;  // banned site for ssl
-                                        writestring += "\nContent-Length: 0";
-                                        writestring += "\nCache-control: no-cache";
-                                        writestring += "\nConnection: close\n";
-					try {   // writestring throws exception on error/timeout
-                                                (*peerconn).writeString(writestring.toCharArray());
-                                        }
-                                                catch(std::exception & e) {
-                                        }
+					if (o.fg[filtergroup]->non_standard_delimiter) {
+						writestring += "?DENIEDURL==";
+						writestring += miniURLEncode((*url).toCharArray()).c_str();
+						writestring += "::IP==";
+						writestring += (*clientip).c_str();
+						writestring += "::USER==";
+						writestring += (*clientuser).c_str();
+						if (clienthost != NULL) {
+							writestring += "::HOST==";
+							writestring += clienthost->c_str();
+						} 
+						writestring += "::CATEGORIES==";
+						writestring += miniURLEncode(cats.c_str()).c_str();
+						writestring += "::REASON==";
+					} else {
+						writestring += "?DENIEDURL=";
+						writestring += miniURLEncode((*url).toCharArray()).c_str();
+						writestring += "&IP=";
+						writestring += (*clientip).c_str();
+						writestring += "&USER=";
+						writestring += (*clientuser).c_str();
+						if (clienthost != NULL) {
+							writestring += "&HOST=";
+							writestring += clienthost->c_str();
+						} 
+						writestring += "&CATEGORIES=";
+						writestring += miniURLEncode(cats.c_str()).c_str();
+						writestring += "&REASON="; 
+				} 
+				
+				if (reporting_level == 1) {
+					writestring += miniURLEncode((*checkme).whatIsNaughty.c_str()).c_str();
 				} else {
-					// sadly blank page for user 
+					writestring += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
+				} 
+				writestring += "\nContent-Length: 0";
+                                writestring += "\nCache-control: no-cache";
+                                writestring += "\nConnection: close\n";  
+                                try { // writestring throws exception on error/timeout
+                                	(*peerconn).writeString(writestring.toCharArray());
+                                }
+                                	catch(std::exception & e) {
+                                }
+#ifdef DGDEBUG			// debug stuff surprisingly enough
+				std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
+				std::cout << dbgPeerPort << writestring << std::endl;
+				std::cout << dbgPeerPort << " -*******" << std::endl;
+#endif
+				} else {
+					// Broken, sadly blank page for user
+					// See comment above HTTPS
 					String writestring("HTTP/1.0 403 ");
                                 	writestring += o.language_list.getTranslation(500);  // banned site
                                		writestring += "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>DansGuardian - ";
@@ -3388,7 +3447,7 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 			writestring += "Location: ";
 			writestring += o.fg[filtergroup]->access_denied_address;
 
-			if (o.non_standard_delimiter) {
+			if (o.fg[filtergroup]->non_standard_delimiter) {
 				writestring += "?DENIEDURL==";
 				writestring += miniURLEncode((*url).toCharArray()).c_str();
 				writestring += "::IP==";

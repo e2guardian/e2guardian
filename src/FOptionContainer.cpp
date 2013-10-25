@@ -444,6 +444,13 @@ bool FOptionContainer::read(const char *filename)
                 		}	
 			}
 		}
+
+                if (findoptionS("nonstandarddelimiter") == "off") {
+                        non_standard_delimiter = false;
+                } else {
+                        non_standard_delimiter = true;
+                }
+
 		// group mode: 0 = banned, 1 = filtered, 2 = exception
 		group_mode = findoptionI("groupmode");
 		if ((group_mode < 0) || (group_mode > 2)) {

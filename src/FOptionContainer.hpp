@@ -44,6 +44,7 @@ public:
 	off_t max_upload_size;
 	bool deep_url_analysis;
         int filtergroup;
+	bool non_standard_delimiter;
 
 #ifdef __SSLCERT
 	//SSL certificate checking
