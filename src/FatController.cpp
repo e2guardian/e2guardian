@@ -1353,7 +1353,8 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			struct timeval theend;
 
 			// create a string representation of UNIX timestamp if desired
-			if (o.log_timestamp || (o.log_file_format == 3)) {
+			if (o.log_timestamp || (o.log_file_format == 3)
+			    || (o.log_file_format > 4)) {
 				gettimeofday(&theend, NULL);
 				String temp((int) (theend.tv_usec / 1000));
 				while (temp.length() < 3) {
