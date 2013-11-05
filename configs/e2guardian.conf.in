@@ -37,10 +37,13 @@ loglevel = 2
 logexceptionhits = 2
 
 # Log File Format
-# 1 = e2guardian format (space delimited)
+# 1 = Dansguardian format (space delimited)
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
+# 5 = Protex format
+# 6 = Protex format with server field blanked
+
 logfileformat = 1
 
 # truncate large items in log lines
