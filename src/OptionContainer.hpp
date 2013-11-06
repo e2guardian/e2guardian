@@ -34,6 +34,7 @@ public:
 	int log_exception_hits;
 	bool non_standard_delimiter;
 	int log_file_format;
+	int weighted_phrase_mode;  // PIP added in - not sure if still required
 	bool show_weighted_found;
 	bool forwarded_for;
 	bool createlistcachefiles;
@@ -53,6 +54,8 @@ public:
 	int preserve_case;
 	bool hex_decode_content;
 	bool force_quick_search;
+	bool map_auth_to_ports;
+	bool map_ports_to_ips;
 	int filter_port;
 	int proxy_port;
 	std::string proxy_ip;
@@ -83,6 +86,12 @@ public:
 	bool use_filter_groups_list;
 	bool use_group_names_list;
 	bool auth_needs_proxy_query;
+
+#ifdef TOTAL_BLOCK_LIST
+	bool total_block_site_flag;
+	bool total_block_url_flag;
+#endif
+
 	bool prefer_cached_lists;
 	std::string languagepath;
 	std::string filter_groups_list_location;
@@ -194,12 +203,20 @@ public:
 	void loadRooms();
 	void deleteRooms();
 
+#ifdef TOTAL_BLOCK_LIST
+	bool readStdin(ListContainer *lc, bool swsort, const char *listname, const char *startstr);
+	bool readinStdin();
+	char *inSiteList(String &url,ListContainer *lc, bool swsort, bool ip);
+	char *inURLList(String &url,ListContainer *lc, bool swsort, bool ip);
+	bool inTotalBlockList(String &url);
+	bool use_total_block_list;
+#endif
+
 private:
 	std::string per_room_blocking_directory_location;
 	std::deque<std::string> conffile;
 	String conffilename;
 	int reporting_level;
-	int weighted_phrase_mode;
 
 	std::string html_template_location;
 	std::string group_names_list_location;

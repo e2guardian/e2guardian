@@ -1,7 +1,4 @@
-# DansGuardian config file for version @PACKAGE_VERSION@
-
-# **NOTE** as of version 2.7.5 most of the list files are now in e2guardianf1.conf
-
+# e2guardian config file for version @PACKAGE_VERSION@
 
 # Web Access Denied Reporting (does not affect logging)
 #
@@ -15,7 +12,7 @@ reportinglevel = 3
 
 # Language dir where languages are stored for internationalisation.
 # The HTML template within this dir is only used when reportinglevel
-# is set to 3. When used, DansGuardian will display the HTML file instead of
+# is set to 3. When used, e2guardian will display the HTML file instead of
 # using the perl cgi script.  This option is faster, cleaner
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
@@ -40,10 +37,13 @@ loglevel = 2
 logexceptionhits = 2
 
 # Log File Format
-# 1 = DansGuardian format (space delimited)
+# 1 = Dansguardian format (space delimited)
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
+# 5 = Protex format
+# 6 = Protex format with server field blanked
+
 logfileformat = 1
 
 # truncate large items in log lines
@@ -88,25 +88,51 @@ logfileformat = 1
 
 # Network Settings
 # 
-# the IP that DansGuardian listens on.  If left blank DansGuardian will
+# the IP that e2guardian listens on.  If left blank e2guardian will
 # listen on all IPs.  That would include all NICs, loopback, modem, etc.
 # Normally you would have your firewall protecting this, but if you want
 # you can limit it to a certain IP. To bind to multiple interfaces,
 # specify each IP on an individual filterip line.
-# You can have the same IP twice so long as it has a different port.
+# If mapportstoips is 'on' you can have the same IP twice so long as 
+# it has a different port.
 filterip =
 
-# the ports that DansGuardian listens to.  Specify one line per filterip
-# line.  You can specify different authentication mechanisms per port but
+# the ports that e2guardian listens to.  Specify one line per filterip
+# line.  If both mapportstoips and mapauthtoports are set to 'on'
+# you can specify different authentication mechanisms per port but
 # only if the mechanisms can co-exist (e.g. basic/proxy auth can't)
 filterports = 8080
 #filterports = 8081
 
+# Map ports to IPs
+# If enabled map filterports to filterip - number of filterports must then be same as
+# number of filterip
+# If disabled will listen on all filterports on all filterips.
+# on (default) | off
+#mapportstoips= off
+
 # the ip of the proxy (default is the loopback - i.e. this server)
 proxyip = 127.0.0.1
 
-# the port DansGuardian connects to proxy on
+# the port e2guardian connects to proxy on
 proxyport = 3128
+
+# Proxy timeout 
+# Set tcp timeout between the Proxy and e2guardian 
+# Min 5 - Max 100
+proxytimeout = 20
+
+# Proxy header exchange
+# Set timeout between the Proxy and e2guardian 
+# Min 20 - Max 300
+proxyexchange = 20
+
+# Pconn timeout
+# how long a persistent connection will wait for other requests
+# squid apparently defaults to 1 minute (persistent_request_timeout),
+# so wait slightly less than this to avoid duff pconns.
+# Min 5 - Max 300
+pcontimeout = 55
 
 # Whether to retrieve the original destination IP in transparent proxy
 # setups and check it against the domain pulled from the HTTP headers.
@@ -156,7 +182,7 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 # Filter groups options
 # filtergroups sets the number of filter groups. A filter group is a set of content
 # filtering options you can apply to a group of users.  The value must be 1 or more.
-# DansGuardian will automatically look for e2guardianfN.conf where N is the filter
+# e2guardian will automatically look for e2guardianfN.conf where N is the filter
 # group.  To assign users to groups use the filtergroupslist option.  All users default
 # to filter group 1.  You must have some sort of authentication to be able to map users
 # to a group.  The more filter groups the more copies of the lists will be in RAM so
@@ -276,7 +302,7 @@ forcequicksearch = off
 
 
 # Reverse lookups for banned site and URLs.
-# If set to on, DansGuardian will look up the forward DNS for an IP URL
+# If set to on, e2guardian will look up the forward DNS for an IP URL
 # address and search for both in the banned site and URL lists.  This would
 # prevent a user from simply entering the IP for a banned address.
 # It will reduce searching speed somewhat so unless you have a local caching
@@ -287,7 +313,7 @@ reverseaddresslookups = off
 
 
 # Reverse lookups for banned and exception IP lists.
-# If set to on, DansGuardian will look up the forward DNS for the IP
+# If set to on, e2guardian will look up the forward DNS for the IP
 # of the connecting computer.  This means you can put in hostnames in
 # the exceptioniplist and bannediplist.
 # If a client computer is matched against an IP given in the lists, then the
@@ -299,7 +325,7 @@ reverseclientiplookups = off
 
 
 # Perform reverse lookups on client IPs for successful requests.
-# If set to on, DansGuardian will look up the forward DNS for the IP
+# If set to on, e2guardian will look up the forward DNS for the IP
 # of the connecting computer, and log host names (where available) rather than
 # IPs against requests.
 # This is not dependent on reverseclientiplookups being enabled; however, if it
@@ -320,7 +346,7 @@ createlistcachefiles = on
 
 
 # Prefer cached list files
-# If enabled, DansGuardian will always prefer to load ".processed" versions of
+# If enabled, e2guardian will always prefer to load ".processed" versions of
 # list files, regardless of their time stamps relative to the original
 # unprocessed lists.  This is not generally useful unless you have a specific
 # list update process which results in - for example - up-to-date, pre-sorted
@@ -361,23 +387,6 @@ maxcontentramcachescansize = 2000
 # This value must be greater or equal to maxcontentramcachescansize.
 # The size is in Kibibytes - eg 10240 = 10Mb
 maxcontentfilecachescansize = 20000
-
-# Proxy timeout 
-# Set tcp timeout between the Proxy and DansGuardian 
-# Min 5 - Max 100
-proxytimeout = 20
-
-# Proxy header exchange
-# Set timeout between the Proxy and DansGuardian 
-# Min 20 - Max 300
-proxyexchange = 20
-
-# Pconn timeout
-# how long a persistent connection will wait for other requests
-# squid apparently defaults to 1 minute (persistent_request_timeout),
-# so wait slightly less than this to avoid duff pconns.
-# Min 5 - Max 300
-pcontimeout = 55
 
 
 # File cache dir
@@ -453,7 +462,7 @@ downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
 # for example to AV scan.  The options are limitless.  Eventually all of
-# DansGuardian will be plugin based.  You can have more than one content
+# e2guardian will be plugin based.  You can have more than one content
 # scanner. The plugins are run in the order you specify.
 # This is one of the few places you can have multiple options of the same name.
 #
@@ -503,6 +512,13 @@ contentscanexceptions = off
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
 
+# Map auth to ports
+# If enabled map auth plugins to ips/ports - number of authplugins must then be same as
+# number of ports
+# If disabled scan authplugins on all ports - number of authplugins can then be different
+#  to number of ports
+# on (default) | off
+#mapauthtoports = off
 
 
 # Re-check replaced URLs
@@ -527,7 +543,7 @@ forwardedfor = off
 
 
 # if on it uses the X-Forwarded-For: <clientip> to determine the client
-# IP. This is for when you have squid between the clients and DansGuardian.
+# IP. This is for when you have squid between the clients and e2guardian.
 # Warning - headers are easily spoofed. on | off
 usexforwardedfor = off
 
@@ -588,7 +604,7 @@ maxips = 0
 
 # Process options
 # (Change these only if you really know what you are doing).
-# These options allow you to run multiple instances of DansGuardian on a single machine.
+# These options allow you to run multiple instances of e2guardian on a single machine.
 # Remember to edit the log file path above also if that is your intention.
 
 # IPC filename
@@ -633,7 +649,7 @@ logadblocks = off
 loguseragent = off
 
 # Daemon runas user and group
-# This is the user that DansGuardian runs as.  Normally the user/group nobody.
+# This is the user that e2guardian runs as.  Normally the user/group nobody.
 # Uncomment to use.  Defaults to the user set at compile time.
 # Temp files created during virus scanning are given owner and group read
 # permissions; to use content scanners based on external processes, such as

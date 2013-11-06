@@ -1,0 +1,6 @@
+#domains in local banned list
+#.Include</home/dg/etc/local/lists/local_block_all/domains>
+#.Include</home/dg/etc/local/lists/porn/domains>
+#.Include</home/dg/etc/local/lists/proxy/domains>
+#.Include</home/dg/etc/local/lists/hacking/domains>
+#.Include</home/dg/etc/local/lists/drugs/domains>

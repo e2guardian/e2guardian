@@ -55,6 +55,7 @@ private:
 	int filtergroup;
 	bool matchedip;
 	bool persistent_authed;
+	bool overide_persist;
 
 	std::string clientuser;
 	std::string *clienthost;
@@ -68,7 +69,7 @@ private:
 		std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
 		bool isexception, bool istext, struct timeval *thestart, bool cachehit, int code,
 		std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
-		HTTPHeader* reqheader, bool contentmodified = false,
+		HTTPHeader* reqheader, int message_no = 999, bool contentmodified = false,
 		bool urlmodified = false, bool headermodified = false);
 
 	// perform URL encoding on a string
@@ -81,6 +82,10 @@ private:
 	void requestChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url, std::string *clientip,
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
 
+#ifdef LOCAL_LISTS
+	void requestLocalChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url, std::string *clientip,
+		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
+#endif
 	// strip the URL down to just the IP/hostname, then do an isIPHostname on the result
 	bool isIPHostnameStrip(String url);
 

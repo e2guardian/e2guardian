@@ -1,0 +1,14 @@
+#Local Banned Search Words
+#
+#Words must be in alphabetic order within a single line
+# and separated by a '+' sign.
+#All combinations of the words will be blocked
+# e.g.   girl+naughty
+#     will block  naughty+girl as well as girl+naughty
+
+
+#.Include</home/dg/etc/local/lists/local_block_all/bannedsearchterms>
+#.Include</home/dg/etc/local/lists/porn/bannedsearchterms>
+#.Include</home/dg/etc/local/lists/proxy/bannedsearchterms>
+#.Include</home/dg/etc/local/lists/hacking/bannedsearchterms>
+#.Include</home/dg/etc/local/lists/drugs/bannedsearchterms>

@@ -234,6 +234,23 @@ void String::toUpper()
 	delete[] c;
 }
 
+// swap chars
+void String::swapChar(char old, char newc)
+{
+	unsigned int l = this->length();
+	char* c = new char[l + 1];
+	const char* d = this->c_str();
+	for (unsigned int i = 0; i < l; i++) {
+		if ( d[i] == old ) {
+			c[i] = newc;
+		}
+		else {
+			c[i] = d[i];
+		}
+	}
+	*this = String(c, l);
+}
+
 // decode %xx to individual characters (checkme: i'm sure this is duplicated elsewhere...)
 void String::hexDecode()
 {
@@ -502,3 +519,71 @@ String String::md5()
 
 	return ret;
 }
+
+String String::sort_search()
+{
+	if (this->length() < 3) {
+		return (*this);
+	}
+	char *temp = new char[this->length() + 1];
+	strcpy(temp, (this)->c_str());
+	int i = 0;
+	int c = 0;
+	// count '+' signs - gives number of words - 1
+        while ( i < this->length()) {
+	    if (temp[i++] == '+')  
+		c++;
+	};
+	if ( c == 0 ) {  // only one word - nothing to do
+	   delete temp;
+  	   return (*this);
+	};
+	// split into words and index
+	char *p[c+1];
+	i = 0;
+	int j = 0;
+	char *ind = temp;
+        while ( i <= c) {
+      	   p[i] = ind + j; 
+	   while ((++j < this->length()) & !(ind[j] == '+' )) {
+		};
+	   ind[j++] = 0;
+	   i++;
+        };
+#ifdef DGDEBUG
+        int k = 0;
+        while (k <= c)
+	std::cout << "Search word " << k << " is " << p[k++] <<  std::endl;
+#endif
+	
+	// sort       
+	char *t;
+	bool swap = true;
+	while (swap) {
+	   swap = false;
+	   j = 0;
+	   while (j < c ) {
+		if ( strcmp(p[j],p[j+1]) > 0 ) {
+		   swap = true; 
+		   t = p[j];
+		   p[j] = p[j+1];
+		   p[j+1] = t;
+		}
+		j++;
+	   };
+	};
+#ifdef DGDEBUG
+        k = 0;
+        while (k <= c)
+	std::cout << "Search word after sort" << k << " is " << p[k++] <<  std::endl;
+#endif
+
+	String ret(p[0]);
+        j = 1;
+        while (j <= c) {
+	    ret = ret + "+" + p[j++];
+	}
+	return ret;
+};
+	    
+	           	

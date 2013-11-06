@@ -80,8 +80,8 @@ void read_config(const char *configfile, int type)
 	close(rc);
 
 	if (!o.read(configfile, type)) {
-		syslog(LOG_ERR, "%s", "Error parsing the e2guardian.conf file or other DansGuardian configuration files");
-		std::cerr << "Error parsing the e2guardian.conf file or other DansGuardian configuration files" << std::endl;
+		syslog(LOG_ERR, "%s", "Error parsing the e2guardian.conf file or other e2guardian configuration files");
+		std::cerr << "Error parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;
 		exit(1);  // OptionContainer class had an error reading the conf or other files so exit with error
 	}
 }
@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
 	is_daemonised = false;
 	bool nodaemon = false;
 	bool needreset = false;
+	bool total_block_list = false;
 	std::string configfile(__CONFFILE);
 	srand(time(NULL));
 	int rc;
@@ -137,7 +138,7 @@ int main(int argc, char *argv[])
 					read_config(configfile.c_str(), 0);
 					return sysv_usr1(o.pid_filename);
 				case 'v':
-					std::cout << "DansGuardian " << PACKAGE_VERSION << std::endl << std::endl
+					std::cout << "e2guardian " << PACKAGE_VERSION << std::endl << std::endl
 						<< "Built with: " << DG_CONFIGURE_OPTIONS << std::endl;
 					return 0;
 				case 'N':
@@ -158,13 +159,16 @@ int main(int argc, char *argv[])
 					std::cout << "  -h gives this message." << std::endl;
 					std::cout << "  -c allows you to specify a different configuration file location." << std::endl;
 					std::cout << "  -N Do not go into the background." << std::endl;
-					std::cout << "  -q causes DansGuardian to kill any running copy." << std::endl;
+					std::cout << "  -q causes e2guardian to kill any running copy." << std::endl;
 					std::cout << "  -Q kill any running copy AND start a new one with current options." << std::endl;
 					std::cout << "  -s shows the parent process PID and exits." << std::endl;
 					std::cout << "  -r closes all connections and reloads config files by issuing a HUP," << std::endl;
 					std::cout << "     but this does not reset the maxchildren option (amongst others)." << std::endl;
 					std::cout << "  -g gently restarts by not closing all current connections; only reloads" << std::endl
 						<< "     filter group config files. (Issues a USR1)" << std::endl;
+#ifdef TOTAL_BLOCK_LIST
+					std::cout << "  -i read total block list from stdin" << std::endl;
+#endif
 #ifdef __BENCHMARK
 					std::cout << "  --bs benchmark searching filter group 1's bannedsitelist" << std::endl;
 					std::cout << "  --bu benchmark searching filter group 1's bannedurllist" << std::endl;
@@ -196,6 +200,15 @@ int main(int argc, char *argv[])
 	}
 	
 	read_config(configfile.c_str(), 2);
+
+#ifdef TOTAL_BLOCK_LIST
+	if (total_block_list && ! o.readinStdin()) {
+		syslog(LOG_ERR, "%s", "Error on reading total_block_list");
+		std::cerr << "Error on reading total_block_list" << std::endl;
+//		return 1;  
+	}
+#endif
+
 
 #ifdef __BENCHMARK
 	// run benchmarks instead of starting the daemon
@@ -408,9 +421,9 @@ int main(int argc, char *argv[])
 #endif
 			o.reset();
 			if (!o.read(configfile.c_str(), 2)) {
-				syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other DansGuardian configuration files");
+				syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
 #ifdef DGDEBUG
-				std::cerr << "Error re-parsing the e2guardian.conf file or other DansGuardian configuration files" << std::endl;
+				std::cerr << "Error re-parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;
 #endif
 				return 1;
 				// OptionContainer class had an error reading the conf or

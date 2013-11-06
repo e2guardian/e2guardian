@@ -1,0 +1,13 @@
+/usr/local/var/log/e2guardian/access.log {
+  rotate 4
+  weekly
+  sharedscripts
+  prerotate
+    killall dansguardian > /dev/null
+    sleep 5
+  endscript
+
+  postrotate
+    /usr/local/sbin/dansguardian > /dev/null
+  endscript
+}

@@ -388,9 +388,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 	bool ishead;
 	bool scanerror;
 	int bypasstimestamp = 0;
+#ifdef RXREDIRECTS
+	bool urlredirect = false;
+#endif
 
 	// 0=none,1=first line,2=all
 	int headersent = 0;
+	int message_no = 0;
 	
 	// Content scanning plugins to use for request (POST) & response data
 	std::deque<CSPlugin*> requestscanners;
@@ -513,6 +517,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				contentmodified = false;
 				urlmodified = false;
 				headermodified = false;
+#ifdef RXREDIRECTS
+				urlredirect = false;
+#endif
 
 				authed = false;
 				isbanneduser = false;
@@ -527,6 +534,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				urlparams.clear();
 				postparts.clear();
 				docsize = 0;  // to store the size of the returned document for logging
+				message_no = 0;
 				mimetype = "-";
 				exceptionreason = "";
 				exceptioncat = "";
@@ -543,6 +551,30 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 
 				// our filter
 				checkme.reset();
+			}
+#ifdef __SSLMITM
+			url = header.getUrl(false, peerconn.isSsl());
+#else
+			url = header.getUrl(false, false);
+#endif
+			urld = header.decode(url);
+			urldomain = url.getHostname();
+
+			// checks for bad URLs to prevent security holes/domain obfuscation.
+			if (header.malformedURL(url))
+			{
+				try {
+					// writestring throws exception on error/timeout
+					peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
+					peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
+					message_no = 200;
+					// The requested URL is malformed.
+					peerconn.writeString(o.language_list.getTranslation(200));
+					peerconn.writeString("</BODY></HTML>\n");
+				}
+				catch(std::exception & e) {
+				}
+				break;
 			}
 
 			//If proxy conneciton is not persistent...
@@ -580,6 +612,32 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				}
 			}
 
+#ifdef TOTAL_BLOCK_LIST
+// do total block list checking here
+			urld = header.decode(url);
+			if (o.use_total_block_list && o.inTotalBlockList(urld)) {
+			   if ( header.requestType().startsWith("CONNECT")) {
+				try {	// writestring throws exception on error/timeout
+					peerconn.writeString("HTTP/1.0 404 Banned Site\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>Protex - Banned Site</TITLE></HEAD><BODY><H1>Protex - Banned Site</H1> ");
+					peerconn.writeString(url.c_str());
+					// The requested URL is malformed.
+					peerconn.writeString("</BODY></HTML>\n");
+				}
+				catch(std::exception & e) {
+				}
+			    } else {  // write blank graphic
+				try { peerconn.writeString("HTTP/1.0 200 OK\n");
+				}
+				catch(std::exception & e) {
+				}
+				o.banned_image.display(&peerconn);
+			    }
+				proxysock.close();  // close connection to proxy
+				break;
+			}
+
+#endif
+
 			// don't let the client connection persist if the client doesn't want it to.
 			persistOutgoing = header.isPersistent();
 
@@ -602,20 +660,30 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						auth_plugin = (AuthPlugin*)(*i);
 
 						// auth plugin selection for multi ports
- 					 	if (o.filter_ports.size() > 1) {
+//
+//
+// Logic changed to allow auth scan with multiple ports as option to auth-port 
+//       fixed mapping
+//
+						if (o.map_auth_to_ports) {
+ 					 	    if (o.filter_ports.size() > 1) {
  							tmp = o.auth_map[peerconn.getPort()];
- 						}
- 						else { 
+ 						    }
+ 						    else { 
  							// auth plugin selection for one port
  							tmp = o.auth_map[authloop];
  							authloop++;
- 						}
+ 						    }
 
-						if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
+						    if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
 							rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
-						}
-						else {
+						    }
+						    else {
 							rc = DGAUTH_NOMATCH;
+						    }
+						} 
+						else {
+						    rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
 						}
 
 						if (rc == DGAUTH_NOMATCH) {
@@ -635,6 +703,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 							peerconn.writeString(writestring.toCharArray());
 							dobreak = true;
 							break;
+						}
+						else if (rc == DGAUTH_OK_NOPERSIST) {
+#ifdef DGDEBUG
+							std::cout<<"Auth plugin  returned OK but no persist not setting persist auth"<<std::endl;
+#endif
+							overide_persist = true;
 						}
 						else if (rc < 0) {
 							if (!is_daemonised)
@@ -713,7 +787,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #ifdef DGDEBUG
 						std::cout << dbgPeerPort << " -Identity found; caching username & group" << std::endl;
 #endif
-						if (auth_plugin->is_connection_based) {
+						if (auth_plugin->is_connection_based && !overide_persist) {
 #ifdef DGDEBUG
 							std::cout<<"Auth plugin is for a connection-based auth method - keeping credentials for entire connection"<<std::endl;
 #endif
@@ -751,7 +825,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			// filter group modes are: 0 = banned, 1 = filtered, 2 = exception.
 			// is this user banned?
 			isbanneduser = (gmode == 0);
-
+/* moved to before auth check
 #ifdef __SSLMITM
 			url = header.getUrl(false, peerconn.isSsl());
 #else
@@ -759,14 +833,16 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 			urld = header.decode(url);
 			urldomain = url.getHostname();
+*/
 
+/* moved to before auth check
 			// checks for bad URLs to prevent security holes/domain obfuscation.
 			if (header.malformedURL(url))
 			{
 				try {
 					// writestring throws exception on error/timeout
 					peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
-					peerconn.writeString("<HTML><HEAD><TITLE>DansGuardian - 400 Bad Request</TITLE></HEAD><BODY><H1>DansGuardian - 400 Bad Request</H1>");
+					peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
 					// The requested URL is malformed.
 					peerconn.writeString(o.language_list.getTranslation(200));
 					peerconn.writeString("</BODY></HTML>\n");
@@ -775,6 +851,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				}
 				break;
 			}
+*/
 
 			if (o.use_xforwardedfor) {
 				std::string xforwardip(header.getXForwardedForIP());
@@ -871,7 +948,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						try {
 							// writestring throws exception on error/timeout
 							peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
-							peerconn.writeString("<HTML><HEAD><TITLE>DansGuardian - 400 Bad Request</TITLE></HEAD><BODY><H1>DansGuardian - 400 Bad Request</H1>");
+							peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
 
 							// The requested URL is malformed.
 							peerconn.writeString(o.language_list.getTranslation(200));
@@ -1051,6 +1128,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				break;
 			}
 
+			char *retchar;
+
 			// being a banned user/IP overrides the fact that a site may be in the exception lists
 			// needn't check these lists in bypass modes
 			if (!(isbanneduser || isbannedip || isbypass)) {
@@ -1059,6 +1138,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				if ((gmode == 2)) {	// admin user
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(601);
+					message_no = 601;
 					// Exception client user match.
 				}
 				else if (o.inExceptionIPList(&clientip, clienthost)) {	// admin pc
@@ -1067,12 +1147,75 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					exceptionreason = o.language_list.getTranslation(600);
 					// Exception client IP match.
 				}
+#ifdef LOCAL_LISTS
+#ifdef SSL_EXTRA_LISTS
+				else if (is_ssl && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+					checkme.whatIsNaughty = o.language_list.getTranslation(580);  // banned site
+					message_no = 580;
+					checkme.whatIsNaughty += retchar;
+					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+					checkme.isItNaughty = true;
+					checkme.whatIsNaughtyCategories = (*o.lm.l[o.fg[filtergroup]->local_banned_ssl_site_list]).lastcategory.toCharArray();
+				}
+#endif
+				else if (o.fg[filtergroup]->inLocalExceptionSiteList(urld, false, is_ip, is_ssl)) {	// allowed site
+					if (o.fg[0]->isOurWebserver(url)) {
+						isourwebserver = true;
+					} else {
+						isexception = true;
+						exceptionreason = o.language_list.getTranslation(662);
+						message_no = 662;
+						// Exception site match.
+						exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_site_list]->lastcategory.toCharArray();
+					}
+				}
+				else if (o.fg[filtergroup]->inLocalExceptionURLList(urld, false, is_ip, is_ssl)) {	// allowed url
+					isexception = true;
+					exceptionreason = o.language_list.getTranslation(663);
+					message_no = 663;
+					// Exception url match.
+					exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
+				} 
+#ifdef REFEREREXCEPT
+				else if ((o.fg[filtergroup]).inRefererExceptionLists(header.getReferer())) { // referer exception
+					isexception = true;
+					exceptionreason = o.language_list.getTranslation(620);
+					message_no = 620;
+				}
+#endif
+					
+				if (!(isexception || isourwebserver)) {
+				    // check if this is a search request
+				    checkme.isSearch = header.isSearch(filtergroup);
+				    // add local grey and black checks
+				    requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+				    message_no = checkme.message_no;
+				};
+#endif
+			}
+			// orginal section only now called if local list not matched
+			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
+				bool is_ssl = header.requestType() == "CONNECT";
+				bool is_ip = isIPHostnameStrip(urld);
+#ifdef SSL_EXTRA_LISTS
+				if (is_ssl && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+					checkme.whatIsNaughty = o.language_list.getTranslation(520);  // banned site
+					message_no = 520;
+					checkme.whatIsNaughty += retchar;
+					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+					checkme.isItNaughty = true;
+					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
+				}
 				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
+#else
+				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
+#endif
 					if (o.fg[0]->isOurWebserver(url)) {
 						isourwebserver = true;
 					} else {
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(602);
+						message_no = 602;
 						// Exception site match.
 						exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
 					}
@@ -1080,6 +1223,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) {	// allowed url
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(603);
+					message_no = 603;
 					// Exception url match.
 					exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
 				}
@@ -1087,9 +1231,27 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					isexception = true;
 					// exception regular expression url match:
 					exceptionreason = o.language_list.getTranslation(609);
+					message_no = 609;
 					exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
 					exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
 				}
+			//else if ((rc = o.fg[filtergroup]->inExceptionRegExpHeaderList(header.header)) >= 0) {
+						//isexception = true;
+						//// exception regular expression header match:
+				//exceptionreason = o.language_list.getTranslation(610);
+					//message_no = 610;
+				//exceptionreason += o.fg[filtergroup]->exception_regexpheader_list_source[rc].toCharArray();
+						//exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpheader_list_ref[rc]]->category.toCharArray();
+			//}
+#ifdef REFEREREXCEPT
+#ifndef LOCAL_LISTS
+				else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
+					isexception = true;
+					exceptionreason = o.language_list.getTranslation(620);
+					message_no = 620;
+				}
+#endif
+#endif
 			}
 
 
@@ -1199,7 +1361,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						String rtype(header.requestType());
 						doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,
 							false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
-							mimetype, wasinfected, wasscanned, 0, filtergroup, &header);
+							mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
 					}
 					if (!persistProxy)
 						proxysock.close();  // close connection to proxy
@@ -1224,6 +1386,26 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
 				checkme.whatIsNaughtyCategories = "IP Limit";
 			}
+#ifdef RXREDIRECTS
+			// URL regexp search and redirect
+			urlredirect = header.urlRedirectRegExp(filtergroup);
+			if (urlredirect) {
+				url = header.redirecturl();
+#ifdef DGDEBUG
+				std::cout<<"urlRedirectRegExp told us to redirect client to \"" << url << std::endl;
+#endif
+				proxysock.close();
+				String writestring("HTTP/1.0 302 Redirect\nLocation: ");
+				writestring += url ;
+				writestring += "\n\n";
+				peerconn.writeString(writestring.toCharArray());
+				break;
+						}
+#endif
+			
+#ifdef ADDHEADER
+			header.isHeaderAdded(filtergroup);
+#endif
 			
 			// URL regexp search and replace
 			urlmodified = header.urlRegExp(filtergroup);
@@ -1247,6 +1429,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						} else {
 							isexception = true;
 							exceptionreason = o.language_list.getTranslation(602);
+							message_no = 602;
 							// Exception site match.
 							exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
 						}
@@ -1254,6 +1437,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) {	// allowed url
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(603);
+						message_no = 603;
 						// Exception url match.
 						exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
 					}
@@ -1261,6 +1445,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						isexception = true;
 						// exception regular expression url match:
 						exceptionreason = o.language_list.getTranslation(609);
+						message_no = 609;
 						exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
 						exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
 					}
@@ -1297,7 +1482,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 								String rtype(header.requestType());
 								doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL),
 									false, 0, isexception, false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
-									mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header,
+									mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 									// content wasn't modified, but URL was
 									false, true);
 							}
@@ -1369,6 +1554,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					// So preemptive banning is forced on with ssl unfortunately.
 					// It is unlikely to cause many problems though.
 					requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+					message_no = checkme.message_no;
 #ifdef DGDEBUG
 					std::cout << dbgPeerPort << " -done checking" << std::endl;
 #endif
@@ -1420,7 +1606,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
 							isexception, false, &thestart,
 							cachehit, header.returnCode(), mimetype, wasinfected,
-							wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
+							wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
 
 						if (!persistProxy)
 							proxysock.close();  // close connection to proxy
@@ -1552,7 +1738,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
 						isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
-						wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
+						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
 						
 					denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,
 						&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
@@ -1580,14 +1766,15 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			}
 			//if not mitm then just do the tunneling
 			else
+			{
 #endif //__SSLMITM
                 // Banned rewrite SSL denied page 
-			bool is_ssl = header.requestType() == "CONNECT";
-            		if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
-                		header.DenySSL(filtergroup);
-                    		String rtype(header.requestType());
-			        doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
-					checkme.isItNaughty = false;
+				bool is_ssl = header.requestType() == "CONNECT";
+            	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
+                	header.DenySSL(filtergroup);
+                        String rtype(header.requestType());
+			doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
+			checkme.isItNaughty = false;
                 	}
 
 			if (!checkme.isItNaughty && isconnect) {
@@ -1610,7 +1797,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false,
 						0, isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
-						wasscanned, checkme.naughtiness, filtergroup, &header, false, urlmodified);
+						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
 
 					if (!persistProxy)
 						proxysock.close();  // close connection to proxy
@@ -2551,7 +2738,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog,
 					rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, false, false, &thestart,
 					cachehit, 403, mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup,
-					&header, contentmodified, urlmodified, headermodified);
+					&header, message_no, contentmodified, urlmodified, headermodified);
 				if (denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))
 				{
 					return;  // not stealth mode
@@ -2597,7 +2784,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						doLog(clientuser, clientip, url, header.port, exceptionreason,
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
-							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header,
+							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 							contentmodified, urlmodified, headermodified);
 					}
 				}
@@ -2669,7 +2856,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						doLog(clientuser, clientip, url, header.port, exceptionreason,
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
-							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header,
+							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 							contentmodified, urlmodified, headermodified);
 					}
 				}
@@ -2686,7 +2873,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					doLog(clientuser, clientip, url, header.port, exceptionreason,
 						rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 						docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
-						wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header,
+						wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 						contentmodified, urlmodified, headermodified);
 				}
 			}
@@ -2745,7 +2932,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 		std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
 		bool isexception, bool istext, struct timeval *thestart, bool cachehit,
 		int code, std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
-		HTTPHeader* reqheader, bool contentmodified, bool urlmodified, bool headermodified)
+		HTTPHeader* reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified)
 {
 
 	// don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
@@ -2869,6 +3056,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 			data += cr;
 		data += urlparams + cr;
 		data += postdata.str().c_str() + cr;
+		data += String(message_no)+cr;
 
 #ifdef DGDEBUG   
 		std::cout << dbgPeerPort << " -...built" << std::endl;
@@ -2911,12 +3099,16 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	std::string *clientip, std::string *clientuser, int filtergroup,
 	bool &isbanneduser, bool &isbannedip, std::string &room)
 {
+
+#ifndef LOCAL_LISTS    	// already done if LOCAL_LIST active
 	if (isbannedip) {
 		(*checkme).isItNaughty = true;
 		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
+		(*checkme).message_no = 100;
 		// Your IP address is not allowed to web browse:
 		(*checkme).whatIsNaughtyLog += clienthost ? *clienthost : *clientip;
 		(*checkme).whatIsNaughty = o.language_list.getTranslation(101);
+		(*checkme).message_no = 101;
 		// Your IP address is not allowed to web browse.
 		if (room.empty())
 			(*checkme).whatIsNaughtyCategories = "Banned Client IP";
@@ -2930,27 +3122,226 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	else if (isbanneduser) {
 		(*checkme).isItNaughty = true;
 		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(102);
+		(*checkme).message_no = 102;
 		// Your username is not allowed to web browse:
 		(*checkme).whatIsNaughtyLog += (*clientuser);
 		(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
 		(*checkme).whatIsNaughtyCategories = "Banned User";
 		return;
 	}
+#endif
 
 	char *i;
 	int j;
 	String temp;
 	temp = (*urld);
 	bool is_ssl = header->requestType() == "CONNECT";
+	bool is_ip = isIPHostnameStrip(temp);
+
+	// search term blocking - MOVED to after Banned checks
+
+
+        if ((*o.fg[filtergroup]).enable_regex_grey) { 
+        	if ((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0)  { 
+                               (*checkme).isItNaughty = true;
+                               (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
+			       (*checkme).message_no = 503;
+                               // Banned Regular Expression URL
+                               (*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+                               (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
+                               // Banned Regular Expression URL found.
+                               (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+		}
+		else if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0)  {
+                                 checkme->isItNaughty = true;
+                                 checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
+				 (*checkme).message_no = 508;
+                                 checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
+                                 checkme->whatIsNaughty = o.language_list.getTranslation(509);
+                                 checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
+		}
+	}
+
+	if ( checkme->isItNaughty ) {     // why bother with checking anything else!!!!
+		return;
+	}
+
+	if ( !(*checkme).isGrey  
+	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
+		(*checkme).isGrey = true;
+	}
+
+	// only apply bans to things not in the grey lists
+	if ( !(*checkme).isGrey) {
+		if ((i = (*o.fg[filtergroup]).inBannedSiteList(temp, true, is_ip, is_ssl)) != NULL) {
+				// need to reintroduce ability to produce the blanket block messages
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(500);  // banned site
+				(*checkme).message_no = 500;
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+				return;
+		}
+		if ((i = (*o.fg[filtergroup]).inBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+				(*checkme).message_no = 501;
+				// Banned URL:
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+				return;
+		}
+        	if (!(*o.fg[filtergroup]).enable_regex_grey) { 
+			if ((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0 )  
+ 			{
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
+				(*checkme).message_no = 503;
+				// Banned Regular Expression URL:
+				(*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(504);
+				// Banned Regular Expression URL found.
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+				return;
+			}
+			if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0) {
+				checkme->isItNaughty = true;
+				checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
+				checkme->message_no = 508;
+				checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
+				checkme->whatIsNaughty = o.language_list.getTranslation(509);
+				checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
+				return;
+			}
+		}
+
+		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
+		if ((*o.fg[filtergroup]).deep_url_analysis) {
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -starting deep analysis" << std::endl;
+#endif
+			String deepurl(temp.after("p://"));
+			deepurl = header->decode(deepurl,true);
+			while (deepurl.contains(":")) {
+				deepurl = deepurl.after(":");
+				while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
+					deepurl.lop();
+				}
+#ifdef DGDEBUG
+				std::cout << dbgPeerPort << " -deep analysing: " << deepurl << std::endl;
+#endif
+
+#ifdef LOCAL_LISTS
+				if (o.fg[filtergroup]->inLocalExceptionSiteList(deepurl) 
+				    || o.fg[filtergroup]->inLocalGreySiteList(deepurl)
+				    || o.fg[filtergroup]->inLocalExceptionURLList(deepurl) 
+				    || o.fg[filtergroup]->inLocalGreyURLList(deepurl))
+				{
+#ifdef DGDEBUG
+					std::cout << "deep site found in exception/grey list; skipping" << std::endl;
+#endif
+					continue;
+				}
+				if ((i = (*o.fg[filtergroup]).inLocalBannedSiteList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
+					(*checkme).message_no = 500;
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).local_banned_site_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << "deep site: " << deepurl << std::endl;
+#endif
+				}
+				else if ((i = (*o.fg[filtergroup]).inLocalBannedURLList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+					(*checkme).message_no = 501;
+					 // Banned URL:
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).local_banned_url_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << "deep url: " << deepurl << std::endl;
+#endif
+				}
+				else if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
+					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
+#else
+				if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
+					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
+#endif
+				{
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
+#endif
+					continue;
+				}
+				if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).message_no = 500;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
+#endif
+				}
+				else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
+					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+					(*checkme).message_no = 501;
+					 // Banned URL:
+					(*checkme).whatIsNaughty += i;
+					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+					(*checkme).isItNaughty = true;
+					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
+#endif
+				}
+			}
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -done deep analysis" << std::endl;
+#endif
+			if ( (*checkme).isItNaughty) {
+				return;
+			}
+		}
+	}
+
+	 // if we get here it's to be content checked (so far!)
+	// So now check for search etc.
+
+	// NOTE dg/protex search term stuff needs combining!!!!
 
 	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
 	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
 	// order for regexes to be able to split up parameters reliably.
 	if (!is_ssl) {
-		// for now, just call it so we can see the debug output
+
+
+#ifdef SEARCHWORDS
+	(*checkme).isSearch = (*header).isSearch(filtergroup);
+	if ((*checkme).isSearch) {
+		if ((i = (*o.fg[filtergroup]).inBannedSearchList((*header).searchwords())) != NULL) {
+			(*checkme).whatIsNaughty = o.language_list.getTranslation(521);
+			(*checkme).message_no = 521;
+			// Banned search term:
+			(*checkme).whatIsNaughty += i;
+			(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+			(*checkme).isItNaughty = true;
+			(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
+			return;
+		}
+	}
+#endif
+
+	if ((*checkme).isSearch) {
 		String terms;
-		bool extracted = o.fg[filtergroup]->extractSearchTerms(*url, terms);
-		if (extracted) {
+		terms = (*header).searchterms();
 			// search terms are URL parameter type "0"
 			urlparams.append("0=").append(terms).append(";");
 			if (o.fg[filtergroup]->searchterm_limit > 0) {
@@ -2969,118 +3360,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 					return;
 				}
 			}
-		}
 	}
-
-	// only apply bans to things not in the grey lists
-	bool is_ip = isIPHostnameStrip(temp);
-
-        if (((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0) && ((*o.fg[filtergroup]).enable_regex_grey == true)) { 
-                               (*checkme).isItNaughty = true;
-                               (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-                               // Banned Regular Expression URL
-                               (*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
-                               (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-                               // Banned Regular Expression URL found.
-                               (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-	}
-	if (((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0)  && ((*o.fg[filtergroup]).enable_regex_grey == true)) {
-                                 checkme->isItNaughty = true;
-                                 checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-                                 checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-                                 checkme->whatIsNaughty = o.language_list.getTranslation(509);
-                                 checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-	}
-
-	if (!((*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
-		if (!(*checkme).isItNaughty) {
-			if ((i = (*o.fg[filtergroup]).inBannedSiteList(temp, true, is_ip, is_ssl)) != NULL) {
-				// need to reintroduce ability to produce the blanket block messages
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(500);  // banned site
-				(*checkme).whatIsNaughty += i;
-				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
-			}
-		}
-
-		if (!(*checkme).isItNaughty) {
-			if ((i = (*o.fg[filtergroup]).inBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
-				// Banned URL:
-				(*checkme).whatIsNaughty += i;
-				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
-			}
-			else if (((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0) && ((*o.fg[filtergroup]).enable_regex_grey == false))  
- 			{
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-				// Banned Regular Expression URL:
-				(*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-				// Banned Regular Expression URL found.
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-			}
-			else if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0) {
-				checkme->isItNaughty = true;
-				checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-				checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-				checkme->whatIsNaughty = o.language_list.getTranslation(509);
-				checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-			}
-		}
-		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
-		if (!(*checkme).isItNaughty && (*o.fg[filtergroup]).deep_url_analysis) {
-#ifdef DGDEBUG
-			std::cout << dbgPeerPort << " -starting deep analysis" << std::endl;
-#endif
-			String deepurl(temp.after("p://"));
-			deepurl = header->decode(deepurl,true);
-			while (deepurl.contains(":")) {
-				deepurl = deepurl.after(":");
-				while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
-					deepurl.lop();
-				}
-#ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -deep analysing: " << deepurl << std::endl;
-#endif
-				if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
-					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
-				{
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
-#endif
-					continue;
-				}
-				if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
-#endif
-				}
-				else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
-					 // Banned URL:
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
-#endif
-				}
-			}
-#ifdef DGDEBUG
-			std::cout << dbgPeerPort << " -done deep analysis" << std::endl;
-#endif
-		}
-	} // grey site/URL list
 
 #ifdef __SSLCERT
 	//check the certificate if
@@ -3146,9 +3426,142 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
 	}
 #endif //__SSLCERT
-
+    }
 }
 
+
+#ifdef LOCAL_LISTS 
+// check the request header is OK (client host/user/IP allowed to browse, site not banned, upload not too big)
+void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url,
+	std::string *clientip, std::string *clientuser, int filtergroup,
+	bool &isbanneduser, bool &isbannedip, std::string &room)
+{
+
+	if (isbannedip) {
+		(*checkme).isItNaughty = true;
+		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
+		(*checkme).message_no = 100;
+		// Your IP address is not allowed to web browse:
+		(*checkme).whatIsNaughtyLog += clienthost ? *clienthost : *clientip;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(101);
+		(*checkme).message_no = 101;
+		// Your IP address is not allowed to web browse.
+		if (room.empty())
+			(*checkme).whatIsNaughtyCategories = "Banned Client IP";
+		else {
+			checkme->whatIsNaughtyCategories = "Banned Room";
+			checkme->whatIsNaughtyLog.append(" in ");
+			checkme->whatIsNaughtyLog.append(room);
+		}
+		return;
+	}
+	else if (isbanneduser) {
+		(*checkme).isItNaughty = true;
+		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(102);
+		(*checkme).message_no = 102;
+		// Your username is not allowed to web browse:
+		(*checkme).whatIsNaughtyLog += (*clientuser);
+		(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
+		(*checkme).whatIsNaughtyCategories = "Banned User";
+		return;
+	}
+
+	char *i;
+	int j;
+	String temp;
+	temp = (*urld);
+	bool is_ssl = header->requestType() == "CONNECT";
+	bool is_ip = isIPHostnameStrip(temp);
+
+	// search term blocking - MOVED to after Banned checks
+
+
+	if ( !(*checkme).isGrey  
+	     && ( (*o.fg[filtergroup]).inLocalGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inLocalGreyURLList(temp, true, is_ip, is_ssl))) {
+		(*checkme).isGrey = true;
+	}
+
+	// only apply bans to things not in the grey lists
+	if ( !(*checkme).isGrey) {
+		if ((i = (*o.fg[filtergroup]).inLocalBannedSiteList(temp, true, is_ip, is_ssl)) != NULL) {
+				// need to reintroduce ability to produce the blanket block messages
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(560);  // banned site
+				(*checkme).message_no = 560;
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+				return;
+		}
+		if ((i = (*o.fg[filtergroup]).inLocalBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(561);
+				(*checkme).message_no = 561;
+				// Banned URL:
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+				return;
+		}
+
+		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
+		// done in main requestChecks
+	
+	}
+
+	 // if we get here it's to be content checked (so far!)
+	// So now check for search etc.
+
+	// NOTE dg/protex search term stuff needs combining!!!!
+
+
+	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
+	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
+	// order for regexes to be able to split up parameters reliably.
+	if (!is_ssl) {
+
+#ifdef SEARCHWORDS
+	(*checkme).isSearch = (*header).isSearch(filtergroup);
+	if ((*checkme).isSearch) {
+		if ((i = (*o.fg[filtergroup]).inLocalBannedSearchList((*header).searchwords())) != NULL) {
+			(*checkme).whatIsNaughty = o.language_list.getTranslation(581);
+			(*checkme).message_no = 581;
+			// Banned search term:
+			(*checkme).whatIsNaughty += i;
+			(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+			(*checkme).isItNaughty = true;
+			(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
+			return;
+		}
+	}
+#endif
+
+// dg code
+		String terms;
+		if ((*checkme).isSearch) {
+		terms = (*header).searchterms();
+			// search terms are URL parameter type "0"
+			urlparams.append("0=").append(terms).append(";");
+			if (o.fg[filtergroup]->searchterm_limit > 0) {
+				// Add spaces at beginning and end of block before filtering, so
+				// that the quick & dirty trick of putting spaces around words
+				// (Scunthorpe problem) can still be used, bearing in mind the block
+				// of text here is usually very small.
+				terms.insert(terms.begin(),' ');
+				terms.append(" ");
+				checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
+					(o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list : o.fg[filtergroup]->banned_phrase_list),
+					o.fg[filtergroup]->searchterm_limit, true);
+				if (checkme->isItNaughty)
+				{
+					checkme->blocktype = 2;
+					return;
+				}
+		}
+	}
+}
+}
+#endif
 
 // based on patch by Aecio F. Neto (afn@harvest.com.br) - Harvest Consultoria (http://www.harvest.com.br)
 // show the relevant banned page/image/CGI based on report level setting, request type etc.
@@ -3157,6 +3570,11 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 	bool ispostblock, int headersent, bool wasinfected, bool scanerror, bool forceshow)
 {
 	int reporting_level = o.fg[filtergroup]->reporting_level;
+#ifdef DGDEBUG
+
+				std::cout << dbgPeerPort << " -reporting level is " << reporting_level << std::endl;
+
+#endif
 
 	try {  // writestring throws exception on error/timeout
 
@@ -3298,9 +3716,9 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 					// See comment above HTTPS
 					String writestring("HTTP/1.0 403 ");
                                 	writestring += o.language_list.getTranslation(500);  // banned site
-                               		writestring += "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>DansGuardian - ";
+                               		writestring += "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian - ";
                              		writestring += o.language_list.getTranslation(500);  // banned site
-                             		writestring += "</TITLE></HEAD><BODY><H1>DansGuardian - ";
+                             		writestring += "</TITLE></HEAD><BODY><H1>e2guardian - ";
                               		writestring += o.language_list.getTranslation(500);  // banned site
                                		writestring += "</H1>";
                              		writestring += (*url);
@@ -3517,9 +3935,9 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 			(*proxysock).close();  // finshed with proxy
 			String writestring("HTTP/1.0 200 OK\n");
 			writestring += "Content-type: text/html\n\n";
-			writestring += "<HTML><HEAD><TITLE>DansGuardian - ";
+			writestring += "<HTML><HEAD><TITLE>e2guardian - ";
 			writestring += o.language_list.getTranslation(1);  // access denied
-			writestring += "</TITLE></HEAD><BODY><CENTER><H1>DansGuardian - ";
+			writestring += "</TITLE></HEAD><BODY><CENTER><H1>e2guardian - ";
 			writestring += o.language_list.getTranslation(1);  // access denied
 			writestring += "</H1></CENTER></BODY></HTML>";
 			(*peerconn).readyForOutput(o.proxy_timeout);

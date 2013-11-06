@@ -662,8 +662,6 @@ void mopup_afterkids()
 		if (pid < 1) {
 			break;
 		}
-#ifdef linux
-/* Epoll linux only */
 #ifdef DGDEBUG
         if (WIFEXITED(stat_val)) {
 	std::cout << "child " << pid << " exited with status " << WEXITSTATUS(stat_val) << std::endl;
@@ -674,7 +672,6 @@ void mopup_afterkids()
 	};
 
 	std::cout << "mopup deleting child" << pid  << std::endl;
-#endif
 #endif
 	deletechild((int) pid);
 	}
@@ -1085,7 +1082,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	//String where, what, how;
 	std::string cr("\n");
    
-	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params;
+	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
 	std::string stype, postdata;
 	int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
 	int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
@@ -1111,6 +1108,20 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	fd_set fdcpy;  // select modifies the set so we need to use a copy
 	FD_ZERO(&fdSet);  // clear the set
 	FD_SET(ipcsockfd, &fdSet);  // add ipcsock to the set
+
+
+// Get server name - only needed for format 5
+	String server("");
+	if ( o.log_file_format == 5 ) {
+		char sysname[256];
+		int r;
+                r = gethostname(sysname, 256);
+		if ( r == 0 ) {
+			server = sysname;
+			server = server.before(".");
+		}
+	}
+
 	while (true) {		// loop, essentially, for ever
 		fdcpy = fdSet;  // take a copy
 		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, NULL);  // block
@@ -1153,7 +1164,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			bool error = false;
 			int itemcount = 0;
 			
-			while(itemcount < 27) {
+			while(itemcount < 28) {
 				try {
 					// Loop around reading in data, because we might have huge URLs
 					std::string logline;
@@ -1263,6 +1274,10 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 						break;
 					case 26:
 						postdata = logline;
+						break;
+					case 27:
+						message_no = logline;
+						break;
 					}
 				}
 				catch(std::exception & e) {
@@ -1320,7 +1335,13 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 				what = "*DENIED" + stype + "* " + what;
 			}
 			else if (isexception && (o.log_exception_hits == 2)) {
+#ifdef LEGACY_LOG
 				what = "*EXCEPTION* " + what;
+#else
+				what = "*TRUSTED* " + what;
+#endif
+
+
 			}
 		   
 			if (wasinfected)
@@ -1342,7 +1363,8 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			struct timeval theend;
 
 			// create a string representation of UNIX timestamp if desired
-			if (o.log_timestamp || (o.log_file_format == 3)) {
+			if (o.log_timestamp || (o.log_file_format == 3)
+			    || (o.log_file_format > 4)) {
 				gettimeofday(&theend, NULL);
 				String temp((int) (theend.tv_usec / 1000));
 				while (temp.length() < 3) {
@@ -1477,11 +1499,43 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					+ stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" + o.fg[filtergroup]->name + "\",\""
 					+ useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" + postdata + "\"";
 				break;
-			default:
+			case 1:
 				builtline = when +" "+ who + " " + from + " " + where + " " + what + " "
 					+ how + " " + ssize + " " + sweight + " " + cat +  " " + stringgroup + " "
 					+ stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
 					+ useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+				break;
+			case 5:
+			case 6:
+			default:
+					std::string duration;
+					long durationsecs, durationusecs;
+					durationsecs = (theend.tv_sec - tv_sec);
+					durationusecs = theend.tv_usec - tv_usec;
+					durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+					String temp((int) durationusecs);
+					duration = temp;
+
+				builtline = utime + "\t"
+					+ server + "\t" 
+					+ who + "\t" 
+					+ from + "\t" 
+					+ clienthost + "\t" 
+					+ where + "\t" 
+					+ how + "\t" 
+					+ stringcode + "\t" 
+					+ ssize + "\t" 
+					+ mimetype + "\t" 
+					+ (o.log_user_agent ? useragent : "-") + "\t"
+					+ "-\t"   // squid result code
+					+ duration + "\t"
+					+ "-\t"   // squid peer code
+					+ message_no + "\t"   // dg message no
+					+ what + "\t" 
+					+ sweight + "\t" 
+					+ cat +  "\t" 
+					+ o.fg[filtergroup]->name + "\t" 
+					+ stringgroup ;
 			}
 
 			if (!logsyslog)
@@ -1520,7 +1574,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 								fprintf(mail, "To: %s\n", o.fg[filtergroup]->avadmin.c_str());
 								fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
 								fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->avsubject.c_str());
-								fprintf(mail, "A virus was detected by DansGuardian.\n\n");
+								fprintf(mail, "A virus was detected by e2guardian.\n\n");
 								fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
 								if (who != "-")
 									fprintf(mail, "%-10s%s\n", "User:", who.c_str());
@@ -1990,7 +2044,17 @@ int fc_controlit()
 	o.lm.garbageCollect();
 
 	// allocate & create our server sockets
-	serversocketcount = o.filter_ip.size();
+	if (o.map_ports_to_ips) {
+		serversocketcount = o.filter_ip.size();
+	} 
+	else {
+             if ( o.filter_ip.size() > 0 ) {
+	     	serversocketcount = o.filter_ip.size() * o.filter_ports.size();
+	     }
+	     else {
+		serversocketcount = o.filter_ports.size();
+     	     }
+	}
 
 	serversockets.reset(serversocketcount);
 	int *serversockfds = serversockets.getFDAll();
@@ -2085,15 +2149,28 @@ int fc_controlit()
 		return 1;
 		}
 	} else {
-		// listen/bind to a port on any interface
-		if (serversockets.bindSingle(o.filter_port)) {
-			if (!is_daemonised) {
-				std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
+		// listen/bind to a port (or ports) on any interface
+		if (o.map_ports_to_ips) {
+			if (serversockets.bindSingle(o.filter_port)) {
+				if (!is_daemonised) {
+					std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
+				}
+				syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
+				close(pidfilefd);
+				free(serversockfds);
+				return 1;
 			}
-			syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
+		}
+		else {
+			if (serversockets.bindSingleM(o.filter_ports)) {
+				if (!is_daemonised) {
+					std::cerr << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
+				}
+				syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
+				close(pidfilefd);
+				free(serversockfds);
+				return 1;
+			}
 		}
 	}
 
@@ -2125,9 +2202,9 @@ int fc_controlit()
 	if (!o.no_logger) {
 		if (loggersock.bind(o.ipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding ipc server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
+				std::cerr << "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;
@@ -2147,9 +2224,9 @@ int fc_controlit()
 	if (o.url_cache_number > 0) {
 		if (urllistsock.bind(o.urlipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding urllistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
+				std::cerr << "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;
@@ -2169,9 +2246,9 @@ int fc_controlit()
 	if (o.max_ips > 0) {
 		if (iplistsock.bind(o.ipipc_filename.c_str())) {	// bind to file
 			if (!is_daemonised) {
-				std::cerr << "Error binding iplistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
+				std::cerr << "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
 			}
-			syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop DansGuardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
+			syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
 			close(pidfilefd);
 			free(serversockfds);
 			return 1;

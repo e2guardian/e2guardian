@@ -120,6 +120,31 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
 	return free;
 }
 
+#ifdef TOTAL_BLOCK_LIST
+// load list from stdin
+int ListManager::newStdinItemList(bool startswith, int filters, bool parent, const char *startstr)
+{
+	// find an empty list slot, create a new listcontainer, and load the list
+	int free = findNULL();
+	if (free > -1) {
+		l[free] = new ListContainer;
+	} else {
+#ifdef DGDEBUG
+		std::cout << "pushing back for new list" << std::endl;
+#endif
+		l.push_back(new ListContainer);
+		free = l.size() - 1;
+	}
+	(*l[free]).parent = parent;
+	if (!(*l[free]).readStdinItemList(startswith, filters, startstr)) {
+		delete l[free];
+		l[free] = NULL;
+		return -1;
+	}
+	return free;
+}
+#endif
+
 // create a new phrase list. check dates on top-level list files to see if a reload is necessary.
 // note: unlike above, doesn't automatically call readPhraseList.
 // pass in exception, banned, and weighted phrase lists all at once.

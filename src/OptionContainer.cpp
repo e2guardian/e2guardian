@@ -25,6 +25,9 @@
 
 extern bool is_daemonised;
 
+ListContainer total_block_site_list;
+ListContainer total_block_url_list;
+
 
 // IMPLEMENTATION
 
@@ -411,6 +414,18 @@ bool OptionContainer::read(const char *filename, int type)
 			force_quick_search = false;
 		}
 		
+		if (findoptionS("mapportstoips") == "off") {
+			map_ports_to_ips = false;
+		} else {
+			map_ports_to_ips  = true;
+		}
+		
+		if (findoptionS("mapauthtoports") == "off") {
+			map_auth_to_ports = false;
+		} else {
+			map_auth_to_ports  = true;
+		}
+		
 		if (findoptionS("usecustombannedimage") == "off") {
 			use_custom_banned_image = false;
 		} else {
@@ -443,7 +458,7 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}
 		filter_ports = findoptionM("filterports");
-		if (filter_ports.size() != filter_ip.size()) {
+		if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
 			if (!is_daemonised) {
 				std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips (" << filter_ip.size() << ")" << std::endl;
 			}
@@ -489,7 +504,7 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}		// etc
 		log_file_format = findoptionI("logfileformat");
-		if (!realitycheck(log_file_format, 1, 4, "logfileformat")) {
+		if (!realitycheck(log_file_format, 1, 6, "logfileformat")) {
 			return false;
 		}		// etc
 		if (findoptionS("anonymizelogs") == "on") {
@@ -645,14 +660,14 @@ bool OptionContainer::read(const char *filename, int type)
 			AuthPlugin* tmpPlugin = (AuthPlugin*) authplugins[i];
 			String tmpStr = tmpPlugin->getPluginName();
 
-			if (filter_ports.size() == 1 )
+			if ((! map_auth_to_ports) || filter_ports.size() == 1 )
 				auth_map[i] = tmpStr;	
 			else
 				auth_map[filter_ports[i].toInteger()] = tmpStr;
 		}
 
 		// if the more than one port is being used, validate the combination of auth plugins
-		if (authplugins.size() > 1 and filter_ports.size() > 1) {
+		if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports ) {
 			std::deque<Plugin*>::iterator it = authplugins.begin();
 			String firstPlugin;
 			bool sslused = false;
@@ -785,6 +800,137 @@ bool OptionContainer::read(const char *filename, int type)
 	}
 	return true;
 }
+
+#ifdef TOTAL_BLOCK_LIST
+
+// read from stdin, write the list's ID into the given identifier,
+// sort using startsWith or endsWith depending on sortsw
+// listname is used in error messages.
+bool OptionContainer::readStdin(ListContainer* lc, bool sortsw, const char *listname, const char *startstr)
+{
+	bool result = lc->readStdinItemList(sortsw, 1, startstr);
+	if (!result) {
+		if (!is_daemonised) {
+			std::cerr << "Error opening " << listname << std::endl;
+		}
+		syslog(LOG_ERR, "Error opening %s", listname);
+		return false;
+	}
+	if (sortsw)
+		lc->doSort(true);
+	else
+		lc->doSort(false);
+	return true;
+}
+
+
+bool OptionContainer::readinStdin()
+{
+	String sitelist = "totalblocksitelist";
+	String sitess = "#SITELIST";
+	if (!readStdin(&total_block_site_list,false,sitelist.c_str(),sitess.c_str())) {
+		return false;
+	}
+	total_block_site_flag = true;
+	if (!readStdin(&total_block_url_list,true,"totalblockurllist","#URLLIST")) {
+		return false;
+	}
+	total_block_url_flag = true;
+	return true;
+}
+
+
+char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
+{
+
+	url.removeWhiteSpace();  // just in case of weird browser crap
+	url.toLower();
+	url.removePTP();  // chop off the ht(f)tp(s)://
+	if (url.contains("/")) {
+		url = url.before("/");  // chop off any path after the domain
+	}
+	char *i;
+	//bool isipurl = isIPHostname(url);
+	while (url.contains(".")) {
+		i = lc->findInList(url.toCharArray());
+		if (i != NULL) {
+			return i;  // exact match
+		}
+		url = url.after(".");  // check for being in higher level domains
+	}
+	if (url.length() > 1) {	// allows matching of .tld
+		url = "." + url;
+		i = lc->findInList(url.toCharArray());
+		if (i != NULL) {
+			return i;  // exact match
+		}
+	}
+	return NULL;  // and our survey said "UUHH UURRGHH"
+}
+
+// look in given URL list for given URL
+char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool ssl) {
+	unsigned int fl;
+	char *i;
+	String foundurl;
+#ifdef DGDEBUG
+	std::cout << "inURLList: " << url << std::endl;
+#endif
+        //syslog(LOG_ERR, "inURLList url %s", url.c_str());
+	url.removeWhiteSpace();  // just in case of weird browser crap
+	url.toLower();
+	url.removePTP();  // chop off the ht(f)tp(s)://
+	if (url.contains("/")) {
+		String tpath("/");
+		tpath += url.after("/");
+		url = url.before("/");
+		tpath.hexDecode();
+		tpath.realPath();
+		url += tpath;  // will resolve ../ and %2e2e/ and // etc
+	}
+	if (url.endsWith("/")) {
+		url.chop();  // chop off trailing / if any
+	}
+#ifdef DGDEBUG
+	std::cout << "inURLList (processed): " << url << std::endl;
+#endif
+      //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
+	while (url.before("/").contains(".")) {
+		i = lc->findStartsWith(url.toCharArray());
+		if (i != NULL) {
+			foundurl = i;
+			fl = foundurl.length();
+#ifdef DGDEBUG
+			std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
+			std::cout << "url: " << url << fl << std::endl;
+#endif
+        //syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
+			if (url.length() > fl) {
+				if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
+					return i;  // matches /blah/ or /blah/foo but not /blahfoo
+				}
+			} else {
+				return i;  // exact match
+			}
+		}
+		url = url.after(".");  // check for being in higher level domains
+	}
+	return NULL;
+}
+
+
+bool OptionContainer::inTotalBlockList(String &url)
+{
+	String murl = url;
+    	if (inSiteList(murl, &total_block_site_list, false, false)) {
+		return true;
+    	}
+    	if (inURLList(url, &total_block_url_list, false, false)) {
+		return true;
+    	}
+	return false;
+}
+#endif  // end TOTAL_BLOCK_LIST
 
 bool OptionContainer::doReadItemList(const char* filename, ListContainer* lc, const char* fname, bool swsort) {
 	bool result = lc->readItemList(filename, false, 0);

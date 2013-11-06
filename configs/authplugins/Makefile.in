@@ -210,9 +210,12 @@ top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
 SUBDIRS = .
 FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf \
+	 port.conf dnsauth.conf \
 	$(am__append_1)
+
+
 EXTRA_DIST = proxy-basic.conf ident.conf ip.conf.in proxy-ntlm.conf \
-	     proxy-digest.conf
+	     proxy-digest.conf port.conf.in dnsauth.conf
 
 all: all-recursive
 

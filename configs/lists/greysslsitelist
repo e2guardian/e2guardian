@@ -1,0 +1,4 @@
+#domains in SSL grey list
+#Don't bother with the www. or the https://
+
+#This 'grey' lists override the 'banned' lists for SSL only.

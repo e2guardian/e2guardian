@@ -62,6 +62,9 @@ public:
 	void toLower();
 	void toUpper();
 
+	// Swap characters
+ 	void swapChar(char old, char newc);
+
 	// decode %xx to characters (checkme: duplicate code?)
 	void hexDecode();
 
@@ -105,6 +108,10 @@ public:
 	// generate MD5 hash of string (using given salt)
 	String md5();
 	String md5(const char *salt);
+
+	// Sort search words
+	String sort_search();
+
 };
 
 #endif

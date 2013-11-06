@@ -557,8 +557,8 @@ MAKEFLAGS=
 # Identity of this package.
 PACKAGE_NAME='e2guardian'
 PACKAGE_TARNAME='e2guardian'
-PACKAGE_VERSION='2.12.0.7 http://numsys.eu - Unofficial Release ! -'
-PACKAGE_STRING='e2guardian 2.12.0.7'
+PACKAGE_VERSION='1.0.0.1  First Alpha release  -'
+PACKAGE_STRING='e2guardian 1.0.0.1'
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
@@ -2264,6 +2264,10 @@ cat >>confdefs.h <<_ACEOF
 #define PACKAGE_URL "$PACKAGE_URL"
 _ACEOF
 
+
+cat >>confdefs.h <<_ACEOF
+#define SEARCHWORDS
+_ACEOF
 
 # Let the site file select an alternate cache file if it wants to.
 # Prefer an explicitly selected file to automatically selected ones.

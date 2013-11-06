@@ -1,0 +1,19 @@
+# This defines sites which will be search term checked
+#
+# The format is: "extended regular expression"->"search words"
+# 
+#   left is the site matching pattern
+#   right is the search words
+
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)\&.*"->"\1"
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*).*"->"\1"
+
+"^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*\?p=([^&]*).*"->"\1"
+"^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*.*\&p=([^&]*).*"->"\1"
+
+"^http://[0-9a-z]+\.answers\.[a-z]+[-/%.0-9a-z]*\?s=([^&]*)\&.*"->"\1"
+"^http://www\.answers\.[a-z]+[-%.0-9a-z]*/([^&]*).*"->"\1"
+
+"^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*/search\?q=([^&]*).*"->"\1"
+"^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*\&q=([^&]*).*"->"\1"
+

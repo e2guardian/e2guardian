@@ -35,6 +35,7 @@ public:
 	int bindAll(std::deque<String> &ips, std::deque<String> &ports);
 	// bind just the one, to all available IPs
 	int bindSingle(int port);
+	int bindSingleM(std::deque<String> &port);
 	// set all sockets listening with given kernel queue length
 	int listenAll(int queue);
 

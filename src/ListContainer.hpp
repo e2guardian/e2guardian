@@ -55,6 +55,10 @@ public:
 	bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true);
 	bool readItemList(const char *filename, bool startswith, int filters);
 
+#ifdef TOTAL_BLOCK_LIST
+	bool readStdinItemList(bool startswith, int filters, const char *startstr);
+#endif
+
 	bool inList(const char *string);
 	bool inListEndsWith(const char *string);
 	bool inListStartsWith(const char *string);

@@ -195,7 +195,53 @@ public:
 	unsigned int log_site_list;
 	unsigned int log_url_list;
 	unsigned int log_regexpurl_list;
+	unsigned int exception_regexpheader_list;
 
+#ifdef REFEREREXCEPT
+	unsigned int referer_exception_site_list;
+	unsigned int referer_exception_url_list;
+#endif
+#ifdef PRT_DNSAUTH
+	unsigned int auth_exception_site_list;
+	unsigned int auth_exception_url_list;
+#endif
+#ifdef ADDHEADER
+	unsigned int addheader_regexp_list;
+#endif
+#ifdef SEARCHWORDS
+	unsigned int banned_search_list;
+	unsigned int search_regexp_list;
+#ifdef LOCAL_LISTS
+	unsigned int local_banned_search_list;
+	unsigned int banned_search_overide_list;
+#endif
+#endif
+#ifdef LOCAL_LISTS
+	unsigned int local_exception_site_list;
+	unsigned int local_exception_url_list;
+	unsigned int local_banned_site_list;
+#ifdef SSL_EXTRA_LISTS
+	unsigned int local_banned_ssl_site_list;
+	unsigned int local_grey_ssl_site_list;
+#endif
+	unsigned int local_banned_url_list;
+	unsigned int local_grey_site_list;
+	unsigned int local_grey_url_list;
+#endif
+	bool use_only_local_allow_lists;
+
+#ifdef SSL_EXTRA_LISTS
+	unsigned int banned_ssl_site_list;
+	unsigned int grey_ssl_site_list;
+#endif
+
+#ifdef RXREDIRECTS
+	unsigned int url_redirect_regexp_list;
+	std::deque<RegExp> url_redirect_regexp_list_comp;
+	std::deque<String> url_redirect_regexp_list_rep;
+	bool url_redirect_regexp_flag;
+#endif
+   
 	// regex match lists
 	std::deque<RegExp> banned_regexpurl_list_comp;
 	std::deque<String> banned_regexpurl_list_source;
@@ -209,6 +255,9 @@ public:
 	std::deque<RegExp> log_regexpurl_list_comp;
 	std::deque<String> log_regexpurl_list_source;
 	std::deque<unsigned int> log_regexpurl_list_ref;
+	std::deque<RegExp> exception_regexpheader_list_comp;
+	std::deque<String> exception_regexpheader_list_source;
+	std::deque<unsigned int> exception_regexpheader_list_ref;
 
 	// regex search & replace lists
 	std::deque<RegExp> content_regexp_list_comp;
@@ -217,6 +266,15 @@ public:
 	std::deque<String> url_regexp_list_rep;
 	std::deque<RegExp> header_regexp_list_comp;
 	std::deque<String> header_regexp_list_rep;
+
+#ifdef SEARCHWORDS
+	std::deque<RegExp> search_regexp_list_comp;
+	std::deque<String> search_regexp_list_rep;
+#endif
+#ifdef ADDHEADER
+	std::deque<RegExp> addheader_regexp_list_comp;
+	std::deque<String> addheader_regexp_list_rep;
+#endif
 
 	// precompiled reg exps for speed
 	RegExp pics1;
@@ -240,6 +298,34 @@ public:
 
 	FOptionContainer():
 		block_downloads(false), searchterm_flag(false), banned_page(NULL),
+#ifdef REFEREREXCEPT
+		referer_exception_site_flag(false),
+		referer_exception_url_flag(false),
+#endif
+#ifdef PRT_DNSAUTH
+		auth_exception_site_flag(false),
+		auth_exception_url_flag(false),
+#endif
+#ifdef ADDHEADER
+		addheader_regexp_flag(false),
+#endif
+#ifdef SEARCHWORDS
+		banned_search_flag(false),
+		search_regexp_flag(false),
+#ifdef LOCAL_LISTS
+		local_banned_search_flag(false),
+		banned_search_overide_flag(false),
+#endif
+#endif
+#ifdef LOCAL_LISTS
+		local_exception_site_flag(false), 
+		local_exception_url_flag(false),
+		local_banned_site_flag(false),
+		local_banned_url_flag(false), 
+		local_grey_site_flag(false), 
+		local_grey_url_flag(false),
+		use_only_local_allow_lists(false),
+#endif
 		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
 		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
 		banned_url_flag(false), grey_site_flag(false), grey_url_flag(false),
@@ -263,6 +349,42 @@ public:
 	void resetJustListData();
 	
 	bool isOurWebserver(String url);
+#ifdef ADDHEADER
+        char *inAddheaderList(String &words, unsigned int list);
+#endif
+#ifdef SEARCHWORDS
+	char *inBannedSearchList(String words);
+        char *inSearchList(String &words, unsigned int list);
+#ifdef LOCAL_LISTS
+	char *inLocalBannedSearchList(String words);
+	bool inBannedSearchOverideList(String words);
+#endif
+#endif
+#ifdef LOCAL_LISTS
+	char *inLocalBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#ifdef SSL_EXTRA_LISTS
+	char *inLocalBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+	char *inLocalBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+	bool inLocalGreySiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#ifdef SSL_EXTRA_LISTS
+	bool inLocalGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+	bool inLocalGreyURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+	bool inLocalExceptionSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+	bool inLocalExceptionURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+#ifdef SSL_EXTRA_LISTS
+	char *inBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+	bool inGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+#ifdef PRT_DNSAUTH
+	bool inAuthExceptionSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+	bool inAuthExceptionURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+#ifdef REFEREREXCEPT
+	bool inRefererExceptionLists(String url);
+#endif
 	char *inBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inGreySiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -300,6 +422,7 @@ private:
 	bool banned_regexpurl_flag;
 	bool exception_regexpurl_flag;
 	bool banned_regexpheader_flag;
+	bool exception_regexpheader_flag;
 	bool content_regexp_flag;
 	bool url_regexp_flag;
 	bool header_regexp_flag;
@@ -310,6 +433,41 @@ private:
 	bool log_site_flag;
 	bool log_url_flag;
 	bool log_regexpurl_flag;
+#ifdef REFEREREXCEPT
+	bool referer_exception_site_flag;
+	bool referer_exception_url_flag;
+#endif
+#ifdef PRT_DNSAUTH
+	bool auth_exception_site_flag;
+	bool auth_exception_url_flag;
+#endif
+#ifdef ADDHEADER
+	bool addheader_regexp_flag;
+#endif
+#ifdef SEARCHWORDS
+	bool banned_search_flag;
+	bool search_regexp_flag;
+#ifdef LOCAL_LISTS
+	bool local_banned_search_flag;
+	bool banned_search_overide_flag;
+#endif
+#endif
+#ifdef LOCAL_LISTS
+	bool local_exception_site_flag;
+	bool local_exception_url_flag;
+	bool local_banned_site_flag;
+	bool local_banned_url_flag;
+	bool local_grey_site_flag;
+	bool local_grey_url_flag;
+#ifdef SSL_EXTRA_LISTS
+	bool local_grey_ssl_site_flag;
+	bool local_banned_ssl_site_flag;
+#endif
+#endif
+#ifdef SSL_EXTRA_LISTS
+	bool grey_ssl_site_flag;
+	bool banned_ssl_site_flag;
+#endif
 
 	// search term blocking
 	bool searchengine_regexp_flag;
@@ -319,6 +477,8 @@ private:
 	std::deque<std::string > conffile;
 
 	bool precompileregexps();
+	// Not sure if this next line is needed - PIP
+	bool readbplfil(const char *banned, const char *exception, const char *weighted);
 	bool readFile(const char *filename, unsigned int* whichlist, bool sortsw, bool cache, const char *listname);
 	bool readRegExMatchFile(const char *filename, const char *listname, unsigned int& listref,
 		std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);

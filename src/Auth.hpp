@@ -30,6 +30,10 @@
 // redirect the user to a login page
 #define DGAUTH_REDIRECT 4
 
+
+// allow access to http[s] based auth system, but with no persitance
+#define DGAUTH_OK_NOPERSIST 9
+
 // any < 0 return code signifies error
 
 
