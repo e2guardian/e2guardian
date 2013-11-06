@@ -1,11 +1,8 @@
 /* dgconfig.h.  Generated from dgconfig.h.in by configure.  */
 /* dgconfig.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define if building universal (internal helper macro) */
-/* #undef AC_APPLE_UNIVERSAL_BUILD */
-
 /* Maximum number of open filedescriptors */
-#define DANS_MAXFD 1024
+#define DANS_MAXFD 8192
 
 /* Define to enable debug build mode */
 /* #undef DGDEBUG */
@@ -201,16 +198,13 @@
 #define PACKAGE_NAME "e2guardian"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "e2guardian 2.12.0.7"
+#define PACKAGE_STRING "e2guardian 1.0.0.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "e2guardian"
 
-/* Define to the home page for this package. */
-#define PACKAGE_URL ""
-
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.12.0.7 http://numsys.eu - Unofficial Release ! -"
+#define PACKAGE_VERSION "1.0.0.1  First Alpha release  -"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -218,28 +212,20 @@
 /* Version number of package */
 #define VERSION "2.12.0.4"
 
-/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
-   significant byte first (like Motorola and SPARC, unlike Intel). */
-#if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
-#else
-# ifndef WORDS_BIGENDIAN
-/* #  undef WORDS_BIGENDIAN */
-# endif
-#endif
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+/* #undef WORDS_BIGENDIAN */
 
 /* Define to `int' if <sys/types.h> doesn't define. */
 /* #undef gid_t */
 
-/* Define to `long int' if <sys/types.h> does not define. */
+/* Define to `long' if <sys/types.h> does not define. */
 /* #undef off_t */
 
 /* Define to `int' if <sys/types.h> does not define. */
 /* #undef pid_t */
 
-/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* Define to `unsigned' if <sys/types.h> does not define. */
 /* #undef size_t */
 
 /* Define to `int' if <sys/types.h> doesn't define. */

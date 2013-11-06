@@ -708,8 +708,9 @@ bool HTTPHeader::isSearch(int filtergroup) {
 #endif
 	String searchwd(url());
 	if (regExp(searchwd, o.fg[filtergroup]->search_regexp_list_comp, o.fg[filtergroup]->search_regexp_list_rep)) {
-		searchtms = searchwd.toCharArray();
 		searchwds = searchwd.sort_search().toCharArray();
+		searchwd.swapChar('+',' ');
+		searchtms = searchwd.toCharArray();
 		issearch = true;
 		searchchecked = true;
 #ifdef DGDEBUG
