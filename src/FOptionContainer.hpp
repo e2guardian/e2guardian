@@ -195,7 +195,6 @@ public:
 	unsigned int log_site_list;
 	unsigned int log_url_list;
 	unsigned int log_regexpurl_list;
-	unsigned int exception_regexpheader_list;
 
 #ifdef REFEREREXCEPT
 	unsigned int referer_exception_site_list;
@@ -255,9 +254,6 @@ public:
 	std::deque<RegExp> log_regexpurl_list_comp;
 	std::deque<String> log_regexpurl_list_source;
 	std::deque<unsigned int> log_regexpurl_list_ref;
-	std::deque<RegExp> exception_regexpheader_list_comp;
-	std::deque<String> exception_regexpheader_list_source;
-	std::deque<unsigned int> exception_regexpheader_list_ref;
 
 	// regex search & replace lists
 	std::deque<RegExp> content_regexp_list_comp;
@@ -422,7 +418,6 @@ private:
 	bool banned_regexpurl_flag;
 	bool exception_regexpurl_flag;
 	bool banned_regexpheader_flag;
-	bool exception_regexpheader_flag;
 	bool content_regexp_flag;
 	bool url_regexp_flag;
 	bool header_regexp_flag;

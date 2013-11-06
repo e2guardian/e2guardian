@@ -219,9 +219,6 @@ void FOptionContainer::resetJustListData()
 	searchengine_regexp_list_comp.clear();
 	searchengine_regexp_list_source.clear();
 	searchengine_regexp_list_ref.clear();
-	exception_regexpheader_list_comp.clear();
-	exception_regexpheader_list_source.clear();
-	exception_regexpheader_list_ref.clear();
 	
 //	delete banned_page;
 //	banned_page = NULL;
@@ -643,7 +640,6 @@ bool FOptionContainer::read(const char *filename)
 			std::string banned_regexpurl_list_location(findoptionS("bannedregexpurllist"));
 			std::string exception_regexpurl_list_location(findoptionS("exceptionregexpurllist"));
 			std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
-			std::string exception_regexpheader_list_location(findoptionS("exceptionregexpheaderlist"));
 			std::string content_regexp_list_location(findoptionS("contentregexplist"));
 			std::string url_regexp_list_location(findoptionS("urlregexplist"));
 			std::string header_regexp_list_location(findoptionS("headerregexplist"));
@@ -1042,13 +1038,6 @@ bool FOptionContainer::read(const char *filename)
 				return false;
 			}		// banned reg exp headers
 			banned_regexpheader_flag = true;
-
-			if (!readRegExMatchFile(exception_regexpheader_list_location.c_str(), "exceptionregexpheaderlist", exception_regexpheader_list,
-				exception_regexpheader_list_comp, exception_regexpheader_list_source, exception_regexpheader_list_ref))
-			{
-				return false;
-			}		// exception reg exp headers
-			exception_regexpheader_flag = true;
 
 
 			if (!readRegExReplacementFile(content_regexp_list_location.c_str(),"contentregexplist",content_regexp_list,content_regexp_list_rep,content_regexp_list_comp)) {

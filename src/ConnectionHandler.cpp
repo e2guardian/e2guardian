@@ -3337,7 +3337,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 			return;
 		}
 	}
-#endif
 
 	if ((*checkme).isSearch) {
 		String terms;
@@ -3361,6 +3360,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 				}
 			}
 	}
+#endif
 
 #ifdef __SSLCERT
 	//check the certificate if
