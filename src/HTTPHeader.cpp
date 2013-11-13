@@ -801,7 +801,9 @@ bool HTTPHeader::malformedURL(const String& url)
 	}
 	if (host.contains(":"))
 		host = host.before(":");
-	if (host.contains("..") || host.endsWith(".")) {
+// endsWith . check removed as this format is used by Apple Configurator Updates
+//	if (host.contains("..") || host.endsWith(".")) {
+	if (host.contains("..")) {
 #ifdef DGDEBUG
 		std::cout << "double dots in domain name" << std::endl;
 #endif
