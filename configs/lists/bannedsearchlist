@@ -1,0 +1,9 @@
+#Banned Search Words
+#
+#Words must be in alphabetic order within a single line
+# and separated by a '+' sign.
+#All combinations of the words will be blocked
+# e.g.   girl+naughty
+#     will block  naughty+girl as well as girl+naughty
+
+

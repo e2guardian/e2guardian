@@ -1,0 +1,57 @@
+
+Changed/Added features in e2guardian not found in Dansguardian 2.12.0.3
+
+Words in CAPITALS are the corresponding pre complier directives.
+
+Tuning settings introduced:- 
+--------------------------
+
+need to add list
+
+Logic Changes:-
+-------------
+
+
+Rewrite of main process loop to reduce dependency on select() call which limited the number of child processes.  Use of epoll() on Linux systems makes the engine faster, more efficient and scaleable.
+
+Note that the logic for handling SSL is changed.  In DG when either blanket block (or SSL blanket block) was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist.   In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches exceptionsitelist or greysslsitelist.  This ensures that only trusted sites can be accessed via SSL.  The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
+
+
+Authentication Plug-ins:-
+-----------------------
+
+Port based auth plug-in - filtering group assigned by destination port.  To use this feature  mapauthtoports must be set to 'off'.
+
+DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system.
+
+New Lists:-
+---------
+
+Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden.  
+
+Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc). LOCAL_LISTS. Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
+
+Search Word blocking – SEARCHWORDS – Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms.
+
+Referer Exceptions – REFEREXCEPT – Exceptions based on URL in referer header. Refererexceptionsitelist and refererexceptionurllist added.
+
+Regular Expression Redirects – RXREDIRECTS – urlredirectregexplist – allows browser redirection to different site.
+
+Add an http header based on url regex – ADDHEADER – addheaderregexplist – needed for YouTube for schools.
+
+Specific SSL lists added – SSL_EXTRA_LISTS – bannedsslsitelist , greysslsitelist + local versions.
+
+New Log Format:-
+--------------
+
+Logging – two new logfileformats have been added which are easier to parse than the standard DG format.
+5 – Protex format type 1 – Tab delimited, squid style format with extra fields for filter block/result codes, reasons, filter group, and system name – used in arrays so that combined logs show originating server.
+6 – Protex format type 2 – Same format as above but system name field is blank – used in stand-alone systems.
+
+Messages file amended:-
+---------------------
+
+Amendments to messages file – user and log messages have been made more meaningful for user and new messages added for the new list types introduced.
+
+
+

@@ -557,8 +557,8 @@ MAKEFLAGS=
 # Identity of this package.
 PACKAGE_NAME='e2guardian'
 PACKAGE_TARNAME='e2guardian'
-PACKAGE_VERSION='1.0.0.1  First Alpha release  -'
-PACKAGE_STRING='e2guardian 1.0.0.1'
+PACKAGE_VERSION='2.12.0.7 http://numsys.eu - Unofficial Release ! -'
+PACKAGE_STRING='e2guardian 2.12.0.7'
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
@@ -1453,7 +1453,7 @@ Optional Packages:
                           subdirectory under sysconfdir in which to place
                           config files
   --with-filedescriptors=NUMBER
-                          Force e2guardian to support NUMBER filedescriptors
+                          Force DansGuardian to support NUMBER filedescriptors
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -2265,14 +2265,6 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-cat >>confdefs.h <<_ACEOF
-#define SEARCHWORDS
-#define ADDHEADER
-#define REFEREXCEPT
-#define RXREDIRECTS
-#define SSL_EXTRA_LISTS
-_ACEOF
-
 # Let the site file select an alternate cache file if it wants to.
 # Prefer an explicitly selected file to automatically selected ones.
 ac_site_file1=NONE
@@ -2858,7 +2850,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE='e2guardian'
- VERSION='1.0.0.1'
+ VERSION='2.12.0.4'
 
 
 cat >>confdefs.h <<_ACEOF
@@ -7075,7 +7067,12 @@ fi
 if test "$dans_filedescriptors_num" -lt 512 ; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if your" >&5
 $as_echo "$as_me: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if your" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: e2guardian will be very busy.  Please see the FAQ page" >&5;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cache will be very busy.  Please see the FAQ page" >&5
+$as_echo "$as_me: WARNING: cache will be very busy.  Please see the FAQ page" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: http://wiki.dans-cache.org/SquidFaq/TroubleShooting" >&5
+$as_echo "$as_me: WARNING: http://wiki.dans-cache.org/SquidFaq/TroubleShooting" >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: on how to increase your filedescriptor limit" >&5
+$as_echo "$as_me: WARNING: on how to increase your filedescriptor limit" >&2;}
 fi
 
 cat >>confdefs.h <<_ACEOF
@@ -7670,7 +7667,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files Makefile data/Makefile data/languages/Makefile data/scripts/Makefile data/scripts/bsd-init data/scripts/e2guardian data/scripts/logrotation data/scripts/solaris-init data/scripts/systemv-init doc/Makefile configs/e2guardian.conf configs/e2guardianf1.conf configs/Makefile configs/lists/Makefile configs/lists/phraselists/Makefile configs/lists/blacklists/Makefile configs/lists/bannedrooms/Makefile configs/lists/contentscanners/Makefile configs/lists/weightedphraselist configs/lists/exceptionphraselist configs/lists/bannedphraselist configs/lists/bannedurllist configs/lists/bannedsitelist configs/downloadmanagers/Makefile configs/downloadmanagers/default.conf configs/downloadmanagers/fancy.conf configs/downloadmanagers/trickle.conf configs/contentscanners/Makefile configs/contentscanners/clamdscan.conf configs/contentscanners/avastdscan.conf configs/contentscanners/icapscan.conf configs/contentscanners/kavdscan.conf configs/contentscanners/commandlinescan.conf configs/authplugins/Makefile configs/authplugins/ip.conf configs/lists/authplugins/Makefile configs/lists/downloadmanagers/Makefile src/Makefile src/Makefile migration_installation/installation_or_migration_from_dg.sh migration_installation/Makefile"
+ac_config_files="$ac_config_files Makefile data/Makefile data/languages/Makefile data/scripts/Makefile data/scripts/bsd-init data/scripts/e2guardian data/scripts/logrotation data/scripts/solaris-init data/scripts/systemv-init doc/Makefile configs/e2guardian.conf configs/e2guardianf1.conf configs/Makefile configs/lists/Makefile configs/lists/phraselists/Makefile configs/lists/blacklists/Makefile configs/lists/bannedrooms/Makefile configs/lists/contentscanners/Makefile configs/lists/weightedphraselist configs/lists/exceptionphraselist configs/lists/bannedphraselist configs/lists/bannedurllist configs/lists/bannedsitelist configs/downloadmanagers/Makefile configs/downloadmanagers/default.conf configs/downloadmanagers/fancy.conf configs/downloadmanagers/trickle.conf configs/contentscanners/Makefile configs/contentscanners/clamdscan.conf configs/contentscanners/avastdscan.conf configs/contentscanners/icapscan.conf configs/contentscanners/kavdscan.conf configs/contentscanners/commandlinescan.conf configs/authplugins/Makefile configs/authplugins/ip.conf configs/lists/authplugins/Makefile configs/lists/downloadmanagers/Makefile src/Makefile"
 
 
 cat >confcache <<\_ACEOF

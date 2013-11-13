@@ -2,6 +2,16 @@
 # Inspired by a script provided by Alex Ott
 # 2004,2005 - Daniel Barron
 
+AC_DEFINE([SEARCHWORDS],[""],[Define to enable search word checking])
+
+AC_DEFINE([ADDHEADER],[""],[Define to enable insert http header function])
+
+AC_DEFINE([REFEREXCEPT],[""],[Define to enable exceptions on http referer header])
+AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp])
+AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
+AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
+AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
+
 AC_PREREQ(2.57)
 AC_INIT(e2guardian, 2.12.0.0)
 AM_INIT_AUTOMAKE

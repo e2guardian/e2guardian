@@ -886,36 +886,36 @@ bool FOptionContainer::read(const char *filename)
 #endif
 
 #ifdef SEARCHWORDS
-			if (!readFile(banned_search_list_location.c_str(),&banned_search_list,true,true,"bannedsearchlist")) {
-				banned_search_flag = false;
+			if (banned_search_list_location.length() && readFile(banned_search_list_location.c_str(),&banned_search_list,true,true,"bannedsearchlist")) {
+				banned_search_flag = true;
 			}
 			else {
-				banned_search_flag = true;
+				banned_search_flag = false;
 			}		// banned search words
 
-			if (!readRegExReplacementFile(search_regexp_list_location.c_str(),"searchregexplist",search_regexp_list,search_regexp_list_rep,search_regexp_list_comp)) {
-				search_regexp_flag = false;
-			} 
-			else {
+			if (search_regexp_list_location.length() && readRegExReplacementFile(search_regexp_list_location.c_str(),"searchregexplist",search_regexp_list,search_regexp_list_rep,search_regexp_list_comp)) {
 				search_regexp_flag = true;
 #ifdef DGDEBUG
 				std::cout << "Enabled search term extraction RegExp list" << std::endl;
 #endif
+			} 
+			else {
+				search_regexp_flag = false;
 			}  // search engine searchwords regular expressions
 
 #ifdef LOCAL_LISTS
-			if (!readFile(local_banned_search_list_location.c_str(),&local_banned_search_list,true,true,"localbannedsearchlist")) {
-				local_banned_search_flag = false;
+			if (local_banned_search_list_location.length() && readFile(local_banned_search_list_location.c_str(),&local_banned_search_list,true,true,"localbannedsearchlist")) {
+				local_banned_search_flag = true;
 			}
 			else {
-				local_banned_search_flag = true;
+				local_banned_search_flag = false;
 			}		// local banned search words
 
-			if (!readFile(banned_search_overide_list_location.c_str(),&banned_search_overide_list,true,true,"bannedsearchoveridelist")) {
-				banned_search_overide_flag = false;
+			if (banned_search_overide_list_location.length() && readFile(banned_search_overide_list_location.c_str(),&banned_search_overide_list,true,true,"bannedsearchoveridelist")) {
+				banned_search_overide_flag = true;
 			}
 			else {
-				banned_search_overide_flag = true;
+				banned_search_overide_flag = false;
 			}		// banned search overide words
 #endif
 #endif
