@@ -284,13 +284,13 @@ public:
 	String sslaccess_denied_domain;
 	bool ssl_denied_rewrite;
 	// search term blocking
-	unsigned int searchengine_regexp_list;
+	//unsigned int searchengine_regexp_list;
 	unsigned int searchterm_list;
 	bool searchterm_flag;
-	std::deque<RegExp> searchengine_regexp_list_comp;
-	std::deque<String> searchengine_regexp_list_source;
-	std::deque<unsigned int> searchengine_regexp_list_ref;
-	bool extractSearchTerms(String url, String &terms);
+	//std::deque<RegExp> searchengine_regexp_list_comp;
+	//std::deque<String> searchengine_regexp_list_source;
+	//std::deque<unsigned int> searchengine_regexp_list_ref;
+	//bool extractSearchTerms(String url, String &terms);
 
 	FOptionContainer():
 		block_downloads(false), searchterm_flag(false), banned_page(NULL),
@@ -330,7 +330,8 @@ public:
 		exception_extension_flag(false), exception_mimetype_flag(false),
 		exception_file_site_flag(false), exception_file_url_flag(false),
 		log_site_flag(false), log_url_flag(false), log_regexpurl_flag(false),
-		searchengine_regexp_flag(false), pics_icra_nuditymalegraphic(0), ssl_denied_rewrite(false),
+		//searchengine_regexp_flag(false), pics_icra_nuditymalegraphic(0), ssl_denied_rewrite(false),
+		pics_icra_nuditymalegraphic(0), ssl_denied_rewrite(false),
 		pics_icra_nudityfemalegraphic(0), pics_icra_nuditytopless(0), pics_icra_nuditybottoms(0),
 		pics_icra_nuditysexualacts(0), pics_icra_nudityobscuredsexualacts(0), pics_icra_nuditysexualtouching(0),
 		pics_icra_nuditykissing(0), pics_icra_nudityartistic(0), pics_icra_nudityeducational(0),
@@ -465,7 +466,7 @@ private:
 #endif
 
 	// search term blocking
-	bool searchengine_regexp_flag;
+	//bool searchengine_regexp_flag;
 	
 	std::deque<int> banned_phrase_list_index;
 

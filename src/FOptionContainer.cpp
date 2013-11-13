@@ -89,7 +89,7 @@ void FOptionContainer::resetJustListData()
 	if (log_site_flag) o.lm.deRefList(log_site_list);
 	if (log_url_flag) o.lm.deRefList(log_url_list);
 	if (log_regexpurl_flag) o.lm.deRefList(log_regexpurl_list);
-	if (searchengine_regexp_flag) o.lm.deRefList(searchengine_regexp_list);
+	//if (searchengine_regexp_flag) o.lm.deRefList(searchengine_regexp_list);
 #ifdef PRT_DNSAUTH
 	if (auth_exception_site_flag) o.lm.deRefList(auth_exception_site_list);
 	if (auth_exception_url_flag) o.lm.deRefList(auth_exception_url_list);
@@ -150,7 +150,7 @@ void FOptionContainer::resetJustListData()
 	log_site_flag = false;
 	log_url_flag = false;
 	log_regexpurl_flag = false;
-	searchengine_regexp_flag = false;
+	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
 	auth_exception_site_flag = false;
 	auth_exception_url_flag = false;
@@ -216,9 +216,9 @@ void FOptionContainer::resetJustListData()
 	log_regexpurl_list_comp.clear();
 	log_regexpurl_list_source.clear();
 	log_regexpurl_list_ref.clear();
-	searchengine_regexp_list_comp.clear();
-	searchengine_regexp_list_source.clear();
-	searchengine_regexp_list_ref.clear();
+	//searchengine_regexp_list_comp.clear();
+	//searchengine_regexp_list_source.clear();
+	//searchengine_regexp_list_ref.clear();
 	
 //	delete banned_page;
 //	banned_page = NULL;
@@ -654,7 +654,7 @@ bool FOptionContainer::read(const char *filename)
 			std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
 
 			// search term blocking
-			std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
+			//std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
 
 #ifdef PRT_DNSAUTH
 			std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
@@ -887,24 +887,36 @@ bool FOptionContainer::read(const char *filename)
 
 #ifdef SEARCHWORDS
 			if (!readFile(banned_search_list_location.c_str(),&banned_search_list,true,true,"bannedsearchlist")) {
-				return false;
+				banned_search_flag = false;
+			}
+			else {
+				banned_search_flag = true;
 			}		// banned search words
-			banned_search_flag = true;
 
 			if (!readRegExReplacementFile(search_regexp_list_location.c_str(),"searchregexplist",search_regexp_list,search_regexp_list_rep,search_regexp_list_comp)) {
-				return false;
+				search_regexp_flag = false;
+			} 
+			else {
+				search_regexp_flag = true;
+#ifdef DGDEBUG
+				std::cout << "Enabled search term extraction RegExp list" << std::endl;
+#endif
 			}  // search engine searchwords regular expressions
-			search_regexp_flag = true;
 
 #ifdef LOCAL_LISTS
 			if (!readFile(local_banned_search_list_location.c_str(),&local_banned_search_list,true,true,"localbannedsearchlist")) {
-				return false;
+				local_banned_search_flag = false;
+			}
+			else {
+				local_banned_search_flag = true;
 			}		// local banned search words
-			local_banned_search_flag = true;
+
 			if (!readFile(banned_search_overide_list_location.c_str(),&banned_search_overide_list,true,true,"bannedsearchoveridelist")) {
-				return false;
+				banned_search_overide_flag = false;
+			}
+			else {
+				banned_search_overide_flag = true;
 			}		// banned search overide words
-			banned_search_overide_flag = true;
 #endif
 #endif
 #ifdef LOCAL_LISTS
@@ -978,13 +990,10 @@ bool FOptionContainer::read(const char *filename)
 			}
 
 			// search term blocking
-			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
-				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
+//			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
+//				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
+			if (search_regexp_flag)
 			{
-				searchengine_regexp_flag = true;
-#ifdef DGDEBUG
-				std::cout << "Enabled search term extraction RegExp list" << std::endl;
-#endif
 				if (weighted_phrase_mode > 0)
 				{
 					searchterm_limit = findoptionI("searchtermlimit");
@@ -1653,6 +1662,9 @@ char *FOptionContainer::inExtensionList(unsigned int list, String url)
 	return (*o.lm.l[list]).findEndsWith(url.toCharArray());
 }
 
+// replaced by HTTPHeader::isSearch function in e2g so undefined but 
+// retained for reference.
+#ifdef NOTDEFINED
 // search term blocking
 // is this URL recognised by the search engine regexp list?  if so, return extracted search terms
 bool FOptionContainer::extractSearchTerms(String url, String &terms)
@@ -1703,6 +1715,7 @@ bool FOptionContainer::extractSearchTerms(String url, String &terms)
 	}
 	return false;
 }
+#endif
 
 // is this line of the headers in the banned regexp header list?
 int FOptionContainer::inBannedRegExpHeaderList(std::deque<String> &header)
