@@ -1,10 +1,9 @@
-# DansGuardian filter group config file for version @PACKAGE_VERSION@
+# e2guardian filter group config file for version @PACKAGE_VERSION@
 
 
 # Filter group mode
 # This option determines whether members of this group have their web access
-# unfiltered, filtered, or banned. This mechanism replaces the "banneduserlist"
-# and "exceptionuserlist" files from previous versions.
+# unfiltered, filtered, or banned. 
 #
 # 0 = banned
 # 1 = filtered
@@ -23,6 +22,7 @@ groupmode = 1
 # name the group in the access logs
 # Defaults to empty string
 #groupname = ''
+groupname = ''
 
 # Content filtering files location
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
@@ -30,6 +30,8 @@ weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 bannedsitelist = '@DGCONFDIR@/lists/bannedsitelist'
 greysitelist = '@DGCONFDIR@/lists/greysitelist'
+bannedsslsitelist = '@DGCONFDIR@/lists/bannedsslsitelist'
+greysslsitelist = '@DGCONFDIR@/lists/greysslsitelist'
 exceptionsitelist = '@DGCONFDIR@/lists/exceptionsitelist'
 bannedurllist = '@DGCONFDIR@/lists/bannedurllist'
 greyurllist = '@DGCONFDIR@/lists/greyurllist'
@@ -39,6 +41,17 @@ bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
 picsfile = '@DGCONFDIR@/lists/pics'
 contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
 urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
+
+# local versions of lists (where LOCAL_LISTS enabled)
+#localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
+#localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
+#localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'
+#localbannedurllist = '@DGCONFDIR@/lists/localbannedurllist'
+#localgreyurllist = '@DGCONFDIR@/lists/localgreyurllist'
+#localexceptionurllist = '@DGCONFDIR@/lists/localexceptionurllist'
+#localbannedsslsitelist = '@DGCONFDIR@/lists/localbannedsslsitelist'
+#localgreysslsitelist = '@DGCONFDIR@/lists/localgreysslsitelist'
+#localbannedsearchlist = '@DGCONFDIR@/lists/localbannedsearchlist'
 
 # Filetype filtering
 #
@@ -101,6 +114,7 @@ maxuploadsize = -1
 # Use for example, to remove cookies or prevent certain user-agents.
 headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
 bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
+addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
@@ -118,29 +132,49 @@ bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
 naughtynesslimit = 50
 
 # Search term blocking
-# Search terms can be extracted from search URLs and filtered using the
+# Search terms can be extracted from search URLs and filtered using one or 
+# both of two different methods.
+
+# Method 1 is that developed by Protex where specific 
+# search terms are contained in a bannedsearchlist.  
+# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment 
+# and overide this list as required.)  
+# These lists contain banned search words combinations on each line.  
+# Words are separated by '+' and must be in sorted order within a line.
+#    so to block 'sexy girl' then the list must contain the line
+#    	girl+sexy
+#    and this will block both 'sexy girl' and 'girl sexy'
+# To use this method, the searchregexplist must be enabled and the bannedsearchlist(s) defined
+
+# Method 2 is uses the 
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
 # threshold for blocking than that used for normal page content.
-# To do this, the first two options below must be enabled.
+# To do this, the searchregexplist must be enabled and searchtermlimit 
+# must be grater than 0.
+ 
 #
-# Search engine regular expression list
+# Search engine regular expression list (need for both options)
 # List of regular expressions for matching search engine URLs.  It is assumed
-# that the search terms themselves will be contained within the first submatch
-# of each expression.
-#searchengineregexplist = '@DGCONFDIR@/lists/searchengineregexplist'
+# that the search terms themselves will be contained in the 
+# of output of each expression.
+#searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
 #
-# Search term limit
+# Banned Search Term list(s) for option 1
+#bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
+#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
+
+
+# Search term limit (for Option 2)
 # The limit over which requests will be blocked for containing search terms
 # which match the weightedphraselist.  This should usually be lower than the
 # 'naughtynesslimit' value above, because the amount of text being filtered
 # is only a few words, rather than a whole page.
-# This option must be uncommented if searchengineregexplist is uncommented.
+# This option must be uncommented if searchregexplist is uncommented.
 # A value of 0 here indicates that search terms should be extracted,
-# for logging/reporting purposes, but no filtering should be performed
-# on the resulting text.
-#searchtermlimit = 30
+# but no phrase filtering should be performed on the resulting text.
+#searchtermlimit = 0
 #
-# Search term lists
+# Search term phrase lists (for Option 2) 
 # If the three lines below are uncommented, search term blocking will use
 # the banned, weighted & exception phrases from these lists, instead of using
 # the same phrase lists as for page content.  This is optional but recommended,
@@ -286,7 +320,7 @@ deepurlanalysis = off
 # filter group, overriding the global setting in e2guardian.conf. This is
 # only used in reporting level 3.
 #
-# The default template file path is <languagedir>/<language>/template.html
+# The default template file path is <languagedir>/<language>/template.h
 # e.g. @DGDATADIR@/languages/ukenglish/template.html when using 'ukenglish'
 # language.
 #
