@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <exception>
 #include <time.h>
+#include <stdio.h>
 #include <string.h>
 #include <syslog.h>
 #include <cerrno>
