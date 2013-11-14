@@ -20,26 +20,28 @@ Note that the logic for handling SSL is changed.  In DG when either blanket bloc
 Authentication Plug-ins:-
 -----------------------
 
-Port based auth plug-in - filtering group assigned by destination port.  To use this feature  mapauthtoports must be set to 'off'.
+Port based auth plug-in - filtering group assigned by destination port.  To use this feature  mapauthtoports must be set to 'off'. Complied as standard.
 
-DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system.
+DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system. To enable this use configure option --enable-dnsauth
 
 New Lists:-
 ---------
 
-Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden.  
+Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden.  To enable this use configure option --enable-totblock
 
 Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc). LOCAL_LISTS. Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
+To enable this use configure option --enable-locallists
 
-Search Word blocking – SEARCHWORDS – Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms.
+Search Word blocking – SEARCHWORDS – Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms. Compliled as standard.
 
-Referer Exceptions – REFEREXCEPT – Exceptions based on URL in referer header. Refererexceptionsitelist and refererexceptionurllist added.
+Referer Exceptions – REFEREXCEPT – Exceptions based on URL in referer header. Refererexceptionsitelist and refererexceptionurllist added. Compliled as standard. To disable use configure option --enable-refererexception=no.
 
-Regular Expression Redirects – RXREDIRECTS – urlredirectregexplist – allows browser redirection to different site.
 
-Add an http header based on url regex – ADDHEADER – addheaderregexplist – needed for YouTube for schools.
+Add an http header based on url regex – ADDHEADER – addheaderregexplist – needed for YouTube for schools.  Compliled as standard. To disable use configure option --enable-addheader=no.
 
-Specific SSL lists added – SSL_EXTRA_LISTS – bannedsslsitelist , greysslsitelist + local versions.
+Regular Expression Redirects – RXREDIRECTS – urlredirectregexplist – allows browser redirection to different site.  Compliled as standard. To disable use configure option --enable-rxredirects=no.
+
+Specific SSL lists added – SSL_EXTRA_LISTS – bannedsslsitelist , greysslsitelist + local versions.  Complied as standard. To diable use configure option --enable-sslextralists=no.
 
 New Log Format:-
 --------------
@@ -51,7 +53,7 @@ Logging – two new logfileformats have been added which are easier to parse tha
 Messages file amended:-
 ---------------------
 
-Amendments to messages file – user and log messages have been made more meaningful for user and new messages added for the new list types introduced.
+Amendments to messages file – user and log messages have been made more meaningful for the user and new messages added for the new list types introduced. A version of thje messages file with legacy worded messages is provided as messages.alt (UKenglish only)  Translations are required into other languages, please submit these to ??????  
 
 
 
