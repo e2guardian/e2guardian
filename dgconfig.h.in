@@ -1,5 +1,8 @@
 /* dgconfig.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to enable support for add header */
+#undef ADDHEADER
+
 /* Maximum number of open filedescriptors */
 #undef DANS_MAXFD
 
@@ -99,6 +102,9 @@
 /* Define to 1 if you have the `regcomp' function. */
 #undef HAVE_REGCOMP
 
+/* Define to 1 if you have the `resolv' function. */
+#undef HAVE_RESOLV
+
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
 
@@ -183,6 +189,12 @@
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
 
+/* Define to enable support for legacy log format */
+#undef LEGACY_LOG
+
+/* Define to enable support for local lists */
+#undef LOCAL_LISTS
+
 /* Define if type "off_t" is a typedef of another type for which String
    already has a constructor */
 #undef OFFT_COLLISION
@@ -205,8 +217,26 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* Define to enable DNS auth plugin */
+#undef PRT_DNSAUTH
+
+/* Define to enable support for referer exceptions */
+#undef REFEREXCEPT
+
+/* Define to enable support for regexp redirects */
+#undef RXREDIRECTS
+
+/* Define to enable support for ssl extra lists */
+#undef SEARCHWORDS
+
+/* Define to enable support for ssl extra lists */
+#undef SSL_EXTRA_LISTS
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Define to enable support for total block list */
+#undef TOTAL_BLOCK_LIST
 
 /* Version number of package */
 #undef VERSION

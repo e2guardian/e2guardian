@@ -13,7 +13,7 @@ AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
 AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 2.12.0.0)
+AC_INIT(e2guardian, 1.0.0.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
@@ -491,6 +491,205 @@ fi],
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
 
+# asking user if they want total block list support
+AC_MSG_CHECKING(for total block list support)
+AC_ARG_ENABLE(
+totblock,
+[AC_HELP_STRING([--enable-totalblocklist@<:@=no@:>@], [Enable support for total block list])],
+[ if test "x$enableval" = "xyes"; then
+	AC_MSG_RESULT(yes)
+	totblock=true
+	dmlists=true
+	TOTALBLOCKSUPPORT=""
+	AC_DEFINE([TOTAL_BLOCK_LIST],[],[Define to enable support for total block list])
+else
+	totblock=false
+	TOTALBLOCKSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+fi],
+[
+	totblock=false
+	TOTALBLOCKSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+]
+)
+AM_CONDITIONAL(TOTAL_BLOCK_LIST, test "x$totblock" = "xtrue")
+AC_SUBST(TOTALBLOCKSUPPORT)
+
+# asking user if they want local list support
+AC_MSG_CHECKING(for local list support)
+AC_ARG_ENABLE(
+locallists,
+[AC_HELP_STRING([--enable-locallists@<:@=no@:>@], [Enable support for local lists])],
+[ if test "x$enableval" = "xyes"; then
+	AC_MSG_RESULT(yes)
+	locallists=true
+	LOCALLISTSUPPORT=""
+	AC_DEFINE([LOCAL_LISTS],[],[Define to enable support for local lists])
+else
+	locallists=false
+	LOCALLISTSSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+fi],
+[
+	locallists=false
+	LOCALLISTSSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+]
+)
+AM_CONDITIONAL(LOCAL_LISTS, test "x$locallists" = "xtrue")
+AC_SUBST(LOCALLISTSSUPPORT)
+
+# asking user if they want referer exception support
+AC_MSG_CHECKING(for referer exception support)
+AC_ARG_ENABLE(
+refererexception,
+[AC_HELP_STRING([--enable-refererexception@<:@=yes@:>@], [Enable support for referer exception ])],
+[ if test "x$enableval" = "xno"; then
+	refererexception=false
+	REFEREXCEPTSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	refererexception=true
+	REFEREXCEPTSUPPORT=""
+	AC_DEFINE([REFEREXCEPT],[],[Define to enable support for referer exceptions])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	refererexception=true
+	REFEREXCEPTSUPPORT=""
+	AC_DEFINE([REFEREXCEPT],[],[Define to enable support for referer exceptions])
+]
+)
+AM_CONDITIONAL(REFEREXCEPT, test "x$refererexception" = "xtrue")
+AC_SUBST(REFEREXCEPTSUPPORT)
+
+# asking user if they want regexp redirects support
+AC_MSG_CHECKING(for regexp redirects support)
+AC_ARG_ENABLE(
+rxredirects,
+[AC_HELP_STRING([--enable-rxredirects@<:@=yes@:>@], [Enable support for regexp redirects])],
+[ if test "x$enableval" = "xno"; then
+	rxredirects=false
+	RXREDIRECTSSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	rxredirects=true
+	RXREDIRECTSSUPPORT=""
+	AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	rxredirects=true
+	RXREDIRECTSSUPPORT=""
+	AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects ])
+]
+)
+AM_CONDITIONAL(RXREDIRECTS, test "x$rxredirects" = "xtrue")
+AC_SUBST(RXREDIRECTSSUPPORT)
+
+# asking user if they want add header support
+AC_MSG_CHECKING(for add header support)
+AC_ARG_ENABLE(
+addheader,
+[AC_HELP_STRING([--enable-addheader@<:@=yes@:>@], [Enable support for add header])],
+[ if test "x$enableval" = "xno"; then
+	addheader=false
+	ADDHEADERSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	addheader=true
+	ADDHEADERSUPPORT=""
+	AC_DEFINE([ADDHEADER],[],[Define to enable support for add header])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	addheader=true
+	ADDHEADERSUPPORT=""
+	AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
+]
+)
+AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
+AC_SUBST(ADDHEADERSUPPORT)
+
+# asking user if they want ssl extra lists support
+AC_MSG_CHECKING(for ssl extra lists support)
+AC_ARG_ENABLE(
+sslextralists,
+[AC_HELP_STRING([--enable-sslextralists@<:@=yes@:>@], [Enable support for ssl extra lists])],
+[ if test "x$enableval" = "xno"; then
+	sslextralists=false
+	SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	sslextralists=true
+	SSL_EXTRA_LISTSSUPPORT=""
+	AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	sslextralists=true
+	SSL_EXTRA_LISTSSUPPORT=""
+	AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists ])
+]
+)
+AM_CONDITIONAL(SSL_EXTRA_LISTS, test "x$sslextralists" = "xtrue")
+AC_SUBST(SSL_EXTRA_LISTSSUPPORT)
+
+# asking user if they want searchwords support
+AC_MSG_CHECKING(for searchwords support)
+AC_ARG_ENABLE(
+searchwords,
+[AC_HELP_STRING([--enable-searchwords@<:@=yes@:>@], [Enable support for ssl extra lists])],
+[ if test "x$enableval" = "xno"; then
+	searchwords=false
+	SEARCHWORDSSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	searchwords=true
+	SEARCHWORDSSUPPORT=""
+	AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	searchwords=true
+	SEARCHWORDSSUPPORT=""
+	AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists ])
+]
+)
+AM_CONDITIONAL(SEARCHWORDS, test "x$searchwords" = "xtrue")
+AC_SUBST(SEARCHWORDSSUPPORT)
+
+# asking user if they want legacy log support
+AC_MSG_CHECKING(for legacy log support)
+AC_ARG_ENABLE(
+legacylog,
+[AC_HELP_STRING([--enable-legacylog@<:@=yes@:>@], [Enable support for legacy log format])],
+[ if test "x$enableval" = "xno"; then
+	legacylog=false
+	LEGACY_LOGSUPPORT="#!! Not compiled !! "
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	legacylog=true
+	LEGACY_LOGSUPPORT=""
+	AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format])
+fi],
+[
+	AC_MSG_RESULT(yes)
+	legacylog=true
+	LEGACY_LOGSUPPORT=""
+	AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format ])
+]
+)
+AM_CONDITIONAL(LEGACY_LOG, test "x$legacylog" = "xtrue")
+AC_SUBST(LEGACY_LOGSUPPORT)
+
 # asking user if they want trickle downloadmanager support
 AC_MSG_CHECKING(for trickle download manager support)
 AC_ARG_ENABLE(
@@ -576,6 +775,65 @@ fi],
 )
 AM_CONDITIONAL(ENABLE_NTLM, test "x$ntlm" = "xtrue")
 AC_SUBST(NTLMSUPPORT)
+
+# asking user if they want DNS auth support
+AC_MSG_CHECKING(for DNS support)
+AC_ARG_ENABLE(
+dnsauth,
+[AC_HELP_STRING([--enable-dnsauth@<:@=no@:>@], [Enable support for the DNS auth plugin])],
+[ if test "x$enableval" = "xno"; then
+	AC_MSG_RESULT(no)
+	dnsauth=false
+	DNSAUTHSUPPORT="!! Not compiled !! "
+else
+	AC_MSG_RESULT(yes)
+	dnsauth=true
+	DNSAUTHSUPPORT=""
+	AC_DEFINE([PRT_DNSAUTH],[],[Define to enable DNS auth plugin])
+	# now need to check if they're using an resolv library, rather
+	# than a native resolv implementation
+	AC_ARG_WITH(libresolv,
+		[AC_HELP_STRING([--with-libresolv@<:@=NONE@:>@], [Specify search path on a system which requires an external resolv library (only used in conjunction with DNS auth plugin).])],
+		[ # check for header & func (in library) in given prefix
+			if test "x$withval" != "x"; then
+				CPPFLAGS="${CPPFLAGS} -I${withval}/include"
+				LIBS="-L${withval}/lib -lresolv ${LIBS}"
+			else
+				LIBS="-lresolv ${LIBS}"
+			fi
+			AC_CHECK_LIB(resolv, resolv, [AC_MSG_RESULT(linked)], [
+				AC_MSG_RESULT(no)
+				AC_CHECK_LIB(resolv, libresolv, [AC_MSG_RESULT(linked)], [
+					AC_MSG_ERROR([no libresolv found in given search path! (needed by DNS plugin)])
+				])
+			])
+		],
+		[ # check for native header & func (no library)
+			AC_CHECK_FUNCS(resolv, [AC_MSG_RESULT(native)], [
+				AC_MSG_RESULT(no)
+				# native not found, so look for linked
+				LIBS="-lresolv ${LIBS}"
+				AC_CHECK_LIB(resolv, resolv, [
+					AC_MSG_RESULT(linked)
+				], [
+					AC_MSG_RESULT(no)
+					AC_CHECK_LIB(resolv, libresolv, [AC_MSG_RESULT(linked)], [
+						AC_MSG_ERROR([no native or standard library resolv function found! (needed by DNS plugin - try again with "--with-libresolv"?)])
+					])
+				])
+			])
+		]
+	)
+fi],
+[
+	AC_MSG_RESULT(no)
+	dnsauth=false
+	DNSAUTHSUPPORT="!! Not compiled !! "
+]
+)
+AM_CONDITIONAL(PRT_DNSAUTH, test "x$dnsauth" = "xtrue")
+AC_SUBST(DNSAUTHSUPPORT)
+
 
 AC_ARG_WITH(filedescriptors,
   AS_HELP_STRING([--with-filedescriptors=NUMBER],

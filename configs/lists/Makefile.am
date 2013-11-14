@@ -14,7 +14,8 @@ SUBDIRS += downloadmanagers
 endif
 
 WLISTS = bannedextensionlist bannediplist bannedmimetypelist \
-	 bannedregexpurllist bannedsitelist bannedurllist \
+	 bannedregexpurllist bannedsitelist \
+	 bannedsearchlist bannedsslsitelist bannedurllist \
 	 contentregexplist exceptioniplist exceptionsitelist \
 	 exceptionurllist filtergroupslist greysitelist \
 	 greyurllist pics bannedphraselist weightedphraselist \
