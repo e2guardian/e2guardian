@@ -661,7 +661,7 @@ bool FOptionContainer::read(const char *filename)
 			std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
 
 			// search term blocking
-			//std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
+			std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
 
 #ifdef PRT_DNSAUTH
 			std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
@@ -888,6 +888,13 @@ bool FOptionContainer::read(const char *filename)
 			addheader_regexp_flag = true;
 			}  // url regular expressions for header insertions
 #endif
+			if (searchengine_regexp_list_location.length()) {
+				if (!is_daemonised) {
+					std::cerr << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. "  << std::endl;
+				}
+				syslog(LOG_ERR, "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead.");
+				return false;
+			}
 
 #ifdef SEARCHWORDS
 			if (banned_search_list_location.length() && readFile(banned_search_list_location.c_str(),&banned_search_list,true,true,"bannedsearchlist")) {
@@ -960,14 +967,18 @@ bool FOptionContainer::read(const char *filename)
 #endif
 #endif
 #ifdef SSL_EXTRA_LISTS
-			if (!readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
-				return false;
+			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
+				banned_ssl_site_flag = true;
 			}		// banned domains
-			banned_ssl_site_flag = true;
-			if (!readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
-				return false;
+			else {
+				banned_ssl_site_flag = false;
+			}
+			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
+				grey_ssl_site_flag = true;
 			}		// grey domains
-			grey_ssl_site_flag = true;
+			else {
+				grey_ssl_site_flag = false;
+			}
 #endif
 			
 			
