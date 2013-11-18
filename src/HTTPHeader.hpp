@@ -157,10 +157,12 @@ public:
 	
 	// encode url
 	String URLEncode();
-	
+
+#ifdef REFEREREXCEPT	
 	
 	// grab referer url from headers
 	String getReferer();
+#endif
 
 	HTTPHeader():port(0), timeout(120), contentlength(0), postdata(NULL), dirty(true) { reset(); };
 	~HTTPHeader() { delete postdata; };

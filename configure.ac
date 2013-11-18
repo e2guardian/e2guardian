@@ -547,23 +547,23 @@ refererexception,
 [AC_HELP_STRING([--enable-refererexception@<:@=yes@:>@], [Enable support for referer exception ])],
 [ if test "x$enableval" = "xno"; then
 	refererexception=false
-	REFEREXCEPTSUPPORT="#!! Not compiled !! "
+	REFEREREXCEPTSUPPORT="#!! Not compiled !! "
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
 	refererexception=true
-	REFEREXCEPTSUPPORT=""
-	AC_DEFINE([REFEREXCEPT],[],[Define to enable support for referer exceptions])
+	REFEREREXCEPTSUPPORT=""
+	AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
 fi],
 [
 	AC_MSG_RESULT(yes)
 	refererexception=true
-	REFEREXCEPTSUPPORT=""
-	AC_DEFINE([REFEREXCEPT],[],[Define to enable support for referer exceptions])
+	REFEREREXCEPTSUPPORT=""
+	AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
 ]
 )
-AM_CONDITIONAL(REFEREXCEPT, test "x$refererexception" = "xtrue")
-AC_SUBST(REFEREXCEPTSUPPORT)
+AM_CONDITIONAL(REFEREREXCEPT, test "x$refererexception" = "xtrue")
+AC_SUBST(REFEREREXCEPTSUPPORT)
 
 # asking user if they want regexp redirects support
 AC_MSG_CHECKING(for regexp redirects support)

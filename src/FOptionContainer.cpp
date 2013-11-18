@@ -239,6 +239,13 @@ HTMLTemplate* FOptionContainer::getHTMLTemplate()
 // listname is used in error messages.
 bool FOptionContainer::readFile(const char *filename, unsigned int* whichlist, bool sortsw, bool cache, const char *listname)
 {
+	if (strlen(filename) < 3 ) {
+		if (!is_daemonised) {
+			std::cerr << "Required Listname " << listname << " is not defined" << std::endl;
+		}
+		syslog(LOG_ERR, "Required Listname %s is not defined", listname);
+		return false;
+	}
 	int res = o.lm.newItemList(filename, sortsw, 1, true);
 	if (res < 0) {
 		if (!is_daemonised) {
@@ -869,20 +876,17 @@ bool FOptionContainer::read(const char *filename)
 			auth_exception_url_flag = true;
 #endif
 #ifdef REFEREREXCEPT
-			if (!readFile(referer_exceptions_site_list_location.c_str(),&referer_exception_site_list,false,true,"refererexceptionsitelist")) {
-				return false;
+			if (referer_exceptions_site_list_location.length() && readFile(referer_exceptions_site_list_location.c_str(),&referer_exception_site_list,false,true,"refererexceptionsitelist")) {
+				referer_exception_site_flag = true;
 			}		// referer site exceptions
-			referer_exception_site_flag = true;
-			if (!readFile(referer_exceptions_url_list_location.c_str(),&referer_exception_url_list,true,true,"refererexceptionurllist")) {
-				return false;
+			if (referer_exceptions_url_list_location.length() && readFile(referer_exceptions_url_list_location.c_str(),&referer_exception_url_list,true,true,"refererexceptionurllist")) {
+				referer_exception_url_flag = true;
 			}		// referer url exceptions
-			referer_exception_url_flag = true;
 #endif
 #ifdef ADDHEADER
-			if (!readRegExReplacementFile(addheader_regexp_list_location.c_str(),"addheaderregexplist",addheader_regexp_list,addheader_regexp_list_rep,addheader_regexp_list_comp)) {
-				return false;
-			}  // url regular expressions for header insertions
+			if (addheader_regexp_list_location.length() && readRegExReplacementFile(addheader_regexp_list_location.c_str(),"addheaderregexplist",addheader_regexp_list,addheader_regexp_list_rep,addheader_regexp_list_comp)) {
 			addheader_regexp_flag = true;
+			}  // url regular expressions for header insertions
 #endif
 
 #ifdef SEARCHWORDS

@@ -41,6 +41,9 @@ bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
 picsfile = '@DGCONFDIR@/lists/pics'
 contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
 urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
+refererexceptionsitelist = '@DGCONFDIR@/lists/refererexceptionsitelist'
+refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
+urlredirectregexpurllist = '@DGCONFDIR@/lists/urlredirectregexpurllist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
 #localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'

@@ -1566,6 +1566,24 @@ bool HTTPHeader::isScanBypassURL(String * url, const char *magic, const char *cl
 	return false;
 }
 
+#ifdef REFEREREXCEPT
+String HTTPHeader::getReferer()
+{
+	String line;
+	for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+		if (i->startsWithLower("referer:")) {
+			line = i->after(": ");
+			break;
+		}
+	}
+	line.removeWhiteSpace();
+#ifdef DGDEBUG
+	std::cout << "Found Referer URL:" << line << std::endl;
+#endif
+	return line;
+}
+#endif
+
 // *
 // *
 // * URL and Base64 decoding funcs
