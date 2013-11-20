@@ -65,6 +65,13 @@ else
 NTLMAUTH_SOURCE =
 endif
 
+if PRT_DNSAUTH
+DNSAUTH_SOURCE = authplugins/dnsauth.cpp
+else
+DNSAUTH_SOURCE =
+endif
+
+
 sbin_PROGRAMS = e2guardian 
 
 e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
@@ -116,5 +123,5 @@ e2guardian_SOURCES = String.cpp String.hpp \
 		       $(DEFAULTDM_SOURCE) $(FANCYDM_SOURCE) \
 		       $(TRICKLEDM_SOURCE) $(PROXYAUTH_SOURCE) \
 		       $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
-		       $(PORTAUTH_SOURCE) \
+		       $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
 		       $(NTLMAUTH_SOURCE) $(DIGESTAUTH_SOURCE)

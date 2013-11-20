@@ -1,0 +1,8 @@
+# Port-Group list
+# Used by the Port-based auth plugin to assign Ports to filter groups.
+#
+# Note that ports MUST be entered in ascending order
+#
+# Examples:
+#8080 = filter0
+#8081 = filter1

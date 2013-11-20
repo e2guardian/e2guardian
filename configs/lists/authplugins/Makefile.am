@@ -4,7 +4,7 @@ DGDATADIR = $(DGCONFDIR)/lists/authplugins
 
 SUBDIRS = .
 
-WLISTS = ipgroups
+WLISTS = ipgroups portgroups
 
 EXTRA_DIST = $(WLISTS)
 

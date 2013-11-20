@@ -56,6 +56,9 @@ urlredirectregexpurllist = '@DGCONFDIR@/lists/urlredirectregexpurllist'
 #localgreysslsitelist = '@DGCONFDIR@/lists/localgreysslsitelist'
 #localbannedsearchlist = '@DGCONFDIR@/lists/localbannedsearchlist'
 
+@DNSAUTHSUPPORT@authexceptionsitelist = '@DGCONFDIR@/lists/authexceptionsitelist'
+@DNSAUTHSUPPORT@authexceptionurllist = '@DGCONFDIR@/lists/authexceptionurllist'
+
 # Filetype filtering
 #
 # Allow bannedregexpurllist with grey list mode

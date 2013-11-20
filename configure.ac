@@ -11,6 +11,7 @@ AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp
 AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
 AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
 AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
+AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
 AC_INIT(e2guardian, 1.0.0.1)
@@ -790,40 +791,6 @@ else
 	dnsauth=true
 	DNSAUTHSUPPORT=""
 	AC_DEFINE([PRT_DNSAUTH],[],[Define to enable DNS auth plugin])
-	# now need to check if they're using an resolv library, rather
-	# than a native resolv implementation
-	AC_ARG_WITH(libresolv,
-		[AC_HELP_STRING([--with-libresolv@<:@=NONE@:>@], [Specify search path on a system which requires an external resolv library (only used in conjunction with DNS auth plugin).])],
-		[ # check for header & func (in library) in given prefix
-			if test "x$withval" != "x"; then
-				CPPFLAGS="${CPPFLAGS} -I${withval}/include"
-				LIBS="-L${withval}/lib -lresolv ${LIBS}"
-			else
-				LIBS="-lresolv ${LIBS}"
-			fi
-			AC_CHECK_LIB(resolv, resolv, [AC_MSG_RESULT(linked)], [
-				AC_MSG_RESULT(no)
-				AC_CHECK_LIB(resolv, libresolv, [AC_MSG_RESULT(linked)], [
-					AC_MSG_ERROR([no libresolv found in given search path! (needed by DNS plugin)])
-				])
-			])
-		],
-		[ # check for native header & func (no library)
-			AC_CHECK_FUNCS(resolv, [AC_MSG_RESULT(native)], [
-				AC_MSG_RESULT(no)
-				# native not found, so look for linked
-				LIBS="-lresolv ${LIBS}"
-				AC_CHECK_LIB(resolv, resolv, [
-					AC_MSG_RESULT(linked)
-				], [
-					AC_MSG_RESULT(no)
-					AC_CHECK_LIB(resolv, libresolv, [AC_MSG_RESULT(linked)], [
-						AC_MSG_ERROR([no native or standard library resolv function found! (needed by DNS plugin - try again with "--with-libresolv"?)])
-					])
-				])
-			])
-		]
-	)
 fi],
 [
 	AC_MSG_RESULT(no)

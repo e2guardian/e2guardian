@@ -1177,7 +1177,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 				} 
 #ifdef REFEREREXCEPT
-				else if ((o.fg[filtergroup]).inRefererExceptionLists(header.getReferer())) { // referer exception
+				else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
