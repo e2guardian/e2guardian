@@ -41,7 +41,7 @@ fi
 
 path=$PWD
 echo $path | grep "tmp"
-if ( $? != 0)
+if [ $? != 0 ]
 then
         echo "Please put the e2guardian (compile source) directory in /tmp before installation"
         exit 1
