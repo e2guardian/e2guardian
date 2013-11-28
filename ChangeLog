@@ -1,6 +1,6 @@
 November 2013 - e2guardian 1.0.0.1
 - mapportstoips conf option added - when off listens on every filterports on every IP address,
--  when on maps filterports to filterip's, default on
+- when on maps filterports to filterip's, default on
 
 First alpha version with E2BN Protex features added - See e2guardian.release for details.
 

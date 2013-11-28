@@ -3,12 +3,15 @@
 # Migration and installation script 
 # FredB 2013
 # Red Hat and debian
+#
+# chmod +x before execution !
+
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 E2_ETC_PATHS=@DGCONFDIR@
 E2_LOG_PATH=@DGLOGLOCATION@
 E2_BIN=../src/e2guardian
-STARTPATH=`pwd`
+STARTPATH=`$PWD`
 
 ##  DG ## 
 
@@ -39,12 +42,13 @@ fi
 
 # Make sure PATH
 
-path="pwd"
-if (test $path != "/tmp")
+path=$PWD
+echo $path | grep "tmp"
+if [ $? != 0 ]
 then
-	echo "Please put the e2guardian (compile source) directory in /tmp before installation"
-	exit 1
-fi	
+        echo "Please put the e2guardian (compile source) directory in /tmp before installation"
+        exit 1
+fi
 
 is_initial_configuration () { 	
         mkdir -p $E2_ETC_PATHS
@@ -133,3 +137,4 @@ else
 	echo "ed2guardian is installed but init script is missing"
 
 fi
+

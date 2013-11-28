@@ -1,6 +1,6 @@
 November 2013 - e2guardian 1.0.0.1
 - mapportstoips conf option added - when off listens on every filterports on every IP address,
--  when on maps filterports to filterip's, default on
+- when on maps filterports to filterip's, default on
 
 First alpha version of e2guardian with E2BN Protex features added - See e2guardian.release for details.
 
@@ -16,7 +16,7 @@ This feature must be used with --with-filedescriptors=N compile option
 May 2013 - DansGuardian 2.12.0.6
 - Fixed Reportinglevel per filtegroup By frederic Bourgeois
 - Added sslaccessdeniedaddress (fix HTTPS denied blanck page with reporting level 3 - only with firefox -) By frederic Bourgeois
-- Added ssldeniedrewrite (fix HTTPS denied blanck page with reporting level 3, need a HTTPS website - By frederic Bourgeois 
+- Added ssldeniedrewrite (fix HTTPS denied blanck page with reporting level 3, need an HTTPS website - By frederic Bourgeois 
 - Added zero value (optional) for some options, like maxcontentramcachescansize - By frederic Bourgeois
 - Some minor efficiency improvements (remove GCC warning, etc) - By Frederic Bourgeois
 
