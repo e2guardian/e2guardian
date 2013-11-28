@@ -153,6 +153,12 @@ int main(int argc, char *argv[])
 						return 1;
 					}
 					break;
+#ifdef TOTAL_BLOCK_LIST
+				case 'i':
+					total_block_list = true;
+					o.use_total_block_list = total_block_list;
+					break;
+#endif
 				case 'h':
 					std::cout << "Usage: " << argv[0] << " [{-c ConfigFileName|-v|-P|-h|-N|-q|-s|-r|-g}]" << std::endl;
 					std::cout << "  -v gives the version number and build options." << std::endl;
@@ -206,6 +212,10 @@ int main(int argc, char *argv[])
 		syslog(LOG_ERR, "%s", "Error on reading total_block_list");
 		std::cerr << "Error on reading total_block_list" << std::endl;
 //		return 1;  
+#ifdef DGDEBUG
+				std::cerr << "Total block lists read OK from stdin." << std::endl;
+
+#endif
 	}
 #endif
 

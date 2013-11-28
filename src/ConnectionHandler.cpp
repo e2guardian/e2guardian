@@ -3313,17 +3313,16 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	}
 
 	 // if we get here it's to be content checked (so far!)
+
+#ifdef SEARCHWORDS
 	// So now check for search etc.
 
-	// NOTE dg/protex search term stuff needs combining!!!!
 
 	// search term blocking - apply even to things in grey lists, as it's a form of content filtering
 	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
 	// order for regexes to be able to split up parameters reliably.
 	if (!is_ssl) {
 
-
-#ifdef SEARCHWORDS
 	(*checkme).isSearch = (*header).isSearch(filtergroup);
 	if ((*checkme).isSearch) {
 		if ((i = (*o.fg[filtergroup]).inBannedSearchList((*header).searchwords())) != NULL) {
@@ -3360,6 +3359,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 				}
 			}
 	}
+    }
 #endif
 
 #ifdef __SSLCERT
@@ -3426,7 +3426,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
 	}
 #endif //__SSLCERT
-    }
 }
 
 
