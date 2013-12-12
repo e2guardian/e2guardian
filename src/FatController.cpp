@@ -404,7 +404,16 @@ int prefork(int num)
 			}
 			// no need to deallocate memory etc as already done when fork()ed
 			// right - let's do our job!
-			UDSocket sock(sv[1]);
+			
+			//  code to make fd low number
+			int low_fd = dup(sv[1]);
+			if(low_fd < 0) {
+				return -1;  //error
+			}
+			//close(sv[1]);
+			//sv[1] = low_fd;
+			UDSocket sock(low_fd);
+			//UDSocket sock(sv[1]);
 			int rc = handle_connections(sock);
 
 			// ok - job done, time to tidy up.
