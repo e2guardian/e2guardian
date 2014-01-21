@@ -3180,9 +3180,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 				(*checkme).whatIsNaughty += i;
 				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
 				(*checkme).isItNaughty = true;
-				// Bug with SSL and listcategory (log)
-				if (!is_ssl)
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
 				return;
 		}
 		if ((i = (*o.fg[filtergroup]).inBannedURLList(temp, true, is_ip, is_ssl)) != NULL) {
