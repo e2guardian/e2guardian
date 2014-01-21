@@ -4,7 +4,7 @@
 #The bannedurllist is for blocking PART of a site
 #The bannedsitelist is for blocking ALL of a site
 
-#As of DansGuardian 2.7.3 you can now include
+#You can include
 #.tld so for example you can match .gov for example
 
 #The 'grey' lists override the 'banned' lists.
@@ -39,7 +39,8 @@
 
 badboys.com
 
-
+# NOTE: In e2guardian Blanket blocks are now ONLY supported in this top file
+# WARNING: Blanket blocks in .included files will be silently ignored
 
 #Blanket Block.  To block all sites except those in the
 #exceptionsitelist and greysitelist files, remove

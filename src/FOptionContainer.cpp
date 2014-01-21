@@ -1270,12 +1270,14 @@ char *FOptionContainer::testBlanketBlock(unsigned int list, bool ip, bool ssl) {
 		o.lm.l[list]->lastcategory = "HTTPS_IP";
 		return (char*)o.language_list.getTranslation(507);
 	}
+/* # Disable recursive to reduce wasted CPU and fix wrong lastcategory issue PIP
 	for (std::vector<int>::iterator i = o.lm.l[list]->morelists.begin(); i != o.lm.l[list]->morelists.end(); i++) {
 		char *r = testBlanketBlock(*i, ip, ssl);
 		if (r) {
 			return r;
 		}
 	}
+*/
 	return NULL;
 }
 
