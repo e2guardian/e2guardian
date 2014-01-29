@@ -71,10 +71,12 @@ class postfilter_exception: public std::runtime_error
 //
 
 // check the URL cache to see if we've already flagged an address as clean
-bool wasClean(String &url, const int fg)
+bool wasClean(HTTPHeader &header, String &url, const int fg)
 {
 	if (reloadconfig)
 		return false;
+	if ((header.requestType() != "GET") || url.length() > 2000) 
+		return false; // only check GET and normal length urls
 	UDSocket ipcsock;
 	if (ipcsock.getFD() < 0) {
 		syslog(LOG_ERR, "Error creating ipc socket to url cache");
@@ -2669,7 +2671,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						// probably, since it uses a "magic" status code in the cache; easier than coding yet another hash type.
 
 						if (o.url_cache_number > 0 && (o.scan_clean_cache || responsescanners.empty()) && !docheader.authRequired()) {
-							if (wasClean(urld, filtergroup)) {
+							if (wasClean(header, urld, filtergroup)) {
 								wasclean = true;
 								cachehit = true;
 								responsescanners.clear();
@@ -2719,7 +2721,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				// the clean cache because someone who's already been to it hits refresh.
 				if (!wasclean && !checkme.isItNaughty && !isbypass
 					&& (docheader.isContentType("text") || (wasscanned && o.scan_clean_cache))
-					&& (header.requestType() == "GET") && (docheader.returnCode() == 200))
+					&& (header.requestType() == "GET") && (docheader.returnCode() == 200)
+					&& urld.length() < 2000)
 				{
 					addToClean(urld, filtergroup);
 				}
