@@ -159,8 +159,8 @@ void FOptionContainer::resetJustListData()
 	referer_exception_site_flag = false;
 	referer_exception_url_flag = false;
 #endif
-#ifdef LOCAL_LISTS
 	use_only_local_allow_lists = false;
+#ifdef LOCAL_LISTS
 	local_exception_site_flag = false;
 	local_exception_url_flag = false;
 	local_banned_site_flag = false;
@@ -316,13 +316,11 @@ bool FOptionContainer::read(const char *filename)
 			disable_content_scan = false;
 		}
 
-#ifdef LOCAL_LISTS
 		if (findoptionS("useonlylocalallowlists") == "on") {
 			use_only_local_allow_lists = true;
 		} else {
 			use_only_local_allow_lists = false;
 		}
-#endif
 
 #ifdef __SSLCERT
 		if (findoptionS("sslcheckcert") == "on") {
