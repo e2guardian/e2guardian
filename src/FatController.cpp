@@ -1409,16 +1409,17 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 				}
 				sec = temp;
 				when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
-				// truncate long log items
-				/*if ((o.max_logitem_length > 0) && (when.length() > o.max_logitem_length))
-					when.resize(o.max_logitem_length);*/
 				// append timestamp if desired
 				if (o.log_timestamp)
 					when += " " + utime;
 					
 			}
 
+
+#ifdef NOTDEFINED
 			// truncate long log items
+			// moved to ConnectionHandler to avoid IPC overload
+			// on very large URLs
 			if (o.max_logitem_length > 0) {
 				//where.limitLength(o.max_logitem_length);
 				if (cat.length() > o.max_logitem_length)
@@ -1436,6 +1437,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 				if (ssize.length() > o.max_logitem_length)
 					ssize.resize(o.max_logitem_length);*/
 			}
+#endif
 
 			// blank out IP, hostname and username if desired
 			if (o.anonymise_logs) {
@@ -2346,7 +2348,9 @@ int fc_controlit()
 			if (o.url_cache_number > 0) {
 				urllistsock.close();  // we don't need our copy of this so close it
 			}	
-			log_listener(o.log_location, o.logconerror, o.log_syslog);
+			if((log_listener(o.log_location, o.logconerror, o.log_syslog)) > 0) {
+			   syslog(LOG_ERR, "Error starting log listener");
+			}
 #ifdef DGDEBUG
 			std::cout << "Log listener exiting" << std::endl;
 #endif
@@ -2366,7 +2370,9 @@ int fc_controlit()
 			if (o.max_ips > 0) {
 				iplistsock.close();
 			}
-			url_list_listener(o.logconerror);
+			if((url_list_listener(o.logconerror)) > 0) {
+			   syslog(LOG_ERR, "Error starting url list listener");
+			}
 #ifdef DGDEBUG
 			std::cout << "URL List listener exiting" << std::endl;
 #endif
@@ -2386,7 +2392,9 @@ int fc_controlit()
 			if (o.url_cache_number > 0) {
 			        urllistsock.close();  // we don't need our copy of this so close it
 			}
-			ip_list_listener(o.stat_location, o.logconerror);
+			if((ip_list_listener(o.stat_location, o.logconerror)) > 0 ) {
+			   syslog(LOG_ERR, "Error starting ip list listener");
+			}
 #ifdef DGDEBUG
 			std::cout << "IP List listener exiting" << std::endl;
 #endif

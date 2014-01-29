@@ -3022,6 +3022,15 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 		// Formatting code moved into log_listener in FatController.cpp
 		// Original patch by J. Gauthier
 
+		// Item length limit put back to avoid log listener 
+		// overload with very long urls Philip Pearce Jan 2014
+		if (cat->length() > o.max_logitem_length)
+			cat->resize(o.max_logitem_length);
+		if (what.length() > o.max_logitem_length)
+			what.resize(o.max_logitem_length);
+		if (where.length() > o.max_logitem_length)
+			where.limitLength(o.max_logitem_length);
+
 #ifdef DGDEBUG
 		std::cout << dbgPeerPort << " -Building raw log data string... ";
 #endif
