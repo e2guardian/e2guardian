@@ -35,7 +35,7 @@ OptionContainer::OptionContainer():use_filter_groups_list(false), use_group_name
 auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false),
 log_syslog(false),  anonymise_logs(false), log_ad_blocks(false),log_timestamp(false),
 log_user_agent(false), soft_restart(false),delete_downloaded_temp_files(false),
-max_logitem_length(0), max_content_filter_size(0),
+max_logitem_length(2000), max_content_filter_size(0),
 max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0),
 content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0),
 reporting_level(0), weighted_phrase_mode(0), numfg(0),
@@ -243,7 +243,7 @@ bool OptionContainer::read(const char *filename, int type)
 		// deque.  They are only seperate files for clarity.
 
 		max_logitem_length = findoptionI("maxlogitemlength");
-		if (!realitycheck(max_logitem_length, 0, 0, "maxlogitemlength")) {
+		if (!realitycheck(max_logitem_length, 1, 0, "maxlogitemlength")) {
 			return false;
 		}
                 proxy_timeout = findoptionI("proxytimeout");
