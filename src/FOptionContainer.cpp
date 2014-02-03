@@ -1360,7 +1360,7 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
 #endif
 #ifdef SSL_EXTRA_LISTS
 	if (ssl) {
-	   return inSiteList(url, grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+	   return inGreySSLSiteList(url, doblanket, ip, ssl);
 	};
 #endif
 	return inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL;
@@ -1369,12 +1369,22 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
 #ifdef SSL_EXTRA_LISTS
 char *FOptionContainer::inBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-	return inSiteList(url, banned_ssl_site_list, doblanket, ip, ssl);
+	if (banned_ssl_site_flag) {
+	   return inSiteList(url, banned_ssl_site_list, doblanket, ip, ssl);
+	}
+        else {
+	   return NULL;
+	}
 }
 
 bool FOptionContainer::inGreySSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-	return inSiteList(url, grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+	if (grey_ssl_site_flag) {
+	   return inSiteList(url, grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+	}
+        else {
+	   return false;
+	}
 }
 #endif
 
@@ -1388,8 +1398,8 @@ bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool 
 bool FOptionContainer::inRefererExceptionLists(String url)
 {
 	if ((url.length() > 0) 
-		&& ((inSiteList(url, referer_exception_site_list, false, false, false) != NULL)
-		|| (inURLList(url, referer_exception_url_list, false, false, false) != NULL)) )
+		&& ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false) != NULL))
+		|| ( referer_exception_url_flag && (inURLList(url, referer_exception_url_list, false, false, false) != NULL))) )
 		return true;
 	return false;
 }
