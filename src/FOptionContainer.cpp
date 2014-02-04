@@ -66,6 +66,7 @@ void FOptionContainer::reset()
 
 void FOptionContainer::resetJustListData()
 {
+	if (!(group_mode == 1)) return;
 	if (banned_phrase_flag) o.lm.deRefList(banned_phrase_list);
 	if (searchterm_flag) o.lm.deRefList(searchterm_list);
 	if (exception_site_flag) o.lm.deRefList(exception_site_list);

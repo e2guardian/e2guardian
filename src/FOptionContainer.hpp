@@ -320,8 +320,8 @@ public:
 		local_banned_url_flag(false), 
 		local_grey_site_flag(false), 
 		local_grey_url_flag(false),
-		use_only_local_allow_lists(false),
 #endif
+		use_only_local_allow_lists(false),
 		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
 		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
 		banned_url_flag(false), grey_site_flag(false), grey_url_flag(false),
