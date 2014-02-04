@@ -1132,6 +1132,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 
 			char *retchar;
 
+//
+// Start of exception checking
+//
 			// being a banned user/IP overrides the fact that a site may be in the exception lists
 			// needn't check these lists in bypass modes
 			if (!(isbanneduser || isbannedip || isbypass)) {
@@ -1185,6 +1188,10 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					message_no = 620;
 				}
 #endif
+#endif		// end of local lists exception checking
+			}
+#ifdef LOCAL_LISTS
+
 					
 				if (!(isexception || isourwebserver)) {
 				    // check if this is a search request
@@ -1194,7 +1201,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				    message_no = checkme.message_no;
 				};
 #endif
-			}
                         /* check header and regex before (if bannedregexwithblanketbloc is on) */
                         if ((*o.fg[filtergroup]).enable_regex_grey) {
                                 requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
@@ -1214,10 +1220,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					checkme.isItNaughty = true;
 					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
 				}
-				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
+				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 	// allowed site
 #else
-				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
+				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 		// allowed site
 #endif
+				{
 					if (o.fg[0]->isOurWebserver(url)) {
 						isourwebserver = true;
 					} else {
@@ -1243,14 +1250,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
 					exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
 				}
-			//else if ((rc = o.fg[filtergroup]->inExceptionRegExpHeaderList(header.header)) >= 0) {
-						//isexception = true;
-						//// exception regular expression header match:
-				//exceptionreason = o.language_list.getTranslation(610);
-					//message_no = 610;
-				//exceptionreason += o.fg[filtergroup]->exception_regexpheader_list_source[rc].toCharArray();
-						//exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpheader_list_ref[rc]]->category.toCharArray();
-			//}
 #ifdef REFEREREXCEPT
 #ifndef LOCAL_LISTS
 				else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
@@ -1261,7 +1260,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 #endif
 			}
-
+//
+// End of main exception checking
+//
 
 #ifdef DGDEBUG
 			std::cout << dbgPeerPort << " -extracted url:" << urld << std::endl;
