@@ -1195,6 +1195,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				};
 #endif
 			}
+                        /* check header and regex before (if bannedregexwithblanketbloc is on) */
+                        if ((*o.fg[filtergroup]).enable_regex_grey) {
+                                requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+                                message_no = checkme.message_no;
+                        }
+
 			// orginal section only now called if local list not matched
 			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
 				bool is_ssl = header.requestType() == "CONNECT";
