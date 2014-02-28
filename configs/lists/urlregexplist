@@ -9,10 +9,14 @@
 # Manipulates the URL to automatically switch on safe searching in Google,
 # Singingfish, Ilse, KEL, Lycos, Alltheweb, Yahoo, Hotbot, Wisenut,
 # Metacrawler.
-# Google, Go etc. - remove 'safe=...'
-#"(^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/images\?)(.*)(&?)(safe=[^&]*)"->"\1\2\3"
-# ... and add 'safe=vss'
-#"(^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/images\?)"->"\1safe=vss&"
+
+# "safe=off"->""¬
+"(^http://[a-z]*\.google\.[a-z]*/[a-z]*\?)"->"\1safe=vss&"¬
+# "safe=off"->""¬
+"(^https://[a-z]*\.google\.[a-z]*/[a-z]*\?)"->"\1safe=vss&"¬
+# force bing safe safe search from http://tech.groups.yahoo.com/group/dansguardian/message/23099¬
+"(^http://[0-9a-z]+\.bing\.[a-z]+[-/%.0-9a-z]*\?)(.*)"->"\1\2&adlt=strict"#¬
+
 
 # Singingfish - remove 'ff=...' and add 'ff=1'
 #"(^http://search\.singingfish\.com/[-/%.0-9a-z]*\?)(.*)(&?)(ff=[^&]*)"->"\1\2\3"
@@ -53,3 +57,6 @@
 # Metacrawler - remove 'familyfilter=...' and add 'familyfilter=1'
 #"(^http://www\.metacrawler\.com/info\.metac/search/[-/%.0-9a-z]*\?)(.*)(&?)(familyfilter=[^&]*)"->"\1\2\3"
 #"(^http://www\.metacrawler\.com/info\.metac/search/[-/%.0-9a-z]*\?)"->"\1familyfilter=1&"
+
+
+

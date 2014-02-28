@@ -1,65 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-
 <head>
-<title>DansGuardian - Access Denied</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script>
+    var url="-BYPASS-"
+
+    window.onload = function (){
+        if (url!="") {
+            document.getElementById("bypass").innerHTML='<a href="-BYPASS-" >Temporary Bypass</a>'
+        }
+    }
+</script>
+<style>
+body {
+    background-color:#FFFFFF;
+    font-family:verdana, arial, 'sans serif';j
+}
+
+#body {
+    margin:15px 15px auto;
+}
+
+#top {
+    padding:5px;
+    background-color:#C0C0C0;
+    text-align:right;
+    font-weight:bold;
+    font-family:verdana,arial,'sans serif';
+    color:#000000;
+    font-size:60%;
+}
+
+#main {
+    background-color:#F4F4F4;
+    text-align:center;
+    padding:20px;
+}
+
+#banner {
+    letter-spacing:0.5em;
+    word-spacing:1em;
+    padding:20px;
+    background-color:#FF0000;
+    text-align:center;
+    color:#FFFFFF;
+    font-size:200%;
+    font-weight: bold;
+}
+
+#reason {
+    padding:20px;
+    margin-top:20px;
+    background-color:#E2E2E2;
+    text-align:center;
+    color:#000000;
+    font-family:verdana, arial, 'sans serif';
+    font-size:80%;
+}
+
+.large {
+    font-weight:bold;
+    font-size:150%;
+}
+
+#footer {
+    padding:5px;
+    background-color:#C0C0C0;
+    text-align:right;
+    color:#FFFFFF;
+    font-size:60%;
+    font-family:verdana,arial,'sans serif';
+}
+
+#footer a {
+    color:#FFFFFF;
+}
+</style>
+<title>ACCESS DENIED</title>
 </head>
 
-<body bgcolor=#FFFFFF>
-
-<center>
-<table border=0 cellspacing=0 cellpadding=2 height=540 width=700>
-<tr>
-	<td colspan=2 bgcolor=#FEA700 height=100 align=center>
-	<font face=arial,helvetica size=6>
-	<b>Access has been Denied!</b>
-	</td>
-</tr>
-<tr>
-	<td colspan=2 bgcolor=#FFFACD height=30 align=right>
-	<font face=arial,helvetica size=3 color=black>
-	<b>-USER-&nbsp;</b>
-	</td>
-</tr>
-<tr>
-	<td align=center valign=bottom width=150 bgcolor=#B0C4DE>
-	<font face=arial,helvetica size=1 color=black>
-	YOUR ORG NAME
-	</td>
-	<td width=550 bgcolor=#FFFFFF align=center valign=center>
-	<font face=arial,helvetica color=black>
-	<font size=4>
-	Access to the page:
-	<br><br>
-	<a href="-URL-" target="_blank">-URL-</a>
-	<br><br>
-	<font size=3>
-	... has been denied for the following reason:
-	<br><br>
-	<font color=red>
-	<b>-REASONGIVEN-</b>
-	<font color=black>
-	<br><br>
-	Categories:
-	<br><br>
-	<font color=red>
-	<b>-CATEGORIES-</b>
-	<font color=black>
-	<br><br><br><br>
-	You are seeing this error because what you attempted to access appears to contain,
-	or is labeled as containing, material that has been deemed inappropriate.
-	<br><br>
-	If you have any queries contact your ICT Coordinator or Network Manager.
-	<br><br><br><br>
-	<font size=1>
-	Powered by <a href="http://www.dansguardian.org?block" target="_blank">DansGuardian</a>
-	</td>
-</tr>
-</table>
-
+<body>
+<div id="body">
+    <div id="top">
+       GROUP: -FILTERGROUP-&nbsp;&nbsp;&nbsp;IP: -USER-
+    </div>
+    <div id="main">
+        <div id="banner">
+            ACCESS DENIED
+        </div>
+        <div id="reason">
+            <p class="large">Access to the following page has been denied.<p>
+            <p>URL: <a href="-URL-">-URL-</a></p>
+            <p>-REASONGIVEN-</p>
+            <p>Categories: -CATEGORIES-</p>
+            <p>You are seeing this error because what you attempted to access appears to contain, or is labeled as containing, material that has been deemed inappropriate.</p>
+            <p id="bypass"><p>
+            <p>Please contact the Network Administrator at <a href="mailto:helpdesk@vashonsd.org?subject=Content Filter">helpdesk@vashonsd.org</a> if you think there has been an error.</p>
+        </div>
+    </div>
+    <div id="footer">
+        Content Filtering by <a href="http://dansguardian.org/"><b>DansGuardian</b></a>
+    </div>
+</div>
 </body>
-
 </html>
-
 <!--
 The available variables are as follows:
 - URL- gives the URL the user was trying to get to.
@@ -70,18 +114,13 @@ The available variables are as follows:
 - HOST- gives the originating hostname if known.
 - RAWFILTERGROUP- gives the group number.
 - FILTERGROUP- gives the group name.
-- SERVERIP- gives the IP address on which the filter is running (correct for multiple filterip lines, but not if filterip option is blank).
-- BYPASS- gives URL which allows temporary bypass of denied page
-- CATEGORIES- gives the categories assigned to the banned content
+- SERVERIP- gives the IP address on which the filter is running (correct
+  for multiple filterip lines, but not if filterip option is blank).
+- BYPASS- gives URL which allows temporary bypass of denied page.
+- CATEGORIES- gives the categories assigned to the banned content.
 
 You need to remove the space between the - and the variable to use them
 in your HTML.  They are there above so extra processing is not required.
-
 More example templates are likely to be found on the DansGuardian web site
 on the Extras page.
-
-This page was designed by Paul Richards.  (http://www.ridney.com/)
-
-Daniel Barron 2003-09-01
--->
 

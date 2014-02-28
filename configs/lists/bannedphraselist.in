@@ -46,7 +46,7 @@
 .Include<@DGCONFDIR@/lists/phraselists/pornography/banned>
 ##.Include<@DGCONFDIR@/lists/phraselists/pornography/banned_portuguese>
 
-#.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/banned>
+.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/banned>
 
 #.Include<@DGCONFDIR@/lists/phraselists/gambling/banned>
 ##.Include<@DGCONFDIR@/lists/phraselists/gambling/banned_portuguese>

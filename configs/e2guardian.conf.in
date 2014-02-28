@@ -60,7 +60,7 @@ logfileformat = 1
 #logsyslog = off
 
 # Log file location
-# 
+#
 # Defines the log directory and filename.
 #loglocation = '@DGLOGLOCATION@/access.log'
 
@@ -87,7 +87,7 @@ logfileformat = 1
 
 
 # Network Settings
-# 
+#
 # the IP that DansGuardian listens on.  If left blank DansGuardian will
 # listen on all IPs.  That would include all NICs, loopback, modem, etc.
 # Normally you would have your firewall protecting this, but if you want
@@ -100,7 +100,6 @@ filterip =
 # line.  You can specify different authentication mechanisms per port but
 # only if the mechanisms can co-exist (e.g. basic/proxy auth can't)
 filterports = 8080
-#filterports = 8081
 
 # the ip of the proxy (default is the loopback - i.e. this server)
 proxyip = 127.0.0.1
@@ -186,7 +185,7 @@ showweightedfound = on
 # 0 = off = do not use the weighted phrase feature.
 # 1 = on, normal = normal weighted phrase operation.
 # 2 = on, singular = each weighted phrase found only counts once on a page.
-# 
+#
 # IMPORTANT: Note that setting this to "0" turns off all features which
 # extract phrases from page content, including banned & exception
 # phrases (not just weighted), search term filtering, and scanning for
@@ -233,7 +232,7 @@ scancleancache = on
 # 1 = smart only
 # 2 = both of the above (default)
 # 3 = meta/title
-phrasefiltermode = 2
+phrasefiltermode = 1
 
 # Lower casing options
 # When a document is scanned the uppercase letters are converted to lower case
@@ -271,7 +270,7 @@ hexdecodecontent = off
 # If you wish to use a large number of 16-bit character phrases then
 # enable this option.
 # off (default) | on (Big5 compatible)
-forcequicksearch = off
+forcequicksearch = on
 
 
 
@@ -293,7 +292,7 @@ reverseaddresslookups = off
 # If a client computer is matched against an IP given in the lists, then the
 # IP will be recorded in any log entries; if forward DNS is successful and a
 # match occurs against a hostname, the hostname will be logged instead.
-# It will reduce searching speed somewhat so unless you have a local DNS server, 
+# It will reduce searching speed somewhat so unless you have a local DNS server,
 # leave it off.
 reverseclientiplookups = off
 
@@ -362,13 +361,13 @@ maxcontentramcachescansize = 2000
 # The size is in Kibibytes - eg 10240 = 10Mb
 maxcontentfilecachescansize = 20000
 
-# Proxy timeout 
-# Set tcp timeout between the Proxy and DansGuardian 
+# Proxy timeout
+# Set tcp timeout between the Proxy and DansGuardian
 # Min 5 - Max 100
 proxytimeout = 20
 
 # Proxy header exchange
-# Set timeout between the Proxy and DansGuardian 
+# Set timeout between the Proxy and DansGuardian
 # Min 20 - Max 300
 proxyexchange = 20
 
@@ -501,7 +500,7 @@ contentscanexceptions = off
 #authplugin = '@DGCONFDIR@/authplugins/proxy-digest.conf'
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
-#authplugin = '@DGCONFDIR@/authplugins/ip.conf'
+authplugin = '@DGCONFDIR@/authplugins/ip.conf'
 
 
 
@@ -550,34 +549,34 @@ logchildprocesshandling = off
 # sets the maximum number of processes to spawn to handle the incoming
 # connections.  Max value usually 250 depending on OS.
 # On large sites you might want to try 380.
-maxchildren = 180
+maxchildren = 8192
 
 
 # sets the minimum number of processes to spawn to handle the incoming connections.
 # On large sites you might want to try 64.
-minchildren = 20
+minchildren = 32
 
 
 # sets the minimum number of processes to be kept ready to handle connections.
 # On large sites you might want to try 16.
-minsparechildren = 16
+minsparechildren = 32
 
 
 # sets the minimum number of processes to spawn when it runs out
 # On large sites you might want to try 20.
-preforkchildren = 10
+preforkchildren = 128
 
 
 # sets the maximum number of processes to have doing nothing.
 # When this many are spare it will cull some of them.
 # On large sites you might want to try 64.
-maxsparechildren = 32
+maxsparechildren = 128
 
 
 # sets the maximum age of a child process before it croaks it.
 # This is the number of connections they handle before exiting.
 # On large sites you might want to try 10000.
-maxagechildren = 500
+maxagechildren = 100000
 
 
 # Sets the maximum number client IP addresses allowed to connect at once.
@@ -592,12 +591,12 @@ maxips = 0
 # Remember to edit the log file path above also if that is your intention.
 
 # IPC filename
-# 
+#
 # Defines IPC server directory and filename used to communicate with the log process.
 ipcfilename = '/tmp/.dguardianipc'
 
 # URL list IPC filename
-# 
+#
 # Defines URL list IPC server directory and filename used to communicate with the URL
 # cache process.
 urlipcfilename = '/tmp/.dguardianurlipc'
@@ -609,7 +608,7 @@ urlipcfilename = '/tmp/.dguardianurlipc'
 ipipcfilename = '/tmp/.dguardianipipc'
 
 # PID filename
-# 
+#
 # Defines process id directory and filename.
 #pidfilename = '@DGPIDDIR@/e2guardian.pid'
 
@@ -638,8 +637,8 @@ loguseragent = off
 # Temp files created during virus scanning are given owner and group read
 # permissions; to use content scanners based on external processes, such as
 # clamdscan, the two processes must run with either the same group or user ID.
-#daemonuser = '@DGPROXYUSER@'
-#daemongroup = '@DGPROXYGROUP@'
+daemonuser = '@DGPROXYUSER@'
+daemongroup = '@DGPROXYGROUP@'
 
 # Soft restart
 # When on this disables the forced killing off all processes in the process group.
@@ -658,7 +657,7 @@ softrestart = off
 
 #SSL man in the middle
 #CA certificate path
-#Path to the CA certificate to use as a signing certificate for 
+#Path to the CA certificate to use as a signing certificate for
 #generated certificates.
 #cacertificatepath = '/home/stephen/dginstall/ca.pem'
 

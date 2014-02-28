@@ -1,0 +1,14 @@
+#!/bin/bash
+
+./configure \
+--prefix=/usr \
+--datadir=/usr/share \
+--sysconfdir=/etc \
+--mandir=/usr/share/man \
+--localstatedir=/var \
+--with-proxyuser=nobody \
+--with-proxygroup=nogroup \
+--enable-pcre=no \
+--enable-email \
+--with-filedescriptors=65536 \
+CXXFLAGS=-DFD_SETSIZE=65536

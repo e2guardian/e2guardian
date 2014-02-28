@@ -1,0 +1,13 @@
+#!/bin/bash
+
+/usr/bin/checkinstall \
+-D \
+--install=no \
+--fstrans=yes \
+--default \
+--pkgname=e2guardian \
+--pkgversion=2.12.0.12 \
+--pkgrelease=1 \
+--nodoc \
+make install \
+

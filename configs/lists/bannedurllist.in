@@ -31,29 +31,63 @@ members.home.net/uporn
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-.Include<@DGCONFDIR@/lists/blacklists/ads/urls>
+# .Include<@DGCONFDIR@/lists/blacklists/ads/urls>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklist blacklists collection.
-#.Include<@DGCONFDIR@/lists/blacklists/adult/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/aggressive/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/audio-video/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/chat/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/drugs/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/entertainment/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/frencheducation/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/gambling/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/government/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/hacking/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/jobsearch/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/kidstimewasting/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/mail/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/news/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/porn/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/proxy/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/publicite/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/redirector/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/violence/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/virusinfected/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/warez/urls>
 # You will need to edit to add and remove categories you want
+#.Include<@DGCONFDIR@/lists/blacklists/ads/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/aggressive/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/alcohol/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/anonvpn/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/automobile/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/chat/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/costtraps/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/dating/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/downloads/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/drugs/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/dynamic/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/education/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/finance/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/fortunetelling/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/forum/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/gamble/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/government/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/hacking/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/hobby/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/homestyle/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/hospitals/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/imagehosting/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/isp/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/jobsearch/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/library/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/military/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/models/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/movies/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/music/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/news/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/podcasts/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/politics/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/porn/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/radiotv/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/recreation/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/redirector/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/religion/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/remotecontrol/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/ringtones/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/science/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/searchengines/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/sex/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/shopping/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/socialnet/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/spyware/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/tracker/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/updatesites/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/urlshortener/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/violence/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/warez/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/weapons/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/webmail/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/webphone/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/webradio/urls/
+#.Include<@DGCONFDIR@/lists/blacklists/webtv/urls/

@@ -166,7 +166,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 MAINTAINERCLEANFILES = Makefile.in
-BLACKLISTS = ads
+BLACKLISTS = ads aggressive alcohol anonvpn automobile chat costtraps dating downloads drugs dynamic education finance fortunetelling forum gamble government hacking hobby homestyle hospitals imagehosting isp jobsearch library military models movies music news podcasts politics porn radiotv recreation redirector religion remotecontrol ringtones science searchengines sex shopping socialnet spyware tracker updatesites urlshortener violence warez weapons webmail webphone webradio webtv 
 all: all-am
 
 .SUFFIXES:

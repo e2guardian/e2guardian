@@ -17,7 +17,7 @@ install-data-local:
 uninstall-local:
 	for l in $(BLACKLISTS); do \
 		for f in $(srcdir)/$$l/domains* $(srcdir)/$$l/urls*; do \
-	        	rm -f $(DESTDIR)$(DGDATADIR)/$$l/`basename $$f`; \
+	        	rm -rf $(DESTDIR)$(DGDATADIR)/$$l/`basename $$f`; \
 		done \
 	done
 

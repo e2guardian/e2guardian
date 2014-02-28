@@ -10,7 +10,7 @@
 .asx  # Windows Media Audio / Video
 .bas  # Microsoft Visual Basic class module
 .bat  # Batch file
-.cab  # Windows setup file
+# .cab  # Windows setup file
 .chm  # Compiled HTML Help file
 .cmd  # Microsoft Windows NT Command script
 .com  # Microsoft MS-DOS program
@@ -64,40 +64,40 @@
 # Files which one normally things as non-executable but
 # can contain harmful macros and viruses
 
-.doc  # Word document
-.xls  # Excel document
-.pps
+# .doc  # Word document
+# .xls  # Excel document
+# .pps
 
 
 # Other files which may contain files with executable code
 
-.gz   # Gziped file
-.tar  # Tape ARchive file
-.zip  # Windows compressed file
-.tgz  # Unix compressed file
-.bz2  # Unix compressed file
-.cdr  # Mac disk image
-.dmg  # Mac disk image
-.smi  # Mac self mounting disk image
-.sit  # Mac compressed file
-.sea  # Mac compressed file, self extracting
-.bin  # Mac binary compressed file
-.hqx  # Mac binhex encoded file
-.rar  # Similar to zip
+# .gz   # Gziped file
+# .tar  # Tape ARchive file
+# .zip  # Windows compressed file
+# .tgz  # Unix compressed file
+# .bz2  # Unix compressed file
+# .cdr  # Mac disk image
+# .dmg  # Mac disk image
+# .smi  # Mac self mounting disk image
+# .sit  # Mac compressed file
+# .sea  # Mac compressed file, self extracting
+# .bin  # Mac binary compressed file
+# .hqx  # Mac binhex encoded file
+# .rar  # Similar to zip
 
 
 # Time/bandwidth wasting files
 
-.mp3  # Music file
-.mpeg # Movie file
-.mpg  # Movie file
-.avi  # Movie file
+# .mp3  # Music file
+# .mpeg # Movie file
+# .mpg  # Movie file
+# .avi  # Movie file
 .asf  # this can also exploit a security hole allowing virus infection
-.iso  # CD ISO image
-.ogg  # Music file
-.wmf  # Movie file
-.bin # CD ISO image
-.cue # CD ISO image
+# .iso  # CD ISO image
+# .ogg  # Music file
+# .wmf  # Movie file
+# .bin # CD ISO image
+# .cue # CD ISO image
 
 # Banned Media extension list (Audio , Video , Streaming)
 # Arrange Alphabetically
