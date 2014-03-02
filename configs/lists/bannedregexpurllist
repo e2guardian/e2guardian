@@ -20,17 +20,17 @@
 (bangbros|pussylip|playmate|pornstar|sexdream|showgirl|softcore|striptease)
 
 #SoftCore phrases - more likely to overblock - possibly on news sites
-#(incest|obscene|pedophil|pedofil)
+(incest|obscene|pedophil|pedofil)
 
 #Photo Modeling - supplied by David Burkholder
-#(male|m[ae]n|boy|girl|beaut|agen[ct]|glam)+.*(model|talent)
+(male|m[ae]n|boy|girl|beaut|agen[ct]|glam)+.*(model|talent)
 
 # The following will help to block explicit media files (images and video)
 (sex|fuck|boob|cunt|fetish|tits|anal|hooter|asses|shemale|submission|porn|xxx|busty|knockers|slut|nude|naked|pussy)+.*(\.jpg|\.wmv|\.mpg|\.mpeg|\.gif|\.mov)
 (girls|babes|bikini|model)+.*(\.jpg|\.wmv|\.mpg|\.mpeg|\.gif|\.mov)
 
 #Block Naturism and Nudist sites
-#(naturism|naturist|nude|nudist|nudism|nekkid|nakt|naakt)
+(naturism|naturist|nude|nudist|nudism|nekkid|nakt|naakt)
 
 
 ######################################################
@@ -60,10 +60,10 @@
 ######################################################
 
 #Block Cgiproxy, Poxy, PHProxy and other Web-based proxies
-(cecid.php|nph-webpr|nph-pro|/dmirror|cgiproxy|phpwebproxy|__proxy_url|proxy.php)
+# cecid.php|nph-webpr|nph-pro|/dmirror|cgiproxy|phpwebproxy|__proxy_url|proxy.php)
 
 #Block websites containing proxy lists
-(anonymizer|proxify|megaproxy)
+# (anonymizer|proxify|megaproxy)
 
 #AGRESSIVE blocking of all URLs containing proxy - WARNING - this WILL overblock!!
 #(proxy)
@@ -94,8 +94,8 @@
 ######################################################
 # Dating Sites - supplied by David Burkholder
 ######################################################
-#(meet|hook|mailord|latin|(asi|mexic|dominic|russi|kore|colombi|balk)an|brazil|filip|french|chinese|ukrain|thai|tour|foreign|date)+.*(dar?[lt]ing|(sing|coup)le|m[ae]n|girl|boy|guy|mat(e|ing)|l[ou]ve?|partner|meet)
-#(marr(y|i[ae])|roman(ce|tic)|fiance|bachelo|dating|affair|personals)
+(meet|hook|mailord|latin|(asi|mexic|dominic|russi|kore|colombi|balk)an|brazil|filip|french|chinese|ukrain|thai|tour|foreign|date)+.*(dar?[lt]ing|(sing|coup)le|m[ae]n|girl|boy|guy|mat(e|ing)|l[ou]ve?|partner|meet)
+(marr(y|i[ae])|roman(ce|tic)|fiance|bachelo|dating|affair|personals)
 
 
 ######################################################

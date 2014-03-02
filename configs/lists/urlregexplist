@@ -10,11 +10,11 @@
 # Singingfish, Ilse, KEL, Lycos, Alltheweb, Yahoo, Hotbot, Wisenut,
 # Metacrawler.
 
+# force bing safe safe search from http://tech.groups.yahoo.com/group/dansguardian/message/23099¬
 # "safe=off"->""¬
 "(^http://[a-z]*\.google\.[a-z]*/[a-z]*\?)"->"\1safe=vss&"¬
 # "safe=off"->""¬
 "(^https://[a-z]*\.google\.[a-z]*/[a-z]*\?)"->"\1safe=vss&"¬
-# force bing safe safe search from http://tech.groups.yahoo.com/group/dansguardian/message/23099¬
 "(^http://[0-9a-z]+\.bing\.[a-z]+[-/%.0-9a-z]*\?)(.*)"->"\1\2&adlt=strict"#¬
 
 

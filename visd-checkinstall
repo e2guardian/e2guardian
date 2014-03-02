@@ -9,5 +9,7 @@
 --pkgversion=2.12.0.12 \
 --pkgrelease=1 \
 --nodoc \
+--deldesc \
+--backup=no \
 make install \
 

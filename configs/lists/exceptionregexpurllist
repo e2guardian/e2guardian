@@ -6,8 +6,8 @@
 #news
 
 # Prevent content scanning of CSS and/or JavaScript files
-#^[^?]*\.css($|\?)
-#^[^?]*\.jsp?($|\?)
+^[^?]*\.css($|\?)
+^[^?]*\.jsp?($|\?)
 
 # Allow Facebook plugin applications like
 # http://apps.facebook.com/neighborhoods/Setup.aspx and others.

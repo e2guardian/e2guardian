@@ -36,7 +36,8 @@
 
 #listcategory: "Banned Phrases"
 
-# The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
+# The following banned phraselists enable Website Content Labeling systems.
+# These are enabled by default, but may also be activated using phraselists.
 
 .Include<@DGCONFDIR@/lists/phraselists/safelabel/banned>
 #.Include<@DGCONFDIR@/lists/phraselists/rta/banned_portuguese>
@@ -44,14 +45,14 @@
 # The following banned phraselists are included in the default DG distribution.
 
 .Include<@DGCONFDIR@/lists/phraselists/pornography/banned>
-##.Include<@DGCONFDIR@/lists/phraselists/pornography/banned_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/pornography/banned_portuguese>
 
 .Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/banned>
 
 #.Include<@DGCONFDIR@/lists/phraselists/gambling/banned>
 ##.Include<@DGCONFDIR@/lists/phraselists/gambling/banned_portuguese>
 
-#.Include<@DGCONFDIR@/lists/phraselists/googlesearches/banned>
+.Include<@DGCONFDIR@/lists/phraselists/googlesearches/banned>
 
 
 

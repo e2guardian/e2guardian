@@ -2,7 +2,7 @@
 #
 # Examples:
 #
-# <slut><10>			
+# <slut><10>
 # - Adds 10 to the count against the string 'slut'.   ie. sluts, slut!, abslutxyz.
 #
 # < slut ><10>
@@ -22,10 +22,10 @@
 # Extra weighted-list files to include
 # .Include<@DGCONFDIR@/lists/phraselists/weightedphraselist.topic>
 #
-# Help by contributing customised lists and/or new keyword lists. 
+# Help by contributing customised lists and/or new keyword lists.
 # Email: pornmastergeneral@e2guardian.org or phrasemaster@e2guardian.org
 #
-# NOTE: New lists are commented out as ALPHA or BETA depending on how much the 
+# NOTE: New lists are commented out as ALPHA or BETA depending on how much the
 # lists have been tested.
 # ALPHA - Brand new and/or incomplete - little testing has been done
 # BETA - Relatively new - tested in several locations
@@ -33,7 +33,7 @@
 
 #listcategory: "Weighted Phrases"
 
-#To enable several non-PICS self-labelling and self-rating systems.  
+#To enable several non-PICS self-labelling and self-rating systems.
 #Enabled as a bannedsitelist by default.  Disable there before enabling as a phraselist.
 ##.Include<@DGCONFDIR@/lists/phraselists/safelabel/weighted>
 
@@ -67,7 +67,7 @@
 .Include<@DGCONFDIR@/lists/phraselists/nudism/weighted>
 
 #Bad Words - swearing
-.Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_dutch> 
+.Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_dutch>
 .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_french>
 .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_german> #ALPHA#
 .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_portuguese> #ALPHA#
@@ -75,19 +75,19 @@
 
 #Drugs
 #.Include<@DGCONFDIR@/lists/phraselists/drugadvocacy/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/weighted_portuguese>
 #.Include<@DGCONFDIR@/lists/phraselists/legaldrugs/weighted>
 
 #Violence and intolerance
-#.Include<@DGCONFDIR@/lists/phraselists/intolerance/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/intolerance/weighted_portuguese>
-#.Include<@DGCONFDIR@/lists/phraselists/gore/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/gore/weighted_portuguese>
-#.Include<@DGCONFDIR@/lists/phraselists/violence/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/violence/weighted_portuguese>
-#.Include<@DGCONFDIR@/lists/phraselists/weapons/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/weapons/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/intolerance/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/intolerance/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/gore/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/gore/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/violence/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/violence/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/weapons/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/weapons/weighted_portuguese>
 
 #Chat
 #.Include<@DGCONFDIR@/lists/phraselists/chat/weighted>
@@ -95,7 +95,7 @@
 
 #Webmail
 #.Include<@DGCONFDIR@/lists/phraselists/webmail/weighted>
-#Note that if you enable the webmail weighted list you should also disable 
+#Note that if you enable the webmail weighted list you should also disable
 #the "exception_email" list in the exceptionphraselist file.
 
 #Forums
@@ -116,15 +116,15 @@
 
 #System Management and Security
 #.Include<@DGCONFDIR@/lists/phraselists/domainsforsale/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/idtheft/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/idtheft/weighted>
 .Include<@DGCONFDIR@/lists/phraselists/malware/weighted> #BETA#
-.Include<@DGCONFDIR@/lists/phraselists/proxies/weighted>
+# .Include<@DGCONFDIR@/lists/phraselists/proxies/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/translation/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/upstreamfilter/weighted>
 .Include<@DGCONFDIR@/lists/phraselists/warezhacking/weighted>
-#.Include<@DGCONFDIR@/lists/phraselists/peer2peer/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/peer2peer/weighted>
 
-#Miscellaneous	
+#Miscellaneous
 #.Include<@DGCONFDIR@/lists/phraselists/conspiracy/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/secretsocieties/weighted>
 
