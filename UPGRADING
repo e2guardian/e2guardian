@@ -11,7 +11,7 @@ recommended that you start from the new version and re-do any customisations.
 
 Before installing the new copy, first make a backup of your existing config
 files.  For example:
-	cp -r /etc/e2guardian/ ~/e2guardian.old/
+    cp -r /etc/e2guardian/ ~/e2guardian.old/
 
 Then install the new copy.  After doing this, you should re-apply the old
 settings, importing them by hand; i.e. any setting you had changed from the
