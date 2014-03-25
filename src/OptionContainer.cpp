@@ -243,7 +243,10 @@ bool OptionContainer::read(const char *filename, int type)
 		// deque.  They are only seperate files for clarity.
 
 		max_logitem_length = findoptionI("maxlogitemlength");
-		if (!realitycheck(max_logitem_length, 1, 0, "maxlogitemlength")) {
+		// default of unlimited no longer allowed as could cause buffer overflow
+		if (max_logitem_length == 0)
+			max_logitem_length = 2000;
+		if (!realitycheck(max_logitem_length, 10, 32000, "maxlogitemlength")) {
 			return false;
 		}
                 proxy_timeout = findoptionI("proxytimeout");

@@ -1,12 +1,3 @@
-November 2013 - e2guardian 1.0.0.1
-- mapportstoips conf option added - when off listens on every filterports on every IP address,
-- when on maps filterports to filterip's, default on
-
-First alpha version of e2guardian with E2BN Protex features added - See e2guardian.release for details.
-
-September 2013 - e2guardian 1.0.0.1
-- URLs with # no longer truncated when reading lists
-- mapauthtoports conf option added - when off scans all auth plugs on every listening addr/port, when on maps auth plugins to addr/ports, default on
 
 June 2013 - DansGuardian 2.12.0.7
 - Added, DansGuardian now supports epoll (partial and Linux only), bringing large increases in performance and scalability to Linux System - By Philip Pearce (e2bn.org)

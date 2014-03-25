@@ -1,3 +1,10 @@
+February 2014
+- Maxlogitemlength code moved into ConnectionHandler.cpp so as to prevent 
+very large URLs corrupting log messages and to lower load on inter-process 
+communication. 
+- URL cache - Cache is now only checked (or added to) if URL is less than 2000 bytes and method is GET.
+- Emtpy list set issue fixed - was causes failure of logging and URLcache processes when filtergroup was set to block all.
+
 November 2013 - e2guardian 1.0.0.1
 - mapportstoips conf option added - when off listens on every filterports on every IP address,
 - when on maps filterports to filterip's, default on

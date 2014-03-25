@@ -47,8 +47,10 @@ logexceptionhits = 2
 logfileformat = 1
 
 # truncate large items in log lines
-# 0 = no truncating (default)
-#maxlogitemlength = 0
+# allowable values 10 to 32000
+# default 2000
+# unlimited not longer allowed - 0 will now set default of 2000 
+#maxlogitemlength = 2000
 
 # anonymize logs (blank out usernames & IPs)
 #anonymizelogs = off
