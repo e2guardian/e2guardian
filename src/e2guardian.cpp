@@ -361,7 +361,9 @@ int main(int argc, char *argv[])
 		o.proxy_group = sg->gr_gid;
 	} else {
 		syslog(LOG_ERR, "Unable to getgrnam(): %s", strerror(errno));
+		syslog(LOG_ERR, "Check the user that e2guardian runs as (usualy e2guardian)");
 		std::cerr << "Unable to getgrnam(): " << strerror(errno) << std::endl;
+		std::cerr << "Check the user that e2guardian runs as (usualy e2guardian)" << std::endl;
 		return 1;
 	}
 

@@ -38,20 +38,20 @@
 
 # The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
 
-.Include</usr/local/etc/e2guardian/lists/phraselists/safelabel/banned>
-#.Include</usr/local/etc/e2guardian/lists/phraselists/rta/banned_portuguese>
+.Include</etc/e2guardian/lists/phraselists/safelabel/banned>
+#.Include</etc/e2guardian/lists/phraselists/rta/banned_portuguese>
 
 # The following banned phraselists are included in the default DG distribution.
 
-.Include</usr/local/etc/e2guardian/lists/phraselists/pornography/banned>
-##.Include</usr/local/etc/e2guardian/lists/phraselists/pornography/banned_portuguese>
+.Include</etc/e2guardian/lists/phraselists/pornography/banned>
+##.Include</etc/e2guardian/lists/phraselists/pornography/banned_portuguese>
 
-#.Include</usr/local/etc/e2guardian/lists/phraselists/illegaldrugs/banned>
+#.Include</etc/e2guardian/lists/phraselists/illegaldrugs/banned>
 
-#.Include</usr/local/etc/e2guardian/lists/phraselists/gambling/banned>
-##.Include</usr/local/etc/e2guardian/lists/phraselists/gambling/banned_portuguese>
+#.Include</etc/e2guardian/lists/phraselists/gambling/banned>
+##.Include</etc/e2guardian/lists/phraselists/gambling/banned_portuguese>
 
-#.Include</usr/local/etc/e2guardian/lists/phraselists/googlesearches/banned>
+#.Include</etc/e2guardian/lists/phraselists/googlesearches/banned>
 
 
 

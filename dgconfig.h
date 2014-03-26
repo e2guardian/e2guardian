@@ -1,14 +1,17 @@
 /* dgconfig.h.  Generated from dgconfig.h.in by configure.  */
 /* dgconfig.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define to enable support for add header */
+#define ADDHEADER 
+
 /* Maximum number of open filedescriptors */
-#define DANS_MAXFD 8192
+#define DANS_MAXFD 8096
 
 /* Define to enable debug build mode */
 /* #undef DGDEBUG */
 
 /* Record configure-time options */
-#define DG_CONFIGURE_OPTIONS ""
+#define DG_CONFIGURE_OPTIONS " '--mandir=/usr/share/man/' '--with-proxyuser=dansguardian' '--with-proxygroup=dansguardian' '--prefix=/usr' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-commandline=yes' '--enable-trickledm=yes' 'CXX=g++' 'CXXFLAGS=-g -O2' 'LDFLAGS=' 'CPPFLAGS=' 'CC=cc' 'CFLAGS=-g -O2' '--enable-email=no' '--enable-ntlm=no' '--enable-pcre=yes' '--with-filedescriptors=8096'"
 
 /* Define to enable AvastD content scanner */
 /* #undef ENABLE_AVASTD */
@@ -17,7 +20,7 @@
 /* #undef ENABLE_CLAMD */
 
 /* Define to enable command-line content scanner */
-/* #undef ENABLE_COMMANDLINE */
+#define ENABLE_COMMANDLINE /**/
 
 /* Define to enable email reporting */
 /* #undef ENABLE_EMAIL */
@@ -41,7 +44,7 @@
 /* #undef ENABLE_SEGV_BACKTRACE */
 
 /* Define to enable trickle download manager */
-/* #undef ENABLE_TRICKLEDM */
+#define ENABLE_TRICKLEDM /**/
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
@@ -99,6 +102,9 @@
 
 /* Define to 1 if you have the `regcomp' function. */
 /* #undef HAVE_REGCOMP */
+
+/* Define to 1 if you have the `resolv' function. */
+/* #undef HAVE_RESOLV */
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
@@ -184,9 +190,15 @@
 /* Define to 1 if you have the <zlib.h> header file. */
 #define HAVE_ZLIB_H 1
 
+/* Define to enable support for legacy log format */
+/* #undef LEGACY_LOG */
+
+/* Define to enable support for local lists */
+/* #undef LOCAL_LISTS */
+
 /* Define if type "off_t" is a typedef of another type for which String
    already has a constructor */
-#define OFFT_COLLISION /**/
+/* #undef OFFT_COLLISION */
 
 /* Name of package */
 #define PACKAGE "e2guardian"
@@ -206,11 +218,29 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "1.0.0.1  First Alpha release  -"
 
+/* Define to enable DNS auth plugin */
+/* #undef PRT_DNSAUTH */
+
+/* Define to enable support for referer exceptions */
+#define REFEREXCEPT 
+
+/* Define to enable support for regexp redirects */
+#define RXREDIRECTS 
+
+/* Define to enable support for ssl extra lists */
+#define SEARCHWORDS 
+
+/* Define to enable support for ssl extra lists */
+#define SSL_EXTRA_LISTS 
+
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* Define to enable support for total block list */
+/* #undef TOTAL_BLOCK_LIST */
+
 /* Version number of package */
-#define VERSION "2.12.0.4"
+#define VERSION "1.0.0.1"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
