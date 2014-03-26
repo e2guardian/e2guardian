@@ -386,6 +386,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 	bool contentmodified = false;
 	bool urlmodified = false;
 	bool headermodified = false;
+	bool headeradded = false;
 	bool isconnect;
 	bool ishead;
 	bool scanerror;
@@ -519,6 +520,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				contentmodified = false;
 				urlmodified = false;
 				headermodified = false;
+				headeradded = false;
 #ifdef RXREDIRECTS
 				urlredirect = false;
 #endif
@@ -1413,7 +1415,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 			
 #ifdef ADDHEADER
-			header.isHeaderAdded(filtergroup);
+			headeradded = header.isHeaderAdded(filtergroup);
 #endif
 			
 			// URL regexp search and replace
@@ -1493,7 +1495,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 									false, 0, isexception, false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
 									mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 									// content wasn't modified, but URL was
-									false, true);
+									false, true, headermodified, headeradded);
 							}
 
 							if (!persistProxy)
@@ -1615,7 +1617,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
 							isexception, false, &thestart,
 							cachehit, header.returnCode(), mimetype, wasinfected,
-							wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
+							wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
 						if (!persistProxy)
 							proxysock.close();  // close connection to proxy
@@ -1747,7 +1749,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
 						isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
-						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
+						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 						
 					denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,
 						&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
@@ -1782,7 +1784,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
             	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
                 	header.DenySSL(filtergroup);
                         String rtype(header.requestType());
-			doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
+			doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 			checkme.isItNaughty = false;
                 	}
 
@@ -1806,7 +1808,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false,
 						0, isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
-						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified);
+						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
 					if (!persistProxy)
 						proxysock.close();  // close connection to proxy
@@ -2748,7 +2750,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog,
 					rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, false, false, &thestart,
 					cachehit, 403, mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup,
-					&header, message_no, contentmodified, urlmodified, headermodified);
+					&header, message_no, contentmodified, urlmodified, headermodified, headeradded);
 				if (denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))
 				{
 					return;  // not stealth mode
@@ -2795,7 +2797,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
-							contentmodified, urlmodified, headermodified);
+							contentmodified, urlmodified, headermodified, headeradded);
 					}
 				}
 
@@ -2867,7 +2869,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
-							contentmodified, urlmodified, headermodified);
+							contentmodified, urlmodified, headermodified, headeradded);
 					}
 				}
 			} else if (!ishead) {
@@ -2884,7 +2886,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 						docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 						wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
-						contentmodified, urlmodified, headermodified);
+						contentmodified, urlmodified, headermodified, headeradded);
 				}
 			}
 
@@ -2942,7 +2944,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 		std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
 		bool isexception, bool istext, struct timeval *thestart, bool cachehit,
 		int code, std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
-		HTTPHeader* reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified)
+		HTTPHeader* reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified, bool headeradded)
 {
 
 	// don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
@@ -3034,7 +3036,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 
 		// Item length limit put back to avoid log listener 
 		// overload with very long urls Philip Pearce Jan 2014
-		if (cat->length() > o.max_logitem_length)
+		if ((cat != NULL) && (cat->length() > o.max_logitem_length))
 			cat->resize(o.max_logitem_length);
 		if (what.length() > o.max_logitem_length)
 			what.resize(o.max_logitem_length);
@@ -3076,6 +3078,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 		data += urlparams + cr;
 		data += postdata.str().c_str() + cr;
 		data += String(message_no)+cr;
+		data += String(headeradded)+cr;
 
 #ifdef DGDEBUG   
 		std::cout << dbgPeerPort << " -...built" << std::endl;

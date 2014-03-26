@@ -70,7 +70,8 @@ private:
 		bool isexception, bool istext, struct timeval *thestart, bool cachehit, int code,
 		std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
 		HTTPHeader* reqheader, int message_no = 999, bool contentmodified = false,
-		bool urlmodified = false, bool headermodified = false);
+		bool urlmodified = false, bool headermodified = false,
+		bool headeradded = false);
 
 	// perform URL encoding on a string
 	std::string miniURLEncode(const char *s);

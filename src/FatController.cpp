@@ -1097,6 +1097,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
 	long tv_sec = 0, tv_usec = 0;
 	int contentmodified = 0, urlmodified = 0, headermodified = 0;
+	int headeradded = 0;
 
 	std::ofstream* logfile = NULL;
 	if (!logsyslog) {
@@ -1173,7 +1174,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			bool error = false;
 			int itemcount = 0;
 			
-			while(itemcount < 28) {
+			while(itemcount < 29) {
 				try {
 					// Loop around reading in data, because we might have huge URLs
 					std::string logline;
@@ -1287,6 +1288,9 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					case 27:
 						message_no = logline;
 						break;
+					case 28:
+						headeradded = atoi(logline.c_str());
+						break;
 					}
 				}
 				catch(std::exception & e) {
@@ -1366,6 +1370,9 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			}
 			if (headermodified) {
 				what = "*HEADERMOD* " + what;
+			}
+			if (headeradded) {
+				what = "*HEADERADD* " + what;
 			}
 
 			std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
