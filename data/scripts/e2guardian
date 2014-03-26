@@ -1,4 +1,4 @@
-/usr/local/var/log/e2guardian/access.log {
+/var/log/e2guardian/access.log {
   rotate 4
   weekly
   sharedscripts
@@ -8,6 +8,6 @@
   endscript
 
   postrotate
-    /usr/local/sbin/dansguardian > /dev/null
+    /usr/sbin/dansguardian > /dev/null
   endscript
 }
