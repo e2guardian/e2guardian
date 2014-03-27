@@ -326,31 +326,32 @@ int main(int argc, char *argv[])
 	// enough fds needed for listening_fds + logger + ipcs + stdin/out/err
 	// in addition to children
 	// on soft/gentle restarts headroom may be needed while children die
-	// so use min_children as an estimate for this value.
-	max_maxchildren = DANS_MAXFD - (no_listen_fds + 6 + o.min_children);
+	// so use prefork_children as an estimate for this value.
+	max_maxchildren = DANS_MAXFD - (no_listen_fds + 6 );
 
 #ifndef FD_SETSIZE_OVERIDE
 	/* Fix ugly crash */
 	/* Temporary sucurity protection about FD_SETSIZE limit - for all system now - later for no epoll system */
 
 	if (DANS_MAXFD > FD_SETSIZE) {
-		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
-		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
+		syslog(LOG_ERR, "%s", "Compiled with --with-filedescriptors too high");
+		std::cerr << "Compiled with --with-filedescriptors too high" << std::endl;
 		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
 		std::cerr << "E2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
 		std::cerr << "Or reduce --with-filedescriptors=" << DANS_MAXFD << " under " << FD_SETSIZE << std::endl;
-		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
-		return 1; // we can't have rampant proccesses can we?
+		return 1;  // we can't have rampant proccesses can we?
 	}
-
 #endif
-	if ((o.max_children + 6) > DANS_MAXFD) {
+	if ((o.max_children + o.prefork_children) > max_maxchildren) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
-		std::cerr << "E2guardian compiled with " << DANS_MAXFD << " maximun process" << std::endl;
-		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
-		return 1; // we can't have rampant proccesses can we?
+		std::cerr << "The total of maxchildren" << o.max_children << " plus preforkchildren" << o.prefork_children << "must not exceed" << max_maxchildren << "" << std::endl;
+		std::cerr << "in this configuration." << std::endl;
+		std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
+		std::cerr << "or recomple with an increased --with-filedescriptors=" << DANS_MAXFD << "" << std::endl;
+		return 1;  // we can't have rampant proccesses can we?
 	}
+
 
 	unsigned int rootuid;  // prepare a struct for use later
 	rootuid = geteuid();
@@ -367,11 +368,12 @@ int main(int argc, char *argv[])
 		o.proxy_group = sg->gr_gid;
 	} else {
 		syslog(LOG_ERR, "Unable to getgrnam(): %s", strerror(errno));
-		syslog(LOG_ERR, "Check the user that e2guardian runs as (usualy e2guardian)");
+		syslog(LOG_ERR, "Check the group that e2guardian runs as (%s)", o.daemon_group_name.c_str());
 		std::cerr << "Unable to getgrnam(): " << strerror(errno) << std::endl;
-		std::cerr << "Check the user that e2guardian runs as (usualy e2guardian)" << std::endl;
+		std::cerr << "Check the group that e2guardian runs as (" << o.daemon_group_name.c_str() << ")" << std::endl;
 		return 1;
 	}
+
 
 	if ((st = getpwnam(o.daemon_user_name.c_str())) != 0) {	// find uid for proxy user
 		o.proxy_user = st->pw_uid;
