@@ -336,14 +336,18 @@ int main(int argc, char *argv[])
 	if (DANS_MAXFD > FD_SETSIZE) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
-		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << " e2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
-		return 1;  // we can't have rampant proccesses can we?
+		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
+		std::cerr << "E2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
+		std::cerr << "Or reduce --with-filedescriptors=" << DANS_MAXFD << " under " << FD_SETSIZE << std::endl;
+		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
+		return 1; // we can't have rampant proccesses can we?
 	}
-#endif
-	if (o.max_children > max_maxchildren) {
+	if ((o.max_children + 6) > DANS_MAXFD) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
-		return 1;  // we can't have rampant proccesses can we?
+		std::cerr << "E2guardian compiled with " << DANS_MAXFD << " maximun process" << std::endl;
+		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
+		return 1; // we can't have rampant proccesses can we?
 	}
 
 	unsigned int rootuid;  // prepare a struct for use later
