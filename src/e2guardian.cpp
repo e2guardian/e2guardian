@@ -342,6 +342,8 @@ int main(int argc, char *argv[])
 		std::cerr << "Dammit Jim, I'm a filtering proxy, not a rabbit." << std::endl;
 		return 1; // we can't have rampant proccesses can we?
 	}
+
+#endif
 	if ((o.max_children + 6) > DANS_MAXFD) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
