@@ -14,7 +14,7 @@ AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main l
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 1.0.0.1)
+AC_INIT(e2guardian, 3.0.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
@@ -804,7 +804,7 @@ AC_SUBST(DNSAUTHSUPPORT)
 
 AC_ARG_WITH(filedescriptors,
   AS_HELP_STRING([--with-filedescriptors=NUMBER],
-                 [Force dans to support NUMBER filedescriptors]),
+                 [Force support of NUMBER filedescriptors]),
 [
   case ${withval} in
     [[0-9]]*)

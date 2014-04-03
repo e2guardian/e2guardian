@@ -241,7 +241,7 @@ WLISTS = bannedextensionlist bannediplist bannedmimetypelist \
 	 localbannedurllist localexceptionsitelist localexceptionurllist \
 	 localgreysitelist localgreysslsitelist localgreyurllist \
 	 refererexceptionsitelist refererexceptionurllist searchregexplist \
-	 urlredirectregexplist authexceptionsitelist authexceptionurllist
+	 urlredirectregexplist
 
 EXTRA_DIST = bannedextensionlist bannediplist bannedmimetypelist \
 	 bannedregexpurllist bannedsitelist.in bannedurllist.in \

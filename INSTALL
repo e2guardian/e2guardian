@@ -1,6 +1,6 @@
 HOW TO BUILD:
 -------------
-As of DansGuardian 2.9, the distribution uses GNU autotools for building.
+The distribution uses GNU autotools for building.
 Most users should therefore follow the standard
 "./configure; make; make install" process common to UNIX packages.  If for any
 reason you need to modify configure.ac or one of the Makefile.am files, use
@@ -16,26 +16,6 @@ configuration options.
 
 *** OS X / Darwin users, please read the OS X section first. ***
 
-As of DansGuardian 2.7.7-10 zlib 1.2.1 is required for gzip
-support.  This change was to fix a bug that could not be fixed
-with an earlier version.  If you do not want to upgrade zlib on
-your system see the notes at the end about compiling in zlib
-statically. As of 2.9.3.2, you can also specify a non-standard search
-path for the zlib headers & library (during linking stage) using the
-"--with-zlib" option.
-
-As of 2.9.1.0, DansGuardian can optionally be compiled and linked
-against PCRE instead of the standard GNU regular expression library.
-This overcomes certain limitations of the standard library, allowing
-- for example - character negations ([^w]). PCRE support is disabled
-by default; version 6.0 or above is required. The "pcre-config" program
-must be available in your PATH during build configuration.
-
-As of 2.9.3.1, iconv support is necessary for using the NTLM auth
-plugin. Some systems (e.g. Linux) provide this as part of their core
-API; others (e.g. FreeBSD) require an external iconv library to be
-installed. The "--with-libiconv" configure option enables linking with
-an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
 
 
 1.        Run the configure (./configure --help) script with
@@ -47,7 +27,7 @@ an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
         want to change some options.  Please read down for
         suggested options for your platform.
 
-3.        "make"** or "gmake" will now build DansGuardian.
+3.        "make"** or "gmake" will now build E2Guardian.
 
 4.        "make install" will create the directory structure and install
         all the files in the chosen paths.  For a more efficient
@@ -69,44 +49,162 @@ an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
 
 OPTIONS:
 --------
-You may change with the configure options:
-  prefix           (architecture-independent files root path eg /usr/local)
-  datadir          (where shared files and example scripts get placed)
-  sysconfdir       (where the config and data files gets placed eg /etc)
-  mandir           (where the man docs get placed)
-  localstatedir    (where var/run and /var/logs are)
-  with-logdir      (where the logs get placed eg /var/log/e2guardian)
-  with-piddir      (where the pid file gets placed eg /var/run)
-  with-sysconfsubdir
-                   (subdirectory of sysconfdir in which to place config files)
-  exec-prefix      (architecture-dependent files ie bin files)
-  bindir           (where the binary gets placed)
-  with-proxyuser   (the system user the daemon runs as)
-  with-proxygroup  (the system group the daemon runs as)
-  enable-static-zlib
-                   (enable static linking against zlib)
-  enable-clamd     (enable support for clamd antivirus scanner)
-  enable-avastd    (enable support for avastd antivirus scanner)
-  enable-icap      (enable support for ICAP-compatible av scanner)
-  enable-commandline
-                   (enable support for the command-line av scanner)
-  enable-kavd      (enable support for kaspersky av daemon scanner)
-  enable-fancydm   (enable support for the 'fancy' download manager)
-  enable-trickledm (enable support for the 'trickle' download manager)
-  enable-pcre      (enable support for PCRE instead of GNU regex library)
-  enable-ntlm      (enable support for the NTLM auth plugin)
-  enable-email     (enable support for email notification on block & virus
-                    occurrences)
-  with-libiconv    (non-standard search path for iconv library,
-                    for platforms without native iconv (only used in
-                    conjunction with enable-ntlm))
-  with-zlib        (specify optional non-standard prefix for zlib
-                    lib & include directories)
-  
-See ./configure --help for more details.
+`configure' configures e2guardian to adapt to many kinds of systems.
 
-These options have changed slightly from older versions of DansGuardian
-which did not use autotools.
+Usage: ./configure [OPTION]... [VAR=VALUE]...
+
+To assign environment variables (e.g., CC, CFLAGS...), specify them as
+VAR=VALUE.  See below for descriptions of some of the useful variables.
+
+Defaults for the options are specified in brackets.
+
+Configuration:
+  -h, --help              display help and exit
+      --help=short        display options specific to this package
+      --help=recursive    display the short help of all the included packages
+  -V, --version           display version information and exit
+  -q, --quiet, --silent   do not print `checking...' messages
+      --cache-file=FILE   cache test results in FILE [disabled]
+  -C, --config-cache      alias for `--cache-file=config.cache'
+  -n, --no-create         do not create output files
+      --srcdir=DIR        find the sources in DIR [configure dir or `..']
+
+Installation directories:
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+			  [/usr/local]
+  --exec-prefix=EPREFIX   install architecture-dependent files in EPREFIX
+			  [PREFIX]
+
+By default, `make install' will install all the files in
+`/usr/local/bin', `/usr/local/lib' etc.  You can specify
+an installation prefix other than `/usr/local' using `--prefix',
+for instance `--prefix=$HOME'.
+
+For better control, use the options below.
+
+Fine tuning of the installation directories:
+  --bindir=DIR           user executables [EPREFIX/bin]
+  --sbindir=DIR          system admin executables [EPREFIX/sbin]
+  --libexecdir=DIR       program executables [EPREFIX/libexec]
+  --datadir=DIR          read-only architecture-independent data [PREFIX/share]
+  --sysconfdir=DIR       read-only single-machine data [PREFIX/etc]
+  --sharedstatedir=DIR   modifiable architecture-independent data [PREFIX/com]
+  --localstatedir=DIR    modifiable single-machine data [PREFIX/var]
+  --libdir=DIR           object code libraries [EPREFIX/lib]
+  --includedir=DIR       C header files [PREFIX/include]
+  --oldincludedir=DIR    C header files for non-gcc [/usr/include]
+  --infodir=DIR          info documentation [PREFIX/info]
+  --mandir=DIR           man documentation [PREFIX/man]
+
+Program names:
+  --program-prefix=PREFIX            prepend PREFIX to installed program names
+  --program-suffix=SUFFIX            append SUFFIX to installed program names
+  --program-transform-name=PROGRAM   run sed PROGRAM on installed program names
+
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-dependency-tracking  speeds up one-time build
+  --enable-dependency-tracking   do not reject slow dependency extractors
+  --enable-static-zlib[=no]
+                          Enable static linking of zlib
+  --enable-pcre[=yes]
+                          Enable support for the PCRE library
+  --enable-segv-backtrace[=no]
+                          Enable logging a backtrace when a segmentation fault
+                          occurs
+  --enable-lfs[=yes]
+                          Enable large file support on 32 bit systems
+  --enable-orig-ip[=no]
+                          Enable support for checking the client's original
+                          destination IP address against HTTP request details
+                          when deployed as a transparent proxy (US-CERT
+                          VU#435052). Currently only works on Linux.
+  --enable-clamd[=no]
+                          Enable support for the ClamD content scanner
+  --enable-avastd[=no]
+                          Enable support for the AvastD content scanner
+  --enable-icap[=no]
+                          Enable support for ICAP AV server content scanner
+  --enable-kavd[=no]
+                          Enable support for the Kaspersky AV daemon content
+                          scanner
+  --enable-commandline[=no]
+                          Enable support for command-line content scanners
+  --enable-fancydm[=yes]
+                          Enable support for the fancy download manager
+  --enable-totalblocklist[=no]
+                          Enable support for total block list
+  --enable-locallists[=no]
+                          Enable support for local lists
+  --enable-refererexception[=yes]
+                          Enable support for referer exception
+  --enable-rxredirects[=yes]
+                          Enable support for regexp redirects
+  --enable-addheader[=yes]
+                          Enable support for add header
+  --enable-sslextralists[=yes]
+                          Enable support for ssl extra lists
+  --enable-searchwords[=yes]
+                          Enable support for ssl extra lists
+  --enable-legacylog[=yes]
+                          Enable support for legacy log format
+  --enable-trickledm[=no]
+                          Enable support for the trickle download manager
+  --enable-ntlm[=no]
+                          Enable support for the NTLM auth plugin
+  --enable-dnsauth[=no]
+                          Enable support for the DNS auth plugin
+  --enable-email[=no]
+                          Enable support for email reporting functionality
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-zlib[=NONE]
+                          non-standard search path for zlib library
+  --with-dgdebug[=off]
+                          switch on debug build mode
+  --with-proxyuser[=nobody]
+                          name of proxy user
+  --with-proxygroup[=nobody]
+                          name of proxy group
+  --with-piddir[=${localstatedir}/run]
+                          path for pid file
+  --with-logdir[=${localstatedir}/log/${PACKAGE_NAME}]
+                          path for log files
+  --with-libiconv[=NONE]
+                          Specify search path on a system which requires an
+                          external iconv library (only used in conjunction
+                          with NTLM auth plugin).
+  --with-filedescriptors=NUMBER
+                          Force support of NUMBER filedescriptors
+  --with-sysconfsubdir[=e2guardian]
+                          subdirectory under sysconfdir in which to place
+                          config files
+
+Some influential environment variables:
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  CPPFLAGS    C/C++ preprocessor flags, e.g. -I<include dir> if you have
+              headers in a nonstandard directory <include dir>
+  CC          C compiler command
+  CFLAGS      C compiler flags
+  CPP         C preprocessor
+  CXXCPP      C++ preprocessor
+  PKG_CONFIG  path to pkg-config utility
+  PCRE_CFLAGS C compiler flags for PCRE, overriding pkg-config
+  PCRE_LIBS   linker flags for PCRE, overriding pkg-config
+
+Use these variables to override the choices made by `configure' or to help
+it to find libraries and programs with nonstandard names/locations.
+
+See ./configure --help for more details.
 
 
 HP-UX:
@@ -123,14 +221,6 @@ MACOSX:
 
 *** Note in order to do any compiling in OS X you need to install ***
 *   the Developer Tools - an additional pkg called BSDSDK.pkg.      *
-
-*** Note DG2.7.x does not currently work as it uses poll() which OSX ***
-*   lacks.  There is a workaround though.  See:                        *
-*** http://groups.yahoo.com/group/e2guardian/message/5027          ***
-
-*** Note OS X version 10.3 now has poll() support see:      ***
-*   http://groups.yahoo.com/group/e2guardian/message/6072   *
-
 
 A standard configure script that should work, provided you have installed
 MACOSX and the associated programs in their default locations.
@@ -189,7 +279,7 @@ SOLARIS:
 --------
 
 Only Solaris 8 (7/01 and beyond) and Solaris 9 has been tested.
-DansGuardian requires the GNU version of make (gmake), and GCC version
+E2Guardian requires the GNU version of make (gmake), and GCC version
 3.01 will *not* work; use 2.95.3 or a more recent version.
 
 Both gmake and GCC 2.95.3 are included with the OS on the "Companion CD",
@@ -209,8 +299,6 @@ To configure and compile, do:
       --bindir=/opt/e2guardian/sbin \
       --with-logdir=/opt/e2guardian/log \
       --with-piddir=/var/run
-
-
 
 
 
@@ -235,8 +323,7 @@ e2guardian - a logrotate.d file
 logrotation - a sh script to rotate the logs
 ../e2guardian.pl - a cgi script for an access denied page
 
-The installation of startup scripts used to be done by the
-DansGuardian build scripts but since moving to autotools it is
+The installation of startup scripts is
 deemed out of the scope of source code and is the playground of
 packagers and sysadmins.
 
@@ -253,8 +340,7 @@ html denied page you will find it in:
 /usr/local/share/e2guardian/ (or wherever you configured it to
 be).  This is not usually recommended but if you do want to do
 this copy it to your web servers' cgi-bin directory.
-This used to be mandatory and automatic in earlier versions of
-DansGuardian.
+E2Guardian.
 
 
 
@@ -279,50 +365,3 @@ mailing list.
 
 
 
-HOW TO COMPILE STATICALLY WITH ZLIB: (Provided by Ernest W. Lessenger)
-------------------------------------
-
-Note: these instructions might be now out of date due to changes in
-the DansGuardian build process. Instead of editing the Makefile (step 3
-below), you may instead wish to use the "--enable-static-zlib" and
-"--with-zlib" configure options.
-
-Step 0:
-Configure DansGuardian as usual
-        <start in the DG source directory>
-        ./configure (plus options see above)
-
-Step 1:
-Download zlib and decompress it as a subdirectory of your DG installation.
-Rename the decompressed folder as "zlib"
-        tar xvzf zlib-1.2.1.tar.gz
-        mv zlib-1.2.1 zlib
-
-Step 2:
-Configure and compile
-        cd zlib
-        ./configure
-        make (DO NOT 'make install')
-        cd ..
-
-Step 3:
-Minor tweaks to the DansGuardian source code and Makefile
-(note these instructions are based on DG2.8 and thus are
-out of date for 2.9 and later but you might be able to
-adapt them)
-        @@@ Makefile
-        - DGCFLAGS = $(OPTIMISE) $(PASSVARS) -lz $(STATIC)
-        + DGCFLAGS = $(OPTIMISE) $(PASSVARS) $(STATIC)
-        - LIBS = /usr/lib/libz.a
-        + LIBS = ./zlib/libz.a
-
-        @@@ All other files
-        - #include <zlib.h>
-        + #include "zlib/zlib.h"
-
-Step 4:
-Make DG
-        make
-
-That should be it. You shouldn't receive any warnings, and zlib should be
-compiled statically.

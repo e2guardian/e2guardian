@@ -1,12 +1,12 @@
 #!/bin/sh
-# DansGuardian logrotation script for version @PACKAGE_VERSION@
+# E2Guardian logrotation script for version @PACKAGE_VERSION@
 
 
 LOG_DIR=@DGLOGLOCATION@
 NUM_LOGS=4
 LOG=$LOG_DIR/access.log
 
-@DGBINDIR@/dansguardian -q
+@DGBINDIR@/e2guardian -q
 
 # Keep a maximum of $NUM_LOGS logs around.
 if [ -f $LOG.$NUM_LOGS ]; then rm -f $LOG.$NUM_LOGS; fi
@@ -23,4 +23,4 @@ fi
 
 sleep 5
 
-@DGBINDIR@/dansguardian
+@DGBINDIR@/e2guardian

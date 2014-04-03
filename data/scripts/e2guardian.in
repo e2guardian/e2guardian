@@ -3,11 +3,11 @@
   weekly
   sharedscripts
   prerotate
-    killall dansguardian > /dev/null
+    killall e2guardian > /dev/null
     sleep 5
   endscript
 
   postrotate
-    @DGBINDIR@/dansguardian > /dev/null
+    @DGBINDIR@/e2guardian > /dev/null
   endscript
 }

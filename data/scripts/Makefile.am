@@ -4,10 +4,10 @@ SUBDIRS= .
 
 DATATOPDIR = $(datadir)/$(PACKAGE_NAME)/scripts
 
-FLISTS = dansguardian logrotation bsd-init\
+FLISTS = e2guardian logrotation bsd-init\
              solaris-init systemv-init
 
-EXTRA_DIST = dansguardian.in logrotation.in bsd-init.in\
+EXTRA_DIST = e2guardian.in logrotation.in bsd-init.in\
              solaris-init.in systemv-init.in
 
 install-data-local: 
