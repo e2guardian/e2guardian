@@ -345,10 +345,10 @@ int main(int argc, char *argv[])
 	if ((o.max_children + o.prefork_children) > max_maxchildren) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
 		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
-		std::cerr << "The total of maxchildren" << o.max_children << " plus preforkchildren" << o.prefork_children << "must not exceed" << max_maxchildren << "" << std::endl;
+		std::cerr << "The total of maxchildren " << o.max_children << " plus preforkchildren " << o.prefork_children <<  " must not exceed " << max_maxchildren << "" << std::endl;
 		std::cerr << "in this configuration." << std::endl;
 		std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
-		std::cerr << "or recomple with an increased --with-filedescriptors=" << DANS_MAXFD << "" << std::endl;
+		std::cerr << "or recompile with an increased --with-filedescriptors=" << DANS_MAXFD << "" << std::endl;
 		return 1;  // we can't have rampant proccesses can we?
 	}
 
