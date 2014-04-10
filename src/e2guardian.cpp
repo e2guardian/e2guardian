@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
 	/* Temporary sucurity protection about FD_SETSIZE limit - for all system now - later for no epoll system */
 
 	if (DANS_MAXFD > FD_SETSIZE) {
-		syslog(LOG_ERR, "%s", "Compiled with --with-filedescriptors too high");
+		syslog(LOG_ERR, "%s", " Compiled with --with-filedescriptors too high");
 		std::cerr << "Compiled with --with-filedescriptors too high" << std::endl;
 		std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
 		std::cerr << "E2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
