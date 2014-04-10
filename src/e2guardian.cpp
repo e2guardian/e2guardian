@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 #endif
 	if ((o.max_children + o.prefork_children) > max_maxchildren) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
-		std::cerr << "maxchildren option in e2guardian.conf has a value too high." << std::endl;
+		std::cerr << " maxchildren option in e2guardian.conf has a value too high." << std::endl;
 		std::cerr << "The total of maxchildren " << o.max_children << " plus preforkchildren " << o.prefork_children <<  " must not exceed " << max_maxchildren << "" << std::endl;
 		std::cerr << "in this configuration." << std::endl;
 		std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
