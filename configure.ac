@@ -47,11 +47,11 @@ AC_MSG_CHECKING(if zlib should be statically linked)
 AC_ARG_ENABLE(static-zlib,
 [AC_HELP_STRING([--enable-static-zlib@<:@=no@:>@], [Enable static linking of zlib])],
 [ if test "x$enableval" = "xno"; then
-	staticzlib=false
-	AC_MSG_RESULT(no)
+staticzlib=false
+AC_MSG_RESULT(no)
 else
-	staticzlib=true
-	AC_MSG_RESULT(yes)
+staticzlib=true
+AC_MSG_RESULT(yes)
 fi
 ],
 [
@@ -61,25 +61,25 @@ AC_MSG_RESULT(no)
 
 AC_MSG_CHECKING(for zlib)
 AC_ARG_WITH(zlib,
-	[AC_HELP_STRING([--with-zlib@<:@=NONE@:>@], [non-standard search path for zlib library])],
-	[ # check for header & func (in library) in given prefix
-	CPPFLAGS="${CPPFLAGS} -I${withval}/include"
-	if test "x$staticzlib" = "xtrue"; then
-		LIBS="-Bstatic -L${withval} -lz -Bdynamic ${LIBS}"
-	else
-		LIBS="-L${withval}/lib -lz ${LIBS}"
-	fi
-	],
-	[ # if --with-zlib is not supplied, we still need -lz in LIBS.
-	if test "x$staticzlib" = "xtrue"; then
-		LIBS="-Bstatic -lz -Bdynamic ${LIBS}"
-	else
-		LIBS="-lz ${LIBS}"
-	fi
-	])
+[AC_HELP_STRING([--with-zlib@<:@=NONE@:>@], [non-standard search path for zlib library])],
+[ # check for header & func (in library) in given prefix
+CPPFLAGS="${CPPFLAGS} -I${withval}/include"
+if test "x$staticzlib" = "xtrue"; then
+LIBS="-Bstatic -L${withval} -lz -Bdynamic ${LIBS}"
+else
+LIBS="-L${withval}/lib -lz ${LIBS}"
+fi
+],
+[ # if --with-zlib is not supplied, we still need -lz in LIBS.
+if test "x$staticzlib" = "xtrue"; then
+LIBS="-Bstatic -lz -Bdynamic ${LIBS}"
+else
+LIBS="-lz ${LIBS}"
+fi
+])
 AC_CHECK_HEADERS([zlib.h])
 if ! test "x$staticzlib" = "xtrue"; then
-	AC_CHECK_LIB(z, gzdopen, [AC_MSG_RESULT(yes)], [AC_MSG_ERROR([no zlib!])])
+AC_CHECK_LIB(z, gzdopen, [AC_MSG_RESULT(yes)], [AC_MSG_ERROR([no zlib!])])
 fi
 
 AC_CACHE_SAVE
@@ -98,10 +98,10 @@ AC_CHECK_FUNCS([setuid setgid umask seteuid setreuid setlocale])
 AC_SEARCH_LIBS([floor], [m])
 AC_SEARCH_LIBS([gethostbyname], [nsl])
 AC_SEARCH_LIBS([socket], [socket], [], [
-	AC_CHECK_LIB(
-		[socket], [socket], [LIBS="-lsocket -lnsl $LIBS"],
-		[], [-lnsl]
-	)
+AC_CHECK_LIB(
+[socket], [socket], [LIBS="-lsocket -lnsl $LIBS"],
+[], [-lnsl]
+)
 ])
 AC_SEARCH_LIBS([inet_aton], [resolv])
 
@@ -203,24 +203,24 @@ AC_ARG_ENABLE(
 pcre,
 [AC_HELP_STRING([--enable-pcre@<:@=yes@:>@], [Enable support for the PCRE library])],
 [ if test "x$enableval" = "xno"; then
-	pcre=false
-	AC_MSG_RESULT(no)
+pcre=false
+AC_MSG_RESULT(no)
 else
-	pcre=true
-	AC_MSG_RESULT(yes)
+pcre=true
+AC_MSG_RESULT(yes)
 fi
 ],
 [ # enable by default
-	pcre=true
-	AC_MSG_RESULT(yes)
+pcre=true
+AC_MSG_RESULT(yes)
 ]
 )
 if test "x$pcre" = "xtrue"; then
-	PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
-	AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
-	PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
+AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
+PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
 else
-	AC_CHECK_FUNCS([regcomp])
+AC_CHECK_FUNCS([regcomp])
 fi
 AM_CONDITIONAL(HAVE_PCRE, test "x$pcre" = "xtrue")
 
@@ -230,27 +230,27 @@ AC_ARG_ENABLE(
 segv_backtrace,
 [AC_HELP_STRING([--enable-segv-backtrace@<:@=no@:>@], [Enable logging a backtrace when a segmentation fault occurs])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
+AC_MSG_RESULT(no)
 else
-	# check for native header & func (no library)
-	AC_CHECK_FUNCS(backtrace, [AC_MSG_RESULT(native)], [
-		AC_MSG_RESULT(no)
-		# native not found, so look for linked
-		LIBS="-lexecinfo ${LIBS}"
-		AC_CHECK_LIB(execinfo, backtrace, [
-			AC_MSG_RESULT(linked)
-		], [
-			AC_MSG_RESULT(no)
-			AC_MSG_ERROR([no native or standard library backtrace function found! (needed by "--enable-segv-backtrace")])
-		])
-	])
-	AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
-	# add -rdynamic to compiler flags to force output of symbol tables
-	CXXFLAGS="-rdynamic ${CXXFLAGS}"
+# check for native header & func (no library)
+AC_CHECK_FUNCS(backtrace, [AC_MSG_RESULT(native)], [
+AC_MSG_RESULT(no)
+# native not found, so look for linked
+LIBS="-lexecinfo ${LIBS}"
+AC_CHECK_LIB(execinfo, backtrace, [
+AC_MSG_RESULT(linked)
+], [
+AC_MSG_RESULT(no)
+AC_MSG_ERROR([no native or standard library backtrace function found! (needed by "--enable-segv-backtrace")])
+])
+])
+AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
+# add -rdynamic to compiler flags to force output of symbol tables
+CXXFLAGS="-rdynamic ${CXXFLAGS}"
 fi
 ],
 [ # disable by default
-	AC_MSG_RESULT(no)
+AC_MSG_RESULT(no)
 ])
 
 # ask user if they want large file support on 32 bit systems
@@ -259,25 +259,25 @@ AC_ARG_ENABLE(
 lfs,
 [AC_HELP_STRING([--enable-lfs@<:@=yes@:>@], [Enable large file support on 32 bit systems])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
+AC_MSG_RESULT(no)
 else
-	lfsflags=`getconf LFS_CFLAGS`
-	lfsld=`getconf LFS_LDFLAGS`
-	lfslib=`getconf LFS_LIBS`
-	CXXFLAGS="${CXXFLAGS} $lfsflags"
-	LDFLAGS="${LDFLAGS} $lfsld"
-	LIBS="${LIBS} $lfslib"
-	AC_MSG_RESULT(yes)
+lfsflags=`getconf LFS_CFLAGS`
+lfsld=`getconf LFS_LDFLAGS`
+lfslib=`getconf LFS_LIBS`
+CXXFLAGS="${CXXFLAGS} $lfsflags"
+LDFLAGS="${LDFLAGS} $lfsld"
+LIBS="${LIBS} $lfslib"
+AC_MSG_RESULT(yes)
 fi
 ],
 [ # enable by default
-	lfsflags=`getconf LFS_CFLAGS`
-	lfsld=`getconf LFS_LDFLAGS`
-	lfslib=`getconf LFS_LIBS`
-	CXXFLAGS="${CXXFLAGS} $lfsflags"
-	LDFLAGS="${LDFLAGS} $lfsld"
-	LIBS="${LIBS} $lfslib"
-	AC_MSG_RESULT(yes)
+lfsflags=`getconf LFS_CFLAGS`
+lfsld=`getconf LFS_LDFLAGS`
+lfslib=`getconf LFS_LIBS`
+CXXFLAGS="${CXXFLAGS} $lfsflags"
+LDFLAGS="${LDFLAGS} $lfsld"
+LIBS="${LIBS} $lfslib"
+AC_MSG_RESULT(yes)
 ])
 
 # ask the user if they want support for retrieving original destination IPs
@@ -285,22 +285,22 @@ fi
 AC_MSG_CHECKING([for original destination IP checking support])
 AC_ARG_ENABLE(
 orig-ip,
-[AC_HELP_STRING([--enable-orig-ip@<:@=no@:>@], [Enable support for checking the client's original destination IP address against HTTP request details when deployed as a transparent proxy (US-CERT VU@%:@435052).  Currently only works on Linux.])],
+[AC_HELP_STRING([--enable-orig-ip@<:@=no@:>@], [Enable support for checking the client's original destination IP address against HTTP request details when deployed as a transparent proxy (US-CERT VU@%:@435052). Currently only works on Linux.])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	origip=false
-	ORIGIPSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
+origip=false
+ORIGIPSUPPORT="#!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	origip=true
-	AC_DEFINE([ENABLE_ORIG_IP],[],[Define to enable original destination IP checking])
-	ORIGIPSUPPORT=""
+AC_MSG_RESULT(yes)
+origip=true
+AC_DEFINE([ENABLE_ORIG_IP],[],[Define to enable original destination IP checking])
+ORIGIPSUPPORT=""
 fi
 ],
 [ # disable by default
-	AC_MSG_RESULT(no)
-	origip=false
-	ORIGIPSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
+origip=false
+ORIGIPSUPPORT="#!! Not compiled !! "
 ])
 AC_SUBST(ORIGIPSUPPORT)
 
@@ -314,11 +314,11 @@ AC_COMPILE_IFELSE(
  AC_LANG_PROGRAM(
  [[#include <sys/types.h>]],[[
  struct Foo{
- 	void f(const int);
-	void f(const long);
-	void f(const long unsigned);
-	void f(const unsigned int);
-	void f(const off_t);
+  void f(const int);
+void f(const long);
+void f(const long unsigned);
+void f(const unsigned int);
+void f(const off_t);
  };]])
 ],[
    AC_MSG_RESULT([no])
@@ -338,21 +338,21 @@ AC_ARG_ENABLE(
 clamd,
 [AC_HELP_STRING([--enable-clamd@<:@=no@:>@], [Enable support for the ClamD content scanner])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	clamd=false
-	CLAMDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+clamd=false
+CLAMDSUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	clamd=true
-	cslists=true
-	csconfigs=true
-	CLAMDSUPPORT=""
-	AC_DEFINE([ENABLE_CLAMD],[],[Define to enable ClamD content scanner])
+AC_MSG_RESULT(yes)
+clamd=true
+cslists=true
+csconfigs=true
+CLAMDSUPPORT=""
+AC_DEFINE([ENABLE_CLAMD],[],[Define to enable ClamD content scanner])
 fi],
 [
-	AC_MSG_RESULT(no)
-	clamd=false
-	CLAMDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+clamd=false
+CLAMDSUPPORT="!! Not compiled !! "
 ]
 )
 AM_CONDITIONAL(ENABLE_CLAMD, test "x$clamd" = "xtrue")
@@ -364,21 +364,21 @@ AC_ARG_ENABLE(
 avastd,
 [AC_HELP_STRING([--enable-avastd@<:@=no@:>@], [Enable support for the AvastD content scanner])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	avastd=false
-	AVASTDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+avastd=false
+AVASTDSUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	avastd=true
-	cslists=true
-	csconfigs=true
-	AVASTDSUPPORT=""
-	AC_DEFINE([ENABLE_AVASTD],[],[Define to enable AvastD content scanner])
+AC_MSG_RESULT(yes)
+avastd=true
+cslists=true
+csconfigs=true
+AVASTDSUPPORT=""
+AC_DEFINE([ENABLE_AVASTD],[],[Define to enable AvastD content scanner])
 fi],
 [
-	AC_MSG_RESULT(no)
-	avastd=false
-	AVASTDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+avastd=false
+AVASTDSUPPORT="!! Not compiled !! "
 ]
 )
 AM_CONDITIONAL(ENABLE_AVASTD, test "x$avastd" = "xtrue")
@@ -390,21 +390,21 @@ AC_ARG_ENABLE(
 icap,
 [AC_HELP_STRING([--enable-icap@<:@=no@:>@], [Enable support for ICAP AV server content scanner])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	icap=false
-	ICAPSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+icap=false
+ICAPSUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	icap=true
-	cslists=true
-	csconfigs=true
-	AC_DEFINE([ENABLE_ICAP],[],[Define to enable ICAP content scanner])
-	ICAPSUPPORT=""
+AC_MSG_RESULT(yes)
+icap=true
+cslists=true
+csconfigs=true
+AC_DEFINE([ENABLE_ICAP],[],[Define to enable ICAP content scanner])
+ICAPSUPPORT=""
 fi],
 [
-	AC_MSG_RESULT(no)
-	icap=false
-	ICAPSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+icap=false
+ICAPSUPPORT="!! Not compiled !! "
 ]
 )
 AM_CONDITIONAL(ENABLE_ICAP, test "x$icap" = "xtrue")
@@ -416,21 +416,21 @@ AC_ARG_ENABLE(
 kavd,
 [AC_HELP_STRING([--enable-kavd@<:@=no@:>@], [Enable support for the Kaspersky AV daemon content scanner])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	kavd=false
-	KAVDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+kavd=false
+KAVDSUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	kavd=true
-	cslists=true
-	csconfigs=true
-	KAVDSUPPORT=""
-	AC_DEFINE([ENABLE_KAVD],[],[Define to enable KAVD content scanner])
+AC_MSG_RESULT(yes)
+kavd=true
+cslists=true
+csconfigs=true
+KAVDSUPPORT=""
+AC_DEFINE([ENABLE_KAVD],[],[Define to enable KAVD content scanner])
 fi],
 [
-	AC_MSG_RESULT(no)
-	kavd=false
-	KAVDSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+kavd=false
+KAVDSUPPORT="!! Not compiled !! "
 ]
 )
 AM_CONDITIONAL(ENABLE_KAVD, test "x$kavd" = "xtrue")
@@ -442,21 +442,21 @@ AC_ARG_ENABLE(
 commandline,
 [AC_HELP_STRING([--enable-commandline@<:@=no@:>@], [Enable support for command-line content scanners])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	commandline=false
-	COMMANDLINESUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+commandline=false
+COMMANDLINESUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	commandline=true
-	cslists=true
-	csconfigs=true
-	COMMANDLINESUPPORT=""
-	AC_DEFINE([ENABLE_COMMANDLINE],[],[Define to enable command-line content scanner])
+AC_MSG_RESULT(yes)
+commandline=true
+cslists=true
+csconfigs=true
+COMMANDLINESUPPORT=""
+AC_DEFINE([ENABLE_COMMANDLINE],[],[Define to enable command-line content scanner])
 fi],
 [
-	AC_MSG_RESULT(no)
-	commandline=false
-	COMMANDLINESUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+commandline=false
+COMMANDLINESUPPORT="!! Not compiled !! "
 ])
 AM_CONDITIONAL(ENABLE_COMMANDLINE, test "x$commandline" = "xtrue")
 AC_SUBST(COMMANDLINESUPPORT)
@@ -471,22 +471,22 @@ AC_ARG_ENABLE(
 fancydm,
 [AC_HELP_STRING([--enable-fancydm@<:@=yes@:>@], [Enable support for the fancy download manager])],
 [ if test "x$enableval" = "xno"; then
-	fancydm=false
-	FANCYSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+fancydm=false
+FANCYSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	fancydm=true
-	dmlists=true
-	FANCYSUPPORT=""
-	AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
+AC_MSG_RESULT(yes)
+fancydm=true
+dmlists=true
+FANCYSUPPORT=""
+AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 fi],
 [
-	fancydm=true
-	dmlists=true
-	FANCYSUPPORT=""
-	AC_MSG_RESULT(yes)
-	AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
+fancydm=true
+dmlists=true
+FANCYSUPPORT=""
+AC_MSG_RESULT(yes)
+AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 ]
 )
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
@@ -498,20 +498,20 @@ AC_ARG_ENABLE(
 totblock,
 [AC_HELP_STRING([--enable-totalblocklist@<:@=no@:>@], [Enable support for total block list])],
 [ if test "x$enableval" = "xyes"; then
-	AC_MSG_RESULT(yes)
-	totblock=true
-	dmlists=true
-	TOTALBLOCKSUPPORT=""
-	AC_DEFINE([TOTAL_BLOCK_LIST],[],[Define to enable support for total block list])
+AC_MSG_RESULT(yes)
+totblock=true
+dmlists=true
+TOTALBLOCKSUPPORT=""
+AC_DEFINE([TOTAL_BLOCK_LIST],[],[Define to enable support for total block list])
 else
-	totblock=false
-	TOTALBLOCKSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+totblock=false
+TOTALBLOCKSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 fi],
 [
-	totblock=false
-	TOTALBLOCKSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+totblock=false
+TOTALBLOCKSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 ]
 )
 AM_CONDITIONAL(TOTAL_BLOCK_LIST, test "x$totblock" = "xtrue")
@@ -523,19 +523,19 @@ AC_ARG_ENABLE(
 locallists,
 [AC_HELP_STRING([--enable-locallists@<:@=no@:>@], [Enable support for local lists])],
 [ if test "x$enableval" = "xyes"; then
-	AC_MSG_RESULT(yes)
-	locallists=true
-	LOCALLISTSUPPORT=""
-	AC_DEFINE([LOCAL_LISTS],[],[Define to enable support for local lists])
+AC_MSG_RESULT(yes)
+locallists=true
+LOCALLISTSUPPORT=""
+AC_DEFINE([LOCAL_LISTS],[],[Define to enable support for local lists])
 else
-	locallists=false
-	LOCALLISTSSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+locallists=false
+LOCALLISTSSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 fi],
 [
-	locallists=false
-	LOCALLISTSSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+locallists=false
+LOCALLISTSSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 ]
 )
 AM_CONDITIONAL(LOCAL_LISTS, test "x$locallists" = "xtrue")
@@ -547,20 +547,20 @@ AC_ARG_ENABLE(
 refererexception,
 [AC_HELP_STRING([--enable-refererexception@<:@=yes@:>@], [Enable support for referer exception ])],
 [ if test "x$enableval" = "xno"; then
-	refererexception=false
-	REFEREREXCEPTSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+refererexception=false
+REFEREREXCEPTSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	refererexception=true
-	REFEREREXCEPTSUPPORT=""
-	AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
+AC_MSG_RESULT(yes)
+refererexception=true
+REFEREREXCEPTSUPPORT=""
+AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	refererexception=true
-	REFEREREXCEPTSUPPORT=""
-	AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
+AC_MSG_RESULT(yes)
+refererexception=true
+REFEREREXCEPTSUPPORT=""
+AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
 ]
 )
 AM_CONDITIONAL(REFEREREXCEPT, test "x$refererexception" = "xtrue")
@@ -572,20 +572,20 @@ AC_ARG_ENABLE(
 rxredirects,
 [AC_HELP_STRING([--enable-rxredirects@<:@=yes@:>@], [Enable support for regexp redirects])],
 [ if test "x$enableval" = "xno"; then
-	rxredirects=false
-	RXREDIRECTSSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+rxredirects=false
+RXREDIRECTSSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	rxredirects=true
-	RXREDIRECTSSUPPORT=""
-	AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects])
+AC_MSG_RESULT(yes)
+rxredirects=true
+RXREDIRECTSSUPPORT=""
+AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	rxredirects=true
-	RXREDIRECTSSUPPORT=""
-	AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects ])
+AC_MSG_RESULT(yes)
+rxredirects=true
+RXREDIRECTSSUPPORT=""
+AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects ])
 ]
 )
 AM_CONDITIONAL(RXREDIRECTS, test "x$rxredirects" = "xtrue")
@@ -597,20 +597,20 @@ AC_ARG_ENABLE(
 addheader,
 [AC_HELP_STRING([--enable-addheader@<:@=yes@:>@], [Enable support for add header])],
 [ if test "x$enableval" = "xno"; then
-	addheader=false
-	ADDHEADERSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+addheader=false
+ADDHEADERSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	addheader=true
-	ADDHEADERSUPPORT=""
-	AC_DEFINE([ADDHEADER],[],[Define to enable support for add header])
+AC_MSG_RESULT(yes)
+addheader=true
+ADDHEADERSUPPORT=""
+AC_DEFINE([ADDHEADER],[],[Define to enable support for add header])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	addheader=true
-	ADDHEADERSUPPORT=""
-	AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
+AC_MSG_RESULT(yes)
+addheader=true
+ADDHEADERSUPPORT=""
+AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
 ]
 )
 AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
@@ -622,20 +622,20 @@ AC_ARG_ENABLE(
 sslextralists,
 [AC_HELP_STRING([--enable-sslextralists@<:@=yes@:>@], [Enable support for ssl extra lists])],
 [ if test "x$enableval" = "xno"; then
-	sslextralists=false
-	SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+sslextralists=false
+SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	sslextralists=true
-	SSL_EXTRA_LISTSSUPPORT=""
-	AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists])
+AC_MSG_RESULT(yes)
+sslextralists=true
+SSL_EXTRA_LISTSSUPPORT=""
+AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	sslextralists=true
-	SSL_EXTRA_LISTSSUPPORT=""
-	AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists ])
+AC_MSG_RESULT(yes)
+sslextralists=true
+SSL_EXTRA_LISTSSUPPORT=""
+AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists ])
 ]
 )
 AM_CONDITIONAL(SSL_EXTRA_LISTS, test "x$sslextralists" = "xtrue")
@@ -647,20 +647,20 @@ AC_ARG_ENABLE(
 searchwords,
 [AC_HELP_STRING([--enable-searchwords@<:@=yes@:>@], [Enable support for ssl extra lists])],
 [ if test "x$enableval" = "xno"; then
-	searchwords=false
-	SEARCHWORDSSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+searchwords=false
+SEARCHWORDSSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	searchwords=true
-	SEARCHWORDSSUPPORT=""
-	AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists])
+AC_MSG_RESULT(yes)
+searchwords=true
+SEARCHWORDSSUPPORT=""
+AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	searchwords=true
-	SEARCHWORDSSUPPORT=""
-	AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists ])
+AC_MSG_RESULT(yes)
+searchwords=true
+SEARCHWORDSSUPPORT=""
+AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists ])
 ]
 )
 AM_CONDITIONAL(SEARCHWORDS, test "x$searchwords" = "xtrue")
@@ -672,20 +672,20 @@ AC_ARG_ENABLE(
 legacylog,
 [AC_HELP_STRING([--enable-legacylog@<:@=yes@:>@], [Enable support for legacy log format])],
 [ if test "x$enableval" = "xno"; then
-	legacylog=false
-	LEGACY_LOGSUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+legacylog=false
+LEGACY_LOGSUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	legacylog=true
-	LEGACY_LOGSUPPORT=""
-	AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format])
+AC_MSG_RESULT(yes)
+legacylog=true
+LEGACY_LOGSUPPORT=""
+AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format])
 fi],
 [
-	AC_MSG_RESULT(yes)
-	legacylog=true
-	LEGACY_LOGSUPPORT=""
-	AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format ])
+AC_MSG_RESULT(yes)
+legacylog=true
+LEGACY_LOGSUPPORT=""
+AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format ])
 ]
 )
 AM_CONDITIONAL(LEGACY_LOG, test "x$legacylog" = "xtrue")
@@ -697,20 +697,20 @@ AC_ARG_ENABLE(
 trickledm,
 [AC_HELP_STRING([--enable-trickledm@<:@=no@:>@], [Enable support for the trickle download manager])],
 [ if test "x$enableval" = "xno"; then
-	trickledm=false
-	TRICKLESUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+trickledm=false
+TRICKLESUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 else
-	AC_MSG_RESULT(yes)
-	trickledm=true
-	dmlists=true
-	TRICKLESUPPORT=""
-	AC_DEFINE([ENABLE_TRICKLEDM],[],[Define to enable trickle download manager])
+AC_MSG_RESULT(yes)
+trickledm=true
+dmlists=true
+TRICKLESUPPORT=""
+AC_DEFINE([ENABLE_TRICKLEDM],[],[Define to enable trickle download manager])
 fi],
 [
-	trickledm=false
-	TRICKLESUPPORT="#!! Not compiled !! "
-	AC_MSG_RESULT(no)
+trickledm=false
+TRICKLESUPPORT="#!! Not compiled !! "
+AC_MSG_RESULT(no)
 ]
 )
 AM_CONDITIONAL(ENABLE_TRICKLEDM, test "x$trickledm" = "xtrue")
@@ -725,53 +725,53 @@ AC_ARG_ENABLE(
 ntlm,
 [AC_HELP_STRING([--enable-ntlm@<:@=no@:>@], [Enable support for the NTLM auth plugin])],
 [ if test "x$enableval" = "xno"; then
-	AC_MSG_RESULT(no)
-	ntlm=false
-	NTLMSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+ntlm=false
+NTLMSUPPORT="!! Not compiled !! "
 else
-	AC_MSG_RESULT(yes)
-	ntlm=true
-	NTLMSUPPORT=""
-	AC_DEFINE([ENABLE_NTLM],[],[Define to enable NTLM auth plugin])
-	# now need to check if they're using an iconv library, rather
-	# than a native iconv implementation
-	AC_ARG_WITH(libiconv,
-		[AC_HELP_STRING([--with-libiconv@<:@=NONE@:>@], [Specify search path on a system which requires an external iconv library (only used in conjunction with NTLM auth plugin).])],
-		[ # check for header & func (in library) in given prefix
-			if test "x$withval" != "x"; then
-				CPPFLAGS="${CPPFLAGS} -I${withval}/include"
-				LIBS="-L${withval}/lib -liconv ${LIBS}"
-			else
-				LIBS="-liconv ${LIBS}"
-			fi
-			AC_CHECK_LIB(iconv, iconv, [AC_MSG_RESULT(linked)], [
-				AC_MSG_RESULT(no)
-				AC_CHECK_LIB(iconv, libiconv, [AC_MSG_RESULT(linked)], [
-					AC_MSG_ERROR([no libiconv found in given search path! (needed by NTLM plugin)])
-				])
-			])
-		],
-		[ # check for native header & func (no library)
-			AC_CHECK_FUNCS(iconv, [AC_MSG_RESULT(native)], [
-				AC_MSG_RESULT(no)
-				# native not found, so look for linked
-				LIBS="-liconv ${LIBS}"
-				AC_CHECK_LIB(iconv, iconv, [
-					AC_MSG_RESULT(linked)
-				], [
-					AC_MSG_RESULT(no)
-					AC_CHECK_LIB(iconv, libiconv, [AC_MSG_RESULT(linked)], [
-						AC_MSG_ERROR([no native or standard library iconv function found! (needed by NTLM plugin - try again with "--with-libiconv"?)])
-					])
-				])
-			])
-		]
-	)
+AC_MSG_RESULT(yes)
+ntlm=true
+NTLMSUPPORT=""
+AC_DEFINE([ENABLE_NTLM],[],[Define to enable NTLM auth plugin])
+# now need to check if they're using an iconv library, rather
+# than a native iconv implementation
+AC_ARG_WITH(libiconv,
+[AC_HELP_STRING([--with-libiconv@<:@=NONE@:>@], [Specify search path on a system which requires an external iconv library (only used in conjunction with NTLM auth plugin).])],
+[ # check for header & func (in library) in given prefix
+if test "x$withval" != "x"; then
+CPPFLAGS="${CPPFLAGS} -I${withval}/include"
+LIBS="-L${withval}/lib -liconv ${LIBS}"
+else
+LIBS="-liconv ${LIBS}"
+fi
+AC_CHECK_LIB(iconv, iconv, [AC_MSG_RESULT(linked)], [
+AC_MSG_RESULT(no)
+AC_CHECK_LIB(iconv, libiconv, [AC_MSG_RESULT(linked)], [
+AC_MSG_ERROR([no libiconv found in given search path! (needed by NTLM plugin)])
+])
+])
+],
+[ # check for native header & func (no library)
+AC_CHECK_FUNCS(iconv, [AC_MSG_RESULT(native)], [
+AC_MSG_RESULT(no)
+# native not found, so look for linked
+LIBS="-liconv ${LIBS}"
+AC_CHECK_LIB(iconv, iconv, [
+AC_MSG_RESULT(linked)
+], [
+AC_MSG_RESULT(no)
+AC_CHECK_LIB(iconv, libiconv, [AC_MSG_RESULT(linked)], [
+AC_MSG_ERROR([no native or standard library iconv function found! (needed by NTLM plugin - try again with "--with-libiconv"?)])
+])
+])
+])
+]
+)
 fi],
 [
-	AC_MSG_RESULT(no)
-	ntlm=false
-	NTLMSUPPORT="!! Not compiled !! "
+AC_MSG_RESULT(no)
+ntlm=false
+NTLMSUPPORT="!! Not compiled !! "
 ]
 )
 AM_CONDITIONAL(ENABLE_NTLM, test "x$ntlm" = "xtrue")
@@ -816,17 +816,17 @@ AC_ARG_WITH(filedescriptors,
     esac
 ])
 
-DANS_CHECK_DEFAULT_FD_SETSIZE
-if test "x$dans_filedescriptors_num" = "x"; then
-  DANS_CHECK_MAXFD
-else
-  AC_MSG_NOTICE([forcing use of $dans_filedescriptors_num filedescriptors (user-forced)])
-fi
-if test "$dans_filedescriptors_num" -lt 512 ; then
+if (test "$dans_filedescriptors_num" < 512); then
     AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
     AC_MSG_WARN([e2guardian will be very busy.])
+    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
 fi
-AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
+
+if (test "$dans_filedescriptors_num" > 512); then
+    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
+    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
+    AC_MSG_WARN([ae2guardian will be very busy.])
+fi
 
 # asking the user if they want email notifications
 AC_MSG_CHECKING(for email notification support)
@@ -834,19 +834,19 @@ AC_ARG_ENABLE(
 email,
 [AC_HELP_STRING([--enable-email@<:@=no@:>@], [Enable support for email reporting functionality])],
 [ if test "x$enableval" = "xyes"; then
-	email=true
-	EMAILSUPPORT=""
-	AC_MSG_RESULT(yes)
-	AC_DEFINE([ENABLE_EMAIL],[],[Define to enable email reporting])
+email=true
+EMAILSUPPORT=""
+AC_MSG_RESULT(yes)
+AC_DEFINE([ENABLE_EMAIL],[],[Define to enable email reporting])
 else
-	email=false
-	EMAILSUPPORT="#!! Not compiled !!"
-	AC_MSG_RESULT(no)
+email=false
+EMAILSUPPORT="#!! Not compiled !!"
+AC_MSG_RESULT(no)
 fi],
 [
-	email=false
-	EMAILSUPPORT="#!! Not compiled !!"
-	AC_MSG_RESULT(no)
+email=false
+EMAILSUPPORT="#!! Not compiled !!"
+AC_MSG_RESULT(no)
 ])
 AC_SUBST(EMAILSUPPORT)
 
@@ -855,13 +855,13 @@ AC_DEFINE_UNQUOTED([DG_CONFIGURE_OPTIONS], ["$ac_configure_args"], [Record confi
 libdir="${libdir}/${PACKAGE_NAME}"
 
 AC_ARG_WITH(sysconfsubdir,
-	[AC_HELP_STRING([--with-sysconfsubdir@<:@=e2guardian@:>@], [subdirectory under sysconfdir in which to place config files])],
-	[if test "x$withval" != "x"; then
-		dgsysconfdir="${sysconfdir}/${withval}"
-	else
-		dgsysconfdir="${sysconfdir}"
-	fi],
-	[dgsysconfdir="${sysconfdir}/${PACKAGE_NAME}"])
+[AC_HELP_STRING([--with-sysconfsubdir@<:@=e2guardian@:>@], [subdirectory under sysconfdir in which to place config files])],
+[if test "x$withval" != "x"; then
+dgsysconfdir="${sysconfdir}/${withval}"
+else
+dgsysconfdir="${sysconfdir}"
+fi],
+[dgsysconfdir="${sysconfdir}/${PACKAGE_NAME}"])
 
 AC_FINALIZE_VAR(DGLIBDIR,"${libdir}")
 AC_SUBST(DGLIBDIR)
@@ -875,43 +875,45 @@ AC_FINALIZE_VAR(DGCONFFILE,"${dgsysconfdir}/${PACKAGE_NAME}.conf")
 AC_SUBST(DGCONFFILE)
 
 AC_CONFIG_FILES([Makefile
-	        data/Makefile
-	        data/languages/Makefile
-	        data/scripts/Makefile
-	        data/scripts/bsd-init
-	        data/scripts/e2guardian
-	        data/scripts/logrotation
-	        data/scripts/solaris-init
-	        data/scripts/systemv-init
-	        doc/Makefile
-	        configs/e2guardian.conf
-	        configs/e2guardianf1.conf
-	        configs/Makefile
-	        configs/lists/Makefile
-	        configs/lists/phraselists/Makefile
-	        configs/lists/blacklists/Makefile
-	        configs/lists/bannedrooms/Makefile
-	        configs/lists/contentscanners/Makefile
-	        configs/lists/weightedphraselist
-	        configs/lists/exceptionphraselist
-	        configs/lists/bannedphraselist
-		configs/lists/bannedurllist
-		configs/lists/bannedsitelist
-	        configs/downloadmanagers/Makefile
-	        configs/downloadmanagers/default.conf
-	        configs/downloadmanagers/fancy.conf
-	        configs/downloadmanagers/trickle.conf
-	        configs/contentscanners/Makefile
-	        configs/contentscanners/clamdscan.conf
-	        configs/contentscanners/avastdscan.conf
-	        configs/contentscanners/icapscan.conf
-	        configs/contentscanners/kavdscan.conf
-	        configs/contentscanners/commandlinescan.conf
-		configs/authplugins/Makefile
-		configs/authplugins/ip.conf
-		configs/lists/authplugins/Makefile
-		configs/lists/downloadmanagers/Makefile
+data/Makefile
+data/languages/Makefile
+data/scripts/Makefile
+data/scripts/bsd-init
+data/scripts/e2guardian
+data/scripts/logrotation
+data/scripts/solaris-init
+data/scripts/systemv-init
+migration_installation/installation_or_migration_from_dg.sh
+migration_installation/Makefile
+doc/Makefile
+configs/e2guardian.conf
+configs/e2guardianf1.conf
+configs/Makefile
+configs/lists/Makefile
+configs/lists/phraselists/Makefile
+configs/lists/blacklists/Makefile
+configs/lists/bannedrooms/Makefile
+configs/lists/contentscanners/Makefile
+configs/lists/weightedphraselist
+configs/lists/exceptionphraselist
+configs/lists/bannedphraselist
+configs/lists/bannedurllist
+configs/lists/bannedsitelist
+configs/downloadmanagers/Makefile
+configs/downloadmanagers/default.conf
+configs/downloadmanagers/fancy.conf
+configs/downloadmanagers/trickle.conf
+configs/contentscanners/Makefile
+configs/contentscanners/clamdscan.conf
+configs/contentscanners/avastdscan.conf
+configs/contentscanners/icapscan.conf
+configs/contentscanners/kavdscan.conf
+configs/contentscanners/commandlinescan.conf
+configs/authplugins/Makefile
+configs/authplugins/ip.conf
+configs/lists/authplugins/Makefile
+configs/lists/downloadmanagers/Makefile
                 src/Makefile
-		])
+])
 
 AC_OUTPUT
