@@ -816,16 +816,14 @@ AC_ARG_WITH(filedescriptors,
     esac
 ])
 
-if (test "$dans_filedescriptors_num" < 512); then
+if test "$dans_filedescriptors_num" -lt 512; then
     AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
     AC_MSG_WARN([e2guardian will be very busy.])
     AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
 fi
 
-if (test "$dans_filedescriptors_num" > 512); then
+if test "$dans_filedescriptors_num" -ge 512; then
     AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
-    AC_MSG_WARN([ae2guardian will be very busy.])
 fi
 
 # asking the user if they want email notifications
