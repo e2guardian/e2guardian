@@ -352,7 +352,6 @@ int main(int argc, char *argv[])
 		return 1;  // we can't have rampant proccesses can we?
 	}
 
-
 	unsigned int rootuid;  // prepare a struct for use later
 	rootuid = geteuid();
 	o.root_user = rootuid;
