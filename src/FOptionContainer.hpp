@@ -199,6 +199,8 @@ public:
 #ifdef REFEREREXCEPT
 	unsigned int referer_exception_site_list;
 	unsigned int referer_exception_url_list;
+	unsigned int embeded_referer_site_list;
+	unsigned int embeded_referer_url_list;
 #endif
 #ifdef PRT_DNSAUTH
 	unsigned int auth_exception_site_list;
@@ -297,6 +299,8 @@ public:
 #ifdef REFEREREXCEPT
 		referer_exception_site_flag(false),
 		referer_exception_url_flag(false),
+		embeded_referer_site_flag(false),
+		embeded_referer_url_flag(false),
 #endif
 #ifdef PRT_DNSAUTH
 		auth_exception_site_flag(false),
@@ -381,6 +385,7 @@ public:
 #endif
 #ifdef REFEREREXCEPT
 	bool inRefererExceptionLists(String url);
+	bool inEmbededRefererLists(String url);
 #endif
 	char *inBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -432,6 +437,8 @@ private:
 #ifdef REFEREREXCEPT
 	bool referer_exception_site_flag;
 	bool referer_exception_url_flag;
+	bool embeded_referer_site_flag;
+	bool embeded_referer_url_flag;
 #endif
 #ifdef PRT_DNSAUTH
 	bool auth_exception_site_flag;
