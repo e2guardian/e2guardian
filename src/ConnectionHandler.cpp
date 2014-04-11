@@ -1205,12 +1205,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
                         /* check header and regex before (if bannedregexwithblanketbloc is on) */
                         if ((*o.fg[filtergroup]).enable_regex_grey) {
-                                requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
-                                message_no = checkme.message_no;
+                                  requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+                                  message_no = checkme.message_no;
                         }
-
-			// orginal section only now called if local list not matched
-			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
+			// orginal section only now called if local list not matched | with enable_regex_grey checkme.isItNaughty should be false
+			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || ((checkme.isItNaughty == false) || (checkme.isItNaughty)) || o.fg[filtergroup]->use_only_local_allow_lists )) {
 				bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 #ifdef SSL_EXTRA_LISTS
@@ -1221,9 +1220,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
 					checkme.isItNaughty = true;
 					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
-				}
+				} 
 				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 	// allowed site
-#else
+#else 
 				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 		// allowed site
 #endif
 				{
