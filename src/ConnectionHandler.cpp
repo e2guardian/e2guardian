@@ -1209,7 +1209,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
                                   message_no = checkme.message_no;
                         }
 			// orginal section only now called if local list not matched | with enable_regex_grey checkme.isItNaughty should be false
-			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || ((checkme.isItNaughty == false) || (checkme.isItNaughty)) || o.fg[filtergroup]->use_only_local_allow_lists )) {
+			if ((!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) || ((*o.fg[filtergroup]).enable_regex_grey) && (checkme.isItNaughty)) {
 				bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 #ifdef SSL_EXTRA_LISTS
