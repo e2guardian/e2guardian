@@ -1831,6 +1831,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			if (authed && !isbypass && !isexception && !checkme.isItNaughty) {
 				requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup,
 					isbanneduser, isbannedip, room);
+				message_no = checkme.message_no;
 			}
 
                         // TODO - This post code is too big
