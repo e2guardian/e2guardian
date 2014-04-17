@@ -43,6 +43,8 @@ contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
 urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
 refererexceptionsitelist = '@DGCONFDIR@/lists/refererexceptionsitelist'
 refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
+embededreferersitelist = '@DGCONFDIR@/lists/embededreferersitelist'
+embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urlredirectregexpurllist = '@DGCONFDIR@/lists/urlredirectregexpurllist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
