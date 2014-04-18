@@ -816,14 +816,24 @@ AC_ARG_WITH(filedescriptors,
     esac
 ])
 
-if test "$dans_filedescriptors_num" -lt 512; then
-    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
-    AC_MSG_WARN([e2guardian will be very busy.])
-    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-fi
 
-if test "$dans_filedescriptors_num" -ge 512; then
-    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
+if test -n "$dans_filedescriptors_num"; then
+	
+	if test `expr $dans_filedescriptors_num % 64` != 0; then
+    		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&5
+		$as_echo "$as_me: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&2;}
+	fi
+
+	if test "$dans_filedescriptors_num" -lt 512; then
+	    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
+	    AC_MSG_WARN([e2guardian will be very busy.])
+	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
+	fi
+
+	if test "$dans_filedescriptors_num" -ge 512; then
+	    AC_MSG_NOTICE([forcing use of $dans_filedescriptors_num filedescriptors (user-forced)])
+	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
+	fi
 fi
 
 # asking the user if they want email notifications

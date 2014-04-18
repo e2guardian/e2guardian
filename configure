@@ -7791,24 +7791,35 @@ if test "${with_filedescriptors+set}" = set; then :
 fi
 
 
-if test "$dans_filedescriptors_num" -lt 512; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if" >&5
+
+if test -n "$dans_filedescriptors_num"; then
+
+	if test `expr $dans_filedescriptors_num % 64` != 0; then
+    		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&5
+		$as_echo "$as_me: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&2;}
+	fi
+
+	if test "$dans_filedescriptors_num" -lt 512; then
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if" >&5
 $as_echo "$as_me: WARNING: $dans_filedescriptors_num may not be enough filedescriptors if" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: e2guardian will be very busy." >&5
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: e2guardian will be very busy." >&5
 $as_echo "$as_me: WARNING: e2guardian will be very busy." >&2;}
 
 cat >>confdefs.h <<_ACEOF
 #define DANS_MAXFD $dans_filedescriptors_num
 _ACEOF
 
-fi
+	fi
 
-if test "$dans_filedescriptors_num" -ge 512; then
+	if test "$dans_filedescriptors_num" -ge 512; then
+	    { $as_echo "$as_me:${as_lineno-$LINENO}: forcing use of $dans_filedescriptors_num filedescriptors (user-forced)" >&5
+$as_echo "$as_me: forcing use of $dans_filedescriptors_num filedescriptors (user-forced)" >&6;}
 
 cat >>confdefs.h <<_ACEOF
 #define DANS_MAXFD $dans_filedescriptors_num
 _ACEOF
 
+	fi
 fi
 
 # asking the user if they want email notifications

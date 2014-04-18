@@ -348,7 +348,8 @@ int main(int argc, char *argv[])
 		std::cerr << "The total of maxchildren " << o.max_children << " plus preforkchildren " << o.prefork_children <<  " must not exceed " << max_maxchildren << "" << std::endl;
 		std::cerr << "in this configuration." << std::endl;
 		std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
-		std::cerr << "or recompile with an increased --with-filedescriptors=" << DANS_MAXFD << "" << std::endl;
+		std::cerr << "Or recompile with an increased --with-filedescriptors=" << DANS_MAXFD << " and/or " << std::endl;
+		std::cerr << "upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
 		return 1;  // we can't have rampant proccesses can we?
 	}
 
