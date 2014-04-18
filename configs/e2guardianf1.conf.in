@@ -62,6 +62,7 @@ urlredirectregexpurllist = '@DGCONFDIR@/lists/urlredirectregexpurllist'
 # Filetype filtering
 #
 # Allow bannedregexpurllist with grey list mode
+# bannedregexpheaderlist and bannedregexpurllist
 #
 # bannedregexwithblanketblock = off
 #

@@ -1193,7 +1193,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif		// end of local lists exception checking
 			}
 #ifdef LOCAL_LISTS
-
 					
 				if (!(isexception || isourwebserver)) {
 				    // check if this is a search request
@@ -1203,13 +1202,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				    message_no = checkme.message_no;
 				};
 #endif
-                        /* check header and regex before (if bannedregexwithblanketbloc is on) */
-                        if ((*o.fg[filtergroup]).enable_regex_grey) {
-                                  requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
-                                  message_no = checkme.message_no;
-                        }
-			// orginal section only now called if local list not matched | with enable_regex_grey checkme.isItNaughty should be false
-			if ((!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) || ((*o.fg[filtergroup]).enable_regex_grey) && (checkme.isItNaughty)) {
+			// orginal section only now called if local list not matched 
+			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
+
 				bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 #ifdef SSL_EXTRA_LISTS
@@ -1258,9 +1253,22 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
 				}
+
 #endif
 #endif
+
 			}
+
+			if ((*o.fg[filtergroup]).enable_regex_grey){
+				requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+				// Debug deny code //
+				// syslog(LOG_ERR, "code: %d", checkme.message_no); //
+				if (checkme.message_no == 503 || checkme.message_no == 508 ){
+                                        isexception = false;
+					message_no = checkme.message_no;
+                                }
+			}
+
 //
 // End of main exception checking
 //
@@ -3183,6 +3191,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 		}
 	}
 
+
 	if ( checkme->isItNaughty ) {     // why bother with checking anything else!!!!
 		return;
 	}
@@ -3327,6 +3336,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 #ifdef DGDEBUG
 			std::cout << dbgPeerPort << " -done deep analysis" << std::endl;
 #endif
+
 			if ( (*checkme).isItNaughty) {
 				return;
 			}
