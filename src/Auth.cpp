@@ -174,19 +174,19 @@ AuthPlugin* auth_plugin_load(const char *pluginConfigPath)
 	}
 #endif
 #ifdef __SSLCERT
-	if (plugname == "ssl") {
+//	if (plugname == "ssl") {
 #ifdef DGDEBUG
-		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
+//		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
 #endif
-		return sslcorecreate(cv);
-	}
+//		return sslcorecreate(cv);
+//	}
 
-	if (plugname == "core") {
+//	if (plugname == "core") {
 #ifdef DGDEBUG
-		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
+//		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
 #endif
-		return sslcorecreate(cv);
-	}
+//		return sslcorecreate(cv);
+//	}
 #endif //__SSLCERT
 
 	if (!is_daemonised) {
