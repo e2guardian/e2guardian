@@ -1784,8 +1784,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 
 			}
 			//if not mitm then just do the tunneling
-			else
-			{
+			//else
+			//{
 #endif //__SSLMITM
                 // Banned rewrite SSL denied page 
 				bool is_ssl = header.requestType() == "CONNECT";
