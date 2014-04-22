@@ -1184,7 +1184,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 				} 
 #ifdef REFEREREXCEPT
-				else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
+				//else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
+				else if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
@@ -1248,7 +1249,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				}
 #ifdef REFEREREXCEPT
 #ifndef LOCAL_LISTS
-				else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
+				else if (embededRefererChecks(header, urld, url,fiiltergroup) { // referer exception
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
@@ -1837,6 +1838,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			if (authed && !isbypass && !isexception && !checkme.isItNaughty) {
 				requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup,
 					isbanneduser, isbannedip, room);
+				message_no = checkme.message_no;
 			}
 
                         // TODO - This post code is too big
@@ -3590,6 +3592,56 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 		}
 	}
 }
+}
+#endif
+
+
+#ifdef REFEREREXCEPT
+// check if embeded url trusted referer 
+bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, String *url,
+	int filtergroup)
+{
+
+	char *i;
+	int j;
+	String temp;
+	temp = (*urld);
+	temp.hexDecode();
+
+	if ( o.fg[filtergroup]->inRefererExceptionLists(header->getReferer())) {
+		return true;
+	}
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -checking for embed url in " << temp << std::endl;
+#endif
+
+	if ( o.fg[filtergroup]->inEmbededRefererLists(temp))  {
+
+		// look for referer URLs within URLs
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -starting embeded referer deep analysis" << std::endl;
+#endif
+			String deepurl(temp.after("p://"));
+			deepurl = header->decode(deepurl,true);
+			while (deepurl.contains(":")) {
+				deepurl = deepurl.after(":");
+				while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
+					deepurl.lop();
+				}
+
+				if (o.fg[filtergroup]->inRefererExceptionLists(deepurl)) 
+				{
+#ifdef DGDEBUG
+					std::cout << "deep site found in trusted referer list; " << std::endl;
+#endif
+					return true;
+				}
+			}
+#ifdef DGDEBUG
+			std::cout << dbgPeerPort << " -done embdeded referer deep analysis" << std::endl;
+#endif
+	}
+	return false;
 }
 #endif
 

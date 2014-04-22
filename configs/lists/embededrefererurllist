@@ -1,0 +1,5 @@
+# Embeded referer urls
+#  urls which may contain embeded exception referer sites in the url
+
+# e.g. to allow youtube video when embeded in a trusted referer site/urls
+# www.youtube.com/get_video_info

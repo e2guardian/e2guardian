@@ -98,6 +98,8 @@ void FOptionContainer::resetJustListData()
 #ifdef REFEREREXCEPT
 	if (referer_exception_site_flag) o.lm.deRefList(referer_exception_site_list);
 	if (referer_exception_url_flag) o.lm.deRefList(referer_exception_url_list);
+	if (embeded_referer_site_flag) o.lm.deRefList(embeded_referer_site_list);
+	if (embeded_referer_url_flag) o.lm.deRefList(embeded_referer_url_list);
 #endif
 #ifdef ADDHEADER
 	if (addheader_regexp_flag) o.lm.deRefList(addheader_regexp_list);
@@ -159,6 +161,8 @@ void FOptionContainer::resetJustListData()
 #ifdef REFEREREXCEPT
 	referer_exception_site_flag = false;
 	referer_exception_url_flag = false;
+	embeded_referer_site_flag = false;
+	embeded_referer_url_flag = false;
 #endif
 	use_only_local_allow_lists = false;
 #ifdef LOCAL_LISTS
@@ -672,6 +676,8 @@ bool FOptionContainer::read(const char *filename)
 #ifdef REFEREREXCEPT
 			std::string referer_exceptions_site_list_location(findoptionS("refererexceptionsitelist"));
 			std::string referer_exceptions_url_list_location(findoptionS("refererexceptionurllist"));
+			std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
+			std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
 #endif
 #ifdef ADDHEADER
 			std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
@@ -880,6 +886,12 @@ bool FOptionContainer::read(const char *filename)
 			}		// referer site exceptions
 			if (referer_exceptions_url_list_location.length() && readFile(referer_exceptions_url_list_location.c_str(),&referer_exception_url_list,true,true,"refererexceptionurllist")) {
 				referer_exception_url_flag = true;
+			}		// referer url exceptions
+			if (embeded_referer_site_list_location.length() && readFile(embeded_referer_site_list_location.c_str(),&embeded_referer_site_list,false,true,"embededreferersitelist")) {
+				embeded_referer_site_flag = true;
+			}		// referer site exceptions
+			if (embeded_referer_url_list_location.length() && readFile(embeded_referer_url_list_location.c_str(),&embeded_referer_url_list,true,true,"embededrefererurllist")) {
+				embeded_referer_url_flag = true;
 			}		// referer url exceptions
 #endif
 #ifdef ADDHEADER
@@ -1398,9 +1410,20 @@ bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool 
 #ifdef REFEREREXCEPT
 bool FOptionContainer::inRefererExceptionLists(String url)
 {
+	String temp = url;
 	if ((url.length() > 0) 
-		&& ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false) != NULL))
-		|| ( referer_exception_url_flag && (inURLList(url, referer_exception_url_list, false, false, false) != NULL))) )
+		&& ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false) != NULL)) 
+		|| (referer_exception_url_flag && (inURLList(temp, referer_exception_url_list, false, false, false) != NULL))) )
+		return true;
+	return false;
+}
+
+bool FOptionContainer::inEmbededRefererLists(String url)
+{
+	String temp = url;
+	if ((url.length() > 0) 
+		&& ((embeded_referer_site_flag && (inSiteList(url, embeded_referer_site_list, false, false, false) != NULL))
+		|| ( embeded_referer_url_flag && (inURLList(temp, embeded_referer_url_list, false, false, false) != NULL))) )
 		return true;
 	return false;
 }
