@@ -1,3 +1,6 @@
+April 2014
+- Release 3.0.1 - see e2guardian.release for details
+
 February 2014
 - Maxlogitemlength code moved into ConnectionHandler.cpp so as to prevent 
 very large URLs corrupting log messages and to lower load on inter-process 
