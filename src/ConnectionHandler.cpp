@@ -1249,7 +1249,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				}
 #ifdef REFEREREXCEPT
 #ifndef LOCAL_LISTS
-				else if (embededRefererChecks(header, urld, url,filtergroup) { // referer exception
+				else if (embededRefererChecks(&header, &urld, &url,filtergroup)) { // referer exception
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
