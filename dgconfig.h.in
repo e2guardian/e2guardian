@@ -45,6 +45,9 @@
 /* Define to enable trickle download manager */
 #undef ENABLE_TRICKLEDM
 
+/* Define to allow DANS_MAXFD to exceed FD_SETSIZE */
+#undef FD_SETSIZE_OVERIDE
+
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
@@ -101,9 +104,6 @@
 
 /* Define to 1 if you have the `regcomp' function. */
 #undef HAVE_REGCOMP
-
-/* Define to 1 if you have the `resolv' function. */
-#undef HAVE_RESOLV
 
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
@@ -221,6 +221,9 @@
 #undef PRT_DNSAUTH
 
 /* Define to enable support for referer exceptions */
+#undef REFEREREXCEPT
+
+/* Define to enable exceptions on http referer header */
 #undef REFEREXCEPT
 
 /* Define to enable support for regexp redirects */
