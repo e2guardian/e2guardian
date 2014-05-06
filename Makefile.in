@@ -422,7 +422,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/configs $(distdir)/configs/authplugins $(distdir)/configs/contentscanners $(distdir)/configs/downloadmanagers $(distdir)/configs/lists $(distdir)/data/scripts $(distdir)/m4
+	$(mkdir_p) $(distdir)/configs $(distdir)/configs/authplugins $(distdir)/configs/contentscanners $(distdir)/configs/downloadmanagers $(distdir)/configs/lists $(distdir)/data/scripts $(distdir)/m4 $(distdir)/migration_installation
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -464,7 +464,7 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-	-find $(distdir) -type d ! -perm -777 -exec chmod a+rwx {} \; -o \
+	-find $(distdir) -type d ! -perm -755 -exec chmod a+rwx,go+rx {} \; -o \
 	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
 	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
 	  ! -type d ! -perm -444 -exec $(SHELL) $(install_sh) -c -m a+r {} {} \; \

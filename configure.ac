@@ -1,6 +1,4 @@
 # Autoconf script
-# Inspired by a script provided by Alex Ott
-# 2004,2005 - Daniel Barron
 
 AC_DEFINE([SEARCHWORDS],[""],[Define to enable search word checking])
 
@@ -14,7 +12,7 @@ AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main l
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.0.1)
+AC_INIT(e2guardian, 3.0.2)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
