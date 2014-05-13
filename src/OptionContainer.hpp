@@ -25,6 +25,13 @@
 
 
 // DECLARATIONS
+	struct room_item { 
+		std::string name; 
+		IPList *iplist; 
+		ListContainer *sitelist; 
+		ListContainer *urllist; 
+		bool block;
+	};
 
 class OptionContainer
 {
@@ -231,8 +238,8 @@ private:
 	std::deque<String> findoptionM(const char *option);
 
 	bool inIPList(const std::string *ip, ListContainer& list, std::string *&host);
-
-	std::list<std::pair<std::string, IPList*> > rooms;
+	std::list<room_item> rooms;
+//	std::list<std::pair<std::string, IPList*> > rooms;
 };
 
 #endif

@@ -963,12 +963,17 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 
 bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host) const
 {
-	for (std::list<std::pair<std::string, IPList*> >::const_iterator i = rooms.begin(); i != rooms.end(); ++i)
+	for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i)
 	{
-		if (i->second->inList(ip, host))
+		if (i->iplist->inList(ip, host))
 		{
-			room = i->first;
-			return true;
+			room = i->name;
+			if (i->block) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 	return false;
@@ -993,7 +998,7 @@ void OptionContainer::loadRooms()
 		std::string filename(per_room_blocking_directory_location);
 		filename.append(f->d_name);
 		std::ifstream infile(filename.c_str());
-                if ((fIn = fopen(filename.c_str(), "r")) == NULL)  {
+                if (!infile)  {
                         syslog(LOG_ERR, " Could not open file room definitions ");
                         std::cerr << " Could not open file room definitions: "<< filename.c_str() << std::endl;
                         exit(1);
@@ -1011,13 +1016,37 @@ void OptionContainer::loadRooms()
 
 		std::string roomname;
 		std::getline(infile, roomname);
-		infile.close();
+		if (! infile.goodbit ) {
+                	syslog(LOG_ERR, " Could not open file room definitions ");
+                        std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
+                        exit(1);
+		}
+		//infile.close();
 		roomname = roomname.substr(1);
+		room_item this_room;
+		this_room.name = roomname;
 
 		IPList* contents = new IPList();
-		contents->readIPMelangeList(filename.c_str());
-
-		rooms.push_back(std::pair<std::string, IPList*>(roomname, contents));
+		contents->ifsreadIPMelangeList(&infile, true, "#ENDLIST");
+		this_room.iplist = contents;
+		if (infile.eofbit) { 
+			this_room.block = true;
+			this_room.sitelist = NULL;
+			this_room.urllist = NULL;
+		} 
+		else {
+			std::string linestr;
+			String temp;
+			while( infile.goodbit ) {
+				std::getline(infile, linestr);
+				if (!infile.eofbit)
+					break;
+				temp = linestr;
+				if ( temp.startwWith("#SITELIST")) {
+				    
+ListContainer* sitelist = new ListContainer();
+		//rooms.push_back(std::pair<std::string, IPList*>(roomname, contents));
+		rooms.push_back(this_room);
 	}
 
 	if (closedir(d) != 0)
@@ -1032,9 +1061,11 @@ void OptionContainer::loadRooms()
 
 void OptionContainer::deleteRooms()
 {
-	for (std::list<std::pair<std::string, IPList*> >::const_iterator i = rooms.begin(); i != rooms.end(); ++i)
+	for (std::list<room_item>::iterator i = rooms.begin(); i != rooms.end(); ++i)
 	{
-		delete i->second;
+		delete i->iplist;
+		if (i->sitelist != NULL) delete i->sitelist;
+		if (i->urllist != NULL) delete i->urllist;
 	}
 	rooms.clear();
 }
