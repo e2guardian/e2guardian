@@ -101,19 +101,8 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 	return false;
 }
 
-// read in a list linking IPs, subnets & IP ranges to filter groups
-bool IPList::readIPMelangeList(const char *filename)
+bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, const char *endstring)
 {
-	// load in the list file
-	std::ifstream input ( filename );
-	if (!input) {
-		if (!is_daemonised) {
-			std::cerr << "Error reading file (does it exist?): " << filename << std::endl;
-		}
-		syslog(LOG_ERR, "%s%s","Error reading file (does it exist?): ",filename);
-		return false;
-	}
-
 	// compile regexps for determining whether a list entry is an IP, a subnet (IP + mask), or a range
 	RegExp matchIP, matchSubnet, matchRange;
 #ifdef HAVE_PCRE
@@ -130,16 +119,20 @@ bool IPList::readIPMelangeList(const char *filename)
 	String line;
 	char buffer[ 2048 ];
 	while (input) {
-		if (!input.getline(buffer, sizeof( buffer ))) {
+		if (!input->getline(buffer, sizeof( buffer ))) {
 			break;
 		}
+		line = buffer;
+		if ( checkendstring && line.startsWith(endstring)) {
+			break;
+		}
+
 		// ignore comments
 		if (buffer[0] == '#')
 			continue;
 		// ignore blank lines
 		if (strlen(buffer) < 7)
 			continue;
-		line = buffer;
 #ifdef DGDEBUG
 		std::cout << "line: " << line << std::endl;
 #endif
@@ -184,7 +177,6 @@ bool IPList::readIPMelangeList(const char *filename)
 			hostlist.push_back(line);
 		}
 	}
-	input.close();
 #ifdef DGDEBUG
 	std::cout << "starting sort" << std::endl;
 #endif
@@ -218,4 +210,27 @@ bool IPList::readIPMelangeList(const char *filename)
 	}
 #endif
 	return true;
+}
+
+// read in a list linking IPs, subnets & IP ranges to filter groups
+bool IPList::readIPMelangeList(const char *filename)
+{
+	// load in the list file
+	std::ifstream input ( filename );
+	if (!input) {
+		if (!is_daemonised) {
+			std::cerr << "Error reading file (does it exist?): " << filename << std::endl;
+		}
+		syslog(LOG_ERR, "%s%s","Error reading file (does it exist?): ",filename);
+		return false;
+	}
+#ifdef DGDEBUG
+		std::cout << "reading: " << filename << std::endl;
+#endif
+	if (ifsreadIPMelangeList( &input, false, NULL)) {
+		input.close();
+		return true;
+	} 
+	input.close();
+	return false;
 }

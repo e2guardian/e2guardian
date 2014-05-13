@@ -30,6 +30,7 @@ class IPList
 	public:
 		void reset();
 		bool inList(const std::string &ipstr, std::string *&host) const;
+		bool ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, const char *endstring);
 		bool readIPMelangeList(const char *filename);
 	private:
 		std::vector<uint32_t> iplist;

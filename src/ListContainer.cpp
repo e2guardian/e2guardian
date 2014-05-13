@@ -339,73 +339,22 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 	return true;
 }
 
-// for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, bool startswith, int filters)
+bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
-	++refcount;
+	RegExp re;
+	re.comp("^.*\\:[0-9]+\\/.*");
 #ifdef DGDEBUG
 	if (filters != 32)
 		std::cout << "Converting to lowercase" << std::endl;
 #endif
-	sourcefile = filename;
-	sourcestartswith = startswith;
-	sourcefilters = filters;
-	std::string linebuffer;
-	RegExp re;
-	re.comp("^.*\\:[0-9]+\\/.*");
-#ifdef DGDEBUG
-	std::cout << filename << std::endl;
-#endif
-	// see if cached .process file is available and up to date,
-	// or prefercachedlists has been turned on (SG)
-	struct stat s;
-	if ((o.prefer_cached_lists && stat(std::string(linebuffer).append(".processed").c_str(), &s) == 0)
-		|| isCacheFileNewer(filename))
-	{
-		linebuffer = filename;
-		linebuffer += ".processed";
-
-		// read cached
-		if (!readProcessedItemList(linebuffer.c_str(), startswith, filters))
-			return false;
-		filedate = getFileDate(linebuffer.c_str());
-		issorted = true;  // don't bother sorting cached file
-		return true;
-	}
-	filedate = getFileDate(filename);
-	size_t len = 0;
-	try {
-		len = getFileLength(filename);
-	}
-	catch (std::runtime_error &e)
-	{
-		if (!is_daemonised) {
-			std::cerr << "Error reading file " << filename << ": " << e.what() << std::endl;
-		}
-		syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
-		return false;
-	}
-	if (len < 2) {
-		return true;  // its blank - perhaps due to webmin editing
-		// just return
-	}
 	increaseMemoryBy(len + 2);  // Allocate some memory to hold file
-	// The plus one is to cope with files not ending in a new line
-	std::ifstream listfile(filename, std::ios::in);
-	if (!listfile.good()) {
-		if (!is_daemonised) {
-			std::cerr << "Error opening: " << filename << std::endl;
-		}
-		syslog(LOG_ERR, "Error opening file: %s", filename);
-		return false;
-	}
 	String temp, inc, hostname, url;
-	while (!listfile.eof()) {
-		getline(listfile, linebuffer);
-		if (linebuffer.length() < 2)
+	char linebuffer [ 2048 ];
+	while (!input->eof()) {
+		input->getline(linebuffer, sizeof( linebuffer ));
+		temp = linebuffer;
+		if (temp.length() < 2)
 			continue;  // its jibberish
-
-		temp = linebuffer.c_str();
 
 		//item lists (URLs, domains) can be both categorised and time-limited
 		if (linebuffer[0] == '#') {
@@ -421,6 +370,9 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 				std::cout << "found item list category: " << category << std::endl;
 #endif
 				continue;
+			}
+			else if (checkendstring && temp.startsWith(endstring)) {
+				break;
 			}
 			continue;  // it's a comment
 		}
@@ -463,12 +415,13 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 
 		temp.removeWhiteSpace();  // tidy up and make it handle CRLF files
 		if (temp.startsWith(".Include<")) {	// see if we have another list
+		   if (do_includes) {
 			inc = temp.after(".Include<");  // to include
 			inc = inc.before(">");
 			if (!readAnotherItemList(inc.toCharArray(), startswith, filters)) {	// read it
-				listfile.close();
 				return false;
 			}
+		   }
 			continue;
 		}
 		if (temp.endsWith("/")) {
@@ -491,6 +444,69 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 		}
 		if (temp.length() > 0)
 			addToItemList(temp.toCharArray(), temp.length());  // add to unsorted list
+	}
+	return true;  // sucessful read
+}
+
+// for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
+bool ListContainer::readItemList(const char *filename, bool startswith, int filters)
+{
+	++refcount;
+	sourcefile = filename;
+	sourcestartswith = startswith;
+	sourcefilters = filters;
+	std::string linebuffer;
+#ifdef DGDEBUG
+	std::cout << filename << std::endl;
+#endif
+	// see if cached .process file is available and up to date,
+	// or prefercachedlists has been turned on (SG)
+	struct stat s;
+	if ((o.prefer_cached_lists && stat(std::string(linebuffer).append(".processed").c_str(), &s) == 0)
+		|| isCacheFileNewer(filename))
+	{
+		linebuffer = filename;
+		linebuffer += ".processed";
+
+		// read cached
+		if (!readProcessedItemList(linebuffer.c_str(), startswith, filters))
+			return false;
+		filedate = getFileDate(linebuffer.c_str());
+		issorted = true;  // don't bother sorting cached file
+		return true;
+	}
+	filedate = getFileDate(filename);
+	size_t len = 0;
+	try {
+		len = getFileLength(filename);
+	}
+	catch (std::runtime_error &e)
+	{
+		if (!is_daemonised) {
+			std::cerr << "Error reading file " << filename << ": " << e.what() << std::endl;
+		}
+		syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
+		return false;
+	}
+	if (len < 2) {
+		return true;  // its blank - perhaps due to webmin editing
+		// just return
+	}
+	std::ifstream listfile(filename, std::ios::in);
+	if (!listfile.good()) {
+		if (!is_daemonised) {
+			std::cerr << "Error opening: " << filename << std::endl;
+		}
+		syslog(LOG_ERR, "Error opening file: %s", filename);
+		return false;
+	}
+	if(!ifsreadItemList(&listfile, len, false, NULL, true, startswith, filters)) {
+		listfile.close();
+		if (!is_daemonised) {
+			std::cerr << "Error reading: " << filename << std::endl;
+		}
+		syslog(LOG_ERR, "Error reading file: %s", filename);
+		return false;
 	}
 	listfile.close();
 	return true;  // sucessful read
