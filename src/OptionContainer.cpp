@@ -928,7 +928,8 @@ bool OptionContainer::inTotalBlockList(String &url)
     	if (inSiteList(murl, &total_block_site_list, false, false)) {
 		return true;
     	}
-    	if (inURLList(url, &total_block_url_list, false, false)) {
+	murl = url;
+    	if (inURLList(murl, &total_block_url_list, false, false)) {
 		return true;
     	}
 	return false;
