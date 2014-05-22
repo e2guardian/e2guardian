@@ -17,7 +17,7 @@ reportinglevel = 3
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
 #
-languagedir = '@DGDATADIR@/languages'
+languagedir = '@DGCONFDIR@/languages'
 
 # language to use from languagedir.
 language = 'ukenglish'
