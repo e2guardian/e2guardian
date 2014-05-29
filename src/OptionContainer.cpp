@@ -612,7 +612,7 @@ bool OptionContainer::read(const char *filename, int type)
 
 		filter_groups = findoptionI("filtergroups");
 
-	        if ((per_room_blocking_directory_location = findoptionS("perroomblockingdirectory")) != "") {
+	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {
 		  	loadRooms();
                 }
 
@@ -1016,7 +1016,7 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms()
 {
-	DIR* d = opendir(per_room_blocking_directory_location.c_str());
+	DIR* d = opendir(per_room_directory_location.c_str());
 	if (d == NULL)
 	{
 		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
@@ -1030,7 +1030,7 @@ void OptionContainer::loadRooms()
 	{
 		if (f->d_name[0] == '.')
 			continue;
-		std::string filename(per_room_blocking_directory_location);
+		std::string filename(per_room_directory_location);
 		filename.append(f->d_name);
 #ifdef DGDEBUG
                                         std::cerr << " Room file found : " << filename.c_str() << std::endl;

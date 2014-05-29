@@ -205,7 +205,7 @@ public:
 	// public so fc_controlit can reload filter group config files
 	bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
-	// per-room blocking: see if given IP is in a room; if it is, return true and put the room name in "room"
+	// per-room blocking and URL whitelisting: see if given IP is in a room; if it is, return true and put the room name in "room"
 	bool inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* isexception, String url) ;
 	void loadRooms();
 	void deleteRooms();
@@ -220,7 +220,7 @@ public:
 #endif
 
 private:
-	std::string per_room_blocking_directory_location;
+	std::string per_room_directory_location;
 	std::deque<std::string> conffile;
 	String conffilename;
 	int reporting_level;
@@ -239,7 +239,6 @@ private:
 
 	bool inIPList(const std::string *ip, ListContainer& list, std::string *&host);
 	std::list<room_item> rooms;
-//	std::list<std::pair<std::string, IPList*> > rooms;
 };
 
 #endif
