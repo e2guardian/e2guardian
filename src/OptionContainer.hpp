@@ -206,7 +206,7 @@ public:
 	bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
 	// per-room blocking: see if given IP is in a room; if it is, return true and put the room name in "room"
-	bool inRoom(const std::string& ip, std::string& room, std::string *&host) const;
+	bool inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* isexception, String url) ;
 	void loadRooms();
 	void deleteRooms();
 

@@ -448,6 +448,29 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 	return true;  // sucessful read
 }
 
+bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename) 
+{
+	size_t len = 0;
+	try {
+		len = getFileLength(filename);
+	}
+	catch (std::runtime_error &e)
+	{
+		if (!is_daemonised) {
+			std::cerr << "Error reading file " << filename << ": " << e.what() << std::endl;
+		}
+		syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
+		return false;
+	}
+	bool ret;
+	ret = ifsreadItemList(input, len, checkendstring, endstring, do_includes, startswith, filters);
+	if (ret) {
+		doSort(startswith);
+		return true;
+	}
+	return false;
+}
+
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
 bool ListContainer::readItemList(const char *filename, bool startswith, int filters)
 {

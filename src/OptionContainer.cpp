@@ -843,7 +843,7 @@ bool OptionContainer::readinStdin()
 }
 
 
-char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
+char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl) 
 {
 
 	url.removeWhiteSpace();  // just in case of weird browser crap
@@ -962,17 +962,51 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 	return banned_ip_list.inList(*ip, host);
 }
 
-bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host) const
+bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* isexception, String url) 
 {
+	String temp;
+	char* ret;
 	for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i)
 	{
 		if (i->iplist->inList(ip, host))
 		{
-			room = i->name;
+#ifdef DGDEBUG
+                     std::cerr << " IP is in room: " << i->name << std::endl;
+#endif	
+			temp = url;
+			ListContainer *lc;
+			if ( i->sitelist ) {
+			    lc = i->sitelist;
+			    if (inSiteList(temp,lc, false, false)) {
+#ifdef DGDEBUG
+                     std::cerr << " room site exception found: "  << std::endl;
+#endif	
+				*isexception = true;
+				room = i->name;
+				return true;
+			    }
+			}
+			temp = url;
+			if ( i->urllist && inURLList(temp,i->urllist, false, false)) {
+#ifdef DGDEBUG
+                     std::cerr << " room url exception found: " << std::endl;
+#endif	
+				*isexception = true;
+				room = i->name;
+				return true;
+			}
 			if (i->block) {
+				*block = true;
+				room = i->name;
+#ifdef DGDEBUG
+                     std::cerr << " room blanket block active: " << std::endl;
+#endif	
 				return true;
 			}
 			else {
+#ifdef DGDEBUG
+                     std::cerr << " room - no url/site exception or block found: " << std::endl;
+#endif	
 				return false;
 			}
 		}
@@ -998,39 +1032,69 @@ void OptionContainer::loadRooms()
 			continue;
 		std::string filename(per_room_blocking_directory_location);
 		filename.append(f->d_name);
-		std::ifstream infile(filename.c_str());
-                if (!infile)  {
+#ifdef DGDEBUG
+                                        std::cerr << " Room file found : " << filename.c_str() << std::endl;
+#endif	
+		std::ifstream infile(filename.c_str(), std::ios::in);
+                if (!infile.good())  {
                         syslog(LOG_ERR, " Could not open file room definitions ");
                         std::cerr << " Could not open file room definitions: "<< filename.c_str() << std::endl;
                         exit(1);
-                } else {
-                        int first;
-                        if ((first = fgetc(fIn)) != 0) {
-                                fclose(fIn);
-                                if (first == EOF){
-                                        syslog(LOG_ERR, " Could not open file room definitions ");
-                                        std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
-                                        exit(1);
-                                }
-                        }
-                }
+                } 
+#ifdef DGDEBUG
+                                        std::cerr << " Opened room file : " << filename.c_str() << std::endl;
+#endif	
+//		if (true) {
+ //                       int first;
+  //                      if ((first = fgetc(fIn)) != 0) {
+   //                             fclose(fIn);
+    //                            if (first == EOF){
+     //                                   syslog(LOG_ERR, " Could not open file room definitions ");
+      //                                  std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
+       //                                 exit(1);
+        //                        }
+         //               }
+         //       }
 
 		std::string roomname;
-		std::getline(infile, roomname);
-		if (! infile.goodbit ) {
+#ifdef DGDEBUG
+                                        std::cerr << " Reading room file : " << filename.c_str() << std::endl;
+#endif
+		getline(infile, roomname);
+		if (infile.eof() ) {
+                	syslog(LOG_ERR, " Unexpected EOF ");
+                        std::cerr << " Unexpected EOF: " << filename.c_str() << std::endl;
+                        exit(1);
+		}
+		if (infile.fail() ) {
+                	syslog(LOG_ERR, " Unexpected failue on read");
+                        std::cerr << " Unexpected failure on read: " << filename.c_str() << std::endl;
+                        exit(1);
+		}
+		if (infile.bad() ) {
+                	syslog(LOG_ERR, " Unexpected badbit failue on read");
+                        std::cerr << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
+                        exit(1);
+		}
+		if (! infile.good() ) {
                 	syslog(LOG_ERR, " Could not open file room definitions ");
                         std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
                         exit(1);
 		}
-		//infile.close();
+#ifdef DGDEBUG
+                                        std::cerr << " Room name is: " << roomname.c_str() << std::endl;
+#endif
 		roomname = roomname.substr(1);
 		room_item this_room;
 		this_room.name = roomname;
+		this_room.block = false;
+		this_room.sitelist = NULL;
+		this_room.urllist = NULL;
 
 		IPList* contents = new IPList();
 		contents->ifsreadIPMelangeList(&infile, true, "#ENDLIST");
 		this_room.iplist = contents;
-		if (infile.eofbit) { 
+		if (infile.eof()) {    // is old style room block
 			this_room.block = true;
 			this_room.sitelist = NULL;
 			this_room.urllist = NULL;
@@ -1038,16 +1102,34 @@ void OptionContainer::loadRooms()
 		else {
 			std::string linestr;
 			String temp;
-			while( infile.goodbit ) {
+			while( infile.good() ) {
 				std::getline(infile, linestr);
-				if (!infile.eofbit)
+				if ( infile.eof() )
 					break;
 				temp = linestr;
-				if ( temp.startwWith("#SITELIST")) {
-				    
-ListContainer* sitelist = new ListContainer();
-		//rooms.push_back(std::pair<std::string, IPList*>(roomname, contents));
+				if ( temp.startsWith("#SITELIST")) {
+				    ListContainer* sitelist = new ListContainer();
+				    if (sitelist->ifsReadSortItemList( &infile, true, "#ENDLIST", false, false, 0, filename.c_str())) {
+				    	this_room.sitelist = sitelist;
+				    } else {
+				     	delete sitelist;
+				    }
+				}
+				else if ( temp.startsWith("#URLLIST")) {
+				    ListContainer* urllist = new ListContainer();
+				    if (urllist->ifsReadSortItemList( &infile, true, "#ENDLIST", false, true, 0, filename.c_str()) ) {
+				    	this_room.urllist = urllist;
+				    } else {
+					delete urllist;
+				    }
+				}
+				else if ( temp.startsWith("#BLOCK")) {
+				    this_room.block = true;
+				}
+			}
+		}
 		rooms.push_back(this_room);
+		infile.close();
 	}
 
 	if (closedir(d) != 0)

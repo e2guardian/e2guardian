@@ -1,10 +1,22 @@
 # e2guardian messages file in UK English
 
 "1","Access Denied"
+"50"," in "
+"51","TRUSTED"
+"52","DENIED"
+"53","INFECTED"
+"54","SCANNED"
+"55","CONTENTMOD"
+
 
 "100","Your IP address is not allowed to web browse: "
 "101","Your IP address is not allowed to web browse."
 "102","Your username is not allowed to web browse: "
+"103","Banned Client IP"
+"104","Banned Location"
+"105","Banned User"
+
+
 
 "200","The requested URL is malformed."
 
@@ -53,6 +65,10 @@
 "608","Scan bypass URL."
 "609","URL pattern match: "
 "620","Referer match: "
+"630","URL match in "
+"631"," location allow list"
+"632","Location overide allow list matched"
+
 "662","Site (local)."
 "663","URL (local)."
 

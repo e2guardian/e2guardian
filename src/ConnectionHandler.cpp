@@ -872,9 +872,21 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			if (isbannedip)
 				matchedip = clienthost == NULL;
 			else {
-				isbannedip = o.inRoom(clientip, room, clienthost);
-				if (isbannedip)
+				if (o.inRoom(clientip, room, clienthost, &isbannedip, &isexception, urld)) {
+#ifdef DGDEBUG
+				std::cout <<  " isbannedip = " << isbannedip << " isexception = " << isexception << std::endl;
+#endif
+				    if (isbannedip) {
 					matchedip = clienthost == NULL;
+				    }
+				    if (isexception) {
+					// do reason codes etc
+					exceptionreason = o.language_list.getTranslation(630);
+					exceptionreason.append(room);
+					exceptionreason.append( o.language_list.getTranslation(631));
+					message_no = 632;
+				    }
+				}
 			}
 
 			if (o.forwarded_for) {
@@ -1139,7 +1151,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 //
 			// being a banned user/IP overrides the fact that a site may be in the exception lists
 			// needn't check these lists in bypass modes
-			if (!(isbanneduser || isbannedip || isbypass)) {
+			if (!(isbanneduser || isbannedip || isbypass || isexception )) {
 				bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 				if ((gmode == 2)) {	// admin user
@@ -3142,10 +3154,10 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 		(*checkme).message_no = 101;
 		// Your IP address is not allowed to web browse.
 		if (room.empty())
-			(*checkme).whatIsNaughtyCategories = "Banned Client IP";
+			(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(103);
 		else {
-			checkme->whatIsNaughtyCategories = "Banned Room";
-			checkme->whatIsNaughtyLog.append(" in ");
+			checkme->whatIsNaughtyCategories = o.language_list.getTranslation(104);
+			checkme->whatIsNaughtyLog.append(o.language_list.getTranslation(51));
 			checkme->whatIsNaughtyLog.append(room);
 		}
 		return;
@@ -3157,7 +3169,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 		// Your username is not allowed to web browse:
 		(*checkme).whatIsNaughtyLog += (*clientuser);
 		(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
-		(*checkme).whatIsNaughtyCategories = "Banned User";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(105);
 		return;
 	}
 #endif
