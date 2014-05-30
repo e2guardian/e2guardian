@@ -31,6 +31,7 @@
 		ListContainer *sitelist; 
 		ListContainer *urllist; 
 		bool block;
+		bool part_block;
 	};
 
 class OptionContainer
@@ -206,7 +207,7 @@ public:
 	bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
 	// per-room blocking and URL whitelisting: see if given IP is in a room; if it is, return true and put the room name in "room"
-	bool inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* isexception, String url) ;
+	bool inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url) ;
 	void loadRooms();
 	void deleteRooms();
 

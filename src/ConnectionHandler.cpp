@@ -869,10 +869,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 
 			// is this machine banned?
 			bool isbannedip = o.inBannedIPList(&clientip, clienthost);
+			bool part_banned;
 			if (isbannedip)
 				matchedip = clienthost == NULL;
 			else {
-				if (o.inRoom(clientip, room, clienthost, &isbannedip, &isexception, urld)) {
+				if (o.inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &isexception, urld)) {
 #ifdef DGDEBUG
 				std::cout <<  " isbannedip = " << isbannedip << " isexception = " << isexception << std::endl;
 #endif

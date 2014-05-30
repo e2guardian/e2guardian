@@ -962,7 +962,7 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 	return banned_ip_list.inList(*ip, host);
 }
 
-bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* isexception, String url) 
+bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url) 
 {
 	String temp;
 	char* ret;
@@ -997,6 +997,7 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 			}
 			if (i->block) {
 				*block = true;
+				*part_block = i->part_block;
 				room = i->name;
 #ifdef DGDEBUG
                      std::cerr << " room blanket block active: " << std::endl;
@@ -1044,17 +1045,6 @@ void OptionContainer::loadRooms()
 #ifdef DGDEBUG
                                         std::cerr << " Opened room file : " << filename.c_str() << std::endl;
 #endif	
-//		if (true) {
- //                       int first;
-  //                      if ((first = fgetc(fIn)) != 0) {
-   //                             fclose(fIn);
-    //                            if (first == EOF){
-     //                                   syslog(LOG_ERR, " Could not open file room definitions ");
-      //                                  std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
-       //                                 exit(1);
-        //                        }
-         //               }
-         //       }
 
 		std::string roomname;
 #ifdef DGDEBUG
@@ -1088,6 +1078,7 @@ void OptionContainer::loadRooms()
 		room_item this_room;
 		this_room.name = roomname;
 		this_room.block = false;
+		this_room.part_block = false;
 		this_room.sitelist = NULL;
 		this_room.urllist = NULL;
 
@@ -1128,6 +1119,8 @@ void OptionContainer::loadRooms()
 				}
 			}
 		}
+		if ( this_room.block && (this_room.sitelist || this_room.urllist))
+			this_room.part_block = true;
 		rooms.push_back(this_room);
 		infile.close();
 	}
