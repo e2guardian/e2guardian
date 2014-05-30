@@ -932,11 +932,14 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 
 bool OptionContainer::inTotalBlockList(String &url)
 {
+	// inSiteList/inURLList changes url so must use local variable
 	String murl = url;
     	if (inSiteList(murl, &total_block_site_list, false, false)) {
 		return true;
     	}
-    	if (inURLList(url, &total_block_url_list, false, false)) {
+	// inSiteList changes murl so must reset to url
+	murl = url;
+    	if (inURLList(murl, &total_block_url_list, false, false)) {
 		return true;
     	}
 	return false;
