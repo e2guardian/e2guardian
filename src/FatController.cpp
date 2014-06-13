@@ -370,7 +370,6 @@ int prefork(int num)
 	pid_t child_pid;
 	while (num--) {
 		if (numchildren >= o.max_children) {
-			syslog(LOG_ERR, "E2guardian is running out of MaxChildren\n");
 			return 2;  // too many - geddit?
 		}
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
@@ -2586,10 +2585,13 @@ int fc_controlit()
 	}
 
 	int tofind;
+
+        if (reloadconfig){ 
+                syslog(LOG_INFO, "Reconfiguring E2guardian: done");
+	} else {
+		syslog(LOG_INFO, "Started sucessfully.");
+	}
 	reloadconfig = false;
-
-	syslog(LOG_INFO, "Started sucessfully.");
-
 	while (failurecount < 30 && !ttg && !reloadconfig) {
 
 		// loop, essentially, for ever until 30
@@ -2625,9 +2627,10 @@ int fc_controlit()
 						o.deleteRooms();
 						o.loadRooms();
 						hup_allchildren();
-						o.lm.garbageCollect();
+			        		o.lm.garbageCollect();
 						prefork(o.min_children);
 						gentlereload = false;
+						syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload done");
 						// everything ok - no full reload needed
 						// clear gentle reload flag for next run of the loop
 					}

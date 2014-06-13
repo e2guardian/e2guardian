@@ -1,5 +1,8 @@
-June 2014 - E2guardian 3.0.2
+June 2014 - e2guardian 3.0.x
 - Error message should be given when maxchildren is reached
+- Fix gentle restart -  A '-g' gentle restart does not kill current connections but filter group config is re-read.
+- Fix ugly check about "open room definitions"
+- Information message should be given when e2guardian is reloaded 
 
 Mai 2014
 - Release 3.0.2 - It fixes some compile errors reported in v3.0.1
