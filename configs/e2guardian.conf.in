@@ -31,10 +31,10 @@ logexceptionhits = 2
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
-# Protex format type 1 – Tab delimited, squid style format with extra fields 
-# for filter block/result codes, reasons, filter group, and system name – 
+# Protex format type 1 – Tab delimited, squid style format with extra fields
+# for filter block/result codes, reasons, filter group, and system name –
 # used in arrays so that combined logs show originating server.
-# Protex format type 2 – Same format as above but system name field is blank 
+# Protex format type 2 – Same format as above but system name field is blank
 # – used in stand-alone systems.
 # 5 = Protex format
 # 6 = Protex format with server field blanked
