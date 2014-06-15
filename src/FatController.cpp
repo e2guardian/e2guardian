@@ -370,6 +370,7 @@ int prefork(int num)
 	pid_t child_pid;
 	while (num--) {
 		if (numchildren >= o.max_children) {
+			syslog(LOG_ERR, "E2guardian is running out of MaxChildren\n");
 			return 2;  // too many - geddit?
 		}
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
