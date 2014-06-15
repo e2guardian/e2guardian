@@ -1,15 +1,5 @@
 # e2guardian config file for version @PACKAGE_VERSION@
 
-# Web Access Denied Reporting (does not affect logging)
-#
-# -1 = log, but do not block - Stealth mode
-#  0 = just say 'Access Denied'
-#  1 = report why but not what denied phrase
-#  2 = report fully
-#  3 = use HTML template file (accessdeniedaddress ignored) - recommended
-#
-reportinglevel = 3
-
 # Language dir where languages are stored for internationalisation.
 # The HTML template within this dir is only used when reportinglevel
 # is set to 3. When used, e2guardian will display the HTML file instead of
@@ -17,7 +7,7 @@ reportinglevel = 3
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
 #
-languagedir = '@DGDATADIR@/languages'
+languagedir = '@DGCONFDIR@/languages'
 
 # language to use from languagedir.
 language = 'ukenglish'
@@ -41,6 +31,11 @@ logexceptionhits = 2
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
+# Protex format type 1 – Tab delimited, squid style format with extra fields
+# for filter block/result codes, reasons, filter group, and system name –
+# used in arrays so that combined logs show originating server.
+# Protex format type 2 – Same format as above but system name field is blank
+# – used in stand-alone systems.
 # 5 = Protex format
 # 6 = Protex format with server field blanked
 

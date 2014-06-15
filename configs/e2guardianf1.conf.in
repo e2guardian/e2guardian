@@ -296,7 +296,7 @@ deepurlanalysis = off
 # If defined, this overrides the global setting in e2guardian.conf for
 # members of this filter group.
 #
-#reportinglevel = 3
+reportinglevel = 3
 
 # accessdeniedaddress is the address of your web server to which the cgi
 # e2guardian reporting script was copied. Only used in reporting levels

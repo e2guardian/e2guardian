@@ -613,7 +613,15 @@ bool OptionContainer::read(const char *filename, int type)
 		filter_groups = findoptionI("filtergroups");
 
 	        if ((per_room_blocking_directory_location = findoptionS("perroomblockingdirectory")) != "") {
-		  	loadRooms();
+		        DIR* d = opendir(per_room_blocking_directory_location.c_str());
+		        if (d == NULL)
+        		{
+                		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
+                		std::cerr << "Could not open room definitions directory" << std::endl;
+                		exit(0);
+        		} else {
+		  		loadRooms();
+			}
                 }
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
@@ -924,11 +932,14 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 
 bool OptionContainer::inTotalBlockList(String &url)
 {
+	// inSiteList/inURLList changes url so must use local variable
 	String murl = url;
     	if (inSiteList(murl, &total_block_site_list, false, false)) {
 		return true;
     	}
-    	if (inURLList(url, &total_block_url_list, false, false)) {
+	// inSiteList changes murl so must reset to url
+	murl = url;
+    	if (inURLList(murl, &total_block_url_list, false, false)) {
 		return true;
     	}
 	return false;
@@ -976,14 +987,10 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms()
 {
-	DIR* d = opendir(per_room_blocking_directory_location.c_str());
-	if (d == NULL)
-	{
-		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-		std::cerr << "Could not open room definitions directory" << std::endl;
-		exit(1);
-	}
+	if (per_room_blocking_directory_location == "")
+		return;
 
+	DIR* d = opendir(per_room_blocking_directory_location.c_str());
 	FILE * fIn;
 	struct dirent* f;
 	while ((f = readdir(d)))
@@ -1028,6 +1035,7 @@ void OptionContainer::loadRooms()
 			exit(1);
 		}
 	}
+
 }
 
 void OptionContainer::deleteRooms()
