@@ -613,7 +613,16 @@ bool OptionContainer::read(const char *filename, int type)
 		filter_groups = findoptionI("filtergroups");
 
 	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {
-		  	loadRooms();
+ 		        DIR* d = opendir(per_room_directory_location.c_str());
+ 		        if (d == NULL)
+         		{
+                 		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
+                 		std::cerr << "Could not open room definitions directory" << std::endl;
+                 		exit(0);
+         		} else {
+				closedir(d);
+ 		  		loadRooms();
+ 			}
                 }
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
@@ -1017,6 +1026,8 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms()
 {
+ 	if (per_room_directory_location == "")
+ 		return;
 	DIR* d = opendir(per_room_directory_location.c_str());
 	if (d == NULL)
 	{
@@ -1025,7 +1036,6 @@ void OptionContainer::loadRooms()
 		exit(1);
 	}
 
-	FILE * fIn;
 	struct dirent* f;
 	while ((f = readdir(d)))
 	{
