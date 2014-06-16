@@ -7,6 +7,9 @@
 "53","INFECTED"
 "54","SCANNED"
 "55","CONTENTMOD"
+"56","URLMOD"
+"57","HEADERMOD"
+"58","HEADEDADD"
 
 
 "100","Your IP address is not allowed to web browse: "
@@ -15,6 +18,7 @@
 "103","Banned Client IP"
 "104","Banned Location"
 "105","Banned User"
+"121","Only limited access allowed from your location"
 
 
 

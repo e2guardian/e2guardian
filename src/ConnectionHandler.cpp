@@ -875,7 +875,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			else {
 				if (o.inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &isexception, urld)) {
 #ifdef DGDEBUG
-				std::cout <<  " isbannedip = " << isbannedip << " isexception = " << isexception << std::endl;
+				std::cout <<  " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << isexception << std::endl;
 #endif
 				    if (isbannedip) {
 					matchedip = clienthost == NULL;

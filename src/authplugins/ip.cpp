@@ -242,14 +242,17 @@ int ipinstance::readIPMelangeList(const char *filename) {
 	}
 
 	// compile regexps for determining whether a list entry is an IP, a subnet (IP + mask), or a range
-	RegExp matchIP, matchSubnet, matchRange;
+	RegExp matchIP, matchSubnet, matchRange, matchCIDR;
 #ifdef HAVE_PCRE
 	matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 	matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+	matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+	matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
 	matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 #else
 	matchIP.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
 	matchSubnet.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+	matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
 	matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
 #endif
 
@@ -313,6 +316,26 @@ int ipinstance::readIPMelangeList(const char *filename) {
 				s.maskedaddr = addr & s.mask;
 				s.group = value.toInteger()-1;
 				ipsubnetlist.push_back(s);
+			}
+		}
+		else if (matchCIDR.match(key.toCharArray())) {
+			struct in_addr address;
+			struct in_addr addressmask;
+			String subnet(key.before("/"));
+			String cidr(key.after("/"));
+			int m = cidr.toInteger();
+			int host_part = 32 - m;
+			if (host_part > -1) {
+			   String mask = (0xFFFFFFFF << host_part);
+			   if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
+				subnetstruct s;
+				uint32_t addr = ntohl(address.s_addr);
+				s.mask = ntohl(addressmask.s_addr);
+				// pre-mask the address for quick comparison
+				s.maskedaddr = addr & s.mask;
+				s.group = value.toInteger()-1;
+				ipsubnetlist.push_back(s);
+			   }
 			}
 		}
 		else if (matchRange.match(key.toCharArray())) {

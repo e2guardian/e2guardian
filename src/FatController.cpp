@@ -1066,7 +1066,6 @@ void tellchild_accept(int num, int whichsock)
 // *
 // *
 
-
 int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 {
 #ifdef DGDEBUG
@@ -1132,6 +1131,23 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			server = server.before(".");
 		}
 	}
+
+	std::string exception_word = o.language_list.getTranslation(51);
+	exception_word = "*" + exception_word + "* ";
+	std::string denied_word = o.language_list.getTranslation(52);
+	denied_word = "*" + denied_word;
+	std::string infected_word = o.language_list.getTranslation(53);
+	infected_word =  "*" + infected_word + "* ";   
+	std::string scanned_word = o.language_list.getTranslation(54);
+	scanned_word = "*" + scanned_word + "* "; 
+	std::string contentmod_word = o.language_list.getTranslation(55);
+	contentmod_word = "*" + contentmod_word + "* ";
+	std::string urlmod_word = o.language_list.getTranslation(56);
+	urlmod_word = "*" + urlmod_word + "* ";
+	std::string headermod_word = o.language_list.getTranslation(57);
+	headermod_word = "*" + headermod_word + "* ";
+	std::string headeradd_word = o.language_list.getTranslation(58);
+	headeradd_word = "*" + headeradd_word + "* ";
 
 	while (true) {		// loop, essentially, for ever
 		fdcpy = fdSet;  // take a copy
@@ -1346,34 +1362,28 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					stype.clear();
 			}
 			if (isnaughty) {
-				what = "*DENIED" + stype + "* " + what;
+				what = denied_word + stype + "* " + what;
 			}
 			else if (isexception && (o.log_exception_hits == 2)) {
-#ifdef LEGACY_LOG
-				what = "*EXCEPTION* " + what;
-#else
-				what = "*TRUSTED* " + what;
-#endif
-
-
+				what = exception_word + what;
 			}
 		   
 			if (wasinfected)
-				what = "*INFECTED" + stype + "* " + what;
+				what = infected_word + stype + "* " + what;
 			else if (wasscanned)
-				what = "*SCANNED* " + what;
+				what = scanned_word + what;
 			
 			if (contentmodified) {
-				what = "*CONTENTMOD* " + what;
+				what = contentmod_word + what;
 			}
 			if (urlmodified) {
-				what = "*URLMOD* " + what;
+				what = urlmod_word + what;
 			}
 			if (headermodified) {
-				what = "*HEADERMOD* " + what;
+				what = headermod_word + what;
 			}
 			if (headeradded) {
-				what = "*HEADERADD* " + what;
+				what = headeradd_word + what;
 			}
 
 			std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
@@ -1759,6 +1769,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	loggersock.close();
 	return 1;  // It is only possible to reach here with an error
 }
+
 
 int url_list_listener(bool logconerror)
 {

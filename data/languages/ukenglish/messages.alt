@@ -9,6 +9,9 @@
 "53","INFECTED"
 "54","SCANNED"
 "55","CONTENTMOD"
+"56","URLMOD"
+"57","HEADERMOD"
+"58","HEADEDADD"
 
 
 "100","Your IP address is not allowed to web browse: "
