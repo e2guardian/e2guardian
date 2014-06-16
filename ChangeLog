@@ -9,6 +9,7 @@ May/June 2014
 - Start of development version 3.1
 
 June 2014 - e2guardian 3.0.3
+- Fix Compilation problem with --enable-dnsauth=yes
 - Fix site truncation when total_block_list in use
 - Error message now given when maxchildren is reached
 - Fix gentle restart -  A '-g' gentle restart does not kill current connections but filter group config is re-read.
