@@ -3,13 +3,13 @@ May/June 2014
 - Rooms facility updated - now includes room specific overide white lists
   New perroomdirectory option in e2guardian.conf added
   Backward compatable with perroombanneddirectory option.
--  Hard coded room user/log messages removed and replaced with new items in language messages file.
+- Hard coded room user/log messages removed and replaced with new items in language messages file.
 - Reading of lists functions amended to accomodate reading of multiple types of lists from a single file.
 - Fixes from 3.0.3 merged
 - Start of development version 3.1
+- Fix Compilation problem with --enable-dnsauth=yes
 
 June 2014 - e2guardian 3.0.3
-- Fix Compilation problem with --enable-dnsauth=yes
 - Fix site truncation when total_block_list in use
 - Error message now given when maxchildren is reached
 - Fix gentle restart -  A '-g' gentle restart does not kill current connections but filter group config is re-read.
