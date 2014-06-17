@@ -1,3 +1,5 @@
+- Fix Compilation problem with --enable-dnsauth=yes
+
 June 2014 - e2guardian 3.0.3
 - Fix site truncation when total_block_list in use
 - Error message now given when maxchildren is reached
