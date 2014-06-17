@@ -1,5 +1,5 @@
 May/June 2014 
-- CIDR format support added
+- CIDR format support added in IP lists
 - Rooms facility updated - now includes room specific overide white lists
   New perroomdirectory option in e2guardian.conf added
   Backward compatable with perroombanneddirectory option.
