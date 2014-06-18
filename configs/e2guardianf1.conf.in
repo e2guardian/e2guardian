@@ -45,7 +45,7 @@ refererexceptionsitelist = '@DGCONFDIR@/lists/refererexceptionsitelist'
 refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
 embededreferersitelist = '@DGCONFDIR@/lists/embededreferersitelist'
 embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
-urlredirectregexpurllist = '@DGCONFDIR@/lists/urlredirectregexpurllist'
+urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
 #localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
