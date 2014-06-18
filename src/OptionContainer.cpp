@@ -961,14 +961,10 @@ bool OptionContainer::doReadItemList(const char* filename, ListContainer* lc, co
 	return true;
 }
 
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?
-
 bool OptionContainer::inExceptionIPList(const std::string *ip, std::string *&host)
 {
 	return exception_ip_list.inList(*ip, host);
 }
-
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?
 
 bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 {
