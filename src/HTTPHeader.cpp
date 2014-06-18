@@ -1176,9 +1176,10 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 				answer = protocol + "://" + hostname + url;
 		}
 	}
-	if (answer.endsWith("//")) {
-		answer.chop();
-	}
+//  Some sites do now have urls ending with '//' and will not answer to just '/'
+//	if (answer.endsWith("//")) {
+//		answer.chop();
+//	}
 	
 	
 	//make sure ssl stuff is logged as https
