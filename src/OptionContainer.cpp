@@ -971,6 +971,9 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 	return banned_ip_list.inList(*ip, host);
 }
 
+
+// TODO: Filter rules should migrate to FOptionContainer.cpp ?
+
 bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url) 
 {
 	String temp;
@@ -1023,6 +1026,8 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 	}
 	return false;
 }
+
+// TODO: Filter rules should migrate to FOptionContainer.cpp ?
 
 void OptionContainer::loadRooms()
 {
