@@ -1,3 +1,4 @@
+- Fix issue with urls ending in '//'
 - Fix Compilation problem with --enable-dnsauth=yes
 
 June 2014 - e2guardian 3.0.3
