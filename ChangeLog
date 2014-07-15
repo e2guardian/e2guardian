@@ -8,7 +8,8 @@ May/June 2014
 - Fixes from 3.0.3 merged
 - Start of development version 3.1
 
-June 2014 - e2guardian 3.0.3
+June/July 2014 - e2guardian 3.0.3
+- Fix issue with urls ending in '//'
 - Fix Compilation problem with --enable-dnsauth=yes
 - Fix site truncation when total_block_list in use
 - Error message now given when maxchildren is reached
