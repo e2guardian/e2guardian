@@ -1,8 +1,8 @@
-#ifdef __SSLMITM
 #ifdef HAVE_CONFIG_H
 	#include "dgconfig.h"
 #endif
 
+#ifdef __SSLMITM
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
