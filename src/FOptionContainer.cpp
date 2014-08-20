@@ -564,6 +564,9 @@ bool FOptionContainer::read(const char *filename)
 #endif
 		}
 
+		// Avoid: enable_regex_grey not being initialised when group_mode = 2
+		enable_regex_grey = false;
+
 		if (group_mode == 1) {
 
 			embedded_url_weight = findoptionI("embeddedurlweight");
