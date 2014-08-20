@@ -1,3 +1,5 @@
+August 2014 - e2guardian 3.0.4
+- Fix issue #28 segfault when using bannedregexwithblanketblock and groupmode =2
 - Fix issue with urls ending in '//'
 - Fix Compilation problem with --enable-dnsauth=yes
 

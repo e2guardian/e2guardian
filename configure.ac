@@ -12,7 +12,7 @@ AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main l
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.0.3)
+AC_INIT(e2guardian, 3.0.4)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
