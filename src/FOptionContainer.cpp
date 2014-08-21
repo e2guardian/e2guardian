@@ -590,9 +590,7 @@ bool FOptionContainer::read(const char *filename)
 
                         if (findoptionS("bannedregexwithblanketblock") == "on") {
                                  enable_regex_grey = true;
-                         } else {
-                                 enable_regex_grey = false;
-                         }
+                        }
 
 			if (findoptionS("blockdownloads") == "on") {
 				block_downloads = true;
