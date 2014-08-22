@@ -7,7 +7,7 @@
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
 #
-languagedir = '@DGCONFDIR@/languages'
+languagedir = '@DGDATADIR@/languages'
 
 # language to use from languagedir.
 language = 'ukenglish'
