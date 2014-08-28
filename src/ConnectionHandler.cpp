@@ -1084,6 +1084,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 						iscookiebypass = true;
 						isbypass = true;
+						isexception = true;
 						exceptionreason = o.language_list.getTranslation(607);
 					}
 				}
@@ -1259,8 +1260,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 
 			}
-
-			if ((*o.fg[filtergroup]).enable_regex_grey){
+			// if bannedregexwithblanketblock and exception check nevertheless 
+			if ((*o.fg[filtergroup]).enable_regex_grey && isexception && (!(isbypass || isbanneduser || isbannedip ))){
 				requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
 				// Debug deny code //
 				// syslog(LOG_ERR, "code: %d", checkme.message_no); //
@@ -2956,6 +2957,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 		HTTPHeader* reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified, bool headeradded)
 {
 
+
 	// don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
 	// or if it's an exception and exception logging is disabled
 	if (
@@ -3224,29 +3226,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 				(*checkme).isItNaughty = true;
 				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
 				return;
-		}
-        	if (!(*o.fg[filtergroup]).enable_regex_grey) { 
-			if ((j = (*o.fg[filtergroup]).inBannedRegExpURLList(temp)) >= 0 )  
- 			{
-				(*checkme).isItNaughty = true;
-				(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-				(*checkme).message_no = 503;
-				// Banned Regular Expression URL:
-				(*checkme).whatIsNaughtyLog += (*o.fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
-				(*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-				// Banned Regular Expression URL found.
-				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-				return;
-			}
-			if ((j = o.fg[filtergroup]->inBannedRegExpHeaderList(header->header)) >= 0) {
-				checkme->isItNaughty = true;
-				checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-				checkme->message_no = 508;
-				checkme->whatIsNaughtyLog += o.fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-				checkme->whatIsNaughty = o.language_list.getTranslation(509);
-				checkme->whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-				return;
-			}
 		}
 
 		// look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
