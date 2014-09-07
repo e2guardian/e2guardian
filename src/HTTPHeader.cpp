@@ -627,6 +627,9 @@ bool HTTPHeader::urlRegExp(int filtergroup) {
 	std::cout << "Starting URL reg exp replace" << std::endl;
 #endif
 	String newUrl(getUrl());
+#ifdef DGDEBUG
+	std::cout << "getUrl returns " << newUrl << std::endl;
+#endif
 	if (regExp(newUrl, o.fg[filtergroup]->url_regexp_list_comp, o.fg[filtergroup]->url_regexp_list_rep)) {
 		setURL(newUrl);
 		return true;
@@ -705,7 +708,7 @@ bool HTTPHeader::isSearch(int filtergroup) {
 		return false;
 	}
 #ifdef DGDEBUG
-	std::cout << "Starting search check on url" << std::endl;
+	std::cout << "Starting search check on url " << url() << std::endl;
 #endif
 	String searchwd(url());
 	if (regExp(searchwd, o.fg[filtergroup]->search_regexp_list_comp, o.fg[filtergroup]->search_regexp_list_rep)) {

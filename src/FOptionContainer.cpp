@@ -563,6 +563,8 @@ bool FOptionContainer::read(const char *filename)
 			std::cout << "Group name: " << name << std::endl;
 #endif
 		}
+                                 
+		enable_regex_grey = false;
 
 		if (group_mode == 1) {
 
