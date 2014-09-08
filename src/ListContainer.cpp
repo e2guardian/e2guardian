@@ -378,35 +378,19 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 		}
 
 		// blanket block flags
-		if (temp.startsWith("**")) {
-			blanketblock = true;
-			continue;
-		} else if (temp.startsWith("*ip")) {
-			blanket_ip_block = true;
-			continue;
-		} else if (temp.startsWith("**s")) {
+		if (temp.startsWith("**s")) {
 			blanketsslblock = true;
 			continue;
 		} else if (temp.startsWith("**ips")) {
 			blanketssl_ip_block = true;
 			continue;
-		}
-/*
-		// blanket block flags
-		if (linebuffer == "**") {
+		} else if (temp.startsWith("**")) {
 			blanketblock = true;
 			continue;
-		} else if (linebuffer == "*ip") {
+		} else if (temp.startsWith("*ip")) {
 			blanket_ip_block = true;
 			continue;
-		} else if (linebuffer == "**s") {
-			blanketsslblock = true;
-			continue;
-		} else if (linebuffer == "*ips") {
-			blanketssl_ip_block = true;
-			continue;
 		}
-*/
 
 		// Strip off comments that don't necessarily start at the beginning of a line
 		// - but not regular expression comments
