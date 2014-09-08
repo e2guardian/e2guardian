@@ -272,6 +272,9 @@ bool FOptionContainer::readFile(const char *filename, unsigned int* whichlist, b
 		}
 		(*o.lm.l[(*whichlist)]).used = true;
 	}
+#ifdef DGDEBUG
+    std::cout << "Blanket flags are **:*ip:**s:**sip = " << (*o.lm.l[(*whichlist)]).blanketblock << ":" << (*o.lm.l[(*whichlist)]).blanket_ip_block << ":" << (*o.lm.l[(*whichlist)]).blanketsslblock << ":" << (*o.lm.l[(*whichlist)]).blanketssl_ip_block << std::endl;
+#endif
 	return true;
 }
 
@@ -1270,6 +1273,9 @@ bool FOptionContainer::readRegExReplacementFile(const char *filename, const char
 char *FOptionContainer::testBlanketBlock(unsigned int list, bool ip, bool ssl) {
 	if (not o.lm.l[list]->isNow())
 		return NULL;
+#ifdef DGDEBUG
+    std::cout << "Blanket flags are **:*ip:**s:**sip = " << o.lm.l[list]->blanketblock << ":" << o.lm.l[list]->blanket_ip_block << ":" << o.lm.l[list]->blanketsslblock << ":" << o.lm.l[list]->blanketssl_ip_block << std::endl;
+#endif
 	if (o.lm.l[list]->blanketblock) {
 		o.lm.l[list]->lastcategory = "-";
 		return (char*)o.language_list.getTranslation(502);
@@ -1363,6 +1369,9 @@ char *FOptionContainer::inSearchList(String &words, unsigned int list)
 
 char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
+#ifdef DGDEBUG
+    std::cout << "inBannedSiteList check: doblanket = " << doblanket << " ssl = " << ssl << std::endl;
+#endif
 	return inSiteList(url, banned_site_list, doblanket, ip, ssl);
 }
 

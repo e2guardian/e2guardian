@@ -60,6 +60,8 @@ void HTTPHeader::reset()
 #endif
 
 		clcached = false;
+		
+		mitm = false;
 
 		phost = NULL;
 		pport = NULL;
@@ -1091,6 +1093,17 @@ void HTTPHeader::checkheader(bool allowpersistent)
 //  CONNECT foo.bar:443  HTTP/1.1
 // So we need to handle all 3
 
+String HTTPHeader::getLogUrl(bool withport, bool isssl)
+{
+
+	String answer = getUrl(withport, isssl);
+	if(mitm || isssl){
+		answer = "https://" + answer.after("://");
+	}
+	return answer;
+
+}
+
 String HTTPHeader::getUrl(bool withport, bool isssl)
 {
 	// Version of URL *with* port is not cached,
@@ -1100,6 +1113,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 		return cachedurl;
 	port = 80;
 	bool https = false;
+	if (!mitm) mitm = isssl;
 	String hostname;
 	String userpassword;
 	String answer(header.front().after(" "));
@@ -1184,12 +1198,15 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 //		answer.chop();
 //	}
 	
+#ifdef DGDEBUG
+	std::cout << "from header url:" << answer << std::endl;
+#endif
 	
 	//make sure ssl stuff is logged as https
 #ifdef __SSLMITM
-	if(isssl){
-		answer = "https://" + answer.after("://");
-	}
+//	if(isssl){
+//		answer = "https://" + answer.after("://");
+//	}
 #endif
 	
 #ifdef DGDEBUG

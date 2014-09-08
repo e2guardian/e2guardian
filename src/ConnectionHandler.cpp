@@ -341,14 +341,17 @@ void ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 	// for debug info only - TCP peer port
 	dbgPeerPort = peerconn.getPeerSourcePort();
 #endif
+	Socket proxysock;
 
-	handleConnection(peerconn, ip);
+	handleConnection(peerconn, ip, false, proxysock);
 
 	return;
 }
 
 // all content blocking/filtering is triggered from calls inside here
-void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
+void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock)
+//void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock, String &user, String &group);
+//void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 {
 	struct timeval thestart;
 	gettimeofday(&thestart, NULL);
@@ -406,6 +409,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 	std::string mimetype("-");
 
 	String url;
+	String logurl;
 	String urld;
 	String urldomain;
 
@@ -431,8 +435,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 	std::cout << dbgPeerPort << " -got peer connection" << std::endl;
 	std::cout << dbgPeerPort << clientip << std::endl;
 #endif
-
-	Socket proxysock;
+	// proxysock now passed to function
+	// Socket proxysock;
 
 	try {
 		int rc;
@@ -466,20 +470,24 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 
 		// maintain a persistent connection
 		while ((firsttime || persistPeer) && !reloadconfig) {
+#ifdef DGDEBUG
+		std::cout << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
+#endif
 			if (firsttime) {
 				// reset flags & objects next time round the loop
 				firsttime = false;
 
 				// quick trick for the very first connection :-)
-				persistProxy = false;
+				if (!ismitm)
+					persistProxy = false;
 			} else {
 				// another round...
 #ifdef __SSLMITM
 				//<TODO>resolve issues with persistency and ssl
 				//dont allow persistent connections inside an ssl tunnel as this doesnt work properly
-				if (peerconn.isSsl()){
-					break;
-				}
+			//	if (peerconn.isSsl()){
+		//			break;
+		//		}
 #endif // __SSLMITM
 
 #ifdef DGDEBUG
@@ -558,8 +566,10 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			}
 #ifdef __SSLMITM
 			url = header.getUrl(false, peerconn.isSsl());
+			logurl = header.getLogUrl(false, peerconn.isSsl());
 #else
 			url = header.getUrl(false, false);
+			logurl = url;
 #endif
 			urld = header.decode(url);
 			urldomain = url.getHostname();
@@ -597,13 +607,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #ifdef DGDEBUG
                                                 std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
-#ifdef __SSLMITM
-                                                url = header.getUrl(false, peerconn.isSsl());
-#else
-                                                url = header.getUrl(false, false);
-#endif
-                                                urld = header.decode(url);
-                                                urldomain = url.getHostname();
+//#ifdef __SSLMITM
+//                                                url = header.getUrl(false, peerconn.isSsl());
+//#else
+//                                                url = header.getUrl(false, false);
+//#endif
+//                                                urld = header.decode(url);
+//                                                urldomain = url.getHostname();
                                                 syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
                                                 return;
                                         }
@@ -623,7 +633,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			   if ( header.requestType().startsWith("CONNECT")) {
 				try {	// writestring throws exception on error/timeout
 					peerconn.writeString("HTTP/1.0 404 Banned Site\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>Protex - Banned Site</TITLE></HEAD><BODY><H1>Protex - Banned Site</H1> ");
-					peerconn.writeString(url.c_str());
+					peerconn.writeString(logurl.c_str());
 					// The requested URL is malformed.
 					peerconn.writeString("</BODY></HTML>\n");
 				}
@@ -829,33 +839,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 			// filter group modes are: 0 = banned, 1 = filtered, 2 = exception.
 			// is this user banned?
 			isbanneduser = (gmode == 0);
-/* moved to before auth check
-#ifdef __SSLMITM
-			url = header.getUrl(false, peerconn.isSsl());
-#else
-			url = header.getUrl(false, false);
-#endif
-			urld = header.decode(url);
-			urldomain = url.getHostname();
-*/
-
-/* moved to before auth check
-			// checks for bad URLs to prevent security holes/domain obfuscation.
-			if (header.malformedURL(url))
-			{
-				try {
-					// writestring throws exception on error/timeout
-					peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
-					peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
-					// The requested URL is malformed.
-					peerconn.writeString(o.language_list.getTranslation(200));
-					peerconn.writeString("</BODY></HTML>\n");
-				}
-				catch(std::exception & e) {
-				}
-				break;
-			}
-*/
 
 			if (o.use_xforwardedfor) {
 				std::string xforwardip(header.getXForwardedForIP());
@@ -1129,7 +1112,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					url = header.getUrl();
 					//urld = header.decode(url);  // unneeded really
 
-					doLog(clientuser, clientip, url, header.port, exceptionreason,
+					doLog(clientuser, clientip, logurl, header.port, exceptionreason,
 						rtype, docsize, NULL, false, 0, isexception, false, &thestart,
 						cachehit, 200, mimetype, wasinfected, wasscanned, 0, filtergroup,
 						&header);
@@ -1391,7 +1374,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					docsize = fdt.throughput;
 					if (!isourwebserver) {	// don't log requests to the web server
 						String rtype(header.requestType());
-						doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,
+						doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,
 							false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
 							mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
 					}
@@ -1512,7 +1495,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 							docsize = fdt.throughput;
 							if (!isourwebserver) {	// don't log requests to the web server
 								String rtype(header.requestType());
-								doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL),
+								doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL),
 									false, 0, isexception, false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
 									mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
 									// content wasn't modified, but URL was
@@ -1635,7 +1618,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						fdt.tunnel(proxysock, peerconn, false);  // not expected to exception
 						docsize = fdt.throughput;
 						String rtype(header.requestType());
-						doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
+						doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
 							isexception, false, &thestart,
 							cachehit, header.returnCode(), mimetype, wasinfected,
 							wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
@@ -1753,7 +1736,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 						persistent_authed = true;
 					}
 					
-					handleConnection(peerconn,ip);
+					handleConnection(peerconn,ip,true,proxysock);
 #ifdef DGDEBUG
 					std::cout << dbgPeerPort << " -Handling connections inside ssl tunnel: done" << std::endl;
 #endif
@@ -1767,12 +1750,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 #endif
 
 					String rtype(header.requestType());
-					doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
+					doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
 						isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
 						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 						
-					denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,
+					denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,
 						&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
 
 				}
@@ -1805,7 +1788,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
             	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
                 	header.DenySSL(filtergroup);
                         String rtype(header.requestType());
-			doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+			doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 			checkme.isItNaughty = false;
                 	}
 
@@ -1826,7 +1809,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					fdt.tunnel(proxysock, peerconn, true);  // not expected to exception
 					docsize = fdt.throughput;
 					String rtype(header.requestType());
-					doLog(clientuser, clientip, url, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false,
+					doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false,
 						0, isexception, false, &thestart,
 						cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
 						wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
@@ -2769,11 +2752,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				std::cout<<"Category: "<<checkme.whatIsNaughtyCategories<<std::endl;
 #endif
 				logged = true;
-				doLog(clientuser, clientip, url, header.port, checkme.whatIsNaughtyLog,
+				doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog,
 					rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, false, false, &thestart,
 					cachehit, 403, mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup,
 					&header, message_no, contentmodified, urlmodified, headermodified, headeradded);
-				if (denyAccess(&peerconn, &proxysock, &header, &docheader, &url, &checkme, &clientuser,&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))
+				if (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))
 				{
 					return;  // not stealth mode
 				}
@@ -2815,7 +2798,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				if (!docheader.authRequired() && !pausedtoobig) {
 					String rtype(header.requestType());
 					if (!logged) {
-						doLog(clientuser, clientip, url, header.port, exceptionreason,
+						doLog(clientuser, clientip, logurl, header.port, exceptionreason,
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
@@ -2887,7 +2870,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 					docsize += fdt.throughput;
 					String rtype(header.requestType());
 					if (!logged) {
-						doLog(clientuser, clientip, url, header.port, exceptionreason,
+						doLog(clientuser, clientip, logurl, header.port, exceptionreason,
 							rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 							docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 							wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
@@ -2904,7 +2887,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 				docsize = fdt.throughput;
 				String rtype(header.requestType());
 				if (!logged) {
-					doLog(clientuser, clientip, url, header.port, exceptionreason,
+					doLog(clientuser, clientip, logurl, header.port, exceptionreason,
 						rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
 						docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
 						wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
@@ -3918,7 +3901,7 @@ bool ConnectionHandler::denyAccess(Socket * peerconn, Socket * proxysock, HTTPHe
 						// only going to be happening if the unsafe trickle
 						// buffer method is used and we want the download to be
 						// broken we don't mind too much
-						String fullurl = header->getUrl(true);
+						String fullurl = header->getLogUrl(true);
 						o.fg[filtergroup]->getHTMLTemplate()->display(peerconn,
 							&fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
 							// grab either the full category list or the thresholded list

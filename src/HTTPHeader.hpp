@@ -106,6 +106,7 @@ public:
 	bool malformedURL(const String& url);
 	String getAuthType();
 	String getUrl(bool withport = false, bool isssl = false);
+	String getLogUrl(bool withport = false, bool isssl = false);
 	String url();
 
 
@@ -188,6 +189,8 @@ private:
 
 	// cached result of getUrl()
 	std::string cachedurl;
+	// used to record if it is a header within a MITM
+	bool mitm;
 
 #ifdef RXREDIRECTS  
 	String redirect;

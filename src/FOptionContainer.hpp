@@ -325,6 +325,7 @@ public:
 		local_grey_site_flag(false), 
 		local_grey_url_flag(false),
 #endif
+		enable_regex_grey(false),
 		use_only_local_allow_lists(false),
 		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
 		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),

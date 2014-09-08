@@ -62,7 +62,8 @@ private:
 	std::string urlparams;
 	std::list<postinfo> postparts;
 
-	void handleConnection(Socket &peerconn, String &ip);
+	//void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
+	void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn);
 
 	// write a log entry containing the given data (if required)
 	void doLog(std::string &who, std::string &from, String &where, unsigned int &port,

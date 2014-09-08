@@ -378,6 +378,21 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 		}
 
 		// blanket block flags
+		if (temp.startsWith("**")) {
+			blanketblock = true;
+			continue;
+		} else if (temp.startsWith("*ip")) {
+			blanket_ip_block = true;
+			continue;
+		} else if (temp.startsWith("**s")) {
+			blanketsslblock = true;
+			continue;
+		} else if (temp.startsWith("**ips")) {
+			blanketssl_ip_block = true;
+			continue;
+		}
+/*
+		// blanket block flags
 		if (linebuffer == "**") {
 			blanketblock = true;
 			continue;
@@ -391,6 +406,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 			blanketssl_ip_block = true;
 			continue;
 		}
+*/
 
 		// Strip off comments that don't necessarily start at the beginning of a line
 		// - but not regular expression comments
@@ -445,6 +461,9 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 		if (temp.length() > 0)
 			addToItemList(temp.toCharArray(), temp.length());  // add to unsorted list
 	}
+#ifdef DGDEBUG
+	std::cout << "Blanket flags set:" << blanketblock << ":" << blanket_ip_block << ":" << blanketsslblock << ":" << blanketssl_ip_block << std::endl;
+#endif
 	return true;  // sucessful read
 }
 
