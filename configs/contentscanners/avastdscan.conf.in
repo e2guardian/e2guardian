@@ -6,6 +6,10 @@ plugname = 'avastdscan'
 # edit this to block unscannable files (e.g. encrypted archives)
 #archivewarn = off
 
+#Specify the version of avast protocol. It Must be 'avast4' or 'avast2014'
+#default is avast4 for compatibility
+avastprotocol = 'avast4'
+
 exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
 exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
 exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
