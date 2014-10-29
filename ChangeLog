@@ -1,4 +1,5 @@
 September 2014 - e2guardian 3.0.4
+- Patch for extend e2guardian to avast2014 protocol
 - Fix issue #bug #29 and Bug #33 temporary bypass broken
 - Fix issue #28 segfault when using bannedregexwithblanketblock and groupmode =2
 - Fix issue with urls ending in '//'
