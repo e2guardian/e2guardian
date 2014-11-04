@@ -16,7 +16,7 @@ configuration options.
 
 *** OS X / Darwin users, please read the OS X section first. ***
 
-
+*** Debian and Ubuntu users, please read the Debian section first. ***
 
 1.        Run the configure (./configure --help) script with
         the help option to see the user selectable settings.
@@ -300,6 +300,15 @@ To configure and compile, do:
       --with-logdir=/opt/e2guardian/log \
       --with-piddir=/var/run
 
+DEBIAN:
+-----------------
+
+Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre3-dev, zlib1g-dev
+Other packages related to E2guardian : adduser, perl, libbz2, libc6, libgcc1, libpcre3, libstdc++, libtommath0, zlib1g
+Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
+Autogen is needed !
+Example:
+./autogen.sh && ./configure '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--enable-trickledm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' 'CXXFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' 'LDFLAGS=-Wl,-z,relro' 'CPPFLAGS=-D_FORTIFY_SOURCE=2' 'CFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' '--enable-pcre=yes' '--with-filedescriptors=1010' '--enable-locallists=yes' && make
 
 
 HOW TO CONFIGURE:
@@ -307,7 +316,6 @@ HOW TO CONFIGURE:
 
 Edit the e2guardian.conf, e2guardianf1.conf and other files.
 The files are commented well.
-
 
 
 
@@ -343,14 +351,12 @@ this copy it to your web servers' cgi-bin directory.
 E2Guardian.
 
 
-
 HOW TO RUN:
 -----------
 
 You can start it by just running the binary.  You can stop it by
 appending a ' -q' to the end, thus: 'e2guardian -q'.  Or you can use
 the SysV(-like) script provided.
-
 
 
 HOW TO GET HELP:
