@@ -569,6 +569,9 @@ bool FOptionContainer::read(const char *filename)
                                  
 		enable_regex_grey = false;
 
+		// Avoid: enable_regex_grey not being initialised when group_mode = 2
+		enable_regex_grey = false;
+
 		if (group_mode == 1) {
 
 			embedded_url_weight = findoptionI("embeddedurlweight");
@@ -592,9 +595,7 @@ bool FOptionContainer::read(const char *filename)
 
                         if (findoptionS("bannedregexwithblanketblock") == "on") {
                                  enable_regex_grey = true;
-                         } else {
-                                 enable_regex_grey = false;
-                         }
+                        }
 
 			if (findoptionS("blockdownloads") == "on") {
 				block_downloads = true;

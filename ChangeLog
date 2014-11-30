@@ -1,3 +1,5 @@
+November 2014
+Fix blanket block not working bug
 May/June 2014 
 - CIDR format support added in IP lists
 - Rooms facility updated - now includes room specific overide white lists
@@ -5,6 +7,7 @@ May/June 2014
   Backward compatable with perroombanneddirectory option.
 - Hard coded room user/log messages removed and replaced with new items in language messages file.
 - Reading of lists functions amended to accomodate reading of multiple types of lists from a single file.
+- Fixes from 3.0.4 merged
 - Fixes from 3.0.3 merged
 - Start of development version 3.1
 - Fix Compilation problem with --enable-dnsauth=yes
