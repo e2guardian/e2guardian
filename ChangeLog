@@ -1,3 +1,5 @@
+November 2014
+Fix blanket block not working bug
 May/June 2014 
 - CIDR format support added in IP lists
 - Rooms facility updated - now includes room specific overide white lists
