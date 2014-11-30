@@ -1599,17 +1599,17 @@ bool ListContainer::readProcessedItemList(const char *filename, bool startswith,
 			continue;  // it's a comment man
 		}
 		// blanket block flags
-		if (linebuffer == "**") {
-			blanketblock = true;
-			continue;
-		} else if (linebuffer == "*ip") {
-			blanket_ip_block = true;
-			continue;
-		} else if (linebuffer == "**s") {
+		if (temp.startsWith("**s")) {
 			blanketsslblock = true;
 			continue;
-		} else if (linebuffer == "*ips") {
+		} else if (temp.startsWith("**ips")) {
 			blanketssl_ip_block = true;
+			continue;
+		} else if (temp.startsWith("**")) {
+			blanketblock = true;
+			continue;
+		} else if (temp.startsWith("*ip")) {
+			blanket_ip_block = true;
 			continue;
 		}
 		slen = linebuffer.length();
