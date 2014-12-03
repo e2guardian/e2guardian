@@ -420,7 +420,11 @@ reportinglevel = 3
 sslcertcheck = off
 
 #SSL man in the middle
-# Forge ssl certificates for all sites, decrypt the data then re encrypt it
+# Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
 # using a different private key. Used to filter ssl sites
 sslmitm = off
 
+#Limit SSL MITM to sites in greysslsitelist(s)
+# ignored if  sslmitm is off
+# SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
+onlymitmsslgrey = off

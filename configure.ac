@@ -7,12 +7,14 @@ AC_DEFINE([ADDHEADER],[""],[Define to enable insert http header function])
 AC_DEFINE([REFEREXCEPT],[""],[Define to enable exceptions on http referer header])
 AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp])
 AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
+AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
+AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
 AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
 AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.1.0)
+AC_INIT(e2guardian, 3.1.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 
@@ -775,6 +777,33 @@ NTLMSUPPORT="!! Not compiled !! "
 AM_CONDITIONAL(ENABLE_NTLM, test "x$ntlm" = "xtrue")
 AC_SUBST(NTLMSUPPORT)
 
+# asking user if they want SSL MITM support
+AC_MSG_CHECKING(for SSL MITM support)
+AC_ARG_ENABLE(
+sslmitm,
+[AC_HELP_STRING([--enable-sslmitm@<:@=no@:>@], [Enable support for the SSL MITM plugin])],
+[ if test "x$enableval" = "xno"; then
+	AC_MSG_RESULT(no)
+	sslmitm=false
+	SSLMITMSUPPORT="!! Not compiled !! "
+else
+	AC_MSG_RESULT(yes)
+	sslmitm=true
+	SSLMITMSUPPORT=""
+	LIBS="${LIBS} -lssl -lcrypto"
+	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
+	AC_DEFINE([__SSLCERT],[],[Define to enable SSL CERT ])
+fi],
+[
+	AC_MSG_RESULT(no)
+	sslmitm=false
+	SSLMITMSUPPORT="!! Not compiled !! "
+]
+)
+AM_CONDITIONAL(__SSLMITM, test "x$sslmitm" = "xtrue")
+AM_CONDITIONAL(__SSLCERT, test "x$sslmitm" = "xtrue")
+AC_SUBST(SSLMITMSUPPORT)
+
 # asking user if they want DNS auth support
 AC_MSG_CHECKING(for DNS support)
 AC_ARG_ENABLE(
@@ -788,7 +817,7 @@ else
 	AC_MSG_RESULT(yes)
 	dnsauth=true
 	DNSAUTHSUPPORT=""
-	CXXFLAGS="${CXXFLAGS} -lresolv"
+	LIBS="${LIBS} -lresolv"
 	AC_DEFINE([PRT_DNSAUTH],[],[Define to enable DNS auth plugin])
 fi],
 [
