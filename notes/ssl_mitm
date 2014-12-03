@@ -1,0 +1,32 @@
+The SSL MITM option allows https sites to be content checked.
+
+The request from the client is intercepted, a spoofed certificate supplied for 
+the target site and an encrypted connection made back to the client.  
+A separate encrypted connection to the target server is set up.  The resulting 
+http dencrypted stream is then filtered as normal.
+
+Sites in the exception lists are treated in the same way as before 
+(i.e. NOT unencrypted) so sites dealing with sensistive information that should
+not be intercepted (e.g. bank finance, account logins, etc) and other sites 
+deemed 'safe' can be made exempt from being examined.
+
+Advantages are that the user gets a proper block page and full https urls are 
+logged, https urls can be whitelisted when site as a whole is banned and content
+can be content checked.
+
+Disavantages are that in order for MITM to be usable a private root CA 
+certificate has to be installed on each browser and that more processing power 
+is needed on the server in order to encrypt and unencrypt the traffic.
+
+To set up MITM:
+
+   Configure and compile e2guardian with the --enable-sslmitm flag set
+
+   Generate your certicates and keys:-
+
+
+   Assign key paths in e2guardian.conf:-
+
+   Set  sllmitm = yes in e2guardianf1.conf
+
+   Load user.der certificate on each browser.
