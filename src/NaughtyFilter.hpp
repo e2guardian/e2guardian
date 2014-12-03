@@ -24,6 +24,8 @@ public:
 	bool isException;
 	// is the url/site in Greylist - forces content check
 	bool isGrey;
+	// is the url/site in SSLGreylist
+	bool isSSLGrey;
 	// is the url a search request
 	bool isSearch;
 	// should the browser use the categories string or the displaycategories string?

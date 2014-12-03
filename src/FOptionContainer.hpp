@@ -51,10 +51,9 @@ public:
 	bool ssl_check_cert;
 #endif //__SSLCERT
 
-#ifdef __SSLMITM
 	//SSL Man in the middle
 	bool ssl_mitm;
-#endif //__SSLMITM 
+	bool only_mitm_ssl_grey;
 
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier

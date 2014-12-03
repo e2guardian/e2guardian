@@ -54,7 +54,7 @@ public:
 NaughtyFilter::NaughtyFilter()
 :	isItNaughty(false), isException(false), usedisplaycats(false), 
 	blocktype(0), store(false), naughtiness(0), filtergroup(0), 
-	isGrey(false), isSearch(false), message_no(0)
+	isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
 }
 
@@ -70,6 +70,7 @@ void NaughtyFilter::reset()
 	store = false;
 	naughtiness = 0;
 	isGrey = false;
+	isSSLGrey = false;
 	isSearch = false;
 	filtergroup = 0;
 	message_no = 0;

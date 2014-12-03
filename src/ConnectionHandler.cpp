@@ -348,10 +348,9 @@ void ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 	return;
 }
 
+
 // all content blocking/filtering is triggered from calls inside here
 void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock)
-//void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock, String &user, String &group);
-//void ConnectionHandler::handleConnection(Socket &peerconn, String &ip)
 {
 	struct timeval thestart;
 	gettimeofday(&thestart, NULL);
@@ -363,7 +362,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 	// set a timeout as we don't want blocking 4 eva
 	// this also sets how long a peerconn will wait for other requests
-	// TODO: have this value configurable
 	header.setTimeout(o.pcon_timeout);
 	docheader.setTimeout(o.exchange_timeout);
 
@@ -393,6 +391,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 	bool isconnect;
 	bool ishead;
 	bool scanerror;
+	bool ismitmcandidate = false;  
+	bool do_mitm = false;
+	bool is_ssl = false;
 	int bypasstimestamp = 0;
 #ifdef RXREDIRECTS
 	bool urlredirect = false;
@@ -467,6 +468,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 		bool firsttime = true;
 		header.in(&peerconn, true, true);  // get header from client, allowing persistency and breaking on reloadconfig
+//
+// End of set-up section
+//
+// Start of main loop
+//
 
 		// maintain a persistent connection
 		while ((firsttime || persistPeer) && !reloadconfig) {
@@ -482,14 +488,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					persistProxy = false;
 			} else {
 				// another round...
-#ifdef __SSLMITM
-				//<TODO>resolve issues with persistency and ssl
-				//dont allow persistent connections inside an ssl tunnel as this doesnt work properly
-			//	if (peerconn.isSsl()){
-		//			break;
-		//		}
-#endif // __SSLMITM
-
 #ifdef DGDEBUG
 				std::cout << dbgPeerPort << " -persisting (count " << ++pcount << ")" << std::endl;
 				syslog(LOG_ERR, "Served %d requests on this connection so far", pcount);
@@ -564,15 +562,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				// our filter
 				checkme.reset();
 			}
-#ifdef __SSLMITM
-			url = header.getUrl(false, peerconn.isSsl());
-			logurl = header.getLogUrl(false, peerconn.isSsl());
-#else
-			url = header.getUrl(false, false);
-			logurl = url;
-#endif
+			url = header.getUrl(false, ismitm);
+			logurl = header.getLogUrl(false, ismitm); 
 			urld = header.decode(url);
 			urldomain = url.getHostname();
+			is_ssl = header.requestType().startsWith("CONNECT");
 
 			// checks for bad URLs to prevent security holes/domain obfuscation.
 			if (header.malformedURL(url))
@@ -607,13 +601,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 #ifdef DGDEBUG
                                                 std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
-//#ifdef __SSLMITM
-//                                                url = header.getUrl(false, peerconn.isSsl());
-//#else
-//                                                url = header.getUrl(false, false);
-//#endif
-//                                                urld = header.decode(url);
-//                                                urldomain = url.getHostname();
                                                 syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
                                                 return;
                                         }
@@ -630,7 +617,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 // do total block list checking here
 			urld = header.decode(url);
 			if (o.use_total_block_list && o.inTotalBlockList(urld)) {
-			   if ( header.requestType().startsWith("CONNECT")) {
+			   //if ( header.requestType().startsWith("CONNECT")) 
+			   if (is_ssl ) {
 				try {	// writestring throws exception on error/timeout
 					peerconn.writeString("HTTP/1.0 404 Banned Site\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>Protex - Banned Site</TITLE></HEAD><BODY><H1>Protex - Banned Site</H1> ");
 					peerconn.writeString(logurl.c_str());
@@ -654,7 +642,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 			// don't let the client connection persist if the client doesn't want it to.
 			persistOutgoing = header.isPersistent();
-
+//
+//
+// Start of Authentication Checks
+//
+//
 			// don't have credentials for this connection yet? get some!
 			if (!persistent_authed) {
 #ifdef DGDEBUG
@@ -835,7 +827,23 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			std::cout << dbgPeerPort << " -filtergroup: " << filtergroup << std::endl;
 			std::cout << dbgPeerPort << " -groupmode: " << gmode << std::endl;
 #endif
+//
+//
+// End of Authentication Checking
+//
+//
 
+#ifdef __SSLMITM
+//			Set if candidate for MITM
+//			(Exceptions will not go MITM)
+			ismitmcandidate = is_ssl && o.fg[filtergroup]->ssl_mitm && (header.port == 443);
+#endif
+
+//
+//
+// Now check if user or machine is banned and room-based checking
+//
+//
 			// filter group modes are: 0 = banned, 1 = filtered, 2 = exception.
 			// is this user banned?
 			isbanneduser = (gmode == 0);
@@ -962,85 +970,24 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			}
 #endif
 
-#ifdef __SSLMITM
-			if (peerconn.isSsl()) {
-#ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -SSL connection; about to begin MITM" << std::endl;
-#endif
-/*
-				String magic(o.fg[filtergroup]->mitm_magic);
+//#ifdef __SSLMITM
+//			if (peerconn.isSsl()) 
+			//if (is_ssl) {
+//#ifdef DGDEBUG
+				//std::cout << dbgPeerPort << " -SSL connection; about to begin MITM" << std::endl;
+//#endif
+////There is no options on this if to continue if config does not have mitm key
+//
+				///* Accept request. */
+//#ifdef DGDEBUG
+				//std::cout << dbgPeerPort << " -MITM looks good" << std::endl;
+//#endif
+			//}
+//#endif // __SSLMITM
 
-#ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -Testing for MITM accept cookie" << std::endl;
-#endif
-				if (! header.isMITMAcceptCookie(urldomain, magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -MITM accept cookie not found" << std::endl;
-#endif
-					// If magic string in URL, set cookie and redirect to original page. //
-					if (header.isMITMAcceptURL(&url, magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-						std::cout << dbgPeerPort << " -Found MITM Accept URL" << std::endl;
-#endif
-						header.chopMITMAccept(url);
-						url = header.getUrl(false, true);
-
-#ifdef DGDEBUG
-						std::cout<<"Setting GMACCEPT cookie"<<std::endl;
-#endif
-						String ud(urldomain);
-						if (ud.startsWith("www")) {
-							ud = ud.after("www");
-						} else {
-							ud = "." + urldomain;
-						}
-
-						String cookie("GMACCEPT=");
-						int timecode = time(NULL) + 86400; // lasts for 1 day
-						String hash = hashedCookie(&ud, magic.c_str(), &clientip, timecode);
-						cookie += hash;
-						cookie += "; domain=";
-						cookie += ud;
-
-						// redirect user to URL with GMACCEPT parameter no longer appended
-#ifdef DGDEBUG
-						std::cout << dbgPeerPort << " -Redirecting to original page with cookie" << std::endl;
-#endif
-
-						String writestring("HTTP/1.0 302 Redirect\r\nLocation: ");
-						writestring += url;
-						writestring += "\r\nP3P: CP=\"NOI NID CUR OUR NOR\"";
-						writestring += "\r\nSet-cookie: ";
-						writestring += cookie;
-						writestring += "\r\n\r\n";
-						peerconn.writeString(writestring.toCharArray());
-
-						return;
-					}
-
-#ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -MITM Accept URL not found" << std::endl;
-#endif
-					// Neither MITM accept URL nor cookie found. Redirect to warning page //
-
-					String writestring("HTTP/1.0 302 Redirect\r\nLocation: http://");
-					writestring += peerconn.getLocalIP();
-					writestring += "/modules/guardian/cgi-bin/mitm.cgi?";
-					writestring += url;
-					writestring += "\r\n\r\n";
-					peerconn.writeString(writestring.toCharArray());
-
-					return;
-				}
-*/ //MITM accept cookie is not working on current code
-//There is no options on this if to continue if config does not have mitm key
-
-				/* Accept request. */
-#ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -MITM looks good" << std::endl;
-#endif
-			}
-#endif
+//
+// Start of by pass
+//
 
 			if (header.isScanBypassURL(&url, o.fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
@@ -1094,6 +1041,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				std::cout << dbgPeerPort << " -Bypass activated!" << std::endl;
 			}
 #endif
+//
+// End of bypass
+//
+// Start of scan by pass
+//
 
 			if (isscanbypass) {
 				//we need to decode the URL and send the temp file with the
@@ -1128,6 +1080,10 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				proxysock.close();  // close connection to proxy
 				break;
 			}
+//
+// End of scan by pass
+//
+
 
 			char *retchar;
 
@@ -1137,7 +1093,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			// being a banned user/IP overrides the fact that a site may be in the exception lists
 			// needn't check these lists in bypass modes
 			if (!(isbanneduser || isbannedip || isbypass || isexception )) {
-				bool is_ssl = header.requestType() == "CONNECT";
+				//bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 				if ((gmode == 2)) {	// admin user
 					isexception = true;
@@ -1153,7 +1109,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				}
 #ifdef LOCAL_LISTS
 #ifdef SSL_EXTRA_LISTS
-				else if (is_ssl && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+				else if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(580);  // banned site
 					message_no = 580;
 					checkme.whatIsNaughty += retchar;
@@ -1182,7 +1138,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				} 
 #ifdef REFEREREXCEPT
 				//else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
-				else if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
+				else if ((!is_ssl) && embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
 					isexception = true;
 					exceptionreason = o.language_list.getTranslation(620);
 					message_no = 620;
@@ -1194,19 +1150,21 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					
 				if (!(isexception || isourwebserver)) {
 				    // check if this is a search request
-				    checkme.isSearch = header.isSearch(filtergroup);
+				    if (!is_ssl) checkme.isSearch = header.isSearch(filtergroup);
 				    // add local grey and black checks
-				    requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
-				    message_no = checkme.message_no;
+				    if (!(ismitmcandidate && ! o.fg[filtergroup]->only_mitm_ssl_grey)) { 
+					requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
+				    	message_no = checkme.message_no;
+				    };
 				};
 #endif
 			// orginal section only now called if local list not matched 
 			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
 
-				bool is_ssl = header.requestType() == "CONNECT";
+				//bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
 #ifdef SSL_EXTRA_LISTS
-				if (is_ssl && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+				if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(520);  // banned site
 					message_no = 520;
 					checkme.whatIsNaughty += retchar;
@@ -1437,7 +1395,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				// this could be achieved with exception phrases (which are, of course, always checked
 				// after the URL) too, but there are cases for both, and flexibility is good.
 				if (o.recheck_replaced_urls && !(isbanneduser || isbannedip)) {
-					bool is_ssl = header.requestType() == "CONNECT";
+					//bool is_ssl = header.requestType() == "CONNECT";
 					bool is_ip = isIPHostnameStrip(urld);
 					if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) {	// allowed site
 						if (o.fg[0]->isOurWebserver(url)) {
@@ -1557,7 +1515,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					}
 				}
 
-				if (isconnect) {
+				if (isconnect && !(ismitmcandidate && ! o.fg[filtergroup]->only_mitm_ssl_grey)) { 
 					persistProxy = false;
 					persistPeer = false;
 					persistOutgoing = false;
@@ -1579,7 +1537,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 #ifdef __SSLMITM
 			//https mitm but only on port 443
-			if (!checkme.isItNaughty && isconnect && o.fg[filtergroup]->ssl_mitm && (header.port == 443)){
+			//if (!checkme.isItNaughty && isconnect && o.fg[filtergroup]->ssl_mitm && (header.port == 443))
+			if (o.fg[filtergroup]->only_mitm_ssl_grey && !checkme.isSSLGrey) ismitmcandidate = false;
+			if (!isexception && ismitmcandidate) {
 #ifdef DGDEBUG
 				std::cout << dbgPeerPort << " -Intercepting HTTPS connection" << std::endl;
 #endif
@@ -1785,7 +1745,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			//{
 #endif //__SSLMITM
                 // Banned rewrite SSL denied page 
-				bool is_ssl = header.requestType() == "CONNECT";
+				//bool is_ssl = header.requestType() == "CONNECT";
             	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
                 	header.DenySSL(filtergroup);
                         String rtype(header.requestType());
@@ -2945,6 +2905,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 	return;
 }
 
+
 // decide whether or not to perform logging, categorise the log entry, and write it.
 void ConnectionHandler::doLog(std::string &who, std::string &from, String &where, unsigned int &port,
 		std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
@@ -3198,6 +3159,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
+		if (is_ssl) (*checkme).isSSLGrey = true;
 	}
 
 	// only apply bans to things not in the grey lists
@@ -3508,6 +3470,7 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inLocalGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inLocalGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
+		if (is_ssl) (*checkme).isSSLGrey = true;
 	}
 
 	// only apply bans to things not in the grey lists

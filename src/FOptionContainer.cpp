@@ -348,6 +348,9 @@ bool FOptionContainer::read(const char *filename)
 					s[i] = (rand() % 26) + 'A';
 				}
 				mitm_magic = s;
+			if (findoptionS("onlymitmsslgrey") == "on") 
+				only_mitm_ssl_grey = true;
+	
 			}
 #ifdef DGDEBUG
 			std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
