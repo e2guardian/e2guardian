@@ -1597,12 +1597,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					break;
 				}
 
-				//<TODO>May be worth moving this if dg gets really busy.
-				CertificateAuthority ca(o.ca_certificate_path.c_str(),
-								o.ca_private_key_path.c_str(),
-								o.cert_private_key_path.c_str(),
-								o.generated_cert_path.c_str(),
-								o.generated_link_path.c_str());
+				//  CA intialisation now Moved into OptionContainer so now done once on start-up
+				//  instead off on every request
 
 				X509 * cert = NULL;
 				EVP_PKEY * pkey = NULL;
@@ -1613,12 +1609,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					std::cout << dbgPeerPort << " -Getting ssl certificate for client connection" << std::endl;
 #endif					
 
-					pkey = ca.getServerPkey();
+					pkey = o.ca->getServerPkey();
 
 					//generate the certificate but dont write it to disk (avoid someone 
 					//requesting lots of places that dont exist causing the disk to fill
 					//up / run out of inodes
-					certfromcache = ca.getServerCertificate(urldomain.c_str(), &cert);
+					certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert);
 										
 					//check that the generated cert is not null and fillin checkme if it is
 					if (cert == NULL){
@@ -1677,7 +1673,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				if (!checkme.isItNaughty){
 					bool writecert = true;
 					if (!certfromcache){
-						writecert = ca.writeCertificate(urldomain.c_str(),cert);
+						writecert = o.ca->writeCertificate(urldomain.c_str(),cert);
 					}
 					
 					//if we cant write the certificate its not the end of the world but it is slow

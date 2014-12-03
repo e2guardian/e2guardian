@@ -85,7 +85,8 @@ CertificateAuthority::CertificateAuthority(const char * caCert,
 		
 	//TODO should check this is a writable dir
 	_certPath = certPath;
-	_certLinks = certLinks;
+//	_certLinks = certLinks;
+	_certLinks = certPath;  // temp to check if this works
 }
 
 ASN1_INTEGER * CertificateAuthority::getSerial(const char * commonname){
@@ -235,12 +236,12 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 		return false;
 	}
 
-	if(symlink((_certPath + filename).c_str(),
-		(_certLinks + filename).c_str()) < 0){
-		syslog(LOG_ERR,"couldnt create link to certificate");
-		fclose(fp);
-		exit(1);
-	}
+	//if(symlink((_certPath + filename).c_str(),
+		//(_certLinks + filename).c_str()) < 0){
+		//syslog(LOG_ERR,"couldnt create link to certificate");
+		//fclose(fp);
+		//exit(1);
+	//}
 		
 	//unlock the file
 	fl.l_type = F_UNLCK;

@@ -23,6 +23,10 @@
 
 #include <deque>
 
+#ifdef __SSLMITM
+#include "CertificateAuthority.hpp"
+#endif
+
 
 // DECLARATIONS
 	struct room_item { 
@@ -142,6 +146,7 @@ public:
 	std::string cert_private_key_path;
 	std::string generated_cert_path;
 	std::string generated_link_path;
+	CertificateAuthority *ca;
 #endif
 
 #ifdef ENABLE_EMAIL

@@ -227,10 +227,19 @@ bool OptionContainer::read(const char *filename, int type)
 			//generated_cert_path = "/etc/ssl/certs/";
 		}
 		
-		generated_link_path = findoptionS("generatedlinkpath") + "/";
-		if (generated_link_path == "/"){
-			//generated_link_path = "/etc/ssl/certs/";
-		}
+//		generated_link_path = findoptionS("generatedlinkpath") + "/";
+//		if (generated_link_path == "/"){
+//			//generated_link_path = "/etc/ssl/certs/";
+//		}
+
+		generated_link_path = generated_cert_path;  // not used at present
+		
+		ca = new CertificateAuthority(ca_certificate_path.c_str(),
+				ca_private_key_path.c_str(),
+				cert_private_key_path.c_str(),
+				generated_cert_path.c_str(),
+				generated_link_path.c_str());
+
 #endif
 
 
