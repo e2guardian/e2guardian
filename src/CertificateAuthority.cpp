@@ -85,11 +85,14 @@ CertificateAuthority::CertificateAuthority(const char * caCert,
 		
 	//TODO should check this is a writable dir
 	_certPath = certPath;
+	_certPathLen = sizeof(certPath);
 //	_certLinks = certLinks;
 	_certLinks = certPath;  // temp to check if this works
+	_ca_start = 1417872951;  // 6th Dec 2014
+	_ca_end = _ca_start + 315532800;  // 6th Dec 2024
 }
 
-ASN1_INTEGER * CertificateAuthority::getSerial(const char * commonname){
+bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* caser){
 	//generate hash of hostname
 	char cnhash[EVP_MAX_MD_SIZE];
 	unsigned int cnhashlen;
@@ -118,18 +121,18 @@ ASN1_INTEGER * CertificateAuthority::getSerial(const char * commonname){
 	EVP_MD_CTX_cleanup(&mdctx);
 
 	if(failed){
-		return NULL;
+		return false;
 	}
 	
 	//convert to asn1 to use as serial 
 	BIGNUM * bn = BN_bin2bn((const unsigned char *)cnhash,cnhashlen,NULL);
 	
 	if(bn == NULL){
-		return NULL;
+		return false;
 	}
 	
-#ifdef DGDEBUG
 	char * dbg = BN_bn2hex(bn);
+#ifdef DGDEBUG
 	if (dbg != NULL)
 	{
 		std::cout << "Serial no is " << dbg << std::endl;
@@ -138,35 +141,38 @@ ASN1_INTEGER * CertificateAuthority::getSerial(const char * commonname){
 	{
 		std::cout << "bn2hex returned null instead of serial number" << std::endl;
 	}
-	OPENSSL_free(dbg);
 #endif
+//	OPENSSL_free(dbg);
+	caser->charhex = dbg;
 
-	ASN1_INTEGER* serialNo = BN_to_ASN1_INTEGER(bn,NULL);
-
-
+//	ASN1_INTEGER* serialNo = BN_to_ASN1_INTEGER(bn,NULL);
+	caser->asn = BN_to_ASN1_INTEGER(bn,NULL);
+//	caser->asn = ASN1_INTEGER_dup(serialNo);
+	
 	BN_free(bn);
-	return serialNo;
+	return true;
 }
 
 //write a certificate to disk being careful to avoid race conditions.
 //returns true if it already existed or false on error
 //common name (sh/c)ould be derived from the certificate but that would add to the complexity of the code
-bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newCert)
+bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newCert, struct ca_serial* caser)
 {	
 	//<TODO>getSerial change to pulling serial from cert
-	ASN1_INTEGER* aserial = getSerial(commonname);
-	BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
-	char * cserial = BN_bn2hex(bserial);
-	std::string filename(cserial);
-	OPENSSL_free(cserial);
-	BN_free(bserial);
-	ASN1_INTEGER_free(aserial);
-	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
-		+ '/' + filename.substr(4,2) + '/');
-	std::string path(_certPath + subpath + filename);
+//	ASN1_INTEGER* aserial = getSerial(commonnamei, caser);
+//	BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
+//	char * cserial = BN_bn2hex(bserial);
+//	std::string filename(caser->charhex);
+//	OPENSSL_free(cserial);
+//	BN_free(bserial);
+//	ASN1_INTEGER_free(aserial);
+//	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
+//		+ '/' + filename.substr(4,2) + '/');
+//	std::string path(_certPath + subpath + filename);
+	std::string path(caser->filename);
+	std::string dirpath(caser->filepath);
 	
 	// make directory path 
-	std::string dirpath(_certPath + subpath);
 	int rc = mkpath(dirpath.c_str(), 0777);
         if (rc != 0) {
 		syslog(LOG_ERR,"error creating certificate sub-directory");
@@ -262,7 +268,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 }
 
 //generate a certificate for a given hostname
-X509 * CertificateAuthority::generateCertificate(const char * commonname){
+X509 * CertificateAuthority::generateCertificate(const char * commonname, struct ca_serial* cser){
 	//create a blank cert
 	X509 *newCert=X509_new();
 	if (newCert == NULL){
@@ -275,31 +281,39 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname){
 	}
 	
 	//set a serial on the cert
-	ASN1_INTEGER* serialNo = getSerial(commonname);
-	if (serialNo == NULL){
-		X509_free(newCert);
-		return NULL;
-	}
+//	ASN1_INTEGER* serialNo = getSerial(commonname);
+//	ASN1_INTEGER* serialNo = cser->asn;
+	//if (serialNo == NULL){
+		//X509_free(newCert);
+		//return NULL;
+	//}
 
-	if(X509_set_serialNumber(newCert, serialNo) < 1){
+//	if(X509_set_serialNumber(newCert, serialNo) < 1){
+	if(X509_set_serialNumber(newCert, (cser->asn)) < 1){
 		X509_free(newCert);
-		ASN1_INTEGER_free(serialNo);
+	//	ASN1_INTEGER_free(serialNo);
 		return NULL;
 	}
 	
-	ASN1_INTEGER_free(serialNo);
+	//ASN1_INTEGER_free(serialNo);
 	
 	//set valid from and expires dates
 	//from yesterday
-	if (!ASN1_TIME_set(X509_get_notBefore(newCert), time(NULL) - 86400)){
+	//if (!ASN1_TIME_set(X509_get_notBefore(newCert), time(NULL) - 86400)){
+//		X509_free(newCert);
+//		return NULL;
+//	}
+
+// now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
+	if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)){
 		X509_free(newCert);
 		return NULL;
 	}
 	
-	if(!ASN1_TIME_set(X509_get_notAfter(newCert), time(NULL) + 315532800)){
+	if(!ASN1_TIME_set(X509_get_notAfter(newCert), _ca_end)){
 		X509_free(newCert);
 		return NULL;	
-	}//to 10 years from now
+	}
 
 
 	//set the public key of the new cert
@@ -356,21 +370,28 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname){
 
 //sets cert to the certificate for commonname
 //returns true if the cert was loaded from cache / false if it was generated
-bool CertificateAuthority::getServerCertificate(const char * commonname,X509** cert){
+bool CertificateAuthority::getServerCertificate(const char * commonname,X509** cert, struct ca_serial* caser ){
 	
-	ASN1_INTEGER* aserial = getSerial(commonname);
-	BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
-	char * cserial = BN_bn2hex(bserial);
-	std::string filename(cserial);
-	OPENSSL_free(cserial);
-	BN_free(bserial);
-	ASN1_INTEGER_free(aserial);
+	getSerial(commonname, caser);
+	//BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
+	//char * cserial = BN_bn2hex(bserial);
+	std::string filename(caser->charhex);
+	//OPENSSL_free(cserial);
+	//BN_free(bserial);
+	//ASN1_INTEGER_free(aserial);  //may need to reinstate
+	//cert_serial = strcpy(filename);
+
 // Generate directory path
 	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
 		+ '/' + filename.substr(4,2) + '/');
-	std::string path(_certLinks + subpath + filename);
+	std::string filepath(_certLinks + subpath);
+	std::string path(_certLinks + subpath + filename.substr(6));
+	caser->filepath = strdup(filepath.c_str());
+	caser->filename = strdup(path.c_str());
+	//cert_file_path = strcpy(path);
+
 #ifdef DGDEBUG
-        std::cout << "looking for cert " << _certLinks << subpath << filename << std::endl;
+        std::cout << "looking for cert " << path << std::endl;
 #endif
 	//check to see if there is a symlink to the file
 //	std::string path(_certLinks + filename);
@@ -395,7 +416,7 @@ bool CertificateAuthority::getServerCertificate(const char * commonname,X509** c
 #endif
 
 	//generate a certificate
-	 *cert = generateCertificate(commonname);
+	 *cert = generateCertificate(commonname, caser);
 	return false;
 	}
 }
@@ -427,9 +448,7 @@ int CertificateAuthority::do_mkdir(const char *path, mode_t mode)
     return(status);
 }
 
-/**
-** mkpath - ensure all directories in path exist
-*/
+// mkpath - ensure  all sub-directories in path exist
 int CertificateAuthority::mkpath(const char *path, mode_t mode)
 {
     char           *pp;
@@ -438,12 +457,11 @@ int CertificateAuthority::mkpath(const char *path, mode_t mode)
     char           *copypath = strdup(path);
 
     status = 0;
-    pp = copypath;
+    pp = copypath + _certPathLen;  //start checking within generated cert directory
     while (status == 0 && (sp = strchr(pp, '/')) != 0)
     {
         if (sp != pp)
         {
-            /* Neither root nor double slash in path */
             *sp = '\0';
             status = do_mkdir(copypath, mode);
             *sp = '/';
@@ -454,6 +472,14 @@ int CertificateAuthority::mkpath(const char *path, mode_t mode)
         status = do_mkdir(path, mode);
     free(copypath);
     return (status);
+}
+
+bool CertificateAuthority::free_ca_serial(struct ca_serial* cs){
+	ASN1_INTEGER_free(cs->asn);
+	OPENSSL_free(cs->charhex);
+	free(cs->charhex);
+	free(cs->charhex);
+	return true;
 }
 
 

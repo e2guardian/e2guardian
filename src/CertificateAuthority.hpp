@@ -2,6 +2,13 @@
 #define __HPP_CERTIFICATEAUTHORITY
 #ifdef __SSLMITM
 
+struct ca_serial {
+	ASN1_INTEGER* asn;
+	char* charhex;
+	char* filepath;
+	char* filename;
+	};
+
 class CertificateAuthority {
 
 protected:
@@ -10,7 +17,10 @@ protected:
 	EVP_PKEY * _certPrivKey;
 	X509 * _caCert;
 	std::string _certPath;
+	int _certPathLen;
 	std::string _certLinks;
+	time_t _ca_start;
+	time_t _ca_end;
 	static int do_mkdir(const char *path, mode_t mode);
 	int mkpath(const char *path, mode_t mode);
 public:
@@ -21,11 +31,12 @@ public:
 				const char * symlinkPath);
 
 	~CertificateAuthority();
-	X509 * generateCertificate(const char * commonname);
-	ASN1_INTEGER * getSerial(const char * commonname);
-	bool getServerCertificate(const char * commonname, X509** cert);
-	bool writeCertificate(const char * hostname, X509 * newCert);
+	X509 * generateCertificate(const char * commonname, struct ca_serial* cser);
+	bool getSerial(const char * commonname, struct ca_serial* cser);
+	bool getServerCertificate(const char * commonname, X509** cert, struct ca_serial* cser);
+	bool writeCertificate(const char * hostname, X509 * newCert, struct ca_serial* cser);
 	EVP_PKEY * getServerPkey();
+	bool free_ca_serial(struct ca_serial* cs);
 };
 
 #endif //__SSLMITM

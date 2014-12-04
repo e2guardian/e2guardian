@@ -1601,6 +1601,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				//  instead off on every request
 
 				X509 * cert = NULL;
+				struct ca_serial caser;
 				EVP_PKEY * pkey = NULL;
 				bool certfromcache = false;
 				//generate the cert 
@@ -1614,7 +1615,14 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					//generate the certificate but dont write it to disk (avoid someone 
 					//requesting lots of places that dont exist causing the disk to fill
 					//up / run out of inodes
-					certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert);
+					certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert, 
+						&caser);
+#ifdef DGDEBUG
+					if (caser.asn == NULL) {
+					std::cout << "caser.asn is NULL" << std::endl;
+					}
+	//				std::cout << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
+#endif
 										
 					//check that the generated cert is not null and fillin checkme if it is
 					if (cert == NULL){
@@ -1673,7 +1681,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				if (!checkme.isItNaughty){
 					bool writecert = true;
 					if (!certfromcache){
-						writecert = o.ca->writeCertificate(urldomain.c_str(),cert);
+						writecert = o.ca->writeCertificate(urldomain.c_str(),cert, 
+							&caser);
 					}
 					
 					//if we cant write the certificate its not the end of the world but it is slow
@@ -1698,6 +1707,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					std::cout << dbgPeerPort << " -Handling connections inside ssl tunnel: done" << std::endl;
 #endif
 				}
+				o.ca->free_ca_serial(&caser);
 				
 				//stopssl on the proxy connection
 				//if it was marked as naughty then show a deny page and close the connection 
