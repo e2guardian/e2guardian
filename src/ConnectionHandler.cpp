@@ -1537,7 +1537,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 #ifdef __SSLMITM
 			//https mitm but only on port 443
-			//if (!checkme.isItNaughty && isconnect && o.fg[filtergroup]->ssl_mitm && (header.port == 443))
 			if (o.fg[filtergroup]->only_mitm_ssl_grey && !checkme.isSSLGrey) ismitmcandidate = false;
 			if (!isexception && ismitmcandidate) {
 #ifdef DGDEBUG

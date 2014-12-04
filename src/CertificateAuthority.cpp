@@ -142,13 +142,8 @@ bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* 
 		std::cout << "bn2hex returned null instead of serial number" << std::endl;
 	}
 #endif
-//	OPENSSL_free(dbg);
 	caser->charhex = dbg;
-
-//	ASN1_INTEGER* serialNo = BN_to_ASN1_INTEGER(bn,NULL);
 	caser->asn = BN_to_ASN1_INTEGER(bn,NULL);
-//	caser->asn = ASN1_INTEGER_dup(serialNo);
-	
 	BN_free(bn);
 	return true;
 }
@@ -158,17 +153,6 @@ bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* 
 //common name (sh/c)ould be derived from the certificate but that would add to the complexity of the code
 bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newCert, struct ca_serial* caser)
 {	
-	//<TODO>getSerial change to pulling serial from cert
-//	ASN1_INTEGER* aserial = getSerial(commonnamei, caser);
-//	BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
-//	char * cserial = BN_bn2hex(bserial);
-//	std::string filename(caser->charhex);
-//	OPENSSL_free(cserial);
-//	BN_free(bserial);
-//	ASN1_INTEGER_free(aserial);
-//	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
-//		+ '/' + filename.substr(4,2) + '/');
-//	std::string path(_certPath + subpath + filename);
 	std::string path(caser->filename);
 	std::string dirpath(caser->filepath);
 	
@@ -251,7 +235,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 		fclose(fp);
 		return false;
 	}
-
+// Symlinks no longer used
 	//if(symlink((_certPath + filename).c_str(),
 		//(_certLinks + filename).c_str()) < 0){
 		//syslog(LOG_ERR,"couldnt create link to certificate");
@@ -281,29 +265,13 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 	}
 	
 	//set a serial on the cert
-//	ASN1_INTEGER* serialNo = getSerial(commonname);
-//	ASN1_INTEGER* serialNo = cser->asn;
-	//if (serialNo == NULL){
-		//X509_free(newCert);
-		//return NULL;
-	//}
-
-//	if(X509_set_serialNumber(newCert, serialNo) < 1){
 	if(X509_set_serialNumber(newCert, (cser->asn)) < 1){
 		X509_free(newCert);
-	//	ASN1_INTEGER_free(serialNo);
 		return NULL;
 	}
 	
-	//ASN1_INTEGER_free(serialNo);
 	
 	//set valid from and expires dates
-	//from yesterday
-	//if (!ASN1_TIME_set(X509_get_notBefore(newCert), time(NULL) - 86400)){
-//		X509_free(newCert);
-//		return NULL;
-//	}
-
 // now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
 	if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)){
 		X509_free(newCert);
@@ -373,13 +341,7 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 bool CertificateAuthority::getServerCertificate(const char * commonname,X509** cert, struct ca_serial* caser ){
 	
 	getSerial(commonname, caser);
-	//BIGNUM* bserial = ASN1_INTEGER_to_BN(aserial,NULL);
-	//char * cserial = BN_bn2hex(bserial);
 	std::string filename(caser->charhex);
-	//OPENSSL_free(cserial);
-	//BN_free(bserial);
-	//ASN1_INTEGER_free(aserial);  //may need to reinstate
-	//cert_serial = strcpy(filename);
 
 // Generate directory path
 	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
@@ -388,7 +350,6 @@ bool CertificateAuthority::getServerCertificate(const char * commonname,X509** c
 	std::string path(_certLinks + subpath + filename.substr(6));
 	caser->filepath = strdup(filepath.c_str());
 	caser->filename = strdup(path.c_str());
-	//cert_file_path = strcpy(path);
 
 #ifdef DGDEBUG
         std::cout << "looking for cert " << path << std::endl;
