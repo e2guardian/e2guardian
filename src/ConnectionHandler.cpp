@@ -1152,7 +1152,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				    // check if this is a search request
 				    if (!is_ssl) checkme.isSearch = header.isSearch(filtergroup);
 				    // add local grey and black checks
-				    if (!(ismitmcandidate && ! o.fg[filtergroup]->only_mitm_ssl_grey)) { 
+				    if (!ismitmcandidate || o.fg[filtergroup]->only_mitm_ssl_grey) { 
 					requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
 				    	message_no = checkme.message_no;
 				    };

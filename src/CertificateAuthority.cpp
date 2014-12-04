@@ -161,7 +161,17 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 	OPENSSL_free(cserial);
 	BN_free(bserial);
 	ASN1_INTEGER_free(aserial);
+	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
+		+ '/' + filename.substr(4,2) + '/');
+	std::string path(_certPath + subpath + filename);
 	
+	// make directory path 
+	std::string dirpath(_certPath + subpath);
+	int rc = mkpath(dirpath.c_str(), 0777);
+        if (rc != 0) {
+		syslog(LOG_ERR,"error creating certificate sub-directory");
+		exit(1);
+	}
 	
 	//open file
 	struct flock fl;
@@ -171,10 +181,10 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 	fl.l_len = 0;
 	fl.l_pid = getpid();
 
-	int fd = open((_certPath + filename).c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH );
+	int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH );
 
 #ifdef DGDEBUG 
-	std::cout << "certificate file is " << _certPath << filename << std::endl;
+	std::cout << "certificate file is " << path  << std::endl;
 #endif
 	if (fd < 0){
 		syslog(LOG_ERR,"error opening new certificate");
@@ -355,12 +365,15 @@ bool CertificateAuthority::getServerCertificate(const char * commonname,X509** c
 	OPENSSL_free(cserial);
 	BN_free(bserial);
 	ASN1_INTEGER_free(aserial);
-
+// Generate directory path
+	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
+		+ '/' + filename.substr(4,2) + '/');
+	std::string path(_certLinks + subpath + filename);
 #ifdef DGDEBUG
-        std::cout << "looking for cert " << _certLinks << filename << std::endl;
+        std::cout << "looking for cert " << _certLinks << subpath << filename << std::endl;
 #endif
 	//check to see if there is a symlink to the file
-	std::string path(_certLinks + filename);
+//	std::string path(_certLinks + filename);
 	FILE* link = fopen(path.c_str(),"r");
 
 	if (link != NULL){
@@ -393,6 +406,56 @@ EVP_PKEY* CertificateAuthority::getServerPkey(){
 	CRYPTO_add(&_certPrivKey->references,1,CRYPTO_LOCK_EVP_PKEY);
 	return _certPrivKey;	
 }
+
+int CertificateAuthority::do_mkdir(const char *path, mode_t mode)
+{
+    struct stat st;
+    int status = 0;
+
+    if (stat(path, &st) != 0)
+    {
+        /* Directory does not exist. EEXIST for race condition */
+        if (mkdir(path, mode) != 0 && errno != EEXIST)
+            status = -1;
+    }
+    else if (!S_ISDIR(st.st_mode))
+    {
+        errno = ENOTDIR;
+        status = -1;
+    }
+
+    return(status);
+}
+
+/**
+** mkpath - ensure all directories in path exist
+*/
+int CertificateAuthority::mkpath(const char *path, mode_t mode)
+{
+    char           *pp;
+    char           *sp;
+    int             status;
+    char           *copypath = strdup(path);
+
+    status = 0;
+    pp = copypath;
+    while (status == 0 && (sp = strchr(pp, '/')) != 0)
+    {
+        if (sp != pp)
+        {
+            /* Neither root nor double slash in path */
+            *sp = '\0';
+            status = do_mkdir(copypath, mode);
+            *sp = '/';
+        }
+        pp = sp + 1;
+    }
+    if (status == 0)
+        status = do_mkdir(path, mode);
+    free(copypath);
+    return (status);
+}
+
 
 CertificateAuthority::~CertificateAuthority(){
 	X509_free(_caCert);

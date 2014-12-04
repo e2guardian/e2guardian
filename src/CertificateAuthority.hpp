@@ -11,7 +11,8 @@ protected:
 	X509 * _caCert;
 	std::string _certPath;
 	std::string _certLinks;
-
+	static int do_mkdir(const char *path, mode_t mode);
+	int mkpath(const char *path, mode_t mode);
 public:
 	CertificateAuthority(const char * caCert,
 				const char * caPrivKey,
