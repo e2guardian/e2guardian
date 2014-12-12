@@ -667,15 +667,21 @@ bool OptionContainer::read(const char *filename, int type)
 		}
 
 		// map port numbers to auth plugin names
-		for (int i = 0; i < authplugins.size(); i++) {
-			AuthPlugin* tmpPlugin = (AuthPlugin*) authplugins[i];
-			String tmpStr = tmpPlugin->getPluginName();
+    if ( authplugins.size() != filter_ports.size() ) {
+      std::cerr << "Error you have " << authplugins.size() << " plugins and only " << filter_ports.size() << " filter ports" << std::endl;
+      return false;
+    }
+    else {
+      for (int i = 0; i < authplugins.size(); i++) {
+        AuthPlugin* tmpPlugin = (AuthPlugin*) authplugins[i];
+        String tmpStr = tmpPlugin->getPluginName();
 
-			if ((! map_auth_to_ports) || filter_ports.size() == 1 )
-				auth_map[i] = tmpStr;	
-			else
-				auth_map[filter_ports[i].toInteger()] = tmpStr;
-		}
+        if ((! map_auth_to_ports) || filter_ports.size() == 1 )
+          auth_map[i] = tmpStr;	
+        else
+          auth_map[filter_ports[i].toInteger()] = tmpStr;
+      }
+    }
 
 		// if the more than one port is being used, validate the combination of auth plugins
 		if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports ) {
