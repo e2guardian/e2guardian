@@ -675,7 +675,7 @@ bool OptionContainer::read(const char *filename, int type)
         auth_map[i] = tmpStr;	
       else
         if ( i >= filter_ports.size()) {
-          std::cerr << "In map to auth ports mode you need to setup on port per auth plugin" << std::endl;
+          std::cerr << "In map to auth ports mode you need to setup one port per auth plugin" << std::endl;
           return false;
         }
         else
