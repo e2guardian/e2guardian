@@ -216,11 +216,12 @@ public:
 	void loadRooms();
 	void deleteRooms();
 
+	char *inSiteList(String &url,ListContainer *lc, bool swsort, bool ip);
+	char *inURLList(String &url,ListContainer *lc, bool swsort, bool ip);
+
 #ifdef TOTAL_BLOCK_LIST
 	bool readStdin(ListContainer *lc, bool swsort, const char *listname, const char *startstr);
 	bool readinStdin();
-	char *inSiteList(String &url,ListContainer *lc, bool swsort, bool ip);
-	char *inURLList(String &url,ListContainer *lc, bool swsort, bool ip);
 	bool inTotalBlockList(String &url);
 	bool use_total_block_list;
 #endif

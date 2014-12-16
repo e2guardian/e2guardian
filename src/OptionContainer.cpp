@@ -868,7 +868,7 @@ bool OptionContainer::readinStdin()
 	total_block_url_flag = true;
 	return true;
 }
-
+#endif // TOTAL_BLOCK_LIST
 
 char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl) 
 {
@@ -949,6 +949,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 }
 
 
+#ifdef TOTAL_BLOCK_LIST
 bool OptionContainer::inTotalBlockList(String &url)
 {
 	String murl = url;
