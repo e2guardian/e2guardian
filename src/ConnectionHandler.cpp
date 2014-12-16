@@ -490,7 +490,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				// another round...
 #ifdef DGDEBUG
 				std::cout << dbgPeerPort << " -persisting (count " << ++pcount << ")" << std::endl;
-				syslog(LOG_ERR, "Served %d requests on this connection so far", pcount);
+				syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
 				std::cout << dbgPeerPort << " - " << clientip << std::endl;
 #endif
 				header.reset();
@@ -567,6 +567,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			urld = header.decode(url);
 			urldomain = url.getHostname();
 			is_ssl = header.requestType().startsWith("CONNECT");
+#ifdef DGDEBUG
+                        std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
+#endif
 
 			// checks for bad URLs to prevent security holes/domain obfuscation.
 			if (header.malformedURL(url))
@@ -970,20 +973,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			}
 #endif
 
-//#ifdef __SSLMITM
-//			if (peerconn.isSsl()) 
-			//if (is_ssl) {
-//#ifdef DGDEBUG
-				//std::cout << dbgPeerPort << " -SSL connection; about to begin MITM" << std::endl;
-//#endif
-////There is no options on this if to continue if config does not have mitm key
-//
-				///* Accept request. */
-//#ifdef DGDEBUG
-				//std::cout << dbgPeerPort << " -MITM looks good" << std::endl;
-//#endif
-			//}
-//#endif // __SSLMITM
 
 //
 // Start of by pass
@@ -1362,7 +1351,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			}
 #ifdef RXREDIRECTS
 			// URL regexp search and redirect
-			urlredirect = header.urlRedirectRegExp(filtergroup);
+			if (!is_ssl) urlredirect = header.urlRedirectRegExp(filtergroup);
 			if (urlredirect) {
 				url = header.redirecturl();
 #ifdef DGDEBUG
@@ -1378,7 +1367,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 #endif
 			
 #ifdef ADDHEADER
-			headeradded = header.isHeaderAdded(filtergroup);
+			if (!is_ssl) headeradded = header.isHeaderAdded(filtergroup);
 #endif
 			
 			// URL regexp search and replace
@@ -2889,7 +2878,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 		return;
 	}
 
-	try {
+	if (!ismitm) try {
 #ifdef DGDEBUG
 		std::cout << dbgPeerPort << " -Attempting graceful connection close" << std::endl;
 #endif
@@ -2903,6 +2892,9 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 		peerconn.close();
 	}
 	catch(std::exception & e) {
+#ifdef DGDEBUG
+		std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
+#endif
 		// close connection to the client
 		peerconn.close();
 	}

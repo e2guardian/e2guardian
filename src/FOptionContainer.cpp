@@ -1480,11 +1480,17 @@ bool FOptionContainer::inBannedSearchOverideList(String words)
 
 bool FOptionContainer::inLocalExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
+#ifdef DGDEBUG
+	std::cout<<"inLocalExceptionSiteList"<<std::endl;
+#endif
 	return inSiteList(url, local_exception_site_list, doblanket, ip, ssl) != NULL;
 }
 
 char *FOptionContainer::inLocalBannedSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
+#ifdef DGDEBUG
+	std::cout<<"inLocalBannedSiteList"<<std::endl;
+#endif
 	return inSiteList(url, local_banned_site_list, doblanket, ip, ssl);
 }
 
