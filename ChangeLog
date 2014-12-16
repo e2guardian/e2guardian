@@ -1,6 +1,7 @@
 December 2014
 - Version 3.1.1
 MITM now working -  See notes/ssl_mitm for details
+- Fix Segfault with filter_ports < auth plugins bug #44 
 
 November 2014
 Fix blanket block not working bug
