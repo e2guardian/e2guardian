@@ -678,9 +678,9 @@ bool OptionContainer::read(const char *filename, int type)
 
 		// check if same number of auth-plugin as ports if in 
 		//     authmaptoport mode
-		if (map_auth_to_ports && (filter_ports_size() > 1) 
-			&& (filter_ports_size() != authplugins.size())) {
-		   std:cerr << "In mapauthtoports mode you need to setup one port per auth plugin" << std::endl;
+		if (map_auth_to_ports && (filter_ports.size() > 1) 
+			&& (filter_ports.size() != authplugins.size())) {
+		   std::cerr << "In mapauthtoports mode you need to setup one port per auth plugin" << std::endl;
 		   return false;
 		}
 
