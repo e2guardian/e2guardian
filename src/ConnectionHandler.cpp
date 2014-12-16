@@ -1137,7 +1137,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			}
 #ifdef LOCAL_LISTS
 					
-				if (!(isexception || isourwebserver)) {
+				if (authed && !(isexception || isourwebserver)) {
 				    // check if this is a search request
 				    if (!is_ssl) checkme.isSearch = header.isSearch(filtergroup);
 				    // add local grey and black checks
