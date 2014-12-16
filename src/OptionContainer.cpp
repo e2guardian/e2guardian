@@ -676,6 +676,14 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}
 
+		// check if same number of auth-plugin as ports if in 
+		//     authmaptoport mode
+		if (map_auth_to_ports && (filter_ports_size() > 1) 
+			&& (filter_ports_size() != authplugins.size())) {
+		   std:cerr << "In mapauthtoports mode you need to setup one port per auth plugin" << std::endl;
+		   return false;
+		}
+
 		// map port numbers to auth plugin names
 		for (int i = 0; i < authplugins.size(); i++) {
 			AuthPlugin* tmpPlugin = (AuthPlugin*) authplugins[i];
@@ -685,6 +693,7 @@ bool OptionContainer::read(const char *filename, int type)
 				auth_map[i] = tmpStr;	
 			else
 				auth_map[filter_ports[i].toInteger()] = tmpStr;
+
 		}
 
 		// if the more than one port is being used, validate the combination of auth plugins
