@@ -1,3 +1,8 @@
+December 2014
+Several bug fixes
+MITM cert checking disabled to enable cross-platform working to address
+Google retirement of nosslsearch feature.
+
 About "Bug" tag "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 December 2014
