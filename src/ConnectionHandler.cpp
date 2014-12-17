@@ -1503,8 +1503,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						isconnect = false;
 					}
 				}
+#ifdef DGDEBUG
+					std::cout << dbgPeerPort << "isconnect=" << isconnect << " ismitmcandidate=" << ismitmcandidate << " only_mitm_ssl_grey=" << o.fg[filtergroup]->only_mitm_ssl_grey << std::endl;
+#endif
 
-				if (isconnect && !(ismitmcandidate && ! o.fg[filtergroup]->only_mitm_ssl_grey)) { 
+				if (isconnect && ((!ismitmcandidate) || o.fg[filtergroup]->only_mitm_ssl_grey)) { 
 					persistProxy = false;
 					persistPeer = false;
 					persistOutgoing = false;
@@ -4274,6 +4277,11 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket * sock, Naughty
 
 void ConnectionHandler::checkCertificate(String &hostname, Socket * sslsock, NaughtyFilter * checkme)
 {
+
+#ifdef DGDEBUG
+	std::cout << dbgPeerPort << " -skipping SSL certificate check" << std::endl;
+#endif
+	return;
 
 #ifdef DGDEBUG
 	std::cout << dbgPeerPort << " -checking SSL certificate is valid" << std::endl;

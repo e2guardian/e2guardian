@@ -46,10 +46,8 @@ public:
         int filtergroup;
 	bool non_standard_delimiter;
 
-#ifdef __SSLCERT
 	//SSL certificate checking
 	bool ssl_check_cert;
-#endif //__SSLCERT
 
 	//SSL Man in the middle
 	bool ssl_mitm;
@@ -295,6 +293,7 @@ public:
 
 	FOptionContainer():
 		block_downloads(false), searchterm_flag(false), banned_page(NULL),
+		ssl_mitm(false), only_mitm_ssl_grey(false), ssl_check_cert(false),
 #ifdef REFEREREXCEPT
 		referer_exception_site_flag(false),
 		referer_exception_url_flag(false),
