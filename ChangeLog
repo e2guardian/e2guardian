@@ -1,7 +1,10 @@
+About "Bug" tag https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed 
+
 December 2014
 - Version 3.1.1
 MITM now working -  See notes/ssl_mitm for details
-- Fix Segfault with filter_ports < auth plugins bug #44 
+- Fix Segfault with filter_ports < auth plugins bug #44
+- Fix e2guardianf1.conf and groupmode = 0 breaks identification bug #38
 
 November 2014
 Fix blanket block not working bug
