@@ -248,7 +248,8 @@ int Socket::startSslClient(const std::string& certificate_path)
 
 	
 	//load certs
-	if(!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str()))
+	//if(!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str()))
+	if(!SSL_CTX_set_default_verify_paths(ctx))
 	{
 #ifdef DGDEBUG
 		std::cout << "couldnt load certificates" << std::endl;
