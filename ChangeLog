@@ -1,5 +1,11 @@
+January 2015
+MITM cert checking re-enabled
+- MITM cert checking can be turned on/off with mitmcheckcert option
+- Optional nocheckcertsitelist introduced 
+
 December 2014
-Several bug fixes
+- Version 3.1.2
+- Several bug fixes
 MITM cert checking disabled to enable cross-platform working to address
 Google retirement of nosslsearch feature.
 

@@ -52,6 +52,7 @@ public:
 	//SSL Man in the middle
 	bool ssl_mitm;
 	bool only_mitm_ssl_grey;
+	bool mitm_check_cert;
 
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier
@@ -233,6 +234,10 @@ public:
 	unsigned int grey_ssl_site_list;
 #endif
 
+#ifdef __SSLMITM
+	unsigned int no_check_cert_site_list;
+#endif
+
 #ifdef RXREDIRECTS
 	unsigned int url_redirect_regexp_list;
 	std::deque<RegExp> url_redirect_regexp_list_comp;
@@ -294,6 +299,7 @@ public:
 	FOptionContainer():
 		block_downloads(false), searchterm_flag(false), banned_page(NULL),
 		ssl_mitm(false), only_mitm_ssl_grey(false), ssl_check_cert(false),
+		mitm_check_cert(true),
 #ifdef REFEREREXCEPT
 		referer_exception_site_flag(false),
 		referer_exception_url_flag(false),
@@ -377,6 +383,9 @@ public:
 #ifdef SSL_EXTRA_LISTS
 	char *inBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
+#endif
+#ifdef __SSLMITM
+	bool inNoCheckCertSiteList(String url, bool ip = false);
 #endif
 #ifdef PRT_DNSAUTH
 	bool inAuthExceptionSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -470,6 +479,11 @@ private:
 	bool grey_ssl_site_flag;
 	bool banned_ssl_site_flag;
 #endif
+
+#ifdef __SSLMITM
+	bool no_check_cert_site_flag;
+#endif
+
 
 	// search term blocking
 	//bool searchengine_regexp_flag;

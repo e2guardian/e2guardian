@@ -428,3 +428,15 @@ sslmitm = off
 # ignored if  sslmitm is off
 # SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
 onlymitmsslgrey = off
+
+# Enable MITM site certificate checking
+# ignored if  sslmitm is off
+# default (recommended) is 'on'
+mitmcheckcert = on
+
+#Do not check ssl certificates for sites listed
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'

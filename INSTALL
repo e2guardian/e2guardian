@@ -1,11 +1,18 @@
+NOTE: Change release 3.1.0 onwards
+----------------------------------
+Due to differences in release levels of the GNU autotools on different 
+platforms we are no longer including the configure script as part 
+of the distribution.
+
 HOW TO BUILD:
 -------------
 The distribution uses GNU autotools for building.
-Most users should therefore follow the standard
-"./configure; make; make install" process common to UNIX packages.  If for any
-reason you need to modify configure.ac or one of the Makefile.am files, use
-autoreconf or the supplied autogen.sh script to regenerate the configure script
-and Makefile.in files.
+
+Run ./autogen.sh or autoreconf after downloading and unpacking
+to (re)generate the configure script and Makefile.in files.
+
+Most users should then follow the standard
+"./configure; make; make install" process common to UNIX packages.  
 
 Please read the sections below for your OS for the most widely used
 configuration options.
@@ -16,27 +23,30 @@ configuration options.
 
 *** OS X / Darwin users, please read the OS X section first. ***
 
+1.	  Run the ./autogen.sh script to generate the configure script.
+	If an error occurs in running autogen.sh or ./configure then
+	make sure you have an up-to-date version of automake tools and 
+	then run autoreconf.
 
-
-1.        Run the configure (./configure --help) script with
+2.        Run the configure (./configure --help) script with
         the help option to see the user selectable settings.
         Default settings are shown in [].
 
-2.        Run the configure (./configure) script with your
+3.        Run the configure (./configure) script with your
         options, if any.  It is HIGHLY LIKELY that you will
         want to change some options.  Please read down for
         suggested options for your platform.
 
-3.        "make"** or "gmake" will now build E2Guardian.
+4.        "make"** or "gmake" will now build E2Guardian.
 
-4.        "make install" will create the directory structure and install
+5.        "make install" will create the directory structure and install
         all the files in the chosen paths.  For a more efficient
         install, try "make install-strip" which will strip symbol
 	information to the DG binary smaller.
 
-5.        "make clean" will remove the now un-needed object files etc.
+6.        "make clean" will remove the now un-needed object files etc.
 
-6.        See the section later called ADDITIONAL SCRIPTS to add
+7.        See the section later called ADDITIONAL SCRIPTS to add
         log rotation, optional CGI block page, startup scripts etc.
 
 
@@ -150,8 +160,6 @@ Optional Features:
                           Enable support for ssl extra lists
   --enable-searchwords[=yes]
                           Enable support for ssl extra lists
-  --enable-legacylog[=yes]
-                          Enable support for legacy log format
   --enable-trickledm[=no]
                           Enable support for the trickle download manager
   --enable-ntlm[=no]
@@ -360,7 +368,7 @@ http://e2guardian.org/
 Here is the first place to start for getting support.  There is a mailing
 list available for those that do not find the answers to their questions
 from the url above. The mailing list can be found at the url.  Please
-DO NOT email the author for support as you will be just directed at the
+DO NOT email the authors for support as you will be just directed at the
 mailing list.
 
 

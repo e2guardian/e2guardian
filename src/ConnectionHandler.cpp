@@ -1664,8 +1664,10 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					std::cout << dbgPeerPort << " -Checking certificate" << std::endl;
 #endif
 					//will fill in checkme of its own accord
-					checkCertificate(urldomain,&proxysock,&checkme);
-					badcert = checkme.isItNaughty;
+					if (o.fg[filtergroup]->mitm_check_cert && !o.fg[filtergroup]->inNoCheckCertSiteList(urldomain) ) {
+						checkCertificate(urldomain,&proxysock,&checkme);
+						badcert = checkme.isItNaughty;
+					}
 				}
 				
 				//handleConnection inside the ssl tunnel
@@ -4278,10 +4280,10 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket * sock, Naughty
 void ConnectionHandler::checkCertificate(String &hostname, Socket * sslsock, NaughtyFilter * checkme)
 {
 
-#ifdef DGDEBUG
-	std::cout << dbgPeerPort << " -skipping SSL certificate check" << std::endl;
-#endif
-	return;
+//#ifdef DGDEBUG
+//	std::cout << dbgPeerPort << " -skipping SSL certificate check" << std::endl;
+//#endif
+//	return;
 
 #ifdef DGDEBUG
 	std::cout << dbgPeerPort << " -checking SSL certificate is valid" << std::endl;
