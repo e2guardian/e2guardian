@@ -40,7 +40,7 @@ DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex 
 New Lists:-
 ---------
 
-Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden.  To enable this use configure option --enable-totblock
+Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden. 
 
 Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc). LOCAL_LISTS. Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
 To enable this use configure option --enable-locallists

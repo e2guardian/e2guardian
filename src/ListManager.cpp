@@ -120,7 +120,6 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
 	return free;
 }
 
-#ifdef TOTAL_BLOCK_LIST
 // load list from stdin
 int ListManager::newStdinItemList(bool startswith, int filters, bool parent, const char *startstr)
 {
@@ -143,7 +142,6 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent, con
 	}
 	return free;
 }
-#endif
 
 // create a new phrase list. check dates on top-level list files to see if a reload is necessary.
 // note: unlike above, doesn't automatically call readPhraseList.

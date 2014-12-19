@@ -538,7 +538,6 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 	return true;  // sucessful read
 }
 
-#ifdef TOTAL_BLOCK_LIST
 // for stdin item lists - read item list from stdin
 bool ListContainer::readStdinItemList(bool startswith, int filters, const char *startstr)
 {
@@ -626,7 +625,6 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
 	return true;  // sucessful read
 }
 
-#endif
 // for item lists - read nested item lists
 bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)
 {

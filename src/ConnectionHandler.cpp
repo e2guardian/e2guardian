@@ -616,7 +616,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				}
 			}
 
-#ifdef TOTAL_BLOCK_LIST
 // do total block list checking here
 			urld = header.decode(url);
 			if (o.use_total_block_list && o.inTotalBlockList(urld)) {
@@ -640,8 +639,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				proxysock.close();  // close connection to proxy
 				break;
 			}
-
-#endif
 
 			// don't let the client connection persist if the client doesn't want it to.
 			persistOutgoing = header.isPersistent();

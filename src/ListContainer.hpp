@@ -56,11 +56,7 @@ public:
 	bool ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
 	bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
 	bool readItemList(const char *filename, bool startswith, int filters);
-
-#ifdef TOTAL_BLOCK_LIST
 	bool readStdinItemList(bool startswith, int filters, const char *startstr);
-#endif
-
 	bool inList(const char *string);
 	bool inListEndsWith(const char *string);
 	bool inListStartsWith(const char *string);

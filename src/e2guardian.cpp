@@ -153,12 +153,10 @@ int main(int argc, char *argv[])
 						return 1;
 					}
 					break;
-#ifdef TOTAL_BLOCK_LIST
 				case 'i':
 					total_block_list = true;
 					o.use_total_block_list = total_block_list;
 					break;
-#endif
 				case 'h':
 					std::cout << "Usage: " << argv[0] << " [{-c ConfigFileName|-v|-P|-h|-N|-q|-s|-r|-g|-i}]" << std::endl;
 					std::cout << "  -v gives the version number and build options." << std::endl;
@@ -172,9 +170,7 @@ int main(int argc, char *argv[])
 					std::cout << "     but this does not reset the maxchildren option (amongst others)." << std::endl;
 					std::cout << "  -g gently restarts by not closing all current connections; only reloads" << std::endl
 						<< "     filter group config files. (Issues a USR1)" << std::endl;
-#ifdef TOTAL_BLOCK_LIST
 					std::cout << "  -i read total block list from stdin" << std::endl;
-#endif
 #ifdef __BENCHMARK
 					std::cout << "  --bs benchmark searching filter group 1's bannedsitelist" << std::endl;
 					std::cout << "  --bu benchmark searching filter group 1's bannedurllist" << std::endl;
@@ -207,7 +203,6 @@ int main(int argc, char *argv[])
 	
 	read_config(configfile.c_str(), 2);
 
-#ifdef TOTAL_BLOCK_LIST
 	if (total_block_list && ! o.readinStdin()) {
 		syslog(LOG_ERR, "%s", "Error on reading total_block_list");
 		std::cerr << "Error on reading total_block_list" << std::endl;
@@ -217,8 +212,6 @@ int main(int argc, char *argv[])
 
 #endif
 	}
-#endif
-
 
 #ifdef __BENCHMARK
 	// run benchmarks instead of starting the daemon

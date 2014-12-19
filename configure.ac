@@ -9,7 +9,6 @@ AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp
 AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
 AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
-AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
 AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
@@ -491,31 +490,6 @@ AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 )
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
-
-# asking user if they want total block list support
-AC_MSG_CHECKING(for total block list support)
-AC_ARG_ENABLE(
-totblock,
-[AC_HELP_STRING([--enable-totalblocklist@<:@=no@:>@], [Enable support for total block list])],
-[ if test "x$enableval" = "xyes"; then
-AC_MSG_RESULT(yes)
-totblock=true
-dmlists=true
-TOTALBLOCKSUPPORT=""
-AC_DEFINE([TOTAL_BLOCK_LIST],[],[Define to enable support for total block list])
-else
-totblock=false
-TOTALBLOCKSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-fi],
-[
-totblock=false
-TOTALBLOCKSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(TOTAL_BLOCK_LIST, test "x$totblock" = "xtrue")
-AC_SUBST(TOTALBLOCKSUPPORT)
 
 # asking user if they want local list support
 AC_MSG_CHECKING(for local list support)

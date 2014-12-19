@@ -98,11 +98,8 @@ public:
 	bool use_filter_groups_list;
 	bool use_group_names_list;
 	bool auth_needs_proxy_query;
-
-#ifdef TOTAL_BLOCK_LIST
 	bool total_block_site_flag;
 	bool total_block_url_flag;
-#endif
 
 	bool prefer_cached_lists;
 	std::string languagepath;
@@ -219,12 +216,10 @@ public:
 	char *inSiteList(String &url,ListContainer *lc, bool swsort, bool ip);
 	char *inURLList(String &url,ListContainer *lc, bool swsort, bool ip);
 
-#ifdef TOTAL_BLOCK_LIST
 	bool readStdin(ListContainer *lc, bool swsort, const char *listname, const char *startstr);
 	bool readinStdin();
 	bool inTotalBlockList(String &url);
 	bool use_total_block_list;
-#endif
 
 private:
 	std::string per_room_directory_location;
