@@ -48,6 +48,7 @@ embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
+# enablelocallists = on/off
 #localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
 #localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
 #localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'

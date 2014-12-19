@@ -84,10 +84,8 @@ private:
 	void requestChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url, std::string *clientip,
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
 
-#ifdef LOCAL_LISTS
 	void requestLocalChecks(HTTPHeader *header, NaughtyFilter *checkme, String *urld, String *url, std::string *clientip,
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
-#endif
 
 	bool embededRefererChecks(HTTPHeader *header, String *urld, String *url,		int filtergroup);
  

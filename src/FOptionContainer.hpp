@@ -41,6 +41,7 @@ public:
 	bool createlistcachefiles;
 	bool enable_PICS;
 	bool enable_regex_grey;
+	bool enable_local_list;
 	off_t max_upload_size;
 	bool deep_url_analysis;
         int filtergroup;
@@ -211,15 +212,12 @@ public:
 #ifdef SEARCHWORDS
 	unsigned int banned_search_list;
 	unsigned int search_regexp_list;
-#ifdef LOCAL_LISTS
 	unsigned int local_banned_search_list;
 	unsigned int banned_search_overide_list;
-#endif
-#endif
-#ifdef LOCAL_LISTS
 	unsigned int local_exception_site_list;
 	unsigned int local_exception_url_list;
 	unsigned int local_banned_site_list;
+#endif
 #ifdef SSL_EXTRA_LISTS
 	unsigned int local_banned_ssl_site_list;
 	unsigned int local_grey_ssl_site_list;
@@ -227,7 +225,6 @@ public:
 	unsigned int local_banned_url_list;
 	unsigned int local_grey_site_list;
 	unsigned int local_grey_url_list;
-#endif
 	bool use_only_local_allow_lists;
 
 #ifdef SSL_EXTRA_LISTS
@@ -311,20 +308,17 @@ public:
 #ifdef SEARCHWORDS
 		banned_search_flag(false),
 		search_regexp_flag(false),
-#ifdef LOCAL_LISTS
 		local_banned_search_flag(false),
 		banned_search_overide_flag(false),
 #endif
-#endif
-#ifdef LOCAL_LISTS
 		local_exception_site_flag(false), 
 		local_exception_url_flag(false),
 		local_banned_site_flag(false),
 		local_banned_url_flag(false), 
 		local_grey_site_flag(false), 
 		local_grey_url_flag(false),
-#endif
 		enable_regex_grey(false),
+		enable_local_list(false),
 		use_only_local_allow_lists(false),
 		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
 		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
@@ -356,25 +350,19 @@ public:
 #ifdef SEARCHWORDS
 	char *inBannedSearchList(String words);
         char *inSearchList(String &words, unsigned int list);
-#ifdef LOCAL_LISTS
 	char *inLocalBannedSearchList(String words);
 	bool inBannedSearchOverideList(String words);
 #endif
-#endif
-#ifdef LOCAL_LISTS
 	char *inLocalBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 #ifdef SSL_EXTRA_LISTS
 	char *inLocalBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
-#endif
 	char *inLocalBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inLocalGreySiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
-#ifdef SSL_EXTRA_LISTS
 	bool inLocalGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 #endif
 	bool inLocalGreyURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inLocalExceptionSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inLocalExceptionURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
-#endif
 #ifdef SSL_EXTRA_LISTS
 	char *inBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -450,12 +438,9 @@ private:
 #ifdef SEARCHWORDS
 	bool banned_search_flag;
 	bool search_regexp_flag;
-#ifdef LOCAL_LISTS
 	bool local_banned_search_flag;
 	bool banned_search_overide_flag;
 #endif
-#endif
-#ifdef LOCAL_LISTS
 	bool local_exception_site_flag;
 	bool local_exception_url_flag;
 	bool local_banned_site_flag;
@@ -466,12 +451,10 @@ private:
 	bool local_grey_ssl_site_flag;
 	bool local_banned_ssl_site_flag;
 #endif
-#endif
 #ifdef SSL_EXTRA_LISTS
 	bool grey_ssl_site_flag;
 	bool banned_ssl_site_flag;
 #endif
-
 	// search term blocking
 	//bool searchengine_regexp_flag;
 	

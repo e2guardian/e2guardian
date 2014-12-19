@@ -9,7 +9,6 @@ AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp
 AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
 AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
-AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
@@ -490,30 +489,6 @@ AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 )
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
-
-# asking user if they want local list support
-AC_MSG_CHECKING(for local list support)
-AC_ARG_ENABLE(
-locallists,
-[AC_HELP_STRING([--enable-locallists@<:@=no@:>@], [Enable support for local lists])],
-[ if test "x$enableval" = "xyes"; then
-AC_MSG_RESULT(yes)
-locallists=true
-LOCALLISTSUPPORT=""
-AC_DEFINE([LOCAL_LISTS],[],[Define to enable support for local lists])
-else
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-fi],
-[
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(LOCAL_LISTS, test "x$locallists" = "xtrue")
-AC_SUBST(LOCALLISTSSUPPORT)
 
 # asking user if they want referer exception support
 AC_MSG_CHECKING(for referer exception support)

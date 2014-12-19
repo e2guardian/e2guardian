@@ -662,9 +662,6 @@ RXREDIRECTS_TRUE
 REFEREREXCEPTSUPPORT
 REFEREREXCEPT_FALSE
 REFEREREXCEPT_TRUE
-LOCALLISTSSUPPORT
-LOCAL_LISTS_FALSE
-LOCAL_LISTS_TRUE
 FANCYSUPPORT
 ENABLE_FANCYDM_FALSE
 ENABLE_FANCYDM_TRUE
@@ -813,7 +810,6 @@ enable_icap
 enable_kavd
 enable_commandline
 enable_fancydm
-enable_locallists
 enable_refererexception
 enable_rxredirects
 enable_addheader
@@ -1485,8 +1481,6 @@ Optional Features:
   --enable-commandline@<:@=no@:>@ 
                           Enable support for command-line content scanners
   --enable-fancydm@<:@=yes@:>@  Enable support for the fancy download manager
-  --enable-locallists@<:@=no@:>@ 
-                          Enable support for local lists
   --enable-refererexception@<:@=yes@:>@ 
                           Enable support for referer exception
   --enable-rxredirects@<:@=yes@:>@ 
@@ -7094,45 +7088,6 @@ fi
 
 
 
-# asking user if they want local list support
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for local list support" >&5
-$as_echo_n "checking for local list support... " >&6; }
-@%:@ Check whether --enable-locallists was given.
-if test "${enable_locallists+set}" = set; then :
-  enableval=$enable_locallists;  if test "x$enableval" = "xyes"; then
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-locallists=true
-LOCALLISTSUPPORT=""
-
-$as_echo "@%:@define LOCAL_LISTS /**/" >>confdefs.h
-
-else
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-else
-  
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-
-
-fi
-
- if test "x$locallists" = "xtrue"; then
-  LOCAL_LISTS_TRUE=
-  LOCAL_LISTS_FALSE='#'
-else
-  LOCAL_LISTS_TRUE='#'
-  LOCAL_LISTS_FALSE=
-fi
-
-
-
 # asking user if they want referer exception support
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for referer exception support" >&5
 $as_echo_n "checking for referer exception support... " >&6; }
@@ -8094,10 +8049,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_FANCYDM_TRUE}" && test -z "${ENABLE_FANCYDM_FALSE}"; then
   as_fn_error $? "conditional \"ENABLE_FANCYDM\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${LOCAL_LISTS_TRUE}" && test -z "${LOCAL_LISTS_FALSE}"; then
-  as_fn_error $? "conditional \"LOCAL_LISTS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${REFEREREXCEPT_TRUE}" && test -z "${REFEREREXCEPT_FALSE}"; then
