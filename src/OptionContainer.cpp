@@ -233,12 +233,13 @@ bool OptionContainer::read(const char *filename, int type)
 //		}
 
 		generated_link_path = generated_cert_path;  // not used at present
-		
-		ca = new CertificateAuthority(ca_certificate_path.c_str(),
+		if (ca_certificate_path != ""){
+			ca = new CertificateAuthority(ca_certificate_path.c_str(),
 				ca_private_key_path.c_str(),
 				cert_private_key_path.c_str(),
 				generated_cert_path.c_str(),
 				generated_link_path.c_str());
+		}
 
 #endif
 

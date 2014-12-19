@@ -1,5 +1,8 @@
 About "Bug" tag "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Add TOTAL_BLOCK_LIST as default
+- Fix e2 start with --enable-sslmitm=yes and no ca certificat 
+
 December 2014
 - Version 3.1.1
 MITM now working -  See notes/ssl_mitm for details
