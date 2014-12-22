@@ -984,14 +984,12 @@ bool FOptionContainer::read(const char *filename)
 			}		// banned domains
 			else {
 				banned_ssl_site_flag = false;
-				return false;
 			}
 			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
 				grey_ssl_site_flag = true;
 			}		// grey domains
 			else {
 				grey_ssl_site_flag = false;
-				return false;
 			}
 #endif
 			
