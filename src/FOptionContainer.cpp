@@ -107,22 +107,22 @@ void FOptionContainer::resetJustListData()
 #ifdef SEARCHWORDS
 	if (banned_search_flag) o.lm.deRefList(banned_search_list);
 	if (search_regexp_flag) o.lm.deRefList(search_regexp_list);
-
-	if (local_banned_search_flag) o.lm.deRefList(local_banned_search_list);
-	if (banned_search_overide_flag) o.lm.deRefList(banned_search_overide_list);
 #endif
-
-	if (local_exception_site_flag) o.lm.deRefList(local_exception_site_list);
-	if (local_exception_url_flag) o.lm.deRefList(local_exception_url_list);
-	if (local_banned_site_flag) o.lm.deRefList(local_banned_site_list);
-	if (local_banned_url_flag) o.lm.deRefList(local_banned_url_list);
-	if (local_grey_site_flag) o.lm.deRefList(local_grey_site_list);
-	if (local_grey_url_flag) o.lm.deRefList(local_grey_url_list);
+	if (enable_local_list) {
+	        if (local_banned_search_flag) o.lm.deRefList(local_banned_search_list);
+        	if (banned_search_overide_flag) o.lm.deRefList(banned_search_overide_list);
+        	if (local_exception_site_flag) o.lm.deRefList(local_exception_site_list);
+       	 	if (local_exception_url_flag) o.lm.deRefList(local_exception_url_list);
+        	if (local_banned_site_flag) o.lm.deRefList(local_banned_site_list);
+        	if (local_banned_url_flag) o.lm.deRefList(local_banned_url_list);
+        	if (local_grey_site_flag) o.lm.deRefList(local_grey_site_list);
+        	if (local_grey_url_flag) o.lm.deRefList(local_grey_url_list);
 #ifdef SSL_EXTRA_LISTS
-	if (local_banned_ssl_site_flag) o.lm.deRefList(local_banned_ssl_site_list);
-	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
+        	if (local_banned_ssl_site_flag) o.lm.deRefList(local_banned_ssl_site_list);
+        	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
 #endif
 
+	}
 #ifdef SSL_EXTRA_LISTS
 	if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
 	if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
@@ -928,8 +928,7 @@ bool FOptionContainer::read(const char *filename)
 
 
 // local list
-			if (enable_local_list == true) { 
-
+			if (enable_local_list) {
 				if (local_banned_search_list_location.length() && readFile(local_banned_search_list_location.c_str(),&local_banned_search_list,true,true,"localbannedsearchlist")) {
 					local_banned_search_flag = true;
 				}
@@ -968,32 +967,33 @@ bool FOptionContainer::read(const char *filename)
 					return false;
 				}		// grey urls
 				local_grey_url_flag = true;
-			}
 #ifdef SSL_EXTRA_LISTS
-			if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
-				return false;
-			}		// banned domains
-			local_banned_ssl_site_flag = true;
-			if (!readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
-				return false;
-			}		// grey domains
-			local_grey_ssl_site_flag = true;
+				if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
+					return false;
+				}		// banned domains
+				local_banned_ssl_site_flag = true;
+				if (!readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
+					return false;
+				}		// grey domains
+				local_grey_ssl_site_flag = true;
 #endif
+			}
 #ifdef SSL_EXTRA_LISTS
 			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
 				banned_ssl_site_flag = true;
 			}		// banned domains
 			else {
 				banned_ssl_site_flag = false;
+				return false;
 			}
 			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
 				grey_ssl_site_flag = true;
 			}		// grey domains
 			else {
 				grey_ssl_site_flag = false;
+				return false;
 			}
 #endif
-			
 			
 			// log-only lists
 			if (log_url_list_location.length() && readFile(log_url_list_location.c_str(), &log_url_list, true, true, "logurllist")) {
@@ -1374,7 +1374,7 @@ char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bo
 
 bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-	if (enable_local_list == true) { 
+	if (enable_local_list) { 
 		if (use_only_local_allow_lists) {
 			return false;
 		};
@@ -1443,7 +1443,7 @@ char *FOptionContainer::inBannedSearchList(String words)
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
-	if (enable_local_list == true) { 
+	if (enable_local_list) { 
 		if ( inBannedSearchOverideList(words) )
 			return NULL;
 	}
@@ -1625,7 +1625,7 @@ bool FOptionContainer::inGreyURLList(String url, bool doblanket, bool ip, bool s
 #ifdef DGDEBUG
 	std::cout<<"inGreyURLList"<<std::endl;
 #endif
-	if (enable_local_list == true) { 
+	if (enable_local_list) { 
 		if (use_only_local_allow_lists) {
 			return false;
 		};
