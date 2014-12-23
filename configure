@@ -650,9 +650,6 @@ LEGACY_LOG_TRUE
 SEARCHWORDSSUPPORT
 SEARCHWORDS_FALSE
 SEARCHWORDS_TRUE
-SSL_EXTRA_LISTSSUPPORT
-SSL_EXTRA_LISTS_FALSE
-SSL_EXTRA_LISTS_TRUE
 ADDHEADERSUPPORT
 ADDHEADER_FALSE
 ADDHEADER_TRUE
@@ -813,7 +810,6 @@ enable_fancydm
 enable_refererexception
 enable_rxredirects
 enable_addheader
-enable_sslextralists
 enable_searchwords
 enable_legacylog
 enable_trickledm
@@ -1487,8 +1483,6 @@ Optional Features:
                           Enable support for regexp redirects
   --enable-addheader[=yes]
                           Enable support for add header
-  --enable-sslextralists[=yes]
-                          Enable support for ssl extra lists
   --enable-searchwords[=yes]
                           Enable support for ssl extra lists
   --enable-legacylog[=yes]
@@ -7214,48 +7208,6 @@ fi
 
 
 
-# asking user if they want ssl extra lists support
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for ssl extra lists support" >&5
-$as_echo_n "checking for ssl extra lists support... " >&6; }
-# Check whether --enable-sslextralists was given.
-if test "${enable_sslextralists+set}" = set; then :
-  enableval=$enable_sslextralists;  if test "x$enableval" = "xno"; then
-sslextralists=false
-SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-else
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-
-$as_echo "#define SSL_EXTRA_LISTS /**/" >>confdefs.h
-
-fi
-else
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-
-$as_echo "#define SSL_EXTRA_LISTS /**/" >>confdefs.h
-
-
-
-fi
-
- if test "x$sslextralists" = "xtrue"; then
-  SSL_EXTRA_LISTS_TRUE=
-  SSL_EXTRA_LISTS_FALSE='#'
-else
-  SSL_EXTRA_LISTS_TRUE='#'
-  SSL_EXTRA_LISTS_FALSE=
-fi
-
-
-
 # asking user if they want searchwords support
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for searchwords support" >&5
 $as_echo_n "checking for searchwords support... " >&6; }
@@ -8061,10 +8013,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ADDHEADER_TRUE}" && test -z "${ADDHEADER_FALSE}"; then
   as_fn_error $? "conditional \"ADDHEADER\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${SSL_EXTRA_LISTS_TRUE}" && test -z "${SSL_EXTRA_LISTS_FALSE}"; then
-  as_fn_error $? "conditional \"SSL_EXTRA_LISTS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${SEARCHWORDS_TRUE}" && test -z "${SEARCHWORDS_FALSE}"; then

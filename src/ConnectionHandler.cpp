@@ -1094,7 +1094,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					// Exception client IP match.
 				}
 				if ((*o.fg[filtergroup]).enable_local_list){
-#ifdef SSL_EXTRA_LISTS
 				
 					if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 						checkme.whatIsNaughty = o.language_list.getTranslation(580);  // banned site
@@ -1104,7 +1103,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						checkme.isItNaughty = true;
 						checkme.whatIsNaughtyCategories = (*o.lm.l[o.fg[filtergroup]->local_banned_ssl_site_list]).lastcategory.toCharArray();
 					}
-#endif
 					else if (o.fg[filtergroup]->inLocalExceptionSiteList(urld, false, is_ip, is_ssl)) {	// allowed site
 						if (o.fg[0]->isOurWebserver(url)) {
 							isourwebserver = true;
@@ -1152,7 +1150,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 
 				//bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
-#ifdef SSL_EXTRA_LISTS
 				if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(520);  // banned site
 					message_no = 520;
@@ -1161,10 +1158,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					checkme.isItNaughty = true;
 					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
 				} 
-				else if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 	// allowed site
-#else 
 				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 		// allowed site
-#endif
 				{
 					if (o.fg[0]->isOurWebserver(url)) {
 						isourwebserver = true;

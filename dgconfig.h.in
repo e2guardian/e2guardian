@@ -235,9 +235,6 @@
 /* Define to enable support for ssl extra lists */
 #undef SEARCHWORDS
 
-/* Define to enable support for ssl extra lists */
-#undef SSL_EXTRA_LISTS
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

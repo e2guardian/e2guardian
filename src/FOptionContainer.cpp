@@ -117,16 +117,12 @@ void FOptionContainer::resetJustListData()
         	if (local_banned_url_flag) o.lm.deRefList(local_banned_url_list);
         	if (local_grey_site_flag) o.lm.deRefList(local_grey_site_list);
         	if (local_grey_url_flag) o.lm.deRefList(local_grey_url_list);
-#ifdef SSL_EXTRA_LISTS
         	if (local_banned_ssl_site_flag) o.lm.deRefList(local_banned_ssl_site_list);
         	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
-#endif
-
 	}
-#ifdef SSL_EXTRA_LISTS
+
 	if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
 	if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
-#endif
 
 	banned_phrase_flag = false;
 	searchterm_flag = false;
@@ -171,10 +167,8 @@ void FOptionContainer::resetJustListData()
 	local_banned_url_flag = false;
 	local_grey_site_flag = false;
 	local_grey_url_flag = false;
-#ifdef SSL_EXTRA_LISTS
 	local_banned_ssl_site_flag = false;
 	local_grey_ssl_site_flag = false;
-#endif
 #ifdef ADDHEADER
 	addheader_regexp_flag = false;
 	addheader_regexp_list_comp.clear();
@@ -188,10 +182,8 @@ void FOptionContainer::resetJustListData()
 	local_banned_search_flag = false;
 	banned_search_overide_flag = false;
 #endif
-#ifdef SSL_EXTRA_LISTS
 	banned_ssl_site_flag = false;
 	grey_ssl_site_flag = false;
-#endif
 	
 	block_downloads = false;
 	
@@ -698,15 +690,11 @@ bool FOptionContainer::read(const char *filename)
 			std::string local_grey_url_list_location(findoptionS("localgreyurllist"));
 			std::string local_exceptions_site_list_location(findoptionS("localexceptionsitelist"));
 			std::string local_exceptions_url_list_location(findoptionS("localexceptionurllist"));
-#ifdef SSL_EXTRA_LISTS
 			std::string local_banned_ssl_site_list_location(findoptionS("localbannedsslsitelist"));
 			std::string local_grey_ssl_site_list_location(findoptionS("localgreysslsitelist"));
-#endif 
 
-#ifdef SSL_EXTRA_LISTS
 			std::string banned_ssl_site_list_location(findoptionS("bannedsslsitelist"));
 			std::string grey_ssl_site_list_location(findoptionS("greysslsitelist"));
-#endif 
 
 			if (enable_PICS) {
 				pics_rsac_nudity = findoptionI("RSACnudity");
@@ -967,7 +955,6 @@ bool FOptionContainer::read(const char *filename)
 					return false;
 				}		// grey urls
 				local_grey_url_flag = true;
-#ifdef SSL_EXTRA_LISTS
 				if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
 					return false;
 				}		// banned domains
@@ -976,9 +963,7 @@ bool FOptionContainer::read(const char *filename)
 					return false;
 				}		// grey domains
 				local_grey_ssl_site_flag = true;
-#endif
 			}
-#ifdef SSL_EXTRA_LISTS
 			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
 				banned_ssl_site_flag = true;
 			}		// banned domains
@@ -991,7 +976,6 @@ bool FOptionContainer::read(const char *filename)
 			else {
 				grey_ssl_site_flag = false;
 			}
-#endif
 			
 			// log-only lists
 			if (log_url_list_location.length() && readFile(log_url_list_location.c_str(), &log_url_list, true, true, "logurllist")) {
@@ -1377,15 +1361,12 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
 			return false;
 		};
 	}
-#ifdef SSL_EXTRA_LISTS
 	if (ssl) {
 	   return inGreySSLSiteList(url, doblanket, ip, ssl);
 	};
-#endif
 	return inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL;
 }
 
-#ifdef SSL_EXTRA_LISTS
 char *FOptionContainer::inBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
 	if (banned_ssl_site_flag) {
@@ -1405,7 +1386,6 @@ bool FOptionContainer::inGreySSLSiteList(String url, bool doblanket, bool ip, bo
 	   return false;
 	}
 }
-#endif
 
 #ifdef PRT_DNSAUTH
 bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
@@ -1485,15 +1465,12 @@ char *FOptionContainer::inLocalBannedSiteList(String url, bool doblanket, bool i
 
 bool FOptionContainer::inLocalGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-#ifdef SSL_EXTRA_LISTS
 	if (ssl) {
 	   return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
 	};
-#endif
 	return inSiteList(url, local_grey_site_list, doblanket, ip, ssl) != NULL;
 }
 
-#ifdef SSL_EXTRA_LISTS
 char *FOptionContainer::inLocalBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
 	return inSiteList(url, local_banned_ssl_site_list, doblanket, ip, ssl);
@@ -1503,7 +1480,6 @@ bool FOptionContainer::inLocalGreySSLSiteList(String url, bool doblanket, bool i
 {
 	return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
 }
-#endif
 #endif
 
 bool FOptionContainer::inExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)

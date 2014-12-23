@@ -6,7 +6,6 @@ AC_DEFINE([ADDHEADER],[""],[Define to enable insert http header function])
 
 AC_DEFINE([REFEREXCEPT],[""],[Define to enable exceptions on http referer header])
 AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp])
-AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
 AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
@@ -564,31 +563,6 @@ AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
 )
 AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
 AC_SUBST(ADDHEADERSUPPORT)
-
-# asking user if they want ssl extra lists support
-AC_MSG_CHECKING(for ssl extra lists support)
-AC_ARG_ENABLE(
-sslextralists,
-[AC_HELP_STRING([--enable-sslextralists@<:@=yes@:>@], [Enable support for ssl extra lists])],
-[ if test "x$enableval" = "xno"; then
-sslextralists=false
-SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists])
-fi],
-[
-AC_MSG_RESULT(yes)
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists ])
-]
-)
-AM_CONDITIONAL(SSL_EXTRA_LISTS, test "x$sslextralists" = "xtrue")
-AC_SUBST(SSL_EXTRA_LISTSSUPPORT)
 
 # asking user if they want searchwords support
 AC_MSG_CHECKING(for searchwords support)
