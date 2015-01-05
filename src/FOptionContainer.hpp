@@ -41,6 +41,7 @@ public:
 	bool createlistcachefiles;
 	bool enable_PICS;
 	bool enable_regex_grey;
+	bool enable_ssl_separatelist;
 	bool enable_local_list;
 	off_t max_upload_size;
 	bool deep_url_analysis;

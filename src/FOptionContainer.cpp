@@ -121,9 +121,10 @@ void FOptionContainer::resetJustListData()
         	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
 	}
 
-	if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
-	if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
-
+	if (enable_ssl_separatelist) {
+		if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
+		if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
+	}
 	banned_phrase_flag = false;
 	searchterm_flag = false;
 	exception_site_flag = false;
@@ -147,8 +148,9 @@ void FOptionContainer::resetJustListData()
 	log_site_flag = false;
 	log_url_flag = false;
 	log_regexpurl_flag = false;
-	enable_regex_grey = false;
 	enable_local_list = false;
+	enable_regex_grey = false;
+	enable_ssl_separatelist = false;
 	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
 	auth_exception_site_flag = false;
@@ -579,16 +581,29 @@ bool FOptionContainer::read(const char *filename)
 				enable_PICS = false;
 			}
 
+                        if (findoptionS("sslseparatelists") == "on") {
+                                enable_ssl_separatelist = true;
+                        } else {
+				enable_ssl_separatelist = false;
+			}
+
+
                         if (findoptionS("bannedregexwithblanketblock") == "on") {
                                  enable_regex_grey = true;
-                        }
+                        } else {
+				 enable_regex_grey = false;
+			}
 
                         if (findoptionS("enablelocallists") == "on") {
                                  enable_local_list = true;
-                        }
+                        }/* else {
+				 enable_local_list = false;
+			}*/
 		
 			if (findoptionS("blockdownloads") == "on") {
 				block_downloads = true;
+			} else {
+				block_downloads = false;
 			}
 
 			if (enable_PICS) {
@@ -955,28 +970,38 @@ bool FOptionContainer::read(const char *filename)
 					return false;
 				}		// grey urls
 				local_grey_url_flag = true;
-				if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
-					return false;
+
+				if (enable_ssl_separatelist) {
+					if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
+						return false;
+					}		// banned domains
+					local_banned_ssl_site_flag = true;
+					if (!readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
+						return false;
+					}		// grey domains
+					local_grey_ssl_site_flag = true;
+				}
+			}
+
+			if (enable_ssl_separatelist) {
+				std::cerr << "test" << std::endl;
+				if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
+					banned_ssl_site_flag = true;
 				}		// banned domains
-				local_banned_ssl_site_flag = true;
-				if (!readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
-					return false;
+				else {
+					banned_ssl_site_flag = false;
+					std::cerr << "Required Listname bannedsslsitelist is not defined " << std::endl;
+					return false;				
+				}
+				if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
+					grey_ssl_site_flag = true;
 				}		// grey domains
-				local_grey_ssl_site_flag = true;
+				else {
+					grey_ssl_site_flag = false;
+					std::cerr << "Required Listname greysslsitelist is not defined " << std::endl;
+					return false;
+				}
 			}
-			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
-				banned_ssl_site_flag = true;
-			}		// banned domains
-			else {
-				banned_ssl_site_flag = false;
-			}
-			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
-				grey_ssl_site_flag = true;
-			}		// grey domains
-			else {
-				grey_ssl_site_flag = false;
-			}
-			
 			// log-only lists
 			if (log_url_list_location.length() && readFile(log_url_list_location.c_str(), &log_url_list, true, true, "logurllist")) {
 				log_url_flag = true;
@@ -1361,10 +1386,11 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
 			return false;
 		};
 	}
-	if (ssl) {
+	if (ssl && enable_ssl_separatelist) {
 	   return inGreySSLSiteList(url, doblanket, ip, ssl);
 	};
 	return inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL;
+
 }
 
 char *FOptionContainer::inBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)

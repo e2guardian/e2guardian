@@ -24,6 +24,9 @@ groupmode = 1
 #groupname = ''
 groupname = ''
 
+# Enable separate ssl lists greysslsitelist and bannedsslsitelist
+# sslseparatelist = on
+
 # Content filtering files location
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'

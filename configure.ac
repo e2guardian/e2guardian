@@ -11,7 +11,7 @@ AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.1.1)
+AC_INIT(e2guardian, 3.3.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 

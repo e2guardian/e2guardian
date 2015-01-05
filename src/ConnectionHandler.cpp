@@ -1732,13 +1732,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			//else
 			//{
 #endif //__SSLMITM
-                // Banned rewrite SSL denied page 
-				//bool is_ssl = header.requestType() == "CONNECT";
-            	if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
-                	header.DenySSL(filtergroup);
-                        String rtype(header.requestType());
-			doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
-			checkme.isItNaughty = false;
+                	// Banned rewrite SSL denied page 
+            		if ((is_ssl == true) && (checkme.isItNaughty == true) && (o.fg[filtergroup]->ssl_denied_rewrite == true)){
+                		header.DenySSL(filtergroup);
+                        	String rtype(header.requestType());
+				doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart,cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+				checkme.isItNaughty = false;
                 	}
 
 			if (!checkme.isItNaughty && isconnect) {
