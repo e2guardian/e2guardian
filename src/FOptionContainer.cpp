@@ -596,9 +596,9 @@ bool FOptionContainer::read(const char *filename)
 
                         if (findoptionS("enablelocallists") == "on") {
                                  enable_local_list = true;
-                        }/* else {
+                        } else {
 				 enable_local_list = false;
-			}*/
+			}
 		
 			if (findoptionS("blockdownloads") == "on") {
 				block_downloads = true;
