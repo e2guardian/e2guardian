@@ -315,6 +315,7 @@ public:
 		local_grey_url_flag(false),
 		enable_regex_grey(false),
 		enable_local_list(false),
+		enable_ssl_separatelist(false),
 		use_only_local_allow_lists(false),
 		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
 		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),

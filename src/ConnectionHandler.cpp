@@ -3079,35 +3079,33 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	std::string *clientip, std::string *clientuser, int filtergroup,
 	bool &isbanneduser, bool &isbannedip, std::string &room)
 {
-	if ((*o.fg[filtergroup]).enable_local_list){
-		if (isbannedip) {
-			(*checkme).isItNaughty = true;
-			(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
-			(*checkme).message_no = 100;
-			// Your IP address is not allowed to web browse:
-			(*checkme).whatIsNaughtyLog += clienthost ? *clienthost : *clientip;
-			(*checkme).whatIsNaughty = o.language_list.getTranslation(101);
-			(*checkme).message_no = 101;
-			// Your IP address is not allowed to web browse.
-			if (room.empty())
-				(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(103);
-			else {
-				checkme->whatIsNaughtyCategories = o.language_list.getTranslation(104);
-				checkme->whatIsNaughtyLog.append(o.language_list.getTranslation(51));
-				checkme->whatIsNaughtyLog.append(room);
-			}
-			return;
+	if (isbannedip) {
+		(*checkme).isItNaughty = true;
+		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
+		(*checkme).message_no = 100;
+		// Your IP address is not allowed to web browse:
+		(*checkme).whatIsNaughtyLog += clienthost ? *clienthost : *clientip;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(101);
+		(*checkme).message_no = 101;
+		// Your IP address is not allowed to web browse.
+		if (room.empty())
+			(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(103);
+		else {
+			checkme->whatIsNaughtyCategories = o.language_list.getTranslation(104);
+			checkme->whatIsNaughtyLog.append(o.language_list.getTranslation(51));
+			checkme->whatIsNaughtyLog.append(room);
 		}
-		else if (isbanneduser) {
-			(*checkme).isItNaughty = true;
-			(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(102);
-			(*checkme).message_no = 102;
-			// Your username is not allowed to web browse:
-			(*checkme).whatIsNaughtyLog += (*clientuser);
-			(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
-			(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(105);
-			return;
-		}
+		return;
+	}
+	else if (isbanneduser) {
+		(*checkme).isItNaughty = true;
+		(*checkme).whatIsNaughtyLog = o.language_list.getTranslation(102);
+		(*checkme).message_no = 102;
+		// Your username is not allowed to web browse:
+		(*checkme).whatIsNaughtyLog += (*clientuser);
+		(*checkme).whatIsNaughty = (*checkme).whatIsNaughtyLog;
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(105);
+		return;
 	}
 
 	char *i;
@@ -3145,11 +3143,12 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	if ( checkme->isItNaughty ) {     // why bother with checking anything else!!!!
 		return;
 	}
-
+	
 	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
-		if (is_ssl) (*checkme).isSSLGrey = true;
+		if ((*o.fg[filtergroup]).enable_ssl_separatelist)
+			if (is_ssl) (*checkme).isSSLGrey = true;
 	}
 
 	// only apply bans to things not in the grey lists
