@@ -1147,17 +1147,17 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			}
 			// orginal section only now called if local list not matched 
 			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
-
 				//bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
-				if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+				if (((*o.fg[filtergroup]).enable_ssl_separatelist) && is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(520);  // banned site
 					message_no = 520;
 					checkme.whatIsNaughty += retchar;
 					checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
 					checkme.isItNaughty = true;
 					checkme.whatIsNaughtyCategories = o.lm.l[o.fg[filtergroup]->banned_ssl_site_list]->lastcategory.toCharArray();
-				} 
+				}
+ 
 				if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) 		// allowed site
 				{
 					if (o.fg[0]->isOurWebserver(url)) {
@@ -1185,6 +1185,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
 					exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
 				}
+				
 #ifdef REFEREREXCEPT
 				if ((*o.fg[filtergroup]).enable_local_list){
 					if (embededRefererChecks(&header, &urld, &url,filtergroup)) { // referer exception
