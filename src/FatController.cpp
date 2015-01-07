@@ -369,7 +369,7 @@ int prefork(int num)
 	int sv[2];
 	pid_t child_pid;
 	while (num--) {
-		if (numchildren >= o.max_children) {
+		if (numchildren >= (o.max_children - 1)) {
 			syslog(LOG_ERR, "E2guardian is running out of MaxChildren\n");
 			return 2;  // too many - geddit?
 		}
