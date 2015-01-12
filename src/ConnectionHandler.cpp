@@ -1122,12 +1122,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 					} 
 #ifdef REFEREREXCEPT
+				}
 					//else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
 					else if ((!is_ssl) && embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(620);
 						message_no = 620;
-					}
 #endif
 			// end of local lists exception checking
 				}
@@ -3499,46 +3499,46 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	// order for regexes to be able to split up parameters reliably.
 	if (!is_ssl) {
 
-#ifdef SEARCHWORDS
-	(*checkme).isSearch = (*header).isSearch(filtergroup);
-	if ((*checkme).isSearch) {
-		if ((i = (*o.fg[filtergroup]).inLocalBannedSearchList((*header).searchwords())) != NULL) {
-			(*checkme).whatIsNaughty = o.language_list.getTranslation(581);
-			(*checkme).message_no = 581;
-			// Banned search term:
-			(*checkme).whatIsNaughty += i;
-			(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-			(*checkme).isItNaughty = true;
-			(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
-			return;
-		}
-	}
-#endif
-
-// dg code
-		String terms;
+	#ifdef SEARCHWORDS
+		(*checkme).isSearch = (*header).isSearch(filtergroup);
 		if ((*checkme).isSearch) {
-		terms = (*header).searchterms();
-			// search terms are URL parameter type "0"
-			urlparams.append("0=").append(terms).append(";");
-			if (o.fg[filtergroup]->searchterm_limit > 0) {
-				// Add spaces at beginning and end of block before filtering, so
-				// that the quick & dirty trick of putting spaces around words
-				// (Scunthorpe problem) can still be used, bearing in mind the block
-				// of text here is usually very small.
-				terms.insert(terms.begin(),' ');
-				terms.append(" ");
-				checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
-					(o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list : o.fg[filtergroup]->banned_phrase_list),
-					o.fg[filtergroup]->searchterm_limit, true);
-				if (checkme->isItNaughty)
-				{
-					checkme->blocktype = 2;
-					return;
-				}
+			if ((i = (*o.fg[filtergroup]).inLocalBannedSearchList((*header).searchwords())) != NULL) {
+				(*checkme).whatIsNaughty = o.language_list.getTranslation(581);
+				(*checkme).message_no = 581;
+				// Banned search term:
+				(*checkme).whatIsNaughty += i;
+				(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+				(*checkme).isItNaughty = true;
+				(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
+				return;
+			}
+		}
+	#endif
+
+	// dg code
+			String terms;
+			if ((*checkme).isSearch) {
+			terms = (*header).searchterms();
+				// search terms are URL parameter type "0"
+				urlparams.append("0=").append(terms).append(";");
+				if (o.fg[filtergroup]->searchterm_limit > 0) {
+					// Add spaces at beginning and end of block before filtering, so
+					// that the quick & dirty trick of putting spaces around words
+					// (Scunthorpe problem) can still be used, bearing in mind the block
+					// of text here is usually very small.
+					terms.insert(terms.begin(),' ');
+					terms.append(" ");
+					checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
+						(o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list : o.fg[filtergroup]->banned_phrase_list),
+						o.fg[filtergroup]->searchterm_limit, true);
+					if (checkme->isItNaughty)
+					{
+						checkme->blocktype = 2;
+						return;
+					}
+			}
 		}
 	}
-}
 }
 
 
