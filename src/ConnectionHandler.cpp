@@ -3498,8 +3498,7 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
 	// order for regexes to be able to split up parameters reliably.
 	if (!is_ssl) {
-
-	#ifdef SEARCHWORDS
+#ifdef SEARCHWORDS
 		(*checkme).isSearch = (*header).isSearch(filtergroup);
 		if ((*checkme).isSearch) {
 			if ((i = (*o.fg[filtergroup]).inLocalBannedSearchList((*header).searchwords())) != NULL) {
@@ -3513,9 +3512,9 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 				return;
 			}
 		}
-	#endif
+#endif
 
-	// dg code
+// dg code
 			String terms;
 			if ((*checkme).isSearch) {
 			terms = (*header).searchterms();
