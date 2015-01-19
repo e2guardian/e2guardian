@@ -58,9 +58,9 @@ To set up MITM:
 
 	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
 
-   Set  sllmitm = yes in e2guardianfx.conf
+   Set  sllmitm = on in e2guardianfx.conf
 
-      If option  onlymitmsslgrey = 'yes' then only sites in the greysslsitelist 
+      If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist 
       will be MITM - This may be useful if you have limited processing power 
       on your system.
 
