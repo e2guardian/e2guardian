@@ -612,17 +612,7 @@ bool OptionContainer::read(const char *filename, int type)
 
 		filter_groups = findoptionI("filtergroups");
 
-	        if ((per_room_blocking_directory_location = findoptionS("perroomblockingdirectory")) != "") {
-		        DIR* d = opendir(per_room_blocking_directory_location.c_str());
-		        if (d == NULL)
-        		{
-                		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-                		std::cerr << "Could not open room definitions directory" << std::endl;
-                		exit(0);
-        		} else {
-		  		loadRooms();
-			}
-                }
+		loadRooms();
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
 			return false;
@@ -987,11 +977,23 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms()
 {
+	per_room_blocking_directory_location = findoptionS("perroomblockingdirectory");
 	if (per_room_blocking_directory_location == "")
 		return;
 
 	DIR* d = opendir(per_room_blocking_directory_location.c_str());
-	FILE * fIn;
+	if (d == NULL)
+	{
+		if (!is_daemonised) {
+			std::cerr << "Could not open room definitions directory \""
+			          << per_room_blocking_directory_location << '"'
+			          << std::endl;
+		}
+		syslog(LOG_ERR, "Could not open room definitions directory \"%s\": %s",
+		       per_room_blocking_directory_location.c_str(), strerror(errno));
+		exit(1);
+    }
+
 	struct dirent* f;
 	while ((f = readdir(d)))
 	{
@@ -1000,26 +1002,29 @@ void OptionContainer::loadRooms()
 		std::string filename(per_room_blocking_directory_location);
 		filename.append(f->d_name);
 		std::ifstream infile(filename.c_str());
-                if ((fIn = fopen(filename.c_str(), "r")) == NULL)  {
-                        syslog(LOG_ERR, " Could not open file room definitions ");
-                        std::cerr << " Could not open file room definitions: "<< filename.c_str() << std::endl;
-                        exit(1);
-                } else {
-                        int first;
-                        if ((first = fgetc(fIn)) != 0) {
-                                fclose(fIn);
-                                if (first == EOF){
-                                        syslog(LOG_ERR, " Could not open file room definitions ");
-                                        std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
-                                        exit(1);
-                                }
-                        }
-                }
+		if (!infile.good()) {
+			if (!is_daemonised) {
+				std::cerr << "Could not open room definitions file \""
+				          << filename << '"' << std::endl;
+			}
+			syslog(LOG_ERR, "Could not open room definitions file \"%s\"",
+			       filename.c_str());
+			exit(1);
+		}
 
 		std::string roomname;
 		std::getline(infile, roomname);
 		infile.close();
-		roomname = roomname.substr(1);
+		if (roomname.size() <= 2) {
+			if (!is_daemonised) {
+				std::cerr << "Could not read room from definitions file \""
+				          << filename << '"' << std::endl;
+			}
+			syslog(LOG_ERR, "Could not read room from definitions file \"%s\"",
+			       filename.c_str());
+			exit(1);
+		}
+		roomname = roomname.substr(1); // remove leading '#'
 
 		IPList* contents = new IPList();
 		contents->readIPMelangeList(filename.c_str());
