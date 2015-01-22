@@ -30,7 +30,7 @@ To set up MITM:
 
 	Generate the root CA certificate
 
-		openssl req -new -x509 -days3650 -ke private_root.pem \
+		openssl req -new -x509 -days3650 -key private_root.pem \
 			-out my_rootCA.crt
 
 	Create a DER format version of root certificate
@@ -58,7 +58,8 @@ To set up MITM:
 
 	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
 
-   Set  sllmitm = on in e2guardianfx.conf
+   Set sslmitm = on in e2guardianfx.conf
+   Set sslseparatelists = on in e2guardianfx.conf
 
       If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist 
       will be MITM - This may be useful if you have limited processing power 

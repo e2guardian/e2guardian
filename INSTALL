@@ -146,10 +146,6 @@ Optional Features:
                           Enable support for regexp redirects
   --enable-addheader[=yes]
                           Enable support for add header
-  --enable-sslextralists[=yes]
-                          Enable support for ssl extra lists
-  --enable-searchwords[=yes]
-                          Enable support for ssl extra lists
   --enable-legacylog[=yes]
                           Enable support for legacy log format
   --enable-trickledm[=no]

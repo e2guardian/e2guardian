@@ -647,9 +647,6 @@ ENABLE_TRICKLEDM_TRUE
 LEGACY_LOGSUPPORT
 LEGACY_LOG_FALSE
 LEGACY_LOG_TRUE
-SEARCHWORDSSUPPORT
-SEARCHWORDS_FALSE
-SEARCHWORDS_TRUE
 ADDHEADERSUPPORT
 ADDHEADER_FALSE
 ADDHEADER_TRUE
@@ -810,7 +807,6 @@ enable_fancydm
 enable_refererexception
 enable_rxredirects
 enable_addheader
-enable_searchwords
 enable_legacylog
 enable_trickledm
 enable_ntlm
@@ -1483,8 +1479,6 @@ Optional Features:
                           Enable support for regexp redirects
   --enable-addheader@<:@=yes@:>@ 
                           Enable support for add header
-  --enable-searchwords@<:@=yes@:>@ 
-                          Enable support for ssl extra lists
   --enable-legacylog@<:@=yes@:>@ 
                           Enable support for legacy log format
   --enable-trickledm@<:@=no@:>@ Enable support for the trickle download manager
@@ -7208,48 +7202,6 @@ fi
 
 
 
-# asking user if they want searchwords support
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for searchwords support" >&5
-$as_echo_n "checking for searchwords support... " >&6; }
-@%:@ Check whether --enable-searchwords was given.
-if test "${enable_searchwords+set}" = set; then :
-  enableval=$enable_searchwords;  if test "x$enableval" = "xno"; then
-searchwords=false
-SEARCHWORDSSUPPORT="#!! Not compiled !! "
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-else
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-searchwords=true
-SEARCHWORDSSUPPORT=""
-
-$as_echo "@%:@define SEARCHWORDS /**/" >>confdefs.h
-
-fi
-else
-  
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-searchwords=true
-SEARCHWORDSSUPPORT=""
-
-$as_echo "@%:@define SEARCHWORDS /**/" >>confdefs.h
-
-
-
-fi
-
- if test "x$searchwords" = "xtrue"; then
-  SEARCHWORDS_TRUE=
-  SEARCHWORDS_FALSE='#'
-else
-  SEARCHWORDS_TRUE='#'
-  SEARCHWORDS_FALSE=
-fi
-
-
-
 # asking user if they want legacy log support
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for legacy log support" >&5
 $as_echo_n "checking for legacy log support... " >&6; }
@@ -8013,10 +7965,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ADDHEADER_TRUE}" && test -z "${ADDHEADER_FALSE}"; then
   as_fn_error $? "conditional \"ADDHEADER\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${SEARCHWORDS_TRUE}" && test -z "${SEARCHWORDS_FALSE}"; then
-  as_fn_error $? "conditional \"SEARCHWORDS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${LEGACY_LOG_TRUE}" && test -z "${LEGACY_LOG_FALSE}"; then

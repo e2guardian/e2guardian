@@ -53,12 +53,9 @@ void HTTPHeader::reset()
 		addheaderchecked = false;
 		isheaderadded = false;
 #endif
-#ifdef SEARCHWORDS
 		searchwds = "";
 		issearch = false;
 		searchchecked = false;
-#endif
-
 		clcached = false;
 		
 		mitm = false;
@@ -696,7 +693,6 @@ bool HTTPHeader::isHeaderAdded(int filtergroup) {
 }
 #endif
 
-#ifdef SEARCHWORDS
 // check if search 
 bool HTTPHeader::isSearch(int filtergroup) {
 	if ( searchchecked )
@@ -744,8 +740,6 @@ String HTTPHeader::searchterms() {
 		return searchtms;
 	return "";
 };
-
-#endif
 
 bool HTTPHeader::DenySSL(int filtergroup) {
         String newUrl(getUrl());

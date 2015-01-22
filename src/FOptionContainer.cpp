@@ -104,10 +104,8 @@ void FOptionContainer::resetJustListData()
 #ifdef ADDHEADER
 	if (addheader_regexp_flag) o.lm.deRefList(addheader_regexp_list);
 #endif
-#ifdef SEARCHWORDS
 	if (banned_search_flag) o.lm.deRefList(banned_search_list);
 	if (search_regexp_flag) o.lm.deRefList(search_regexp_list);
-#endif
 	if (enable_local_list) {
 	        if (local_banned_search_flag) o.lm.deRefList(local_banned_search_list);
         	if (banned_search_overide_flag) o.lm.deRefList(banned_search_overide_list);
@@ -176,14 +174,12 @@ void FOptionContainer::resetJustListData()
 	addheader_regexp_list_comp.clear();
 	addheader_regexp_list_rep.clear();
 #endif
-#ifdef SEARCHWORDS
 	banned_search_flag = false;
 	search_regexp_flag = false;
 	search_regexp_list_comp.clear();
 	search_regexp_list_rep.clear();
 	local_banned_search_flag = false;
 	banned_search_overide_flag = false;
-#endif
 	banned_ssl_site_flag = false;
 	grey_ssl_site_flag = false;
 	
@@ -693,12 +689,10 @@ bool FOptionContainer::read(const char *filename)
 #ifdef ADDHEADER
 			std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
 #endif
-#ifdef SEARCHWORDS
 			std::string banned_search_list_location(findoptionS("bannedsearchlist"));
 			std::string search_regexp_list_location(findoptionS("searchregexplist"));
 			std::string local_banned_search_list_location(findoptionS("localbannedsearchlist"));
 			std::string banned_search_overide_list_location(findoptionS("bannedsearchoveridelist"));
-#endif
 			std::string local_banned_site_list_location(findoptionS("localbannedsitelist"));
 			std::string local_banned_url_list_location(findoptionS("localbannedurllist"));
 			std::string local_grey_site_list_location(findoptionS("localgreysitelist"));
@@ -910,7 +904,6 @@ bool FOptionContainer::read(const char *filename)
 				return false;
 			}
 
-#ifdef SEARCHWORDS
 			if (banned_search_list_location.length() && readFile(banned_search_list_location.c_str(),&banned_search_list,true,true,"bannedsearchlist")) {
 				banned_search_flag = true;
 			}
@@ -920,7 +913,6 @@ bool FOptionContainer::read(const char *filename)
 
 			if (search_regexp_list_location.length() && readRegExReplacementFile(search_regexp_list_location.c_str(),"searchregexplist",search_regexp_list,search_regexp_list_rep,search_regexp_list_comp)) {
 				search_regexp_flag = true;
-#endif
 #ifdef DGDEBUG
 				std::cout << "Enabled search term extraction RegExp list" << std::endl;
 #endif
@@ -1358,7 +1350,6 @@ char *FOptionContainer::inSiteList(String &url, unsigned int list, bool doblanke
 	return NULL;  // and our survey said "UUHH UURRGHH"
 }
 
-#ifdef SEARCHWORDS
 char *FOptionContainer::inSearchList(String &words, unsigned int list)
 {
 	char  *i = (*o.lm.l[list]).findInList(words.toCharArray());
@@ -1367,7 +1358,6 @@ char *FOptionContainer::inSearchList(String &words, unsigned int list)
 	}
 	return NULL;  
 }
-#endif
 
 // checkme: remove things like this & make inSiteList/inIPList public?
 
@@ -1440,7 +1430,6 @@ bool FOptionContainer::inEmbededRefererLists(String url)
 	return false;
 }
 #endif
-#ifdef SEARCHWORDS
 char *FOptionContainer::inBannedSearchList(String words)
 {
 
@@ -1506,7 +1495,6 @@ bool FOptionContainer::inLocalGreySSLSiteList(String url, bool doblanket, bool i
 {
 	return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
 }
-#endif
 
 bool FOptionContainer::inExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
 {

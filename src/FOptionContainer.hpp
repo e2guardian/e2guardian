@@ -210,7 +210,6 @@ public:
 #ifdef ADDHEADER
 	unsigned int addheader_regexp_list;
 #endif
-#ifdef SEARCHWORDS
 	unsigned int banned_search_list;
 	unsigned int search_regexp_list;
 	unsigned int local_banned_search_list;
@@ -218,7 +217,6 @@ public:
 	unsigned int local_exception_site_list;
 	unsigned int local_exception_url_list;
 	unsigned int local_banned_site_list;
-#endif
 	unsigned int local_banned_ssl_site_list;
 	unsigned int local_grey_ssl_site_list;
 	unsigned int local_banned_url_list;
@@ -256,11 +254,8 @@ public:
 	std::deque<String> url_regexp_list_rep;
 	std::deque<RegExp> header_regexp_list_comp;
 	std::deque<String> header_regexp_list_rep;
-
-#ifdef SEARCHWORDS
 	std::deque<RegExp> search_regexp_list_comp;
 	std::deque<String> search_regexp_list_rep;
-#endif
 #ifdef ADDHEADER
 	std::deque<RegExp> addheader_regexp_list_comp;
 	std::deque<String> addheader_regexp_list_rep;
@@ -301,12 +296,10 @@ public:
 #ifdef ADDHEADER
 		addheader_regexp_flag(false),
 #endif
-#ifdef SEARCHWORDS
 		banned_search_flag(false),
 		search_regexp_flag(false),
 		local_banned_search_flag(false),
 		banned_search_overide_flag(false),
-#endif
 		local_exception_site_flag(false), 
 		local_exception_url_flag(false),
 		local_banned_site_flag(false),
@@ -344,12 +337,10 @@ public:
 #ifdef ADDHEADER
         char *inAddheaderList(String &words, unsigned int list);
 #endif
-#ifdef SEARCHWORDS
 	char *inBannedSearchList(String words);
         char *inSearchList(String &words, unsigned int list);
 	char *inLocalBannedSearchList(String words);
 	bool inBannedSearchOverideList(String words);
-#endif
 	char *inLocalBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inLocalBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inLocalBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -428,12 +419,10 @@ private:
 #ifdef ADDHEADER
 	bool addheader_regexp_flag;
 #endif
-#ifdef SEARCHWORDS
 	bool banned_search_flag;
 	bool search_regexp_flag;
 	bool local_banned_search_flag;
 	bool banned_search_overide_flag;
-#endif
 	bool local_exception_site_flag;
 	bool local_exception_url_flag;
 	bool local_banned_site_flag;

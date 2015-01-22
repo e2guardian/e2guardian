@@ -78,13 +78,11 @@ public:
 	bool addheaderchecked;
 	bool isheaderadded;
 #endif
-#ifdef SEARCHWORDS
 	// see if search usl and set searchwords
 	bool isSearch(int filtergroup);
 	String searchwords();
 	String searchterms();
 	bool searchchecked;
-#endif
 	String contentEncoding();
 	// grab the contents of Proxy-Authorization header
 	// returns base64-decoding of the chunk of data after the auth type string
@@ -195,11 +193,9 @@ private:
 #ifdef RXREDIRECTS  
 	String redirect;
 #endif
-#ifdef SEARCHWORDS
 	std::string searchwds;
 	std::string searchtms;
 	bool issearch;
-#endif
 
 	// cached result of contentLength()
 	off_t contentlength;

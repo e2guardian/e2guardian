@@ -232,7 +232,7 @@
 /* Define to enable support for regexp redirects */
 #undef RXREDIRECTS
 
-/* Define to enable support for ssl extra lists */
+/* Define to enable search word checking */
 #undef SEARCHWORDS
 
 /* Define to 1 if you have the ANSI C header files. */

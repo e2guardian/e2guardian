@@ -564,31 +564,6 @@ AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
 AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
 AC_SUBST(ADDHEADERSUPPORT)
 
-# asking user if they want searchwords support
-AC_MSG_CHECKING(for searchwords support)
-AC_ARG_ENABLE(
-searchwords,
-[AC_HELP_STRING([--enable-searchwords@<:@=yes@:>@], [Enable support for ssl extra lists])],
-[ if test "x$enableval" = "xno"; then
-searchwords=false
-SEARCHWORDSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-searchwords=true
-SEARCHWORDSSUPPORT=""
-AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists])
-fi],
-[
-AC_MSG_RESULT(yes)
-searchwords=true
-SEARCHWORDSSUPPORT=""
-AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists ])
-]
-)
-AM_CONDITIONAL(SEARCHWORDS, test "x$searchwords" = "xtrue")
-AC_SUBST(SEARCHWORDSSUPPORT)
-
 # asking user if they want legacy log support
 AC_MSG_CHECKING(for legacy log support)
 AC_ARG_ENABLE(

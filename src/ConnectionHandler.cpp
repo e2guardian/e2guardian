@@ -3292,8 +3292,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	}
 
 	 // if we get here it's to be content checked (so far!)
-
-#ifdef SEARCHWORDS
 	// So now check for search etc.
 
 
@@ -3339,7 +3337,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 			}
 	}
     }
-#endif
 
 #ifdef __SSLCERT
 	//check the certificate if
@@ -3498,7 +3495,6 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 	// don't bother with SSL sites, though.  note that we must pass in the non-hex-decoded URL in
 	// order for regexes to be able to split up parameters reliably.
 	if (!is_ssl) {
-#ifdef SEARCHWORDS
 		(*checkme).isSearch = (*header).isSearch(filtergroup);
 		if ((*checkme).isSearch) {
 			if ((i = (*o.fg[filtergroup]).inLocalBannedSearchList((*header).searchwords())) != NULL) {
@@ -3512,7 +3508,6 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 				return;
 			}
 		}
-#endif
 
 // dg code
 			String terms;
