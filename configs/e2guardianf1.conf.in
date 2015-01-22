@@ -25,6 +25,14 @@ groupmode = 1
 groupname = ''
 
 # Enable separate ssl lists greysslsitelist and bannedsslsitelist
+# 
+# Note that the logic for handling SSL is changed. In DG when either blanket block (or SSL blanket block) 
+# was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist. 
+# In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches 
+# exceptionsitelist or greysslsitelist. This ensures that only trusted sites can be accessed via SSL. 
+# The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, 
+# e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
+# Default off (DG logic) 
 # sslseparatelist = on
 
 # Content filtering files location
