@@ -1,7 +1,7 @@
 About "Bug" tag "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 - New sslseparatelists option (SSL lists greysslsitelist and bannedsslsitelist) default off
-- Add SEARCHWORDSSYPORT as default  
+- Add SEARCHWORDS as default  
 - Add SSL_EXTRA_LIST as default  
 - Add LOCAL_LIST as default new option enablelocallists = on/off 
 - Add TOTAL_BLOCK_LIST as default
