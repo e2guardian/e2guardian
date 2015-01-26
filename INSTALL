@@ -177,7 +177,16 @@ Optional Packages:
                           external iconv library (only used in conjunction
                           with NTLM auth plugin).
   --with-filedescriptors=NUMBER
-                          Force support of NUMBER filedescriptors
+                          Force support of NUMBER filedescriptors (Maxchildren). 
+			  In some cases, you must take steps to tune your system before compiling.
+			  Depends on the OS. usually, the max FD_SETSIZE is set to 1024, so maxchildren can be set to 1018 or lower
+			  You can change this value here (Linux) e.g #define __FD_SETSIZE 8192
+			  - /usr/include/bits/typesizes.h
+		          - /usr/include/linux/posix_types.h
+			 Before compiling/building also set ulimit:
+			 ulimit -n 8192 (This line should be also set in the E2Guardian startup script)
+			 And finaly add configure --with-filedescriptors=8192 
+			 Now you can set maxchildren + preforkchildren to 8188 Max (8192 - 7 (reserved by E2))
   --with-sysconfsubdir[=e2guardian]
                           subdirectory under sysconfdir in which to place
                           config files
