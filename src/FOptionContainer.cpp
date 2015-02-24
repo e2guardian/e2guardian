@@ -336,7 +336,8 @@ bool FOptionContainer::read(const char *filename)
 					s[i] = (rand() % 26) + 'A';
 				}
 				mitm_magic = s;
-			if (findoptionS("onlymitmsslgrey") == "on") 
+			}
+			if (findoptionS("onlymitmsslgrey") == "on") {
 				only_mitm_ssl_grey = true;
 			} else {	
 				only_mitm_ssl_grey = false;
