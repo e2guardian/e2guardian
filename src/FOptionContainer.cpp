@@ -336,7 +336,8 @@ bool FOptionContainer::read(const char *filename)
 				mitm_magic = s;
 			if (findoptionS("onlymitmsslgrey") == "on") 
 				only_mitm_ssl_grey = true;
-	
+			} else {	
+				only_mitm_ssl_grey = false;
 			}
 			if (findoptionS("sslseparatelists") != "on"){
                                  syslog(LOG_ERR, "sslmitm requires sslseparatelists");
