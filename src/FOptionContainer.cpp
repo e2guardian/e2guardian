@@ -148,6 +148,8 @@ void FOptionContainer::resetJustListData()
 	log_regexpurl_flag = false;
 	enable_local_list = false;
 	enable_regex_grey = false;
+	only_mitm_ssl_grey = false;
+	ssl_mitm = false; 
 	enable_ssl_separatelist = false;
 	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
