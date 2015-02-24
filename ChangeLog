@@ -1,5 +1,6 @@
 About "Bug" tag "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Add Czech translation
 - New sslseparatelists option (SSL lists greysslsitelist and bannedsslsitelist) default off
 - Add SEARCHWORDS as default  
 - Add SSL_EXTRA_LIST as default  

@@ -1,19 +1,20 @@
-<HTML><HEAD><TITLE>e2guardian - Pøístup zakázán</TITLE></HEAD>
+<HTML><HEAD>
+<TITLE>DansGuardian - PÅ™Ã­stup zakÃ¡zÃ¡n</TITLE>
+<meta http-equiv="content-type"  content="text/html; charset=utf-8">
+</HEAD>
 <BODY>
-<CENTER><H2>PRISTUP ZAKÁZÁN -USER-</H2>
-<br>Pøístup na tuto stránku:<P>
+<CENTER><H2>PÅ˜ÃSTUP ZAKÃZÃN -USER-</H2>
+<br>PÅ™Ã­stup na tuto strÃ¡nku:<P>
 <strong><a href="-URL-">-URL-</a></strong>
-<P>... byl zakázán z dùvodu:<P>
+<P>... byl zakÃ¡zÃ¡n z dÅ¯vodu:<P>
 <strong><font color="#ff0000">-REASONGIVEN-</font></strong>
-<p><table border=1 bgcolor="#FFEE00"><tr><td>Zobrazení tohoto chybového
-hlá¹ení zpùsobila stránka,<br>
-na kterou jste se pokusil(a) pøistoupit a obsahuje nebo je oznaèena jako
-obsahující<br>
-nepatøiènı materiál.</td></tr></table>
-<P><table border=1 bgcolor="#44dd44"><tr><td>Máte-li nìjaké dotazy, obra»te
-se prosím na va¹eho správce sítì èi osobu povìøenou správou sítì.</td></tr></table>
-
-<P><font size=-3>Powered by <a href="http://e2guardian.org?block" target="_blank">e2guardian</a></font>
+<p><table border=1 bgcolor="#FFEE00"><tr><td>ZobrazenÃ­ tohoto chybovÃ©ho
+hlÃ¡Å¡enÃ­ zpÅ¯sobila strÃ¡nka, na kterou jste se pokusil(a)<br>
+pÅ™istoupit a obsahuje nebo je oznaÄena jako obsahujÃ­cÃ­ nepatÅ™iÄnÃ½ materiÃ¡l.<br><br>
+Kategorizace obsahu: -CATEGORIES- </td></tr></table>
+<P><table border=1 bgcolor="#44dd44"><tr><td>MÃ¡te-li nÄ›jakÃ© dotazy, obraÅ¥te
+se prosÃ­m na vaÅ¡eho sprÃ¡vce sÃ­tÄ› Äi osobu povÄ›Å™enou sprÃ¡vou sÃ­tÄ›.</td></tr></table>
+<P><font size=-3>Powered by <a href="http://dansguardian.org?block" target="_blank">DansGuardian</a></font>
 </center>
 </BODY>
 </HTML>
@@ -24,18 +25,18 @@ The available variables are as follows:
 - REASONLOGGED- gives the reason that gets logged including full details.
 - USER- gives the username if known.
 - IP- gives the originating IP.
+- HOST- gives the originating hostname if known.
+- RAWFILTERGROUP- gives the group number.
 - FILTERGROUP- gives the group number.
+- SERVERIP- gives the IP address on which the filter is running (correct for multiple filterip lines, but not if filterip option is blank).
 - BYPASS- gives URL which allows temporary bypass of denied page
-
+- CATEGORIES- gives the categories assigned to the banned content
 You need to remove the space between the - and the variable to use them
-in your HTML.  They are there above so extra processing is not required.
-
-More example templates are likely to be found on the e2guardian web site
+in your HTML. They are there above so extra processing is not required.
+More example templates are likely to be found on the DansGuardian web site
 on the Extras page.
-
 Daniel Barron 2002-03-27
-
 Czech
 by Richard Bukovansky bukovansky@atcomp.cz
-
--->
+utf-8 version by Jan BubÃ­k bubik@acvyskov.cz
+--> 
