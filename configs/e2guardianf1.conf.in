@@ -33,7 +33,7 @@ groupname = ''
 # The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, 
 # e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
 # Default off (DG logic) 
-# sslseparatelist = on
+# sslseparatelists = on
 
 # Content filtering files location
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
