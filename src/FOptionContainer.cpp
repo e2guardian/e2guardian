@@ -985,7 +985,6 @@ bool FOptionContainer::read(const char *filename)
 			}
 
 			if (enable_ssl_separatelist) {
-				std::cerr << "test" << std::endl;
 				if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
 					banned_ssl_site_flag = true;
 				}		// banned domains
