@@ -623,16 +623,7 @@ bool OptionContainer::read(const char *filename, int type)
 		filter_groups = findoptionI("filtergroups");
 
 	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {
- 		        DIR* d = opendir(per_room_directory_location.c_str());
- 		        if (d == NULL)
-         		{
-                 		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-                 		std::cerr << "Could not open room definitions directory" << std::endl;
-                 		exit(0);
-         		} else {
-				closedir(d);
  		  		loadRooms();
- 			}
                 }
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
@@ -1046,8 +1037,6 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms()
 {
- 	if (per_room_directory_location == "")
- 		return;
 	DIR* d = opendir(per_room_directory_location.c_str());
 	if (d == NULL)
 	{
@@ -1153,6 +1142,15 @@ void OptionContainer::loadRooms()
 			this_room.part_block = true;
 		rooms.push_back(this_room);
 		infile.close();
+		if (roomname.size() <= 2) {
+			if (!is_daemonised) {
+				std::cerr << "Could not read room from definitions file \""<< filename << '"' << std::endl;
+			}
+			syslog(LOG_ERR, "Could not read room from definitions file \"%s\"",
+			filename.c_str());
+			exit(1);
+		}
+		roomname = roomname.substr(1); // remove leading '#'
 	}
 
 	if (closedir(d) != 0)
