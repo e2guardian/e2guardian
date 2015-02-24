@@ -338,6 +338,11 @@ bool FOptionContainer::read(const char *filename)
 				only_mitm_ssl_grey = true;
 	
 			}
+			if (findoptionS("sslseparatelists") != "on"){
+                                 syslog(LOG_ERR, "sslmitm requires sslseparatelists");
+                                 std::cout << "sslmitm requires sslseparatelists" << std::endl;
+				 return false;
+			}
 #ifdef DGDEBUG
 			std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
 #endif
