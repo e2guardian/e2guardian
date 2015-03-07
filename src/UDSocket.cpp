@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include <pwd.h>
 #include <cerrno>
+#include <cstring>
 #include <unistd.h>
 #include <stdexcept>
 #include <stddef.h>

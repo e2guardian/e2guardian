@@ -14,6 +14,7 @@
 
 #include <syslog.h>
 #include <cerrno>
+#include <cstring>
 
 // GLOBALS
 
