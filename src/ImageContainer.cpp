@@ -15,6 +15,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cerrno>
+#include <cstring>
 #include <limits.h>
 
 

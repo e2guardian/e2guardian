@@ -14,6 +14,7 @@ AC_PREREQ(2.57)
 AC_INIT(e2guardian, 3.3.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_CACHE_LOAD
 
@@ -113,7 +114,7 @@ AC_MSG_RESULT($build_os)
 AC_MSG_CHECKING(for debug option)
 AC_ARG_WITH(dgdebug,
 [AC_HELP_STRING([--with-dgdebug@<:@=off@:>@], [switch on debug build mode])],
-[if test "x${withval}" == "xoff" ; then
+[if test "x${withval}" = "xoff" ; then
   AC_MSG_RESULT(no)
 else
   AC_MSG_RESULT(yes)
