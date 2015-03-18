@@ -22,8 +22,7 @@
 #include <fstream>
 #include <sys/time.h>
 #include <sys/poll.h>
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 #include <sys/epoll.h>
 #endif
 #include <istream>
@@ -71,8 +70,7 @@ int waitingfor;  // num procs waiting for to be preforked
 int *childrenpids;  // so when one exits we know who
 int *childrenstates;  // so we know what they're up to
 struct pollfd *pids;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 struct epoll_event e_ev; //added PIP
 struct epoll_event* revents; //added PIP
 int epfd; // added PIP
@@ -119,8 +117,7 @@ bool daemonise();
 int prefork(int num);
 
 // check child process is ready to start work
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 bool check_kid_readystatus(int tofind, int* ssp);
 #else
 bool check_kid_readystatus(int tofind);
@@ -136,8 +133,7 @@ void tellchild_accept(int num, int whichsock);
 bool getsock_fromparent(UDSocket &fd);
 
 // add known info about a child to our info lists
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 void addchild(int fd, pid_t child_pid); // added PIP
 #else
 void addchild(int pos, int fd, pid_t child_pid);
@@ -430,9 +426,7 @@ int prefork(int num)
 #endif
 
 		// add the child and its FD/PID to an empty child slot
-#ifdef linux
-/* Epoll linux only */
-
+#ifdef HAVE_SYS_EPOLL_H
 		if ( sv[0] >= fds ) {
 	    		if (o.logchildprocs)
 				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
@@ -459,8 +453,7 @@ int prefork(int num)
                 }
 #endif
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
            	addchild(sv[0], child_pid);
         	e_ev.data.fd = sv[0];
         	e_ev.events = EPOLLIN;
@@ -513,14 +506,12 @@ void tidyup_forchild()
 		syslog(LOG_ERR, "%s", "Error resetting signal for SIGHUP");
 	}
 	// now close open socket pairs don't need
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (int i = 0; i < fds; i++) {
 #else
 	for (int i = 0; i < o.max_children; i++) {
 #endif
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 		if (childrenstates[i] > -1) {
 #else
 		if (pids[i].fd != -1) {
@@ -532,8 +523,7 @@ void tidyup_forchild()
 	delete[]childrenstates;
 	delete[]childsockets;
 	delete[]pids;  // 4 deletes good, memory leaks bad
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	delete[]revents; // 5 deletes good, memory leaks bad
 #endif
 }
@@ -691,8 +681,7 @@ void mopup_afterkids()
 int getchildslot()
 {
 	int i;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (i = 0; i < fds; i++) {
 #else
 	for (i = 0; i < o.max_children; i++) {
@@ -705,15 +694,13 @@ int getchildslot()
 }
 
 // add the given child, including FD & PID, to the given slot in our lists
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 void addchild(int fd, pid_t child_pid)
 #else
 void addchild(int pos, int fd, pid_t child_pid)
 #endif
 {
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	if ( fd >= fds ) {
 		syslog(LOG_ERR, "Child fd (%d) out of range (max %d)", fd, fds);
 		return;
@@ -726,8 +713,7 @@ void addchild(int pos, int fd, pid_t child_pid)
 	busychildren++;
 	waitingfor++;
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	childrenpids[fd] = (int) child_pid;
 	childrenstates[fd] = 4;  // busy waiting for init
 	pids[fd].fd = fd;
@@ -757,8 +743,7 @@ void cullchildren(int num)
 #endif
 	int i;
 	int count = 0;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (i = fds - 1; i >= 0; i--) {
 #else
 	for (i = o.max_children - 1; i >= 0; i--) {
@@ -769,8 +754,7 @@ void cullchildren(int num)
 			childrenstates[i] = -2;  // dieing
 			numchildren--;
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
       		if(epoll_ctl( epfd, EPOLL_CTL_DEL, i, &e_ev )) {
               		#ifdef DGDEBUG
                 		std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
@@ -796,8 +780,7 @@ void kill_allchildren()
 #ifdef DGDEBUG
 	std::cout << "killing all childs:" << std::endl;
 #endif
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (int i = fds - 1; i >= 0; i--) {
 #else
 	for (int i = o.max_children - 1; i >= 0; i--) {
@@ -809,8 +792,7 @@ void kill_allchildren()
 			delete childsockets[i];
 			childsockets[i] = NULL;
 			pids[i].fd = -1;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 		if (o.logchildprocs)
 			syslog(LOG_ERR, "deleted child: fd: %d pid: %d", i, childrenpids[i]);
 #endif
@@ -824,8 +806,7 @@ void hup_allchildren()
 #ifdef DGDEBUG
 	std::cout << "huping all childs:" << std::endl;
 #endif
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (int i = fds - 1; i >= 0; i--) {
 #else
 	for (int i = o.max_children - 1; i >= 0; i--) {
@@ -837,8 +818,7 @@ void hup_allchildren()
 }
 
 // attempt to receive the message from the child's send_readystatus call
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 bool check_kid_readystatus(int tofind, int* ssp)
 {
 	bool found = false;
@@ -959,8 +939,7 @@ bool check_kid_readystatus(int tofind)
 void deletechild(int child_pid)
 {
 	int i;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (i = 0; i < fds; i++) {
 #else
 	for (i = 0; i < o.max_children; i++) {
@@ -979,8 +958,7 @@ void deletechild(int child_pid)
 			// Common code for any non-"culled" child
 			if (childrenstates[i] != -2) {
 				numchildren--;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
       			try {
                  	epoll_ctl(epfd, EPOLL_CTL_DEL, i, &e_ev);
                  	} catch (std::exception & e) {};
@@ -990,8 +968,7 @@ void deletechild(int child_pid)
 			pids[i].fd = -1;
 		}
 		childrenstates[i] = -1;  // unused
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 		if (o.logchildprocs)
 			syslog(LOG_ERR, "deleted child: fd: %d pid: %d", i, childrenpids[i]);
 #endif
@@ -1009,8 +986,7 @@ int getfreechild()
 {				// check that there is 1 free done
 	// before calling
 	int i;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (i = 0; i < fds; i++) {
 #else
 	for (i = 0; i < o.max_children; i++) {
@@ -2064,8 +2040,7 @@ int ip_list_listener(std::string stat_location, bool logconerror) {
 // also handles the various signalling options DG supports (reload config, flush cache, kill all processes etc.)
 int fc_controlit()
 {
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	int rc;
 #else
 	int rc, fds;
@@ -2489,7 +2464,7 @@ int fc_controlit()
 	busychildren = 0;  // to keep count of our children
 	int freechildren = 0;  // to keep count of our children
 
-#ifdef linux
+#ifdef HAVE_SYS_EPOLL_H
 // moved here PIP 
 // fds is now the max possible number of file descriptors
 // extra 50 for safety ( + 5 should be ok )
@@ -2507,8 +2482,7 @@ int fc_controlit()
 #endif
 	pids = new struct pollfd[fds];
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	revents = new struct epoll_event[fds]; 
 #endif
 
@@ -2519,8 +2493,7 @@ int fc_controlit()
 
 	time(&tmaxspare);
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	epfd = epoll_create(fds);
 #endif
 
@@ -2530,7 +2503,7 @@ int fc_controlit()
 #endif
 
 	// store child fds...
-#ifdef linux
+#ifdef HAVE_SYS_EPOLL_H
 	for (i = 0; i < fds; i++) {
 #else
 	for (i = 0; i < o.max_children; i++) {
@@ -2543,8 +2516,7 @@ int fc_controlit()
 
 	}
 
-#ifdef linux
-// Epoll linux only
+#ifdef HAVE_SYS_EPOLL_H
 // ...and set server fds entries and register with epoll
 	for (i = 0; i < serversocketcount; i++) {
 	     	int f = serversockfds[i];
@@ -2653,9 +2625,7 @@ int fc_controlit()
 		}
 	
 		// Lets take the opportunity to clean up our dead children if any
-#ifdef linux
-		mopup_afterkids();
-#else
+#ifndef HAVE_SYS_EPOLL_H /* !HAVE_SYS_EPOLL_H */
 		if ( fds > FD_SETSIZE) {
 			syslog(LOG_ERR, "Error polling child process sockets: You should reduce your maxchildren");
 #ifdef DGDEBUG
@@ -2667,10 +2637,10 @@ int fc_controlit()
 				pids[i].revents = 0;
 			}
 		}
-		mopup_afterkids();
 #endif
-#ifdef linux
-/* Epoll linux only */
+		mopup_afterkids();
+
+#ifdef HAVE_SYS_EPOLL_H
 		rc = epoll_wait(epfd, revents, fds, 60 * 1000);
 #else
 		rc = poll(pids, fds, 60 * 1000);
@@ -2692,8 +2662,7 @@ int fc_controlit()
 		}
 
 		tofind = rc;
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 		mopup_afterkids();
 		int ssp = 0;  //to hold number of serversockfd entries in revents
 #else
@@ -2707,7 +2676,7 @@ int fc_controlit()
 #endif
 
 		if (tofind > 0) {
-#ifdef linux
+#ifdef HAVE_SYS_EPOLL_H
 			check_kid_readystatus(tofind, &ssp);
 #else
 			check_kid_readystatus(tofind);
@@ -2724,8 +2693,7 @@ int fc_controlit()
 		std::cout << "waitingfor:" << waitingfor << std::endl << std::endl;
 #endif
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 		if (ssp > 0) {   // event on server socket
 		    for (i = 0; i < serversocketcount; i++) {
 			if (childrenstates[serversockfds[i]] == -5) {
@@ -2780,7 +2748,7 @@ int fc_controlit()
 				break;
 		    }
 		}
-#else    // non-linux code
+#else    // !HAVE_SYS_EPOLL_H
 		if (rc > 0) {
 			for (i = o.max_children; i < fds; i++) {
 				if ((pids[i].revents & POLLIN) > 0) {
@@ -2861,8 +2829,7 @@ int fc_controlit()
 		}
 	}
 	cullchildren(numchildren);  // remove the fork pool of spare children
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	for (int i = 0; i < fds; i++) {
 #else
 	for (int i = 0; i < o.max_children; i++) {
@@ -2889,8 +2856,7 @@ int fc_controlit()
 	delete[]childrenstates;
 	delete[]childsockets;
 	delete[]pids;  // 4 deletes good, memory leaks bad
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	delete[]revents;  // 5 deletes good, memory leaks bad
 #endif 
 
@@ -2907,8 +2873,7 @@ int fc_controlit()
 	serversockets.deleteAll();
 	free(serversockfds);
 
-#ifdef linux
-/* Epoll linux only */
+#ifdef HAVE_SYS_EPOLL_H
 	close(epfd);  // close epoll fd
 #endif
 
