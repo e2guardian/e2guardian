@@ -22,9 +22,12 @@
 #include <fstream>
 #include <sys/time.h>
 #include <sys/poll.h>
+
+// LINUX ONLY FEATURE
 #ifdef HAVE_SYS_EPOLL_H
 #include <sys/epoll.h>
 #endif
+
 #include <istream>
 #include <map>
 #include <memory>
