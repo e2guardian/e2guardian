@@ -33,7 +33,7 @@ AC_CACHE_SAVE
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h])
 AC_CHECK_HEADERS([string.h sys/socket.h sys/time.h syslog.h unistd.h locale.h])
-AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h sys/resource.h])
+AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h sys/epoll.h sys/resource.h])
 AC_CHECK_HEADERS([pwd.h grp.h])
 AC_CHECK_HEADERS([byteswap.h])
 
