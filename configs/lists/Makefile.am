@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in \
+DISTCLEANFILES = Makefile.in \
 		       weightedphraselist bannedphraselist exceptionphraselist \
 		       bannedsitelist bannedurllist
 

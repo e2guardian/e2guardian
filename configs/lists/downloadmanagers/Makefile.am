@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in
+DISTCLEANFILES = Makefile.in
 
 DGDATADIR = $(DGCONFDIR)/lists/downloadmanagers
 

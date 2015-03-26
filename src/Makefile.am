@@ -1,4 +1,5 @@
 clean_SUBDIRS= . downloadmanagers contentscanners authplugins
+DISTCLEANFILES = Makefile.in
 
 # A MASSIVE thank you to Lawrence Manning for pointing out the
 # -export-dynamic option was needed to solve a long problem

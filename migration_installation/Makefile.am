@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in \
+DISTCLEANFILES = Makefile.in \
                        installation_or_migration_from_dg.sh 
 
 # SUBDIRS =  .

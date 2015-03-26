@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in \
+DISTCLEANFILES = Makefile.in \
 		       clamdscan.conf icapscan.conf \
 		       kavdscan.conf commandlinescan.conf
 
