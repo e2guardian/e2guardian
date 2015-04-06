@@ -183,6 +183,7 @@ Optional Packages:
 			  You can change this value here (Linux) e.g #define __FD_SETSIZE 8192
 			  - /usr/include/bits/typesizes.h
 		          - /usr/include/linux/posix_types.h
+		         For FreeBSD raise FD_SETSIZE in /usr/include/sys/select.h before preceeding with e2guardian compilation 
 			 Before compiling/building also set ulimit:
 			 ulimit -n 8192 (This line should be also set in the E2Guardian startup script)
 			 And finaly add configure --with-filedescriptors=8192 
