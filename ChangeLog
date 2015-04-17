@@ -1,5 +1,6 @@
 About "Bug" tags "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Add brazilian translation 
 - Code cleaning
 - Add Czech translation
 - New sslseparatelists option (SSL lists greysslsitelist and bannedsslsitelist) default off
@@ -7,7 +8,7 @@ About "Bug" tags "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+i
 - Add SSL_EXTRA_LIST as default  
 - Add LOCAL_LIST as default new option enablelocallists = on/off 
 - Add TOTAL_BLOCK_LIST as default
-- Fix e2 now start with --enable-sslmitm=yes and no ca certificat 
+- Fix e2 now can start with --enable-sslmitm=yes and no ca certificat 
 
 December 2014
 - Version 3.1.1
