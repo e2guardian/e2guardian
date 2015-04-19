@@ -1,7 +1,7 @@
 <html>
 
 <head>
-<title>e2guardian - Access Denied</title>
+<title>e2guardian - Accesso Negado</title>
 </head>
 
 <body bgcolor=#FFFFFF>
@@ -11,7 +11,7 @@
 <tr>
 	<td colspan=2 bgcolor=#FEA700 height=100 align=center>
 	<font face=arial,helvetica size=6>
-	<b>Access has been Denied!</b>
+	<b>Seu acesso foi negado!</b>
 	</td>
 </tr>
 <tr>
@@ -23,35 +23,35 @@
 <tr>
 	<td align=center valign=bottom width=150 bgcolor=#B0C4DE>
 	<font face=arial,helvetica size=1 color=black>
-	YOUR ORG NAME
+	NOME ORGANIZACAO
 	</td>
 	<td width=550 bgcolor=#FFFFFF align=center valign=center>
 	<font face=arial,helvetica color=black>
 	<font size=4>
-	Access to the page:
+	O seu acesso &agrave; p&aacute;gina:
 	<br><br>
 	<a href="-URL-" target="_blank">-URL-</a>
 	<br><br>
 	<font size=3>
-	... has been denied for the following reason:
+	foi negado pelo seguinte motivo:
 	<br><br>
 	<font color=red>
 	<b>-REASONGIVEN-</b>
 	<font color=black>
 	<br><br>
-	Categories:
+	Categoria(s):
 	<br><br>
 	<font color=red>
 	<b>-CATEGORIES-</b>
 	<font color=black>
 	<br><br><br><br>
-	You are seeing this error because what you attempted to access appears to contain,
-	or is labeled as containing, material that has been deemed inappropriate.
+	Voc&ecirc; est&aacute; vendo este erro porque o que voc&ecirc; tentou acessar parece conter
+	ou foi rotulado como material considerado inapropriado.
 	<br><br>
-	If you have any queries contact your ICT Co-ordinator or Network Manager.
+	Se tiver algum questionamento, contacte seu Coordenador de &aacute;rea ou o Gerente de Redes.
 	<br><br><br><br>
 	<font size=1>
-	Powered by <a href="http://www.e2guardian.org?block" target="_blank">e2guardian</a>
+	Produzido por <a href="http://www.e2guardian.org?block" target="_blank">e2guardian</a>
 	</td>
 </tr>
 </table>
@@ -61,24 +61,28 @@
 </html>
 
 <!--
-The available variables are as follows:
-- URL- gives the URL the user was trying to get to.
-- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
-- REASONLOGGED- gives the reason that gets logged including full details.
-- USER- gives the username if known.
-- IP- gives the originating IP.
-- HOST- gives the originating hostname if known.
-- FILTERGROUP- gives the group number.
-- BYPASS- gives URL which allows temporary bypass of denied page
-- CATEGORIES- gives the categories assigned to the banned content
+As seguintes variáveis possíveis são:
+- URL- informa a URL ao usuário que estava tentando acessá-la
+- REASONGIVEN- informa o motivo pelo qual o acesso foi negado, de uma forma
+amigável (exemplo: não destacando a frase banida)
+- REASONLOGGED- informa o motivo que foi registrado, incluindo os detalhes.
+- USER- informa o usuário (se o sistema reconhecê-lo).
+- IP- informa o IP que originou o acesso.
+- HOST- informa o nome da máquina que originou o acesso, caso o sistema
+o reconheça.
+- FILTERGROUP- informa o número do grupo.
+- BYPASS- informa a URL que libera temporariamente a página negada.
+- CATEGORIES- informa a categoria em que o conteúdo foi classificado.
 
-You need to remove the space between the - and the variable to use them
-in your HTML.  They are there above so extra processing is not required.
+É necessário remover o espaço entre o hífen e a variável para usá-las no seu
+código HTML. Eles já estão disponíveis, não há a necessidade de processamento
+extra.
 
-More example templates are likely to be found on the e2guardian web site
-on the Extras page.
+Mais exemplos de modelos podem ser encontrados no site do e2guardian na
+sessão Extra.
 
-This page was designed by Paul Richards.  (http://www.ridney.com/)
+Esta página foi elaborada por Paul Richards.	(http://www.ridney.com/)
+Modificada por Renato C. Pacheco em 2014-04-15
 
 Daniel Barron 2003-09-01
 -->
