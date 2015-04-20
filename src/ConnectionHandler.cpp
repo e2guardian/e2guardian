@@ -596,15 +596,16 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
                                                 rc = proxysock.connect(o.proxy_ip, o.proxy_port);
                                                 if (!rc){
                                                         break;
-                                                } else {
-                                                        sleep(1);
-                                                }
+                                                } 
                                         }
                                         if (rc) {
 #ifdef DGDEBUG
                                                 std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
                                                 syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
+						// Immediatly close (Packet FIN) load balancer knows E2 talks to a dead proxy
+						peerconn.close();
+                                                sleep(1);
                                                 return;
                                         }
                                 }
