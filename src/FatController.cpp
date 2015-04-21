@@ -376,7 +376,6 @@ int prefork(int num)
 			return -1;  // error
 		}
 		child_pid = fork();
-
 		if (child_pid == -1) {	// fork failed, for example, if the
 			// process is not allowed to create
 			// any more
@@ -1924,6 +1923,7 @@ int ip_list_listener(std::string stat_location, bool logconerror) {
 	scopy = sleep;
 	// loop, essentially, for ever
 	while (true) {
+		usleep(3000000000);
 		fdcpy = fdSet;  // take a copy
 		before = time(NULL);
 		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, &scopy);  // block until something happens
@@ -2474,7 +2474,7 @@ int fc_controlit()
 // add 6 for already open fds and maxspare_children as allowance for
 //   overlap whilst waiting for children to die. 
  	fds = o.max_children + serversocketcount + 6 + o.maxspare_children;
-    childrenpids = new int[fds];  // so when one exits we know who
+    	childrenpids = new int[fds];  // so when one exits we know who
 	childrenstates = new int[fds];  // so we know what they're up to
 	childsockets = new UDSocket* [fds];
 #else
