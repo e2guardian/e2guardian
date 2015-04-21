@@ -1923,7 +1923,6 @@ int ip_list_listener(std::string stat_location, bool logconerror) {
 	scopy = sleep;
 	// loop, essentially, for ever
 	while (true) {
-		usleep(3000000000);
 		fdcpy = fdSet;  // take a copy
 		before = time(NULL);
 		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, &scopy);  // block until something happens
