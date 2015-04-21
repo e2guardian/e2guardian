@@ -131,6 +131,12 @@ proxyexchange = 20
 # Min 5 - Max 300
 pcontimeout = 55
 
+# Life depends on Proxy 
+# if proxytimeout is expired, E2 is killed 
+# usefull for load balancer or proxy pac failover
+# off (default) | on
+# alivewithproxy = on
+
 # Whether to retrieve the original destination IP in transparent proxy
 # setups and check it against the domain pulled from the HTTP headers.
 #

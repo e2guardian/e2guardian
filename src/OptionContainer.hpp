@@ -68,6 +68,7 @@ public:
 	bool force_quick_search;
 	bool map_auth_to_ports;
 	bool map_ports_to_ips;
+	bool alive_with_proxy;
 	int filter_port;
 	int proxy_port;
 	std::string proxy_ip;

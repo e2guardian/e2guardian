@@ -1921,12 +1921,12 @@ void HTTPHeader::out(Socket * peersock, Socket * sock, int sendflag, bool reconn
 // discard remainder of POST data
 void HTTPHeader::discard(Socket *sock, off_t cl)
 {
-	static char fred[4096];
+	static char header[4096];
 	if (cl == -2)
 		cl = contentLength();
 	int rc;
 	while (cl > 0) {
-		rc = sock->readFromSocket(fred, ((cl > 4096) ? 4096 : cl), 0, timeout, false);
+		rc = sock->readFromSocket(header, ((cl > 4096) ? 4096 : cl), 0, timeout, false);
 		if (rc > 0)
 			cl -= rc;
 		else

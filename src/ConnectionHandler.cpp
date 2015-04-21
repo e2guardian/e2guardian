@@ -14,6 +14,7 @@
 #include "BackedStore.hpp"
 #include "ImageContainer.hpp"
 #include "FDFuncs.hpp"
+#include <signal.h>
 
 #ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
@@ -562,11 +563,58 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				// our filter
 				checkme.reset();
 			}
+
 			url = header.getUrl(false, ismitm);
 			logurl = header.getLogUrl(false, ismitm); 
 			urld = header.decode(url);
 			urldomain = url.getHostname();
 			is_ssl = header.requestType().startsWith("CONNECT");
+
+			//If proxy connction is not persistent...
+			if (!persistProxy) {
+				try {
+					// ...connect to proxy
+                                        for (int i = 0; i < o.proxy_timeout; i++){
+                                                rc = proxysock.connect(o.proxy_ip, o.proxy_port);
+                                                if (!rc){
+                                                        break;
+						} else {
+
+#ifdef DGDEBUG
+                                                	std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
+#endif
+	                                                syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
+							// Immediatly close (Packet FIN) load balancer knows E2 talks to a dead proxy
+							struct linger a;
+							a.l_onoff=1; 
+                					a.l_linger=0;
+
+							setsockopt(peerconn.getFD(), SOL_SOCKET, SO_LINGER, &a, sizeof(a)); 
+    							// send data here
+							shutdown(peerconn.getFD(), SHUT_WR);
+							peerconn.close();
+							sleep (1);
+                                        	}
+						if ( i == o.proxy_timeout -1 ){
+	                                                syslog(LOG_ERR, "Proxy timeout expired: Max %d seconds", o.proxy_timeout);
+						 	if (o.alive_with_proxy){
+	                                                	syslog(LOG_ERR, "Proxy timeout expired: alivewithproxy = on exit program");
+								/* TODO : A better way should be just stop the connection,
+								 if the proxy returns E2 still alive */
+								kill(0, SIGTERM);
+							} else {
+								kill(getpid(), SIGTERM);
+							}
+						}
+                                	}
+				}
+				catch(std::exception & e) {
+#ifdef DGDEBUG
+				std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << std::endl;
+#endif
+				}
+			}
+
 #ifdef DGDEBUG
                         std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
 #endif
@@ -586,35 +634,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				catch(std::exception & e) {
 				}
 				break;
-			}
-
-			//If proxy conneciton is not persistent...
-			if (!persistProxy) {
-				try {
-					// ...connect to proxy
-                                        for (int i = 0; i < o.proxy_timeout; i++){
-                                                rc = proxysock.connect(o.proxy_ip, o.proxy_port);
-                                                if (!rc){
-                                                        break;
-                                                } 
-                                        }
-                                        if (rc) {
-#ifdef DGDEBUG
-                                                std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
-#endif
-                                                syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
-						// Immediatly close (Packet FIN) load balancer knows E2 talks to a dead proxy
-						peerconn.close();
-                                                sleep(1);
-                                                return;
-                                        }
-                                }
-
-				catch(std::exception & e) {
-#ifdef DGDEBUG
-					std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << std::endl;
-#endif
-				}
 			}
 
 // do total block list checking here

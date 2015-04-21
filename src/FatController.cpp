@@ -2184,19 +2184,19 @@ int fc_controlit()
 	// Made unconditional for same reasons as above
 	//if (needdrop) {
 #ifdef HAVE_SETREUID
-		rc = setreuid((uid_t) - 1, o.proxy_user);
+	rc = setreuid((uid_t) - 1, o.proxy_user);
 #else
-		rc = seteuid(o.proxy_user);  // become low priv again
+	rc = seteuid(o.proxy_user);  // become low priv again
 #endif
-		if (rc == -1) {
-			syslog(LOG_ERR, "Unable to re-seteuid()");
+	if (rc == -1) {
+		syslog(LOG_ERR, "Unable to re-seteuid()");
 #ifdef DGDEBUG
-			std::cerr << "Unable to re-seteuid()" << std::endl;
+		std::cerr << "Unable to re-seteuid()" << std::endl;
 #endif
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;  // seteuid failed for some reason so exit with error
-		}
+		close(pidfilefd);
+		free(serversockfds);
+		return 1;  // seteuid failed for some reason so exit with error
+	}
 
 	// Needs deleting if its there
 	unlink(o.ipc_filename.c_str());  // this would normally be in a -r situation.

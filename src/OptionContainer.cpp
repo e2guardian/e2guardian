@@ -34,7 +34,7 @@ ListContainer total_block_url_list;
 OptionContainer::OptionContainer():use_filter_groups_list(false), use_group_names_list(false),
 auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false),
 log_syslog(false),  anonymise_logs(false), log_ad_blocks(false),log_timestamp(false),
-log_user_agent(false), soft_restart(false),delete_downloaded_temp_files(false),
+log_user_agent(false), soft_restart(false),delete_downloaded_temp_files(false),alive_with_proxy(false),
 max_logitem_length(2000), max_content_filter_size(0),
 max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0),
 content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0),
@@ -197,6 +197,11 @@ bool OptionContainer::read(const char *filename, int type)
 			soft_restart = false;
 		}
 
+		if (findoptionS("alivewithproxy") == "on") {
+                        alive_with_proxy = true;
+                } else {
+                        alive_with_proxy = false;
+                }
 #ifdef __SSLCERT
 		ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
 		if (ssl_certificate_path == "/"){
