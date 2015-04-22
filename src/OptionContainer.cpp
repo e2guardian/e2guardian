@@ -233,12 +233,13 @@ bool OptionContainer::read(const char *filename, int type)
 //		}
 
 		generated_link_path = generated_cert_path;  // not used at present
-		
-		ca = new CertificateAuthority(ca_certificate_path.c_str(),
+		if (ca_certificate_path != ""){
+			ca = new CertificateAuthority(ca_certificate_path.c_str(),
 				ca_private_key_path.c_str(),
 				cert_private_key_path.c_str(),
 				generated_cert_path.c_str(),
 				generated_link_path.c_str());
+		}
 
 #endif
 
@@ -831,8 +832,6 @@ bool OptionContainer::read(const char *filename, int type)
 	return true;
 }
 
-#ifdef TOTAL_BLOCK_LIST
-
 // read from stdin, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw
 // listname is used in error messages.
@@ -868,7 +867,6 @@ bool OptionContainer::readinStdin()
 	total_block_url_flag = true;
 	return true;
 }
-#endif // TOTAL_BLOCK_LIST
 
 char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl) 
 {
@@ -949,7 +947,6 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 }
 
 
-#ifdef TOTAL_BLOCK_LIST
 bool OptionContainer::inTotalBlockList(String &url)
 {
 	String murl = url;
@@ -962,7 +959,6 @@ bool OptionContainer::inTotalBlockList(String &url)
     	}
 	return false;
 }
-#endif  // end TOTAL_BLOCK_LIST
 
 bool OptionContainer::doReadItemList(const char* filename, ListContainer* lc, const char* fname, bool swsort) {
 	bool result = lc->readItemList(filename, false, 0);
