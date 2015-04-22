@@ -1142,12 +1142,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 					} 
 #ifdef REFEREREXCEPT
-				}
 					//else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
 					else if ((!is_ssl) && embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(620);
 						message_no = 620;
+					}
 #endif
 			// end of local lists exception checking
 				}
@@ -1207,7 +1207,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				}
 				
 #ifdef REFEREREXCEPT
-				if ((*o.fg[filtergroup]).enable_local_list){
+				else if (!(*o.fg[filtergroup]).enable_local_list){
 					if (embededRefererChecks(&header, &urld, &url,filtergroup)) { // referer exception
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(620);
@@ -3172,8 +3172,8 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
-		if ((*o.fg[filtergroup]).enable_ssl_separatelist)
-			if (is_ssl) (*checkme).isSSLGrey = true;
+//		if ((*o.fg[filtergroup]).enable_ssl_separatelist)
+		if (is_ssl) (*checkme).isSSLGrey = true;
 	}
 
 	// only apply bans to things not in the grey lists
@@ -3273,37 +3273,39 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 #endif
 					}
 				}
-				if (o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
-					|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
+				if ((!(*checkme).isItNaughty) ) {
+					if ( o.fg[filtergroup]->inExceptionSiteList(deepurl) || o.fg[filtergroup]->inGreySiteList(deepurl)
+						|| o.fg[filtergroup]->inExceptionURLList(deepurl) || o.fg[filtergroup]->inGreyURLList(deepurl))
 
-				{
+					{
 #ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
+						std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << std::endl;
 #endif
-					continue;
-				}					
-				if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).message_no = 500;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
+						continue;
+					}					
+					else if ((i = (*o.fg[filtergroup]).inBannedSiteList(deepurl)) != NULL) {
+						(*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
+							(*checkme).whatIsNaughty += i;
+						(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+						(*checkme).message_no = 500;
+						(*checkme).isItNaughty = true;
+						(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_site_list]).lastcategory.toCharArray();
 #ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
+						std::cout << dbgPeerPort << " -deep site: " << deepurl << std::endl;
 #endif
-				}
-				else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
-					(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
-					(*checkme).message_no = 501;
-					 // Banned URL:
-					(*checkme).whatIsNaughty += i;
-					(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-					(*checkme).isItNaughty = true;
-					(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
+					}
+					else if ((i = (*o.fg[filtergroup]).inBannedURLList(deepurl)) != NULL) {
+						(*checkme).whatIsNaughty = o.language_list.getTranslation(501);
+						(*checkme).message_no = 501;
+					 	// Banned URL:
+						(*checkme).whatIsNaughty += i;
+						(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+						(*checkme).isItNaughty = true;
+						(*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_url_list]).lastcategory.toCharArray();
 #ifdef DGDEBUG
-					std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
+						std::cout << dbgPeerPort << " -deep url: " << deepurl << std::endl;
 #endif
+					}
 				}
 			}
 #ifdef DGDEBUG
