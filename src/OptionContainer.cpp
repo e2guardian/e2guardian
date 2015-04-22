@@ -628,7 +628,7 @@ bool OptionContainer::read(const char *filename, int type)
 		filter_groups = findoptionI("filtergroups");
 
 	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {
- 		  		loadRooms();
+ 		  		loadRooms(true);
                 }
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
@@ -983,7 +983,7 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 }
 
 
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?
+// TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
 
 bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url) 
 {
@@ -1040,14 +1040,18 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 // TODO: Filter rules should migrate to FOptionContainer.cpp ?
 
-void OptionContainer::loadRooms()
+void OptionContainer::loadRooms(bool throw_error)
 {
 	DIR* d = opendir(per_room_directory_location.c_str());
 	if (d == NULL)
 	{
-		syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-		std::cerr << "Could not open room definitions directory" << std::endl;
-		exit(1);
+		if (throw_error) {
+			syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
+			std::cerr << "Could not open room definitions directory" << std::endl;
+			exit(1);
+		} else {
+			return;
+		}
 	}
 
 	struct dirent* f;

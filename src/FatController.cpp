@@ -2611,7 +2611,7 @@ int fc_controlit()
 					}
 					if (!reloadconfig) {
 						o.deleteRooms();
-						o.loadRooms();
+						o.loadRooms(false);
 						hup_allchildren();
 			        		o.lm.garbageCollect();
 						prefork(o.min_children);
