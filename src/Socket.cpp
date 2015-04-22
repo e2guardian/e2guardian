@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <netinet/tcp.h>
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 #include "openssl/x509v3.h"
 #include "openssl/asn1.h"
 #include "openssl/ssl.h"
@@ -52,7 +52,7 @@ Socket::Socket()
 
 	my_port = 0;
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	ssl = NULL;
 	ctx = NULL;
 	isssl = false;
@@ -76,7 +76,7 @@ Socket::Socket(int fd):BaseSocket(fd)
 
 	my_port = 0;
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	ssl = NULL;
 	ctx = NULL;
 	isssl = false;
@@ -102,7 +102,7 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip):Ba
 
 	my_port = 0;
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	ssl = NULL;
 	ctx = NULL;
 	isssl = false;
@@ -157,12 +157,12 @@ void Socket::reset()
 	peer_adr.sin_family = AF_INET;
 	peer_adr_length = sizeof(struct sockaddr_in);
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	if(isssl)
 	{
 		stopSsl();
 	}
-#endif //__SSLCERT
+#endif //__SSLMITM
 }
 
 // connect to given IP & port (following default constructor)
@@ -219,7 +219,7 @@ Socket* Socket::accept()
 		return NULL;
 }
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 //use this socket as an ssl client
 int Socket::startSslClient(const std::string& certificate_path)
 {
@@ -539,7 +539,7 @@ void Socket::close()
 	}
 	BaseSocket::close();
 }
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 
 #ifdef __SSLMITM

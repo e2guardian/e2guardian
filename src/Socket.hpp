@@ -12,7 +12,7 @@
 
 #include "BaseSocket.hpp"
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 #include "openssl/ssl.h"
 #include "String.hpp" 
 #endif
@@ -55,7 +55,7 @@ public:
 	std::string getLocalIP();
         int getLocalPort();
 	
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	//use this socket as an ssl server
 	int startSslClient(const std::string& certPath);
 
@@ -74,7 +74,7 @@ public:
 	int checkCertHostname(const std::string& hostame);
 	
 	void close();
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 #ifdef __SSLMITM
 	//use this socket as an ssl server
@@ -108,14 +108,14 @@ public:
 
 
 private:
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	SSL * ssl;
 	SSL_CTX * ctx;
 	bool isssl;
 	bool issslserver;
 #else
 	bool isssl;
-#endif//__SSLCERT
+#endif//__SSLMITM
 	
 	// local & remote addresses
 	struct sockaddr_in my_adr;

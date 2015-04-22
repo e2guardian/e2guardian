@@ -173,7 +173,7 @@ AuthPlugin* auth_plugin_load(const char *pluginConfigPath)
 		return ntlmcreate(cv);
 	}
 #endif
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 //	if (plugname == "ssl") {
 #ifdef DGDEBUG
 //		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
@@ -187,7 +187,7 @@ AuthPlugin* auth_plugin_load(const char *pluginConfigPath)
 #endif
 //		return sslcorecreate(cv);
 //	}
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 	if (!is_daemonised) {
 		std::cerr << "Unable to load plugin: " << pluginConfigPath << std::endl;

@@ -202,7 +202,7 @@ bool OptionContainer::read(const char *filename, int type)
                 } else {
                         alive_with_proxy = false;
                 }
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 		ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
 		if (ssl_certificate_path == "/"){
 			ssl_certificate_path = "/etc/ssl/certs/";

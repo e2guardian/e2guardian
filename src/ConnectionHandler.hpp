@@ -111,12 +111,12 @@ private:
 	// send a file to the client - used during bypass of blocked downloads
 	off_t sendFile(Socket *peerconn, String & filename, String & filemime, String & filedis, String &url);
 	
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	//ssl certificat checking
 	void checkCertificate(String &hostname, Socket * sslSock, NaughtyFilter * checkme);
 	
 	int sendProxyConnect(String &hostname, Socket * sock, NaughtyFilter * checkme);
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 };
 

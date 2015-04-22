@@ -41,7 +41,7 @@
 #include <linux/netfilter_ipv4.h>
 #endif
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 #include "openssl/ssl.h"
 #include "openssl/x509v3.h"
 #include "String.hpp" 
@@ -3365,7 +3365,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	}
     }
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	//check the certificate if
 	//its a connect,
 	//ssl cert checking is enabled,
@@ -3428,7 +3428,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 #endif
 
 	}
-#endif //__SSLCERT
+#endif //__SSLMITM
 }
 
 
@@ -4231,7 +4231,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 }
 
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket * sock, NaughtyFilter * checkme)
 {
 	String connect_request = "CONNECT " + hostname + ":";
@@ -4328,6 +4328,6 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket * sslsock, Nau
 		return;
 	}
 }
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 

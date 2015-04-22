@@ -134,7 +134,7 @@ public:
 	bool log_user_agent;
 	bool soft_restart;
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	std::string ssl_certificate_path;
 #endif
 

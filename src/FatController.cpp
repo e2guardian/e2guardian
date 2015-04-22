@@ -40,10 +40,10 @@
 #include <ucontext.h>
 #endif
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 #include "FatController.hpp"
 #include "ConnectionHandler.hpp"
@@ -2294,7 +2294,7 @@ int fc_controlit()
 		return 1;
 	}
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 	//init open ssl
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
