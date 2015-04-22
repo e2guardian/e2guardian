@@ -628,8 +628,8 @@ bool OptionContainer::read(const char *filename, int type)
 		filter_groups = findoptionI("filtergroups");
 
 	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {
- 		  		loadRooms(true);
-                }
+ 			loadRooms(true);
+		}
 
 		if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
 			return false;
@@ -1042,6 +1042,8 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 
 void OptionContainer::loadRooms(bool throw_error)
 {
+	if (!throw_error && (per_room_directory_location == ""))
+		return;
 	DIR* d = opendir(per_room_directory_location.c_str());
 	if (d == NULL)
 	{
