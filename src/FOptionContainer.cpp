@@ -115,9 +115,14 @@ void FOptionContainer::resetJustListData()
         	if (local_banned_url_flag) o.lm.deRefList(local_banned_url_list);
         	if (local_grey_site_flag) o.lm.deRefList(local_grey_site_list);
         	if (local_grey_url_flag) o.lm.deRefList(local_grey_url_list);
+// next two only if ssllists enabled??
         	if (local_banned_ssl_site_flag) o.lm.deRefList(local_banned_ssl_site_list);
         	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
 	}
+
+#ifdef __SSLMITM
+	if (no_check_cert_site_flag) o.lm.deRefList(no_check_cert_site_list);
+#endif
 
 	if (enable_ssl_separatelist) {
 		if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
@@ -184,6 +189,10 @@ void FOptionContainer::resetJustListData()
 	banned_search_overide_flag = false;
 	banned_ssl_site_flag = false;
 	grey_ssl_site_flag = false;
+
+#ifdef __SSLMITM
+	no_check_cert_site_flag = false;
+#endif
 	
 	block_downloads = false;
 	
@@ -346,6 +355,8 @@ bool FOptionContainer::read(const char *filename)
                                  syslog(LOG_ERR, "sslmitm requires sslseparatelists");
                                  std::cout << "sslmitm requires sslseparatelists" << std::endl;
 				 return false;
+			if (findoptionS("mitmcheckcert") == "off") 
+				mitm_check_cert = false;
 			}
 #ifdef DGDEBUG
 			std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
@@ -713,7 +724,9 @@ bool FOptionContainer::read(const char *filename)
 
 			std::string banned_ssl_site_list_location(findoptionS("bannedsslsitelist"));
 			std::string grey_ssl_site_list_location(findoptionS("greysslsitelist"));
-
+#ifdef __SSLMITM
+			std::string no_check_cert_site_list_location(findoptionS("nocheckcertsitelist"));
+#endif 
 			if (enable_PICS) {
 				pics_rsac_nudity = findoptionI("RSACnudity");
 				pics_rsac_language = findoptionI("RSAClanguage");
@@ -1002,6 +1015,14 @@ bool FOptionContainer::read(const char *filename)
 					return false;
 				}
 			}
+#ifdef __SSLMITM
+			if (no_check_cert_site_list_location.length() && readFile(no_check_cert_site_list_location.c_str(),&no_check_cert_site_list,false,true,"nocheckcertsitelist")) {
+				no_check_cert_site_flag = true;
+			}		// do not check certs for these sites
+			else {
+				no_check_cert_site_flag = false;
+			}
+#endif
 			// log-only lists
 			if (log_url_list_location.length() && readFile(log_url_list_location.c_str(), &log_url_list, true, true, "logurllist")) {
 				log_url_flag = true;
@@ -1411,6 +1432,15 @@ bool FOptionContainer::inGreySSLSiteList(String url, bool doblanket, bool ip, bo
 	}
 }
 
+bool FOptionContainer::inNoCheckCertSiteList(String url, bool ip)
+{
+	if (no_check_cert_site_flag) {
+	   return inSiteList(url, no_check_cert_site_list, false, ip, true) != NULL;
+	}
+        else {
+	   return false;
+	}
+}
 #ifdef PRT_DNSAUTH
 bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
 {

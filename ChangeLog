@@ -1,4 +1,3 @@
-About "Bug" tags "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 - Add brazilian translation 
 - Code cleaning
@@ -9,6 +8,17 @@ About "Bug" tags "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+i
 - Add LOCAL_LIST as default new option enablelocallists = on/off 
 - Add TOTAL_BLOCK_LIST as default
 - Fix e2 now can start with --enable-sslmitm=yes and no ca certificat 
+
+January 2015
+MITM cert checking re-enabled
+- MITM cert checking can be turned on/off with mitmcheckcert option
+- Optional nocheckcertsitelist introduced 
+
+December 2014
+- Version 3.1.2
+- Several bug fixes
+MITM cert checking disabled to enable cross-platform working to address
+Google retirement of nosslsearch feature.
 
 December 2014
 - Version 3.1.1
