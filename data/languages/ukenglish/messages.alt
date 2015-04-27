@@ -14,8 +14,8 @@
 "55","CONTENTMOD"
 "56","URLMOD"
 "57","HEADERMOD"
-"58","HEADEDADD"
-
+"58","HEADERADD"
+"70","SSL SITE"
 
 "100","Your IP address is not allowed to web browse: "
 "101","Your IP address is not allowed to web browse."
@@ -23,6 +23,16 @@
 "103","Banned Client IP"
 "104","Banned Room"
 "105","Banned User"
+
+"150","Certificate supplied by server was not valid"
+"151","Could not open ssl connection" 
+"152","Failed to get ssl certificate"
+"153","Failed to load ssl private key"
+"154","Failed to negotiate ssl connection to client"
+"155","No SSL certificate supplied by server"
+"156","Server's SSL certificate does not match domain name"
+
+"200","The requested URL is malformed."
 
 "200","The requested URL is malformed."
 
