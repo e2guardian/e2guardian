@@ -203,7 +203,7 @@ exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 # A directory containing text files containing the room's name followed by IPs or ranges
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
-perroomdirectory = '@DGCONFDIR@/lists/bannedrooms/'
+perroomdirectory = '@DGCONFDIR@/lists/rooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -695,7 +695,3 @@ softrestart = off
 #(must be writable by the dg user)
 #generatedcertpath = '/home/stephen/dginstall/generatedcerts/'
 
-#Generated link path = ''
-#The location where symlinks to certificates will be created.
-#(must be writable by the dg user)
-#generatedlinkpath = '/home/stephen/dginstall/generatedlinks/'

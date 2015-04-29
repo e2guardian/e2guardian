@@ -82,6 +82,7 @@ void FOptionContainer::resetJustListData()
 	if (banned_regexpheader_flag) o.lm.deRefList(banned_regexpheader_list);
 	if (content_regexp_flag) o.lm.deRefList(content_regexp_list);
 	if (url_regexp_flag) o.lm.deRefList(url_regexp_list);
+	if (url_redirect_regexp_flag) o.lm.deRefList(url_redirect_regexp_list);
 	if (header_regexp_flag) o.lm.deRefList(header_regexp_list);
 	if (exception_extension_flag) o.lm.deRefList(exception_extension_list);
 	if (exception_mimetype_flag) o.lm.deRefList(exception_mimetype_list);
@@ -95,15 +96,11 @@ void FOptionContainer::resetJustListData()
 	if (auth_exception_site_flag) o.lm.deRefList(auth_exception_site_list);
 	if (auth_exception_url_flag) o.lm.deRefList(auth_exception_url_list);
 #endif
-#ifdef REFEREREXCEPT
 	if (referer_exception_site_flag) o.lm.deRefList(referer_exception_site_list);
 	if (referer_exception_url_flag) o.lm.deRefList(referer_exception_url_list);
 	if (embeded_referer_site_flag) o.lm.deRefList(embeded_referer_site_list);
 	if (embeded_referer_url_flag) o.lm.deRefList(embeded_referer_url_list);
-#endif
-#ifdef ADDHEADER
 	if (addheader_regexp_flag) o.lm.deRefList(addheader_regexp_list);
-#endif
 	if (banned_search_flag) o.lm.deRefList(banned_search_list);
 	if (search_regexp_flag) o.lm.deRefList(search_regexp_list);
 	if (enable_local_list) {
@@ -124,10 +121,10 @@ void FOptionContainer::resetJustListData()
 	if (no_check_cert_site_flag) o.lm.deRefList(no_check_cert_site_list);
 #endif
 
-	if (enable_ssl_separatelist) {
+//	if (enable_ssl_separatelist) {
 		if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
 		if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
-	}
+//	}
 	banned_phrase_flag = false;
 	searchterm_flag = false;
 	exception_site_flag = false;
@@ -143,6 +140,7 @@ void FOptionContainer::resetJustListData()
 	banned_regexpheader_flag = false;
 	content_regexp_flag = false;
 	url_regexp_flag = false;
+	url_redirect_regexp_flag = false;
 	header_regexp_flag = false;
 	exception_extension_flag = false;
 	exception_mimetype_flag = false;
@@ -155,18 +153,16 @@ void FOptionContainer::resetJustListData()
 	enable_regex_grey = false;
 	only_mitm_ssl_grey = false;
 	ssl_mitm = false; 
-	enable_ssl_separatelist = false;
+	enable_ssl_separatelist = true;
 	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
 	auth_exception_site_flag = false;
 	auth_exception_url_flag = false;
 #endif
-#ifdef REFEREREXCEPT
 	referer_exception_site_flag = false;
 	referer_exception_url_flag = false;
 	embeded_referer_site_flag = false;
 	embeded_referer_url_flag = false;
-#endif
 	use_only_local_allow_lists = false;
 	local_exception_site_flag = false;
 	local_exception_url_flag = false;
@@ -176,11 +172,9 @@ void FOptionContainer::resetJustListData()
 	local_grey_url_flag = false;
 	local_banned_ssl_site_flag = false;
 	local_grey_ssl_site_flag = false;
-#ifdef ADDHEADER
 	addheader_regexp_flag = false;
 	addheader_regexp_list_comp.clear();
 	addheader_regexp_list_rep.clear();
-#endif
 	banned_search_flag = false;
 	search_regexp_flag = false;
 	search_regexp_list_comp.clear();
@@ -204,6 +198,8 @@ void FOptionContainer::resetJustListData()
 	content_regexp_list_rep.clear();
 	url_regexp_list_comp.clear();
 	url_regexp_list_rep.clear();
+	url_redirect_regexp_list_comp.clear();
+	url_redirect_regexp_list_rep.clear();
 	header_regexp_list_comp.clear();
 	header_regexp_list_rep.clear();
 	banned_regexpurl_list_comp.clear();
@@ -597,10 +593,10 @@ bool FOptionContainer::read(const char *filename)
 				enable_PICS = false;
 			}
 
-                        if (findoptionS("sslseparatelists") == "on") {
-                                enable_ssl_separatelist = true;
-                        } else {
+                        if (findoptionS("sslseparatelists") == "off") {
 				enable_ssl_separatelist = false;
+                        } else {
+                                enable_ssl_separatelist = true;
 			}
 
 
@@ -697,18 +693,12 @@ bool FOptionContainer::read(const char *filename)
 			std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
 			std::string auth_exceptions_url_list_location(findoptionS("authexceptionurllist"));
 #endif
-#ifdef RXREDIRECTS
 			std::string url_redirect_regexp_list_location(findoptionS("urlredirectregexplist"));
-#endif
-#ifdef REFEREREXCEPT
 			std::string referer_exceptions_site_list_location(findoptionS("refererexceptionsitelist"));
 			std::string referer_exceptions_url_list_location(findoptionS("refererexceptionurllist"));
 			std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
 			std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
-#endif
-#ifdef ADDHEADER
 			std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
-#endif
 			std::string banned_search_list_location(findoptionS("bannedsearchlist"));
 			std::string search_regexp_list_location(findoptionS("searchregexplist"));
 			std::string local_banned_search_list_location(findoptionS("localbannedsearchlist"));
@@ -899,7 +889,6 @@ bool FOptionContainer::read(const char *filename)
 			}		// non-auth url exceptions
 			auth_exception_url_flag = true;
 #endif
-#ifdef REFEREREXCEPT
 			if (referer_exceptions_site_list_location.length() && readFile(referer_exceptions_site_list_location.c_str(),&referer_exception_site_list,false,true,"refererexceptionsitelist")) {
 				referer_exception_site_flag = true;
 			}		// referer site exceptions
@@ -912,12 +901,9 @@ bool FOptionContainer::read(const char *filename)
 			if (embeded_referer_url_list_location.length() && readFile(embeded_referer_url_list_location.c_str(),&embeded_referer_url_list,true,true,"embededrefererurllist")) {
 				embeded_referer_url_flag = true;
 			}		// referer url exceptions
-#endif
-#ifdef ADDHEADER
 			if (addheader_regexp_list_location.length() && readRegExReplacementFile(addheader_regexp_list_location.c_str(),"addheaderregexplist",addheader_regexp_list,addheader_regexp_list_rep,addheader_regexp_list_comp)) {
 			addheader_regexp_flag = true;
 			}  // url regular expressions for header insertions
-#endif
 			if (searchengine_regexp_list_location.length()) {
 				if (!is_daemonised) {
 					std::cerr << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. "  << std::endl;
@@ -1119,6 +1105,11 @@ bool FOptionContainer::read(const char *filename)
 				return false;
 			}  // header replacement regular expressions
 			header_regexp_flag = true;
+
+			if (url_redirect_regexp_list_location.length() && readRegExReplacementFile(url_redirect_regexp_list_location.c_str(),"urlredirectregexplist",url_redirect_regexp_list,url_redirect_regexp_list_rep,url_redirect_regexp_list_comp)) {
+				url_redirect_regexp_flag = true;
+			}  // url redirect expressions
+
 #ifdef DGDEBUG
 			std::cout << "Lists in memory" << std::endl;
 #endif
@@ -1400,11 +1391,11 @@ char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bo
 
 bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-	if (enable_local_list) { 
+//	if (enable_local_list) { 
 		if (use_only_local_allow_lists) {
 			return false;
 		};
-	}
+//	}
 	if (ssl && enable_ssl_separatelist) {
 	   return inGreySSLSiteList(url, doblanket, ip, ssl);
 	};
@@ -1447,7 +1438,7 @@ bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool 
 	return inSiteList(url, auth_exception_site_list, doblanket, ip, ssl) != NULL;
 }
 #endif
-#ifdef REFEREREXCEPT
+
 bool FOptionContainer::inRefererExceptionLists(String url)
 {
 	String temp = url;
@@ -1467,7 +1458,7 @@ bool FOptionContainer::inEmbededRefererLists(String url)
 		return true;
 	return false;
 }
-#endif
+
 char *FOptionContainer::inBannedSearchList(String words)
 {
 

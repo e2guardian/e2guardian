@@ -196,19 +196,15 @@ public:
 	unsigned int log_url_list;
 	unsigned int log_regexpurl_list;
 
-#ifdef REFEREREXCEPT
 	unsigned int referer_exception_site_list;
 	unsigned int referer_exception_url_list;
 	unsigned int embeded_referer_site_list;
 	unsigned int embeded_referer_url_list;
-#endif
 #ifdef PRT_DNSAUTH
 	unsigned int auth_exception_site_list;
 	unsigned int auth_exception_url_list;
 #endif
-#ifdef ADDHEADER
 	unsigned int addheader_regexp_list;
-#endif
 	unsigned int banned_search_list;
 	unsigned int search_regexp_list;
 	unsigned int local_banned_search_list;
@@ -225,24 +221,20 @@ public:
 	unsigned int banned_ssl_site_list;
 	unsigned int grey_ssl_site_list;
 
-#ifdef __SSLMITM
 	unsigned int no_check_cert_site_list;
-#endif
 
-#ifdef RXREDIRECTS
 	unsigned int url_redirect_regexp_list;
 	std::deque<RegExp> url_redirect_regexp_list_comp;
 	std::deque<String> url_redirect_regexp_list_rep;
 	bool url_redirect_regexp_flag;
-#endif
    
 	// regex match lists
 	std::deque<RegExp> banned_regexpurl_list_comp;
 	std::deque<String> banned_regexpurl_list_source;
 	std::deque<unsigned int> banned_regexpurl_list_ref;
-	std::deque<RegExp> exception_regexpurl_list_comp;
-	std::deque<String> exception_regexpurl_list_source;
-	std::deque<unsigned int> exception_regexpurl_list_ref;
+        std::deque<RegExp> exception_regexpurl_list_comp;
+        std::deque<String> exception_regexpurl_list_source;
+        std::deque<unsigned int> exception_regexpurl_list_ref;	
 	std::deque<RegExp> banned_regexpheader_list_comp;
 	std::deque<String> banned_regexpheader_list_source;
 	std::deque<unsigned int> banned_regexpheader_list_ref;
@@ -259,10 +251,8 @@ public:
 	std::deque<String> header_regexp_list_rep;
 	std::deque<RegExp> search_regexp_list_comp;
 	std::deque<String> search_regexp_list_rep;
-#ifdef ADDHEADER
 	std::deque<RegExp> addheader_regexp_list_comp;
 	std::deque<String> addheader_regexp_list_rep;
-#endif
 
 	// precompiled reg exps for speed
 	RegExp pics1;
@@ -285,46 +275,50 @@ public:
 	//bool extractSearchTerms(String url, String &terms);
 
 	FOptionContainer():
-		block_downloads(false), searchterm_flag(false), banned_page(NULL),
-		ssl_mitm(false), only_mitm_ssl_grey(false), ssl_check_cert(false),
+		block_downloads(false), 
+		searchterm_flag(false), 
+		banned_page(NULL),
+		ssl_mitm(false), 
+		only_mitm_ssl_grey(false), 
+		ssl_check_cert(false),
 		mitm_check_cert(true),
-#ifdef REFEREREXCEPT
-		referer_exception_site_flag(false),
-		referer_exception_url_flag(false),
-		embeded_referer_site_flag(false),
-		embeded_referer_url_flag(false),
-#endif
+		referer_exception_site_flag(false), referer_exception_url_flag(false),
+		embeded_referer_site_flag(false), embeded_referer_url_flag(false),
 #ifdef PRT_DNSAUTH
-		auth_exception_site_flag(false),
-		auth_exception_url_flag(false),
+		auth_exception_site_flag(false), auth_exception_url_flag(false),
 #endif
-#ifdef ADDHEADER
 		addheader_regexp_flag(false),
-#endif
 		banned_search_flag(false),
 		search_regexp_flag(false),
 		local_banned_search_flag(false),
 		banned_search_overide_flag(false),
-		local_exception_site_flag(false), 
-		local_exception_url_flag(false),
-		local_banned_site_flag(false),
-		local_banned_url_flag(false), 
-		local_grey_site_flag(false), 
-		local_grey_url_flag(false),
+		local_exception_site_flag(false), local_exception_url_flag(false),
+		local_banned_site_flag(false), local_banned_url_flag(false), 
+		local_grey_site_flag(false), local_grey_url_flag(false), 
 		enable_regex_grey(false),
 		enable_local_list(false),
-		enable_ssl_separatelist(false),
+		enable_ssl_separatelist(true),
 		use_only_local_allow_lists(false),
-		banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
-		banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
-		banned_url_flag(false), grey_site_flag(false), grey_url_flag(false),
-		banned_regexpurl_flag(false), exception_regexpurl_flag(false), banned_regexpheader_flag(false),
-		content_regexp_flag(false), url_regexp_flag(false), header_regexp_flag(false),
-		exception_extension_flag(false), exception_mimetype_flag(false),
+		banned_phrase_flag(false), 
+		exception_site_flag(false), exception_url_flag(false),
+		banned_extension_flag(false), 
+		banned_mimetype_flag(false), 
+		banned_site_flag(false), banned_url_flag(false), 
+		grey_site_flag(false), grey_url_flag(false),
+		banned_regexpurl_flag(false), 
+		exception_regexpurl_flag(false), 
+		banned_regexpheader_flag(false),
+		content_regexp_flag(false), 
+		url_regexp_flag(false), 
+		header_regexp_flag(false),
+		url_redirect_regexp_flag(false),
+		exception_extension_flag(false), 
+		exception_mimetype_flag(false),
 		exception_file_site_flag(false), exception_file_url_flag(false),
-		log_site_flag(false), log_url_flag(false), log_regexpurl_flag(false),
-		//searchengine_regexp_flag(false), pics_icra_nuditymalegraphic(0), ssl_denied_rewrite(false),
-		pics_icra_nuditymalegraphic(0), ssl_denied_rewrite(false),
+		log_site_flag(false), log_url_flag(false), 
+		log_regexpurl_flag(false),
+		ssl_denied_rewrite(false),
+		pics_icra_nuditymalegraphic(0), 
 		pics_icra_nudityfemalegraphic(0), pics_icra_nuditytopless(0), pics_icra_nuditybottoms(0),
 		pics_icra_nuditysexualacts(0), pics_icra_nudityobscuredsexualacts(0), pics_icra_nuditysexualtouching(0),
 		pics_icra_nuditykissing(0), pics_icra_nudityartistic(0), pics_icra_nudityeducational(0),
@@ -339,9 +333,7 @@ public:
 	void resetJustListData();
 	
 	bool isOurWebserver(String url);
-#ifdef ADDHEADER
         char *inAddheaderList(String &words, unsigned int list);
-#endif
 	char *inBannedSearchList(String words);
         char *inSearchList(String &words, unsigned int list);
 	char *inLocalBannedSearchList(String words);
@@ -356,17 +348,13 @@ public:
 	bool inLocalExceptionURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inBannedSSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inGreySSLSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
-#ifdef __SSLMITM
 	bool inNoCheckCertSiteList(String url, bool ip = false);
-#endif
 #ifdef PRT_DNSAUTH
 	bool inAuthExceptionSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inAuthExceptionURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 #endif
-#ifdef REFEREREXCEPT
 	bool inRefererExceptionLists(String url);
 	bool inEmbededRefererLists(String url);
-#endif
 	char *inBannedSiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	char *inBannedURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
 	bool inGreySiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -379,6 +367,8 @@ public:
 	int inBannedRegExpHeaderList(std::deque<String> &header);
 	char *inExtensionList(unsigned int list, String url);
 	bool isIPHostname(String url);
+	bool addheader_regexp_flag;  // public as used by HTTPHeader.cpp
+	bool search_regexp_flag;  // public as used by HTTPHeader.cpp
 
 	// log-only lists - return category
 	const char* inLogURLList(String url);
@@ -414,21 +404,17 @@ private:
 	bool log_site_flag;
 	bool log_url_flag;
 	bool log_regexpurl_flag;
-#ifdef REFEREREXCEPT
 	bool referer_exception_site_flag;
 	bool referer_exception_url_flag;
 	bool embeded_referer_site_flag;
 	bool embeded_referer_url_flag;
-#endif
 #ifdef PRT_DNSAUTH
 	bool auth_exception_site_flag;
 	bool auth_exception_url_flag;
 #endif
-#ifdef ADDHEADER
-	bool addheader_regexp_flag;
-#endif
+//	bool addheader_regexp_flag;  // moved to public as used by HTTPHeader.cpp
 	bool banned_search_flag;
-	bool search_regexp_flag;
+	//bool search_regexp_flag;  // moved to public as used by HTTPHeader.cpp
 	bool local_banned_search_flag;
 	bool banned_search_overide_flag;
 	bool local_exception_site_flag;
@@ -441,9 +427,7 @@ private:
 	bool local_banned_ssl_site_flag;
 	bool grey_ssl_site_flag;
 	bool banned_ssl_site_flag;
-#ifdef __SSLMITM
 	bool no_check_cert_site_flag;
-#endif
 
 	// search term blocking
 	//bool searchengine_regexp_flag;

@@ -73,11 +73,9 @@ public:
 	bool isRedirection();
 	// see if content-type is something other than "identity"
 	bool isCompressed();
-#ifdef ADDHEADER
 	bool isHeaderAdded(int filtergroup);
 	bool addheaderchecked;
 	bool isheaderadded;
-#endif
 	// see if search usl and set searchwords
 	bool isSearch(int filtergroup);
 	String searchwords();
@@ -108,9 +106,7 @@ public:
 	String url();
 
 
-#ifdef RXREDIRECTS  
 	String redirecturl();
-#endif
 
 	// header modifications
 
@@ -120,9 +116,7 @@ public:
 	void setContentLength(int newlen);
 	// regexp search and replace
 	bool urlRegExp(int filtergroup);
-#ifdef RXREDIRECTS  
 	bool urlRedirectRegExp(int filtergroup);
-#endif
 	bool DenySSL(int filtergroup);
 	bool headerRegExp(int filtergroup);
 	// make a connection persistent - or not
@@ -157,11 +151,9 @@ public:
 	// encode url
 	String URLEncode();
 
-#ifdef REFEREREXCEPT	
 	
 	// grab referer url from headers
 	String getReferer();
-#endif
 
 	HTTPHeader():port(0), timeout(120), contentlength(0), postdata(NULL), dirty(true) { reset(); };
 	~HTTPHeader() { delete postdata; };
@@ -190,9 +182,7 @@ private:
 	// used to record if it is a header within a MITM
 	bool mitm;
 
-#ifdef RXREDIRECTS  
 	String redirect;
-#endif
 	std::string searchwds;
 	std::string searchtms;
 	bool issearch;

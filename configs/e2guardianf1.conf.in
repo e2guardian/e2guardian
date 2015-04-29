@@ -171,7 +171,7 @@ naughtynesslimit = 50
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
 # threshold for blocking than that used for normal page content.
 # To do this, the searchregexplist must be enabled and searchtermlimit 
-# must be grater than 0.
+# must be greater than 0.
  
 #
 # Search engine regular expression list (need for both options)

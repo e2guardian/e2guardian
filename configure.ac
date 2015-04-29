@@ -1,17 +1,11 @@
 # Autoconf script
 
-AC_DEFINE([SEARCHWORDS],[""],[Define to enable search word checking])
 
-AC_DEFINE([ADDHEADER],[""],[Define to enable insert http header function])
-
-AC_DEFINE([REFEREXCEPT],[""],[Define to enable exceptions on http referer header])
-AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp])
 AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
-AC_DEFINE([__SSLCERT],[""],[Define to enable SSL CERT checking])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.3.1)
+AC_INIT(e2guardian, 3.3.2)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -490,105 +484,7 @@ AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
 
-# asking user if they want referer exception support
-AC_MSG_CHECKING(for referer exception support)
-AC_ARG_ENABLE(
-refererexception,
-[AC_HELP_STRING([--enable-refererexception@<:@=yes@:>@], [Enable support for referer exception ])],
-[ if test "x$enableval" = "xno"; then
-refererexception=false
-REFEREREXCEPTSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-refererexception=true
-REFEREREXCEPTSUPPORT=""
-AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
-fi],
-[
-AC_MSG_RESULT(yes)
-refererexception=true
-REFEREREXCEPTSUPPORT=""
-AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
-]
-)
-AM_CONDITIONAL(REFEREREXCEPT, test "x$refererexception" = "xtrue")
-AC_SUBST(REFEREREXCEPTSUPPORT)
 
-# asking user if they want regexp redirects support
-AC_MSG_CHECKING(for regexp redirects support)
-AC_ARG_ENABLE(
-rxredirects,
-[AC_HELP_STRING([--enable-rxredirects@<:@=yes@:>@], [Enable support for regexp redirects])],
-[ if test "x$enableval" = "xno"; then
-rxredirects=false
-RXREDIRECTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-rxredirects=true
-RXREDIRECTSSUPPORT=""
-AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects])
-fi],
-[
-AC_MSG_RESULT(yes)
-rxredirects=true
-RXREDIRECTSSUPPORT=""
-AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects ])
-]
-)
-AM_CONDITIONAL(RXREDIRECTS, test "x$rxredirects" = "xtrue")
-AC_SUBST(RXREDIRECTSSUPPORT)
-
-# asking user if they want add header support
-AC_MSG_CHECKING(for add header support)
-AC_ARG_ENABLE(
-addheader,
-[AC_HELP_STRING([--enable-addheader@<:@=yes@:>@], [Enable support for add header])],
-[ if test "x$enableval" = "xno"; then
-addheader=false
-ADDHEADERSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-addheader=true
-ADDHEADERSUPPORT=""
-AC_DEFINE([ADDHEADER],[],[Define to enable support for add header])
-fi],
-[
-AC_MSG_RESULT(yes)
-addheader=true
-ADDHEADERSUPPORT=""
-AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
-]
-)
-AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
-AC_SUBST(ADDHEADERSUPPORT)
-
-# asking user if they want legacy log support
-AC_MSG_CHECKING(for legacy log support)
-AC_ARG_ENABLE(
-legacylog,
-[AC_HELP_STRING([--enable-legacylog@<:@=yes@:>@], [Enable support for legacy log format])],
-[ if test "x$enableval" = "xno"; then
-legacylog=false
-LEGACY_LOGSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-legacylog=true
-LEGACY_LOGSUPPORT=""
-AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format])
-fi],
-[
-AC_MSG_RESULT(yes)
-legacylog=true
-LEGACY_LOGSUPPORT=""
-AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format ])
-]
-)
-AM_CONDITIONAL(LEGACY_LOG, test "x$legacylog" = "xtrue")
-AC_SUBST(LEGACY_LOGSUPPORT)
 
 # asking user if they want trickle downloadmanager support
 AC_MSG_CHECKING(for trickle download manager support)

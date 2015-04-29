@@ -49,10 +49,8 @@ void HTTPHeader::reset()
 
 		cachedurl = "";
 
-#ifdef ADDHEADER
 		addheaderchecked = false;
 		isheaderadded = false;
-#endif
 		searchwds = "";
 		issearch = false;
 		searchchecked = false;
@@ -636,7 +634,6 @@ bool HTTPHeader::urlRegExp(int filtergroup) {
 	return false;
 }
 
-#ifdef RXREDIRECTS
 // Perform searches and replacements on URL for redirect
 bool HTTPHeader::urlRedirectRegExp(int filtergroup) {
 	// exit immediately if list is empty
@@ -657,9 +654,7 @@ String HTTPHeader::redirecturl() {
 	return redirect;
 }
 
-#endif
 
-#ifdef ADDHEADER
 // check if addheader regexp url
 bool HTTPHeader::isHeaderAdded(int filtergroup) {
 	if ( addheaderchecked )
@@ -691,7 +686,6 @@ bool HTTPHeader::isHeaderAdded(int filtergroup) {
 	isheaderadded = false;
 	return false;
 }
-#endif
 
 // check if search 
 bool HTTPHeader::isSearch(int filtergroup) {
@@ -1581,7 +1575,6 @@ bool HTTPHeader::isScanBypassURL(String * url, const char *magic, const char *cl
 	return false;
 }
 
-#ifdef REFEREREXCEPT
 String HTTPHeader::getReferer()
 {
 	String line;
@@ -1597,7 +1590,6 @@ String HTTPHeader::getReferer()
 #endif
 	return line;
 }
-#endif
 
 // *
 // *

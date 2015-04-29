@@ -396,9 +396,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 	bool do_mitm = false;
 	bool is_ssl = false;
 	int bypasstimestamp = 0;
-#ifdef RXREDIRECTS
 	bool urlredirect = false;
-#endif
 
 	// 0=none,1=first line,2=all
 	int headersent = 0;
@@ -528,9 +526,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				urlmodified = false;
 				headermodified = false;
 				headeradded = false;
-#ifdef RXREDIRECTS
 				urlredirect = false;
-#endif
 
 				authed = false;
 				isbanneduser = false;
@@ -1141,14 +1137,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						// Exception url match.
 						exceptioncat = o.lm.l[o.fg[filtergroup]->local_exception_url_list]->lastcategory.toCharArray();
 					} 
-#ifdef REFEREREXCEPT
-					//else if (o.fg[filtergroup]->inRefererExceptionLists(header.getReferer())) { // referer exception
 					else if ((!is_ssl) && embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
 						isexception = true;
 						exceptionreason = o.language_list.getTranslation(620);
 						message_no = 620;
 					}
-#endif
 			// end of local lists exception checking
 				}
 			}
@@ -1205,8 +1198,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
 					exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
 				}
-				
-#ifdef REFEREREXCEPT
 				else if (!(*o.fg[filtergroup]).enable_local_list){
 					if (embededRefererChecks(&header, &urld, &url,filtergroup)) { // referer exception
 						isexception = true;
@@ -1215,7 +1206,6 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					}
 				}
 
-#endif
 
 			}
 			// if bannedregexwithblanketblock and exception check nevertheless 
@@ -1358,13 +1348,17 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				std::cout << dbgPeerPort << " -no client IP slots left" << std::endl;
 #endif
 				checkme.isItNaughty = true;
-				checkme.whatIsNaughty = "IP limit exceeded.  There is a ";
+				//checkme.whatIsNaughty = "IP limit exceeded.  There is a ";
+				checkme.message_no = 10;
+				checkme.whatIsNaughty = o.language_list.getTranslation(10);  
 				checkme.whatIsNaughty += String(o.max_ips).toCharArray();
-				checkme.whatIsNaughty += " IP limit set.";
+				//checkme.whatIsNaughty += " IP limit set.";
+				checkme.whatIsNaughty += o.language_list.getTranslation(11);  
 				checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-				checkme.whatIsNaughtyCategories = "IP Limit";
+				//checkme.whatIsNaughtyCategories = "IP Limit";
+				checkme.whatIsNaughtyCategories = o.language_list.getTranslation(71);  
 			}
-#ifdef RXREDIRECTS
+			
 			// URL regexp search and redirect
 			if (!is_ssl) urlredirect = header.urlRedirectRegExp(filtergroup);
 			if (urlredirect) {
@@ -1379,11 +1373,8 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				peerconn.writeString(writestring.toCharArray());
 				break;
 						}
-#endif
 			
-#ifdef ADDHEADER
 			if (!is_ssl) headeradded = header.isHeaderAdded(filtergroup);
-#endif
 			
 			// URL regexp search and replace
 			urlmodified = header.urlRegExp(filtergroup);
@@ -1633,15 +1624,19 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					//check that the generated cert is not null and fillin checkme if it is
 					if (cert == NULL){
 						checkme.isItNaughty = true;
-						checkme.whatIsNaughty = "Failed to get ssl certificate";
+						//checkme.whatIsNaughty = "Failed to get ssl certificate";
+						checkme.message_no = 151;
+						checkme.whatIsNaughty = o.language_list.getTranslation(151);  
 						checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-						checkme.whatIsNaughtyCategories = "SSL Site";					
+						checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 					}
 					else if(pkey == NULL){
 						checkme.isItNaughty = true;
-						checkme.whatIsNaughty = "Failed to load ssl private key";
+						//checkme.whatIsNaughty = "Failed to load ssl private key";
+						checkme.message_no = 153;
+						checkme.whatIsNaughty = o.language_list.getTranslation(153);  
 						checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-						checkme.whatIsNaughtyCategories = "SSL Site";					
+						checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 					}
 				}
 
@@ -1660,9 +1655,11 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 						peerconn.stopSsl();
 	
 						checkme.isItNaughty = true;
-						checkme.whatIsNaughty = "Failed to negotiate ssl connection to client";
+						//checkme.whatIsNaughty = "Failed to negotiate ssl connection to client";
+						checkme.message_no = 154;
+						checkme.whatIsNaughty = o.language_list.getTranslation(154);  
 						checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-						checkme.whatIsNaughtyCategories = "SSL Site";					
+						checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 					}
 				}
 
@@ -2079,9 +2076,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 															}
 															//TODO: have proper error checking/reporting here?
 															//at the very least, integrate with the translation system.
-															checkme.whatIsNaughty = "WARNING: Could not perform content scan!";
+															//checkme.whatIsNaughty = "WARNING: Could not perform content scan!";
+															checkme.message_no = 1203;
+															checkme.whatIsNaughty = o.language_list.getTranslation(1203);  
 															checkme.whatIsNaughtyLog = (*i)->getLastMessage().toCharArray();
-															checkme.whatIsNaughtyCategories = "Content scanning";
+															//checkme.whatIsNaughtyCategories = "Content scanning";
+															checkme.whatIsNaughtyCategories = o.language_list.getTranslation(72);  
 															checkme.isItNaughty = true;
 															checkme.isException = false;
 															scanerror = true;
@@ -2394,9 +2394,13 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 									}
 									//TODO: have proper error checking/reporting here?
 									//at the very least, integrate with the translation system.
-									checkme.whatIsNaughty = "WARNING: Could not perform content scan!";
+									//checkme.whatIsNaughty = "WARNING: Could not perform content scan!";
+									checkme.message_no = 1203;
+									checkme.whatIsNaughty = o.language_list.getTranslation(1203);  
 									checkme.whatIsNaughtyLog = (*i)->getLastMessage().toCharArray();
 									checkme.whatIsNaughtyCategories = "Content scanning";
+									//checkme.whatIsNaughtyCategories = "Content scanning";
+									checkme.whatIsNaughtyCategories = o.language_list.getTranslation(72);  
 									checkme.isItNaughty = true;
 									checkme.isException = false;
 									scanerror = true;
@@ -3383,10 +3387,12 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 		//connect to the local proxy then do a connect 
 		//to make sure we go through any upstream proxys
 		if (ssl_sock.connect(o.proxy_ip.c_str(),o.proxy_port) < 0){
-			(*checkme).whatIsNaughty = "Could not connect to proxy server" ;
+			//(*checkme).whatIsNaughty = "Could not connect to proxy server" ;
+			(*checkme).message_no = 159;
+			(*checkme).whatIsNaughty = o.language_list.getTranslation(159);  
 			(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
 			(*checkme).isItNaughty = true;
-			(*checkme).whatIsNaughtyCategories = "SSL Site";
+			(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 #ifdef DGDEBUG
 			syslog(LOG_ERR, "error opening socket\n");
 			std::cout << dbgPeerPort << " -couldnt connect to proxy for ssl certificate checks. failed with error " << strerror(errno) << std::endl;
@@ -3564,7 +3570,6 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
 
 
 
-#ifdef REFEREREXCEPT
 // check if embeded url trusted referer 
 bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, String *url,
 	int filtergroup)
@@ -3611,7 +3616,6 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
 	}
 	return false;
 }
-#endif
 
 // based on patch by Aecio F. Neto (afn@harvest.com.br) - Harvest Consultoria (http://www.harvest.com.br)
 // show the relevant banned page/image/CGI based on report level setting, request type etc.
@@ -4134,9 +4138,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 					}
 					//TODO: have proper error checking/reporting here?
 					//at the very least, integrate with the translation system.
-					checkme->whatIsNaughty = "WARNING: Could not perform content scan!";
+					//checkme->whatIsNaughty = "WARNING: Could not perform content scan!";
+					checkme->message_no = 1203;
+					checkme->whatIsNaughty = o.language_list.getTranslation(1203);  
 					checkme->whatIsNaughtyLog = (*i)->getLastMessage().toCharArray();
-					checkme->whatIsNaughtyCategories = "Content scanning";
+					//checkme->whatIsNaughtyCategories = "Content scanning";
+					checkme->whatIsNaughtyCategories = o.language_list.getTranslation(72);  
 					checkme->isItNaughty = true;
 					checkme->isException = false;
 					(*scanerror) = true;
@@ -4257,20 +4264,24 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket * sock, Naughty
 		syslog(LOG_ERR, "Error creating tunnel through proxy\n");
 		std::cout << dbgPeerPort << " -Error creating tunnel through proxy" << strerror(errno) << std::endl;
 #endif
-		(*checkme).whatIsNaughty = "Unable to create tunnel through local proxy";
+		//(*checkme).whatIsNaughty = "Unable to create tunnel through local proxy";
+		checkme->message_no = 157;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(157);  
 		(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
 		(*checkme).isItNaughty = true;
-		(*checkme).whatIsNaughtyCategories = "SSL Site";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 
 		return -1;
 	}
 	//do http connect
 	if ( header.returnCode() != 200){
 		//connection failed
-		(*checkme).whatIsNaughty = "Opening tunnel failed";
+		//(*checkme).whatIsNaughty = "Opening tunnel failed";
+		checkme->message_no = 158;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(158);  
 		(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + " with errror code " + String(header.returnCode());
 		(*checkme).isItNaughty = true;
-		(*checkme).whatIsNaughtyCategories = "SSL Site";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 
 #ifdef DGDEBUG
 		syslog(LOG_ERR, "Tunnel status not 200 ok aborting\n");
@@ -4300,17 +4311,21 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket * sslsock, Nau
 	if(rc < 0){
 		//no certificate
 		checkme->isItNaughty = true;
-		(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
+		//(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
+		checkme->message_no = 155;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(155);  
 		(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-		(*checkme).whatIsNaughtyCategories = "SSL Site";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 		return;
 	}
 	else if(rc != X509_V_OK) {
 		//something was wrong in the certificate
 		checkme->isItNaughty = true;
-		(*checkme).whatIsNaughty = "Certificate supplied by server was not valid";
+//		(*checkme).whatIsNaughty = "Certificate supplied by server was not valid";
+		checkme->message_no = 150;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(150);  
 		(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + ": " + X509_verify_cert_error_string(rc);
-		(*checkme).whatIsNaughtyCategories = "SSL Site";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 		return;
 	}
 
@@ -4322,9 +4337,11 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket * sslsock, Nau
 	if (sslsock->checkCertHostname(hostname) < 0){
 		//hostname was not matched by the certificate
 		checkme->isItNaughty = true;
-		(*checkme).whatIsNaughty = "Server's SSL certificate does not match domain name";
+		//(*checkme).whatIsNaughty = "Server's SSL certificate does not match domain name";
+		checkme->message_no = 156;
+		(*checkme).whatIsNaughty = o.language_list.getTranslation(156);  
 		(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
-		(*checkme).whatIsNaughtyCategories = "SSL Site";
+		(*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);  
 		return;
 	}
 }

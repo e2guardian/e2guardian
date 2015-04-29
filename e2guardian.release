@@ -1,5 +1,5 @@
 
-Changed/Added features in e2guardian 3.0.1 not found in Dansguardian 2.12.0.3
+Changed/Added features in e2guardian 3.4.0 not found in Dansguardian 2.12.0.3
 
 Words in CAPITALS are the corresponding pre complier directives.
 
@@ -35,44 +35,47 @@ Authentication Plug-ins:-
 
 Port based auth plug-in - filtering group assigned by destination port.  To use this feature  mapauthtoports must be set to 'off'. Complied as standard.
 
-DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system. To enable this use configure option --enable-dnsauth
+DNS Authentication - PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system. To enable this use configure option --enable-dnsauth
 
 New Lists:-
 ---------
 
-Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden. 
+Total Block List - Ability to read total block lists from stdin on startup – List cannot be overridden. 
 
-Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc). LOCAL_LISTS. Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
-To enable this use configure option --enable-locallists
+Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc).  Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
+To enable this use the option enablelocallist=on in e2guardianfn.conf
 
-Search Word blocking – SEARCHWORDS – Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms. Compliled as standard.
+Search Word blocking  - Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms. Compliled as standard.
 
-Referer Exceptions – REFEREXCEPT – Exceptions based on URL in refering url. 
-Refererexceptionsitelist and refererexceptionurllist added. Also embededreferersitelist and embededrefererurllist. Compliled as standard. To disable use configure option --enable-refererexception=no.
+Referer Exceptions - Exceptions based on URL in refering url. 
+Refererexceptionsitelist and refererexceptionurllist added. Also embededreferersitelist and embededrefererurllist. Compliled as standard. To disable do not define lists.
 
-Add an http header based on url regex – ADDHEADER – addheaderregexplist – needed for YouTube for schools.  Compliled as standard. To disable use configure option --enable-addheader=no.
+Add an http header based on url regex - addheaderregexplist - needed for YouTube for schools.  Compliled as standard. To disable do not define list.
 
-Regular Expression Redirects – RXREDIRECTS – urlredirectregexplist – allows browser redirection to different site.  Compliled as standard. To disable use configure option --enable-rxredirects=no.
+Regular Expression Redirects - urlredirectregexplist - allows browser redirection to different site.  Compliled as standard. To disable do not define list.
 
-Specific SSL lists added – SSL_EXTRA_LISTS – bannedsslsitelist , greysslsitelist + local versions.  Complied as standard. To disable use configure option --enable-sslextralists=no.
+Specific SSL lists added - bannedsslsitelist , greysslsitelist + local versions.  Complied as standard. To disable use option sslextralists=no in e2guardianfn.conf
 
 New Log Format:-
 --------------
 
-Logging – two new logfileformats have been added which are easier to parse than the standard DG format.
-5 – Protex format type 1 – Tab delimited, squid style format with extra fields for filter block/result codes, reasons, filter group, and system name – used in arrays so that combined logs show originating server.
-6 – Protex format type 2 – Same format as above but system name field is blank – used in stand-alone systems.
+Logging - two new logfileformats have been added which are easier to parse than the standard DG format.
+5 - Protex format type 1 – -ab delimited, squid style format with extra fields for filter block/result codes, reasons, filter group, and system name – used in arrays so that combined logs show originating server.
+6 - Protex format type 2 – -ame format as above but system name field is blank – used in stand-alone systems.
 
 Messages file amended:-
 ---------------------
 
-Amendments to messages file – user and log messages have been made more 
-meaningful for the user and new messages added for the new list types 
-introduced. A version of the messages file with legacy worded messages is 
-provided as messages.alt (UKenglish only).  
-Translations are required into other languages, please submit these 
+Amendments to messages file -  user and log messages have been made more 
+meaningful for the user, new messages added for the new list types and
+hard-coded log and user message wording has replaced with new message lines
+so that these can be translated.
+
+Translations are required, please submit these 
 to maintainer@e2guardian.org and these will be included in a future release.
 
+A version of the messages file with legacy (dansguardian style) worded messages is 
+provided as messages.alt (UKenglish only).  
 
 Other changes:-
 -------------
