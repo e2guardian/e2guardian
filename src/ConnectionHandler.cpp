@@ -1109,7 +1109,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					exceptionreason = o.language_list.getTranslation(600);
 					// Exception client IP match.
 				}
-				if ((*o.fg[filtergroup]).enable_local_list){
+				if (!isexception && (*o.fg[filtergroup]).enable_local_list){
 				
 					if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 						checkme.whatIsNaughty = o.language_list.getTranslation(580);  // banned site
@@ -1162,7 +1162,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 			if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists )) {
 				//bool is_ssl = header.requestType() == "CONNECT";
 				bool is_ip = isIPHostnameStrip(urld);
-				if (((*o.fg[filtergroup]).enable_ssl_separatelist) && is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
+				if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) {	// blocked SSL site
 					checkme.whatIsNaughty = o.language_list.getTranslation(520);  // banned site
 					message_no = 520;
 					checkme.whatIsNaughty += retchar;
@@ -1650,7 +1650,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
 					peerconn.writeString(msg.c_str());
 					
-					if (peerconn.startSslServer(cert,pkey) < 0){
+					if (peerconn.startSslServer(cert,pkey,o.set_cipher_list) < 0){
 						//make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
 						peerconn.stopSsl();
 	
@@ -3176,8 +3176,8 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 	if ( !(*checkme).isGrey  
 	     && ( (*o.fg[filtergroup]).inGreySiteList(temp, true, is_ip, is_ssl) || (*o.fg[filtergroup]).inGreyURLList(temp, true, is_ip, is_ssl))) {
 		(*checkme).isGrey = true;
-//		if ((*o.fg[filtergroup]).enable_ssl_separatelist)
-		if (is_ssl) (*checkme).isSSLGrey = true;
+		if (!(*o.fg[filtergroup]).enable_ssl_legacy_logic)
+			if (is_ssl) (*checkme).isSSLGrey = true;
 	}
 
 	// only apply bans to things not in the grey lists

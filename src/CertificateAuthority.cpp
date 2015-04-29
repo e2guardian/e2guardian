@@ -34,7 +34,8 @@ CertificateAuthority::CertificateAuthority(const char * caCert,
 				const char * caPrivKey, 
 				const char * certPrivKey, 
 				const char * certPath,
-				const char * certLinks)
+				time_t caStart,
+				time_t caEnd)
 {
 	FILE *fp;
 	
@@ -88,8 +89,10 @@ CertificateAuthority::CertificateAuthority(const char * caCert,
 	_certPathLen = sizeof(certPath);
 //	_certLinks = certLinks;
 	_certLinks = certPath;  // temp to check if this works
-	_ca_start = 1417872951;  // 6th Dec 2014
-	_ca_end = _ca_start + 315532800;  // 6th Dec 2024
+	//_ca_start = 1417872951;  // 6th Dec 2014
+	//_ca_end = _ca_start + 315532800;  // 6th Dec 2024
+	_ca_start = caStart;
+	_ca_end = caEnd;
 }
 
 bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* caser){

@@ -112,7 +112,6 @@ void FOptionContainer::resetJustListData()
         	if (local_banned_url_flag) o.lm.deRefList(local_banned_url_list);
         	if (local_grey_site_flag) o.lm.deRefList(local_grey_site_list);
         	if (local_grey_url_flag) o.lm.deRefList(local_grey_url_list);
-// next two only if ssllists enabled??
         	if (local_banned_ssl_site_flag) o.lm.deRefList(local_banned_ssl_site_list);
         	if (local_grey_ssl_site_flag) o.lm.deRefList(local_grey_ssl_site_list);
 	}
@@ -121,10 +120,8 @@ void FOptionContainer::resetJustListData()
 	if (no_check_cert_site_flag) o.lm.deRefList(no_check_cert_site_list);
 #endif
 
-//	if (enable_ssl_separatelist) {
-		if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
-		if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
-//	}
+	if (banned_ssl_site_flag) o.lm.deRefList(banned_ssl_site_list);
+	if (grey_ssl_site_flag) o.lm.deRefList(grey_ssl_site_list);
 	banned_phrase_flag = false;
 	searchterm_flag = false;
 	exception_site_flag = false;
@@ -153,7 +150,7 @@ void FOptionContainer::resetJustListData()
 	enable_regex_grey = false;
 	only_mitm_ssl_grey = false;
 	ssl_mitm = false; 
-	enable_ssl_separatelist = true;
+	enable_ssl_legacy_logic = false;
 	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
 	auth_exception_site_flag = false;
@@ -323,10 +320,18 @@ bool FOptionContainer::read(const char *filename)
 			use_only_local_allow_lists = false;
 		}
 
-#ifdef __SSLCERT
+                if (findoptionS("ssllegacylogic") == "on") {
+                        enable_ssl_legacy_logic = true;
+                } else {
+			enable_ssl_legacy_logic = false;
+		}
+
+
+#ifdef __SSLMITM
 		if (findoptionS("sslcheckcert") == "on") {
 			ssl_check_cert = true;
 		} else {
+
 			ssl_check_cert = false;
 		}
 #endif //__SSLCERT
@@ -334,26 +339,27 @@ bool FOptionContainer::read(const char *filename)
 #ifdef __SSLMITM
 		if (findoptionS("sslmitm") == "on") {
 			ssl_mitm = true;
-			mitm_magic = findoptionS("mitmkey");
-			if (mitm_magic.length() < 9) {
-				std::string s(16u, ' ');
-				for (int i = 0; i < 16; i++) {
-					s[i] = (rand() % 26) + 'A';
-				}
-				mitm_magic = s;
-			}
+//			mitm_magic = findoptionS("mitmkey");
+			//if (mitm_magic.length() < 9) {
+				//std::string s(16u, ' ');
+				//for (int i = 0; i < 16; i++) {
+					//s[i] = (rand() % 26) + 'A';
+				//}
+				//mitm_magic = s;
+			//}
 			if (findoptionS("onlymitmsslgrey") == "on"){ 
 				only_mitm_ssl_grey = true;
 			} else {	
 				only_mitm_ssl_grey = false;
 			}
-			if (findoptionS("sslseparatelists") != "on"){
-                                 syslog(LOG_ERR, "sslmitm requires sslseparatelists");
-                                 std::cout << "sslmitm requires sslseparatelists" << std::endl;
-				 return false;
+			if (enable_ssl_legacy_logic){
+                                 syslog(LOG_ERR, "Warning: sslmitm requires ssllegacylogic to be off");
+                                 std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
+				 enable_ssl_legacy_logic = false;
+			}
+		
 			if (findoptionS("mitmcheckcert") == "off") 
 				mitm_check_cert = false;
-			}
 #ifdef DGDEBUG
 			std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
 #endif
@@ -593,10 +599,10 @@ bool FOptionContainer::read(const char *filename)
 				enable_PICS = false;
 			}
 
-                        if (findoptionS("sslseparatelists") == "off") {
-				enable_ssl_separatelist = false;
+                        if (findoptionS("ssllegacylogic") == "on") {
+                                enable_ssl_legacy_logic = true;
                         } else {
-                                enable_ssl_separatelist = true;
+				enable_ssl_legacy_logic = false;
 			}
 
 
@@ -971,34 +977,25 @@ bool FOptionContainer::read(const char *filename)
 				}		// grey urls
 				local_grey_url_flag = true;
 
-				if (enable_ssl_separatelist) {
-					if (!readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
-						return false;
-					}		// banned domains
+				if (local_banned_ssl_site_list_location.length() && readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
 					local_banned_ssl_site_flag = true;
-					if (!readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
-						return false;
-					}		// grey domains
+				}		// banned domains
+				if (local_grey_ssl_site_list_location.length() && readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
 					local_grey_ssl_site_flag = true;
-				}
+				}		// grey domains
 			}
 
-			if (enable_ssl_separatelist) {
-				if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
-					banned_ssl_site_flag = true;
-				}		// banned domains
-				else {
-					banned_ssl_site_flag = false;
-					std::cerr << "Required Listname bannedsslsitelist is not defined " << std::endl;
-					return false;				
-				}
-				if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
-					grey_ssl_site_flag = true;
-				}		// grey domains
-				else {
-					grey_ssl_site_flag = false;
-					std::cerr << "Required Listname greysslsitelist is not defined " << std::endl;
-					return false;
+			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
+				banned_ssl_site_flag = true;
+			}		// banned domains
+
+			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
+				grey_ssl_site_flag = true;
+			} else {
+				if (only_mitm_ssl_grey){
+                               		  syslog(LOG_ERR, "onlymitmsslgrey requires greysslsitelist");
+                               		  std::cout << "onlymitmsslgrey requires greysslsitelist" << std::endl;
+					  return false;
 				}
 			}
 #ifdef __SSLMITM
@@ -1396,7 +1393,7 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
 			return false;
 		};
 //	}
-	if (ssl && enable_ssl_separatelist) {
+	if (ssl && !enable_ssl_legacy_logic) {
 	   return inGreySSLSiteList(url, doblanket, ip, ssl);
 	};
 	return inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL;

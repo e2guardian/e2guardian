@@ -674,24 +674,43 @@ softrestart = off
 
 #SSL certificate checking path
 #Path to CA certificates used to validate the certificates of https sites.
-#sslcertificatepath = '/etc/ssl/certs/'
+# if left blank openssl default ca certificate bundle will be used
+#Leave as default unless you want to load non-default cert bundle
+#sslcertificatepath = ''
 
 #SSL man in the middle
 #CA certificate path
 #Path to the CA certificate to use as a signing certificate for 
 #generated certificates.
+# default is blank - required if ssl_mitm is enabled.
 #cacertificatepath = '/home/stephen/dginstall/ca.pem'
 
 #CA private key path
 #path to the private key that matches the public key in the CA certificate.
+# default is blank - required if ssl_mitm is enabled.
 #caprivatekeypath = '/home/stephen/dginstall/ca.key'
 
 #Cert private key path
 #The public / private key pair used by all generated certificates
+# default is blank - required if ssl_mitm is enabled.
 #certprivatekeypath = '/home/stephen/dginstall/cert.key'
 
 #Generated cert path
 #The location where generated certificates will be saved for future use.
 #(must be writable by the dg user)
+# default is blank - required if ssl_mitm is enabled.
 #generatedcertpath = '/home/stephen/dginstall/generatedcerts/'
+
+#Warning: if you change the cert start/end time from default on a running 
+#         system you will need to clear the generated certificate 
+#         store and also may get problems on running client browsers
+
+#Generated cert start time (in unix time) - optional
+# defaults to 1417872951 = 6th Dec 2014
+# generatedcertstart = 1417872951 
+
+#Generated cert end time (in unix time) - optional
+# defaults to generatedcertstart + 10 years
+#genratedcertend =
+# generatedcertstart =
 

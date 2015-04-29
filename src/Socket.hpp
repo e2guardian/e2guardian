@@ -78,7 +78,7 @@ public:
 
 #ifdef __SSLMITM
 	//use this socket as an ssl server
-	int startSslServer(X509 * x, EVP_PKEY * privKey);
+	int startSslServer(X509 * x, EVP_PKEY * privKey, std::string& set_cipher);
 	
 	// non-blocking check for writable socket
 	bool readyForOutput();

@@ -41,7 +41,7 @@ public:
 	bool createlistcachefiles;
 	bool enable_PICS;
 	bool enable_regex_grey;
-	bool enable_ssl_separatelist;
+	bool enable_ssl_legacy_logic;
 	bool enable_local_list;
 	off_t max_upload_size;
 	bool deep_url_analysis;
@@ -55,6 +55,7 @@ public:
 	bool ssl_mitm;
 	bool only_mitm_ssl_grey;
 	bool mitm_check_cert;
+
 
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier
@@ -280,6 +281,7 @@ public:
 		banned_page(NULL),
 		ssl_mitm(false), 
 		only_mitm_ssl_grey(false), 
+		no_check_cert_site_flag(false),
 		ssl_check_cert(false),
 		mitm_check_cert(true),
 		referer_exception_site_flag(false), referer_exception_url_flag(false),
@@ -297,7 +299,7 @@ public:
 		local_grey_site_flag(false), local_grey_url_flag(false), 
 		enable_regex_grey(false),
 		enable_local_list(false),
-		enable_ssl_separatelist(true),
+		enable_ssl_legacy_logic(false),
 		use_only_local_allow_lists(false),
 		banned_phrase_flag(false), 
 		exception_site_flag(false), exception_url_flag(false),

@@ -146,6 +146,7 @@ public:
 	std::string generated_link_path;
 	CertificateAuthority *ca;
 #endif
+	std::string set_cipher_list;
 
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier

@@ -248,8 +248,18 @@ int Socket::startSslClient(const std::string& certificate_path)
 
 	
 	//load certs
-	//if(!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str()))
-	if(!SSL_CTX_set_default_verify_paths(ctx))
+	if (certificate_path.length()) {
+		if(!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str()))
+		{
+#ifdef DGDEBUG
+			std::cout << "couldnt load certificates" << std::endl;
+#endif
+			//tidy up
+			SSL_CTX_free(ctx);
+			return -2;
+		}
+	}
+	else if(!SSL_CTX_set_default_verify_paths(ctx))    //use default if no certPpath given
 	{
 #ifdef DGDEBUG
 		std::cout << "couldnt load certificates" << std::endl;
@@ -544,7 +554,7 @@ void Socket::close()
 
 #ifdef __SSLMITM
 //use this socket as an ssl server
-int Socket::startSslServer(X509 * x, EVP_PKEY * privKey)
+int Socket::startSslServer(X509 * x, EVP_PKEY * privKey, std::string& set_cipher_list)
 {
 
 	if(isssl){
@@ -575,6 +585,9 @@ int Socket::startSslServer(X509 * x, EVP_PKEY * privKey)
 #endif
 		return -1;
 	}
+
+	if ( set_cipher_list.length() > 0 )
+		SSL_CTX_set_cipher_list(ctx, set_cipher_list.c_str());
 	
 	//set the ctx to use the private key
 	if(SSL_CTX_use_PrivateKey(ctx, privKey) < 1){

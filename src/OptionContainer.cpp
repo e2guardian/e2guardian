@@ -205,7 +205,7 @@ bool OptionContainer::read(const char *filename, int type)
 #ifdef __SSLMITM
 		ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
 		if (ssl_certificate_path == "/"){
-			ssl_certificate_path = "/etc/ssl/certs/";
+			ssl_certificate_path = "";   // "" will enable default openssl certs
 		}
 #endif
 
@@ -231,19 +231,27 @@ bool OptionContainer::read(const char *filename, int type)
 		if (generated_cert_path == "/"){
 			//generated_cert_path = "/etc/ssl/certs/";
 		}
-		
-//		generated_link_path = findoptionS("generatedlinkpath") + "/";
-//		if (generated_link_path == "/"){
-//			//generated_link_path = "/etc/ssl/certs/";
-//		}
 
-		generated_link_path = generated_cert_path;  // not used at present
+		time_t gen_cert_start, gen_cert_end;
+                time_t def_start = 1417872951;    // 6th Dec 2014
+		time_t ten_years = 315532800;
+		gen_cert_start = findoptionI("generatedcertstart");
+		if (gen_cert_start < def_start )
+			gen_cert_start = def_start;
+		gen_cert_end = findoptionI("generatedcertend");
+		if (gen_cert_end < gen_cert_start )
+			gen_cert_end = gen_cert_start + ten_years;
+
+		set_cipher_list = findoptionS("setcipherlist");
+		if (set_cipher_list == "")
+			set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
+		
 		if (ca_certificate_path != ""){
 			ca = new CertificateAuthority(ca_certificate_path.c_str(),
 				ca_private_key_path.c_str(),
 				cert_private_key_path.c_str(),
 				generated_cert_path.c_str(),
-				generated_link_path.c_str());
+				gen_cert_start, gen_cert_end );
 		}
 
 #endif
@@ -816,6 +824,33 @@ bool OptionContainer::read(const char *filename, int type)
 			syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
 			return false;
 		}
+
+//post read filtergroup config checks - only for SLLMITM for now
+
+#ifdef _SSLMITM
+		bool ssl_mitm = false;
+		bool mitm_check_cert = false;
+		for (i=0; i < numfg ;i++) {
+			if ( fg[i].ssl_mitm ) ssl_mitm = true;
+			if ( fg[i].mitm_check_cert ) mitm_check_cert = true;
+		}
+		
+		if (ssl_mitm) {
+			if (ca_certificate_path != ""){
+				ca = new CertificateAuthority(ca_certificate_path.c_str(),
+					ca_private_key_path.c_str(),
+					cert_private_key_path.c_str(),
+					generated_cert_path.c_str(),
+					gen_cert_start, gen_cert_end );
+			} else {
+				if (!is_daemonised) {
+					std::cerr << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM." << std::endl;
+				}	
+				syslog(LOG_ERR, "%s", "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+				return false;
+			}
+		}
+#endif
 
 	}
 	catch(std::exception & e) {

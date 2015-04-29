@@ -28,7 +28,8 @@ public:
 				const char * caPrivKey,
 				const char * certPrivKey, 
 				const char * certPath,
-				const char * symlinkPath);
+				time_t caStart,
+				time_t caEnd );
 
 	~CertificateAuthority();
 	X509 * generateCertificate(const char * commonname, struct ca_serial* cser);
