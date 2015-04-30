@@ -161,6 +161,9 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 	// scan twice, with & without case conversion (if desired) - aids support for exotic char encodings
 	// TODO: move META/title sentinel location outside this loop, as they are not case sensitive operations
 	bool preserve_case = o.preserve_case;
+	bool do_raw = false;
+        bool do_nohtml = false;
+
 	if (o.preserve_case == 2) {
 		// scanning twice *is* desired
 		// first time round the loop, don't preserve case (non-exotic encodings)
@@ -181,9 +184,12 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 	char* bodynohtml = NULL;
 	if (!searchterms && (o.phrase_filter_mode == 1 || o.phrase_filter_mode == 2))
 	{
+		do_nohtml = true;
 		bodynohtml = new char[hexdecodedlen + 128 + 1];
 		memset(bodynohtml, 0, hexdecodedlen + 128 + 1);
 	}
+
+	if ( (o.phrase_filter_mode == 0 || o.phrase_filter_mode == 2 || o.phrase_filter_mode == 3) ) do_raw = true;
 	
 	for (int loop = 0; loop < (o.preserve_case == 2 ? 2 : 1); loop++) {
 #ifdef DGDEBUG
@@ -192,7 +198,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 
 		off_t i, j;
 #ifdef DGDEBUG
-		if (searchterms || o.phrase_filter_mode == 0 || o.phrase_filter_mode == 2 || o.phrase_filter_mode == 3)
+		if (searchterms || do_raw)
 			std::cout << "Raw content needed" << std::endl;
 #endif
 		// use the one that's been hex decoded, but not stripped
@@ -200,8 +206,9 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 		if (preserve_case) {
 			for (i = 0; i < hexdecodedlen; i++) {
 				c = hexdecoded[i];
-				if (c == 13 || c == 9 || c == 10) {
-					c = 32;  // convert all whitespace to a space
+//				if (c == 13 || c == 9 || c == 10) {
+				if (c < 46 || c == 58 || c == 59 || c == 63 || ( c > 90 && c < 97 )) {
+					c = 32;  // convert all whitespace and most punctuation marks to a space
 				}
 				bodylc[i] = c;
 			}
@@ -217,8 +224,9 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 				else if (c >= 192 && c <= 221) {  // for accented chars
 					c += 32;  // 224 + c - 192
 				} else {
-					if (c == 13 || c == 9 || c == 10) {
-						c = 32;  // convert all whitespace to a space
+					//if (c == 13 || c == 9 || c == 10) {
+					if (c < 46 || c == 58 || c == 59 || c == 63 || ( c > 90 && c < 97 )) {
+						c = 32;  // convert all whitespace and most punctuation marks to a space
 					}
 				}
 				bodylc[i] = c;
@@ -349,29 +357,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 			return;
 		}
 
-		if (searchterms || o.phrase_filter_mode == 0 || o.phrase_filter_mode == 2) {
-#ifdef DGDEBUG
-			std::cout << "Checking raw content" << std::endl;
-#endif
-			// check unstripped content
-			checkphrase(bodylc, hexdecodedlen, url, domain, filtergroup, phraselist, limit, searchterms);
-			if (isItNaughty || isException) {
-				delete[]bodylc;
-				delete[] bodynohtml;
-				if (hexdecoded != rawbody)
-					delete[]hexdecoded;
-				return;  // Well there is no point in continuing is there?
-			}
-		}
-
-		if (searchterms || o.phrase_filter_mode == 0) {
-			delete[]bodylc;
-			delete[] bodynohtml;
-			if (hexdecoded != rawbody)
-				delete[]hexdecoded;
-			return;  // only doing raw mode filtering
-		}
-
+		if (do_nohtml) {
 		// if we fell through to here, use the one that's been hex decoded AND stripped
 		// Strip HTML
 #ifdef DGDEBUG
@@ -408,15 +394,50 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 		std::cout << "Checking smart content" << std::endl;
 #endif
 		checkphrase(bodynohtml, j - 1, NULL, NULL, filtergroup, phraselist, limit, searchterms);
+		if (isItNaughty || isException) {
+			delete[]bodylc;
+			delete[] bodynohtml;
+			if (hexdecoded != rawbody) delete[]hexdecoded;
+			return;  // Well there is no point in continuing is there?
+		}
+		}
+		
+		if (!do_raw) {
+			delete[]bodylc;
+			delete[] bodynohtml;
+			if (hexdecoded != rawbody) delete[]hexdecoded;
+			return;  // only doing nohtml mode filtering
+		} else {
+#ifdef DGDEBUG
+			std::cout << "Checking raw content" << std::endl;
+#endif
+
+			// replace html tag start and finish with space so that Start and finish words are detected
+			for (i = 0; i < hexdecodedlen; i++) {
+				c = bodylc[i];
+				if ( c == '>' || c == '<' ) bodylc[i] = 32;
+			}
+
+			// check unstripped content
+			checkphrase(bodylc, hexdecodedlen, url, domain, filtergroup, phraselist, limit, searchterms);
+			if (isItNaughty || isException) {
+				delete[]bodylc;
+				delete[] bodynohtml;
+				if (hexdecoded != rawbody)
+					delete[]hexdecoded;
+				return;  // Well there is no point in continuing is there?
+			}
+
+		}
 
 		// second time round the case loop (if there is a second time),
 		// do preserve case (exotic encodings)
 		preserve_case = true;
 	}
 	delete[]bodylc;
-	delete[]bodynohtml;
+	delete[] bodynohtml;
 	if (hexdecoded != rawbody)
-		delete[]hexdecoded;
+			delete[]hexdecoded;
 }
 
 // check the phrase lists
