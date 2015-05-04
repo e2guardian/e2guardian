@@ -614,19 +614,19 @@ maxips = 0
 # IPC filename
 # 
 # Defines IPC server directory and filename used to communicate with the log process.
-ipcfilename = '/tmp/.dguardianipc'
+ipcfilename = '/tmp/.e2guardianipc'
 
 # URL list IPC filename
 # 
 # Defines URL list IPC server directory and filename used to communicate with the URL
 # cache process.
-urlipcfilename = '/tmp/.dguardianurlipc'
+urlipcfilename = '/tmp/.e2guardianurlipc'
 
 # IP list IPC filename
 #
 # Defines IP list IPC server directory and filename, for communicating with the client
 # IP cache process.
-ipipcfilename = '/tmp/.dguardianipipc'
+ipipcfilename = '/tmp/.e2guardianipipc'
 
 # PID filename
 # 
