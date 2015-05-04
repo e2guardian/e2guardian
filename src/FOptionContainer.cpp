@@ -897,19 +897,34 @@ bool FOptionContainer::read(const char *filename)
 #endif
 			if (referer_exceptions_site_list_location.length() && readFile(referer_exceptions_site_list_location.c_str(),&referer_exception_site_list,false,true,"refererexceptionsitelist")) {
 				referer_exception_site_flag = true;
-			}		// referer site exceptions
+			} else {		// referer site exceptions
+				referer_exception_site_flag = false;
+			}
+
 			if (referer_exceptions_url_list_location.length() && readFile(referer_exceptions_url_list_location.c_str(),&referer_exception_url_list,true,true,"refererexceptionurllist")) {
 				referer_exception_url_flag = true;
-			}		// referer url exceptions
+			} else {		// referer url exceptions
+				referer_exception_url_flag = false;
+			}
+
 			if (embeded_referer_site_list_location.length() && readFile(embeded_referer_site_list_location.c_str(),&embeded_referer_site_list,false,true,"embededreferersitelist")) {
 				embeded_referer_site_flag = true;
-			}		// referer site exceptions
+			} else {		// referer site exceptions
+				embeded_referer_site_flag = false;
+			}
+
 			if (embeded_referer_url_list_location.length() && readFile(embeded_referer_url_list_location.c_str(),&embeded_referer_url_list,true,true,"embededrefererurllist")) {
 				embeded_referer_url_flag = true;
-			}		// referer url exceptions
+			} else {		// referer url exceptions
+				embeded_referer_url_flag = false;
+			}
+
 			if (addheader_regexp_list_location.length() && readRegExReplacementFile(addheader_regexp_list_location.c_str(),"addheaderregexplist",addheader_regexp_list,addheader_regexp_list_rep,addheader_regexp_list_comp)) {
-			addheader_regexp_flag = true;
-			}  // url regular expressions for header insertions
+				addheader_regexp_flag = true;
+			} else {  // url regular expressions for header insertions
+				addheader_regexp_flag = false;
+			}
+
 			if (searchengine_regexp_list_location.length()) {
 				if (!is_daemonised) {
 					std::cerr << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. "  << std::endl;
@@ -979,15 +994,21 @@ bool FOptionContainer::read(const char *filename)
 
 				if (local_banned_ssl_site_list_location.length() && readFile(local_banned_ssl_site_list_location.c_str(),&local_banned_ssl_site_list,false,true,"localbannedsslsitelist")) {
 					local_banned_ssl_site_flag = true;
-				}		// banned domains
+				} else {		// banned domains
+					local_banned_ssl_site_flag = false;
+				}
 				if (local_grey_ssl_site_list_location.length() && readFile(local_grey_ssl_site_list_location.c_str(),&local_grey_ssl_site_list,false,true,"localgreysslsitelist")) {
 					local_grey_ssl_site_flag = true;
-				}		// grey domains
+				} else {		// grey domains
+					local_grey_ssl_site_flag = false;
+				}
 			}
 
 			if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(),&banned_ssl_site_list,false,true,"bannedsslsitelist")) {
 				banned_ssl_site_flag = true;
-			}		// banned domains
+			} else {		// banned domains
+				banned_ssl_site_flag = false;
+			}
 
 			if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(),&grey_ssl_site_list,false,true,"greysslsitelist")) {
 				grey_ssl_site_flag = true;
@@ -996,6 +1017,8 @@ bool FOptionContainer::read(const char *filename)
                                		  syslog(LOG_ERR, "onlymitmsslgrey requires greysslsitelist");
                                		  std::cout << "onlymitmsslgrey requires greysslsitelist" << std::endl;
 					  return false;
+				} else {
+					grey_ssl_site_flag = true;
 				}
 			}
 #ifdef __SSLMITM
@@ -1012,13 +1035,19 @@ bool FOptionContainer::read(const char *filename)
 #ifdef DGDEBUG
 				std::cout << "Enabled log-only URL list" << std::endl;
 #endif
+			} else {
+				log_url_flag = false;
 			}
+		
 			if (log_site_list_location.length() && readFile(log_site_list_location.c_str(), &log_site_list, false, true, "logsitelist")) {
 				log_site_flag = true;
 #ifdef DGDEBUG
 				std::cout << "Enabled log-only domain list" << std::endl;
 #endif
+			} else {
+				log_site_flag = false;
 			}
+			
 			if (log_regexpurl_list_location.length() && readRegExMatchFile(log_regexpurl_list_location.c_str(), "logregexpurllist", log_regexpurl_list,
 				log_regexpurl_list_comp, log_regexpurl_list_source, log_regexpurl_list_ref))
 			{
@@ -1026,8 +1055,9 @@ bool FOptionContainer::read(const char *filename)
 #ifdef DGDEBUG
 				std::cout << "Enabled log-only RegExp URL list" << std::endl;
 #endif
+			} else {
+				log_regexpurl_flag = false;
 			}
-
 			// search term blocking
 //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
 //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
