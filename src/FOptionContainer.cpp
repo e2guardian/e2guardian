@@ -1018,7 +1018,7 @@ bool FOptionContainer::read(const char *filename)
                                		  std::cout << "onlymitmsslgrey requires greysslsitelist" << std::endl;
 					  return false;
 				} else {
-					grey_ssl_site_flag = true;
+					grey_ssl_site_flag = false;
 				}
 			}
 #ifdef __SSLMITM
