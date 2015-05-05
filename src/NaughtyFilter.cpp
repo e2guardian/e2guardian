@@ -204,6 +204,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 		// use the one that's been hex decoded, but not stripped
 		// make a copy of the document lowercase char by char
 		if (preserve_case) {
+		    if (do_nohtml || o.phrase_filter_mode == 3 ) {
 			for (i = 0; i < hexdecodedlen; i++) {
 				c = hexdecoded[i];
 //				if (c == 13 || c == 9 || c == 10) {
@@ -212,10 +213,21 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 				}
 				bodylc[i] = c;
 			}
+		    } else {   // not being html striped so can remove < > now
+			for (i = 0; i < hexdecodedlen; i++) {
+				c = hexdecoded[i];
+//				if (c == 13 || c == 9 || c == 10) {
+				if (c < 46 || (c > 57 && c < 65) || ( c > 90 && c < 97 )) {
+					c = 32;  // convert all whitespace and most punctuation marks to a space
+				}
+				bodylc[i] = c;
+			}
+		    }
 		} else {
 #ifdef DGDEBUG
 			std::cout << "Not preserving case of raw content" << std::endl;
 #endif
+		    if (do_nohtml || o.phrase_filter_mode == 3 ) {
 			for (i = 0; i < hexdecodedlen; i++) {
 				c = hexdecoded[i];
 				if (c >= 'A' && c <= 'Z') {
@@ -231,6 +243,23 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 				}
 				bodylc[i] = c;
 			}
+		    } else {   // not being html striped so can remove < > now
+			for (i = 0; i < hexdecodedlen; i++) {
+				c = hexdecoded[i];
+				if (c >= 'A' && c <= 'Z') {
+					c = 'a' + c - 'A';
+				}
+				else if (c >= 192 && c <= 221) {  // for accented chars
+					c += 32;  // 224 + c - 192
+				} else {
+					//if (c == 13 || c == 9 || c == 10) {
+					if (c < 46 || (c > 57 && c < 65) || ( c > 90 && c < 97 )) {
+						c = 32;  // convert all whitespace and most punctuation marks to a space
+					}
+				}
+				bodylc[i] = c;
+			}
+		    }
 		}
 
 		// filter meta tags & title only
@@ -412,10 +441,12 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 			std::cout << "Checking raw content" << std::endl;
 #endif
 
-			// replace html tag start and finish with space so that Start and finish words are detected
-			for (i = 0; i < hexdecodedlen; i++) {
-				c = bodylc[i];
-				if ( c == '>' || c == '<' ) bodylc[i] = 32;
+			if (do_nohtml) {  // already removed if not!
+				// replace html tag start and finish with space so that Start and finish words are detected
+				for (i = 0; i < hexdecodedlen; i++) {
+					c = bodylc[i];
+					if ( c == '>' || c == '<' ) bodylc[i] = 32;
+				}
 			}
 
 			// check unstripped content

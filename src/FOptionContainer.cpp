@@ -1022,7 +1022,7 @@ bool FOptionContainer::read(const char *filename)
 				}
 			}
 #ifdef __SSLMITM
-			if (no_check_cert_site_list_location.length() && readFile(no_check_cert_site_list_location.c_str(),&no_check_cert_site_list,false,true,"nocheckcertsitelist")) {
+			if (mitm_check_cert && no_check_cert_site_list_location.length() && readFile(no_check_cert_site_list_location.c_str(),&no_check_cert_site_list,false,true,"nocheckcertsitelist")) {
 				no_check_cert_site_flag = true;
 			}		// do not check certs for these sites
 			else {
