@@ -1,0 +1,10 @@
+[Unit]
+Description=E2guardian Web filtering
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=@DGBINDIR@/e2guardian
+
+[Install]
+WantedBy=multi-user.target

@@ -714,8 +714,7 @@ data/scripts/e2guardian
 data/scripts/logrotation
 data/scripts/solaris-init
 data/scripts/systemv-init
-migration_installation/installation_or_migration_from_dg.sh
-migration_installation/Makefile
+data/scripts/e2guardian.systemd
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf

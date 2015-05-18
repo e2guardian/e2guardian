@@ -6,5 +6,5 @@ config.sub \
 configure \
 dgconfig.h.in \
 configure
-SUBDIRS= doc . data configs src migration_installation
+SUBDIRS= doc . data configs src 
 EXTRA_DIST = autogen.sh UPGRADING
