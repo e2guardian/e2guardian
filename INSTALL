@@ -333,6 +333,7 @@ it to be) you will find at least the following files:
 bsd-init - a BSD style startup script to be put in your rc.d
 solaris-init - a Solaris style startup script to be put in your rc.d
 systemv-init - a Linux style startup script to be put in your rc.d
+e2guardian.service - a Linux style startup script to be put in your systemd directory
 e2guardian - a logrotate.d file
 logrotation - a sh script to rotate the logs
 ../e2guardian.pl - a cgi script for an access denied page
