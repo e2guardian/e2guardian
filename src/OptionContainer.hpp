@@ -58,6 +58,7 @@ public:
 	bool reverse_client_ip_lookups;
 	bool log_client_hostnames;
 	bool use_xforwardedfor;
+	std::deque<String> xforwardedfor_filter_ip;
 	bool logconerror;
 	bool logchildprocs;
 	int url_cache_number;
