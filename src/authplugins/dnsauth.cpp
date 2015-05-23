@@ -156,10 +156,25 @@ int dnsauthinstance::init(void* args) {
 int dnsauthinstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, /*int &fg,*/ std::string &string)
 {
 	String p1, p2, ippath;
-			
+	bool use_xforwardedfor;
+
 	p1 = peercon.getPeerIP();
 
-	if (o.use_xforwardedfor) {
+	use_xforwardedfor = false;
+	if (o.use_xforwardedfor == 1) {
+		if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+			for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+				if (strcmp(p1.c_str(),o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+					use_xforwardedfor = true;
+					break;
+				}
+			}
+		} else {
+			use_xforwardedfor = true;
+		}
+	}
+
+	if (use_xforwardedfor) {
 		// grab the X-Forwarded-For IP if available
 		p2 = h.getXForwardedForIP();
 		if ( p2.length() > 0 ) {
