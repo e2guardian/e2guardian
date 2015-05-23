@@ -171,9 +171,24 @@ int ntlminstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std
 	String at(h.getAuthType());
 	if (transparent && (at != "NTLM")) {
 		// obey forwarded-for options in what we send out
-		std::string clientip;
 		if (o.forwarded_for == 1) {
+			bool use_xforwardedfor;
+			std::string clientip;
+			use_xforwardedfor = false;
 			if (o.use_xforwardedfor == 1) {
+				if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+					const char * ip = peercon.getPeerIP().c_str();
+					for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+						if (strcmp(ip,o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+							use_xforwardedfor = true;
+							break;
+						}
+					}
+				} else {
+					use_xforwardedfor = true;
+				}
+			}
+			if (use_xforwardedfor == 1) {
 				// grab the X-Forwarded-For IP if available
 				clientip = h.getXForwardedForIP();
 				// otherwise, grab the IP directly from the client connection
@@ -257,8 +272,23 @@ int ntlminstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std
 #endif
 		// obey forwarded-for options in what we send out
 		if (o.forwarded_for == 1) {
+			bool use_xforwardedfor;
 			std::string clientip;
+			use_xforwardedfor = false;
 			if (o.use_xforwardedfor == 1) {
+				if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+					const char * ip = peercon.getPeerIP().c_str();
+					for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+						if (strcmp(ip,o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+							use_xforwardedfor = true;
+							break;
+						}
+					}
+				} else {
+					use_xforwardedfor = true;
+				}
+			}
+			if (use_xforwardedfor == 1) {
 				// grab the X-Forwarded-For IP if available
 				clientip = h.getXForwardedForIP();
 				// otherwise, grab the IP directly from the client connection
@@ -317,9 +347,24 @@ int ntlminstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std
 #ifdef DGDEBUG
 	std::cout << "NTLM - sending step 1" << std::endl;
 #endif
-	if (o.forwarded_for) {
+	if (o.forwarded_for == 1) {
+		bool use_xforwardedfor;
 		std::string clientip;
-		if (o.use_xforwardedfor) {
+		use_xforwardedfor = false;
+		if (o.use_xforwardedfor == 1) {
+			if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+				const char * ip = peercon.getPeerIP().c_str();
+				for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+					if (strcmp(ip,o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+						use_xforwardedfor = true;
+						break;
+					}
+				}
+			} else {
+				use_xforwardedfor = true;
+			}
+		}
+		if (use_xforwardedfor == 1) {
 			// grab the X-Forwarded-For IP if available
 			clientip = h.getXForwardedForIP();
 			// otherwise, grab the IP directly from the client connection

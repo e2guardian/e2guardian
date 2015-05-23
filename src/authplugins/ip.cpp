@@ -138,8 +138,22 @@ int ipinstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std::
 {
 	// we don't get usernames out of this plugin, just a filter group
 	// for now, use the IP as the username
-	
-	if (o.use_xforwardedfor) {
+	bool use_xforwardedfor;
+	use_xforwardedfor = false;
+	if (o.use_xforwardedfor == 1) {
+		if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+			const char * ip = peercon.getPeerIP().c_str();
+			for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+				if (strcmp(ip,o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+					use_xforwardedfor = true;
+					break;
+				}
+			}
+		} else {
+			use_xforwardedfor = true;
+		}
+	}
+	if (use_xforwardedfor == 1) {
 		// grab the X-Forwarded-For IP if available
 		string = h.getXForwardedForIP();
 		// otherwise, grab the IP directly from the client connection
