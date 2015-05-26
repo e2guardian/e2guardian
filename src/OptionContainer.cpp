@@ -633,6 +633,8 @@ bool OptionContainer::read(const char *filename, int type)
 			use_xforwardedfor = false;
 		}
 
+		xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
+
 		filter_groups = findoptionI("filtergroups");
 
 	        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "") ) {

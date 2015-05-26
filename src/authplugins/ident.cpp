@@ -48,7 +48,23 @@ AuthPlugin *identcreate(ConfigVar & definition)
 int identinstance::identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std::string &string)
 {
 	std::string clientip;
-	if (o.use_xforwardedfor) {
+	bool use_xforwardedfor;
+	use_xforwardedfor = false;
+	if (o.use_xforwardedfor == 1) {
+		if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+			const char * ip = peercon.getPeerIP().c_str();
+			for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+				if (strcmp(ip,o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+					use_xforwardedfor = true;
+					break;
+				}
+			}
+		} else {
+			use_xforwardedfor = true;
+		}
+	}
+
+	if (use_xforwardedfor) {
 		// grab the X-Forwarded-For IP if available
 		clientip = h.getXForwardedForIP();
 		// otherwise, grab the IP directly from the client connection

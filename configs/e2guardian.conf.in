@@ -552,6 +552,13 @@ forwardedfor = off
 usexforwardedfor = off
 
 
+# if you set usexforwardedfor to on, you can limit client authorize to use the
+# X-Forwarded-For headers.
+# If you want authorize multiple IP, specify each one on an individual xforwardedforfilterip
+# line.
+# xforwardedforfilterip = 
+
+
 # if on it logs some debug info regarding fork()ing and accept()ing which
 # can usually be ignored.  These are logged by syslog.  It is safe to leave
 # it on or off
