@@ -1,12 +1,4 @@
-For all support, instructions and copyright go to:
-http://e2guardian.org/
-
-## Github: https://github.com/e2guardian * 
-
-*	Develop is used to develop new features
-*	Bugfixes primarily occurs in the default branch 
-
-Read the INSTALL for installation instructions.
+## For all support, instructions and copyright go to: http://e2guardian.org/
 
 e2guardian is a content filtering proxy that works in conjunction with another
 caching proxy such as Squid or Oops. More information can be found in the
@@ -16,6 +8,26 @@ comments in the configuration and list files themselves.
 e2guardian is a fork of DansGuardian and the maintainers fully acknowledge 
 the work carried out by and the copyright of Daniel Baron and other 
 contributors to the Dansguardian project.
+
+Read the INSTALL for installation instructions.
+
+## Contributing
+
+Github: https://github.com/e2guardian 
+
+*	Develop is used to develop new features
+*	Bugfixes primarily occurs in the default branch 
+
+## Bugs and Feature Requests
+
+Github: https://github.com/e2guardian/e2guardian/issues
+
+## Community
+
+*	 Join the [Community
+    Forum](https://groups.google.com/forum/#!forum/e2guardian).
+
+## License
 
     Copyright 2014, Frederic Bourgeois, E2BN Protex Ltd and others. 
 
