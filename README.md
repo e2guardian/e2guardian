@@ -1,4 +1,6 @@
-## For all support, instructions and copyright go to: http://e2guardian.org/
+# [E2Guardian](http://e2guardian.org)
+
+**For all support, instructions and copyright go to: http://e2guardian.org**
 
 e2guardian is a content filtering proxy that works in conjunction with another
 caching proxy such as Squid or Oops. More information can be found in the
