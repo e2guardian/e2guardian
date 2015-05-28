@@ -1,6 +1,11 @@
 For all support, instructions and copyright go to:
 http://e2guardian.org/
 
+Github: https://github.com/e2guardian
+
+- Develop is used to develop new features
+- Bugfixes primarily occurs in the default branch 
+
 Read the INSTALL for installation instructions.
 
 e2guardian is a content filtering proxy that works in conjunction with another
