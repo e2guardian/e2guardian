@@ -721,7 +721,6 @@ configs/e2guardianf1.conf
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile
-configs/lists/blacklists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
 configs/lists/weightedphraselist
