@@ -59,7 +59,7 @@ To set up MITM:
 	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
 
    Set sslmitm = on in e2guardianfx.conf
-   Set sslseparatelists = on in e2guardianfx.conf
+   Set ssllegacylogic = off in e2guardianfx.conf
 
       If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist 
       will be MITM - This may be useful if you have limited processing power 
