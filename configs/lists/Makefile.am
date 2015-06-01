@@ -4,7 +4,7 @@ DISTCLEANFILES = Makefile.in \
 
 DGDATADIR = $(DGCONFDIR)/lists
 
-SUBDIRS = phraselists . blacklists authplugins bannedrooms
+SUBDIRS = phraselists . authplugins bannedrooms
 
 if NEED_CSLISTS
 SUBDIRS += contentscanners
