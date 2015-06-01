@@ -1,22 +1,6 @@
 DISTCLEANFILES = Makefile.in \
-	 nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \
-         bannedregexpurllist bannedsitelist \
-         bannedsearchlist bannedsslsitelist bannedurllist \
-         contentregexplist exceptioniplist exceptionsitelist \
-         exceptionurllist filtergroupslist greysitelist \
-         greyurllist pics bannedphraselist weightedphraselist \
-         exceptionphraselist bannediplist exceptioniplist urlregexplist \
-         exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
-         exceptionfilesitelist bannedregexpheaderlist headerregexplist \
-         exceptionfileurllist logsitelist logurllist logregexpurllist \
-         addheaderregexplist greysslsitelist \
-         localbannedsearchlist localbannedsitelist localbannedsslsitelist \
-         localbannedurllist localexceptionsitelist localexceptionurllist \
-         localgreysitelist localgreysslsitelist localgreyurllist \
-         refererexceptionsitelist refererexceptionurllist searchregexplist \
-         embededreferersitelist embededrefererurllist \
-         authexceptionsitelist authexceptionurllist \
-         urlredirectregexplist
+		bannedphraselist.in  bannedsitelist.in	bannedurllist.in \
+		exceptionphraselist.in  nocheckcertsitelist.in  weightedphraselist.in
 
 DGDATADIR = $(DGCONFDIR)/lists
 
