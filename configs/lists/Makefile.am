@@ -1,6 +1,22 @@
 DISTCLEANFILES = Makefile.in \
-		       weightedphraselist bannedphraselist exceptionphraselist \
-		       bannedsitelist bannedurllist
+	 nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \
+         bannedregexpurllist bannedsitelist \
+         bannedsearchlist bannedsslsitelist bannedurllist \
+         contentregexplist exceptioniplist exceptionsitelist \
+         exceptionurllist filtergroupslist greysitelist \
+         greyurllist pics bannedphraselist weightedphraselist \
+         exceptionphraselist bannediplist exceptioniplist urlregexplist \
+         exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
+         exceptionfilesitelist bannedregexpheaderlist headerregexplist \
+         exceptionfileurllist logsitelist logurllist logregexpurllist \
+         addheaderregexplist greysslsitelist \
+         localbannedsearchlist localbannedsitelist localbannedsslsitelist \
+         localbannedurllist localexceptionsitelist localexceptionurllist \
+         localgreysitelist localgreysslsitelist localgreyurllist \
+         refererexceptionsitelist refererexceptionurllist searchregexplist \
+         embededreferersitelist embededrefererurllist \
+         authexceptionsitelist authexceptionurllist \
+         urlredirectregexplist
 
 DGDATADIR = $(DGCONFDIR)/lists
 
@@ -13,7 +29,7 @@ if NEED_DMLISTS
 SUBDIRS += downloadmanagers
 endif
 
-WLISTS = bannedextensionlist bannediplist bannedmimetypelist \
+WLISTS = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \
 	 bannedregexpurllist bannedsitelist \
 	 bannedsearchlist bannedsslsitelist bannedurllist \
 	 contentregexplist exceptioniplist exceptionsitelist \
@@ -32,7 +48,7 @@ WLISTS = bannedextensionlist bannediplist bannedmimetypelist \
 	 authexceptionsitelist authexceptionurllist \
 	 urlredirectregexplist
  
-EXTRA_DIST = bannedextensionlist bannediplist bannedmimetypelist \
+EXTRA_DIST = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \
 	 bannedregexpurllist bannedsitelist.in bannedurllist.in \
 	 contentregexplist exceptioniplist exceptionsitelist \
 	 exceptionurllist filtergroupslist greysitelist \

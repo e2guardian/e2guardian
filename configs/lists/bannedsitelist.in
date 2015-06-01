@@ -37,7 +37,7 @@
 
 #List other sites to block:
 
-badboys.com
+# badboys.com
 
 # NOTE: In e2guardian Blanket blocks are now ONLY supported in this top file
 # WARNING: Blanket blocks in .included files will be silently ignored
@@ -66,7 +66,7 @@ badboys.com
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-.Include<@DGCONFDIR@/lists/blacklists/ads/domains>
+# .Include<@DGCONFDIR@/lists/blacklists/ads/domains>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklists collection.
