@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in \
-		bannedphraselist.in  bannedsitelist.in	bannedurllist.in \
-		exceptionphraselist.in  nocheckcertsitelist.in  weightedphraselist.in
+		bannedphraselist bannedsitelist bannedurllist \
+		exceptionphraselist nocheckcertsitelist weightedphraselist
 
 DGDATADIR = $(DGCONFDIR)/lists
 
