@@ -59,8 +59,8 @@
 
 #Blanket SSL/CONNECT IP Block.  To block all SSL and CONNECT
 #tunnels to sites specified only as an IP,
-#remove the # from the next line to leave only a '*ips':
-#*ips
+#remove the # from the next line to leave only a '**ips':
+#**ips
 
 
 # The squidGuard advert domain/URL lists are now included by default.
