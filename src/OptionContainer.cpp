@@ -753,27 +753,6 @@ bool OptionContainer::read(const char *filename, int type)
 		std::string exception_ip_list_location(findoptionS("exceptioniplist"));
 		group_names_list_location = findoptionS("groupnamesfile");
 		std::string language_list_location(languagepath + "messages");
-		if (reporting_level == 1 || reporting_level == 2) {
-			access_denied_address = findoptionS("accessdeniedaddress");
-			access_denied_domain = access_denied_address.c_str();
-			access_denied_domain = access_denied_domain.after("://");
-			access_denied_domain.removeWhiteSpace();
-			if (access_denied_domain.contains("/")) {
-				access_denied_domain = access_denied_domain.before("/");  // access_denied_domain now contains the FQ host nom of the
-				// server that serves the accessdenied.html file
-			}
-			if (access_denied_domain.contains(":")) {
-				access_denied_domain = access_denied_domain.before(":");  // chop off the port number if any
-			}
-			if (access_denied_domain.length() < 4) {
-				if (!is_daemonised) {
-					std::cerr << " accessdeniedaddress setting appears to be wrong." << std::endl;
-				}
-				syslog(LOG_ERR, "%s", " accessdeniedaddress setting appears to be wrong.");
-				return false;
-			}
-
-		}
 
 		if (filter_groups_list_location.length() == 0) {
 			use_filter_groups_list = false;

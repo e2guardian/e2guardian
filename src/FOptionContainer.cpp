@@ -505,6 +505,14 @@ bool FOptionContainer::read(const char *filename)
 				if (access_denied_domain.contains(":")) {
 					access_denied_domain = access_denied_domain.before(":");  // chop off the port number if any
 				}
+			} else {
+					access_denied_domain = "localhost";  // No initialized value
+		               	        if (access_denied_domain.length() < 4) {
+        	               	        	if (!is_daemonised) {
+                	                        	std::cerr << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
+                        	        	}	
+                                			syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong.");
+                        			}		
 			}
 		}
 		  if (reporting_level == 3) {
