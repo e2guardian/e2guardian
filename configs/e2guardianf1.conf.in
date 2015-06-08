@@ -324,9 +324,6 @@ reportinglevel = 3
 #     only for users using both transparent proxying and a non-local server
 #     to host this script.
 #
-# If defined, this overrides the global setting in e2guardian.conf for
-# members of this filter group.
-#
 #accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page

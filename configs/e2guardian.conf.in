@@ -151,21 +151,6 @@ pcontimeout = 55
 # on (default) | off
 @ORIGIPSUPPORT@originalip = on
 
-# accessdeniedaddress is the address of your web server to which the cgi
-# e2guardian reporting script was copied. Only used in reporting levels 1 and 2.
-#
-# This webserver must be either:
-#  1. Non-proxied. Either a machine on the local network, or listed as an exception
-#     in your browser's proxy configuration.
-#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
-#     only for users using both transparent proxying and a non-local server
-#     to host this script.
-#
-# Individual filter groups can override this setting in their own configuration.
-#
-accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
-
-
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
 # in the adverts blacklists can be replaced by an image.  This will,
