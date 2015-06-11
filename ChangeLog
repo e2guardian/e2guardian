@@ -2,6 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 June 2015
 
+- Fix Bug #75 contentscanners commandlinescan broken and potential problem with the others 
 - Fix bug #30 compilation issue with --program-prefix
 - Security Fix: AV and empty access_denied_domain value break scan silently
 - Fix bug #72 (wrong config file)
