@@ -1,6 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 June 2015
+
+- Fix bug #30 compilation issue with --program-prefix
 - Security Fix: AV and empty access_denied_domain value break scan silently
 - Fix bug #72 (wrong config file)
 - Add new option: "xforwardedforfilterip" 
