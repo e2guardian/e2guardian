@@ -400,7 +400,7 @@ int CertificateAuthority::do_mkdir(const char *path, mode_t mode)
     if (stat(path, &st) != 0)
     {
         mode_t process_mask = umask(0);
-        int rc = mkdir(path, mode)
+        int rc = mkdir(path, mode);
         umask(process_mask);
         
         /* Directory does not exist. EEXIST for race condition */
