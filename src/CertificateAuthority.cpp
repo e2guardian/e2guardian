@@ -160,8 +160,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 	std::string dirpath(caser->filepath);
 	
 	// make directory path
-	mode_t mask = umask(S_IRWXU | S_IRWXG | S_IRWXO);
-	int rc = mkpath(dirpath.c_str(), mask);
+	int rc = mkpath(dirpath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (rc != 0) {
 		syslog(LOG_ERR,"error creating certificate sub-directory");
 		exit(1);
