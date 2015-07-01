@@ -160,7 +160,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 	std::string dirpath(caser->filepath);
 	
 	// make directory path 
-	int rc = mkpath(dirpath.c_str(), 0777);
+	int rc = mkpath(dirpath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
         if (rc != 0) {
 		syslog(LOG_ERR,"error creating certificate sub-directory");
 		exit(1);
@@ -399,8 +399,12 @@ int CertificateAuthority::do_mkdir(const char *path, mode_t mode)
 
     if (stat(path, &st) != 0)
     {
+        mode_t process_mask = umask(0);
+        int rc = mkdir(path, mode)
+        umask(process_mask);
+        
         /* Directory does not exist. EEXIST for race condition */
-        if (mkdir(path, mode) != 0 && errno != EEXIST)
+        if (rc != 0 && errno != EEXIST)
             status = -1;
     }
     else if (!S_ISDIR(st.st_mode))
