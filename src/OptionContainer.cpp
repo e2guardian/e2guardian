@@ -505,26 +505,6 @@ bool OptionContainer::read(const char *filename, int type)
 
 #endif
 
-	       max_upload_size = findoptionI("maxuploadsize");
-#ifdef DGDEBUG
-               std::cout << "Default Max upload size in config file: " << max_upload_size << std::endl;
-#endif
-                if (realitycheck(max_upload_size, -1, 10000000, "maxuploadsize")) {
-			if (max_upload_size > 0)
-                               max_upload_size *= 1024;
-                }
-                else{
-			if (!is_daemonised)
-				std::cerr << "Invalid maxuploadsize: " << max_upload_size << std::endl;
-				syslog(LOG_ERR, "Invalid maxuploadsize size");
-                       return false;
-                }               // check its a reasonable value
-
-#ifdef DGDEBUG
-                std::cout << "Default Max upload configured size: " << max_upload_size << std::endl;
-#endif
-
-
 		ll = findoptionI("loglevel");
 		if (!realitycheck(ll, 0, 3, "loglevel")) {
 			return false;
@@ -1385,12 +1365,6 @@ bool OptionContainer::readAnotherFilterGroupConf(const char *filename, const cha
 	(*fg[numfg]).force_quick_search = force_quick_search;
 	(*fg[numfg]).createlistcachefiles = createlistcachefiles;
 	(*fg[numfg]).reverse_lookups = reverse_lookups;
-	
-	// pass in default access denied address - can be overidden
-	(*fg[numfg]).access_denied_domain = access_denied_domain;
-	(*fg[numfg]).sslaccess_denied_domain = sslaccess_denied_domain;
-	(*fg[numfg]).access_denied_address = access_denied_address;
-	(*fg[numfg]).sslaccess_denied_address = sslaccess_denied_address;
 	
 	// pass in the group name
 	(*fg[numfg]).name = groupname;

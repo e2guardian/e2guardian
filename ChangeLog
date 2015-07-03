@@ -1,5 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Remove old & unused values 
+- Remove max_upload option from e2guardian.conf 
+
 June 2015
 
 - Fix Bug #75 contentscanners commandlinescan broken and potential problem with the others 

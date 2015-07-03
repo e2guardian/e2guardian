@@ -473,16 +473,15 @@ bool FOptionContainer::read(const char *filename)
                long temp_max_upload_size;
                temp_max_upload_size = findoptionI("maxuploadsize");
 
-                if (realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) {
+                if ((realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) && (temp_max_upload_size != 0)) {
                        max_upload_size = temp_max_upload_size;
                        if (temp_max_upload_size > 0)
                                max_upload_size *= 1024;
-               }
-               else{
+               } else {
                        if (!is_daemonised)
                                std::cerr << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
-                               syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
-                               return false;
+                        syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
+                        return false;
                 }               
 
 #ifdef DGDEBUG

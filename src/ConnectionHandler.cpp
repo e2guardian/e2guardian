@@ -1831,17 +1831,12 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
                                 // MIME type test is just an approximation, but probably good enough
 
 				long max_upload_size;
+				max_upload_size=(*o.fg[filtergroup]).max_upload_size;
+
 #ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " max upload size general: " << o.max_upload_size << " filtergroup " << filtergroup << ": " << (*o.fg[filtergroup]).max_upload_size << std::endl;
+                                std::cout << dbgPeerPort << " max upload size general: " << max_upload_size << " filtergroup " << filtergroup << ": " << (*o.fg[filtergroup]).max_upload_size << std::endl;
+
 #endif
-
-				if ((*o.fg[filtergroup]).max_upload_size > 0) {
-					max_upload_size=(*o.fg[filtergroup]).max_upload_size;
-					}
-				else {
-					max_upload_size=o.max_upload_size;
-				}
-
  				if (!isbypass && !isexception
 					&& ((max_upload_size >= 0) && (cl > max_upload_size))
  					&& multipart)
