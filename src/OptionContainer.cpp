@@ -613,15 +613,7 @@ bool OptionContainer::read(const char *filename, int type)
 			use_xforwardedfor = false;
 		}
 
-		if ((xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip")) != ""){
-			if (xforwardedfor_filter_ip.size() < 1) {
-				if (!is_daemonised) {
-					std::cerr << "xforwardedforfilterip wrong value" << std::endl;
-				}
-				syslog(LOG_ERR, "xforwardedforfilterip wrong value");
-				return false;
-			}
-		} 
+		xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
 		filter_groups = findoptionI("filtergroups");
 
