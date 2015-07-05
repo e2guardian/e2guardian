@@ -138,13 +138,13 @@ bool OptionContainer::read(const char *filename, int type)
 		if (type == 0 || type == 2) {
 
 			if ((ipc_filename = findoptionS("ipcfilename")) == "")
-				ipc_filename = "/tmp/.dguardianipc";
+				ipc_filename = "/tmp/.e2guardianipc";
 
 			if ((urlipc_filename = findoptionS("urlipcfilename")) == "")
-				urlipc_filename = "/tmp/.dguardianurlipc";
+				urlipc_filename = "/tmp/.e2guardianurlipc";
 
 			if ((ipipc_filename = findoptionS("ipipcfilename")) == "")
-				ipipc_filename = "/tmp/.dguardianipipc";
+				ipipc_filename = "/tmp/.e2guardianipipc";
 
 			if ((pid_filename = findoptionS("pidfilename")) == "") {
 				pid_filename = __PIDDIR;
@@ -613,14 +613,15 @@ bool OptionContainer::read(const char *filename, int type)
 			use_xforwardedfor = false;
 		}
 
-		xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
-		if ((xforwardedfor_filter_ip.size() < 1) && use_xforwardedfor)  {
-			if (!is_daemonised) {
-				std::cerr << "xforwardedforfilterip wrong value" << std::endl;
+		if ((xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip")) != ""){
+			if (xforwardedfor_filter_ip.size() < 1) {
+				if (!is_daemonised) {
+					std::cerr << "xforwardedforfilterip wrong value" << std::endl;
+				}
+				syslog(LOG_ERR, "xforwardedforfilterip wrong value");
+				return false;
 			}
-			syslog(LOG_ERR, "xforwardedforfilterip wrong value");
-			return false;
-		}
+		} 
 
 		filter_groups = findoptionI("filtergroups");
 
