@@ -524,11 +524,12 @@ forwardedfor = off
 # Warning - headers are easily spoofed. on | off
 usexforwardedfor = off
 
-
-# if you set usexforwardedfor to on, you can limit client authorize to use the
-# X-Forwarded-For headers.
-# If you want authorize multiple IP, specify each one on an individual xforwardedforfilterip
-# line.
+# as mentioned above, the headers can be easily spoofed in order to fake the
+# request origin by setting the X-Forwarded-For header. If you have the
+# "usexforwardedfor" option enabled, you may want to specify the IPs from which
+# this kind of header is allowed, such as another upstream proxy server for
+# instance If you want authorize multiple IPs, specify each one on an individual
+# xforwardedforfilterip line.
 # xforwardedforfilterip = 
 
 
