@@ -332,7 +332,7 @@ reportinglevel = 3
 # With ssldeniedrewrite 'off' it works only with firefox 
 # With ssldeniedrewrite 'on' there are several limitations, SSL warning, basic page, etc, eg this webserver can't be listed as an
 # exception in your browser's proxy configuration.
-# Keep in mind, this is only a trick to avoid blanck page, the best way still to use SSLMITM   
+# Keep in mind, this is only a trick to avoid blank page, the best way still to use SSLMITM   
 # 
 # sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
