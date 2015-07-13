@@ -327,8 +327,12 @@ reportinglevel = 3
 #accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
-# e2guardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
-# Work only in firefox with ssldeniedrewrite off
+# e2guardian reporting was copied.
+
+# With ssldeniedrewrite 'off' it works only with firefox 
+# With ssldeniedrewrite 'on' there are several limitations, SSL warning, basic page, etc, eg this webserver can't be listed as an
+# exception in your browser's proxy configuration.
+#   
 
 # sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 

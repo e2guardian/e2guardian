@@ -529,10 +529,11 @@ bool FOptionContainer::read(const char *filename)
 					// HTML template file
 				}
 			}
+		}
 
 		// override ssl default banned page
                	sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
-		if ((sslaccess_denied_address.length() != 0 ) && (reporting_level == 3)) {
+		if ((sslaccess_denied_address.length() != 0 )) {
                 	        sslaccess_denied_domain = sslaccess_denied_address.c_str();
                        		sslaccess_denied_domain = sslaccess_denied_domain.after("://");
                        		sslaccess_denied_domain.removeWhiteSpace();
@@ -556,7 +557,6 @@ bool FOptionContainer::read(const char *filename)
             		        } else {
                         		ssl_denied_rewrite = false;
                 		}	
-			}
 		}
 
                 if (findoptionS("nonstandarddelimiter") == "off") {
