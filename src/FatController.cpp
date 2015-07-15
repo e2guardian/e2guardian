@@ -101,6 +101,70 @@ Socket *peersock(NULL);  // the socket which will contain the connection
 
 String peersockip;  // which will contain the connection ip
 
+struct stat_rec {
+	long births;  	// num of child forks in stat interval
+	long deaths;  	// num of child deaths in stat interval
+	long conx;  		// num of client connections in stat interval
+	time_t start_int;	// time of start of this stat interval
+	time_t end_int;		// target end time of stat interval
+	FILE *fs;	// file stream
+	void reset();
+	void start();
+	void clear();
+	void close();
+};
+
+void stat_rec::clear() {
+	births = 0;
+	deaths = 0;
+	conx = 0;
+};
+
+void stat_rec::start() {
+	clear();
+	start_int = time(NULL);
+	end_int = start_int + o.dstat_interval;
+	if ( o.dstat_log_flag ) {
+			mode_t old_umask;
+			old_umask = umask(S_IWGRP | S_IWOTH);
+			fs = fopen(o.dstat_location.c_str(), "a");
+			if (fs) {
+				fprintf(fs, "time		childs 	busy	free	wait	births	deaths	conx	conx/s\n");
+			} else {
+				syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n", 
+					o.dstat_location.c_str());
+				o.dstat_log_flag = false;
+			};
+			umask(old_umask);
+	};
+
+};
+
+void stat_rec::reset() {
+	time_t now = time(NULL);
+	long cps = conx / ( now - start_int );
+	fprintf(fs,"%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, numchildren,
+						(busychildren - waitingfor),
+						freechildren,
+						waitingfor,
+						births,
+						deaths,
+						conx,
+						cps);
+	clear();
+	if ((end_int + o.dstat_interval) > now) 
+		start_int = end_int;
+	else
+		start_int = now;
+	end_int = start_int + o.dstat_interval;
+};
+
+void stat_rec::close() {
+	fclose(fs);
+};
+
+stat_rec dstat;
+stat_rec *dystat = &dstat;
 
 // DECLARATIONS
 
@@ -207,7 +271,7 @@ extern "C"
 	void sig_childterm(int signo)
 	{
 #ifdef DGDEBUG
-		std::cout << "TERM recieved." << std::endl;
+		std::cout << "TERM received." << std::endl;
 #endif
 		_exit(0);
 	}
@@ -354,6 +418,7 @@ bool daemonise()
 	setsid();  // become session leader
 	int dummy = chdir("/");  // change working directory
 	umask(0);  // clear our file mode creation mask
+	umask(S_IWGRP | S_IWOTH);  // set to mor sensible setting??
 
 	is_daemonised = true;
 
@@ -485,6 +550,7 @@ int prefork(int num)
 #ifdef DGDEBUG
 		std::cout << "Preforked parent added child to list" << std::endl;
 #endif
+		dystat->births++;
 		}
 	}
 	return 1;  // parent returning
@@ -543,6 +609,7 @@ void tidyup_forchild()
 #ifdef HAVE_SYS_EPOLL_H
 	delete[]revents; // 5 deletes good, memory leaks bad
 #endif
+	//delete dystat;
 }
 
 String readymess2("2\n");
@@ -756,6 +823,7 @@ void mopup_afterkids()
 	std::cout << "mopup deleting child" << pid  << std::endl;
 #endif
 	deletechild((int) pid);
+	dystat->deaths++;
 	}
 }
 
@@ -1163,6 +1231,7 @@ void tellchild_accept(int num, int whichsock)
 	// as the very fact the child sent something back is a good sign 
 	busychildren++;
 	freechildren--;
+	dystat->conx++;
 	childrenstates[num] = 1;  // busy
 }
 
@@ -2719,6 +2788,8 @@ int fc_controlit()
                 syslog(LOG_INFO, "Reconfiguring E2guardian: done");
 	} else {
 		syslog(LOG_INFO, "Started sucessfully.");
+		//dystat = new stat_rec;
+		dystat->start();
 	}
 	reloadconfig = false;
 
@@ -2997,7 +3068,9 @@ int fc_controlit()
 			}
 		}
 
-		if (gentle_in_progress && (time(NULL) > next_gentle_check) && (waitingfor == 0)) {
+		time_t now = time(NULL);
+
+		if (gentle_in_progress && (now > next_gentle_check) && (waitingfor == 0)) {
 			int fork_count = 0;
 			int top_up = o.gentle_chunk;
 			if (top_up > gentle_to_hup)
@@ -3059,6 +3132,8 @@ int fc_controlit()
 				cullchildren(freechildren - o.maxspare_children);
 			}
 		}
+		if (o.dstat_log_flag && ( now >= dystat->end_int ))
+			dystat->reset();
 	}
 	cullchildren(numchildren);  // remove the fork pool of spare children
 #ifdef HAVE_SYS_EPOLL_H

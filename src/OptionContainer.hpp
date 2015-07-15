@@ -117,9 +117,10 @@ public:
 	std::string blocked_content_store;
 	std::string monitor_helper;
 	bool monitor_helper_flag;
-	bool stat_log_flag;
+	std::string dstat_location;
+	bool dstat_log_flag;
+	int dstat_interval;
 	int monitor_start;
-	int stat_interval;
 
 	// Hardware/organisation/etc. IDs
 	std::string logid_1;

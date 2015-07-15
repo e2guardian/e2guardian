@@ -39,6 +39,7 @@ max_logitem_length(2000), max_content_filter_size(0),
 max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0),
 content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0),
 reporting_level(0), weighted_phrase_mode(0), numfg(0),
+dstat_log_flag(false), dstat_interval(300),
 fg(NULL)
 {
 }
@@ -160,11 +161,16 @@ bool OptionContainer::read(const char *filename, int type)
 			}
 
 			if ((stat_location = findoptionS("statlocation")) == "") {
-				stat_log_flag = false;
+				stat_location = __LOGLOCATION;
+				stat_location += "/stats";
+			}
+
+			if ((dstat_location = findoptionS("dstatlocation")) == "") {
+				dstat_log_flag = false;
 			} else {
-				stat_log_flag = true;
-				if (( stat_interval = findoptionI("statinterval")  == 0)) {
-					stat_interval = 300; // 5 mins
+				dstat_log_flag = true;
+				if (( dstat_interval = findoptionI("dstatinterval")  == 0)) {
+					dstat_interval = 300; // 5 mins
 				}
 			}
 				

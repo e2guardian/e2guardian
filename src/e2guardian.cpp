@@ -25,6 +25,8 @@
 #include <locale.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/times.h>
+#include <sys/resource.h>
 
 #ifdef __BENCHMARK
 #include <sys/times.h>
@@ -315,12 +317,18 @@ int main(int argc, char *argv[])
 	else {
 		no_listen_fds = o.filter_ports.size() * o.filter_ip.size();
 	}
+
+	struct rlimit rlim;
+	if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
+		syslog(LOG_ERR, "getrlimit call returned %d error", errno);
+		return 1;
+	}
 	int max_maxchildren;
 	// enough fds needed for listening_fds + logger + ipcs + stdin/out/err
 	// in addition to children
 	// on soft/gentle restarts headroom may be needed while children die
 	// so use prefork_children as an estimate for this value.
-	max_maxchildren = DANS_MAXFD - (no_listen_fds + 6 );
+	max_maxchildren = rlim.rlim_cur - (no_listen_fds + 6 );
 
 #ifndef FD_SETSIZE_OVERIDE
 	/* Fix ugly crash */
@@ -337,7 +345,7 @@ int main(int argc, char *argv[])
 #endif
 	if ((o.max_children + o.prefork_children) > max_maxchildren) {
 		syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
-		std::cerr << " maxchildren option in e2guardian.conf has a value too high." << std::endl;
+		std::cerr << " maxchildren option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")"<< std::endl;
 		std::cerr << "The total of maxchildren " << o.max_children << " plus preforkchildren " << o.prefork_children <<  " must not exceed " << max_maxchildren << "" << std::endl;
 		std::cerr << "in this configuration." << std::endl;
 		std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
