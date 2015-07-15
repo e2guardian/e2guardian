@@ -88,6 +88,7 @@ public:
 	int prefork_children;
 	int minspare_children;
 	int maxage_children;
+	int gentle_chunk;
 	std::string daemon_user_name;
 	std::string daemon_group_name;
 	int proxy_user;
@@ -114,6 +115,11 @@ public:
 	std::string ipipc_filename;
 	std::string pid_filename;
 	std::string blocked_content_store;
+	std::string monitor_helper;
+	bool monitor_helper_flag;
+	bool stat_log_flag;
+	int monitor_start;
+	int stat_interval;
 
 	// Hardware/organisation/etc. IDs
 	std::string logid_1;

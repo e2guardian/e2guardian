@@ -334,7 +334,7 @@ off_t ConnectionHandler::sendFile(Socket * peerconn, String & filename, String &
 
 // pass data between proxy and client, filtering as we go.
 // this is the only public function of ConnectionHandler
-void ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
+int ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 {
 	persistent_authed = false;
 
@@ -344,14 +344,14 @@ void ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 #endif
 	Socket proxysock;
 
-	handleConnection(peerconn, ip, false, proxysock);
+	return handleConnection(peerconn, ip, false, proxysock);
 
-	return;
+	//return;
 }
 
 
 // all content blocking/filtering is triggered from calls inside here
-void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock)
+int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock)
 {
 	struct timeval thestart;
 	gettimeofday(&thestart, NULL);
@@ -575,34 +575,16 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
                                                 if (!rc){
                                                         break;
 						} else {
-
-#ifdef DGDEBUG
-                                                	std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
-#endif
-	                                                syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
-							// Immediatly close (Packet FIN) load balancer knows E2 talks to a dead proxy
-							struct linger a;
-							a.l_onoff=1; 
-                					a.l_linger=0;
-
-							setsockopt(peerconn.getFD(), SOL_SOCKET, SO_LINGER, &a, sizeof(a)); 
-    							// send data here
-							shutdown(peerconn.getFD(), SHUT_WR);
-							peerconn.close();
-							sleep (1);
-                                        	}
-						if ( i == o.proxy_timeout -1 ){
-	                                                syslog(LOG_ERR, "Proxy timeout expired: Max %d seconds", o.proxy_timeout);
-						 	if (o.alive_with_proxy){
-	                                                	syslog(LOG_ERR, "Proxy timeout expired: alivewithproxy = on exit program");
-								/* TODO : A better way should be just stop the connection,
-								 if the proxy returns E2 still alive */
-								kill(0, SIGTERM);
-							} else {
-								kill(getpid(), SIGTERM);
-							}
+							sleep(1);
 						}
-                                	}
+					}
+                                        if (rc) {
+#ifdef DGDEBUG
+                                                std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
+#endif
+//                                                syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
+                                                return 3;
+                                        }
 				}
 				catch(std::exception & e) {
 #ifdef DGDEBUG
@@ -632,8 +614,20 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 				break;
 			}
 
-// do total block list checking here
 			urld = header.decode(url);
+
+			if (urldomain == "internal.test.e2guardian.org") {
+				try {	// writestring throws exception on error/timeout
+					peerconn.writeString("HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
+					peerconn.writeString("</BODY></HTML>\n");
+				}
+				catch(std::exception & e) {
+				}
+				proxysock.close();  // close connection to proxy
+				break;
+			}
+
+// do total block list checking here
 			if (o.use_total_block_list && o.inTotalBlockList(urld)) {
 			   //if ( header.requestType().startsWith("CONNECT")) 
 			   if (is_ssl ) {
@@ -2736,7 +2730,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 					&header, message_no, contentmodified, urlmodified, headermodified, headeradded);
 				if (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,&clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))
 				{
-					return;  // not stealth mode
+					return 0;  // not stealth mode
 				}
 
 				// if get here in stealth mode
@@ -2888,7 +2882,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 		// close connection to proxy
 		proxysock.close();
 
-		return;
+		return 0;
 	}
 	catch(std::exception & e) {
 #ifdef DGDEBUG
@@ -2898,7 +2892,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 		// close connection to proxy
 		proxysock.close();
 
-		return;
+		return 0;
 	}
 
 	if (!ismitm) try {
@@ -2922,7 +2916,7 @@ void ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismi
 		peerconn.close();
 	}
 
-	return;
+	return 0;
 }
 
 

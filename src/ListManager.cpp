@@ -32,6 +32,16 @@ ListManager::~ListManager()
 	}
 }
 
+void ListManager::clear()
+{
+	for (unsigned int i = 0; i < l.size(); i++) {
+		if (l[i] != NULL) {
+			delete l[i];
+			l[i] = NULL;
+		}
+	}
+}
+
 // find an unused list in our collection of lists
 int ListManager::findNULL()
 {

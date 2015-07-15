@@ -25,6 +25,8 @@ public:
 	std::deque<ListContainer * > l;
 
 	~ListManager();
+
+	void clear();
 	
 	// create a new item list. re-uses existing lists if a reload is not necessary.
 	// calls readItemList.

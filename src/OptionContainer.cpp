@@ -160,9 +160,14 @@ bool OptionContainer::read(const char *filename, int type)
 			}
 
 			if ((stat_location = findoptionS("statlocation")) == "") {
-				stat_location = __LOGLOCATION;
-				stat_location += "/stats";
+				stat_log_flag = false;
+			} else {
+				stat_log_flag = true;
+				if (( stat_interval = findoptionI("statinterval")  == 0)) {
+					stat_interval = 300; // 5 mins
+				}
 			}
+				
 
 			if (type == 0) {
 				return true;
@@ -311,6 +316,27 @@ bool OptionContainer::read(const char *filename, int type)
 		if (!realitycheck(maxage_children, 1, 0, "maxagechildren")) {
 			return false;
 		}		// check its a reasonable value
+
+		gentle_chunk = findoptionI("gentlechunk");
+		if (gentle_chunk > 0) {
+			if (!realitycheck(gentle_chunk, 1, min_children, "gentlechunk")) {
+				return false;
+			}		// check its a reasonable value
+		} else {
+			gentle_chunk = prefork_children;
+		}
+		monitor_start = 0;
+		monitor_helper = findoptionS("monitorhelper");
+		if (monitor_helper == ""){
+			monitor_helper_flag = false;
+		} else {	
+			monitor_helper_flag = true;
+			monitor_start = findoptionI("monitorstart");
+			if (!realitycheck(monitor_start, 0, min_children, "monitorstart")) {
+				return false;
+			}		// check its a reasonable value
+			if (monitor_start == 0) monitor_start = min_children;
+		} 
 
 		max_ips = findoptionI("maxips");
 		if (!realitycheck(max_ips, 0, 0, "maxips")) {
