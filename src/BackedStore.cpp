@@ -101,7 +101,8 @@ bool BackedStore::append(const char *data, size_t len)
 #ifdef DGDEBUG
 			std::cout << "BackedStore: filename template: " << filename << std::endl;
 #endif
-			umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+ 			//	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
+ 			umask(0007);  // only allow access to e2g user and group
 			if ((fd = mkstemp(filename)) < 0)
 			{
 				std::ostringstream ss;

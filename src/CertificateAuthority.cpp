@@ -158,9 +158,10 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 {	
 	std::string path(caser->filename);
 	std::string dirpath(caser->filepath);
-	
+
+	mode_t old_umask;
 	// make directory path 
-	int rc = mkpath(dirpath.c_str(), 0777);
+	int rc = mkpath(dirpath.c_str(), 0700);  // only want e2g to have access to these dir
         if (rc != 0) {
 		syslog(LOG_ERR,"error creating certificate sub-directory");
 		exit(1);
@@ -174,7 +175,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 	fl.l_len = 0;
 	fl.l_pid = getpid();
 
-	int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH );
+	int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR );  //only e2g has access
 
 #ifdef DGDEBUG 
 	std::cout << "certificate file is " << path  << std::endl;
