@@ -2646,11 +2646,11 @@ int fc_controlit()
 #endif
 
 	// store child fds...
-#ifdef HAVE_SYS_EPOLL_H
-	for (i = 0; i < fds; i++) {
-#else
-	for (i = 0; i < o.max_children; i++) {
-#endif
+//#ifdef HAVE_SYS_EPOLL_H
+	for (i = 0; i < top_child_fds; i++) {
+//#else
+	//for (i = 0; i < o.max_children; i++) {
+//#endif
 		childrenpids[i] = -1;
 		childrenstates[i] = -1;
 		childsockets[i] = NULL;
@@ -3032,6 +3032,18 @@ int fc_controlit()
 			rc = prefork(o.prefork_children);
 			if (rc < 0) {
 				syslog(LOG_ERR, "Error forking preforkchildren extra processes.");
+				failurecount++;
+			}
+		}
+		if ( (waitingfor == 0) && (numchildren < o.min_children)) {
+			int to_fork = o.prefork_children;
+			if ( to_fork > (o.min_children - numchildren))
+				to_fork = o.min_children - numchildren;
+			if (o.logchildprocs)
+				syslog(LOG_ERR, "Fewer than %d children - Spawning %d process(es)", o.min_children, to_fork);
+			rc = prefork(to_fork);
+			if (rc < 0) {
+				syslog(LOG_ERR, "Error forking %d extra processes.", to_fork);
 				failurecount++;
 			}
 		}
