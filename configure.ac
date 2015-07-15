@@ -714,15 +714,13 @@ data/scripts/e2guardian
 data/scripts/logrotation
 data/scripts/solaris-init
 data/scripts/systemv-init
-migration_installation/installation_or_migration_from_dg.sh
-migration_installation/Makefile
+data/scripts/e2guardian.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile
-configs/lists/blacklists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
 configs/lists/weightedphraselist

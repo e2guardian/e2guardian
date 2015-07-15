@@ -473,16 +473,15 @@ bool FOptionContainer::read(const char *filename)
                long temp_max_upload_size;
                temp_max_upload_size = findoptionI("maxuploadsize");
 
-                if (realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) {
+                if ((realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) && (temp_max_upload_size != 0)) {
                        max_upload_size = temp_max_upload_size;
                        if (temp_max_upload_size > 0)
                                max_upload_size *= 1024;
-               }
-               else{
+               } else {
                        if (!is_daemonised)
                                std::cerr << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
-                               syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
-                               return false;
+                        syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
+                        return false;
                 }               
 
 #ifdef DGDEBUG
@@ -505,6 +504,14 @@ bool FOptionContainer::read(const char *filename)
 				if (access_denied_domain.contains(":")) {
 					access_denied_domain = access_denied_domain.before(":");  // chop off the port number if any
 				}
+			} else {
+					access_denied_domain = "localhost";  // No initialized value
+		               	        if (access_denied_domain.length() < 4) {
+        	               	        	if (!is_daemonised) {
+                	                        	std::cerr << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
+                        	        	}	
+                                			syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong.");
+                        			}		
 			}
 		}
 		  if (reporting_level == 3) {
@@ -522,10 +529,11 @@ bool FOptionContainer::read(const char *filename)
 					// HTML template file
 				}
 			}
+		}
 
 		// override ssl default banned page
                	sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
-		if ((sslaccess_denied_address.length() != 0 ) && (reporting_level == 3)) {
+		if ((sslaccess_denied_address.length() != 0 )) {
                 	        sslaccess_denied_domain = sslaccess_denied_address.c_str();
                        		sslaccess_denied_domain = sslaccess_denied_domain.after("://");
                        		sslaccess_denied_domain.removeWhiteSpace();
@@ -549,7 +557,6 @@ bool FOptionContainer::read(const char *filename)
             		        } else {
                         		ssl_denied_rewrite = false;
                 		}	
-			}
 		}
 
                 if (findoptionS("nonstandarddelimiter") == "off") {

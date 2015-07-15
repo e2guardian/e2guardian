@@ -1,8 +1,8 @@
 HOW TO UPGRADE FROM DansGuardian
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Both the main configuration file and the filter group configuration file(s)
-have changed. Check the script(s) in the migration_installation directory for help with this and read the e2guardian.release file which describes the main feature and enhancements in this version of e2guardian.
+Both the main configuration file and the filter group configuration file(s) have changed.
+Read the e2guardian.release file which describes the main feature and enhancements in this version of e2guardian.
 
 On the other hand, list files (phrase lists, domain lists,
 etc.) have not changed format, and should largely "just work".  

@@ -58,6 +58,7 @@ public:
 	bool reverse_client_ip_lookups;
 	bool log_client_hostnames;
 	bool use_xforwardedfor;
+	std::deque<String> xforwardedfor_filter_ip;
 	bool logconerror;
 	bool logchildprocs;
 	int url_cache_number;
@@ -94,7 +95,6 @@ public:
 	int proxy_user;
 	int proxy_group;
 	int root_user;
-    	off_t max_upload_size;
 	int max_ips;
 	bool recheck_replaced_urls;
 	bool use_filter_groups_list;
@@ -106,8 +106,6 @@ public:
 	bool prefer_cached_lists;
 	std::string languagepath;
 	std::string filter_groups_list_location;
-	std::string access_denied_address;
-	std::string sslaccess_denied_address;
 	std::string log_location;
 	std::string stat_location;
 	std::string ipc_filename;

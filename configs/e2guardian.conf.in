@@ -61,18 +61,6 @@ logfileformat = 1
 # Defines the log directory and filename.
 #loglocation = '@DGLOGLOCATION@/access.log'
 
-# POST protection (web upload and forms)
-# does not block forms without any file upload, i.e. this is just for
-# blocking or limiting uploads
-# measured in kibibytes after MIME encoding and header bumph
-# This option is overwriten by filtergroup maxuploadsize if specified
-# use 0 for a complete block
-# use higher (e.g. 512 = 512Kbytes) for limiting
-# use -1 for no blocking
-#maxuploadsize = 512
-#maxuploadsize = 0
- maxuploadsize = -1
-
 # Statistics log file location
 #
 # Defines the stat file directory and filename.
@@ -151,21 +139,6 @@ pcontimeout = 55
 # on (default) | off
 @ORIGIPSUPPORT@originalip = on
 
-# accessdeniedaddress is the address of your web server to which the cgi
-# e2guardian reporting script was copied. Only used in reporting levels 1 and 2.
-#
-# This webserver must be either:
-#  1. Non-proxied. Either a machine on the local network, or listed as an exception
-#     in your browser's proxy configuration.
-#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
-#     only for users using both transparent proxying and a non-local server
-#     to host this script.
-#
-# Individual filter groups can override this setting in their own configuration.
-#
-accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
-
-
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
 # in the adverts blacklists can be replaced by an image.  This will,
@@ -203,7 +176,7 @@ exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 # A directory containing text files containing the room's name followed by IPs or ranges
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
-perroomdirectory = '@DGCONFDIR@/lists/rooms/'
+# perroomdirectory = '@DGCONFDIR@/lists/rooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -550,6 +523,14 @@ forwardedfor = off
 # IP. This is for when you have squid between the clients and e2guardian.
 # Warning - headers are easily spoofed. on | off
 usexforwardedfor = off
+
+# as mentioned above, the headers can be easily spoofed in order to fake the
+# request origin by setting the X-Forwarded-For header. If you have the
+# "usexforwardedfor" option enabled, you may want to specify the IPs from which
+# this kind of header is allowed, such as another upstream proxy server for
+# instance If you want authorize multiple IPs, specify each one on an individual
+# xforwardedforfilterip line.
+# xforwardedforfilterip = 
 
 
 # if on it logs some debug info regarding fork()ing and accept()ing which

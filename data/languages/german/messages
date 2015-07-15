@@ -1,38 +1,38 @@
 # e2guardian 3 messages file in German
 #
-# Translated and adapted to Unicode by Peter Vollmar
+# Translated and adapted to Unicode by Peter Vollmar, Klaus Tachtler.
 "1","Zugriff verweigert"
-"10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
-"50"," in "    # needs translation
-"51","TRUSTED"    # needs translation
-"52","DENIED"    # needs translation
-"53","INFECTED"    # needs translation
-"54","SCANNED"    # needs translation
-"55","CONTENTMOD"    # needs translation
-"56","URLMOD"    # needs translation
-"57","HEADERMOD"    # needs translation
-"58","HEADERADD"    # needs translation
-"70","SSL SITE"    # needs translation
-"71","IP Limit"    # needs translation
-"72","Content scanning"    # needs translation
+"10","IP-Limit erreicht. Limit bei "
+"11"," IP-Limit wurde gesetzt."
+"50"," von "
+"51","VERTRAUENSWÜRDIG"
+"52","VERWEIGERT"
+"53","INFIZIERT"
+"54","ÜBERPRÜFT"
+"55","INHALT MODIFIZIERT"
+"56","URL MODIFIZIERT"
+"57","HEADER MODIFIZIERT"
+"58","HEADER HINZUGEFÜGT"
+"70","SSL SEITE"
+"71","IP-Limit"
+"72","Inhalt überprüfen"
 "100","Ihre Arbeitsstation hat keine Erlaubnis zum Surfen auf: "
 "101","Ihre Arbeitsstation hat keine Erlaubnis zum Surfen"
 "102","Ihr Benutzername hat keine Erlaubnis zum Surfen auf: "
-"103","Banned Client IP"    # needs translation
-"104","Banned Location"    # needs translation
-"105","Banned User"    # needs translation
-"121","Only limited access allowed from your location"    # needs translation
-"150","Certificate supplied by server was not valid"    # needs translation
-"151","Could not open ssl connection"     # needs translation
-"152","Failed to get ssl certificate"    # needs translation
-"153","Failed to load ssl private key"    # needs translation
-"154","Failed to negotiate ssl connection to client"    # needs translation
-"155","No SSL certificate supplied by server"    # needs translation
-"156","Server's SSL certificate does not match domain name"    # needs translation
-"157","Unable to create tunnel through local proxy"    # needs translation
-"158","Opening tunnel failed"    # needs translation
-"159","Could not connect to proxy server"    # needs translation
+"103","Client-IP geblockt"
+"104","Lokation geblockt"
+"105","Benutzer geblockt"
+"121","Von Ihrer Lokation aus ist nur ein begrenzter Zugriff möglich"
+"150","Das vom Server ausgelieferte Zertifikat ist ungültig"
+"151","Es konnte keine SSL-Verbindung aufgebaut werden"
+"152","Es wurde kein Zertifikat gefunden"
+"153","Es konnte kein privater Schlüssel geladen werden"
+"154","Es konnte keine Verbindung zum Client hergestellt werden"
+"155","Es wurde kein SSL-Zertifikat vom Server ausgeliefert"
+"156","Das vom Server ausgelieferte SSL-Zertifikat, passt nicht zum Namen der Domain"
+"157","Es konnte kein Verbindung zum lokalen Proxy hergestellt werden"
+"158","Verbindungsaufbau fehlgeschlagen"
+"159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
 "200","Die angeforderte URL ist ungültig"
 "300","Verbotener Ausdruck gefunden: "
 "301","Verbotener Ausdruck gefunden"
@@ -40,61 +40,61 @@
 "401","Verbotene Kombination von Ausdrücken gefunden"
 "402","Gewichtete Ausdrucksbeschränkung von "
 "403","Gewichtete Ausdrucksbeschränkung überschritten"
-"450","Banned search term found: "    # needs translation
-"451","Banned search term found."    # needs translation
-"452","Banned combination search term found: "    # needs translation
-"453","Banned combination search term found."    # needs translation
-"454","Weighted search term limit of "    # needs translation
-"455","Weighted search term limit exceeded."    # needs translation
-"456","Exception combination search term found: "    # needs translation
-"457","Exception search term found: "    # needs translation
+"450","Verbotener Suchausdruck gefunden: "
+"451","Verbotener Suchausdruck gefunden."
+"452","Verbotene Suchausdrücke gefunden: "
+"453","Verbotene Suchausdrücke gefunden."
+"454","Gewichtetes Suchausdruck-Limit erreicht: "
+"455","Gewichtetes Suchausdruck-Limit wurde erreicht."
+"456","Kombination von erlaubten Ausdrücken wurde gefunden: "
+"457","Erlaubter Ausdruck gefunden: "
 "500","Verbotene Seite: "
 "501","Verbotene URL: "
 "502","Totalsperre für Nur-IP-Adressen aktiv, diese Seite ist nicht auf der Erlaubt-Liste"
 "503","Aufgrund von regulären Ausdrücken verbotene URL: "
 "504","Aufgrund von regulären Ausdrücken verbotene URL gefunden"
 "505","Totalsperre für IP-Adressen aktiv, diese Adresse ist nur eine IP."
-"506","HTTPS access is only allowed to trusted sites."    # needs translation
-"507","HTTPS access by IP address is not allowed."    # needs translation
-"508","Access not allowed using this browser (or app): "    # needs translation
-"509","Access not allowed using this browser (or app)."    # needs translation
-"520","Blocked HTTPS site: "    # needs translation
-"521","Banned Search Words: "    # needs translation
-"560","Blocked site (local): "    # needs translation
-"561","Blocked URL (local): "    # needs translation
-"580","Blocked HTTPS site (local): "    # needs translation
-"581","Banned Search Words (local): "    # needs translation
+"506","HTTPS-Verbindungen sind nur zu vertrauenswürdige Seiten erlaubt."
+"507","HTTPS-Verbindungen zu IP-Adressen sind nicht erlaubt."
+"508","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet: "
+"509","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet."
+"520","Geblockte HTTPS-Seite: "
+"521","Geblockte Ausdrücke: "
+"560","Geblockte Seite (lokal): "
+"561","Geblockte URL (lokal): "
+"580","Geblockte HTTPS-Seite (lokal): "
+"581","Geblockte Ausdrücke (lokal): "
 "600","Übereinstimmung mit Client-IP in Ausnahmeliste"
 "601","Übereinstimmung mit Client-Benutzer in Ausnahmeliste"
 "602","Übereinstimmung mit Seite in Ausnahmeliste"
 "603","Übereinstimmung mit URL in Ausnahmeliste"
 "604","Ausnahme-Ausdruck gefunden: "
-"605","Kombination von Ausnahme-Ausdrücken gefunden: "
+"605","Kombination von Ausnahme Ausdrücken gefunden: "
 "606","Umgehungs-URL gefunden"
 "607","Umgehungs-Cookie gefunden"
-"608","Scan bypass URL exception."
-"609","Exception regular expression URL match: "
-"620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
-"631"," location allow list"    # needs translation
-"632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
+"608","Überprüfe Umgehungs-URL Ausnahme."
+"609","Ausnahme von regular expression URL gefunden: "
+"620","Ursprungsseite gefunden: "
+"630","URL gefunden in "
+"631"," erlaubte Lokations-Liste"
+"632","Lokation überschreibt die Liste der zulässigen Seiten"
+"662","Seite (lokal)."
+"663","URL (lokal)."
 "700","Web-Upload verboten"
 "701","Web-Upload-Schwellwert erreicht"
-"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
-"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
-"800","Verbotener MIME-Typ: "
+"750","Globale Datei-Download Überprüfung ist aktiv und dieser Datei-Typ (MIME type) ist nicht auf der Erlaubt-Liste: "
+"751","Globale Datei-Download Überprüfung ist aktiv und diese Datei ist nicht auf der Erlaubt-Liste"
+"800","Verbotener Datei-Typ (MIME Type): "
 "900","Verbotene Datei-Erweiterung: "
 "1000","PICS-Kennzeichnungsschwellwert überschritten"
-"1100","Virus or bad content detected."
-"1101","Advert blocked"
-"1200","Please wait - downloading to be scanned..."
-"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
-"1202",", then refresh this page to download directly."    # needs translation
-"1203","WARNING: Could not perform content scan!"    # needs translation
-"1210","Download Complete.  Starting scan..."
-"1220","Scan complete.</p><p>Click here to download: "
-"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
-"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
-"1230","File no longer available"
+"1100","Ein Virus oder unerlaubter Inhalt wurde gefunden."
+"1101","Werbung blockiert"
+"1200","Bitte warten - die heruntergeladene Datei wird überprüft..."
+"1201","Warnung: Datei ist zu gross um überprüft zu werden. Wenn Sie glauben das die Datei größer als "
+"1202"," ist, rufen Sie die Seite erneut auf, um ein direktes herunterladen durchzuführen."
+"1203","WARNUNG: Es konnte keine Inhaltsüberprüfung durchgeführt werden!"
+"1210","Herunterladen abgeschlossen.  Starte Überprüfung..."
+"1220","Überprüfung abgeschlossen.</p><p>Zum herunterladen hier klicken: "
+"1221","Herunterladen abgeschlossen. Datei konnte nicht überprüft werden.</p><p>Zum herunterladen hier klicken: "
+"1222","Datei zu gross zum zwischenspeichern.</p><p>Zum erneuten herunterladen, OHNE Überprüfung, hier klicken: "
+"1230","Die heruntergeladene Datei ist nicht länger verfügbar"

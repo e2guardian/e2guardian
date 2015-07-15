@@ -859,13 +859,27 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 			isbanneduser = (gmode == 0);
 
 			if (o.use_xforwardedfor) {
-				std::string xforwardip(header.getXForwardedForIP());
-				if (xforwardip.length() > 6) {
-					clientip = xforwardip;
+				bool use_xforwardedfor;
+				if ( o.xforwardedfor_filter_ip.size() > 0 ) {
+					use_xforwardedfor = false;
+					for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
+						if (strcmp(clientip.c_str(),o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+							use_xforwardedfor = true;
+							break;
+						}
+					}
+				} else {
+					use_xforwardedfor = true;
 				}
+				if (use_xforwardedfor == 1) {
+					std::string xforwardip(header.getXForwardedForIP());
+					if (xforwardip.length() > 6) {
+						clientip = xforwardip;
+					}
 #ifdef DGDEBUG
-				std::cout << dbgPeerPort << " -using x-forwardedfor:" << clientip << std::endl;
+					std::cout << dbgPeerPort << " -using x-forwardedfor:" << clientip << std::endl;
 #endif
+				}
 			}
 
 			// is this machine banned?
@@ -1811,17 +1825,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                 // MIME type test is just an approximation, but probably good enough
 
 				long max_upload_size;
+				max_upload_size=(*o.fg[filtergroup]).max_upload_size;
+
 #ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " max upload size general: " << o.max_upload_size << " filtergroup " << filtergroup << ": " << (*o.fg[filtergroup]).max_upload_size << std::endl;
+                                std::cout << dbgPeerPort << " max upload size general: " << max_upload_size << " filtergroup " << filtergroup << ": " << (*o.fg[filtergroup]).max_upload_size << std::endl;
+
 #endif
-
-				if ((*o.fg[filtergroup]).max_upload_size > 0) {
-					max_upload_size=(*o.fg[filtergroup]).max_upload_size;
-					}
-				else {
-					max_upload_size=o.max_upload_size;
-				}
-
  				if (!isbypass && !isexception
 					&& ((max_upload_size >= 0) && (cl > max_upload_size))
  					&& multipart)

@@ -26,12 +26,12 @@
 
 #List other URLs to block:
 
-members.home.net/uporn
+# members.home.net/uporn
 
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-.Include<@DGCONFDIR@/lists/blacklists/ads/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/ads/urls>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklist blacklists collection.

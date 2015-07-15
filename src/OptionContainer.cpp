@@ -139,13 +139,13 @@ bool OptionContainer::read(const char *filename, int type)
 		if (type == 0 || type == 2) {
 
 			if ((ipc_filename = findoptionS("ipcfilename")) == "")
-				ipc_filename = "/tmp/.dguardianipc";
+				ipc_filename = "/tmp/.e2guardianipc";
 
 			if ((urlipc_filename = findoptionS("urlipcfilename")) == "")
-				urlipc_filename = "/tmp/.dguardianurlipc";
+				urlipc_filename = "/tmp/.e2guardianurlipc";
 
 			if ((ipipc_filename = findoptionS("ipipcfilename")) == "")
-				ipipc_filename = "/tmp/.dguardianipipc";
+				ipipc_filename = "/tmp/.e2guardianipipc";
 
 			if ((pid_filename = findoptionS("pidfilename")) == "") {
 				pid_filename = __PIDDIR;
@@ -537,26 +537,6 @@ bool OptionContainer::read(const char *filename, int type)
 
 #endif
 
-	       max_upload_size = findoptionI("maxuploadsize");
-#ifdef DGDEBUG
-               std::cout << "Default Max upload size in config file: " << max_upload_size << std::endl;
-#endif
-                if (realitycheck(max_upload_size, -1, 10000000, "maxuploadsize")) {
-			if (max_upload_size > 0)
-                               max_upload_size *= 1024;
-                }
-                else{
-			if (!is_daemonised)
-				std::cerr << "Invalid maxuploadsize: " << max_upload_size << std::endl;
-				syslog(LOG_ERR, "Invalid maxuploadsize size");
-                       return false;
-                }               // check its a reasonable value
-
-#ifdef DGDEBUG
-                std::cout << "Default Max upload configured size: " << max_upload_size << std::endl;
-#endif
-
-
 		ll = findoptionI("loglevel");
 		if (!realitycheck(ll, 0, 3, "loglevel")) {
 			return false;
@@ -664,6 +644,8 @@ bool OptionContainer::read(const char *filename, int type)
 		} else {
 			use_xforwardedfor = false;
 		}
+
+		xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
 		filter_groups = findoptionI("filtergroups");
 
@@ -776,27 +758,6 @@ bool OptionContainer::read(const char *filename, int type)
 		std::string exception_ip_list_location(findoptionS("exceptioniplist"));
 		group_names_list_location = findoptionS("groupnamesfile");
 		std::string language_list_location(languagepath + "messages");
-		if (reporting_level == 1 || reporting_level == 2) {
-			access_denied_address = findoptionS("accessdeniedaddress");
-			access_denied_domain = access_denied_address.c_str();
-			access_denied_domain = access_denied_domain.after("://");
-			access_denied_domain.removeWhiteSpace();
-			if (access_denied_domain.contains("/")) {
-				access_denied_domain = access_denied_domain.before("/");  // access_denied_domain now contains the FQ host nom of the
-				// server that serves the accessdenied.html file
-			}
-			if (access_denied_domain.contains(":")) {
-				access_denied_domain = access_denied_domain.before(":");  // chop off the port number if any
-			}
-			if (access_denied_domain.length() < 4) {
-				if (!is_daemonised) {
-					std::cerr << " accessdeniedaddress setting appears to be wrong." << std::endl;
-				}
-				syslog(LOG_ERR, "%s", " accessdeniedaddress setting appears to be wrong.");
-				return false;
-			}
-
-		}
 
 		if (filter_groups_list_location.length() == 0) {
 			use_filter_groups_list = false;
@@ -1429,12 +1390,6 @@ bool OptionContainer::readAnotherFilterGroupConf(const char *filename, const cha
 	(*fg[numfg]).force_quick_search = force_quick_search;
 	(*fg[numfg]).createlistcachefiles = createlistcachefiles;
 	(*fg[numfg]).reverse_lookups = reverse_lookups;
-	
-	// pass in default access denied address - can be overidden
-	(*fg[numfg]).access_denied_domain = access_denied_domain;
-	(*fg[numfg]).sslaccess_denied_domain = sslaccess_denied_domain;
-	(*fg[numfg]).access_denied_address = access_denied_address;
-	(*fg[numfg]).sslaccess_denied_address = sslaccess_denied_address;
 	
 	// pass in the group name
 	(*fg[numfg]).name = groupname;

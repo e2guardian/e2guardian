@@ -18,6 +18,16 @@ Disavantages are that in order for MITM to be usable a private root CA
 certificate has to be installed on each browser and that more processing power 
 is needed on the server in order to encrypt and unencrypt the traffic.
 
+Note that the logic for handling SSL is changed. In DG when either blanket block 
+(or SSL blanket block) 
+was active then an SSL site would not be blocked if site name matched either 
+exceptionsitelist or greysitelist. 
+In e2guardian with blanket block (or SSL blanket block) active an SSL site will 
+only be allowed if it matches exceptionsitelist or greysslsitelist. This ensures 
+that only trusted sites can be accessed via SSL. 
+The greysslsitelist is used in order to allow a site to drop through so that it's 
+domain can be mangled via urlregexplist, 
+
 To set up MITM:
 
    Configure and compile e2guardian with the --enable-sslmitm flag set
@@ -59,7 +69,7 @@ To set up MITM:
 	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
 
    Set sslmitm = on in e2guardianfx.conf
-   Set sslseparatelists = on in e2guardianfx.conf
+   Set ssllegacylogic = off in e2guardianfx.conf
 
       If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist 
       will be MITM - This may be useful if you have limited processing power 

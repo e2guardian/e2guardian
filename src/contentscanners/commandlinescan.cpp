@@ -304,12 +304,13 @@ int commandlineinstance::scanFile(HTTPHeader * requestheader, HTTPHeader * doche
 
 	// wait for scanner to quit & retrieve exit status
 	int returncode;
-	if (waitpid(f,&returncode,0) == -1) {
+	returncode = WEXITSTATUS(returncode);
+
+	if (waitpid(f,&returncode,0) == -1)  {
 		lastmessage = "Cannot get scanner return code";
 		syslog(LOG_ERR, "Cannot get command-line scanner return code: %s", strerror(errno));
 		return DGCS_SCANERROR;
 	}
-	returncode = WEXITSTATUS(returncode);
 	
 #ifdef DGDEBUG
 	std::cout << "Scanner result" << std::endl << "--------------" << std::endl << result << std::endl << "--------------" << std::endl << "Code: " << returncode << std::endl;
@@ -354,5 +355,6 @@ int commandlineinstance::scanFile(HTTPHeader * requestheader, HTTPHeader * doche
 		return DGCS_INFECTED;
 	}
 
-	return DGCS_SCANERROR;
+	if (returncode != 0)	
+		return DGCS_SCANERROR;
 }

@@ -1,5 +1,16 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Fix bug #76 sslaccessdeniedaddress and reporting level < 3 
+- Remove old & unused values 
+- Remove max_upload option from e2guardian.conf 
+
+June 2015
+
+- Fix Bug #75 contentscanners commandlinescan broken and potential problem with the others 
+- Fix bug #30 compilation issue with --program-prefix
+- Security Fix: AV and empty access_denied_domain value break scan silently
+- Fix bug #72 (wrong config file)
+- Add new option: "xforwardedforfilterip" 
 - Fix weighted phrases bug #15 
 - New alivewithproxy option (if proxytimeout is expired, E2 is stopped)
 - Add brazilian translation 
@@ -35,7 +46,7 @@ May/June 2014
 - CIDR format support added in IP lists
 - Rooms facility updated - now includes room specific overide white lists
 - New perroomdirectory option in e2guardian.conf added
-- Backward compatable with perroombanneddirectory option.
+- Backward compatible with perroombanneddirectory option.
 - Hard coded room user/log messages removed and replaced with new items in language messages file.
 - Reading of lists functions amended to accomodate reading of multiple types of lists from a single file.
 - Fixes from 3.0.4 merged
