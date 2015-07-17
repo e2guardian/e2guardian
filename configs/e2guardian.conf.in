@@ -61,6 +61,15 @@ logfileformat = 1
 # Defines the log directory and filename.
 #loglocation = '@DGLOGLOCATION@/access.log'
 
+# Dymamic statistics log file location
+#
+# Defines the dstats file directory and filename.
+# Once every 5 minutes, stats on number of children, in use and free, number of 
+# connections and connections per second are written to this
+# file. Format is similar to sar.
+# Default is not to write stats.
+#dstatlocation = '@DGLOGLOCATION@/dstats.log'
+
 # Statistics log file location
 #
 # Defines the stat file directory and filename.
@@ -581,6 +590,12 @@ maxsparechildren = 32
 maxagechildren = 500
 
 
+# sets the number of child process to kill/fork at each 5 sec interval.
+# during at gentle restart
+# defaults to preforkchildren
+# gentlechunk=10
+
+
 # Sets the maximum number client IP addresses allowed to connect at once.
 # Use this to set a hard limit on the number of users allowed to concurrently
 # browse the web. Set to 0 for no limit, and to disable the IP cache process.
@@ -695,3 +710,14 @@ softrestart = off
 #genratedcertend =
 # generatedcertstart =
 
+# monitor helper path 
+# If defined this script/binary will be called with start or stop appended as follows:-
+# 
+# At start after e2guardian has started monitorcount children with ' start' appended
+# When e2guardian is stopping with ' stop' appended
+# If cache stops responding with ' stop' appended
+# When cache resumes with ' start' appended
+# minitorhelper = '/usr/local/bin/mymonitor'
+
+# monitorcount - defaults to minchildren
+# monitorcount = 0
