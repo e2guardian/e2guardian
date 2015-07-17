@@ -81,6 +81,7 @@ public:
 	int ll;
 	int max_children;
 	int proxy_timeout;
+	int proxy_failure_log_interval;
 	int exchange_timeout;
 	int pcon_timeout;
 	int min_children;
@@ -114,10 +115,10 @@ public:
 	std::string blocked_content_store;
 	std::string monitor_helper;
 	bool monitor_helper_flag;
+	int monitor_start; // call monitorhelper start when number of freechildren is more than this figure
 	std::string dstat_location;
 	bool dstat_log_flag;
 	int dstat_interval;
-	int monitor_start;
 
 	// Hardware/organisation/etc. IDs
 	std::string logid_1;

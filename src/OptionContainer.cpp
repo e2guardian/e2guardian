@@ -278,8 +278,16 @@ bool OptionContainer::read(const char *filename, int type)
 		if (!realitycheck(max_logitem_length, 10, 32000, "maxlogitemlength")) {
 			return false;
 		}
+
                 proxy_timeout = findoptionI("proxytimeout");
                 if (!realitycheck(proxy_timeout, 5, 100, "proxytimeout")) {
+                       return false;
+                }               // check its a reasonable value
+
+                proxy_failure_log_interval = findoptionI("proxyfailureloginterval");
+		if (proxy_failure_log_interval == 0)
+			proxy_failure_log_interval = 600; // 10 mins
+                if (!realitycheck(proxy_failure_log_interval, proxy_timeout, 3600, "proxyfailureloginterval")) {
                        return false;
                 }               // check its a reasonable value
 

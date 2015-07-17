@@ -771,9 +771,9 @@ void tell_monitor(bool active) {
 
 	if (childid == 0) {  // Am the child
 
-		int systemreturn = execl(buff.c_str(), buff1.c_str(), NULL);  // should not return from call
+		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char*) NULL);  // should not return from call
 		if ( systemreturn == -1)
-		syslog(LOG_ERR, "Unable to exec: %s%s : errno %s", buff.c_str(), buff1.c_str(), strerror(errno));
+		syslog(LOG_ERR, "Unable to exec: %s%s : errno $d %s", buff.c_str(), buff1.c_str(), errno,  strerror(errno));
 		exit(0);
 	};
 
@@ -819,8 +819,8 @@ void wait_for_proxy()
 		syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
 		if (o.monitor_helper_flag) tell_monitor(false);
 		int wait_time = 1;
-		int report_interval = 600; // report every 10 mins to log
-		int cnt_down = report_interval;
+		//int report_interval = 600; // report every 10 mins to log
+		int cnt_down = o.proxy_failure_log_interval;
 		while (true) {
                  	rc = proxysock.connect(o.proxy_ip, o.proxy_port);
                  	if (!rc){
@@ -836,7 +836,7 @@ void wait_for_proxy()
 				cnt_down--;
 				if (cnt_down < 1) {
 					syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds",  wait_time);
-					cnt_down = report_interval;
+					cnt_down = o.proxy_failure_log_interval;
 				}
 				sleep(1);
        	         	} 
@@ -3101,7 +3101,7 @@ int fc_controlit()
 #endif   
 		if (is_starting) {
 			if (o.monitor_helper_flag) {
-				if (((numchildren - waitingfor) > o.monitor_start)) {
+				if (((numchildren - waitingfor) >= o.monitor_start)) {
 					tell_monitor(true);
 				is_starting = false;
 				}
@@ -3177,6 +3177,9 @@ int fc_controlit()
 		if (o.dstat_log_flag && ( now >= dystat->end_int ))
 			dystat->reset();
 	}
+	if (o.monitor_helper_flag) 
+		tell_monitor(false);  // tell monitor that we are not accepting any more connections
+
 	cullchildren(numchildren);  // remove the fork pool of spare children
 #ifdef HAVE_SYS_EPOLL_H
 	for (int i = 0; i < fds; i++) {
