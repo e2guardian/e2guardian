@@ -116,6 +116,12 @@ proxyport = 3128
 # Min 5 - Max 100
 proxytimeout = 20
 
+#Proxy failure log interval
+# The interval between log status entries when proxy is not responding
+# minimum is proxytimeout - maximum 3600 (= 1 hour)
+# default = 600  (= 10 mins)
+#proxyfailureloginterval = 600
+
 # Proxy header exchange
 # Set timeout between the Proxy and e2guardian 
 # Min 20 - Max 300
@@ -720,4 +726,5 @@ softrestart = off
 # minitorhelper = '/usr/local/bin/mymonitor'
 
 # monitorcount - defaults to minchildren
+# valid values between 1 and minchildren
 # monitorcount = 0
