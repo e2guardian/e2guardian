@@ -807,14 +807,20 @@ void wait_for_proxy()
 			cache_erroring = 0;
 			return;
 		}
+		if (errno == EINTR) {
+			return;
+		}
+	}
+	catch(std::exception & e) {
+#ifdef DGDEBUG
+		std::cerr << " -exception while creating proxysock: " << e.what() << std::endl;
+#endif
+	}
 		syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
 		if (o.monitor_helper_flag) tell_monitor(false);
 		int wait_time = 1;
-		// why 10 mins ?
-		// int interval = 600; // 10 mins
-
-		int interval = o.proxy_timeout;
-		int cnt_down = interval;
+		int report_interval = 600; // report every 10 mins to log
+		int cnt_down = report_interval;
 		while (true) {
                  	rc = proxysock.connect(o.proxy_ip, o.proxy_port);
                  	if (!rc){
@@ -824,21 +830,17 @@ void wait_for_proxy()
 				if (o.monitor_helper_flag) tell_monitor(true);
                       		return;
                  	} else {
+					if (ttg) 
+						return;
 				wait_time++;
 				cnt_down--;
 				if (cnt_down < 1) {
-					syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds proxytimeout = %d",  wait_time, interval);
-					cnt_down = interval;
+					syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds",  wait_time);
+					cnt_down = report_interval;
 				}
 				sleep(1);
        	         	} 
         	} 
-	}
-	catch(std::exception & e) {
-#ifdef DGDEBUG
-		std::cerr << " -exception while creating proxysock: " << e.what() << std::endl;
-#endif
-	}
 }
 
 // look for any dead children, and clean them up
