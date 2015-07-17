@@ -758,12 +758,40 @@ void tell_monitor(bool active) {
 	else
 		buff1 = " stop"; 
 
-	syslog(LOG_ERR, "Proxy not responding, monitorhelper : %s%s", buff.c_str(), buff1.c_str() );
+	syslog(LOG_ERR, "Monitorhelper called: %s%s", buff.c_str(), buff1.c_str() );
 
-	int systemreturn = execl(buff.c_str(), buff1.c_str(), NULL); 
-	if ( systemreturn == -1)
-		syslog(LOG_ERR, "Something wrong with: %s%s : errno %s", buff.c_str(), buff1.c_str(), strerror(errno));
-	return;
+	pid_t childid;
+	
+	childid = fork();
+
+	if (childid == -1) {
+		syslog(LOG_ERR, "Unable to fork to tell monitorhelper error: %s", strerror(errno));
+		return;
+	};
+
+	if (childid == 0) {  // Am the child
+
+		int systemreturn = execl(buff.c_str(), buff1.c_str(), NULL);  // should not return from call
+		if ( systemreturn == -1)
+		syslog(LOG_ERR, "Unable to exec: %s%s : errno %s", buff.c_str(), buff1.c_str(), strerror(errno));
+		exit(0);
+	};
+
+	if (childid > 0) {  // Am the parent
+		int rc;
+		int status;
+		rc = waitpid(childid, &status, 0);
+		if (rc == -1) {
+			syslog(LOG_ERR, "Wait for monitorhelper returned : errno %s", strerror(errno));
+			return;
+		};
+		if (WIFEXITED(status)) {
+			return;
+		} else {
+			syslog(LOG_ERR, "Monitorhelper exited abnormally");
+			return;
+		};
+	};
 };
 
 void wait_for_proxy() 
