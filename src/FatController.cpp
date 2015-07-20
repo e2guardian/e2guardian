@@ -143,7 +143,7 @@ void stat_rec::start() {
 void stat_rec::reset() {
 	time_t now = time(NULL);
 	long cps = conx / ( now - start_int );
-	fprintf(fs,"%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, numchildren,
+	fprintf(fs,"%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld\n", now, numchildren,
 						(busychildren - waitingfor),
 						freechildren,
 						waitingfor,
@@ -752,8 +752,10 @@ void tell_monitor(bool active) {
 	if (active) 
 		buff += " start";
 	else
-		buff += " stop";
-	system(buff.c_str());
+		buff += " stop"; 
+	int systemreturn = system(buff.c_str()); 
+	if ( systemreturn == -1)
+		syslog(LOG_ERR, "Somethin wrong with: %s", buff.c_str());
 	return;
 };
 
