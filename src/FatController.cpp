@@ -748,14 +748,18 @@ bool getsock_fromparent(UDSocket &fd)
 void tell_monitor(bool active) {
 
 	String buff(o.monitor_helper);
-
+	String buff1;
+        
 	if (active) 
-		buff += " start";
+		buff1 = " start";
 	else
-		buff += " stop"; 
-	int systemreturn = system(buff.c_str()); 
+		buff1 = " stop"; 
+
+	syslog(LOG_ERR, "Proxy not responding, monitorhelper : %s%s", buff.c_str(), buff1.c_str() );
+
+	int systemreturn = execl(buff.c_str(), buff1.c_str(), NULL); 
 	if ( systemreturn == -1)
-		syslog(LOG_ERR, "Somethin wrong with: %s", buff.c_str());
+		syslog(LOG_ERR, "Something wrong with: %s%s : errno %s", buff.c_str(), buff1.c_str(), strerror(errno));
 	return;
 };
 
@@ -763,6 +767,7 @@ void wait_for_proxy()
 {
 	Socket proxysock;
 	int rc;
+
 	try {
 		// ...connect to proxy
                 rc = proxysock.connect(o.proxy_ip, o.proxy_port);
@@ -771,11 +776,13 @@ void wait_for_proxy()
 			cache_erroring = 0;
 			return;
 		}
-        	//for (int i = 0; i < o.proxy_timeout; i++){
 		syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
 		if (o.monitor_helper_flag) tell_monitor(false);
 		int wait_time = 1;
-		int interval = 600; // 10 mins
+		// why 10 mins ?
+		// int interval = 600; // 10 mins
+
+		int interval = o.proxy_timeout;
 		int cnt_down = interval;
 		while (true) {
                  	rc = proxysock.connect(o.proxy_ip, o.proxy_port);
@@ -789,16 +796,16 @@ void wait_for_proxy()
 				wait_time++;
 				cnt_down--;
 				if (cnt_down < 1) {
-				syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds",  wait_time);
+					syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds proxytimeout = %d",  wait_time, interval);
 					cnt_down = interval;
 				}
-                      		sleep(1);
-       	         	}
-        	}
+				sleep(1);
+       	         	} 
+        	} 
 	}
 	catch(std::exception & e) {
 #ifdef DGDEBUG
-		std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << std::endl;
+		std::cerr << " -exception while creating proxysock: " << e.what() << std::endl;
 #endif
 	}
 }
