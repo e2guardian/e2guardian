@@ -444,10 +444,13 @@ int prefork(int num)
 	int sv[2];
 	pid_t child_pid;
 	while (num--) {
-		if (!(numchildren < o.max_children)) {
-			syslog(LOG_ERR, "E2guardian is running out of MaxChildren\n");
+		
+		// e2 can't creates a number of process equal to maxchildren, -1 is needed for seeing saturation 
+		if (!(numchildren < (o.max_children -1))) {
+			syslog(LOG_ERR, "E2guardian is running out of MaxChildren process: %d maxchildren: %d\n", numchildren, o.max_children);
 			return 2;  // too many - geddit?
 		}
+
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
 			syslog(LOG_ERR, "Error %d from socketpair: %s", errno, strerror(errno));
 			return -1;  // error
