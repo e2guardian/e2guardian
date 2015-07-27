@@ -719,12 +719,12 @@ softrestart = off
 # monitor helper path 
 # If defined this script/binary will be called with start or stop appended as follows:-
 # 
-# At start after e2guardian has started monitorcount children with ' start' appended
+# At start after e2guardian has started monitorstart children with ' start' appended
 # When e2guardian is stopping with ' stop' appended
 # If cache stops responding with ' stop' appended
 # When cache resumes with ' start' appended
 # minitorhelper = '/usr/local/bin/mymonitor'
 
-# monitorcount - defaults to minchildren
+# monitorstart - defaults to minchildren
 # valid values between 1 and minchildren
-# monitorcount = 0
+# monitorstart = 0
