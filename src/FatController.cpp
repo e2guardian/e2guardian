@@ -772,9 +772,10 @@ void tell_monitor(bool active) {
 	if (childid == 0) {  // Am the child
 
 		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char*) NULL);  // should not return from call
-		if ( systemreturn == -1)
-		syslog(LOG_ERR, "Unable to exec: %s%s : errno $d %s", buff.c_str(), buff1.c_str(), errno,  strerror(errno));
-		exit(0);
+		if ( systemreturn == -1){
+			syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno,  strerror(errno));
+			exit(0);
+		}
 	};
 
 	if (childid > 0) {  // Am the parent
