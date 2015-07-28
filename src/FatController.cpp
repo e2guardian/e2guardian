@@ -135,6 +135,7 @@ void stat_rec::start() {
 					o.dstat_location.c_str());
 				o.dstat_log_flag = false;
 			};
+			fflush(fs);
 			umask(old_umask);
 	};
 
@@ -151,6 +152,7 @@ void stat_rec::reset() {
 						deaths,
 						conx,
 						cps);
+	fflush(fs);
 	clear();
 	if ((end_int + o.dstat_interval) > now) 
 		start_int = end_int;
