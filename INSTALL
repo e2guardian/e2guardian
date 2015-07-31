@@ -21,6 +21,8 @@ configuration options.
 
 *** xBSD users, please ensure you have bash1 installed first ***
 
+*** Debian and Ubuntu users, please read the Debian section first. ***
+
 *** OS X / Darwin users, please read the OS X section first. ***
 
 1.	  Run the ./autogen.sh script to generate the configure script.
@@ -156,6 +158,12 @@ Optional Features:
                           Enable support for regexp redirects
   --enable-addheader[=yes]
                           Enable support for add header
+  --enable-sslextralists[=yes]
+                          Enable support for ssl extra lists
+  --enable-searchwords[=yes]
+                          Enable support for ssl extra lists
+  --enable-legacylog[=yes]
+                          Enable support for legacy log format
   --enable-trickledm[=no]
                           Enable support for the trickle download manager
   --enable-ntlm[=no]
@@ -166,8 +174,10 @@ Optional Features:
                           Enable support for email reporting functionality
 
 Optional Packages:
-  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
-  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-PACKAGE[=ARG]    
+			  use PACKAGE [ARG=yes]
+  --without-PACKAGE       
+			  do not use PACKAGE (same as --with-PACKAGE=no)
   --with-zlib[=NONE]
                           non-standard search path for zlib library
   --with-dgdebug[=off]
@@ -247,6 +257,18 @@ You might consider changing the location of the log files to
 '--with-logdir=/usr/local/e2guardian/logs/' and use the provided
 log rotation script.  Alternatively stick with the default
 (/var/log/e2guardian/) and read newsyslog(8).
+
+
+DEBIAN:
+-------
+
+Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre3-dev, zlib1g-dev, pkg-config
+Other packages related to E2guardian : adduser, perl, libbz2, libc6, libgcc1, libpcre3, libstdc++, libtommath0, zlib1g
+Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
+Autogen is needed !
+
+Eg:
+./autogen.sh && ./configure '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--enable-trickledm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' 'CXXFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' 'LDFLAGS=-Wl,-z,relro' 'CPPFLAGS=-D_FORTIFY_SOURCE=2' 'CFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' '--enable-pcre=yes' '--enable-locallists=yes' && make
 
 
 NETBSD:
