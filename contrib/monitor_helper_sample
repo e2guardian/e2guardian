@@ -2,7 +2,8 @@
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11
 # My E2guardian port = 3128
 # This is just a example script (log access without deny)
-# Remove comment lines block access ! 
+# Remove comment lines will block access ! 
+check=0
 
 /sbin/iptables -L | grep E2
 if [ $? = 1 ]
@@ -19,6 +20,15 @@ fi
 
 if [ $1 = start ]
 	then
-	/sbin/iptables -D INPUT -p tcp --destination-port 3128 -j LOG_DROP
-	# /sbin/iptables -D INPUT -p tcp --destination-port 3128 -j DROP
+        while [ $check = "0" ]
+        	do
+		/sbin/iptables -D INPUT -p tcp --destination-port 3128 -j LOG_DROP
+		# /sbin/iptables -D INPUT -p tcp --destination-port 3128 -j DROP
+		# A rule still present ?
+		/sbin/iptables -L | grep 3128 | grep DROP
+	        if [ $? = 1 ]
+                        then
+                                check=1
+                        fi
+        done
 fi
