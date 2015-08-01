@@ -165,6 +165,36 @@ void stat_rec::close() {
 	fclose(fs);
 };
 
+void monitor_flag_set(bool action) {
+
+	String fulink = o.monitor_flag_prefix;
+	String ftouch = fulink;
+	if (action) {
+		fulink += "paused";
+		ftouch += "running";
+	} else {
+		fulink += "running";
+		ftouch += "paused";
+	}
+
+	mode_t old_umask;
+	old_umask = umask(S_IWOTH);
+	FILE *fs = fopen(ftouch.c_str(), "w");
+	if (!fs) {
+		syslog(LOG_ERR, "Unable to open monitor_flag %s for writing\n", 
+		ftouch.c_str());
+		o.monitor_flag_flag = false;
+	}
+	fclose(fs);
+	if (unlink(fulink.c_str()) == -1) {
+		syslog(LOG_ERR, "Unable to unlink monitor_flag %s error: %s", fulink.c_str(), strerror(errno));
+	}
+	return;
+}
+
+
+
+
 stat_rec dstat;
 stat_rec *dystat = &dstat;
 
@@ -822,6 +852,7 @@ void wait_for_proxy()
 	}
 		syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
 		if (o.monitor_helper_flag) tell_monitor(false);
+		if (o.monitor_flag_flag) monitor_flag_set(false);
 		int wait_time = 1;
 		//int report_interval = 600; // report every 10 mins to log
 		int cnt_down = o.proxy_failure_log_interval;
@@ -832,6 +863,7 @@ void wait_for_proxy()
 				cache_erroring = 0;
 				syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
 				if (o.monitor_helper_flag) tell_monitor(true);
+				if (o.monitor_flag_flag) monitor_flag_set(true);
                       		return;
                  	} else {
 					if (ttg) 
@@ -3104,10 +3136,11 @@ int fc_controlit()
 		}
 #endif   
 		if (is_starting) {
-			if (o.monitor_helper_flag) {
+			if (o.monitor_helper_flag || o.monitor_flag_flag) {
 				if (((numchildren - waitingfor) >= o.monitor_start)) {
-					tell_monitor(true);
-				is_starting = false;
+					if (o.monitor_helper_flag) tell_monitor(true);
+					if (o.monitor_flag_flag) monitor_flag_set(true);
+					is_starting = false;
 				}
 			} else {
 				is_starting = false;
@@ -3183,6 +3216,8 @@ int fc_controlit()
 	}
 	if (o.monitor_helper_flag) 
 		tell_monitor(false);  // tell monitor that we are not accepting any more connections
+
+	if (o.monitor_flag_flag) monitor_flag_set(false);
 
 	cullchildren(numchildren);  // remove the fork pool of spare children
 #ifdef HAVE_SYS_EPOLL_H

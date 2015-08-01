@@ -115,7 +115,9 @@ public:
 	std::string blocked_content_store;
 	std::string monitor_helper;
 	bool monitor_helper_flag;
-	int monitor_start; // call monitorhelper start when number of freechildren is more than this figure
+	std::string monitor_flag_prefix;
+	bool monitor_flag_flag;
+	int monitor_start; // call monitorhelper start and/or set monitor_flag file when number of freechildren is more than this figure
 	std::string dstat_location;
 	bool dstat_log_flag;
 	int dstat_interval;

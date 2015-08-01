@@ -335,17 +335,28 @@ bool OptionContainer::read(const char *filename, int type)
 			gentle_chunk = prefork_children;
 		}
 		monitor_start = 0;
+
 		monitor_helper = findoptionS("monitorhelper");
 		if (monitor_helper == ""){
 			monitor_helper_flag = false;
 		} else {	
 			monitor_helper_flag = true;
+		} 
+
+		monitor_flag_prefix = findoptionS("monitorflagprefix");
+		if (monitor_flag_prefix== ""){
+			monitor_flag_flag = false;
+		} else {	
+			monitor_flag_flag = true;
+		} 
+
+		if( monitor_helper_flag || monitor_flag_flag) {
 			monitor_start = findoptionI("monitorstart");
 			if (!realitycheck(monitor_start, 0, min_children, "monitorstart")) {
 				return false;
 			}		// check its a reasonable value
 			if (monitor_start == 0) monitor_start = min_children;
-		} 
+		}
 
 		max_ips = findoptionI("maxips");
 		if (!realitycheck(max_ips, 0, 0, "maxips")) {
