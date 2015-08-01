@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+August 2015
+
+Summary of changes in this release (v3.2.0) can be found in e2guardian.release
+
 July 2015
 
 - Fix bug #76 sslaccessdeniedaddress and reporting level < 3 

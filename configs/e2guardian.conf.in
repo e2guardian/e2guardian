@@ -723,7 +723,15 @@ softrestart = off
 # When e2guardian is stopping with ' stop' appended
 # If cache stops responding with ' stop' appended
 # When cache resumes with ' start' appended
-# minitorhelper = '/usr/local/bin/mymonitor'
+# monitorhelper = '/usr/local/bin/mymonitor'
+
+# monitor flag prefix path 
+# If defined path will be used to generate flag files as follows:-
+# 
+# At start after e2guardian has started monitorstart children with 'running' appended
+# When e2guardian is stopping with 'paused' appended
+# If cache stops responding with 'paused' appended
+# When cache resumes with 'running' appended
 
 # monitorstart - defaults to minchildren
 # valid values between 1 and minchildren
