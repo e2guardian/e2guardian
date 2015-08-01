@@ -573,6 +573,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                         for (int i = 0; i < o.proxy_timeout; i++){
                                                 rc = proxysock.connect(o.proxy_ip, o.proxy_port);
                                                 if (!rc){
+							if (i > 0) {
+                                                syslog(LOG_ERR, "Proxy responded after %d retrys", i);
+							}
                                                         break;
 						} else {
 							sleep(1);
@@ -583,6 +586,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                                 std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
 //                                                syslog(LOG_ERR, "Error connecting to proxy - ip client: %s destination: %s - %s", clientip.c_str(), urldomain.c_str(),strerror(errno));
+                                                syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %s", o.proxy_timeout, clientip.c_str(), urldomain.c_str(),strerror(errno));
                                                 return 3;
                                         }
 				}
