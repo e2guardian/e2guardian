@@ -772,6 +772,7 @@ void tell_monitor(bool active) {
 	};
 
 	if (childid == 0) {  // Am the child
+		seteuid(o.root_user);
 
 		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char*) NULL);  // should not return from call
 		if ( systemreturn == -1){
