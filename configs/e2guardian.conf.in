@@ -64,11 +64,17 @@ logfileformat = 1
 # Dymamic statistics log file location
 #
 # Defines the dstats file directory and filename.
-# Once every 5 minutes, stats on number of children, in use and free, number of 
+# Once every 'dstatinterval' seconds, stats on number of children, in use and free, number of 
 # connections and connections per second are written to this
 # file. Format is similar to sar.
 # Default is not to write stats.
 #dstatlocation = '@DGLOGLOCATION@/dstats.log'
+
+# Interval between stats output
+# Default 300 = 5 mins
+# Minimum 60 
+# Maximum 3600 = 1 hour
+#dstatinterval = 300  # = 5 minutes
 
 # Statistics log file location
 #

@@ -24,6 +24,8 @@ e2guardian.conf
 - dstatlocation option added - If non-blank 'sar like' stats will written to this file every 5 minutes, giving number of children, in use and free, munber of 
      connections and connections per second
 
+- dstatinterval option added
+
 e2guardianfn.conf
 
 - enablelocallists option added - replaces --enablelocallists configure option
