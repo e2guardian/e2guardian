@@ -26,6 +26,8 @@ e2guardian.conf
 
 - dstatinterval option added
 
+- Maxuploadsize option removed as no longer used with e2guardian.conf
+
 e2guardianfn.conf
 
 - enablelocallists option added - replaces --enablelocallists configure option
