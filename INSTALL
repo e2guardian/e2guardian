@@ -199,7 +199,7 @@ Optional Packages:
 			  In some cases, you must take steps to tune your system before compiling.
 			  Depends on the OS. usually, the max FD_SETSIZE is set to 1024, so maxchildren can be set to 1018 or lower
 			  You can change this value here (Linux) e.g #define __FD_SETSIZE 8192
-			  - /usr/include/bits/typesizes.h
+			  - /usr/include/x86_64-linux-gnu/bits/typesizes.h (64 bits) or /usr/include/i386-linux-gnu/bits/typesizes.h (32 bits)
 		          - /usr/include/linux/posix_types.h
 		         For FreeBSD raise FD_SETSIZE in /usr/include/sys/select.h before preceeding with e2guardian compilation 
 			 Before compiling/building also set ulimit:
