@@ -64,7 +64,7 @@ an external iconv library. Charsets UTF-16LE and UTF-8 must be supported.
    especially on multiple CPU computers.  As a general rule of thumb,
    use the number of CPUs/cores plus one.
    With Solaris and others you may need "gmake" instead of "make".
-   
+
 
 
 OPTIONS:
@@ -102,7 +102,7 @@ You may change with the configure options:
                     conjunction with enable-ntlm))
   with-zlib        (specify optional non-standard prefix for zlib
                     lib & include directories)
-  
+
 See ./configure --help for more details.
 
 These options have changed slightly from older versions of DansGuardian

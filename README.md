@@ -7,18 +7,18 @@ caching proxy such as Squid or Oops. More information can be found in the
 e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
 
-e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the maintainers fully acknowledge 
-the work carried out by and the copyright of Daniel Baron and other 
+e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the maintainers fully acknowledge
+the work carried out by and the copyright of Daniel Baron and other
 contributors to the Dansguardian project.
 
 Read the INSTALL for installation instructions.
 
 ## Contributing
 
-Github: https://github.com/e2guardian 
+Github: https://github.com/e2guardian
 
 *	Develop is used to develop new features
-*	Bugfixes primarily occurs in the default branch 
+*	Bugfixes primarily occurs in the default branch
 
 ## Bugs and Feature Requests
 
@@ -31,7 +31,7 @@ Github: https://github.com/e2guardian/e2guardian/issues
 
 ## License
 
-Copyright 2014, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others. 
+Copyright 2014, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
@@ -47,7 +47,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 In addition, as a special exception, the copyright holders
-of this work, give permission to link the code of its release of e2guardian 
+of this work, give permission to link the code of its release of e2guardian
 with the OpenSSL project's "OpenSSL" library (or with modified versions of
 it that use the same license as the "OpenSSL" library), and distribute the
 linked executables.  You must obey the GNU General Public License in all

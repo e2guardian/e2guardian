@@ -37,7 +37,7 @@ private:
 	int agepos;
 	unsigned int timeout;
 	int items;
-	
+
 	// binary search for the pos of the given url in the sorted index
 	// returns 0-(pos+1) on failure, where pos is where the entry would be inserted to retain sorting
 	int search(int a, int s, const char *url);

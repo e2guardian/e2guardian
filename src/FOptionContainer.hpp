@@ -73,7 +73,7 @@ public:
 	// if true, use exception lists & exception file site list; otherwise,
 	// use banned MIME type & extension lists.
 	bool block_downloads;
-	
+
 	bool reverse_lookups;
 	bool force_quick_search;
 	int bypass_mode;
@@ -168,12 +168,12 @@ public:
 	// Email notification patch by J. Gauthier
 	std::string mailfrom;
 	std::string avadmin;
-	std::string contentadmin;   
+	std::string contentadmin;
 	std::string avsubject;
-	std::string contentsubject;   
+	std::string contentsubject;
 	std::string violationbody;
 #endif
-   
+
 	unsigned int banned_phrase_list;
 	unsigned int exception_site_list;
 	unsigned int exception_url_list;
@@ -228,14 +228,14 @@ public:
 	std::deque<RegExp> url_redirect_regexp_list_comp;
 	std::deque<String> url_redirect_regexp_list_rep;
 	bool url_redirect_regexp_flag;
-   
+
 	// regex match lists
 	std::deque<RegExp> banned_regexpurl_list_comp;
 	std::deque<String> banned_regexpurl_list_source;
 	std::deque<unsigned int> banned_regexpurl_list_ref;
         std::deque<RegExp> exception_regexpurl_list_comp;
         std::deque<String> exception_regexpurl_list_source;
-        std::deque<unsigned int> exception_regexpurl_list_ref;	
+        std::deque<unsigned int> exception_regexpurl_list_ref;
 	std::deque<RegExp> banned_regexpheader_list_comp;
 	std::deque<String> banned_regexpheader_list_source;
 	std::deque<unsigned int> banned_regexpheader_list_ref;
@@ -259,7 +259,7 @@ public:
 	RegExp pics1;
 	RegExp pics2;
 	RegExp isiphost;
-	
+
 	// access denied address & domain - if they override the defaults
 	std::string access_denied_address;
 	std::string sslaccess_denied_address;
@@ -276,11 +276,11 @@ public:
 	//bool extractSearchTerms(String url, String &terms);
 
 	FOptionContainer():
-		block_downloads(false), 
-		searchterm_flag(false), 
+		block_downloads(false),
+		searchterm_flag(false),
 		banned_page(NULL),
-		ssl_mitm(false), 
-		only_mitm_ssl_grey(false), 
+		ssl_mitm(false),
+		only_mitm_ssl_grey(false),
 		no_check_cert_site_flag(false),
 		ssl_check_cert(false),
 		mitm_check_cert(true),
@@ -295,32 +295,32 @@ public:
 		local_banned_search_flag(false),
 		banned_search_overide_flag(false),
 		local_exception_site_flag(false), local_exception_url_flag(false),
-		local_banned_site_flag(false), local_banned_url_flag(false), 
-		local_grey_site_flag(false), local_grey_url_flag(false), 
+		local_banned_site_flag(false), local_banned_url_flag(false),
+		local_grey_site_flag(false), local_grey_url_flag(false),
 		enable_regex_grey(false),
 		enable_local_list(false),
 		enable_ssl_legacy_logic(false),
 		use_only_local_allow_lists(false),
-		banned_phrase_flag(false), 
+		banned_phrase_flag(false),
 		exception_site_flag(false), exception_url_flag(false),
-		banned_extension_flag(false), 
-		banned_mimetype_flag(false), 
-		banned_site_flag(false), banned_url_flag(false), 
+		banned_extension_flag(false),
+		banned_mimetype_flag(false),
+		banned_site_flag(false), banned_url_flag(false),
 		grey_site_flag(false), grey_url_flag(false),
-		banned_regexpurl_flag(false), 
-		exception_regexpurl_flag(false), 
+		banned_regexpurl_flag(false),
+		exception_regexpurl_flag(false),
 		banned_regexpheader_flag(false),
-		content_regexp_flag(false), 
-		url_regexp_flag(false), 
+		content_regexp_flag(false),
+		url_regexp_flag(false),
 		header_regexp_flag(false),
 		url_redirect_regexp_flag(false),
-		exception_extension_flag(false), 
+		exception_extension_flag(false),
 		exception_mimetype_flag(false),
 		exception_file_site_flag(false), exception_file_url_flag(false),
-		log_site_flag(false), log_url_flag(false), 
+		log_site_flag(false), log_url_flag(false),
 		log_regexpurl_flag(false),
 		ssl_denied_rewrite(false),
-		pics_icra_nuditymalegraphic(0), 
+		pics_icra_nuditymalegraphic(0),
 		pics_icra_nudityfemalegraphic(0), pics_icra_nuditytopless(0), pics_icra_nuditybottoms(0),
 		pics_icra_nuditysexualacts(0), pics_icra_nudityobscuredsexualacts(0), pics_icra_nuditysexualtouching(0),
 		pics_icra_nuditykissing(0), pics_icra_nudityartistic(0), pics_icra_nudityeducational(0),
@@ -333,7 +333,7 @@ public:
 	bool read(const char *filename);
 	void reset();
 	void resetJustListData();
-	
+
 	bool isOurWebserver(String url);
         char *inAddheaderList(String &words, unsigned int list);
 	char *inBannedSearchList(String words);
@@ -376,7 +376,7 @@ public:
 	const char* inLogURLList(String url);
 	const char* inLogSiteList(String url);
 	const char* inLogRegExpURLList(String url);
-	
+
 	// get HTML template for this group
 	HTMLTemplate *getHTMLTemplate();
 
@@ -433,7 +433,7 @@ private:
 
 	// search term blocking
 	//bool searchengine_regexp_flag;
-	
+
 	std::deque<int> banned_phrase_list_index;
 
 	std::deque<std::string > conffile;

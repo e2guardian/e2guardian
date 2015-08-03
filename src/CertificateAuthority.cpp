@@ -31,14 +31,14 @@
 //#define printerr(arg) printf("Error \"%s\" in %s at line %d\n", arg, __FILE__ , __LINE__);
 
 CertificateAuthority::CertificateAuthority(const char * caCert,
-				const char * caPrivKey, 
-				const char * certPrivKey, 
+				const char * caPrivKey,
+				const char * certPrivKey,
 				const char * certPath,
 				time_t caStart,
 				time_t caEnd)
 {
 	FILE *fp;
-	
+
 	//load the ca cert
 	fp = fopen (caCert, "r");
 	if (fp == NULL){
@@ -76,14 +76,14 @@ CertificateAuthority::CertificateAuthority(const char * caCert,
 		exit(1);
 	}
 	_certPrivKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
-	
+
 	if (_certPrivKey == NULL){
 		syslog(LOG_ERR,"Couldn't load certificate private key");
 		//ERR_print_errors_fp(stderr);
 		exit(1);
 	}
 	fclose (fp);
-		
+
 	//TODO should check this is a writable dir
 	_certPath = certPath;
 	_certPathLen = sizeof(certPath);
@@ -107,16 +107,16 @@ bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* 
 	EVP_MD_CTX mdctx;
 	const EVP_MD *md = EVP_md5();
 	EVP_MD_CTX_init(&mdctx);
-	
+
 	bool failed = false;
 	if(!failed && EVP_DigestInit_ex(&mdctx, md, NULL) < 1){
 		failed = true;
 	}
-	
+
 	if(!failed && EVP_DigestUpdate(&mdctx, commonname, strlen(commonname)) < 1){
 		failed = true;
 	}
-	
+
 	if(!failed && EVP_DigestFinal_ex(&mdctx,(unsigned char *) cnhash, &cnhashlen) <1){
 		failed = true;
 	}
@@ -126,14 +126,14 @@ bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* 
 	if(failed){
 		return false;
 	}
-	
-	//convert to asn1 to use as serial 
+
+	//convert to asn1 to use as serial
 	BIGNUM * bn = BN_bin2bn((const unsigned char *)cnhash,cnhashlen,NULL);
-	
+
 	if(bn == NULL){
 		return false;
 	}
-	
+
 	char * dbg = BN_bn2hex(bn);
 #ifdef DGDEBUG
 	if (dbg != NULL)
@@ -155,18 +155,18 @@ bool CertificateAuthority::getSerial(const char * commonname, struct ca_serial* 
 //returns true if it already existed or false on error
 //common name (sh/c)ould be derived from the certificate but that would add to the complexity of the code
 bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newCert, struct ca_serial* caser)
-{	
+{
 	std::string path(caser->filename);
 	std::string dirpath(caser->filepath);
 
 	mode_t old_umask;
-	// make directory path 
+	// make directory path
 	int rc = mkpath(dirpath.c_str(), 0700);  // only want e2g to have access to these dir
         if (rc != 0) {
 		syslog(LOG_ERR,"error creating certificate sub-directory");
 		exit(1);
 	}
-	
+
 	//open file
 	struct flock fl;
 	fl.l_type = F_WRLCK;
@@ -177,21 +177,21 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 
 	int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR );  //only e2g has access
 
-#ifdef DGDEBUG 
+#ifdef DGDEBUG
 	std::cout << "certificate file is " << path  << std::endl;
 #endif
 	if (fd < 0){
 		syslog(LOG_ERR,"error opening new certificate");
 		exit(1);
 	}
-	
+
 	//lock file with blocking lock and see if its bigger than 0 bytes
 	if(fcntl(fd, F_SETLKW, &fl) < 0){
 		close(fd);
 		return false;
 	}
-	
-	off_t pos = lseek(fd,0,SEEK_END);	
+
+	off_t pos = lseek(fd,0,SEEK_END);
 
 	//check if someone else created the file before we did (avoid the race condition)
 	if (pos < 0){
@@ -224,17 +224,17 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 		fclose(fp);
 		return false;
 	}
-	
+
 	if(PEM_write_X509(fp, newCert) < 1){
 		fclose(fp);
 		return false;
 	}
-	
+
 	if (fflush(fp) == EOF){
 		fclose(fp);
 		return false;
 	}
-	
+
 	if (fsync(fd) < 0){
 		fclose(fp);
 		return false;
@@ -246,7 +246,7 @@ bool CertificateAuthority::writeCertificate(const char * commonname, X509 * newC
 		//fclose(fp);
 		//exit(1);
 	//}
-		
+
 	//unlock the file
 	fl.l_type = F_UNLCK;
 	fcntl(fd, F_SETLK, &fl);
@@ -262,29 +262,29 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 	if (newCert == NULL){
 		return NULL;
 	}
-	
+
 	if(X509_set_version(newCert, 2) < 1){
 		X509_free(newCert);
 		return NULL;
 	}
-	
+
 	//set a serial on the cert
 	if(X509_set_serialNumber(newCert, (cser->asn)) < 1){
 		X509_free(newCert);
 		return NULL;
 	}
-	
-	
+
+
 	//set valid from and expires dates
 // now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
 	if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)){
 		X509_free(newCert);
 		return NULL;
 	}
-	
+
 	if(!ASN1_TIME_set(X509_get_notAfter(newCert), _ca_end)){
 		X509_free(newCert);
-		return NULL;	
+		return NULL;
 	}
 
 
@@ -292,7 +292,7 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 	//the private key data type also contains the pub key which is used below.
 	if(X509_set_pubkey(newCert, _certPrivKey) < 1){
 		X509_free(newCert);
-		return NULL;	
+		return NULL;
 	}
 
 	//create a name section
@@ -301,7 +301,7 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 		X509_free(newCert);
 		return NULL;
 	}
-	
+
 	//add the cn of the site we want a cert for the destination
 	int rc = X509_NAME_add_entry_by_txt(name,"CN",
 		MBSTRING_ASC, (unsigned char *)commonname, -1, -1, 0);
@@ -310,23 +310,23 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 	if (rc < 1){
 		X509_NAME_free(name);
 		X509_free(newCert);
-		return NULL;	
+		return NULL;
 	}
-	
-	//set the issuer name of the cert to the cn of the ca	
+
+	//set the issuer name of the cert to the cn of the ca
 	X509_NAME* subjectName = X509_get_subject_name(_caCert);
 	if (subjectName == NULL){
 		X509_free(newCert);
-		return NULL;		
+		return NULL;
 	}
-	
-	
+
+
 	if(X509_set_issuer_name(newCert, subjectName) < 1){
 		X509_NAME_free(subjectName);
 		X509_free(newCert);
 		return NULL;
 	}
-	
+
 	//sign it using the ca
 	if (!X509_sign(newCert, _caPrivKey, EVP_sha1())){
 		X509_free(newCert);
@@ -336,19 +336,19 @@ X509 * CertificateAuthority::generateCertificate(const char * commonname, struct
 #ifdef DGDEBUG
         std::cout << "certificate create " << name << std::endl;
 #endif
-	
+
 	return newCert;
 }
 
 //sets cert to the certificate for commonname
 //returns true if the cert was loaded from cache / false if it was generated
 bool CertificateAuthority::getServerCertificate(const char * commonname,X509** cert, struct ca_serial* caser ){
-	
+
 	getSerial(commonname, caser);
 	std::string filename(caser->charhex);
 
 // Generate directory path
-	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2) 
+	std::string subpath(filename.substr(0,2) + '/' + filename.substr(2,2)
 		+ '/' + filename.substr(4,2) + '/');
 	std::string filepath(_certLinks + subpath);
 	std::string path(_certLinks + subpath + filename.substr(6));
@@ -390,7 +390,7 @@ EVP_PKEY* CertificateAuthority::getServerPkey(){
 	//openssl is missing a EVP_PKEY_dup function so just up the ref count
 	//see http://www.mail-archive.com/openssl-users@openssl.org/msg17614.html
 	CRYPTO_add(&_certPrivKey->references,1,CRYPTO_LOCK_EVP_PKEY);
-	return _certPrivKey;	
+	return _certPrivKey;
 }
 
 int CertificateAuthority::do_mkdir(const char *path, mode_t mode)

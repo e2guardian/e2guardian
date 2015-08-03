@@ -249,7 +249,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
 	{
 		domain = urld;
 	}
-	
+
 	// Don't scan the web server which hosts the access denied page
 	if (((o.fg[filtergroup]->reporting_level == 1) || (o.fg[filtergroup]->reporting_level == 2))
 		&& domain.startsWith(o.fg[filtergroup]->access_denied_domain))
@@ -344,7 +344,7 @@ int CSPlugin::willScanData(const String &url, const char *user, int filtergroup,
 			return DGCS_NOSCAN;  // match
 		}
 	}
-	
+
 	//exceptionvirusextensionlist
 	String extension;
 	if (disposition.length() > 2)
@@ -426,12 +426,12 @@ int CSPlugin::willScanData(const String &url, const char *user, int filtergroup,
 	return DGCS_NEEDSCAN;
 }
 
-//set the blocking information 
+//set the blocking information
 void CSPlugin::blockFile(std::string * _category,std::string * _message, NaughtyFilter * checkme)
 {
 	std::string category;
 	std::string message;
-	
+
 	if (_category == NULL) {
 		category = "Content scanning";
 	}
@@ -444,14 +444,14 @@ void CSPlugin::blockFile(std::string * _category,std::string * _message, Naughty
 	else{
 		message = *_message;
 	}
-	
-	
+
+
 	checkme->whatIsNaughty = o.language_list.getTranslation(1100);
 	if (message.length() > 0) {
 		checkme->whatIsNaughty += " ";
 		checkme->whatIsNaughty += message.c_str();
 	}
-	
+
 	checkme->whatIsNaughtyLog = checkme->whatIsNaughty;
 	checkme->whatIsNaughtyCategories = category.c_str();
 	checkme->isItNaughty = true;

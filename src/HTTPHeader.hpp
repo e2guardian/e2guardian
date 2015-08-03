@@ -50,7 +50,7 @@ public:
 	// discard remainder of POST data
 	// amount to discard can be passed in, or will default to contentLength()
 	void discard(Socket *sock, off_t cl = -2);
-	
+
 	// header value and type checks
 
 	// request type: GET, HEAD, POST etc.
@@ -90,7 +90,7 @@ public:
 	// check whether a connection is persistent
 	bool isPersistent()  { return ispersistent;  };
 	bool wasPersistent() { return waspersistent; };
-	
+
 	// set POST data for outgoing requests.
 	// assumes that existing POST data has already been discarded
 	// or retrieved elsewhere, and sends this data instead when ::out
@@ -132,7 +132,7 @@ public:
 	static String decode(const String &s, bool decodeAll = false);
 
 	// Bypass URL & Cookie funcs
-	
+
 	// is this a temporary filter bypass URL?
 	int isBypassURL(String *url, const char *magic, const char *clientip, bool *isvirusbypass);
 	// is this a scan bypass URL? (download previously scanned file)
@@ -147,11 +147,11 @@ public:
 	void chopMITMAccept(String url);
 	// add cookie to outgoing headers with given name & value
 	void setCookie(const char *cookie, const char *domain, const char *value);
-	
+
 	// encode url
 	String URLEncode();
 
-	
+
 	// grab referer url from headers
 	String getReferer();
 

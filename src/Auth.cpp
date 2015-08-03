@@ -156,7 +156,7 @@ AuthPlugin* auth_plugin_load(const char *pluginConfigPath)
 		return portcreate(cv);
 	}
 
-#ifdef PRT_DNSAUTH	
+#ifdef PRT_DNSAUTH
 	if (plugname == "dnsauth") {
 #ifdef DGDEBUG
 		std::cout << "Enabling DNS-based auth plugin" << std::endl;

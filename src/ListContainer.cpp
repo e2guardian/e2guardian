@@ -451,7 +451,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 	return true;  // sucessful read
 }
 
-bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename) 
+bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
 {
 	size_t len = 0;
 	try {
@@ -617,7 +617,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
 		if (temp.length() > 0)
 			mem_used += temp.length() + 1;
 			if (mem_used  > data_memory) {
-				increaseMemoryBy(2048); 
+				increaseMemoryBy(2048);
 			}
 			addToItemList(temp.toCharArray(), temp.length());  // add to unsorted list
 	}
@@ -972,7 +972,7 @@ bool ListContainer::makeGraph(bool fqs)
 				slowgraph.push_back(i);
 			} else {
 				// Duplicate - resolve the collision
-				// 
+				//
 				// Existing entry must be a combi AND
 				// new entry is not a combi so we overwrite the
 				// existing values as combi values and types are
@@ -1157,7 +1157,7 @@ void ListContainer::graphCopyNodePhrases(unsigned int pos)
 		slowgraph.push_back(phrasenumber);
 	} else {
 		// Duplicate - resolve the collision
-		// 
+		//
 		// Existing entry must be a combi AND
 		// new entry is not a combi so we overwrite the
 		// existing values as combi values and types are
@@ -1254,7 +1254,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 {
 	off_t i, j, k;
 	std::map<std::string, std::pair<unsigned int, int> >::iterator existingitem;
-	
+
 	//do standard quick search on short branches (or everything, if force_quick_search is on)
 	for (std::vector<unsigned int>::iterator i = slowgraph.begin(); i != slowgraph.end(); i++) {
 		std::string phrase = getItemAtInt(*i);
@@ -1268,7 +1268,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 			}
 		}
 	}
-	
+
 	if (force_quick_search || graphitems == 0) {
 #ifdef DGDEBUG
 		std::cout << "Map (quicksearch) start" << std::endl;
@@ -1279,7 +1279,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 #endif
 		return;
 	}
-	
+
 	off_t sl;
 	off_t ppos;
 	off_t currnode;
@@ -1398,10 +1398,10 @@ void ListContainer::graphAdd(String s, const int inx, int item)
 				return;
 			}
 			found = true;
-			
+
 			// this means the phrase is already there
 			// as part of an existing phrase
-			
+
 			//check the end of word flag on the child
 			px = graphdata2[(graphdata[inx * GRAPHENTRYSIZE + 4 + i]) * GRAPHENTRYSIZE + 1];
 			if (px == 1) {
@@ -1698,7 +1698,7 @@ int ListContainer::greaterThanSW(const char *a, const char *b)
 			return 1;
 		else if (a[i] < b[i])
 			return -1;
-	
+
 	// if the URLs didn't match and the one the user is browsing to is longer
 	// than what we just compared against, we need to compare against longer URLs,
 	// but only if the next character is actually part of a folder name rather than a separator.

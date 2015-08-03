@@ -1,11 +1,11 @@
 The port authentication plug-in is used to determine the filter group based on the listening port.
 
 With this enabled you are able to direct a user's browser to the appropreate filter level by setting the proxy port
-number in their browser settings.  
+number in their browser settings.
 
 The user name in the logs and block pages will be set to the port number.
 
-The port auth plugin is enabled by default on all e2guardian complilations.  
+The port auth plugin is enabled by default on all e2guardian complilations.
 There is no corresponding configure flag.
 
 To enable the port auth plugin:

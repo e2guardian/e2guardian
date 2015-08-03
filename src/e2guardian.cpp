@@ -46,8 +46,8 @@
 #endif
 */
 
-#ifndef DANS_MAXFD  
-#define DANS_MAXFD FD_SETSIZE 
+#ifndef DANS_MAXFD
+#define DANS_MAXFD FD_SETSIZE
 #endif
 
 OptionContainer o;
@@ -202,13 +202,13 @@ int main(int argc, char *argv[])
 	if (needreset) {
 		o.reset();
 	}
-	
+
 	read_config(configfile.c_str(), 2);
 
 	if (total_block_list && ! o.readinStdin()) {
 		syslog(LOG_ERR, "%s", "Error on reading total_block_list");
 		std::cerr << "Error on reading total_block_list" << std::endl;
-//		return 1;  
+//		return 1;
 #ifdef DGDEBUG
 				std::cerr << "Total block lists read OK from stdin." << std::endl;
 

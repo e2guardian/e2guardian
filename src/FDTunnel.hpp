@@ -22,9 +22,9 @@ class FDTunnel
 {
 public:
 	off_t throughput;  // used to log total data from from to to
-	
+
 	FDTunnel();
-	
+
 	// tunnel from fdfrom to fdto
 	// return false if throughput larger than target throughput (for post upload size checking)
 	bool tunnel(Socket &sockfrom, Socket &sockto, bool twoway = false, off_t targetthroughput = -1, bool ignore = false);

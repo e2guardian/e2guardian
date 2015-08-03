@@ -24,15 +24,15 @@ public:
 	UDSocket(int fd);
 	// create socket from FD & local path (checkme: is it actually local that gets passed?)
 	UDSocket(int newfd, struct sockaddr_un myadr);
-	
+
 	// connect socket to given server (following default constructor)
 	int connect(const char *path);
 	// bind socket to given path (for creating servers)
 	int bind(const char *path);
-	
+
 	// accept incoming connection & return new UDSocket
 	UDSocket* accept();
-	
+
 	// close connection & clear address structs
 	void reset();
 

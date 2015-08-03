@@ -32,10 +32,10 @@ public:
 	// grab socket's FD, e.g. for passing to selectEINTR
 	// use sparingly, and DO NOT do manual data transfer with it
 	int getFD();
-	
+
 	// close socket
 	void close();
-	
+
 	// set socket-wide timeout (is this actually used? all methods accept their own individual timeouts)
 	void setTimeout(int t);
 	// get timeout (is this actually used?)
@@ -53,10 +53,10 @@ public:
 	bool readyForOutput();
 	// blocking check, can break on config reloads
 	void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
-	
+
 	// get a line from the socket - can break on config reloads
 	int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);
-	
+
 	// write buffer to string - throws std::exception on error
 	void writeString(const char *line) throw(std::exception);
 	// write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
@@ -84,7 +84,7 @@ protected:
 	BaseSocket();
 	// destructor - closes socket
 	virtual ~BaseSocket();
-	
+
 	// performs accept(). call from derived classes' accept method
 	int baseAccept(struct sockaddr *acc_adr, socklen_t *acc_adr_length);
 	// closes socket & resets timeout to default - call from derived classes' reset method

@@ -105,7 +105,7 @@ void DataBuffer::swapbacktocompressed()
 		data = compresseddata;
 		compresseddata = NULL;
 		compressed_buffer_length = 0;
-	}	
+	}
 }
 
 // a much more efficient reader that does not assume the contents of
@@ -474,7 +474,7 @@ bool DataBuffer::contentRegExp(int filtergroup)
 						break;
 
 				// \1 and $1 replacement
-				
+
 				// store match no. and default (empty) replacement string
 				newreplacement* newrep = new newreplacement;
 				newrep->match = j;

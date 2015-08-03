@@ -131,7 +131,7 @@ void stat_rec::start() {
 			if (fs) {
 				fprintf(fs, "time		childs 	busy	free	wait	births	deaths	conx	conx/s\n");
 			} else {
-				syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n", 
+				syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n",
 					o.dstat_location.c_str());
 				o.dstat_log_flag = false;
 			};
@@ -154,7 +154,7 @@ void stat_rec::reset() {
 						cps);
 	fflush(fs);
 	clear();
-	if ((end_int + o.dstat_interval) > now) 
+	if ((end_int + o.dstat_interval) > now)
 		start_int = end_int;
 	else
 		start_int = now;
@@ -181,7 +181,7 @@ void monitor_flag_set(bool action) {
 	old_umask = umask(S_IWOTH);
 	FILE *fs = fopen(ftouch.c_str(), "w");
 	if (!fs) {
-		syslog(LOG_ERR, "Unable to open monitor_flag %s for writing\n", 
+		syslog(LOG_ERR, "Unable to open monitor_flag %s for writing\n",
 		ftouch.c_str());
 		o.monitor_flag_flag = false;
 	}
@@ -476,8 +476,8 @@ int prefork(int num)
 	int sv[2];
 	pid_t child_pid;
 	while (num--) {
-		
-		// e2 can't creates a number of process equal to maxchildren, -1 is needed for seeing saturation 
+
+		// e2 can't creates a number of process equal to maxchildren, -1 is needed for seeing saturation
 		if (!(numchildren < (o.max_children -1))) {
 			syslog(LOG_ERR, "E2guardian is running out of MaxChildren process: %d maxchildren: %d\n", numchildren, o.max_children);
 			return 2;  // too many - geddit?
@@ -516,7 +516,7 @@ int prefork(int num)
 			}
 			// no need to deallocate memory etc as already done when fork()ed
 			// right - let's do our job!
-			
+
 			//  code to make fd low number
 			int low_fd = dup(sv[1]);
 			if(low_fd < 0) {
@@ -545,7 +545,7 @@ int prefork(int num)
 
 		if ( sv[0] >= fds ) {
 	    		if (o.logchildprocs)
-				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
+				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);
 			close(sv[0]);
 			kill(child_pid,SIGTERM);
 			return(1);
@@ -784,16 +784,16 @@ void tell_monitor(bool active) {
 
 	String buff(o.monitor_helper);
 	String buff1;
-        
-	if (active) 
+
+	if (active)
 		buff1 = " start";
 	else
-		buff1 = " stop"; 
+		buff1 = " stop";
 
 	syslog(LOG_ERR, "Monitorhelper called: %s%s", buff.c_str(), buff1.c_str() );
 
 	pid_t childid;
-	
+
 	childid = fork();
 
 	if (childid == -1) {
@@ -828,7 +828,7 @@ void tell_monitor(bool active) {
 	};
 };
 
-void wait_for_proxy() 
+void wait_for_proxy()
 {
 	Socket proxysock;
 	int rc;
@@ -866,7 +866,7 @@ void wait_for_proxy()
 				if (o.monitor_flag_flag) monitor_flag_set(true);
                       		return;
                  	} else {
-					if (ttg) 
+					if (ttg)
 						return;
 				wait_time++;
 				cnt_down--;
@@ -875,8 +875,8 @@ void wait_for_proxy()
 					cnt_down = o.proxy_failure_log_interval;
 				}
 				sleep(1);
-       	         	} 
-        	} 
+       	         	}
+        	}
 }
 
 // look for any dead children, and clean them up
@@ -1015,7 +1015,7 @@ void hup_allchildren()
 #ifdef DGDEBUG
 	std::cout << "huping all childs:" << std::endl;
 #endif
-	for (int i = top_child_fds - 1; i >= 0; i--) 
+	for (int i = top_child_fds - 1; i >= 0; i--)
 	{
 		if (childrenstates[i] >= 0) {
 			kill(childrenpids[i], SIGHUP);
@@ -1031,10 +1031,10 @@ void hup_somechildren(int num, int start)
 #endif
 	hup_index = start;
 	int count = 0;
-	for (int i = start; i < top_child_fds; i++) 
+	for (int i = start; i < top_child_fds; i++)
 	{
 
-	
+
 		if ((childrenstates[i] >= 0) && (childrenrestart_cnt[i] != restart_cnt) ) { // only kill children started before last gentle
 			if (childrenstates[i] == 0 ) {  // child is free - might as well SIGTERM
 				childrenstates[i] = -2;
@@ -1243,7 +1243,7 @@ void reset_childstats()
 			}
 			if (childrenstates[i] == 0)
 				freechildren++;
-			if (childrenstates[i] > -1) 
+			if (childrenstates[i] > -1)
 				numchildren++;
 	}
 };
@@ -1306,7 +1306,7 @@ void tellchild_accept(int num, int whichsock)
 		return;
 	}
 	// no need to check what it actually contains,
-	// as the very fact the child sent something back is a good sign 
+	// as the very fact the child sent something back is a good sign
 	busychildren++;
 	freechildren--;
 	dystat->conx++;
@@ -1343,15 +1343,15 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier
 	std::map<std::string, int> violation_map;
-	std::map<std::string, int> timestamp_map;   
+	std::map<std::string, int> timestamp_map;
 	std::map<std::string, std::string> vbody_map;
 
 	int curv_tmp, stamp_tmp, byuser;
 #endif
-	
+
 	//String where, what, how;
 	std::string cr("\n");
-   
+
 	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
 	std::string stype, postdata;
 	int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
@@ -1398,9 +1398,9 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 	std::string denied_word = o.language_list.getTranslation(52);
 	denied_word = "*" + denied_word;
 	std::string infected_word = o.language_list.getTranslation(53);
-	infected_word =  "*" + infected_word + "* ";   
+	infected_word =  "*" + infected_word + "* ";
 	std::string scanned_word = o.language_list.getTranslation(54);
-	scanned_word = "*" + scanned_word + "* "; 
+	scanned_word = "*" + scanned_word + "* ";
 	std::string contentmod_word = o.language_list.getTranslation(55);
 	contentmod_word = "*" + contentmod_word + "* ";
 	std::string urlmod_word = o.language_list.getTranslation(56);
@@ -1451,7 +1451,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			// read in the various parts of the log string
 			bool error = false;
 			int itemcount = 0;
-			
+
 			while(itemcount < 29) {
 				try {
 					// Loop around reading in data, because we might have huge URLs
@@ -1628,12 +1628,12 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 			else if (isexception && (o.log_exception_hits == 2)) {
 				what = exception_word + what;
 			}
-		   
+
 			if (wasinfected)
 				what = infected_word + stype + "* " + what;
 			else if (wasscanned)
 				what = scanned_word + what;
-			
+
 			if (contentmodified) {
 				what = contentmod_word + what;
 			}
@@ -1691,7 +1691,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 				// append timestamp if desired
 				if (o.log_timestamp)
 					when += " " + utime;
-					
+
 			}
 
 
@@ -1807,24 +1807,24 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					duration = temp;
 
 				builtline = utime + "\t"
-					+ server + "\t" 
-					+ who + "\t" 
-					+ from + "\t" 
-					+ clienthost + "\t" 
-					+ where + "\t" 
-					+ how + "\t" 
-					+ stringcode + "\t" 
-					+ ssize + "\t" 
-					+ mimetype + "\t" 
+					+ server + "\t"
+					+ who + "\t"
+					+ from + "\t"
+					+ clienthost + "\t"
+					+ where + "\t"
+					+ how + "\t"
+					+ stringcode + "\t"
+					+ ssize + "\t"
+					+ mimetype + "\t"
 					+ (o.log_user_agent ? useragent : "-") + "\t"
 					+ "-\t"   // squid result code
 					+ duration + "\t"
 					+ "-\t"   // squid peer code
 					+ message_no + "\t"   // dg message no
-					+ what + "\t" 
-					+ sweight + "\t" 
-					+ cat +  "\t" 
-					+ o.fg[filtergroup]->name + "\t" 
+					+ what + "\t"
+					+ sweight + "\t"
+					+ cat +  "\t"
+					+ o.fg[filtergroup]->name + "\t"
 					+ stringgroup ;
 			}
 
@@ -1892,12 +1892,12 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					}
 				}
 
-				// naughty OR virus 
+				// naughty OR virus
 				else if ((isnaughty || (wasscanned && wasinfected)) && (o.fg[filtergroup]->notifycontent)) {
 					byuser = o.fg[filtergroup]->byuser;
 
 					// if no violations so far by this user/group,
-					// reset threshold counters 
+					// reset threshold counters
 					if (byuser) {
 						if (!violation_map[who]) {
 							// set the time of the first violation
@@ -1906,7 +1906,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 						}
 					}
 					else if (!o.fg[filtergroup]->current_violations) {
-						// set the time of the first violation 
+						// set the time of the first violation
 						o.fg[filtergroup]->threshold_stamp = time(0);
 						o.fg[filtergroup]->violationbody="";
 					}
@@ -1918,7 +1918,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 						o.fg[filtergroup]->current_violations++;
 
 					// construct email report
-					char *vbody_temp = new char[8192];   
+					char *vbody_temp = new char[8192];
 					sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
 					vbody+=vbody_temp;
 
@@ -1949,7 +1949,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 					sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
 					vbody+=vbody_temp;
 					delete[] vbody_temp;
-					
+
 					// store the report with the group/user
 					if (byuser) {
 						vbody_map[who]+=vbody;
@@ -1991,7 +1991,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
 										fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
 											curv_tmp,
 											(curv_tmp==1)?"":"s",
-											(curv_tmp==1)?"s":"ve",									 
+											(curv_tmp==1)?"s":"ve",
 											o.fg[filtergroup]->threshold);
 
 										fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
@@ -2337,7 +2337,7 @@ int fc_controlit()
 	// allocate & create our server sockets
 	if (o.map_ports_to_ips) {
 		serversocketcount = o.filter_ip.size();
-	} 
+	}
 	else {
              if ( o.filter_ip.size() > 0 ) {
 	     	serversocketcount = o.filter_ip.size() * o.filter_ports.size();
@@ -2390,7 +2390,7 @@ int fc_controlit()
 			}
 			syslog(LOG_ERR, "%s", "Error creating ipc socket");
 			free(serversockfds);
-			return 1; 
+			return 1;
 		}
 	}
 
@@ -2584,7 +2584,7 @@ int fc_controlit()
 	OpenSSL_add_all_algorithms();
 	OpenSSL_add_all_digests();
 	SSL_library_init();
-#endif	
+#endif
 
 	// this has to be done after daemonise to ensure we get the correct PID.
 	rc = sysv_writepidfile(pidfilefd);  // also closes the fd
@@ -2627,7 +2627,7 @@ int fc_controlit()
 			}
 			if (o.url_cache_number > 0) {
 				urllistsock.close();  // we don't need our copy of this so close it
-			}	
+			}
 			if((log_listener(o.log_location, o.logconerror, o.log_syslog)) > 0) {
 			   syslog(LOG_ERR, "Error starting log listener");
 			}
@@ -2751,11 +2751,11 @@ int fc_controlit()
 	freechildren = 0;  // to keep count of our children
 
 #ifdef HAVE_SYS_EPOLL_H
-// moved here PIP 
+// moved here PIP
 // fds is now the max possible number of file descriptors
 // extra 50 for safety ( + 5 should be ok )
 // add 6 for already open fds and maxspare_children as allowance for
-//   overlap whilst waiting for children to die. 
+//   overlap whilst waiting for children to die.
  	fds = o.max_children + serversocketcount + 6 + o.gentle_chunk;
 	top_child_fds = fds;
 	childrenpids = new int[fds];  // so when one exits we know who
@@ -2773,7 +2773,7 @@ int fc_controlit()
 	pids = new struct pollfd[fds];
 
 #ifdef HAVE_SYS_EPOLL_H
-	revents = new struct epoll_event[fds]; 
+	revents = new struct epoll_event[fds];
 #endif
 
 	int i;
@@ -2817,7 +2817,7 @@ int fc_controlit()
         	e_ev.data.fd = f;
         	e_ev.events = EPOLLIN;
 
-        	if(epoll_ctl( epfd, EPOLL_CTL_ADD, f, &e_ev )) { 
+        	if(epoll_ctl( epfd, EPOLL_CTL_ADD, f, &e_ev )) {
 #ifdef DGDEBUG
         		std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
 #endif
@@ -2862,7 +2862,7 @@ int fc_controlit()
 
 	int tofind;
 
-        if (reloadconfig){ 
+        if (reloadconfig){
                 syslog(LOG_INFO, "Reconfiguring E2guardian: done");
 	} else {
 		syslog(LOG_INFO, "Started sucessfully.");
@@ -2871,7 +2871,7 @@ int fc_controlit()
 	}
 	reloadconfig = false;
 
-	wait_for_proxy(); // will return once a test connection established 
+	wait_for_proxy(); // will return once a test connection established
 
 	while (failurecount < 30 && !ttg && !reloadconfig) {
 
@@ -2942,7 +2942,7 @@ int fc_controlit()
 			flush_urlcache();
 			continue;
 		}
-	
+
 		// Lets take the opportunity to clean up our dead children if any
 #ifdef HAVE_SYS_EPOLL_H
 		mopup_afterkids();
@@ -2952,7 +2952,7 @@ int fc_controlit()
 #ifdef DGDEBUG
 			std::cout << "Error polling child process sockets: You should reduce your maxchildren" << std::endl;
 #endif
-			_exit(0); 
+			_exit(0);
 		} else {
 			for (i = 0; i < fds; i++) {
 				pids[i].revents = 0;
@@ -3034,7 +3034,7 @@ int fc_controlit()
 					// socket ready to accept() a connection
 					failurecount = 0;  // something is clearly working so reset count  // not right place PIP!!!!
 					if (freechildren < 1 && numchildren < o.max_children) {
-						
+
 						//if (waitingfor == 0) {
 							//int num = o.prefork_children;
 							//if ((o.max_children - numchildren) < num)
@@ -3060,7 +3060,7 @@ int fc_controlit()
 						//tellchild_accept(getfreechild(), i);
 						tellchild_accept(p_freechild, i);
 					    } else {
-		syslog(LOG_ERR, "freechildren gt 0 (%d) and no freechildren: busy %d, num %d ", freechildren, busychildren, numchildren);	
+		syslog(LOG_ERR, "freechildren gt 0 (%d) and no freechildren: busy %d, num %d ", freechildren, busychildren, numchildren);
 						usleep(1000);
 					    }
 					} else {
@@ -3134,7 +3134,7 @@ int fc_controlit()
 			if (ttg)
 				break;
 		}
-#endif   
+#endif
 		if (is_starting) {
 			if (o.monitor_helper_flag || o.monitor_flag_flag) {
 				if (((numchildren - waitingfor) >= o.monitor_start)) {
@@ -3177,7 +3177,7 @@ int fc_controlit()
 			}
 			next_gentle_check = time(NULL) + 5;
 		}
-		
+
 		if (freechildren < o.minspare_children && (waitingfor == 0) && numchildren < o.max_children) {
 			if (o.logchildprocs)
 				syslog(LOG_ERR, "Fewer than %d free children - Spawning %d process(es)", o.minspare_children, o.prefork_children);
@@ -3214,7 +3214,7 @@ int fc_controlit()
 		if (o.dstat_log_flag && ( now >= dystat->end_int ))
 			dystat->reset();
 	}
-	if (o.monitor_helper_flag) 
+	if (o.monitor_helper_flag)
 		tell_monitor(false);  // tell monitor that we are not accepting any more connections
 
 	if (o.monitor_flag_flag) monitor_flag_set(false);
@@ -3249,7 +3249,7 @@ int fc_controlit()
 	delete[]pids;  // 4 deletes good, memory leaks bad
 #ifdef HAVE_SYS_EPOLL_H
 	delete[]revents;  // 5 deletes good, memory leaks bad
-#endif 
+#endif
 
 	if (failurecount >= 30) {
 		syslog(LOG_ERR, "%s", "Exiting due to high failure count.");

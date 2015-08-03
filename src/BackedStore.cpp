@@ -254,7 +254,7 @@ std::string BackedStore::store(const char *prefix)
 			throw std::runtime_error(ss.str().c_str());
 		}
 	}
-	
+
 	// We don't already have a temp file,
 	// or a simple link wasn't sufficient (EXDEV)
 	// Generate a new filename in the given directory, with the given name prefix
@@ -277,7 +277,7 @@ std::string BackedStore::store(const char *prefix)
 #ifdef DGDEBUG
 	std::cout << "BackedStore: storedname: " << storedname << std::endl;
 #endif
-	
+
 	// Dump the RAM buffer/mmap-ed file contents to disk in the new location
 	if (fd >= 0 && map == MAP_FAILED)
 		throw std::runtime_error("BackedStore could not copy existing temp file: store not finalised");

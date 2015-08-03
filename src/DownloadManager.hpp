@@ -33,7 +33,7 @@ class DMPlugin:public Plugin
 public:
 	DMPlugin(ConfigVar &definition);
 	virtual ~DMPlugin() {};
-	
+
 	// plugin initialise/quit routines.
 	// if lastplugin is true, this is being loaded as the fallback option,
 	// and needn't load in purely request matching related options.

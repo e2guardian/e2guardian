@@ -12,7 +12,7 @@ struct ca_serial {
 class CertificateAuthority {
 
 protected:
-	
+
 	EVP_PKEY * _caPrivKey;
 	EVP_PKEY * _certPrivKey;
 	X509 * _caCert;
@@ -26,7 +26,7 @@ protected:
 public:
 	CertificateAuthority(const char * caCert,
 				const char * caPrivKey,
-				const char * certPrivKey, 
+				const char * certPrivKey,
 				const char * certPath,
 				time_t caStart,
 				time_t caEnd );

@@ -95,7 +95,7 @@ bool DynamicIPList::inList(unsigned long int ip) {
 		stamp(pos);
 		return true;
 	}
-	
+
 	// is list full?
 	if (items >= size) {
 		return false;

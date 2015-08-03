@@ -29,11 +29,11 @@
 
 
 // DECLARATIONS
-	struct room_item { 
-		std::string name; 
-		IPList *iplist; 
-		ListContainer *sitelist; 
-		ListContainer *urllist; 
+	struct room_item {
+		std::string name;
+		IPList *iplist;
+		ListContainer *sitelist;
+		ListContainer *urllist;
 		bool block;
 		bool part_block;
 	};
@@ -157,7 +157,7 @@ public:
 
 #ifdef ENABLE_EMAIL
 	// Email notification patch by J. Gauthier
-	std::string mailer;   
+	std::string mailer;
 #endif
 
 	std::string daemon_user;

@@ -307,7 +307,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
 	char *oldestref = urls + agepos * 1000;
 
 	// now contains pos in sorted index of what we're going to overwrite
-	int delpos = posInList(oldestref);  
+	int delpos = posInList(oldestref);
 
 	// do the actual overwriting, including termination and setting birthdate to now
 	memcpy(oldestref, u, len);
@@ -345,7 +345,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
 	// the index is now sorted, but the actual list of strings itself is sorted oldest first.
 	// increase the age pointer to the next empty entry - once we get to the end, wrap round
 	// to the top, and overwrite the entries oldest first.
-	
+
 	// todo: things might speed up if we simply maintain the agepos as an index into the sorted index array,
 	// rather than an index on the real URL list. then we wouldn't need to do a posInList to find the agepos's
 	// sorted index every time we do an add.

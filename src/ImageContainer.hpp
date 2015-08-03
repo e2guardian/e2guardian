@@ -17,7 +17,7 @@ class ImageContainer
 public:
 	ImageContainer();
 	~ImageContainer();
-	
+
 	// wipe loaded image
 	void reset();
 	// read image from file

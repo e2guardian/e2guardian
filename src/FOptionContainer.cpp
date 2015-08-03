@@ -57,8 +57,8 @@ FOptionContainer::~FOptionContainer()
 }
 
 void FOptionContainer::reset()
-{	
-	conffile.clear();	
+{
+	conffile.clear();
 	delete banned_page;
 	banned_page = NULL;
 	resetJustListData();
@@ -149,7 +149,7 @@ void FOptionContainer::resetJustListData()
 	enable_local_list = false;
 	enable_regex_grey = false;
 	only_mitm_ssl_grey = false;
-	ssl_mitm = false; 
+	ssl_mitm = false;
 	enable_ssl_legacy_logic = false;
 	//searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
@@ -184,13 +184,13 @@ void FOptionContainer::resetJustListData()
 #ifdef __SSLMITM
 	no_check_cert_site_flag = false;
 #endif
-	
+
 	block_downloads = false;
-	
+
 	banned_phrase_list_index.clear();
-	
+
 //	conffile.clear();
-	
+
 	content_regexp_list_comp.clear();
 	content_regexp_list_rep.clear();
 	url_regexp_list_comp.clear();
@@ -214,7 +214,7 @@ void FOptionContainer::resetJustListData()
 	//searchengine_regexp_list_comp.clear();
 	//searchengine_regexp_list_source.clear();
 	//searchengine_regexp_list_ref.clear();
-	
+
 //	delete banned_page;
 //	banned_page = NULL;
 }
@@ -347,9 +347,9 @@ bool FOptionContainer::read(const char *filename)
 				//}
 				//mitm_magic = s;
 			//}
-			if (findoptionS("onlymitmsslgrey") == "on"){ 
+			if (findoptionS("onlymitmsslgrey") == "on"){
 				only_mitm_ssl_grey = true;
-			} else {	
+			} else {
 				only_mitm_ssl_grey = false;
 			}
 			if (enable_ssl_legacy_logic){
@@ -357,8 +357,8 @@ bool FOptionContainer::read(const char *filename)
                                  std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
 				 enable_ssl_legacy_logic = false;
 			}
-		
-			if (findoptionS("mitmcheckcert") == "off") 
+
+			if (findoptionS("mitmcheckcert") == "off")
 				mitm_check_cert = false;
 #ifdef DGDEBUG
 			std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
@@ -380,7 +380,7 @@ bool FOptionContainer::read(const char *filename)
 			byuser = true;
 		} else {
 			byuser = false;
-		}	   
+		}
 
 		if (findoptionS("notifyav") == "on") {
 			if (!use_smtp) {
@@ -424,8 +424,8 @@ bool FOptionContainer::read(const char *filename)
 
 		contentadmin = findoptionS("contentadmin");
 		if (contentadmin.length()==0) {
-			if (use_smtp) {		   
-				if (!is_daemonised)		   
+			if (use_smtp) {
+				if (!is_daemonised)
 					std::cerr << "contentadmin cannot be blank while usesmtp is on." << std::endl;
 				syslog(LOG_ERR, "contentadmin cannot be blank while usesmtp is on.");
 				return false;
@@ -435,15 +435,15 @@ bool FOptionContainer::read(const char *filename)
 		mailfrom = findoptionS("mailfrom");
 		if (mailfrom.length()==0) {
 			if (use_smtp) {
-				if (!is_daemonised)		   
+				if (!is_daemonised)
 					std::cerr << "mailfrom cannot be blank while usesmtp is on." << std::endl;
 				syslog(LOG_ERR, "mailfrom cannot be blank while usesmtp is on.");
 				return false;
 			}
-		}	   
+		}
 		avsubject = findoptionS("avsubject");
 		if (avsubject.length()==0 && notifyav==1 && use_smtp==1) {
-			if (!is_daemonised)		   
+			if (!is_daemonised)
 				std::cerr << "avsubject cannot be blank while notifyav is on." << std::endl;
 			syslog(LOG_ERR, "avsubject cannot be blank while notifyav is on.");
 			return false;
@@ -451,7 +451,7 @@ bool FOptionContainer::read(const char *filename)
 
 		contentsubject = findoptionS("contentsubject");
 		if (contentsubject.length()==0 && use_smtp) {
-			if (!is_daemonised)		   
+			if (!is_daemonised)
 				std::cerr << "contentsubject cannot be blank while usesmtp is on." << std::endl;
 			syslog(LOG_ERR, "contentsubject cannot be blank while usesmtp is on.");
 			return false;
@@ -463,7 +463,7 @@ bool FOptionContainer::read(const char *filename)
                 if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
                         return false;
                 }
-		
+
                 if (reporting_level == 0) {
                        std::cerr << "Reporting_level is : " << reporting_level << " file " << filename << std::endl;
                        syslog(LOG_ERR, "Reporting_level is : %d file %s", reporting_level, filename);
@@ -482,7 +482,7 @@ bool FOptionContainer::read(const char *filename)
                                std::cerr << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
                         syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
                         return false;
-                }               
+                }
 
 #ifdef DGDEBUG
                 std::cout << "Group " <<  findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
@@ -509,9 +509,9 @@ bool FOptionContainer::read(const char *filename)
 		               	        if (access_denied_domain.length() < 4) {
         	               	        	if (!is_daemonised) {
                 	                        	std::cerr << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
-                        	        	}	
+                        	        	}
                                 			syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong.");
-                        			}		
+                        			}
 			}
 		}
 		  if (reporting_level == 3) {
@@ -556,7 +556,7 @@ bool FOptionContainer::read(const char *filename)
           		       		ssl_denied_rewrite = true;
             		        } else {
                         		ssl_denied_rewrite = false;
-                		}	
+                		}
 		}
 
                 if (findoptionS("nonstandarddelimiter") == "off") {
@@ -584,7 +584,7 @@ bool FOptionContainer::read(const char *filename)
 			std::cout << "Group name: " << name << std::endl;
 #endif
 		}
-                                 
+
 		if (group_mode == 1) {
 
 			embedded_url_weight = findoptionI("embeddedurlweight");
@@ -624,7 +624,7 @@ bool FOptionContainer::read(const char *filename)
                         } else {
 				 enable_local_list = false;
 			}
-		
+
 			if (findoptionS("blockdownloads") == "on") {
 				block_downloads = true;
 			} else {
@@ -729,7 +729,7 @@ bool FOptionContainer::read(const char *filename)
 			std::string grey_ssl_site_list_location(findoptionS("greysslsitelist"));
 #ifdef __SSLMITM
 			std::string no_check_cert_site_list_location(findoptionS("nocheckcertsitelist"));
-#endif 
+#endif
 			if (enable_PICS) {
 				pics_rsac_nudity = findoptionI("RSACnudity");
 				pics_rsac_language = findoptionI("RSAClanguage");
@@ -801,7 +801,7 @@ bool FOptionContainer::read(const char *filename)
 				pics_vancouver_canadiancontent = findoptionI("Vancouvercanadiancontent");
 				pics_vancouver_commercialcontent = findoptionI("Vancouvercommercialcontent");
 				pics_vancouver_gambling = findoptionI("Vancouvergambling");
-				
+
 				// new Korean PICS support
 				pics_icec_rating = findoptionI("ICECrating");
 				pics_safenet_nudity = findoptionI("SafeNetnudity");
@@ -856,7 +856,7 @@ bool FOptionContainer::read(const char *filename)
 				naughtyness_limit = findoptionI("naughtynesslimit");
 				if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
 					return false;
-				
+
 				if (!o.lm.readbplfile(banned_phrase_list_location.c_str(),
 					exception_phrase_list_location.c_str(),
 					weighted_phrase_list_location.c_str(), banned_phrase_list,
@@ -866,7 +866,7 @@ bool FOptionContainer::read(const char *filename)
 				}		// read banned, exception, weighted phrase list
 				banned_phrase_flag = true;
 			}
-			
+
 			if (!readFile(exceptions_site_list_location.c_str(),&exception_site_list,false,true,"exceptionsitelist")) {
 				return false;
 			}		// site exceptions
@@ -952,7 +952,7 @@ bool FOptionContainer::read(const char *filename)
 #ifdef DGDEBUG
 				std::cout << "Enabled search term extraction RegExp list" << std::endl;
 #endif
-			} 
+			}
 			else {
 				search_regexp_flag = false;
 			}  // search engine searchwords regular expressions
@@ -1045,7 +1045,7 @@ bool FOptionContainer::read(const char *filename)
 			} else {
 				log_url_flag = false;
 			}
-		
+
 			if (log_site_list_location.length() && readFile(log_site_list_location.c_str(), &log_site_list, false, true, "logsitelist")) {
 				log_site_flag = true;
 #ifdef DGDEBUG
@@ -1054,7 +1054,7 @@ bool FOptionContainer::read(const char *filename)
 			} else {
 				log_site_flag = false;
 			}
-			
+
 			if (log_regexpurl_list_location.length() && readRegExMatchFile(log_regexpurl_list_location.c_str(), "logregexpurllist", log_regexpurl_list,
 				log_regexpurl_list_comp, log_regexpurl_list_source, log_regexpurl_list_ref))
 			{
@@ -1410,7 +1410,7 @@ char *FOptionContainer::inSearchList(String &words, unsigned int list)
 	if (i != NULL) {
 		return i;  // exact match
 	}
-	return NULL;  
+	return NULL;
 }
 
 // checkme: remove things like this & make inSiteList/inIPList public?
@@ -1425,7 +1425,7 @@ char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bo
 
 bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-//	if (enable_local_list) { 
+//	if (enable_local_list) {
 		if (use_only_local_allow_lists) {
 			return false;
 		};
@@ -1476,8 +1476,8 @@ bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool 
 bool FOptionContainer::inRefererExceptionLists(String url)
 {
 	String temp = url;
-	if ((url.length() > 0) 
-		&& ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false) != NULL)) 
+	if ((url.length() > 0)
+		&& ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false) != NULL))
 		|| (referer_exception_url_flag && (inURLList(temp, referer_exception_url_list, false, false, false) != NULL))) )
 		return true;
 	return false;
@@ -1486,7 +1486,7 @@ bool FOptionContainer::inRefererExceptionLists(String url)
 bool FOptionContainer::inEmbededRefererLists(String url)
 {
 	String temp = url;
-	if ((url.length() > 0) 
+	if ((url.length() > 0)
 		&& ((embeded_referer_site_flag && (inSiteList(url, embeded_referer_site_list, false, false, false) != NULL))
 		|| ( embeded_referer_url_flag && (inURLList(temp, embeded_referer_url_list, false, false, false) != NULL))) )
 		return true;
@@ -1499,7 +1499,7 @@ char *FOptionContainer::inBannedSearchList(String words)
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
-	if (enable_local_list) { 
+	if (enable_local_list) {
 		if ( inBannedSearchOverideList(words) )
 			return NULL;
 	}
@@ -1676,7 +1676,7 @@ bool FOptionContainer::inGreyURLList(String url, bool doblanket, bool ip, bool s
 #ifdef DGDEBUG
 	std::cout<<"inGreyURLList"<<std::endl;
 #endif
-	if (enable_local_list) { 
+	if (enable_local_list) {
 		if (use_only_local_allow_lists) {
 			return false;
 		};
@@ -1772,7 +1772,7 @@ char *FOptionContainer::inExtensionList(unsigned int list, String url)
 	return (*o.lm.l[list]).findEndsWith(url.toCharArray());
 }
 
-// replaced by HTTPHeader::isSearch function in e2g so undefined but 
+// replaced by HTTPHeader::isSearch function in e2g so undefined but
 // retained for reference.
 #ifdef NOTDEFINED
 // search term blocking
@@ -1868,7 +1868,7 @@ int FOptionContainer::inRegExpURLList(String &url, std::deque<RegExp> &list_comp
 			ptp = url.before("//");
 			url = url.after("//");
 		}*/
-	
+
 		// whilst it would be nice to have regexes be able to match the PTP,
 		// it has been assumed for too long that the URL string does not start with one,
 		// and we don't want to break regexes that look explicitly for the start of

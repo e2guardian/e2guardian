@@ -27,7 +27,7 @@
 #include "openssl/asn1.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
-#include "String.hpp" 
+#include "String.hpp"
 #endif
 
 #ifdef __SSLMITM
@@ -239,14 +239,14 @@ int Socket::startSslClient(const std::string& certificate_path)
 #endif
 		return -1;
 	}
-	
+
 
 	//set the timeout for the ssl session
 	if (SSL_CTX_set_timeout(ctx,130l) < 1){
 		return -1;
 	}
 
-	
+
 	//load certs
 	if (certificate_path.length()) {
 		if(!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str()))
@@ -274,10 +274,10 @@ int Socket::startSslClient(const std::string& certificate_path)
 	SSL_set_options(ssl,SSL_OP_ALL);
 	SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
 	SSL_set_connect_state( ssl );
-	
+
 	//fcntl(this->getFD() ,F_SETFL, O_NONBLOCK);
 	SSL_set_fd(ssl, this->getFD());
-	
+
 	//make io non blocking as select wont tell us if we can do a read without blocking
 	//BIO_set_nbio(SSL_get_rbio(ssl),1l);
 	//BIO_set_nbio(SSL_get_wbio(ssl),1l);
@@ -294,7 +294,7 @@ int Socket::startSslClient(const std::string& certificate_path)
 		SSL_CTX_free(ctx);
 		return -3;
 	}
-	
+
 	//should be safer to do this last as nothing will ever try to use a ssl socket that isnt fully setup
 	isssl = true;
 	issslserver = false;
@@ -332,7 +332,7 @@ void Socket::stopSsl()
 			}
 			std::cout << "calling 1st ssl shutdown" << std::endl;
 #endif
-			if(!SSL_shutdown(ssl)){		
+			if(!SSL_shutdown(ssl)){
 #ifdef DGDEBUG
 				std::cout << "need to call SSL shutdown again" << std::endl;
 				if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN){
@@ -369,13 +369,13 @@ void Socket::stopSsl()
 #ifdef DGDEBUG
 			std::cout << "done" << std::endl;
 #endif
-		
+
 		}
-		
+
 		SSL_free(ssl);
 		ssl = NULL;
 	}
-	
+
 	issslserver = false;
 	if(ctx != NULL){
 		SSL_CTX_free(ctx);
@@ -401,47 +401,47 @@ int Socket::checkCertHostname(const std::string& _hostname)
 	String hostname = _hostname;
 	bool matched = false;
 	bool hasaltname = false;
-	
+
 	X509 * peercertificate = SSL_get_peer_certificate(ssl);
 	if (peercertificate == NULL){
 #ifdef DGDEBUG
 		std::cout << "unable to get certificate for " << hostname << std::endl;
-#endif		
+#endif
 		return -1;
 	}
 	//force to lower case as domain names are not case sensetive
 	hostname.toLower();
-		
+
 #ifdef DGDEBUG
 	std::cout << "checking certificate" << hostname << std::endl;
 	std::cout << "Checking hostname against subjectAltNames" << std::endl;
 #endif
-	
+
 	//check the altname extension for additional valid names
 	STACK_OF(GENERAL_NAME) *gens = NULL;
 	gens = (STACK_OF(GENERAL_NAME)*)X509_get_ext_d2i(peercertificate, NID_subject_alt_name, 0, 0);
 	int r = sk_GENERAL_NAME_num(gens);
 	for (int i = 0 ; i < r ; ++i) {
 		const GENERAL_NAME *gn = sk_GENERAL_NAME_value(gens, i);
-		
+
 		//if its not a dns entry we really dont care about it
 		if(gn->type != GEN_DNS){
 			continue;
 		}
-		
-		//only mark hasaltname as true if it has a DNS altname 
+
+		//only mark hasaltname as true if it has a DNS altname
 		hasaltname = true;
-		
+
 		//an ASN1_IA5STRING is a define of an ASN1_STRING so we can do it this way
 		unsigned char * nameutf8;
 		int len = ASN1_STRING_to_UTF8(&nameutf8, gn->d.ia5);
 		if (len < 0){
 			break;
 		}
-		
+
 		String altname = std::string((char *)nameutf8,len);
 		OPENSSL_free(nameutf8);
-		
+
 		//force to lower case as domain names are not case sensetive
 		altname.toLower();
 
@@ -481,8 +481,8 @@ int Socket::checkCertHostname(const std::string& _hostname)
 
 	X509_NAME * name = X509_get_subject_name(peercertificate);
 
-	
-	int current_entry = -1;	
+
+	int current_entry = -1;
 	while(1){
 
 		//get the common name from the certificate
@@ -491,29 +491,29 @@ int Socket::checkCertHostname(const std::string& _hostname)
 			//if we've run out of common names then move on to altnames
 			break;
 		}
-		
+
 		//X509_NAME_get_entry result must not be freed
 		X509_NAME_ENTRY * entry = X509_NAME_get_entry(name, current_entry);
-		
+
 		ASN1_STRING * asn1name = X509_NAME_ENTRY_get_data(entry);
-		
+
 		unsigned char * nameutf8;
 		int len = ASN1_STRING_to_UTF8(&nameutf8, asn1name);
 		if (len < 0){
 			break;
 		}
 		String commonname = std::string((char *)nameutf8,len);
-		
+
 		OPENSSL_free(nameutf8);
 		//ASN1_STRING_free(asn1name);
-				
+
 		//force to lower case as domain names are not case sensetive
 		commonname.toLower();
 
 #ifdef DGDEBUG
 		std::cout << "checking against common name " << commonname << std::endl;
 #endif
-		
+
 		//compare the hostname to the common name
 		if (hostname.compare(commonname) == 0){
 			matched = true;
@@ -532,7 +532,7 @@ int Socket::checkCertHostname(const std::string& _hostname)
 			}
 		}
 	}
-	
+
 	if(matched){
 		X509_free(peercertificate);
 		return 0;
@@ -565,21 +565,21 @@ int Socket::startSslServer(X509 * x, EVP_PKEY * privKey, std::string& set_cipher
 	ctx = SSL_CTX_new(SSLv23_server_method());
 	if (ctx == NULL)
 	{
-#ifdef DGDEBUG		
+#ifdef DGDEBUG
 		//syslog(LOG_ERR, "error creating ssl context\n");
 		std::cout << "Error ssl context is null (check that openssl has been inited)" << std::endl;
 #endif
 		return -1;
 	}
-	
+
 	//set the timeout to match firefox
 	if (SSL_CTX_set_timeout(ctx,130l) < 1){
 		return -1;
 	}
-	
+
 	//set the ctx to use the certificate
 	if(SSL_CTX_use_certificate(ctx, x) < 1){
-#ifdef DGDEBUG		
+#ifdef DGDEBUG
 		//syslog(LOG_ERR, "error creating ssl context\n");
 		std::cout << "Error using certificate" << std::endl;
 #endif
@@ -588,16 +588,16 @@ int Socket::startSslServer(X509 * x, EVP_PKEY * privKey, std::string& set_cipher
 
 	if ( set_cipher_list.length() > 0 )
 		SSL_CTX_set_cipher_list(ctx, set_cipher_list.c_str());
-	
+
 	//set the ctx to use the private key
 	if(SSL_CTX_use_PrivateKey(ctx, privKey) < 1){
-#ifdef DGDEBUG		
+#ifdef DGDEBUG
 		//syslog(LOG_ERR, "error creating ssl context\n");
 		std::cout << "Error using private key" << std::endl;
 #endif
 		return -1;
 	}
-	
+
 	//setup the ssl session
 	ssl = SSL_new(ctx);
 	SSL_set_options(ssl,SSL_OP_ALL);
@@ -605,19 +605,19 @@ int Socket::startSslServer(X509 * x, EVP_PKEY * privKey, std::string& set_cipher
 	SSL_set_accept_state( ssl );
 
 	SSL_set_fd(ssl, this->getFD());
-	
+
 	//make io non blocking as select wont tell us if we can do a read without blocking
 
 	if (SSL_accept(ssl) < 0){
-#ifdef DGDEBUG		
+#ifdef DGDEBUG
 		//syslog(LOG_ERR, "error creating ssl context\n");
 		std::cout << "Error accepting ssl connection" << std::endl;
 #endif
 		return-1;
 	}
-	
+
 	if (SSL_do_handshake(ssl) < 0){
-#ifdef DGDEBUG		
+#ifdef DGDEBUG
 		//syslog(LOG_ERR, "error creating ssl context\n");
 		std::cout << "Error doing ssl handshake" << std::endl;
 #endif
@@ -639,30 +639,30 @@ bool Socket::checkForInput()
 	}
 #ifdef DGDEBUG
 	std::cout << "checking for input on ssl connection (non blocking)" << std::endl;
-#endif 	
+#endif
 	if ((bufflen - buffstart) > 0) {
 #ifdef DGDEBUG
 		std::cout << "found input on ssl connection" << std::endl;
-#endif 	
+#endif
 		return true;
 	}
 
 	//see if we can do an ssl read of 1 byte
 	char buf[1];
-		
+
 	int rc = SSL_peek(ssl,buf,1);
-	
+
 	if (rc < 1) {
 #ifdef DGDEBUG
 		std::cout << "no pending data on ssl connection SSL_pending " << rc << std::endl;
-#endif 	
+#endif
 		return false;
 	}
 
 #ifdef DGDEBUG
 	std::cout << "found data on ssl connection" << std::endl;
 #endif
-	
+
 	return true;
 }
 
@@ -800,7 +800,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
 	if (!isssl){
 		return BaseSocket::writeToSocket(buff, len,flags, timeout, check_first, honour_reloadconfig);
 	}
-	
+
 	int actuallysent = 0;
 	int sent;
 	while (actuallysent < len) {
@@ -833,7 +833,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 	if (!isssl){
 		return BaseSocket::readFromSocketn(buff, len,flags, timeout);
 	}
-	
+
 	int cnt, rc;
 	cnt = len;
 
@@ -852,7 +852,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 		if (cnt == 0)
 			return len;
 	}
-	
+
 	while (cnt > 0) {
 		try {
 			checkForInput(timeout);  // throws exception on error or timeout
@@ -904,7 +904,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 		if (cnt == 0)
 			return len;
 	}
-	
+
 	int rc;
 	if (check_first) {
 		try {
@@ -914,7 +914,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 		}
 	}
 	while (true) {
-	
+
 		rc = SSL_read(ssl, buff, cnt);
 
 		if (rc < 0) {
@@ -924,7 +924,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 		}
 		break;
 	}
-	
+
 	return rc + tocopy;
 }
 

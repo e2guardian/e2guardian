@@ -149,7 +149,7 @@ inline int local_accept_adaptor (int (*accept_func)(int, struct sockaddr*, T),
 // receive an incoming connection & return FD
 // call this in accept methods of derived classes, which should pass in empty sockaddr & socklen_t to be filled out
 int BaseSocket::baseAccept(struct sockaddr *acc_adr, socklen_t *acc_adr_length)
-{	
+{
 
 	// OS X defines accept as:
 	// int accept(int s, struct sockaddr *addr, int *addrlen);
@@ -278,17 +278,17 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 		int tocopy = size-1;
 		if ((bufflen - buffstart) < tocopy)
 			tocopy = bufflen - buffstart;
-		
+
 		//copy the data to output buffer (up to 8192 chars in loglines case)
 		char* result = (char*)memccpy(buff, buffer + buffstart, '\n', tocopy);
-		
+
 		//if the result was < max size
 		//if the result WAS null this indicates a full buffer copy
 		if (result != NULL) {
 			// indicate that a newline was chopped off, if desired
 			if (chopped)
 				*chopped = true;
-			
+
 			//make the last char a null
 			*(--result) = '\0';
 			buffstart += (result - buff) + 1;
@@ -396,7 +396,7 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
 {
 	int cnt, rc;
 	cnt = len;
-	
+
 	// first, return what's left from the previous buffer read, if anything
 	if ((bufflen - buffstart) > 0) {
 #ifdef DGDEBUG
@@ -412,7 +412,7 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
 		if (cnt == 0)
 			return len;
 	}
-	
+
 	while (cnt > 0) {
 		try {
 			checkForInput(timeout);  // throws exception on error or timeout
@@ -459,7 +459,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
 		if (cnt == 0)
 			return len;
 	}
-	
+
 	int rc = 0;
 
 	if (check_first) {

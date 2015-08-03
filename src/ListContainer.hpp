@@ -89,7 +89,7 @@ public:
 	String getListCategoryAtD(int index);
 
 	void graphSearch(std::map<std::string, std::pair<unsigned int, int> >& result, char *doc, off_t len);
-	
+
 	bool isNow(int index = -1);
 	bool checkTimeAt(unsigned int index);
 	bool checkTimeAtD(int index);
@@ -130,7 +130,7 @@ private:
 	std::vector<int > weight;
 	std::vector<int > itemtype;  // 0=banned, 1=weighted, -1=exception
 	bool force_quick_search;
-	
+
 	//time-limited lists - only items (sites, URLs), not phrases
 	TimeLimit listtimelimit;
 	bool istimelimited;

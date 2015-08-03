@@ -32,20 +32,20 @@ private:
 	// IPs and their ages
 	unsigned long int *data;
 	unsigned long int *datatime;
-	
+
 	// list size; no. of items currently in list; max. allowed item age
 	int size;
 	int items;
 	int maxage;
-	
+
 	void stamp(unsigned int pos);
-	
+
 	// binary search for given ip
 	int search(int a, int s, unsigned long int ip);
-	
+
 	// compacts list removing blanks
 	void empties();
-	
+
 	// returns position of given IP in list, or (0-pos)-1 where pos is where
 	// IP should be inserted to retain sorting.
 	int posInList(unsigned long int ip);

@@ -22,7 +22,7 @@ class String:public std::string
 public:
 	String():std::string() {};
 	//~String();
-	
+
 	// constructor from c-string
 	String(const char* bs):std::string(bs) {};
 	// copy constructor
@@ -44,7 +44,7 @@ public:
 	String(const char *bs, int start, int len):std::string(bs+start, len) {};
 	// construct from c++ string
 	String(const std::string &s):std::string(s) {};
-	
+
 	String operator+(const int& i) { return (*this) + String(i); };
 
 	// return c-string

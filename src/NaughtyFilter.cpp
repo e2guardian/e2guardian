@@ -18,7 +18,7 @@
 #include <syslog.h>
 #include <algorithm>
 
-// GLOBALS 
+// GLOBALS
 
 extern OptionContainer o;
 
@@ -52,8 +52,8 @@ public:
 
 // constructor - set up defaults
 NaughtyFilter::NaughtyFilter()
-:	isItNaughty(false), isException(false), usedisplaycats(false), 
-	blocktype(0), store(false), naughtiness(0), filtergroup(0), 
+:	isItNaughty(false), isException(false), usedisplaycats(false),
+	blocktype(0), store(false), naughtiness(0), filtergroup(0),
 	isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
 }
@@ -96,7 +96,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 		if (isItNaughty)
 			return;  // Well there is no point in continuing is there?
 	}
-	
+
 	if (o.fg[filtergroup]->weighted_phrase_mode == 0)
 	{
 #ifdef DGDEBUG
@@ -104,7 +104,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 #endif
 		return;
 	}
-	
+
 	// hex-decoded data (not case converted)
 	off_t hexdecodedlen = rawbodylen;
 	const char *hexdecoded = rawbody;
@@ -152,7 +152,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 		// copy any remaining bytes
 		while (i < rawbodylen) {
 			hexdecoded_buf[j++] = rawbody[i++];
-		} 
+		}
 		hexdecoded_buf[j] = '\0';
 		hexdecodedlen = j;
 		hexdecoded = hexdecoded_buf;
@@ -172,13 +172,13 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 #endif
 		preserve_case = false;
 	}
-	
+
 	// Store for the lowercase (maybe) data
 	// The extra 128 is used for various speed tricks to
 	// squeeze as much speed as possible.
 	char* bodylc = new char[hexdecodedlen + 128 + 1];
 	memset(bodylc, 0, hexdecodedlen + 128 + 1);
-	
+
 	// Store for the tag-stripped data
 	// Don't bother tag stripping search terms
 	char* bodynohtml = NULL;
@@ -190,7 +190,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 	}
 
 	if ( (o.phrase_filter_mode == 0 || o.phrase_filter_mode == 2 || o.phrase_filter_mode == 3) ) do_raw = true;
-	
+
 	for (int loop = 0; loop < (o.preserve_case == 2 ? 2 : 1); loop++) {
 #ifdef DGDEBUG
 		std::cout << "Preserve case: " << preserve_case << std::endl;
@@ -271,7 +271,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 			bool addit = false;  // flag if we should copy this char to filtered version
 			bool needcheck = false;  // flag if we actually find anything worth filtering
 			off_t bodymetalen;
-		
+
 			// find </head> or <body> as end of search range
 			char* endhead = strstr(bodylc, "</head");
 #ifdef DGDEBUG
@@ -348,7 +348,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 					// add a space before the next word in the check buffer
 					bodymeta[j++] = 32;
 				}
-			
+
 				if (addit) {
 					// if we're in "record" mode (i.e. inside a title/metatag), strip certain characters out
 					// of the data (to sanitise metatags & aid filtering of titles)
@@ -430,7 +430,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 			return;  // Well there is no point in continuing is there?
 		}
 		}
-		
+
 		if (!do_raw) {
 			delete[]bodylc;
 			delete[] bodynohtml;
@@ -478,7 +478,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 	int weighting = 0;
 	int cat;
 	std::string weightedphrase;
-	
+
 	// checkme: translate this?
 	String currcat("Embedded URLs");
 
@@ -495,7 +495,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 	// "Embedded URLs" category.
 	// Put a warning next to the option in the config file that this will take lots of CPU.
 	// Support phrase mode 1/2 distinction (duplicate sites/URLs).
-	// Have weight configurable per filter group, not globally or with a list directive - 
+	// Have weight configurable per filter group, not globally or with a list directive -
 	//   a weight of 0 will disable the option, effectively making this functionality per-FG itself.
 
 	// todo: if checkphrase is passed the domain & existing URL, it can create full URLs from relative ones.
@@ -575,7 +575,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #endif
 			for (int i = 0; i < relurl_re.numberOfMatches(); i+=2) {
 				u = relurl_re.result(i);
-				
+
 				// can't find a way to negate submatches in PCRE, so it is entirely possible
 				// that some absolute URLs have made their way into this list. we don't want them.
 				if (u.contains("://"))
@@ -588,7 +588,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 				u = u.after("=");
 				u.removeWhiteSpace();
 				u = u.subString(1,u.length()-2);
-				
+
 				// create absolute URL
 				if (u[0] == '/')
 					u = (*domain) + u;
@@ -979,7 +979,7 @@ void NaughtyFilter::checkPICS(const char *file, unsigned int filtergroup)
 	}
 }
 
-// the meat of the process 
+// the meat of the process
 void NaughtyFilter::checkPICSrating(std::string label, unsigned int filtergroup)
 {
 	(*o.fg[filtergroup]).pics2.match(label.c_str());

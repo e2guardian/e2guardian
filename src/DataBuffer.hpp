@@ -24,7 +24,7 @@ public:
 	String tempfilepath;
 	bool dontsendbody;  // used for fancy download manager for example
 	int tempfilefd;
-	
+
 	// the download manager we used during the last "in"
 	DMPlugin *dm_plugin;
 
@@ -35,7 +35,7 @@ public:
 	int length() { return buffer_length; };
 
 	void copyToMemory(char *location) { memcpy(location, data, buffer_length); };
-	
+
 	// read body in from proxy
 	// gives true if it pauses due to too much data
 	bool in(Socket * sock, Socket * peersock, class HTTPHeader * requestheader, class HTTPHeader * docheader, bool runav, int *headersent);
@@ -44,7 +44,7 @@ public:
 
 	void setTimeout(int t) { timeout = t; };
 	void setDecompress(String d) { decompress = d; };
-	
+
 	// swap back to compressed version of body data (if data was decompressed but not modified; saves bandwidth)
 	void swapbacktocompressed();
 

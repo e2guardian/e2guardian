@@ -88,7 +88,7 @@ private:
 		std::string *clientuser, int filtergroup, bool &isbanneduser, bool &isbannedip, std::string &room);
 
 	bool embededRefererChecks(HTTPHeader *header, String *urld, String *url,		int filtergroup);
- 
+
 	// strip the URL down to just the IP/hostname, then do an isIPHostname on the result
 	bool isIPHostnameStrip(String url);
 
@@ -110,11 +110,11 @@ private:
 
 	// send a file to the client - used during bypass of blocked downloads
 	off_t sendFile(Socket *peerconn, String & filename, String & filemime, String & filedis, String &url);
-	
+
 #ifdef __SSLMITM
 	//ssl certificat checking
 	void checkCertificate(String &hostname, Socket * sslSock, NaughtyFilter * checkme);
-	
+
 	int sendProxyConnect(String &hostname, Socket * sock, NaughtyFilter * checkme);
 #endif //__SSLMITM
 

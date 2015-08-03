@@ -63,7 +63,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 #endif
 		if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120, false))
 			throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-		
+
 		throughput += sockfrom.bufflen - sockfrom.buffstart;
 		sockfrom.bufflen = 0;
 		sockfrom.buffstart = 0;
@@ -108,7 +108,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
 #ifdef __SSLMITM
 		//<TODO> This if is a nasty hack for ssl man in the middle
-		//FD_SET sets the fd to a readable state then data is read 
+		//FD_SET sets the fd to a readable state then data is read
 		//from the server until the server runs out of data then it
 		//gets gets dumped out to the client.
 		//This will break if the server is ever expecting data from

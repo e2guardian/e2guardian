@@ -531,7 +531,7 @@ String String::sort_search()
 	int c = 0;
 	// count '+' signs - gives number of words - 1
         while ( i < this->length()) {
-	    if (temp[i++] == '+')  
+	    if (temp[i++] == '+')
 		c++;
 	};
 	if ( c == 0 ) {  // only one word - nothing to do
@@ -544,7 +544,7 @@ String String::sort_search()
 	int j = 0;
 	char *ind = temp;
         while ( i <= c) {
-      	   p[i] = ind + j; 
+      	   p[i] = ind + j;
 	   while ((++j < this->length()) & !(ind[j] == '+' )) {
 		};
 	   ind[j++] = 0;
@@ -555,8 +555,8 @@ String String::sort_search()
         while (k <= c)
 	std::cout << "Search word " << k << " is " << p[k++] <<  std::endl;
 #endif
-	
-	// sort       
+
+	// sort
 	char *t;
 	bool swap = true;
 	while (swap) {
@@ -564,7 +564,7 @@ String String::sort_search()
 	   j = 0;
 	   while (j < c ) {
 		if ( strcmp(p[j],p[j+1]) > 0 ) {
-		   swap = true; 
+		   swap = true;
 		   t = p[j];
 		   p[j] = p[j+1];
 		   p[j+1] = t;
@@ -585,5 +585,5 @@ String String::sort_search()
 	}
 	return ret;
 };
-	    
-	           	
+
+

@@ -173,7 +173,7 @@ bool OptionContainer::read(const char *filename, int type)
 					dstat_interval = 300; // 5 mins
 				}
 			}
-				
+
 
 			if (type == 0) {
 				return true;
@@ -222,12 +222,12 @@ bool OptionContainer::read(const char *filename, int type)
 		if (ca_certificate_path == ""){
 			//ca_certificate_path = __CONFDIR "/ca.pem";
 		}
-		
+
 		ca_private_key_path = findoptionS("caprivatekeypath");
 		if (ca_private_key_path == ""){
 			//ca_private_key_path = __CONFDIR "/ca.key";
 		}
-		
+
 		cert_private_key_path  = findoptionS("certprivatekeypath");
 		if (cert_private_key_path == ""){
 			//cert_private_key_path = __CONFDIR "/certs.key";
@@ -251,7 +251,7 @@ bool OptionContainer::read(const char *filename, int type)
 		set_cipher_list = findoptionS("setcipherlist");
 		if (set_cipher_list == "")
 			set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
-		
+
 		if (ca_certificate_path != ""){
 			ca = new CertificateAuthority(ca_certificate_path.c_str(),
 				ca_private_key_path.c_str(),
@@ -267,7 +267,7 @@ bool OptionContainer::read(const char *filename, int type)
 		// Email notification patch by J. Gauthier
 		mailer = findoptionS("mailer");
 #endif
-	   
+
 		// the e2guardian.conf and pics files get amalgamated into one
 		// deque.  They are only seperate files for clarity.
 
@@ -299,7 +299,7 @@ bool OptionContainer::read(const char *filename, int type)
 		exchange_timeout  = findoptionI("proxyexchange");
                 if (!realitycheck(exchange_timeout, 5, 300, "proxyexchange")) {
                        return false;
-                } 	
+                }
 
 		max_children = findoptionI("maxchildren");
 		if (!realitycheck(max_children, 4, 0, "maxchildren")) {
@@ -339,16 +339,16 @@ bool OptionContainer::read(const char *filename, int type)
 		monitor_helper = findoptionS("monitorhelper");
 		if (monitor_helper == ""){
 			monitor_helper_flag = false;
-		} else {	
+		} else {
 			monitor_helper_flag = true;
-		} 
+		}
 
 		monitor_flag_prefix = findoptionS("monitorflagprefix");
 		if (monitor_flag_prefix== ""){
 			monitor_flag_flag = false;
-		} else {	
+		} else {
 			monitor_flag_flag = true;
-		} 
+		}
 
 		if( monitor_helper_flag || monitor_flag_flag) {
 			monitor_start = findoptionI("monitorstart");
@@ -369,7 +369,7 @@ bool OptionContainer::read(const char *filename, int type)
 		}		// check its a reasonable value
 
 		if (max_content_filter_size == 0) {
-			max_content_filter_size = 1; // Minimal value 0 = 1 
+			max_content_filter_size = 1; // Minimal value 0 = 1
 		}
 
 		max_content_filter_size *= 1024;
@@ -385,7 +385,7 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}
 		max_content_filecache_scan_size *= 1024;
-	
+
 		if (max_content_ramcache_scan_size == 0) {
 			max_content_ramcache_scan_size = max_content_filecache_scan_size;
 		}
@@ -485,19 +485,19 @@ bool OptionContainer::read(const char *filename, int type)
 		} else {
 			force_quick_search = false;
 		}
-		
+
 		if (findoptionS("mapportstoips") == "off") {
 			map_ports_to_ips = false;
 		} else {
 			map_ports_to_ips  = true;
 		}
-		
+
 		if (findoptionS("mapauthtoports") == "off") {
 			map_auth_to_ports = false;
 		} else {
 			map_auth_to_ports  = true;
 		}
-		
+
 		if (findoptionS("usecustombannedimage") == "off") {
 			use_custom_banned_image = false;
 		} else {
@@ -513,7 +513,7 @@ bool OptionContainer::read(const char *filename, int type)
 			custom_banned_flash_file = findoptionS("custombannedflashfile");
 			banned_flash.read(custom_banned_flash_file.c_str());
 		}
-		
+
 		proxy_port = findoptionI("proxyport");
 		if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
 			return false;
@@ -700,7 +700,7 @@ bool OptionContainer::read(const char *filename, int type)
 				return false;
 			}
 		}
-		
+
 		if (!loadAuthPlugins()) {
 			if (!is_daemonised) {
 				std::cerr << "Error loading auth plugins" << std::endl;
@@ -709,9 +709,9 @@ bool OptionContainer::read(const char *filename, int type)
 			return false;
 		}
 
-		// check if same number of auth-plugin as ports if in 
+		// check if same number of auth-plugin as ports if in
 		//     authmaptoport mode
-		if (map_auth_to_ports && (filter_ports.size() > 1) 
+		if (map_auth_to_ports && (filter_ports.size() > 1)
 			&& (filter_ports.size() != authplugins.size())) {
 		   std::cerr << "In mapauthtoports mode you need to setup one port per auth plugin" << std::endl;
 		   return false;
@@ -723,7 +723,7 @@ bool OptionContainer::read(const char *filename, int type)
 			String tmpStr = tmpPlugin->getPluginName();
 
 			if ((! map_auth_to_ports) || filter_ports.size() == 1 )
-				auth_map[i] = tmpStr;	
+				auth_map[i] = tmpStr;
 			else
 				auth_map[filter_ports[i].toInteger()] = tmpStr;
 
@@ -841,7 +841,7 @@ bool OptionContainer::read(const char *filename, int type)
 			if ( fg[i].ssl_mitm ) ssl_mitm = true;
 			if ( fg[i].mitm_check_cert ) mitm_check_cert = true;
 		}
-		
+
 		if (ssl_mitm) {
 			if (ca_certificate_path != ""){
 				ca = new CertificateAuthority(ca_certificate_path.c_str(),
@@ -852,7 +852,7 @@ bool OptionContainer::read(const char *filename, int type)
 			} else {
 				if (!is_daemonised) {
 					std::cerr << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM." << std::endl;
-				}	
+				}
 				syslog(LOG_ERR, "%s", "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
 				return false;
 			}
@@ -906,7 +906,7 @@ bool OptionContainer::readinStdin()
 	return true;
 }
 
-char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl) 
+char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
 {
 
 	url.removeWhiteSpace();  // just in case of weird browser crap
@@ -1027,7 +1027,7 @@ bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
 
 // TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
 
-bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url) 
+bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::string *&host, bool* block, bool* part_block, bool* isexception, String url)
 {
 	String temp;
 	char* ret;
@@ -1037,7 +1037,7 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 		{
 #ifdef DGDEBUG
                      std::cerr << " IP is in room: " << i->name << std::endl;
-#endif	
+#endif
 			temp = url;
 			ListContainer *lc;
 			if ( i->sitelist ) {
@@ -1045,7 +1045,7 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 			    if (inSiteList(temp,lc, false, false)) {
 #ifdef DGDEBUG
                      std::cerr << " room site exception found: "  << std::endl;
-#endif	
+#endif
 				*isexception = true;
 				room = i->name;
 				return true;
@@ -1055,7 +1055,7 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 			if ( i->urllist && inURLList(temp,i->urllist, false, false)) {
 #ifdef DGDEBUG
                      std::cerr << " room url exception found: " << std::endl;
-#endif	
+#endif
 				*isexception = true;
 				room = i->name;
 				return true;
@@ -1066,13 +1066,13 @@ bool OptionContainer::inRoom(const std::string& ip, std::string& room, std::stri
 				room = i->name;
 #ifdef DGDEBUG
                      std::cerr << " room blanket block active: " << std::endl;
-#endif	
+#endif
 				return true;
 			}
 			else {
 #ifdef DGDEBUG
                      std::cerr << " room - no url/site exception or block found: " << std::endl;
-#endif	
+#endif
 				return false;
 			}
 		}
@@ -1107,16 +1107,16 @@ void OptionContainer::loadRooms(bool throw_error)
 		filename.append(f->d_name);
 #ifdef DGDEBUG
                                         std::cerr << " Room file found : " << filename.c_str() << std::endl;
-#endif	
+#endif
 		std::ifstream infile(filename.c_str(), std::ios::in);
                 if (!infile.good())  {
                         syslog(LOG_ERR, " Could not open file room definitions ");
                         std::cerr << " Could not open file room definitions: "<< filename.c_str() << std::endl;
                         exit(1);
-                } 
+                }
 #ifdef DGDEBUG
                                         std::cerr << " Opened room file : " << filename.c_str() << std::endl;
-#endif	
+#endif
 
 		std::string roomname;
 #ifdef DGDEBUG
@@ -1161,7 +1161,7 @@ void OptionContainer::loadRooms(bool throw_error)
 			this_room.block = true;
 			this_room.sitelist = NULL;
 			this_room.urllist = NULL;
-		} 
+		}
 		else {
 			std::string linestr;
 			String temp;
@@ -1404,7 +1404,7 @@ bool OptionContainer::readAnotherFilterGroupConf(const char *filename, const cha
 	(*fg[numfg]).force_quick_search = force_quick_search;
 	(*fg[numfg]).createlistcachefiles = createlistcachefiles;
 	(*fg[numfg]).reverse_lookups = reverse_lookups;
-	
+
 	// pass in the group name
 	(*fg[numfg]).name = groupname;
 

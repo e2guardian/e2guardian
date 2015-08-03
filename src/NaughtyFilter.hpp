@@ -54,7 +54,7 @@ public:
 	void reset();
 	void checkme(const char *rawbody, off_t rawbodylen, const String *url, const String *domain,
 		unsigned int filtergroup, unsigned int phraselist, int limit, bool searchterms = false);
-	
+
 	// highest positive (or lowest negative) weighting out of
 	// both phrase filtering passes (smart/raw)
 	int naughtiness;
@@ -67,7 +67,7 @@ private:
 	// after HTML has been removed, and in search terms.)
 	void checkphrase(char *file, off_t filelen, const String *url, const String *domain,
 		unsigned int filtergroup, unsigned int phraselist, int limit, bool searchterms);
-	
+
 	// check PICS ratings
 	void checkPICS(const char *file, unsigned int filtergroup);
 	void checkPICSrating(std::string label, unsigned int filtergroup);

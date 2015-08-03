@@ -51,7 +51,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 		delete host; host = NULL;
 		return true;
 	}
-	
+
 	// ranges
 	for(std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i)
 	{
@@ -61,7 +61,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 			return true;
 		}
 	}
-	
+
 	// subnets
 	for(std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i)
 	{
@@ -71,7 +71,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 			return true;
 		}
 	}
-	
+
 	// hostnames
 	// TODO - take in a suggested hostname, look up only if not supplied, and return suggestion if found
 	if (o.reverse_client_ip_lookups)
@@ -84,7 +84,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 			hostnames.reset(new std::deque<String>);
 			hostnames->push_back(*host);
 		}
-		for (std::deque<String>::iterator i = hostnames->begin(); i != hostnames->end(); ++i) 
+		for (std::deque<String>::iterator i = hostnames->begin(); i != hostnames->end(); ++i)
 		{
 			if (std::binary_search(hostlist.begin(), hostlist.end(), *i))
 			{
@@ -97,7 +97,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 		if (o.log_client_hostnames && (host == NULL) && (hostnames->size() > 0))
 			host = new std::string(hostnames->front().toCharArray());
 	}
-	
+
 	return false;
 }
 
@@ -252,7 +252,7 @@ bool IPList::readIPMelangeList(const char *filename)
 	if (ifsreadIPMelangeList( &input, false, NULL)) {
 		input.close();
 		return true;
-	} 
+	}
 	input.close();
 	return false;
 }

@@ -43,7 +43,7 @@ class AuthPlugin:public Plugin
 {
 public:
 	AuthPlugin(ConfigVar &definition);
-	
+
 	virtual int init(void* args);
 	virtual int quit();
 
@@ -53,7 +53,7 @@ public:
 	// REDIRECT - redirect user to URL in string
 	// NOMATCH - did not find the necessary info in the request (query remaining plugins)
 	// any < 0 - error
-	virtual int identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std::string &string) = 0;	
+	virtual int identify(Socket& peercon, Socket& proxycon, HTTPHeader &h, std::string &string) = 0;
 
 	// determine what filter group the given username is in
 	// queries the standard filtergroupslist
@@ -68,7 +68,7 @@ public:
 	bool is_connection_based;
 
 	// does this auth type rely on queries from the parent proxy (e.g. NTLM, basic auth)?
-	bool needs_proxy_query; 
+	bool needs_proxy_query;
 	String getPluginName();
 	virtual bool isTransparent() { return false; };
 	virtual bool isSSL() { return false; };

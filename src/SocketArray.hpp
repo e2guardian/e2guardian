@@ -27,7 +27,7 @@ public:
 
 	// close all old socks & create specified amount of new ones
 	void reset(int sockcount);
-	
+
 	// just delete the lot of 'em
 	void deleteAll();
 

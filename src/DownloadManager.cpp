@@ -78,7 +78,7 @@ int DMPlugin::init(void* args)
 	else
 		std::cout<<"Fallback DM plugin; no matching options loaded"<<std::endl;
 #endif
-	return 0;	
+	return 0;
 }
 
 // default method for sending the client a download link
@@ -96,7 +96,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 	// match user agent first (quick)
 	if (!(alwaysmatchua || ua_match.match(requestheader->userAgent().toCharArray())))
 		return false;
-	
+
 	// then check standard lists (mimetypes & extensions)
 
 	// mimetypes
@@ -113,7 +113,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 		} else
 			matchedmime = true;
 	}
-	
+
 	if (extensionlistenabled && !matchedmime) {
 		// determine the extension
 		String path(requestheader->decode(requestheader->getUrl()));
@@ -177,7 +177,7 @@ bool DMPlugin::readStandardLists()
 	} else {
 		mimelistenabled = false;
 	}
-	
+
 	filename = cv["managedextensionlist"];
 	if (filename.length() > 0) {
 		if (!extensionlist.readItemList(filename.toCharArray(), false, 0)) {
@@ -192,7 +192,7 @@ bool DMPlugin::readStandardLists()
 	} else {
 		extensionlistenabled = false;
 	}
-	
+
 	return true;
 }
 
@@ -225,7 +225,7 @@ DMPlugin* dm_plugin_load(const char *pluginConfigPath)
 #endif
 		return defaultdmcreate(cv);
 	}
-	
+
 #ifdef ENABLE_FANCYDM
 	if (plugname == "fancy") {
 #ifdef DGDEBUG

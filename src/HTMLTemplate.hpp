@@ -33,7 +33,7 @@ public:
 	// load in a template from the given file, looking for placeholder strings (reason, URL, category etc.)
 	// optionally, provide your own set of placeholders
 	bool readTemplateFile(const char *filename, const char *placeholders = NULL);
-	
+
 	// fill in the template with the given info and send it to the client over the given socket
 	// only useful if you used the default set of placeholders
 	void display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,

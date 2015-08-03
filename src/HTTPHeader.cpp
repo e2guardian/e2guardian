@@ -55,7 +55,7 @@ void HTTPHeader::reset()
 		issearch = false;
 		searchchecked = false;
 		clcached = false;
-		
+
 		mitm = false;
 
 		phost = NULL;
@@ -71,7 +71,7 @@ void HTTPHeader::reset()
 		pcontentencoding = NULL;
 		pproxyconnection = NULL;
 		pkeepalive = NULL;
-		
+
 		dirty = false;
 
 		delete postdata;
@@ -187,7 +187,7 @@ String HTTPHeader::getContentType()
 
 		if (mimetype.contains(";"))
 			mimetype = mimetype.before(";");
-		
+
 		mimetype.toLower();
 		return mimetype;
 	}
@@ -565,7 +565,7 @@ bool HTTPHeader::regExp(String& line, std::deque<RegExp>& regexp_list, std::dequ
 			for (j = 0; j < matches; j++) {
 				nextoffset = re->offset(j);
 				matchlen = re->length(j);
-				
+
 				// copy next chunk of unmodified data
 				if (nextoffset > srcoff) {
 					newLine += line.subString(srcoff, nextoffset - srcoff);
@@ -593,7 +593,7 @@ bool HTTPHeader::regExp(String& line, std::deque<RegExp>& regexp_list, std::dequ
 						replacement += repstr.subString(k, 1);
 					}
 				}
-				
+
 				// copy filled in replacement string
 				newLine += replacement;
 				srcoff += matchlen;
@@ -611,7 +611,7 @@ bool HTTPHeader::regExp(String& line, std::deque<RegExp>& regexp_list, std::dequ
 			linemodified = true;
 		}
 	}
-	
+
 	return linemodified;
 }
 
@@ -687,7 +687,7 @@ bool HTTPHeader::isHeaderAdded(int filtergroup) {
 	return false;
 }
 
-// check if search 
+// check if search
 bool HTTPHeader::isSearch(int filtergroup) {
 	if ( searchchecked )
 		return issearch;
@@ -723,14 +723,14 @@ bool HTTPHeader::isSearch(int filtergroup) {
 
 // return searchwords - in sorted order
 String HTTPHeader::searchwords() {
-	if ( issearch ) 
+	if ( issearch )
 		return searchwds;
 	return "";
 };
 
 // return searchterms - not sorted
 String HTTPHeader::searchterms() {
-	if ( issearch ) 
+	if ( issearch )
 		return searchtms;
 	return "";
 };
@@ -950,7 +950,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
 		std::cout << (*i) << std::endl;
 #endif
 	}
-	
+
 	//if its http1.1
 	bool onepointone = false;
 	if (header.front().after("HTTP/").startsWith("1.1"))
@@ -985,7 +985,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
 	{
 		connectionclose = true;
 	}
-	
+
 	// Do not allow persistent connections on CONNECT requests - the browser thinks it has a tunnel
 	// directly to the external server, not a connection to the proxy, so it won't be re-used in the
 	// manner expected by DG and will result in waiting for time-outs.  Bug identified by Jason Deasi.
@@ -997,14 +997,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
 #endif
 		isconnect = true;
 	}
-	
+
 #ifdef DGDEBUG
 	std::cout << "CheckHeader flags before normalisation: AP=" << allowpersistent << " PPC=" << (pproxyconnection != NULL)
 		<< " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << std::endl;
 #endif
 
 	if (connectionclose || (outgoing ? isconnect : (pcontentlength == NULL)))
-	{	
+	{
 		// couldnt have done persistency even if we wanted to
 		allowpersistent = false;
 	}
@@ -1060,7 +1060,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
 			(*pproxyconnection) = "Connection: close\r";
 		}
 	}
-	
+
 	ispersistent = allowpersistent;
 
 	// Normalise request headers (fix host, port, first line of header, etc. to all be consistent)
@@ -1185,18 +1185,18 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 //	if (answer.endsWith("//")) {
 //		answer.chop();
 //	}
-	
+
 #ifdef DGDEBUG
 	std::cout << "from header url:" << answer << std::endl;
 #endif
-	
+
 	//make sure ssl stuff is logged as https
 #ifdef __SSLMITM
 //	if(isssl){
 //		answer = "https://" + answer.after("://");
 //	}
 #endif
-	
+
 #ifdef DGDEBUG
 	std::cout << "from header url:" << answer << std::endl;
 #endif
@@ -1956,7 +1956,7 @@ void HTTPHeader::in(Socket * sock, bool allowpersistent, bool honour_reloadconfi
 
 		line = buff;  // convert the line to a String
 
-		// ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug) 
+		// ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
 		discard = false;
 		if (not (firsttime && line.length() <= 3))
 			header.push_back(line);  // stick the line in the deque that holds the header
