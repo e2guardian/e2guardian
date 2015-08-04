@@ -7,21 +7,19 @@
 #ifndef __HPP_PLUGIN
 #define __HPP_PLUGIN
 
-
 // INCLUDES
-
 
 // DECLARATIONS
 
 class Plugin
 {
-public:
-	virtual ~Plugin(){};
-	
-	// plugin initialise/quit routines.
-	// return 0 for OK, < 0 for error, > 0 for warning
-	virtual int init(void* args) = 0;
-	virtual int quit() = 0;
+    public:
+    virtual ~Plugin(){};
+
+    // plugin initialise/quit routines.
+    // return 0 for OK, < 0 for error, > 0 for warning
+    virtual int init(void *args) = 0;
+    virtual int quit() = 0;
 };
 
 #endif
