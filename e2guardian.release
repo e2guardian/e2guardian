@@ -64,5 +64,7 @@ program can take appropriate action. - See configs/e2guardian.conf.in
 A dummy test url 'internal.test.e2guardian.org' can now be used to test that e2g is functioning - with return OK if cache (and e2g) is working,
 Will fail if cache is unreachable or e2g is not responding.
 
+A long-standing content marking bug is now fixed.  This will result in many web pages being given a higher 'naughtyness' mark.  As a result may wish to increase your users 'naughtyness' limits to avoid overblocking.   
+
 For changed/added features in e2guardian 3.0 not found in Dansguardian 2.12.0.3 see notes/e2guardian.release.v3.0
 
