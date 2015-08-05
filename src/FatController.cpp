@@ -789,13 +789,17 @@ void tell_monitor(bool active)
     };
 
     if (childid == 0) { // Am the child
-        seteuid(o.root_user);
-
-        int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
-        if (systemreturn == -1) {
-            syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
-            exit(0);
-        }
+	int rc = seteuid(o.root_user);
+	if (rc != -1) {	
+       		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
+		if (systemreturn == -1) {
+            		syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
+            		exit(0);
+		}
+        } else {
+            	syslog(LOG_ERR, "Unable to set uid root");
+            	exit(0);
+	}
     };
 
     if (childid > 0) { // Am the parent
