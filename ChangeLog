@@ -63,6 +63,8 @@ May/June 2014
 June/July 2014 - e2guardian 3.0.3
 - Fix issue with urls ending in '//'
 - Fix Compilation problem with --enable-dnsauth=yes
+
+June 2014 - e2guardian 3.0.3
 - Fix site truncation when total_block_list in use
 - Error message now given when maxchildren is reached
 - Fix gentle restart -  A '-g' gentle restart does not kill current connections but filter group config is re-read.
