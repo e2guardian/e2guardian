@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# updates language files from ukenglish master
+
+master=./messages_master
+targets=*/messages
+
+#read master into an array
+
+i=0
+
+for l in `cat ${master}|tr " " "^"`
+do
+  #echo ${l}
+
+  if [ "${l:0:1}" = '"' ] 
+  then
+    n=`echo ${l}|cut -f1 -d,|tr -d '"'`
+    d=`echo ${l}|cut -f2- -d,|tr "^" " "`
+    #echo ${n}  ${d}
+    ma[${n}]=${d}
+    mi[i]=${n}
+    let i=i+1
+    #echo $i
+  fi
+done
+
+nmi=${i}
+#echo ${i}
+
+for t in ${targets}
+do
+  (
+    cm=0
+    cmi=${mi[${cm}]}
+    for l in `cat ${t}|tr " " "^"`
+    do
+      	if [ "${l:0:1}" != '"' ]
+        then
+            echo ${l}|tr "^" " "
+	    continue
+	else
+    	    n=`echo ${l}|cut -f1 -d,|tr -d '"'`
+	    while [ ${n} -gt ${cmi} ] && [ ${cm} -lt ${nmi} ]
+	    do
+		echo "\"${cmi}\",${ma[${mi[${cm}]}]}    # needs translation"
+		let cm=cm+1
+    		cmi=${mi[${cm}]}
+	    done
+            echo ${l}|tr "^" " "
+		let cm=cm+1
+    		cmi=${mi[${cm}]}
+	fi
+     done
+     while [ ${cm} -lt ${nmi} ]
+     do
+	echo "\"${cmi}\",${ma[${mi[${cm}]}]}"
+	let cm=cm+1
+    	cmi=${mi[${cm}]}
+     done
+  ) > ${t}.new
+
+  if diff ${t} ${t}.new >/dev/null
+  then
+     rm ${t}.new
+  else
+     mv ${t} ${t}.sav
+     mv ${t}.new ${t}
+     git add ${t}
+  fi
+
+done
+	
+exit 0
+

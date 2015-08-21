@@ -7,27 +7,26 @@
 #ifndef __HPP_IMAGECONTAINER
 #define __HPP_IMAGECONTAINER
 
-
 // INCLUDES
 #include "Socket.hpp"
 #include "String.hpp"
 
 class ImageContainer
 {
-public:
-	ImageContainer();
-	~ImageContainer();
-	
-	// wipe loaded image
-	void reset();
-	// read image from file
-	bool read(const char *filename);
-	// send image to client
-	void display(Socket * s);
+    public:
+    ImageContainer();
+    ~ImageContainer();
 
-private:
-	long int imagelength;
-	String mimetype;
-	char *image;
+    // wipe loaded image
+    void reset();
+    // read image from file
+    bool read(const char *filename);
+    // send image to client
+    void display(Socket *s);
+
+    private:
+    long int imagelength;
+    String mimetype;
+    char *image;
 };
 #endif

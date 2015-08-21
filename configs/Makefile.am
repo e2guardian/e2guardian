@@ -1,5 +1,6 @@
-MAINTAINERCLEANFILES = Makefile.in \
-                       e2guardian.conf e2guardianf1.conf
+DISTCLEANFILES = Makefile.in \
+e2guardian.conf \
+e2guardianf1.conf
 
 SUBDIRS = lists downloadmanagers authplugins .
 

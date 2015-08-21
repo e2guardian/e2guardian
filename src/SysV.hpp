@@ -5,14 +5,12 @@
 #ifndef __HPP_SYSV
 #define __HPP_SYSV
 
-
 // INCLUDES
 
 #include "OptionContainer.hpp"
 
 #include <sys/types.h>
 #include <string>
-
 
 // DECLARATIONS
 

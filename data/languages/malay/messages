@@ -1,43 +1,124 @@
 # e2guardian 3 messages file in Malay language
 # Edited by Sazarul Izam <izam@oscc.org.my>
-
-"1","Akses Tidak Dibenarkan"			# Access Denied
-
+"1","Akses Tidak Dibenarkan"
+# Access Denied
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
 "100","IP anda tidak dibenarkan untuk melayari web: "
 "101","IP anda tidak dibenarkan untuk melayari web."
 "102","Nama pengguna anda tidak dibenarkan untuk melayari web: "
-
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
 "200","URL yang diminta adalah malformed."
-
-"300","Frasa larangan dikesan: "		# Banned Phrase found:
-"301","Frasa larangan dikesan."			# Banned phrase found.
-
-"400","Kombinasi frasa larangan dikesan: "	# Banned combination phrase found: 
-"401","Kombinasi frasa larangan dikesan."	# Banned combination phrase found.
-"402","Had beban frasa oleh "			# Weighted phrase limit of 
-"403","Melebihi had beban frasa."		# Weighted phrase limit exceeded.
-
-"500","Laman larangan: "			# Banned site: 
-"501","URL larangan: "				# Banned URL: 
+"300","Frasa larangan dikesan: "
+# Banned Phrase found:
+"301","Frasa larangan dikesan."
+# Banned phrase found.
+"400","Kombinasi frasa larangan dikesan: "
+# Banned combination phrase found: 
+"401","Kombinasi frasa larangan dikesan."
+# Banned combination phrase found.
+"402","Had beban frasa oleh "
+# Weighted phrase limit of 
+"403","Melebihi had beban frasa."
+# Weighted phrase limit exceeded.
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
+"500","Laman larangan: "
+# Banned site: 
+"501","URL larangan: "
+# Banned URL: 
 "502","Blok Blanket adalah aktif dan laman tersebut tidak tersenarai dalam white atau grey list." # Blanket Block is active and that site is not on the white or grey list.
-"503","URL Ekspresi Biasa larangan: " 		# Banned Regular Expression URL: 
-"504","URL Ekspresi Biasa larangan dikesan."	# Banned Regular Expression URL found.
-"505","Blok Blanket IP adalah aktif dan alamat tersebut hanyalah alamat IP."	#Blanket IP Block is active and that address is an IP only address.
-
-"600","IP pengecualian klien sepadan."		# Exception client IP match.
-"601","Pengguna pengecualian klien sepadan."	# Exception client user match.
-"602","Laman pengecualian sepadan."		# Exception site match.
-"603","URL pengecualian sepadan."		# Exception URL match.
-"604","Frasa pengecualian sepadan: "		# Exception phrase found: 
-"605","Kombinasi frasa pengecualian sepadan: "	# Combination exception phrase found: 
-"606","URL pintasan sepadan."			# Bypass URL exception.
-"607","Cookie pintasan sepadan."		# Bypass cookie exception.
-
-"700","Muatnaik laman dilarang."		# Web upload is banned.
-"701","Muatnaik laman melebihi had."		# Web upload limit exceeded.
-
-"800","Jenis MIME larangan: "			# Banned MIME Type: 
-
-"900","Extension larangan: "			# Banned extension: 
-
-"1000","Penglabelan PICS melebihi peringkat pada laman di atas."		# PICS labeling level exceeded on the above site.
+"503","URL Ekspresi Biasa larangan: " 
+# Banned Regular Expression URL: 
+"504","URL Ekspresi Biasa larangan dikesan."
+# Banned Regular Expression URL found.
+"505","Blok Blanket IP adalah aktif dan alamat tersebut hanyalah alamat IP."
+#Blanket IP Block is active and that address is an IP only address.
+"506","HTTPS access is only allowed to trusted sites."    # needs translation
+"507","HTTPS access by IP address is not allowed."    # needs translation
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
+"600","IP pengecualian klien sepadan."
+# Exception client IP match.
+"601","Pengguna pengecualian klien sepadan."
+# Exception client user match.
+"602","Laman pengecualian sepadan."
+# Exception site match.
+"603","URL pengecualian sepadan."
+# Exception URL match.
+"604","Frasa pengecualian sepadan: "
+# Exception phrase found: 
+"605","Kombinasi frasa pengecualian sepadan: "
+# Combination exception phrase found: 
+"606","URL pintasan sepadan."
+# Bypass URL exception.
+"607","Cookie pintasan sepadan."
+# Bypass cookie exception.
+"608","Scan bypass URL."    # needs translation
+"609","URL pattern match: "    # needs translation
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
+"700","Muatnaik laman dilarang."
+# Web upload is banned.
+"701","Muatnaik laman melebihi had."
+# Web upload limit exceeded.
+"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
+"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"800","Jenis MIME larangan: "
+# Banned MIME Type: 
+"900","Extension larangan: "
+# Banned extension: 
+"1000","Penglabelan PICS melebihi peringkat pada laman di atas."
+# PICS labeling level exceeded on the above site.
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+"1200","Please wait - downloading file for scanning..."
+"1201","Warning: file too large to scan. If you suspect that this file is larger than "
+"1202",", then refresh this page to download directly."
+"1203","WARNING: Could not perform content scan!"
+"1210","Download Complete. Starting scan..."
+"1220","Scan complete.</p><p>Click here to download: "
+"1221","Download complete; file not scanned.</p><p>Click here to download: "
+"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "
+"1230","File no longer available"

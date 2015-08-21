@@ -1,21 +1,51 @@
 # e2guardian messages file in 日本語
-
 "1","アクセス拒否"
-
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
 "100","あなたのIPアドレスは閲覧の許可がありません: "
 "101","あなたのIPアドレスは閲覧の許可がありません。"
 "102","あなたのユーザ名は閲覧の許可がありません: "
-
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
 "200","要求されたURLは不適切です。"
-
 "300","禁止されたフレーズが見つかりました： "
 "301","禁止されたフレーズが見つかりました。"
-
 "400","拒否された結合フレーズが見つかりました： "
 "401","拒否された結合フレーズが見つかりました。"
 "402","重み付けされたフレーズの制限を越えました(規定値：測定値) "
 "403","重み付けされたフレーズの制限を越えました。"
-
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
 "500","拒否されたサイト: "
 "501","拒否されたURL: "
 "502","統括的な遮断は有効です。そしてそれらのサイトはホワイトリストかグレーリストにありません。"
@@ -24,7 +54,14 @@
 "505","統括的なIPの遮断は有効です。そしてそれらのアドレスはIPのみのアドレスです。"
 "506","統括的なSSLの遮断は有効です。そしてそれらのサイトはホワイトリストかグレーリストにありません。"
 "507","統括的なSSL IPの遮断は有効です。そしてそれらのアドレスはIPのみのアドレスです。"
-
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
 "600","例外クライアントIPマッチ。"
 "601","例外クライアントユーザマッチ。"
 "602","例外サイトマッチ。"
@@ -35,30 +72,27 @@
 "607","例外迂回Cookie。"
 "608","例外スキャン迂回URL"
 "609","例外正規表現URLマッチ: "
-
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
 "700","Webのアップロードは拒否されました。"
 "701","Webのアップロードは制限を越えました。"
-
 "750","統括的なファイルのダウンロードは有効です。そしてこのMIMEタイプはホワイトリストにありません: "
 "751","統括的なファイルのダウンロードは有効です。そしてこのファイルはホワイトリストにマッチしませんでした。"
-
 "800","拒否されたMIMEタイプ: "
-
 "900","拒否された拡張: "
-
 "1000","PICSラベリングレベルは上のサイトで超えました。"
-
 "1100","ウィルスか不正なコンテンツを検出しました。"
 "1101","広告は拒否されました"
-
 "1200","お待ちください。 - ダウンロードファイルのスキャン中です･･･"
 "1201","警告: ファイルはスキャンするのに大きすぎます。 このふぁいるが"
 "1202","より大きいと疑うならば直接ダウンロードするためにこのページをリフレッシュしてください。"
-
+"1203","WARNING: Could not perform content scan!"    # needs translation
 "1210","ダウンロード完了。スキャンを開始します..."
-
 "1220","スキャンが完了しました。</p><p>ダウンロードをするにはここをクリックしてください: "
 "1221","ダウンロードは完了しました。ファイルはスキャンされませんでした。</p><p>ダウンロードをするにはここをクリックしてください: "
 "1222","ファイルはキャッシュするのに大きすぎます。</p><p>スキャンを迂回させて、再ダウンロードするためにここをクリックしてください: "
-
 "1230","ファイルは長いこと利用可能ではありません"

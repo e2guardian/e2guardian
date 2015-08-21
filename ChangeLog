@@ -1,7 +1,66 @@
-September 2014 - e2guardian 3.0.4
-- Patch for extend e2guardian to avast2014 protocol
-- Fix issue #bug #29 and Bug #33 temporary bypass broken
-- Fix issue #28 segfault when using bannedregexwithblanketblock and groupmode =2
+About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
+
+August 2015
+
+Summary of changes in this release (v3.2.0) can be found in e2guardian.release
+
+July 2015
+
+- Fix bug #76 sslaccessdeniedaddress and reporting level < 3 
+- Remove old & unused values 
+- Remove max_upload option from e2guardian.conf 
+
+June 2015
+
+- Fix Bug #75 contentscanners commandlinescan broken and potential problem with the others 
+- Fix bug #30 compilation issue with --program-prefix
+- Security Fix: AV and empty access_denied_domain value break scan silently
+- Fix bug #72 (wrong config file)
+- Add new option: "xforwardedforfilterip" 
+- Fix weighted phrases bug #15 
+- New alivewithproxy option (if proxytimeout is expired, E2 is stopped)
+- Add brazilian translation 
+- Code cleaning
+- Add Czech translation
+- New ssllegacylogic option (SSL lists greysslsitelist and bannedsslsitelist in separate files) default off
+- Add SEARCHWORDS as default  
+- Add SSL_EXTRA_LIST as default  
+- Add LOCAL_LIST as default new option enablelocallists = on/off 
+- Add TOTAL_BLOCK_LIST as default
+- Fix e2 now can start with --enable-sslmitm=yes without ca certificat 
+
+January 2015
+- MITM cert checking re-enabled
+- MITM cert checking can be turned on/off with mitmcheckcert option
+- Optional nocheckcertsitelist introduced 
+
+December 2014
+- Version 3.1.2
+- Several bug fixes
+- MITM cert checking disabled to enable cross-platform working to address Google retirement of nosslsearch feature.
+
+December 2014
+- Version 3.1.1
+MITM now working -  See notes/ssl_mitm for details
+- Fix Segfault with filter_ports < auth plugins bug #44
+- Fix e2guardianf1.conf and groupmode = 0 breaks identification bug #38
+
+November 2014
+- Fix blanket block not working bug
+
+May/June 2014 
+- CIDR format support added in IP lists
+- Rooms facility updated - now includes room specific overide white lists
+- New perroomdirectory option in e2guardian.conf added
+- Backward compatible with perroombanneddirectory option.
+- Hard coded room user/log messages removed and replaced with new items in language messages file.
+- Reading of lists functions amended to accomodate reading of multiple types of lists from a single file.
+- Fixes from 3.0.4 merged
+- Fixes from 3.0.3 merged
+- Start of development version 3.1
+- Fix Compilation problem with --enable-dnsauth=yes
+
+June/July 2014 - e2guardian 3.0.3
 - Fix issue with urls ending in '//'
 - Fix Compilation problem with --enable-dnsauth=yes
 

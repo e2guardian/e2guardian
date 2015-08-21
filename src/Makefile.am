@@ -1,4 +1,5 @@
 clean_SUBDIRS= . downloadmanagers contentscanners authplugins
+DISTCLEANFILES = Makefile.in
 
 # A MASSIVE thank you to Lawrence Manning for pointing out the
 # -export-dynamic option was needed to solve a long problem
@@ -72,7 +73,7 @@ DNSAUTH_SOURCE =
 endif
 
 
-sbin_PROGRAMS = e2guardian 
+sbin_PROGRAMS = e2guardian
 
 e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
 e2guardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)

@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in
+DISTCLEANFILES = Makefile.in
 
 SUBDIRS= languages . scripts
 
@@ -8,7 +8,7 @@ FLISTS = transparent1x1.gif e2guardian.pl blockedflash.swf
 
 EXTRA_DIST = $(FLISTS)
 
-install-data-local: 
+install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(DATATOPDIR) && \
 	$(mkinstalldirs) $(DESTDIR)$(DGLOGLOCATION) && \
 	$(mkinstalldirs) $(DESTDIR)$(DGPIDDIR) && \

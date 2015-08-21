@@ -61,17 +61,20 @@ logfileformat = 1
 # Defines the log directory and filename.
 #loglocation = '@DGLOGLOCATION@/access.log'
 
-# POST protection (web upload and forms)
-# does not block forms without any file upload, i.e. this is just for
-# blocking or limiting uploads
-# measured in kibibytes after MIME encoding and header bumph
-# This option is overwriten by filtergroup maxuploadsize if specified
-# use 0 for a complete block
-# use higher (e.g. 512 = 512Kbytes) for limiting
-# use -1 for no blocking
-#maxuploadsize = 512
-#maxuploadsize = 0
- maxuploadsize = -1
+# Dymamic statistics log file location
+#
+# Defines the dstats file directory and filename.
+# Once every 'dstatinterval' seconds, stats on number of children, in use and free, number of 
+# connections and connections per second are written to this
+# file. Format is similar to sar.
+# Default is not to write stats.
+#dstatlocation = '@DGLOGLOCATION@/dstats.log'
+
+# Interval between stats output
+# Default 300 = 5 mins
+# Minimum 60 
+# Maximum 3600 = 1 hour
+#dstatinterval = 300  # = 5 minutes
 
 # Statistics log file location
 #
@@ -119,6 +122,12 @@ proxyport = 3128
 # Min 5 - Max 100
 proxytimeout = 20
 
+#Proxy failure log interval
+# The interval between log status entries when proxy is not responding
+# minimum is proxytimeout - maximum 3600 (= 1 hour)
+# default = 600  (= 10 mins)
+#proxyfailureloginterval = 600
+
 # Proxy header exchange
 # Set timeout between the Proxy and e2guardian 
 # Min 20 - Max 300
@@ -130,6 +139,12 @@ proxyexchange = 20
 # so wait slightly less than this to avoid duff pconns.
 # Min 5 - Max 300
 pcontimeout = 55
+
+# Life depends on Proxy 
+# if proxytimeout is expired, E2 is killed 
+# usefull for load balancer or proxy pac failover
+# off (default) | on
+# alivewithproxy = on
 
 # Whether to retrieve the original destination IP in transparent proxy
 # setups and check it against the domain pulled from the HTTP headers.
@@ -144,21 +159,6 @@ pcontimeout = 55
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
 @ORIGIPSUPPORT@originalip = on
-
-# accessdeniedaddress is the address of your web server to which the cgi
-# e2guardian reporting script was copied. Only used in reporting levels 1 and 2.
-#
-# This webserver must be either:
-#  1. Non-proxied. Either a machine on the local network, or listed as an exception
-#     in your browser's proxy configuration.
-#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
-#     only for users using both transparent proxying and a non-local server
-#     to host this script.
-#
-# Individual filter groups can override this setting in their own configuration.
-#
-accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
-
 
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
@@ -193,10 +193,11 @@ filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 bannediplist = '@DGCONFDIR@/lists/bannediplist'
 exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 
-# Per-Room blocking definition directory
+# Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
-# Think of it as bannediplist on crack
-perroomblockingdirectory = '@DGCONFDIR@/lists/bannedrooms/'
+# and optionaly site and url lists
+# Think of it as bannediplist and/or exceptions on crack
+# perroomdirectory = '@DGCONFDIR@/lists/rooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -544,6 +545,14 @@ forwardedfor = off
 # Warning - headers are easily spoofed. on | off
 usexforwardedfor = off
 
+# as mentioned above, the headers can be easily spoofed in order to fake the
+# request origin by setting the X-Forwarded-For header. If you have the
+# "usexforwardedfor" option enabled, you may want to specify the IPs from which
+# this kind of header is allowed, such as another upstream proxy server for
+# instance If you want authorize multiple IPs, specify each one on an individual
+# xforwardedforfilterip line.
+# xforwardedforfilterip = 
+
 
 # if on it logs some debug info regarding fork()ing and accept()ing which
 # can usually be ignored.  These are logged by syslog.  It is safe to leave
@@ -593,6 +602,12 @@ maxsparechildren = 32
 maxagechildren = 500
 
 
+# sets the number of child process to kill/fork at each 5 sec interval.
+# during at gentle restart
+# defaults to preforkchildren
+# gentlechunk=10
+
+
 # Sets the maximum number client IP addresses allowed to connect at once.
 # Use this to set a hard limit on the number of users allowed to concurrently
 # browse the web. Set to 0 for no limit, and to disable the IP cache process.
@@ -607,19 +622,19 @@ maxips = 0
 # IPC filename
 # 
 # Defines IPC server directory and filename used to communicate with the log process.
-ipcfilename = '/tmp/.dguardianipc'
+ipcfilename = '/tmp/.e2guardianipc'
 
 # URL list IPC filename
 # 
 # Defines URL list IPC server directory and filename used to communicate with the URL
 # cache process.
-urlipcfilename = '/tmp/.dguardianurlipc'
+urlipcfilename = '/tmp/.e2guardianurlipc'
 
 # IP list IPC filename
 #
 # Defines IP list IPC server directory and filename, for communicating with the client
 # IP cache process.
-ipipcfilename = '/tmp/.dguardianipipc'
+ipipcfilename = '/tmp/.e2guardianipipc'
 
 # PID filename
 # 
@@ -667,28 +682,63 @@ softrestart = off
 
 #SSL certificate checking path
 #Path to CA certificates used to validate the certificates of https sites.
-#sslcertificatepath = '/etc/ssl/certs/'
+# if left blank openssl default ca certificate bundle will be used
+#Leave as default unless you want to load non-default cert bundle
+#sslcertificatepath = ''
 
 #SSL man in the middle
 #CA certificate path
 #Path to the CA certificate to use as a signing certificate for 
 #generated certificates.
+# default is blank - required if ssl_mitm is enabled.
 #cacertificatepath = '/home/stephen/dginstall/ca.pem'
 
 #CA private key path
 #path to the private key that matches the public key in the CA certificate.
+# default is blank - required if ssl_mitm is enabled.
 #caprivatekeypath = '/home/stephen/dginstall/ca.key'
 
 #Cert private key path
 #The public / private key pair used by all generated certificates
+# default is blank - required if ssl_mitm is enabled.
 #certprivatekeypath = '/home/stephen/dginstall/cert.key'
 
 #Generated cert path
 #The location where generated certificates will be saved for future use.
 #(must be writable by the dg user)
+# default is blank - required if ssl_mitm is enabled.
 #generatedcertpath = '/home/stephen/dginstall/generatedcerts/'
 
-#Generated link path = ''
-#The location where symlinks to certificates will be created.
-#(must be writable by the dg user)
-#generatedlinkpath = '/home/stephen/dginstall/generatedlinks/'
+#Warning: if you change the cert start/end time from default on a running 
+#         system you will need to clear the generated certificate 
+#         store and also may get problems on running client browsers
+
+#Generated cert start time (in unix time) - optional
+# defaults to 1417872951 = 6th Dec 2014
+# generatedcertstart = 1417872951 
+
+#Generated cert end time (in unix time) - optional
+# defaults to generatedcertstart + 10 years
+#genratedcertend =
+# generatedcertstart =
+
+# monitor helper path 
+# If defined this script/binary will be called with start or stop appended as follows:-
+# 
+# At start after e2guardian has started monitorstart children with ' start' appended
+# When e2guardian is stopping with ' stop' appended
+# If cache stops responding with ' stop' appended
+# When cache resumes with ' start' appended
+# monitorhelper = '/usr/local/bin/mymonitor'
+
+# monitor flag prefix path 
+# If defined path will be used to generate flag files as follows:-
+# 
+# At start after e2guardian has started monitorstart children with 'running' appended
+# When e2guardian is stopping with 'paused' appended
+# If cache stops responding with 'paused' appended
+# When cache resumes with 'running' appended
+
+# monitorstart - defaults to minchildren
+# valid values between 1 and minchildren
+# monitorstart = 0

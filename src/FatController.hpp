@@ -5,14 +5,12 @@
 #ifndef __HPP_FATCONTROLLER
 #define __HPP_FATCONTROLLER
 
-
 // INCLUDES
 
 #include "OptionContainer.hpp"
 #include "UDSocket.hpp"
 
 #include <string>
-
 
 // DECLARATIONS
 

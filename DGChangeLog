@@ -7,7 +7,7 @@ This feature must be used with --with-filedescriptors=N compile option
 May 2013 - DansGuardian 2.12.0.6
 - Fixed Reportinglevel per filtegroup By frederic Bourgeois
 - Added sslaccessdeniedaddress (fix HTTPS denied blanck page with reporting level 3 - only with firefox -) By frederic Bourgeois
-- Added ssldeniedrewrite (fix HTTPS denied blanck page with reporting level 3, need an HTTPS website - By frederic Bourgeois 
+- Added ssldeniedrewrite (fix HTTPS denied blanck page with reporting level 3, need an HTTPS website - By frederic Bourgeois
 - Added zero value (optional) for some options, like maxcontentramcachescansize - By frederic Bourgeois
 - Some minor efficiency improvements (remove GCC warning, etc) - By Frederic Bourgeois
 
@@ -18,10 +18,10 @@ Need to recompile DansGuardian with the --with-filedescriptors=N compile option
 configure option --with-filedescriptors=N N=MaxChildren Max
 
 January 2013 - Dansguardian 2.12.0.4 - alpha
-- Set persistent cnx timeout in e2guardian.conf by Frederic Bourgeois 
+- Set persistent cnx timeout in e2guardian.conf by Frederic Bourgeois
 - Multiple auth fixed - checked only with one port - (crash fixed before patch #9) - by Frédéric Bourgeois
-- French translation update (accents problem) - by Frédéric Bourgeois 
-- Added allow regex header filtering with greylist - Frédéric Bourgeois 
+- French translation update (accents problem) - by Frédéric Bourgeois
+- Added allow regex header filtering with greylist - Frédéric Bourgeois
 - MITM issues null ceriticate end date value (fixed) - by Marcelloc
 - Concat values resulting in /// on cert path (fixed) - by Marcelloc
 - Mitm_magic check code does not work, even if you do not set any mitm key (disabled in code)(ConnectionHandler.cpp) - by Marcelloc
@@ -35,7 +35,7 @@ September 2012 - Dansguardian 2.12.0.3 - alpha
 - Fixed memory leaks reported by analysis from coverity
 - Improved persistent connection for a better RFC compliant implementation, but not yet fully HTTP 1.1
 - Minor improvement for debug output
-- Applied patch #11 (Maxuploadsize per filtergroup) by Frederic Bourgeois 
+- Applied patch #11 (Maxuploadsize per filtergroup) by Frederic Bourgeois
 
 September 2012 - Dansguardian 2.12.0.2 - alpha
 - Applied patch #9 (Crash when more than one authplugin are selected) by Frederic Bourgeois
@@ -79,9 +79,9 @@ August 2011 - DansGuardian 2.12.0.0 - alpha
 - Added experimental SSL certificate checking. (read source code for how to use it)
 - Added patch by Massimiliano Hofer to add Avast! support.
 - Tidied up licensing notices and removed some email addresses.
-- Support individual log items up to 32KB in length, which may require multiple calls to getLine to read in. 
-  
-  
+- Support individual log items up to 32KB in length, which may require multiple calls to getLine to read in.
+
+
 2010 - DansGuardian 2.11.*.*
 - Unreleased.
 
@@ -704,7 +704,7 @@ Fri 16th July 2004 (pm) - DansGuardian 2.7.7-11
 Fri 16th July 2004 (4am) - DansGuardian 2.7.7-10
 - Fixed a typo in the FreeBSD Makefile.
 - Added new googlesearches phrase file.
-- Fixed a terrible DoS bug in the file download buffering so that large binary files with no length header but are marked as text no longer eat up all the RAM.  
+- Fixed a terrible DoS bug in the file download buffering so that large binary files with no length header but are marked as text no longer eat up all the RAM.
 - gzip or zlib compressed pages are now no longer sent to the client uncompressed if they are
 not modified with content replacement.  This is extra good if the clients are remote to the
 filter as it will save bandwidth.  This was a pleasant side effect of fixing the DoS bug.
@@ -1214,7 +1214,7 @@ Sun 10th March 2002 - DansGuardian-2.2.7
 - Increased use of more appropriate C++ libraries rather than C libraries.
 - Fixed a problem with overblocking banned file extensions and certain URLs.  Most notably with hotmail attachments and also with pages that redirect.
 
-Sun 24th February 2002 - DansGuardian-2.2.6 
+Sun 24th February 2002 - DansGuardian-2.2.6
 - Improved handling under very heavy load.
 - Added the username to the information passed to the perl reporting script.
 

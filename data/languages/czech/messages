@@ -1,54 +1,100 @@
-# e2guardian messages file in Czech
+# DansGuardian messages file in Czech
 # by Richard Bukovansky bukovansky@atcomp.cz
-
-"1","Pstup zamtnut"
-
-"100","Vai IP adrese nen povoleno prohlet: "
-"101","Vae IP adresa nem povoleno prohlen."
-"102","Vae uivatelsk jmno nem povoleno prohlet: "
-
-"200","Poadovan URL je patn zadna."
-
-"300","Nalezena zakzan frze: "
-"301","Nalezena zakzan frze."
-
-"400","Nalezena zakzan kombinace frzi: "
-"401","Nalezena zakzan kombinace frzi."
-"402","Limit vench frz: "
-"403","Byl pekroen limit pro ven frze."
-
-"500","Zakzan webov sdlo: "
-"501","Zakzan URL adresa: "
-"502","Celoplon blokovn pstupu je aktivovno a toto webov sdlo nen povoleno."
-"503","Nalezena zakzan URL adresa dle regularnho vrazu: "
-"504","Nalezena zakzan URL adresa dle regularnho vrazu."
-"505","Celoplon blokovan IP adres je aktivovno a byla zadna IP adresa."
-
-"600","Nalezena vyjmkov IP adresa."
-"601","Nalezen vyjmkov uivatel."
-"602","Nalezeno vyjmkov webov sdlo."
-"603","Nalezena vyjmkov URL adresa."
-"604","Nalezena vyjmkov frze: "
-"605","Nalezena kombinace vyjmkovch frzi: "
-"606","Bypass URL exception."
-"607","Bypass cookie exception."
-"608","Scan bypass URL exception."
-"609","Exception regular expression URL match: "
-# 606,607 by Daniel Barron - corrections welcome
-
-"700","Web upload je zakzn."
-"701","Web upload limit byl pekroen."
-
-"800","Zakzan obsah souboru: "
-
-"900","Zakzan ppona souboru: "
-
-"1000","rove PICS oznaen byla pekroena na tomto webovm sdle."
-
-"1100","Virus or bad content detected."
-"1101","Advert blocked"
-
-"1200","Please wait - downloading to be scanned..."
-"1210","Download Complete.  Starting scan..."
-"1220","Scan complete.</p><p>Click here to download: "
-"1230","File no longer available"
+# updates,recode to utf8 by Jan Bubík bubik@acvyskov.cz
+"1","Přístup zamítnut"
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
+"100","Vaši IP adrese není povoleno prohlížet: "
+"101","Vaše IP adresa nemá povoleno prohlížení."
+"102","Vaše uživatelské jméno nemá povoleno prohlížet: "
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
+"200","Požadované URL je špatně zadáno."
+"300","Nalezena zakázaná fráze: "
+"301","Nalezena zakázaná fráze."
+"400","Nalezena zakázaná kombinace frází: "
+"401","Nalezena zakázaná kombinace frází."
+"402","Limit vážených frází: "
+"403","Byl překročen limit pro vážené fráze."
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
+"500","Zakázaný webový server: "
+"501","Zakázaná webová adresa: "
+"502","Celoplošné blokování přístupu je aktivováno a tento webový server není povolen."
+"503","Nalezena zakázaná webová adresa dle regularního výrazu: "
+"504","Nalezena zakázaná webová adresa dle regularního výrazu."
+"505","Celoplošné blokovaní IP adres je aktivováno a byla zadána IP adresa."
+"506","HTTPS access is only allowed to trusted sites."    # needs translation
+"507","HTTPS access by IP address is not allowed."    # needs translation
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
+"600","Nalezena IP adresa s vyjímkou."
+"601","Nalezen uživatel s vyjímkou."
+"602","Nalezen webový server s vyjímkou."
+"603","Nalezena webová adresa s vyjímkou."
+"604","Nalezena fráze s vyjímkou: "
+"605","Nalezena kombinace frází s vyjímkou: "
+"606","Nalezen uživatelem vyžádaný přístup k webové adrese."
+"607","Nalezen uživatelem vyžádaný přístup k položce cookie."
+"608","Nalezen uživatelem vyžádaný přístup ke škodlivému kódu."
+"609","Nalezen regulární výraz s vyjímkou webové adresy: "
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
+"700","Nahrávání souborů na web je zakázáno."
+"701","Limit nahrávání souborů na web byl překročen."
+"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
+"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"800","Zakázaný typ obsahu: "
+"900","Zakázaná přípona souboru: "
+"1000","Byle překročena úroveň hodnocení PICS na tomto webovém serveru."
+"1100","Detekován virus nebo škodlivý obsah."
+"1101","Blokována reklama"
+"1200","Prosím vyčkejte - stahuji data k prověření..."
+"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
+"1202",", then refresh this page to download directly."    # needs translation
+"1203","WARNING: Could not perform content scan!"    # needs translation
+"1210","Stahování dokončeno.  Prověřuji..."
+"1220","Prověřeno.</p><p>Pro stáhnutí klikněte zde: "
+"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
+"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
+"1230","Soubor již neexistuje"

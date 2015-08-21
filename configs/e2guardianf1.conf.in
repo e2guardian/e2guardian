@@ -24,6 +24,20 @@ groupmode = 1
 #groupname = ''
 groupname = ''
 
+# Enable legacy (DG) ssl logic
+# 
+# Note that the logic for handling SSL is changed. In DG when either blanket block (or SSL blanket block) 
+# was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist. 
+# In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches 
+# exceptionsitelist or greysslsitelist. This ensures that only trusted sites can be accessed via SSL. 
+# The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, 
+# e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
+#
+# Default off (logic as above) 
+# For legacy (DG style) logic then set ssllegacylogic to on
+# Note that MITM cannot work with this flag set
+# ssllegacylogic = off
+
 # Content filtering files location
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
@@ -48,6 +62,7 @@ embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
+# enablelocallists = on/off
 #localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
 #localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
 #localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'
@@ -159,7 +174,7 @@ naughtynesslimit = 50
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
 # threshold for blocking than that used for normal page content.
 # To do this, the searchregexplist must be enabled and searchtermlimit 
-# must be grater than 0.
+# must be greater than 0.
  
 #
 # Search engine regular expression list (need for both options)
@@ -217,7 +232,7 @@ categorydisplaythreshold = 0
 # affected by the weightedphrasemode setting.
 #
 # NB: Currently, this feature uses regular expressions that require the PCRE library.
-# As such, it is only available if you compiled DansGuardian with '--enable-pcre=yes'.
+# As such, it is only available if you compiled e2guardian with '--enable-pcre=yes'.
 # You can check compile-time options by running 'e2guardian -v'.
 #
 # Set to 0 to disable.
@@ -309,15 +324,16 @@ reportinglevel = 3
 #     only for users using both transparent proxying and a non-local server
 #     to host this script.
 #
-# If defined, this overrides the global setting in e2guardian.conf for
-# members of this filter group.
-#
 #accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
-# e2guardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
-# Work only in firefox with ssldeniedrewrite off
+# e2guardian reporting was copied.
 
+# With ssldeniedrewrite 'off' it works only with firefox 
+# With ssldeniedrewrite 'on' there are several limitations, SSL warning, basic page, etc, eg this webserver can't be listed as an
+# exception in your browser's proxy configuration.
+# Keep in mind, this is only a trick to avoid blank page, the best way still to use SSLMITM   
+# 
 # sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
 # Break SSL protocol and redirect to another HTTPS website for denied page (sslaccessdeniedaddress url)
@@ -420,7 +436,23 @@ reportinglevel = 3
 sslcertcheck = off
 
 #SSL man in the middle
-# Forge ssl certificates for all sites, decrypt the data then re encrypt it
+# Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
 # using a different private key. Used to filter ssl sites
 sslmitm = off
 
+#Limit SSL MITM to sites in greysslsitelist(s)
+# ignored if  sslmitm is off
+# SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
+onlymitmsslgrey = off
+
+# Enable MITM site certificate checking
+# ignored if  sslmitm is off
+# default (recommended) is 'on'
+mitmcheckcert = on
+
+#Do not check ssl certificates for sites listed
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'

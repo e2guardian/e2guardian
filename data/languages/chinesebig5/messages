@@ -3,9 +3,37 @@
 # 2004-08-20: Translated 606 and 607
 # 2008/10/16: Translated 608, 609, 1100, 1101, 1200, 1210, 1220, 1230
 "1","ڵŪ"
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
 "100","zϥΪ IP }\sںG"
 "101","zϥΪ IP }\sںC"
 "102","zϥΪbW٤\sںG"
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
 "200","zҽШD URL 榡~C"
 "300","QTyryG"
 "301","QTyryC"
@@ -13,12 +41,30 @@
 "401","QTզXyryC"
 "402","[vyry"
 "403","WL[vyryC"
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
 "500","QT}G"
 "501","QT URLG"
 "502","ͮġAӨ}buզWv̡C"
 "503","uWܡvoOQT URLG"
 "504","uWܡvQT URLC"
 "505","ϥ IP ͮġAӨӦa}uO@IPa}C"
+"506","HTTPS access is only allowed to trusted sites."    # needs translation
+"507","HTTPS access by IP address is not allowed."    # needs translation
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
 "600","Pҥ~Ȥ IP ۦPC"
 "601","Pҥ~ȤbۦPC"
 "602","Pҥ~}ۦPC"
@@ -29,15 +75,27 @@
 "607","VL cookie ҥ~C"
 "608","yɲL URL ҥ~C"
 "609","Wܨҥ~ URL kXG"
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
 "700","TWǡC"
 "701","WLWǷC"
+"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
+"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
 "800","QTMIMEwAG"
 "900","QTɦWG"
 "1000","W}WLFPICSХܼhC"
-
 "1100","frΤ}eC"
 "1101","si"
 "1200","еy - bUAԱy ..."
+"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
+"1202",", then refresh this page to download directly."    # needs translation
+"1203","WARNING: Could not perform content scan!"    # needs translation
 "1210","U������C}ly ..."
 "1220","yC</p><p>Io̤UG "
+"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
+"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
 "1230","ɮפwsb"
