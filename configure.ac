@@ -9,6 +9,7 @@ AC_INIT(e2guardian, 3.2.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CACHE_LOAD
 
