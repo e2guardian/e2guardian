@@ -18,7 +18,6 @@ June 2015
 - Fix bug #72 (wrong config file)
 - Add new option: "xforwardedforfilterip" 
 - Fix weighted phrases bug #15 
-- New alivewithproxy option (if proxytimeout is expired, E2 is stopped)
 - Add brazilian translation 
 - Code cleaning
 - Add Czech translation
