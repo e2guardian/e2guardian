@@ -143,6 +143,9 @@ bool OptionContainer::read(const char *filename, int type)
 
 			if (findoptionS("logsyslog") == "on") {
 				log_syslog = true;
+        if ((name_suffix = findoptionS("namesuffix")) == "") {
+          name_suffix = "";
+        }
 			} else 	if ((log_location = findoptionS("loglocation")) == "") {
 				log_location = __LOGLOCATION;
 				log_location += "/access.log";

@@ -56,6 +56,10 @@ logfileformat = 1
 # at the defined or built-in "loglocation"
 #logsyslog = off
 
+#Suffix to append to program name when logging through syslog
+# Default is the e2Guardian instance number
+#namesuffix = $z
+
 # Log file location
 # 
 # Defines the log directory and filename.
