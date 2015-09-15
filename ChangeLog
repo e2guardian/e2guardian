@@ -2,7 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 September
 
--  one log file by instance (syslog)
+- Added, "namesuffix" option - one log file by instance (syslog) -
 
 August 2015
 
