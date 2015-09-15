@@ -132,6 +132,7 @@ class OptionContainer
     bool no_daemon;
     bool no_logger;
     bool log_syslog;
+    std::string name_suffix;
     unsigned int max_logitem_length;
     bool anonymise_logs;
     bool log_ad_blocks;
