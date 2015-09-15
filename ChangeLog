@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+September
+
+-  one log file by instance (syslog)
+
 August 2015
 
 Summary of changes in this release (v3.2.0) can be found in e2guardian.release
