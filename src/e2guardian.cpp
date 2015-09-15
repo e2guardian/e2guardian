@@ -94,10 +94,11 @@ int main(int argc, char *argv[])
     bool needreset = false;
     bool total_block_list = false;
     std::string configfile(__CONFFILE);
+    std::string prog_name("e2guardian");
     srand(time(NULL));
     int rc;
 
-    openlog("e2guardian", LOG_PID | LOG_CONS, LOG_USER);
+    openlog(prog_name.c_str(), LOG_PID | LOG_CONS, LOG_USER);
 
 #ifdef DGDEBUG
     std::cout << "Running in debug mode..." << std::endl;
@@ -204,6 +205,12 @@ int main(int argc, char *argv[])
     }
 
     read_config(configfile.c_str(), 2);
+
+    if ( ! o.name_suffix.empty() ) {
+      prog_name += o.name_suffix;
+      closelog();
+      openlog(prog_name.c_str(), LOG_PID | LOG_CONS, LOG_USER);
+    }
 
     if (total_block_list && !o.readinStdin()) {
         syslog(LOG_ERR, "%s", "Error on reading total_block_list");
