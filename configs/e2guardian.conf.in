@@ -162,7 +162,7 @@ pcontimeout = 55
 #
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
-@ORIGIPSUPPORT@originalip = on
+@ORIGIPSUPPORT@originalip = off
 
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those

@@ -534,10 +534,10 @@ bool OptionContainer::read(const char *filename, int type)
         } // check its a reasonable value
 
 #ifdef ENABLE_ORIG_IP
-        if (findoptionS("originalip") == "off") {
-            get_orig_ip = false;
-        } else {
+        if (findoptionS("originalip") == "on") {
             get_orig_ip = true;
+        } else {
+            get_orig_ip = false;
         }
 
 #endif

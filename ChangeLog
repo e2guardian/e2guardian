@@ -1,7 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-September
+September 2015
 
+- originalip off by default (complain about 400 Bad request URL is malformed) 
 - Added, "namesuffix" option - one log file by instance (syslog) -
 
 August 2015
