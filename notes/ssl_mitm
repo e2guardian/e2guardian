@@ -22,7 +22,7 @@ Note that full HTTPS MITM requires a lot more CPU power.
 
 To set up MITM:
 
-   Configure and compile e2guardian with the --enable-sslmitm flag set
+   Configure and compile e2guardian with the --enable-sslmitm=yes flag set
 
    Generate your certicates and keys:-
 
