@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Novenber 2015
+
+- SSLMITM Upgrade sha1 to sha256
+
 September 2015
 
 - originalip off by default (complain about 400 Bad request URL is malformed) 
