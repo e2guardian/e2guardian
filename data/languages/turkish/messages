@@ -33,6 +33,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","Gitmek istediginiz URL hatalidir."
 "300","Yasaklanmis bir ifade iceren sayfaya girmeye calisiyorsunuz: "
 "301","Sistem yoneticisi tarafindan engellenmis bir ifade tespit edildi."

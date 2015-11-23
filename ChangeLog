@@ -1,7 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-Novenber 2015
+November 2015
 
+- Reports error on ssl_connect failure - extra message (160) added
 - SSLMITM Upgrade sha1 to sha256
 
 September 2015

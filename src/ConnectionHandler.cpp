@@ -1621,7 +1621,20 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -Going SSL on connection to proxy" << std::endl;
 #endif
                     std::string certpath = std::string(o.ssl_certificate_path);
-                    proxysock.startSslClient(certpath);
+                    if (proxysock.startSslClient(certpath)) {
+                        //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
+                        proxysock.stopSsl();
+
+                        checkme.isItNaughty = true;
+                        //checkme.whatIsNaughty = "Failed to negotiate ssl connection to server";
+                        checkme.message_no = 160;
+                        checkme.whatIsNaughty = o.language_list.getTranslation(160);
+                        checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                        checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+                    }
+		}
+
+                if (!checkme.isItNaughty) {
 
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Checking certificate" << std::endl;

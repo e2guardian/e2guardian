@@ -33,6 +33,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","Požadované URL je špatně zadáno."
 "300","Nalezena zakázaná fráze: "
 "301","Nalezena zakázaná fráze."

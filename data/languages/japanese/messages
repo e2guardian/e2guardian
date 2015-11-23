@@ -31,6 +31,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","要求されたURLは不適切です。"
 "300","禁止されたフレーズが見つかりました： "
 "301","禁止されたフレーズが見つかりました。"
