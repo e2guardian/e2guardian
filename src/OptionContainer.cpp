@@ -382,21 +382,6 @@ bool OptionContainer::read(const char *filename, int type)
             max_content_ramcache_scan_size = max_content_filecache_scan_size;
         }
 
-        weighted_phrase_mode = findoptionI("weightedphrasemode");
-        if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
-            return false;
-        }
-        /*
-		if ((weighted_phrase_mode != 0)) {
-			max_content_filter_size = max_content_ramcache_scan_size;
-			if (max_content_filter_size == 0) {
-				if (!is_daemonised)
-					std::cerr << "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)" << std::endl;
-				syslog(LOG_ERR, "%s", "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)");
-				return false;
-			}
-		}
-*/
         bool contentscanning = findoptionM("contentscanner").size() > 0;
         if (contentscanning) {
 

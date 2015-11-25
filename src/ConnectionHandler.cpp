@@ -2531,7 +2531,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
                 if (!checkme.isItNaughty && (cl != 0) && !ishead) {
-                    if (((docheader.isContentType("text") || docheader.isContentType("-")) && !isexception) || !responsescanners.empty()) {
+                    if (((docheader.isContentType("text",filtergroup) || docheader.isContentType("-",filtergroup)) && !isexception) || !responsescanners.empty()) {
                         // don't search the cache if scan_clean_cache disabled & runav true (won't have been cached)
                         // also don't search cache for auth required headers (same reason)
 
@@ -2588,7 +2588,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // an entry and does a soft restart, we don't want the site to end up in
                 // the clean cache because someone who's already been to it hits refresh.
                 if (!wasclean && !checkme.isItNaughty && !isbypass
-                    && (docheader.isContentType("text") || (wasscanned && o.scan_clean_cache))
+                    && (docheader.isContentType("text",filtergroup) || (wasscanned && o.scan_clean_cache))
                     && (header.requestType() == "GET") && (docheader.returnCode() == 200)
                     && urld.length() < 2000) {
                     addToClean(urld, filtergroup);
@@ -2651,7 +2651,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                            docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                            docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                             wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                             contentmodified, urlmodified, headermodified, headeradded);
                     }
@@ -2723,7 +2723,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                            docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                            docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                             wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                             contentmodified, urlmodified, headermodified, headeradded);
                     }
@@ -2740,7 +2740,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!logged) {
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                         rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                        docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                        docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                         wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                         contentmodified, urlmodified, headermodified, headeradded);
                 }
@@ -3641,7 +3641,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".gif") || lurl.endsWith(".jpg") || lurl.endsWith(".jpeg") || lurl.endsWith(".jpe")
-                        || lurl.endsWith(".png") || lurl.endsWith(".bmp") || (*docheader).isContentType("image/")) {
+                        || lurl.endsWith(".png") || lurl.endsWith(".bmp") || (*docheader).isContentType("image/",filtergroup)) {
                         replaceimage = true;
                     }
                 }
@@ -3649,7 +3649,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 if (o.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
-                    if (lurl.endsWith(".swf") || (*docheader).isContentType("application/x-shockwave-flash")) {
+                    if (lurl.endsWith(".swf") || (*docheader).isContentType("application/x-shockwave-flash",filtergroup)) {
                         replaceflash = true;
                     }
                 }
@@ -3996,7 +3996,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         rc = system("date");
 #endif
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
-            && !docheader->authRequired() && (docheader->isContentType("text") || docheader->isContentType("-"))) {
+            && !docheader->authRequired() && (docheader->isContentType("text",filtergroup) || docheader->isContentType("-",filtergroup))) {
             checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
                 filtergroup, o.fg[filtergroup]->banned_phrase_list, o.fg[filtergroup]->naughtyness_limit);
         }
@@ -4013,7 +4013,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 std::cout << dbgPeerPort << " -Is flagged as a bypass";
             else if (docheader->authRequired())
                 std::cout << dbgPeerPort << " -Is a set of auth required headers";
-            else if (!docheader->isContentType("text"))
+            else if (!docheader->isContentType("text",filtergroup))
                 std::cout << dbgPeerPort << " -Not text";
             std::cout << dbgPeerPort << std::endl;
         }
@@ -4027,7 +4027,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         return;
     }
 
-    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty && docheader->isContentType("text")) {
+    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty && docheader->isContentType("text",filtergroup)) {
         contentmodified = docbody->contentRegExp(filtergroup);
         // content modifying uses global variable
     }
@@ -4036,7 +4036,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         std::cout << dbgPeerPort << " -Skipping content modification: ";
         if (dblen > o.max_content_filter_size)
             std::cout << dbgPeerPort << " -Content too large";
-        else if (!docheader->isContentType("text"))
+        else if (!docheader->isContentType("text",filtergroup))
             std::cout << dbgPeerPort << " -Not text";
         else if (checkme->isItNaughty)
             std::cout << dbgPeerPort << " -Already flagged as naughty";
