@@ -209,20 +209,6 @@ exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 # high enough, reported. on | off
 showweightedfound = on
 
-# Weighted phrase mode
-# There are 3 possible modes of operation:
-# 0 = off = do not use the weighted phrase feature.
-# 1 = on, normal = normal weighted phrase operation.
-# 2 = on, singular = each weighted phrase found only counts once on a page.
-# 
-# IMPORTANT: Note that setting this to "0" turns off all features which
-# extract phrases from page content, including banned & exception
-# phrases (not just weighted), search term filtering, and scanning for
-# links to banned URLs.
-#
-weightedphrasemode = 2
-
-
 # Positive (clean) result caching for URLs
 # Caches good pages so they don't need to be scanned again.
 # It also works with AV plugins.
