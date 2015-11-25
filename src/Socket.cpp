@@ -220,7 +220,7 @@ Socket *Socket::accept()
 
 #ifdef __SSLMITM
 //use this socket as an ssl client
-int Socket::startSslClient(const std::string &certificate_path)
+int Socket::startSslClient(const std::string &certificate_path, String hostname)
 {
     if (isssl) {
         stopSsl();
@@ -271,6 +271,7 @@ int Socket::startSslClient(const std::string &certificate_path)
 
     //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK);
     SSL_set_fd(ssl, this->getFD());
+    SSL_set_tlsext_host_name(ssl, hostname.c_str());
 
     //make io non blocking as select wont tell us if we can do a read without blocking
     //BIO_set_nbio(SSL_get_rbio(ssl),1l);
