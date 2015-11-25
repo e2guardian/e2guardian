@@ -58,7 +58,7 @@ class HTTPHeader
     String getContentType();
     String getMIMEBoundary();
     // check received content type against given content type
-    bool isContentType(const String &t);
+    bool isContentType(const String &t,int filtergroup);
     // check HTTP message code to see if it's an auth required message
     bool authRequired();
     // Content-Disposition
