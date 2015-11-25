@@ -56,10 +56,6 @@ logfileformat = 1
 # at the defined or built-in "loglocation"
 #logsyslog = off
 
-#Suffix to append to program name when logging through syslog
-# Default is the e2Guardian instance number
-#namesuffix = $z
-
 # Log file location
 # 
 # Defines the log directory and filename.
@@ -162,7 +158,7 @@ pcontimeout = 55
 #
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
-@ORIGIPSUPPORT@originalip = off
+@ORIGIPSUPPORT@originalip = on
 
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
@@ -221,7 +217,6 @@ showweightedfound = on
 # links to banned URLs.
 #
 weightedphrasemode = 2
-
 
 
 # Positive (clean) result caching for URLs
@@ -366,6 +361,11 @@ prefercachedlists = off
 # The value must not be higher than maxcontentramcachescansize
 # The size is in Kibibytes - eg 2048 = 2Mb
 # use 0 to set it to maxcontentramcachescansize
+# IMPORTANT: Note that setting this to "0" turns off all features which
+# extract phrases from page content, including banned & exception
+# phrases (not just weighted), search term filtering, and scanning for
+# links to banned URLs.
+
 maxcontentfiltersize = 256
 
 
