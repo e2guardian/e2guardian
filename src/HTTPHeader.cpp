@@ -222,6 +222,10 @@ bool HTTPHeader::isContentType(const String &t, int filtergroup)
 #ifdef DGDEBUG
              std::cout << "mime type: " << mime << std::endl;
 #endif
+// If "text" no check needed //
+   if (getContentType().startsWith(t))
+	return mime.startsWith(t);
+
    if (t == "text") {
         std::deque<std::string> text_mime =  o.fg[filtergroup]->text_mime;
         int size = (int) text_mime.size();
@@ -233,6 +237,11 @@ bool HTTPHeader::isContentType(const String &t, int filtergroup)
 #endif
                 return mime.startsWith(text_mime[i]);
            }
+#ifdef DGDEBUG
+	   else {
+                std::cout << "mimes check : " << text_mime[i] << std::endl;
+	   }
+#endif
         }
    }
 #ifdef DGDEBUG

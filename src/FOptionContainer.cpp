@@ -368,13 +368,16 @@ bool FOptionContainer::read(const char *filename)
               text_mime.push_back(mimes.substr(0, comma));
               mimes = mimes.substr(comma + 1);
               comma = mimes.find(',');
-#ifdef DGDEBUG
-             std::cout << "mimes filtering: " << mimes << std::endl;
-#endif
              }
-              if (mimes != ""){
-                text_mime.push_back(mimes);
+              text_mime.push_back(mimes.substr(0, comma));
+              mimes = mimes.substr(comma + 1);
+#ifdef DGDEBUG
+              int size = (int) text_mime.size();
+	      int i;
+	      for (i = 0; i < size; i++) {
+                    std::cout << "mimes filtering : " << text_mime[i] << std::endl;
               }
+#endif
         }
 
         if (findoptionS("ssllegacylogic") == "on") {
