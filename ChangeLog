@@ -2,6 +2,8 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 November 2015
 
+- Fix bug #96 Certificate Issues - requires X509_V_FLAG_TRUSTED_FIRST support
+	in openssl
 - Add SNI support to MITM - note only works with openssh 1.0.1e or higher
 - Fix bux #94 new option textmimetypes
 - Reports error on ssl_connect failure - extra message (160) added

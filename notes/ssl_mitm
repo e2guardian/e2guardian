@@ -20,7 +20,13 @@ is needed on the server in order to encrypt and unencrypt the traffic.
 
 Note that full HTTPS MITM requires a lot more CPU power.
 
+Note: openssl version must support SNI and X508_V_FLAG_TRUSTED_FIRST for cert 
+   checking to work ok with mozilla CA bundle. Generaly openssl v1.0.2 or 
+   later is required, although on some distributions these features have been 
+   back ported to v1.0.1.
+
 To set up MITM:
+
 
    Configure and compile e2guardian with the --enable-sslmitm=yes flag set
 
