@@ -57,7 +57,7 @@ class Socket : public BaseSocket
 
 #ifdef __SSLMITM
     //use this socket as an ssl server
-    int startSslClient(const std::string &certPath);
+    int startSslClient(const std::string &certPath, String hostname);
 
     //is this a SSL connection
     bool isSsl();

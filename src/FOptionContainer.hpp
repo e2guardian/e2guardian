@@ -394,6 +394,7 @@ class FOptionContainer
 
     // get HTML template for this group
     HTMLTemplate *getHTMLTemplate();
+    std::deque<std::string> text_mime;
 
     private:
     // HTML template - if it overrides the default

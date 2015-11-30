@@ -216,9 +216,39 @@ String HTTPHeader::getMIMEBoundary()
 }
 
 // does the given content type string match our headers?
-bool HTTPHeader::isContentType(const String &t)
+bool HTTPHeader::isContentType(const String &t, int filtergroup)
 {
-    return getContentType().startsWith(t);
+#ifdef DGDEBUG
+             std::cout << "mime type: " << getContentType() << std::endl;
+#endif
+// Do standard check first!
+   if (getContentType().startsWith(t))
+	return true;
+
+// Only check text_mime types if ContentType request is 'text'
+   if (t == "text") {
+        String mime = getContentType();
+        std::deque<std::string> text_mime =  o.fg[filtergroup]->text_mime;
+        int size = (int) text_mime.size();
+        int i;
+        for (i = 0; i < size; i++) {
+            if (mime.startsWith(text_mime[i])) {
+#ifdef DGDEBUG
+                std::cout << "mimes match : " << text_mime[i] << std::endl;
+#endif
+                return true;
+           }
+#ifdef DGDEBUG
+	   else {
+                std::cout << "mimes check : " << text_mime[i] << std::endl;
+	   }
+#endif
+        }
+   }
+#ifdef DGDEBUG
+             std::cout << "mimes result : " << "false" << std::endl;
+#endif
+   return false;
 }
 
 // grab contents of X-Forwarded-For header

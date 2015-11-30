@@ -361,6 +361,25 @@ bool FOptionContainer::read(const char *filename)
             use_only_local_allow_lists = false;
         }
 
+        String mimes = findoptionS("textmimetypes");
+        if (mimes != "") {
+            size_t comma = mimes.find(',');
+            while (comma != std::string::npos) {
+              text_mime.push_back(mimes.substr(0, comma));
+              mimes = mimes.substr(comma + 1);
+              comma = mimes.find(',');
+             }
+              text_mime.push_back(mimes.substr(0, comma));
+              mimes = mimes.substr(comma + 1);
+#ifdef DGDEBUG
+              int size = (int) text_mime.size();
+	      int i;
+	      for (i = 0; i < size; i++) {
+                    std::cout << "mimes filtering : " << text_mime[i] << std::endl;
+              }
+#endif
+        }
+
         if (findoptionS("ssllegacylogic") == "on") {
             enable_ssl_legacy_logic = true;
         } else {

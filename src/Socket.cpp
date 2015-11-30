@@ -31,7 +31,13 @@
 
 #ifdef __SSLMITM
 extern bool reloadconfig;
+
+#ifndef X509_V_FLAG_TRUSTED_FIRST
+#warning "X509_V_FLAG_TRUSTED_FIRST not available, chain creation will be unreliable"
+#define X509_V_FLAG_TRUSTED_FIRST 0
 #endif
+#endif
+
 // IMPLEMENTATION
 
 // constructor - create an INET socket & clear address structs
@@ -220,7 +226,7 @@ Socket *Socket::accept()
 
 #ifdef __SSLMITM
 //use this socket as an ssl client
-int Socket::startSslClient(const std::string &certificate_path)
+int Socket::startSslClient(const std::string &certificate_path, String hostname)
 {
     if (isssl) {
         stopSsl();
@@ -263,6 +269,25 @@ int Socket::startSslClient(const std::string &certificate_path)
         return -2;
     }
 
+    // add validation params
+    X509_VERIFY_PARAM *x509_param = X509_VERIFY_PARAM_new();
+    if (!x509_param) {
+        X509_VERIFY_PARAM_free(x509_param);
+        return -2;
+    }
+
+    if (!X509_VERIFY_PARAM_set_flags(x509_param, X509_V_FLAG_TRUSTED_FIRST)) {
+        X509_VERIFY_PARAM_free(x509_param);
+        return -2;
+    }
+
+    if (!SSL_CTX_set1_param(ctx, x509_param)) {
+        X509_VERIFY_PARAM_free(x509_param);
+        return -2;
+    }
+
+    X509_VERIFY_PARAM_free(x509_param);
+
     //hand socket over to ssl lib
     ssl = SSL_new(ctx);
     SSL_set_options(ssl, SSL_OP_ALL);
@@ -271,6 +296,7 @@ int Socket::startSslClient(const std::string &certificate_path)
 
     //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK);
     SSL_set_fd(ssl, this->getFD());
+    SSL_set_tlsext_host_name(ssl, hostname.c_str());
 
     //make io non blocking as select wont tell us if we can do a read without blocking
     //BIO_set_nbio(SSL_get_rbio(ssl),1l);
