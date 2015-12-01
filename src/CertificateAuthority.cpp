@@ -258,16 +258,25 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //create a blank cert
     X509 *newCert = X509_new();
     if (newCert == NULL) {
+#ifdef DGDEBUG
+        std::cout << "new blank cert failed for " << commonname << std::endl;
+#endif
         return NULL;
     }
 
     if (X509_set_version(newCert, 2) < 1) {
+#ifdef DGDEBUG
+        std::cout << "set_version on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
 
     //set a serial on the cert
     if (X509_set_serialNumber(newCert, (cser->asn)) < 1) {
+#ifdef DGDEBUG
+        std::cout << "set_serialNumber on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
@@ -275,11 +284,17 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //set valid from and expires dates
     // now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
     if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)) {
+#ifdef DGDEBUG
+        std::cout << "get_notBefore on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
 
     if (!ASN1_TIME_set(X509_get_notAfter(newCert), _ca_end)) {
+#ifdef DGDEBUG
+        std::cout << "get_notAfter on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
@@ -287,6 +302,9 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //set the public key of the new cert
     //the private key data type also contains the pub key which is used below.
     if (X509_set_pubkey(newCert, _certPrivKey) < 1) {
+#ifdef DGDEBUG
+        std::cout << "set_pubkey on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
@@ -294,15 +312,53 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //create a name section
     X509_NAME *name = X509_get_subject_name(newCert);
     if (name == NULL) {
+#ifdef DGDEBUG
+        std::cout << "get_subject_name on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
+
+    unsigned char *cn = (unsigned char *)commonname;
+
+  /*  if (strlen(commonname) > 64) {
+        int l = strlen(commonname);
+        int offset = l - 62;
+        char temp[64];
+        char *p;
+        p = &(temp[0]);
+
+
+        while (*(commonname + offset) != '.' && offset < l)
+             offset++;
+        if (*(commonname + offset) == '.') {
+            *p++ = '*';
+        }
+        else {
+#ifdef DGDEBUG
+        std::cout << "illegal common name" << commonname << std::endl;
+#endif
+        return NULL;
+        }
+        while ( offset < l)
+           *p++ = *(commonname + offset);
+        *p = 0;   // add null termination
+        cn = (unsigned char *) &(temp[0]);
+#ifdef DGDEBUG
+        std::cout << "CN truncated to" << cn << "from " <<commonname << std::endl;
+#endif
+
+    }
+    */
 
     //add the cn of the site we want a cert for the destination
     int rc = X509_NAME_add_entry_by_txt(name, "CN",
         MBSTRING_ASC, (unsigned char *)commonname, -1, -1, 0);
 
     if (rc < 1) {
+#ifdef DGDEBUG
+        std::cout << "NAME_add_entry_by_txt on cert failed for " << commonname << std::endl;
+#endif
         X509_NAME_free(name);
         X509_free(newCert);
         return NULL;
@@ -311,11 +367,17 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //set the issuer name of the cert to the cn of the ca
     X509_NAME *subjectName = X509_get_subject_name(_caCert);
     if (subjectName == NULL) {
+#ifdef DGDEBUG
+        std::cout << "get_subject_name on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }
 
     if (X509_set_issuer_name(newCert, subjectName) < 1) {
+#ifdef DGDEBUG
+        std::cout << "set_issuer_name on cert failed for " << commonname << std::endl;
+#endif
         X509_NAME_free(subjectName);
         X509_free(newCert);
         return NULL;
@@ -323,6 +385,9 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     //sign it using the ca
     if (!X509_sign(newCert, _caPrivKey, EVP_sha256())) {
+#ifdef DGDEBUG
+        std::cout << "X509_sign on cert failed for " << commonname << std::endl;
+#endif
         X509_free(newCert);
         return NULL;
     }

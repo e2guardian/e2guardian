@@ -583,3 +583,14 @@ String String::sort_search()
     }
     return ret;
 };
+
+String String::CN() {
+    if (this->length() < 64)
+        return (*this);
+    String ret = *this;
+    while (ret.length() > 62) {
+        ret = ret.after(".");
+    }
+    ret = "*." + ret;
+    return ret;
+}

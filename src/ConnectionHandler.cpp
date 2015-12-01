@@ -1564,7 +1564,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //generate the certificate but dont write it to disk (avoid someone
                     //requesting lots of places that dont exist causing the disk to fill
                     //up / run out of inodes
-                    certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert,
+                    certfromcache = o.ca->getServerCertificate(urldomain.CN().c_str(), &cert,
                         &caser);
 #ifdef DGDEBUG
                     if (caser.asn == NULL) {
@@ -1650,7 +1650,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!checkme.isItNaughty) {
                     bool writecert = true;
                     if (!certfromcache) {
-                        writecert = o.ca->writeCertificate(urldomain.c_str(), cert,
+                        writecert = o.ca->writeCertificate(urldomain.CN().c_str(), cert,
                             &caser);
                     }
 
