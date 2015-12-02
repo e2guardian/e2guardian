@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+December 2015
+
+- Fix certificate generation with hostnames longer than 64 bytes (bug #96)
+
 November 2015
 
 - Fix bug #96 Certificate Issues - requires X509_V_FLAG_TRUSTED_FIRST support
