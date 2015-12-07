@@ -573,6 +573,9 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         stopSsl();
     }
 
+    // set ssl to NULL
+    ssl = NULL;
+
     //setup the ssl server ctx
     ctx = SSL_CTX_new(SSLv23_server_method());
     if (ctx == NULL) {
@@ -624,6 +627,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << "Error accepting ssl connection" << std::endl;
 #endif
+        stopSsl();
         return -1;
     }
 
@@ -632,6 +636,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << "Error doing ssl handshake" << std::endl;
 #endif
+        stopSsl();
         return -1;
     }
     isssl = true;

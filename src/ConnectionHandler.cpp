@@ -1603,7 +1603,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                     if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
                         //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
-                        peerconn.stopSsl();
+                        //peerconn.stopSsl();
 
                         checkme.isItNaughty = true;
                         //checkme.whatIsNaughty = "Failed to negotiate ssl connection to client";
