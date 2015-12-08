@@ -27,8 +27,21 @@
 #include "openssl/err.h"
 
 #include "CertificateAuthority.hpp"
+#include "OptionContainer.hpp"
 
-//#define printerr(arg) printf("Error \"%s\" in %s at line %d\n", arg, __FILE__ , __LINE__);
+extern OptionContainer o;
+
+void log_ssl_errors( const char *mess, const char *site) {
+    if( o.log_ssl_errors ) {
+        syslog(LOG_ERR, mess, site);
+        unsigned long e;
+        char buff[512];
+        while (e = ERR_get_error()) {
+           ERR_error_string(e, &buff[0]);
+           syslog(LOG_ERR, &buff[0] );
+        }
+    }
+}
 
 CertificateAuthority::CertificateAuthority(const char *caCert,
     const char *caPrivKey,
@@ -47,7 +60,8 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     }
     _caCert = PEM_read_X509(fp, NULL, NULL, NULL);
     if (_caCert == NULL) {
-        syslog(LOG_ERR, "Couldn't load ca certificate");
+        //syslog(LOG_ERR, "Couldn't load ca certificate");
+        log_ssl_errors("Couldn't load ca certificatei from %s", caCert);
         //ERR_print_errors_fp(stderr);
         exit(1);
     }
@@ -256,27 +270,33 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 X509 *CertificateAuthority::generateCertificate(const char *commonname, struct ca_serial *cser)
 {
     //create a blank cert
+    ERR_clear_error();
     X509 *newCert = X509_new();
     if (newCert == NULL) {
 #ifdef DGDEBUG
         std::cout << "new blank cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("new blank cert failed for %s", commonname);
         return NULL;
     }
 
+    ERR_clear_error();
     if (X509_set_version(newCert, 2) < 1) {
 #ifdef DGDEBUG
         std::cout << "set_version on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("set_version on cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
 
     //set a serial on the cert
+    ERR_clear_error();
     if (X509_set_serialNumber(newCert, (cser->asn)) < 1) {
 #ifdef DGDEBUG
         std::cout << "set_serialNumber on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("set_serialNumber on cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
@@ -301,57 +321,32 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     //set the public key of the new cert
     //the private key data type also contains the pub key which is used below.
+    ERR_clear_error();
     if (X509_set_pubkey(newCert, _certPrivKey) < 1) {
 #ifdef DGDEBUG
         std::cout << "set_pubkey on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("set_pubkey on cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
 
     //create a name section
+    ERR_clear_error();
     X509_NAME *name = X509_get_subject_name(newCert);
     if (name == NULL) {
 #ifdef DGDEBUG
         std::cout << "get_subject_name on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("get_subject_name on cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
 
     unsigned char *cn = (unsigned char *)commonname;
 
-  /*  if (strlen(commonname) > 64) {
-        int l = strlen(commonname);
-        int offset = l - 62;
-        char temp[64];
-        char *p;
-        p = &(temp[0]);
-
-
-        while (*(commonname + offset) != '.' && offset < l)
-             offset++;
-        if (*(commonname + offset) == '.') {
-            *p++ = '*';
-        }
-        else {
-#ifdef DGDEBUG
-        std::cout << "illegal common name" << commonname << std::endl;
-#endif
-        return NULL;
-        }
-        while ( offset < l)
-           *p++ = *(commonname + offset);
-        *p = 0;   // add null termination
-        cn = (unsigned char *) &(temp[0]);
-#ifdef DGDEBUG
-        std::cout << "CN truncated to" << cn << "from " <<commonname << std::endl;
-#endif
-
-    }
-    */
-
     //add the cn of the site we want a cert for the destination
+    ERR_clear_error();
     int rc = X509_NAME_add_entry_by_txt(name, "CN",
         MBSTRING_ASC, (unsigned char *)commonname, -1, -1, 0);
 
@@ -359,35 +354,42 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 #ifdef DGDEBUG
         std::cout << "NAME_add_entry_by_txt on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("NAME_add_entry_by_txt on cert failed for %s", commonname);
         X509_NAME_free(name);
         X509_free(newCert);
         return NULL;
     }
 
     //set the issuer name of the cert to the cn of the ca
+    ERR_clear_error();
     X509_NAME *subjectName = X509_get_subject_name(_caCert);
     if (subjectName == NULL) {
 #ifdef DGDEBUG
-        std::cout << "get_subject_name on cert failed for " << commonname << std::endl;
+        std::cout << "get_subject_name on ca_cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("get_subject_name on ca_cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
 
+    ERR_clear_error();
     if (X509_set_issuer_name(newCert, subjectName) < 1) {
 #ifdef DGDEBUG
         std::cout << "set_issuer_name on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("set_issuer_name on cert failed for %s", commonname);
         X509_NAME_free(subjectName);
         X509_free(newCert);
         return NULL;
     }
 
     //sign it using the ca
+    ERR_clear_error();
     if (!X509_sign(newCert, _caPrivKey, EVP_sha256())) {
 #ifdef DGDEBUG
         std::cout << "X509_sign on cert failed for " << commonname << std::endl;
 #endif
+        log_ssl_errors("X509_sign on cert failed for %s", commonname);
         X509_free(newCert);
         return NULL;
     }
@@ -508,8 +510,8 @@ bool CertificateAuthority::free_ca_serial(struct ca_serial *cs)
 
 CertificateAuthority::~CertificateAuthority()
 {
-    X509_free(_caCert);
-    EVP_PKEY_free(_caPrivKey);
-    EVP_PKEY_free(_certPrivKey);
+    if (_caCert) X509_free(_caCert);
+    if (_caPrivKey) EVP_PKEY_free(_caPrivKey);
+    if (_certPrivKey) EVP_PKEY_free(_certPrivKey);
 }
 #endif //__SSLMITM

@@ -607,6 +607,12 @@ bool OptionContainer::read(const char *filename, int type)
             logchildprocs = false;
         }
 
+        if (findoptionS("logsslerrors") == "on") {
+            log_ssl_errors = true;
+        } else {
+            log_ssl_errors = false;
+        }
+
         if (findoptionS("reverseaddresslookups") == "on") {
             reverse_lookups = true;
         } else {

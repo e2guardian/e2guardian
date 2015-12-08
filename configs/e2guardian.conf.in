@@ -554,6 +554,10 @@ usexforwardedfor = off
 # it on or off
 logconnectionhandlingerrors = on
 
+# If on it logs detailed error info regarding SSL error returns.
+# These are logged by syslog. Default is off.
+# 
+logsslerrors = off
 
 
 # Fork pool options
