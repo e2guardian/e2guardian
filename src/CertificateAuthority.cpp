@@ -38,7 +38,7 @@ void log_ssl_errors( const char *mess, const char *site) {
         char buff[512];
         while (e = ERR_get_error()) {
            ERR_error_string(e, &buff[0]);
-           syslog(LOG_ERR, &buff[0] );
+           syslog(LOG_ERR, "%s", buff );
         }
     }
 }
