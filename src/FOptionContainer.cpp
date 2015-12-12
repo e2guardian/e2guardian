@@ -1457,7 +1457,9 @@ char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bo
 #ifdef DGDEBUG
     std::cout << "inBannedSiteList check: doblanket = " << doblanket << " ssl = " << ssl << std::endl;
 #endif
-    return inSiteList(url, banned_site_list, doblanket, ip, ssl);
+    if (banned_site_flag)
+        return inSiteList(url, banned_site_list, doblanket, ip, ssl);
+    return NULL;
 }
 
 bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
@@ -1470,7 +1472,9 @@ bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool 
     if (ssl && !enable_ssl_legacy_logic) {
         return inGreySSLSiteList(url, doblanket, ip, ssl);
     };
-    return inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL;
+    if (grey_site_flag && inSiteList(url, grey_site_list, doblanket, ip, ssl) != NULL)
+        return true;
+    return false;
 }
 
 char *FOptionContainer::inBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)
@@ -1532,14 +1536,15 @@ char *FOptionContainer::inBannedSearchList(String words)
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
-    if (enable_local_list) {
-        if (inBannedSearchOverideList(words))
-            return NULL;
-    }
+    if (inBannedSearchOverideList(words))
+        return NULL;
+
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search list for " << words << std::endl;
 #endif
-    return inSearchList(words, banned_search_list);
+    if (banned_search_flag)
+        return inSearchList(words, banned_search_list);
+    return NULL;
 }
 
 char *FOptionContainer::inLocalBannedSearchList(String words)
@@ -1547,14 +1552,18 @@ char *FOptionContainer::inLocalBannedSearchList(String words)
 #ifdef DGDEBUG
     std::cout << "Checking Local Banned Search list for " << words << std::endl;
 #endif
-    return inSearchList(words, local_banned_search_list);
+    if (local_banned_search_flag)
+        return inSearchList(words, local_banned_search_list);
+    return NULL;
 }
 bool FOptionContainer::inBannedSearchOverideList(String words)
 {
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
-    return inSearchList(words, banned_search_overide_list) != NULL;
+    if (banned_search_overide_flag)
+        return inSearchList(words, banned_search_overide_list) != NULL;
+    return NULL;
 }
 
 bool FOptionContainer::inLocalExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
@@ -1562,7 +1571,9 @@ bool FOptionContainer::inLocalExceptionSiteList(String url, bool doblanket, bool
 #ifdef DGDEBUG
     std::cout << "inLocalExceptionSiteList" << std::endl;
 #endif
-    return inSiteList(url, local_exception_site_list, doblanket, ip, ssl) != NULL;
+    if (local_exception_site_flag)
+        return inSiteList(url, local_exception_site_list, doblanket, ip, ssl) != NULL;
+    return false;
 }
 
 char *FOptionContainer::inLocalBannedSiteList(String url, bool doblanket, bool ip, bool ssl)
@@ -1570,38 +1581,52 @@ char *FOptionContainer::inLocalBannedSiteList(String url, bool doblanket, bool i
 #ifdef DGDEBUG
     std::cout << "inLocalBannedSiteList" << std::endl;
 #endif
-    return inSiteList(url, local_banned_site_list, doblanket, ip, ssl);
+    if (local_banned_site_flag)
+         return inSiteList(url, local_banned_site_list, doblanket, ip, ssl);
+    return NULL;
 }
 
 bool FOptionContainer::inLocalGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
     if (ssl) {
-        return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+        if (local_grey_ssl_site_flag)
+            return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+        return false;
     };
-    return inSiteList(url, local_grey_site_list, doblanket, ip, ssl) != NULL;
+    if (local_grey_site_flag)
+        return inSiteList(url, local_grey_site_list, doblanket, ip, ssl) != NULL;
+    return false;
 }
 
 char *FOptionContainer::inLocalBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-    return inSiteList(url, local_banned_ssl_site_list, doblanket, ip, ssl);
+    if(local_banned_ssl_site_flag)
+        return inSiteList(url, local_banned_ssl_site_list, doblanket, ip, ssl);
+    return NULL;
 }
 
 bool FOptionContainer::inLocalGreySSLSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-    return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+    if (local_grey_ssl_site_flag)
+        return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl) != NULL;
+    return false;
 }
 
 bool FOptionContainer::inExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
 {
-    return inSiteList(url, exception_site_list, doblanket, ip, ssl) != NULL;
+    if (exception_site_flag)
+        return inSiteList(url, exception_site_list, doblanket, ip, ssl) != NULL;
+    return false;
+
 }
 
 bool FOptionContainer::inExceptionFileSiteList(String url)
 {
-    if (inSiteList(url, exception_file_site_list) != NULL)
+    if (exception_file_site_flag && inSiteList(url, exception_file_site_list) != NULL)
         return true;
-    else
-        return inURLList(url, exception_file_url_list) != NULL;
+    if (exception_file_url_flag && inURLList(url, exception_file_url_list) != NULL)
+        return true;
+    return false;
 }
 
 // look in given URL list for given URL
