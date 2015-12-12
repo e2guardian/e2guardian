@@ -1,6 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 December 2015
+- search term logic changed so banned_search_override works with both
+  search block list and with weighted search term.
+- list_flags checked on lookups to avoid segv when lists not present
 - Fix SEGV when SSL connect fails - add logsslerrors option
 - Fix certificate generation with hostnames longer than 64 bytes (bug #96)
 

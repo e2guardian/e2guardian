@@ -3190,7 +3190,11 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
         (*checkme).isSearch = (*header).isSearch(filtergroup);
         if ((*checkme).isSearch) {
-            if ((i = (*o.fg[filtergroup]).inBannedSearchList((*header).searchwords())) != NULL) {
+            String terms;
+            terms = (*header).searchwords();
+            if  (!(*o.fg[filtergroup]).inBannedSearchOverideList(terms)) {
+            // first check banned search list
+                if ((i = (*o.fg[filtergroup]).inBannedSearchList(terms)) != NULL) {
                 (*checkme).whatIsNaughty = o.language_list.getTranslation(521);
                 (*checkme).message_no = 521;
                 // Banned search term:
@@ -3199,27 +3203,26 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                 (*checkme).isItNaughty = true;
                 (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
                 return;
-            }
-        }
-
-        if ((*checkme).isSearch) {
-            String terms;
-            terms = (*header).searchterms();
-            // search terms are URL parameter type "0"
-            urlparams.append("0=").append(terms).append(";");
-            if (o.fg[filtergroup]->searchterm_limit > 0) {
-                // Add spaces at beginning and end of block before filtering, so
-                // that the quick & dirty trick of putting spaces around words
-                // (Scunthorpe problem) can still be used, bearing in mind the block
-                // of text here is usually very small.
-                terms.insert(terms.begin(), ' ');
-                terms.append(" ");
-                checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
-                    (o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list : o.fg[filtergroup]->banned_phrase_list),
-                    o.fg[filtergroup]->searchterm_limit, true);
-                if (checkme->isItNaughty) {
-                    checkme->blocktype = 2;
-                    return;
+                }
+                // then check phrase lists
+                if (o.fg[filtergroup]->searchterm_limit > 0) {
+                    terms = (*header).searchterms();
+                    // search terms are URL parameter type "0"
+                    urlparams.append("0=").append(terms).append(";");
+                    // Add spaces at beginning and end of block before filtering, so
+                    // that the quick & dirty trick of putting spaces around words
+                    // (Scunthorpe problem) can still be used, bearing in mind the block
+                    // of text here is usually very small.
+                    terms.insert(terms.begin(), ' ');
+                    terms.append(" ");
+                    checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
+                                     (o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list
+                                                                         : o.fg[filtergroup]->banned_phrase_list),
+                                     o.fg[filtergroup]->searchterm_limit, true);
+                    if (checkme->isItNaughty) {
+                        checkme->blocktype = 2;
+                        return;
+                    }
                 }
             }
         }

@@ -1534,12 +1534,6 @@ char *FOptionContainer::inBannedSearchList(String words)
 {
 
 #ifdef DGDEBUG
-    std::cout << "Checking Banned Search Overide list for " << words << std::endl;
-#endif
-    if (inBannedSearchOverideList(words))
-        return NULL;
-
-#ifdef DGDEBUG
     std::cout << "Checking Banned Search list for " << words << std::endl;
 #endif
     if (banned_search_flag)

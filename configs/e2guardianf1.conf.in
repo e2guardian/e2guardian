@@ -184,8 +184,10 @@ naughtynesslimit = 50
 
 # Method 2 is uses the 
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
-# threshold for blocking than that used for normal page content.
-# To do this, the searchregexplist must be enabled and searchtermlimit 
+# threshold for blocking than that used for normal page content.  
+# The bannedsearchoveridelist can be used to overide the phrase blocking.
+
+# For method 2, the searchregexplist must be enabled and searchtermlimit 
 # must be greater than 0.
  
 #
@@ -195,9 +197,16 @@ naughtynesslimit = 50
 # of output of each expression.
 #searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
 #
+#
+#
+# Override list - overrides both bannedsearchlist and searchterm limit
+# Similar to exception list but only on the search term.  The actual
+# returned content of the page may still be content checked.
+#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
+
+
 # Banned Search Term list(s) for option 1
 #bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
-#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)
@@ -205,9 +214,8 @@ naughtynesslimit = 50
 # which match the weightedphraselist.  This should usually be lower than the
 # 'naughtynesslimit' value above, because the amount of text being filtered
 # is only a few words, rather than a whole page.
-# This option must be uncommented if searchregexplist is uncommented.
-# A value of 0 here indicates that search terms should be extracted,
-# but no phrase filtering should be performed on the resulting text.
+# A value of 0 here indicates that no phrase filtering should be performed 
+# on the search terms.
 #searchtermlimit = 0
 #
 # Search term phrase lists (for Option 2) 
