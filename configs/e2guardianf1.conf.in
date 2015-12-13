@@ -144,9 +144,6 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # textmimetypes = 'application/xhtml+xml,application/xml,application/json,application/javascript,application/x-javascript'
 
 # Weighted phrase mode
-# Optional; overrides the weightedphrasemode option in e2guardian.conf
-# for this particular group.  See documentation for supported values in
-# that file.
 # 0 = off = do not use the weighted phrase feature.
 # 1 = on, normal = normal weighted phrase operation.
 # 2 = on, singular = each weighted phrase found only counts once on a page.
@@ -154,9 +151,9 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # extract phrases from page content, including banned & exception
 # phrases (not just weighted), search term filtering, and scanning for
 # links to banned URLs.
-#
+# Defaults to 0.
 
-# weightedphrasemode = 0
+weightedphrasemode = 1
 
 # Naughtiness limit
 # This the limit over which the page will be blocked.  Each weighted phrase is given

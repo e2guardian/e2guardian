@@ -1009,6 +1009,12 @@ bool FOptionContainer::read(const char *filename)
                 search_regexp_flag = false;
             } // search engine searchwords regular expressions
 
+            if (banned_search_overide_list_location.length() && readFile(banned_search_overide_list_location.c_str(), &banned_search_overide_list, true, true, "bannedsearchoveridelist")) {
+                banned_search_overide_flag = true;
+            } else {
+                banned_search_overide_flag = false;
+            } // banned search overide words
+
             // local list
             if (enable_local_list) {
                 if (local_banned_search_list_location.length() && readFile(local_banned_search_list_location.c_str(), &local_banned_search_list, true, true, "localbannedsearchlist")) {
@@ -1016,12 +1022,6 @@ bool FOptionContainer::read(const char *filename)
                 } else {
                     local_banned_search_flag = false;
                 } // local banned search words
-
-                if (banned_search_overide_list_location.length() && readFile(banned_search_overide_list_location.c_str(), &banned_search_overide_list, true, true, "bannedsearchoveridelist")) {
-                    banned_search_overide_flag = true;
-                } else {
-                    banned_search_overide_flag = false;
-                } // banned search overide words
 
                 if (!readFile(local_exceptions_site_list_location.c_str(), &local_exception_site_list, false, true, "localexceptionsitelist")) {
                     return false;
@@ -1550,14 +1550,15 @@ char *FOptionContainer::inLocalBannedSearchList(String words)
         return inSearchList(words, local_banned_search_list);
     return NULL;
 }
+
 bool FOptionContainer::inBannedSearchOverideList(String words)
 {
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
     if (banned_search_overide_flag)
-        return inSearchList(words, banned_search_overide_list) != NULL;
-    return NULL;
+        return (inSearchList(words, banned_search_overide_list) != NULL);
+    return false;
 }
 
 bool FOptionContainer::inLocalExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
