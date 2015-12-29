@@ -118,6 +118,7 @@ class HTTPHeader
     void setContentLength(int newlen);
     // regexp search and replace
     bool urlRegExp(int filtergroup);
+    bool sslsiteRegExp(int filtergroup);
     bool urlRedirectRegExp(int filtergroup);
     bool DenySSL(int filtergroup);
     bool headerRegExp(int filtergroup);

@@ -1253,6 +1253,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // bad people still need to be able to access the banned page
                 || isourwebserver) {
                 proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                if (isconnect)
+                    header.sslsiteRegExp(filtergroup);
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 docheader.in(&proxysock, persistOutgoing);
                 persistProxy = docheader.isPersistent();
@@ -1378,6 +1380,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             && requestscanners.empty() && responsescanners.empty())
                         || isourwebserver) {
                         proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                        if (isconnect)
+                            header.sslsiteRegExp(filtergroup);
                         header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                         docheader.in(&proxysock, persistOutgoing);
                         persistProxy = docheader.isPersistent();
@@ -1443,6 +1447,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                     // send header to proxy
                     proxysock.readyForOutput(o.proxy_timeout);
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -1501,6 +1507,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -Forwarding connect request" << std::endl;
 #endif
                     proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                     //check the response headers so we can go ssl
                     proxysock.checkForInput(120);
@@ -1727,6 +1735,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // can't filter content of CONNECT
                 if (!wasrequested) {
                     proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 } else {
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
@@ -2063,6 +2073,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                                         if (!wasrequested && (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1)) {
                                             proxysock.readyForOutput(o.proxy_timeout);
+                                            if (isconnect)
+                                                header.sslsiteRegExp(filtergroup);
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
                                             wasrequested = true;
@@ -2314,6 +2326,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // send header to proxy
                 if (!wasrequested) {
                     proxysock.readyForOutput(o.proxy_timeout);
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -2618,6 +2632,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             if (!wasrequested) {
                 proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+                if (isconnect)
+                    header.sslsiteRegExp(filtergroup);
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
                 proxysock.checkForInput(o.exchange_timeout); // exceptions on error/timeout
                 docheader.in(&proxysock, persistOutgoing); // get reply header from proxy

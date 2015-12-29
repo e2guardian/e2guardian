@@ -95,6 +95,8 @@ void FOptionContainer::resetJustListData()
         o.lm.deRefList(content_regexp_list);
     if (url_regexp_flag)
         o.lm.deRefList(url_regexp_list);
+    if (sslsite_regexp_flag)
+        o.lm.deRefList(sslsite_regexp_list);
     if (url_redirect_regexp_flag)
         o.lm.deRefList(url_redirect_regexp_list);
     if (header_regexp_flag)
@@ -181,6 +183,7 @@ void FOptionContainer::resetJustListData()
     banned_regexpheader_flag = false;
     content_regexp_flag = false;
     url_regexp_flag = false;
+    sslsite_regexp_flag = false;
     url_redirect_regexp_flag = false;
     header_regexp_flag = false;
     exception_extension_flag = false;
@@ -239,6 +242,8 @@ void FOptionContainer::resetJustListData()
     content_regexp_list_rep.clear();
     url_regexp_list_comp.clear();
     url_regexp_list_rep.clear();
+    sslsite_regexp_list_comp.clear();
+    sslsite_regexp_list_rep.clear();
     url_redirect_regexp_list_comp.clear();
     url_redirect_regexp_list_rep.clear();
     header_regexp_list_comp.clear();
@@ -744,6 +749,7 @@ bool FOptionContainer::read(const char *filename)
             std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
             std::string content_regexp_list_location(findoptionS("contentregexplist"));
             std::string url_regexp_list_location(findoptionS("urlregexplist"));
+            std::string sslsite_regexp_list_location(findoptionS("sslsiteregexplist"));
             std::string header_regexp_list_location(findoptionS("headerregexplist"));
             std::string exceptions_site_list_location(findoptionS("exceptionsitelist"));
             std::string exceptions_url_list_location(findoptionS("exceptionurllist"));
@@ -1172,6 +1178,7 @@ bool FOptionContainer::read(const char *filename)
             } // url replacement regular expressions
             url_regexp_flag = true;
 
+
             if (!readRegExReplacementFile(header_regexp_list_location.c_str(), "headerregexplist", header_regexp_list, header_regexp_list_rep, header_regexp_list_comp)) {
                 return false;
             } // header replacement regular expressions
@@ -1180,6 +1187,12 @@ bool FOptionContainer::read(const char *filename)
             if (url_redirect_regexp_list_location.length() && readRegExReplacementFile(url_redirect_regexp_list_location.c_str(), "urlredirectregexplist", url_redirect_regexp_list, url_redirect_regexp_list_rep, url_redirect_regexp_list_comp)) {
                 url_redirect_regexp_flag = true;
             } // url redirect expressions
+
+            if (sslsite_regexp_list_location.length() && readRegExReplacementFile(sslsite_regexp_list_location.c_str(), "sslsiteregexplist", sslsite_regexp_list, sslsite_regexp_list_rep, sslsite_regexp_list_comp)) {
+                sslsite_regexp_flag = true;
+            } else {
+                sslsite_regexp_flag = false;
+            } // ssl site replacement regular expressions
 
 #ifdef DGDEBUG
             std::cout << "Lists in memory" << std::endl;

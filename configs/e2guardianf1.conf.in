@@ -447,6 +447,13 @@ reportinglevel = 3
 # notifaction will be sent.
 @EMAILSUPPORT@threshold = 0
 
+
+#SSL site rewriting (i.e. CNAME) 
+# Rewrite hostname in ssl connect 
+# better than adding CNAME records to DNS
+# Use to enforce Youtube restricted mode
+sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
+
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid
 # and signed by a ca in the configured path
