@@ -4154,6 +4154,8 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     //check that everything in this certificate is correct appart from the hostname
     if (rc < 0) {
         //no certificate
+        if ( o.fg[filtergroup]->allow_empty_host_certs)
+            return;
         checkme->isItNaughty = true;
         //(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
         checkme->message_no = 155;

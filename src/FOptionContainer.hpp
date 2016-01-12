@@ -226,6 +226,7 @@ class FOptionContainer
     std::deque<RegExp> url_redirect_regexp_list_comp;
     std::deque<String> url_redirect_regexp_list_rep;
     bool url_redirect_regexp_flag;
+    bool allow_empty_host_certs;
 
     // regex match lists
     std::deque<RegExp> banned_regexpurl_list_comp;
@@ -322,6 +323,7 @@ class FOptionContainer
         , log_url_flag(false)
         , log_regexpurl_flag(false)
         , ssl_denied_rewrite(false)
+        , allow_empty_host_certs(false)
         , pics_icra_nuditymalegraphic(0)
         , pics_icra_nudityfemalegraphic(0)
         , pics_icra_nuditytopless(0)

@@ -422,8 +422,14 @@ bool FOptionContainer::read(const char *filename)
                 enable_ssl_legacy_logic = false;
             }
 
+            mitm_check_cert = true;
             if (findoptionS("mitmcheckcert") == "off")
                 mitm_check_cert = false;
+
+
+            allow_empty_host_certs = false;
+            if (findoptionS("allowemptyhostcert") == "on")
+                allow_empty_host_certs = true;
 #ifdef DGDEBUG
             std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
 #endif
@@ -733,6 +739,8 @@ bool FOptionContainer::read(const char *filename)
                 weighted_phrase_mode = findoptionI("weightedphrasemode");
                 if (!realitycheck(weighted_phrase_mode, 0, 3, "weightedphrasemode"))
                     return false;
+            } else {
+                weighted_phrase_mode = 1;
             }
 
             std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));

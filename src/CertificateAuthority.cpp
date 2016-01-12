@@ -115,6 +115,11 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     char cnhash[EVP_MAX_MD_SIZE];
     unsigned int cnhashlen;
 
+    // added to generate different serial number than previous versions
+    //   needs to be added as an option
+    std::string sname(commonname );
+    sname += "A";
+
 #ifdef DGDEBUG
     std::cout << "Generating serial no for " << commonname << std::endl;
 #endif
@@ -128,7 +133,9 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
         failed = true;
     }
 
-    if (!failed && EVP_DigestUpdate(&mdctx, commonname, strlen(commonname)) < 1) {
+
+//    if (!failed && EVP_DigestUpdate(&mdctx, commonname, strlen(commonname)) < 1) {
+    if (!failed && EVP_DigestUpdate(&mdctx, sname.c_str(), strlen(sname.c_str())) < 1) {
         failed = true;
     }
 

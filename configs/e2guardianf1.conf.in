@@ -151,9 +151,8 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # extract phrases from page content, including banned & exception
 # phrases (not just weighted), search term filtering, and scanning for
 # links to banned URLs.
-# Defaults to 0.
-
-weightedphrasemode = 1
+# Defaults to 1.
+# weightedphrasemode = 1
 
 # Naughtiness limit
 # This the limit over which the page will be blocked.  Each weighted phrase is given
