@@ -591,10 +591,10 @@ bool OptionContainer::read(const char *filename, int type)
         if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
             return false;
         }
-        if (findoptionS("createlistcachefiles") == "off") {
-            createlistcachefiles = false;
-        } else {
+        if (findoptionS("createlistcachefiles") == "on") {
             createlistcachefiles = true;
+        } else {
+            createlistcachefiles = false;
         }
         if (findoptionS("logconnectionhandlingerrors") == "on") {
             logconerror = true;

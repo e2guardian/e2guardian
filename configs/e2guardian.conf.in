@@ -326,10 +326,10 @@ logclienthostnames = off
 # If a .processed file exists for an item (e.g. domain/URL) list, then that
 # will be used instead, if it is up to date (i.e. newer than the unprocessed
 # list file).
-# This can increase process start speed on slow computers.
-# Fast computers do not need this option.
-# on | off, default = on
-createlistcachefiles = on
+# NOTE: this option is no longer needed, buggy and is depreciated
+# NOTE: So leave it 'off' unless you require it for some non-standard set-up!
+# on | off, default = off
+# createlistcachefiles = off
 
 
 # Prefer cached list files
