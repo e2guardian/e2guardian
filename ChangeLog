@@ -1,5 +1,10 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+January 2016
+- weightedphrasemode now optional - defaults to 1
+- allowemptyhostcert option added (optional)
+- createlistcachefiles now defaults to off
+
 December 2015
 - new sslsiteregexplist added (optional)
 - search term logic changed so banned_search_override works with both
