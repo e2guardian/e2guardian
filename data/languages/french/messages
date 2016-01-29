@@ -4,7 +4,6 @@
 # Improvements by Mathieu Parent (2011)
 #
 # ! Quote "'" changed by backquote "`" to avoid bad interpretation !
-
 "1","Accès interdit"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation
@@ -37,6 +36,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","L`URL demandée n'est pas bien formée."
 "300","Phrase interdite : "
 "301","Phrase interdite trouvée."

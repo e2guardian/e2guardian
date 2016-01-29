@@ -32,6 +32,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","Beg&auml;rd URL &auml;r felformaterad."
 "300","F&ouml;rbjuden fras funnen: "
 "301","F&ouml;rbjuden fras funnen."

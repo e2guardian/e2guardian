@@ -1,3 +1,9 @@
+#NOTE: This list no longer works due to a change in the way Google returns search results
+#   Search term blocking and weighted phrase replace this functionality with
+#   something that will work on all defined search engines (This only worked for Google).
+#   This historical list is retained only for reference.
+#   14 Dec 2015 PIP
+
 # Image Search Site Blocks
 # 05-08-03 JFH r4
 

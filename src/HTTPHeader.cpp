@@ -216,9 +216,39 @@ String HTTPHeader::getMIMEBoundary()
 }
 
 // does the given content type string match our headers?
-bool HTTPHeader::isContentType(const String &t)
+bool HTTPHeader::isContentType(const String &t, int filtergroup)
 {
-    return getContentType().startsWith(t);
+#ifdef DGDEBUG
+             std::cout << "mime type: " << getContentType() << std::endl;
+#endif
+// Do standard check first!
+   if (getContentType().startsWith(t))
+	return true;
+
+// Only check text_mime types if ContentType request is 'text'
+   if (t == "text") {
+        String mime = getContentType();
+        std::deque<std::string> text_mime =  o.fg[filtergroup]->text_mime;
+        int size = (int) text_mime.size();
+        int i;
+        for (i = 0; i < size; i++) {
+            if (mime.startsWith(text_mime[i])) {
+#ifdef DGDEBUG
+                std::cout << "mimes match : " << text_mime[i] << std::endl;
+#endif
+                return true;
+           }
+#ifdef DGDEBUG
+	   else {
+                std::cout << "mimes check : " << text_mime[i] << std::endl;
+	   }
+#endif
+        }
+   }
+#ifdef DGDEBUG
+             std::cout << "mimes result : " << "false" << std::endl;
+#endif
+   return false;
 }
 
 // grab contents of X-Forwarded-For header
@@ -625,6 +655,28 @@ bool HTTPHeader::urlRegExp(int filtergroup)
     std::cout << "getUrl returns " << newUrl << std::endl;
 #endif
     if (regExp(newUrl, o.fg[filtergroup]->url_regexp_list_comp, o.fg[filtergroup]->url_regexp_list_rep)) {
+        setURL(newUrl);
+        return true;
+    }
+    return false;
+}
+
+// Perform searches and replacements on SSL site names
+bool HTTPHeader::sslsiteRegExp(int filtergroup)
+{
+    // exit immediately if list is empty
+    if ( ! o.fg[filtergroup]->sslsite_regexp_flag)
+        return false;
+    if (not o.fg[filtergroup]->sslsite_regexp_list_comp.size())
+        return false;
+#ifdef DGDEBUG
+    std::cout << "Starting SSL site reg exp replace" << std::endl;
+#endif
+    String newUrl(getUrl());
+#ifdef DGDEBUG
+    std::cout << "getUrl returns " << newUrl << std::endl;
+#endif
+    if (regExp(newUrl, o.fg[filtergroup]->sslsite_regexp_list_comp, o.fg[filtergroup]->sslsite_regexp_list_rep)) {
         setURL(newUrl);
         return true;
     }

@@ -31,7 +31,7 @@ Github: https://github.com/e2guardian/e2guardian/issues
 
 ## License
 
-Copyright 2014, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2014, Philip Pearce [E2BN Protex](http://protex.e2bn.org) Ltd, [Frederic Bourgeois](http://numsys.eu) and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as

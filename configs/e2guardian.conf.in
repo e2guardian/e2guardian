@@ -56,6 +56,10 @@ logfileformat = 1
 # at the defined or built-in "loglocation"
 #logsyslog = off
 
+#Suffix to append to program name when logging through syslog
+# Default is the e2Guardian instance number
+#namesuffix = $z
+
 # Log file location
 # 
 # Defines the log directory and filename.
@@ -158,7 +162,7 @@ pcontimeout = 55
 #
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
-@ORIGIPSUPPORT@originalip = on
+@ORIGIPSUPPORT@originalip = off
 
 # Banned image replacement
 # Images that are banned due to domain/url/etc reasons including those
@@ -204,21 +208,6 @@ exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 # the naughtyness limit will be logged and, if the reporting level is
 # high enough, reported. on | off
 showweightedfound = on
-
-# Weighted phrase mode
-# There are 3 possible modes of operation:
-# 0 = off = do not use the weighted phrase feature.
-# 1 = on, normal = normal weighted phrase operation.
-# 2 = on, singular = each weighted phrase found only counts once on a page.
-# 
-# IMPORTANT: Note that setting this to "0" turns off all features which
-# extract phrases from page content, including banned & exception
-# phrases (not just weighted), search term filtering, and scanning for
-# links to banned URLs.
-#
-weightedphrasemode = 2
-
-
 
 # Positive (clean) result caching for URLs
 # Caches good pages so they don't need to be scanned again.
@@ -337,10 +326,10 @@ logclienthostnames = off
 # If a .processed file exists for an item (e.g. domain/URL) list, then that
 # will be used instead, if it is up to date (i.e. newer than the unprocessed
 # list file).
-# This can increase process start speed on slow computers.
-# Fast computers do not need this option.
-# on | off, default = on
-createlistcachefiles = on
+# NOTE: this option is no longer needed, buggy and is depreciated
+# NOTE: So leave it 'off' unless you require it for some non-standard set-up!
+# on | off, default = off
+# createlistcachefiles = off
 
 
 # Prefer cached list files
@@ -362,6 +351,12 @@ prefercachedlists = off
 # The value must not be higher than maxcontentramcachescansize
 # The size is in Kibibytes - eg 2048 = 2Mb
 # use 0 to set it to maxcontentramcachescansize
+#
+# IMPORTANT: Note that setting this to "0" turns off all features which
+# extract phrases from page content, including banned & exception
+# phrases (not just weighted), search term filtering, and scanning for
+# links to banned URLs.
+
 maxcontentfiltersize = 256
 
 
@@ -559,6 +554,10 @@ usexforwardedfor = off
 # it on or off
 logconnectionhandlingerrors = on
 
+# If on it logs detailed error info regarding SSL error returns.
+# These are logged by syslog. Default is off.
+# 
+logsslerrors = off
 
 
 # Fork pool options

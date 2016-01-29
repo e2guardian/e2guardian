@@ -1253,6 +1253,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // bad people still need to be able to access the banned page
                 || isourwebserver) {
                 proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                if (isconnect)
+                    header.sslsiteRegExp(filtergroup);
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 docheader.in(&proxysock, persistOutgoing);
                 persistProxy = docheader.isPersistent();
@@ -1378,6 +1380,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             && requestscanners.empty() && responsescanners.empty())
                         || isourwebserver) {
                         proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                        if (isconnect)
+                            header.sslsiteRegExp(filtergroup);
                         header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                         docheader.in(&proxysock, persistOutgoing);
                         persistProxy = docheader.isPersistent();
@@ -1443,6 +1447,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                     // send header to proxy
                     proxysock.readyForOutput(o.proxy_timeout);
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -1501,6 +1507,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -Forwarding connect request" << std::endl;
 #endif
                     proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                     //check the response headers so we can go ssl
                     proxysock.checkForInput(120);
@@ -1564,7 +1572,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //generate the certificate but dont write it to disk (avoid someone
                     //requesting lots of places that dont exist causing the disk to fill
                     //up / run out of inodes
-                    certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert,
+                    certfromcache = o.ca->getServerCertificate(urldomain.CN().c_str(), &cert,
                         &caser);
 #ifdef DGDEBUG
                     if (caser.asn == NULL) {
@@ -1603,7 +1611,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                     if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
                         //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
-                        peerconn.stopSsl();
+                        //peerconn.stopSsl();
 
                         checkme.isItNaughty = true;
                         //checkme.whatIsNaughty = "Failed to negotiate ssl connection to client";
@@ -1621,7 +1629,20 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -Going SSL on connection to proxy" << std::endl;
 #endif
                     std::string certpath = std::string(o.ssl_certificate_path);
-                    proxysock.startSslClient(certpath);
+                    if (proxysock.startSslClient(certpath,urldomain)) {
+                        //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
+                    //    proxysock.stopSsl();
+
+                        checkme.isItNaughty = true;
+                        //checkme.whatIsNaughty = "Failed to negotiate ssl connection to server";
+                        checkme.message_no = 160;
+                        checkme.whatIsNaughty = o.language_list.getTranslation(160);
+                        checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                        checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+                    }
+		}
+
+                if (!checkme.isItNaughty) {
 
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Checking certificate" << std::endl;
@@ -1637,7 +1658,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!checkme.isItNaughty) {
                     bool writecert = true;
                     if (!certfromcache) {
-                        writecert = o.ca->writeCertificate(urldomain.c_str(), cert,
+                        writecert = o.ca->writeCertificate(urldomain.CN().c_str(), cert,
                             &caser);
                     }
 
@@ -1714,6 +1735,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // can't filter content of CONNECT
                 if (!wasrequested) {
                     proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 } else {
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
@@ -2050,6 +2073,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                                         if (!wasrequested && (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1)) {
                                             proxysock.readyForOutput(o.proxy_timeout);
+                                            if (isconnect)
+                                                header.sslsiteRegExp(filtergroup);
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
                                             wasrequested = true;
@@ -2301,6 +2326,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // send header to proxy
                 if (!wasrequested) {
                     proxysock.readyForOutput(o.proxy_timeout);
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -2518,7 +2545,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
                 if (!checkme.isItNaughty && (cl != 0) && !ishead) {
-                    if (((docheader.isContentType("text") || docheader.isContentType("-")) && !isexception) || !responsescanners.empty()) {
+                    if (((docheader.isContentType("text",filtergroup) || docheader.isContentType("-",filtergroup)) && !isexception) || !responsescanners.empty()) {
                         // don't search the cache if scan_clean_cache disabled & runav true (won't have been cached)
                         // also don't search cache for auth required headers (same reason)
 
@@ -2575,7 +2602,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // an entry and does a soft restart, we don't want the site to end up in
                 // the clean cache because someone who's already been to it hits refresh.
                 if (!wasclean && !checkme.isItNaughty && !isbypass
-                    && (docheader.isContentType("text") || (wasscanned && o.scan_clean_cache))
+                    && (docheader.isContentType("text",filtergroup) || (wasscanned && o.scan_clean_cache))
                     && (header.requestType() == "GET") && (docheader.returnCode() == 200)
                     && urld.length() < 2000) {
                     addToClean(urld, filtergroup);
@@ -2605,6 +2632,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             if (!wasrequested) {
                 proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+                if (isconnect)
+                    header.sslsiteRegExp(filtergroup);
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
                 proxysock.checkForInput(o.exchange_timeout); // exceptions on error/timeout
                 docheader.in(&proxysock, persistOutgoing); // get reply header from proxy
@@ -2638,7 +2667,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                            docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                            docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                             wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                             contentmodified, urlmodified, headermodified, headeradded);
                     }
@@ -2710,7 +2739,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                            docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                            docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                             wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                             contentmodified, urlmodified, headermodified, headeradded);
                     }
@@ -2727,7 +2756,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!logged) {
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                         rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
-                        docheader.isContentType("text"), &thestart, cachehit, docheader.returnCode(), mimetype,
+                        docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
                         wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                         contentmodified, urlmodified, headermodified, headeradded);
                 }
@@ -3177,7 +3206,11 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
         (*checkme).isSearch = (*header).isSearch(filtergroup);
         if ((*checkme).isSearch) {
-            if ((i = (*o.fg[filtergroup]).inBannedSearchList((*header).searchwords())) != NULL) {
+            String terms;
+            terms = (*header).searchwords();
+            if  (!(*o.fg[filtergroup]).inBannedSearchOverideList(terms)) {
+            // first check banned search list
+                if ((i = (*o.fg[filtergroup]).inBannedSearchList(terms)) != NULL) {
                 (*checkme).whatIsNaughty = o.language_list.getTranslation(521);
                 (*checkme).message_no = 521;
                 // Banned search term:
@@ -3186,27 +3219,26 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                 (*checkme).isItNaughty = true;
                 (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*o.fg[filtergroup]).banned_search_list]).lastcategory.toCharArray();
                 return;
-            }
-        }
-
-        if ((*checkme).isSearch) {
-            String terms;
-            terms = (*header).searchterms();
-            // search terms are URL parameter type "0"
-            urlparams.append("0=").append(terms).append(";");
-            if (o.fg[filtergroup]->searchterm_limit > 0) {
-                // Add spaces at beginning and end of block before filtering, so
-                // that the quick & dirty trick of putting spaces around words
-                // (Scunthorpe problem) can still be used, bearing in mind the block
-                // of text here is usually very small.
-                terms.insert(terms.begin(), ' ');
-                terms.append(" ");
-                checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
-                    (o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list : o.fg[filtergroup]->banned_phrase_list),
-                    o.fg[filtergroup]->searchterm_limit, true);
-                if (checkme->isItNaughty) {
-                    checkme->blocktype = 2;
-                    return;
+                }
+                // then check phrase lists
+                if (o.fg[filtergroup]->searchterm_limit > 0) {
+                    terms = (*header).searchterms();
+                    // search terms are URL parameter type "0"
+                    urlparams.append("0=").append(terms).append(";");
+                    // Add spaces at beginning and end of block before filtering, so
+                    // that the quick & dirty trick of putting spaces around words
+                    // (Scunthorpe problem) can still be used, bearing in mind the block
+                    // of text here is usually very small.
+                    terms.insert(terms.begin(), ' ');
+                    terms.append(" ");
+                    checkme->checkme(terms.c_str(), terms.length(), NULL, NULL, filtergroup,
+                                     (o.fg[filtergroup]->searchterm_flag ? o.fg[filtergroup]->searchterm_list
+                                                                         : o.fg[filtergroup]->banned_phrase_list),
+                                     o.fg[filtergroup]->searchterm_limit, true);
+                    if (checkme->isItNaughty) {
+                        checkme->blocktype = 2;
+                        return;
+                    }
                 }
             }
         }
@@ -3257,7 +3289,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 #endif
         //start an ssl client
         std::string certpath(o.ssl_certificate_path.c_str());
-        if (ssl_sock.startSslClient(certpath) < 0) {
+        if (ssl_sock.startSslClient(certpath,hostname) < 0) {
             (*checkme).whatIsNaughty = "Could not open ssl connection";
             (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
             (*checkme).isItNaughty = true;
@@ -3628,7 +3660,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".gif") || lurl.endsWith(".jpg") || lurl.endsWith(".jpeg") || lurl.endsWith(".jpe")
-                        || lurl.endsWith(".png") || lurl.endsWith(".bmp") || (*docheader).isContentType("image/")) {
+                        || lurl.endsWith(".png") || lurl.endsWith(".bmp") || (*docheader).isContentType("image/",filtergroup)) {
                         replaceimage = true;
                     }
                 }
@@ -3636,7 +3668,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 if (o.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
-                    if (lurl.endsWith(".swf") || (*docheader).isContentType("application/x-shockwave-flash")) {
+                    if (lurl.endsWith(".swf") || (*docheader).isContentType("application/x-shockwave-flash",filtergroup)) {
                         replaceflash = true;
                     }
                 }
@@ -3983,7 +4015,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         rc = system("date");
 #endif
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
-            && !docheader->authRequired() && (docheader->isContentType("text") || docheader->isContentType("-"))) {
+            && !docheader->authRequired() && (docheader->isContentType("text",filtergroup) || docheader->isContentType("-",filtergroup))) {
             checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
                 filtergroup, o.fg[filtergroup]->banned_phrase_list, o.fg[filtergroup]->naughtyness_limit);
         }
@@ -4000,7 +4032,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 std::cout << dbgPeerPort << " -Is flagged as a bypass";
             else if (docheader->authRequired())
                 std::cout << dbgPeerPort << " -Is a set of auth required headers";
-            else if (!docheader->isContentType("text"))
+            else if (!docheader->isContentType("text",filtergroup))
                 std::cout << dbgPeerPort << " -Not text";
             std::cout << dbgPeerPort << std::endl;
         }
@@ -4014,7 +4046,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         return;
     }
 
-    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty && docheader->isContentType("text")) {
+    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty && docheader->isContentType("text",filtergroup)) {
         contentmodified = docbody->contentRegExp(filtergroup);
         // content modifying uses global variable
     }
@@ -4023,7 +4055,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         std::cout << dbgPeerPort << " -Skipping content modification: ";
         if (dblen > o.max_content_filter_size)
             std::cout << dbgPeerPort << " -Content too large";
-        else if (!docheader->isContentType("text"))
+        else if (!docheader->isContentType("text",filtergroup))
             std::cout << dbgPeerPort << " -Not text";
         else if (checkme->isItNaughty)
             std::cout << dbgPeerPort << " -Already flagged as naughty";
@@ -4122,6 +4154,8 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     //check that everything in this certificate is correct appart from the hostname
     if (rc < 0) {
         //no certificate
+        if ( o.fg[filtergroup]->allow_empty_host_certs)
+            return;
         checkme->isItNaughty = true;
         //(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
         checkme->message_no = 155;

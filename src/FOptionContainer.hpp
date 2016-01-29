@@ -185,6 +185,7 @@ class FOptionContainer
     unsigned int banned_regexpheader_list;
     unsigned int content_regexp_list;
     unsigned int url_regexp_list;
+    unsigned int sslsite_regexp_list;
     unsigned int header_regexp_list;
     unsigned int exception_extension_list;
     unsigned int exception_mimetype_list;
@@ -225,6 +226,7 @@ class FOptionContainer
     std::deque<RegExp> url_redirect_regexp_list_comp;
     std::deque<String> url_redirect_regexp_list_rep;
     bool url_redirect_regexp_flag;
+    bool allow_empty_host_certs;
 
     // regex match lists
     std::deque<RegExp> banned_regexpurl_list_comp;
@@ -245,6 +247,8 @@ class FOptionContainer
     std::deque<String> content_regexp_list_rep;
     std::deque<RegExp> url_regexp_list_comp;
     std::deque<String> url_regexp_list_rep;
+    std::deque<RegExp> sslsite_regexp_list_comp;
+    std::deque<String> sslsite_regexp_list_rep;
     std::deque<RegExp> header_regexp_list_comp;
     std::deque<String> header_regexp_list_rep;
     std::deque<RegExp> search_regexp_list_comp;
@@ -308,6 +312,7 @@ class FOptionContainer
         , banned_regexpheader_flag(false)
         , content_regexp_flag(false)
         , url_regexp_flag(false)
+        , sslsite_regexp_flag(false)
         , header_regexp_flag(false)
         , url_redirect_regexp_flag(false)
         , exception_extension_flag(false)
@@ -318,6 +323,7 @@ class FOptionContainer
         , log_url_flag(false)
         , log_regexpurl_flag(false)
         , ssl_denied_rewrite(false)
+        , allow_empty_host_certs(false)
         , pics_icra_nuditymalegraphic(0)
         , pics_icra_nudityfemalegraphic(0)
         , pics_icra_nuditytopless(0)
@@ -385,7 +391,8 @@ class FOptionContainer
     char *inExtensionList(unsigned int list, String url);
     bool isIPHostname(String url);
     bool addheader_regexp_flag; // public as used by HTTPHeader.cpp
-    bool search_regexp_flag; // public as used by HTTPHeader.cpp
+    bool search_regexp_flag;    // public as used by HTTPHeader.cpp
+    bool sslsite_regexp_flag;   // public as used by HTTPHeader.cpp
 
     // log-only lists - return category
     const char *inLogURLList(String url);
@@ -394,6 +401,7 @@ class FOptionContainer
 
     // get HTML template for this group
     HTMLTemplate *getHTMLTemplate();
+    std::deque<std::string> text_mime;
 
     private:
     // HTML template - if it overrides the default

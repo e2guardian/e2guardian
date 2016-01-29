@@ -32,6 +32,7 @@
 "157","Unable to create tunnel through local proxy"    # needs translation
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
+"160","Failed to negotiate ssl connection to server"    # needs translation
 "200","La URL solicitada esta mal formada."
 "300","Se encontr&oacute; la frase no permitida: "
 "301","Se encontr&oacute; una frase no permitida"

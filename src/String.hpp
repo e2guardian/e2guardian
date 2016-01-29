@@ -128,6 +128,9 @@ class String : public std::string
 
     // Sort search words
     String sort_search();
+
+    // get CN name that is oK for cert from url
+    String CN();
 };
 
 #endif

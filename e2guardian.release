@@ -1,4 +1,11 @@
-Changed and Added features in e2guardian 3.2.0
+Changed and Added features in e2guardian 3.4.0
+
+Tuning settings introduced/changed in v3.4.0:- 
+--------------------------------------------
+
+weightedphrasemode moved from e2guardian.conf to e2guardianfn.conf
+
++ more
 
 Tuning settings introduced/changed in v3.2.0:- 
 --------------------------------------------

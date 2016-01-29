@@ -59,6 +59,7 @@ class OptionContainer
     std::deque<String> xforwardedfor_filter_ip;
     bool logconerror;
     bool logchildprocs;
+    bool log_ssl_errors;
     int url_cache_number;
     int url_cache_age;
     int phrase_filter_mode;
@@ -132,6 +133,7 @@ class OptionContainer
     bool no_daemon;
     bool no_logger;
     bool log_syslog;
+    std::string name_suffix;
     unsigned int max_logitem_length;
     bool anonymise_logs;
     bool log_ad_blocks;

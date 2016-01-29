@@ -143,6 +143,9 @@ bool OptionContainer::read(const char *filename, int type)
 
 			if (findoptionS("logsyslog") == "on") {
 				log_syslog = true;
+        if ((name_suffix = findoptionS("namesuffix")) == "") {
+          name_suffix = "";
+        }
 			} else 	if ((log_location = findoptionS("loglocation")) == "") {
 				log_location = __LOGLOCATION;
 				log_location += "/access.log";
@@ -379,21 +382,6 @@ bool OptionContainer::read(const char *filename, int type)
             max_content_ramcache_scan_size = max_content_filecache_scan_size;
         }
 
-        weighted_phrase_mode = findoptionI("weightedphrasemode");
-        if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
-            return false;
-        }
-        /*
-		if ((weighted_phrase_mode != 0)) {
-			max_content_filter_size = max_content_ramcache_scan_size;
-			if (max_content_filter_size == 0) {
-				if (!is_daemonised)
-					std::cerr << "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)" << std::endl;
-				syslog(LOG_ERR, "%s", "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)");
-				return false;
-			}
-		}
-*/
         bool contentscanning = findoptionM("contentscanner").size() > 0;
         if (contentscanning) {
 
@@ -531,10 +519,10 @@ bool OptionContainer::read(const char *filename, int type)
         } // check its a reasonable value
 
 #ifdef ENABLE_ORIG_IP
-        if (findoptionS("originalip") == "off") {
-            get_orig_ip = false;
-        } else {
+        if (findoptionS("originalip") == "on") {
             get_orig_ip = true;
+        } else {
+            get_orig_ip = false;
         }
 
 #endif
@@ -603,10 +591,10 @@ bool OptionContainer::read(const char *filename, int type)
         if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
             return false;
         }
-        if (findoptionS("createlistcachefiles") == "off") {
-            createlistcachefiles = false;
-        } else {
+        if (findoptionS("createlistcachefiles") == "on") {
             createlistcachefiles = true;
+        } else {
+            createlistcachefiles = false;
         }
         if (findoptionS("logconnectionhandlingerrors") == "on") {
             logconerror = true;
@@ -617,6 +605,12 @@ bool OptionContainer::read(const char *filename, int type)
             logchildprocs = true;
         } else {
             logchildprocs = false;
+        }
+
+        if (findoptionS("logsslerrors") == "on") {
+            log_ssl_errors = true;
+        } else {
+            log_ssl_errors = false;
         }
 
         if (findoptionS("reverseaddresslookups") == "on") {

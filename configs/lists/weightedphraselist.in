@@ -49,29 +49,29 @@
 
 #Pornography
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted>
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_chinese> #ALPHA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_danish> #ALPHA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_dutch> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_chinese> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_danish> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_dutch> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_french>
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_german>
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_italian>
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_japanese> #ALPHA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_malay> #BETA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_norwegian> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_japanese> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_malay> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_norwegian> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_polish>
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_portuguese>
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_russian> #BETA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_russian_utf8> #BETA#
-.Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_spanish> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_russian> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_russian_utf8> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_spanish> #ALPHA#
 .Include<@DGCONFDIR@/lists/phraselists/pornography/weighted_swedish>
 .Include<@DGCONFDIR@/lists/phraselists/nudism/weighted>
 
 #Bad Words - swearing
 .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_dutch> 
 .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_french>
-.Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_german> #ALPHA#
-.Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_portuguese> #ALPHA#
-.Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_spanish> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_german> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_portuguese> #ALPHA#
+# .Include<@DGCONFDIR@/lists/phraselists/badwords/weighted_spanish> #ALPHA#
 
 #Drugs
 #.Include<@DGCONFDIR@/lists/phraselists/drugadvocacy/weighted>
@@ -117,7 +117,7 @@
 #System Management and Security
 #.Include<@DGCONFDIR@/lists/phraselists/domainsforsale/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/idtheft/weighted>
-.Include<@DGCONFDIR@/lists/phraselists/malware/weighted> #BETA#
+# .Include<@DGCONFDIR@/lists/phraselists/malware/weighted> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/proxies/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/translation/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/upstreamfilter/weighted>

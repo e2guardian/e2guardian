@@ -4,9 +4,19 @@
 # 
 #   left is the site matching pattern
 #   right is the search words
+#
+#   Note: With https MITM e2guardian only sees the in-tunnel HTTP requests 
+#   and so for matching https urls use http: prefix.
+#
+#   I.e.  https://www.google.com/url will never match
+#         http://www.google.com/url will match both http://www.google.com/url
+#	                                   and https://www.google.com/url
+
 
 "^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)\&.*"->"\1"
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)"->"\1"
 "^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*).*"->"\1"
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*)"->"\1"
 
 "^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*\?p=([^&]*).*"->"\1"
 "^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*.*\&p=([^&]*).*"->"\1"
