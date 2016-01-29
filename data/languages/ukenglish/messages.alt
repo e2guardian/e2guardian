@@ -31,7 +31,6 @@
 "154","Failed to negotiate ssl connection to client"
 "155","No SSL certificate supplied by server"
 "156","Server's SSL certificate does not match domain name"
-"156","Server's SSL certificate does not match domain name"
 "157","Unable to create tunnel through local proxy"
 "158","Opening tunnel failed"
 "159","Could not connect to proxy server"
