@@ -921,7 +921,7 @@ bool FOptionContainer::read(const char *filename)
             } // download site exceptions
             exception_file_url_flag = true;
 
-            if (weighted_phrase_mode > 0) {
+            if ((weighted_phrase_mode > 0) && (weighted_phrase_mode != 1)) {
                 naughtyness_limit = findoptionI("naughtynesslimit");
                 if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
                     return false;
@@ -1131,7 +1131,7 @@ bool FOptionContainer::read(const char *filename)
             //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
             //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
             if (search_regexp_flag) {
-                if (weighted_phrase_mode > 0) {
+                if ((weighted_phrase_mode > 0) && (weighted_phrase_mode != 1)) {
                     searchterm_limit = findoptionI("searchtermlimit");
                     if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
                         return false;
