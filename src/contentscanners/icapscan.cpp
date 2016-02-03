@@ -40,7 +40,7 @@ class icapinstance : public CSPlugin
 {
     public:
     icapinstance(ConfigVar &definition)
-        : CSPlugin(definition), usepreviews(false), previewsize(0), supportsXIF(false), needsBody(false){};
+        : CSPlugin(definition), usepreviews(false), previewforce(false), previewsize(0), supportsXIF(false), needsBody(false){};
 
     int willScanRequest(const String &url, const char *user, int filtergroup, const char *ip, bool post,
         bool reconstituted, bool exception, bool bypass);
@@ -61,6 +61,7 @@ class icapinstance : public CSPlugin
     unsigned int icapport;
     // URL for the AV service
     String icapurl;
+    bool previewforce;
     // whether or not to send ICAP message previews, and the preview object size
     bool usepreviews;
     unsigned int previewsize;
@@ -106,8 +107,13 @@ int icapinstance::init(void *args)
         return DGCS_ERROR;
     }
 
-    icapurl = cv["icapurl"]; // format: icap://icapserver:1344/avscan
-    if (icapurl.length() < 3) {
+    if (cv["previewforce"] == "on"){
+    	previewforce = true;
+    }
+  
+   icapurl = cv["icapurl"]; // format: icap://icapserver:1344/avscan
+
+   if (icapurl.length() < 3) {
         if (!is_daemonised)
             std::cerr << "Error reading icapurl option." << std::endl;
         syslog(LOG_ERR, "Error reading icapurl option.");
@@ -211,11 +217,11 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
     }
 #ifdef DGDEBUG
     std::cerr << "About to send memory data to icap" << std::endl;
-    if (usepreviews && (objectsize > previewsize))
+    if (usepreviews && ((objectsize > previewsize) || previewforce))
         std::cerr << "Sending preview first" << std::endl;
 #endif
     unsigned int sent = 0;
-    if (usepreviews && (objectsize > previewsize)) {
+    if (usepreviews && ((objectsize > previewsize) || previewforce)) {
         try {
             if (!icapsock.writeToSocket(object, previewsize, 0, o.content_scanner_timeout)) {
                 throw std::runtime_error("standard error");
@@ -309,7 +315,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     char *object = new char[100];
     int objectsize = 0;
 
-#ifdef DGDEBUG
+# ifdef DGDEBUG
     std::cerr << "About to send file data to icap" << std::endl;
     if (usepreviews && (filesize > previewsize))
         std::cerr << "Sending preview first" << std::endl;
@@ -442,7 +448,7 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
     // leakage over the network.
     String encapsulatedheader("GET " + reqheader->getUrl() + " HTTP/1.0\r\n\r\n");
     // body chunk size in hex - either full body, or just preview
-    if (usepreviews && (objectsize > previewsize)) {
+    if (usepreviews && ((objectsize > previewsize) || previewforce)) {
         snprintf(objectsizehex, sizeof(objectsizehex), "%x\r\n", previewsize);
     } else {
         snprintf(objectsizehex, sizeof(objectsizehex), "%x\r\n", objectsize);
@@ -457,9 +463,9 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
     String httpresponseheader("HTTP/1.0 200 OK\r\n\r\n");
     // ICAP header itself
     String icapheader("RESPMOD " + icapurl + " ICAP/1.0\r\nHost: " + icaphost + "\r\nAllow: 204\r\nEncapsulated: req-hdr=0, res-hdr=" + String(encapsulatedheader.length()) + ", res-body=" + String(httpresponseheader.length() + encapsulatedheader.length()));
-    if (usepreviews && (objectsize > previewsize)) {
+    if (usepreviews && ((objectsize > previewsize) || previewforce)) {
         icapheader += "\r\nPreview: " + String(previewsize);
-    }
+   }
     icapheader += "\r\n\r\n";
 
 #ifdef DGDEBUG

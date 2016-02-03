@@ -1,5 +1,14 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+February 2014
+- Fix ICAP with c-icap server, new option previewforce
+
+January 2016
+- Version 3.4.0
+- weightedphrasemode now optional - defaults to 1
+- allowemptyhostcert option added (optional)
+- createlistcachefiles now defaults to off
+
 December 2015
 - new sslsiteregexplist added (optional)
 - search term logic changed so banned_search_override works with both
