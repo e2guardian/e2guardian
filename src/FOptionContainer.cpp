@@ -1155,7 +1155,10 @@ bool FOptionContainer::read(const char *filename)
                             searchterm_flag = true;
                         }
                     }
-                }
+                } else {
+			  weighted_phrase_mode = 1;
+		}
+		
             }
 
             if (!readRegExMatchFile(banned_regexpurl_list_location.c_str(), "bannedregexpurllist", banned_regexpurl_list,
