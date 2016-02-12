@@ -30,7 +30,7 @@ WLISTS = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist
 	 refererexceptionsitelist refererexceptionurllist searchregexplist \
 	 embededreferersitelist embededrefererurllist \
 	 authexceptionsitelist authexceptionurllist \
-	 urlredirectregexplist
+	 urlredirectregexplist sslsiteregexplist
  
 EXTRA_DIST = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \
 	 bannedregexpurllist bannedsitelist.in bannedurllist.in \
@@ -40,7 +40,8 @@ EXTRA_DIST = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetype
 	 exceptionphraselist.in bannediplist exceptioniplist urlregexplist \
 	 exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
 	 exceptionfilesitelist bannedregexpheaderlist headerregexplist \
-	 exceptionfileurllist logsitelist logurllist logregexpurllist 
+	 exceptionfileurllist logsitelist logurllist logregexpurllist \
+	 sslsiteregexplist
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
