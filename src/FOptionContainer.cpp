@@ -1129,7 +1129,7 @@ bool FOptionContainer::read(const char *filename)
             //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
             //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
             if (search_regexp_flag) {
-                if ((weighted_phrase_mode > 1) && (naughtyness_limit > 0)){
+                if ((weighted_phrase_mode > 0) && (naughtyness_limit > 0)){
                     searchterm_limit = findoptionI("searchtermlimit");
                     if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
                         return false;
