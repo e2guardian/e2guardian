@@ -96,7 +96,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             return; // Well there is no point in continuing is there?
     }
 
-    if (o.fg[filtergroup]->weighted_phrase_mode < 2) {
+    if (o.fg[filtergroup]->weighted_phrase_mode == 0) {
 #ifdef DGDEBUG
         std::cout << "Weighted phrase mode 0 - not going any further." << std::endl;
 #endif
