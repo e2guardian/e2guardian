@@ -739,8 +739,6 @@ bool FOptionContainer::read(const char *filename)
                 weighted_phrase_mode = findoptionI("weightedphrasemode");
                 if (!realitycheck(weighted_phrase_mode, 0, 3, "weightedphrasemode"))
                     return false;
-            } else {
-                weighted_phrase_mode = 1;
             }
 
             std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));

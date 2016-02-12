@@ -23,7 +23,7 @@ WLISTS = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist
 	 exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
 	 exceptionfilesitelist bannedregexpheaderlist headerregexplist \
 	 exceptionfileurllist logsitelist logurllist logregexpurllist \
-	 addheaderregexplist greysslsitelist \
+	 addheaderregexplist greysslsitelist sslsiteregexplist \
 	 localbannedsearchlist localbannedsitelist localbannedsslsitelist \
 	 localbannedurllist localexceptionsitelist localexceptionurllist \
 	 localgreysitelist localgreysslsitelist localgreyurllist \
