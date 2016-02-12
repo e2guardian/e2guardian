@@ -1,7 +1,6 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 February 2016
-
 - Version 3.4.0.2
 - Fix bug #109 (bannedphraselist not working)
 
