@@ -5,6 +5,7 @@ Tuning settings introduced/changed in v3.4.0:-
 
 - weightedphrasemode moved from e2guardian.conf to e2guardianfn.conf
 - weightedphrasemode now defaults to 1 (was previously 0)
+- naughtynesslimit now defaults to 50 (was previously undefined)
 - originalip now off by default
 - createlistcachefiles now defaults to off as is now depreciated
 
