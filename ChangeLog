@@ -1,5 +1,11 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+
+March 2016
+- Version 3.4.0.3
+Summary of changes in this release (v3.4.0.3) can be found in e2guardian.release
+- Fix segfault when weightedphrasemode not defined
+
 February 2016
 - Version 3.4.0.2
 - Fix bug #109 (bannedphraselist not working)

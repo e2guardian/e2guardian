@@ -161,6 +161,7 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # values.  See the weightedphraselist file for examples.
 # As a guide:
 # 50 is for young children,  100 for old children,  160 for young adults.
+# default 50
 naughtynesslimit = 50
 
 # Search term blocking
@@ -192,7 +193,6 @@ naughtynesslimit = 50
 # that the search terms themselves will be contained in the 
 # of output of each expression.
 #searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
-#
 #
 #
 # Override list - overrides both bannedsearchlist and searchterm limit
