@@ -1,0 +1,65 @@
+
+Some errors that can occur with certificates when using MITM
+
+
+Certificate supplied by server was not valid:
+    This message is produced when openssl detects an error in the target server's certificate.
+    The message after the ":" is an openssl message.  Check the openssl documentation on how to bug
+    fix the error.
+
+    Common ones are:-
+
+    Certificate supplied by server was not valid: self signed certificate in certificate chain
+
+        Certificate supplied is self-signed.
+        If you are happy to allow full access to this site then add it to exceptionsitelist.
+        To allow access with content checking then add site to nocheckcertsitelist.
+
+
+    Certificate supplied by server was not valid: unable to get local issuer certificate
+
+        Indicates that an invalid certificate has been supplied by target server.
+
+        If you get this error a lot (on most sites) then openssl is not set-up correctly.
+        Check you have an up-to-date certificate bundle installed.
+
+        If you get this on a site that works ok in browser going direct check that browser has not
+        got a certificate exception for the site.  If a direct browser accepts the sites certificate, then
+        check your openssl cert bundle is up-to-date.  Is it is, use openssl command line debuging options from
+        the server e2guardian is installed on.
+
+Failed to negotiate ssl connection to client
+
+    Possible causes:
+
+    Your rootCA is not installed on the client system - get user to install it.
+
+    App is using CONNECT but not using https protocol.  If you want to allow access to app add
+    site name to exceptionsitelist.
+
+    App on client system does not respect client certificate store.   If you want to allow access to app add
+    site name to exceptionsitelist.
+
+    Failure of network connection to client.
+
+No SSL certificate supplied by server
+
+    Server is trying to negotiate SSL connection without supplying certificate, so is insecure.
+    If you are happy to allow full access to this site then add it to exceptionsitelist.
+    To allow access with content checking then add site to nocheckcertsitelist.
+
+Server's SSL certificate does not match domain name
+
+    SSL certificate supplied by target server does not match domain name, so is insecure.
+    If you are happy to take risk and allow full access to this site then add it to exceptionsitelist.
+    To allow access with content checking then add site to nocheckcertsitelist.
+
+Failed to negotiate ssl connection to server
+
+    Target server is listening on port 443 for a non-https protocol.
+    If service is required add site to exceptionsitelist.
+
+    Transitory network failure after initial connection.
+
+General - if issues persist turn logsslerrors = on in e2guardian.conf - This will log detailed openssl stack errors
+    in syslog. Openssl documentation can then be consulted to help determine the cause of the error.

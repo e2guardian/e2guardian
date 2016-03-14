@@ -76,3 +76,5 @@ To set up MITM:
       on your system.
 
    Load my_rootCA.crt or my_rootCA.der certificate on each browser.
+
+   See notes/certificate_errors for some errors that can occur with certificates when using MITM.
