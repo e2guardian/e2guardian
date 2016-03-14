@@ -74,7 +74,7 @@ e2guardianfn.conf
 Logic Changes in v3.2.0:-
 -----------------------
 
-Many configure options and their correctponding defines have been removed and replaced, where needed, by option flags.
+Many configure options and their corresponding defines have been removed and replaced, where needed, by option flags.
 This results in cleaner, more readable code
 .
 MITM code for explict proxy now working - see notes/ssl_mitm for details.

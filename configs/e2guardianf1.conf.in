@@ -160,7 +160,7 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # good subjects will have negative values, and bad subjects will have positive
 # values.  See the weightedphraselist file for examples.
 # As a guide:
-# 50 is for young children,  100 for old children,  160 for young adults.
+# 55 is for young children,  110 for old children,  175 for young adults.
 # default 50
 naughtynesslimit = 50
 
@@ -170,8 +170,8 @@ naughtynesslimit = 50
 
 # Method 1 is that developed by Protex where specific 
 # search terms are contained in a bannedsearchlist.  
-# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment 
-# and overide this list as required.)  
+# (localbannedsearchlist and bannedsearchoveridelist can be used to supplement
+# and override this list as required.)
 # These lists contain banned search words combinations on each line.  
 # Words are separated by '+' and must be in sorted order within a line.
 #    so to block 'sexy girl' then the list must contain the line
@@ -209,7 +209,8 @@ naughtynesslimit = 50
 # The limit over which requests will be blocked for containing search terms
 # which match the weightedphraselist.  This should usually be lower than the
 # 'naughtynesslimit' value above, because the amount of text being filtered
-# is only a few words, rather than a whole page.
+# is only a few words, rather than a whole page. A value of around 40 is recommended
+# for children.
 # A value of 0 here indicates that no phrase filtering should be performed 
 # on the search terms.
 #searchtermlimit = 0
