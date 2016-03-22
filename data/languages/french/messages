@@ -1,43 +1,43 @@
-# e2guardian messages file in French
+# e2Guardian messages file in French
 # Translated by: Bernard Wanadoo and Jacques Theys
 # Improvements by Jeanuel
 # Improvements by Mathieu Parent (2011)
-#
-# ! Quote "'" changed by backquote "`" to avoid bad interpretation !
+# Few translation fixes and file converted to ANSI (2016 - Sylvain Gomez)
+
 "1","Accès interdit"
-"10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
-"50"," in "    # needs translation
-"51","TRUSTED"    # needs translation
+"10","IP limit exceeded. There is a "    # A traduire
+"11"," IP limit set."                    # A traduire
+"50"," dans "
+"51","CERTIFIÉ"
 "52","Accès interdit"
-"53","INFECTED"    # needs translation
-"54","SCANNED"    # needs translation
-"55","CONTENTMOD"    # needs translation
-"56","URLMOD"    # needs translation
-"57","HEADERMOD"    # needs translation
-"58","HEADERADD"    # needs translation
-"70","SSL SITE"    # needs translation
-"71","IP Limit"    # needs translation
-"72","Content scanning"    # needs translation
+"53","INFECTÉ"
+"54","SCANNÉ"
+"55","CONTENTMOD"   # A traduire
+"56","URLMOD"       # A traduire
+"57","HEADERMOD"    # A traduire
+"58","HEADERADD"    # A traduire
+"70","SITE SSL"
+"71","Limitation IP"
+"72","Analyse de contenu"
 "100","Votre addresse IP n`est pas autorisée à naviguer sur le site : "
 "101","Votre addresse IP n`est pas autorisée à naviguer."
 "102","Votre compte utilisateur n`est pas autorisé à afficher le site : "
-"103","Banned Client IP"    # needs translation
-"104","Banned Location"    # needs translation
-"105","Banned User"    # needs translation
-"121","Only limited access allowed from your location"    # needs translation
-"150","Certificate supplied by server was not valid"    # needs translation
-"151","Could not open ssl connection"     # needs translation
-"152","Failed to get ssl certificate"    # needs translation
-"153","Failed to load ssl private key"    # needs translation
-"154","Failed to negotiate ssl connection to client"    # needs translation
-"155","No SSL certificate supplied by server"    # needs translation
-"156","Server`s SSL certificate does not match domain name"    # needs translation
-"157","Unable to create tunnel through local proxy"    # needs translation
-"158","Opening tunnel failed"    # needs translation
-"159","Could not connect to proxy server"    # needs translation
-"160","Failed to negotiate ssl connection to server"    # needs translation
-"200","L`URL demandée n'est pas bien formée."
+"103","IP client bannie"
+"104","Emplacement banni"
+"105","Utilisateur banni"
+"121","Accès limité depuis votre emplacement"
+"150","Le certificat fourni par le serveur n`est pas valide"
+"151","Impossible d`ouvrir une connexion SSL"
+"152","Impossible d`obtenir le certificat SSL"
+"153","Chargement de la clé privée SSL échoué"
+"154","La négociation SSL avec le client a échouée"
+"155","Aucun certificat fourni par le serveur"
+"156","Le certificat SSL ne correspond pas au nom du domaine"
+"157","Impossible de créer un tunnel à travers le PROXY local"
+"158","L`ouverture du tunnel a échouée"
+"159","Impossible de se connecter au serveur PROXY"
+"160","La négotiation SSL avec le serveur a échouée"
+"200","L`URL demandée n`est pas bien formée."
 "300","Phrase interdite : "
 "301","Phrase interdite trouvée."
 "400","Combinaison de mots interdite : "
@@ -62,12 +62,12 @@
 "507","Le mode liste blanche SSL d`IPs (SSL IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
 "508","Expression régulière d`entète HTTP interdite : ",
 "509","Expression régulière d`entète HTTP interdite trouvée."
-"520","Blocked HTTPS site: "    # needs translation
-"521","Banned Search Words: "    # needs translation
-"560","Blocked site (local): "    # needs translation
-"561","Blocked URL (local): "    # needs translation
-"580","Blocked HTTPS site (local): "    # needs translation
-"581","Banned Search Words (local): "    # needs translation
+"520","Site HTTPS bloqué : "
+"521","Mots interdits dans votre recherche : "
+"560","Site bloqué (local) : "
+"561","URL bloquée (local) : "
+"580","Site HTTPS bloqué (local) : "
+"581","Mots interdits dans votre recherche (local) : "
 "600","Exception d`adresse IP client trouvée."
 "601","Exception d`utilisateur client trouvée."
 "602","Exception de site trouvée."
@@ -77,28 +77,28 @@
 "606","Exception d`URL sans controle trouvée."
 "607","Exception de cookie sans controle trouvée."
 "608","Exception d`URL sans inspection des logiciels malveillants trouvée."
-"609","Exception d`expression régulière d'URL trouvée : "
-"620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
-"631"," location allow list"    # needs translation
-"632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
+"609","Exception d`expression régulière d`URL trouvée : "
+"620","Referer match: "                         # A traduire
+"630","URL match in "                           # A traduire
+"631"," location allow list"                    # A traduire
+"632","Location overide allow list matched"     # A traduire
+"662","Site (local)."
+"663","URL (local)."
 "700","L`upload web est interdit."
 "701","Dépassement de la limite d`upload Web."
 "750","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce type MIME n`est pas dans la liste blanche : "
 "751","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce fichier n`est pas dans la liste blanche."
-"800","Type MIME interdit: "
+"800","Type MIME interdit : "
 "900","Type de fichier interdit : "
 "1000","Niveau PICS depassé sur le site entier."
 "1100","Logiciel malveillant détecté."
-"1101","Publicité bloqué"
-"1200","Veuillez patienter - téléchargement du fichier en cours ..."
-"1201","Avertissement : fichier trop volumineux pour ètre inspecté. Si vous pensez que le fichier est plus volumineux que "
+"1101","Publicité bloquée"
+"1200","Veuillez patienter - Téléchargement du fichier en cours..."
+"1201","Avertissement : fichier trop volumineux pour être inspecté. Si vous pensez que le fichier est plus volumineux que "
 "1202",", raffraîchissez la page pour le télécharger directement."
-"1203","WARNING: Could not perform content scan!"    # needs translation
+"1203","Avertissement : analyse du contenu impossible !"
 "1210","Téléchargement terminé. Inspection des logiciels malveillants en cours ..."
 "1220","Inspection du fichier terminée.</p><p>Cliquez ici pour le télécharger : "
-"1221","Télécharge terminé. fichier non inspecté.</p><p>Cliquez ici pour le télécharger : "
-"1222","Fichier trop volumineux pour ètre mis en cache.</p><p>Cliquez ici pour le télécharger à nouveau, sans inspection des logiciels malveillants : "
+"1221","Téléchargement terminé. fichier non inspecté.</p><p>Cliquez ici pour le télécharger : "
+"1222","Fichier trop volumineux pour être mis en cache.</p><p>Cliquez ici pour le télécharger à nouveau, sans inspection des logiciels malveillants : "
 "1230","Le fichier n`est plus disponible"

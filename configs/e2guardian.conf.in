@@ -31,14 +31,11 @@ logexceptionhits = 2
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
-# Protex format type 1 – Tab delimited, squid style format with extra fields
-# for filter block/result codes, reasons, filter group, and system name –
-# used in arrays so that combined logs show originating server.
-# Protex format type 2 – Same format as above but system name field is blank
-# – used in stand-alone systems.
-# 5 = Protex format
+# 5 = Protex format – Tab delimited, squid style format with extra fields
+#     for filter block/result codes, reasons, filter group, and system name –
+#     used in arrays so that combined logs show originating server.
 # 6 = Protex format with server field blanked
-
+#     used in stand-alone systems.
 logfileformat = 1
 
 # truncate large items in log lines
@@ -72,7 +69,7 @@ logfileformat = 1
 # connections and connections per second are written to this
 # file. Format is similar to sar.
 # Default is not to write stats.
-#dstatlocation = '@DGLOGLOCATION@/dstats.log'
+dstatlocation = '@DGLOGLOCATION@/dstats.log'
 
 # Interval between stats output
 # Default 300 = 5 mins
@@ -144,12 +141,6 @@ proxyexchange = 20
 # Min 5 - Max 300
 pcontimeout = 55
 
-# Life depends on Proxy 
-# if proxytimeout is expired, E2 is killed 
-# usefull for load balancer or proxy pac failover
-# off (default) | on
-# alivewithproxy = on
-
 # Whether to retrieve the original destination IP in transparent proxy
 # setups and check it against the domain pulled from the HTTP headers.
 #
@@ -199,7 +190,7 @@ exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 
 # Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
-# and optionaly site and url lists
+# and optionally site and url lists
 # Think of it as bannediplist and/or exceptions on crack
 # perroomdirectory = '@DGCONFDIR@/lists/rooms/'
 
@@ -490,8 +481,8 @@ contentscanexceptions = off
 
 
 # Auth plugins
-# These replace the usernameidmethod* options in previous versions. They
-# handle the extraction of client usernames from various sources, such as
+#
+# Handle the extraction of client usernames from various sources, such as
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
 # Multiple plugins can be specified, and will be used per port in the order
@@ -737,6 +728,7 @@ softrestart = off
 # When e2guardian is stopping with 'paused' appended
 # If cache stops responding with 'paused' appended
 # When cache resumes with 'running' appended
+# monitorflagprefix = '/tmp/e2g_run_flag_'
 
 # monitorstart - defaults to minchildren
 # valid values between 1 and minchildren

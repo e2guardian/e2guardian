@@ -739,6 +739,8 @@ bool FOptionContainer::read(const char *filename)
                 weighted_phrase_mode = findoptionI("weightedphrasemode");
                 if (!realitycheck(weighted_phrase_mode, 0, 3, "weightedphrasemode"))
                     return false;
+            } else {
+                weighted_phrase_mode = 1;
             }
 
             std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));
@@ -921,6 +923,7 @@ bool FOptionContainer::read(const char *filename)
 
             if (weighted_phrase_mode > 0) {
                 naughtyness_limit = findoptionI("naughtynesslimit");
+                if (naughtyness_limit == 0) naughtyness_limit = 50;
                 if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
                     return false;
 
@@ -1153,10 +1156,7 @@ bool FOptionContainer::read(const char *filename)
                             searchterm_flag = true;
                         }
                     }
-                } else {
-			  weighted_phrase_mode = 1;
-		}
-		
+                }
             }
 
             if (!readRegExMatchFile(banned_regexpurl_list_location.c_str(), "bannedregexpurllist", banned_regexpurl_list,
