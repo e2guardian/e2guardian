@@ -1,99 +1,99 @@
 # e2guardian messages file in Russian KOI8-R 
 "1"," "
-"10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
-"50"," in "    # needs translation
-"51","TRUSTED"    # needs translation
-"52","DENIED"    # needs translation
-"53","INFECTED"    # needs translation
-"54","SCANNED"    # needs translation
-"55","CONTENTMOD"    # needs translation
-"56","URLMOD"    # needs translation
-"57","HEADERMOD"    # needs translation
-"58","HEADERADD"    # needs translation
-"70","SSL SITE"    # needs translation
-"71","IP Limit"    # needs translation
-"72","Content scanning"    # needs translation
+"10","Превышен предел подключений. Задан лимит на  "
+"11"," IP адресов."
+"50"," в "
+"51","ИСКЛЮЧЕНИЕ"
+"52","ЗАПРЕЩЁН"
+"53","ЗАРАЖЕН"
+"54","ПРОСКАНИРОВАН"
+"55","CONTENTMOD"    # needs translation (I think there is no need to translate this)
+"56","URLMOD"    # needs translation (I think there is no need to translate this)
+"57","HEADERMOD"    # needs translation (I think there is no need to translate this)
+"58","HEADERADD"    # needs translation (I think there is no need to translate this)
+"70","SSL SITE"
+"71","Лимит IP"
+"72","Сканирование контента"
 "100","   IP-    web: "
 "101","   IP-    web."
 "102","       web: "
-"103","Banned Client IP"    # needs translation
-"104","Banned Location"    # needs translation
-"105","Banned User"    # needs translation
-"121","Only limited access allowed from your location"    # needs translation
-"150","Certificate supplied by server was not valid"    # needs translation
-"151","Could not open ssl connection"     # needs translation
-"152","Failed to get ssl certificate"    # needs translation
-"153","Failed to load ssl private key"    # needs translation
-"154","Failed to negotiate ssl connection to client"    # needs translation
-"155","No SSL certificate supplied by server"    # needs translation
-"156","Server's SSL certificate does not match domain name"    # needs translation
-"157","Unable to create tunnel through local proxy"    # needs translation
-"158","Opening tunnel failed"    # needs translation
-"159","Could not connect to proxy server"    # needs translation
-"160","Failed to negotiate ssl connection to server"    # needs translation
+"103","IP заблокирован"
+"104","Локация заблокирована"
+"105","Пользователь заблокирован"
+"121","Вы работаете в режиме белого списка"
+"150","Сертификат, предоставленный сервером, недействителен"
+"151","Не удалось установить SSL-соединение"
+"152","Не удалось получить SSL-сертификат"
+"153","Не удалось загрузить приватный ключ SSL"
+"154","Не удалось установить SSL соединение с клиентом"
+"155","Сервер не предоставил SSL-сертификат"
+"156","SSL-сертификат сервера не совпадает с доменным именем"
+"157","Не удалось создать туннель через локальный прокси"
+"158","Не удалось открыть туннель"
+"159","Не удалось подключиться к прокси серверу"
+"160","Не удалось установить SSL соединение с сервером"
 "200"," URL   ."
 "300","  : "
 "301","  ."
 "400","   : "
 "401","   ."
-"402","Weighted phrase limit of "
-"403","   ."
-"450","Banned search term found: "    # needs translation
-"451","Banned search term found."    # needs translation
-"452","Banned combination search term found: "    # needs translation
-"453","Banned combination search term found."    # needs translation
-"454","Weighted search term limit of "    # needs translation
-"455","Weighted search term limit exceeded."    # needs translation
-"456","Exception combination search term found: "    # needs translation
-"457","Exception search term found: "    # needs translation
+"402","Предел весов фраз "
+"403","  ."
+"450","Найден запрещённый поисковой запрос: "
+"451","Найден запрещённый поисковой запрос."
+"452","Найдена запрещённая комбинация поисковых запросов: "
+"453","Найдена запрещённая комбинация поисковых запросов."
+"454","Лимит весов поисковых запросов: "
+"455","Превышен предел весов поисковых запросов."
+"456","Найдена исключенная комбинация поисковых запросов: "
+"457","Найден исключенный поисковой запрос: "
 "500"," : "
 "501"," URL: "
-"502","Blanket Block is active and that site is not on the white list."
+"502","Сайт не содержится в белом списке."
 "503","URL,   : "
 "504"," URL,   ."
-"505","Blanket IP Block is active and that address is an IP only address."
-"506","HTTPS access is only allowed to trusted sites."    # needs translation
-"507","HTTPS access by IP address is not allowed."    # needs translation
-"508","Access not allowed using this browser (or app): "    # needs translation
-"509","Access not allowed using this browser (or app)."    # needs translation
-"520","Blocked HTTPS site: "    # needs translation
-"521","Banned Search Words: "    # needs translation
-"560","Blocked site (local): "    # needs translation
-"561","Blocked URL (local): "    # needs translation
-"580","Blocked HTTPS site (local): "    # needs translation
-"581","Banned Search Words (local): "    # needs translation
-"600","Exception client IP match."
-"601","Exception client user match."
-"602","Exception site match."
-"603","Exception URL match."
-"604","Exception phrase found: "
-"605","Combination exception phrase found: "
-"606","Bypass URL."    # needs translation
-"607","Bypass cookie exception."
-"608","Scan bypass URL exception."
-"609","Exception regular expression URL match: "
-"620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
-"631"," location allow list"    # needs translation
-"632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
+"505","Включен режим белого списка, не позволяющий переходить на IP адреса."
+"506","Защищенное соединение разрешено только для доверенных сайтов."
+"507","Защищенное соединение по IP адресу запрещено."
+"508","Доступ к интернету с этого браузера (или приложения) запрещен: "
+"509","Доступ к интернету с этого браузера (или приложения) запрещен."
+"520","Заблокированный HTTPS сайт: "
+"521","Заблокированный поисковой запрос: "
+"560","Заблокированный сайт (локальный): "
+"561","Заблокированный URL (локальный): "
+"580","Заблокированный HTTPS сайт (локальный): "
+"581","Заблокированный поисковой запрос (локальный): "
+"600","Доверенный IP клиента."
+"601","Доверенный пользователь."
+"602","Доверенный сайт."
+"603","Доверенный URL."
+"604","Разрешенная фраза: "
+"605","Комбинация разрешенных фраз: "
+"606","Пропущенный URL."
+"607","Пропущенный доверенный cookie."
+"608","Сканер пропустил доверенный URL."
+"609","Доверенный URL с регулярным выражением: "
+"620","Найден переход: "    # needs elaboration
+"630","URL совпадает в локации "    # needs elaboration
+"631","  ."
+"632","Найден в списке перезаписи локации"    # needs elaboration
+"662","Сайт (локальный)."
+"663","URL (локальный)."
 "700","  ."
 "701","  ."
-"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
-"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"750","MIME-тип не содержится в белом списке: "
+"751","Файл не содержится в белом списке."
 "800"," MIME-: "
 "900","  : "
-"1000","PICS labeling level exceeded on the above site."
-"1100","Virus or bad content detected."
-"1101","Advert blocked"
-"1200","Please wait - downloading to be scanned..."
-"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
-"1202",", then refresh this page to download directly."    # needs translation
-"1203","WARNING: Could not perform content scan!"    # needs translation
-"1210","Download Complete.  Starting scan..."
-"1220","Scan complete.</p><p>Click here to download: "
-"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
-"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
-"1230","File no longer available"
+"1000","На данном сайте превышен уровень PICS маркировки." # needs elaboration
+"1100","Найден вирус, либо запрещенный контент."
+"1101","Реклама заблокирована"
+"1200","Пожалуйста подождите. Проверка загрузки..."
+"1201","Внимание: файл слишком большой для проверка. Если вы подозреваете, что размер файла больше, чем "
+"1202",", обновите страницу, чтобы скачать напрямую."    # needs translation
+"1203","ВНИМАНИЕ: невозможно произвести сканирование контента!"    # needs translation
+"1210","Загрузка завершена.  Начинаю сканирование..."
+"1220","Сканирование завершено.</p><p>Нажмите сюда, чтобы скачать: "
+"1221","Загрузка завершена; Файл не был остканирован.</p><p>Нажмите сюда, чтобы скачать: "    # needs translation
+"1222","Файл слишком большой для кэша.</p><p>Нажмите сюда, чтобы скачать заново, в обход сканера: "    # needs translation
+"1230","Файл больше недоступен"
