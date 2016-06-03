@@ -422,7 +422,7 @@ trickledelay = 10
 #
 # There are various methods possible but not all are included.
 # The author does not have the time to write them all so I have
-# included a plugin systam.  Also, not all methods work with all
+# included a plugin system.  Also, not all methods work with all
 # browsers and clients.  Specifically some fancy methods don't
 # work with software that downloads updates.  To solve this,
 # each plugin can support a regular expression for matching
