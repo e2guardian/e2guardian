@@ -669,7 +669,8 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         }
 
-    //    if (content_scanning_av == true){ 
+	// Really Needed ? Fred 
+        if (content_scanning_av == true){ 
         	if (!loadDMPlugins()) {
             		if (!is_daemonised) {
                 		std::cerr << "Error loading DM plugins" << std::endl;
@@ -677,7 +678,7 @@ bool OptionContainer::read(const char *filename, int type)
             			syslog(LOG_ERR, "Error loading DM plugins");
             			return false;
         	}
-//	}
+	}
         // this needs to be known before loading CS plugins,
         // because ClamAV plugin makes use of it during init()
         download_dir = findoptionS("filecachedir");
