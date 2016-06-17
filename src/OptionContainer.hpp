@@ -168,6 +168,7 @@ class OptionContainer
     bool scan_clean_cache;
     bool content_scan_exceptions;
     bool delete_downloaded_temp_files;
+    bool content_scanning_av;
     std::string download_dir;
     int initial_trickle_delay;
     int trickle_delay;

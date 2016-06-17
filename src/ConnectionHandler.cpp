@@ -1198,7 +1198,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // TODO - Should probably block if willScanRequest returns error
             bool multipart = false;
             if (!isbannedip && !isbanneduser && !isconnect && !ishead
-                && (o.fg[filtergroup]->disable_content_scan != 1)
+                && (o.fg[filtergroup]->disable_content_scan == false)
                 && !(isexception && !o.content_scan_exceptions)) {
                 for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
                     int csrc = ((CSPlugin *)(*i))->willScanRequest(header.getUrl(), clientuser.c_str(), filtergroup, clientip.c_str(), false, false, isexception, isbypass);
