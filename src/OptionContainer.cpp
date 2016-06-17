@@ -661,6 +661,7 @@ bool OptionContainer::read(const char *filename, int type)
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     //    if (content_scanning_av == true){ 
         	if (!loadDMPlugins()) {
             		if (!is_daemonised) {
@@ -671,6 +672,8 @@ bool OptionContainer::read(const char *filename, int type)
         	}
 //	}
 =======
+=======
+>>>>>>> parent of da541e1... downloadmanager option is not needed anymore when AV is disabled
         if (!loadDMPlugins()) {
             if (!is_daemonised) {
                 std::cerr << "Error loading DM plugins" << std::endl;
@@ -679,6 +682,9 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         }
 
+<<<<<<< HEAD
+>>>>>>> parent of da541e1... downloadmanager option is not needed anymore when AV is disabled
+=======
 >>>>>>> parent of da541e1... downloadmanager option is not needed anymore when AV is disabled
         // this needs to be known before loading CS plugins,
         // because ClamAV plugin makes use of it during init()
