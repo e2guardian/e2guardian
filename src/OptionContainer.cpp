@@ -29,7 +29,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), fg(NULL)
+    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), content_scanning_av(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), fg(NULL)
 {
 }
 
@@ -382,9 +382,17 @@ bool OptionContainer::read(const char *filename, int type)
             max_content_ramcache_scan_size = max_content_filecache_scan_size;
         }
 
+	// TODO move the options before in this part - control_scanning true/false should be used in other parts of code - Fred
         bool contentscanning = findoptionM("contentscanner").size() > 0;
         if (contentscanning) {
-
+            if (!loadCSPlugins()) {
+                if (!is_daemonised) {
+                    std::cerr << "Error loading CS plugins" << std::endl;
+                }
+                syslog(LOG_ERR, "Error loading CS plugins");
+                return false;
+            }
+	    
             if (max_content_filter_size > max_content_ramcache_scan_size) {
                 if (!is_daemonised) {
                     std::cerr << "maxcontentfiltersize can not be greater than maxcontentramcachescansize" << std::endl;
@@ -425,6 +433,7 @@ bool OptionContainer::read(const char *filename, int type)
             } else {
                 content_scan_exceptions = false;
             }
+	    content_scanning_av = true;
         }
 
         if (findoptionS("deletedownloadedtempfiles") == "off") {
@@ -660,36 +669,27 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         }
 
-        if (!loadDMPlugins()) {
-            if (!is_daemonised) {
-                std::cerr << "Error loading DM plugins" << std::endl;
-            }
-            syslog(LOG_ERR, "Error loading DM plugins");
-            return false;
-        }
-
+	// Really Needed ? Fred 
+        if (content_scanning_av == true){ 
+        	if (!loadDMPlugins()) {
+            		if (!is_daemonised) {
+                		std::cerr << "Error loading DM plugins" << std::endl;
+            		}
+            			syslog(LOG_ERR, "Error loading DM plugins");
+            			return false;
+        	}
+	}
         // this needs to be known before loading CS plugins,
         // because ClamAV plugin makes use of it during init()
         download_dir = findoptionS("filecachedir");
 
-        if (contentscanning) {
-            if (!loadCSPlugins()) {
-                if (!is_daemonised) {
-                    std::cerr << "Error loading CS plugins" << std::endl;
-                }
-                syslog(LOG_ERR, "Error loading CS plugins");
-                return false;
-            }
+       	if (!loadAuthPlugins()) {
+          	if (!is_daemonised) {
+               		std::cerr << "Error loading auth plugins" << std::endl;
+          	}
+            		syslog(LOG_ERR, "Error loading auth plugins");
+            		return false;
         }
-
-        if (!loadAuthPlugins()) {
-            if (!is_daemonised) {
-                std::cerr << "Error loading auth plugins" << std::endl;
-            }
-            syslog(LOG_ERR, "Error loading auth plugins");
-            return false;
-        }
-
         // check if same number of auth-plugin as ports if in
         //     authmaptoport mode
         if (map_auth_to_ports && (filter_ports.size() > 1)
