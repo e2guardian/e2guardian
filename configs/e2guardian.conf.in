@@ -437,7 +437,7 @@ trickledelay = 10
 # one is forced to match as the default, regardless of user agent
 # and other matching mechanisms.
 #
-#@FANCYSUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/fancy.conf'
+@FANCYSUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/fancy.conf'
 #@TRICKLESUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/trickle.conf'
 downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 
