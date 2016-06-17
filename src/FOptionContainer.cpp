@@ -355,9 +355,9 @@ bool FOptionContainer::read(const char *filename)
         }
 
         if (findoptionS("disablecontentscan") == "on") {
-            	disable_content_scan = true;
+            disable_content_scan = true;
         } else {
-            	disable_content_scan = false;
+            disable_content_scan = false;
         }
 
         if (findoptionS("useonlylocalallowlists") == "on") {
