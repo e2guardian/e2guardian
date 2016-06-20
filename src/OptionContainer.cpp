@@ -161,12 +161,12 @@ bool OptionContainer::read(const char *filename, int type)
 				dstat_log_flag = false;
 			} else {
 				dstat_log_flag = true;
-				dstat_interval = findoptionI("dstatinterval"); 
+				dstat_interval = findoptionI("dstatinterval");
 				if ( dstat_interval  == 0) {
 					dstat_interval = 300; // 5 mins
 				}
 			}
-				
+
 
 			if (type == 0) {
 				return true;

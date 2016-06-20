@@ -1,5 +1,5 @@
 scandir = $(DGCONFDIR)/contentscanners
-nodist_scan_DATA = 
+nodist_scan_DATA =
 
 if ENABLE_CLAMD
 nodist_scan_DATA += clamdscan.conf

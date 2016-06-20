@@ -29,7 +29,7 @@ dist_list_DATA = \
 	embededreferersitelist embededrefererurllist \
 	authexceptionsitelist authexceptionurllist \
 	urlredirectregexplist sslsiteregexplist
- 
+
 nodist_list_DATA =		\
 	bannedphraselist	\
 	bannedsitelist		\

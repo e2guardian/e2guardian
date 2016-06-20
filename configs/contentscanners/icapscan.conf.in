@@ -5,7 +5,7 @@ plugname = 'icapscan'
 # Always specify the port
 #
 # Force preview not matter the object size (needed by c-icap)
-# previewforce = on  
+# previewforce = on
 #
 
 icapurl = 'icap://icapserver:1344/avscan'

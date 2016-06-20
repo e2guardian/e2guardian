@@ -110,7 +110,7 @@ int icapinstance::init(void *args)
     if (cv["previewforce"] == "on"){
     	previewforce = true;
     }
-  
+
    icapurl = cv["icapurl"]; // format: icap://icapserver:1344/avscan
 
    if (icapurl.length() < 3) {
@@ -315,7 +315,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     char *object = new char[100];
     int objectsize = 0;
 
-# ifdef DGDEBUG
+#ifdef DGDEBUG
     std::cerr << "About to send file data to icap" << std::endl;
     if (usepreviews && (filesize > previewsize))
         std::cerr << "Sending preview first" << std::endl;
