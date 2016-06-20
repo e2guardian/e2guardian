@@ -724,11 +724,11 @@ configs/lists/Makefile
 configs/lists/phraselists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
-configs/lists/weightedphraselist
-configs/lists/exceptionphraselist
 configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
+configs/lists/exceptionphraselist
+configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/downloadmanagers/fancy.conf
@@ -741,9 +741,10 @@ configs/contentscanners/kavdscan.conf
 configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
 configs/authplugins/ip.conf
+configs/authplugins/port.conf
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
-                src/Makefile
+src/Makefile
 ])
 
 AC_OUTPUT
