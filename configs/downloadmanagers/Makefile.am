@@ -1,31 +1,13 @@
-DISTCLEANFILES = Makefile.in \
-		       default.conf fancy.conf trickle.conf
+dmdir = $(DGCONFDIR)/downloadmanagers
 
-DGDATADIR = $(DGCONFDIR)/downloadmanagers
-
-SUBDIRS = .
-
-FLISTS = default.conf
+nodist_dm_DATA = default.conf
 
 if ENABLE_FANCYDM
-FLISTS += fancy.conf
+nodist_dm_DATA += fancy.conf
 endif
 
 if ENABLE_TRICKLEDM
-FLISTS += trickle.conf
+nodist_dm_DATA += trickle.conf
 endif
 
 EXTRA_DIST = default.conf.in fancy.conf.in trickle.conf.in
-
-install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
-	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
-	done
-
-
-uninstall-local:
-	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
-	done

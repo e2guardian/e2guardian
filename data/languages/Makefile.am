@@ -1,38 +1,88 @@
-DISTCLEANFILES = Makefile.in
-
-LANGDIR = $(datadir)/$(PACKAGE_NAME)/languages
-LANGUAGES = 	czech   hebrew      turkish \
-		bulgarian      danish  indonesian  russian-1251 ukenglish \
-		chinesebig5    dutch   italian     russian-koi8-r \
-		chinesegb2312  french  lithuanian  polish       slovak \
-		german         portuguese  swedish spanish hungarian \
-		ptbrazilian japanese malay mxspanish arspanish
+langdir = $(pkgdatadir)/languages
 
 EXTRA_DIST= ReadMe
 
-install-data-local: 
-	@for l in $(LANGUAGES); do \
-		$(mkinstalldirs) $(DESTDIR)$(LANGDIR)/$$l && \
-		for f in $(srcdir)/$$l/messages $(srcdir)/$$l/template.html $(srcdir)/$$l/fancydmtemplate.html; do \
-			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(LANGDIR)/$$l"; \
-			$(INSTALL_DATA) $$f $(DESTDIR)$(LANGDIR)/$$l; \
-		done \
-	done
-
-uninstall-local:
-	@for l in $(LANGUAGES); do \
-		for f in $(srcdir)/$$l/messages $(srcdir)/$$l/template.html $(srcdir)/$$l/fancydmtemplate.html; do \
-	        	rm -f $(DESTDIR)$(LANGDIR)/$$l/`basename $$f`; \
-		done \
-	done
-
-dist-hook:
-	@ for lang in $(LANGUAGES); do \
-	  if test "$$lang" = .; then :; else \
-	    test -d $(distdir)/$$lang \
-	    || mkdir $(distdir)/$$lang \
-	    || exit 1; \
-	    cp -p $(srcdir)/$$lang/messages $(srcdir)/$$lang/template.html $(srcdir)/$$lang/fancydmtemplate.html $(distdir)/$$lang \
-	      || exit 1; \
-	  fi; \
-	done		
+nobase_dist_lang_DATA =				\
+	arspanish/fancydmtemplate.html		\
+	arspanish/messages			\
+	arspanish/template.html			\
+	bulgarian/fancydmtemplate.html		\
+	bulgarian/messages			\
+	bulgarian/template.html			\
+	chinesebig5/fancydmtemplate.html	\
+	chinesebig5/messages			\
+	chinesebig5/template.html		\
+	chinesegb2312/fancydmtemplate.html	\
+	chinesegb2312/messages			\
+	chinesegb2312/template.html		\
+	czech/fancydmtemplate.html		\
+	czech/messages				\
+	czech/template.html			\
+	danish/fancydmtemplate.html		\
+	danish/messages				\
+	danish/template.html			\
+	dutch/fancydmtemplate.html		\
+	dutch/messages				\
+	dutch/template.html			\
+	french/fancydmtemplate.html		\
+	french/messages				\
+	french/template.html			\
+	german/fancydmtemplate.html		\
+	german/messages				\
+	german/template.html			\
+	hebrew/fancydmtemplate.html		\
+	hebrew/messages				\
+	hebrew/template.html			\
+	hungarian/fancydmtemplate.html		\
+	hungarian/messages			\
+	hungarian/template.html			\
+	indonesian/fancydmtemplate.html		\
+	indonesian/messages			\
+	indonesian/template.html		\
+	italian/fancydmtemplate.html		\
+	italian/messages			\
+	italian/template.html			\
+	japanese/fancydmtemplate.html		\
+	japanese/messages			\
+	japanese/template.html			\
+	lithuanian/fancydmtemplate.html		\
+	lithuanian/messages			\
+	lithuanian/template.html		\
+	malay/fancydmtemplate.html		\
+	malay/messages				\
+	malay/template.html			\
+	mxspanish/fancydmtemplate.html		\
+	mxspanish/messages			\
+	mxspanish/template.html			\
+	polish/fancydmtemplate.html		\
+	polish/messages				\
+	polish/template.html			\
+	portuguese/fancydmtemplate.html		\
+	portuguese/messages			\
+	portuguese/messagesaccents		\
+	portuguese/template.html		\
+	ptbrazilian/fancydmtemplate.html	\
+	ptbrazilian/messages			\
+	ptbrazilian/template.html		\
+	russian-1251/fancydmtemplate.html	\
+	russian-1251/messages			\
+	russian-1251/template.html		\
+	russian-koi8-r/fancydmtemplate.html	\
+	russian-koi8-r/messages			\
+	russian-koi8-r/template.html		\
+	slovak/fancydmtemplate.html		\
+	slovak/messages				\
+	slovak/template.html			\
+	spanish/fancydmtemplate.html		\
+	spanish/messages			\
+	spanish/template.html			\
+	swedish/fancydmtemplate.html		\
+	swedish/messages			\
+	swedish/template.html			\
+	turkish/fancydmtemplate.html		\
+	turkish/messages			\
+	turkish/template.html			\
+	ukenglish/fancydmtemplate.html		\
+	ukenglish/messages			\
+	ukenglish/messages.alt			\
+	ukenglish/template.html
