@@ -1,7 +1,23 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-February 2014
+June 2016
+- Russian translation
+- Update french translation 
+
+March 2016
+- Version 3.4.0.3
+Summary of changes in this release (v3.4.0.3) can be found in e2guardian.release
+
+- Fix segfault when weightedphrasemode not defined
+- naughtynesslimit now defaults to 50 (previously undefined)
+
+February 2016
 - Fix ICAP with c-icap server, new option previewforce
+- Version 3.4.0.2
+- Fix bug #109 (bannedphraselist not working)
+
+- Version 3.4.0.1
+- Hotfixes bugs #103 #105 (segfault) 
 
 January 2016
 - Version 3.4.0
