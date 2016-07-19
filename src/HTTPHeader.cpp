@@ -64,11 +64,11 @@ void HTTPHeader::reset()
         pproxyauthenticate = NULL;
         pcontentdisposition = NULL;
         puseragent = NULL;
+	plogheadervalue = NULL;
         pxforwardedfor = NULL;
         pcontentencoding = NULL;
         pproxyconnection = NULL;
         pkeepalive = NULL;
-
         dirty = false;
 
         delete postdata;
@@ -163,6 +163,18 @@ String HTTPHeader::userAgent()
     if (puseragent != NULL) {
         // chop off '/r'
         String result(puseragent->after(" "));
+        result.resize(result.length() - 1);
+        return result;
+    }
+    return "";
+}
+
+// grab the content "log" header
+String HTTPHeader::logHeader()
+{
+    if (plogheadervalue != NULL) {
+        // chop off '/r'
+        String result(plogheadervalue->after(" "));
         result.resize(result.length() - 1);
         return result;
     }
@@ -965,11 +977,12 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pproxyconnection = &(*i);
         } else if (outgoing && (pxforwardedfor == NULL) && i->startsWithLower("x-forwarded-for:")) {
             pxforwardedfor = &(*i);
-        }
         // this one's non-standard, so check for it last
-        else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
+        } else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
-        }
+	} else if (outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)){
+		plogheadervalue = &(*i);
+	}
 #ifdef DGDEBUG
         std::cout << (*i) << std::endl;
 #endif

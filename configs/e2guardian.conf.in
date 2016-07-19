@@ -38,6 +38,10 @@ logexceptionhits = 2
 #     used in stand-alone systems.
 logfileformat = 1
 
+# Log a specific value from header
+# low case only
+# logheadervalue = 'proxy-authorization:'
+
 # truncate large items in log lines
 # allowable values 10 to 32000
 # default 2000

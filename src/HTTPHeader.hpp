@@ -64,6 +64,7 @@ class HTTPHeader
     // Content-Disposition
     String disposition();
     String userAgent();
+    String logHeader();
     // grab contents of X-Forwarded-For
     std::string getXForwardedForIP();
     // check HTTP message code to see if it's a redirect
@@ -181,11 +182,11 @@ class HTTPHeader
     String *pproxyauthenticate;
     String *pcontentdisposition;
     String *puseragent;
+    String *plogheadervalue;
     String *pxforwardedfor;
     String *pcontentencoding;
     String *pproxyconnection;
     String *pkeepalive;
-
     // cached result of getUrl()
     std::string cachedurl;
     // used to record if it is a header within a MITM

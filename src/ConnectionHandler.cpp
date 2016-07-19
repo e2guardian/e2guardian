@@ -2948,11 +2948,15 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         data += postdata.str().c_str() + cr;
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
-
+        if (o.log_header_value.size() != 0) {
+            data += (reqheader ? reqheader->logHeader() + cr : cr);
+	    std::cout << "test: " << reqheader->userAgent() << " log Header: " << reqheader->logHeader() << "\n" << std::endl;
+        } else {
+            data += cr;
+	}
 #ifdef DGDEBUG
         std::cout << dbgPeerPort << " -...built" << std::endl;
 #endif
-
         delete newcat;
 
         // connect to dedicated logging proc

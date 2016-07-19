@@ -535,6 +535,9 @@ bool OptionContainer::read(const char *filename, int type)
         if (!realitycheck(log_file_format, 1, 6, "logfileformat")) {
             return false;
         } // etc
+
+	log_header_value = findoptionS("logheadervalue");
+
         if (findoptionS("anonymizelogs") == "on") {
             anonymise_logs = true;
         } else {

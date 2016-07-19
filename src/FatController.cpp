@@ -1339,7 +1339,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
     //String where, what, how;
     std::string cr("\n");
 
-    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
+    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no, logheadervalue;
     std::string stype, postdata;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
@@ -1438,7 +1438,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
             bool error = false;
             int itemcount = 0;
 
-            while (itemcount < 29) {
+            while (itemcount < 30) {
                 try {
                     // Loop around reading in data, because we might have huge URLs
                     std::string logline;
@@ -1553,7 +1553,14 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     case 28:
                         headeradded = atoi(logline.c_str());
                         break;
+	            case 29:
+			logheadervalue = logline;
+			break;
                     }
+
+#ifdef DGDEBUG
+              	std::cout << logline << std::endl;
+#endif
                 } catch (std::exception &e) {
                     delete ipcpeersock;
                     if (logconerror)
@@ -1771,7 +1778,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                     + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
                     + stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
-                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata + logheadervalue;
                 break;
             case 5:
             case 6:
