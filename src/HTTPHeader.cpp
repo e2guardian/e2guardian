@@ -104,11 +104,8 @@ off_t HTTPHeader::contentLength()
     clcached = true;
     contentlength = -1;
 
-    // code 304 - not modified - no content
-    String temp(header.front().after(" "));
-    if (temp.startsWith("304"))
-        contentlength = 0;
-    else if (pcontentlength != NULL) {
+    if (pcontentlength != NULL) {
+        String temp(header.front().after(" "));
         temp = pcontentlength->after(":");
         contentlength = temp.toOffset();
     }
