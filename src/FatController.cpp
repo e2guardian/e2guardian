@@ -1810,7 +1810,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     + sweight + "\t"
                     + cat + "\t"
                     + o.fg[filtergroup]->name + "\t"
-                    + stringgroup;
+                    + stringgroup
 		    + logheadervalue;
             }
 
