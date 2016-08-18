@@ -1778,7 +1778,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                     + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
                     + stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
-                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata + logheadervalue;
+                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata + logheadervalue; 
                 break;
             case 5:
             case 6:
@@ -1811,6 +1811,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     + cat + "\t"
                     + o.fg[filtergroup]->name + "\t"
                     + stringgroup;
+		    + logheadervalue;
             }
 
             if (!logsyslog)

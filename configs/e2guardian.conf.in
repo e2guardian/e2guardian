@@ -40,6 +40,7 @@ logfileformat = 1
 
 # Log a specific value from header
 # low case only
+# This only used with logs: 1 5 and 6
 # logheadervalue = 'proxy-authorization:'
 
 # truncate large items in log lines
