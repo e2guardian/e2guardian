@@ -474,6 +474,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
             if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
                 continue;
             }
+	    return -1;
         }
 
         break;

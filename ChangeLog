@@ -1,6 +1,7 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 August 2016
+- Fix Bug #119 readFromSocket incorrect error path
 - Fix Bug #136 (Ignoring the body of 304 replies causes corrupted messages)
 - new auth plugin - identification by header -
 
