@@ -51,6 +51,7 @@ class OptionContainer
     bool use_custom_banned_image;
     std::string custom_banned_image_file;
     std::string log_header_value;
+    std::string ident_header_value;
     bool use_custom_banned_flash;
     std::string custom_banned_flash_file;
     bool reverse_lookups;
