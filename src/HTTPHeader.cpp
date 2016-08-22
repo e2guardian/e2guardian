@@ -65,6 +65,7 @@ void HTTPHeader::reset()
         pcontentdisposition = NULL;
         puseragent = NULL;
 	plogheadervalue = NULL;
+	pheaderident = NULL;
         pxforwardedfor = NULL;
         pcontentencoding = NULL;
         pproxyconnection = NULL;
@@ -295,6 +296,16 @@ std::string HTTPHeader::getAuthData()
     if (pproxyauthorization != NULL) {
         String line(pproxyauthorization->after(" ").after(" "));
         return decodeb64(line); // it's base64 MIME encoded
+    }
+    return "";
+}
+
+std::string HTTPHeader::getAuthHeader()
+{
+    if (pheaderident != NULL) {
+        String line (pheaderident->after(" "));
+        line.resize(line.length() - 1);
+        return line;
     }
     return "";
 }
@@ -977,11 +988,15 @@ void HTTPHeader::checkheader(bool allowpersistent)
         // this one's non-standard, so check for it last
         } else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
-	} else if (outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)){
-		plogheadervalue = &(*i);
+	} 
+	if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
+	    plogheadervalue = &(*i);
+	} 
+	if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+	    pheaderident = &(*i);
 	}
 #ifdef DGDEBUG
-        std::cout << (*i) << std::endl;
+        std::cout << "header parsing: " << (*i) << std::endl;
 #endif
     }
 
