@@ -54,6 +54,7 @@ TRICKLEDM_SOURCE =
 endif
 
 PROXYAUTH_SOURCE = authplugins/proxy.cpp
+HEADERAUTH_SOURCE = authplugins/header.cpp
 IDENTAUTH_SOURCE = authplugins/ident.cpp
 IPAUTH_SOURCE = authplugins/ip.cpp
 PORTAUTH_SOURCE = authplugins/port.cpp
@@ -124,4 +125,6 @@ e2guardian_SOURCES = String.cpp String.hpp \
 		       $(TRICKLEDM_SOURCE) $(PROXYAUTH_SOURCE) \
 		       $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
 		       $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
-		       $(NTLMAUTH_SOURCE) $(DIGESTAUTH_SOURCE)
+		       $(NTLMAUTH_SOURCE) $(DIGESTAUTH_SOURCE) \
+		       $(HEADERAUTH_SOURCE) 
+

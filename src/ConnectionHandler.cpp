@@ -678,6 +678,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             }
 
                             if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
+#ifdef DGDEBUG
+				std::cout << "Auth plugin: " << auth_plugin->getPluginName().toCharArray() << std::endl;
+#endif
                                 rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
                             } else {
                                 rc = DGAUTH_NOMATCH;
@@ -2950,7 +2953,6 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         data += String(headeradded) + cr;
         if (o.log_header_value.size() != 0) {
             data += (reqheader ? reqheader->logHeader() + cr : cr);
-	    std::cout << "test: " << reqheader->userAgent() << " log Header: " << reqheader->logHeader() << "\n" << std::endl;
         } else {
             data += cr;
 	}
