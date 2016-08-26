@@ -104,13 +104,16 @@ off_t HTTPHeader::contentLength()
 
     clcached = true;
     contentlength = -1;
+    String temp(header.front().after(" "));
 
+    // In most usual case body is not empty
     if (pcontentlength != NULL) {
-        String temp(header.front().after(" "));
-        temp = pcontentlength->after(":");
-        contentlength = temp.toOffset();
+       temp = pcontentlength->after(":");
+       contentlength = temp.toOffset();
+    // Only 304 with empty body
+    } else if (temp.startsWith("304") && (pcontentlength == NULL)){
+       contentlength = 0;
     }
-
     return contentlength;
 }
 
