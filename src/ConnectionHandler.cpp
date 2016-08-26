@@ -585,7 +585,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 #ifdef DGDEBUG
-            std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
+            std::cerr << "PID: " << getpid() << " Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
 #endif
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
