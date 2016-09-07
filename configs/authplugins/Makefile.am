@@ -1,8 +1,7 @@
 DISTCLEANFILES = Makefile.in
+CLEANFILES = ip.conf
 
 DGDATADIR = $(DGCONFDIR)/authplugins
-
-SUBDIRS = .
 
 FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf \
 	 port.conf 

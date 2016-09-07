@@ -1,10 +1,11 @@
-DISTCLEANFILES = Makefile.in \
-		bannedphraselist bannedsitelist bannedurllist \
-		exceptionphraselist nocheckcertsitelist weightedphraselist
+DISTCLEANFILES = Makefile.in
+
+CLEANFILES = bannedphraselist bannedsitelist bannedurllist \
+             exceptionphraselist nocheckcertsitelist weightedphraselist
 
 DGDATADIR = $(DGCONFDIR)/lists
 
-SUBDIRS = phraselists . authplugins bannedrooms
+SUBDIRS = phraselists authplugins bannedrooms
 
 if NEED_CSLISTS
 SUBDIRS += contentscanners

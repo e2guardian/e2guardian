@@ -2,8 +2,6 @@ DISTCLEANFILES = Makefile.in
 
 DGDATADIR = $(DGCONFDIR)/lists/contentscanners
 
-SUBDIRS = .
-
 WLISTS = exceptionvirusmimetypelist exceptionvirusextensionlist \
          exceptionvirussitelist exceptionvirusurllist
 

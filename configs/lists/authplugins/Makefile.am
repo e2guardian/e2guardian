@@ -2,8 +2,6 @@ DISTCLEANFILES = Makefile.in
 
 DGDATADIR = $(DGCONFDIR)/lists/authplugins
 
-SUBDIRS = .
-
 WLISTS = ipgroups portgroups
 
 EXTRA_DIST = $(WLISTS)

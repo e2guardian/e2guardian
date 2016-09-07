@@ -2,8 +2,6 @@ DISTCLEANFILES = Makefile.in
 
 DGDATADIR = $(DGCONFDIR)/lists/bannedrooms
 
-SUBDIRS = .
-
 WLISTS = default
 
 EXTRA_DIST = $(WLISTS)
