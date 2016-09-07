@@ -130,7 +130,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		childs 	busy	free	wait	births	deaths	conx	conx/s\n");
+            fprintf(fs, "time		children 	busy	free	wait	births	deaths	conx	conx/s\n");
         } else {
             syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n",
                 o.dstat_location.c_str());
@@ -1970,7 +1970,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                                         else
                                             fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->contentsubject.c_str());
 
-                                        fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
+                                        fprintf(mail, "%i violation%s ha%s occurred within %i seconds.\n",
                                             curv_tmp,
                                             (curv_tmp == 1) ? "" : "s",
                                             (curv_tmp == 1) ? "s" : "ve",
@@ -2836,7 +2836,7 @@ int fc_controlit()
     if (reloadconfig) {
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
-        syslog(LOG_INFO, "Started sucessfully.");
+        syslog(LOG_INFO, "Started successfully.");
         //dystat = new stat_rec;
         dystat->start();
     }

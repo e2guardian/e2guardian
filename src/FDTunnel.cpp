@@ -121,7 +121,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         } else
 #endif
             if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1) {
-            break; // an error occured or it timed out so end while()
+            break; // an error occurred or it timed out so end while()
         }
 
         if (FD_ISSET(fdfrom, &inset)) { // fdfrom is ready to be read from
@@ -135,7 +135,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
             // read as much as is available
             if (rc < 0) {
-                break; // an error occured so end the while()
+                break; // an error occurred so end the while()
             } else if (!rc) {
                 done = true; // none received so pipe is closed so flag it
             } else { // some data read
@@ -147,7 +147,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 t = timeout; // take a copy to work with
 
                 if (selectEINTR(fdto + 1, NULL, &outset, NULL, &t) < 1) {
-                    break; // an error occured or timed out so end while()
+                    break; // an error occurred or timed out so end while()
                 }
 
                 if (FD_ISSET(fdto, &outset)) { // fdto ready to write to
@@ -179,7 +179,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             rc = sockto.readFromSocket(buff, sizeof(buff), 0, 0, false);
 
             if (rc < 0) {
-                break; // an error occured so end the while()
+                break; // an error occurred so end the while()
             } else if (!rc) {
                 done = true; // none received so pipe is closed so flag it
                 break;
@@ -191,7 +191,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 t = timeout; // take a copy to work with
 
                 if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1) {
-                    break; // an error occured or timed out so end while()
+                    break; // an error occurred or timed out so end while()
                 }
 
                 if (FD_ISSET(fdfrom, &outset)) { // fdfrom ready to write to
