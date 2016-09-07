@@ -1,6 +1,10 @@
 DISTCLEANFILES = Makefile.in
-
-SUBDIRS= .
+CLEANFILES = bsd-init \
+             e2guardian \
+             e2guardian.service \
+             logrotation \
+             solaris-init \
+             systemv-init
 
 DATATOPDIR = $(datadir)/$(PACKAGE_NAME)/scripts
 
@@ -23,4 +27,3 @@ uninstall-local:
 	for l in $(FLISTS) ; do \
 		rm -f $(DESTDIR)$(DATATOPDIR)/$$l ; \
 	done
-

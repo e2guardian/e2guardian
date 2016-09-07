@@ -1,11 +1,13 @@
 DISTCLEANFILES = Makefile.in \
 		       clamdscan.conf icapscan.conf \
 		       kavdscan.conf commandlinescan.conf
+CLEANFILES = avastdscan.conf \
+             clamdscan.conf \
+             commandlinescan.conf \
+             icapscan.conf \
+             kavdscan.conf
 
 DGDATADIR = $(DGCONFDIR)/contentscanners
-
-SUBDIRS = .
-
 
 FLISTS = 
 

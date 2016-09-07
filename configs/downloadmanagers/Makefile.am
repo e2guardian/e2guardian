@@ -1,9 +1,8 @@
 DISTCLEANFILES = Makefile.in \
 		       default.conf fancy.conf trickle.conf
+CLEANFILES = default.conf fancy.conf trickle.conf
 
 DGDATADIR = $(DGCONFDIR)/downloadmanagers
-
-SUBDIRS = .
 
 FLISTS = default.conf
 

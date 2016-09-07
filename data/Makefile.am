@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in
 
-SUBDIRS= languages . scripts
+SUBDIRS= languages scripts
 
 DATATOPDIR = $(datadir)/$(PACKAGE_NAME)
 

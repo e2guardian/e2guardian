@@ -2,8 +2,6 @@ DISTCLEANFILES = Makefile.in
 
 DGDATADIR = $(DGCONFDIR)/lists/downloadmanagers
 
-SUBDIRS = .
-
 WLISTS = managedmimetypelist managedextensionlist
 
 EXTRA_DIST = $(WLISTS)
