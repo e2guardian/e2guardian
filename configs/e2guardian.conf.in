@@ -36,6 +36,7 @@ logexceptionhits = 2
 #     used in arrays so that combined logs show originating server.
 # 6 = Protex format with server field blanked
 #     used in stand-alone systems.
+# 7 = Squid Log File Format Secure extension (SF Actions, use comercial report tools (ex: McAfee Webreport))
 logfileformat = 1
 
 # Log a specific value from header

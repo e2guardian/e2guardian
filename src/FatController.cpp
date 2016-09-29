@@ -1339,7 +1339,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
     //String where, what, how;
     std::string cr("\n");
 
-    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no, logheadervalue;
+    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no, logheadervalue, sf_action, sf_cats;
     std::string stype, postdata;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
@@ -1612,26 +1612,39 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 stype.clear();
             }
             if (isnaughty) {
+                sf_action = "DENY ";
+                sf_cats = what;
                 what = denied_word + stype + "* " + what;
             } else if (isexception && (o.log_exception_hits == 2)) {
+                sf_action = "OBSERVED ";
+                sf_cats = what;
                 what = exception_word + what;
             }
-
             if (wasinfected)
+                sf_action = "DENY ";
+                sf_cats = what;
                 what = infected_word + stype + "* " + what;
             else if (wasscanned)
                 what = scanned_word + what;
 
             if (contentmodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = contentmod_word + what;
             }
             if (urlmodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = urlmod_word + what;
             }
             if (headermodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = headermod_word + what;
             }
             if (headeradded) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = headeradd_word + what;
             }
 
@@ -1654,7 +1667,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 utime = String((int)theend.tv_sec) + utime;
             }
 
-            if (o.log_file_format != 3) {
+            if ((o.log_file_format != 3) && (o.log_file_format != 7)){
                 // "when" not used in format 3, and not if logging timestamps instead
                 String temp;
                 time_t tnow; // to hold the result from time()
@@ -1715,6 +1728,53 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
             String stringgroup(filtergroup + 1);
 
             switch (o.log_file_format) {
+            case 7: {
+                                       // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
+                                       std::string duration, hier, hitmiss;
+                                       long durationsecs, durationusecs;
+                                       durationsecs = (theend.tv_sec - tv_sec);
+                                       durationusecs = theend.tv_usec - tv_usec;
+                                       durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                                       String temp((int) durationusecs);
+                                       while (temp.length() < 6) {
+                                               temp = " " + temp;
+                                       }
+                                       duration = temp;
+
+                                       if (code == 403) {
+                                               hitmiss = "TCP_DENIED/403";
+                                       } else {
+                                               if (cachehit) {
+                                                       hitmiss = "TCP_HIT/";
+                                                       hitmiss.append(stringcode);
+                                               } else {
+                                                       hitmiss = "TCP_MISS/";
+                                                       hitmiss.append(stringcode);
+                                               }
+                                       }
+                                       hier = "DEFAULT_PARENT/";
+                                       hier += o.proxy_ip;
+
+                                       /*if (o.max_logitem_length > 0) {
+                                               if (utime.length() > o.max_logitem_length)
+                                                       utime.resize(o.max_logitem_length);
+                                               if (duration.length() > o.max_logitem_length)
+                                                       duration.resize(o.max_logitem_length);
+                                               if (hier.length() > o.max_logitem_length)
+                                                       hier.resize(o.max_logitem_length);
+                                               if (hitmiss.length() > o.max_logitem_length)
+                                                       hitmiss.resize(o.max_logitem_length);
+                                       }*/
+
+                                       builtline = utime + " " + duration + " " + ( (clienthost.length() > 0) ? clienthost : from) + " " + hitmiss + " " + ssize + " "
+                                               + how + " " + where + " " + who + " " + hier + " " + mimetype;
+                                       if (!sf_action.empty()) {
+                                            builtline += " " + sf_action + "\"" + sf_cats + "\"";
+                                       sf_action.clear();
+                                       sf_cats.clear();
+                                       }
+                                       break;
+            }
             case 4:
                 builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                     + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"

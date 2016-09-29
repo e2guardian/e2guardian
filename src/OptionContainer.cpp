@@ -532,7 +532,7 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         } // etc
         log_file_format = findoptionI("logfileformat");
-        if (!realitycheck(log_file_format, 1, 6, "logfileformat")) {
+        if (!realitycheck(log_file_format, 1, 7, "logfileformat")) {
             return false;
         } // etc
 
