@@ -1620,13 +1620,14 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 sf_cats = what;
                 what = exception_word + what;
             }
-            if (wasinfected)
+            if (wasinfected){
                 sf_action = "DENY ";
                 sf_cats = what;
                 what = infected_word + stype + "* " + what;
-            else if (wasscanned)
+	    }
+            else if (wasscanned) {
                 what = scanned_word + what;
-
+	    }
             if (contentmodified) {
                 sf_action = "COACH ";
                 sf_cats = what;
