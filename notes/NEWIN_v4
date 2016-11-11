@@ -1,0 +1,64 @@
+WARNING: This is a very early development pre-release of v4.0 and is work in 
+progress.  Large sections of the code are being re-written and there will be 
+significant changes to the configuration files.   
+
+Note: This version is work in progress and so is unsupported and instructions 
+may be incomplete.   If in doubt - read the source!
+
+
+The new version is being written in c++11 and so to compile you will need gcc v5.4 or later. (or another complier that supports the c++11 thread library).
+
+Also the build environment has not yet been modified and so you will need to 
+hand edit the src/Makefile in order to compile it.  The Makefile I use is 
+included as PIPMakefile so that you have something to work from.
+
+REVISED PROCESS MODEL
+
+The parent children process model (which does not scale for very large numbers 
+of connection) is replaced with a queue/threads based model.
+
+The main thread now only deals with set-up of the logging, listener, and worker 
+threads, the input (and reinput) of the lists, signals and statistics.  
+
+The treads communicate via fi-fo queues within memory and so there is no need 
+for ipc pipes.
+
+A listener thread is set up for each ip/port combination. They listen for a connection, accept it and then push the new connection socket on the appropriate 
+worker queue.
+
+The worker threads pop connections from the worker queue and deal with the connection.
+
+When a worker wants to log a request it pushes the logging data onto the log queue. The logging thread will pop the data from the queue, format it and write it 
+to the log. 
+
+Most of the above logic is in FatControler.cpp.  The logic is now much simpler and has reduced the amount of code in FatControler by over 50%.
+
+TESTING - only basic testing with small number of worker threads(100) has been 
+carried out to date.  These early tests show a reduction of memory usage of 
+around 50% over v3.4 running on the same VM with minchildren=100. 
+
+TODO - immediate
+
+Rewrite e2g Socket family to remove interupt handling and all select calls.  
+
+Modify list reading and re-reading so that list changes can be immediate. 
+
+Check that all code is thread-safe 
+
+(Load) Test on large system with > 4000 threads
+
+TODO - next
+
+Make lists parameter based rather than hard coded.
+
+Create 'story-board' parameterised logic for handling filtering logic.
+
+Transparent https option.
+
+WISHLIST
+
+????
+
+Philip Pearce 22 Nov 2016
+
+
