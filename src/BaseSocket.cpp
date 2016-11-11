@@ -233,7 +233,8 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
     }
 }
 
-// non-blocking check to see if a socket is ready to be written
+//#ifdef NOT_DEF
+// non-blocking check to see if a socket is ready to be written     //NOT EVER USED   - not it is used in Socket.cpp
 bool BaseSocket::readyForOutput()
 {
     fd_set fdSet;
@@ -247,6 +248,7 @@ bool BaseSocket::readyForOutput()
     }
     return true;
 }
+//#endif
 
 // blocking equivalent of above, can be told to break on signal-triggered reloads
 void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std::exception)

@@ -31,6 +31,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <atomic>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/select.h>
@@ -80,7 +81,7 @@ extern bool is_daemonised;
 
 
 //int numchildren; // to keep count of our children
-int busychildren; // to keep count of our busy children
+std::atomic<int> busychildren; // to keep count of our busy children
 int cache_erroring; // num cache errors reported by children
 int restart_cnt = 0;
 int restart_numchildren; // numchildren at time of gentle restart
@@ -103,7 +104,7 @@ String peersockip; // which will contain the connection ip
 struct stat_rec {
     long births; // num of child forks in stat interval
     long deaths; // num of child deaths in stat interval
-    long conx; // num of client connections in stat interval
+    std::atomic<int> conx ; // num of client connections in stat interval
     time_t start_int; // time of start of this stat interval
     time_t end_int; // target end time of stat interval
     FILE *fs; // file stream
@@ -144,12 +145,14 @@ void stat_rec::start()
 void stat_rec::reset()
 {
     time_t now = time(NULL);
-    long cps = conx / (now - start_int);
+    int bc = busychildren;
+    long cnx = (long)conx;
+    long cps = cnx / (now - start_int);
     fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
-        (busychildren ),
+        bc,
         o.http_worker_Q->size(),
         o.log_Q->size(),
-        conx,
+        cnx,
         cps);
     fflush(fs);
     clear();
@@ -1897,11 +1900,9 @@ int fc_controlit()   //
                     }
                 }
             }
-    //        flush_urlcache();
             continue;
         }
 
-// Lets take the opportunity to clean up our dead children if any
         timeout.tv_sec = 10;
         timeout.tv_nsec = (long) 0;
         rc = sigtimedwait(&signal_set, NULL, &timeout);
