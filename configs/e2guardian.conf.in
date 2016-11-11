@@ -87,7 +87,7 @@ logfileformat = 1
 # Once every 3 minutes, the current number of IPs in the cache, and the most
 # that have been in the cache since the daemon was started, are written to this
 # file. IPs persist in the cache for 7 days.
-#statlocation = '@DGLOGLOCATION@/stats'
+#statlocation = '@DGLOGLOCATION@/stats'    **NOT YET IMPLEMENTED
 
 
 # Network Settings
@@ -130,7 +130,7 @@ proxytimeout = 20
 # The interval between log status entries when proxy is not responding
 # minimum is proxytimeout - maximum 3600 (= 1 hour)
 # default = 600  (= 10 mins)
-#proxyfailureloginterval = 600
+#proxyfailureloginterval = 600  **NOT YET IMPLEMENTED
 
 # Proxy header exchange
 # Set timeout between the Proxy and e2guardian 
@@ -231,12 +231,12 @@ weightedphrasemode = 2
 # 1000 = recommended for most users
 # 5000 = suggested max upper limit
 # If you're using an AV plugin then use at least 5000.
-urlcachenumber = 1000
+urlcachenumber = 1000  **NOT YET IMPLEMENTED
 #
 # Age before they are stale and should be ignored in seconds
 # 0 = never
 # 900 = recommended = 15 mins
-urlcacheage = 900
+urlcacheage = 900  **NOT YET IMPLEMENTED
 
 
 
@@ -248,7 +248,7 @@ urlcacheage = 900
 # on = cache results; do not re-scan
 # off = do not cache; always re-scan
 # (on|off) default = on.
-scancleancache = on
+scancleancache = on  **NOT YET IMPLEMENTED
 
 
 
@@ -333,29 +333,6 @@ reverseclientiplookups = off
 # This is not dependent on reverseclientiplookups being enabled; however, if it
 # is, enabling this option does not incur any additional forward DNS requests.
 logclienthostnames = off
-
-
-# Build bannedsitelist and bannedurllist cache files.
-# This will compare the date stamp of the list file with the date stamp of
-# the cache file and will recreate as needed.
-# If a .processed file exists for an item (e.g. domain/URL) list, then that
-# will be used instead, if it is up to date (i.e. newer than the unprocessed
-# list file).
-# This can increase process start speed on slow computers.
-# Fast computers do not need this option.
-# on | off, default = on
-createlistcachefiles = on
-
-
-# Prefer cached list files
-# If enabled, e2guardian will always prefer to load ".processed" versions of
-# list files, regardless of their time stamps relative to the original
-# unprocessed lists.  This is not generally useful unless you have a specific
-# list update process which results in - for example - up-to-date, pre-sorted
-# ".processed" list files with dummy unprocessed files.
-# on | off, default = off
-prefercachedlists = off
-
 
 # Max content filter size
 # Sometimes web servers label binary files as text which can be very
@@ -563,82 +540,25 @@ usexforwardedfor = off
 # it on or off
 logconnectionhandlingerrors = on
 
-
-
-# Fork pool options
-
-# If on, this causes DG to write to the log file whenever child processes are
-# created or destroyed (other than by crashes). This information can help in
-# understanding and tuning the following parameters, but is not generally
-# useful in production.
-logchildprocesshandling = off
-
-# sets the maximum number of processes to spawn to handle the incoming
-# connections.  Max value usually 250 depending on OS.
-# On large sites you might want to try 380.
-maxchildren = 180
-
-
-# sets the minimum number of processes to spawn to handle the incoming connections.
-# On large sites you might want to try 64.
-minchildren = 20
-
-
-# sets the minimum number of processes to be kept ready to handle connections.
-# On large sites you might want to try 16.
-minsparechildren = 16
-
-
-# sets the minimum number of processes to spawn when it runs out
-# On large sites you might want to try 20.
-preforkchildren = 10
-
-
-# sets the maximum number of processes to have doing nothing.
-# When this many are spare it will cull some of them.
-# On large sites you might want to try 64.
-maxsparechildren = 32
-
-
-# sets the maximum age of a child process before it croaks it.
-# This is the number of connections they handle before exiting.
-# On large sites you might want to try 10000.
-maxagechildren = 500
-
-
-# sets the number of child process to kill/fork at each 5 sec interval.
-# during at gentle restart
-# defaults to preforkchildren
-# gentlechunk=10
+#sets the number of worker threads to use
+#
+#  note this replaces all min/max etc children settings in previous versions
+#
+# This figure is the maximum number of concurrent connections.
+#  If more connections are made, connections will queue until a worker thread is free.
+httpworkers = 200
 
 
 # Sets the maximum number client IP addresses allowed to connect at once.
 # Use this to set a hard limit on the number of users allowed to concurrently
 # browse the web. Set to 0 for no limit, and to disable the IP cache process.
-maxips = 0
+maxips = 0  **NOT YET IMPLEMENTED
 
 
 # Process options
 # (Change these only if you really know what you are doing).
 # These options allow you to run multiple instances of e2guardian on a single machine.
 # Remember to edit the log file path above also if that is your intention.
-
-# IPC filename
-# 
-# Defines IPC server directory and filename used to communicate with the log process.
-ipcfilename = '/tmp/.e2guardianipc'
-
-# URL list IPC filename
-# 
-# Defines URL list IPC server directory and filename used to communicate with the URL
-# cache process.
-urlipcfilename = '/tmp/.e2guardianurlipc'
-
-# IP list IPC filename
-#
-# Defines IP list IPC server directory and filename, for communicating with the client
-# IP cache process.
-ipipcfilename = '/tmp/.e2guardianipipc'
 
 # PID filename
 # 
@@ -733,7 +653,7 @@ softrestart = off
 # When e2guardian is stopping with ' stop' appended
 # If cache stops responding with ' stop' appended
 # When cache resumes with ' start' appended
-# monitorhelper = '/usr/local/bin/mymonitor'
+# monitorhelper = '/usr/local/bin/mymonitor'   ***NOT YET IMPLEMENTED*
 
 # monitor flag prefix path 
 # If defined path will be used to generate flag files as follows:-
@@ -745,4 +665,4 @@ softrestart = off
 
 # monitorstart - defaults to minchildren
 # valid values between 1 and minchildren
-# monitorstart = 0
+# monitorstart = 0**NOT YET IMPLEMENTED

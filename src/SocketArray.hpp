@@ -12,6 +12,7 @@
 #include "String.hpp"
 
 #include <deque>
+#include<thread>
 
 // DECLARATIONS
 
@@ -50,6 +51,7 @@ class SocketArray
     private:
     // our sock collection container
     Socket *drawer;
+    std::thread* threads;
     // how many sockets we have
     unsigned int socknum;
 };

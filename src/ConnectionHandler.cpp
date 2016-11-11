@@ -11,6 +11,7 @@
 #include "Auth.hpp"
 #include "FDTunnel.hpp"
 #include "BackedStore.hpp"
+#include "Queue.hpp"
 #include "ImageContainer.hpp"
 #include "FDFuncs.hpp"
 #include <signal.h>
@@ -48,6 +49,7 @@
 
 // GLOBALS
 extern OptionContainer o;
+//extern Queue<std::string>* log_Q;
 extern bool is_daemonised;
 extern bool reloadconfig;
 
@@ -2912,6 +2914,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         data += from + cr;
         data += String(port) + cr;
         data += String(wasscanned) + cr;
+
         data += String(wasinfected) + cr;
         data += String(contentmodified) + cr;
         data += String(urlmodified) + cr;
@@ -2938,9 +2941,10 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 #endif
 
         delete newcat;
-
+// push on log queue
+        o.log_Q->push(data);
         // connect to dedicated logging proc
-        UDSocket ipcsock;
+/*        UDSocket ipcsock;
         if (ipcsock.getFD() < 0) {
             if (!is_daemonised)
                 std::cout << " -Error creating IPC socket to log" << std::endl;
@@ -2966,6 +2970,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
             std::cout << dbgPeerPort << " -Could not write to logging process: " << e.what() << std::endl;
 #endif
         }
+        */
     }
 }
 

@@ -30,6 +30,7 @@
 #include <istream>
 #include <map>
 #include <memory>
+#include <vector>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/select.h>
@@ -52,6 +53,8 @@
 #include "SocketArray.hpp"
 #include "UDSocket.hpp"
 #include "SysV.hpp"
+#include "Queue.hpp"
+#include "OptionContainer.hpp"
 
 // GLOBALS
 
@@ -66,37 +69,33 @@ volatile bool reloadconfig = false;
 extern OptionContainer o;
 extern bool is_daemonised;
 
-int numchildren; // to keep count of our children
+// Queues
+//extern Queue<std::string>* log_Q;
+//extern Queue<Socket>* http_worker_Q;
+
+//structures for thread parameter passing
+
+//structures for Queues
+
+
+
+//int numchildren; // to keep count of our children
 int busychildren; // to keep count of our busy children
-int freechildren; // to keep count of our free children
-/* int waitingfor; // num procs waiting for to be preforked
 int cache_erroring; // num cache errors reported by children
-int *childrenpids; // so when one exits we know who
-int *childrenstates; // so we know what they're up to
-int *childrenrestart_cnt; // so we know which restart_cnt child was started with
-struct pollfd *pids;
 int restart_cnt = 0;
 int restart_numchildren; // numchildren at time of gentle restart
 int hup_index;
 int gentle_to_hup = 0;
- */
+
 bool gentle_in_progress = false;
 //time_t next_gentle_check;
 int top_child_fds; // cross platform maxchildren position in children array
 #ifdef HAVE_SYS_EPOLL_H
-//struct epoll_event e_ev; //added PIP
-//struct epoll_event *revents; //added PIP
-int epfd; // added PIP
-int fds; // added PIP
 int serversockfd; // added PIP - may need to change
 #endif
-UDSocket **childsockets;
 int failurecount;
 int serversocketcount;
 SocketArray serversockets; // the sockets we will listen on for connections
-//UDSocket loggersock; // the unix domain socket to be used for ipc with the forked children
-//UDSocket urllistsock;
-//UDSocket iplistsock;
 Socket *peersock(NULL); // the socket which will contain the connection
 
 String peersockip; // which will contain the connection ip
@@ -116,8 +115,8 @@ struct stat_rec {
 
 void stat_rec::clear()
 {
-    births = 0;
-    deaths = 0;
+    //births = 0;
+    //deaths = 0;
     conx = 0;
 };
 
@@ -131,7 +130,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		childs 	busy	free	wait	births	deaths	conx	conx/s\n");
+            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s\n");
         } else {
             syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n",
                 o.dstat_location.c_str());
@@ -146,12 +145,10 @@ void stat_rec::reset()
 {
     time_t now = time(NULL);
     long cps = conx / (now - start_int);
-    fprintf(fs, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld\n", now, numchildren,
-        (busychildren - waitingfor),
-        freechildren,
-        waitingfor,
-        births,
-        deaths,
+    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+        (busychildren ),
+        o.http_worker_Q->size(),
+        o.log_Q->size(),
         conx,
         cps);
     fflush(fs);
@@ -215,56 +212,17 @@ void sig_segv(int signo, siginfo_t *info, void *secret); // Generate a backtrace
 }
 
 // logging & URL cache processes
-int log_listener(std::string log_location, bool logconerror, bool logsyslog);
-int url_list_listener(bool logconerror);
-// send flush message over URL cache IPC socket
-//void flush_urlcache();
+void log_listener(std::string log_location, bool logconerror, bool logsyslog);
 
 // fork off into background
 bool daemonise();
 // create specified amount of child threads
-int prefork(int num);
 
-// check child process is ready to start work
-//#ifdef HAVE_SYS_EPOLL_H
-//bool check_kid_readystatus(int tofind, int *ssp);
-//#else
-//bool check_kid_readystatus(int tofind);
-//#endif
-// child process informs parent process that it is ready
-//int send_readystatus(UDSocket &pipe);
-
-// child process main loop - sits waiting for incoming connections & processes them
-int handle_connections(UDSocket &pipe);  // needs changing to be threadish
+//void handle_connections(int tindex);  // needs changing to be threadish
 // tell a non-busy child process to accept the incoming connection
 //void tellchild_accept(int num, int whichsock);
 // child process accept()s connection from server socket
 //bool getsock_fromparent(UDSocket &fd);
-
-// add known info about a child to our info lists
-#ifdef HAVE_SYS_EPOLL_H
-//void addchild(int fd, pid_t child_pid); // added PIP
-#else
-//void addchild(int pos, int fd, pid_t child_pid);
-#endif
-// find ID of first non-busy child
-//int getfreechild();
-// find an empty slot in our child info lists
-//int getchildslot();
-// cull up to this number of non-busy children
-//void cullchildren(int num);
-// delete this child from our info lists
-//void deletechild(int child_pid);
-//void deletechild_by_fd(int i); // i = fd/pos
-// clean up any dead child processes (calls deletechild with exit values)
-//void mopup_afterkids();
-
-// tidy up resources for a brand new child process (uninstall signal handlers, delete copies of unnecessary data, etc.)
-//void tidyup_forchild();
-
-// send SIGTERM or SIGHUP to call children
-//void kill_allchildren();
-//void hup_allchildren();
 
 // setuid() to proxy user (not just seteuid()) - used by child processes & logger/URL cache for security & resource usage reasons
 bool drop_priv_completely();
@@ -459,196 +417,39 @@ bool daemonise()
 // *  child process code
 // *
 // *
-
-// prefork specified num of worker threads
-int prefork(int num)
-{
-#ifdef DGDEBUG
-    std::cout << "attempting to prefork:" << num << std::endl;
-#endif
-    int sv[2];
-    pid_t child_pid;
-    while (num--) {
-
-        // e2 can't creates a number of process equal to maxchildren, -1 is needed for seeing saturation
-        if (!(numchildren < (o.max_children - 1))) {
-            syslog(LOG_ERR, "E2guardian is running out of MaxChildren process: %d maxchildren: %d\n", numchildren, o.max_children);
-            return 2; // too many - geddit?
-        }
-
-        if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-            syslog(LOG_ERR, "Error %d from socketpair: %s", errno, strerror(errno));
-            return -1; // error
-        }
-        child_pid = fork();
-
-        if (child_pid == -1) { // fork failed, for example, if the
-            // process is not allowed to create
-            // any more
-            syslog(LOG_ERR, "%s", "Unable to fork() any more.");
-#ifdef DGDEBUG
-            std::cout << "Unable to fork() any more." << std::endl;
-            std::cout << strerror(errno) << std::endl;
-            std::cout << "numchildren:" << numchildren << std::endl;
-#endif
-            failurecount++; // log the error/failure
-            // A DoS attack on a server allocated
-            // too many children in the conf will
-            // kill the server.  But this is user
-            // error.
-            sleep(1); // need to wait until we have a spare slot
-            num--;
-            continue; // Nothing doing, go back to listening
-        } /* else if (child_pid == 0) {
-            // I am the child - I am alive!
-            close(sv[0]); // we only need our copy of this
-            tidyup_forchild();
-            if (!drop_priv_completely()) {
-                return -1; //error
-            }
-            // no need to deallocate memory etc as already done when fork()ed
-            // right - let's do our job!
-
-            //  code to make fd low number
-            int low_fd = dup(sv[1]);
-            if (low_fd < 0) {
-                return -1; //error
-            }
-            //close(sv[1]);
-            //sv[1] = low_fd;
-            UDSocket sock(low_fd);
-            //UDSocket sock(sv[1]);
-            int rc = handle_connections(sock);
-
-            // ok - job done, time to tidy up.
-            _exit(rc); // baby go bye bye
-        } else {
-            // I am the parent
-            // close the end of the socketpair we don't need
-            close(sv[1]);
-            */
-        }
-    }
-
 // cleaning up for brand new child processes - only the parent needs the signal handlers installed, and so forth
-void tidyup_forchild()
-{
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = &sig_childterm;
-    if (sigaction(SIGTERM, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGTERM" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGTERM");
-    }
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = SIG_IGN;
-    if (sigaction(SIGUSR1, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGUSR1" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGUSR1");
-    }
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = &sig_hup;
-    if (sigaction(SIGHUP, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGHUP" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGHUP");
-    }
-// now close open socket pairs don't need
-#ifdef HAVE_SYS_EPOLL_H
-    for (int i = 0; i < fds; i++) {
-#else
-    for (int i = 0; i < o.max_children; i++) {
-#endif
-}
-
 
 // handle any connections received by this child (also tell parent we're ready each time we become idle)
-int handle_connections(UDSocket &pipe)   // needs threadfy
+void handle_connections(int tindex)
 {
     ConnectionHandler h; // the class that handles the connections
     String ip;
-    bool toldparentready = false;
-    int cycle = o.maxage_children;
     int stat = 0;
     int rc = 0;
-    String *mess_no = &readymess2;
-    reloadconfig = false;
-
-    // stay alive both for the maximum allowed age of child processes, and whilst we aren't supposed to be re-reading configuration
-    while (cycle-- && !reloadconfig) {
-        if (!toldparentready) {
-            if (send_readystatus(pipe, mess_no) == -1) { // non-blocking (timed)
 #ifdef DGDEBUG
-                std::cout << "parent timed out telling it we're ready" << std::endl;
+    std::cerr << " in  handle connection"  << std::endl;
 #endif
-                break; // parent timed out telling it we're ready
-                // so either parent gone or problem so lets exit this joint
-            }
-            toldparentready = true;
-        }
-
-        if (!getsock_fromparent(pipe)) { // blocks waiting for a few mins
-            continue;
-        }
-        toldparentready = false;
-
-        // now check the connection is actually good
-        if (peersock->getFD() < 0 || peersockip.length() < 7) {
-            if (o.logconerror)
-                syslog(LOG_INFO, "Error accepting. (Ignorable)");
-            continue;
-        }
+    std::thread::id this_id = std::this_thread::get_id();
+    reloadconfig = false;
+    while (true)
+    {
+#ifdef DGDEBUG
+        std::cerr << " waiting connectiom from http_worker_Q thread"  << this_id << std::endl;
+#endif
+        Socket *peersock = o.http_worker_Q->pop();
+#ifdef DGDEBUG
+        std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
+#endif
+        String peersockip = peersock->getPeerIP();
+        ++busychildren;
+        ++dystat->conx;
 
         rc = h.handlePeer(*peersock, peersockip); // deal with the connection
-    }
-#endif
-    if (!toldparentready) {
-        stat = 2;
-    }
-    return stat;
+        --busychildren;
+        delete peersock;
+    };
 }
 
-// the parent process recieves connections - children receive notifications of this over their socketpair, and accept() them for handling
-bool getsock_fromparent(UDSocket &fd)
-{
-    String message;
-    char buf;
-    int rc;
-    try {
-        rc = fd.readFromSocket(&buf, 1, 0, 360, true, true); // blocks for a few mins
-    } catch (std::exception &e) {
-        // whoop! we received a SIGHUP. we should reload our configuration - and no, we didn't get an FD.
-
-        reloadconfig = true;
-        return false;
-    }
-    // that way if child does nothing for a long time it will eventually
-    // exit reducing the forkpool depending on o.maxage_children which is
-    // usually 500 so max time a child hangs around is lonngggg
-    // it needs to be a long block to stop the machine needing to page in
-    // the process
-
-    // check the message from the parent
-    if (rc < 1) {
-        return false;
-    }
-
-    // woo! we have a connection. accept it.
-    peersock = serversockets[buf]->accept();
-    peersockip = peersock->getPeerIP();
-
-    }
-
-    return true;
-}
 
 // *
 // *
@@ -656,12 +457,7 @@ bool getsock_fromparent(UDSocket &fd)
 // *
 // *
 
-// *
-// *
-// * start of child process handling (minus prefork)
-// *
-// *
-
+#ifdef NOTDEF
 void tell_monitor(bool active) //may not be needed
 {
 
@@ -714,6 +510,7 @@ void tell_monitor(bool active) //may not be needed
         };
     };
 };
+#endif
 
 void wait_for_proxy()
 {
@@ -737,8 +534,8 @@ void wait_for_proxy()
 #endif
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
-    if (o.monitor_helper_flag)
-        tell_monitor(false);
+ //   if (o.monitor_helper_flag)
+//        tell_monitor(false);
     if (o.monitor_flag_flag)
         monitor_flag_set(false);
     int wait_time = 1;
@@ -750,8 +547,8 @@ void wait_for_proxy()
             proxysock.close();
             cache_erroring = 0;
             syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
-            if (o.monitor_helper_flag)
-                tell_monitor(true);
+//            if (o.monitor_helper_flag)
+ //               tell_monitor(true);
             if (o.monitor_flag_flag)
                 monitor_flag_set(true);
             return;
@@ -769,94 +566,38 @@ void wait_for_proxy()
     }
 }
 
-// add the given child, including FD & PID, to the given slot in our lists
-#ifdef HAVE_SYS_EPOLL_H
-void addchild(int fd, pid_t child_pid)
-#else
-void addchild(int pos, int fd, pid_t child_pid)
-#endif
-{
-#ifdef HAVE_SYS_EPOLL_H
-    if (fd >= fds) {
-        syslog(LOG_ERR, "Child fd (%d) out of range (max %d)", fd, fds);
-        return;
-    };
-#else
-    if (pos < 0)
-        return;
-#endif
-    numchildren++;
-    busychildren++;
-    waitingfor++;
 
-#ifdef HAVE_SYS_EPOLL_H
-    childrenpids[fd] = (int)child_pid;
-    childrenstates[fd] = 4; // busy waiting for init
-    childrenrestart_cnt[fd] = restart_cnt;
-    pids[fd].fd = fd;
-    UDSocket *sock = new UDSocket(fd);
-    childsockets[fd] = sock;
-    if (o.logchildprocs)
-        syslog(LOG_ERR, "added child: fd: %d pid: %d restart_cnt: %d", fd, child_pid, restart_cnt);
-#else
-    childrenpids[pos] = (int)child_pid;
-    childrenstates[pos] = 4; // busy waiting for init
-    childrenrestart_cnt[pos] = restart_cnt;
-    pids[pos].fd = fd;
-    UDSocket *sock = new UDSocket(fd);
-    childsockets[pos] = sock;
-#ifdef DGDEBUG
-    std::cout << "added child:" << fd << ":" << childrenpids[fd] << std::endl;
-#endif
-    if (o.logchildprocs)
-        syslog(LOG_ERR, "added child: fd: %d pid: %d", fd, child_pid);
-#endif
-}
-
-void reset_childstats()
-{
-    int i;
-    busychildren = 0;
-    numchildren = 0;
-    freechildren = 0;
-    waitingfor = 0;
-    for (i = 0; i < top_child_fds; i++) {
-        if (childrenstates[i] == 1 || childrenstates[i] == 2)
-            busychildren++;
-        if (childrenstates[i] == 4) {
-            busychildren++;
-            waitingfor++;
-        }
-        if (childrenstates[i] == 0)
-            freechildren++;
-        if (childrenstates[i] > -1)
-            numchildren++;
-    }
-};
-// *
-// *
-// * end of child process handling code
-// *
-// *
-
+//void reset_childstats()
+//{
+    //int i;
+    //busychildren = 0;
+ //   numchildren = 0;
+  //  freechildren = 0;
+   // waitingfor = 0;
+   // for (i = 0; i < top_child_fds; i++) {
+    //    if (childrenstates[i] == 1 || childrenstates[i] == 2)
+     //       busychildren++;
+      //  if (childrenstates[i] == 4) {
+       //     busychildren++;
+        //    waitingfor++;
+        //}
+        //if (childrenstates[i] == 0)
+            //freechildren++;
+        //if (childrenstates[i] > -1)
+            //numchildren++;
+    //}
 // *
 // *
 // * logger, IP list and URL cache main loops
 // *
 // *
 
-int log_listener(std::string log_location, bool logconerror, bool logsyslog)  // Needs threadfy???
+void log_listener(std::string log_location, bool logconerror, bool logsyslog)
 {
 #ifdef DGDEBUG
     std::cout << "log listener started" << std::endl;
 #endif
-    if (!drop_priv_completely()) {
-        return 1; //error
-    }
-    o.deleteFilterGroupsJustListData();
-    o.lm.garbageCollect();
-    UDSocket *ipcpeersock; // the socket which will contain the ipc connection
-    int rc, ipcsockfd;
+    int rc;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -887,16 +628,9 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
             std::cout << "Error opening/creating log file: " << log_location << std::endl;
 #endif
             delete logfile;
-            return 1; // return with error
+            return; // return with error
         }
     }
-
-    ipcsockfd = loggersock.getFD();
-
-    fd_set fdSet; // our set of fds (only 1) that select monitors for us
-    fd_set fdcpy; // select modifies the set so we need to use a copy
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(ipcsockfd, &fdSet); // add ipcsock to the set
 
     // Get server name - only needed for format 5
     String server("");
@@ -928,80 +662,40 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
     headeradd_word = "*" + headeradd_word + "* ";
 
     while (true) { // loop, essentially, for ever
-        fdcpy = fdSet; // take a copy
-        rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, NULL); // block
-
-        // until something happens
-        if (rc < 0) { // was an error
-            if (errno == EINTR) {
-                continue; // was interupted by a signal so restart
-            }
-            if (logconerror) {
-                syslog(LOG_ERR, "ipc rc<0. (Ignorable)");
-            }
-            continue;
-        }
-        if (rc < 1) {
-            if (logconerror) {
-                syslog(LOG_ERR, "ipc rc<1. (Ignorable)");
-            }
-            continue;
-        }
-        if (FD_ISSET(ipcsockfd, &fdcpy)) {
+        std::string loglines;
+        loglines.append(o.log_Q->pop());  // get logdata from queue
 #ifdef DGDEBUG
             std::cout << "received a log request" << std::endl;
+            std::cout << "log request " << loglines << std::endl;
 #endif
-            ipcpeersock = loggersock.accept();
-            if (ipcpeersock->getFD() < 0) {
-                delete ipcpeersock;
-                if (logconerror) {
-                    syslog(LOG_ERR, "Error accepting ipc. (Ignorable)");
-                }
-                continue; // if the fd of the new socket < 0 there was error
-                // but we ignore it as its not a problem
-            }
 
             // Formatting code migration from ConnectionHandler
             // and email notification code based on patch provided
             // by J. Gauthier
 
             // read in the various parts of the log string
-            bool error = false;
+            bool error = true;
             int itemcount = 0;
+        //char * dup = strdup(loglines.c_str());
+        const char* delim = "\n";
+        std::istringstream iss( loglines);
+        std::string logline;
 
-            while (itemcount < 29) {
-                try {
+            while (std::getline(iss, logline ))
+            {
                     // Loop around reading in data, because we might have huge URLs
-                    std::string logline;
-                    char logbuff[8192];
-                    bool truncated = false;
-                    do {
-                        truncated = false;
-                        rc = ipcpeersock->getLine(logbuff, 8192, 3, true, NULL, &truncated); // throws on err
-                        if (rc < 0) {
-                            delete ipcpeersock;
-                            if (!is_daemonised)
-                                std::cout << "Error reading from log socket" << std::endl;
-                            syslog(LOG_ERR, "Error reading from log socket");
-                            error = true;
-                            break;
-                        }
-                        if (rc == 0)
-                            break;
-                        // Limit overall item length, but we still need to
-                        // read from the socket until next newline
-                        if (logline.length() < 32768)
-                            logline.append(logbuff, rc);
-                    } while (truncated);
-                    if (error)
-                        break;
-
+                std::string s;
+                if (logline == "") {
+                    s = "-";
+                } else {
+                    s = logline;
+                }
                     switch (itemcount) {
                     case 0:
                         isexception = atoi(logline.c_str());
                         break;
                     case 1:
-                        cat = logline;
+                        cat = s;
                         break;
                     case 2:
                         isnaughty = atoi(logline.c_str());
@@ -1010,22 +704,22 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                         naughtytype = atoi(logline.c_str());
                         break;
                     case 4:
-                        sweight = logline;
+                        sweight = s;
                         break;
                     case 5:
-                        where = logline;
+                        where = s;
                         break;
                     case 6:
-                        what = logline;
+                        what = s;
                         break;
                     case 7:
-                        how = logline;
+                        how = s;
                         break;
                     case 8:
-                        who = logline;
+                        who = s;
                         break;
                     case 9:
-                        from = logline;
+                        from = s;
                         break;
                     case 10:
                         port = atoi(logline.c_str());
@@ -1046,7 +740,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                         headermodified = atoi(logline.c_str());
                         break;
                     case 16:
-                        ssize = logline;
+                        ssize = s;
                         break;
                     case 17:
                         filtergroup = atoi(logline.c_str());
@@ -1058,7 +752,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                         cachehit = atoi(logline.c_str());
                         break;
                     case 20:
-                        mimetype = logline;
+                        mimetype = s;
                         break;
                     case 21:
                         tv_sec = atol(logline.c_str());
@@ -1067,33 +761,28 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                         tv_usec = atol(logline.c_str());
                         break;
                     case 23:
-                        clienthost = logline;
+                        clienthost = s;
                         break;
                     case 24:
-                        useragent = logline;
+                        useragent = s;
                         break;
                     case 25:
-                        params = logline;
+                        params = s;
                         break;
                     case 26:
-                        postdata = logline;
+                        postdata = s;
                         break;
                     case 27:
-                        message_no = logline;
+                        message_no = s;
                         break;
                     case 28:
                         headeradded = atoi(logline.c_str());
+                            error = false;
                         break;
                     }
-                } catch (std::exception &e) {
-                    delete ipcpeersock;
-                    if (logconerror)
-                        syslog(LOG_ERR, "Error reading ipc. (Ignorable)");
-                    error = true;
-                    break;
-                }
                 itemcount++;
-            }
+                }
+
 
             // don't build the log line if we couldn't read all the component parts
             if (error)
@@ -1205,29 +894,6 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                     when += " " + utime;
             }
 
-#ifdef NOTDEFINED
-            // truncate long log items
-            // moved to ConnectionHandler to avoid IPC overload
-            // on very large URLs
-            if (o.max_logitem_length > 0) {
-                //where.limitLength(o.max_logitem_length);
-                if (cat.length() > o.max_logitem_length)
-                    cat.resize(o.max_logitem_length);
-                if (what.length() > o.max_logitem_length)
-                    what.resize(o.max_logitem_length);
-                if (where.length() > o.max_logitem_length)
-                    where.resize(o.max_logitem_length);
-                /*if (who.length() > o.max_logitem_length)
-					who.resize(o.max_logitem_length);
-				if (from.length() > o.max_logitem_length)
-					from.resize(o.max_logitem_length);
-				if (how.length() > o.max_logitem_length)
-					how.resize(o.max_logitem_length);
-				if (ssize.length() > o.max_logitem_length)
-					ssize.resize(o.max_logitem_length);*/
-            }
-#endif
-
             // blank out IP, hostname and username if desired
             if (o.anonymise_logs) {
                 who = "";
@@ -1276,17 +942,6 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
                 }
                 hier = "DEFAULT_PARENT/";
                 hier += o.proxy_ip;
-
-                /*if (o.max_logitem_length > 0) {
-						if (utime.length() > o.max_logitem_length)
-							utime.resize(o.max_logitem_length);
-						if (duration.length() > o.max_logitem_length)
-							duration.resize(o.max_logitem_length);
-						if (hier.length() > o.max_logitem_length)
-							hier.resize(o.max_logitem_length);
-						if (hitmiss.length() > o.max_logitem_length)
-							hitmiss.resize(o.max_logitem_length);
-					}*/
 
                 builtline = utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss + " " + ssize + " "
                     + how + " " + where + " " + who + " " + hier + " " + mimetype;
@@ -1344,7 +999,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
 #ifdef DGDEBUG
             std::cout << itemcount << " " << builtline << std::endl;
 #endif
-            delete ipcpeersock; // close the connection
+        //    delete ipcpeersock; // close the connection
 
 #ifdef ENABLE_EMAIL
             // do the notification work here, but fork for speed
@@ -1524,30 +1179,46 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)  //
 
             continue; // go back to listening
         }
-    }
     // should never get here
-    syslog(LOG_ERR, "%s", "Something wicked has ipc happened");
 
+#ifdef DGDEBUG
+    std::cout << "log_listener exiting with error" << std::endl;
+#endif
     if (logfile) {
         logfile->close(); // close the file
         delete logfile;
     }
-    loggersock.close();
-    return 1; // It is only possible to reach here with an error
+    return ; // It is only possible to reach here with an error
 }
 
+void accept_connections(int index) // thread to listen on a single listening socket
+{
+    while (true)
+    {
+        Socket *peersock = serversockets[index]->accept();
+#ifdef DGDEBUG
+        std::cout << "got connection from accept" << std::endl;
+#endif
+        o.http_worker_Q->push(peersock);
+#ifdef DGDEBUG
+        std::cout << "pushed connection to http_worker_Q" << std::endl;
+#endif
+    };
+}
+
+#ifdef NOTDEF   //leave till later
 int url_list_listener(bool logconerror)  // Needs threadfy
 {
 #ifdef DGDEBUG
     std::cout << "url listener started" << std::endl;
 #endif
-    if (!drop_priv_completely()) {
-        return 1; //error
-    }
-    o.deleteFilterGroupsJustListData();
-    o.lm.garbageCollect();
-    UDSocket *ipcpeersock = NULL; // the socket which will contain the ipc connection
-    int rc, ipcsockfd;
+    //if (!drop_priv_completely()) {
+        //return 1; //error
+    //}
+    //o.deleteFilterGroupsJustListData();
+    //o.lm.garbageCollect();
+    //UDSocket *ipcpeersock = NULL; // the socket which will contain the ipc connection
+    int rc;
     char *logline = new char[32000];
     char reply;
     DynamicURLList urllist;
@@ -1663,7 +1334,9 @@ int url_list_listener(bool logconerror)  // Needs threadfy
     urllistsock.close(); // be nice and neat
     return 1; // It is only possible to reach here with an error
 }
+#endif   // NOTDEF
 
+#ifdef NOTDEF
 int ip_list_listener(std::string stat_location, bool logconerror)  // Needs threadfy - are we keeping?
 {
 #ifdef DGDEBUG
@@ -1815,6 +1488,7 @@ int ip_list_listener(std::string stat_location, bool logconerror)  // Needs thre
     iplistsock.close(); // be nice and neat
     return 1; // It is only possible to reach here with an error
 }
+#endif
 
 // *
 // *
@@ -1822,18 +1496,18 @@ int ip_list_listener(std::string stat_location, bool logconerror)  // Needs thre
 // *
 // *
 
-// Does lots and lots of things - forks off url cache & logger processes, preforks child processes for connection handling, does tidying up on exit
-// also handles the various signalling options DG supports (reload config, flush cache, kill all processes etc.)
-int fc_controlit()   // needs total rewrite to gen threads
+// Does lots and lots of things - creates url cache & logger threads, creates child threads for connection handling, does tidying up on exit
+// also handles the various signalling options e2g supports (reload config, flush cache, kill all processes etc.)
+int fc_controlit()   //
 {
-#ifdef HAVE_SYS_EPOLL_H
     int rc;
-#else
-    int rc, fds;
-#endif
     bool is_starting = true;
 
     o.lm.garbageCollect();
+
+// Create Qs
+//    o.log_Q = new Queue<std::string>;
+  //  o.http_worker_Q = new Queue<Socket>;
 
     // allocate & create our server sockets
     if (o.map_ports_to_ips) {
@@ -1848,7 +1522,7 @@ int fc_controlit()   // needs total rewrite to gen threads
 
     serversockets.reset(serversocketcount);
     int *serversockfds = serversockets.getFDAll();
-
+    std::thread* listen_treads[serversocketcount];
     for (int i = 0; i < serversocketcount; i++) {
         // if the socket fd is not +ve then the socket creation failed
         if (serversockfds[i] < 0) {
@@ -1861,38 +1535,6 @@ int fc_controlit()   // needs total rewrite to gen threads
         }
     }
 
-    if (o.no_logger) {
-        loggersock.close();
-    } else {
-        loggersock.reset();
-    }
-    if (o.url_cache_number > 0) {
-        urllistsock.reset();
-    } else {
-        urllistsock.close();
-    }
-    if (o.max_ips > 0) {
-        iplistsock.reset();
-    } else {
-        iplistsock.close();
-    }
-
-    pid_t loggerpid = 0; // to hold the logging process pid
-    pid_t urllistpid = 0; // url cache process id
-    pid_t iplistpid = 0; // ip cache process id
-
-    if (!o.no_logger) {
-        if (loggersock.getFD() < 0) {
-            if (!is_daemonised) {
-                std::cerr << "Error creating ipc socket" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error creating ipc socket");
-            free(serversockfds);
-            return 1;
-        }
-    }
-
-// Made unconditional such that we have root privs when creating pidfile & deleting old IPC sockets
 // PRA 10-10-2005
 /*bool needdrop = false;
 
@@ -1979,80 +1621,6 @@ int fc_controlit()   // needs total rewrite to gen threads
         return 1; // seteuid failed for some reason so exit with error
     }
 
-    // Needs deleting if its there
-    unlink(o.ipc_filename.c_str()); // this would normally be in a -r situation.
-    // disabled as requested by Christopher Weimann <csw@k12hq.com>
-    // Fri, 11 Feb 2005 15:42:28 -0500
-    // re-enabled temporarily
-    unlink(o.urlipc_filename.c_str());
-    unlink(o.ipipc_filename.c_str());
-
-    if (!o.no_logger) {
-        if (loggersock.bind(o.ipc_filename.c_str())) { // bind to file
-            if (!is_daemonised) {
-                std::cerr << "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
-            }
-            syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-        if (loggersock.listen(256)) { // set it to listen mode with a kernel
-            // queue of 256 backlog connections
-            if (!is_daemonised) {
-                std::cerr << "Error listening to ipc server file" << std::endl;
-            }
-            syslog(LOG_ERR, "Error listening to ipc server file");
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-    }
-
-    if (o.url_cache_number > 0) {
-        if (urllistsock.bind(o.urlipc_filename.c_str())) { // bind to file
-            if (!is_daemonised) {
-                std::cerr << "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
-            }
-            syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-        if (urllistsock.listen(256)) { // set it to listen mode with a kernel
-            // queue of 256 backlog connections
-            if (!is_daemonised) {
-                std::cerr << "Error listening to url ipc server file" << std::endl;
-            }
-            syslog(LOG_ERR, "Error listening to url ipc server file");
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-    }
-
-    if (o.max_ips > 0) {
-        if (iplistsock.bind(o.ipipc_filename.c_str())) { // bind to file
-            if (!is_daemonised) {
-                std::cerr << "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
-            }
-            syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-        if (iplistsock.listen(256)) { // set it to listen mode with a kernel
-            // queue of 256 backlog connections
-            if (!is_daemonised) {
-                std::cerr << "Error listening to ip ipc server file" << std::endl;
-            }
-            syslog(LOG_ERR, "Error listening to ip ipc server file");
-            close(pidfilefd);
-            free(serversockfds);
-            return 1;
-        }
-    }
-
     if (serversockets.listenAll(256)) { // set it to listen mode with a kernel
         // queue of 256 backlog connections
         if (!is_daemonised) {
@@ -2109,73 +1677,42 @@ int fc_controlit()   // needs total rewrite to gen threads
         return (1);
     }
 
-    // Next thing we need to do is to split into two processes - one to
-    // handle incoming TCP connections from the clients and one to handle
-    // incoming UDS ipc from our forked children.  This helps reduce
-    // bottlenecks by not having only one select() loop.
+    // Now start creating threads so main thread can just handle signals, list reloads and stats
+    // This removes need for select and/or epoll greatly simplifying the code
+    // Threads are created for logger, a separate thread for each listening port
+    // and an array of worker threads to deal with the work.
     if (!o.no_logger) {
-        loggerpid = fork(); // make a child processes copy of self to be logger
-
-        if (loggerpid == 0) { // ma ma!  i am the child
-            serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
-            if (o.max_ips > 0) {
-                iplistsock.close();
-            }
-            if ((log_listener(o.log_location, o.logconerror, o.log_syslog)) > 0) {
-                syslog(LOG_ERR, "Error starting log listener");
-            }
+        std::thread log_thread (log_listener,o.log_location, o.logconerror, o.log_syslog);
+        log_thread.detach();
 #ifdef DGDEBUG
-            std::cout << "Log listener exiting" << std::endl;
+        std::cout << "log_listener thread created" << std::endl;
 #endif
-            _exit(0); // is reccomended for child and daemons to use this instead
-        }
     }
 
+
+#ifdef NOTDEF
     // Same for URL list listener
     if (o.url_cache_number > 0) {
-        urllistpid = fork();
-        if (urllistpid == 0) { // ma ma!  i am the child
-            serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
             if ((url_list_listener(o.logconerror)) > 0) {
                 syslog(LOG_ERR, "Error starting url list listener");
             }
-#ifdef DGDEBUG
-            std::cout << "URL List listener exiting" << std::endl;
-#endif
-            _exit(0); // is reccomended for child and daemons to use this instead
-        }
     }
+#endif
 
+#ifdef NOTDEF
     // and for IP list listener
     if (o.max_ips > 0) {
-        iplistpid = fork();
-        if (iplistpid == 0) { // ma ma!  i am the child
-            serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
             if ((ip_list_listener(o.stat_location, o.logconerror)) > 0) {
                 syslog(LOG_ERR, "Error starting ip list listener");
             }
-#ifdef DGDEBUG
-            std::cout << "IP List listener exiting" << std::endl;
-#endif
-            _exit(0); // is reccomended for child and daemons to use this instead
-        }
     }
+#endif
 
-// I am the parent process here onwards.
+// I am the main thread here onwards.
 
 #ifdef DGDEBUG
     std::cout << "Parent process created children" << std::endl;
 #endif
-
-    if (o.url_cache_number > 0) {
-        urllistsock.close(); // we don't need our copy of this so close it
-    }
-    if (!o.no_logger) {
-        loggersock.close(); // we don't need our copy of this so close it
-    }
 
     memset(&sa, 0, sizeof(sa));
     if (!o.soft_restart) {
@@ -2216,94 +1753,73 @@ int fc_controlit()   // needs total rewrite to gen threads
     sa.sa_sigaction = &sig_segv;
     sa.sa_flags = SA_SIGINFO;
     if (sigaction(SIGSEGV, &sa, NULL)) {
-        syslog(LOG_ERR, "Error registering SIGSEGV handler");
+        syslog(LOG_ERR, "Error registering S,IGSEGV handler");
         return 1;
     }
 #endif
+
+    sigset_t signal_set;
+    pthread_t signal_thread_id;
+    struct timespec timeout;
+    int stat;
+    sigemptyset(&signal_set);
+    sigaddset(&signal_set, SIGHUP);
+    sigaddset(&signal_set, SIGTERM);
+    sigaddset(&signal_set, SIGUSR1);
+    stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
+    if ( stat != 0) {
+        syslog(LOG_ERR, "Error setting sigmask");
+        return 1;
+    }
 
 #ifdef DGDEBUG
     std::cout << "Parent process sig handlers done" << std::endl;
 #endif
 
-    numchildren = 0; // to keep count of our children
+    //numchildren = 0; // to keep count of our children
     busychildren = 0; // to keep count of our children
-    freechildren = 0; // to keep count of our children
+    //freechildren = 0; // to keep count of our children
+    //
 
-#ifdef HAVE_SYS_EPOLL_H
-    // moved here PIP
-    // fds is now the max possible number of file descriptors
-    // extra 50 for safety ( + 5 should be ok )
-    // add 6 for already open fds and maxspare_children as allowance for
-    //   overlap whilst waiting for children to die.
-    fds = o.max_children + serversocketcount + 6 + o.gentle_chunk;
-    top_child_fds = fds;
-    childrenpids = new int[fds]; // so when one exits we know who
-    childrenstates = new int[fds]; // so we know what they're up to
-    childsockets = new UDSocket *[fds];
-    childrenrestart_cnt = new int[fds]; // so we know what they're up to
-#else
-    childsockets = new UDSocket *[o.max_children];
-    fds = o.max_children + serversocketcount;
-    top_child_fds = o.max_children;
-#endif
-    pids = new struct pollfd[fds];
-
-#ifdef HAVE_SYS_EPOLL_H
-    revents = new struct epoll_event[fds];
-#endif
+    // worker thread generation
+    //std::thread* http_wt[o.http_workers];
+    std::vector<std::thread> http_wt;
+    http_wt.reserve(o.http_workers);
 
     int i;
+   for (  i = 0; i < o.http_workers; i++) {
+#ifdef DGDEBUG
+//        std::cout << "creating http_worker thread " << i << std::endl;
+#endif
+       http_wt.push_back(std::thread(handle_connections, i));
+    }
+    for (  auto&  i : http_wt) {
+        i.detach();
+    }
+#ifdef DGDEBUG
+    std::cout << "http_worker threads created" << std::endl;
+#endif
+
+    //   set listener threads going
+
+    std::vector<std::thread> listen_threads;
+    listen_threads.reserve(serversocketcount);
+    for (int i = 0; i < serversocketcount; i++) {
+        listen_threads.push_back(std::thread(accept_connections, i));
+
+        //listen_treads[i]->detach();
+    }
+    for (  auto&  i : listen_threads) {
+        i.detach();
+    }
+#ifdef DGDEBUG
+    std::cout << "listen  threads created" << std::endl;
+#endif
 
     time_t tnow;
     time_t tmaxspare;
 
     time(&tmaxspare);
-
-#ifdef HAVE_SYS_EPOLL_H
-    epfd = epoll_create(fds);
-#endif
-
-#ifdef DGDEBUG
-    std::cout << "Parent process pid structs allocated" << std::endl;
-#endif
-
-    // store child fds...
-    //#ifdef HAVE_SYS_EPOLL_H
-    for (i = 0; i < top_child_fds; i++) {
-        //#else
-        //for (i = 0; i < o.max_children; i++) {
-        //#endif
-    }
-
-#ifdef HAVE_SYS_EPOLL_H
-    // ...and set server fds entries and register with epoll
-    for (i = 0; i < serversocketcount; i++) {
-        int f = serversockfds[i];
-        pids[f].fd = f;
-        childrenpids[f] = -4;
-        childrenstates[f] = -4;
-        e_ev.data.fd = f;
-        e_ev.events = EPOLLIN;
-
-        if (epoll_ctl(epfd, EPOLL_CTL_ADD, f, &e_ev)) {
-#ifdef DGDEBUG
-            std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
-#endif
-            syslog(LOG_ERR, "%s", "Error registering serversockfd in epoll");
-            return (1);
-        }
-    }
-#else
-    // ...and server fds
-    for (i = o.max_children; i < fds; i++) {
-        pids[i].fd = serversockfds[i - o.max_children];
-        pids[i].events = POLLIN;
-    }
-#endif
-
-#ifdef DGDEBUG
-    std::cout << "Parent process pid structs zeroed" << std::endl;
-#endif
 
     failurecount = 0; // as we don't exit on an error with select()
     // due to the fact that these errors do happen
@@ -2312,19 +1828,7 @@ int fc_controlit()   // needs total rewrite to gen threads
     // consecutivly.
 
     is_starting = true;
-    rc = prefork(o.min_children);
 
-    sleep(2); // need to allow some of the forks to complete
-
-#ifdef DGDEBUG
-    std::cout << "Parent process preforked rc:" << rc << std::endl;
-    std::cout << "Parent process pid:" << getpid() << std::endl;
-#endif
-
-    if (rc < 0) {
-        ttg = true;
-        syslog(LOG_ERR, "%s", "Error creating initial fork pool - exiting...");
-    }
 
     int tofind;
 
@@ -2332,7 +1836,6 @@ int fc_controlit()   // needs total rewrite to gen threads
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
         syslog(LOG_INFO, "Started sucessfully.");
-        //dystat = new stat_rec;
         dystat->start();
     }
     reloadconfig = false;
@@ -2375,11 +1878,7 @@ int fc_controlit()   // needs total rewrite to gen threads
                         o.deleteRooms();
                         o.loadRooms(false);
                         o.lm.garbageCollect();
-                        //prefork(o.min_children);
                         if (!gentle_in_progress) {
-                            if (o.logchildprocs)
-                                syslog(LOG_ERR, "Spawning %d process(es) during gentle restart", o.gentle_chunk);
-                            prefork(o.gentle_chunk);
                             //if (o.logchildprocs)
                             //syslog(LOG_ERR, "HUPing %d process(es) during gentle restart", knum);
                             //hup_somechildren(knum, 0);
@@ -2398,332 +1897,55 @@ int fc_controlit()   // needs total rewrite to gen threads
                     }
                 }
             }
-            flush_urlcache();
+    //        flush_urlcache();
             continue;
         }
 
 // Lets take the opportunity to clean up our dead children if any
-#ifdef HAVE_SYS_EPOLL_H
-        mopup_afterkids();
-#else
-        if (fds > FD_SETSIZE) {
-            syslog(LOG_ERR, "Error polling child process sockets: You should reduce your maxchildren");
-#ifdef DGDEBUG
-            std::cout << "Error polling child process sockets: You should reduce your maxchildren" << std::endl;
-#endif
-            _exit(0);
-        } else {
-            for (i = 0; i < fds; i++) {
-                pids[i].revents = 0;
-            }
-        }
-
-#endif
-
-        if (cache_erroring) {
-            wait_for_proxy();
-        }
-
-#ifdef HAVE_SYS_EPOLL_H
-        rc = epoll_wait(epfd, revents, fds, 60 * 1000);
-#else
-        rc = poll(pids, fds, 60 * 1000);
-        mopup_afterkids();
-#endif
-
-        if (rc < 0) { // was an error
-#ifdef DGDEBUG
-            std::cout << "errno:" << errno << " " << strerror(errno) << std::endl;
-#endif
-
-            if (errno == EINTR) {
-                continue; // was interupted by a signal so restart
-            }
-            if (o.logconerror)
-                syslog(LOG_ERR, "Error polling child process sockets: %s", strerror(errno));
-            failurecount++; // log the error/failure
-            continue; // then continue with the looping
-        }
-
-        tofind = rc;
-#ifdef HAVE_SYS_EPOLL_H
-        mopup_afterkids();
-        int ssp = 0; //to hold number of serversockfd entries in revents
-#else
+        timeout.tv_sec = 10;
+        timeout.tv_nsec = (long) 0;
+        rc = sigtimedwait(&signal_set, NULL, &timeout);
         if (rc < 0) {
-            for (i = o.max_children; i < fds; i++) {
-                if (pids[i].revents) {
-                    tofind--;
-                }
+            if (errno != EAGAIN) {
+                syslog(LOG_INFO, "Unexpected error from sigtimedwait() %d %s", errno, strerror(errno));
             }
-        }
+        } else {
+            if (rc == SIGUSR1)
+                gentlereload = true;
+            if (rc == SIGTERM)
+                ttg = true;
+            if (rc == SIGHUP)
+                ttg = true;
+#ifdef DGDEBUG
+            std::cout << "signal:" << rc << std::endl;
 #endif
-
-        if (tofind > 0) {
-#ifdef HAVE_SYS_EPOLL_H
-            check_kid_readystatus(tofind, &ssp);
-#else
-            check_kid_readystatus(tofind);
-            mopup_afterkids();
-#endif
         }
-
         //		freechildren = numchildren - busychildren;
-        if (freechildren != (numchildren - busychildren)) {
-            syslog(LOG_ERR, "freechildren %d + busychildren %d != numchildren %d", freechildren, busychildren, numchildren);
-            reset_childstats();
-            syslog(LOG_ERR, "stats reset to freechildren %d  busychildren %d numchildren %d", freechildren, busychildren, numchildren);
-        }
-
+int q_size = o.http_worker_Q->size();
 #ifdef DGDEBUG
-        std::cout << "numchildren:" << numchildren << std::endl;
         std::cout << "busychildren:" << busychildren << std::endl;
-        std::cout << "freechildren:" << freechildren << std::endl;
-        std::cout << "waitingfor:" << waitingfor << std::endl
-                  << std::endl;
+        std::cout << "worker Q size:" << q_size << std::endl;
 #endif
 
-#ifdef HAVE_SYS_EPOLL_H
-        if (ssp > 0) { // event on server socket
-            for (i = 0; i < serversocketcount; i++) {
-                if (childrenstates[serversockfds[i]] == -5) {
-                    childrenstates[serversockfds[i]] = -4;
-                    int ev_off = pids[serversockfds[i]].revents;
-
-                    if ((revents[ev_off].events & EPOLLIN) > 0) {
-                        // socket ready to accept() a connection
-                        failurecount = 0; // something is clearly working so reset count  // not right place PIP!!!!
-                        if (freechildren < 1 && numchildren < o.max_children) {
-
-                            //if (waitingfor == 0) {
-                            //int num = o.prefork_children;
-                            //if ((o.max_children - numchildren) < num)
-                            //num = o.max_children - numchildren;
-                            //if (o.logchildprocs)
-                            //syslog(LOG_ERR, "Under load - Spawning %d process(es)", num);
-                            //rc = prefork(num);
-                            //if (rc < 0) {
-                            //syslog(LOG_ERR, "Error forking %d extra process(es).", num);
-                            //usleep(1000);
-                            //failurecount++;
-                            //}
-                            //} else
-                            //usleep(1000);
-                            continue; //must continue to ensure flags are reset
-                        }
-                        if (freechildren > 0) {
-                            int p_freechild = getfreechild();
-                            if (p_freechild > -1) {
-#ifdef DGDEBUG
-                                std::cout << "telling child to accept " << (i) << std::endl;
-#endif
-                                //tellchild_accept(getfreechild(), i);
-                                tellchild_accept(p_freechild, i);
-                            } else {
-                                syslog(LOG_ERR, "freechildren gt 0 (%d) and no freechildren: busy %d, num %d ", freechildren, busychildren, numchildren);
-                                usleep(1000);
-                            }
-                        } else {
-                            usleep(1000);
-                        }
-                    } else if (revents[ev_off].events) {
-                        ttg = true;
-                        syslog(LOG_ERR, "Error with main listening socket.  Exiting.");
-                        break;
-                    }
-                }
-                if (ttg)
-                    break;
-            }
-        }
-#else // non-linux code
-        if (rc > 0) {
-            for (i = o.max_children; i < fds; i++) {
-                if ((pids[i].revents & POLLIN) > 0) {
-                    // socket ready to accept() a connection
-                    failurecount = 0; // something is clearly working so reset count
-                    if (freechildren < 1 && numchildren < o.max_children) {
-                        if (waitingfor == 0) {
-                            //int num = o.prefork_children;
-                            //	if ((o.max_children - numchildren) < num)
-                            //		num = o.max_children - numchildren;
-                            //	if (o.logchildprocs)
-                            //		syslog(LOG_ERR, "Under load - Spawning %d process(es)", num);
-                            //	rc = prefork(num);
-                            //	if (rc < 0) {
-                            //		syslog(LOG_ERR, "Error forking %d extra process(es).", num);
-                            //		failurecount++;
-                            //	}
-                        } // else
-                        //	usleep(1000);
-                        continue;
-                    }
-                    if (freechildren > 0) {
-#ifdef DGDEBUG
-                        std::cout << "telling child to accept " << (i - o.max_children) << std::endl;
-#endif
-                        int childnum = getfreechild();
-                        if (childnum < 0) {
-                            // Oops! weren't actually any free children.
-                            // Not sure why as yet, but it seems this can
-                            // sometimes happen. :(  PRA 2009-03-11
-                            syslog(LOG_WARNING,
-                                "No free children from getfreechild(): numchildren = %d, busychildren = %d, waitingfor = %d",
-                                numchildren, busychildren, waitingfor);
-                            freechildren = 0;
-                            usleep(1000);
-                        } else {
-                            tellchild_accept(childnum, i - o.max_children);
-                            --freechildren;
-                        }
-                    } else {
-                        usleep(1000);
-                    }
-                } else if (pids[i].revents) {
-                    ttg = true;
-                    syslog(LOG_ERR, "Error with main listening socket.  Exiting.");
-                    break;
-                }
-            }
-            if (ttg)
-                break;
-        }
-#endif
-        if (is_starting) {
-            if (o.monitor_helper_flag || o.monitor_flag_flag) {
-                if (((numchildren - waitingfor) >= o.monitor_start)) {
-                    if (o.monitor_helper_flag)
-                        tell_monitor(true);
-                    if (o.monitor_flag_flag)
-                        monitor_flag_set(true);
-                    is_starting = false;
-                }
-            } else {
-                is_starting = false;
-            }
-        }
+  //      if (is_starting) {
 
         time_t now = time(NULL);
 
-        if (gentle_in_progress && (now > next_gentle_check) && (waitingfor == 0)) {
-            int fork_count = 0;
-            int top_up = o.gentle_chunk;
-            if (top_up > gentle_to_hup)
-                top_up = gentle_to_hup;
-            if (numchildren < (restart_numchildren + top_up)) // Attempt to restore numchildren to previous level asap
-                fork_count = ((restart_numchildren + top_up) - numchildren);
-            if ((numchildren + fork_count) >= o.max_children)
-                fork_count = o.max_children - numchildren;
-            if (fork_count > 0) {
-                if (o.logchildprocs)
-                    syslog(LOG_ERR, "Spawning %d process(es) during gentle restart", fork_count);
-                rc = prefork(fork_count);
-                if (rc < 0) {
-                    syslog(LOG_ERR, "Error forking %d extra processes during gentle restart", fork_count);
-                    failurecount++;
-                }
-            }
-            if (o.logchildprocs)
-                syslog(LOG_ERR, "HUPing %d process(es) during gentle restart", top_up);
-            hup_somechildren(top_up, hup_index);
-            if (hup_index >= top_child_fds) {
-                gentle_in_progress = false;
-                hup_index = 0;
-                syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
-            }
-            next_gentle_check = time(NULL) + 5;
-        }
+//        if (freechildren < o.minspare_children && (waitingfor == 0) && numchildren < o.max_children) {
 
-        if (freechildren < o.minspare_children && (waitingfor == 0) && numchildren < o.max_children) {
-            if (o.logchildprocs)
-                syslog(LOG_ERR, "Fewer than %d free children - Spawning %d process(es)", o.minspare_children, o.prefork_children);
-            rc = prefork(o.prefork_children);
-            if (rc < 0) {
-                syslog(LOG_ERR, "Error forking preforkchildren extra processes.");
-                failurecount++;
-            }
-        }
-        if ((waitingfor == 0) && (numchildren < o.min_children)) {
-            int to_fork = o.prefork_children;
-            if (to_fork > (o.min_children - numchildren))
-                to_fork = o.min_children - numchildren;
-            if (o.logchildprocs)
-                syslog(LOG_ERR, "Fewer than %d children - Spawning %d process(es)", o.min_children, to_fork);
-            rc = prefork(to_fork);
-            if (rc < 0) {
-                syslog(LOG_ERR, "Error forking %d extra processes.", to_fork);
-                failurecount++;
-            }
-        }
-
-        if (freechildren <= o.maxspare_children) {
-            time(&tmaxspare);
-        }
-        if (freechildren > o.maxspare_children) {
-            time(&tnow);
-            if ((tnow - tmaxspare) > (2 * 60)) {
-                if (o.logchildprocs)
-                    syslog(LOG_ERR, "More than %d free children - Killing %d process(es)", o.maxspare_children, freechildren - o.maxspare_children);
-                cullchildren(freechildren - o.maxspare_children);
-            }
-        }
         if (o.dstat_log_flag && (now >= dystat->end_int))
             dystat->reset();
     }
-    if (o.monitor_helper_flag)
-        tell_monitor(false); // tell monitor that we are not accepting any more connections
+    //if (o.monitor_helper_flag)
+     //   tell_monitor(false); // tell monitor that we are not accepting any more connections
 
-    if (o.monitor_flag_flag)
-        monitor_flag_set(false);
+    //if (o.monitor_flag_flag)
+     //   monitor_flag_set(false);
 
-    cullchildren(numchildren); // remove the fork pool of spare children
-#ifdef HAVE_SYS_EPOLL_H
-    for (int i = 0; i < fds; i++) {
-#else
-    for (int i = 0; i < o.max_children; i++) {
-#endif
-        if (pids[i].fd != -1) {
-            delete childsockets[i];
-            childsockets[i] = NULL;
-        }
-    }
-    if (numchildren > 0) {
-        hup_allchildren();
-        sleep(2); // give them a small chance to exit nicely before we force
-        // hmmmm I wonder if sleep() will get interupted by sigchlds?
-    }
-    if (numchildren > 0) {
-        kill_allchildren();
-    }
-    // we might not giving enough time for defuncts to be created and then
-    // mopped but on exit or reload config they'll get mopped up
-    sleep(1);
-    mopup_afterkids();
-
-    delete[] childrenpids;
-    delete[] childrenstates;
-    delete[] childsockets;
-    delete[] pids; // 4 deletes good, memory leaks bad
-#ifdef HAVE_SYS_EPOLL_H
-    delete[] revents; // 5 deletes good, memory leaks bad
-#endif
-
-    if (failurecount >= 30) {
-        syslog(LOG_ERR, "%s", "Exiting due to high failure count.");
-#ifdef DGDEBUG
-        std::cout << "Exiting due to high failure count." << std::endl;
-#endif
-    }
-#ifdef DGDEBUG
-    std::cout << "Main parent process exiting." << std::endl;
-#endif
+    //cullchildren(numchildren); // remove the fork pool of spare children
 
     serversockets.deleteAll();
     free(serversockfds);
-
-#ifdef HAVE_SYS_EPOLL_H
-    close(epfd); // close epoll fd
-#endif
 
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = SIG_DFL;
@@ -2774,15 +1996,6 @@ int fc_controlit()   // needs total rewrite to gen threads
         sigaction(SIGTERM, &oldsa, NULL); // restore prev state
     }
 
-    if (reloadconfig || ttg) {
-        if (!o.no_logger)
-            ::kill(loggerpid, SIGTERM); // get rid of logger
-        if (o.url_cache_number > 0)
-            ::kill(urllistpid, SIGTERM); // get rid of url cache
-        if (o.max_ips > 0)
-            ::kill(iplistpid, SIGTERM); // get rid of iplist
-        return reloadconfig ? 2 : 0;
-    }
     if (o.logconerror) {
         syslog(LOG_ERR, "%s", "Main parent process exiting.");
     }

@@ -23,6 +23,8 @@
 
 extern bool is_daemonised;
 
+
+
 ListContainer total_block_site_list;
 ListContainer total_block_url_list;
 
@@ -31,7 +33,10 @@ ListContainer total_block_url_list;
 OptionContainer::OptionContainer()
     : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), fg(NULL)
 {
+    log_Q = new Queue<std::string>;
+    http_worker_Q = new Queue<Socket*>;
 }
+
 
 OptionContainer::~OptionContainer()
 {
@@ -94,17 +99,18 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
     list.clear();
 }
 
-bool OptionContainer::read(const char *filename, int type)
+bool OptionContainer::read(std::string& filename, int type)
 {
 	conffilename = filename;
+
 	// all sorts of exceptions could occur reading conf files
 	try {
 		std::string linebuffer;
 		String temp;  // for tempory conversion and storage
-		std::ifstream conffiles(filename, std::ios::in);  // e2guardian.conf
+		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
 			if (!is_daemonised) {
-				std::cerr << "error reading: " << filename << std::endl;
+				std::cerr << "error reading: " << filename.c_str() << std::endl;
 			}
 			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
 			return false;
@@ -260,7 +266,7 @@ bool OptionContainer::read(const char *filename, int type)
 #endif
 
         // the e2guardian.conf and pics files get amalgamated into one
-        // deque.  They are only seperate files for clarity.
+        // deque.
 
         max_logitem_length = findoptionI("maxlogitemlength");
         // default of unlimited no longer allowed as could cause buffer overflow
@@ -292,40 +298,11 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         }
 
-        max_children = findoptionI("maxchildren");
-        if (!realitycheck(max_children, 4, 0, "maxchildren")) {
-            return false;
+        http_workers= findoptionI("httpworkers");
+        if (http_workers == 0) http_workers = 100;
+        if (!realitycheck(http_workers, 20, 10000, "httpworkers")) {
+        return false;
         } // check its a reasonable value
-        min_children = findoptionI("minchildren");
-        if (!realitycheck(min_children, 1, max_children - 1, "minchildren")) {
-            return false;
-        } // check its a reasonable value
-        maxspare_children = findoptionI("maxsparechildren");
-        if (!realitycheck(maxspare_children, min_children, max_children, "maxsparechildren")) {
-            return false;
-        } // check its a reasonable value
-        prefork_children = findoptionI("preforkchildren");
-        if (!realitycheck(prefork_children, 1, max_children, "preforkchildren")) {
-            return false;
-        } // check its a reasonable value
-        minspare_children = findoptionI("minsparechildren");
-        if (!realitycheck(minspare_children, 0, maxspare_children - 1, "minsparechildren")) {
-            return false;
-        } // check its a reasonable value
-        maxage_children = findoptionI("maxagechildren");
-        if (!realitycheck(maxage_children, 1, 0, "maxagechildren")) {
-            return false;
-        } // check its a reasonable value
-
-        gentle_chunk = findoptionI("gentlechunk");
-        if (gentle_chunk > 0) {
-            if (!realitycheck(gentle_chunk, 1, min_children, "gentlechunk")) {
-                return false;
-            } // check its a reasonable value
-        } else {
-            gentle_chunk = prefork_children;
-        }
-        monitor_start = 0;
 
         monitor_helper = findoptionS("monitorhelper");
         if (monitor_helper == "") {
@@ -339,20 +316,6 @@ bool OptionContainer::read(const char *filename, int type)
             monitor_flag_flag = false;
         } else {
             monitor_flag_flag = true;
-        }
-
-        if (monitor_helper_flag || monitor_flag_flag) {
-            monitor_start = findoptionI("monitorstart");
-            if (!realitycheck(monitor_start, 0, min_children, "monitorstart")) {
-                return false;
-            } // check its a reasonable value
-            if (monitor_start == 0)
-                monitor_start = min_children;
-        }
-
-        max_ips = findoptionI("maxips");
-        if (!realitycheck(max_ips, 0, 0, "maxips")) {
-            return false;
         }
 
         max_content_filter_size = findoptionI("maxcontentfiltersize");

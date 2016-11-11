@@ -9,6 +9,7 @@
 #endif
 #include "FatController.hpp"
 #include "SysV.hpp"
+#include "Queue.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -64,17 +65,18 @@ RegExp absurl_re, relurl_re;
 // DECLARATIONS
 
 // get the OptionContainer to read in the given configuration file
-void read_config(const char *configfile, int type);
+void read_config(std::string& configfile, int type);
 
 // IMPLEMENTATION
 
 // get the OptionContainer to read in the given configuration file
-void read_config(const char *configfile, int type)
+//void read_config(const char *configfile, int type)
+void read_config(std::string& configfile, int type)
 {
-    int rc = open(configfile, 0, O_RDONLY);
+    int rc = open(configfile.c_str(), 0, O_RDONLY);
     if (rc < 0) {
-        syslog(LOG_ERR, "Error opening %s", configfile);
-        std::cerr << "Error opening " << configfile << std::endl;
+        syslog(LOG_ERR, "Error opening %s", configfile.c_str());
+        std::cerr << "Error opening " << configfile.c_str() << std::endl;
         exit(1); // could not open conf file for reading, exit with error
     }
     close(rc);
@@ -115,10 +117,10 @@ int main(int argc, char *argv[])
                 bool dobreak = false;
                 switch (option) {
                 case 'q':
-                    read_config(configfile.c_str(), 0);
+                    read_config(configfile, 0);
                     return sysv_kill(o.pid_filename);
                 case 'Q':
-                    read_config(configfile.c_str(), 0);
+                    read_config(configfile, 0);
                     sysv_kill(o.pid_filename, false);
                     // give the old process time to die
                     while (sysv_amirunning(o.pid_filename))
@@ -130,13 +132,13 @@ int main(int argc, char *argv[])
                     needreset = true;
                     break;
                 case 's':
-                    read_config(configfile.c_str(), 0);
+                    read_config(configfile, 0);
                     return sysv_showpid(o.pid_filename);
                 case 'r':
-                    read_config(configfile.c_str(), 0);
+                    read_config(configfile, 0);
                     return sysv_hup(o.pid_filename);
                 case 'g':
-                    read_config(configfile.c_str(), 0);
+                    read_config(configfile, 0);
                     return sysv_usr1(o.pid_filename);
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
@@ -204,7 +206,7 @@ int main(int argc, char *argv[])
         o.reset();
     }
 
-    read_config(configfile.c_str(), 2);
+    read_config(configfile, 2);
 
     if ( ! o.name_suffix.empty() ) {
       prog_name += o.name_suffix;
@@ -351,12 +353,12 @@ int main(int argc, char *argv[])
         return 1; // we can't have rampant proccesses can we?
     }
 #endif
-    if ((o.max_children + o.prefork_children) > max_maxchildren) {
-        syslog(LOG_ERR, "%s", "maxchildren option in e2guardian.conf has a value too high.");
-        std::cerr << " maxchildren option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")" << std::endl;
-        std::cerr << "The total of maxchildren " << o.max_children << " plus preforkchildren " << o.prefork_children << " must not exceed " << max_maxchildren << "" << std::endl;
+    if ((o.http_workers + 10) > max_maxchildren) {
+        syslog(LOG_ERR, "%s", "httpworkers option in e2guardian.conf has a value too high.");
+        std::cerr << " httpworkers option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")" << std::endl;
+        std::cerr << "The total of httpworkers " << o.http_workers <<  " + 10 must not exceed " << max_maxchildren << "" << std::endl;
         std::cerr << "in this configuration." << std::endl;
-        std::cerr << "Reduce maxchildren and/or preforkchilden" << std::endl;
+        std::cerr << "Reduce httpworkers " << std::endl;
         std::cerr << "Or recompile with an increased --with-filedescriptors=" << DANS_MAXFD << " and/or " << std::endl;
         std::cerr << "upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
         return 1; // we can't have rampant proccesses can we?
@@ -462,7 +464,7 @@ int main(int argc, char *argv[])
             std::cout << "About to re-read conf file." << std::endl;
 #endif
             o.reset();
-            if (!o.read(configfile.c_str(), 2)) {
+            if (!o.read(configfile, 2)) {
                 syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
 #ifdef DGDEBUG
                 std::cerr << "Error re-parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;

@@ -215,7 +215,7 @@ std::string BackedStore::store(const char *prefix)
 
         char *name = strrchr(filename, '/');
 #ifdef DGDEBUG
-        std::cout << "BackedStore: creating hard link: " << storedname << std::endl;
+//        std::cout << "BackedStore: creating hard link: " << (char)storedname << std::endl;
 #endif
         std::string storedname_str(storedname.str());
         int rc = link(name, storedname_str.c_str());

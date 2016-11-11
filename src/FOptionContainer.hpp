@@ -185,6 +185,7 @@ class FOptionContainer
     unsigned int banned_regexpheader_list;
     unsigned int content_regexp_list;
     unsigned int url_regexp_list;
+    unsigned int sslsite_regexp_list;
     unsigned int header_regexp_list;
     unsigned int exception_extension_list;
     unsigned int exception_mimetype_list;
@@ -245,6 +246,8 @@ class FOptionContainer
     std::deque<String> content_regexp_list_rep;
     std::deque<RegExp> url_regexp_list_comp;
     std::deque<String> url_regexp_list_rep;
+    std::deque<RegExp> sslsite_regexp_list_comp;
+    std::deque<String> sslsite_regexp_list_rep;
     std::deque<RegExp> header_regexp_list_comp;
     std::deque<String> header_regexp_list_rep;
     std::deque<RegExp> search_regexp_list_comp;
@@ -308,6 +311,7 @@ class FOptionContainer
         , banned_regexpheader_flag(false)
         , content_regexp_flag(false)
         , url_regexp_flag(false)
+        , sslsite_regexp_flag(false)
         , header_regexp_flag(false)
         , url_redirect_regexp_flag(false)
         , exception_extension_flag(false)
@@ -414,6 +418,7 @@ class FOptionContainer
     bool banned_regexpheader_flag;
     bool content_regexp_flag;
     bool url_regexp_flag;
+    bool sslsite_regexp_flag;
     bool header_regexp_flag;
     bool exception_extension_flag;
     bool exception_mimetype_flag;

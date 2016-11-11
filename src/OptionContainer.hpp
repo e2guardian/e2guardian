@@ -19,12 +19,14 @@
 #include "RegExp.hpp"
 #include "Auth.hpp"
 #include "IPList.hpp"
+#include "Queue.hpp"
 
 #include <deque>
 
 #ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
 #endif
+
 
 // DECLARATIONS
 struct room_item {
@@ -39,6 +41,9 @@ struct room_item {
 class OptionContainer
 {
     public:
+    Queue<std::string>* log_Q;
+    Queue<Socket*>* http_worker_Q;
+
     // all our many, many options
     int filter_groups;
     int log_exception_hits;
@@ -77,17 +82,11 @@ class OptionContainer
     bool get_orig_ip;
 #endif
     int ll;
-    int max_children;
     int proxy_timeout;
     int proxy_failure_log_interval;
     int exchange_timeout;
     int pcon_timeout;
-    int min_children;
-    int maxspare_children;
-    int prefork_children;
-    int minspare_children;
-    int maxage_children;
-    int gentle_chunk;
+    int http_workers;
     std::string daemon_user_name;
     std::string daemon_group_name;
     int proxy_user;
@@ -115,7 +114,6 @@ class OptionContainer
     bool monitor_helper_flag;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag;
-    int monitor_start; // call monitorhelper start and/or set monitor_flag file when number of freechildren is more than this figure
     std::string dstat_location;
     bool dstat_log_flag;
     int dstat_interval;
@@ -208,7 +206,7 @@ class OptionContainer
 
     OptionContainer();
     ~OptionContainer();
-    bool read(const char *filename, int type);
+    bool read(std::string& filename, int type);
     void reset();
     bool inExceptionIPList(const std::string *ip, std::string *&host);
     bool inBannedIPList(const std::string *ip, std::string *&host);
@@ -232,7 +230,7 @@ class OptionContainer
     private:
     std::string per_room_directory_location;
     std::deque<std::string> conffile;
-    String conffilename;
+    std::string conffilename;
     int reporting_level;
 
     std::string html_template_location;
