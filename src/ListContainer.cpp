@@ -343,8 +343,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     String temp, inc, hostname, url;
     char linebuffer[2048];
-    while (!input->eof()) {
-        input->getline(linebuffer, sizeof(linebuffer));
+    while (input->getline(linebuffer, sizeof(linebuffer))) {
         temp = linebuffer;
         if (temp.length() < 2)
             continue; // its jibberish

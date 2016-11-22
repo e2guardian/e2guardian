@@ -501,6 +501,7 @@ contentscanexceptions = off
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
+#authplugin = '/etc/e2guardian/authplugins/proxy-header.conf'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as
