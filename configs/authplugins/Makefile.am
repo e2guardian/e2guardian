@@ -1,6 +1,6 @@
 authpluginsdir = $(DGCONFDIR)/authplugins
 
-dist_authplugins_DATA = proxy-basic.conf ident.conf proxy-digest.conf
+dist_authplugins_DATA = proxy-basic.conf ident.conf proxy-digest.conf proxy-header.conf
 
 nodist_authplugins_DATA = ip.conf port.conf
 

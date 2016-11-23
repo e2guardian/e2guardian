@@ -239,7 +239,7 @@ AC_MSG_ERROR([no native or standard library backtrace function found! (needed by
 ])
 AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
 # add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS}"
+CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
 fi
 ],
 [ # disable by default
@@ -257,7 +257,7 @@ else
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -267,7 +267,7 @@ fi
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
