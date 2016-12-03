@@ -1,5 +1,6 @@
 // For all support, instructions and copyright go to:
-// http://e2guardian.org/
+
+// http://e2guardian.org/ll
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 // This class is a generic multiplexing tunnel
@@ -72,27 +73,20 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
     fdfrom = sockfrom.getFD();
     fdto = sockto.getFD();
-
-    maxfd = fdfrom > fdto ? fdfrom : fdto; // find the maximum file
-    // descriptor.  As Linux normally allows each process
-    // to have up to 1024 file descriptors, maxfd
-    // prevents the kernel having to look through all
-    // 1024 fds each fdSet could contain
+    fromoutfds[0].fd = fdfrom;
+    fromoutfds[0].events = POLLOUT;
+    tooutfds[0].fd = fdto;
+    tooutfds[0].events = POLLOUT;
+    twayfds[0].fd = fdfrom;
+    twayfds[0].events = POLLIN;
+    twayfds[1].events = POLLIN;
+    if (ignore && !twoway)
+        twayfds[1].fd = -1;
+    else
+        twayfds[1].fd = fdto;
 
     char buff[32768]; // buffer for the input
-    timeval timeout; // timeval struct
-    timeout.tv_sec = 120; // modify the struct so its a 120 sec timeout
-    timeout.tv_usec = 0;
-
-    fd_set fdSet; // file descriptor set
-
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(fdto, &fdSet); // add fdto to the set
-    FD_SET(fdfrom, &fdSet); // add fdfrom to the set
-
-    timeval t; // we need a 2nd copy used later
-    fd_set inset; // we need a 2nd copy used later
-    fd_set outset; // we need a 3rd copy used later
+    int timeout = 120;    // should be made setable in conf files
 
     bool done = false; // so we get past the first while
 
@@ -100,11 +94,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         done = true; // if we don't make a sucessful read and write this
         // flag will stay true and so the while() will exit
 
-        inset = fdSet; // as select() can modify the sets we need to take
-        t = timeout; // a copy each time round and use that
-
-        if (ignore && !twoway)
-            FD_CLR(fdto, &inset);
+        //FD_CLR(fdto, &inset);
 
 #ifdef __SSLMITM
         //<TODO> This if is a nasty hack for ssl man in the middle
@@ -120,11 +110,15 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         if (sockfrom.isSsl()) {
         } else
 #endif
-            if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1) {
+//            if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1)
+        if (poll(twayfds, 2, timeout  * 1000) < 1)
+        {
             break; // an error occured or it timed out so end while()
         }
 
-        if (FD_ISSET(fdfrom, &inset)) { // fdfrom is ready to be read from
+        //if (FD_ISSET(fdfrom, &inset))  // fdfrom is ready to be read from
+        if (twayfds[0].revents & (POLLIN | POLLHUP))
+        {
             if (targetthroughput > -1)
                 // we have a target throughput - only read in the exact amount of data we've been told to
                 // plus 2 bytes to "solve" an IE post bug with multipart/form-data forms:
@@ -140,17 +134,14 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 done = true; // none received so pipe is closed so flag it
             } else { // some data read
                 throughput += rc; // increment our counter used to log
-                outset = fdSet; // take a copy to work with
-                FD_CLR(fdfrom, &outset); // remove fdfrom from the set
-                // as we are only interested in writing to fdto
-
-                t = timeout; // take a copy to work with
-
-                if (selectEINTR(fdto + 1, NULL, &outset, NULL, &t) < 1) {
+                if (poll (tooutfds,1, timeout * 1000) < 1)
+                 {
                     break; // an error occured or timed out so end while()
                 }
 
-                if (FD_ISSET(fdto, &outset)) { // fdto ready to write to
+                //if (FD_ISSET(fdto, &outset))  // fdto ready to write to
+                    if (tooutfds[0].revents & POLLOUT)
+                    {
                     if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
                         break; // was an error writing
                     }
@@ -160,7 +151,9 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 }
             }
         }
-        if (FD_ISSET(fdto, &inset)) { // fdto is ready to be read from
+        //if (FD_ISSET(fdto, &inset))  // fdto is ready to be read from
+        if ( twayfds[1].revents & (POLLIN | POLLHUP))
+        {
             if (!twoway) {
 // since HTTP works on a simple request/response basis, with no explicit
 // communications from the client until the response has been completed
@@ -184,17 +177,21 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 done = true; // none received so pipe is closed so flag it
                 break;
             } else { // some data read
-                outset = fdSet; // take a copy to work with
-                FD_CLR(fdto, &outset); // remove fdto from the set
+            //    outset = fdSet; // take a copy to work with
+             //   FD_CLR(fdto, &outset); // remove fdto from the set
                 // as we are only interested in writing to fdfrom
 
-                t = timeout; // take a copy to work with
+   //             t = timeout; // take a copy to work with
 
-                if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1) {
+               // if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1)
+                if (poll (fromoutfds,1, timeout * 1000) < 1)
+                {
                     break; // an error occured or timed out so end while()
                 }
 
-                if (FD_ISSET(fdfrom, &outset)) { // fdfrom ready to write to
+                //if (FD_ISSET(fdfrom, &outset))  // fdfrom ready to write to
+                    if (fromoutfds[0].revents & POLLOUT)
+                    {
                     if (!sockfrom.writeToSocket(buff, rc, 0, 0, false)) { // write data
                         break; // was an error writing
                     }

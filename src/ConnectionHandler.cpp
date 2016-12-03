@@ -562,6 +562,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     // ...connect to proxy
                     for (int i = 0; i < o.proxy_timeout; i++) {
                         rc = proxysock.connect(o.proxy_ip, o.proxy_port);
+
                         if (!rc) {
                             if (i > 0) {
                                 syslog(LOG_ERR, "Proxy responded after %d retrys", i);
@@ -1254,7 +1255,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     && requestscanners.empty() && responsescanners.empty()) // doesn't need content scanning
                 // bad people still need to be able to access the banned page
                 || isourwebserver) {
-                proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+    } catch (std::exception &e) {
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << " - caught an exception isexception: " << e.what() << std::endl;
+#endif
+                }
+#ifdef DGDEBUG
+                std::cerr << dbgPeerPort << "  got past line 1257 rfo " << std::endl;
+#endif
+
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 docheader.in(&proxysock, persistOutgoing);
                 persistProxy = docheader.isPersistent();
@@ -1379,7 +1389,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             && !isbanneduser // bad user
                             && requestscanners.empty() && responsescanners.empty())
                         || isourwebserver) {
-                        proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                        try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                        } catch (std::exception &e) {
+#ifdef DGDEBUG
+                            std::cerr << dbgPeerPort << " - caught an exception isexception 1367 : " << e.what() << std::endl;
+#endif
+                        }
+                        //proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+#ifdef DGDEBUG
+                        std::cerr << dbgPeerPort << "  got past line 1391 rfo " << std::endl;
+#endif
                         header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                         docheader.in(&proxysock, persistOutgoing);
                         persistProxy = docheader.isPersistent();
@@ -1444,7 +1463,17 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -CONNECT: user not authed - getting response to see if it's auth required" << std::endl;
 #endif
                     // send header to proxy
-                    proxysock.readyForOutput(o.proxy_timeout);
+                    try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                    } catch (std::exception &e) {
+#ifdef DGDEBUG
+                        std::cerr << dbgPeerPort << " - caught an exception send header " << e.what() << std::endl;
+#endif
+                    } ;
+
+                    //proxysock.readyForOutput(o.proxy_timeout);
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << "  got past line 1465 rfo " << std::endl;
+#endif
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -1729,6 +1758,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // can't filter content of CONNECT
                 if (!wasrequested) {
                     proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << "  got past line 1759 rfo " << std::endl;
+#endif
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 } else {
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
@@ -2065,6 +2097,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                                         if (!wasrequested && (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1)) {
                                             proxysock.readyForOutput(o.proxy_timeout);
+#ifdef DGDEBUG
+                                            std::cerr << dbgPeerPort << "  got past line 2098 rfo " << std::endl;
+#endif
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
                                             wasrequested = true;
@@ -2315,7 +2350,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                 // send header to proxy
                 if (!wasrequested) {
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << " before 2352 rfo " << std::endl;
+#endif
                     proxysock.readyForOutput(o.proxy_timeout);
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << "  got past line 2352 rfo " << std::endl;
+#endif
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
 
                     // get header from proxy
@@ -2620,6 +2661,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             if (!wasrequested) {
                 proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+#ifdef DGDEBUG
+                std::cerr << dbgPeerPort << "  got past line 2659 rfo " << std::endl;
+#endif
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
                 proxysock.checkForInput(o.exchange_timeout); // exceptions on error/timeout
                 docheader.in(&proxysock, persistOutgoing); // get reply header from proxy
@@ -2635,6 +2679,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             std::cout << dbgPeerPort << " -sending header to client" << std::endl;
 #endif
             peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+#ifdef DGDEBUG
+            std::cerr << dbgPeerPort << "  got past line 2677 rfo " << std::endl;
+#endif
             if (headersent == 1) {
                 docheader.out(NULL, &peerconn, __DGHEADER_SENDREST); // send rest of header to client
 #ifdef DGDEBUG
@@ -2660,6 +2707,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
                 peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
+#ifdef DGDEBUG
+                std::cerr << dbgPeerPort << "  got past line 2705 rfo " << std::endl;
+#endif
 
                 // it must be clean if we got here
                 if (docbody.dontsendbody && docbody.tempfilefd > -1) {
@@ -2979,6 +3029,10 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     std::string *clientip, std::string *clientuser, int filtergroup,
     bool &isbanneduser, bool &isbannedip, std::string &room)
 {
+#ifdef DGDEBUG
+    std::cout << dbgPeerPort << " -starting request checks" << std::endl;
+#endif
+
     if (isbannedip) {
         (*checkme).isItNaughty = true;
         (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(100);
@@ -3300,6 +3354,9 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
     std::string *clientip, std::string *clientuser, int filtergroup,
     bool &isbanneduser, bool &isbannedip, std::string &room)
 {
+#ifdef DGDEBUG
+    std::cout << dbgPeerPort << " -starting local checks" << std::endl;
+#endif
 
     if (isbannedip) {
         (*checkme).isItNaughty = true;
@@ -4175,3 +4232,4 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     }
 }
 #endif //__SSLMITM
+

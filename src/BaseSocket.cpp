@@ -44,56 +44,6 @@ extern bool reloadconfig;
 
 // IMPLEMENTATION
 
-// a wrapper for select so that it auto-restarts after an EINTR.
-// can be instructed to watch out for signal triggered config reloads.
-int selectEINTR(int numfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, bool honour_reloadconfig)
-{
-    int rc;
-    errno = 0;
-    // Fix for OSes that do not explicitly modify select()'s timeout value
-    // from Soner Tari <list@kulustur.org> (namely OpenBSD)
-    // Modified to use custom code in preference to timersub/timercmp etc.
-    // to avoid that particular portability nightmare.
-    timeval entrytime;
-    timeval exittime;
-    timeval elapsedtime;
-    timeval timeoutcopy;
-    while (true) { // using the while as a restart point with continue
-        if (timeout != NULL) {
-            gettimeofday(&entrytime, NULL);
-            timeoutcopy = *timeout;
-            rc = select(numfds, readfds, writefds, exceptfds, &timeoutcopy);
-            // explicitly modify the timeout if the OS hasn't done this for us
-            if (timeoutcopy.tv_sec == timeout->tv_sec && timeoutcopy.tv_usec == timeout->tv_usec) {
-                gettimeofday(&exittime, NULL);
-                // calculate time spent sleeping this iteration
-                dgtimersub(&exittime, &entrytime, &elapsedtime);
-                // did we wait longer than/as long as was left?
-                if (!dgtimercmp(timeout, &elapsedtime, < )) {
-                    // no - reduce the amount that is left
-                    dgtimersub(timeout, &elapsedtime, timeout);
-                } else {
-                    // yes - we've timed out, so exit
-                    timeout->tv_sec = timeout->tv_usec = 0;
-                    break;
-                }
-            } else {
-                // if the OS has modified the timeout for us,
-                // propogate the change back to the caller
-                *timeout = timeoutcopy;
-            }
-        } else
-            rc = select(numfds, readfds, writefds, exceptfds, NULL);
-        if (rc < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
-                continue; // was interupted by a signal so restart
-            }
-        }
-        break; // end the while
-    }
-    return rc; // return status
-}
-
 // This class contains client and server socket init and handling
 // code as well as functions for testing and working with the socket FDs.
 
@@ -101,6 +51,10 @@ int selectEINTR(int numfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds
 BaseSocket::BaseSocket()
     : timeout(5), sck(-1), buffstart(0), bufflen(0)
 {
+    infds[0].fd = -1;
+    outfds[0].fd = -1;
+    infds[0].events = POLLIN;
+    outfds[0].events = POLLOUT;
 }
 
 // create socket from FD - must be overridden to clear the relevant address structs
@@ -108,6 +62,10 @@ BaseSocket::BaseSocket(int fd)
     : timeout(5), buffstart(0), bufflen(0)
 {
     sck = fd;
+    infds[0].fd = fd;
+    outfds[0].fd = fd;
+    infds[0].events = POLLIN;
+    outfds[0].events = POLLOUT;
 }
 
 // destructor - close socket
@@ -126,6 +84,8 @@ void BaseSocket::baseReset()
     if (sck > -1) {
         ::close(sck);
         sck = -1;
+        infds[0].fd = -1;
+        outfds[0].fd = -1;
     }
     timeout = 5;
     buffstart = 0;
@@ -172,6 +132,8 @@ void BaseSocket::close()
     if (sck > -1) {
         ::close(sck);
         sck = -1;
+        infds[0].fd = -1;
+        outfds[0].fd = -1;
     }
     buffstart = 0;
     bufflen = 0;
@@ -195,14 +157,9 @@ bool BaseSocket::checkForInput()
     if ((bufflen - buffstart) > 0)
         return true;
 
-    fd_set fdSet;
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(sck, &fdSet); // add fd to the set
-    timeval t; // timeval struct
-    t.tv_sec = 0;
-    t.tv_usec = 0;
-
-    if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t) < 1) {
+    //if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t) < 1)
+   if (poll(infds, 1, 0) < 1)
+        {
         return false;
     }
 
@@ -221,50 +178,37 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
 
     // blocks if socket blocking
     // until timeout
-    fd_set fdSet;
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(sck, &fdSet); // add fd to the set
-    timeval t; // timeval struct
-    t.tv_sec = timeout;
-    t.tv_usec = 0;
-    if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t, honour_reloadconfig) < 1) {
-        std::string err("select() on input: ");
+//if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t, honour_reloadconfig) < 1)
+if( poll(infds,1, timeout*1000)<1)
+    {
+        std::string err("poll() on input: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
     }
 }
 
-//#ifdef NOT_DEF
 // non-blocking check to see if a socket is ready to be written     //NOT EVER USED   - not it is used in Socket.cpp
 bool BaseSocket::readyForOutput()
 {
-    fd_set fdSet;
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(sck, &fdSet); // add fd to the set
-    timeval t; // timeval struct
-    t.tv_sec = 0;
-    t.tv_usec = 0;
-    if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t) < 1) {
+    //if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t) < 1)
+    if( poll(outfds,1, 0)<1)
+  {
         return false;
     }
     return true;
 }
-//#endif
 
 // blocking equivalent of above, can be told to break on signal-triggered reloads
 void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std::exception)
 {
     // blocks if socket blocking
     // until timeout
-    fd_set fdSet;
-    FD_ZERO(&fdSet); // clear the set
-    FD_SET(sck, &fdSet); // add fd to the set
-    timeval t; // timeval struct
-    t.tv_sec = timeout;
-    t.tv_usec = 0;
-    if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t, honour_reloadconfig) < 1) {
-        std::string err("select() on output: ");
-        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
-    }
+    //if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t, honour_reloadconfig) < 1)
+        if(poll(outfds, 1, timeout  * 1000) < 1)
+        {
+        std::string err("poll() on output: ");
+        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
+
+        }
 }
 
 // read a line from the socket, can be told to break on config reloads
@@ -315,9 +259,6 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 #endif
         //if there was a socket error
         if (bufflen < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
-                continue;
-            }
             throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
         }
         //if socket closed...
@@ -379,12 +320,7 @@ bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, in
             }
         }
         sent = send(sck, buff + actuallysent, len - actuallysent, 0);
-        if (sent < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
-                continue; // was interupted by signal so restart
-            }
-            return false;
-        }
+
         if (sent == 0) {
             return false; // other end is closed
         }
@@ -480,6 +416,5 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
 
         break;
     }
-
     return rc + tocopy;
 }

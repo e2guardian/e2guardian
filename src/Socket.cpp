@@ -178,8 +178,10 @@ int Socket::connect(const std::string &ip, int port)
     peer_adr.sin_port = htons(port);
     inet_aton(ip.c_str(), &peer_adr.sin_addr);
     my_port = port;
-
-    return ::connect(sck, (struct sockaddr *)&peer_adr, len);
+    int ret = ::connect(sck, (struct sockaddr *)&peer_adr, len);
+    infds[0].fd = sck;
+    outfds[0].fd = sck;
+    return ret;
 }
 // bind socket to given port
 int Socket::bind(int port)

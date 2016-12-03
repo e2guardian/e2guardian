@@ -16,6 +16,7 @@
 #include <exception>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <poll.h>
 
 int selectEINTR(int numfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, bool honour_reloadconfig = false);
 
@@ -78,6 +79,8 @@ class BaseSocket
     char buffer[1024];
     int buffstart;
     int bufflen;
+    struct pollfd infds[1];
+    struct pollfd outfds[1];
 
     // constructor - sets default values. override this if you actually wish to create a default socket.
     BaseSocket();

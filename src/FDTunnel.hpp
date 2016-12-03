@@ -28,6 +28,11 @@ class FDTunnel
     bool tunnel(Socket &sockfrom, Socket &sockto, bool twoway = false, off_t targetthroughput = -1, bool ignore = false);
 
     void reset();
+
+private:
+    struct pollfd fromoutfds[1];
+    struct pollfd tooutfds[1];
+    struct pollfd twayfds[2];
 };
 
 #endif
