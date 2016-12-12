@@ -108,6 +108,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         //work if you use BIO_setfd (like we have to) so no ideas how
         //to actually fix this other than rewrite dg
         if (sockfrom.isSsl()) {
+           twayfds[0].revents = POLLIN;
+           twayfds[1].revents = 0;
         } else
 #endif
 //            if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1)

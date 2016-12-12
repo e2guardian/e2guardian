@@ -122,11 +122,6 @@ class OptionContainer
     std::string logid_1;
     std::string logid_2;
 
-#ifdef SG_LOGFORMAT
-    // Product ID
-    std::string prod_id;
-#endif
-
     bool no_daemon;
     bool no_logger;
     bool log_syslog;
