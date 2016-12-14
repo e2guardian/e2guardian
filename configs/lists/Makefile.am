@@ -16,8 +16,7 @@ dist_list_DATA = \
 	bannedsearchlist bannedsslsitelist \
 	contentregexplist exceptioniplist exceptionsitelist \
 	exceptionurllist filtergroupslist greysitelist \
-	greyurllist pics \
-	bannediplist exceptioniplist urlregexplist \
+	greyurllist pics urlregexplist \
 	exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
 	exceptionfilesitelist bannedregexpheaderlist headerregexplist \
 	exceptionfileurllist logsitelist logurllist logregexpurllist \
