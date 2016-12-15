@@ -1828,6 +1828,7 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
 #ifdef DGDEBUG
     std::cout << "headertoclient:" << l << std::endl;
+    std::cout << "timeout:" << timeout << std::endl;
 #endif
 
     // second reconnect loop
@@ -1857,6 +1858,9 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         // if we got here, we succeeded, so break the reconnect loop
         break;
     }
+#ifdef DGDEBUG
+    std::cout << "Header written - pstdata_len:" << postdata_len << std::endl;
+#endif
 
     if (postdata_len > 0) {
 #ifdef DGDEBUG
@@ -1875,6 +1879,9 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         FDTunnel fdt;
         fdt.tunnel(*peersock, *sock, false, contentLength(), true);
     }
+#ifdef DGDEBUG
+    std::cout << "Returning from header:out " << std::endl;
+#endif
 }
 
 // discard remainder of POST data
@@ -1914,7 +1921,13 @@ void HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         // - this lets us break when waiting for the next request on a pconn, but not
         // during receipt of a request in progress.
         bool truncated = false;
+#ifdef DGDEBUG
+        std::cout << "header:in before getLine - timeout:" << timeout << std::endl;
+#endif
         sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+#ifdef DGDEBUG
+        std::cout << "header:in after getLine " << std::endl;
+#endif
         if (truncated)
             throw std::exception();
 
@@ -1940,4 +1953,7 @@ void HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         throw std::exception();
 
     checkheader(allowpersistent); // sort out a few bits in the header
+#ifdef DGDEBUG
+    std::cout << "Returning from header:in " << std::endl;
+#endif
 }

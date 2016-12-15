@@ -83,9 +83,12 @@ class OptionContainer
 #endif
     int ll;
     int proxy_timeout;
+    int proxy_timeout_sec;
     int proxy_failure_log_interval;
     int exchange_timeout;
+    int exchange_timeout_sec;
     int pcon_timeout;
+    int pcon_timeout_sec;
     int http_workers;
     std::string daemon_user_name;
     std::string daemon_group_name;

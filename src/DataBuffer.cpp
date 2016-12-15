@@ -35,7 +35,7 @@ extern OptionContainer o;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false)
+    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false), stimeout(20000)
 {
     data[0] = '\0';
 }
@@ -234,7 +234,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 }
 
 // send the request body to the client after having been handled by a DM plugin
-void DataBuffer::out(Socket *sock) throw(std::exception)
+void DataBuffer::out(Socket *sock) //throw(std::exception)
 {
     if (dontsendbody) {
 #ifdef DGDEBUG
@@ -242,7 +242,7 @@ void DataBuffer::out(Socket *sock) throw(std::exception)
 #endif
         return;
     }
-    (*sock).readyForOutput(timeout); // exceptions on timeout or error
+    (*sock).readyForOutput(stimeout); // exceptions on timeout or error
 
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks
@@ -273,7 +273,7 @@ void DataBuffer::out(Socket *sock) throw(std::exception)
                 break; // should never happen
             }
             // as it's cached to disk the buffer must be reasonably big
-            if (!sock->writeToSocket(data, rc, 0, timeout)) {
+            if (!sock->writeToSocket(data, rc, 0, stimeout)) {
                 throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
             }
             sent += rc;
@@ -291,12 +291,15 @@ void DataBuffer::out(Socket *sock) throw(std::exception)
 #endif
         // it's in RAM, so just send it, no streaming from disk
         if (buffer_length != 0) {
-            if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, timeout))
+            if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, stimeout))
                 throw std::exception();
         } else {
-            if (!sock->writeToSocket("\r\n\r\n", 4, 0, timeout))
+            if (!sock->writeToSocket("\r\n\r\n", 4, 0, stimeout))
                 throw std::exception();
         }
+#ifdef DGDEBUG
+        std::cout << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
+#endif
     }
 }
 

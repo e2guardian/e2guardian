@@ -276,27 +276,30 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
 
-        proxy_timeout = findoptionI("proxytimeout");
-        if (!realitycheck(proxy_timeout, 5, 100, "proxytimeout")) {
+        proxy_timeout_sec = findoptionI("proxytimeout");
+        if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
             return false;
         } // check its a reasonable value
+        proxy_timeout = proxy_timeout_sec * 1000;
 
         proxy_failure_log_interval = findoptionI("proxyfailureloginterval");
         if (proxy_failure_log_interval == 0)
             proxy_failure_log_interval = 600; // 10 mins
-        if (!realitycheck(proxy_failure_log_interval, proxy_timeout, 3600, "proxyfailureloginterval")) {
+        if (!realitycheck(proxy_failure_log_interval, proxy_timeout_sec, 3600, "proxyfailureloginterval")) {
             return false;
         } // check its a reasonable value
 
-        pcon_timeout = findoptionI("pcontimeout");
-        if (!realitycheck(pcon_timeout, 5, 300, "pcontimeout")) {
+        pcon_timeout_sec = findoptionI("pcontimeout");
+        if (!realitycheck(pcon_timeout_sec, 5, 300, "pcontimeout")) {
             return false;
         } // check its a reasonable value
+        pcon_timeout = pcon_timeout_sec * 1000;
 
-        exchange_timeout = findoptionI("proxyexchange");
-        if (!realitycheck(exchange_timeout, 5, 300, "proxyexchange")) {
+        exchange_timeout_sec = findoptionI("proxyexchange");
+        if (!realitycheck(exchange_timeout_sec, 5, 300, "proxyexchange")) {
             return false;
         }
+        exchange_timeout = exchange_timeout_sec  * 1000;
 
         http_workers= findoptionI("httpworkers");
         if (http_workers == 0) http_workers = 100;

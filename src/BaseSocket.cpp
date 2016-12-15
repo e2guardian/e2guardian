@@ -66,6 +66,7 @@ BaseSocket::BaseSocket(int fd)
     outfds[0].fd = fd;
     infds[0].events = POLLIN;
     outfds[0].events = POLLOUT;
+    isclosing = false;
 }
 
 // destructor - close socket
@@ -90,6 +91,7 @@ void BaseSocket::baseReset()
     timeout = 5;
     buffstart = 0;
     bufflen = 0;
+    isclosing = false;
 }
 
 // mark a socket as a listening server socket
@@ -137,6 +139,7 @@ void BaseSocket::close()
     }
     buffstart = 0;
     bufflen = 0;
+    isclosing = false;
 }
 
 // set the socket-wide timeout
@@ -162,15 +165,18 @@ bool BaseSocket::checkForInput()
         {
         return false;
     }
-
-    return true;
+    if (infds[0].revents & POLLHUP)
+        isclosing = true;
+    if (infds[0].revents & POLLIN)
+        return true;
+    return false;   // must be POLLERR or POLLNVAL
 }
 
 // blocking check for waiting data - blocks for up to given timeout, can be told to break on signal-triggered config reloads
 void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std::exception)
 {
 #ifdef DGDEBUG
-    std::cout << "BaseSocket::checkForInput: starting for sck:" << sck << std::endl;
+    std::cout << "BaseSocket::checkForInput: starting for sck:" << sck << " timeout:" << timeout << std::endl;
 #endif
 
     if ((bufflen - buffstart) > 0)
@@ -179,11 +185,18 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
     // blocks if socket blocking
     // until timeout
 //if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t, honour_reloadconfig) < 1)
-if( poll(infds,1, timeout*1000)<1)
+if( poll(infds,1, timeout)<1)
     {
         std::string err("poll() on input: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
     }
+    if (infds[0].revents & POLLHUP)
+        isclosing = true;
+    if (infds[0].revents & POLLIN)
+        return ;
+    std::string err("poll() on input: ");
+    throw std::runtime_error(err + (errno ? strerror(errno) : "poll error"));
+
 }
 
 // non-blocking check to see if a socket is ready to be written     //NOT EVER USED   - not it is used in Socket.cpp
@@ -194,7 +207,11 @@ bool BaseSocket::readyForOutput()
   {
         return false;
     }
-    return true;
+    if (infds[0].revents & POLLOUT)
+         return true;
+    if (infds[0].revents & POLLHUP)
+        isclosing = true;
+    return false;
 }
 
 // blocking equivalent of above, can be told to break on signal-triggered reloads
@@ -203,12 +220,18 @@ void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std
     // blocks if socket blocking
     // until timeout
     //if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t, honour_reloadconfig) < 1)
-        if(poll(outfds, 1, timeout  * 1000) < 1)
+        if(poll(outfds, 1, timeout ) < 1)
         {
         std::string err("poll() on output: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
 
         }
+    if (infds[0].revents & POLLOUT)
+        return;
+    if (infds[0].revents  & POLLHUP)
+        isclosing = true;
+   // std::string err("poll() on output: ");
+   // throw std::runtime_error(err  + std::to_string(sck) );
 }
 
 // read a line from the socket, can be told to break on config reloads
@@ -408,11 +431,11 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     }
     while (true) {
         rc = recv(sck, buff, cnt, flags);
-        if (rc < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
-                continue;
-            }
-        }
+     //   if (rc < 0) {
+     //       if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
+      //          continue;
+      //      }
+      //  }
 
         break;
     }

@@ -61,7 +61,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 #ifdef DGDEBUG
         std::cout << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
 #endif
-        if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120, false))
+        if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120000, false))
             throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
 
         throughput += sockfrom.bufflen - sockfrom.buffstart;
@@ -86,7 +86,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         twayfds[1].fd = fdto;
 
     char buff[32768]; // buffer for the input
-    int timeout = 120;    // should be made setable in conf files
+    int timeout = 120000;    // should be made setable in conf files
 
     bool done = false; // so we get past the first while
 
@@ -113,7 +113,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         } else
 #endif
 //            if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1)
-        if (poll(twayfds, 2, timeout  * 1000) < 1)
+        if (poll(twayfds, 2, timeout )  < 1)
         {
             break; // an error occured or it timed out so end while()
         }
@@ -136,7 +136,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 done = true; // none received so pipe is closed so flag it
             } else { // some data read
                 throughput += rc; // increment our counter used to log
-                if (poll (tooutfds,1, timeout * 1000) < 1)
+                if (poll (tooutfds,1, timeout ) < 1)
                  {
                     break; // an error occured or timed out so end while()
                 }
@@ -186,7 +186,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
    //             t = timeout; // take a copy to work with
 
                // if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1)
-                if (poll (fromoutfds,1, timeout * 1000) < 1)
+                if (poll (fromoutfds,1, timeout ) < 1)
                 {
                     break; // an error occured or timed out so end while()
                 }

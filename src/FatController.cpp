@@ -488,6 +488,9 @@ void handle_connections(int tindex)
         ++dystat->conx;
 
         rc = h.handlePeer(*peersock, peersockip); // deal with the connection
+#ifdef DGDEBUG
+        std::cerr << "handle_peer returned: " << rc << std::endl;
+#endif
         --busychildren;
         delete peersock;
     };
@@ -1708,6 +1711,7 @@ int fc_controlit()   //
 
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
+#ifdef NOTDEF
     sa.sa_handler = SIG_IGN;
     if (sigaction(SIGPIPE, &sa, NULL)) { // ignore SIGPIPE so we can handle
         // premature disconections better
@@ -1720,6 +1724,7 @@ int fc_controlit()   //
         syslog(LOG_ERR, "%s", "Error ignoring HUP");
         return (1);
     }
+#endif
 
     // Now start creating threads so main thread can just handle signals, list reloads and stats
     // This removes need for select and/or epoll greatly simplifying the code
@@ -1758,6 +1763,7 @@ int fc_controlit()   //
     std::cout << "Parent process created children" << std::endl;
 #endif
 
+#ifdef NOTDEF
     memset(&sa, 0, sizeof(sa));
     if (!o.soft_restart) {
         sa.sa_handler = &sig_term; // register sig_term as our handler
@@ -1791,6 +1797,7 @@ int fc_controlit()   //
         syslog(LOG_ERR, "Error registering SIGUSR handler");
         return (1);
     }
+#endif
 
 #ifdef ENABLE_SEGV_BACKTRACE
     memset(&sa, 0, sizeof(sa));
@@ -1806,8 +1813,10 @@ int fc_controlit()   //
     pthread_t signal_thread_id;
     struct timespec timeout;
     int stat;
-    sigemptyset(&signal_set);
+    //sigemptyset(&signal_set);
+    sigfillset(&signal_set);
     sigaddset(&signal_set, SIGHUP);
+    sigaddset(&signal_set, SIGPIPE);
     sigaddset(&signal_set, SIGTERM);
     sigaddset(&signal_set, SIGUSR1);
     stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
@@ -1943,7 +1952,6 @@ int fc_controlit()   //
             }
             continue;
         }
-
         timeout.tv_sec = 10;
         timeout.tv_nsec = (long) 0;
         rc = sigtimedwait(&signal_set, NULL, &timeout);
@@ -1961,6 +1969,7 @@ int fc_controlit()   //
 #ifdef DGDEBUG
             std::cout << "signal:" << rc << std::endl;
 #endif
+            syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
         }
         //		freechildren = numchildren - busychildren;
 int q_size = o.http_worker_Q->size();

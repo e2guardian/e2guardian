@@ -75,6 +75,7 @@ class BaseSocket
     socklen_t peer_adr_length;
     // socket FD
     int sck;
+    bool isclosing;
     // internal buffer
     char buffer[1024];
     int buffstart;
