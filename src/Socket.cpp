@@ -756,7 +756,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
 //std::cout << "read into buffer; bufflen: " << bufflen <<std::endl;
 #endif
         if (bufflen < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
+            if (errno == EINTR ) {
                 continue;
             }
             std::cout << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
@@ -826,7 +826,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
         }
         sent = SSL_write(ssl, buff + actuallysent, len - actuallysent);
         if (sent < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
+            if (errno == EINTR ) {
                 continue; // was interupted by signal so restart
             }
             return false;
@@ -929,7 +929,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         rc = SSL_read(ssl, buff, cnt);
 
         if (rc < 0) {
-            if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
+            if (errno == EINTR ) {
                 continue;
             }
         }

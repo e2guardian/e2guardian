@@ -2358,15 +2358,33 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cerr << dbgPeerPort << "  got past line 2352 rfo " << std::endl;
 #endif
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
+#ifdef DGDEBUG
+                    std::cerr << dbgPeerPort << "  got past line 2350 proxy header out " << std::endl;
+                    std::cerr << dbgPeerPort << "  exchange_timeout is " << o.exchange_timeout << std::endl;
+#endif
 
                     // get header from proxy
-                    proxysock.checkForInput(o.exchange_timeout);
-                    docheader.in(&proxysock, persistOutgoing);
-                    persistProxy = docheader.isPersistent();
-                    persistPeer = persistOutgoing && docheader.wasPersistent();
+                    if (proxysock.bcheckForInput(o.exchange_timeout)) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+                        std::cout << dbgPeerPort << " before docheader in 2371: "  << std::endl;
 #endif
+                        docheader.in(&proxysock, persistOutgoing);
+                        persistProxy = docheader.isPersistent();
+                        persistPeer = persistOutgoing && docheader.wasPersistent();
+#ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+#endif
+                    }  else {
+#ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " -error/timeout on header in from proxy: " << persistPeer << std::endl;
+                        if (proxysock.isHup())
+                        std::cout << dbgPeerPort << " -proxy hung up " << std::endl;
+                        if (proxysock.isTimedout())
+                        std::cout << dbgPeerPort << " -proxy timedout" << std::endl;
+                        if (proxysock.sockError())
+                        std::cout << dbgPeerPort << " -proxy socket error" << std::endl;
+#endif
+                    }
 
                     wasrequested = true; // so we know where we are later
                 }
@@ -2638,7 +2656,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-            // then we deny. previously, this checked the isbypass flag too; now, since bypass requests only undergo the same checking
+            // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
             bool logged = false;
@@ -2688,11 +2706,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 std::cout << dbgPeerPort << " -sent rest header to client" << std::endl;
 #endif
             } else if (headersent == 0) {
-                docheader.out(NULL, &peerconn, __DGHEADER_SENDALL); // send header to client
+               if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL)) { // send header to client
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -sent all header to client" << std::endl;
-                std::cout << dbgPeerPort << " -waschecked:" << waschecked << std::endl;
+                   std::cout << dbgPeerPort << " -sent all header to client" << std::endl;
+                   std::cout << dbgPeerPort << " -waschecked:" << waschecked << std::endl;
+                      } else {
+                   std::cout << dbgPeerPort << " -sent all header failed to client" << std::endl;
 #endif
+               }
             }
 
             if (waschecked) {
@@ -2708,6 +2729,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
                 peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
+                if (peerconn.isNoOpp())  break;
 #ifdef DGDEBUG
                 std::cerr << dbgPeerPort << "  got past line 2705 rfo " << std::endl;
 #endif
@@ -2756,15 +2778,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
                     try {docbody.out(&peerconn);} // send doc body to client
                          catch (std::exception &e) {
-                             syslog(LOG_INFO, " -problem sending body to client %d", dbgPeerPort);
+                             //syslog(LOG_INFO, " -problem sending body to client %d", dbgPeerPort);
                              pausedtoobig = false;
                          }
                 }
-                if (pausedtoobig) {
-                    syslog(LOG_INFO, " -sent PARTIAL body to client %d", dbgPeerPort);
-                } else {
-                    syslog(LOG_INFO, " -sent body to client d", dbgPeerPort);
-                }
+//                if (pausedtoobig) {
+                    //syslog(LOG_INFO, " -sent PARTIAL body to client %d", dbgPeerPort);
+                //} else {
+                    //syslog(LOG_INFO, " -sent body to client d", dbgPeerPort);
+                //}
 #ifdef DGDEBUG
                 if (pausedtoobig) {
                     std::cout << dbgPeerPort << " -sent PARTIAL body to client" << std::endl;
@@ -2827,7 +2849,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
 #endif
-//        syslog(LOG_ERR, " -connection handler caught an exception %s", e.what() );
+        syslog(LOG_ERR, " -connection handler caught an exception %s", e.what() );
 
         // close connection to proxy
         proxysock.close();

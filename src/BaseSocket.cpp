@@ -49,17 +49,21 @@ extern bool reloadconfig;
 
 // constructor - override this if desired to create an actual socket at startup
 BaseSocket::BaseSocket()
-    : timeout(5), sck(-1), buffstart(0), bufflen(0)
+    : timeout(5000), sck(-1), buffstart(0), bufflen(0)
 {
     infds[0].fd = -1;
     outfds[0].fd = -1;
     infds[0].events = POLLIN;
     outfds[0].events = POLLOUT;
+    isclosing = false;
+    timedout = false;
+    sockerr = false;
+    ishup = false;
 }
 
 // create socket from FD - must be overridden to clear the relevant address structs
 BaseSocket::BaseSocket(int fd)
-    : timeout(5), buffstart(0), bufflen(0)
+    : timeout(5000), buffstart(0), bufflen(0)
 {
     sck = fd;
     infds[0].fd = fd;
@@ -67,6 +71,9 @@ BaseSocket::BaseSocket(int fd)
     infds[0].events = POLLIN;
     outfds[0].events = POLLOUT;
     isclosing = false;
+    timedout = false;
+    sockerr = false;
+    ishup = false;
 }
 
 // destructor - close socket
@@ -88,10 +95,13 @@ void BaseSocket::baseReset()
         infds[0].fd = -1;
         outfds[0].fd = -1;
     }
-    timeout = 5;
+    timeout = 5000;
     buffstart = 0;
     bufflen = 0;
     isclosing = false;
+    timedout = false;
+    sockerr = false;
+    ishup = false;
 }
 
 // mark a socket as a listening server socket
@@ -140,6 +150,9 @@ void BaseSocket::close()
     buffstart = 0;
     bufflen = 0;
     isclosing = false;
+    timedout = false;
+    sockerr = false;
+    ishup = false;
 }
 
 // set the socket-wide timeout
@@ -154,21 +167,109 @@ int BaseSocket::getTimeout()
     return timeout;
 }
 
-// non-blocking check to see if there is data waiting on socket
+bool BaseSocket::isClosing()
+{
+    return isclosing;
+}
+
+bool BaseSocket::sockError()
+{
+    return sockerr;
+}
+
+bool BaseSocket::isTimedout()
+{
+    return timedout;
+}
+
+bool BaseSocket::isHup()
+{
+    return ishup;
+}
+
+bool BaseSocket::isNoOpp()
+{
+    return (timedout || sockerr || (ishup && !isclosing) || (sck < 0));
+}
+
+bool BaseSocket::isNoRead()
+{
+    return ( sockerr || (ishup && !isclosing) || (sck < 0));
+}
+
+bool BaseSocket::isNoWrite()
+{
+    return ( sockerr || ishup || (sck < 0));
+}
+
+// blocking check to see if there is data waiting on socket
+bool BaseSocket::bcheckForInput(int timeout)
+{
+    if ((bufflen - buffstart) > 0)
+        return true;
+    if (isNoRead())
+        return false;
+    int rc;
+    rc = poll(infds, 1, timeout);
+    if (rc == 0)
+    {
+        timedout = true;
+        return false;   //timeout
+    }
+    timedout = false;
+    if (rc < 0)
+    {
+        sockerr = true;
+        return false;
+    }
+    if (infds[0].revents & (POLLHUP | POLLIN)) {
+        isclosing = true;
+        ishup = true;
+        return true;
+    }
+    if (infds[0].revents & POLLIN)
+        return true;
+    if (infds[0].revents & POLLHUP) {
+        isclosing = false;
+        ishup = true;
+        return false;
+    }
+    sockerr = true;
+    return false;   // must be POLLERR or POLLNVAL
+}
+
+// blocking check for waiting data - blocks for up to given timeout, can be told to break on signal-triggered config reloads
 bool BaseSocket::checkForInput()
 {
     if ((bufflen - buffstart) > 0)
         return true;
-
-    //if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t) < 1)
-   if (poll(infds, 1, 0) < 1)
+    if (isNoRead())
+        return false;
+    int rc;
+   rc = poll(infds, 1, 0);
+    if (rc == 0)
         {
+        return false;   //timeout
+    }
+    timedout = false;
+    if (rc < 0)
+    {
+        sockerr = true;
         return false;
     }
-    if (infds[0].revents & POLLHUP)
+    if (infds[0].revents & (POLLHUP | POLLIN)) {
         isclosing = true;
+        ishup = true;
+        return true;
+    }
     if (infds[0].revents & POLLIN)
         return true;
+    if (infds[0].revents & POLLHUP) {
+        isclosing = false;
+        ishup = true;
+        return false;
+    }
+    sockerr = true;
     return false;   // must be POLLERR or POLLNVAL
 }
 
@@ -184,52 +285,116 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
 
     // blocks if socket blocking
     // until timeout
-//if (selectEINTR(sck + 1, &fdSet, NULL, NULL, &t, honour_reloadconfig) < 1)
-if( poll(infds,1, timeout)<1)
+    if (isNoRead())
+        return;
+    int rc;
+    rc = poll(infds, 1, timeout);
+    if (rc == 0)
     {
+        timedout = true;
         std::string err("poll() on input: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
+        return;
     }
-    if (infds[0].revents & POLLHUP)
+    timedout = false;
+    if (rc < 0)
+    {
+        sockerr = true;
+        std::string err("poll() on input: ");
+        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
+        return;
+    }
+    if (infds[0].revents & (POLLHUP| POLLIN)) {
+        ishup = true;
         isclosing = true;
+        return;
+    }
     if (infds[0].revents & POLLIN)
         return ;
+    if (infds[0].revents & POLLHUP) {
+        ishup = true;
+        isclosing = false;
+        return;
+    }
+    sockerr = true;
     std::string err("poll() on input: ");
     throw std::runtime_error(err + (errno ? strerror(errno) : "poll error"));
-
+    return ;   // must be POLLERR or POLLNVAL
 }
+
 
 // non-blocking check to see if a socket is ready to be written     //NOT EVER USED   - not it is used in Socket.cpp
 bool BaseSocket::readyForOutput()
 {
-    //if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t) < 1)
-    if( poll(outfds,1, 0)<1)
-  {
+    if (isNoWrite())
+        return false;
+    int rc;
+    rc = poll(outfds,1, 0);
+    if (rc == 0)
+    {
         return false;
     }
-    if (infds[0].revents & POLLOUT)
+    timedout = false;
+    if (rc < 0)
+    {
+        sockerr = true;
+        return false;
+    }
+    if (outfds[0].revents & POLLOUT)
          return true;
-    if (infds[0].revents & POLLHUP)
-        isclosing = true;
+    if (outfds[0].revents & POLLHUP)
+        ishup = true;
     return false;
 }
 
+bool BaseSocket::breadyForOutput(int timeout) {
+    if (isNoWrite())
+        return false;
+    int rc;
+    rc = poll(outfds, 1, timeout);
+    if (rc == 0) {
+        timedout = true;
+        return false;
+    }
+    timedout = false;
+    if (rc < 0) {
+        sockerr = true;
+        return false;
+    }
+    if (outfds[0].revents & POLLOUT)
+        return true;
+    if (outfds[0].revents & POLLHUP)
+        ishup = true;
+    return false;
+}
 // blocking equivalent of above, can be told to break on signal-triggered reloads
 void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std::exception)
 {
     // blocks if socket blocking
     // until timeout
-    //if (selectEINTR(sck + 1, NULL, &fdSet, NULL, &t, honour_reloadconfig) < 1)
-        if(poll(outfds, 1, timeout ) < 1)
-        {
+    if (isNoWrite())
+        return ;
+    int rc;
+    rc = poll(outfds, 1, timeout );
+    if (rc == 0)
+    {
+        timedout = true;
         std::string err("poll() on output: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
-
-        }
-    if (infds[0].revents & POLLOUT)
         return;
-    if (infds[0].revents  & POLLHUP)
-        isclosing = true;
+    }
+    timedout = false;
+    if (rc < 0)
+    {
+        sockerr = true;
+        std::string err("poll() on output: ");
+        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
+        return ;
+    }
+    if (outfds[0].revents & POLLOUT)
+        return;
+    if (outfds[0].revents  & POLLHUP)
+        ishup = true;
    // std::string err("poll() on output: ");
    // throw std::runtime_error(err  + std::to_string(sck) );
 }
@@ -271,12 +436,12 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
     while (i < (size - 1)) {
         buffstart = 0;
         bufflen = 0;
-        try {
-            checkForInput(timeout, honour_reloadconfig);
-            bufflen = recv(sck, buffer, 1024, 0);
-        } catch (std::exception &e) {
-            throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
-        }
+//        try {
+            if (bcheckForInput(timeout))
+              bufflen = recv(sck, buffer, 1024, 0);
+  //      } catch (std::exception &e) {
+  //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
+   //     }
 #ifdef DGDEBUG
         std::cout << "read into buffer; bufflen: " << bufflen << std::endl;
 #endif
@@ -336,13 +501,16 @@ bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, in
     int sent;
     while (actuallysent < len) {
         if (check_first) {
-            try {
-                readyForOutput(timeout, honour_reloadconfig); // throws exception on error or timeout
-            } catch (std::exception &e) {
+//            try {
+                //readyForOutput(timeout, honour_reloadconfig); // throws exception on error or timeoutI/
+            //} catch (std::exception &e) {
+            //    return false;
+            //}
+            if(!breadyForOutput(timeout))
                 return false;
-            }
         }
-        sent = send(sck, buff + actuallysent, len - actuallysent, 0);
+        sent = 0;
+        if(!isNoWrite()) sent = send(sck, buff + actuallysent, len - actuallysent, 0);
 
         if (sent == 0) {
             return false; // other end is closed
@@ -375,11 +543,13 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
     }
 
     while (cnt > 0) {
-        try {
-            checkForInput(timeout); // throws exception on error or timeout
-        } catch (std::exception &e) {
-            return -1;
-        }
+//        try {
+//            checkForInput(timeout); // throws exception on error or timeout
+//        } catch (std::exception &e) {
+//            return -1;
+//        }
+//        if (isNoRead())  return -1;
+        if (bcheckForInput(timeout))  return -1;
         rc = recv(sck, buff, cnt, flags);
         if (rc < 0) {
             if (errno == EINTR) {
@@ -423,19 +593,22 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     int rc = 0;
 
     if (check_first) {
-        try {
-            checkForInput(timeout, honour_reloadconfig);
-        } catch (std::exception &e) {
+    //    try {
+    //        checkForInput(timeout, honour_reloadconfig);
+    //    } catch (std::exception &e) {
+    //        return -1;
+    //    }
+        if (! bcheckForInput(timeout))
             return -1;
-        }
     }
     while (true) {
+        if (isNoRead())  return -1;
         rc = recv(sck, buff, cnt, flags);
-     //   if (rc < 0) {
-     //       if (errno == EINTR && (honour_reloadconfig ? !reloadconfig : true)) {
-      //          continue;
-      //      }
-      //  }
+        if (rc < 0) {
+            if (errno == EINTR ) {
+               continue;
+           }
+       }
 
         break;
     }

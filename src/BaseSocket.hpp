@@ -41,6 +41,14 @@ class BaseSocket
     // get timeout (is this actually used?)
     int getTimeout();
 
+    bool isClosing();
+    bool isHup();
+    bool sockError();
+    bool isTimedout();
+    bool isNoOpp();
+    bool isNoRead();
+    bool isNoWrite();
+
     // close & reset the connection - these must clear address structures & call baseReset/baseAccept
     virtual void reset() = 0;
     virtual BaseSocket *accept() = 0;
@@ -48,11 +56,15 @@ class BaseSocket
     // non-blocking check for input data
     bool checkForInput();
     // blocking check for data, can be told to break on signal triggered config reloads (-r)
-    void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    bool bcheckForInput(int timeout);
+    //void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
     // non-blocking check for writable socket
     bool readyForOutput();
     // blocking check, can break on config reloads
-    void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    bool breadyForOutput(int timeout);
+    //void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    void readyForOutput(int timeout, bool honour_reloadconfig ) throw(std::exception);
 
     // get a line from the socket - can break on config reloads
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);
@@ -76,6 +88,9 @@ class BaseSocket
     // socket FD
     int sck;
     bool isclosing;
+    bool ishup;
+    bool sockerr;
+    bool timedout;
     // internal buffer
     char buffer[1024];
     int buffstart;

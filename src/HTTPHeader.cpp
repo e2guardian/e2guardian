@@ -1766,7 +1766,8 @@ String HTTPHeader::URLEncode()
 // - this allows us to re-open the proxy connection on pconns if squid's end has
 // timed out but the client's end hasn't. not much use with NTLM, since squid
 // will throw a 407 and restart negotiation, but works well with basic & others.
-void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect) throw(std::exception)
+//void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect) throw(std::exception)
+bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect)
 {
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
 
@@ -1808,14 +1809,15 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                             throw std::exception();
                         continue;
                     }
-                    throw std::exception();
+                    // throw std::exception();
+                    return false;
                 }
                 // if we got here, we succeeded, so break the reconnect loop
                 break;
             }
         }
         if (sendflag == __DGHEADER_SENDFIRSTLINE) {
-            return;
+            return true;
         }
     }
 
@@ -1853,7 +1855,8 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 l = header.front() + "\n" + l;
                 continue;
             }
-            throw std::exception();
+            //throw std::exception();
+            return false;
         }
         // if we got here, we succeeded, so break the reconnect loop
         break;
@@ -1870,7 +1873,8 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #ifdef DGDEBUG
             std::cout << "Could not send POST data!" << std::endl;
 #endif
-            throw std::exception();
+            //throw std::exception();
+            return false;
         }
     } else if ((peersock != NULL) && (!requestType().startsWith("HTTP")) && (pcontentlength != NULL)) {
 #ifdef DGDEBUG
@@ -1882,6 +1886,7 @@ void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
 #endif
+    return true;
 }
 
 // discard remainder of POST data

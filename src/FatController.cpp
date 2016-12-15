@@ -1814,7 +1814,7 @@ int fc_controlit()   //
     struct timespec timeout;
     int stat;
     //sigemptyset(&signal_set);
-    sigfillset(&signal_set);
+    //sigfillset(&signal_set);
     sigaddset(&signal_set, SIGHUP);
     sigaddset(&signal_set, SIGPIPE);
     sigaddset(&signal_set, SIGTERM);

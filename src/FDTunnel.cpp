@@ -112,7 +112,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
            twayfds[1].revents = 0;
         } else
 #endif
-//            if (selectEINTR(maxfd + 1, &inset, NULL, NULL, &t) < 1)
         if (poll(twayfds, 2, timeout )  < 1)
         {
             break; // an error occured or it timed out so end while()
