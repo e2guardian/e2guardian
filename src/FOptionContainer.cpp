@@ -921,7 +921,7 @@ bool FOptionContainer::read(const char *filename)
             } // download site exceptions
             exception_file_url_flag = true;
 
-            if ((weighted_phrase_mode > 0) && (weighted_phrase_mode != 1)) {
+            if (weighted_phrase_mode > 0) {
                 naughtyness_limit = findoptionI("naughtynesslimit");
                 if (naughtyness_limit == 0) naughtyness_limit = 50;
                 if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
