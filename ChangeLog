@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+December 2016
+- Version 3.5.0
+Summary of changes in this release (v3.5.0) can be found in e2guardian.release
+
 November 2016
 - Fix Bug #135 SSL Bypass not working
 - Fix Bug #156 Crash with url beyond 2048 characters (in list)
