@@ -302,7 +302,11 @@ bool OptionContainer::read(const char *filename, int type)
         } // check its a reasonable value
         maxspare_children = findoptionI("maxsparechildren");
         if (!realitycheck(maxspare_children, min_children, max_children, "maxsparechildren")) {
-            return false;
+    	   if (!is_daemonised) {
+                    std::cerr << "maxsparechildren must greater than minchildren and can not be greater than maxchildren" << std::endl;
+           }
+           syslog(LOG_ERR, "%s", "maxsparechildren must greater than minchildren and can not be greater than maxchildren");
+           return false;
         } // check its a reasonable value
         prefork_children = findoptionI("preforkchildren");
         if (!realitycheck(prefork_children, 1, max_children, "preforkchildren")) {
