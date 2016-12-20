@@ -598,6 +598,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     // The requested URL is malformed.
                     peerconn.writeString(o.language_list.getTranslation(200));
                     peerconn.writeString("</BODY></HTML>\n");
+                    syslog(LOG_ERR, "Bad request - HTTP/1.0 400 Bad Request - ip client: %s destination: %s ", clientip.c_str(), urldomain.c_str());
                 } catch (std::exception &e) {
                 }
                 break;
@@ -957,6 +958,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // The requested URL is malformed.
                             peerconn.writeString(o.language_list.getTranslation(200));
                             peerconn.writeString("</BODY></HTML>\n");
+                            syslog(LOG_ERR, "Bad request - HTTP/1.0 400 Bad Request - ip client: %s destination: %s ", clientip.c_str(), urldomain.c_str());
                         } catch (std::exception &e) {
                         }
                         break;
