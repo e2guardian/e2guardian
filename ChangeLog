@@ -4,6 +4,7 @@ December 2016
 - Version 3.5.0
 Summary of changes in this release (v3.5.0) can be found in e2guardian.release
 - Fix bug #157 (Code 400 log)
+- Fix Bug #130 filtergroupslist not working with NTLM authentication (HTTPS) 
 
 November 2016
 - Fix Bug #135 SSL Bypass not working
