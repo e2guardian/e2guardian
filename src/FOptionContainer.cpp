@@ -1744,7 +1744,7 @@ bool FOptionContainer::extractSearchTerms(String url, String &terms)
 // is this line of the headers in the banned regexp header list?
 int FOptionContainer::inBannedRegExpHeaderList(std::deque<String> &header)
 {
-
+     RegResult Rre;
     for (std::deque<String>::iterator k = header.begin(); k != header.end(); k++) {
 #ifdef DGDEBUG
         std::cout << "inBannedRegExpHeaderList: " << *k << std::endl;
@@ -1752,8 +1752,7 @@ int FOptionContainer::inBannedRegExpHeaderList(std::deque<String> &header)
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = banned_regexpheader_list_comp.begin(); j != banned_regexpheader_list_comp.end(); j++) {
             if (o.lm.l[banned_regexpheader_list_ref[i]]->isNow()) {
-                j->match(k->toCharArray());
-                if (j->matched())
+                if(j->match(k->toCharArray(),Rre))
                     return i;
             }
 #ifdef DGDEBUG
@@ -1774,6 +1773,7 @@ int FOptionContainer::inRegExpURLList(String &url, std::deque<RegExp> &list_comp
 #endif
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
+        RegResult Rre;
         url.removeWhiteSpace(); // just in case of weird browser crap
         url.toLower();
         // chop off the PTP (ht(f)tp(s)://)
@@ -1808,8 +1808,7 @@ int FOptionContainer::inRegExpURLList(String &url, std::deque<RegExp> &list_comp
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
             if (o.lm.l[list_ref[i]]->isNow()) {
-                j->match(url.toCharArray());
-                if (j->matched())
+                if(j->match(url.toCharArray(),Rre))
                     return i;
             }
 #ifdef DGDEBUG
@@ -1846,7 +1845,8 @@ int FOptionContainer::inExceptionRegExpURLList(String url)
 
 bool FOptionContainer::isIPHostname(String url)
 {
-    if (!isiphost.match(url.toCharArray())) {
+    RegResult Rre;
+    if (!isiphost.match(url.toCharArray(),Rre)) {
         return true;
     }
     return false;

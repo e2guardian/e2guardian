@@ -282,6 +282,7 @@ int ipinstance::readIPMelangeList(const char *filename)
     matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
     matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
 #endif
+    RegResult Rre;
 
     // read in the file
     String line;
@@ -323,12 +324,12 @@ int ipinstance::readIPMelangeList(const char *filename)
             continue;
         }
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-        if (matchIP.match(key.toCharArray())) {
+        if (matchIP.match(key.toCharArray(),Rre)) {
             struct in_addr address;
             if (inet_aton(key.toCharArray(), &address)) {
                 iplist.push_back(ip(ntohl(address.s_addr), value.toInteger() - 1));
             }
-        } else if (matchSubnet.match(key.toCharArray())) {
+        } else if (matchSubnet.match(key.toCharArray(),Rre)) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(key.before("/"));
@@ -342,7 +343,7 @@ int ipinstance::readIPMelangeList(const char *filename)
                 s.group = value.toInteger() - 1;
                 ipsubnetlist.push_back(s);
             }
-        } else if (matchCIDR.match(key.toCharArray())) {
+        } else if (matchCIDR.match(key.toCharArray(),Rre)) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(key.before("/"));
@@ -361,7 +362,7 @@ int ipinstance::readIPMelangeList(const char *filename)
                     ipsubnetlist.push_back(s);
                 }
             }
-        } else if (matchRange.match(key.toCharArray())) {
+        } else if (matchRange.match(key.toCharArray(),Rre)) {
             struct in_addr addressstart;
             struct in_addr addressend;
             String start(key.before("-"));

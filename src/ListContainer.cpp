@@ -336,6 +336,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 {
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
+    RegResult Rre;
 #ifdef DGDEBUG
     if (filters != 32)
         std::cout << "Converting to lowercase" << std::endl;
@@ -421,7 +422,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
         }
         if (filters == 1) { // remove port addresses
             if (temp.before("/").contains(":")) { // quicker than full regexp
-                if (re.match(temp.toCharArray())) {
+                if (re.match(temp.toCharArray(),Rre)) {
                     hostname = temp.before(":");
                     url = temp.after("/");
                     temp = hostname + "/" + url;
@@ -536,6 +537,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
+    RegResult Rre;
     size_t len = 0;
     increaseMemoryBy(2048); // Allocate some memory to hold list
     if (!std::cin.good()) {
@@ -587,7 +589,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
         }
         if (filters == 1) { // remove port addresses
             if (temp.before("/").contains(":")) { // quicker than full regexp
-                if (re.match(temp.toCharArray())) {
+                if (re.match(temp.toCharArray(),Rre)) {
                     hostname = temp.before(":");
                     url = temp.after("/");
                     temp = hostname + "/" + url;

@@ -564,6 +564,7 @@ void HTTPHeader::setURL(String &url)
 bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list)
 {
     RegExp *re;
+    RegResult Rre;
     String replacement;
     String repstr;
     String newLine;
@@ -582,15 +583,15 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
     for (i = 0; i < s; i++) {
         newLine = "";
         re = &(regexp_list[i]);
-        if (re->match(line.toCharArray())) {
+        if (re->match(line.toCharArray(), Rre)) {
             repstr = replacement_list[i];
-            matches = re->numberOfMatches();
+            matches = Rre.numberOfMatches();
 
             srcoff = 0;
 
             for (j = 0; j < matches; j++) {
-                nextoffset = re->offset(j);
-                matchlen = re->length(j);
+                nextoffset = Rre.offset(j);
+                matchlen = Rre.length(j);
 
                 // copy next chunk of unmodified data
                 if (nextoffset > srcoff) {
@@ -600,7 +601,7 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
 
                 // Count number of submatches (brackets) in replacement string
                 for (submatches = 0; j + submatches + 1 < matches; submatches++)
-                    if (re->offset(j + submatches + 1) + re->length(j + submatches + 1) > srcoff + matchlen)
+                    if (Rre.offset(j + submatches + 1) + Rre.length(j + submatches + 1) > srcoff + matchlen)
                         break;
 
                 // \1 and $1 replacement
@@ -610,7 +611,7 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
                     if ((repstr[k] == '\\' || repstr[k] == '$') && repstr[k + 1] >= '1' && repstr[k + 1] <= '9') {
                         match = repstr[++k] - '0';
                         if (match <= submatches) {
-                            replacement += re->result(j + match).c_str();
+                            replacement += Rre.result(j + match).c_str();
                         }
                     } else {
                         // unescape \\ and \$, and add non-backreference characters to string
@@ -1585,7 +1586,8 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
 #ifdef DGDEBUG
     std::cout << "decoding url" << std::endl;
 #endif
-    if (!urldecode_re.match(s.c_str())) {
+    RegResult Rre;
+    if (!urldecode_re.match(s.c_str(),Rre)) {
         return s;
     } // exit if not found
 #ifdef DGDEBUG
@@ -1598,16 +1600,16 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
     int size = s.length();
     String result;
     String n;
-    for (match = 0; match < urldecode_re.numberOfMatches(); match++) {
-        offset = urldecode_re.offset(match);
+    for (match = 0; match < Rre.numberOfMatches(); match++) {
+        offset = Rre.offset(match);
         if (offset > pos) {
             result += s.subString(pos, offset - pos);
         }
-        n = urldecode_re.result(match).c_str();
+        n = Rre.result(match).c_str();
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
 #ifdef DGDEBUG
-        std::cout << "encoded: " << urldecode_re.result(match) << " decoded: " << hexToChar(n) << " string so far: " << result << std::endl;
+        std::cout << "encoded: " << Rre.result(match) << " decoded: " << hexToChar(n) << " string so far: " << result << std::endl;
 #endif
         pos = offset + 3;
     }

@@ -111,6 +111,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
     matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
     matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
 #endif
+    RegResult Rre;
 
     // read in the file
     String line;
@@ -134,13 +135,13 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         std::cout << "line: " << line << std::endl;
 #endif
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-        if (matchIP.match(line.toCharArray())) {
+        if (matchIP.match(line.toCharArray(),Rre)) {
             struct in_addr address;
             if (inet_aton(line.toCharArray(), &address)) {
                 uint32_t addr = ntohl(address.s_addr);
                 iplist.push_back(addr);
             }
-        } else if (matchSubnet.match(line.toCharArray())) {
+        } else if (matchSubnet.match(line.toCharArray(),Rre)) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(line.before("/"));
@@ -153,7 +154,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
                 s.maskedaddr = addr & s.mask;
                 ipsubnetlist.push_back(s);
             }
-        } else if (matchCIDR.match(line.toCharArray())) {
+        } else if (matchCIDR.match(line.toCharArray(),Rre)) {
             struct in_addr address;
             struct in_addr addressmask;
             String subnet(line.before("/"));
@@ -171,7 +172,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
                     ipsubnetlist.push_back(s);
                 }
             }
-        } else if (matchRange.match(line.toCharArray())) {
+        } else if (matchRange.match(line.toCharArray(),Rre)) {
             struct in_addr addressstart;
             struct in_addr addressend;
             String start(line.before("-"));

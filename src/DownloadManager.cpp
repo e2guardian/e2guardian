@@ -93,7 +93,8 @@ bool DMPlugin::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
 bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 {
     // match user agent first (quick)
-    if (!(alwaysmatchua || ua_match.match(requestheader->userAgent().toCharArray())))
+    RegResult Rre;
+    if (!(alwaysmatchua || ua_match.match(requestheader->userAgent().toCharArray(),Rre)))
         return false;
 
     // then check standard lists (mimetypes & extensions)

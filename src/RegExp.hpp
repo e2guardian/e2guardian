@@ -23,20 +23,14 @@
 
 // DECLARATIONS
 
-class RegExp
+
+class RegResult
 {
     public:
     // constructor - set sensible defaults
-    RegExp();
+    RegResult();
     // destructor - delete regexp if compiled
-    ~RegExp();
-    // copy constructor
-    RegExp(const RegExp &r);
-
-    // compile the given regular expression
-    bool comp(const char *exp);
-    // match the given text against the pre-compiled expression
-    bool match(const char *text);
+    ~RegResult();
 
     // how many matches did the last run generate?
     int numberOfMatches();
@@ -50,20 +44,41 @@ class RegExp
     // length of the i'th match
     unsigned int length(int i);
 
-    // faster equivalent of STL::Search
-    char *search(char *file, char *fileend, char *phrase, char *phraseend);
-
-    private:
     // the match results, their positions in the text & their lengths
     std::deque<std::string> results;
     std::deque<unsigned int> offsets;
     std::deque<unsigned int> lengths;
 
-    // the expression itself
-    regex_t reg;
-
     // have we matched something yet?
     bool imatched;
+};
+
+class RegExp
+{
+    public:
+    // constructor - set sensible defaults
+    RegExp();
+    // destructor - delete regexp if compiled
+    ~RegExp();
+    // copy constructor
+    RegExp(const RegExp &r );
+
+
+    // compile the given regular expression
+    bool comp(const char *exp);
+    // match the given text against the pre-compiled expression
+    bool match(const char *text, struct RegResult& rs);
+
+    // how many matches did the last run generate?
+    // did it generate any at all?
+
+    // faster equivalent of STL::Search
+    char *search(char *file, char *fileend, char *phrase, char *phraseend);
+
+    private:
+
+// the expression itself
+     regex_t reg;
 
     // whether it's been pre-compiled
     bool wascompiled;

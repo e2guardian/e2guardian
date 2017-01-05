@@ -67,22 +67,6 @@ class NaughtyFilter
     void checkphrase(char *file, off_t filelen, const String *url, const String *domain,
         unsigned int filtergroup, unsigned int phraselist, int limit, bool searchterms);
 
-    // check PICS ratings
-    void checkPICS(const char *file, unsigned int filtergroup);
-    void checkPICSrating(std::string label, unsigned int filtergroup);
-    void checkPICSratingSafeSurf(String r, unsigned int filtergroup);
-    void checkPICSratingevaluWEB(String r, unsigned int filtergroup);
-    void checkPICSratingCyberNOT(String r, unsigned int filtergroup);
-    void checkPICSratingRSAC(String r, unsigned int filtergroup);
-    void checkPICSratingICRA(String r, unsigned int filtergroup);
-    void checkPICSratingWeburbia(String r, unsigned int filtergroup);
-    void checkPICSratingVancouver(String r, unsigned int filtergroup);
-
-    // new Korean stuff
-    void checkPICSratingICEC(String r, unsigned int filtergroup);
-    void checkPICSratingSafeNet(String r, unsigned int filtergroup);
-
-    void checkPICSagainstoption(String s, const char *l, int opt, std::string m);
 };
 
 #endif

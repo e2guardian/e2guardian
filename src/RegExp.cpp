@@ -13,30 +13,81 @@
 #include <cstring>
 #include <iostream>
 
+RegResult::RegResult()
+    : imatched(false)
+{
+}
+
+
+// destructor - free regex if compiled
+RegResult::~RegResult()
+{
+}
+
+// return the i'th match result
+std::string RegResult::result(int i)
+{
+    if (i >= (signed)results.size() || i < 0) { // reality check
+        return ""; // maybe exception?
+    }
+    return results[i];
+}
+
+// get the position of the i'th match result in the overall text
+unsigned int RegResult::offset(int i)
+{
+    if (i >= (signed)offsets.size() || i < 0) { // reality check
+        return 0; // maybe exception?
+    }
+    return offsets[i];
+}
+
+// get the length of the i'th match
+unsigned int RegResult::length(int i)
+{
+    if (i >= (signed)lengths.size() || i < 0) { // reality check
+        return 0; // maybe exception?
+    }
+    return lengths[i];
+}
+
+// how many matches did the last run generate?
+int RegResult::numberOfMatches()
+{
+    int i = (signed)results.size();
+    return i;
+}
+
+// did it, in fact, generate any?
+bool RegResult::matched()
+{
+    return imatched; // regexp matches only - not search/replace
+}
+
 // constructor - set defaults
 RegExp::RegExp()
-    : reg(), imatched(false), wascompiled(false)
+    : reg(),  wascompiled(false)
 {
 }
 
 // copy constructor
 RegExp::RegExp(const RegExp &r)
 {
-    results.clear();
-    offsets.clear();
-    lengths.clear();
+//    rs.results.clear();
+    //nrs.offsets.clear();
+    //nrs.lengths.clear();
     unsigned int i;
-    for (i = 0; i < r.results.size(); i++) {
-        results.push_back(r.results[i]);
-    }
-    for (i = 0; i < r.offsets.size(); i++) {
-        offsets.push_back(r.offsets[i]);
-    }
-    for (i = 0; i < r.lengths.size(); i++) {
-        lengths.push_back(r.lengths[i]);
-    }
+    //for (i = 0; i < rs.results.size(); i++) {
+        //nrs.results.push_back(rs.results[i]);
+    //}
+    //for (i = 0; i < rs.offsets.size(); i++) {
+        //nrs.offsets.push_back(rs.offsets[i]);
+    //}
+    //for (i = 0; i < rs.lengths.size(); i++) {
+        //nrs.lengths.push_back(rs.lengths[i]);
+    //}
 
-    imatched = r.imatched;
+    //nrs.imatched = rs.imatched;
     wascompiled = r.wascompiled;
     searchstring = r.searchstring;
     if (wascompiled == true) {
@@ -46,7 +97,7 @@ RegExp::RegExp(const RegExp &r)
         if (regcomp(&reg, searchstring.c_str(), REG_ICASE | REG_EXTENDED) != 0) {
 #endif
             regfree(&reg);
-            imatched = false;
+            //rs.imatched = false;
             wascompiled = false;
         }
     }
@@ -60,46 +111,6 @@ RegExp::~RegExp()
     }
 }
 
-// return the i'th match result
-std::string RegExp::result(int i)
-{
-    if (i >= (signed)results.size() || i < 0) { // reality check
-        return ""; // maybe exception?
-    }
-    return results[i];
-}
-
-// get the position of the i'th match result in the overall text
-unsigned int RegExp::offset(int i)
-{
-    if (i >= (signed)offsets.size() || i < 0) { // reality check
-        return 0; // maybe exception?
-    }
-    return offsets[i];
-}
-
-// get the length of the i'th match
-unsigned int RegExp::length(int i)
-{
-    if (i >= (signed)lengths.size() || i < 0) { // reality check
-        return 0; // maybe exception?
-    }
-    return lengths[i];
-}
-
-// how many matches did the last run generate?
-int RegExp::numberOfMatches()
-{
-    int i = (signed)results.size();
-    return i;
-}
-
-// did it, in fact, generate any?
-bool RegExp::matched()
-{
-    return imatched; // regexp matches only - not search/replace
-}
-
 // compile the given regular expression
 bool RegExp::comp(const char *exp)
 {
@@ -107,10 +118,6 @@ bool RegExp::comp(const char *exp)
         regfree(&reg);
         wascompiled = false;
     }
-    results.clear();
-    offsets.clear();
-    lengths.clear();
-    imatched = false;
 #ifdef DGDEBUG
     std::cout << "Compiling " << exp << std::endl;
 #endif
@@ -135,30 +142,30 @@ bool RegExp::comp(const char *exp)
 }
 
 // match the given text against the pre-compiled expression
-bool RegExp::match(const char *text)
+bool RegExp::match(const char *text, RegResult &rs)
 {
     if (!wascompiled) {
         return false; // need exception?
     }
     char *pos = (char *)text;
     int i;
-    results.clear();
-    offsets.clear();
-    lengths.clear();
-    imatched = false;
+    rs.results.clear();
+    rs.offsets.clear();
+    rs.lengths.clear();
+    rs.imatched = false;
     int num_sub_expressions = MAX_SUB_EXPRESSIONS;
     if (reg.re_nsub < num_sub_expressions)
         num_sub_expressions = reg.re_nsub;
     regmatch_t *pmatch = new regmatch_t[num_sub_expressions + 1]; // to hold result
     if (!pmatch) { // if it failed
         delete[] pmatch;
-        imatched = false;
+        rs.imatched = false;
         return false;
         // exception?
     }
     if (regexec(&reg, pos, num_sub_expressions + 1, pmatch, 0)) { // run regexdelete[]pmatch;
         delete[] pmatch;
-        imatched = false;
+        rs.imatched = false;
         //        #ifdef DGDEBUG
         //            std::cout << "no match for:" << searchstring << std::endl;
         //        #endif
@@ -176,9 +183,9 @@ bool RegExp::match(const char *text)
                 submatch = new char[matchlen + 1];
                 strncpy(submatch, pos + pmatch[i].rm_so, matchlen);
                 submatch[matchlen] = '\0';
-                results.push_back(std::string(submatch));
-                offsets.push_back(pmatch[i].rm_so + (pos - text));
-                lengths.push_back(matchlen);
+                rs.results.push_back(std::string(submatch));
+                rs.offsets.push_back(pmatch[i].rm_so + (pos - text));
+                rs.lengths.push_back(matchlen);
                 delete[] submatch;
                 if ((pmatch[i].rm_so + matchlen) > largestoffset) {
                     largestoffset = pmatch[i].rm_so + matchlen;
@@ -192,7 +199,7 @@ bool RegExp::match(const char *text)
             error = -1;
         }
     }
-    imatched = true;
+    rs.imatched = true;
     delete[] pmatch;
 #ifdef DGDEBUG
     std::cout << "match(s) for:" << searchstring << std::endl;

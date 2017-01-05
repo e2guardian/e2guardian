@@ -223,7 +223,7 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
 bool ConnectionHandler::isIPHostnameStrip(String url)
 {
     url = url.getHostname();
-    if(ch_isiphost.match(url.toCharArray()))
+    if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
         return false;
     else
         return true;

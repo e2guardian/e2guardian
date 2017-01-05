@@ -85,16 +85,6 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         std::cout << "Content flagged as search terms - disabling PICS, hex decoding, META/TITLE extraction & HTML removal" << std::endl;
 #endif
 
-    // check PICS now - not dependent on case, hex decoding, etc.
-    // as only sites which play by the rules will self-rate
-    if (!searchterms && (*o.fg[filtergroup]).enable_PICS) {
-#ifdef DGDEBUG
-        std::cout << "PICS is enabled" << std::endl;
-#endif
-        checkPICS(rawbody, filtergroup);
-        if (isItNaughty)
-            return; // Well there is no point in continuing is there?
-    }
 
     if (o.fg[filtergroup]->weighted_phrase_mode == 0) {
 #ifdef DGDEBUG
@@ -473,6 +463,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 {
     int weighting = 0;
     int cat;
+    RegResult Rre;
     std::string weightedphrase;
 
     // checkme: translate this?
@@ -511,14 +502,14 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         char *j;
 
         // check for absolute URLs
-        if (absurl_re.match(file)) {
+        if (absurl_re.match(file, Rre)) {
 // each match generates 2 results (because of the brackets in the regex), we're only interested in the first
 #ifdef DGDEBUG
-            std::cout << "Found " << absurl_re.numberOfMatches() / 2 << " absolute URLs:" << std::endl;
+            std::cout << "Found " << Rre.numberOfMatches() / 2 << " absolute URLs:" << std::endl;
 #endif
-            for (int i = 0; i < absurl_re.numberOfMatches(); i += 2) {
+            for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 // chop off quotes
-                u = absurl_re.result(i);
+                u = Rre.result(i);
                 u = u.subString(1, u.length() - 2);
 #ifdef DGDEBUG
                 std::cout << u << std::endl;
@@ -555,7 +546,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         found.clear();
 
         // check for relative URLs
-        if (relurl_re.match(file)) {
+        if (relurl_re.match(file,Rre)) {
             // we don't want any parameters on the end of the current URL, since we append to it directly
             // when forming absolute URLs from relative ones. we do want a / on the end, too.
             String currurl(*url);
@@ -566,10 +557,10 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 
 // each match generates 2 results (because of the brackets in the regex), we're only interested in the first
 #ifdef DGDEBUG
-            std::cout << "Found " << relurl_re.numberOfMatches() / 2 << " relative URLs:" << std::endl;
+            std::cout << "Found " << Rre.numberOfMatches() / 2 << " relative URLs:" << std::endl;
 #endif
-            for (int i = 0; i < relurl_re.numberOfMatches(); i += 2) {
-                u = relurl_re.result(i);
+            for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
+                u = Rre.result(i);
 
                 // can't find a way to negate submatches in PCRE, so it is entirely possible
                 // that some absolute URLs have made their way into this list. we don't want them.
@@ -943,428 +934,4 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
     // whatIsNaughtyLog is what is logged in the log file if at all
 }
 
-// *
-// *
-// * PICS code
-// *
-// *
 
-// check the document's PICS rating
-// when checkPICS is called we assume checkphrase has made the document lower case.
-// data must also have been NULL terminated.
-void NaughtyFilter::checkPICS(const char *file, unsigned int filtergroup)
-{
-    (*o.fg[filtergroup]).pics1.match(file);
-    if (!(*o.fg[filtergroup]).pics1.matched()) {
-        return;
-    } // exit if not found
-    for (int i = 0; i < (*o.fg[filtergroup]).pics1.numberOfMatches(); i++) {
-        checkPICSrating((*o.fg[filtergroup]).pics1.result(i), filtergroup); // pass on result for further
-        // tests
-    }
-}
-
-// the meat of the process
-void NaughtyFilter::checkPICSrating(std::string label, unsigned int filtergroup)
-{
-    (*o.fg[filtergroup]).pics2.match(label.c_str());
-    if (!(*o.fg[filtergroup]).pics2.matched()) {
-        return;
-    } // exit if not found
-    String lab(label.c_str()); // convert to a String for easy manip
-    String r;
-    String service;
-    for (int i = 0; i < (*o.fg[filtergroup]).pics2.numberOfMatches(); i++) {
-        r = (*o.fg[filtergroup]).pics2.result(i).c_str(); // ditto
-        r = r.after("(");
-        r = r.before(")"); // remove the brackets
-
-        // Only check the substring of lab that is between
-        // the start of lab (or the end of the previous match)
-        // and the start of this rating.
-        // It is possible to have multiple ratings in one pics-label.
-        // This is done on e.g. http://www.jesusfilm.org/
-        if (i == 0) {
-            service = lab.subString(0, (*o.fg[filtergroup]).pics2.offset(i));
-        } else {
-            service = lab.subString((*o.fg[filtergroup]).pics2.offset(i - 1) + (*o.fg[filtergroup]).pics2.length(i - 1), (*o.fg[filtergroup]).pics2.offset(i));
-        }
-
-        if (service.contains("safesurf")) {
-            checkPICSratingSafeSurf(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("evaluweb")) {
-            checkPICSratingevaluWEB(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("microsys")) {
-            checkPICSratingCyberNOT(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("icra")) {
-            checkPICSratingICRA(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("rsac")) {
-            checkPICSratingRSAC(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("weburbia")) {
-            checkPICSratingWeburbia(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("vancouver")) {
-            checkPICSratingVancouver(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("icec")) {
-            checkPICSratingICEC(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        if (service.contains("safenet")) {
-            checkPICSratingSafeNet(r, filtergroup);
-            if (isItNaughty) {
-                return;
-            }
-        }
-        // check label for word denoting rating system then pass on to the
-        // appropriate function the rating String.
-    }
-}
-
-void NaughtyFilter::checkPICSagainstoption(String s, const char *l, int opt, std::string m)
-{
-    if (s.indexOf(l) != -1) {
-        // if the rating contains the label then:
-        int i = 0;
-        // get the rating label value
-        s = s.after(l);
-        if (s.indexOf(" ") != -1) {
-            //remove anything after it
-            s = s.before(" ");
-        }
-        // sanity checking
-        if (s.length() > 0) {
-            i = s.toInteger(); // convert the value in a String to an integer
-            if (opt < i) { // check its value against the option in config file
-                isItNaughty = true; // must be over limit
-                whatIsNaughty = m + " ";
-                message_no = 1000;
-                whatIsNaughty += o.language_list.getTranslation(1000);
-                // PICS labeling level exceeded on the above site.
-                whatIsNaughtyCategories = "PICS";
-                whatIsNaughtyLog = whatIsNaughty;
-            }
-        }
-    }
-}
-
-// The next few functions are flippin' obvious so no explanation...
-void NaughtyFilter::checkPICSratingevaluWEB(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "rating ", (*o.fg[filtergroup]).pics_evaluweb_rating, "evaluWEB age range");
-}
-
-void NaughtyFilter::checkPICSratingWeburbia(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "s ", (*o.fg[filtergroup]).pics_weburbia_rating, "Weburbia rating");
-}
-
-void NaughtyFilter::checkPICSratingCyberNOT(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "sex ", (*o.fg[filtergroup]).pics_cybernot_sex, "CyberNOT sex rating");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "other ", (*o.fg[filtergroup]).pics_cybernot_sex, "CyberNOT other rating");
-}
-
-// Korean PICS
-void NaughtyFilter::checkPICSratingICEC(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "y ", (*o.fg[filtergroup]).pics_icec_rating, "ICEC rating");
-}
-
-// Korean PICS
-void NaughtyFilter::checkPICSratingSafeNet(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "n ", (*o.fg[filtergroup]).pics_safenet_nudity, "SafeNet nudity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "s ", (*o.fg[filtergroup]).pics_safenet_sex, "SafeNet sex");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "v ", (*o.fg[filtergroup]).pics_safenet_violence, "SafeNet violence");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "l ", (*o.fg[filtergroup]).pics_safenet_language, "SafeNet language");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "i ", (*o.fg[filtergroup]).pics_safenet_gambling, "SafeNet gambling");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "h ", (*o.fg[filtergroup]).pics_safenet_alcoholtobacco, "SafeNet alcohol tobacco");
-}
-
-void NaughtyFilter::checkPICSratingRSAC(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "v ", (*o.fg[filtergroup]).pics_rsac_violence, "RSAC violence");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "s ", (*o.fg[filtergroup]).pics_rsac_sex, "RSAC sex");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "n ", (*o.fg[filtergroup]).pics_rsac_nudity, "RSAC nudity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "l ", (*o.fg[filtergroup]).pics_rsac_language, "RSAC language");
-}
-
-void NaughtyFilter::checkPICSratingVancouver(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "MC ", (*o.fg[filtergroup]).pics_vancouver_multiculturalism, "Vancouvermulticulturalism");
-    checkPICSagainstoption(r, "Edu ", (*o.fg[filtergroup]).pics_vancouver_educationalcontent, "Vancouvereducationalcontent");
-    checkPICSagainstoption(r, "Env ", (*o.fg[filtergroup]).pics_vancouver_environmentalawareness, "Vancouverenvironmentalawareness");
-    checkPICSagainstoption(r, "Tol ", (*o.fg[filtergroup]).pics_vancouver_tolerance, "Vancouvertolerance");
-    checkPICSagainstoption(r, "V ", (*o.fg[filtergroup]).pics_vancouver_violence, "Vancouverviolence");
-    checkPICSagainstoption(r, "S ", (*o.fg[filtergroup]).pics_vancouver_sex, "Vancouversex");
-    checkPICSagainstoption(r, "P ", (*o.fg[filtergroup]).pics_vancouver_profanity, "Vancouverprofanity");
-    checkPICSagainstoption(r, "SF ", (*o.fg[filtergroup]).pics_vancouver_safety, "Vancouversafety");
-    checkPICSagainstoption(r, "Can ", (*o.fg[filtergroup]).pics_vancouver_canadiancontent, "Vancouvercanadiancontent");
-    checkPICSagainstoption(r, "Com ", (*o.fg[filtergroup]).pics_vancouver_commercialcontent, "Vancouvercommercialcontent");
-    checkPICSagainstoption(r, "Gam ", (*o.fg[filtergroup]).pics_vancouver_gambling, "Vancouvergambling");
-}
-
-void NaughtyFilter::checkPICSratingSafeSurf(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "000 ", (*o.fg[filtergroup]).pics_safesurf_agerange, "Safesurf age range");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "001 ", (*o.fg[filtergroup]).pics_safesurf_profanity, "Safesurf profanity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "002 ", (*o.fg[filtergroup]).pics_safesurf_heterosexualthemes, "Safesurf heterosexualthemes");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "003 ", (*o.fg[filtergroup]).pics_safesurf_homosexualthemes, "Safesurf ");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "004 ", (*o.fg[filtergroup]).pics_safesurf_nudity, "Safesurf nudity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "005 ", (*o.fg[filtergroup]).pics_safesurf_violence, "Safesurf violence");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "006 ", (*o.fg[filtergroup]).pics_safesurf_sexviolenceandprofanity, "Safesurf sexviolenceandprofanity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "007 ", (*o.fg[filtergroup]).pics_safesurf_intolerance, "Safesurf intolerance");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "008 ", (*o.fg[filtergroup]).pics_safesurf_druguse, "Safesurf druguse");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "009 ", (*o.fg[filtergroup]).pics_safesurf_otheradultthemes, "Safesurf otheradultthemes");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "00A ", (*o.fg[filtergroup]).pics_safesurf_gambling, "Safesurf gambling");
-    if (isItNaughty) {
-        return;
-    }
-}
-
-void NaughtyFilter::checkPICSratingICRA(String r, unsigned int filtergroup)
-{
-    checkPICSagainstoption(r, "la ", (*o.fg[filtergroup]).pics_icra_languagesexual, "ICRA languagesexual");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ca ", (*o.fg[filtergroup]).pics_icra_chat, "ICRA chat");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "cb ", (*o.fg[filtergroup]).pics_icra_moderatedchat, "ICRA moderatedchat");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "lb ", (*o.fg[filtergroup]).pics_icra_languageprofanity, "ICRA languageprofanity");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "lc ", (*o.fg[filtergroup]).pics_icra_languagemildexpletives, "ICRA languagemildexpletives");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "na ", (*o.fg[filtergroup]).pics_icra_nuditygraphic, "ICRA nuditygraphic");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nb ", (*o.fg[filtergroup]).pics_icra_nuditymalegraphic, "ICRA nuditymalegraphic");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nc ", (*o.fg[filtergroup]).pics_icra_nudityfemalegraphic, "ICRA nudityfemalegraphic");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nd ", (*o.fg[filtergroup]).pics_icra_nuditytopless, "ICRA nuditytopless");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ne ", (*o.fg[filtergroup]).pics_icra_nuditybottoms, "ICRA nuditybottoms");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nf ", (*o.fg[filtergroup]).pics_icra_nuditysexualacts, "ICRA nuditysexualacts");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ng ", (*o.fg[filtergroup]).pics_icra_nudityobscuredsexualacts, "ICRA nudityobscuredsexualacts");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nh ", (*o.fg[filtergroup]).pics_icra_nuditysexualtouching, "ICRA nuditysexualtouching");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ni ", (*o.fg[filtergroup]).pics_icra_nuditykissing, "ICRA nuditykissing");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nr ", (*o.fg[filtergroup]).pics_icra_nudityartistic, "ICRA nudityartistic");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ns ", (*o.fg[filtergroup]).pics_icra_nudityeducational, "ICRA nudityeducational");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "nt ", (*o.fg[filtergroup]).pics_icra_nuditymedical, "ICRA nuditymedical");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "oa ", (*o.fg[filtergroup]).pics_icra_drugstobacco, "ICRA drugstobacco");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ob ", (*o.fg[filtergroup]).pics_icra_drugsalcohol, "ICRA drugsalcohol");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "oc ", (*o.fg[filtergroup]).pics_icra_drugsuse, "ICRA drugsuse");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "od ", (*o.fg[filtergroup]).pics_icra_gambling, "ICRA gambling");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "oe ", (*o.fg[filtergroup]).pics_icra_weaponuse, "ICRA weaponuse");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "of ", (*o.fg[filtergroup]).pics_icra_intolerance, "ICRA intolerance");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "og ", (*o.fg[filtergroup]).pics_icra_badexample, "ICRA badexample");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "oh ", (*o.fg[filtergroup]).pics_icra_pgmaterial, "ICRA pgmaterial");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "va ", (*o.fg[filtergroup]).pics_icra_violencerape, "ICRA violencerape");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vb ", (*o.fg[filtergroup]).pics_icra_violencetohumans, "ICRA violencetohumans");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vc ", (*o.fg[filtergroup]).pics_icra_violencetoanimals, "ICRA violencetoanimals");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vd ", (*o.fg[filtergroup]).pics_icra_violencetofantasy, "ICRA violencetofantasy");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "ve ", (*o.fg[filtergroup]).pics_icra_violencekillinghumans, "ICRA violencekillinghumans");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vf ", (*o.fg[filtergroup]).pics_icra_violencekillinganimals, "ICRA violencekillinganimals");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vg ", (*o.fg[filtergroup]).pics_icra_violencekillingfantasy, "ICRA violencekillingfantasy");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vh ", (*o.fg[filtergroup]).pics_icra_violenceinjuryhumans, "ICRA violenceinjuryhumans");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vi ", (*o.fg[filtergroup]).pics_icra_violenceinjuryanimals, "ICRA violenceinjuryanimals");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vj ", (*o.fg[filtergroup]).pics_icra_violenceinjuryfantasy, "ICRA violenceinjuryfantasy");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vr ", (*o.fg[filtergroup]).pics_icra_violenceartisitic, "ICRA violenceartisitic");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vs ", (*o.fg[filtergroup]).pics_icra_violenceeducational, "ICRA violenceeducational");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vt ", (*o.fg[filtergroup]).pics_icra_violencemedical, "ICRA violencemedical");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vu ", (*o.fg[filtergroup]).pics_icra_violencesports, "ICRA violencesports");
-    if (isItNaughty) {
-        return;
-    }
-    checkPICSagainstoption(r, "vk ", (*o.fg[filtergroup]).pics_icra_violenceobjects, "ICRA violenceobjects");
-}
