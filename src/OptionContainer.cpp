@@ -861,7 +861,7 @@ bool OptionContainer::readinStdin()
 
 char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
 {
-
+    String lastcategory;
     url.removeWhiteSpace(); // just in case of weird browser crap
     url.toLower();
     url.removePTP(); // chop off the ht(f)tp(s)://
@@ -871,7 +871,7 @@ char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool 
     char *i;
     //bool isipurl = isIPHostname(url);
     while (url.contains(".")) {
-        i = lc->findInList(url.toCharArray());
+        i = lc->findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
             return i; // exact match
         }
@@ -879,7 +879,7 @@ char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool 
     }
     if (url.length() > 1) { // allows matching of .tld
         url = "." + url;
-        i = lc->findInList(url.toCharArray());
+        i = lc->findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
             return i; // exact match
         }
@@ -892,6 +892,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 {
     unsigned int fl;
     char *i;
+    String lastcategory;
     String foundurl;
 #ifdef DGDEBUG
     std::cout << "inURLList: " << url << std::endl;
@@ -916,7 +917,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
 #endif
     //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
     while (url.before("/").contains(".")) {
-        i = lc->findStartsWith(url.toCharArray());
+        i = lc->findStartsWith(url.toCharArray(), lastcategory);
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();

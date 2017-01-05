@@ -57,6 +57,7 @@ class NaughtyFilter
     // highest positive (or lowest negative) weighting out of
     // both phrase filtering passes (smart/raw)
     int naughtiness;
+    String lastcategory;
 
     private:
     // check the banned, weighted & exception lists

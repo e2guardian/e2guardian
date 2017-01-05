@@ -107,7 +107,8 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 #ifdef DGDEBUG
         std::cout << "mimetype: " << mimetype << std::endl;
 #endif
-        if (mimetypelist.findInList(mimetype.toCharArray()) == NULL) {
+        String lc;
+        if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
             if (!extensionlistenabled)
                 return false;
         } else
@@ -149,7 +150,8 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
         std::cout << "extension: " << extension << std::endl;
 #endif
         // check the extension list
-        if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray()) == NULL))
+        String lc;
+        if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray(), lc) == NULL))
             return matchedmime;
     }
 

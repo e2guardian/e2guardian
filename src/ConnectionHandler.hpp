@@ -66,6 +66,7 @@ class ConnectionHandler
     std::string *clienthost;
     std::string urlparams;
     std::list<postinfo> postparts;
+    String lastcategory;
 
     void cleanThrow(const char *message, Socket &peersock, Socket &proxysock);
     void cleanThrow(const char *message, Socket &peersock );

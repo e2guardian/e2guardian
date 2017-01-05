@@ -65,12 +65,13 @@ int AuthPlugin::determineGroup(std::string &user, int &fg)
         return DGAUTH_NOMATCH;
     }
     String u(user);
+    String lastcategory;
     u.toLower(); // since the filtergroupslist is read in in lowercase, we should do this.
     user = u.toCharArray(); // also pass back to ConnectionHandler, so appears lowercase in logs
     String ue(u);
     ue += "=";
 
-    char *i = o.filter_groups_list.findStartsWithPartial(ue.toCharArray());
+    char *i = o.filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
 
     if (i == NULL) {
 #ifdef DGDEBUG

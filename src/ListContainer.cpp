@@ -476,18 +476,6 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
     // see if cached .process file is available and up to date,
     // or prefercachedlists has been turned on (SG)
     struct stat s;
-    if ((o.prefer_cached_lists && stat(std::string(linebuffer).append(".processed").c_str(), &s) == 0)
-        || isCacheFileNewer(filename)) {
-        linebuffer = filename;
-        linebuffer += ".processed";
-
-        // read cached
-        if (!readProcessedItemList(linebuffer.c_str(), startswith, filters))
-            return false;
-        filedate = getFileDate(linebuffer.c_str());
-        issorted = true; // don't bother sorting cached file
-        return true;
-    }
     filedate = getFileDate(filename);
     size_t len = 0;
     try {
@@ -627,16 +615,16 @@ bool ListContainer::readAnotherItemList(const char *filename, bool startswith, i
 }
 
 // for item lists - is this item in the list?
-bool ListContainer::inList(const char *string)
+bool ListContainer::inList(const char *string, String &lastcategory)
 {
-    if (findInList(string) != NULL) {
+    if (findInList(string, lastcategory) != NULL) {
         return true;
     }
     return false;
 }
 
 // for item lists - is an item in the list that ends with this string?
-bool ListContainer::inListEndsWith(const char *string)
+bool ListContainer::inListEndsWith(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -647,9 +635,9 @@ bool ListContainer::inListEndsWith(const char *string)
         }
         bool rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).inListEndsWith(string);
+            rc = (*o.lm.l[morelists[i]]).inListEndsWith(string, lastcategory);
             if (rc) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+            //    lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return true;
             }
         }
@@ -658,7 +646,7 @@ bool ListContainer::inListEndsWith(const char *string)
 }
 
 // for item lists - is an item in the list that starts with this string?
-bool ListContainer::inListStartsWith(const char *string)
+bool ListContainer::inListStartsWith(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -669,9 +657,9 @@ bool ListContainer::inListStartsWith(const char *string)
         }
         bool rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).inListStartsWith(string);
+            rc = (*o.lm.l[morelists[i]]).inListStartsWith(string, lastcategory);
             if (rc) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return true;
             }
         }
@@ -680,7 +668,7 @@ bool ListContainer::inListStartsWith(const char *string)
 }
 
 // find pointer to the part of the data array containing this string
-char *ListContainer::findInList(const char *string)
+char *ListContainer::findInList(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -697,9 +685,9 @@ char *ListContainer::findInList(const char *string)
         }
         char *rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findInList(string);
+            rc = (*o.lm.l[morelists[i]]).findInList(string, lastcategory);
             if (rc != NULL) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return rc;
             }
         }
@@ -708,7 +696,7 @@ char *ListContainer::findInList(const char *string)
 }
 
 // find an item in the list which starts with this
-char *ListContainer::findStartsWith(const char *string)
+char *ListContainer::findStartsWith(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -720,9 +708,9 @@ char *ListContainer::findStartsWith(const char *string)
         }
         char *rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findStartsWith(string);
+            rc = (*o.lm.l[morelists[i]]).findStartsWith(string, lastcategory);
             if (rc != NULL) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return rc;
             }
         }
@@ -730,7 +718,7 @@ char *ListContainer::findStartsWith(const char *string)
     return NULL;
 }
 
-char *ListContainer::findStartsWithPartial(const char *string)
+char *ListContainer::findStartsWithPartial(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -747,9 +735,9 @@ char *ListContainer::findStartsWithPartial(const char *string)
         }
         char *rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findStartsWithPartial(string);
+            rc = (*o.lm.l[morelists[i]]).findStartsWithPartial(string, lastcategory);
             if (rc != NULL) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return rc;
             }
         }
@@ -757,7 +745,7 @@ char *ListContainer::findStartsWithPartial(const char *string)
     return NULL;
 }
 
-char *ListContainer::findEndsWith(const char *string)
+char *ListContainer::findEndsWith(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (items > 0) {
@@ -769,9 +757,9 @@ char *ListContainer::findEndsWith(const char *string)
         }
         char *rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findEndsWith(string);
+            rc = (*o.lm.l[morelists[i]]).findEndsWith(string, lastcategory);
             if (rc != NULL) {
-                lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return rc;
             }
         }
@@ -874,60 +862,6 @@ void ListContainer::doSort(const bool startsWith)
     return;
 }
 
-bool ListContainer::createCacheFile()
-{
-    unsigned int i;
-    for (i = 0; i < morelists.size(); i++) {
-        (*o.lm.l[morelists[i]]).createCacheFile();
-    }
-    if (isCacheFileNewer(sourcefile.toCharArray())) { // only do if it needs updating
-        return true;
-    }
-    if (items < 1000) { // There is little to gain when there are so few
-        return true;
-    }
-    String f(sourcefile);
-    f += ".processed";
-#ifdef DGDEBUG
-    std::cout << "creating processed file:" << f << std::endl;
-#endif
-    std::ofstream listfile(f.toCharArray(), std::ios::out);
-    if (listfile.fail()) {
-        if (!is_daemonised) {
-            std::cerr << "Error creating cache file. Do you have write access to this area: \"" << f << "\"?" << std::endl;
-        }
-        syslog(LOG_ERR, "Error creating cache file. Do you have write access to this area: \"%s\"?", f.toCharArray());
-        return false;
-    }
-
-    for (i = 0; i < morelists.size(); i++) {
-        f = ".Include<";
-        f += (*o.lm.l[morelists[i]]).sourcefile;
-        f += ">\n";
-        listfile.write(f.toCharArray(), f.length());
-    }
-    if (listtimelimit.timetag.length() > 10) { // no point in writing corrupt short one
-        f = listtimelimit.timetag;
-        f += "\n";
-        listfile.write(f.toCharArray(), f.length());
-    }
-    if (category.length() > 2) { // no point in writing corrupt short one
-        // lengthened from 4 to allow "ADs" category to be preserved in processed files
-        f = "#listcategory:\"";
-        f += category;
-        f += "\"\n";
-        listfile.write(f.toCharArray(), f.length());
-    }
-
-    char *offset;
-    for (i = 0; i < (unsigned)items; i++) { // write the entries in order
-        offset = data + list[i];
-        listfile.write(offset, strlen(offset));
-        listfile.put('\n'); // newline per entry
-    }
-    listfile.close();
-    return true;
-}
 
 bool ListContainer::makeGraph(bool fqs)
 {
@@ -1697,28 +1631,6 @@ int ListContainer::greaterThanEW(const char *a, const char *b)
     if (blen > alen)
         return -1;
     return 0; // both equal
-}
-
-bool ListContainer::isCacheFileNewer(const char *filename)
-{
-    size_t len = 0;
-    try {
-        len = getFileLength(filename);
-    } catch (std::runtime_error &e) {
-        if (!is_daemonised) {
-            std::cerr << "Error reading file " << filename << ": " << e.what() << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
-        return false;
-    }
-    int bannedlistdate = getFileDate(filename);
-    std::string linebuffer(filename);
-    linebuffer += ".processed";
-    int cachedate = getFileDate(linebuffer.c_str());
-    if (cachedate < bannedlistdate) {
-        return false; // cache file is older than list file
-    }
-    return true;
 }
 
 void ListContainer::increaseMemoryBy(size_t bytes)

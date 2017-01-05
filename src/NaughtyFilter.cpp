@@ -465,6 +465,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
     int cat;
     RegResult Rre;
     std::string weightedphrase;
+    String lastcategory;
 
     // checkme: translate this?
     String currcat("Embedded URLs");
@@ -514,8 +515,10 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #ifdef DGDEBUG
                 std::cout << u << std::endl;
 #endif
-                if ((((j = o.fg[filtergroup]->inBannedSiteList(u)) != NULL) && !(o.lm.l[o.fg[filtergroup]->banned_site_list]->lastcategory.contains("ADs")))
-                    || (((j = o.fg[filtergroup]->inBannedURLList(u)) != NULL) && !(o.lm.l[o.fg[filtergroup]->banned_url_list]->lastcategory.contains("ADs")))) {
+                if ((((j = o.fg[filtergroup]->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
+                    !(lastcategory.contains("ADs")))
+                    || (((j = o.fg[filtergroup]->inBannedURLList(u, false, false,false, lastcategory )) != NULL) &&
+                          !(lastcategory.contains("ADs")))) {
                     // duplicate checking
                     // checkme: this should really be being done *before* we search the lists.
                     // but because inBanned* methods do some cleaning up of their own, we don't know the form to check against.
@@ -583,8 +586,10 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #ifdef DGDEBUG
                 std::cout << "absolute form: " << u << std::endl;
 #endif
-                if ((((j = o.fg[filtergroup]->inBannedSiteList(u)) != NULL) && !(o.lm.l[o.fg[filtergroup]->banned_site_list]->lastcategory.contains("ADs")))
-                    || (((j = o.fg[filtergroup]->inBannedURLList(u)) != NULL) && !(o.lm.l[o.fg[filtergroup]->banned_url_list]->lastcategory.contains("ADs")))) {
+                if ((((j = o.fg[filtergroup]->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
+                     !(lastcategory.contains("ADs")))
+                    || (((j = o.fg[filtergroup]->inBannedURLList(u, false, false, false, lastcategory)) != NULL) &&
+                      !(lastcategory.contains("ADs")))) {
                     // duplicate checking
                     // checkme: this should really be being done *before* we search the lists.
                     // but because inBanned* methods do some cleaning up of their own, we don't know the form to check against.

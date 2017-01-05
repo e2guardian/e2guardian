@@ -226,6 +226,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
     }
 
     String urld(HTTPHeader::decode(url));
+    String lc;
     urld.removeWhiteSpace();
     urld.toLower();
     urld.removePTP();
@@ -252,7 +253,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
     // exceptionvirussitelist
     tempurl = domain;
     while (tempurl.contains(".")) {
-        if (exceptionvirussitelist.findInList(tempurl.toCharArray()) != NULL) {
+        if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
             std::cout << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
@@ -263,7 +264,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
     if (tempurl.length() > 1) {
         // allows matching of .tld
         tempurl = "." + tempurl;
-        if (exceptionvirussitelist.findInList(tempurl.toCharArray()) != NULL) {
+        if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
             std::cout << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
@@ -277,7 +278,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
         tempurl.chop(); // chop off trailing / if any
     }
     while (tempurl.before("/").contains(".")) {
-        char *i = exceptionvirusurllist.findStartsWith(tempurl.toCharArray());
+        char *i = exceptionvirusurllist.findStartsWith(tempurl.toCharArray(),lc );
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();
@@ -311,9 +312,10 @@ int CSPlugin::willScanData(const String &url, const char *user, int filtergroup,
     bool reconstituted, bool exception, bool bypass, const String &disposition, const String &mimetype,
     off_t size)
 {
+    String lc;
     //exceptionvirusmimetypelist
     if (mimetype.length() > 2) {
-        if (exceptionvirusmimetypelist.findInList(mimetype.toCharArray()) != NULL) {
+        if (exceptionvirusmimetypelist.findInList(mimetype.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
             std::cout << "willScanData: ignoring exception MIME type (" << mimetype.c_str() << ")" << std::endl;
 #endif
@@ -375,7 +377,7 @@ int CSPlugin::willScanData(const String &url, const char *user, int filtergroup,
 #endif
     }
     if (extension.contains(".")) {
-        if (exceptionvirusextensionlist.findEndsWith(extension.toCharArray()) != NULL) {
+        if (exceptionvirusextensionlist.findEndsWith(extension.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
             std::cout << "willScanData: ignoring exception file extension (" << extension.c_str() << ")" << std::endl;
 #endif

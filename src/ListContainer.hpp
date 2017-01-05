@@ -42,7 +42,7 @@ class ListContainer
     time_t weightedpfiledate;
     String sourcefile; // used for non-phrase lists only
     String category;
-    String lastcategory;
+    //String lastcategory;
     std::vector<int> morelists; // has to be non private as reg exp compiler needs to access these
 
     ListContainer();
@@ -55,15 +55,15 @@ class ListContainer
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
     bool readItemList(const char *filename, bool startswith, int filters);
     bool readStdinItemList(bool startswith, int filters, const char *startstr);
-    bool inList(const char *string);
-    bool inListEndsWith(const char *string);
-    bool inListStartsWith(const char *string);
+    bool inList(const char *string, String &lastcategory);
+    bool inListEndsWith(const char *string, String &lastcategory);
+    bool inListStartsWith(const char *string, String &lastcategory);
 
-    char *findInList(const char *string);
+    char *findInList(const char *string, String &lastcategory);
 
-    char *findEndsWith(const char *string);
-    char *findStartsWith(const char *string);
-    char *findStartsWithPartial(const char *string);
+    char *findEndsWith(const char *string, String &lastcategory);
+    char *findStartsWith(const char *string, String &lastcategory);
+    char *findStartsWithPartial(const char *string, String &lastcategory);
 
     int getListLength()
     {
@@ -157,7 +157,6 @@ class ListContainer
     int greaterThanSWF(const char *a, const char *b); // full match
     int greaterThanSW(const char *a, const char *b); // partial starts with
     int search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p);
-    bool isCacheFileNewer(const char *string);
     void increaseMemoryBy(size_t bytes);
     //categorised & time-limited lists support
     bool readTimeTag(String *tag, TimeLimit &tl);
