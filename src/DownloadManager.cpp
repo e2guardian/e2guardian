@@ -12,6 +12,7 @@
 #include "DownloadManager.hpp"
 #include "ConfigVar.hpp"
 #include "OptionContainer.hpp"
+#include "ConnectionHandler.hpp"
 #include "RegExp.hpp"
 
 #include <iostream>
@@ -80,12 +81,12 @@ int DMPlugin::init(void *args)
 }
 
 // default method for sending the client a download link
-void DMPlugin::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
+bool DMPlugin::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
 {
     // 1220 "<p>Scan complete.</p><p>Click here to download: "
     String message(o.language_list.getTranslation(1220));
     message += "<a href=\"" + linkurl + "\">" + prettyurl + "</a></p></body></html>\n";
-    peersock.writeString(message.toCharArray());
+    return peersock.writeString(message.toCharArray());
 }
 
 // default method for deciding whether we will handle a request

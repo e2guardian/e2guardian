@@ -44,7 +44,8 @@ void ImageContainer::reset()
 }
 
 // send image to client
-void ImageContainer::display(Socket *s)
+//void ImageContainer::display(Socket *s)
+bool ImageContainer::display(Socket *s)
 {
 #ifdef DGDEBUG
     std::cout << "Displaying custom image file" << std::endl;
@@ -55,7 +56,9 @@ void ImageContainer::display(Socket *s)
     s->writeString("\n\n");
 
     if (!s->writeToSocket(image, imagelength, 0, s->getTimeout()))
-        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+//        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+         return false;
+    return true;
 }
 
 // read image from file

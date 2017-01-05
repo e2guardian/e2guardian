@@ -21,7 +21,7 @@ private:
 public:
   //  void push(T const& value)  {
     void push(T  value)  {
-        std::unique_lock<std::mutex> lock(d_mutex);
+        std::lock_guard<std::mutex> lock(d_mutex);
         Q.push(value);
         d_condition.notify_one();
     };
@@ -33,6 +33,7 @@ public:
         return rc;
     };
     long size() {
+        std::lock_guard<std::mutex> lock(d_mutex);
         return Q.size();
     }
 };

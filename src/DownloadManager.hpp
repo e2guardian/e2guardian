@@ -51,7 +51,7 @@ class DMPlugin : public Plugin
         = 0;
 
     // send a download link to the client (the actual link, and the clean "display" version of the link)
-    virtual void sendLink(Socket &peersock, String &linkurl, String &prettyurl);
+    virtual bool sendLink(Socket &peersock, String &linkurl, String &prettyurl);
 
     private:
     // regular expression for matching supported user agents

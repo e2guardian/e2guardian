@@ -1730,7 +1730,7 @@ int HTTPHeader::decode1b64(char c)
 // *
 // *
 
-// get encoded URL
+// get encoded URL?
 String HTTPHeader::URLEncode()
 {
     std::string encoded;
@@ -1806,7 +1806,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                         sock->reset();
                         int rc = sock->connect(o.proxy_ip, o.proxy_port);
                         if (rc)
-                            throw std::exception();
+                            return false;
+//                            throw std::exception();
                         continue;
                     }
                     // throw std::exception();
@@ -1850,7 +1851,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 sock->reset();
                 int rc = sock->connect(o.proxy_ip, o.proxy_port);
                 if (rc)
-                    throw std::exception();
+                    return false;
+               //     throw std::exception();
                 // include the first line on the retry
                 l = header.front() + "\n" + l;
                 continue;
@@ -1881,7 +1883,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         std::cout << "Opening tunnel for POST data" << std::endl;
 #endif
         FDTunnel fdt;
-        fdt.tunnel(*peersock, *sock, false, contentLength(), true);
+        if (!fdt.tunnel(*peersock, *sock, false, contentLength(), true) )
+            return false;
     }
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
@@ -1905,7 +1908,7 @@ void HTTPHeader::discard(Socket *sock, off_t cl)
     }
 }
 
-void HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig)
+bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig)
 {
     if (dirty)
         reset();
@@ -1926,18 +1929,20 @@ void HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         // - this lets us break when waiting for the next request on a pconn, but not
         // during receipt of a request in progress.
         bool truncated = false;
+        int rc;
 #ifdef DGDEBUG
         std::cout << "header:in before getLine - timeout:" << timeout << std::endl;
 #endif
-        sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+        rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
         std::cout << "header:in after getLine " << std::endl;
 #endif
-        if (truncated)
-            throw std::exception();
+        if (rc < 0) return false;
+        if (truncated)  return false;
+     //       throw std::exception();
 
         // getline will throw an exception if there is an error which will
-        // only be caught by HandleConnection()
+        // only be caught by HandleConnection()       ?????????????????????
 
         line = buff; // convert the line to a String
 
@@ -1954,11 +1959,12 @@ void HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         firsttime = false;
     }
     header.pop_back(); // remove the final blank line of a header
-    if (header.size() == 0)
-        throw std::exception();
+    if (header.size() == 0)  return false;
+   //     throw std::exception();
 
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
     std::cout << "Returning from header:in " << std::endl;
 #endif
+    return true;
 }

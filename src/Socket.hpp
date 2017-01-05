@@ -82,11 +82,13 @@ class Socket : public BaseSocket
 
     // non-blocking check for writable socket
     bool readyForOutput();
+    bool breadyForOutput(int timeout);
     // blocking check, can break on config reloads
     void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
 
     // non-blocking check for input data
     bool checkForInput();
+    bool bcheckForInput(int timeout);
 
     // blocking check for data, can be told to break on signal triggered config reloads (-r)
     void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
@@ -95,7 +97,7 @@ class Socket : public BaseSocket
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);
 
     // write buffer to string - throws std::exception on error
-    void writeString(const char *line) throw(std::exception);
+    bool writeString(const char *line); //throw(std::exception);
     // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // read from socket, returning number of bytes read

@@ -38,7 +38,7 @@ class fancydm : public DMPlugin
 
     int init(void *args);
 
-    void sendLink(Socket &peersock, String &linkurl, String &prettyurl);
+    bool sendLink(Socket &peersock, String &linkurl, String &prettyurl);
 
     private:
     // customisable fancy DM template
@@ -106,7 +106,7 @@ int fancydm::init(void *args)
 }
 
 // call template's downloadlink JavaScript function
-void fancydm::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
+bool fancydm::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
 {
     String mess("<script language='javascript'>\n<!--\ndownloadlink(\"" + linkurl + "\",\"" + prettyurl
         + "\"," + (toobig_notdownloaded ? "2" : (toobig_unscanned ? "1" : "0"))
@@ -121,11 +121,12 @@ void fancydm::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
     mess += "<a href=\"" + linkurl + "\">" + prettyurl + "</a></p></noscript>";
     peersock.writeString(mess.toCharArray());
     peersock.writeString("<!-- force flush -->\r\n");
-    peersock.writeString("</body></html>\n");
+    if(!peersock.writeString("</body></html>\n")) return false;
     if (toobig_notdownloaded) {
         // add URL to clean cache (for all groups)
         addToClean(prettyurl, o.filter_groups + 1);
     }
+    return true;
 }
 
 // download body for this request

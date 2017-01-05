@@ -45,7 +45,9 @@ class ConnectionHandler
 {
     public:
     ConnectionHandler()
-        : clienthost(NULL){};
+        : clienthost(NULL) {
+        ch_isiphost.comp(",*[a-z|A-Z].*");
+    }
     ~ConnectionHandler()
     {
         delete clienthost;
@@ -64,6 +66,9 @@ class ConnectionHandler
     std::string *clienthost;
     std::string urlparams;
     std::list<postinfo> postparts;
+
+    void cleanThrow(const char *message, Socket &peersock, Socket &proxysock);
+    void cleanThrow(const char *message, Socket &peersock );
 
     //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn);
@@ -94,6 +99,8 @@ class ConnectionHandler
 
     // strip the URL down to just the IP/hostname, then do an isIPHostname on the result
     bool isIPHostnameStrip(String url);
+
+    RegExp ch_isiphost;
 
     // show the relevant banned page depending upon the report level settings, request type, etc.
     bool denyAccess(Socket *peerconn, Socket *proxysock, HTTPHeader *header, HTTPHeader *docheader,

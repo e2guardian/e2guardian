@@ -62,7 +62,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         std::cout << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
 #endif
         if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120000, false))
-            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+            return false;
+           // throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
 
         throughput += sockfrom.bufflen - sockfrom.buffstart;
         sockfrom.bufflen = 0;
@@ -80,8 +81,10 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     twayfds[0].fd = fdfrom;
     twayfds[0].events = POLLIN;
     twayfds[1].events = POLLIN;
-    if (ignore && !twoway)
+    if (ignore && !twoway) {
         twayfds[1].fd = -1;
+        twayfds[1].revents = 0;
+    }
     else
         twayfds[1].fd = fdto;
 
@@ -141,11 +144,11 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 }
 
                 //if (FD_ISSET(fdto, &outset))  // fdto ready to write to
-                    if (tooutfds[0].revents & POLLOUT)
+                 if (tooutfds[0].revents & POLLOUT)
                     {
-                    if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
+                        if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
                         break; // was an error writing
-                    }
+                        }
                     done = false; // flag to say data still to be handled
                 } else {
                     break; // should never get here
@@ -209,5 +212,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     else
         std::cout << "Tunnel closed." << std::endl;
 #endif
-    return (targetthroughput > -1) ? (throughput <= targetthroughput) : true;
+    //return (targetthroughput > -1) ? (throughput <= targetthroughput) : true;
+    return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;
 }

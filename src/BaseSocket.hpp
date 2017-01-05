@@ -40,6 +40,7 @@ class BaseSocket
     void setTimeout(int t);
     // get timeout (is this actually used?)
     int getTimeout();
+    int getErrno();
 
     bool isClosing();
     bool isHup();
@@ -70,7 +71,7 @@ class BaseSocket
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);
 
     // write buffer to string - throws std::exception on error
-    void writeString(const char *line) throw(std::exception);
+    bool writeString(const char *line); //throw(std::exception);
     // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // read from socket, returning number of bytes read
@@ -83,6 +84,7 @@ class BaseSocket
     protected:
     // socket-wide timeout (is this actually used?)
     int timeout;
+    int s_errno;
     // length of address of other end of socket (e.g. size of sockaddr_in or sockaddr_un)
     socklen_t peer_adr_length;
     // socket FD

@@ -59,6 +59,7 @@ BaseSocket::BaseSocket()
     timedout = false;
     sockerr = false;
     ishup = false;
+    s_errno = 0;
 }
 
 // create socket from FD - must be overridden to clear the relevant address structs
@@ -74,6 +75,7 @@ BaseSocket::BaseSocket(int fd)
     timedout = false;
     sockerr = false;
     ishup = false;
+    s_errno = 0;
 }
 
 // destructor - close socket
@@ -102,6 +104,7 @@ void BaseSocket::baseReset()
     timedout = false;
     sockerr = false;
     ishup = false;
+    s_errno = 0;
 }
 
 // mark a socket as a listening server socket
@@ -161,6 +164,11 @@ void BaseSocket::setTimeout(int t)
     timeout = t;
 }
 
+int BaseSocket::getErrno()
+{
+    return  s_errno;
+}
+
 // return timeout
 int BaseSocket::getTimeout()
 {
@@ -194,7 +202,7 @@ bool BaseSocket::isNoOpp()
 
 bool BaseSocket::isNoRead()
 {
-    return ( sockerr || (ishup && !isclosing) || (sck < 0));
+    return ( sockerr ||  (sck < 0));
 }
 
 bool BaseSocket::isNoWrite()
@@ -210,6 +218,8 @@ bool BaseSocket::bcheckForInput(int timeout)
     if (isNoRead())
         return false;
     int rc;
+    s_errno = 0;
+    errno = 0;
     rc = poll(infds, 1, timeout);
     if (rc == 0)
     {
@@ -219,20 +229,15 @@ bool BaseSocket::bcheckForInput(int timeout)
     timedout = false;
     if (rc < 0)
     {
+        s_errno = errno;
         sockerr = true;
         return false;
     }
-    if (infds[0].revents & (POLLHUP | POLLIN)) {
-        isclosing = true;
-        ishup = true;
-        return true;
-    }
-    if (infds[0].revents & POLLIN)
-        return true;
     if (infds[0].revents & POLLHUP) {
-        isclosing = false;
         ishup = true;
-        return false;
+    }
+    if ((infds[0].revents & (POLLHUP | POLLIN))) {
+        return true;
     }
     sockerr = true;
     return false;   // must be POLLERR or POLLNVAL
@@ -246,6 +251,8 @@ bool BaseSocket::checkForInput()
     if (isNoRead())
         return false;
     int rc;
+    s_errno = 0;
+    errno = 0;
    rc = poll(infds, 1, 0);
     if (rc == 0)
         {
@@ -254,20 +261,15 @@ bool BaseSocket::checkForInput()
     timedout = false;
     if (rc < 0)
     {
+        s_errno = errno;
         sockerr = true;
         return false;
     }
-    if (infds[0].revents & (POLLHUP | POLLIN)) {
-        isclosing = true;
-        ishup = true;
-        return true;
-    }
-    if (infds[0].revents & POLLIN)
-        return true;
     if (infds[0].revents & POLLHUP) {
-        isclosing = false;
         ishup = true;
-        return false;
+    }
+    if (infds[0].revents & (POLLHUP | POLLIN)) {
+        return true;
     }
     sockerr = true;
     return false;   // must be POLLERR or POLLNVAL
@@ -288,6 +290,8 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
     if (isNoRead())
         return;
     int rc;
+    s_errno = 0;
+    errno = 0;
     rc = poll(infds, 1, timeout);
     if (rc == 0)
     {
@@ -299,21 +303,16 @@ void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std:
     timedout = false;
     if (rc < 0)
     {
+        s_errno = errno;
         sockerr = true;
         std::string err("poll() on input: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
         return;
     }
-    if (infds[0].revents & (POLLHUP| POLLIN)) {
-        ishup = true;
-        isclosing = true;
-        return;
-    }
-    if (infds[0].revents & POLLIN)
-        return ;
     if (infds[0].revents & POLLHUP) {
         ishup = true;
-        isclosing = false;
+    }
+    if (infds[0].revents & (POLLHUP| POLLIN)) {
         return;
     }
     sockerr = true;
@@ -329,6 +328,8 @@ bool BaseSocket::readyForOutput()
     if (isNoWrite())
         return false;
     int rc;
+    s_errno = 0;
+    errno = 0;
     rc = poll(outfds,1, 0);
     if (rc == 0)
     {
@@ -337,6 +338,7 @@ bool BaseSocket::readyForOutput()
     timedout = false;
     if (rc < 0)
     {
+        s_errno = errno;
         sockerr = true;
         return false;
     }
@@ -351,6 +353,8 @@ bool BaseSocket::breadyForOutput(int timeout) {
     if (isNoWrite())
         return false;
     int rc;
+    s_errno = 0;
+    errno = 0;
     rc = poll(outfds, 1, timeout);
     if (rc == 0) {
         timedout = true;
@@ -358,6 +362,7 @@ bool BaseSocket::breadyForOutput(int timeout) {
     }
     timedout = false;
     if (rc < 0) {
+        s_errno = errno;
         sockerr = true;
         return false;
     }
@@ -375,6 +380,8 @@ void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std
     if (isNoWrite())
         return ;
     int rc;
+    s_errno = 0;
+    errno = 0;
     rc = poll(outfds, 1, timeout );
     if (rc == 0)
     {
@@ -386,6 +393,7 @@ void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std
     timedout = false;
     if (rc < 0)
     {
+        s_errno = errno;
         sockerr = true;
         std::string err("poll() on output: ");
         throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
@@ -437,6 +445,8 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         buffstart = 0;
         bufflen = 0;
 //        try {
+        s_errno = 0;
+        errno = 0;
             if (bcheckForInput(timeout))
               bufflen = recv(sck, buffer, 1024, 0);
   //      } catch (std::exception &e) {
@@ -447,7 +457,9 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 #endif
         //if there was a socket error
         if (bufflen < 0) {
-            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
+            s_errno = errno;
+            return -1;
+//            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
         }
         //if socket closed...
         if (bufflen == 0) {
@@ -478,11 +490,12 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 }
 
 // write line to socket
-void BaseSocket::writeString(const char *line) throw(std::exception)
+bool BaseSocket::writeString(const char *line) //throw(std::exception)
 {
     int l = strlen(line);
     if (!writeToSocket(line, l, 0, timeout)) {
-        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+        return false;
+//        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
     }
 }
 
@@ -510,9 +523,14 @@ bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, in
                 return false;
         }
         sent = 0;
+        s_errno = 0;
+        errno = 0;
         if(!isNoWrite()) sent = send(sck, buff + actuallysent, len - actuallysent, 0);
 
-        if (sent == 0) {
+//        if (sent == 0)
+        if (sent  < 1)
+        {
+            s_errno = errno;
             return false; // other end is closed
         }
         actuallysent += sent;
@@ -549,12 +567,15 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
 //            return -1;
 //        }
 //        if (isNoRead())  return -1;
-        if (bcheckForInput(timeout))  return -1;
+        if (!bcheckForInput(timeout))  return -1;
+        s_errno = 0;
+        errno = 0;
         rc = recv(sck, buff, cnt, flags);
         if (rc < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
+//i            if (errno == EINTR) {
+//                continue;
+//            }
+            s_errno = errno;
             return -1;
         }
         if (rc == 0) { // eof
@@ -603,11 +624,15 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     }
     while (true) {
         if (isNoRead())  return -1;
+        s_errno = 0;
+        errno = 0;
         rc = recv(sck, buff, cnt, flags);
         if (rc < 0) {
-            if (errno == EINTR ) {
-               continue;
-           }
+ //           if (errno == EINTR ) {
+//  ..             continue;
+//           }
+            s_errno = errno;
+            return -1;
        }
 
         break;

@@ -44,27 +44,30 @@ extern bool reloadconfig;
 Socket::Socket()
 {
     sck = socket(AF_INET, SOCK_STREAM, 0);
+    if (sck < 0) {
+        s_errno = errno;
+    } else {
+        memset(&my_adr, 0, sizeof my_adr);
+        memset(&peer_adr, 0, sizeof peer_adr);
+        my_adr.sin_family = AF_INET;
+        peer_adr.sin_family = AF_INET;
+        peer_adr_length = sizeof(struct sockaddr_in);
+        int f = 1;
 
-    memset(&my_adr, 0, sizeof my_adr);
-    memset(&peer_adr, 0, sizeof peer_adr);
-    my_adr.sin_family = AF_INET;
-    peer_adr.sin_family = AF_INET;
-    peer_adr_length = sizeof(struct sockaddr_in);
-    int f = 1;
+        if (sck > 0)
+            int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
 
-    if (sck > 0)
-        int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
-
-    my_port = 0;
+        my_port = 0;
 
 #ifdef __SSLMITM
-    ssl = NULL;
-    ctx = NULL;
-    isssl = false;
-    issslserver = false;
+        ssl = NULL;
+        ctx = NULL;
+        isssl = false;
+        issslserver = false;
 #else
-    isssl = false;
+        isssl = false;
 #endif
+    }
 }
 
 // create socket from pre-existing FD (address structs will be invalid!)
@@ -79,7 +82,7 @@ Socket::Socket(int fd)
     int f = 1;
 
     int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
-
+    if (res < 0) s_errno = errno;
     my_port = 0;
 
 #ifdef __SSLMITM
@@ -106,7 +109,7 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
     int f = 1;
 
     int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
-
+    if (res < 0) s_errno = errno;
     my_port = 0;
 
 #ifdef __SSLMITM
@@ -178,7 +181,10 @@ int Socket::connect(const std::string &ip, int port)
     peer_adr.sin_port = htons(port);
     inet_aton(ip.c_str(), &peer_adr.sin_addr);
     my_port = port;
+    s_errno = 0;
+    errno = 0;
     int ret = ::connect(sck, (struct sockaddr *)&peer_adr, len);
+    if (ret < 0 ) s_errno = errno;
     infds[0].fd = sck;
     outfds[0].fd = sck;
     return ret;
@@ -216,14 +222,19 @@ int Socket::bind(const std::string &ip, int port)
 Socket *Socket::accept()
 {
     peer_adr_length = sizeof(struct sockaddr_in);
-    int newfd = this->baseAccept((struct sockaddr *)&peer_adr, &peer_adr_length);
+    s_errno = 0;
+    errno = 0;
+//    int newfd = this->baseAccept((struct sockaddr *)&peer_adr, &peer_adr_length);
+    int newfd = ::accept(sck,( struct sockaddr *)&peer_adr, &peer_adr_length);
 
     if (newfd > 0) {
         Socket *s = new Socket(newfd, my_adr, peer_adr);
         s->setPort(my_port);
         return s;
-    } else
+    } else {
+        s_errno = errno;
         return NULL;
+    }
 }
 
 #ifdef __SSLMITM
@@ -679,6 +690,15 @@ bool Socket::checkForInput()
     return true;
 }
 
+bool Socket::bcheckForInput(int timeout)
+{
+    if (!isssl) {
+        return BaseSocket::bcheckForInput(timeout);
+    }
+    return true;
+}
+
+
 // blocking check for waiting data - blocks for up to given timeout, can be told to break on signal-triggered config reloads
 void Socket::checkForInput(int timeout, bool honour_reloadconfig) throw(std::exception)
 {
@@ -699,6 +719,14 @@ bool Socket::readyForOutput()
 
     //cant do this on a blocking ssl socket as far as i can work out
 
+    return true;
+}
+
+bool Socket::breadyForOutput(int timeout)
+{
+    if (!isssl) {
+        return BaseSocket::breadyForOutput(timeout);
+    }
     return true;
 }
 
@@ -746,21 +774,22 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
     while (i < (size - 1)) {
         buffstart = 0;
         bufflen = 0;
-        try {
-            checkForInput(timeout, honour_reloadconfig);
-        } catch (std::exception &e) {
-            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
-        }
+ //       try {
+ //            checkForInput(timeout, honour_reloadconfig);
+ //       } catch (std::exception &e) {
+//            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
+ //       }
         bufflen = SSL_read(ssl, buffer, 1024);
 #ifdef DGDEBUG
 //std::cout << "read into buffer; bufflen: " << bufflen <<std::endl;
 #endif
         if (bufflen < 0) {
-            if (errno == EINTR ) {
-                continue;
-            }
+  //          if (errno == EINTR ) {
+   //             continue;
+    //        }
             std::cout << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
-            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
+            return -1;
+//            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
         }
         //if socket closed...
         if (bufflen == 0) {
@@ -791,12 +820,13 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
 }
 
 // write line to socket
-void Socket::writeString(const char *line) throw(std::exception)
+bool Socket::writeString(const char *line) //throw(std::exception)
 {
     int l = strlen(line);
-    if (!writeToSocket(line, l, 0, timeout)) {
-        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-    }
+    return writeToSocket(line, l, 0, timeout);
+//    if (!writeToSocket(line, l, 0, timeout)) {
+ //       throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+    //}
 }
 
 // write data to socket - throws exception on failure, can be told to break on config reloads
@@ -817,18 +847,19 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
     int actuallysent = 0;
     int sent;
     while (actuallysent < len) {
-        if (check_first) {
-            try {
-                readyForOutput(timeout, honour_reloadconfig); // throws exception on error or timeout
-            } catch (std::exception &e) {
-                return false;
-            }
-        }
+     //   if (check_first) {
+    //        try {
+    //            readyForOutput(timeout, honour_reloadconfig); // throws exception on error or timeout
+     //       } catch (std::exception &e) {
+      //          return false;
+       //     }
+     //   }
         sent = SSL_write(ssl, buff + actuallysent, len - actuallysent);
         if (sent < 0) {
-            if (errno == EINTR ) {
-                continue; // was interupted by signal so restart
-            }
+    //        if (errno == EINTR ) {
+    //            continue; // was interupted by signal so restart
+    //        }
+            s_errno = errno;
             return false;
         }
         if (sent == 0) {
@@ -866,20 +897,21 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
     }
 
     while (cnt > 0) {
-        try {
-            checkForInput(timeout); // throws exception on error or timeout
-        } catch (std::exception &e) {
-            return -1;
-        }
+    //    try {
+    //        checkForInput(timeout); // throws exception on error or timeout
+    //    } catch (std::exception &e) {
+     //       return -1;
+     //   }
         rc = SSL_read(ssl, buff, cnt);
 #ifdef DGDEBUG
         std::cout << "ssl read said: " << rc << std::endl;
 #endif
 
         if (rc < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
+       //     if (errno == EINTR) {
+         //       continue;
+           // }
+           s_errno = errno;
             return -1;
         }
         if (rc == 0) { // eof
@@ -917,21 +949,23 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     }
 
     int rc;
-    if (check_first) {
-        try {
-            checkForInput(timeout, honour_reloadconfig);
-        } catch (std::exception &e) {
-            return -1;
-        }
-    }
+//    if (check_first) {
+  //      try {
+  //          checkForInput(timeout, honour_reloadconfig);
+ //       } catch (std::exception &e) {
+  //          return -1;
+   //     }
+  //  }
     while (true) {
 
         rc = SSL_read(ssl, buff, cnt);
 
         if (rc < 0) {
-            if (errno == EINTR ) {
-                continue;
-            }
+       //     if (errno == EINTR) {
+         //       continue;
+           // }
+            s_errno = errno;
+            return -1;
         }
         break;
     }

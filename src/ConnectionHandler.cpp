@@ -49,9 +49,8 @@
 
 // GLOBALS
 extern OptionContainer o;
-//extern Queue<std::string>* log_Q;
 extern bool is_daemonised;
-extern bool reloadconfig;
+//bool reloadconfig = false;
 
 //#ifdef DGDEBUG
 int dbgPeerPort;
@@ -74,8 +73,9 @@ class postfilter_exception : public std::runtime_error
 // check the URL cache to see if we've already flagged an address as clean
 bool wasClean(HTTPHeader &header, String &url, const int fg)
 {
-    if (reloadconfig)
-        return false;
+   return false;   // this function needs rewriting always return false
+    //if (reloadconfig)
+       // return false;
     if ((header.requestType() != "GET") || url.length() > 2000)
         return false; // only check GET and normal length urls
     UDSocket ipcsock;
@@ -95,26 +95,28 @@ bool wasClean(HTTPHeader &header, String &url, const int fg)
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -sending cache search request: " << myurl;
 #endif
-    try {
-        ipcsock.writeString(myurl.c_str()); // throws on err
-    } catch (std::exception &e) {
+//    try {
+//        ipcsock.writeString(myurl.c_str()); // throws on err
+//    } catch (std::exception &e) {
+        if(!ipcsock.writeString(myurl.c_str()))  {
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -Exception writing to url cache" << std::endl;
-        std::cerr << e.what() << std::endl;
+        //std::cerr << e.what() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception writing to url cache");
-        syslog(LOG_ERR, "%s", e.what());
+//        syslog(LOG_ERR, "%s", e.what());
     }
     char reply;
-    try {
-        ipcsock.readFromSocket(&reply, 1, 0, 6000); // throws on err
-    } catch (std::exception &e) {
+//    try {
+//        ipcsock.readFromSocket(&reply, 1, 0, 6000); // throws on err
+//    } catch (std::exception &e) {
+        if(!ipcsock.readFromSocket(&reply, 1, 0, 6000)) {
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -Exception reading from url cache" << std::endl;
-        std::cerr << e.what() << std::endl;
+        //std::cerr << e.what() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception reading from url cache");
-        syslog(LOG_ERR, "%s", e.what());
+ //       syslog(LOG_ERR, "%s", e.what());
     }
     ipcsock.close();
     return reply == 'Y';
@@ -123,8 +125,9 @@ bool wasClean(HTTPHeader &header, String &url, const int fg)
 // add a known clean URL to the cache
 void addToClean(String &url, const int fg)
 {
-    if (reloadconfig)
-        return;
+    return ;   // this function needs rewriting always return false
+    //if (reloadconfig)
+     //   return;
     UDSocket ipcsock;
     if (ipcsock.getFD() < 0) {
         syslog(LOG_ERR, "Error creating ipc socket to url cache");
@@ -141,15 +144,16 @@ void addToClean(String &url, const int fg)
     myurl += url.after("://").toCharArray();
     myurl[1] = fg + 1;
     myurl += "\n";
-    try {
-        ipcsock.writeString(myurl.c_str()); // throws on err
-    } catch (std::exception &e) {
+//    try {
+        //ipcsock.writeString(myurl.c_str()); // throws on err
+    //} catch (std::exception &e) {
+    if(!ipcsock.writeString(myurl.c_str())) {
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -Exception adding to url cache" << std::endl;
-        std::cerr << e.what() << std::endl;
+//        std::cerr << e.what() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception adding to url cache");
-        syslog(LOG_ERR, "%s", e.what());
+        //syslog(LOG_ERR, "%s", e.what());
     }
     ipcsock.close();
 }
@@ -158,11 +162,72 @@ void addToClean(String &url, const int fg)
 // ConnectionHandler class
 //
 
+
+void ConnectionHandler::cleanThrow(const char *message, Socket &peersock, Socket &proxysock)
+{
+if (true)    // add log flag later
+{
+   int peerport = peersock.getPeerSourcePort();
+
+    int err = peersock.getErrno();
+
+    if (peersock.isTimedout())
+        syslog(LOG_INFO, "%d %s Client Conextion timedout - errno: %d", peerport, message, err);
+     else if (peersock.sockError())
+        syslog(LOG_INFO, "%d %s Client Conextion socket error - errno: %d", peerport, message, err);
+    else if (peersock.isNoRead())
+        syslog(LOG_INFO, "%d %s cant read Client Conextion - errno: %d ", peerport, message, err);
+    else if (peersock.isNoWrite())
+        syslog(LOG_INFO, "%d %s cant write Client Conextion  - errno: %d", peerport, message, err);
+    else if (peersock.isNoOpp())
+        syslog(LOG_INFO, "%d %s Client Conextion s no-op - errno: %d", peerport, message, err);
+
+    err = proxysock.getErrno();
+    if (proxysock.isTimedout())
+        syslog(LOG_INFO, "%d %s proxy timedout - errno: %d", peerport, message, err);
+    else if (proxysock.sockError())
+        syslog(LOG_INFO, "%d %s proxy socket error - errno: %d", peerport, message, err);
+    else if (proxysock.isNoRead())
+        syslog(LOG_INFO, "%d %s cant read proxy Conextion - errno: %d ", peerport, message, err);
+    else if (proxysock.isNoWrite())
+        syslog(LOG_INFO, "%d %s cant write proxy Conextion  - errno: %d", peerport, message, err);
+    else if (proxysock.isNoOpp())
+        syslog(LOG_INFO, "%d %s proxy Conextion s no-op - errno: %d", peerport, message, err);
+}
+    if (proxysock.isNoOpp())
+        proxysock.close();
+    throw std::exception();
+}
+
+void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
+    if (true)    // add log flag later
+    {
+        int peerport = peersock.getPeerSourcePort();
+        int err = peersock.getErrno();
+
+        if (peersock.isTimedout())
+            syslog(LOG_INFO, "%d %s Client Conextion timedout - errno: %d", peerport, message, err);
+        else if (peersock.sockError())
+            syslog(LOG_INFO, "%d %s Client Conextion socket error - errno: %d", peerport, message, err);
+        else if (peersock.isNoRead())
+            syslog(LOG_INFO, "%d %s cant read Client Conextion - errno: %d ", peerport, message, err);
+        else if (peersock.isNoWrite())
+            syslog(LOG_INFO, "%d %s cant write Client Conextion  - errno: %d", peerport, message, err);
+        else if (peersock.isNoOpp())
+            syslog(LOG_INFO, "%d %s Client Conextion s no-op - errno: %d", peerport, message, err);
+    }
+    throw std::exception();
+}
+
 // strip the URL down to just the IP/hostname, then do an isIPHostname on the result
 bool ConnectionHandler::isIPHostnameStrip(String url)
 {
     url = url.getHostname();
-    return o.fg[0]->isIPHostname(url);
+    if(ch_isiphost.match(url.toCharArray()))
+        return false;
+    else
+        return true;
+//    return o.fg[0]->isIPHostname(url);
 }
 
 // perform URL encoding on a string
@@ -224,37 +289,6 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     return res;
 }
 
-// when using IP address counting - have we got any remaining free IPs?
-bool ConnectionHandler::gotIPs(std::string ipstr)
-{
-    if (reloadconfig)
-        return false;
-    UDSocket ipcsock;
-    if (ipcsock.getFD() < 0) {
-        syslog(LOG_ERR, "Error creating ipc socket to IP cache");
-        return false;
-    }
-    // TODO: put in proper file name check
-    if (ipcsock.connect(o.ipipc_filename.c_str()) < 0) { // connect to dedicated ip list proc
-        syslog(LOG_ERR, "Error connecting via ipc to IP cache: %s", strerror(errno));
-        return false;
-    }
-    char reply;
-    ipstr += '\n';
-    try {
-        ipcsock.writeToSockete(ipstr.c_str(), ipstr.length(), 0, 6000);
-        ipcsock.readFromSocket(&reply, 1, 0, 6000); // throws on err
-    } catch (std::exception &e) {
-#ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -Exception with IP cache" << std::endl;
-        std::cerr << e.what() << std::endl;
-#endif
-        syslog(LOG_ERR, "Exception with IP cache");
-        syslog(LOG_ERR, "%s", e.what());
-    }
-    ipcsock.close();
-    return reply == 'Y';
-}
 
 // send a file to the client - used during bypass of blocked downloads
 off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &filemime, String &filedis, String &url)
@@ -281,9 +315,10 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
     }
     message += "\nContent-disposition: attachment; filename=" + filedis;
     message += "\n\n";
-    try {
-        peerconn->writeString(message.toCharArray());
-    } catch (std::exception &e) {
+   // try {
+        //peerconn->writeString(message.toCharArray());
+    //} catch (std::exception &e) {
+    if(!peerconn->writeString(message.toCharArray())) {
         close(fd);
         return 0;
     }
@@ -302,7 +337,8 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
             std::cout << dbgPeerPort << " -error reading send file so throwing exception" << std::endl;
 #endif
             delete[] buffer;
-            throw std::exception();
+//            throw std::exception();
+            cleanThrow("error reading send file", *peerconn);
         }
         if (rc == 0) {
 #ifdef DGDEBUG
@@ -313,7 +349,8 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
         // as it's cached to disk the buffer must be reasonably big
         if (!peerconn->writeToSocket(buffer, rc, 0, 100)) {
             delete[] buffer;
-            throw std::exception();
+            cleanThrow("Error sending file to client", *peerconn);
+           // throw std::exception();
         }
         sent += rc;
 #ifdef DGDEBUG
@@ -458,7 +495,19 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         bool persistProxy = true;
 
         bool firsttime = true;
-        header.in(&peerconn, true, true); // get header from client, allowing persistency and breaking on reloadconfig
+        if(!header.in(&peerconn, true, true)) {
+           if (peerconn.getFD() > -1) {
+
+               int err = peerconn.getErrno();
+               int pport = peerconn.getPeerSourcePort();
+
+               syslog(LOG_INFO, "%d No header recd from client - errno: %d", pport, err);
+           } else {
+               syslog(LOG_INFO, "Client connection closed early - no request header received");
+           }
+            firsttime = false;
+            persistPeer = false;
+        }; // get header from client, allowing persistency and breaking on reloadconfig
         //
         // End of set-up section
         //
@@ -466,7 +515,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         //
 
         // maintain a persistent connection
-        while ((firsttime || persistPeer) && !reloadconfig) {
+        while ((firsttime || persistPeer))
+        //    while ((firsttime || persistPeer) && !reloadconfig)
+        {
 #ifdef DGDEBUG
             std::cout << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
 #endif
@@ -485,9 +536,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 std::cout << dbgPeerPort << " - " << clientip << std::endl;
 #endif
                 header.reset();
-                try {
-                    header.in(&peerconn, true, true); // get header from client, allowing persistency and breaking on reloadconfig
-                } catch (std::exception &e) {
+                //try {
+                    //header.in(&peerconn, true, true); // get header from client, allowing persistency and breaking on reloadconfig
+                //} catch (std::exception &e) {
+                if(!header.in(&peerconn, true, true)) {
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Persistent connection closed" << std::endl;
 #endif
@@ -593,27 +645,27 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
             if (header.malformedURL(url)) {
-                try {
+                ///try {
                     // writestring throws exception on error/timeout
+                    // The requested URL is malformed.
+                    message_no = 200;
                     peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
                     peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
-                    message_no = 200;
-                    // The requested URL is malformed.
                     peerconn.writeString(o.language_list.getTranslation(200));
                     peerconn.writeString("</BODY></HTML>\n");
-                } catch (std::exception &e) {
-                }
+                //} catch (std::exception &e) {
+                //}
                 break;
             }
 
             urld = header.decode(url);
 
             if (urldomain == "internal.test.e2guardian.org") {
-                try { // writestring throws exception on error/timeout
+//                try { // writestring throws exception on error/timeout
                     peerconn.writeString("HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                     peerconn.writeString("</BODY></HTML>\n");
-                } catch (std::exception &e) {
-                }
+  //              } catch (std::exception &e) {
+    //            }
                 proxysock.close(); // close connection to proxy
                 break;
             }
@@ -622,18 +674,18 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (o.use_total_block_list && o.inTotalBlockList(urld)) {
                 //if ( header.requestType().startsWith("CONNECT"))
                 if (is_ssl) {
-                    try { // writestring throws exception on error/timeout
+                 //   try { // writestring throws exception on error/timeout
                         peerconn.writeString("HTTP/1.0 404 Banned Site\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>Protex - Banned Site</TITLE></HEAD><BODY><H1>Protex - Banned Site</H1> ");
                         peerconn.writeString(logurl.c_str());
                         // The requested URL is malformed.
                         peerconn.writeString("</BODY></HTML>\n");
-                    } catch (std::exception &e) {
-                    }
+                //    } catch (std::exception &e) {
+                 //   }
                 } else { // write blank graphic
-                    try {
+                   // try {
                         peerconn.writeString("HTTP/1.0 200 OK\n");
-                    } catch (std::exception &e) {
-                    }
+                    //} catch (std::exception &e) {
+                    //}
                     o.banned_image.display(&peerconn);
                 }
                 proxysock.close(); // close connection to proxy
@@ -702,7 +754,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             String writestring("HTTP/1.0 302 Redirect\r\nLocation: ");
                             writestring += clientuser;
                             writestring += "\r\n\r\n";
-                            peerconn.writeString(writestring.toCharArray());
+                            peerconn.writeString(writestring.toCharArray());   // no action on failure
                             dobreak = true;
                             break;
                         } else if (rc == DGAUTH_OK_NOPERSIST) {
@@ -949,7 +1001,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         std::cout << dbgPeerPort << urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << std::endl;
 #endif
                         syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", urldomain.c_str(), orig_dest_ip.c_str());
-                        try {
+                        //try {
                             // writestring throws exception on error/timeout
                             peerconn.writeString("HTTP/1.0 400 Bad Request\nContent-Type: text/html\n\n");
                             peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
@@ -957,8 +1009,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // The requested URL is malformed.
                             peerconn.writeString(o.language_list.getTranslation(200));
                             peerconn.writeString("</BODY></HTML>\n");
-                        } catch (std::exception &e) {
-                        }
+                        //} catch (std::exception &e) {
+                        //}
                         break;
                     }
                 }
@@ -1255,24 +1307,29 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     && requestscanners.empty() && responsescanners.empty()) // doesn't need content scanning
                 // bad people still need to be able to access the banned page
                 || isourwebserver) {
-                try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
-    } catch (std::exception &e) {
-#ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << " - caught an exception isexception: " << e.what() << std::endl;
-#endif
-                }
+            //    try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+    //} catch (std::exception &e) {
+//#ifdef DGDEBUG
+                    //std::cerr << dbgPeerPort << " - caught an exception isexception: " << e.what() << std::endl;
+//#endif
+                //}
+                if(!proxysock.breadyForOutput(o.proxy_timeout))
+                    cleanThrow("Unable to write to proxy",peerconn, proxysock);
 #ifdef DGDEBUG
                 std::cerr << dbgPeerPort << "  got past line 1257 rfo " << std::endl;
 #endif
 
-                header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
-                docheader.in(&proxysock, persistOutgoing);
+                if(!header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
+                    cleanThrow("Unable to write header to proxy",peerconn, proxysock);
+                if(!docheader.in(&proxysock, persistOutgoing))
+                     cleanThrow("Unable to read header from proxy",peerconn, proxysock);
                 persistProxy = docheader.isPersistent();
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
 #endif
-                docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
+                if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
+                      cleanThrow("Unable to send return header to client",peerconn, proxysock);
                 // only open a two-way tunnel on CONNECT if the return code indicates success
                 if (!(docheader.returnCode() == 200)) {
                     isconnect = false;
@@ -1284,29 +1341,35 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     persistPeer = false;
                 }
 
-                try {
+                //try {
                     fdt.reset(); // make a tunnel object
                     // tunnel from client to proxy and back
                     // two-way if SSL
-                    fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true); // not expected to exception
+                //syslog(LOG_INFO, "before tunnel 1324");
+                     if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true))
+                         persistProxy = false;
+//                         cleanThrow("Error Connect tunnel", peerconn,proxysock);
+                //syslog(LOG_INFO, "after tunnel 1327");
                     docsize = fdt.throughput;
+                try {
                     if (!isourwebserver) { // don't log requests to the web server
                         String rtype(header.requestType());
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,
                             false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
                             mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
                     }
-                    if (!persistProxy)
-                        proxysock.close(); // close connection to proxy
                 } catch (std::exception &e) {
                 }
+
+                if (!persistProxy)
+                    proxysock.close(); // close connection to proxy
 
                 if (persistPeer)
                     continue;
 
                 break;
             }
-
+#ifdef NOOPP
             if ((o.max_ips > 0) && (!gotIPs(clientip))) {
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -no client IP slots left" << std::endl;
@@ -1322,6 +1385,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 //checkme.whatIsNaughtyCategories = "IP Limit";
                 checkme.whatIsNaughtyCategories = o.language_list.getTranslation(71);
             }
+#endif
 
             // URL regexp search and redirect
             if (!is_ssl)
@@ -1389,24 +1453,29 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             && !isbanneduser // bad user
                             && requestscanners.empty() && responsescanners.empty())
                         || isourwebserver) {
-                        try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
-                        } catch (std::exception &e) {
-#ifdef DGDEBUG
-                            std::cerr << dbgPeerPort << " - caught an exception isexception 1367 : " << e.what() << std::endl;
-#endif
-                        }
+                        if(!proxysock.breadyForOutput(o.proxy_timeout))
+                            cleanThrow("Unable to write to proxy 1415",peerconn, proxysock);
+                        //try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                        //} catch (std::exception &e) {
+//#ifdef DGDEBUG
+                            //std::cerr << dbgPeerPort << " - caught an exception isexception 1367 : " << e.what() << std::endl;
+//#endif
+                        //}
                         //proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
 #ifdef DGDEBUG
                         std::cerr << dbgPeerPort << "  got past line 1391 rfo " << std::endl;
 #endif
-                        header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
-                        docheader.in(&proxysock, persistOutgoing);
+                        if(!header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
+                            cleanThrow("Unable to write header to proxy",peerconn, proxysock);
+                        if(!docheader.in(&proxysock, persistOutgoing))
+                            cleanThrow("Unable to read header from proxy",peerconn, proxysock);
                         persistProxy = docheader.isPersistent();
                         persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
 #endif
-                        docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
+                        if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
+                            cleanThrow("Unable to send return header to client",peerconn, proxysock);
 
                         // only open a two-way tunnel on CONNECT if the return code indicates success
                         if (!(docheader.returnCode() == 200)) {
@@ -1417,12 +1486,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             persistOutgoing = false;
                             persistPeer = false;
                         }
-                        try {
+                        //try {
                             fdt.reset(); // make a tunnel object
                             // tunnel from client to proxy and back
                             // two-way if SSL
-                            fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true); // not expected to exception
+                        if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true) )
+                            persistProxy = false;
+//                            cleanThrow("Error Connect tunnel", peerconn,proxysock);
                             docsize = fdt.throughput;
+                        try {
                             if (!isourwebserver) { // don't log requests to the web server
                                 String rtype(header.requestType());
                                 doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL),
@@ -1432,10 +1504,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                     false, true, headermodified, headeradded);
                             }
 
-                            if (!persistProxy)
-                                proxysock.close(); // close connection to proxy
                         } catch (std::exception &e) {
                         }
+                        if (!persistProxy)
+                            proxysock.close(); // close connection to proxy
 
                         if (persistPeer && proxysock.readyForOutput())
                             continue;
@@ -1463,22 +1535,28 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -CONNECT: user not authed - getting response to see if it's auth required" << std::endl;
 #endif
                     // send header to proxy
-                    try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
-                    } catch (std::exception &e) {
-#ifdef DGDEBUG
-                        std::cerr << dbgPeerPort << " - caught an exception send header " << e.what() << std::endl;
-#endif
-                    } ;
+                    if(!proxysock.breadyForOutput(o.proxy_timeout))
+                        cleanThrow("Unable to send header to proxy 1439",peerconn, proxysock);
+
+//                    try {proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+//                    } catch (std::exception &e) {
+//#ifdef DGDEBUG
+//                        std::cerr << dbgPeerPort << " - caught an exception send header " << e.what() << std::endl;
+//#endif
+//                    } ;
 
                     //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
                     std::cerr << dbgPeerPort << "  got past line 1465 rfo " << std::endl;
 #endif
-                    header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
+                    if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true))
+                    cleanThrow("Unable to send header to proxy 1524",peerconn, proxysock);
 
                     // get header from proxy
-                    proxysock.checkForInput(o.exchange_timeout);
-                    docheader.in(&proxysock, persistOutgoing);
+                    if(!proxysock.bcheckForInput(o.exchange_timeout))
+                        cleanThrow("Unable to get header from proxy 1527",peerconn, proxysock);
+                    if(!docheader.in(&proxysock, persistOutgoing))
+                        cleanThrow("Unable to getr return header from proxy 1530",peerconn, proxysock);
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
@@ -1531,11 +1609,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Forwarding connect request" << std::endl;
 #endif
-                    proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
-                    header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
+                    if(!proxysock.breadyForOutput(o.proxy_timeout))
+                        cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
+                    if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
+                        cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
                     //check the response headers so we can go ssl
-                    proxysock.checkForInput(120000);
-                    docheader.in(&proxysock, persistOutgoing);
+                    if(!proxysock.bcheckForInput(120000))
+                        cleanThrow("Unable to get response header from proxy 1589",peerconn, proxysock);
+                    if(!docheader.in(&proxysock, persistOutgoing))
+                        cleanThrow("Unable to get response header from proxy 1591",peerconn, proxysock);
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
@@ -1549,26 +1631,29 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cout << dbgPeerPort << " -Connect request failed / proxy auth required. Returning data to client" << std::endl;
 #endif
                     //send data to the client and let it deal with it
-                    docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, true);
+                    if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, true))
+                        cleanThrow("Unable to send response header to client 1606",peerconn, proxysock);
 
-                    try {
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -Forwarding body to client" << std::endl;
 #endif
                         fdt.reset(); // make a tunnel object
                         // tunnel from proxy to client
-                        fdt.tunnel(proxysock, peerconn, false); // not expected to exception
+                        if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true) )
+                            persistProxy = false;
+//                            cleanThrow("Error forwarding body to client", peerconn,proxysock);
                         docsize = fdt.throughput;
+                    try {
                         String rtype(header.requestType());
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
                             isexception, false, &thestart,
                             cachehit, header.returnCode(), mimetype, wasinfected,
                             wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
-                        if (!persistProxy)
-                            proxysock.close(); // close connection to proxy
                     } catch (std::exception &e) {
                     }
+                        if (!persistProxy)
+                            proxysock.close(); // close connection to proxy
 
                     if (persistPeer) {
                         continue;
@@ -1630,7 +1715,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //send a 200 to the client no matter what because they managed to get a connection to us
                     //and we can use it for a blockpage if nothing else
                     std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
-                    peerconn.writeString(msg.c_str());
+                    if(!peerconn.writeString(msg.c_str()))
+                        cleanThrow("Unable to send to client 1670",peerconn,proxysock);
 
                     if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
                         //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
@@ -1757,7 +1843,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!checkme.isItNaughty && isconnect) {
                 // can't filter content of CONNECT
                 if (!wasrequested) {
-                    proxysock.readyForOutput(o.proxy_timeout); // exception on timeout or error
+                   if(! proxysock.breadyForOutput(o.proxy_timeout))
+                    cleanThrow("Error sending header to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
                     std::cerr << dbgPeerPort << "  got past line 1759 rfo " << std::endl;
 #endif
@@ -1765,24 +1852,27 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 } else {
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
                 }
-                try {
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Opening tunnel for CONNECT" << std::endl;
 #endif
                     fdt.reset(); // make a tunnel object
                     // tunnel from client to proxy and back - *true* two-way tunnel
-                    fdt.tunnel(proxysock, peerconn, true); // not expected to exception
+                if(!fdt.tunnel(proxysock, peerconn, true) )
+                    persistProxy = false;
+                    //cleanThrow("Error from 2 way tunnel", peerconn,proxysock);
                     docsize = fdt.throughput;
+                try {
                     String rtype(header.requestType());
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false,
                         0, isexception, false, &thestart,
                         cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
                         wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
-                    if (!persistProxy)
-                        proxysock.close(); // close connection to proxy
                 } catch (std::exception &e) {
                 }
+
+                if (!persistProxy)
+                    proxysock.close(); // close connection to proxy
 
                 if (persistPeer)
                     continue;
@@ -2053,7 +2143,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                             }
                                             // Send whole part upstream
                                             if (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1)
-                                                proxysock.writeToSockete(data, part->getLength(), 0, 20000);
+                                                if(!proxysock.writeToSocket(data, part->getLength(), 0, 20000))
+                                                    cleanThrow("Error sending post data to proxy", peerconn,proxysock);
                                         }
                                     } else {
                                         // Data could not be appended to the buffered POST part
@@ -2065,21 +2156,26 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                                             // Send what we've buffered so far, then delete the buffer
                                             part->finalise();
-                                            proxysock.writeToSockete(part->getData(), part->getLength(), 0, 20000);
+                                            if(!proxysock.writeToSocket(part->getData(), part->getLength(), 0, 20000))
+                                                cleanThrow("Error sending post data to proxy", peerconn,proxysock);
                                             part.reset();
                                         }
                                         // Send current chunk upstream directly
-                                        proxysock.writeToSockete(rolling_buffer.substr(0, loc).c_str(), loc, 0, 20000);
+                                        if(!proxysock.writeToSocket(rolling_buffer.substr(0, loc).c_str(), loc, 0, 20000))
+                                           cleanThrow("Error sending post data to proxy", peerconn,proxysock);
                                     }
                                     if (foundb) {
                                         if (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1) {
                                             // Regardless of whether we were buffering or streaming, send the
                                             // boundary and trailers upstream if this was the last chunk of a part
-                                            proxysock.writeToSockete(boundary.c_str(), boundary.length(), 0, 10000);
-                                            proxysock.writeToSockete(trailer.c_str(), trailer.length(), 0, 10000);
+                                            if(!proxysock.writeToSocket(boundary.c_str(), boundary.length(), 0, 10000))
+                                                cleanThrow("Error sending post data to proxy", peerconn,proxysock);
+                                            if(!proxysock.writeToSocket(trailer.c_str(), trailer.length(), 0, 10000))
+                                                cleanThrow("Error sending post data to proxy", peerconn,proxysock);
                                             // Include final CRLF (after the trailer) after last boundary
                                             if (last)
-                                                proxysock.writeToSockete("\r\n", 2, 0, 10000);
+                                                if(!proxysock.writeToSocket("\r\n", 2, 0, 10000))
+                                                    cleanThrow("Error sending post data to proxy", peerconn,proxysock);
                                         }
                                         part.reset(new BackedStore(o.max_content_ramcache_scan_size, o.max_content_filecache_scan_size));
                                     }
@@ -2096,18 +2192,21 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                         std::cout << dbgPeerPort << " -Preamble/first boundary passed; sending headers & first boundary upstream" << std::endl;
 #endif
                                         if (!wasrequested && (!checkme.isItNaughty || o.fg[filtergroup]->reporting_level == -1)) {
-                                            proxysock.readyForOutput(o.proxy_timeout);
+                                            if(!proxysock.breadyForOutput(o.proxy_timeout))
+                                            cleanThrow("Error sending headers to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
                                             std::cerr << dbgPeerPort << "  got past line 2098 rfo " << std::endl;
 #endif
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
                                             wasrequested = true;
-                                            proxysock.writeToSockete(boundary.c_str(), boundary.length(), 0, 10000);
-                                            proxysock.writeToSockete(trailer.c_str(), trailer.length(), 0, 10000);
+                                            if(!proxysock.writeToSocket(boundary.c_str(), boundary.length(), 0, 10000))
+                                                cleanThrow("Error sending headers to proxy", peerconn,proxysock);
+                                            if(!proxysock.writeToSocket(trailer.c_str(), trailer.length(), 0, 10000))
+                                                cleanThrow("Error sending headers  to proxy", peerconn,proxysock);
                                         }
                                         first = false;
-                                        // Clear out dummy log data so it can be filled in
+                                        // Clear out dummy log data so it can be filled in/
                                         // with info about each POST part individually
                                         postparts.clear();
                                         // For all boundaries after the first, include the leading CRLF
@@ -2173,9 +2272,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                             // Send rest of data upstream anyway if in stealth mode
                             if (o.fg[filtergroup]->reporting_level == -1) {
-                                proxysock.writeToSockete(rolling_buffer.c_str(), rolling_buffer.length(), 0, 10000);
+                                if(!proxysock.writeToSocket(rolling_buffer.c_str(), rolling_buffer.length(), 0, 10000))
+                                    cleanThrow("Error sending headers  to proxy", peerconn,proxysock);
                                 fdt.reset();
-                                fdt.tunnel(peerconn, proxysock, false, bytes_remaining, false);
+                                if(!fdt.tunnel(peerconn, proxysock, false, bytes_remaining, false) )
+                                     cleanThrow("Error in tunneling data", peerconn,proxysock);
+                                //persistProxy = false;
                                 // Also retrieve response headers, if wasrequested was set to true,
                                 // because nothing else will do so later on
                                 if (wasrequested) {
@@ -2353,7 +2455,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                     std::cerr << dbgPeerPort << " before 2352 rfo " << std::endl;
 #endif
-                    proxysock.readyForOutput(o.proxy_timeout);
+                    if(!proxysock.breadyForOutput(o.proxy_timeout))
+                        cleanThrow("Error sending headers to proxy", peerconn,proxysock);
+                    //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
                     std::cerr << dbgPeerPort << "  got past line 2352 rfo " << std::endl;
 #endif
@@ -2678,7 +2782,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             if (!wasrequested) {
-                proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+                if(!proxysock.breadyForOutput(o.proxy_timeout))
+                    cleanThrow("Error sending headers to proxy", peerconn,proxysock);
+                //proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
                 std::cerr << dbgPeerPort << "  got past line 2659 rfo " << std::endl;
 #endif
@@ -2696,7 +2802,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -sending header to client" << std::endl;
 #endif
-            peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
+            if(!peerconn.breadyForOutput(o.proxy_timeout))
+                cleanThrow("Error sending headers to client", peerconn,proxysock);
+            //peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
             std::cerr << dbgPeerPort << "  got past line 2677 rfo " << std::endl;
 #endif
@@ -2728,8 +2836,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
 
-                peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
-                if (peerconn.isNoOpp())  break;
+                if(!peerconn.breadyForOutput(o.proxy_timeout))
+                    cleanThrow("Error sending headers to client 2784", peerconn,proxysock);
+                //peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
+                //if (peerconn.isNoOpp())  break;
 #ifdef DGDEBUG
                 std::cerr << dbgPeerPort << "  got past line 2705 rfo " << std::endl;
 #endif
@@ -2802,7 +2912,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -1tunnel activated" << std::endl;
 #endif
-                    fdt.tunnel(proxysock, peerconn, false, docheader.contentLength() - docsize, true);
+                    if(!fdt.tunnel(proxysock, peerconn, false, docheader.contentLength() - docsize, true) )
+                        persistProxy = false;
+                        //  cleanThrow("Error in tunnel 1", peerconn,proxysock);
                     docsize += fdt.throughput;
                     String rtype(header.requestType());
                     if (!logged) {
@@ -2819,7 +2931,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -2tunnel activated" << std::endl;
 #endif
-                fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true);
+                if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true))
+                    persistProxy = false;
+                   // cleanThrow("Error in tunnel 1", peerconn,proxysock);
                 docsize = fdt.throughput;
                 String rtype(header.requestType());
                 if (!logged) {
@@ -2864,17 +2978,19 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
             //syslog(LOG_INFO, " -Attempting graceful connection close" );
             int fd = peerconn.getFD();
-            shutdown(fd, SHUT_WR);
-
-            char buff[2];
-            peerconn.readFromSocket(buff, 2, 0, 5000);
+            if (fd > -1) {
+                if (shutdown(fd, SHUT_WR) == 0) {
+                    char buff[2];
+                    peerconn.readFromSocket(buff, 2, 0, 5000);
+                };
+            };
 
             // close connection to the client
             peerconn.close();
             proxysock.close();
         } catch (std::exception &e) {
 #ifdef DGDEBUG
-            std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
+            std::cerr << dbgPeerPort << " -connection handler caught an exception on connection closedown: " << e.what() << std::endl;
 #endif
             // close connection to the client
             peerconn.close();
@@ -3581,15 +3697,18 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
 // the user is using the full whack of custom banned images and/or HTML templates
 #ifdef __SSLMITM
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow) {
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow)
 #else
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0)) {
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0))
 #endif
+        {
             // if reporting_level = 1 or 2 and headersent then we can't
             // send a redirect so we have to display the template instead
 
             (*proxysock).close(); // finished with proxy
-            (*peerconn).readyForOutput(o.proxy_timeout);
+            if(!(*peerconn).breadyForOutput(o.proxy_timeout))
+                cleanThrow("Error sending to client 3648", *peerconn,*proxysock);
+            //(*peerconn).readyForOutput(o.proxy_timeout);
 
 #ifdef __SSLMITM
             if ((*header).requestType().startsWith("CONNECT") && !(*peerconn).isSsl()) {
@@ -3670,10 +3789,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     writestring += "\nContent-Length: 0";
                     writestring += "\nCache-control: no-cache";
                     writestring += "\nConnection: close\n";
-                    try { // writestring throws exception on error/timeout
-                        (*peerconn).writeString(writestring.toCharArray());
-                    } catch (std::exception &e) {
-                    }
+                    //try { // writestring throws exception on error/timeout
+                        (*peerconn).writeString(writestring.toCharArray());   // ignore errors
+                    //} catch (std::exception &e) {
+                    //}
 #ifdef DGDEBUG // debug stuff surprisingly enough
                     std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
                     std::cout << dbgPeerPort << writestring << std::endl;
@@ -3691,10 +3810,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     writestring += "</H1>";
                     writestring += (*url);
                     writestring += "</BODY></HTML>\n";
-                    try { // writestring throws exception on error/timeout
-                        (*peerconn).writeString(writestring.toCharArray());
-                    } catch (std::exception &e) {
-                    }
+                    //try { // writestring throws exception on error/timeout
+                        (*peerconn).writeString(writestring.toCharArray());     // ignore errors
+                    //} catch (std::exception &e) {
+                    //}
                 }
 
             } else {
@@ -3730,12 +3849,12 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 // (or advanced ad block page, or HTML page with bypass URLs)
                 if (replaceimage) {
                     if (headersent == 0) {
-                        (*peerconn).writeString("HTTP/1.0 200 OK\n");
+                        (*peerconn).writeString("HTTP/1.0 200 OK\n");  // ignore errors
                     }
                     o.banned_image.display(peerconn);
                 } else if (replaceflash) {
                     if (headersent == 0) {
-                        (*peerconn).writeString("HTTP/1.0 200 OK\n");
+                        (*peerconn).writeString("HTTP/1.0 200 OK\n");  // ignore errors
                     }
                     o.banned_flash.display(peerconn);
                 } else {
@@ -3753,10 +3872,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         writestring += "\" TARGET=\"_BLANK\">";
                         writestring += o.language_list.getTranslation(1101); // advert blocked
                         writestring += "</A></FONT></CENTER></BODY></HTML>\n";
-                        try { // writestring throws exception on error/timeout
-                            (*peerconn).writeString(writestring.toCharArray());
-                        } catch (std::exception &e) {
-                        }
+           //             try { // writestring throws exception on error/timeout
+                            (*peerconn).writeString(writestring.toCharArray());  // ignore errors
+          //              } catch (std::exception &e) {
+            //            }
                     }
 
                     // Mod by Ernest W Lessenger Mon 2nd February 2004
@@ -3776,10 +3895,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         }
 
                         if (headersent == 0) {
-                            (*peerconn).writeString("HTTP/1.0 200 OK\n");
+                            (*peerconn).writeString("HTTP/1.0 200 OK\n");  // ignore errors
                         }
                         if (headersent < 2) {
-                            (*peerconn).writeString("Content-type: text/html\n\n");
+                            (*peerconn).writeString("Content-type: text/html\n\n");  // ignore errors
                         }
                         // if the header has been sent then likely displaying the
                         // template will break the download, however as this is
@@ -3816,7 +3935,9 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             }
 
             (*proxysock).close(); // finshed with proxy
-            (*peerconn).readyForOutput(o.proxy_timeout);
+            if(!(*peerconn).breadyForOutput(o.proxy_timeout))
+                cleanThrow("Error sending to client 3877", *peerconn,*proxysock);
+            //(*peerconn).readyForOutput(o.proxy_timeout);
             if ((*checkme).whatIsNaughty.length() > 2048) {
                 (*checkme).whatIsNaughty = String((*checkme).whatIsNaughty.c_str()).subString(0, 2048).toCharArray();
             }
@@ -3884,7 +4005,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 writestring += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
             }
             writestring += "\n\n";
-            (*peerconn).writeString(writestring.toCharArray());
+            if(!(*peerconn).writeString(writestring.toCharArray()))
+                cleanThrow("Error sending block screen to client", *peerconn, *proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
             std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
             std::cout << dbgPeerPort << writestring << std::endl;
@@ -3902,8 +4024,11 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             writestring += "</TITLE></HEAD><BODY><CENTER><H1>e2guardian - ";
             writestring += o.language_list.getTranslation(1); // access denied
             writestring += "</H1></CENTER></BODY></HTML>";
-            (*peerconn).readyForOutput(o.proxy_timeout);
-            (*peerconn).writeString(writestring.toCharArray());
+            if(!(*peerconn).breadyForOutput(o.proxy_timeout))
+                cleanThrow("Error sending to client 3965", *peerconn,*proxysock);
+            //(*peerconn).readyForOutput(o.proxy_timeout);
+            if(!(*peerconn).writeString(writestring.toCharArray()))
+                cleanThrow("Error sending to client 3974", *peerconn,*proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
             std::cout << dbgPeerPort << " -******* displaying:" << std::endl;
             std::cout << dbgPeerPort << writestring << std::endl;
@@ -3920,10 +4045,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
     // we blocked the request, so flush the client connection & close the proxy connection.
     if ((*checkme).isItNaughty) {
-        try {
-            (*peerconn).readyForOutput(o.proxy_timeout); //as best a flush as I can
-        } catch (std::exception &e) {
-        }
+  //      try {
+            (*peerconn).breadyForOutput(o.proxy_timeout); //as best a flush as I can
+  //      } catch (std::exception &e) {
+        //}
         (*proxysock).close(); // close connection to proxy
         // we said no to the request, so return true, indicating exit the connhandler
         return true;
@@ -4161,10 +4286,11 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     HTTPHeader header;
     header.setTimeout(o.pcon_timeout);
 
-    try {
-        sock->writeString(connect_request.c_str());
-        header.in(sock, true, true);
-    } catch (std::exception &e) {
+//    try {
+//        sock->writeString(connect_request.c_str());
+//        header.in(sock, true, true);
+//    } catch (std::exception &e) {
+        if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
 #ifdef DGDEBUG
         syslog(LOG_ERR, "Error creating tunnel through proxy\n");

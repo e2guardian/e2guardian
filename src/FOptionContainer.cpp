@@ -403,14 +403,6 @@ bool FOptionContainer::read(const char *filename)
 #ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
             ssl_mitm = true;
-            //			mitm_magic = findoptionS("mitmkey");
-            //if (mitm_magic.length() < 9) {
-            //std::string s(16u, ' ');
-            //for (int i = 0; i < 16; i++) {
-            //s[i] = (rand() % 26) + 'A';
-            //}
-            //mitm_magic = s;
-            //}
             if (findoptionS("onlymitmsslgrey") == "on") {
                 only_mitm_ssl_grey = true;
             } else {
@@ -424,9 +416,6 @@ bool FOptionContainer::read(const char *filename)
 
             if (findoptionS("mitmcheckcert") == "off")
                 mitm_check_cert = false;
-#ifdef DGDEBUG
-            std::cout << "Setting mitm_magic key to '" << mitm_magic << "'" << std::endl;
-#endif
         } else {
             ssl_mitm = false;
         }
@@ -663,11 +652,11 @@ bool FOptionContainer::read(const char *filename)
             // the e2guardian.conf and pics files get amalgamated into one
             // deque.  They are only seperate files for clarity.
 
-            if (findoptionS("enablepics") == "on") {
-                enable_PICS = true;
-            } else {
+//            if (findoptionS("enablepics") == "on") {
+                //.enable_PICS = true;
+            //} else {
                 enable_PICS = false;
-            }
+            //}
 
             if (findoptionS("ssllegacylogic") == "on") {
                 enable_ssl_legacy_logic = true;
@@ -693,40 +682,6 @@ bool FOptionContainer::read(const char *filename)
                 block_downloads = false;
             }
 
-            if (enable_PICS) {
-                linebuffer = findoptionS("picsfile");
-                std::ifstream picsfiles(linebuffer.c_str(), std::ios::in); // pics file
-                if (!picsfiles.good()) {
-                    if (!is_daemonised) {
-                        std::cerr << "Error reading PICS file: " << linebuffer << std::endl;
-                    }
-                    syslog(LOG_ERR, "Error reading PICS file: %s", linebuffer.c_str());
-                    return false;
-                }
-                while (!picsfiles.eof()) {
-                    getline(picsfiles, linebuffer);
-                    if (!picsfiles.eof() && linebuffer.length() != 0) {
-                        if (linebuffer[0] != '#') { // i.e. not commented out
-                            temp = (char *)linebuffer.c_str();
-                            if (temp.contains("#")) {
-                                temp = temp.before("#");
-                            }
-                            while (temp.endsWith(" ")) {
-                                temp.chop(); // get rid of spaces at end of line
-                            }
-                            linebuffer = temp.toCharArray();
-                            conffile.push_back(linebuffer); // stick option in deque
-                        }
-                    }
-                }
-                picsfiles.close();
-
-#ifdef DGDEBUG
-                std::cout << "Read PICS into memory" << std::endl;
-            } else {
-                std::cout << "PICS disabled" << std::endl;
-#endif
-            }
 
             // Support weighted phrase mode per group
             if (findoptionS("weightedphrasemode").length() > 0) {
@@ -791,91 +746,6 @@ bool FOptionContainer::read(const char *filename)
             std::string grey_ssl_site_list_location(findoptionS("greysslsitelist"));
 #ifdef __SSLMITM
             std::string no_check_cert_site_list_location(findoptionS("nocheckcertsitelist"));
-#endif
-            if (enable_PICS) {
-                pics_rsac_nudity = findoptionI("RSACnudity");
-                pics_rsac_language = findoptionI("RSAClanguage");
-                pics_rsac_sex = findoptionI("RSACsex");
-                pics_rsac_violence = findoptionI("RSACviolence");
-                pics_evaluweb_rating = findoptionI("evaluWEBrating");
-                pics_cybernot_sex = findoptionI("CyberNOTsex");
-                pics_cybernot_other = findoptionI("CyberNOTother");
-                pics_safesurf_agerange = findoptionI("SafeSurfagerange");
-                pics_safesurf_profanity = findoptionI("SafeSurfprofanity");
-                pics_safesurf_heterosexualthemes = findoptionI("SafeSurfheterosexualthemes");
-                pics_safesurf_homosexualthemes = findoptionI("SafeSurfhomosexualthemes");
-                pics_safesurf_nudity = findoptionI("SafeSurfnudity");
-                pics_safesurf_violence = findoptionI("SafeSurfviolence");
-                pics_safesurf_sexviolenceandprofanity = findoptionI("SafeSurfsexviolenceandprofanity");
-                pics_safesurf_intolerance = findoptionI("SafeSurfintolerance");
-                pics_safesurf_druguse = findoptionI("SafeSurfdruguse");
-                pics_safesurf_otheradultthemes = findoptionI("SafeSurfotheradultthemes");
-                pics_safesurf_gambling = findoptionI("SafeSurfgambling");
-                pics_icra_chat = findoptionI("ICRAchat");
-                pics_icra_moderatedchat = findoptionI("ICRAmoderatedchat");
-                pics_icra_languagesexual = findoptionI("ICRAlanguagesexual");
-                pics_icra_languageprofanity = findoptionI("ICRAlanguageprofanity");
-                pics_icra_languagemildexpletives = findoptionI("ICRAlanguagemildexpletives");
-                pics_icra_nuditygraphic = findoptionI("ICRAnuditygraphic");
-                pics_icra_nuditymalegraphic = findoptionI("ICRAnuditymalegraphic");
-                pics_icra_nudityfemalegraphic = findoptionI("ICRAnudityfemalegraphic");
-                pics_icra_nuditytopless = findoptionI("ICRAnuditytopless");
-                pics_icra_nuditybottoms = findoptionI("ICRAnuditybottoms");
-                pics_icra_nuditysexualacts = findoptionI("ICRAnuditysexualacts");
-                pics_icra_nudityobscuredsexualacts = findoptionI("ICRAnudityobscuredsexualacts");
-                pics_icra_nuditysexualtouching = findoptionI("ICRAnuditysexualtouching");
-                pics_icra_nuditykissing = findoptionI("ICRAnuditykissing");
-                pics_icra_nudityartistic = findoptionI("ICRAnudityartistic");
-                pics_icra_nudityeducational = findoptionI("ICRAnudityeducational");
-                pics_icra_nuditymedical = findoptionI("ICRAnuditymedical");
-                pics_icra_drugstobacco = findoptionI("ICRAdrugstobacco");
-                pics_icra_drugsalcohol = findoptionI("ICRAdrugsalcohol");
-                pics_icra_drugsuse = findoptionI("ICRAdrugsuse");
-                pics_icra_gambling = findoptionI("ICRAgambling");
-                pics_icra_weaponuse = findoptionI("ICRAweaponuse");
-                pics_icra_intolerance = findoptionI("ICRAintolerance");
-                pics_icra_badexample = findoptionI("ICRAbadexample");
-                pics_icra_pgmaterial = findoptionI("ICRApgmaterial");
-                pics_icra_violenceobjects = findoptionI("ICRAviolenceobjects");
-                pics_icra_violencerape = findoptionI("ICRAviolencerape");
-                pics_icra_violencetohumans = findoptionI("ICRAviolencetohumans");
-                pics_icra_violencetoanimals = findoptionI("ICRAviolencetoanimals");
-                pics_icra_violencetofantasy = findoptionI("ICRAviolencetofantasy");
-                pics_icra_violencekillinghumans = findoptionI("ICRAviolencekillinghumans");
-                pics_icra_violencekillinganimals = findoptionI("ICRAviolencekillinganimals");
-                pics_icra_violencekillingfantasy = findoptionI("ICRAviolencekillingfantasy");
-                pics_icra_violenceinjuryhumans = findoptionI("ICRAviolenceinjuryhumans");
-                pics_icra_violenceinjuryanimals = findoptionI("ICRAviolenceinjuryanimals");
-                pics_icra_violenceinjuryfantasy = findoptionI("ICRAviolenceinjuryfantasy");
-                pics_icra_violenceartisitic = findoptionI("ICRAviolenceartisitic");
-                pics_icra_violenceeducational = findoptionI("ICRAviolenceeducational");
-                pics_icra_violencemedical = findoptionI("ICRAviolencemedical");
-                pics_icra_violencesports = findoptionI("ICRAviolencesports");
-                pics_weburbia_rating = findoptionI("Weburbiarating");
-                pics_vancouver_multiculturalism = findoptionI("Vancouvermulticulturalism");
-                pics_vancouver_educationalcontent = findoptionI("Vancouvereducationalcontent");
-                pics_vancouver_environmentalawareness = findoptionI("Vancouverenvironmentalawareness");
-                pics_vancouver_tolerance = findoptionI("Vancouvertolerance");
-                pics_vancouver_violence = findoptionI("Vancouverviolence");
-                pics_vancouver_sex = findoptionI("Vancouversex");
-                pics_vancouver_profanity = findoptionI("Vancouverprofanity");
-                pics_vancouver_safety = findoptionI("Vancouversafety");
-                pics_vancouver_canadiancontent = findoptionI("Vancouvercanadiancontent");
-                pics_vancouver_commercialcontent = findoptionI("Vancouvercommercialcontent");
-                pics_vancouver_gambling = findoptionI("Vancouvergambling");
-
-                // new Korean PICS support
-                pics_icec_rating = findoptionI("ICECrating");
-                pics_safenet_nudity = findoptionI("SafeNetnudity");
-                pics_safenet_language = findoptionI("SafeNetlanguage");
-                pics_safenet_sex = findoptionI("SafeNetsex");
-                pics_safenet_violence = findoptionI("SafeNetviolence");
-                pics_safenet_gambling = findoptionI("SafeNetgambling");
-                pics_safenet_alcoholtobacco = findoptionI("SafeNetalcoholtobacco");
-            }
-#ifdef DGDEBUG
-            else
-                std::cout << "PICS disabled; options skipped" << std::endl;
 #endif
 
 #ifdef DGDEBUG
@@ -2041,20 +1911,6 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
 
 bool FOptionContainer::precompileregexps()
 {
-    if (!pics1.comp("pics-label\"[ \t]*content=[\'\"]([^>]*)[\'\"]")) {
-        if (!is_daemonised) {
-            std::cerr << "Error compiling RegExp pics1." << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error compiling RegExp pics1.");
-        return false;
-    }
-    if (!pics2.comp("[r|{ratings}] *\\(([^\\)]*)\\)")) {
-        if (!is_daemonised) {
-            std::cerr << "Error compiling RegExp pics2." << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error compiling RegExp pics2.");
-        return false;
-    }
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
         if (!is_daemonised) {
             std::cerr << "Error compiling RegExp isiphost." << std::endl;

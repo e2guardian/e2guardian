@@ -1,4 +1,3 @@
-// For all support, instructions and copyright go to:
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
@@ -57,15 +56,76 @@
 #include "Queue.hpp"
 #include "OptionContainer.hpp"
 
+#ifdef VALGRD
+  extern "C"
+  {
+    static void*
+    execute_native_thread_routine(void* __p)
+    {
+      std::thread::_Impl_base* __t = static_cast<std::thread::_Impl_base*>(__p);
+      std::thread::__shared_base_type __local;
+      __local.swap(__t->_M_this_ptr);
+
+      __try
+	{
+	  __t->_M_run();
+	}
+      __catch(const __cxxabiv1::__forced_unwind&)
+	{
+	  __throw_exception_again;
+	}
+      __catch(...)
+	{
+	  std::terminate();
+	}
+
+      return nullptr;
+    }
+  } // extern "C"
+
+
+  void
+  std::thread::_M_start_thread(__shared_base_type __b)
+  {
+    if (!__gthread_active_p())
+#if __cpp_exceptions
+      throw system_error(make_error_code(errc::operation_not_permitted),
+			 "Enable multithreading to use std::thread");
+#else
+      __throw_system_error(int(errc::operation_not_permitted));
+#endif
+
+    _M_start_thread(std::move(__b), nullptr);
+  }
+
+
+  void
+  std::thread::_M_start_thread(__shared_base_type __b, void (*)())
+  {
+    auto ptr = __b.get();
+    ptr->_M_this_ptr = std::move(__b);
+    int __e = __gthread_create(&_M_id._M_thread,
+			       &execute_native_thread_routine, ptr);
+    if (__e)
+    {
+      ptr->_M_this_ptr.reset();
+      __throw_system_error(__e);
+    }
+  }
+
+#endif
+
 // GLOBALS
 
 // these are used in signal handlers - "volatile" indicates they can change at
 // any time, and therefore value reading on them does not get optimised. since
 // the values can get altered by outside influences, this is useful.
-static volatile bool ttg = false;
-static volatile bool gentlereload = false;
+//static volatile bool ttg = false;
+std::atomic<bool> ttg;
+std::atomic<bool> logger_ttg;
+std::atomic<bool> gentlereload;
 static volatile bool sig_term_killall = false;
-volatile bool reloadconfig = false;
+std::atomic<bool> reloadconfig ;
 
 extern OptionContainer o;
 extern bool is_daemonised;
@@ -147,6 +207,7 @@ struct stat_rec {
     std::atomic<int> conx ; // num of client connections in stat interval
     time_t start_int; // time of start of this stat interval
     time_t end_int; // target end time of stat interval
+    std::atomic<int> maxusedfd; // max fd reached
     FILE *fs; // file stream
     void reset();
     void start();
@@ -171,12 +232,14 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s\n");
+            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s maxfd\n");
         } else {
-            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n",
+            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
+
                 o.dstat_location.c_str());
             o.dstat_log_flag = false;
         };
+        maxusedfd = 0;
         fflush(fs);
         umask(old_umask);
     };
@@ -188,12 +251,14 @@ void stat_rec::reset()
     int bc = busychildren;
     long cnx = (long)conx;
     long cps = cnx / (now - start_int);
-    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+    int mfd = maxusedfd;
+    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d %d\n", now, o.http_workers,
         bc,
         o.http_worker_Q->size(),
         o.log_Q->size(),
         cnx,
-        cps);
+        cps,
+        mfd);
     fflush(fs);
     clear();
     if ((end_int + o.dstat_interval) > now)
@@ -243,12 +308,12 @@ stat_rec *dystat = &dstat;
 
 // Signal handlers
 extern "C" {
-void sig_chld(int signo);
-void sig_term(int signo); // This is so we can kill our children
-void sig_termsafe(int signo); // This is so we can kill our children safer
-void sig_hup(int signo); // This is so we know if we should re-read our config.
-void sig_usr1(int signo); // This is so we know if we should re-read our config but not kill current connections
-void sig_childterm(int signo);
+//void sig_chld(int signo);
+//void sig_term(int signo); // This is so we can kill our children
+//void sig_termsafe(int signo); // This is so we can kill our children safer
+//void sig_hup(int signo); // This is so we know if we should re-read our config.
+//void sig_usr1(int signo); // This is so we know if we should re-read our config but not kill current connections
+//void sig_childterm(int signo);
 #ifdef ENABLE_SEGV_BACKTRACE
 void sig_segv(int signo, siginfo_t *info, void *secret); // Generate a backtrace on segfault
 #endif
@@ -262,10 +327,6 @@ bool daemonise();
 // create specified amount of child threads
 
 //void handle_connections(int tindex);  // needs changing to be threadish
-// tell a non-busy child process to accept the incoming connection
-//void tellchild_accept(int num, int whichsock);
-// child process accept()s connection from server socket
-//bool getsock_fromparent(UDSocket &fd);
 
 // setuid() to proxy user (not just seteuid()) - used by child processes & logger/URL cache for security & resource usage reasons
 bool drop_priv_completely();
@@ -275,36 +336,36 @@ bool drop_priv_completely();
 // signal handlers
 extern "C" { // The kernel knows nothing of objects so
 // we have to have a lump of c
-void sig_term(int signo)
-{
-    sig_term_killall = true;
-    ttg = true; // its time to go
-}
-void sig_termsafe(int signo)
-{
-    ttg = true; // its time to go
-}
-void sig_hup(int signo)
-{
-    reloadconfig = true;
-#ifdef DGDEBUG
-    std::cout << "HUP received." << std::endl;
-#endif
-}
-void sig_usr1(int signo)
-{
-    gentlereload = true;
-#ifdef DGDEBUG
-    std::cout << "USR1 received." << std::endl;
-#endif
-}
-void sig_childterm(int signo)
-{
-#ifdef DGDEBUG
-    std::cout << "TERM received." << std::endl;
-#endif
-    _exit(0);
-}
+//void sig_term(int signo)
+//{
+    //sig_term_killall = true;
+    //ttg = true; // its time to go
+//}
+//void sig_termsafe(int signo)
+//{
+    //ttg = true; // its time to go
+//}
+//void sig_hup(int signo)
+//{
+    //reloadconfig = true;
+//#ifdef DGDEBUG
+    //std::cout << "HUP received." << std::endl;
+//#endif
+//}
+//void sig_usr1(int signo)
+//{
+    //gentlereload = true;
+//#ifdef DGDEBUG
+    //std::cout << "USR1 received." << std::endl;
+//#endif
+//}
+//void sig_childterm(int signo)
+//{
+//#ifdef DGDEBUG
+    //std::cout << "TERM received." << std::endl;
+//#endif
+    //_exit(0);
+//}
 #ifdef ENABLE_SEGV_BACKTRACE
 void sig_segv(int signo, siginfo_t *info, void *secret)
 {
@@ -319,9 +380,9 @@ void sig_segv(int signo, siginfo_t *info, void *secret)
     syslog(LOG_ERR, "SEGV received: memory address %p, RIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_RIP]));
 #endif
     // Generate backtrace
-    void *addresses[10];
+    void *addresses[20];
     char **strings;
-    int c = backtrace(addresses, 10);
+    int c = backtrace(addresses, 20);
 // Overwrite call to sigaction with caller's address
 // to give a more useful backtrace
 #ifdef REG_EIP
@@ -337,7 +398,7 @@ void sig_segv(int signo, siginfo_t *info, void *secret)
         syslog(LOG_ERR, "%s", strings[i]);
     }
     // Kill off the current process
-    raise(SIGTERM); // Do we want to do this?
+    //raise(SIGTERM); // Do we want to do this?
 }
 #endif
 }
@@ -389,15 +450,16 @@ void flush_urlcache()
         return;
     }
     String request("f\n");
-    try {
-        fipcsock.writeString(request.toCharArray()); // throws on err
-    } catch (std::exception &e) {
+//    try {
+//        fipcsock.writeString(request.toCharArray()); // throws on err
+//    } catch (std::exception &e) {
+        if(!fipcsock.writeString(request.toCharArray()))  {
 #ifdef DGDEBUG
         std::cerr << "Exception flushing url cache" << std::endl;
-        std::cerr << e.what() << std::endl;
+        //std::cerr << e.what() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", "Exception flushing url cache");
-        syslog(LOG_ERR, "%s", e.what());
+       // syslog(LOG_ERR, "%s", e.what());
     }
 }
 #endif
@@ -457,12 +519,12 @@ bool daemonise()
 
 // *
 // *
-// *  child process code
+// *  worker thread code
 // *
 // *
 // cleaning up for brand new child processes - only the parent needs the signal handlers installed, and so forth
 
-// handle any connections received by this child (also tell parent we're ready each time we become idle)
+// handle any connections received by this thread
 void handle_connections(int tindex)
 {
     ConnectionHandler h; // the class that handles the connections
@@ -473,7 +535,7 @@ void handle_connections(int tindex)
     std::cerr << " in  handle connection"  << std::endl;
 #endif
     std::thread::id this_id = std::this_thread::get_id();
-    reloadconfig = false;
+    //reloadconfig = false;
     while (true)
     {
 #ifdef DGDEBUG
@@ -484,6 +546,11 @@ void handle_connections(int tindex)
         std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
 #endif
         String peersockip = peersock->getPeerIP();
+        if (peersock->getFD() < 0 || peersockip.length() < 7) {
+//            if (o.logconerror)
+                syslog(LOG_INFO, "Error accepting. (Ignorable)");
+            continue;
+        }
         ++busychildren;
         ++dystat->conx;
 
@@ -499,7 +566,7 @@ void handle_connections(int tindex)
 
 // *
 // *
-// * end of child process code
+// * end of worker thread code
 // *
 // *
 
@@ -613,25 +680,6 @@ void wait_for_proxy()
 }
 
 
-//void reset_childstats()
-//{
-    //int i;
-    //busychildren = 0;
- //   numchildren = 0;
-  //  freechildren = 0;
-   // waitingfor = 0;
-   // for (i = 0; i < top_child_fds; i++) {
-    //    if (childrenstates[i] == 1 || childrenstates[i] == 2)
-     //       busychildren++;
-      //  if (childrenstates[i] == 4) {
-       //     busychildren++;
-        //    waitingfor++;
-        //}
-        //if (childrenstates[i] == 0)
-            //freechildren++;
-        //if (childrenstates[i] > -1)
-            //numchildren++;
-    //}
 // *
 // *
 // * logger, IP list and URL cache main loops
@@ -1239,17 +1287,31 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
 
 void accept_connections(int index) // thread to listen on a single listening socket
 {
-    while (true)
+    int errorcount = 0;
+    while ((errorcount < 30) && !ttg)
     {
         Socket *peersock = serversockets[index]->accept();
+        int err = serversockets[index]->getErrno();
+        if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
 #ifdef DGDEBUG
-        std::cout << "got connection from accept" << std::endl;
+            std::cout << "got connection from accept" << std::endl;
 #endif
-        o.http_worker_Q->push(peersock);
+            if (peersock->getFD() > dstat.maxusedfd)  dstat.maxusedfd = peersock->getFD();
+            errorcount = 0;
+            o.http_worker_Q->push(peersock);
 #ifdef DGDEBUG
-        std::cout << "pushed connection to http_worker_Q" << std::endl;
+            std::cout << "pushed connection to http_worker_Q" << std::endl;
 #endif
+        } else {
+#ifdef DGDEBUG
+            std::cout << "Error on accept: errorcount " << errorcount << " errno: " << err << std::endl;
+#endif
+            syslog(LOG_ERR, "Error %d on accept: errorcount %d", err, errorcount);
+            ++errorcount;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
     };
+    if (!ttg) syslog(LOG_ERR, "Error count on accept exceeds 30");
 }
 
 #ifdef NOTDEF   //leave till later
@@ -1548,12 +1610,16 @@ int fc_controlit()   //
 {
     int rc;
     bool is_starting = true;
+    ttg = false;
+    logger_ttg = false;
+    reloadconfig = false;
+    gentlereload = false;
 
     o.lm.garbageCollect();
 
 // Create Qs
 //    o.log_Q = new Queue<std::string>;
-  //  o.http_worker_Q = new Queue<Socket>;
+    //  o.http_worker_Q = new Queue<Socket>;
 
     // allocate & create our server sockets
     if (o.map_ports_to_ips) {
@@ -1568,7 +1634,7 @@ int fc_controlit()   //
 
     serversockets.reset(serversocketcount);
     int *serversockfds = serversockets.getFDAll();
-    std::thread* listen_treads[serversocketcount];
+    std::thread *listen_treads[serversocketcount];
     for (int i = 0; i < serversocketcount; i++) {
         // if the socket fd is not +ve then the socket creation failed
         if (serversockfds[i] < 0) {
@@ -1618,7 +1684,8 @@ int fc_controlit()   //
     if (o.filter_ip[0].length() > 6) {
         if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server socket (is something else running on the filter port and ip?" << std::endl;
+                std::cerr << "Error binding server socket (is something else running on the filter port and ip?"
+                          << std::endl;
             }
             syslog(LOG_ERR, "Error binding server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
@@ -1630,7 +1697,8 @@ int fc_controlit()   //
         if (o.map_ports_to_ips) {
             if (serversockets.bindSingle(o.filter_port)) {
                 if (!is_daemonised) {
-                    std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
+                    std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
+                              << std::endl;
                 }
                 syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
                 close(pidfilefd);
@@ -1651,7 +1719,7 @@ int fc_controlit()   //
     }
 
 // Made unconditional for same reasons as above
-//if (needdrop) {
+//if (needdrop)
 #ifdef HAVE_SETREUID
     rc = setreuid((uid_t)-1, o.proxy_user);
 #else
@@ -1731,7 +1799,7 @@ int fc_controlit()   //
     // Threads are created for logger, a separate thread for each listening port
     // and an array of worker threads to deal with the work.
     if (!o.no_logger) {
-        std::thread log_thread (log_listener,o.log_location, o.logconerror, o.log_syslog);
+        std::thread log_thread(log_listener, o.log_location, o.logconerror, o.log_syslog);
         log_thread.detach();
 #ifdef DGDEBUG
         std::cout << "log_listener thread created" << std::endl;
@@ -1813,14 +1881,14 @@ int fc_controlit()   //
     pthread_t signal_thread_id;
     struct timespec timeout;
     int stat;
-    //sigemptyset(&signal_set);
+    sigemptyset(&signal_set);
     //sigfillset(&signal_set);
     sigaddset(&signal_set, SIGHUP);
     sigaddset(&signal_set, SIGPIPE);
     sigaddset(&signal_set, SIGTERM);
     sigaddset(&signal_set, SIGUSR1);
     stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
-    if ( stat != 0) {
+    if (stat != 0) {
         syslog(LOG_ERR, "Error setting sigmask");
         return 1;
     }
@@ -1836,17 +1904,17 @@ int fc_controlit()   //
 
     // worker thread generation
     //std::thread* http_wt[o.http_workers];
-    std::vector<std::thread> http_wt;
+    std::vector <std::thread> http_wt;
     http_wt.reserve(o.http_workers);
 
     int i;
-   for (  i = 0; i < o.http_workers; i++) {
+    for (i = 0; i < o.http_workers; i++) {
 #ifdef DGDEBUG
-//        std::cout << "creating http_worker thread " << i << std::endl;
+        //        std::cout << "creating http_worker thread " << i << std::endl;
 #endif
-       http_wt.push_back(std::thread(handle_connections, i));
+        http_wt.push_back(std::thread(handle_connections, i));
     }
-    for (  auto&  i : http_wt) {
+    for (auto &i : http_wt) {
         i.detach();
     }
 #ifdef DGDEBUG
@@ -1855,14 +1923,14 @@ int fc_controlit()   //
 
     //   set listener threads going
 
-    std::vector<std::thread> listen_threads;
+    std::vector <std::thread> listen_threads;
     listen_threads.reserve(serversocketcount);
     for (int i = 0; i < serversocketcount; i++) {
         listen_threads.push_back(std::thread(accept_connections, i));
 
         //listen_treads[i]->detach();
     }
-    for (  auto&  i : listen_threads) {
+    for (auto &i : listen_threads) {
         i.detach();
     }
 #ifdef DGDEBUG
@@ -1915,7 +1983,8 @@ int fc_controlit()   //
             } else {
                 if (o.use_filter_groups_list) {
                     o.filter_groups_list.reset();
-                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true))
+                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list),
+                                          "filtergroupslist", true))
                         reloadconfig = true; // filter groups problem...
                 }
                 if (!reloadconfig) {
@@ -1952,7 +2021,7 @@ int fc_controlit()   //
             }
             continue;
         }
-        timeout.tv_sec = 10;
+        timeout.tv_sec = 5;
         timeout.tv_nsec = (long) 0;
         rc = sigtimedwait(&signal_set, NULL, &timeout);
         if (rc < 0) {
@@ -1972,13 +2041,13 @@ int fc_controlit()   //
             syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
         }
         //		freechildren = numchildren - busychildren;
-int q_size = o.http_worker_Q->size();
+        int q_size = o.http_worker_Q->size();
 #ifdef DGDEBUG
         std::cout << "busychildren:" << busychildren << std::endl;
         std::cout << "worker Q size:" << q_size << std::endl;
 #endif
 
-  //      if (is_starting)
+        //      if (is_starting)
 
         time_t now = time(NULL);
 
@@ -1987,10 +2056,10 @@ int q_size = o.http_worker_Q->size();
             dystat->reset();
     }
     //if (o.monitor_helper_flag)
-     //   tell_monitor(false); // tell monitor that we are not accepting any more connections
+    //   tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     //if (o.monitor_flag_flag)
-     //   monitor_flag_set(false);
+    //   monitor_flag_set(false);
 
 
     serversockets.deleteAll();

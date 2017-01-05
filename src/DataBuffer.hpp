@@ -46,7 +46,7 @@ class DataBuffer
     // gives true if it pauses due to too much data
     bool in(Socket *sock, Socket *peersock, class HTTPHeader *requestheader, class HTTPHeader *docheader, bool runav, int *headersent);
     // send body to client
-    void out(Socket *sock); //throw(std::exception);
+    bool out(Socket *sock); //throw(std::exception);
 
     void setTimeout(int t)
     {
