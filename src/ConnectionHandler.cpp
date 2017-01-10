@@ -1321,8 +1321,24 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                 if(!header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                     cleanThrow("Unable to write header to proxy",peerconn, proxysock);
-                if(!docheader.in(&proxysock, persistOutgoing))
-                     cleanThrow("Unable to read header from proxy",peerconn, proxysock);
+                if(!docheader.in(&proxysock, persistOutgoing)) {
+                    if (proxysock.isTimedout()) {
+                        message_no = 200;
+                        peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
+                        peerconn.writeString(
+                                "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
+                        peerconn.writeString(o.language_list.getTranslation(200));
+                        peerconn.writeString("</BODY></HTML>\n");
+                    } else {
+                        message_no = 200;
+                        peerconn.writeString("HTTP/1.0 502 Gateway Error\nContent-Type: text/html\n\n");
+                        peerconn.writeString(
+                                "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
+                        peerconn.writeString(o.language_list.getTranslation(200));
+                        peerconn.writeString("</BODY></HTML>\n");
+                        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
+                    }
+                }
                 persistProxy = docheader.isPersistent();
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
@@ -2885,7 +2901,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -sending body to client" << std::endl;
 #endif
-                    syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
+       //             syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
                     try {docbody.out(&peerconn);} // send doc body to client
                          catch (std::exception &e) {
                              //syslog(LOG_INFO, " -problem sending body to client %d", dbgPeerPort);

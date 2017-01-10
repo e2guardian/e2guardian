@@ -1939,8 +1939,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 #ifdef DGDEBUG
         std::cout << "header:in after getLine " << std::endl;
 #endif
-        if (rc < 0) return false;
-        if (truncated)  return false;
+        if (rc < 0 || truncated) {
+            ispersistent = false;
+            return false;
+        }
      //       throw std::exception();
 
         // getline will throw an exception if there is an error which will
