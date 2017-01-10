@@ -9,6 +9,8 @@ struct ca_serial {
     char *filename;
 };
 
+void log_ssl_errors( const char *mess, const char *site);
+
 class CertificateAuthority
 {
 

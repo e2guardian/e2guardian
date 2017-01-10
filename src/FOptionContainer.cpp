@@ -411,6 +411,10 @@ bool FOptionContainer::read(const char *filename)
 
             if (findoptionS("mitmcheckcert") == "off")
                 mitm_check_cert = false;
+
+            allow_empty_host_certs = false;
+            if (findoptionS("allowemptyhostcert") == "on")
+                allow_empty_host_certs = true;
         } else {
             ssl_mitm = false;
         }

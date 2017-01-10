@@ -225,6 +225,7 @@ public:
     std::deque <RegExp> url_redirect_regexp_list_comp;
     std::deque <String> url_redirect_regexp_list_rep;
     bool url_redirect_regexp_flag;
+    bool allow_empty_host_certs;
 
     // regex match lists
     std::deque <RegExp> banned_regexpurl_list_comp;
@@ -340,6 +341,7 @@ public:
     bool isIPHostname(String url);
     bool addheader_regexp_flag; // public as used by HTTPHeader.cpp
     bool search_regexp_flag; // public as used by HTTPHeader.cpp
+    bool sslsite_regexp_flag;// public as used by HTTPHeader.cpp
 
     // log-only lists - return category
     const char *inLogURLList(String url, String &lastcat);
@@ -368,7 +370,6 @@ public:
     bool banned_regexpheader_flag;
     bool content_regexp_flag;
     bool url_regexp_flag;
-    bool sslsite_regexp_flag;
     bool header_regexp_flag;
     bool exception_extension_flag;
     bool exception_mimetype_flag;

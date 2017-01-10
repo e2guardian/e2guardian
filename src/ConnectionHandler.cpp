@@ -1627,6 +1627,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                     if(!proxysock.breadyForOutput(o.proxy_timeout))
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
+                    if (isconnect)
+                        header.sslsiteRegExp(filtergroup);
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                         cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
                     //check the response headers so we can go ssl
@@ -4358,6 +4360,8 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     //check that everything in this certificate is correct appart from the hostname
     if (rc < 0) {
         //no certificate
+        if ( o.fg[filtergroup]->allow_empty_host_certs)
+            return;
         checkme->isItNaughty = true;
         //(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
         checkme->message_no = 155;

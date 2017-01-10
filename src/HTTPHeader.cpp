@@ -662,6 +662,29 @@ bool HTTPHeader::urlRegExp(int filtergroup)
     return false;
 }
 
+
+// Perform searches and replacements on SSL site names
+bool HTTPHeader::sslsiteRegExp(int filtergroup)
+{
+    // exit immediately if list is empty
+    if ( ! o.fg[filtergroup]->sslsite_regexp_flag)
+        return false;
+    if (not o.fg[filtergroup]->sslsite_regexp_list_comp.size())
+        return false;
+#ifdef DGDEBUG
+    std::cout << "Starting SSL site reg exp replace" << std::endl;
+#endif
+    String newUrl(getUrl());
+#ifdef DGDEBUG
+    std::cout << "getUrl returns " << newUrl << std::endl;
+#endif
+    if (regExp(newUrl, o.fg[filtergroup]->sslsite_regexp_list_comp, o.fg[filtergroup]->sslsite_regexp_list_rep)) {
+        setURL(newUrl);
+        return true;
+    }
+    return false;
+}
+
 // Perform searches and replacements on URL for redirect
 bool HTTPHeader::urlRedirectRegExp(int filtergroup)
 {

@@ -27,6 +27,7 @@
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 #include "String.hpp"
+#include "CertificateAuthority.hpp"
 #endif
 
 #ifdef __SSLMITM
@@ -245,6 +246,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         stopSsl();
     }
 
+    ERR_clear_error();
     ctx = SSL_CTX_new(SSLv23_client_method());
     if (ctx == NULL) {
 //needed to get the errors when creating ctx
@@ -254,6 +256,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << "Error ssl context is null (check that openssl has been inited)" << std::endl;
 #endif
+        log_ssl_errors("Error ssl context is null for %s", hostname.c_str());
         return -1;
     }
 
@@ -263,13 +266,16 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     }
 
     //load certs
+    ERR_clear_error();
     if (certificate_path.length()) {
         if (!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str())) {
 #ifdef DGDEBUG
             std::cout << "couldnt load certificates" << std::endl;
 #endif
+            log_ssl_errors("couldnt load certificates from %s", certificate_path.c_str());
             //tidy up
             SSL_CTX_free(ctx);
+            ctx = NULL;
             return -2;
         }
     } else if (!SSL_CTX_set_default_verify_paths(ctx)) //use default if no certPpath given
@@ -277,24 +283,32 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
 #ifdef DGDEBUG
         std::cout << "couldnt load certificates" << std::endl;
 #endif
+            log_ssl_errors("couldnt load default certificates for %s", hostname.c_str());
         //tidy up
         SSL_CTX_free(ctx);
+        ctx = NULL;
         return -2;
     }
 
     // add validation params
+    ERR_clear_error();
     X509_VERIFY_PARAM *x509_param = X509_VERIFY_PARAM_new();
     if (!x509_param) {
+        log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
         return -2;
     }
 
+    ERR_clear_error();
     if (!X509_VERIFY_PARAM_set_flags(x509_param, X509_V_FLAG_TRUSTED_FIRST)) {
+        log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
         return -2;
     }
 
+    ERR_clear_error();
     if (!SSL_CTX_set1_param(ctx, x509_param)) {
+        log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
         return -2;
     }
@@ -302,6 +316,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     X509_VERIFY_PARAM_free(x509_param);
 
     //hand socket over to ssl lib
+    ERR_clear_error();
     ssl = SSL_new(ctx);
     SSL_set_options(ssl, SSL_OP_ALL);
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
@@ -314,16 +329,19 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     //make io non blocking as select wont tell us if we can do a read without blocking
     //BIO_set_nbio(SSL_get_rbio(ssl),1l);
     //BIO_set_nbio(SSL_get_wbio(ssl),1l);
+    ERR_clear_error();
     int rc = SSL_connect(ssl);
     if (rc < 0) {
-        ERR_print_errors_fp(stderr);
-//printerr(strerror(errno));
+        //ERR_print_errors_fp(stderr);
+        log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
 #ifdef DGDEBUG
         std::cout << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
 #endif
         // tidy up
         SSL_free(ssl);
+        ssl = NULL;
         SSL_CTX_free(ctx);
+        ctx = NULL;
         return -3;
     }
 
@@ -586,6 +604,9 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         stopSsl();
     }
 
+    // set ssl to NULL
+    ssl = NULL;
+
     //setup the ssl server ctx
     ctx = SSL_CTX_new(SSLv23_server_method());
     if (ctx == NULL) {
@@ -623,28 +644,36 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     }
 
     //setup the ssl session
+    ERR_clear_error();
     ssl = SSL_new(ctx);
     SSL_set_options(ssl, SSL_OP_ALL);
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
     SSL_set_accept_state(ssl);
 
+    ERR_clear_error();
     SSL_set_fd(ssl, this->getFD());
 
     //make io non blocking as select wont tell us if we can do a read without blocking
 
+    ERR_clear_error();
     if (SSL_accept(ssl) < 0) {
 #ifdef DGDEBUG
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << "Error accepting ssl connection" << std::endl;
 #endif
+        log_ssl_errors("ssl_accept failed to client %s", "");
+        stopSsl();
         return -1;
     }
 
+    ERR_clear_error();
     if (SSL_do_handshake(ssl) < 0) {
 #ifdef DGDEBUG
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << "Error doing ssl handshake" << std::endl;
 #endif
+        log_ssl_errors("ssl_handshake failed to client %s", "");
+        stopSsl();
         return -1;
     }
     isssl = true;
@@ -672,9 +701,10 @@ bool Socket::checkForInput()
     }
 
     //see if we can do an ssl read of 1 byte
-    char buf[1];
+//    char buf[1];
 
-    int rc = SSL_peek(ssl, buf, 1);
+    //int rc = SSL_peek(ssl, buf, 1);
+    int rc = SSL_pending(ssl);
 
     if (rc < 1) {
 #ifdef DGDEBUG
@@ -788,6 +818,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
    //             continue;
     //        }
             std::cout << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
+            log_ssl_errors("ssl_read failed %s", "");
             return -1;
 //            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
         }
@@ -854,12 +885,14 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
       //          return false;
        //     }
      //   }
+        ERR_clear_error();
         sent = SSL_write(ssl, buff + actuallysent, len - actuallysent);
         if (sent < 0) {
     //        if (errno == EINTR ) {
     //            continue; // was interupted by signal so restart
     //        }
             s_errno = errno;
+            log_ssl_errors("ssl_write failed %s", "");
             return false;
         }
         if (sent == 0) {
@@ -902,6 +935,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
     //    } catch (std::exception &e) {
      //       return -1;
      //   }
+        ERR_clear_error();
         rc = SSL_read(ssl, buff, cnt);
 #ifdef DGDEBUG
         std::cout << "ssl read said: " << rc << std::endl;
@@ -911,6 +945,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
        //     if (errno == EINTR) {
          //       continue;
            // }
+            log_ssl_errors("ssl_read failed %s", "");
            s_errno = errno;
             return -1;
         }
@@ -958,6 +993,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
   //  }
     while (true) {
 
+        ERR_clear_error();
         rc = SSL_read(ssl, buff, cnt);
 
         if (rc < 0) {
@@ -965,6 +1001,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
          //       continue;
            // }
             s_errno = errno;
+            log_ssl_errors("ssl_read failed %s", "");
             return -1;
         }
         break;
