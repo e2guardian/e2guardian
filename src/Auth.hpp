@@ -49,7 +49,7 @@ class AuthPlugin : public Plugin
     // REDIRECT - redirect user to URL in string
     // NOMATCH - did not find the necessary info in the request (query remaining plugins)
     // any < 0 - error
-    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string) = 0;
+    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user) = 0;
 
     // determine what filter group the given username is in
     // queries the standard filtergroupslist

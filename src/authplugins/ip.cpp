@@ -78,7 +78,7 @@ class ipinstance : public AuthPlugin
             is_connection_based = true;
     };
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
     int determineGroup(std::string &user, int &fg);
 
     int init(void *args);
@@ -139,7 +139,7 @@ int ipinstance::init(void *args)
 // IP-based filter group determination
 // never actually return NOUSER from this, because we don't actually look in the filtergroupslist.
 // NOUSER stops ConnectionHandler from querying subsequent plugins.
-int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string)
+int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
 {
     // we don't get usernames out of this plugin, just a filter group
     // for now, use the IP as the username

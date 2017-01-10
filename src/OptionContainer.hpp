@@ -121,6 +121,8 @@ class OptionContainer
     std::string dstat_location;
     bool dstat_log_flag;
     int dstat_interval;
+    bool dns_user_logging;
+    std::string dns_user_logging_domain;
 
     // Hardware/organisation/etc. IDs
     std::string logid_1;

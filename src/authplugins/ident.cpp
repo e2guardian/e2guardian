@@ -26,7 +26,7 @@ class identinstance : public AuthPlugin
     public:
     identinstance(ConfigVar &definition)
         : AuthPlugin(definition){};
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
 };
 
 // IMPLEMENTATION
@@ -42,7 +42,7 @@ AuthPlugin *identcreate(ConfigVar &definition)
 
 // ident server username extraction
 // checkme: needs better error reporting
-int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string)
+int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
 {
     std::string clientip;
     bool use_xforwardedfor;

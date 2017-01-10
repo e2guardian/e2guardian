@@ -15,6 +15,8 @@
 #include "ImageContainer.hpp"
 #include "FDFuncs.hpp"
 #include <signal.h>
+#include <arpa/nameser.h>
+#include <resolv.h>
 
 #ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
@@ -367,6 +369,7 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
 int ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 {
     persistent_authed = false;
+    is_real_user = false;
 
 //#ifdef DGDEBUG
     // for debug info only - TCP peer port
@@ -733,12 +736,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             }
 
                             if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
-                                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
+                                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user);
                             } else {
                                 rc = DGAUTH_NOMATCH;
                             }
                         } else {
-                            rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
+                            rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user);
                         }
 
                         if (rc == DGAUTH_NOMATCH) {
@@ -3118,6 +3121,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
             what.resize(o.max_logitem_length);
         if (where.length() > o.max_logitem_length)
             where.limitLength(o.max_logitem_length);
+        if (o.dns_user_logging && !is_real_user) {
+            String user;
+            if (getdnstxt(from,user)) {
+                who = who + ":" + user;
+            };
+            is_real_user = true;    // avoid looping on persistent connections
+        };
 
 #ifdef DGDEBUG
         std::cout << dbgPeerPort << " -Building raw log data string... ";
@@ -4398,3 +4408,112 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
 }
 #endif //__SSLMITM
 
+
+bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
+{
+
+    String ippath;
+
+    ippath = clientip;
+//    if (o.use_xforwardedfor) {
+//        // grab the X-Forwarded-For IP if available
+//        p2 = header.getXForwardedForIP();
+//        if (p2.length() > 0) {
+//            ippath = p1 + "-" + p2;
+//        } else {
+//            ippath = p1;
+//        }
+//    } else {
+//        ippath = p1;
+//    }
+
+#ifdef DGDEBUG
+    std::cout << "IPPath is " << ippath << std::endl;
+#endif
+
+    // change '.' to '-'
+    ippath.swapChar('.', '-');
+#ifdef DGDEBUG
+    std::cout << "IPPath is " << ippath << std::endl;
+#endif
+
+    // get info from DNS
+    union {
+        HEADER hdr;
+        u_char buf[NS_PACKETSZ];
+    } response;
+    int responseLen;
+
+    ns_msg handle; /* handle for response message */
+    responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
+    if (responseLen < 0) {
+#ifdef DGDEBUG
+        std::cout << "DNS query returned error " << dns_error(h_errno) << std::endl;
+#endif
+        return false;
+    }
+    if (ns_initparse(response.buf, responseLen, &handle) < 0) {
+#ifdef DGDEBUG
+        std::cout << "ns_initparse returned error " << strerror(errno) << std::endl;
+#endif
+        return false;
+    }
+
+    int rrnum; /* resource record number */
+    ns_rr rr; /* expanded resource record */
+    u_char *cp;
+    char ans[MAXDNAME];
+
+    int i = ns_msg_count(handle, ns_s_an);
+    if (i > 0) {
+        if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
+#ifdef DGDEBUG
+            std::cout << "ns_paserr returned error " << strerror(errno) << std::endl;
+#endif
+            return false;
+        } else {
+            if (ns_rr_type(rr) == ns_t_txt) {
+#ifdef DGDEBUG
+                std::cout << "ns_rr_rdlen returned " << ns_rr_rdlen(rr) << std::endl;
+#endif
+                u_char *k = (u_char *)ns_rr_rdata(rr);
+                char p[400];
+                unsigned int j = 0;
+                for (unsigned int j1 = 1; j1 < ns_rr_rdlen(rr); j1++) {
+                    p[j++] = k[j1];
+                }
+                p[j] = (char)NULL;
+#ifdef DGDEBUG
+                std::cout << "ns_rr_data returned " << p << std::endl;
+#endif
+                String dnstxt(p);
+                user = dnstxt.before(",");
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+String ConnectionHandler::dns_error(int herror)
+{
+
+    String s;
+
+    switch (herror) {
+        case HOST_NOT_FOUND:
+            s = "HOST_NOT_FOUND";
+            break;
+        case TRY_AGAIN:
+            s = "TRY_AGAIN - DNS server failure";
+            break;
+        case NO_DATA:
+            s = "NO_DATA - unexpected DNS error";
+            break;
+        default:
+            String S2(herror);
+            s = "DNS - Unexpected error number " + S2;
+            break;
+    }
+    return s;
+}

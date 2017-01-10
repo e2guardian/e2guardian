@@ -61,6 +61,7 @@ class ConnectionHandler
     bool matchedip;
     bool persistent_authed;
     bool overide_persist;
+    bool is_real_user;
 
     std::string clientuser;
     std::string *clienthost;
@@ -73,6 +74,10 @@ class ConnectionHandler
 
     //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn);
+
+    bool getdnstxt(std::string &clientip, String &user);
+
+    String dns_error(int herror);
 
     // write a log entry containing the given data (if required)
     void doLog(std::string &who, std::string &from, String &where, unsigned int &port,

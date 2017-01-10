@@ -79,7 +79,7 @@ class ntlminstance : public AuthPlugin
             transparent = false;
     };
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
 
     int init(void *args);
     int quit();
@@ -151,7 +151,7 @@ AuthPlugin *ntlmcreate(ConfigVar &definition)
 // end of Class factory
 
 // ntlm auth header username extraction - also lets connection persist long enough to complete NTLM negotiation
-int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string)
+int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
 {
     FDTunnel fdt;
     Socket *upstreamcon;
@@ -460,8 +460,10 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
                     string = username;
                 }
-                if (!transparent)
+                if (!transparent) {
+                    is_real_user = true;
                     return DGAUTH_OK;
+                }
                 // if in transparent mode, send a redirect to the client's original requested URL,
                 // having sent the final headers to the NTLM-only Squid to do with what it will
                 std::string tmp = peercon.getPeerIP();

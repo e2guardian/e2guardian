@@ -75,7 +75,7 @@ class dnsauthinstance : public AuthPlugin
             is_connection_based = true;
     };
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
     int determineGroup(std::string &user, int &fg);
 
     int init(void *args);
@@ -153,7 +153,7 @@ int dnsauthinstance::init(void *args)
 // DNS-AUTH filter group determination
 // never actually return NOUSER from this, because we don't actually look in the filtergroupslist.
 // NOUSER stops ConnectionHandler from querying subsequent plugins.
-int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*int &fg,*/ std::string &string)
+int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*int &fg,*/ std::string &string, bool &is_real_user)
 {
     String p1, p2, ippath;
 
@@ -182,6 +182,7 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
 #endif
     if (getdnstxt(ippath)) {
         string = userst.user;
+        is_real_user = true;
         return DGAUTH_OK;
     } else {
         // redirect code
