@@ -366,7 +366,7 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
 
 // pass data between proxy and client, filtering as we go.
 // this is the only public function of ConnectionHandler
-int ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
+int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat)
 {
     persistent_authed = false;
     is_real_user = false;
@@ -377,13 +377,14 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip)
 //#endif
     Socket proxysock;
 
-    return handleConnection(peerconn, ip, false, proxysock);
+    return handleConnection(peerconn, ip, false, proxysock, dystat);
 
     //return;
 }
 
 // all content blocking/filtering is triggered from calls inside here
-int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock)
+int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock,
+stat_rec* &dystat)
 {
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
@@ -511,6 +512,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             firsttime = false;
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
+        ++dystat->reqs;
         //
         // End of set-up section
         //
@@ -548,6 +550,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                     break;
                 }
+                ++dystat->reqs;
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -615,7 +618,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!persistProxy) {
                 try {
                     // ...connect to proxy
-                    for (int i = 0; i < o.proxy_timeout; i++) {
+                    for (int i = 0; i < o.proxy_timeout_sec; i++) {
                         rc = proxysock.connect(o.proxy_ip, o.proxy_port);
 
                         if (!rc) {
@@ -1332,6 +1335,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                 "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
                         peerconn.writeString(o.language_list.getTranslation(200));
                         peerconn.writeString("</BODY></HTML>\n");
+                        break;
                     } else {
                         message_no = 200;
                         peerconn.writeString("HTTP/1.0 502 Gateway Error\nContent-Type: text/html\n\n");
@@ -1339,7 +1343,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                                 "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
                         peerconn.writeString(o.language_list.getTranslation(200));
                         peerconn.writeString("</BODY></HTML>\n");
-                        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
+                        break;
+                //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
                     }
                 }
                 persistProxy = docheader.isPersistent();
@@ -1701,7 +1706,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //generate the certificate but dont write it to disk (avoid someone
                     //requesting lots of places that dont exist causing the disk to fill
                     //up / run out of inodes
-                    certfromcache = o.ca->getServerCertificate(urldomain.c_str(), &cert,
+                    certfromcache = o.ca->getServerCertificate(urldomain.CN().c_str(), &cert,
                         &caser);
 #ifdef DGDEBUG
                     if (caser.asn == NULL) {
@@ -1807,7 +1812,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         persistent_authed = true;
                     }
 
-                    handleConnection(peerconn, ip, true, proxysock);
+                    handleConnection(peerconn, ip, true, proxysock, dystat);
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Handling connections inside ssl tunnel: done" << std::endl;
 #endif
@@ -2509,6 +2514,24 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         if (proxysock.sockError())
                         std::cout << dbgPeerPort << " -proxy socket error" << std::endl;
 #endif
+                        if (proxysock.isTimedout()) {
+                            message_no = 200;
+                            peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
+                            peerconn.writeString(
+                                    "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
+                            peerconn.writeString(o.language_list.getTranslation(200));
+                            peerconn.writeString("</BODY></HTML>\n");
+                            break;
+                        } else {
+                            message_no = 200;
+                            peerconn.writeString("HTTP/1.0 502 Gateway Error\nContent-Type: text/html\n\n");
+                            peerconn.writeString(
+                                    "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
+                            peerconn.writeString(o.language_list.getTranslation(200));
+                            peerconn.writeString("</BODY></HTML>\n");
+                            break;
+                            //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
+                        }
                     }
 
                     wasrequested = true; // so we know where we are later
@@ -2531,17 +2554,21 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         ud = ud.after("www.");
                     }
 
-                    docheader.setCookie("GBYPASS", ud.toCharArray(), hashedCookie(&ud, o.fg[filtergroup]->cookie_magic.c_str(), &clientip, bypasstimestamp).toCharArray());
+                    if(!docheader.header.empty()) {
+                        docheader.setCookie("GBYPASS", ud.toCharArray(),
+                                            hashedCookie(&ud, o.fg[filtergroup]->cookie_magic.c_str(), &clientip,
+                                                         bypasstimestamp).toCharArray());
 
-                    // redirect user to URL with GBYPASS parameter no longer appended
-                    docheader.header[0] = "HTTP/1.0 302 Redirect";
-                    String loc("Location: ");
-                    loc += header.getUrl(true);
-                    docheader.header.push_back(loc);
-                    docheader.setContentLength(0);
+                        // redirect user to URL with GBYPASS parameter no longer appended
+                        docheader.header[0] = "HTTP/1.0 302 Redirect";
+                        String loc("Location: ");
+                        loc += header.getUrl(true);
+                        docheader.header.push_back(loc);
+                        docheader.setContentLength(0);
 
-                    persistOutgoing = false;
-                    docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
+                        persistOutgoing = false;
+                        docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
+                    }
 
                     if (!persistProxy)
                         proxysock.close(); // close connection to proxy
@@ -2984,12 +3011,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
 #endif
-        syslog(LOG_ERR, " -connection handler caught an exception %s", e.what() );
+        syslog(LOG_ERR, " -connection handler caught an exception %s in thread %d", e.what(), std::this_thread::get_id() );
 
         // close connection to proxy
         proxysock.close();
 
-        return 0;
+        return -1;   // to allow calling function to re-create connection handler and hopefully clear any mem errors
     }
 
     if (!ismitm)

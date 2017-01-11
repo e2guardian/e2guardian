@@ -12,6 +12,7 @@
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
 #include "NaughtyFilter.hpp"
+#include "FatController.hpp"
 
 // DECLARATIONS
 
@@ -54,7 +55,7 @@ class ConnectionHandler
     };
 
     // pass data between proxy and client, filtering as we go.
-    int handlePeer(Socket &peerconn, String &ip);
+    int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat);
 
     private:
     int filtergroup;
@@ -73,7 +74,7 @@ class ConnectionHandler
     void cleanThrow(const char *message, Socket &peersock );
 
     //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
-    int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn);
+    int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
     bool getdnstxt(std::string &clientip, String &user);
 

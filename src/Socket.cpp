@@ -178,6 +178,7 @@ void Socket::reset()
 // connect to given IP & port (following default constructor)
 int Socket::connect(const std::string &ip, int port)
 {
+    if (sck > -1)  reset();   // just in case this is called with socket still open
     int len = sizeof my_adr;
     peer_adr.sin_port = htons(port);
     inet_aton(ip.c_str(), &peer_adr.sin_addr);

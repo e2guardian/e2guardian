@@ -130,18 +130,98 @@ std::atomic<bool> reloadconfig ;
 extern OptionContainer o;
 extern bool is_daemonised;
 
+//struct stat_rec {
+//    long births; // num of child forks in stat interval
+//    long deaths; // num of child deaths in stat interval
+//    std::atomic<int> conx ; // num of client connections in stat interval
+//    std::atomic<int> reqs; // num of client requests in stat interval
+//    time_t start_int; // time of start of this stat interval
+//    time_t end_int; // target end time of stat interval
+//    std::atomic<int> maxusedfd; // max fd reached
+//    FILE *fs; // file stream
+//    void reset();
+//    void start();
+//    void clear();
+//    void close();
+//};
+
+void stat_rec::clear()
+{
+    //births = 0;
+    //deaths = 0;
+    conx = 0;
+    reqs = 0;
+};
+
+void stat_rec::start()
+{
+    clear();
+    start_int = time(NULL);
+    end_int = start_int + o.dstat_interval;
+    if (o.dstat_log_flag) {
+        mode_t old_umask;
+        old_umask = umask(S_IWGRP | S_IWOTH);
+        fs = fopen(o.dstat_location.c_str(), "a");
+        if (fs) {
+            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd\n");
+        } else {
+            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
+
+                o.dstat_location.c_str());
+            o.dstat_log_flag = false;
+        };
+        maxusedfd = 0;
+        fflush(fs);
+        umask(old_umask);
+    };
+};
+
+void stat_rec::reset()
+{
+    time_t now = time(NULL);
+    int bc = busychildren;
+    long period = now - start_int;
+    long cnx = (long)conx;
+    long rqx = (long) reqs;
+    int mfd = maxusedfd;
+
+    // clear and reset stats now so that stats are less likely to be missed
+    clear();
+    if ((end_int + o.dstat_interval) > now)
+        start_int = end_int;
+    else
+        start_int = now;
+    end_int = start_int + o.dstat_interval;
+
+    long cps = cnx / period;
+    long rqs = rqx / period;
+    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+        bc,
+        o.http_worker_Q->size(),
+        o.log_Q->size(),
+        cnx,
+        cps,
+            rqx,
+            rqs,
+        mfd);
+    fflush(fs);
+};
+
+void stat_rec::close()
+{
+    fclose(fs);
+};
 // Queues
 //extern Queue<std::string>* log_Q;
 //extern Queue<Socket>* http_worker_Q;
 
 //structures for thread parameter passing
 
-//structures for Queues
 
 
 
 //int numchildren; // to keep count of our children
-std::atomic<int> busychildren; // to keep count of our busy children
+//std::atomic<int> busychildren; // to keep count of our busy children
 int cache_erroring; // num cache errors reported by children
 int restart_cnt = 0;
 int restart_numchildren; // numchildren at time of gentle restart
@@ -200,78 +280,6 @@ static void kill_ssl_locks(void)
   OPENSSL_free(ssl_lock_array);
 }
 #endif
-
-struct stat_rec {
-    long births; // num of child forks in stat interval
-    long deaths; // num of child deaths in stat interval
-    std::atomic<int> conx ; // num of client connections in stat interval
-    time_t start_int; // time of start of this stat interval
-    time_t end_int; // target end time of stat interval
-    std::atomic<int> maxusedfd; // max fd reached
-    FILE *fs; // file stream
-    void reset();
-    void start();
-    void clear();
-    void close();
-};
-
-void stat_rec::clear()
-{
-    //births = 0;
-    //deaths = 0;
-    conx = 0;
-};
-
-void stat_rec::start()
-{
-    clear();
-    start_int = time(NULL);
-    end_int = start_int + o.dstat_interval;
-    if (o.dstat_log_flag) {
-        mode_t old_umask;
-        old_umask = umask(S_IWGRP | S_IWOTH);
-        fs = fopen(o.dstat_location.c_str(), "a");
-        if (fs) {
-            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s maxfd\n");
-        } else {
-            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
-
-                o.dstat_location.c_str());
-            o.dstat_log_flag = false;
-        };
-        maxusedfd = 0;
-        fflush(fs);
-        umask(old_umask);
-    };
-};
-
-void stat_rec::reset()
-{
-    time_t now = time(NULL);
-    int bc = busychildren;
-    long cnx = (long)conx;
-    long cps = cnx / (now - start_int);
-    int mfd = maxusedfd;
-    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d %d\n", now, o.http_workers,
-        bc,
-        o.http_worker_Q->size(),
-        o.log_Q->size(),
-        cnx,
-        cps,
-        mfd);
-    fflush(fs);
-    clear();
-    if ((end_int + o.dstat_interval) > now)
-        start_int = end_int;
-    else
-        start_int = now;
-    end_int = start_int + o.dstat_interval;
-};
-
-void stat_rec::close()
-{
-    fclose(fs);
-};
 
 void monitor_flag_set(bool action)
 {
@@ -527,39 +535,42 @@ bool daemonise()
 // handle any connections received by this thread
 void handle_connections(int tindex)
 {
-    ConnectionHandler h; // the class that handles the connections
-    String ip;
-    int stat = 0;
-    int rc = 0;
+    while (true) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
+        ConnectionHandler h;
+        // the class that handles the connections
+        String ip;
+        int stat = 0;
+        int rc = 0;
 #ifdef DGDEBUG
-    std::cerr << " in  handle connection"  << std::endl;
+        std::cerr << " in  handle connection"  << std::endl;
 #endif
-    std::thread::id this_id = std::this_thread::get_id();
-    //reloadconfig = false;
-    while (true)
-    {
+        std::thread::id this_id = std::this_thread::get_id();
+        //reloadconfig = false;
+        while (true) {
 #ifdef DGDEBUG
-        std::cerr << " waiting connectiom from http_worker_Q thread"  << this_id << std::endl;
+            std::cerr << " waiting connectiom from http_worker_Q thread"  << this_id << std::endl;
 #endif
-        Socket *peersock = o.http_worker_Q->pop();
+            Socket *peersock = o.http_worker_Q->pop();
 #ifdef DGDEBUG
-        std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
+            std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
 #endif
-        String peersockip = peersock->getPeerIP();
-        if (peersock->getFD() < 0 || peersockip.length() < 7) {
+            String peersockip = peersock->getPeerIP();
+            if (peersock->getFD() < 0 || peersockip.length() < 7) {
 //            if (o.logconerror)
                 syslog(LOG_INFO, "Error accepting. (Ignorable)");
-            continue;
-        }
-        ++busychildren;
-        ++dystat->conx;
+                continue;
+            }
+            ++dystat->busychildren;
+            ++dystat->conx;
 
-        rc = h.handlePeer(*peersock, peersockip); // deal with the connection
+            rc = h.handlePeer(*peersock, peersockip, dystat); // deal with the connection
 #ifdef DGDEBUG
-        std::cerr << "handle_peer returned: " << rc << std::endl;
+            std::cerr << "handle_peer returned: " << rc << std::endl;
 #endif
-        --busychildren;
-        delete peersock;
+            --dystat->busychildren;
+            delete peersock;
+            if (rc < 0) break;
+        };
     };
 }
 
@@ -1898,7 +1909,7 @@ int fc_controlit()   //
 #endif
 
     //numchildren = 0; // to keep count of our children
-    busychildren = 0; // to keep count of our children
+    dystat->busychildren = 0; // to keep count of our children
     //freechildren = 0; // to keep count of our children
     //
 
@@ -2040,10 +2051,9 @@ int fc_controlit()   //
 #endif
             syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
         }
-        //		freechildren = numchildren - busychildren;
         int q_size = o.http_worker_Q->size();
 #ifdef DGDEBUG
-        std::cout << "busychildren:" << busychildren << std::endl;
+        std::cout << "busychildren:" << dystat->busychildren << std::endl;
         std::cout << "worker Q size:" << q_size << std::endl;
 #endif
 
