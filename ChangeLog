@@ -1,5 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+January 2016
+- Fix Bug #162 Check missing dependency openssl
+
 December 2016
 - Version 3.5.0
 Summary of changes in this release (v3.5.0) can be found in e2guardian.release
