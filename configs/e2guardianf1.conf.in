@@ -1,5 +1,7 @@
 # e2guardian filter group config file for version @PACKAGE_VERSION@
 
+# This file is re-read on gentle restart and any changes actions
+
 
 # Filter group mode
 # This option determines whether members of this group have their web access
@@ -240,11 +242,7 @@ categorydisplaythreshold = 0
 # WARNING: This option is highly CPU intensive!
 embeddedurlweight = 0
 
-# Enable PICS rating support
-#
-# Defaults to disabled
-# (on | off)
-enablepics = off
+# Enable PICS rating support  - PICS support withdrawn
 
 # Temporary Denied Page Bypass
 # This provides a link on the denied page to bypass the ban for a few minutes.  To be
@@ -372,7 +370,7 @@ reportinglevel = 3
 # need to configure mail program (see 'mailer' in global config)
 # and email recipients
 # default usesmtp = off
-@EMAILSUPPORT@usesmtp = off
+@EMAILSUPPORT@usesmtp = off   #NOT YET TESTED
 
 # mailfrom
 # who the email would come from
@@ -429,6 +427,9 @@ reportinglevel = 3
 # if this is set to 0, then whenever the set number of violations are made a 
 # notifaction will be sent.
 @EMAILSUPPORT@threshold = 0
+
+#NOTE to enable SSL MITM or CERT checking
+# enablessl must be defined as 'yes' in e2guardian.conf
 
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid

@@ -33,6 +33,8 @@
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
 "200"," URL ʽд"
+"201","Unable to get response from upstream proxy (timeout)"    # needs translation
+"202","Unable to get response from upstream proxy (error)"    # needs translation
 "300","ֱֹĶ: "
 "301","ֱֹĶ"
 "400","ֱֹ϶: "

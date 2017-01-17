@@ -1,5 +1,10 @@
 # e2guardian config file for version @PACKAGE_VERSION@
 
+#NOTE This file is only read at start-up
+#
+# but the lists defined in this file are re-read on gentle restart
+# as is any rooms directory files.
+
 # Language dir where languages are stored for internationalisation.
 # The HTML template within this dir is only used when reportinglevel
 # is set to 3. When used, e2guardian will display the HTML file instead of
@@ -76,7 +81,7 @@ logfileformat = 1
 
 # Interval between stats output
 # Default 300 = 5 mins
-# Minimum 60 
+# Minimum 10 
 # Maximum 3600 = 1 hour
 #dstatinterval = 300  # = 5 minutes
 
@@ -535,12 +540,13 @@ usexforwardedfor = off
 # xforwardedforfilterip = 
 
 
-# if on it logs some debug info regarding fork()ing and accept()ing which
+# if on it logs some debug info regarding accept()ing and failed connections
+# which
 # can usually be ignored.  These are logged by syslog.  It is safe to leave
 # it on or off
 logconnectionhandlingerrors = on
 
-#sets the number of worker threads to use
+#sets the number of worker threads to use - NEW for v4.0
 #
 #  note this replaces all min/max etc children settings in previous versions
 #
@@ -602,7 +608,12 @@ softrestart = off
 # Mail program
 # Path (sendmail-compatible) email program, with options.
 # Not used if usesmtp is disabled (filtergroup specific).
-@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'
+#@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'   # NOT YET IMPLIMENTED
+
+# Enable SSL support  - NEW for v4.0
+# This must be present to enable MITM and/or Cert checking
+# default is off
+enablessl = on
 
 #SSL certificate checking path
 #Path to CA certificates used to validate the certificates of https sites.

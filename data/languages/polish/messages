@@ -34,6 +34,8 @@
 "158","Opening tunnel failed"    # needs translation
 "159","Could not connect to proxy server"    # needs translation
 "200","dany URL jest le skonstruowany."
+"201","Unable to get response from upstream proxy (timeout)"    # needs translation
+"202","Unable to get response from upstream proxy (error)"    # needs translation
 "300","Znaleziono zakazan fraz: "
 "301","Znaleziono zakazan fraz."
 "400","Znaleziono zakazan kombinacj fraz: "
