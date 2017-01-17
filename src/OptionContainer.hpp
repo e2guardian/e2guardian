@@ -20,8 +20,10 @@
 #include "Auth.hpp"
 #include "IPList.hpp"
 #include "Queue.hpp"
+#include "LOptionContainer.hpp"
 
 #include <deque>
+#include <atomic>
 
 #ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
@@ -29,14 +31,6 @@
 
 
 // DECLARATIONS
-struct room_item {
-    std::string name;
-    IPList *iplist;
-    ListContainer *sitelist;
-    ListContainer *urllist;
-    bool block;
-    bool part_block;
-};
 
 class OptionContainer
 {
@@ -103,10 +97,13 @@ class OptionContainer
     bool auth_needs_proxy_query;
     bool total_block_site_flag;
     bool total_block_url_flag;
+    bool enable_ssl;
 
     bool prefer_cached_lists;
     std::string languagepath;
     std::string filter_groups_list_location;
+    std::string banned_ip_list_location;
+    std::string exception_ip_list_location;
     std::string log_location;
     std::string stat_location;
     std::string ipc_filename;
@@ -173,8 +170,8 @@ class OptionContainer
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
-    IPList exception_ip_list;
-    IPList banned_ip_list;
+    //IPList exception_ip_list;
+    //IPList banned_ip_list;
     LanguageContainer language_list;
     ImageContainer banned_image;
     ImageContainer banned_flash;
@@ -190,7 +187,7 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_end;
 
     ListManager lm;
-    FOptionContainer **fg;
+   // FOptionContainer **fg;
     int numfg;
 
     // access denied domain (when using the CGI)
@@ -200,8 +197,8 @@ class OptionContainer
     bool loadCSPlugins();
     bool loadAuthPlugins();
     void deletePlugins(std::deque<Plugin *> &list);
-    void deleteFilterGroups();
-    void deleteFilterGroupsJustListData();
+ //   void deleteFilterGroups();
+  //  void deleteFilterGroupsJustListData();
 
     //...and the functions that read them
 
@@ -209,16 +206,11 @@ class OptionContainer
     ~OptionContainer();
     bool read(std::string& filename, int type);
     void reset();
-    bool inExceptionIPList(const std::string *ip, std::string *&host);
-    bool inBannedIPList(const std::string *ip, std::string *&host);
-    bool readFilterGroupConf();
+  //  bool inExceptionIPList(const std::string *ip, std::string *&host);
+  //  bool inBannedIPList(const std::string *ip, std::string *&host);
+    //bool readFilterGroupConf();
     // public so fc_controlit can reload filter group config files
     bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
-
-    // per-room blocking and URL whitelisting: see if given IP is in a room; if it is, return true and put the room name in "room"
-    bool inRoom(const std::string &ip, std::string &room, std::string *&host, bool *block, bool *part_block, bool *isexception, String url);
-    void loadRooms(bool throw_error);
-    void deleteRooms();
 
     char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
@@ -227,15 +219,21 @@ class OptionContainer
     bool readinStdin();
     bool inTotalBlockList(String &url);
     bool use_total_block_list;
-
-    private:
     std::string per_room_directory_location;
-    std::deque<std::string> conffile;
-    std::string conffilename;
-    int reporting_level;
+    bool createLists(int load_id);
+    std::shared_ptr<LOptionContainer> currentLists();
+    std::atomic<int> LC_cnt;
 
+    //LOptionContainer* current_LOC;
+    std::shared_ptr<LOptionContainer> current_LOC;
+    std::string conffilename;
     std::string html_template_location;
     std::string group_names_list_location;
+
+    private:
+    std::deque<std::string> conffile;
+    int reporting_level;
+
 
     bool loadDMPlugins();
 
@@ -246,8 +244,7 @@ class OptionContainer
     bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
 
-    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
-    std::list<room_item> rooms;
+//    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
 };
 
 #endif

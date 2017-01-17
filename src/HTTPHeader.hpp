@@ -19,6 +19,7 @@
 //#include "DataBuffer.hpp"
 #include "Socket.hpp"
 #include "RegExp.hpp"
+#include "FOptionContainer.hpp"
 
 // DECLARATIONS
 
@@ -59,7 +60,8 @@ class HTTPHeader
     String getContentType();
     String getMIMEBoundary();
     // check received content type against given content type
-    bool isContentType(const String &t,int filtergroup);
+    //bool isContentType(const String &t,int filtergroup);
+    bool isContentType(const String &t,FOptionContainer* &foc);
     // check HTTP message code to see if it's an auth required message
     bool authRequired();
     // Content-Disposition
@@ -71,11 +73,12 @@ class HTTPHeader
     bool isRedirection();
     // see if content-type is something other than "identity"
     bool isCompressed();
-    bool isHeaderAdded(int filtergroup);
+    //bool isHeaderAdded(int filtergroup);
+    bool isHeaderAdded(FOptionContainer* &foc);
     bool addheaderchecked;
     bool isheaderadded;
     // see if search usl and set searchwords
-    bool isSearch(int filtergroup);
+    bool isSearch(FOptionContainer* &foc);
     String searchwords();
     String searchterms();
     bool searchchecked;
@@ -118,11 +121,11 @@ class HTTPHeader
     void removeEncoding(int newlen);
     void setContentLength(int newlen);
     // regexp search and replace
-    bool urlRegExp(int filtergroup);
-    bool sslsiteRegExp(int filtergroup);
-    bool urlRedirectRegExp(int filtergroup);
-    bool DenySSL(int filtergroup);
-    bool headerRegExp(int filtergroup);
+    bool urlRegExp(FOptionContainer* &foc);
+    bool sslsiteRegExp(FOptionContainer* &foc);
+    bool urlRedirectRegExp(FOptionContainer* &foc);
+    bool DenySSL(FOptionContainer* &foc);
+    bool headerRegExp(FOptionContainer* &foc);
     // make a connection persistent - or not
     void makePersistent(bool persist = true);
     // make the request look as if its coming from the origin server

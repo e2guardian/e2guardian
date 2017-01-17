@@ -302,17 +302,18 @@ bool dnsauthinstance::inAuthByPassLists(HTTPHeader &h)
 {
     String url = h.url();
     String urld = h.decode(url);
+    FOptionContainer* foc = o.currentLists()->fg[0];
     url.removePTP();
     if (url.contains("/")) {
         url = url.before("/");
     }
-    bool is_ip = (*o.fg[0]).isIPHostname(url);
+    bool is_ip = (*foc).isIPHostname(url);
     bool is_ssl = h.requestType() == "CONNECT";
 
-    if ((*o.fg[0]).inAuthExceptionSiteList(urld, true, is_ip, is_ssl)) {
+    if ((*foc).inAuthExceptionSiteList(urld, true, is_ip, is_ssl)) {
         //						exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_site_list]).lastcategory.toCharArray();
         return true;
-    } else if ((*o.fg[0]).inAuthExceptionURLList(urld, true, is_ip, is_ssl)) {
+    } else if ((*foc).inAuthExceptionURLList(urld, true, is_ip, is_ssl)) {
         //					exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_url_list]).lastcategory.toCharArray();
         return true;
     }

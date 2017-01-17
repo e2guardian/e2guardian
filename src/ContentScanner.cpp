@@ -130,7 +130,7 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
 }
 
 // default implementation of scanMemory, which defers to scanFile.
-int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
     const char *ip, const char *object, unsigned int objectsize, NaughtyFilter *checkme,
     const String *disposition, const String *mimetype)
 {
@@ -145,7 +145,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
         syslog(LOG_ERR, "%s", "Error creating/writing temp file for scanMemory.");
         return DGCS_SCANERROR;
     }
-    int rc = scanFile(requestheader, docheader, user, filtergroup, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
+    int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
 #ifndef DGDEBUG
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
@@ -197,7 +197,7 @@ bool CSPlugin::readStandardLists()
 // Test whether or not a particular request's incoming/outgoing data should be scanned.
 // This is an early-stage (request headers only) test; no other info is known about
 // the actual data itself when this is called.
-int CSPlugin::willScanRequest(const String &url, const char *user, int filtergroup,
+int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContainer* &foc,
     const char *ip, bool post, bool reconstituted, bool exception, bool bypass)
 {
     // Most content scanners only deal with original, unmodified content
@@ -242,8 +242,8 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
     }
 
     // Don't scan the web server which hosts the access denied page
-    if (((o.fg[filtergroup]->reporting_level == 1) || (o.fg[filtergroup]->reporting_level == 2))
-        && domain.startsWith(o.fg[filtergroup]->access_denied_domain)) {
+    if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
+        && domain.startsWith(foc->access_denied_domain)) {
 #ifdef DGDEBUG
         std::cout << "willScanRequest: ignoring our own webserver" << std::endl;
 #endif
@@ -308,7 +308,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, int filtergro
 
 // Test whether or not a particular request's incoming/outgoing data should be scanned.
 // This is a later-stage test; info is known about the actual data itself when this is called.
-int CSPlugin::willScanData(const String &url, const char *user, int filtergroup, const char *ip, bool post,
+int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer* &foc, const char *ip, bool post,
     bool reconstituted, bool exception, bool bypass, const String &disposition, const String &mimetype,
     off_t size)
 {

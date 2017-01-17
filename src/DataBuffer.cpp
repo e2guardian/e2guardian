@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+#include "DataBuffer.hpp"
 #include "HTTPHeader.hpp"
 #include "OptionContainer.hpp"
 
@@ -436,7 +437,7 @@ struct newreplacement {
     int match;
     String replacement;
 };
-bool DataBuffer::contentRegExp(int filtergroup)
+bool DataBuffer::contentRegExp(FOptionContainer* &foc)
 {
 
 #ifdef DGDEBUG
@@ -445,7 +446,7 @@ bool DataBuffer::contentRegExp(int filtergroup)
     bool contentmodified = false;
     unsigned int i;
     unsigned int j, k, m;
-    unsigned int s = (*o.fg[filtergroup]).content_regexp_list_comp.size();
+    unsigned int s = (*foc).content_regexp_list_comp.size();
     unsigned int matches;
     unsigned int submatch, submatches;
     RegExp *re;
@@ -462,9 +463,9 @@ bool DataBuffer::contentRegExp(int filtergroup)
     std::queue<newreplacement *> matchqueue;
 
     for (i = 0; i < s; i++) {
-        re = &((*o.fg[filtergroup]).content_regexp_list_comp[i]);
+        re = &((*foc).content_regexp_list_comp[i]);
         if (re->match(data, Rre)) {
-            replacement = &((*o.fg[filtergroup]).content_regexp_list_rep[i]);
+            replacement = &((*foc).content_regexp_list_rep[i]);
             //replen = replacement->length();
             matches = Rre.numberOfMatches();
 

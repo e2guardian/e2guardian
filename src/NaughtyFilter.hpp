@@ -12,6 +12,7 @@
 //#include "OptionContainer.hpp"
 //#include "DataBuffer.hpp"
 
+#include "FOptionContainer.hpp"
 // DECLARATIONS
 
 class NaughtyFilter
@@ -38,7 +39,7 @@ class NaughtyFilter
     bool store;
 
     // not sure if these are needed - but are in protexofe - PIP
-    int filtergroup;
+    //int filtergroup;
     // Used in Protex format logs??
     int message_no;
 
@@ -52,7 +53,7 @@ class NaughtyFilter
     NaughtyFilter();
     void reset();
     void checkme(const char *rawbody, off_t rawbodylen, const String *url, const String *domain,
-        unsigned int filtergroup, unsigned int phraselist, int limit, bool searchterms = false);
+        FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms = false);
 
     // highest positive (or lowest negative) weighting out of
     // both phrase filtering passes (smart/raw)
@@ -66,7 +67,7 @@ class NaughtyFilter
     // trying to look for links etc. in "smart" filtering mode, i.e.
     // after HTML has been removed, and in search terms.)
     void checkphrase(char *file, off_t filelen, const String *url, const String *domain,
-        unsigned int filtergroup, unsigned int phraselist, int limit, bool searchterms);
+        FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms);
 
 };
 

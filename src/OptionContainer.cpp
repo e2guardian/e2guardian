@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+#include "LOptionContainer.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
@@ -31,7 +32,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), fg(NULL)
+    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
 {
     log_Q = new Queue<std::string>;
     http_worker_Q = new Queue<Socket*>;
@@ -45,13 +46,13 @@ OptionContainer::~OptionContainer()
 
 void OptionContainer::reset()
 {
-    deleteFilterGroups();
+    //deleteFilterGroups();
     deletePlugins(dmplugins);
     deletePlugins(csplugins);
     deletePlugins(authplugins);
-    deleteRooms();
-    exception_ip_list.reset();
-    banned_ip_list.reset();
+    //deleteRooms();
+    //exception_ip_list.reset();
+    //banned_ip_list.reset();
     html_template.reset();
     language_list.reset();
     conffile.clear();
@@ -62,31 +63,6 @@ void OptionContainer::reset()
     auth_map.clear();
 }
 
-void OptionContainer::deleteFilterGroups()
-{
-    for (int i = 0; i < numfg; i++) {
-        if (fg[i] != NULL) {
-#ifdef DGDEBUG
-            std::cout << "In deleteFilterGroups loop" << std::endl;
-#endif
-            delete fg[i]; // delete extra FOptionContainer objects
-            fg[i] = NULL;
-        }
-    }
-    if (numfg > 0) {
-        delete[] fg;
-        numfg = 0;
-    }
-}
-
-void OptionContainer::deleteFilterGroupsJustListData()
-{
-    for (int i = 0; i < numfg; i++) {
-        if (fg[i] != NULL) {
-            fg[i]->resetJustListData();
-        }
-    }
-}
 
 void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
 {
@@ -221,6 +197,12 @@ bool OptionContainer::read(std::string& filename, int type)
 #endif
 
 #ifdef __SSLMITM
+        if (findoptionS("enablessl") == "") {
+                enable_ssl = false;
+            } else {
+               enable_ssl  = true;
+            }
+
         // TODO: maybe make these more sensible paths?
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
@@ -633,7 +615,7 @@ bool OptionContainer::read(std::string& filename, int type)
         filter_groups = findoptionI("filtergroups");
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
-            loadRooms(true);
+            //loadRooms(true);
         }
 
         if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
@@ -735,8 +717,8 @@ bool OptionContainer::read(std::string& filename, int type)
             filter_groups = 1;
 
         filter_groups_list_location = findoptionS("filtergroupslist");
-        std::string banned_ip_list_location(findoptionS("bannediplist"));
-        std::string exception_ip_list_location(findoptionS("exceptioniplist"));
+        banned_ip_list_location = findoptionS("bannediplist");
+        exception_ip_list_location = findoptionS("exceptioniplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
 
@@ -765,14 +747,14 @@ bool OptionContainer::read(std::string& filename, int type)
         else
             prefer_cached_lists = false;
 
-        if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
-            std::cout << "Failed to read exceptioniplist" << std::endl;
-            return false;
-        }
-        if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
-            std::cout << "Failed to read bannediplist" << std::endl;
-            return false;
-        }
+        //if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
+        //    std::cout << "Failed to read exceptioniplist" << std::endl;
+        //    return false;
+        //}
+        //if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
+        //    std::cout << "Failed to read bannediplist" << std::endl;
+        //    return false;
+        //}
 
         if (!language_list.readLanguageList(language_list_location.c_str())) {
             return false;
@@ -789,10 +771,8 @@ bool OptionContainer::read(std::string& filename, int type)
             }
         }
 
-        if (!readFilterGroupConf()) {
-            if (!is_daemonised) {
+        if(!createLists(0))  {
                 std::cerr << "Error reading filter group conf file(s)." << std::endl;
-            }
             syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
             return false;
         }
@@ -800,16 +780,16 @@ bool OptionContainer::read(std::string& filename, int type)
 //post read filtergroup config checks - only for SLLMITM for now
 
 #ifdef _SSLMITM
-        bool ssl_mitm = false;
-        bool mitm_check_cert = false;
-        for (i = 0; i < numfg; i++) {
-            if (fg[i].ssl_mitm)
-                ssl_mitm = true;
-            if (fg[i].mitm_check_cert)
-                mitm_check_cert = true;
-        }
+        //bool ssl_mitm = false;
+        //bool mitm_check_cert = false;
+        //for (i = 0; i < numfg; i++) {
+            //if (fg[i].ssl_mitm)
+                //ssl_mitm = true;
+            //if (fg[i].mitm_check_cert)
+                //mitm_check_cert = true;
+        //}
 
-        if (ssl_mitm) {
+        if (enable_ssl) {
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
                     ca_private_key_path.c_str(),
@@ -981,208 +961,6 @@ bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, co
     return true;
 }
 
-bool OptionContainer::inExceptionIPList(const std::string *ip, std::string *&host)
-{
-    return exception_ip_list.inList(*ip, host);
-}
-
-bool OptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
-{
-    return banned_ip_list.inList(*ip, host);
-}
-
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
-
-bool OptionContainer::inRoom(const std::string &ip, std::string &room, std::string *&host, bool *block, bool *part_block, bool *isexception, String url)
-{
-    String temp;
-    char *ret;
-    for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
-        if (i->iplist->inList(ip, host)) {
-#ifdef DGDEBUG
-            std::cerr << " IP is in room: " << i->name << std::endl;
-#endif
-            temp = url;
-            ListContainer *lc;
-            if (i->sitelist) {
-                lc = i->sitelist;
-                if (inSiteList(temp, lc, false, false)) {
-#ifdef DGDEBUG
-                    std::cerr << " room site exception found: " << std::endl;
-#endif
-                    *isexception = true;
-                    room = i->name;
-                    return true;
-                }
-            }
-            temp = url;
-            if (i->urllist && inURLList(temp, i->urllist, false, false)) {
-#ifdef DGDEBUG
-                std::cerr << " room url exception found: " << std::endl;
-#endif
-                *isexception = true;
-                room = i->name;
-                return true;
-            }
-            if (i->block) {
-                *block = true;
-                *part_block = i->part_block;
-                room = i->name;
-#ifdef DGDEBUG
-                std::cerr << " room blanket block active: " << std::endl;
-#endif
-                return true;
-            } else {
-#ifdef DGDEBUG
-                std::cerr << " room - no url/site exception or block found: " << std::endl;
-#endif
-                return false;
-            }
-        }
-    }
-    return false;
-}
-
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?
-
-void OptionContainer::loadRooms(bool throw_error)
-{
-    if (!throw_error && (per_room_directory_location == ""))
-        return;
-    DIR *d = opendir(per_room_directory_location.c_str());
-    if (d == NULL) {
-        if (throw_error) {
-            syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-            std::cerr << "Could not open room definitions directory" << std::endl;
-            exit(1);
-        } else {
-            return;
-        }
-    }
-
-    struct dirent *f;
-    while ((f = readdir(d))) {
-        if (f->d_name[0] == '.')
-            continue;
-        std::string filename(per_room_directory_location);
-        filename.append(f->d_name);
-#ifdef DGDEBUG
-        std::cerr << " Room file found : " << filename.c_str() << std::endl;
-#endif
-        std::ifstream infile(filename.c_str(), std::ios::in);
-        if (!infile.good()) {
-            syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
-            exit(1);
-        }
-#ifdef DGDEBUG
-        std::cerr << " Opened room file : " << filename.c_str() << std::endl;
-#endif
-
-        std::string roomname;
-#ifdef DGDEBUG
-        std::cerr << " Reading room file : " << filename.c_str() << std::endl;
-#endif
-        getline(infile, roomname);
-        if (infile.eof()) {
-            syslog(LOG_ERR, " Unexpected EOF ");
-            std::cerr << " Unexpected EOF: " << filename.c_str() << std::endl;
-            exit(1);
-        }
-        if (infile.fail()) {
-            syslog(LOG_ERR, " Unexpected failue on read");
-            std::cerr << " Unexpected failure on read: " << filename.c_str() << std::endl;
-            exit(1);
-        }
-        if (infile.bad()) {
-            syslog(LOG_ERR, " Unexpected badbit failue on read");
-            std::cerr << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
-            exit(1);
-        }
-        if (!infile.good()) {
-            syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
-            exit(1);
-        }
-#ifdef DGDEBUG
-        std::cerr << " Room name is: " << roomname.c_str() << std::endl;
-#endif
-        roomname = roomname.substr(1);
-        room_item this_room;
-        this_room.name = roomname;
-        this_room.block = false;
-        this_room.part_block = false;
-        this_room.sitelist = NULL;
-        this_room.urllist = NULL;
-
-        IPList *contents = new IPList();
-        contents->ifsreadIPMelangeList(&infile, true, "#ENDLIST");
-        this_room.iplist = contents;
-        if (infile.eof()) { // is old style room block
-            this_room.block = true;
-            this_room.sitelist = NULL;
-            this_room.urllist = NULL;
-        } else {
-            std::string linestr;
-            String temp;
-            while (infile.good()) {
-                std::getline(infile, linestr);
-                if (infile.eof())
-                    break;
-                temp = linestr;
-                if (temp.startsWith("#SITELIST")) {
-                    ListContainer *sitelist = new ListContainer();
-                    if (sitelist->ifsReadSortItemList(&infile, true, "#ENDLIST", false, false, 0, filename.c_str())) {
-                        this_room.sitelist = sitelist;
-                    } else {
-                        delete sitelist;
-                    }
-                } else if (temp.startsWith("#URLLIST")) {
-                    ListContainer *urllist = new ListContainer();
-                    if (urllist->ifsReadSortItemList(&infile, true, "#ENDLIST", false, true, 0, filename.c_str())) {
-                        this_room.urllist = urllist;
-                    } else {
-                        delete urllist;
-                    }
-                } else if (temp.startsWith("#BLOCK")) {
-                    this_room.block = true;
-                }
-            }
-        }
-        if (this_room.block && (this_room.sitelist || this_room.urllist))
-            this_room.part_block = true;
-        rooms.push_back(this_room);
-        infile.close();
-        if (roomname.size() <= 2) {
-            if (!is_daemonised) {
-                std::cerr << "Could not read room from definitions file \"" << filename << '"' << std::endl;
-            }
-            syslog(LOG_ERR, "Could not read room from definitions file \"%s\"",
-                filename.c_str());
-            exit(1);
-        }
-        roomname = roomname.substr(1); // remove leading '#'
-    }
-
-    if (closedir(d) != 0) {
-        if (errno != EINTR) {
-            syslog(LOG_ERR, "Could not close room definitions directory: %s", strerror(errno));
-            exit(1);
-        }
-    }
-}
-
-void OptionContainer::deleteRooms()
-{
-    for (std::list<room_item>::iterator i = rooms.begin(); i != rooms.end(); ++i) {
-        delete i->iplist;
-        if (i->sitelist != NULL)
-            delete i->sitelist;
-        if (i->urllist != NULL)
-            delete i->urllist;
-    }
-    rooms.clear();
-}
 
 long int OptionContainer::findoptionI(const char *option)
 {
@@ -1279,128 +1057,6 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     return true;
 }
 
-bool OptionContainer::readFilterGroupConf()
-{
-    String prefix(conffilename);
-    prefix = prefix.before(".conf");
-    prefix += "f";
-    String file;
-    ConfigVar groupnamesfile;
-    String groupname;
-    bool need_html = false;
-    if (use_group_names_list) {
-        int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
-        if (result != 0) {
-            if (!is_daemonised)
-                std::cerr << "Error opening group names file: " << group_names_list_location << std::endl;
-            syslog(LOG_ERR, "Error opening group names file: %s", group_names_list_location.c_str());
-            return false;
-        }
-    }
-    for (int i = 1; i <= filter_groups; i++) {
-        file = prefix + String(i);
-        file += ".conf";
-        if (use_group_names_list) {
-            std::ostringstream groupnum;
-            groupnum << i;
-            groupname = groupnamesfile[groupnum.str().c_str()];
-            if (groupname.length() == 0) {
-                if (!is_daemonised)
-                    std::cerr << "Group names file too short: " << group_names_list_location << std::endl;
-                syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
-                return false;
-            }
-#ifdef DGDEBUG
-            std::cout << "Group name: " << groupname << std::endl;
-#endif
-        }
-        if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
-            if (!is_daemonised) {
-                std::cerr << "Error opening filter group config: " << file << std::endl;
-            }
-            syslog(LOG_ERR, "Error opening filter group config: %s", file.toCharArray());
-            return false;
-        }
-    }
-    if (!need_html && (reporting_level != 3)) {
-#ifdef DGDEBUG
-        std::cout << "Global reporting level not 3 & no filter groups using the template; so resetting it." << std::endl;
-#endif
-        html_template.reset();
-    }
-    return true;
-}
-
-bool OptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html)
-{
-#ifdef DGDEBUG
-    std::cout << "adding filter group: " << numfg << " " << filename << std::endl;
-#endif
-
-    // array of pointers to FOptionContainer
-    typedef FOptionContainer *PFOptionContainer;
-    FOptionContainer **temp = new PFOptionContainer[numfg + 1];
-    for (int i = 0; i < numfg; i++) {
-        temp[i] = fg[i];
-    }
-    if (numfg > 0) {
-        delete[] fg;
-    }
-    fg = temp;
-    fg[numfg] = new FOptionContainer;
-
-#ifdef DGDEBUG
-    std::cout << "added filter group: " << numfg << " " << filename << std::endl;
-#endif
-
-    // pass all the vars from OptionContainer needed
-    (*fg[numfg]).weighted_phrase_mode = weighted_phrase_mode;
-    (*fg[numfg]).force_quick_search = force_quick_search;
-    (*fg[numfg]).createlistcachefiles = createlistcachefiles;
-    (*fg[numfg]).reverse_lookups = reverse_lookups;
-
-    // pass in the group name
-    (*fg[numfg]).name = groupname;
-
-    // pass in the reporting level - can be overridden
-    (*fg[numfg]).reporting_level = reporting_level;
-
-#ifdef DGDEBUG
-    std::cout << "passed variables to filter group: " << numfg << " " << filename << std::endl;
-#endif
-
-    bool rc = (*fg[numfg]).read(filename);
-#ifdef DGDEBUG
-    std::cout << "read filter group: " << numfg << " " << filename << std::endl;
-#endif
-
-    numfg++;
-
-    if (!rc) {
-        return false;
-    }
-//<TODO> ifdef for ssl mitm
-#ifdef __SSLMITM
-    if (((fg[numfg - 1]->reporting_level == 3) || fg[numfg - 1]->ssl_mitm) && (html_template.html.size() == 0)) {
-#else
-    if ((fg[numfg - 1]->reporting_level == 3) && (html_template.html.size() == 0)) {
-#endif
-#ifdef DGDEBUG
-        std::cout << "One of the groups has overridden the reporting level! Loading the HTML template." << std::endl;
-#endif
-        need_html = true;
-        if (!html_template.readTemplateFile(html_template_location.c_str())) {
-            if (!is_daemonised) {
-                std::cerr << "Error reading HTML Template file: " << html_template_location << std::endl;
-            }
-            syslog(LOG_ERR, "Error reading HTML Template file: %s", html_template_location.c_str());
-            return false;
-            // HTML template file
-        }
-    }
-
-    return true;
-}
 
 bool OptionContainer::loadDMPlugins()
 {
@@ -1549,4 +1205,21 @@ bool OptionContainer::loadAuthPlugins()
     authplugins_begin = authplugins.begin();
     authplugins_end = authplugins.end();
     return true;
+}
+
+
+bool OptionContainer::createLists(int load_id)  {
+    std::shared_ptr<LOptionContainer> temp (new LOptionContainer(load_id));
+    if (temp->loaded_ok) {
+        current_LOC = temp;
+        return true;
+    }
+    return false;
+}
+
+
+std::shared_ptr<LOptionContainer> OptionContainer::currentLists()  {
+//    std::shared_ptr<LOptionContainer> temp (current_LOC);
+//    return temp;
+    return current_LOC;
 }

@@ -103,7 +103,7 @@ void makeURLSafe(String &url)
 // fill in placeholders with the given information and send the resulting page to the client
 // only useful if you used the default set of placeholders
 void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
-    std::string *user, std::string *ip, std::string *host, int filtergroup, String &hashed)
+    std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed)
 {
 #ifdef DGDEBUG
     std::cout << "Displaying TEMPLATE" << std::endl;
@@ -161,7 +161,7 @@ void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::str
             }
             line = (host ? *host : "");
         } else if (line == "-FILTERGROUP-") {
-            line = o.fg[filtergroup]->name;
+            line = grpname;
         } else if (line == "-RAWFILTERGROUP-") {
             line = String(filtergroup + 1);
         } else if (line == "-CATEGORIES-") {

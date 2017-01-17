@@ -35,7 +35,7 @@ class HTMLTemplate
     // fill in the template with the given info and send it to the client over the given socket
     // only useful if you used the default set of placeholders
     void display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
-        std::string *user, std::string *ip, std::string *host, int filtergroup, String &hashed);
+        std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed);
 
     private:
     // add a string to the list

@@ -11,11 +11,11 @@
 
 #include "String.hpp"
 #include "ConfigVar.hpp"
-#include "DataBuffer.hpp"
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
 #include "Plugin.hpp"
+#include "DataBuffer.hpp"
 
 #include <stdexcept>
 

@@ -126,6 +126,7 @@ std::atomic<bool> logger_ttg;
 std::atomic<bool> gentlereload;
 static volatile bool sig_term_killall = false;
 std::atomic<bool> reloadconfig ;
+std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
 extern bool is_daemonised;
@@ -163,7 +164,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd\n");
+            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
         } else {
             syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
 
@@ -184,6 +185,7 @@ void stat_rec::reset()
     long cnx = (long)conx;
     long rqx = (long) reqs;
     int mfd = maxusedfd;
+    int LC = o.LC_cnt;
 
     // clear and reset stats now so that stats are less likely to be missed
     clear();
@@ -195,7 +197,7 @@ void stat_rec::reset()
 
     long cps = cnx / period;
     long rqs = rqx / period;
-    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
         bc,
         o.http_worker_Q->size(),
         o.log_Q->size(),
@@ -203,7 +205,8 @@ void stat_rec::reset()
         cps,
             rqx,
             rqs,
-        mfd);
+        mfd,
+    LC);
     fflush(fs);
 };
 
@@ -569,7 +572,8 @@ void handle_connections(int tindex)
 #endif
             --dystat->busychildren;
             delete peersock;
-            if (rc < 0) break;
+            //if (rc < 0) break;
+            break;
         };
     };
 }
@@ -785,6 +789,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
         const char* delim = "\n";
         std::istringstream iss( loglines);
         std::string logline;
+        std::shared_ptr<LOptionContainer> ldl;
+        ldl = o.currentLists();
 
             while (std::getline(iss, logline ))
             {
@@ -1013,7 +1019,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
             case 4:
                 builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                     + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
-                    + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + o.fg[filtergroup]->name
+                    + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + ldl->fg[filtergroup]->name
 #ifdef SG_LOGFORMAT
                     + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
                     + params + "\t" + o.logid_2 + "\t" + postdata;
@@ -1055,13 +1061,13 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
             case 2:
                 builtline = "\"" + when + "\",\"" + who + "\",\"" + from + "\",\"" + where + "\",\"" + what + "\",\""
                     + how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat + "\",\"" + stringgroup + "\",\""
-                    + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" + o.fg[filtergroup]->name + "\",\""
+                    + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" + ldl->fg[filtergroup]->name + "\",\""
                     + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" + postdata + "\"";
                 break;
             case 1:
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                     + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
-                    + stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
+                    + stringcode + " " + mimetype + " " + clienthost + " " + ldl->fg[filtergroup]->name + " "
                     + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
                 break;
             case 5:
@@ -1093,7 +1099,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     + what + "\t"
                     + sweight + "\t"
                     + cat + "\t"
-                    + o.fg[filtergroup]->name + "\t"
+                    + ldl->fg[filtergroup]->name + "\t"
                     + stringgroup;
             }
 
@@ -1108,13 +1114,13 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
 
 #ifdef ENABLE_EMAIL
             // do the notification work here, but fork for speed
-            if (o.fg[filtergroup]->use_smtp == true) {
+            if (ldl->fg[filtergroup]->use_smtp == true) {
 
                 // run through the gambit to find out of we're sending notification
                 // because if we're not.. then fork()ing is a waste of time.
 
                 // virus
-                if ((wasscanned && wasinfected) && (o.fg[filtergroup]->notifyav)) {
+                if ((wasscanned && wasinfected) && (ldl->fg[filtergroup]->notifyav)) {
                     // Use a double fork to ensure child processes are reaped adequately.
                     pid_t smtppid;
                     if ((smtppid = fork()) != 0) {
@@ -1129,9 +1135,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                             if (mail == NULL) {
                                 syslog(LOG_ERR, "Unable to contact defined mailer.");
                             } else {
-                                fprintf(mail, "To: %s\n", o.fg[filtergroup]->avadmin.c_str());
-                                fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
-                                fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->avsubject.c_str());
+                                fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->avadmin.c_str());
+                                fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
+                                fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->avsubject.c_str());
                                 fprintf(mail, "A virus was detected by e2guardian.\n\n");
                                 fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
                                 if (who != "-")
@@ -1147,7 +1153,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                                 if (cat.c_str() != NULL)
                                     fprintf(mail, "%-10s%s\n", "Category:", cat.c_str());
                                 fprintf(mail, "%-10s%s\n", "Mime type:", mimetype.c_str());
-                                fprintf(mail, "%-10s%s\n", "Group:", o.fg[filtergroup]->name.c_str());
+                                fprintf(mail, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
                                 fprintf(mail, "%-10s%s\n", "HTTP resp:", stringcode.c_str());
 
                                 pclose(mail);
@@ -1161,8 +1167,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 }
 
                 // naughty OR virus
-                else if ((isnaughty || (wasscanned && wasinfected)) && (o.fg[filtergroup]->notifycontent)) {
-                    byuser = o.fg[filtergroup]->byuser;
+                else if ((isnaughty || (wasscanned && wasinfected)) && (ldl->fg[filtergroup]->notifycontent)) {
+                    byuser = ldl->fg[filtergroup]->byuser;
 
                     // if no violations so far by this user/group,
                     // reset threshold counters
@@ -1172,17 +1178,17 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                             timestamp_map[who] = time(0);
                             vbody_map[who] = "";
                         }
-                    } else if (!o.fg[filtergroup]->current_violations) {
+                    } else if (!ldl->fg[filtergroup]->current_violations) {
                         // set the time of the first violation
-                        o.fg[filtergroup]->threshold_stamp = time(0);
-                        o.fg[filtergroup]->violationbody = "";
+                        ldl->fg[filtergroup]->threshold_stamp = time(0);
+                        ldl->fg[filtergroup]->violationbody = "";
                     }
 
                     // increase per-user or per-group violation count
                     if (byuser)
                         violation_map[who]++;
                     else
-                        o.fg[filtergroup]->current_violations++;
+                        ldl->fg[filtergroup]->current_violations++;
 
                     // construct email report
                     char *vbody_temp = new char[8192];
@@ -1211,7 +1217,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     }
                     sprintf(vbody_temp, "%-10s%s\n", "Mime type:", mimetype.c_str());
                     vbody += vbody_temp;
-                    sprintf(vbody_temp, "%-10s%s\n", "Group:", o.fg[filtergroup]->name.c_str());
+                    sprintf(vbody_temp, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
                     vbody += vbody_temp;
                     sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
                     vbody += vbody_temp;
@@ -1223,14 +1229,14 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                         curv_tmp = violation_map[who];
                         stamp_tmp = timestamp_map[who];
                     } else {
-                        o.fg[filtergroup]->violationbody += vbody;
-                        curv_tmp = o.fg[filtergroup]->current_violations;
-                        stamp_tmp = o.fg[filtergroup]->threshold_stamp;
+                        ldl->fg[filtergroup]->violationbody += vbody;
+                        curv_tmp = ldl->fg[filtergroup]->current_violations;
+                        stamp_tmp = ldl->fg[filtergroup]->threshold_stamp;
                     }
 
                     // if threshold exceeded, send mail
-                    if (curv_tmp >= o.fg[filtergroup]->violations) {
-                        if ((o.fg[filtergroup]->threshold == 0) || ((time(0) - stamp_tmp) <= o.fg[filtergroup]->threshold)) {
+                    if (curv_tmp >= ldl->fg[filtergroup]->violations) {
+                        if ((ldl->fg[filtergroup]->threshold == 0) || ((time(0) - stamp_tmp) <= ldl->fg[filtergroup]->threshold)) {
                             // Use a double fork to ensure child processes are reaped adequately.
                             pid_t smtppid;
                             if ((smtppid = fork()) != 0) {
@@ -1245,25 +1251,25 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                                     if (mail == NULL) {
                                         syslog(LOG_ERR, "Unable to contact defined mailer.");
                                     } else {
-                                        fprintf(mail, "To: %s\n", o.fg[filtergroup]->contentadmin.c_str());
-                                        fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
+                                        fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->contentadmin.c_str());
+                                        fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
 
                                         if (byuser)
-                                            fprintf(mail, "Subject: %s (%s)\n", o.fg[filtergroup]->contentsubject.c_str(), who.c_str());
+                                            fprintf(mail, "Subject: %s (%s)\n", ldl->fg[filtergroup]->contentsubject.c_str(), who.c_str());
                                         else
-                                            fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->contentsubject.c_str());
+                                            fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->contentsubject.c_str());
 
                                         fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
                                             curv_tmp,
                                             (curv_tmp == 1) ? "" : "s",
                                             (curv_tmp == 1) ? "s" : "ve",
-                                            o.fg[filtergroup]->threshold);
+                                            ldl->fg[filtergroup]->threshold);
 
                                         fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
                                         if (byuser)
                                             fprintf(mail, "%s", vbody_map[who].c_str());
                                         else
-                                            fprintf(mail, "%s", o.fg[filtergroup]->violationbody.c_str());
+                                            fprintf(mail, "%s", ldl->fg[filtergroup]->violationbody.c_str());
                                         pclose(mail);
                                     }
                                     // Second child exits
@@ -1276,7 +1282,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
                         if (byuser)
                             violation_map[who] = 0;
                         else
-                            o.fg[filtergroup]->current_violations = 0;
+                            ldl->fg[filtergroup]->current_violations = 0;
                     }
                 } // end naughty OR virus
             } // end usesmtp
@@ -1625,6 +1631,7 @@ int fc_controlit()   //
     logger_ttg = false;
     reloadconfig = false;
     gentlereload = false;
+    reload_cnt = 0;
 
     o.lm.garbageCollect();
 
@@ -1986,6 +1993,11 @@ int fc_controlit()   //
             std::cout << "gentle reload activated" << std::endl;
 #endif
             syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload starting");
+            if (o.createLists(++reload_cnt))
+            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
+            else
+                syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload failed");
+#ifdef NOTDEF
             o.deleteFilterGroups();
             if (!o.readFilterGroupConf()) {
                 reloadconfig = true; // filter groups problem so lets
@@ -2030,6 +2042,8 @@ int fc_controlit()   //
                     }
                 }
             }
+#endif  //  NODEF
+            gentlereload = false;
             continue;
         }
         timeout.tv_sec = 5;

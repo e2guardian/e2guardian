@@ -6,10 +6,12 @@
 #define __HPP_DATABUFFER
 
 #include <exception>
+#include <memory>
 #include <string.h>
 #include "Socket.hpp"
 #include "String.hpp"
 #include "FDFuncs.hpp"
+#include "FOptionContainer.hpp"
 
 class DMPlugin;
 
@@ -62,7 +64,7 @@ class DataBuffer
     void swapbacktocompressed();
 
     // content regexp search and replace
-    bool contentRegExp(int filtergroup);
+    bool contentRegExp(FOptionContainer* &foc);
 
     // create a temp file and return its FD	- NOT a simple accessor function
     int getTempFileFD();

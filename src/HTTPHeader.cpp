@@ -216,7 +216,7 @@ String HTTPHeader::getMIMEBoundary()
 }
 
 // does the given content type string match our headers?
-bool HTTPHeader::isContentType(const String &t, int filtergroup)
+bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
 {
 #ifdef DGDEBUG
              std::cout << "mime type: " << getContentType() << std::endl;
@@ -228,7 +228,7 @@ bool HTTPHeader::isContentType(const String &t, int filtergroup)
 // Only check text_mime types if ContentType request is 'text'
    if (t == "text") {
         String mime = getContentType();
-        std::deque<std::string> text_mime =  o.fg[filtergroup]->text_mime;
+        std::deque<std::string> text_mime =  foc->text_mime;
         int size = (int) text_mime.size();
         int i;
         for (i = 0; i < size; i++) {
@@ -643,10 +643,10 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
 }
 
 // Perform searches and replacements on URL
-bool HTTPHeader::urlRegExp(int filtergroup)
+bool HTTPHeader::urlRegExp(FOptionContainer* &foc)
 {
     // exit immediately if list is empty
-    if (not o.fg[filtergroup]->url_regexp_list_comp.size())
+    if (not foc->url_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
     std::cout << "Starting URL reg exp replace" << std::endl;
@@ -655,7 +655,7 @@ bool HTTPHeader::urlRegExp(int filtergroup)
 #ifdef DGDEBUG
     std::cout << "getUrl returns " << newUrl << std::endl;
 #endif
-    if (regExp(newUrl, o.fg[filtergroup]->url_regexp_list_comp, o.fg[filtergroup]->url_regexp_list_rep)) {
+    if (regExp(newUrl, foc->url_regexp_list_comp, foc->url_regexp_list_rep)) {
         setURL(newUrl);
         return true;
     }
@@ -664,12 +664,12 @@ bool HTTPHeader::urlRegExp(int filtergroup)
 
 
 // Perform searches and replacements on SSL site names
-bool HTTPHeader::sslsiteRegExp(int filtergroup)
+bool HTTPHeader::sslsiteRegExp(FOptionContainer* &foc)
 {
     // exit immediately if list is empty
-    if ( ! o.fg[filtergroup]->sslsite_regexp_flag)
+    if ( ! foc->sslsite_regexp_flag)
         return false;
-    if (not o.fg[filtergroup]->sslsite_regexp_list_comp.size())
+    if (not foc->sslsite_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
     std::cout << "Starting SSL site reg exp replace" << std::endl;
@@ -678,7 +678,7 @@ bool HTTPHeader::sslsiteRegExp(int filtergroup)
 #ifdef DGDEBUG
     std::cout << "getUrl returns " << newUrl << std::endl;
 #endif
-    if (regExp(newUrl, o.fg[filtergroup]->sslsite_regexp_list_comp, o.fg[filtergroup]->sslsite_regexp_list_rep)) {
+    if (regExp(newUrl, foc->sslsite_regexp_list_comp, foc->sslsite_regexp_list_rep)) {
         setURL(newUrl);
         return true;
     }
@@ -686,16 +686,16 @@ bool HTTPHeader::sslsiteRegExp(int filtergroup)
 }
 
 // Perform searches and replacements on URL for redirect
-bool HTTPHeader::urlRedirectRegExp(int filtergroup)
+bool HTTPHeader::urlRedirectRegExp(FOptionContainer* &foc)
 {
     // exit immediately if list is empty
-    if (not o.fg[filtergroup]->url_redirect_regexp_list_comp.size())
+    if (not foc->url_redirect_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
     std::cout << "Starting URL reg exp redirect " << std::endl;
 #endif
     String newUrl(url());
-    if (regExp(newUrl, o.fg[filtergroup]->url_redirect_regexp_list_comp, o.fg[filtergroup]->url_redirect_regexp_list_rep)) {
+    if (regExp(newUrl, foc->url_redirect_regexp_list_comp, foc->url_redirect_regexp_list_rep)) {
         redirect = newUrl;
         return true;
     }
@@ -708,12 +708,12 @@ String HTTPHeader::redirecturl()
 }
 
 // check if addheader regexp url
-bool HTTPHeader::isHeaderAdded(int filtergroup)
+bool HTTPHeader::isHeaderAdded(FOptionContainer* &foc)
 {
     if (addheaderchecked)
         return isheaderadded;
     // exit immediately if list is empty
-    if (not o.fg[filtergroup]->addheader_regexp_list_comp.size()) {
+    if (not foc->addheader_regexp_list_comp.size()) {
         addheaderchecked = true;
         isheaderadded = false;
 #ifdef DGDEBUG
@@ -725,7 +725,7 @@ bool HTTPHeader::isHeaderAdded(int filtergroup)
     std::cout << "Starting addheader check on url" << std::endl;
 #endif
     String newheader(url());
-    if (regExp(newheader, o.fg[filtergroup]->addheader_regexp_list_comp, o.fg[filtergroup]->addheader_regexp_list_rep)) {
+    if (regExp(newheader, foc->addheader_regexp_list_comp, foc->addheader_regexp_list_rep)) {
         isheaderadded = true;
         addheaderchecked = true;
         std::string line(newheader + "\r");
@@ -741,12 +741,12 @@ bool HTTPHeader::isHeaderAdded(int filtergroup)
 }
 
 // check if search
-bool HTTPHeader::isSearch(int filtergroup)
+bool HTTPHeader::isSearch(FOptionContainer* &foc)
 {
     if (searchchecked)
         return issearch;
     // exit immediately if list is empty
-    if (not o.fg[filtergroup]->search_regexp_list_comp.size()) {
+    if (not foc->search_regexp_list_comp.size()) {
         searchchecked = true;
 #ifdef DGDEBUG
         std::cout << "search regexplist empty" << std::endl;
@@ -757,7 +757,7 @@ bool HTTPHeader::isSearch(int filtergroup)
     std::cout << "Starting search check on url " << url() << std::endl;
 #endif
     String searchwd(url());
-    if (regExp(searchwd, o.fg[filtergroup]->search_regexp_list_comp, o.fg[filtergroup]->search_regexp_list_rep)) {
+    if (regExp(searchwd, foc->search_regexp_list_comp, foc->search_regexp_list_rep)) {
         searchwds = searchwd.sort_search().toCharArray();
         searchwd.swapChar('+', ' ');
         searchtms = searchwd.toCharArray();
@@ -791,19 +791,19 @@ String HTTPHeader::searchterms()
     return "";
 };
 
-bool HTTPHeader::DenySSL(int filtergroup)
+bool HTTPHeader::DenySSL(FOptionContainer* &foc)
 {
     String newUrl(getUrl());
-    newUrl = o.fg[filtergroup]->sslaccess_denied_address;
+    newUrl = foc->sslaccess_denied_address;
     setURL(newUrl);
     return true;
 }
 
 // Perform searches and replacements on header lines
-bool HTTPHeader::headerRegExp(int filtergroup)
+bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
 {
     // exit immediately if list is empty
-    if (not o.fg[filtergroup]->header_regexp_list_comp.size())
+    if (not foc->header_regexp_list_comp.size())
         return false;
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
@@ -815,7 +815,7 @@ bool HTTPHeader::headerRegExp(int filtergroup)
             i->chop();
             chop = true;
         }
-        result |= regExp(*i, o.fg[filtergroup]->header_regexp_list_comp, o.fg[filtergroup]->header_regexp_list_rep);
+        result |= regExp(*i, foc->header_regexp_list_comp, foc->header_regexp_list_rep);
         if (chop)
             i->append("\r");
     }
@@ -1614,7 +1614,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         return s;
     } // exit if not found
 #ifdef DGDEBUG
-    std::cout << "matches:" << urldecode_re.numberOfMatches() << std::endl;
+    std::cout << "matches:" << Rre.numberOfMatches() << std::endl;
     std::cout << "removing %XX" << std::endl;
 #endif
     int match;

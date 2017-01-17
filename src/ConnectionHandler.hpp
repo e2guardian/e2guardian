@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include "OptionContainer.hpp"
+#include "LOptionContainer.hpp"
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
 #include "NaughtyFilter.hpp"
@@ -45,15 +46,18 @@ struct postinfo {
 class ConnectionHandler
 {
     public:
-    ConnectionHandler()
-        : clienthost(NULL) {
-        ch_isiphost.comp(",*[a-z|A-Z].*");
-    }
+    ConnectionHandler();
+//        : clienthost(NULL) {
+ //       ch_isiphost.comp(",*[a-z|A-Z].*");
+  //      ldl = o.currentList();
+   //     load_id = ldl->reload_id;
+    //}
     ~ConnectionHandler()
     {
         delete clienthost;
     };
 
+    int load_id;
     // pass data between proxy and client, filtering as we go.
     int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat);
 
@@ -69,6 +73,7 @@ class ConnectionHandler
     std::string urlparams;
     std::list<postinfo> postparts;
     String lastcategory;
+    std::shared_ptr<LOptionContainer> ldl;
 
     void cleanThrow(const char *message, Socket &peersock, Socket &proxysock);
     void cleanThrow(const char *message, Socket &peersock );

@@ -58,7 +58,7 @@ class CSPlugin : public Plugin
     // in is not exactly as it appeared in the request (i.e. URL-encoded form data,
     // but with form control names and URL encoding stripped away to leave a single
     // block of text).
-    virtual int willScanRequest(const String &url, const char *user, int filtergroup,
+    virtual int willScanRequest(const String &url, const char *user, FOptionContainer* &foc,
         const char *ip, bool post, bool reconstituted, bool exception, bool bypass);
 
     // Test whether, in addition to the above, a particular ContentScanner is actually
@@ -69,16 +69,16 @@ class CSPlugin : public Plugin
     // not known.
     // Will not be called for request/response data where willScanRequest previously
     // returned false.
-    virtual int willScanData(const String &url, const char *user, int filtergroup, const char *ip,
+    virtual int willScanData(const String &url, const char *user, FOptionContainer* &foc, const char *ip,
         bool post, bool reconstituted, bool exception, bool bypass, const String &disposition,
         const String &mimetype, off_t size);
 
     // scanning functions themselves
     // docheader will be NULL if the data is from a POST request, rather than a response
     // disposition & MIME type may be NULL or empty strings, in which case docheader should be checked for them (if it is not NULL itself)
-    virtual int scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup, const char *ip,
+    virtual int scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user,FOptionContainer* &foc , const char *ip,
         const char *object, unsigned int objectsize, NaughtyFilter *checkme, const String *disposition = NULL, const String *mimetype = NULL);
-    virtual int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup, const char *ip,
+    virtual int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc , const char *ip,
         const char *filename, NaughtyFilter *checkme, const String *disposition = NULL, const String *mimetype = NULL)
         = 0;
 
