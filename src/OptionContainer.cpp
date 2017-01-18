@@ -185,7 +185,7 @@ bool OptionContainer::read(std::string& filename, int type)
 
 		if (findoptionS("softrestart") == "on") {
 			soft_restart = true;
-		} else {       
+		} else {
 			soft_restart = false;
 		}
 

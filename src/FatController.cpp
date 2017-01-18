@@ -538,7 +538,7 @@ bool daemonise()
 // handle any connections received by this thread
 void handle_connections(int tindex)
 {
-    while (true) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
+    while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
         ConnectionHandler h;
         // the class that handles the connections
         String ip;
@@ -549,7 +549,7 @@ void handle_connections(int tindex)
 #endif
         std::thread::id this_id = std::this_thread::get_id();
         //reloadconfig = false;
-        while (true) {
+        while (!ttg) {
 #ifdef DGDEBUG
             std::cerr << " waiting connectiom from http_worker_Q thread"  << this_id << std::endl;
 #endif
@@ -557,6 +557,8 @@ void handle_connections(int tindex)
 #ifdef DGDEBUG
             std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
 #endif
+            if(ttg) break;
+
             String peersockip = peersock->getPeerIP();
             if (peersock->getFD() < 0 || peersockip.length() < 7) {
 //            if (o.logconerror)
@@ -689,7 +691,7 @@ void wait_for_proxy()
                 syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds", wait_time);
                 cnt_down = o.proxy_failure_log_interval;
             }
-            sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }
 }
@@ -770,9 +772,10 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
     std::string headeradd_word = o.language_list.getTranslation(58);
     headeradd_word = "*" + headeradd_word + "* ";
 
-    while (true) { // loop, essentially, for ever
+    while (!logger_ttg) { // loop, essentially, for ever
         std::string loglines;
         loglines.append(o.log_Q->pop());  // get logdata from queue
+        if(logger_ttg) break;
 #ifdef DGDEBUG
             std::cout << "received a log request" << std::endl;
             std::cout << "log request " << loglines << std::endl;
@@ -1290,10 +1293,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog)
 
             continue; // go back to listening
         }
-    // should never get here
-
 #ifdef DGDEBUG
-    std::cout << "log_listener exiting with error" << std::endl;
+    if( !logger_ttg)
+        std::cout << "log_listener exiting with error" << std::endl;
 #endif
     if (logfile) {
         logfile->close(); // close the file
@@ -1308,6 +1310,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
     while ((errorcount < 30) && !ttg)
     {
         Socket *peersock = serversockets[index]->accept();
+        if (ttg) break;
         int err = serversockets[index]->getErrno();
         if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
 #ifdef DGDEBUG
@@ -1668,7 +1671,7 @@ int fc_controlit()   //
 // PRA 10-10-2005
 /*bool needdrop = false;
 
-	if (o.filter_port < 1024) {*/
+	if (o.filter_port < 1024) */
 #ifdef DGDEBUG
     std::cout << "seteuiding for low port binding/pidfile creation" << std::endl;
 #endif
@@ -1932,9 +1935,9 @@ int fc_controlit()   //
 #endif
         http_wt.push_back(std::thread(handle_connections, i));
     }
-    for (auto &i : http_wt) {
-        i.detach();
-    }
+//    for (auto &i : http_wt) {
+//        i.detach();
+ //   }
 #ifdef DGDEBUG
     std::cout << "http_worker threads created" << std::endl;
 #endif
@@ -1948,9 +1951,9 @@ int fc_controlit()   //
 
         //listen_treads[i]->detach();
     }
-    for (auto &i : listen_threads) {
-        i.detach();
-    }
+//    for (auto &i : listen_threads) {
+//        i.detach();
+//    }
 #ifdef DGDEBUG
     std::cout << "listen  threads created" << std::endl;
 #endif
@@ -2063,7 +2066,9 @@ int fc_controlit()   //
 #ifdef DGDEBUG
             std::cout << "signal:" << rc << std::endl;
 #endif
-            syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
+            if (o.logconerror) {
+                syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
+            }
         }
         int q_size = o.http_worker_Q->size();
 #ifdef DGDEBUG
@@ -2086,63 +2091,57 @@ int fc_controlit()   //
     //   monitor_flag_set(false);
 
 
-    serversockets.deleteAll();
+    // TODO: add tidy-up code!!!!!!!!!!!!
+    sigfillset(&signal_set);
+    pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
+
+    if (o.logconerror) {
+        syslog(LOG_INFO,"sending null socket to http_workers to stop them");
+    }
+    for (i = 0; i < o.http_workers; i++) {
+        Socket* NS = NULL;
+        o.http_worker_Q->push(NS);
+    }
+    dystat->reset();
+  //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  //syslog(LOG_INFO,"1st wait complete");
+
+    //syslog(LOG_INFO,"Joining http_worker threads");
+   // for (auto &i : http_wt) {
+   //     if (i.joinable()) i.join();
+    //   };
+    dystat->reset();
+    dystat->close();
+
+    if (o.logconerror) {
+        syslog(LOG_INFO,"stopping connections");
+    }
+    serversockets.deleteAll();   // stop accepting connections
+//  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  //syslog(LOG_INFO,"1st wait complete");
+  //  for (int i = 0; i < serversocketcount; i++) {
+  //      listen_threads[i].join();
+   // }
+
+    // allow logger to complete writing to disk
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+ //   syslog(LOG_INFO,"2nd wait complete");
+
+    if (o.logconerror) {
+        syslog(LOG_INFO,"connections stopped");
+    }
     free(serversockfds);
 
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = SIG_DFL;
-    if (sigaction(SIGTERM, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGTERM" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGTERM");
-    }
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = SIG_IGN;
-    if (sigaction(SIGHUP, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGHUP" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGHUP");
-    }
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = SIG_IGN;
-    if (sigaction(SIGUSR1, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGUSR1" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGUSR1");
-    }
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_handler = SIG_DFL;
-    if (sigaction(SIGPIPE, &sa, NULL)) { // restore sig handler
-// in child process
-#ifdef DGDEBUG
-        std::cerr << "Error resetting signal for SIGPIPE" << std::endl;
-#endif
-        syslog(LOG_ERR, "%s", "Error resetting signal for SIGPIPE");
-    }
-
-    if (sig_term_killall) {
-        struct sigaction sa, oldsa;
-        memset(&sa, 0, sizeof(sa));
-        sa.sa_handler = SIG_IGN;
-        sigaction(SIGTERM, &sa, &oldsa); // ignore sigterm for us
-        kill(0, SIGTERM); // send everyone in this process group a TERM
-        // which causes them to exit as the default action
-        // but it also seems to send itself a TERM
-        // so we ignore it
-        sigaction(SIGTERM, &oldsa, NULL); // restore prev state
-    }
+    //if (!o.no_logger) {
+    //    log_thread.join();
+    //}
+    logger_ttg = true;
 #ifdef __SSLMITM
     kill_ssl_locks();
 #endif
 
     if (o.logconerror) {
-        syslog(LOG_ERR, "%s", "Main parent process exiting.");
+        syslog(LOG_ERR, "%s", "Main thread exiting.");
     }
-    return 1; // It is only possible to reach here with an error
+    return 0;
 }

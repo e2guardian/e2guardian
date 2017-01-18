@@ -82,7 +82,7 @@ class BaseSocket
     void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
 
     protected:
-    // socket-wide timeout (is this actually used?)
+    // socket-wide timeout
     int timeout;
     int s_errno;
     // length of address of other end of socket (e.g. size of sockaddr_in or sockaddr_un)

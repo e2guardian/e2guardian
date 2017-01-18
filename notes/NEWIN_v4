@@ -1,21 +1,21 @@
-WARNING: This is a very early development pre-release of v4.0 and is work in 
+WARNING: This is a early development pre-release of v4.0 and is work in
 progress.  Large sections of the code are being re-written and there will be 
-significant changes to the configuration files.   
+significant changes to the configuration files in later releases.
 
 Note: This version is work in progress and so is unsupported and instructions 
 may be incomplete.   If in doubt - read the source!
 
 
-The new version is being written in c++11 and so to compile you will need gcc v5.4 or later. (or another complier that supports the c++11 thread library).
+The new version is written in c++11 and so to compile it you will need gcc v5.4 or later. (or another complier that supports the c++11 std::thread library).  Note that the target systems may also need an c++11 library update.
 
 Also the build environment has not yet been modified and so you will need to 
 hand edit the src/Makefile in order to compile it.  The Makefile I use is 
-included as PIPMakefile so that you have something to work from.
+included as PIPMake so that you have something to work from.
 
 REVISED PROCESS MODEL
 
 The parent children process model (which does not scale for very large numbers 
-of connection) is replaced with a queue/threads based model.
+of connections) is replaced with a queue/threads based model.
 
 The main thread now only deals with set-up of the logging, listener, and worker 
 threads, the input (and reinput) of the lists, signals and statistics.  
@@ -33,21 +33,28 @@ to the log.
 
 Most of the above logic is in FatControler.cpp.  The logic is now much simpler and has reduced the amount of code in FatControler by over 50%.
 
-TESTING - only basic testing with small number of worker threads(100) has been 
-carried out to date.  These early tests show a reduction of memory usage of 
-around 50% over v3.4 running on the same VM with minchildren=100. 
+Socket classes have been extensively modified to remove interrupt handling (for list reload etc) and all select calls.
 
-TODO - immediate
+New LOptionContainer written to hold list and filter group setings.   On gentle restart a new LOptionContainer object is created and loaded with filter group 
+and list settings.   Once fully read in a global shared pointer is switched from
+the old list to the new, making actioning list changes immediate an with no 
+interruption to service.
 
-Rewrite e2g Socket family to remove interupt handling and all select calls.  
+TESTING -  basic and (scripted) load testing with up to 1200 worker threads has
+been carried out to date.  These initial tests show a big reduction of memory 
+usage. To around just 10% of that required on v3.4 running on the same VM with 
+minchildren=1200.
 
-Modify list reading and re-reading so that list changes can be immediate. 
+It also handles transient peaks more smoothly.  Connections are queued, so 
+response will slow down, but not stop when all the worker threads are busy.
 
-Check that all code is thread-safe 
+TODO - immediate for first development release
 
-(Load) Test on large system with > 4000 threads
+Check that all code is thread-safe          - In progress
 
-TODO - next
+(Load) Test on large system with > 4000 threads             - In progress
+
+TODO - for later release.
 
 Make lists parameter based rather than hard coded.
 
@@ -55,10 +62,34 @@ Create 'story-board' parameterised logic for handling filtering logic.
 
 Transparent https option.
 
+Re-impliment mailing option.
+
 WISHLIST
 
 ????
 
-Philip Pearce 22 Nov 2016
+NOTES FOR THIS VERSION
+
+All pics support has been removed
+
+Mail option not yet implemented.
+
+Url cache not implimented
+
+IP cache not implimented
+
+Auth plugins - IP, Port and DNSauth tested and working
+	- others should work but not tested
+
+Scan plugins - none tested
+
+Configuration in this version is largely backward compatable with v3.4
+
+just two new options in e2guardian.conf
+
+   httpworkers
+   enablessl
+
+Philip Pearce 22 Nov 2016 - Updated 22nd January 2017
 
 

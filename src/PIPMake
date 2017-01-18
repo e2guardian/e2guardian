@@ -61,6 +61,7 @@ am__e2guardian_SOURCES_DIST = String.cpp String.hpp FDTunnel.cpp \
 	LanguageContainer.cpp LanguageContainer.hpp DynamicURLList.cpp \
 	DynamicURLList.hpp DynamicIPList.cpp DynamicIPList.hpp \
 	ImageContainer.cpp ImageContainer.hpp IPList.cpp IPList.hpp \
+	LOptionContainer.cpp LOptionContainer.hpp \
 	OptionContainer.cpp OptionContainer.hpp FOptionContainer.cpp \
 	FOptionContainer.hpp ListManager.cpp ListManager.hpp md5.cpp \
 	md5.hpp DownloadManager.cpp DownloadManager.hpp ConfigVar.cpp \
@@ -112,6 +113,7 @@ am_e2guardian_OBJECTS = e2guardian-String.$(OBJEXT) \
 	e2guardian-ImageContainer.$(OBJEXT) \
 	e2guardian-IPList.$(OBJEXT) \
 	e2guardian-OptionContainer.$(OBJEXT) \
+	e2guardian-LOptionContainer.$(OBJEXT) \
 	e2guardian-FOptionContainer.$(OBJEXT) \
 	e2guardian-ListManager.$(OBJEXT) e2guardian-md5.$(OBJEXT) \
 	e2guardian-DownloadManager.$(OBJEXT) \
@@ -156,7 +158,7 @@ AVASTDSUPPORT = !! Not compiled !!
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -g -O0
 CLAMDSUPPORT = !! Not compiled !! 
 COMMANDLINESUPPORT = !! Not compiled !! 
 CPP = gcc -E
@@ -164,7 +166,7 @@ CPPFLAGS = -std=c++11
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -rdynamic -g -O2 
+CXXFLAGS = -rdynamic -g -O0 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -352,6 +354,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
 		       IPList.cpp IPList.hpp \
 		       Queue.hpp \
                        OptionContainer.cpp OptionContainer.hpp \
+                       LOptionContainer.cpp LOptionContainer.hpp \
                        FOptionContainer.cpp FOptionContainer.hpp \
                        ListManager.cpp ListManager.hpp \
                        md5.cpp md5.hpp \
@@ -533,6 +536,7 @@ include ./$(DEPDIR)/e2guardian-ListContainer.Po
 include ./$(DEPDIR)/e2guardian-ListManager.Po
 include ./$(DEPDIR)/e2guardian-NaughtyFilter.Po
 include ./$(DEPDIR)/e2guardian-OptionContainer.Po
+include ./$(DEPDIR)/e2guardian-LOptionContainer.Po
 include ./$(DEPDIR)/e2guardian-RegExp.Po
 include ./$(DEPDIR)/e2guardian-Socket.Po
 include ./$(DEPDIR)/e2guardian-SocketArray.Po
@@ -894,6 +898,20 @@ e2guardian-OptionContainer.obj: OptionContainer.cpp
 #	source='OptionContainer.cpp' object='e2guardian-OptionContainer.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-OptionContainer.obj `if test -f 'OptionContainer.cpp'; then $(CYGPATH_W) 'OptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/OptionContainer.cpp'; fi`
+
+e2guardian-LOptionContainer.o: LOptionContainer.cpp
+	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-LOptionContainer.o -MD -MP -MF "$(DEPDIR)/e2guardian-LOptionContainer.Tpo" -c -o e2guardian-LOptionContainer.o `test -f 'LOptionContainer.cpp' || echo '$(srcdir)/'`LOptionContainer.cpp; \
+	then mv -f "$(DEPDIR)/e2guardian-LOptionContainer.Tpo" "$(DEPDIR)/e2guardian-LOptionContainer.Po"; else rm -f "$(DEPDIR)/e2guardian-LOptionContainer.Tpo"; exit 1; fi
+#	source='LOptionContainer.cpp' object='e2guardian-LOptionContainer.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-LOptionContainer.o `test -f 'LOptionContainer.cpp' || echo '$(srcdir)/'`LOptionContainer.cpp
+
+e2guardian-LOptionContainer.obj: LOptionContainer.cpp
+	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-LOptionContainer.obj -MD -MP -MF "$(DEPDIR)/e2guardian-LOptionContainer.Tpo" -c -o e2guardian-LOptionContainer.obj `if test -f 'LOptionContainer.cpp'; then $(CYGPATH_W) 'LOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LOptionContainer.cpp'; fi`; \
+	then mv -f "$(DEPDIR)/e2guardian-LOptionContainer.Tpo" "$(DEPDIR)/e2guardian-LOptionContainer.Po"; else rm -f "$(DEPDIR)/e2guardian-LOptionContainer.Tpo"; exit 1; fi
+#	source='LOptionContainer.cpp' object='e2guardian-LOptionContainer.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -c -o e2guardian-LOptionContainer.obj `if test -f 'LOptionContainer.cpp'; then $(CYGPATH_W) 'LOptionContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/LOptionContainer.cpp'; fi`
 
 e2guardian-FOptionContainer.o: FOptionContainer.cpp
 	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(e2guardian_CPPFLAGS) $(CPPFLAGS) $(e2guardian_CXXFLAGS) $(CXXFLAGS) -MT e2guardian-FOptionContainer.o -MD -MP -MF "$(DEPDIR)/e2guardian-FOptionContainer.Tpo" -c -o e2guardian-FOptionContainer.o `test -f 'FOptionContainer.cpp' || echo '$(srcdir)/'`FOptionContainer.cpp; \
