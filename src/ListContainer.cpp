@@ -14,6 +14,7 @@
 #include "ListContainer.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
+#include "SysV.hpp"
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
@@ -472,19 +473,19 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
     std::cout << filename << std::endl;
 #endif
     // see if cached .process file is available and up to date,
-    // or prefercachedlists has been turned on (SG)
+    // if prefercachedlists has been turned on (SG) (CN)
     struct stat s;
-    if ((o.prefer_cached_lists && stat(std::string(linebuffer).append(".processed").c_str(), &s) == 0)
-        || isCacheFileNewer(filename)) {
-        linebuffer = filename;
-        linebuffer += ".processed";
-
-        // read cached
-        if (!readProcessedItemList(linebuffer.c_str(), startswith, filters))
-            return false;
-        filedate = getFileDate(linebuffer.c_str());
-        issorted = true; // don't bother sorting cached file
-        return true;
+    if ((o.prefer_cached_lists && stat(std::string(linebuffer).append(".processed").c_str(), &s) == 0)) {
+        if (isCacheFileNewer(filename)) {
+            linebuffer = filename;
+            linebuffer += ".processed";
+            // read cached
+            if (!readProcessedItemList(linebuffer.c_str(), startswith, filters))
+                return false;
+            filedate = getFileDate(linebuffer.c_str());
+            issorted = true; // don't bother sorting cached file
+            return true;
+        }
     }
     filedate = getFileDate(filename);
     size_t len = 0;
@@ -1745,10 +1746,29 @@ time_t getFileDate(const char *filename)
     struct stat status;
     int rc = stat(filename, &status);
     if (rc != 0) {
-        if (errno == ENOENT)
+        if (errno == ENOENT) {
+            #ifdef DGDEBUG
+            std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
+            #endif
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
             return 0;
-        else
-            throw std::runtime_error(strerror(errno));
+        }
+        // If there are permission problems, just reload the file (CN)
+        if (errno == EACCES) {
+            #ifdef DGDEBUG
+            std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno EACCES." << std::endl;
+            #endif
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
+            return 0;
+        }
+        else {
+            // We need to die in this case since continuing will cause the process to segfault (CN)
+            if (!is_daemonised) {
+                std::cerr << "Error reading " << filename << "Check directory and file permissions. They should be 644 and 755: " << strerror(errno) << std::endl;
+            }
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
+            return sysv_kill(o.pid_filename);
+        }
     }
     return status.st_mtime;
 }
@@ -1759,10 +1779,17 @@ bool ListContainer::upToDate()
         return false;
     }
 
-    String cachefile(sourcefile);
-    cachefile += ".processed";
-    if (getFileDate(cachefile.toCharArray()) > filedate) {
-        return false;
+    // No need to check for cached files if prefercachedlists has not been turned on
+    // There may be a slight performance improvement by avoiding unnecessary checks (CN)
+    if (o.prefer_cached_lists) {
+        #ifdef DGDEBUG
+        std::cout << "It appears that prefercachedlists is turned on: verifying freshness." << std::endl;
+        #endif
+        String cachefile(sourcefile);
+        cachefile += ".processed";
+        if (getFileDate(cachefile.toCharArray()) > filedate) {
+            return false;
+        }
     }
 
     for (unsigned int i = 0; i < morelists.size(); i++) {
