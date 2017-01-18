@@ -1746,10 +1746,16 @@ time_t getFileDate(const char *filename)
     struct stat status;
     int rc = stat(filename, &status);
     if (rc != 0) {
-        if (errno == ENOENT)
+        if (errno == ENOENT) {
             return 0;
-        else
+        }
+        // If there are permission problems, just reload the file -Chris Nighswonger
+        if (errno == EACCES) {
+            return 0;
+        }
+        else {
             throw std::runtime_error(strerror(errno));
+        }
     }
     return status.st_mtime;
 }
