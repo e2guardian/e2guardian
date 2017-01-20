@@ -657,12 +657,13 @@ logadblocks = off
 # on|off (defaults to off)
 loguseragent = off
 
-# Daemon runas user and group
+# Daemon run as user and group
 # This is the user that e2guardian runs as.  Normally the user/group nobody.
 # Uncomment to use.  Defaults to the user set at compile time.
 # Temp files created during virus scanning are given owner and group read
 # permissions; to use content scanners based on external processes, such as
 # clamdscan, the two processes must run with either the same group or user ID.
+# Configuration files and lists must be owned by daemonuser
 #daemonuser = '@DGPROXYUSER@'
 #daemongroup = '@DGPROXYGROUP@'
 
