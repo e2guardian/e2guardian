@@ -1750,7 +1750,7 @@ time_t getFileDate(const char *filename)
             #ifdef DGDEBUG
             std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
             #endif
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
             return 0;
         }
         // If there are permission problems, just reload the file (CN)
@@ -1758,15 +1758,15 @@ time_t getFileDate(const char *filename)
             #ifdef DGDEBUG
             std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno EACCES." << std::endl;
             #endif
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
             return 0;
         }
         else {
             // We need to die in this case since continuing will cause the process to segfault (CN)
             if (!is_daemonised) {
-                std::cerr << "Error reading " << filename << "Check directory and file permissions. They should be 644 and 755: " << strerror(errno) << std::endl;
+                std::cerr << "Error reading " << filename << "Check directory and file permissions. They should be 640 and 750: " << strerror(errno) << std::endl;
             }
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 644 and 755: %s", filename, strerror(errno));
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
             return sysv_kill(o.pid_filename);
         }
     }
