@@ -4,10 +4,10 @@ Summary of changes in this release (v3.5.0) can be found in e2guardian.release
 
 January 2016
 - Fix Bug #162 Check missing dependency openssl
-- e2guardian -g causes segfault #163 
+- Fix Bug #163 e2guardian -g causes segfault 
 
 December 2016
-- Fix bug #157 (Code 400 log)
+- Fix Bug #157 (Code 400 log)
 - Fix Bug #130 filtergroupslist not working with NTLM authentication (HTTPS) 
 
 November 2016
@@ -23,7 +23,7 @@ September 2016
 August 2016
 - Fix Bug #119 readFromSocket incorrect error path
 - Fix Bug #136 (Ignoring the body of 304 replies causes corrupted messages)
-- new auth plugin - identification by header -
+- New auth plugin - identification by header -
 
 July 2016
 - New logheadervalue option added 
