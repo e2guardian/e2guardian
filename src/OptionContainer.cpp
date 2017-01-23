@@ -302,10 +302,6 @@ bool OptionContainer::read(const char *filename, int type)
         } // check its a reasonable value
         maxspare_children = findoptionI("maxsparechildren");
         if (!realitycheck(maxspare_children, min_children, max_children, "maxsparechildren")) {
-    	   if (!is_daemonised) {
-                    std::cerr << "maxsparechildren must greater than minchildren and can not be greater than maxchildren" << std::endl;
-           }
-           syslog(LOG_ERR, "%s", "maxsparechildren must greater than minchildren and can not be greater than maxchildren");
            return false;
         } // check its a reasonable value
         prefork_children = findoptionI("preforkchildren");
@@ -1290,9 +1286,9 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
             // the console so we can write back an
             // error
 
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << "Config problem: " << emessage << " set to " << l << "; Value must be greater than " << minl << " and less than " << maxl << "." << std::endl;
         }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
+        syslog(LOG_ERR, "Config problem %s set to %lu; Value must be greater than %lu and less than %lu.", emessage, l, minl, maxl);
         return false;
     }
     return true;
