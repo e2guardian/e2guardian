@@ -590,6 +590,8 @@ preforkchildren = 10
 # sets the maximum number of processes to have doing nothing.
 # When this many are spare it will cull some of them.
 # On large sites you might want to try 64.
+# Note:	This value must be greater than minchildren, but
+# 	less than maxchildren.
 maxsparechildren = 32
 
 

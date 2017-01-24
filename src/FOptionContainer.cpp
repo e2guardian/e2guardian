@@ -2051,7 +2051,7 @@ std::string FOptionContainer::findoptionS(const char *option)
     return "";
 }
 
-bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emessage)
+bool FOptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage)
 {
     // realitycheck checks a String for certain expected criteria
     // so we can spot problems in the conf files easier
@@ -2060,11 +2060,9 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
             // when called we have not detached from
             // the console so we can write back an
             // error
-
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << "Config problem: " << emessage << " set to " << l << "; Value must be greater than " << minl << " and less than " << maxl << "." << std::endl;
         }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
-
+        syslog(LOG_ERR, "Config problem %s set to %lu; Value must be greater than %lu and less than %lu.", emessage, l, minl, maxl);
         return false;
     }
     return true;
