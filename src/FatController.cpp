@@ -2895,6 +2895,12 @@ int fc_controlit()
     int tofind;
 
     if (reloadconfig) {
+        /*
+           This is a catch-all otherwise we drop into an infinite loop...
+           if we successfully get to this point, we think we have successfully reloaded
+           and we must allow things to go forward. -CN
+        */
+	gentlereload = false;
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
         syslog(LOG_INFO, "Started successfully.");
@@ -2919,23 +2925,30 @@ int fc_controlit()
             syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload starting");
             o.deleteFilterGroups();
             if (!o.readFilterGroupConf()) {
-                reloadconfig = true; // filter groups problem so lets
-                // try and reload entire config instead
-                // if that fails it will bomb out
+                /*
+                   filter groups problem so lets
+                   try and reload entire config instead
+	           if that fails it will bomb out
+                */
+                reloadconfig = true;
+	        gentlereload = false; // this is no longer a gentle reload -CN
             } else {
                 if (o.use_filter_groups_list) {
                     o.filter_groups_list.reset();
                     if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true))
                         reloadconfig = true; // filter groups problem...
+	                gentlereload = false; // this is no longer a gentle reload -CN
                 }
                 if (!reloadconfig) {
                     o.deletePlugins(o.csplugins);
                     if (!o.loadCSPlugins())
                         reloadconfig = true; // content scan plugs problem
+	                gentlereload = false; // this is no longer a gentle reload -CN
                     if (!reloadconfig) {
                         o.deletePlugins(o.authplugins);
                         if (!o.loadAuthPlugins())
                             reloadconfig = true; // auth plugs problem
+	                    gentlereload = false; // this is no longer a gentle reload -CN
                     }
                     if (!reloadconfig) {
                         o.deleteRooms();
@@ -2974,6 +2987,9 @@ int fc_controlit()
             }
             flush_urlcache();
             continue;
+#ifdef DGDEBUG
+            std::cout << "gentle reload completed" << std::endl;
+#endif
         }
 
 // Lets take the opportunity to clean up our dead children if any
