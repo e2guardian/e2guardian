@@ -1743,16 +1743,20 @@ size_t getFileLength(const char *filename)
 
 time_t getFileDate(const char *filename)
 {
+    std::string compare = filename;
     struct stat status;
     int rc = stat(filename, &status);
     if (rc != 0) {
-        if (errno == ENOENT) {
+	// Check only permissions for cache file
+        if (errno == ENOENT && !compare.find(".processed")){
             #ifdef DGDEBUG
             std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
             #endif
             syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
             return 0;
-        }
+        } else if (errno == ENOENT && compare.find(".processed")){
+	    return 0;
+	}
         // If there are permission problems, just reload the file (CN)
         if (errno == EACCES) {
             #ifdef DGDEBUG
@@ -1787,7 +1791,7 @@ bool ListContainer::upToDate()
         #endif
         String cachefile(sourcefile);
         cachefile += ".processed";
-        if (getFileDate(cachefile.toCharArray()) > filedate) {
+        if (getFileDate(cachefile.toCharArray()) > filedate){
             return false;
         }
     }
