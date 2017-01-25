@@ -84,12 +84,14 @@ Auth plugins - IP, Port and DNSauth tested and working
 Scan plugins - none tested
 
 Configuration in this version is largely backward compatable with v3.4
-
 just two new options in e2guardian.conf
 
    httpworkers
    enablessl
 
-Philip Pearce 22 Nov 2016 - Updated 22nd January 2017
+Please note the new format for the dstats log. See notes/dstat_format
+
+
+Philip Pearce 22 Nov 2016 - Updated 25nd January 2017
 
 
