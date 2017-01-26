@@ -753,7 +753,6 @@ bool OptionContainer::read(const char *filename, int type)
         filter_groups_list_location = findoptionS("filtergroupslist");
         std::string banned_ip_list_location(findoptionS("bannediplist"));
         std::string exception_ip_list_location(findoptionS("exceptioniplist"));
-        group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
 
         if (filter_groups_list_location.length() == 0) {
@@ -765,15 +764,6 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         } else {
             use_filter_groups_list = true;
-        }
-
-        if (group_names_list_location.length() == 0) {
-            use_group_names_list = false;
-#ifdef DGDEBUG
-            std::cout << "Not using groupnameslist" << std::endl;
-#endif
-        } else {
-            use_group_names_list = true;
         }
 
         if (findoptionS("prefercachedlists") == "on")
@@ -1300,35 +1290,11 @@ bool OptionContainer::readFilterGroupConf()
     prefix = prefix.before(".conf");
     prefix += "f";
     String file;
-    ConfigVar groupnamesfile;
     String groupname;
     bool need_html = false;
-    if (use_group_names_list) {
-        int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
-        if (result != 0) {
-            if (!is_daemonised)
-                std::cerr << "Error opening group names file: " << group_names_list_location << std::endl;
-            syslog(LOG_ERR, "Error opening group names file: %s", group_names_list_location.c_str());
-            return false;
-        }
-    }
     for (int i = 1; i <= filter_groups; i++) {
         file = prefix + String(i);
         file += ".conf";
-        if (use_group_names_list) {
-            std::ostringstream groupnum;
-            groupnum << i;
-            groupname = groupnamesfile[groupnum.str().c_str()];
-            if (groupname.length() == 0) {
-                if (!is_daemonised)
-                    std::cerr << "Group names file too short: " << group_names_list_location << std::endl;
-                syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
-                return false;
-            }
-#ifdef DGDEBUG
-            std::cout << "Group name: " << groupname << std::endl;
-#endif
-        }
         if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
             if (!is_daemonised) {
                 std::cerr << "Error opening filter group config: " << file << std::endl;

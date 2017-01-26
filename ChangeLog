@@ -4,6 +4,8 @@ Summary of changes in this release (v3.5.0) can be found in e2guardian.release
 
 January 2016
 Many Improvements and bug fixes, big thanks to Chris Nighswonger for his help  
+- Remove unused code
+- Fix Bug #169 Mismached use of free()
 - Fix Bug #162 Check missing dependency openssl
 - Fix Bug #163 e2guardian -g causes segfault 
 
