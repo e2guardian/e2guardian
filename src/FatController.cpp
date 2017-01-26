@@ -2656,7 +2656,7 @@ int fc_controlit()
 
         if (loggerpid == 0) { // ma ma!  i am the child
             serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
+            delete[] serversockfds;
             if (o.max_ips > 0) {
                 iplistsock.close();
             }
@@ -2678,7 +2678,7 @@ int fc_controlit()
         urllistpid = fork();
         if (urllistpid == 0) { // ma ma!  i am the child
             serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
+            delete[] serversockfds;
             if (!o.no_logger) {
                 loggersock.close(); // we don't need our copy of this so close it
             }

@@ -554,7 +554,7 @@ bool FOptionContainer::read(const char *filename)
         }
 
 #ifdef DGDEBUG
-        std::cout << "Group " << findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
+//        std::cout << "Group " << findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
