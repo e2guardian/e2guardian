@@ -2919,9 +2919,6 @@ int fc_controlit()
         // OR, its timetogo - got a sigterm
         // OR, we need to exit to reread config
         if (gentlereload) {
-#ifdef DGDEBUG
-            std::cout << "gentle reload activated" << std::endl;
-#endif
             syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload starting");
             o.deleteFilterGroups();
             if (!o.readFilterGroupConf()) {
@@ -2935,20 +2932,23 @@ int fc_controlit()
             } else {
                 if (o.use_filter_groups_list) {
                     o.filter_groups_list.reset();
-                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true))
+                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true)) {
                         reloadconfig = true; // filter groups problem...
 	                gentlereload = false; // this is no longer a gentle reload -CN
+                    }
                 }
                 if (!reloadconfig) {
                     o.deletePlugins(o.csplugins);
-                    if (!o.loadCSPlugins())
+                    if (!o.loadCSPlugins()) {
                         reloadconfig = true; // content scan plugs problem
 	                gentlereload = false; // this is no longer a gentle reload -CN
+                    }
                     if (!reloadconfig) {
                         o.deletePlugins(o.authplugins);
-                        if (!o.loadAuthPlugins())
+                        if (!o.loadAuthPlugins()) {
                             reloadconfig = true; // auth plugs problem
 	                    gentlereload = false; // this is no longer a gentle reload -CN
+                        }
                     }
                     if (!reloadconfig) {
                         o.deleteRooms();
@@ -2977,9 +2977,8 @@ int fc_controlit()
                         if (hup_index >= top_child_fds) {
                             gentle_in_progress = false;
                             hup_index = 0;
-                            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
+		            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
                         }
-
                         // everything ok - no full reload needed
                         // clear gentle reload flag for next run of the loop
                     }
@@ -2987,9 +2986,6 @@ int fc_controlit()
             }
             flush_urlcache();
             continue;
-#ifdef DGDEBUG
-            std::cout << "gentle reload completed" << std::endl;
-#endif
         }
 
 // Lets take the opportunity to clean up our dead children if any
