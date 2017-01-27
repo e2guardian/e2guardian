@@ -1654,7 +1654,38 @@ size_t getFileLength(const char *filename)
         throw std::runtime_error(strerror(errno));
     return status.st_size;
 }
-
+time_t getFileDate(const char *filename)
+{
+    struct stat status;
+    int rc = stat(filename, &status);
+    if (rc != 0) {
+        if (errno == ENOENT) {
+#ifdef DGDEBUG
+            std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
+#endif
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
+            return 0;
+        }
+        // If there are permission problems, just reload the file (CN)
+        if (errno == EACCES) {
+#ifdef DGDEBUG
+            std::cout << "Cannot stat file m_time for " << filename << ". stat() returned errno EACCES." << std::endl;
+#endif
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: %s", filename, strerror(errno));
+            return 0;
+        }
+        else {
+            if (!is_daemonised) {
+                std::cerr << "Error reading " << filename << "Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: " << strerror(errno) << std::endl;
+            }
+            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: %s", filename, strerror(errno));
+            return 0;
+            //return sysv_kill(o.pid_filename);
+        }
+    }
+    return status.st_mtime;
+}
+#ifdef NODEF
 time_t getFileDate(const char *filename)
 {
     struct stat status;
@@ -1667,16 +1698,11 @@ time_t getFileDate(const char *filename)
     }
     return status.st_mtime;
 }
+#endif
 
 bool ListContainer::upToDate()
 {
     if (getFileDate(sourcefile.toCharArray()) > filedate) {
-        return false;
-    }
-
-    String cachefile(sourcefile);
-    cachefile += ".processed";
-    if (getFileDate(cachefile.toCharArray()) > filedate) {
         return false;
     }
 

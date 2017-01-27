@@ -1663,7 +1663,7 @@ int fc_controlit()   //
                 std::cerr << "Error creating server socket " << i << std::endl;
             }
             syslog(LOG_ERR, "Error creating server socket %d", i);
-            free(serversockfds);
+            delete[] serversockfds;
             return 1;
         }
     }
@@ -1686,7 +1686,7 @@ int fc_controlit()   //
 #ifdef DGDEBUG
         std::cerr << "Unable to seteuid() to bind filter port." << std::endl;
 #endif
-        free(serversockfds);
+        delete[] serversockfds;
         return 1;
     }
 
@@ -1695,7 +1695,7 @@ int fc_controlit()   //
     if (pidfilefd < 0) {
         syslog(LOG_ERR, "%s", "Error creating/opening pid file.");
         std::cerr << "Error creating/opening pid file:" << o.pid_filename << std::endl;
-        free(serversockfds);
+        delete[] serversockfds;
         return 1;
     }
 
@@ -1710,7 +1710,7 @@ int fc_controlit()   //
             }
             syslog(LOG_ERR, "Error binding server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
-            free(serversockfds);
+            delete[] serversockfds;
             return 1;
         }
     } else {
@@ -1723,7 +1723,7 @@ int fc_controlit()   //
                 }
                 syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
                 close(pidfilefd);
-                free(serversockfds);
+                delete[] serversockfds;
                 return 1;
             }
         } else {
@@ -1733,7 +1733,7 @@ int fc_controlit()   //
                 }
                 syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
                 close(pidfilefd);
-                free(serversockfds);
+                delete[] serversockfds;
                 return 1;
             }
         }
@@ -1752,7 +1752,7 @@ int fc_controlit()   //
         std::cerr << "Unable to re-seteuid()" << std::endl;
 #endif
         close(pidfilefd);
-        free(serversockfds);
+        delete[] serversockfds;
         return 1; // seteuid failed for some reason so exit with error
     }
 
@@ -1763,7 +1763,7 @@ int fc_controlit()   //
         }
         syslog(LOG_ERR, "Error listening to server socket");
         close(pidfilefd);
-        free(serversockfds);
+        delete[] serversockfds;
         return 1;
     }
 
@@ -1774,7 +1774,7 @@ int fc_controlit()   //
         }
         syslog(LOG_ERR, "Error daemonising");
         close(pidfilefd);
-        free(serversockfds);
+        delete[] serversockfds;
         return 1;
     }
 
@@ -1791,7 +1791,7 @@ int fc_controlit()   //
     rc = sysv_writepidfile(pidfilefd); // also closes the fd
     if (rc != 0) {
         syslog(LOG_ERR, "Error writing to the e2guardian.pid file: %s", strerror(errno));
-        free(serversockfds);
+        delete[] serversockfds;
         return false;
     }
     // We are now a daemon so all errors need to go in the syslog, rather
@@ -1997,57 +1997,12 @@ int fc_controlit()   //
 #endif
             syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload starting");
             if (o.createLists(++reload_cnt))
-            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
+                syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
             else
                 syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload failed");
-#ifdef NOTDEF
-            o.deleteFilterGroups();
-            if (!o.readFilterGroupConf()) {
-                reloadconfig = true; // filter groups problem so lets
-                // try and reload entire config instead
-                // if that fails it will bomb out
-            } else {
-                if (o.use_filter_groups_list) {
-                    o.filter_groups_list.reset();
-                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list),
-                                          "filtergroupslist", true))
-                        reloadconfig = true; // filter groups problem...
-                }
-                if (!reloadconfig) {
-                    o.deletePlugins(o.csplugins);
-                    if (!o.loadCSPlugins())
-                        reloadconfig = true; // content scan plugs problem
-                    if (!reloadconfig) {
-                        o.deletePlugins(o.authplugins);
-                        if (!o.loadAuthPlugins())
-                            reloadconfig = true; // auth plugs problem
-                    }
-                    if (!reloadconfig) {
-                        o.deleteRooms();
-                        o.loadRooms(false);
-                        o.lm.garbageCollect();
-                        if (!gentle_in_progress) {
-                            //if (o.logchildprocs)
-                            //syslog(LOG_ERR, "HUPing %d process(es) during gentle restart", knum);
-                            //hup_somechildren(knum, 0);
-                        }
 
-                        gentle_in_progress = true;
-                        gentlereload = false;
-                        if (hup_index >= top_child_fds) {
-                            gentle_in_progress = false;
-                            hup_index = 0;
-                            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
-                        }
-
-                        // everything ok - no full reload needed
-                        // clear gentle reload flag for next run of the loop
-                    }
-                }
-            }
-#endif  //  NODEF
             gentlereload = false;
-            continue;
+            continue;        //  OK to continue even if gentle failed - just continue to use previous lists
         }
         timeout.tv_sec = 5;
         timeout.tv_nsec = (long) 0;
@@ -2091,7 +2046,7 @@ int fc_controlit()   //
     //   monitor_flag_set(false);
 
 
-    // TODO: add tidy-up code!!!!!!!!!!!!
+    //  tidy-up
     sigfillset(&signal_set);
     pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
 
@@ -2102,7 +2057,7 @@ int fc_controlit()   //
         Socket* NS = NULL;
         o.http_worker_Q->push(NS);
     }
-    dystat->reset();
+    dystat->reset();    // remove this line for production version
   //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   //syslog(LOG_INFO,"1st wait complete");
 
@@ -2110,7 +2065,7 @@ int fc_controlit()   //
    // for (auto &i : http_wt) {
    //     if (i.joinable()) i.join();
     //   };
-    dystat->reset();
+    dystat->reset();    // remove this line for production version
     dystat->close();
 
     if (o.logconerror) {
@@ -2123,22 +2078,20 @@ int fc_controlit()   //
   //      listen_threads[i].join();
    // }
 
-    // allow logger to complete writing to disk
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
- //   syslog(LOG_INFO,"2nd wait complete");
 
     if (o.logconerror) {
         syslog(LOG_INFO,"connections stopped");
     }
-    free(serversockfds);
+    delete[] serversockfds;
 
-    //if (!o.no_logger) {
-    //    log_thread.join();
-    //}
     logger_ttg = true;
 #ifdef __SSLMITM
     kill_ssl_locks();
 #endif
+
+    // allow logger to complete writing to disk
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    //   syslog(LOG_INFO,"2nd wait complete");
 
     if (o.logconerror) {
         syslog(LOG_ERR, "%s", "Main thread exiting.");

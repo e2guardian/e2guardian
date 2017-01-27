@@ -1063,7 +1063,7 @@ stat_rec* &dystat)
             // Start of by pass
             //
 
-            if (header.isScanBypassURL(&url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+            if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -Scan Bypass URL match" << std::endl;
 #endif
@@ -1075,9 +1075,9 @@ stat_rec* &dystat)
                 std::cout << dbgPeerPort << " -About to check for bypass..." << std::endl;
 #endif
                 if (ldl->fg[filtergroup]->bypass_mode != 0)
-                    bypasstimestamp = header.isBypassURL(&url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
+                    bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
                 if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-                    bypasstimestamp = header.isBypassURL(&url, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
+                    bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
                 if (bypasstimestamp > 0) {
 #ifdef DGDEBUG
                     if (isvirusbypass)
@@ -1085,7 +1085,7 @@ stat_rec* &dystat)
                     else
                         std::cout << dbgPeerPort << " -Filter bypass URL match" << std::endl;
 #endif
-                    header.chopBypass(url, isvirusbypass);
+                    header.chopBypass(logurl, isvirusbypass);
                     if (bypasstimestamp > 1) { // not expired
                         isbypass = true;
                         // checkme: need a TR string for virus bypass
@@ -1133,7 +1133,7 @@ stat_rec* &dystat)
                 try {
                     docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, url);
                     header.chopScanBypass(url);
-                    url = header.getUrl();
+                    url = header.getLogUrl();
                     //urld = header.decode(url);  // unneeded really
 
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,

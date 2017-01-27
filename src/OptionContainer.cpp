@@ -1219,7 +1219,5 @@ bool OptionContainer::createLists(int load_id)  {
 
 
 std::shared_ptr<LOptionContainer> OptionContainer::currentLists()  {
-//    std::shared_ptr<LOptionContainer> temp (current_LOC);
-//    return temp;
     return current_LOC;
 }
