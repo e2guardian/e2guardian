@@ -30,7 +30,7 @@ e2guardian  v4  dstats.log columns
 
 9. LCcnt - Number of List Option Containers in use. A new List Option Container
    is created at start up and on gentle restart.  Old containers are deleted
-   once all connections still using it have finished.  Normally figure will be i
+   once all connections still using it have finished.  Normally figure will be 
    one, but may rise after a gentle restart(s) and should return to one after a 
    period of time.  
 
