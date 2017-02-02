@@ -59,13 +59,13 @@ class BaseSocket
     // blocking check for data, can be told to break on signal triggered config reloads (-r)
     bool bcheckForInput(int timeout);
     //void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
-    void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
+   // void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
     // non-blocking check for writable socket
     bool readyForOutput();
     // blocking check, can break on config reloads
     bool breadyForOutput(int timeout);
     //void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
-    void readyForOutput(int timeout, bool honour_reloadconfig ) throw(std::exception);
+    //void readyForOutput(int timeout, bool honour_reloadconfig ) throw(std::exception);
 
     // get a line from the socket - can break on config reloads
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);

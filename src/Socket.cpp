@@ -396,6 +396,7 @@ void Socket::stopSsl()
 #ifdef DGDEBUG
     std::cout << "ssl stopping" << std::endl;
 #endif
+    if(!isssl) return;
 
     isssl = false;
 
@@ -758,18 +759,6 @@ bool Socket::bcheckForInput(int timeout)
 }
 
 
-// blocking check for waiting data - blocks for up to given timeout, can be told to break on signal-triggered config reloads
-void Socket::checkForInput(int timeout, bool honour_reloadconfig) throw(std::exception)
-{
-    if (!isssl) {
-        BaseSocket::checkForInput(timeout, honour_reloadconfig);
-        return;
-    }
-    //cant do this on a blocking ssl socket as far as i can work out
-
-    return;
-}
-
 bool Socket::readyForOutput()
 {
     if (!isssl) {
@@ -789,17 +778,6 @@ bool Socket::breadyForOutput(int timeout)
     return true;
 }
 
-void Socket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std::exception)
-{
-    if (!isssl) {
-        BaseSocket::readyForOutput(timeout, honour_reloadconfig);
-        return;
-    }
-
-    //cant do this on a blocking ssl socket as far as i can work out
-
-    return;
-}
 
 // read a line from the socket, can be told to break on config reloads
 int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated) throw(std::exception)
@@ -889,13 +867,6 @@ bool Socket::writeString(const char *line) //throw(std::exception)
     //}
 }
 
-// write data to socket - throws exception on failure, can be told to break on config reloads
-void Socket::writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig) throw(std::exception)
-{
-    if (!writeToSocket(buff, len, flags, timeout, honour_reloadconfig)) {
-        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-    }
-}
 
 // write data to socket - can be told not to do an initial readyForOutput, and to break on config reloads
 bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)

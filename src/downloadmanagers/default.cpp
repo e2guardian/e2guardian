@@ -193,7 +193,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             delete[] block;
             block = new char[newsize];
             try {
-                sock->checkForInput(d->timeout);
+                sock->bcheckForInput(d->timeout);
             } catch (std::exception &e) {
                 break;
             }
@@ -219,7 +219,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             }
         } else {
             try {
-                sock->checkForInput(d->timeout);
+                sock->bcheckForInput(d->timeout);
             } catch (std::exception &e) {
                 break;
             }

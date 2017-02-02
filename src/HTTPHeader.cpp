@@ -1849,8 +1849,10 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
     l = "";
 
-    for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
-        l += (*i) + "\n";
+    if (header.size() > 1) {
+        for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
+            l += (*i) + "\n";
+        }
     }
     l += "\r\n";
 

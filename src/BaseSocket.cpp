@@ -275,51 +275,6 @@ bool BaseSocket::checkForInput()
     return false;   // must be POLLERR or POLLNVAL
 }
 
-// blocking check for waiting data - blocks for up to given timeout, can be told to break on signal-triggered config reloads
-void BaseSocket::checkForInput(int timeout, bool honour_reloadconfig) throw(std::exception)
-{
-#ifdef DGDEBUG
-    std::cout << "BaseSocket::checkForInput: starting for sck:" << sck << " timeout:" << timeout << std::endl;
-#endif
-
-    if ((bufflen - buffstart) > 0)
-        return;
-
-    // blocks if socket blocking
-    // until timeout
-    if (isNoRead())
-        return;
-    int rc;
-    s_errno = 0;
-    errno = 0;
-    rc = poll(infds, 1, timeout);
-    if (rc == 0)
-    {
-        timedout = true;
-        std::string err("poll() on input: ");
-        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
-        return;
-    }
-    timedout = false;
-    if (rc < 0)
-    {
-        s_errno = errno;
-        sockerr = true;
-        std::string err("poll() on input: ");
-        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout"));
-        return;
-    }
-    if (infds[0].revents & POLLHUP) {
-        ishup = true;
-    }
-    if (infds[0].revents & (POLLHUP| POLLIN)) {
-        return;
-    }
-    sockerr = true;
-    std::string err("poll() on input: ");
-    throw std::runtime_error(err + (errno ? strerror(errno) : "poll error"));
-    return ;   // must be POLLERR or POLLNVAL
-}
 
 
 // non-blocking check to see if a socket is ready to be written     //NOT EVER USED   - not it is used in Socket.cpp
@@ -371,40 +326,6 @@ bool BaseSocket::breadyForOutput(int timeout) {
     if (outfds[0].revents & POLLHUP)
         ishup = true;
     return false;
-}
-// blocking equivalent of above, can be told to break on signal-triggered reloads
-void BaseSocket::readyForOutput(int timeout, bool honour_reloadconfig) throw(std::exception)
-{
-    // blocks if socket blocking
-    // until timeout
-    if (isNoWrite())
-        return ;
-    int rc;
-    s_errno = 0;
-    errno = 0;
-    rc = poll(outfds, 1, timeout );
-    if (rc == 0)
-    {
-        timedout = true;
-        std::string err("poll() on output: ");
-        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
-        return;
-    }
-    timedout = false;
-    if (rc < 0)
-    {
-        s_errno = errno;
-        sockerr = true;
-        std::string err("poll() on output: ");
-        throw std::runtime_error(err + (errno ? strerror(errno) : "timeout ") + std::to_string(timeout) +  " " + std::to_string(sck) );
-        return ;
-    }
-    if (outfds[0].revents & POLLOUT)
-        return;
-    if (outfds[0].revents  & POLLHUP)
-        ishup = true;
-   // std::string err("poll() on output: ");
-   // throw std::runtime_error(err  + std::to_string(sck) );
 }
 
 // read a line from the socket, can be told to break on config reloads

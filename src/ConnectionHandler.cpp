@@ -2317,7 +2317,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                             std::cout << dbgPeerPort << " -All parts sent upstream; retrieving response headers" << std::endl;
 #endif
-                            proxysock.checkForInput(120000);
+                            proxysock.bcheckForInput(120000);
                             docheader.in(&proxysock, persistOutgoing);
                             persistProxy = docheader.isPersistent();
                             persistPeer = persistOutgoing && docheader.wasPersistent();
@@ -2872,7 +2872,7 @@ stat_rec* &dystat)
                 std::cerr << dbgPeerPort << "  got past line 2659 rfo " << std::endl;
 #endif
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
-                proxysock.checkForInput(o.exchange_timeout); // exceptions on error/timeout
+                proxysock.bcheckForInput(o.exchange_timeout); // exceptions on error/timeout
                 docheader.in(&proxysock, persistOutgoing); // get reply header from proxy
                 persistProxy = docheader.isPersistent();
                 persistPeer = persistOutgoing && docheader.wasPersistent();
@@ -3801,10 +3801,11 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             //(*peerconn).readyForOutput(o.proxy_timeout);
 
 #ifdef __SSLMITM
-            if ((*header).requestType().startsWith("CONNECT") && !(*peerconn).isSsl()) {
+            if ((*header).requestType().startsWith("CONNECT") && !(*peerconn).isSsl())
 #else
-            if ((*header).requestType().startsWith("CONNECT")) {
+            if ((*header).requestType().startsWith("CONNECT"))
 #endif
+                {
                 // if it's a CONNECT then headersent can't be set
                 // so we don't need to worry about it
 
@@ -4146,7 +4147,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
     }
     ldl.reset();
     return false;
-}    // end of request loop
+}    // end of deny request loop
 
 // do content scanning (AV filtering) and naughty filtering
 void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header, DataBuffer *docbody,
@@ -4157,7 +4158,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 {
     int rc = 0;
 
-    proxysock->checkForInput(120000);
+    proxysock->bcheckForInput(120000);
     bool compressed = docheader->isCompressed();
     if (compressed) {
 #ifdef DGDEBUG
