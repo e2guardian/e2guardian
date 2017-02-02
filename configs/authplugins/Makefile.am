@@ -1,33 +1,19 @@
-DISTCLEANFILES = Makefile.in
+authpluginsdir = $(DGCONFDIR)/authplugins
 
-DGDATADIR = $(DGCONFDIR)/authplugins
+dist_authplugins_DATA = proxy-basic.conf ident.conf proxy-digest.conf proxy-header.conf
 
-SUBDIRS = .
+nodist_authplugins_DATA = ip.conf port.conf
 
-FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf \
-	 port.conf 
+EXTRA_DIST = ip.conf.in port.conf.in
 
 if ENABLE_NTLM
-FLISTS += proxy-ntlm.conf
+dist_authplugins_DATA += proxy-ntlm.conf
+else
+EXTRA_DIST += proxy-ntlm.conf
 endif
 
 if PRT_DNSAUTH
-FLISTS += dnsauth.conf
+dist_authplugins_DATA += dnsauth.conf
+else
+EXTRA_DIST += dnsauth.conf
 endif
-
-
-EXTRA_DIST = proxy-basic.conf ident.conf ip.conf.in proxy-ntlm.conf \
-	     proxy-digest.conf port.conf.in dnsauth.conf
-
-install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
-	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
-	done
-
-
-uninstall-local:
-	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
-	done

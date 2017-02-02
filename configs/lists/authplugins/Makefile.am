@@ -1,22 +1,3 @@
-DISTCLEANFILES = Makefile.in
+authdir = $(DGCONFDIR)/lists/authplugins
 
-DGDATADIR = $(DGCONFDIR)/lists/authplugins
-
-SUBDIRS = .
-
-WLISTS = ipgroups portgroups
-
-EXTRA_DIST = $(WLISTS)
-
-install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
-	for l in $(WLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
-	done
-
-
-uninstall-local:
-	for l in $(WLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
-	done
+dist_auth_DATA = ipgroups portgroups

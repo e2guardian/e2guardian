@@ -130,7 +130,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		childs 	busy	free	wait	births	deaths	conx	conx/s\n");
+            fprintf(fs, "time		children 	busy	free	wait	births	deaths	conx	conx/s\n");
         } else {
             syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing with logging\n",
                 o.dstat_location.c_str());
@@ -1339,7 +1339,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
     //String where, what, how;
     std::string cr("\n");
 
-    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
+    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no, logheadervalue, sf_action, sf_cats;
     std::string stype, postdata;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
@@ -1438,7 +1438,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
             bool error = false;
             int itemcount = 0;
 
-            while (itemcount < 29) {
+            while (itemcount < 30) {
                 try {
                     // Loop around reading in data, because we might have huge URLs
                     std::string logline;
@@ -1553,7 +1553,14 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     case 28:
                         headeradded = atoi(logline.c_str());
                         break;
+	            case 29:
+			logheadervalue = logline;
+			break;
                     }
+
+#ifdef DGDEBUG
+              	std::cout << logline << std::endl;
+#endif
                 } catch (std::exception &e) {
                     delete ipcpeersock;
                     if (logconerror)
@@ -1605,26 +1612,40 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 stype.clear();
             }
             if (isnaughty) {
+                sf_action = "DENY ";
+                sf_cats = what;
                 what = denied_word + stype + "* " + what;
             } else if (isexception && (o.log_exception_hits == 2)) {
+                sf_action = "OBSERVED ";
+                sf_cats = what;
                 what = exception_word + what;
             }
-
-            if (wasinfected)
+            if (wasinfected){
+                sf_action = "DENY ";
+                sf_cats = what;
                 what = infected_word + stype + "* " + what;
-            else if (wasscanned)
+	    }
+            else if (wasscanned) {
                 what = scanned_word + what;
-
+	    }
             if (contentmodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = contentmod_word + what;
             }
             if (urlmodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = urlmod_word + what;
             }
             if (headermodified) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = headermod_word + what;
             }
             if (headeradded) {
+                sf_action = "COACH ";
+                sf_cats = what;
                 what = headeradd_word + what;
             }
 
@@ -1647,7 +1668,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 utime = String((int)theend.tv_sec) + utime;
             }
 
-            if (o.log_file_format != 3) {
+            if ((o.log_file_format != 3) && (o.log_file_format != 7)){
                 // "when" not used in format 3, and not if logging timestamps instead
                 String temp;
                 time_t tnow; // to hold the result from time()
@@ -1708,6 +1729,53 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
             String stringgroup(filtergroup + 1);
 
             switch (o.log_file_format) {
+            case 7: {
+                                       // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
+                                       std::string duration, hier, hitmiss;
+                                       long durationsecs, durationusecs;
+                                       durationsecs = (theend.tv_sec - tv_sec);
+                                       durationusecs = theend.tv_usec - tv_usec;
+                                       durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                                       String temp((int) durationusecs);
+                                       while (temp.length() < 6) {
+                                               temp = " " + temp;
+                                       }
+                                       duration = temp;
+
+                                       if (code == 403) {
+                                               hitmiss = "TCP_DENIED/403";
+                                       } else {
+                                               if (cachehit) {
+                                                       hitmiss = "TCP_HIT/";
+                                                       hitmiss.append(stringcode);
+                                               } else {
+                                                       hitmiss = "TCP_MISS/";
+                                                       hitmiss.append(stringcode);
+                                               }
+                                       }
+                                       hier = "DEFAULT_PARENT/";
+                                       hier += o.proxy_ip;
+
+                                       /*if (o.max_logitem_length > 0) {
+                                               if (utime.length() > o.max_logitem_length)
+                                                       utime.resize(o.max_logitem_length);
+                                               if (duration.length() > o.max_logitem_length)
+                                                       duration.resize(o.max_logitem_length);
+                                               if (hier.length() > o.max_logitem_length)
+                                                       hier.resize(o.max_logitem_length);
+                                               if (hitmiss.length() > o.max_logitem_length)
+                                                       hitmiss.resize(o.max_logitem_length);
+                                       }*/
+
+                                       builtline = utime + " " + duration + " " + ( (clienthost.length() > 0) ? clienthost : from) + " " + hitmiss + " " + ssize + " "
+                                               + how + " " + where + " " + who + " " + hier + " " + mimetype;
+                                       if (!sf_action.empty()) {
+                                            builtline += " " + sf_action + "\"" + sf_cats + "\"";
+                                       sf_action.clear();
+                                       sf_cats.clear();
+                                       }
+                                       break;
+            }
             case 4:
                 builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                     + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
@@ -1771,7 +1839,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                     + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
                     + stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
-                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                    + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata + logheadervalue; 
                 break;
             case 5:
             case 6:
@@ -1803,7 +1871,8 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                     + sweight + "\t"
                     + cat + "\t"
                     + o.fg[filtergroup]->name + "\t"
-                    + stringgroup;
+                    + stringgroup
+		    + logheadervalue;
             }
 
             if (!logsyslog)
@@ -1962,7 +2031,7 @@ int log_listener(std::string log_location, bool logconerror, bool logsyslog)
                                         else
                                             fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->contentsubject.c_str());
 
-                                        fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
+                                        fprintf(mail, "%i violation%s ha%s occurred within %i seconds.\n",
                                             curv_tmp,
                                             (curv_tmp == 1) ? "" : "s",
                                             (curv_tmp == 1) ? "s" : "ve",
@@ -2587,7 +2656,7 @@ int fc_controlit()
 
         if (loggerpid == 0) { // ma ma!  i am the child
             serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
+            delete[] serversockfds;
             if (o.max_ips > 0) {
                 iplistsock.close();
             }
@@ -2609,7 +2678,7 @@ int fc_controlit()
         urllistpid = fork();
         if (urllistpid == 0) { // ma ma!  i am the child
             serversockets.deleteAll(); // we don't need our copy of this so close it
-            free(serversockfds);
+            delete[] serversockfds;
             if (!o.no_logger) {
                 loggersock.close(); // we don't need our copy of this so close it
             }
@@ -2826,9 +2895,15 @@ int fc_controlit()
     int tofind;
 
     if (reloadconfig) {
+        /*
+           This is a catch-all otherwise we drop into an infinite loop...
+           if we successfully get to this point, we think we have successfully reloaded
+           and we must allow things to go forward. -CN
+        */
+	gentlereload = false;
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
-        syslog(LOG_INFO, "Started sucessfully.");
+        syslog(LOG_INFO, "Started successfully.");
         //dystat = new stat_rec;
         dystat->start();
     }
@@ -2844,29 +2919,36 @@ int fc_controlit()
         // OR, its timetogo - got a sigterm
         // OR, we need to exit to reread config
         if (gentlereload) {
-#ifdef DGDEBUG
-            std::cout << "gentle reload activated" << std::endl;
-#endif
             syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload starting");
             o.deleteFilterGroups();
             if (!o.readFilterGroupConf()) {
-                reloadconfig = true; // filter groups problem so lets
-                // try and reload entire config instead
-                // if that fails it will bomb out
+                /*
+                   filter groups problem so lets
+                   try and reload entire config instead
+	           if that fails it will bomb out
+                */
+                reloadconfig = true;
+	        gentlereload = false; // this is no longer a gentle reload -CN
             } else {
                 if (o.use_filter_groups_list) {
                     o.filter_groups_list.reset();
-                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true))
+                    if (!o.doReadItemList(o.filter_groups_list_location.c_str(), &(o.filter_groups_list), "filtergroupslist", true)) {
                         reloadconfig = true; // filter groups problem...
+	                gentlereload = false; // this is no longer a gentle reload -CN
+                    }
                 }
                 if (!reloadconfig) {
                     o.deletePlugins(o.csplugins);
-                    if (!o.loadCSPlugins())
+                    if (!o.loadCSPlugins()) {
                         reloadconfig = true; // content scan plugs problem
+	                gentlereload = false; // this is no longer a gentle reload -CN
+                    }
                     if (!reloadconfig) {
                         o.deletePlugins(o.authplugins);
-                        if (!o.loadAuthPlugins())
+                        if (!o.loadAuthPlugins()) {
                             reloadconfig = true; // auth plugs problem
+	                    gentlereload = false; // this is no longer a gentle reload -CN
+                        }
                     }
                     if (!reloadconfig) {
                         o.deleteRooms();
@@ -2895,9 +2977,8 @@ int fc_controlit()
                         if (hup_index >= top_child_fds) {
                             gentle_in_progress = false;
                             hup_index = 0;
-                            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
+		            syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload completed");
                         }
-
                         // everything ok - no full reload needed
                         // clear gentle reload flag for next run of the loop
                     }

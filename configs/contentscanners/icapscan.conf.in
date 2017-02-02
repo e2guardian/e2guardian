@@ -4,6 +4,10 @@ plugname = 'icapscan'
 # Use hostname rather than IP address
 # Always specify the port
 #
+# Force preview not matter the object size (needed by c-icap)
+# previewforce = on
+#
+
 icapurl = 'icap://icapserver:1344/avscan'
 
 exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'

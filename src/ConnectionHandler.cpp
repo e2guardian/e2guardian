@@ -585,7 +585,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 #ifdef DGDEBUG
-            std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
+            std::cerr << "PID: " << getpid() << " Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << std::endl;
 #endif
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
@@ -598,6 +598,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     // The requested URL is malformed.
                     peerconn.writeString(o.language_list.getTranslation(200));
                     peerconn.writeString("</BODY></HTML>\n");
+                    syslog(LOG_ERR, "Bad request - HTTP/1.0 400 Bad Request - ip client: %s destination: %s ", clientip.c_str(), urldomain.c_str());
                 } catch (std::exception &e) {
                 }
                 break;
@@ -678,6 +679,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             }
 
                             if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
+#ifdef DGDEBUG
+				std::cout << "Auth plugin: " << auth_plugin->getPluginName().toCharArray() << std::endl;
+#endif
                                 rc = auth_plugin->identify(peerconn, proxysock, header, clientuser);
                             } else {
                                 rc = DGAUTH_NOMATCH;
@@ -954,6 +958,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // The requested URL is malformed.
                             peerconn.writeString(o.language_list.getTranslation(200));
                             peerconn.writeString("</BODY></HTML>\n");
+                            syslog(LOG_ERR, "Bad request - HTTP/1.0 400 Bad Request - ip client: %s destination: %s ", clientip.c_str(), urldomain.c_str());
                         } catch (std::exception &e) {
                         }
                         break;
@@ -966,7 +971,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // Start of by pass
             //
 
-            if (header.isScanBypassURL(&url, o.fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+            if (header.isScanBypassURL(&logurl, o.fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -Scan Bypass URL match" << std::endl;
 #endif
@@ -978,9 +983,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 std::cout << dbgPeerPort << " -About to check for bypass..." << std::endl;
 #endif
                 if (o.fg[filtergroup]->bypass_mode != 0)
-                    bypasstimestamp = header.isBypassURL(&url, o.fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
+                    bypasstimestamp = header.isBypassURL(&logurl, o.fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
                 if ((bypasstimestamp == 0) && (o.fg[filtergroup]->infection_bypass_mode != 0))
-                    bypasstimestamp = header.isBypassURL(&url, o.fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
+                    bypasstimestamp = header.isBypassURL(&logurl, o.fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
                 if (bypasstimestamp > 0) {
 #ifdef DGDEBUG
                     if (isvirusbypass)
@@ -988,7 +993,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     else
                         std::cout << dbgPeerPort << " -Filter bypass URL match" << std::endl;
 #endif
-                    header.chopBypass(url, isvirusbypass);
+                    header.chopBypass(logurl, isvirusbypass);
                     if (bypasstimestamp > 1) { // not expired
                         isbypass = true;
                         // checkme: need a TR string for virus bypass
@@ -2364,7 +2369,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     // redirect user to URL with GBYPASS parameter no longer appended
                     docheader.header[0] = "HTTP/1.0 302 Redirect";
                     String loc("Location: ");
-                    loc += header.getUrl(true);
+                    loc += header.getLogUrl(true);
                     docheader.header.push_back(loc);
                     docheader.setContentLength(0);
 
@@ -2948,11 +2953,14 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         data += postdata.str().c_str() + cr;
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
-
+        if (o.log_header_value.size() != 0) {
+            data += (reqheader ? reqheader->logHeader() + cr : cr);
+        } else {
+            data += cr;
+	}
 #ifdef DGDEBUG
         std::cout << dbgPeerPort << " -...built" << std::endl;
 #endif
-
         delete newcat;
 
         // connect to dedicated logging proc

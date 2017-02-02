@@ -1,5 +1,41 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+February 2016
+- Version 3.5.0
+Summary of changes in this release (v3.5.0) can be found in e2guardian.release
+
+January 2016
+Many Improvements and bug fixes, big thanks to Chris Nighswonger for his help  
+- Remove unused code
+- Fix Bug #169 Mismached use of free()
+- Fix Bug #162 Check missing dependency openssl
+- Fix Bug #163 e2guardian -g causes segfault 
+
+December 2016
+- Fix Bug #157 (Code 400 log)
+- Fix Bug #130 filtergroupslist not working with NTLM authentication (HTTPS) 
+
+November 2016
+- Fix Bug #135 SSL Bypass not working
+- Fix Bug #156 Crash with url beyond 2048 characters (in list)
+
+October 2016
+- New blockedflash.swf version + source
+
+September 2016
+- Add Squid Log File Format
+
+August 2016
+- Fix Bug #119 readFromSocket incorrect error path
+- Fix Bug #136 (Ignoring the body of 304 replies causes corrupted messages)
+- New auth plugin - identification by header -
+
+July 2016
+- New logheadervalue option added 
+
+June 2016
+- Russian translation
+- Update french translation 
 
 March 2016
 - Version 3.4.0.3
@@ -9,6 +45,7 @@ Summary of changes in this release (v3.4.0.3) can be found in e2guardian.release
 - naughtynesslimit now defaults to 50 (previously undefined)
 
 February 2016
+- Fix ICAP with c-icap server, new option previewforce
 - Version 3.4.0.2
 - Fix bug #109 (bannedphraselist not working)
 
@@ -30,7 +67,6 @@ December 2015
 - Fix certificate generation with hostnames longer than 64 bytes (bug #96)
 
 November 2015
-
 - Fix bug #96 Certificate Issues - requires X509_V_FLAG_TRUSTED_FIRST support in openssl
 - Add SNI support to MITM - note only works with openssh 1.0.1e or higher
 - Fix bux #94 new option textmimetypes
@@ -38,22 +74,18 @@ November 2015
 - SSLMITM Upgrade sha1 to sha256
 
 September 2015
-
 - originalip off by default (complain about 400 Bad request URL is malformed) 
 - Added, "namesuffix" option - one log file by instance (syslog) -
 
 August 2015
-
 Summary of changes in this release (v3.2.0) can be found in e2guardian.release
 
 July 2015
-
 - Fix bug #76 sslaccessdeniedaddress and reporting level < 3 
 - Remove old & unused values 
 - Remove max_upload option from e2guardian.conf 
 
 June 2015
-
 - Fix Bug #75 contentscanners commandlinescan broken and potential problem with the others 
 - Fix bug #30 compilation issue with --program-prefix
 - Security Fix: AV and empty access_denied_domain value break scan silently

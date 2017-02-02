@@ -552,9 +552,13 @@ bool FOptionContainer::read(const char *filename)
             syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
             return false;
         }
+        name = findoptionS("groupname");
+#ifdef DGDEBUG
+            std::cout << "Group name: " << name << std::endl;
+#endif
 
 #ifdef DGDEBUG
-        std::cout << "Group " << findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
+        std::cout << "Group " << name << " Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -645,14 +649,6 @@ bool FOptionContainer::read(const char *filename)
 #ifdef DGDEBUG
         std::cout << "Group mode: " << group_mode << std::endl;
 #endif
-
-        // grab group name (if not using external group names file)
-        if (!o.use_group_names_list) {
-            name = findoptionS("groupname");
-#ifdef DGDEBUG
-            std::cout << "Group name: " << name << std::endl;
-#endif
-        }
 
         if (group_mode == 1) {
 
@@ -2051,7 +2047,7 @@ std::string FOptionContainer::findoptionS(const char *option)
     return "";
 }
 
-bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emessage)
+bool FOptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage)
 {
     // realitycheck checks a String for certain expected criteria
     // so we can spot problems in the conf files easier
@@ -2060,11 +2056,9 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
             // when called we have not detached from
             // the console so we can write back an
             // error
-
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << "Config problem: " << emessage << " set to " << l << "; Value must be greater than " << minl << " and less than " << maxl << "." << std::endl;
         }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
-
+        syslog(LOG_ERR, "Config problem %s set to %lu; Value must be greater than %lu and less than %lu.", emessage, l, minl, maxl);
         return false;
     }
     return true;

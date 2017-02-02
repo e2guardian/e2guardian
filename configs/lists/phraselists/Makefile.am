@@ -1,41 +1,79 @@
-DISTCLEANFILES = Makefile.in
+phrasedir = $(DGCONFDIR)/lists/phraselists
 
-DGDATADIR = $(DGCONFDIR)/lists/phraselists
-PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
-		googlesearches gore illegaldrugs intolerance legaldrugs \
-		malware news nudism peer2peer personals pornography \
-		proxies sport violence warezhacking weapons webmail \
-		forums rta conspiracy domainsforsale idtheft safelabel \
-		travel upstreamfilter secretsocieties translation music
-
-install-data-local: 
-	for l in $(PHRASELISTS); do \
-		$(mkinstalldirs) $(DESTDIR)$(DGDATADIR)/$$l && \
-		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception* $(srcdir)/$$l/banned*; do \
-		   if test -f $$f ; then \
-			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l"; \
-			$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l; \
-	           fi \
-		done \
-	done
-
-uninstall-local:
-	for l in $(PHRASELISTS); do \
-		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception*; do \
-	        	rm -f $(DESTDIR)$(DGDATADIR)/$$l/`basename $$f`; \
-		done \
-	done
-
-dist-hook:
-	for phrase in $(PHRASELISTS); do \
-	  if test "$$phrase" = .; then :; else \
-	    test -d $(distdir)/$$phrase \
-	    || mkdir $(distdir)/$$phrase \
-	    || exit 1; \
-	    for f in $(srcdir)/$$phrase/weighted* $(srcdir)/$$phrase/banned* $(srcdir)/$$phrase/exception*; do \
-	      if test -f $$f ; then \
-	        cp -p $$f $(distdir)/$$phrase ;\
-	      fi; \
-	    done; \
-	  fi; \
-	done		
+nobase_dist_phrase_DATA =			\
+	badwords/weighted_dutch			\
+	badwords/weighted_french		\
+	badwords/weighted_german		\
+	badwords/weighted_portuguese		\
+	badwords/weighted_spanish		\
+	chat/weighted				\
+	chat/weighted_italian			\
+	conspiracy/weighted			\
+	domainsforsale/weighted			\
+	drugadvocacy/weighted			\
+	forums/weighted				\
+	gambling/banned				\
+	gambling/banned_portuguese		\
+	gambling/weighted			\
+	gambling/weighted_portuguese		\
+	games/weighted				\
+	goodphrases/exception			\
+	goodphrases/exception_email		\
+	goodphrases/weighted_general		\
+	goodphrases/weighted_general_danish	\
+	goodphrases/weighted_general_dutch	\
+	goodphrases/weighted_general_malay	\
+	goodphrases/weighted_general_polish	\
+	goodphrases/weighted_general_portuguese	\
+	goodphrases/weighted_general_swedish	\
+	goodphrases/weighted_news		\
+	googlesearches/banned			\
+	gore/weighted				\
+	gore/weighted_portuguese		\
+	idtheft/weighted			\
+	illegaldrugs/banned			\
+	illegaldrugs/weighted			\
+	illegaldrugs/weighted_portuguese	\
+	intolerance/banned_portuguese		\
+	intolerance/weighted			\
+	intolerance/weighted_portuguese		\
+	legaldrugs/weighted			\
+	malware/weighted			\
+	music/weighted				\
+	news/weighted				\
+	nudism/weighted				\
+	peer2peer/weighted			\
+	personals/weighted			\
+	personals/weighted_portuguese		\
+	pornography/banned			\
+	pornography/banned_portuguese		\
+	pornography/weighted			\
+	pornography/weighted_chinese		\
+	pornography/weighted_danish		\
+	pornography/weighted_dutch		\
+	pornography/weighted_french		\
+	pornography/weighted_german		\
+	pornography/weighted_italian		\
+	pornography/weighted_japanese		\
+	pornography/weighted_malay		\
+	pornography/weighted_norwegian		\
+	pornography/weighted_polish		\
+	pornography/weighted_portuguese		\
+	pornography/weighted_russian		\
+	pornography/weighted_russian_utf8	\
+	pornography/weighted_spanish		\
+	pornography/weighted_swedish		\
+	proxies/weighted			\
+	rta/banned				\
+	safelabel/banned			\
+	secretsocieties/weighted		\
+	sport/weighted				\
+	translation/weighted			\
+	travel/weighted				\
+	upstreamfilter/weighted			\
+	violence/weighted			\
+	violence/weighted_portuguese		\
+	warezhacking/weighted			\
+	weapons/weighted			\
+	weapons/weighted_portuguese		\
+	webmail/weighted

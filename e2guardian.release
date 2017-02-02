@@ -1,4 +1,13 @@
-Changed and Added features in e2guardian 3.4.0 (as of release 3.4.0.3)
+Tuning settings introduced/changed in v3.5.0:- 
+--------------------------------------------
+
+Bug fixes and general improvements
+
+e2guardian.conf
+
+- logheadervalue - Log a specific value from header
+- authplugin - Identification by header 
+- logformat - 7 = Squid Log File Format Secure extension
 
 Tuning settings introduced/changed in v3.4.0:- 
 --------------------------------------------

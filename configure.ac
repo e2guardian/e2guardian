@@ -1,10 +1,11 @@
 # Autoconf script
 
+
 AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.4.0.3)
+AC_INIT(e2guardian, 3.5.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -238,7 +239,7 @@ AC_MSG_ERROR([no native or standard library backtrace function found! (needed by
 ])
 AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
 # add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS}"
+CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
 fi
 ],
 [ # disable by default
@@ -256,7 +257,7 @@ else
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -266,7 +267,7 @@ fi
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -588,6 +589,7 @@ else
 	LIBS="${LIBS} -lssl -lcrypto"
 	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
 	AC_DEFINE([__SSLCERT],[],[Define to enable SSL CERT ])
+	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.0.1])
 fi],
 [
 	AC_MSG_RESULT(no)
@@ -723,11 +725,11 @@ configs/lists/Makefile
 configs/lists/phraselists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
-configs/lists/weightedphraselist
-configs/lists/exceptionphraselist
 configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
+configs/lists/exceptionphraselist
+configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/downloadmanagers/fancy.conf
@@ -740,9 +742,10 @@ configs/contentscanners/kavdscan.conf
 configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
 configs/authplugins/ip.conf
+configs/authplugins/port.conf
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
-                src/Makefile
+src/Makefile
 ])
 
 AC_OUTPUT

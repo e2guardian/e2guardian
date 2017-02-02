@@ -50,6 +50,8 @@ class OptionContainer
     bool createlistcachefiles;
     bool use_custom_banned_image;
     std::string custom_banned_image_file;
+    std::string log_header_value;
+    std::string ident_header_value;
     bool use_custom_banned_flash;
     std::string custom_banned_flash_file;
     bool reverse_lookups;
@@ -97,7 +99,6 @@ class OptionContainer
     int max_ips;
     bool recheck_replaced_urls;
     bool use_filter_groups_list;
-    bool use_group_names_list;
     bool auth_needs_proxy_query;
     bool total_block_site_flag;
     bool total_block_url_flag;

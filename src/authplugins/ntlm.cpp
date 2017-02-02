@@ -334,8 +334,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
 #endif
             h.makePersistent();
-        }
-        return DGAUTH_NOMATCH;
+        } else {
+           return DGAUTH_NOMATCH;
+	}
     }
 
 #ifdef DGDEBUG

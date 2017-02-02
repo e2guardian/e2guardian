@@ -64,6 +64,7 @@ class HTTPHeader
     // Content-Disposition
     String disposition();
     String userAgent();
+    String logHeader();
     // grab contents of X-Forwarded-For
     std::string getXForwardedForIP();
     // check HTTP message code to see if it's a redirect
@@ -82,6 +83,7 @@ class HTTPHeader
     // grab the contents of Proxy-Authorization header
     // returns base64-decoding of the chunk of data after the auth type string
     std::string getAuthData();
+    std::string getAuthHeader();
     // grab raw contents of Proxy-Authorization header, without b64 decode
     std::string getRawAuthData();
     // check whether a connection is persistent
@@ -181,11 +183,12 @@ class HTTPHeader
     String *pproxyauthenticate;
     String *pcontentdisposition;
     String *puseragent;
+    String *plogheadervalue;
+    String *pheaderident;
     String *pxforwardedfor;
     String *pcontentencoding;
     String *pproxyconnection;
     String *pkeepalive;
-
     // cached result of getUrl()
     std::string cachedurl;
     // used to record if it is a header within a MITM

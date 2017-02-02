@@ -64,11 +64,12 @@ void HTTPHeader::reset()
         pproxyauthenticate = NULL;
         pcontentdisposition = NULL;
         puseragent = NULL;
+	plogheadervalue = NULL;
+	pheaderident = NULL;
         pxforwardedfor = NULL;
         pcontentencoding = NULL;
         pproxyconnection = NULL;
         pkeepalive = NULL;
-
         dirty = false;
 
         delete postdata;
@@ -103,16 +104,16 @@ off_t HTTPHeader::contentLength()
 
     clcached = true;
     contentlength = -1;
-
-    // code 304 - not modified - no content
     String temp(header.front().after(" "));
-    if (temp.startsWith("304"))
-        contentlength = 0;
-    else if (pcontentlength != NULL) {
-        temp = pcontentlength->after(":");
-        contentlength = temp.toOffset();
-    }
 
+    // In most usual case body is not empty
+    if (pcontentlength != NULL) {
+       temp = pcontentlength->after(":");
+       contentlength = temp.toOffset();
+    // Only 304 with empty body
+    } else if (temp.startsWith("304") && (pcontentlength == NULL)){
+       contentlength = 0;
+    }
     return contentlength;
 }
 
@@ -163,6 +164,18 @@ String HTTPHeader::userAgent()
     if (puseragent != NULL) {
         // chop off '/r'
         String result(puseragent->after(" "));
+        result.resize(result.length() - 1);
+        return result;
+    }
+    return "";
+}
+
+// grab the content "log" header
+String HTTPHeader::logHeader()
+{
+    if (plogheadervalue != NULL) {
+        // chop off '/r'
+        String result(plogheadervalue->after(" "));
         result.resize(result.length() - 1);
         return result;
     }
@@ -286,6 +299,16 @@ std::string HTTPHeader::getAuthData()
     if (pproxyauthorization != NULL) {
         String line(pproxyauthorization->after(" ").after(" "));
         return decodeb64(line); // it's base64 MIME encoded
+    }
+    return "";
+}
+
+std::string HTTPHeader::getAuthHeader()
+{
+    if (pheaderident != NULL) {
+        String line (pheaderident->after(" "));
+        line.resize(line.length() - 1);
+        return line;
     }
     return "";
 }
@@ -965,13 +988,18 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pproxyconnection = &(*i);
         } else if (outgoing && (pxforwardedfor == NULL) && i->startsWithLower("x-forwarded-for:")) {
             pxforwardedfor = &(*i);
-        }
         // this one's non-standard, so check for it last
-        else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
+        } else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
-        }
+	} 
+	if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
+	    plogheadervalue = &(*i);
+	} 
+	if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+	    pheaderident = &(*i);
+	}
 #ifdef DGDEBUG
-        std::cout << (*i) << std::endl;
+        std::cout << "header parsing: " << (*i) << std::endl;
 #endif
     }
 

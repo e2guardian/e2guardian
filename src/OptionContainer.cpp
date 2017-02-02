@@ -29,7 +29,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), fg(NULL)
+    : use_filter_groups_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), fg(NULL)
 {
 }
 
@@ -161,12 +161,12 @@ bool OptionContainer::read(const char *filename, int type)
 				dstat_log_flag = false;
 			} else {
 				dstat_log_flag = true;
-				dstat_interval = findoptionI("dstatinterval"); 
+				dstat_interval = findoptionI("dstatinterval");
 				if ( dstat_interval  == 0) {
 					dstat_interval = 300; // 5 mins
 				}
 			}
-				
+
 
 			if (type == 0) {
 				return true;
@@ -302,7 +302,7 @@ bool OptionContainer::read(const char *filename, int type)
         } // check its a reasonable value
         maxspare_children = findoptionI("maxsparechildren");
         if (!realitycheck(maxspare_children, min_children, max_children, "maxsparechildren")) {
-            return false;
+           return false;
         } // check its a reasonable value
         prefork_children = findoptionI("preforkchildren");
         if (!realitycheck(prefork_children, 1, max_children, "preforkchildren")) {
@@ -532,9 +532,12 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         } // etc
         log_file_format = findoptionI("logfileformat");
-        if (!realitycheck(log_file_format, 1, 6, "logfileformat")) {
+        if (!realitycheck(log_file_format, 1, 7, "logfileformat")) {
             return false;
         } // etc
+
+	log_header_value = findoptionS("logheadervalue");
+
         if (findoptionS("anonymizelogs") == "on") {
             anonymise_logs = true;
         } else {
@@ -750,7 +753,6 @@ bool OptionContainer::read(const char *filename, int type)
         filter_groups_list_location = findoptionS("filtergroupslist");
         std::string banned_ip_list_location(findoptionS("bannediplist"));
         std::string exception_ip_list_location(findoptionS("exceptioniplist"));
-        group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
 
         if (filter_groups_list_location.length() == 0) {
@@ -762,15 +764,6 @@ bool OptionContainer::read(const char *filename, int type)
             return false;
         } else {
             use_filter_groups_list = true;
-        }
-
-        if (group_names_list_location.length() == 0) {
-            use_group_names_list = false;
-#ifdef DGDEBUG
-            std::cout << "Not using groupnameslist" << std::endl;
-#endif
-        } else {
-            use_group_names_list = true;
         }
 
         if (findoptionS("prefercachedlists") == "on")
@@ -1102,12 +1095,12 @@ void OptionContainer::loadRooms(bool throw_error)
             exit(1);
         }
         if (infile.fail()) {
-            syslog(LOG_ERR, " Unexpected failue on read");
+            syslog(LOG_ERR, " Unexpected failure on read");
             std::cerr << " Unexpected failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
         if (infile.bad()) {
-            syslog(LOG_ERR, " Unexpected badbit failue on read");
+            syslog(LOG_ERR, " Unexpected badbit failure on read");
             std::cerr << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
@@ -1283,9 +1276,9 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
             // the console so we can write back an
             // error
 
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << "Config problem: " << emessage << " set to " << l << "; Value must be greater than " << minl << " and less than " << maxl << "." << std::endl;
         }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
+        syslog(LOG_ERR, "Config problem %s set to %lu; Value must be greater than %lu and less than %lu.", emessage, l, minl, maxl);
         return false;
     }
     return true;
@@ -1297,35 +1290,11 @@ bool OptionContainer::readFilterGroupConf()
     prefix = prefix.before(".conf");
     prefix += "f";
     String file;
-    ConfigVar groupnamesfile;
     String groupname;
     bool need_html = false;
-    if (use_group_names_list) {
-        int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
-        if (result != 0) {
-            if (!is_daemonised)
-                std::cerr << "Error opening group names file: " << group_names_list_location << std::endl;
-            syslog(LOG_ERR, "Error opening group names file: %s", group_names_list_location.c_str());
-            return false;
-        }
-    }
     for (int i = 1; i <= filter_groups; i++) {
         file = prefix + String(i);
         file += ".conf";
-        if (use_group_names_list) {
-            std::ostringstream groupnum;
-            groupnum << i;
-            groupname = groupnamesfile[groupnum.str().c_str()];
-            if (groupname.length() == 0) {
-                if (!is_daemonised)
-                    std::cerr << "Group names file too short: " << group_names_list_location << std::endl;
-                syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
-                return false;
-            }
-#ifdef DGDEBUG
-            std::cout << "Group name: " << groupname << std::endl;
-#endif
-        }
         if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
             if (!is_daemonised) {
                 std::cerr << "Error opening filter group config: " << file << std::endl;

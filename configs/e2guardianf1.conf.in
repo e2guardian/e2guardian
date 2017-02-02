@@ -38,7 +38,7 @@ groupname = ''
 # Note that MITM cannot work with this flag set
 # ssllegacylogic = off
 
-# Content filtering files location
+# Content filtering files location (domains and urls size are limited to 2048 characters)
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'

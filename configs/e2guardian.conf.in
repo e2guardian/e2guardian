@@ -36,7 +36,13 @@ logexceptionhits = 2
 #     used in arrays so that combined logs show originating server.
 # 6 = Protex format with server field blanked
 #     used in stand-alone systems.
+# 7 = Squid Log File Format Secure extension (SF Actions, use comercial report tools (ex: McAfee Webreport))
 logfileformat = 1
+
+# Log a specific value from header
+# low case only
+# only used with logs: 1,5 and 6
+# logheadervalue = 'proxy-authorization:'
 
 # truncate large items in log lines
 # allowable values 10 to 32000
@@ -495,6 +501,7 @@ contentscanexceptions = off
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
+#authplugin = '/etc/e2guardian/authplugins/proxy-header.conf'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as
@@ -583,6 +590,8 @@ preforkchildren = 10
 # sets the maximum number of processes to have doing nothing.
 # When this many are spare it will cull some of them.
 # On large sites you might want to try 64.
+# Note:	This value must be greater than minchildren, but
+# 	less than maxchildren.
 maxsparechildren = 32
 
 
@@ -650,12 +659,13 @@ logadblocks = off
 # on|off (defaults to off)
 loguseragent = off
 
-# Daemon runas user and group
+# Daemon run as user and group
 # This is the user that e2guardian runs as.  Normally the user/group nobody.
 # Uncomment to use.  Defaults to the user set at compile time.
 # Temp files created during virus scanning are given owner and group read
 # permissions; to use content scanners based on external processes, such as
 # clamdscan, the two processes must run with either the same group or user ID.
+# Configuration files and lists must be owned by daemonuser
 #daemonuser = '@DGPROXYUSER@'
 #daemongroup = '@DGPROXYGROUP@'
 
