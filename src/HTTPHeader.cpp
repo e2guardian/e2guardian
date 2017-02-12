@@ -1957,16 +1957,25 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         // during receipt of a request in progress.
         bool truncated = false;
         int rc;
+        if (firsttime) {
 #ifdef DGDEBUG
-        std::cout << "header:in before getLine - timeout:" << timeout << std::endl;
+            std::cout << "header:in before getLine - timeout:" << timeout << std::endl;
 #endif
-        rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-        std::cout << "header:in after getLine " << std::endl;
+            std::cout << "header:in after getLine " << std::endl;
 #endif
-        if (rc < 0 || truncated) {
-            ispersistent = false;
-            return false;
+            if (rc < 0 || truncated) {
+                ispersistent = false;
+                return false;
+            }
+        } else {
+            rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            if (rc < 0 || truncated) {
+                ispersistent = false;
+                return true;        // allow non-terminated headers in http apps - may need a flag to make this optional
+            }
+
         }
      //       throw std::exception();
 
