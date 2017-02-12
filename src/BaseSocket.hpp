@@ -49,6 +49,7 @@ class BaseSocket
     bool isNoOpp();
     bool isNoRead();
     bool isNoWrite();
+    bool ishup;
 
     // close & reset the connection - these must clear address structures & call baseReset/baseAccept
     virtual void reset() = 0;
@@ -57,6 +58,7 @@ class BaseSocket
     // non-blocking check for input data
     bool checkForInput();
     // blocking check for data, can be told to break on signal triggered config reloads (-r)
+    bool bcheckSForInput(int timeout);
     bool bcheckForInput(int timeout);
     //void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
    // void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
@@ -90,11 +92,12 @@ class BaseSocket
     // socket FD
     int sck;
     bool isclosing;
-    bool ishup;
+    //bool ishup;
     bool sockerr;
     bool timedout;
     // internal buffer
-    char buffer[1024];
+    //char buffer[1024];
+    char buffer[4096];
     int buffstart;
     int bufflen;
     struct pollfd infds[1];

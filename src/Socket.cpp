@@ -291,6 +291,8 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
 
     //set the timeout for the ssl session
     if (SSL_CTX_set_timeout(ctx, 130l) < 1) {
+            SSL_CTX_free(ctx);
+            ctx = NULL;
         return -1;
     }
 
@@ -324,7 +326,9 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     X509_VERIFY_PARAM *x509_param = X509_VERIFY_PARAM_new();
     if (!x509_param) {
         log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
-        X509_VERIFY_PARAM_free(x509_param);
+        //X509_VERIFY_PARAM_free(x509_param);
+            SSL_CTX_free(ctx);
+            ctx = NULL;
         return -2;
     }
 
@@ -332,6 +336,8 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     if (!X509_VERIFY_PARAM_set_flags(x509_param, X509_V_FLAG_TRUSTED_FIRST)) {
         log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
+            SSL_CTX_free(ctx);
+            ctx = NULL;
         return -2;
     }
 
@@ -339,6 +345,8 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     if (!SSL_CTX_set1_param(ctx, x509_param)) {
         log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
+            SSL_CTX_free(ctx);
+            ctx = NULL;
         return -2;
     }
 
@@ -730,6 +738,9 @@ bool Socket::checkForInput()
         return true;
     }
 
+    if (!BaseSocket::checkForInput())
+        return false;
+
     //see if we can do an ssl read of 1 byte
 //    char buf[1];
 
@@ -752,30 +763,30 @@ bool Socket::checkForInput()
 
 bool Socket::bcheckForInput(int timeout)
 {
-    if (!isssl) {
+    //if (!isssl) {
         return BaseSocket::bcheckForInput(timeout);
-    }
-    return true;
+    //}
+    //return true;
 }
 
 
 bool Socket::readyForOutput()
 {
-    if (!isssl) {
+    //if (!isssl) {
         return BaseSocket::readyForOutput();
-    }
+    //}
 
     //cant do this on a blocking ssl socket as far as i can work out
 
-    return true;
+    //return true;
 }
 
 bool Socket::breadyForOutput(int timeout)
 {
-    if (!isssl) {
+    //if (!isssl) {
         return BaseSocket::breadyForOutput(timeout);
-    }
-    return true;
+    //}
+    //return true;
 }
 
 
@@ -816,7 +827,8 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
  //       } catch (std::exception &e) {
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
  //       }
-        bufflen = SSL_read(ssl, buffer, 1024);
+        if( bcheckSForInput(timeout))
+            bufflen = SSL_read(ssl, buffer, 4096);
 #ifdef DGDEBUG
 //std::cout << "read into buffer; bufflen: " << bufflen <<std::endl;
 #endif
@@ -878,13 +890,14 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
     int actuallysent = 0;
     int sent;
     while (actuallysent < len) {
-     //   if (check_first) {
+       if (check_first) {
     //        try {
-    //            readyForOutput(timeout, honour_reloadconfig); // throws exception on error or timeout
+                if(!breadyForOutput(timeout))
+                   return false;
      //       } catch (std::exception &e) {
       //          return false;
        //     }
-     //   }
+        }
         ERR_clear_error();
         sent = SSL_write(ssl, buff + actuallysent, len - actuallysent);
         if (sent < 0) {
@@ -896,6 +909,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
             return false;
         }
         if (sent == 0) {
+            ishup = true;
             return false; // other end is closed
         }
         actuallysent += sent;
@@ -906,6 +920,10 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
 // read a specified expected amount and return what actually read
 int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout)
 {
+    return readFromSocket(buff, len, flags, timeout, true, false);
+
+
+#ifdef NODEF
     if (!isssl) {
         return BaseSocket::readFromSocketn(buff, len, flags, timeout);
     }
@@ -931,7 +949,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 
     while (cnt > 0) {
     //    try {
-    //        checkForInput(timeout); // throws exception on error or timeout
+            bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
     //    } catch (std::exception &e) {
      //       return -1;
      //   }
@@ -950,12 +968,14 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
             return -1;
         }
         if (rc == 0) { // eof
+             ishup = true;
             return len - cnt;
         }
         buff += rc;
         cnt -= rc;
     }
     return len;
+#endif
 }
 
 // read what's available and return error status - can be told not to do an initial checkForInput, and to break on reloads
@@ -984,30 +1004,47 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     }
 
     int rc;
-//    if (check_first) {
-  //      try {
-  //          checkForInput(timeout, honour_reloadconfig);
- //       } catch (std::exception &e) {
-  //          return -1;
-   //     }
-  //  }
-    while (true) {
-
+    if (check_first) {
+          if(!bcheckSForInput(timeout))
+             return -1;
+    }
+//    while (true)
+        bool inbuffer;
         ERR_clear_error();
-        rc = SSL_read(ssl, buff, cnt);
+        if (cnt > 4095) {
+            inbuffer = false;
+           rc = SSL_read(ssl, buff, cnt);        //  data larger than SSL buffer so ok to read directly into output buffer
+        } else {
+            inbuffer = true;
+           rc = SSL_read(ssl, buffer, 4096);   // read into socket buffer to flush SSL buffer
+        }
 
         if (rc < 0) {
-       //     if (errno == EINTR) {
-         //       continue;
-           // }
             s_errno = errno;
             log_ssl_errors("ssl_read failed %s", "");
-            return -1;
+            rc = 0;
         }
-        break;
-    }
+        if (rc == 0)  // eof
+             ishup = true;
 
-    return rc + tocopy;
+        if (inbuffer) {
+           buffstart = 0;
+           bufflen = rc;
+           if ((bufflen - buffstart) > 0) {
+              tocopy = cnt;
+              if ((bufflen - buffstart) < cnt)
+              tocopy = bufflen - buffstart;
+              memcpy(buff, buffer + buffstart, tocopy);
+              cnt -= tocopy;
+              buffstart += tocopy;
+              buff += tocopy;
+           }
+         }
+ //       break;
+   // }
+
+//    return rc + tocopy;
+      return len - cnt;
 }
 
 #endif //__SSLMITM

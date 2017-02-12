@@ -211,6 +211,37 @@ bool BaseSocket::isNoWrite()
 }
 
 // blocking check to see if there is data waiting on socket
+bool BaseSocket::bcheckSForInput(int timeout)
+{
+    if (isNoRead())
+        return false;
+    int rc;
+    s_errno = 0;
+    errno = 0;
+    rc = poll(infds, 1, timeout);
+    if (rc == 0)
+    {
+        timedout = true;
+        return false;   //timeout
+    }
+    timedout = false;
+    if (rc < 0)
+    {
+        s_errno = errno;
+        sockerr = true;
+        return false;
+    }
+    if (infds[0].revents & POLLHUP) {
+        ishup = true;
+    }
+    if ((infds[0].revents & (POLLHUP | POLLIN))) {
+        return true;
+    }
+    sockerr = true;
+    return false;   // must be POLLERR or POLLNVAL
+}
+
+// blocking check to see if there is data waiting on socket
 bool BaseSocket::bcheckForInput(int timeout)
 {
     if ((bufflen - buffstart) > 0)

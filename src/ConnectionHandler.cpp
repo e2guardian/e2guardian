@@ -4025,7 +4025,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 hashed = "2";
             }
 
-            (*proxysock).close(); // finshed with proxy
+//            (*proxysock).close(); // finshed with proxy
             if(!(*peerconn).breadyForOutput(o.proxy_timeout))
                 cleanThrow("Error sending to client 3877", *peerconn,*proxysock);
             //(*peerconn).readyForOutput(o.proxy_timeout);

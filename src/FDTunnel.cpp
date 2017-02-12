@@ -110,10 +110,10 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         //whats waiting in the current record, and nbio doesnt seem to
         //work if you use BIO_setfd (like we have to) so no ideas how
         //to actually fix this other than rewrite dg
-        if (sockfrom.isSsl()) {
-           twayfds[0].revents = POLLIN;
-           twayfds[1].revents = 0;
-        } else
+   //     if (sockfrom.isSsl()) {
+    //       twayfds[0].revents = POLLIN;
+     //      twayfds[1].revents = 0;
+      //  } else
 #endif
         if (poll(twayfds, 2, timeout )  < 1)
         {
