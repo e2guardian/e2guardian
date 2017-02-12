@@ -1004,10 +1004,11 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     }
 
     int rc;
+    while (cnt > 0) {
     if (check_first) {
           if(!bcheckSForInput(timeout))
-             return -1;
-    }
+            return -1;
+   }
 //    while (true)
         bool inbuffer;
         ERR_clear_error();
@@ -1024,10 +1025,16 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
             log_ssl_errors("ssl_read failed %s", "");
             rc = 0;
         }
-        if (rc == 0)  // eof
+        if (rc == 0) { // eof
              ishup = true;
+             return len - cnt;
+             }
 
         if (inbuffer) {
+#ifdef DGDEBUG
+        std::cout << "Inbuffer SSL read to return " << cnt << " bytes" << std::endl;
+#endif
+
            buffstart = 0;
            bufflen = rc;
            if ((bufflen - buffstart) > 0) {
@@ -1038,13 +1045,19 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
               cnt -= tocopy;
               buffstart += tocopy;
               buff += tocopy;
+#ifdef DGDEBUG
+        std::cout << "Inbuffer SSL read to returned " << tocopy << " bytes" << std::endl;
+#endif
            }
+         } else {
+        buff += rc;
+        cnt -= rc;
          }
  //       break;
-   // }
+    }
 
 //    return rc + tocopy;
-      return len - cnt;
+      return len;
 }
 
 #endif //__SSLMITM
