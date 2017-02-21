@@ -483,15 +483,16 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             }
         }
         return DGAUTH_NOMATCH;
-    } else {
+    } 
 #ifdef DGDEBUG
+      else {	
         std::cout << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
         for (unsigned int i = 0; i < h.header.size(); i++)
             std::cout << h.header[i] << std::endl;
             syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
             return -1;
+       }
 #endif
-    }
 }
 
 int ntlminstance::init(void *args)
