@@ -415,11 +415,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
         // copy the NTLM message into the union's buffer, simultaneously filling in the struct
         if ((message.length() > sizeof(ntlm_auth)) || (message.length() < offsetof(ntlm_auth, payload))) {
-            syslog(LOG_ERR, "NTLM - Invalid message of length %zd, message was: %s", message.length(), message.c_str());
 #ifdef DGDEBUG
+            syslog(LOG_ERR, "NTLM - Invalid message of length %zd, message was: %s", message.length(), message.c_str());
             std::cerr << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << std::endl;
-#endif
             return -3;
+#endif
+	return DGAUTH_NOMATCH;
         }
         memcpy((void *)auth.buf, (const void *)message.c_str(), message.length());
 
@@ -487,9 +488,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         std::cout << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
         for (unsigned int i = 0; i < h.header.size(); i++)
             std::cout << h.header[i] << std::endl;
+            syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
+            return -1;
 #endif
-        syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
-        return -1;
     }
 }
 
