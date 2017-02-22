@@ -213,24 +213,24 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             // unless they're accessing a domain for which authentication is not required,
             // in which case return a no match response straight away.
             if (no_auth_list >= 0) {
-#ifdef DGDEBUG
+// fred #ifdef DGDEBUG
                 std::cout << "NTLM: Checking noauthdomains list" << std::endl;
-#endif
+// fred #endif
                 std::string::size_type start = url.find("://");
                 if (start != std::string::npos) {
                     start += 3;
                     std::string domain;
                     domain = url.getHostname();
-#ifdef DGDEBUG
+// fred #ifdef DGDEBUG
                     std::cout << "NTLM: URL " << url << ", domain " << domain << std::endl;
-#endif
+// fred #endif
                     char *i;
                     while ((start = domain.find('.')) != std::string::npos) {
                         i = o.lm.l[no_auth_list]->findInList(domain.c_str());
                         if (i != NULL) {
-#ifdef DGDEBUG
+// fred #ifdef DGDEBUG
                             std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-#endif
+// fred #endif
                             return DGAUTH_NOMATCH;
                         }
                         domain.assign(domain.substr(start + 1));
@@ -239,9 +239,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                         domain = "." + domain;
                         i = o.lm.l[no_auth_list]->findInList(domain.c_str());
                         if (i != NULL) {
-#ifdef DGDEBUG
+// fred #ifdef DGDEBUG
                             std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-#endif
+// fred #endif
                             return DGAUTH_NOMATCH;
                         }
                     }
@@ -330,13 +330,13 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         if (at.length() == 0) {
 // allow the initial request through so the client will get the proxy's initial auth required response.
 // advertise persistent connections so that parent proxy will agree to advertise NTLM support.
-#ifdef DGDEBUG
+// fred #ifdef DGDEBUG
             std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
-#endif
+// fred #endif
             h.makePersistent();
-        } else {
-           return DGAUTH_NOMATCH;
-	}
+        }
+    	std::cout << "NTLM - identification mode = " << at <<  std::endl;
+        return DGAUTH_NOMATCH;
     }
 
 #ifdef DGDEBUG
@@ -415,12 +415,11 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
         // copy the NTLM message into the union's buffer, simultaneously filling in the struct
         if ((message.length() > sizeof(ntlm_auth)) || (message.length() < offsetof(ntlm_auth, payload))) {
-#ifdef DGDEBUG
             syslog(LOG_ERR, "NTLM - Invalid message of length %zd, message was: %s", message.length(), message.c_str());
+#ifdef DGDEBUG
             std::cerr << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << std::endl;
-            return -3;
 #endif
-	return DGAUTH_NOMATCH;
+            return -3;
         }
         memcpy((void *)auth.buf, (const void *)message.c_str(), message.length());
 
@@ -483,16 +482,15 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             }
         }
         return DGAUTH_NOMATCH;
-    } 
+    } else {
 #ifdef DGDEBUG
-      else {	
         std::cout << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
         for (unsigned int i = 0; i < h.header.size(); i++)
             std::cout << h.header[i] << std::endl;
-            syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
-            return -1;
-       }
 #endif
+        syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
+        return -1;
+    }
 }
 
 int ntlminstance::init(void *args)
@@ -510,9 +508,8 @@ int ntlminstance::init(void *args)
         if (!o.lm.l[no_auth_list]->used) {
             o.lm.l[no_auth_list]->doSort(true);
             o.lm.l[no_auth_list]->used = true;
-        }
+	}
     }
-
     return 0;
 }
 
