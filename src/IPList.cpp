@@ -72,7 +72,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
     // hostnames
     // TODO - take in a suggested hostname, look up only if not supplied, and return suggestion if found
     if (o.reverse_client_ip_lookups) {
-        std::auto_ptr<std::deque<String> > hostnames;
+        std::unique_ptr<std::deque<String> > hostnames;
         if (host == NULL)
             hostnames.reset(ipToHostname(ipstr.c_str()));
         else {
