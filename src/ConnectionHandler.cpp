@@ -1839,7 +1839,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                         // Grab remaining data, including trailing boundary
                         // Split into parts and process each as we go
-                        std::unique_ptr<BackedStore> part;
+                        std::auto_ptr<BackedStore> part;
                         std::string rolling_buffer;
                         std::string trailer;
                         rolling_buffer.reserve(2048);
