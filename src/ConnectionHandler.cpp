@@ -2370,7 +2370,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     docheader.header[0] = "HTTP/1.0 302 Redirect";
                     String loc("Location: ");
                     loc += header.getLogUrl(true);
-                    docheader.header.push_back(loc);
+		    if (header.returnCode() != 302) 
+                    	docheader.header.push_back(loc);
                     docheader.setContentLength(0);
 
                     persistOutgoing = false;
