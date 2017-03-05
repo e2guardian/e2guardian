@@ -1,6 +1,7 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
--Fix bug #178 (NTLM Messages)
+- Fix bug #182 e2guardian systemd service does not support reload 
+- Fix bug #178 (NTLM Messages)
 
 February 2016
 - Version 3.5.0
