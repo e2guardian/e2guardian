@@ -212,25 +212,25 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             // embedding the original URL they were trying to access.
             // unless they're accessing a domain for which authentication is not required,
             // in which case return a no match response straight away.
-            if (no_auth_list >= 0) {
-// fred #ifdef DGDEBUG
+/*            if (no_auth_list >= 0) {
+#ifdef DGDEBUG
                 std::cout << "NTLM: Checking noauthdomains list" << std::endl;
-// fred #endif
+#endif
                 std::string::size_type start = url.find("://");
                 if (start != std::string::npos) {
                     start += 3;
                     std::string domain;
                     domain = url.getHostname();
-// fred #ifdef DGDEBUG
+#ifdef DGDEBUG
                     std::cout << "NTLM: URL " << url << ", domain " << domain << std::endl;
-// fred #endif
+#endif
                     char *i;
                     while ((start = domain.find('.')) != std::string::npos) {
                         i = o.lm.l[no_auth_list]->findInList(domain.c_str());
                         if (i != NULL) {
-// fred #ifdef DGDEBUG
+#ifdef DGDEBUG
                             std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-// fred #endif
+#endif
                             return DGAUTH_NOMATCH;
                         }
                         domain.assign(domain.substr(start + 1));
@@ -239,14 +239,15 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                         domain = "." + domain;
                         i = o.lm.l[no_auth_list]->findInList(domain.c_str());
                         if (i != NULL) {
-// fred #ifdef DGDEBUG
+#ifdef DGDEBUG
                             std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-// fred #endif
+#endif
                             return DGAUTH_NOMATCH;
                         }
                     }
                 }
             }
+*/ 
             string = "http://";
             string += hostname;
             string += ":";
@@ -325,18 +326,23 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         h.setURL(domain);
     }
 
+#ifdef DGDEBUG
+    std::cout << "NTLM - header - " << std::endl;
+    for (unsigned int i = 0; i < h.header.size(); i++)
+    	std::cout << h.header[i] << std::endl;
+#endif
+
     if (at != "NTLM") {
         // if no auth currently underway, then...
         if (at.length() == 0) {
 // allow the initial request through so the client will get the proxy's initial auth required response.
 // advertise persistent connections so that parent proxy will agree to advertise NTLM support.
-// fred #ifdef DGDEBUG
+#ifdef DGDEBUG
             std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
-// fred #endif
+#endif
             h.makePersistent();
-        }
-    	std::cout << "NTLM - identification mode = " << at <<  std::endl;
-        return DGAUTH_NOMATCH;
+        } 
+           return DGAUTH_NOMATCH;
     }
 
 #ifdef DGDEBUG
@@ -496,7 +502,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 int ntlminstance::init(void *args)
 {
     // Load up the list of no-auth domains, if enabled
-    if (!cv["noauthdomains"].empty()) {
+/*    if (!cv["noauthdomains"].empty()) {
 #ifdef DGDEBUG
         std::cout << "NTLM: Reading noauthdomains list" << std::endl;
 #endif
@@ -508,16 +514,21 @@ int ntlminstance::init(void *args)
         if (!o.lm.l[no_auth_list]->used) {
             o.lm.l[no_auth_list]->doSort(true);
             o.lm.l[no_auth_list]->used = true;
-	}
+        }
     }
+*/
     return 0;
 }
 
+
 int ntlminstance::quit()
 {
+/*
     if (no_auth_list >= 0)
         o.lm.deRefList(no_auth_list);
+*/
     return 0;
+
 }
 
 bool ntlminstance::isTransparent()

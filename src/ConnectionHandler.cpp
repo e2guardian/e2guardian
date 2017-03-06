@@ -50,10 +50,8 @@
 extern OptionContainer o;
 extern bool is_daemonised;
 extern bool reloadconfig;
-
-#ifdef DGDEBUG
-int dbgPeerPort;
-#endif
+// If a specific debug line is needed
+int dbgPeerPort = 0;
 
 // IMPLEMENTATION
 
@@ -466,7 +464,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         // maintain a persistent connection
         while ((firsttime || persistPeer) && !reloadconfig) {
 #ifdef DGDEBUG
-            std::cout << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
+            std::cout << " firsttime =" << firsttime << " ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
 #endif
             if (firsttime) {
                 // reset flags & objects next time round the loop
