@@ -2617,6 +2617,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
             bool logged = false;
             if (!authed) {
+                logged = true;
 		String temp;
                 bool is_ip = isIPHostnameStrip(temp);
 
@@ -2631,27 +2632,28 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         // Exception site match.
                                 exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
                         }
-                 } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
+                } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
                  	isexception = true;
                         exceptionreason = o.language_list.getTranslation(603);
                         message_no = 603;
                         // Exception url match.
                         exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
-                 } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
+                } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
                          isexception = true;
                          // exception regular expression url match:
                          exceptionreason = o.language_list.getTranslation(609);
                          message_no = 609;
                          exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
                          exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
-                 } else if (!(*o.fg[filtergroup]).enable_local_list) {
+                } else if (!(*o.fg[filtergroup]).enable_local_list) {
                  	if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
-                        isexception = true;
-                        exceptionreason = o.language_list.getTranslation(620);
-                        message_no = 620;
+                 	        isexception = true;
+                        	exceptionreason = o.language_list.getTranslation(620);
+                        	message_no = 620;
                         }
-                 }
                 }
+            	logged = false;
+              }
 
 
             if (checkme.isItNaughty && !isexception) {
