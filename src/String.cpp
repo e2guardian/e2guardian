@@ -21,6 +21,9 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <memory>
+#include <syslog.h>
+
 
 // construct string representations of ints/longs
 #if defined(__GNUC__) && __GNUC__ < 3 && __GNUC_MINOR__ < 96
@@ -248,6 +251,7 @@ void String::swapChar(char old, char newc)
         }
     }
     *this = String(c, l);
+    delete [] c;
 }
 
 // decode %xx to individual characters (checkme: i'm sure this is duplicated elsewhere...)
@@ -264,6 +268,7 @@ void String::hexDecode()
     char hexval[5] = "0x"; // Initializes a "hexadecimal string"
     hexval[4] = '\0';
     char *ptr; // pointer required by strtol
+    ptr = NULL;
     unsigned int j = 0;
     unsigned int end = this->length() - 2;
     unsigned int i, k;
@@ -364,7 +369,9 @@ void String::chop()
 }
 void String::lop()
 {
-    *this = this->substr(1);
+    try {
+        *this = this->substr(1);
+    } catch (std::exception *e){};
 }
 
 // remove leading & trailing whitespace
@@ -520,32 +527,40 @@ String String::md5()
 
 String String::sort_search()
 {
-    if (this->length() < 3) {
+    int ln = this->length();
+    if (ln < 3) {
         return (*this);
     }
-    char *temp = new char[this->length() + 1];
-    strcpy(temp, (this)->c_str());
+    //char *temp = new (std::nothrow) char[ln + 1];
+    //if (temp == NULL)  {
+     //   syslog(LOG_ERR, "Unable to create temp char[%d] in sort_search", ln);
+      //  return (*this);
+    //}
+   // strcpy(temp, (this)->c_str());
+    std::unique_ptr<char[ ]> temp(new char[ln + 1]);
+    std::strcpy(temp.get(), (this)->c_str());
     int i = 0;
     int c = 0;
     // count '+' signs - gives number of words - 1
-    while (i < this->length()) {
+    while (i < ln) {
         if (temp[i++] == '+')
             c++;
     };
     if (c == 0) { // only one word - nothing to do
-        delete temp;
+        //delete [] temp;
         return (*this);
     };
     // split into words and index
     char *p[c + 1];
     i = 0;
     int j = 0;
-    char *ind = temp;
+    char *ind = temp.get();
     while (i <= c) {
         p[i] = ind + j;
-        while ((++j < this->length()) & !(ind[j] == '+')) {
+        while ((j < ln) & !(ind[j] == '+')) {
+            ++j;
         };
-        ind[j++] = 0;
+        if ( j < ln) ind[j++] = 0;
         i++;
     };
 #ifdef DGDEBUG
@@ -579,8 +594,15 @@ String String::sort_search()
     String ret(p[0]);
     j = 1;
     while (j <= c) {
-        ret = ret + "+" + p[j++];
+        if (ret.empty())
+            ret = p[j++];
+        else
+           ret = ret + "+" + p[j++];
     }
+#ifdef DGDEBUG
+    std::cout << "Search words after sort are "  << ret.c_str() << std::endl;
+#endif
+   // delete [] temp;
     return ret;
 };
 
@@ -594,3 +616,9 @@ String String::CN() {
     ret = "*." + ret;
     return ret;
 }
+
+//bool String::isNull() {
+//    if (*this == NULL)
+ //       return true;
+  //  return false;
+//}

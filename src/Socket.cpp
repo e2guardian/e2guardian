@@ -350,7 +350,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         return -2;
     }
 
-    X509_VERIFY_PARAM_free(x509_param);
+    X509_VERIFY_PARAM_free(x509_param);     // try not freeing this as SSL_CTX_free seems to be ring to free it
 
     //hand socket over to ssl lib
     ERR_clear_error();

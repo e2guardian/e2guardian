@@ -147,6 +147,10 @@ bool RegExp::match(const char *text, RegResult &rs)
     if (!wascompiled) {
         return false; // need exception?
     }
+
+    if( text == NULL || *text == 0)   // false if text is empty
+        return false;
+
     char *pos = (char *)text;
     int i;
     rs.results.clear();

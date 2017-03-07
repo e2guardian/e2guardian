@@ -339,6 +339,7 @@ int main(int argc, char *argv[])
     // on soft/gentle restarts headroom may be needed while children die
     // so use prefork_children as an estimate for this value.
     max_maxchildren = rlim.rlim_cur - (no_listen_fds + 6);
+    int fd_needed = (o.http_workers *2) + no_listen_fds + 6;
 
 #ifndef FD_SETSIZE_OVERIDE
     /* Fix ugly crash */
@@ -353,14 +354,13 @@ int main(int argc, char *argv[])
         return 1; // we can't have rampant proccesses can we?
     }
 #endif
-    if ((o.http_workers + 10) > max_maxchildren) {
+    if (((o.http_workers * 2) ) > max_maxchildren) {
         syslog(LOG_ERR, "%s", "httpworkers option in e2guardian.conf has a value too high.");
         std::cerr << " httpworkers option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")" << std::endl;
-        std::cerr << "The total of httpworkers " << o.http_workers <<  " + 10 must not exceed " << max_maxchildren << "" << std::endl;
+        std::cerr << "httpworkers " << o.http_workers <<  " must not exceed 50% of " << max_maxchildren << "" << std::endl;
         std::cerr << "in this configuration." << std::endl;
         std::cerr << "Reduce httpworkers " << std::endl;
-        std::cerr << "Or recompile with an increased --with-filedescriptors=" << DANS_MAXFD << " and/or " << std::endl;
-        std::cerr << "upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
+        std::cerr << "Or increase the filedescriptors available with ulimit -n to at least=" << fd_needed << std::endl;
         return 1; // we can't have rampant proccesses can we?
     }
 

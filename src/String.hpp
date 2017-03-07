@@ -131,6 +131,7 @@ class String : public std::string
 
     // get CN name that is oK for cert from url
     String CN();
+ //   bool isNull();
 };
 
 #endif

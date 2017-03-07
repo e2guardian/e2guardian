@@ -196,8 +196,10 @@ class HTTPHeader
     bool mitm;
 
     String redirect;
-    std::string searchwds;
-    std::string searchtms;
+    String searchwds;
+    //std::string searchwds;
+    //std::string searchtms;
+    String searchtms;
     bool issearch;
 
     // cached result of contentLength()

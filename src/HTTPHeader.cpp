@@ -579,6 +579,9 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
     unsigned int matchlen;
     unsigned int oldlinelen;
 
+    if ( (line.empty())  || line.length() < 3)
+        return false;
+
     // iterate over our list of precompiled regexes
     for (i = 0; i < s; i++) {
         newLine = "";
@@ -758,9 +761,9 @@ bool HTTPHeader::isSearch(FOptionContainer* &foc)
 #endif
     String searchwd(url());
     if (regExp(searchwd, foc->search_regexp_list_comp, foc->search_regexp_list_rep)) {
-        searchwds = searchwd.sort_search().toCharArray();
+        searchwds = searchwd.sort_search();
         searchwd.swapChar('+', ' ');
-        searchtms = searchwd.toCharArray();
+        searchtms = searchwd;
         issearch = true;
         searchchecked = true;
 #ifdef DGDEBUG
@@ -1982,7 +1985,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         // getline will throw an exception if there is an error which will
         // only be caught by HandleConnection()       ?????????????????????
 
-        line = buff; // convert the line to a String
+        if (rc > 0 ) line = buff;
+        else line = "";// convert the line to a String
 
         // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
         discard = false;
