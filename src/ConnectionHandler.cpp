@@ -2616,54 +2616,93 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
             bool logged = false;
-            if (checkme.isItNaughty) {
+            if (!authed) {
+		String temp;
+                bool is_ip = isIPHostnameStrip(temp);
+
+                if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) // allowed site
+                {
+                	if (o.fg[0]->isOurWebserver(url)) {
+                        	isourwebserver = true;
+                        } else {
+                                isexception = true;
+                                exceptionreason = o.language_list.getTranslation(602);
+                                message_no = 602;
+                        // Exception site match.
+                                exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
+                        }
+                 } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
+                 	isexception = true;
+                        exceptionreason = o.language_list.getTranslation(603);
+                        message_no = 603;
+                        // Exception url match.
+                        exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
+                 } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
+                         isexception = true;
+                         // exception regular expression url match:
+                         exceptionreason = o.language_list.getTranslation(609);
+                         message_no = 609;
+                         exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
+                         exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
+                 } else if (!(*o.fg[filtergroup]).enable_local_list) {
+                 	if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
+                        isexception = true;
+                        exceptionreason = o.language_list.getTranslation(620);
+                        message_no = 620;
+                        }
+                 }
+                }
+
+
+            if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
                 std::cout << "Category: " << checkme.whatIsNaughtyCategories << std::endl;
 #endif
                 logged = true;
+                if (!authed) {
+                        String temp;
+                        bool is_ip = isIPHostnameStrip(temp);
+
+                        if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) // allowed site
+                        {
+                            if (o.fg[0]->isOurWebserver(url)) {
+                                isourwebserver = true;
+                            } else {
+                                isexception = true;
+                                exceptionreason = o.language_list.getTranslation(602);
+                                message_no = 602;
+                            // Exception site match.
+                                exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
+                         }
+                        } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
+                            isexception = true;
+                            exceptionreason = o.language_list.getTranslation(603);
+                          message_no = 603;
+                            // Exception url match.
+                            exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
+                        } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
+                            isexception = true;
+                            // exception regular expression url match:
+                            exceptionreason = o.language_list.getTranslation(609);
+                            message_no = 609;
+                            exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
+                            exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
+                        } else if (!(*o.fg[filtergroup]).enable_local_list) {
+                            if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
+                                isexception = true;
+                                exceptionreason = o.language_list.getTranslation(620);
+                                message_no = 620;
+                            }
+                        }
+                }
+
                 doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog,
                     rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, false, false, &thestart,
                     cachehit, 403, mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup,
                     &header, message_no, contentmodified, urlmodified, headermodified, headeradded);
 		// No identification ?? so we checked exception for filter1
-		if (!authed) {
-			String temp;
-     			bool is_ip = isIPHostnameStrip(temp);
-
-	                if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) // allowed site
-        	        {
-                	    if (o.fg[0]->isOurWebserver(url)) {
-                        	isourwebserver = true;
-	                    } else {
-        	                isexception = true;
-                	        exceptionreason = o.language_list.getTranslation(602);
-                        	message_no = 602;
-            	            // Exception site match.
-                	        exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
-                   	 }
-     	           } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
-        	            isexception = true;
-                	    exceptionreason = o.language_list.getTranslation(603);
-  	                  message_no = 603;
-        	            // Exception url match.
-                	    exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
-	                } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
-        	            isexception = true;
-                	    // exception regular expression url match:
-	                    exceptionreason = o.language_list.getTranslation(609);
-        	            message_no = 609;
-	                    exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
-        	            exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
-	                } else if (!(*o.fg[filtergroup]).enable_local_list) {
-        	            if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
-                	        isexception = true;
-	                        exceptionreason = o.language_list.getTranslation(620);
-        	                message_no = 620;
-                	    }
-			}
-		}
-                if ((!isexception && authed) && (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))) {
+                if ((denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))) {
                     return 0; // not stealth mode
                 }
 
