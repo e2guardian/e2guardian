@@ -2663,7 +2663,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 	    }
 			}
 		}
-                if (!isexception && (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))) {
+                if ((!isexception && authed) && (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))) {
                     return 0; // not stealth mode
                 }
 
