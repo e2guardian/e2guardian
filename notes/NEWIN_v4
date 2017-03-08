@@ -1,10 +1,11 @@
-WARNING: This is a early development pre-release of v4.0 and is work in
-progress.  Large sections of the code are being re-written and there will be 
+This is development beta pre-release of v4.0.  It is now near-stable
+and you are invited use it in a test envirnment.
+
+Note that large sections of the code are being re-written and there will be 
 significant changes to the configuration files in later releases.
 
-Note: This version is work in progress and so is unsupported and instructions 
+Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
-
 
 The new version is written in c++11 and so to compile it you will need gcc v5.4 or later. (or another complier that supports the c++11 std::thread library).  Note that the target systems may also need an c++11 library update.
 
@@ -40,21 +41,28 @@ and list settings.   Once fully read in a global shared pointer is switched from
 the old list to the new, making actioning list changes immediate an with no 
 interruption to service.
 
-TESTING -  basic and (scripted) load testing with up to 1200 worker threads has
-been carried out to date.  These initial tests show a big reduction of memory 
-usage. To around just 10% of that required on v3.4 running on the same VM with 
-minchildren=1200.
+TESTING -  basic and (scripted) load testing with up to 3000 worker threads has
+been carried out to date.  These tests show a big reduction of memory 
+usage. 
 
 It also handles transient peaks more smoothly.  Connections are queued, so 
 response will slow down, but not stop when all the worker threads are busy.
 
-TODO - immediate for first development release
+TODO - immediate before first v4 stable release - PLEASE HELP
 
-Check that all code is thread-safe          - In progress
+  HELP required to get automake settings/tools working correctly
 
-(Load) Test on large system with > 4000 threads             - In progress
+  Testing on various platforms.  V4 is using c++11, so should work on any
+  platform with c++11 support.  The target platforms to be supported are
+  Linux and FreeBsd.  Can you help with this?
 
-TODO - for later release.
+  FreeBsd testing - should compile with c++11 in FreeBsd - and now work
+  with more than 1024 worker threads. NEEDS compiling and testing by 
+  FreeBsd community.
+
+  Testing of NTLM, proxy-basic, proxy-digest and ident authplugins
+
+TODO - for later releases.
 
 Make lists parameter based rather than hard coded.
 
@@ -92,6 +100,6 @@ just two new options in e2guardian.conf
 Please note the new format for the dstats log. See notes/dstat_format
 
 
-Philip Pearce 22 Nov 2016 - Updated 25nd January 2017
+Philip Pearce 8 March 2017 
 
 

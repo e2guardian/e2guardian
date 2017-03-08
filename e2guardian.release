@@ -1,72 +1,24 @@
-Changed and Added features in e2guardian 3.2.0
+Changed and Added features in e2guardian 4.0.0
 
-Tuning settings introduced/changed in v3.2.0:- 
+
+Tuning settings introduced/changed in v4.0.0:- 
 --------------------------------------------
 
 e2guardian.conf
 
-- xforwardedforfilterip option added - restricts xforwardedfor to specified ip(s)
+- httpworkers added - specifies number of worker threads to start
 
-- gentlechunk option added - specifies number of children to spawn/kill every 5 seconds on gentle restart
+- enablessl added - global enablement of SSL Cert checking and/or MITM
+  If this is off then sslmitm options in e2guardianfn.conf files will be ignored
 
-- generatedlinkpath option removed as no longer used
+Options removed from e2guardian.conf -
 
-- generatedcertstart option added - date/time in unix time of start of generated certificates
+proxyfailureloginterval, urlcachenumber, urlcacheage, scancleancache,
+createlistcachefiles, prefercachedlists, maxchildren, minchildren,
+minsparechildren, preforkchildren, maxsparechildren, maxagechildren,
+gentlechunk, maxips, ipcfilename, urlipcfilename, ipipcfilename,
+mailer, monitorhelper, monitorstart
 
-- generatedcertend option added - date/time in unix time of end of generated certificates
+If present in the e2guardian.conf file removed options are silently ignored.
 
-- monitorhelper option added - path of monitor helper script - allows feedback when system available and when cache not working
-
-- monitorflagprefix option added - prefix path for status flag files - alternative method for feedback when system available and when cache not working
-
-- monitorstart option added - monitorhelper start will be called and/or monintorflagprefix running flag file set when monitorstart children are available.
-
-- dstatlocation option added - If non-blank 'sar like' stats will written to this file every 5 minutes, giving number of children, in use and free, munber of 
-     connections and connections per second
-
-- dstatinterval option added
-
-- Maxuploadsize option removed as no longer used with e2guardian.conf
-
-e2guardianfn.conf
-
-- enablelocallists option added - replaces --enablelocallists configure option
-
-- ssllegacylogic option added - default is off
-
-- onlymitmsslgrey option added - allows mitm filtering on specified sites only
-
-- mitmcheckcert option added - enables certificate checking of target hosts - default in 'on' - only switch 'off' for test purposes.
-
-- nocheckcertsitelist option added - can be used to allow sites with self-signed certificates - only valid with mitmcheckcert = 'on'
-
-Logic Changes in v3.2.0:-
------------------------
-
-Many configure options and their correctponding defines have been removed and replaced, where needed, by option flags.
-This results in cleaner, more readable code
-.
-MITM code for explict proxy now working - see notes/ssl_mitm for details.
-
-Rooms feature extended to white listing of sites for ip ranges - see notes/extended_rooms for details
-
-Gentle reload logic changed so that reload is spread out over a period to minimise service interuption on large systems - see gentlechunk option.
-
-Most user messages can now be translated - note new entries in messages file(s) - may need translation from English
-
-Child spawning and removal code tidied up with much duplicate code removed to reduce undue stress on o/s when under heavy load, including 
-keeping children at minchildren level.  
-
-Cache failure is now reported back by child to main controler process, and while cache is not responding, no connections will be assigned to 
-children for processing.  If monitorhelper and/or monitorflagprefix is defined then these will be called/written so that a monitoring 
-program can take appropriate action. - See configs/e2guardian.conf.in
-
-A dummy test url 'internal.test.e2guardian.org' can now be used to test that e2g is functioning - with return OK if cache (and e2g) is working,
-Will fail if cache is unreachable or e2g is not responding.
-
-A long-standing content marking bug is now fixed.  This will result in many 
-web pages being given a higher 'naughtyness' mark.  As a result you may wish
-to increase your users 'naughtyness' limits to avoid overblocking.   
-
-For changed/added features in e2guardian 3.0 not found in Dansguardian 2.12.0.3 see notes/e2guardian.release.v3.0
-
+See notes/NEWIN_v4 for more information on changed logic etc.
