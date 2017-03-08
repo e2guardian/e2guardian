@@ -2364,13 +2364,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     docheader.setCookie("GBYPASS", ud.toCharArray(), hashedCookie(&ud, o.fg[filtergroup]->cookie_magic.c_str(), &clientip, bypasstimestamp).toCharArray());
 
                     // redirect user to URL with GBYPASS parameter no longer appended
-                    docheader.header[0] = "HTTP/1.0 302 Redirect";
-                    String loc("Location: ");
-                    loc += header.getLogUrl(true);
-		    if (header.returnCode() != 302) 
+                    std::cout << "Fred returncode = " << header.returnCode() << std::endl;
+		    if (header.returnCode() != 302){ 
+                    	docheader.header[0] = "HTTP/1.0 302 Redirect";
+                   	String loc("Location: ");
+                    	loc += header.getLogUrl(true);
                     	docheader.header.push_back(loc);
-                    docheader.setContentLength(0);
-
+                    	docheader.setContentLength(0);
+		    }
                     persistOutgoing = false;
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
 
