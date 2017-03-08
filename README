@@ -1,18 +1,18 @@
 # [E2Guardian](http://e2guardian.org)
 
+This is development beta pre-release of v4.0.  It is now near-stable
+and you are invited use it in a test environment.
 
-WARNING: This is a very early development pre-release of v4.0 and is work in 
-progress.  Large sections of the code are being re-written and there will be 
-significant changes to the configuration files.   See notes/NEWIN_v4 for latest
-information.
+Note that large sections of the code are being re-written and there will be 
+significant changes to the configuration files in later releases.
 
-Note: This version is work in progress and so is unsupported and instructions 
+Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
 
 **For copyright go to: http://e2guardian.org**
 
 e2guardian is a content filtering proxy that works in conjunction with another
-caching proxy such as Squid or Oops. More information can be found in the
+caching proxy such as Squid . More information can be found in the
 e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
 
@@ -26,8 +26,10 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	Develop is used to develop new features
-*	Bugfixes primarily occurs in the default branch
+*	v4develop is used to develop new features
+*	Bugfixes primarily occurs in the version branch (v4.0)
+*	From v4 on, even numbered releases are pre-release
+		odd numbered releases are stable.
 
 ## Bugs and Feature Requests
 

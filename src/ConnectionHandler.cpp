@@ -504,14 +504,16 @@ stat_rec* &dystat)
 
         bool firsttime = true;
         if(!header.in(&peerconn, true, true)) {
-           if (peerconn.getFD() > -1) {
+           if (o.logconerror) {
+               if (peerconn.getFD() > -1) {
 
-               int err = peerconn.getErrno();
-               int pport = peerconn.getPeerSourcePort();
+                   int err = peerconn.getErrno();
+                   int pport = peerconn.getPeerSourcePort();
 
-               syslog(LOG_INFO, "%d No header recd from client - errno: %d", pport, err);
-           } else {
-               syslog(LOG_INFO, "Client connection closed early - no request header received");
+                   syslog(LOG_INFO, "%d No header recd from client - errno: %d", pport, err);
+               } else {
+                   syslog(LOG_INFO, "Client connection closed early - no request header received");
+               }
            }
             firsttime = false;
             persistPeer = false;
