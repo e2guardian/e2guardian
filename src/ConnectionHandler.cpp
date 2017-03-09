@@ -2344,12 +2344,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     wasrequested = true; // so we know where we are later
                 }
 
-                        if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301)) {
-//#ifdef DGDEBUG
-                             std::cout << " -Filtering exception: " << std::endl;
-//#endif
-                                isexception = true;
-                        }
+// TODO: Ugly Temporary: we must remove from filtering many unused HTTP code (V4 ?)
+ 
+                if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
+#ifdef DGDEBUG
+                  std::cout << " -Filtering exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
+#endif
+                  isexception = true;
+                }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << std::endl;
                 if (!persistProxy)
