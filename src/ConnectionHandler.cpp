@@ -2358,7 +2358,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
-                if (isbypass && !isvirusbypass && !iscookiebypass) {
+                if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
 #ifdef DGDEBUG
                     std::cout << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << std::endl;
 #endif
