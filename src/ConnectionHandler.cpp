@@ -2344,6 +2344,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     wasrequested = true; // so we know where we are later
                 }
 
+                        if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301)) {
+//#ifdef DGDEBUG
+                             std::cout << " -Filtering exception: " << std::endl;
+//#endif
+                                isexception = true;
+                        }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << std::endl;
                 if (!persistProxy)
@@ -2364,14 +2370,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     docheader.setCookie("GBYPASS", ud.toCharArray(), hashedCookie(&ud, o.fg[filtergroup]->cookie_magic.c_str(), &clientip, bypasstimestamp).toCharArray());
 
                     // redirect user to URL with GBYPASS parameter no longer appended
-                    std::cout << "Fred returncode = " << header.returnCode() << std::endl;
-		    if (header.returnCode() != 302){ 
-                    	docheader.header[0] = "HTTP/1.0 302 Redirect";
-                   	String loc("Location: ");
-                    	loc += header.getLogUrl(true);
-                    	docheader.header.push_back(loc);
-                    	docheader.setContentLength(0);
-		    }
+		    docheader.header[0] = "HTTP/1.0 302 Redirect";
+		    String loc("Location: ");
+		    loc += header.getLogUrl(true);
+		    docheader.header.push_back(loc);
+		    docheader.setContentLength(0);
+		
                     persistOutgoing = false;
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
 
