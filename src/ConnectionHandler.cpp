@@ -385,6 +385,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     bool is_ssl = false;
     int bypasstimestamp = 0;
     bool urlredirect = false;
+    // Remove some results from log: eg: 302 requests
+    bool nolog = false;
 
     // 0=none,1=first line,2=all
     int headersent = 0;
@@ -513,7 +515,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 headermodified = false;
                 headeradded = false;
                 urlredirect = false;
-
                 authed = false;
                 isbanneduser = false;
 
@@ -2319,7 +2320,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             else if (!authed)
                 std::cout << dbgPeerPort << " -Skipping POST filtering because user is unauthed." << std::endl;
 #endif
-
             if (!checkme.isItNaughty) {
                 // the request is ok, so we can	now pass it to the proxy, and check the returned header
                 // temp char used in various places here
@@ -2345,12 +2345,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
 // TODO: Ugly Temporary: we must remove from filtering many unused HTTP code (V4 ?)
- 
+
                 if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
 #ifdef DGDEBUG
                   std::cout << " -Filtering exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
 #endif
-                  isexception = true;
+                    nolog = true;
+                    isexception = true;
                 }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << std::endl;
@@ -2372,12 +2373,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     docheader.setCookie("GBYPASS", ud.toCharArray(), hashedCookie(&ud, o.fg[filtergroup]->cookie_magic.c_str(), &clientip, bypasstimestamp).toCharArray());
 
                     // redirect user to URL with GBYPASS parameter no longer appended
-		    docheader.header[0] = "HTTP/1.0 302 Redirect";
-		    String loc("Location: ");
-		    loc += header.getLogUrl(true);
-		    docheader.header.push_back(loc);
-		    docheader.setContentLength(0);
-		
+                    docheader.header[0] = "HTTP/1.0 302 Redirect";
+                    String loc("Location: ");
+                    loc += header.getLogUrl(true);
+                    docheader.header.push_back(loc);
+                    docheader.setContentLength(0);
                     persistOutgoing = false;
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
 
@@ -2596,6 +2596,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         }
                     }
                 }
+ // En of "if (!checkme.isItNaughty) {"
             }
 
             if (!isexception && checkme.isException) {
@@ -2617,6 +2618,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     && urld.length() < 2000) {
                     addToClean(urld, filtergroup);
                 }
+// End of "if (o.url_cache_number > 0)"
             }
 
             // then we deny. previously, this checked the isbypass flag too; now, since bypass requests only undergo the same checking
@@ -2625,7 +2627,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             bool logged = false;
             if (!authed) {
                 logged = true;
-		String temp;
+                String temp;
                 bool is_ip = isIPHostnameStrip(temp);
 
                 if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) // allowed site
@@ -2715,7 +2717,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (waschecked) {
                 if (!docheader.authRequired() && !pausedtoobig) {
                     String rtype(header.requestType());
-                    if (!logged) {
+                    if (!logged && !nolog) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -2787,7 +2789,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     fdt.tunnel(proxysock, peerconn, false, docheader.contentLength() - docsize, true);
                     docsize += fdt.throughput;
                     String rtype(header.requestType());
-                    if (!logged) {
+                    if (!logged && !nolog) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -2804,7 +2806,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true);
                 docsize = fdt.throughput;
                 String rtype(header.requestType());
-                if (!logged) {
+                if (!logged && !nolog){
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                         rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                         docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
