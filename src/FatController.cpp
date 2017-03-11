@@ -551,11 +551,11 @@ void handle_connections(int tindex)
         //reloadconfig = false;
         while (!ttg) {
 #ifdef DGDEBUG
-            std::cerr << " waiting connectiom from http_worker_Q thread"  << this_id << std::endl;
+            std::cerr << " waiting connection on http_worker_Q "  << this_id << std::endl;
 #endif
             Socket *peersock = o.http_worker_Q->pop();
 #ifdef DGDEBUG
-            std::cerr << " popped connectiom from http_worker_Q"  << std::endl;
+            std::cerr << " popped connection from http_worker_Q"  << std::endl;
 #endif
             if(ttg) break;
 
@@ -1924,7 +1924,6 @@ int fc_controlit()   //
     //
 
     // worker thread generation
-    //std::thread* http_wt[o.http_workers];
     std::vector <std::thread> http_wt;
     http_wt.reserve(o.http_workers);
 
@@ -1935,9 +1934,9 @@ int fc_controlit()   //
 #endif
         http_wt.push_back(std::thread(handle_connections, i));
     }
-//    for (auto &i : http_wt) {
-//        i.detach();
- //   }
+    for (auto &i : http_wt) {
+        i.detach();
+   }
 #ifdef DGDEBUG
     std::cout << "http_worker threads created" << std::endl;
 #endif
@@ -1948,12 +1947,10 @@ int fc_controlit()   //
     listen_threads.reserve(serversocketcount);
     for (int i = 0; i < serversocketcount; i++) {
         listen_threads.push_back(std::thread(accept_connections, i));
-
-        //listen_treads[i]->detach();
     }
-//    for (auto &i : listen_threads) {
-//        i.detach();
-//    }
+    for (auto &i : listen_threads) {
+        i.detach();
+    }
 #ifdef DGDEBUG
     std::cout << "listen  threads created" << std::endl;
 #endif
@@ -2017,7 +2014,7 @@ int fc_controlit()   //
             if (rc == SIGTERM)
                 ttg = true;
             if (rc == SIGHUP)
-                ttg = true;
+                gentlereload = true;
 #ifdef DGDEBUG
             std::cout << "signal:" << rc << std::endl;
 #endif
@@ -2051,47 +2048,39 @@ int fc_controlit()   //
     pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
 
     if (o.logconerror) {
-        syslog(LOG_INFO,"sending null socket to http_workers to stop them");
-    }
-    for (i = 0; i < o.http_workers; i++) {
-        Socket* NS = NULL;
-        o.http_worker_Q->push(NS);
-    }
-    dystat->reset();    // remove this line for production version
-  //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-  //syslog(LOG_INFO,"1st wait complete");
-
-    //syslog(LOG_INFO,"Joining http_worker threads");
-   // for (auto &i : http_wt) {
-   //     if (i.joinable()) i.join();
-    //   };
-    dystat->reset();    // remove this line for production version
-    dystat->close();
-
-    if (o.logconerror) {
         syslog(LOG_INFO,"stopping connections");
     }
     serversockets.deleteAll();   // stop accepting connections
 //  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-  //syslog(LOG_INFO,"1st wait complete");
-  //  for (int i = 0; i < serversocketcount; i++) {
-  //      listen_threads[i].join();
-   // }
-
+//   syslog(LOG_INFO,"1st wait complete");
 
     if (o.logconerror) {
         syslog(LOG_INFO,"connections stopped");
     }
     delete[] serversockfds;
 
+    if (o.logconerror) {
+        syslog(LOG_INFO,"sending null socket to http_workers to stop them");
+    }
+    for (i = 0; i < o.http_workers; i++) {
+        Socket* NS = NULL;
+        o.http_worker_Q->push(NS);
+    }
+   // dystat->reset();    // remove this line for production version
+ // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+  //syslog(LOG_INFO,"2nd wait complete");
+
     logger_ttg = true;
 #ifdef __SSLMITM
     kill_ssl_locks();
 #endif
 
+    //dystat->reset();    // remove this line for production version
+    dystat->close();
+
     // allow logger to complete writing to disk
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    //   syslog(LOG_INFO,"2nd wait complete");
+ //   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+ //      syslog(LOG_INFO,"3rd wait complete");
 
     if (o.logconerror) {
         syslog(LOG_ERR, "%s", "Main thread exiting.");

@@ -126,8 +126,6 @@ int main(int argc, char *argv[])
                     while (sysv_amirunning(o.pid_filename))
                         sleep(1);
                     unlink(o.pid_filename.c_str());
-                    unlink(o.ipc_filename.c_str());
-                    unlink(o.urlipc_filename.c_str());
                     // remember to reset config before continuing
                     needreset = true;
                     break;
@@ -170,10 +168,9 @@ int main(int argc, char *argv[])
                     std::cout << "  -q causes e2guardian to kill any running copy." << std::endl;
                     std::cout << "  -Q kill any running copy AND start a new one with current options." << std::endl;
                     std::cout << "  -s shows the parent process PID and exits." << std::endl;
-                    std::cout << "  -r closes all connections and reloads config files by issuing a HUP," << std::endl;
-                    std::cout << "     but this does not reset the maxchildren option (amongst others)." << std::endl;
-                    std::cout << "  -g gently restarts by not closing all current connections; only reloads" << std::endl
-                              << "     filter group config files. (Issues a USR1)" << std::endl;
+                    std::cout << "  -r reloads lists and group config files by issuing a HUP," << std::endl;
+                    std::cout << "     but this does not reset the httpworkers option (amongst others)." << std::endl;
+                    std::cout << "  -g  same as -r  (Issues a USR1)" << std::endl;
                     std::cout << "  -i read total block list from stdin" << std::endl;
 #ifdef __BENCHMARK
                     std::cout << "  --bs benchmark searching filter group 1's bannedsitelist" << std::endl;
