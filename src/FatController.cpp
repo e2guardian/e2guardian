@@ -2036,14 +2036,12 @@ int fc_controlit()   //
         if (o.dstat_log_flag && (now >= dystat->end_int))
             dystat->reset();
     }
-    //if (o.monitor_helper_flag)
-    //   tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     //if (o.monitor_flag_flag)
     //   monitor_flag_set(false);
 
-
     //  tidy-up
+
     sigfillset(&signal_set);
     pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
 
