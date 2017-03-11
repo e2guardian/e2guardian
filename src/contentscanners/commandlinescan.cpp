@@ -57,6 +57,7 @@ class commandlineinstance : public CSPlugin
     private:
     // regular expression for finding virus names in program output
     RegExp virusregexp;
+    RegResult virusregexpres;
     // whether or not the above is in use
     bool usevirusregexp;
     // which sub-match to take from the match
@@ -331,9 +332,9 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     lastvirusname = "Unknown";
 
     if (usevirusregexp) {
-        virusregexp.match(result.c_str());
-        if (virusregexp.matched()) {
-            lastvirusname = virusregexp.result(submatch);
+        virusregexp.match(result.c_str(), virusregexpres);
+        if (virusregexpres.matched()) {
+            lastvirusname = virusregexpres.result(submatch);
             blockFile(NULL, NULL, checkme);
             return DGCS_INFECTED;
         }

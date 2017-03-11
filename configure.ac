@@ -231,18 +231,18 @@ AC_CHECK_HEADERS([pthread.h], [ LIBS="-lpthread ${LIBS}"], [
 echo "pthread.h required, failing"
 exit -1
 ])
-AC_CHECK_HEADERS([event2/thread.h], [
-LIBS="-levent_pthreads ${LIBS}"
-], [
-echo "libevent_pthreads required, failing"
-exit -1
-])
+#AC_CHECK_HEADERS([event2/thread.h], [
+#LIBS="-levent_pthreads ${LIBS}"
+#], [
+#echo "libevent_pthreads required, failing"
+#exit -1
+#])
 
 [if test "$GCC_VERSION_MAJOR" -ge 4; then
 	if test "$GCC_VERSION_MINOR" -ge 9; then
 		if test "$GCC_VERSION_PATCH" -ge 3; then
                         echo "Version: $GCC_VERSION"
-                        CXXFLAGS="--std=c++14"
+                        CXXFLAGS="--std=c++11"
                 fi
         fi
 	echo "Version: $GCC_VERSION "

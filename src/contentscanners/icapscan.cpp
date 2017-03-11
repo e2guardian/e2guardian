@@ -251,14 +251,15 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
         }
     }
     try {
-        icapsock.writeToSockete(object + sent, objectsize - sent, 0, o.content_scanner_timeout);
+        if(icapsock.writeToSocket(object + sent, objectsize - sent, 0, o.content_scanner_timeout)) {
 #ifdef DGDEBUG
-        std::cout << "total sent to icap: " << objectsize << std::endl;
+            std::cout << "total sent to icap: " << objectsize << std::endl;
 #endif
-        icapsock.writeString("\r\n0\r\n\r\n"); // end marker
+            icapsock.writeString("\r\n0\r\n\r\n"); // end marker
 #ifdef DGDEBUG
-        std::cout << "memory was sent to icap" << std::endl;
+            std::cout << "memory was sent to icap" << std::endl;
 #endif
+        }
     } catch (std::exception &e) {
 #ifdef DGDEBUG
         std::cerr << "Exception sending memory file to ICAP: " << e.what() << std::endl;
@@ -392,7 +393,9 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             }
             memcpy(object + objectsize, data, (rc > (100 - objectsize)) ? (100 - objectsize) : rc);
             objectsize += (rc > (100 - objectsize)) ? (100 - objectsize) : rc;
-            icapsock.writeToSockete(data, rc, 0, o.content_scanner_timeout);
+            if (!icapsock.writeToSocket(data, rc, 0, o.content_scanner_timeout)) {
+                throw std::runtime_error("Unable to write to socket");
+            };
             sent += rc;
         }
 #ifdef DGDEBUG

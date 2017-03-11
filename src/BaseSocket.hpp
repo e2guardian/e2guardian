@@ -81,7 +81,8 @@ class BaseSocket
     // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // write to socket, throwing std::exception on error - can be told to break on -r
-    void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
+  //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false);
 
     protected:
     // socket-wide timeout
