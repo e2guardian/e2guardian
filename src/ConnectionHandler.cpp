@@ -3284,15 +3284,15 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     // search term blocking - MOVED to after Banned checks
 
     if ((*ldl->fg[filtergroup]).enable_regex_grey) {
-        if ((j = (*ldl->fg[filtergroup]).inBannedRegExpURLList(temp, lastcategory)) >= 0) {
+        if ((j = ldl->fg[filtergroup]->inBannedRegExpURLList(temp, lastcategory)) >= 0) {
             (*checkme).isItNaughty = true;
             (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
             (*checkme).message_no = 503;
             // Banned Regular Expression URL
-            (*checkme).whatIsNaughtyLog += (*ldl->fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+            (*checkme).whatIsNaughtyLog += ldl->fg[filtergroup]->banned_regexpurl_list_source[j].toCharArray();
             (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
             // Banned Regular Expression URL found.
-            (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+            (*checkme).whatIsNaughtyCategories = o.lm.l[ldl->fg[filtergroup]->banned_regexpurl_list_ref[j]]->category.toCharArray();
         } else if ((j = ldl->fg[filtergroup]->inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
             checkme->isItNaughty = true;
             checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
