@@ -212,7 +212,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             // embedding the original URL they were trying to access.
             // unless they're accessing a domain for which authentication is not required,
             // in which case return a no match response straight away.
-            if (no_auth_list >= 0) {
+/*            if (no_auth_list >= 0) {
 #ifdef DGDEBUG
                 std::cout << "NTLM: Checking noauthdomains list" << std::endl;
 #endif
@@ -247,6 +247,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     }
                 }
             }
+*/ 
             string = "http://";
             string += hostname;
             string += ":";
@@ -325,6 +326,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         h.setURL(domain);
     }
 
+#ifdef DGDEBUG
+    std::cout << "NTLM - header - " << std::endl;
+    for (unsigned int i = 0; i < h.header.size(); i++)
+    	std::cout << h.header[i] << std::endl;
+#endif
+
     if (at != "NTLM") {
         // if no auth currently underway, then...
         if (at.length() == 0) {
@@ -334,9 +341,8 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
 #endif
             h.makePersistent();
-        } else {
+        } 
            return DGAUTH_NOMATCH;
-	}
     }
 
 #ifdef DGDEBUG
@@ -496,7 +502,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 int ntlminstance::init(void *args)
 {
     // Load up the list of no-auth domains, if enabled
-    if (!cv["noauthdomains"].empty()) {
+/*    if (!cv["noauthdomains"].empty()) {
 #ifdef DGDEBUG
         std::cout << "NTLM: Reading noauthdomains list" << std::endl;
 #endif
@@ -510,15 +516,19 @@ int ntlminstance::init(void *args)
             o.lm.l[no_auth_list]->used = true;
         }
     }
-
+*/
     return 0;
 }
 
+
 int ntlminstance::quit()
 {
+/*
     if (no_auth_list >= 0)
         o.lm.deRefList(no_auth_list);
+*/
     return 0;
+
 }
 
 bool ntlminstance::isTransparent()

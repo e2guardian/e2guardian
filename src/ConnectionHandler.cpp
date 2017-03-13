@@ -50,10 +50,8 @@
 extern OptionContainer o;
 extern bool is_daemonised;
 extern bool reloadconfig;
-
-#ifdef DGDEBUG
-int dbgPeerPort;
-#endif
+// If a specific debug line is needed
+int dbgPeerPort = 0;
 
 // IMPLEMENTATION
 
@@ -387,6 +385,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     bool is_ssl = false;
     int bypasstimestamp = 0;
     bool urlredirect = false;
+    // Remove some results from log: eg: 302 requests
+    bool nolog = false;
 
     // 0=none,1=first line,2=all
     int headersent = 0;
@@ -466,7 +466,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         // maintain a persistent connection
         while ((firsttime || persistPeer) && !reloadconfig) {
 #ifdef DGDEBUG
-            std::cout << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
+            std::cout << " firsttime =" << firsttime << " ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
 #endif
             if (firsttime) {
                 // reset flags & objects next time round the loop
@@ -515,7 +515,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 headermodified = false;
                 headeradded = false;
                 urlredirect = false;
-
                 authed = false;
                 isbanneduser = false;
 
@@ -1083,8 +1082,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     exceptionreason = o.language_list.getTranslation(600);
                     // Exception client IP match.
                 }
-                if (!isexception && (*o.fg[filtergroup]).enable_local_list) {
-
+		if (!isexception && (*o.fg[filtergroup]).enable_local_list && authed) {
                     if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inLocalBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) { // blocked SSL site
                         checkme.whatIsNaughty = o.language_list.getTranslation(580); // banned site
                         message_no = 580;
@@ -1130,7 +1128,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 };
             }
             // orginal section only now called if local list not matched
-            if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists)) {
+	    if (authed && (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || o.fg[filtergroup]->use_only_local_allow_lists))) {
                 //bool is_ssl = header.requestType() == "CONNECT";
                 bool is_ip = isIPHostnameStrip(urld);
                 if (is_ssl && (!ismitmcandidate) && ((retchar = o.fg[filtergroup]->inBannedSSLSiteList(urld, false, is_ip, is_ssl)) != NULL)) { // blocked SSL site
@@ -2322,7 +2320,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             else if (!authed)
                 std::cout << dbgPeerPort << " -Skipping POST filtering because user is unauthed." << std::endl;
 #endif
-
             if (!checkme.isItNaughty) {
                 // the request is ok, so we can	now pass it to the proxy, and check the returned header
                 // temp char used in various places here
@@ -2347,6 +2344,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     wasrequested = true; // so we know where we are later
                 }
 
+// TODO: Ugly Temporary: we must remove from filtering many unused HTTP code (V4 ?)
+
+                if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
+#ifdef DGDEBUG
+                  std::cout << " -Filtering exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
+#endif
+                    nolog = true;
+                    isexception = true;
+                }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << std::endl;
                 if (!persistProxy)
@@ -2355,7 +2361,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
-                if (isbypass && !isvirusbypass && !iscookiebypass) {
+                if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
 #ifdef DGDEBUG
                     std::cout << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << std::endl;
 #endif
@@ -2372,7 +2378,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     loc += header.getLogUrl(true);
                     docheader.header.push_back(loc);
                     docheader.setContentLength(0);
-
                     persistOutgoing = false;
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
 
@@ -2591,6 +2596,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         }
                     }
                 }
+ // En of "if (!checkme.isItNaughty) {"
             }
 
             if (!isexception && checkme.isException) {
@@ -2612,23 +2618,65 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     && urld.length() < 2000) {
                     addToClean(urld, filtergroup);
                 }
+// End of "if (o.url_cache_number > 0)"
             }
 
             // then we deny. previously, this checked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
             bool logged = false;
-            if (checkme.isItNaughty) {
+            if (!authed) {
+                logged = true;
+                String temp;
+                bool is_ip = isIPHostnameStrip(temp);
+
+                if (o.fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl)) // allowed site
+                {
+                	if (o.fg[0]->isOurWebserver(url)) {
+                        	isourwebserver = true;
+                        } else {
+                                isexception = true;
+                                exceptionreason = o.language_list.getTranslation(602);
+                                message_no = 602;
+                        // Exception site match.
+                                exceptioncat = o.lm.l[o.fg[filtergroup]->exception_site_list]->lastcategory.toCharArray();
+                        }
+                } else if (o.fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl)) { // allowed url
+                 	isexception = true;
+                        exceptionreason = o.language_list.getTranslation(603);
+                        message_no = 603;
+                        // Exception url match.
+                        exceptioncat = o.lm.l[o.fg[filtergroup]->exception_url_list]->lastcategory.toCharArray();
+                } else if ((rc = o.fg[filtergroup]->inExceptionRegExpURLList(urld)) > -1) {
+                         isexception = true;
+                         // exception regular expression url match:
+                         exceptionreason = o.language_list.getTranslation(609);
+                         message_no = 609;
+                         exceptionreason += o.fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
+                         exceptioncat = o.lm.l[o.fg[filtergroup]->exception_regexpurl_list_ref[rc]]->category.toCharArray();
+                } else if (!(*o.fg[filtergroup]).enable_local_list) {
+                 	if (embededRefererChecks(&header, &urld, &url, filtergroup)) { // referer exception
+                 	        isexception = true;
+                        	exceptionreason = o.language_list.getTranslation(620);
+                        	message_no = 620;
+                        }
+                }
+            	logged = false;
+              }
+
+
+            if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
                 std::cout << "Category: " << checkme.whatIsNaughtyCategories << std::endl;
 #endif
                 logged = true;
+
                 doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog,
                     rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, false, false, &thestart,
                     cachehit, 403, mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup,
                     &header, message_no, contentmodified, urlmodified, headermodified, headeradded);
-                if (denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror)) {
+                if ((denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser, &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror))) {
                     return 0; // not stealth mode
                 }
 
@@ -2669,7 +2717,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (waschecked) {
                 if (!docheader.authRequired() && !pausedtoobig) {
                     String rtype(header.requestType());
-                    if (!logged) {
+                    if (!logged && !nolog) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -2741,7 +2789,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     fdt.tunnel(proxysock, peerconn, false, docheader.contentLength() - docsize, true);
                     docsize += fdt.throughput;
                     String rtype(header.requestType());
-                    if (!logged) {
+                    if (!logged && !nolog) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -2758,7 +2806,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true);
                 docsize = fdt.throughput;
                 String rtype(header.requestType());
-                if (!logged) {
+                if (!logged && !nolog){
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                         rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                         docheader.isContentType("text",filtergroup), &thestart, cachehit, docheader.returnCode(), mimetype,

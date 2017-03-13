@@ -1,5 +1,10 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+- Fix bug #181 ERR_RESPONSE_HEADERS with bypass
+- Fix bug #183 whitelist and identification 
+- Fix bug #182 e2guardian systemd service does not support reload 
+- Fix bug #178 (NTLM Messages)
+
 February 2016
 - Version 3.5.0
 Summary of changes in this release (v3.5.0) can be found in e2guardian.release
