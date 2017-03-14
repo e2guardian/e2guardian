@@ -5,7 +5,7 @@ AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 4.0.1)
+AC_INIT(e2guardian, 3.5.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -24,6 +24,15 @@ AC_PROG_MAKE_SET
 AC_LANG(C++)
 
 AC_CACHE_SAVE
+
+#########################################################################
+# Get GCC version
+#########################################################################
+GCC_VERSION=$(gcc --version | head -1 | awk '{print $NF}')
+
+GCC_VERSION_MAJOR=$(echo $GCC_VERSION |cut -d'.' -f1 2>/dev/null)
+GCC_VERSION_MINOR=$(echo $GCC_VERSION |cut -d'.' -f2 2>/dev/null)
+GCC_VERSION_PATCH=$(echo $GCC_VERSION |cut -d'.' -f3 2>/dev/null)
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h])
@@ -208,6 +217,7 @@ pcre=true
 AC_MSG_RESULT(yes)
 ]
 )
+
 if test "x$pcre" = "xtrue"; then
 PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
 AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
@@ -216,6 +226,32 @@ else
 AC_CHECK_FUNCS([regcomp])
 fi
 AM_CONDITIONAL(HAVE_PCRE, test "x$pcre" = "xtrue")
+
+AC_CHECK_HEADERS([pthread.h], [ LIBS="-lpthread ${LIBS}"], [
+echo "pthread.h required, failing"
+exit -1
+])
+AC_CHECK_HEADERS([event2/thread.h], [
+LIBS="-levent_pthreads ${LIBS}"
+], [
+echo "libevent_pthreads required, failing"
+exit -1
+])
+
+[if test "$GCC_VERSION_MAJOR" -ge 4; then
+	if test "$GCC_VERSION_MINOR" -ge 9; then
+		if test "$GCC_VERSION_PATCH" -ge 3; then
+                        echo "Version: $GCC_VERSION"
+                        CXXFLAGS="--std=c++14"
+                fi
+        fi
+	echo "Version: $GCC_VERSION "
+        CXXFLAGS="--std=c++1y"
+else
+        echo "Version: $GCC_VERSION "
+        CXXFLAGS="--std=c++1y"
+fi
+]
 
 # ask user if they want a backtrace logged after segfault
 AC_MSG_CHECKING(for backtrace on segfault support)
@@ -239,7 +275,7 @@ AC_MSG_ERROR([no native or standard library backtrace function found! (needed by
 ])
 AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
 # add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS}"
+CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
 fi
 ],
 [ # disable by default
@@ -257,7 +293,7 @@ else
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -267,7 +303,7 @@ fi
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -485,8 +521,6 @@ AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
 
-
-
 # asking user if they want trickle downloadmanager support
 AC_MSG_CHECKING(for trickle download manager support)
 AC_ARG_ENABLE(
@@ -589,6 +623,7 @@ else
 	LIBS="${LIBS} -lssl -lcrypto"
 	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
 	AC_DEFINE([__SSLCERT],[],[Define to enable SSL CERT ])
+	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.0.1])
 fi],
 [
 	AC_MSG_RESULT(no)
@@ -724,11 +759,11 @@ configs/lists/Makefile
 configs/lists/phraselists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
-configs/lists/weightedphraselist
-configs/lists/exceptionphraselist
 configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
+configs/lists/exceptionphraselist
+configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/downloadmanagers/fancy.conf
@@ -741,9 +776,10 @@ configs/contentscanners/kavdscan.conf
 configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
 configs/authplugins/ip.conf
+configs/authplugins/port.conf
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
-                src/Makefile
+src/Makefile
 ])
 
 AC_OUTPUT
