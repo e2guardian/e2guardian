@@ -116,7 +116,14 @@ e2guardian_SOURCES = String.cpp String.hpp \
 		       SocketArray.cpp SocketArray.hpp \
                        e2guardian.cpp \
 		       Plugin.hpp \
+		       LOptionContainer.cpp LOptionContainer.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
+		       Queue.hpp \
+		       Auth.cpp Auth.hpp \ 
+	    	       authplugins/dnsauth.cpp authplugins/port.cpp \
+		       authplugins/ident.cpp authplugins/ip.cpp \
+                       authplugins/dnsauth.cpp authplugins/port.cpp \
+                       authplugins/ntlm.cpp authplugins/digest.cpp \
 		       $(ICAPSCAN_SOURCE) \
 		       $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
 		       $(AVASTDSCAN_SOURCE) \
