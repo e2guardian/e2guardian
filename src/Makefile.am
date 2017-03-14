@@ -99,7 +99,6 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        UDSocket.cpp UDSocket.hpp \
                        SysV.cpp SysV.hpp \
                        ListContainer.cpp ListContainer.hpp \
-                       Auth.cpp Auth.hpp \
                        HTMLTemplate.cpp HTMLTemplate.hpp \
                        LanguageContainer.cpp LanguageContainer.hpp \
                        DynamicURLList.cpp DynamicURLList.hpp \
@@ -120,10 +119,6 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
 		       Queue.hpp \
 		       Auth.cpp Auth.hpp \ 
-	    	       authplugins/dnsauth.cpp authplugins/port.cpp \
-		       authplugins/ident.cpp authplugins/ip.cpp \
-                       authplugins/dnsauth.cpp authplugins/port.cpp \
-                       authplugins/ntlm.cpp authplugins/digest.cpp \
 		       $(ICAPSCAN_SOURCE) \
 		       $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
 		       $(AVASTDSCAN_SOURCE) \
