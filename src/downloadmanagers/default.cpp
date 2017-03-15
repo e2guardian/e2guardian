@@ -86,7 +86,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     //  To access settings for the plugin use the following example:
     //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
 
-    int rc;
+    int rc = 0;
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
 

@@ -4446,7 +4446,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
         u_char buf[NS_PACKETSZ];
     } response;
     int responseLen;
-
+#if PRT_DNSAUTH
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
@@ -4461,7 +4461,6 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
 #endif
         return false;
     }
-
     int rrnum; /* resource record number */
     ns_rr rr; /* expanded resource record */
     u_char *cp;
@@ -4495,6 +4494,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
             }
         }
     }
+#endif
     return false;
 }
 
