@@ -342,7 +342,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
             h.makePersistent();
         } 
-           return DGAUTH_NOMATCH;
+        return DGAUTH_NOMATCH;
     }
 
 #ifdef DGDEBUG

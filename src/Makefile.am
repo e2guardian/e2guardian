@@ -90,10 +90,10 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        DataBuffer.cpp DataBuffer.hpp \
                        HTTPHeader.cpp HTTPHeader.hpp \
                        NaughtyFilter.cpp NaughtyFilter.hpp \
-					   BackedStore.cpp BackedStore.hpp\
+		       BackedStore.cpp BackedStore.hpp\
                        RegExp.cpp RegExp.hpp \
-		               FDFuncs.cpp FDFuncs.hpp \
-		               BaseSocket.cpp BaseSocket.hpp \
+		       FDFuncs.cpp FDFuncs.hpp \
+		       BaseSocket.cpp BaseSocket.hpp \
                        Socket.cpp Socket.hpp \
                        FatController.cpp FatController.hpp \
                        UDSocket.cpp UDSocket.hpp \
@@ -102,9 +102,9 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        HTMLTemplate.cpp HTMLTemplate.hpp \
                        LanguageContainer.cpp LanguageContainer.hpp \
                        DynamicURLList.cpp DynamicURLList.hpp \
-					   DynamicIPList.cpp DynamicIPList.hpp \
+		       DynamicIPList.cpp DynamicIPList.hpp \
                        ImageContainer.cpp ImageContainer.hpp \
-		               IPList.cpp IPList.hpp \
+		       IPList.cpp IPList.hpp \
                        OptionContainer.cpp OptionContainer.hpp \
                        FOptionContainer.cpp FOptionContainer.hpp \
                        ListManager.cpp ListManager.hpp \
@@ -112,14 +112,14 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        DownloadManager.cpp DownloadManager.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
-		               SocketArray.cpp SocketArray.hpp \
+		       SocketArray.cpp SocketArray.hpp \
                        e2guardian.cpp \ Plugin.hpp \
-		               LOptionContainer.cpp LOptionContainer.hpp \
+		       LOptionContainer.cpp LOptionContainer.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
-		               Queue.hpp \
-		               Auth.cpp Auth.hpp \
-		                             $(ICAPSCAN_SOURCE) \
-                      $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
+		       Queue.hpp \
+		       Auth.cpp Auth.hpp \
+		       $(ICAPSCAN_SOURCE) \
+                       $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
                        $(AVASTDSCAN_SOURCE) \
                        $(COMMANDLINE_SOURCE) \
                        $(DEFAULTDM_SOURCE) $(FANCYDM_SOURCE) \
