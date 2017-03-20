@@ -661,40 +661,6 @@ AM_CONDITIONAL(PRT_DNSAUTH, test "x$dnsauth" = "xtrue")
 AC_SUBST(DNSAUTHSUPPORT)
 
 
-AC_ARG_WITH(filedescriptors,
-  AS_HELP_STRING([--with-filedescriptors=NUMBER],
-                 [Force support of NUMBER filedescriptors. In some cases, you must take steps to tune your system before compiling (see FD_SETSIZE and ulimit for Linux in INSTALL)]),
-[
-  case ${withval} in
-    [[0-9]]*)
-      dans_filedescriptors_num=$withval
-      ;;
-    *)
-      AC_MSG_ERROR(--with-filedescriptors expects a numeric argument)
-      ;;
-    esac
-])
-
-
-if test -n "$dans_filedescriptors_num"; then
-	
-	if test `expr $dans_filedescriptors_num % 64` != 0; then
-    		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&5
-		$as_echo "$as_me: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&2;}
-	fi
-
-	if test "$dans_filedescriptors_num" -lt 512; then
-	    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
-	    AC_MSG_WARN([e2guardian will be very busy.])
-	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-	fi
-
-	if test "$dans_filedescriptors_num" -ge 512; then
-	    AC_MSG_NOTICE([forcing use of $dans_filedescriptors_num filedescriptors (user-forced)])
-	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-	fi
-fi
-
 # asking the user if they want email notifications
 AC_MSG_CHECKING(for email notification support)
 AC_ARG_ENABLE(
