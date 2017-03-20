@@ -131,21 +131,6 @@ std::atomic<int> reload_cnt;
 extern OptionContainer o;
 extern bool is_daemonised;
 
-//struct stat_rec {
-//    long births; // num of child forks in stat interval
-//    long deaths; // num of child deaths in stat interval
-//    std::atomic<int> conx ; // num of client connections in stat interval
-//    std::atomic<int> reqs; // num of client requests in stat interval
-//    time_t start_int; // time of start of this stat interval
-//    time_t end_int; // target end time of stat interval
-//    std::atomic<int> maxusedfd; // max fd reached
-//    FILE *fs; // file stream
-//    void reset();
-//    void start();
-//    void clear();
-//    void close();
-//};
-
 void stat_rec::clear()
 {
     //births = 0;
@@ -212,7 +197,7 @@ void stat_rec::reset()
 
 void stat_rec::close()
 {
-    fclose(fs);
+    if (fs != NULL) fclose(fs);
 };
 // Queues
 //extern Queue<std::string>* log_Q;
@@ -1999,7 +1984,7 @@ int fc_controlit()   //
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
         syslog(LOG_INFO, "Started sucessfully.");
-        if(o.dstat_log_flag) dystat->start();
+        dystat->start();
     }
     reloadconfig = false;
 
