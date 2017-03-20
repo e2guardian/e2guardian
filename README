@@ -1,17 +1,16 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is development beta pre-release of v4.0.  It is now near-stable
-and you are invited use it in a test environment.
+This is the v4 development version.  v4.2.  
 
 Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases.
+significant changes to the configuration files in this release.
 
 Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
 
 **For copyright go to: http://e2guardian.org**
 
-e2guardian is a content filtering proxy that works in conjunction with another
+e2guardian is a content filtering proxy that can work in conjunction with another
 caching proxy such as Squid . More information can be found in the
 e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
