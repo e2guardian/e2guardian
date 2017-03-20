@@ -115,8 +115,6 @@ int sysv_kill(std::string pidfile, bool dounlink)
         }
         if (dounlink) {
             unlink(pidfile.c_str());
-            unlink(o.ipc_filename.c_str());
-            unlink(o.urlipc_filename.c_str());
         }
         return 0;
     }

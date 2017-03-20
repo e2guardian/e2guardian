@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
                 switch (option) {
                 case 'q':
                     read_config(configfile, 0);
-                    return sysv_kill(o.pid_filename);
+                    return sysv_kill(o.pid_filename,true);
                 case 'Q':
                     read_config(configfile, 0);
                     sysv_kill(o.pid_filename, false);
