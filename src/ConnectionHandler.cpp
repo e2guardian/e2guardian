@@ -1508,7 +1508,7 @@ stat_rec* &dystat)
                             persistOutgoing = false;
                             persistPeer = false;
                         }
-                        //try 
+                        //try
                             fdt.reset(); // make a tunnel object
                             // tunnel from client to proxy and back
                             // two-way if SSL
@@ -3283,24 +3283,28 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
     // search term blocking - MOVED to after Banned checks
 
-    if ((*ldl->fg[filtergroup]).enable_regex_grey) {
-        if ((j = ldl->fg[filtergroup]->inBannedRegExpURLList(temp, lastcategory)) >= 0) {
-            (*checkme).isItNaughty = true;
-            (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
-            (*checkme).message_no = 503;
-            // Banned Regular Expression URL
-            (*checkme).whatIsNaughtyLog += ldl->fg[filtergroup]->banned_regexpurl_list_source[j].toCharArray();
-            (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
-            // Banned Regular Expression URL found.
-            (*checkme).whatIsNaughtyCategories = o.lm.l[ldl->fg[filtergroup]->banned_regexpurl_list_ref[j]]->category.toCharArray();
-        } else if ((j = ldl->fg[filtergroup]->inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
-            checkme->isItNaughty = true;
-            checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
-            (*checkme).message_no = 508;
-            checkme->whatIsNaughtyLog += ldl->fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
-            checkme->whatIsNaughty = o.language_list.getTranslation(509);
-            checkme->whatIsNaughtyCategories = o.lm.l[ldl->fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
-        }
+    if (ldl->fg[filtergroup]->enable_regex_grey) {
+            syslog(LOG_INFO, "Could not write to logging process:");
+            if ((j = (*ldl->fg[filtergroup]).inBannedRegExpURLList(temp, lastcategory)) >= 0) {
+                (*checkme).isItNaughty = true;
+                (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
+                (*checkme).message_no = 503;
+                // Banned Regular Expression URL:
+                (*checkme).whatIsNaughtyLog += (*ldl->fg[filtergroup]).banned_regexpurl_list_source[j].toCharArray();
+                (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
+                // Banned Regular Expression URL found.
+                (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
+                syslog(LOG_INFO, "Could not write to logging process:");
+                return;
+            } else if ((j = (*ldl->fg[filtergroup]).inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
+                checkme->isItNaughty = true;
+                checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
+                checkme->message_no = 508;
+                checkme->whatIsNaughtyLog += ldl->fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
+                checkme->whatIsNaughty = o.language_list.getTranslation(509);
+                checkme->whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpheader_list_ref[j]]).category.toCharArray();
+                return;
+            }
     }
 
     if (checkme->isItNaughty) { // why bother with checking anything else!!!!
@@ -3338,7 +3342,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
             return;
         }
         // when enable_regex_grey is false no urls will be test against regex
-        if (!(*ldl->fg[filtergroup]).enable_regex_grey) {
+        if (ldl->fg[filtergroup]->enable_regex_grey) {
             if ((j = (*ldl->fg[filtergroup]).inBannedRegExpURLList(temp, lastcategory)) >= 0) {
                 (*checkme).isItNaughty = true;
                 (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
@@ -3349,14 +3353,13 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                 // Banned Regular Expression URL found.
                 (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
                 return;
-            }
-            if ((j = ldl->fg[filtergroup]->inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
+            } else if ((j = (*ldl->fg[filtergroup]).inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
                 checkme->isItNaughty = true;
                 checkme->whatIsNaughtyLog = o.language_list.getTranslation(508);
                 checkme->message_no = 508;
                 checkme->whatIsNaughtyLog += ldl->fg[filtergroup]->banned_regexpheader_list_source[j].toCharArray();
                 checkme->whatIsNaughty = o.language_list.getTranslation(509);
-                checkme->whatIsNaughtyCategories = o.lm.l[ldl->fg[filtergroup]->banned_regexpheader_list_ref[j]]->category.toCharArray();
+                checkme->whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpheader_list_ref[j]]).category.toCharArray();
                 return;
             }
         }
