@@ -2917,13 +2917,12 @@ stat_rec* &dystat)
                     }
                 }
 
-                if(!peerconn.breadyForOutput(o.proxy_timeout))
-                    cleanThrow("Error sending headers to client 2784", peerconn,proxysock);
+                //if(!peerconn.breadyForOutput(o.proxy_timeout))
+                 //   cleanThrow("Error sending body to client 2784", peerconn,proxysock);
                 //peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
-                //if (peerconn.isNoOpp())  break;
-#ifdef DGDEBUG
-                std::cerr << dbgPeerPort << "  got past line 2705 rfo " << std::endl;
-#endif
+//#ifdef DGDEBUG
+  //              std::cerr << dbgPeerPort << "  got past line 2705 rfo " << std::endl;
+//#endif
 
                 // it must be clean if we got here
                 if (docbody.dontsendbody && docbody.tempfilefd > -1) {
@@ -3044,7 +3043,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
 #endif
-        syslog(LOG_ERR, " -connection handler caught an exception %s in thread %d", e.what(), std::this_thread::get_id() );
+        syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
         proxysock.close();
