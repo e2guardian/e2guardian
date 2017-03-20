@@ -1999,7 +1999,7 @@ int fc_controlit()   //
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
         syslog(LOG_INFO, "Started sucessfully.");
-        dystat->start();
+        if(o.dstat_log_flag) dystat->start();
     }
     reloadconfig = false;
 
@@ -2099,7 +2099,7 @@ int fc_controlit()   //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    dystat->close();
+    if(o.dstat_log_flag) dystat->close();
 
 #ifdef __SSLMITM
     kill_ssl_locks();
