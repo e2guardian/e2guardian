@@ -194,9 +194,6 @@ Optional Packages:
                           Specify search path on a system which requires an
                           external iconv library (only used in conjunction
                           with NTLM auth plugin).
-  --with-filedescriptors=NUMBER
-                          Max support of NUMBER filedescriptors (Maxchildren). 
-			  Now you can set http_workers - 7 (reserved by E2)
   --with-sysconfsubdir[=e2guardian]
                           subdirectory under sysconfdir in which to place
                           config files
