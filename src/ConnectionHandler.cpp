@@ -3284,7 +3284,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     // search term blocking - MOVED to after Banned checks
 
     if (ldl->fg[filtergroup]->enable_regex_grey) {
-            syslog(LOG_INFO, "Could not write to logging process:");
             if ((j = (*ldl->fg[filtergroup]).inBannedRegExpURLList(temp, lastcategory)) >= 0) {
                 (*checkme).isItNaughty = true;
                 (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
