@@ -290,7 +290,11 @@ bool OptionContainer::read(std::string& filename, int type)
         exchange_timeout = exchange_timeout_sec  * 1000;
 
         http_workers= findoptionI("httpworkers");
-        if (http_workers == 0) http_workers = 100;
+        if (http_workers == 0) { 
+		http_workers = 100;
+                std::cerr << "http_workers settings cannot be zero: value set to 100" << std::endl;
+                syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
+	}
         if (!realitycheck(http_workers, 20, 10000, "httpworkers")) {
         return false;
         } // check its a reasonable value

@@ -338,19 +338,6 @@ int main(int argc, char *argv[])
     max_maxchildren = rlim.rlim_cur - (no_listen_fds + 6);
     int fd_needed = (o.http_workers *2) + no_listen_fds + 6;
 
-#ifndef FD_SETSIZE_OVERIDE
-    /* Fix ugly crash */
-    /* Temporary sucurity protection about FD_SETSIZE limit - for all system now - later for no epoll system */
-
-    if (DANS_MAXFD > FD_SETSIZE) {
-        syslog(LOG_ERR, "%s", "Compiled with --with-filedescriptors too high");
-        std::cerr << " Compiled with --with-filedescriptors too high" << std::endl;
-        std::cerr << "You should upgrade your FD_SETSIZE=" << FD_SETSIZE << std::endl;
-        std::cerr << "E2guardian compiled with with-filedescriptors=" << DANS_MAXFD << std::endl;
-        std::cerr << "Or reduce --with-filedescriptors=" << DANS_MAXFD << " under " << FD_SETSIZE << std::endl;
-        return 1; // we can't have rampant proccesses can we?
-    }
-#endif
     if (((o.http_workers * 2) ) > max_maxchildren) {
         syslog(LOG_ERR, "%s", "httpworkers option in e2guardian.conf has a value too high.");
         std::cerr << " httpworkers option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")" << std::endl;

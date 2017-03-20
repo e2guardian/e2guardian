@@ -663,7 +663,7 @@ AC_SUBST(DNSAUTHSUPPORT)
 
 AC_ARG_WITH(filedescriptors,
   AS_HELP_STRING([--with-filedescriptors=NUMBER],
-                 [Force support of NUMBER filedescriptors. In some cases, you must take steps to tune your system before compiling (see FD_SETSIZE and ulimit for Linux in INSTALL)]),
+                 [Max support of NUMBER filedescriptors]),
 [
   case ${withval} in
     [[0-9]]*)
