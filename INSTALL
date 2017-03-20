@@ -196,7 +196,7 @@ Optional Packages:
                           with NTLM auth plugin).
   --with-filedescriptors=NUMBER
                           Max support of NUMBER filedescriptors (Maxchildren). 
-			  Now you can set maxchildren + preforkchildren to Max - 7 (reserved by E2)
+			  Now you can set http_workers - 7 (reserved by E2)
   --with-sysconfsubdir[=e2guardian]
                           subdirectory under sysconfdir in which to place
                           config files
