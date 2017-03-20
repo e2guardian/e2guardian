@@ -226,7 +226,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
             delete[] block;
             block = new char[newsize];
             try {
-                sock->checkForInput(d->timeout);
+                sock->bcheckForInput(d->timeout);
             } catch (std::exception &e) {
                 break;
             }
@@ -252,7 +252,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
             }
         } else {
             try {
-                sock->checkForInput(d->timeout);
+                sock->bcheckForInput(d->timeout);
             } catch (std::exception &e) {
                 break;
             }

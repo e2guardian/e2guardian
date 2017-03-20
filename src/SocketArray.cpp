@@ -126,3 +126,18 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     }
     return 0;
 }
+
+// try connecting to all our sockets which are still open to allow tidy close
+void SocketArray::self_connect() {
+    for (unsigned int i = 0; i < socknum; i++) {
+        if (drawer[i].getFD() > -1) {
+            std::string sip = drawer[i].getLocalIP();
+            int port = drawer[i].getPort();
+            Socket temp;
+            temp.setTimeout(100);
+            temp.connect(sip, port);
+            temp.close();
+        }
+    }
+}
+

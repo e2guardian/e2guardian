@@ -42,13 +42,13 @@ class icapinstance : public CSPlugin
     icapinstance(ConfigVar &definition)
         : CSPlugin(definition), usepreviews(false), previewsize(0), supportsXIF(false), needsBody(false){};
 
-    int willScanRequest(const String &url, const char *user, int filtergroup, const char *ip, bool post,
+    int willScanRequest(const String &url, const char *user, FOptionContainer* &foc, const char *ip, bool post,
         bool reconstituted, bool exception, bool bypass);
 
-    int scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+    int scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
         const char *ip, const char *object, unsigned int objectsize, NaughtyFilter *checkme,
         const String *disposition, const String *mimetype);
-    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
         const char *ip, const char *filename, NaughtyFilter *checkme,
         const String *disposition, const String *mimetype);
 
@@ -87,13 +87,13 @@ CSPlugin *icapcreate(ConfigVar &definition)
 
 // don't scan POST data or reconstituted data - wouldn't work for multi-part posts
 // without faking request headers, as we are only passed a single part, not the whole request verbatim
-int icapinstance::willScanRequest(const String &url, const char *user, int filtergroup, const char *ip,
+int icapinstance::willScanRequest(const String &url, const char *user, FOptionContainer* &foc, const char *ip,
     bool post, bool reconstituted, bool exception, bool bypass)
 {
     if (post || reconstituted)
         return DGCS_NOSCAN;
     else {
-        return CSPlugin::willScanRequest(url, user, filtergroup, ip,
+        return CSPlugin::willScanRequest(url, user, foc, ip,
             post, reconstituted, exception, bypass);
     }
 }
@@ -197,7 +197,7 @@ int icapinstance::init(void *args)
 }
 
 // send memory buffer to ICAP server for scanning
-int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
     const char *ip, const char *object, unsigned int objectsize, NaughtyFilter *checkme,
     const String *disposition, const String *mimetype)
 {
@@ -251,14 +251,15 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
         }
     }
     try {
-        icapsock.writeToSockete(object + sent, objectsize - sent, 0, o.content_scanner_timeout);
+        if(icapsock.writeToSocket(object + sent, objectsize - sent, 0, o.content_scanner_timeout)) {
 #ifdef DGDEBUG
-        std::cout << "total sent to icap: " << objectsize << std::endl;
+            std::cout << "total sent to icap: " << objectsize << std::endl;
 #endif
-        icapsock.writeString("\r\n0\r\n\r\n"); // end marker
+            icapsock.writeString("\r\n0\r\n\r\n"); // end marker
 #ifdef DGDEBUG
-        std::cout << "memory was sent to icap" << std::endl;
+            std::cout << "memory was sent to icap" << std::endl;
 #endif
+        }
     } catch (std::exception &e) {
 #ifdef DGDEBUG
         std::cerr << "Exception sending memory file to ICAP: " << e.what() << std::endl;
@@ -280,7 +281,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
 // send file contents for scanning
 int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user,
-    int filtergroup, const char *ip, const char *filename, NaughtyFilter *checkme,
+    FOptionContainer* &foc, const char *ip, const char *filename, NaughtyFilter *checkme,
     const String *disposition, const String *mimetype)
 {
     lastmessage = lastvirusname = "";
@@ -392,7 +393,9 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             }
             memcpy(object + objectsize, data, (rc > (100 - objectsize)) ? (100 - objectsize) : rc);
             objectsize += (rc > (100 - objectsize)) ? (100 - objectsize) : rc;
-            icapsock.writeToSockete(data, rc, 0, o.content_scanner_timeout);
+            if (!icapsock.writeToSocket(data, rc, 0, o.content_scanner_timeout)) {
+                throw std::runtime_error("Unable to write to socket");
+            };
             sent += rc;
         }
 #ifdef DGDEBUG

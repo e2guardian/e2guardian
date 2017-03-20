@@ -34,7 +34,8 @@
 extern bool reloadconfig;
 
 #ifndef X509_V_FLAG_TRUSTED_FIRST
-#warning "X509_V_FLAG_TRUSTED_FIRST not available, chain creation will be unreliable"
+#warning "openssl X509_V_FLAG_TRUSTED_FIRST not available, certificate chain creation will be unreliable and will fail on some sites"
+#warning "To fix install a later version of openssl"
 #define X509_V_FLAG_TRUSTED_FIRST 0
 #endif
 #endif

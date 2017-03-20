@@ -42,6 +42,9 @@ class SocketArray
     // shove all socket FDs into the given array (pass in unallocated)
     int *getFDAll();
 
+    // try connecting to all our sockets which are still open to allow tidy close
+    void self_connect();
+
     // array dereference operator
     Socket *operator[](int i)
     {

@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=forking
 ExecStart=@DGBINDIR@/e2guardian
+ExecReload=/usr/sbin/e2guardian -r
 
 [Install]
 WantedBy=multi-user.target

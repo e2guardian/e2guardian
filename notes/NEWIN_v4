@@ -1,4 +1,4 @@
-This is development beta pre-release of v4.0.  It is now near-stable
+This is the development beta pre-release of v4.0.  It is now near-stable
 and you are invited use it in a test environment.
 
 Note that large sections of the code are being re-written and there will be 
@@ -7,7 +7,9 @@ significant changes to the configuration files in later releases.
 Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
 
-The new version is written in c++11 and so to compile it you will need gcc v5.4 or later. (or another complier that supports the c++11 std::thread library).  Note that the target systems may also need an c++11 library update.
+The new version is written in c++11 and so to compile it you will need gcc v5.4 
+or later. (or another complier that supports the c++11 std::thread library).  
+Note that the target systems may also need an c++11 library update.
 
 Also the build environment has not yet been modified and so you will need to 
 hand edit the src/Makefile in order to compile it.  The Makefile I use is 
@@ -24,31 +26,38 @@ threads, the input (and reinput) of the lists, signals and statistics.
 The treads communicate via fi-fo queues within memory and so there is no need 
 for ipc pipes.
 
-A listener thread is set up for each ip/port combination. They listen for a connection, accept it and then push the new connection socket on the appropriate 
-worker queue.
+A listener thread is set up for each ip/port combination. They listen for a 
+connection, accept it and then push the new connection socket on the 
+appropriate worker queue.
 
-The worker threads pop connections from the worker queue and deal with the connection.
+The worker threads pop connections from the worker queue and deal with the 
+connection.
 
-When a worker wants to log a request it pushes the logging data onto the log queue. The logging thread will pop the data from the queue, format it and write it 
-to the log. 
+When a worker wants to log a request it pushes the logging data onto the log 
+queue. The logging thread will pop the data from the queue, format it and 
+write it to the log. 
 
-Most of the above logic is in FatControler.cpp.  The logic is now much simpler and has reduced the amount of code in FatControler by over 50%.
+Most of the above logic is in FatControler.cpp.  The logic is now much simpler 
+and has reduced the amount of code in FatControler by over 50%.
 
-Socket classes have been extensively modified to remove interrupt handling (for list reload etc) and all select calls.
+Socket classes have been extensively modified to remove interrupt handling (for 
+list reload etc) and all select calls are removed.  So there is no longer a 
+need to modify FD_SETSIZE.
 
-New LOptionContainer written to hold list and filter group setings.   On gentle restart a new LOptionContainer object is created and loaded with filter group 
-and list settings.   Once fully read in a global shared pointer is switched from
-the old list to the new, making actioning list changes immediate an with no 
-interruption to service.
+New LOptionContainer class has been written to hold list and filter group 
+setings.   On gentle restart a new LOptionContainer object is created and 
+loaded with filter group and list settings.   Once fully read in a global 
+shared pointer is switched from the old list to the new, making actioning 
+list changes immediate an with no interruption to service.
 
-TESTING -  basic and (scripted) load testing with up to 3000 worker threads has
-been carried out to date.  These tests show a big reduction of memory 
+TESTING -  basic and (scripted) load testing with up to 3000 worker threads 
+has been carried out to date.  These tests show a big reduction of memory 
 usage. 
 
 It also handles transient peaks more smoothly.  Connections are queued, so 
 response will slow down, but not stop when all the worker threads are busy.
 
-TODO - immediate before first v4 stable release - PLEASE HELP
+TODO - before first v4 stable release - PLEASE HELP
 
   HELP required to get automake settings/tools working correctly
 
@@ -74,9 +83,11 @@ Re-impliment mailing option.
 
 WISHLIST
 
-????
+ICAP server mode.
 
-NOTES FOR THIS VERSION
+Per-user exceptions/blocks.
+
+NOTES  FOR THIS VERSION  - v4.0.1
 
 All pics support has been removed
 
@@ -99,7 +110,6 @@ just two new options in e2guardian.conf
 
 Please note the new format for the dstats log. See notes/dstat_format
 
-
-Philip Pearce 8 March 2017 
+Philip Pearce 11 March 2017 
 
 
