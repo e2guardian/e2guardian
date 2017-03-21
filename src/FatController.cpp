@@ -2099,7 +2099,9 @@ int fc_controlit()   //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    dystat->close();
+   time_t now = time(NULL);
+   if (o.dstat_log_flag && (now >= dystat->end_int))
+   	dystat->close();
 
 #ifdef __SSLMITM
     kill_ssl_locks();
