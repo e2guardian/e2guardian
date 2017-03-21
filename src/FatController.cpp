@@ -2036,9 +2036,17 @@ int fc_controlit()   //
         std::cout << "busychildren:" << dystat->busychildren << std::endl;
         std::cout << "worker Q size:" << q_size << std::endl;
 #endif
-	int busy_child = dystat->busychildren;
-	if (busy_child > (o.http_workers -10))
-		syslog(LOG_INFO, "Warning system is full : max httpworkers: %d Used: %d", o.http_workers, busy_child);
+        if( o.dstat_log_flag) {
+            if (q_size > 10) {
+                syslog(LOG_INFO,
+                       "Warning: all %d http_worker threads are busy and %d connections are waiting in the queue.",
+                       o.http_workers, q_size);
+            }
+        } else {
+            int busy_child = dystat->busychildren;
+            if (busy_child > (o.http_workers - 10))
+                syslog(LOG_INFO, "Warning system is full : max httpworkers: %d Used: %d", o.http_workers, busy_child);
+        }
 
         //      if (is_starting)
 

@@ -1,10 +1,10 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is development beta pre-release of v4.0.  It is now near-stable
+This is the beta pre-release of v4.1.  It is now near-stable
 and you are invited use it in a test environment.
 
 Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases.
+significant changes to the configuration files in later releases (v4.2 on).
 
 Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!

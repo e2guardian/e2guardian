@@ -4,6 +4,9 @@ Due to differences in release levels of the GNU autotools on different
 platforms we are no longer including the configure script as part 
 of the distribution.
 
+NOTE: For v4 - please read notes/NEWIN_v4 first!
+------------------------------------------------
+
 HOW TO BUILD:
 -------------
 The distribution uses GNU autotools for building.

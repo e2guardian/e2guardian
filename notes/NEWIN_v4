@@ -1,19 +1,19 @@
-This is the development beta pre-release of v4.0.  It is now near-stable
+Version 4.0.2.
+
+This is the beta pre-release of v4.1.  It is now near-stable
 and you are invited use it in a test environment.
 
 Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases.
+significant changes to the configuration files in later releases (v4.2 on).
 
-Note: This version is work in progress and instructions 
+Note: Although near stable this version is still work in progress and instructions
 may be incomplete.   If in doubt - read the source!
 
 The new version is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the c++11 std::thread library).  
 Note that the target systems may also need an c++11 library update.
 
-Also the build environment has not yet been modified and so you will need to 
-hand edit the src/Makefile in order to compile it.  The Makefile I use is 
-included as PIPMake so that you have something to work from.
+
 
 REVISED PROCESS MODEL
 
@@ -59,8 +59,6 @@ response will slow down, but not stop when all the worker threads are busy.
 
 TODO - before first v4 stable release - PLEASE HELP
 
-  HELP required to get automake settings/tools working correctly
-
   Testing on various platforms.  V4 is using c++11, so should work on any
   platform with c++11 support.  The target platforms to be supported are
   Linux and FreeBsd.  Can you help with this?
@@ -71,7 +69,7 @@ TODO - before first v4 stable release - PLEASE HELP
 
   Testing of NTLM, proxy-basic, proxy-digest and ident authplugins
 
-TODO - for later releases.
+TODO - for post v4.1 releases.
 
 Make lists parameter based rather than hard coded.
 
@@ -79,7 +77,7 @@ Create 'story-board' parameterised logic for handling filtering logic.
 
 Transparent https option.
 
-Re-impliment mailing option.
+Re-implement mailing option.
 
 WISHLIST
 
@@ -87,22 +85,22 @@ ICAP server mode.
 
 Per-user exceptions/blocks.
 
-NOTES  FOR THIS VERSION  - v4.0.1
+NOTES  FOR THIS VERSION  - v4.0.2
 
 All pics support has been removed
 
 Mail option not yet implemented.
 
-Url cache not implimented
+Url cache not implemented
 
-IP cache not implimented
+IP cache not implemented
 
 Auth plugins - IP, Port and DNSauth tested and working
-	- others should work but not tested
+	- others now compile but not tested
 
 Scan plugins - none tested
 
-Configuration in this version is largely backward compatable with v3.4
+Configuration in this version is largely backward compatible with v3.4
 just two new options in e2guardian.conf
 
    httpworkers
@@ -110,6 +108,6 @@ just two new options in e2guardian.conf
 
 Please note the new format for the dstats log. See notes/dstat_format
 
-Philip Pearce 11 March 2017 
+Philip Pearce 21 March 2017
 
 
