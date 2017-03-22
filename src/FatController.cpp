@@ -577,7 +577,6 @@ void handle_connections(int tindex)
 // *
 // *
 
-#ifdef NOTDEF
 void tell_monitor(bool active) //may not be needed
 {
 
@@ -630,7 +629,6 @@ void tell_monitor(bool active) //may not be needed
         };
     };
 };
-#endif
 
 void wait_for_proxy()
 {
@@ -654,10 +652,10 @@ void wait_for_proxy()
 #endif
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
- //   if (o.monitor_helper_flag)
-//        tell_monitor(false);
-    if (o.monitor_flag_flag)
-        monitor_flag_set(false);
+    if (o.monitor_helper_flag)
+        tell_monitor(false);
+      if (o.monitor_flag_flag)
+          monitor_flag_set(false);
     int wait_time = 1;
     //int report_interval = 600; // report every 10 mins to log
     int cnt_down = o.proxy_failure_log_interval;
@@ -667,10 +665,10 @@ void wait_for_proxy()
             proxysock.close();
             cache_erroring = 0;
             syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
-//            if (o.monitor_helper_flag)
- //               tell_monitor(true);
-            if (o.monitor_flag_flag)
-                monitor_flag_set(true);
+            if (o.monitor_helper_flag)
+               tell_monitor(true);
+              if (o.monitor_flag_flag)
+                  monitor_flag_set(true);
             return;
         } else {
             if (ttg)
@@ -2057,8 +2055,8 @@ int fc_controlit()   //
             dystat->reset();
     }
 
-    //if (o.monitor_flag_flag)
-    //   monitor_flag_set(false);
+    if (o.monitor_flag_flag)
+       monitor_flag_set(false);
 
     //  tidy-up
 
