@@ -8,7 +8,7 @@ IgnoreSIGPIPE=no
 GuessMainPID=no
 ExecStart=@DGBINDIR@/e2guardian
 ExecReload=@DGBINDIR@/e2guardian -r
-ExecStop=@DGBINDIR@/e2guardian -Q
+ExecStop=@DGBINDIR@/e2guardian -q
 
 [Install]
 WantedBy=multi-user.target
