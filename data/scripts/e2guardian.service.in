@@ -1,19 +1,11 @@
 [Unit]
 Description=E2guardian Web filtering
-Description=LSB: e2guardian configuration
-Before=runlevel2.target runlevel3.target runlevel4.target runlevel5.target shutdown.target
-After=remote-fs.target network-online.target systemd-journald-dev-log.socket
-Wants=network-online.target
-Conflicts=shutdown.target
+After=network.target
 
 [Service]
-Restart=no
-TimeoutSec=5min
+Type=forking
 IgnoreSIGPIPE=no
-KillMode=process
 GuessMainPID=no
-RemainAfterExit=no
-SysVStartPriority=2
 ExecStart=@DGBINDIR@/e2guardian
 ExecReload=@DGBINDIR@/e2guardian -r
 ExecStop=@DGBINDIR@/e2guardian -Q
