@@ -551,7 +551,8 @@ logconnectionhandlingerrors = on
 #  note this replaces all min/max etc children settings in previous versions
 #
 # This figure is the maximum number of concurrent connections.
-#  If more connections are made, connections will queue until a worker thread is free.
+# If more connections are made, connections will queue until a worker thread is free.
+# On large site you might want to try 5000 (max value 10 000)
 httpworkers = 200
 
 
