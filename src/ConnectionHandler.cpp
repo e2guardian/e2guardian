@@ -510,8 +510,9 @@ stat_rec* &dystat)
 
                    int err = peerconn.getErrno();
                    int pport = peerconn.getPeerSourcePort();
-
-                   syslog(LOG_INFO, "%d No header recd from client - errno: %d", pport, err);
+#ifdef DGDEBUG
+            	   std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
+#endif
                } else {
                    syslog(LOG_INFO, "Client connection closed early - no request header received");
                }
