@@ -3,6 +3,7 @@ Description=E2guardian Web filtering
 After=network.target
 
 [Service]
+LimitNOFILE=65535
 Type=forking
 IgnoreSIGPIPE=no
 GuessMainPID=no
