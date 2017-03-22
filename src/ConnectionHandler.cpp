@@ -3292,7 +3292,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                 (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
                 // Banned Regular Expression URL found.
                 (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-                syslog(LOG_INFO, "Could not write to logging process:");
                 return;
             } else if ((j = (*ldl->fg[filtergroup]).inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
                 checkme->isItNaughty = true;
