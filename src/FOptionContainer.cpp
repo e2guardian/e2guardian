@@ -616,8 +616,9 @@ bool FOptionContainer::read(const char *filename)
             non_standard_delimiter = true;
         }
 
+	// TODE Remove groupemode CODE
         // group mode: 0 = banned, 1 = filtered, 2 = exception
-        group_mode = findoptionI("groupmode");
+        group_mode = 1;
         if ((group_mode < 0) || (group_mode > 2)) {
             if (!is_daemonised)
                 std::cerr << "Invalid groupmode" << std::endl;
