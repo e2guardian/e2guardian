@@ -3040,6 +3040,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << std::endl;
 #endif
+        if(o.logconerror)
         syslog(LOG_ERR, "POST filtering exception: %s", e.what());
 
         // close connection to proxy
@@ -3050,6 +3051,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
 #endif
+        if(o.logconerror)
         syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
