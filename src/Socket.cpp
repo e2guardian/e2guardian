@@ -162,6 +162,10 @@ void Socket::reset()
     this->baseReset();
 
     sck = socket(AF_INET, SOCK_STREAM, 0);
+    if (sck < 0) {
+        s_errno = errno;
+        return;
+    }
 
     memset(&my_adr, 0, sizeof my_adr);
     memset(&peer_adr, 0, sizeof peer_adr);
@@ -181,7 +185,13 @@ void Socket::reset()
 // connect to given IP & port (following default constructor)
 int Socket::connect(const std::string &ip, int port)
 {
-    if (sck > -1)  reset();   // just in case this is called with socket still open
+    //if (sck > -1)  reset();   // just in case this is called with socket still open
+    reset();   // do it anyway as we need sck to be allocated
+
+    if (sck < 0) // socket creation error
+    { return -1;
+    }
+
     int len = sizeof my_adr;
     peer_adr.sin_port = htons(port);
     inet_aton(ip.c_str(), &peer_adr.sin_addr);

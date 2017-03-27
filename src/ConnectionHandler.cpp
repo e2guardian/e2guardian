@@ -649,7 +649,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                         std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
-                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), strerror(errno));
+                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), proxysock.getErrno(),strerror(proxysock.getErrno()));
                         if (proxysock.isTimedout()) {
                             message_no = 201;
                             peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
