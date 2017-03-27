@@ -1985,13 +1985,15 @@ int fc_controlit()   //
     reloadconfig = false;
 
     if (is_starting) {
+        if (o.monitor_flag_flag)
+            monitor_flag_set(true);
     	if (o.monitor_helper_flag){
         	tell_monitor(true);
-                is_starting = false;
         }
+        is_starting = false;
    }
 
-    wait_for_proxy(); // will return once a test connection established
+    //wait_for_proxy(); // will return once a test connection established - no point listeners are already listening for connections
 
     while (failurecount < 30 && !ttg && !reloadconfig) {
 

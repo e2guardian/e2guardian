@@ -660,21 +660,18 @@ enablessl = on
 
 # monitor helper path 
 # If defined this script/binary will be called with start or stop appended as follows:-
-# 
-# At start after e2guardian has started monitorstart children with ' start' appended
+# Note change in V4!!! - No longer detects cache failure
+# At start after e2guardian has started listener and worker threads with 
+# ' start' appended
 # When e2guardian is stopping with ' stop' appended
-# If cache stops responding with ' stop' appended
-# When cache resumes with ' start' appended
-# monitorhelper = '/usr/local/bin/mymonitor'   ***NOT YET IMPLEMENTED*
+# monitorhelper = '/usr/local/bin/mymonitor'  
 
 # monitor flag prefix path 
 # If defined path will be used to generate flag files as follows:-
 # 
-# At start after e2guardian has started monitorstart children with 'running' appended
+# At start after e2guardian has started listener and worker threads with 
+#  'running' appended
 # When e2guardian is stopping with 'paused' appended
-# If cache stops responding with 'paused' appended
-# When cache resumes with 'running' appended
+# Note change in V4!!! - No longer detects cache failure
+# monitorflagprefix = '/home/e2g/run/e2g_flag_'
 
-# monitorstart - defaults to minchildren
-# valid values between 1 and minchildren
-# monitorstart = 0**NOT YET IMPLEMENTED

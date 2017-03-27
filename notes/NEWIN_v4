@@ -13,8 +13,6 @@ The new version is written in c++11 and so to compile it you will need gcc v5.4
 or later. (or another complier that supports the c++11 std::thread library).  
 Note that the target systems may also need an c++11 library update.
 
-
-
 REVISED PROCESS MODEL
 
 The parent children process model (which does not scale for very large numbers 
@@ -105,6 +103,12 @@ just two new options in e2guardian.conf
 
    httpworkers
    enablessl
+
+Also monitor_flag and monitor_helper options are no longer triggered by 
+upstream cache failure, but just by starting and stopping e2guardian.  
+Upstream cache failure can now be detected by other means  - e.g. user error 
+message.
+
 
 Please note the new format for the dstats log. See notes/dstat_format
 
