@@ -166,33 +166,35 @@ if (o.logconerror)
 {
    int peerport = peersock.getPeerSourcePort();
 
+    std::string peer_ip = peersock.getPeerIP();
+
     int err = peersock.getErrno();
 
     if (peersock.isTimedout())
-        syslog(LOG_INFO, "%d %s Client Connection timedout - errno: %d", peerport, message, err);
-    if (peersock.isHup())
-        syslog(LOG_INFO, "%d %s Client has disconnected - errno: %d", peerport, message, err);
-     if (peersock.sockError())
-        syslog(LOG_INFO, "%d %s Client Connection socket error - errno: %d", peerport, message, err);
-    if (peersock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read Client Connection - errno: %d ", peerport, message, err);
-    if (peersock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write Client Connection  - errno: %d", peerport, message, err);
-    if (peersock.isNoOpp())
-        syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+        syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip, err);
+    else if (peersock.isHup())
+        syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip, err);
+     else if (peersock.sockError())
+        syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip,err);
+    else if (peersock.isNoRead())
+        syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip,err);
+    else if (peersock.isNoWrite())
+        syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip,err);
+    else if (peersock.isNoOpp())
+        syslog(LOG_INFO, "%d %s Client Connection at %s is no-op - errno: %d", peerport, message, peer_ip,err);
 
     err = proxysock.getErrno();
     if (proxysock.isTimedout())
         syslog(LOG_INFO, "%d %s proxy timedout - errno: %d", peerport, message, err);
-    if (proxysock.isHup())
+    else if (proxysock.isHup())
         syslog(LOG_INFO, "%d %s proxy has disconnected - errno: %d", peerport, message, err);
-    if (proxysock.sockError())
+    else if (proxysock.sockError())
         syslog(LOG_INFO, "%d %s proxy socket error - errno: %d", peerport, message, err);
-    if (proxysock.isNoRead())
+    else if (proxysock.isNoRead())
         syslog(LOG_INFO, "%d %s cant read proxy Connection - errno: %d ", peerport, message, err);
-    if (proxysock.isNoWrite())
+    else if (proxysock.isNoWrite())
         syslog(LOG_INFO, "%d %s cant write proxy Connection  - errno: %d", peerport, message, err);
-    if (proxysock.isNoOpp())
+    else if (proxysock.isNoOpp())
         syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
 }
     if (proxysock.isNoOpp())
@@ -204,20 +206,21 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
     if (o.logconerror)
     {
         int peerport = peersock.getPeerSourcePort();
+        std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
 
         if (peersock.isTimedout())
-            syslog(LOG_INFO, "%d %s Client Connection timedout - errno: %d", peerport, message, err);
-        if (peersock.isHup())
-            syslog(LOG_INFO, "%d %s Client has disconnected - errno: %d", peerport, message, err);
-        if (peersock.sockError())
-            syslog(LOG_INFO, "%d %s Client Connection socket error - errno: %d", peerport, message, err);
-        if (peersock.isNoRead())
-            syslog(LOG_INFO, "%d %s cant read Client Connection - errno: %d ", peerport, message, err);
-        if (peersock.isNoWrite())
-            syslog(LOG_INFO, "%d %s cant write Client Connection  - errno: %d", peerport, message, err);
-        if (peersock.isNoOpp())
-            syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+            syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip, err);
+        else if (peersock.isHup())
+            syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip, err);
+        else if (peersock.sockError())
+            syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip,err);
+        else if (peersock.isNoRead())
+            syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip,err);
+        else if (peersock.isNoWrite())
+            syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip,err);
+        else if (peersock.isNoOpp())
+            syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
     }
     throw std::exception();
 }
@@ -510,6 +513,9 @@ stat_rec* &dystat)
 
                    int err = peerconn.getErrno();
                    int pport = peerconn.getPeerSourcePort();
+                   std::string peerIP = peerconn.getPeerIP();
+
+                   syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP, err);
 #ifdef DGDEBUG
             	   std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
 #endif
