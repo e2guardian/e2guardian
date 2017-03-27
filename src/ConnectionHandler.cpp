@@ -515,7 +515,7 @@ stat_rec* &dystat)
                    int pport = peerconn.getPeerSourcePort();
                    std::string peerIP = peerconn.getPeerIP();
 
-                   syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP, err);
+                   syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
 #ifdef DGDEBUG
             	   std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
 #endif
