@@ -95,6 +95,7 @@ class OptionContainer
     bool use_filter_groups_list;
     bool use_group_names_list;
     bool auth_needs_proxy_query;
+    bool auth_requires_user_and_group;
     bool total_block_site_flag;
     bool total_block_url_flag;
     bool enable_ssl;

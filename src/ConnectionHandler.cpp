@@ -825,6 +825,8 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                             std::cout << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << std::endl;
 #endif
+                            if (o.auth_requires_user_and_group)
+                                continue;
                             filtergroup = 0; //default group - one day configurable?
                             authed = true;
                             break;
