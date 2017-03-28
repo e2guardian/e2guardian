@@ -11,6 +11,8 @@ e2guardian.conf
 - enablessl added - global enablement of SSL Cert checking and/or MITM
   If this is off then sslmitm options in e2guardianfn.conf files will be ignored
 
+- authrequiresuserandgroup - If on it a user without group is considered like unauthenfied
+
 Options removed from e2guardian.conf -
 
 proxyfailureloginterval, urlcachenumber, urlcacheage, scancleancache,

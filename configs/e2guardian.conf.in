@@ -184,8 +184,6 @@ custombannedimagefile = '@DGDATADIR@/transparent1x1.gif'
 usecustombannedflash = on
 custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 
-
-
 # Filter groups options
 # filtergroups sets the number of filter groups. A filter group is a set of content
 # filtering options you can apply to a group of users.  The value must be 1 or more.
@@ -197,7 +195,11 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 filtergroups = 1
 filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 
-
+# If on it a user without group is considered like unauthenfied
+# E2guardian tries the next plugin
+# If off the user is connected with group1
+# Defaults to off
+# authrequiresuserandgroup = off
 
 # Authentication files location
 bannediplist = '@DGCONFDIR@/lists/bannediplist'
@@ -228,8 +230,6 @@ showweightedfound = on
 #
 weightedphrasemode = 2
 
-
-
 # Positive (clean) result caching for URLs
 # Caches good pages so they don't need to be scanned again.
 # It also works with AV plugins.
@@ -238,12 +238,12 @@ weightedphrasemode = 2
 # 5000 = suggested max upper limit
 # If you're using an AV plugin then use at least 5000.
 urlcachenumber = 1000  **NOT YET IMPLEMENTED
+
 #
 # Age before they are stale and should be ignored in seconds
 # 0 = never
 # 900 = recommended = 15 mins
 urlcacheage = 900  **NOT YET IMPLEMENTED
-
 
 
 # Cache for content (AV) scan results as 'clean'
@@ -255,7 +255,6 @@ urlcacheage = 900  **NOT YET IMPLEMENTED
 # off = do not cache; always re-scan
 # (on|off) default = on.
 scancleancache = on  **NOT YET IMPLEMENTED
-
 
 
 # Smart, Raw and Meta/Title phrase content filtering options
@@ -287,8 +286,6 @@ preservecase = 0
 # (and possibly forcequicksearch 1) and non ASCII/UTF-8 phrase lists, and one
 # with preservecase 0 and ASCII/UTF-8 lists.
 
-
-
 # Hex decoding options
 # When a document is scanned it can optionally convert %XX to chars.
 # If you find documents are getting past the phrase filtering due to encoding
@@ -298,7 +295,6 @@ preservecase = 0
 hexdecodecontent = off
 
 
-
 # Force Quick Search rather than DFA search algorithm
 # The current DFA implementation is not totally 16-bit character compatible
 # but is used by default as it handles large phrase lists much faster.
@@ -306,7 +302,6 @@ hexdecodecontent = off
 # enable this option.
 # off (default) | on (Big5 compatible)
 forcequicksearch = off
-
 
 
 # Reverse lookups for banned site and URLs.

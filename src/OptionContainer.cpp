@@ -32,7 +32,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
+    : use_filter_groups_list(false), auth_requires_user_and_group(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
 {
     log_Q = new Queue<std::string>;
     http_worker_Q = new Queue<Socket*>;
@@ -143,7 +143,7 @@ bool OptionContainer::read(std::string& filename, int type)
 				dstat_log_flag = false;
 			} else {
 				dstat_log_flag = true;
-				dstat_interval = findoptionI("dstatinterval"); 
+				dstat_interval = findoptionI("dstatinterval");
 				if ( dstat_interval  == 0) {
 					dstat_interval = 300; // 5 mins
 				}
@@ -290,9 +290,9 @@ bool OptionContainer::read(std::string& filename, int type)
         exchange_timeout = exchange_timeout_sec  * 1000;
 
         http_workers= findoptionI("httpworkers");
-        if (http_workers == 0) { 
+        if (http_workers == 0) {
 		http_workers = 100;
-		if (!is_daemonised){ 
+		if (!is_daemonised){
                		std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
 		}
                 syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
@@ -737,6 +737,9 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } else {
             use_filter_groups_list = true;
+            if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
+                auth_requires_user_and_group = true;
+
         }
 
         if (group_names_list_location.length() == 0) {
