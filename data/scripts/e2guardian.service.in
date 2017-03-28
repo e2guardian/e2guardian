@@ -3,9 +3,9 @@ Description=E2guardian Web filtering
 After=network.target
 
 [Service]
+LimitNOFILE=65535
 Type=forking
-ExecStart=@DGBINDIR@/e2guardian
+IgnoreSIGPIPE=no
+GuessMainPID=no
+ExecStart=/usr/sbin/e2guardian
 ExecReload=/usr/sbin/e2guardian -r
-
-[Install]
-WantedBy=multi-user.target
