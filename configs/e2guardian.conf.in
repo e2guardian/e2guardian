@@ -92,9 +92,9 @@ logfileformat = 1
 # Once every 3 minutes, the current number of IPs in the cache, and the most
 # that have been in the cache since the daemon was started, are written to this
 # file. IPs persist in the cache for 7 days.
-# Time format is epoch GMT+0 
+# Time format is epoch GMT+0 by default | statshumanreadable change to local zone
 #statlocation = '@DGLOGLOCATION@/stats'    **NOT YET IMPLEMENTED
-
+#statshumanreadable = off
 
 # Network Settings
 # 
@@ -119,7 +119,7 @@ filterports = 8080
 # number of filterip
 # If disabled will listen on all filterports on all filterips.
 # on (default) | off
-#mapportstoips= off
+#mapportstoips = off
 
 # the ip of the proxy (default is the loopback - i.e. this server)
 proxyip = 127.0.0.1

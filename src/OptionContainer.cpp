@@ -32,7 +32,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), auth_requires_user_and_group(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
+    : use_filter_groups_list(false), stats_human_readable(false), auth_requires_user_and_group(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
 {
     log_Q = new Queue<std::string>;
     http_worker_Q = new Queue<Socket*>;
@@ -125,9 +125,10 @@ bool OptionContainer::read(std::string& filename, int type)
 
 			if (findoptionS("logsyslog") == "on") {
 				log_syslog = true;
-        if ((name_suffix = findoptionS("namesuffix")) == "") {
-          name_suffix = "";
-        }
+
+                if ((name_suffix = findoptionS("namesuffix")) == "") {
+                    name_suffix = "";
+                }
 			} else 	if ((log_location = findoptionS("loglocation")) == "") {
 				log_location = __LOGLOCATION;
 				log_location += "/access.log";
@@ -149,12 +150,17 @@ bool OptionContainer::read(std::string& filename, int type)
 				}
 			}
 
+			if (findoptionS("statshumanreadable") == "on") {
+				stats_human_readable = true;
+			} else {
+				stats_human_readable = false;
+			}
+
             if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
                 dns_user_logging = false;
             } else {
                 dns_user_logging = true;
             }
-
 
             if (type == 0) {
 				return true;
