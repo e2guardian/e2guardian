@@ -149,7 +149,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
+            fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
         } else {
             syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
 
@@ -171,7 +171,11 @@ void stat_rec::reset()
     long rqx = (long) reqs;
     int mfd = maxusedfd;
     int LC = o.LC_cnt;
-
+    struct tm * timeinfo;
+    time( &now);
+    timeinfo = localtime ( &now );
+    char buffer [50];
+    strftime (buffer,80,"%Y-%m-%d %H:%M",timeinfo);
     // clear and reset stats now so that stats are less likely to be missed
     clear();
     if ((end_int + o.dstat_interval) > now)
@@ -182,7 +186,7 @@ void stat_rec::reset()
 
     long cps = cnx / period;
     long rqs = rqx / period;
-    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+    fprintf(fs, "%s	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", buffer, o.http_workers,
         bc,
         o.http_worker_Q->size(),
         o.log_Q->size(),
@@ -599,7 +603,7 @@ void tell_monitor(bool active) //may not be needed
 
     if (childid == 0) { // Am the child
 	int rc = seteuid(o.root_user);
-	if (rc != -1) {	
+	if (rc != -1) {
        		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
 		if (systemreturn == -1) {
             		syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
@@ -2107,7 +2111,7 @@ int fc_controlit()   //
 #endif
 
     delete[] serversockfds;
-  
+
     if (o.logconerror) {
         syslog(LOG_INFO, "%s", "Main thread exiting.");
     }
