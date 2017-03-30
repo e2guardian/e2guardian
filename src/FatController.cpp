@@ -149,7 +149,7 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-           fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
+           fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt\n");
         } else {
            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
            o.dstat_location.c_str());
@@ -187,10 +187,10 @@ void stat_rec::reset()
         timeinfo = localtime ( &now );
         char buffer [50];
         strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
-    	fprintf(fs, "%s			%d	%d      %d	%d	%d	%d	%d	%d	%d	%d\n", buffer, o.http_workers,
+    	fprintf(fs, "%s	%d	%d	%d	%d	%d      %d    %d 	 %d    %d	 %d\n", buffer, o.http_workers,
         bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
-        fprintf(fs, "%ld        	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+        fprintf(fs, "%ld        	%d	%d	%d	%d	%d	 %d	%d	 %d	%d	%d\n", now, o.http_workers,
         bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
 
