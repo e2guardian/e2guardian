@@ -393,7 +393,8 @@ stat_rec* &dystat)
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.proxy_timeout);
+    //peerconn.setTimeout(o.proxy_timeout);
+    peerconn.setTimeout(o.pcon_timeout);
 
    // ldl = o.currentLists();
 
@@ -407,7 +408,8 @@ stat_rec* &dystat)
 
     // to hold the returned page
     DataBuffer docbody;
-    docbody.setTimeout(o.proxy_timeout);
+  //  docbody.setTimeout(o.proxy_timeout);
+    docbody.setTimeout(o.exchange_timeout);
 
     // flags
     bool waschecked = false;
@@ -656,6 +658,7 @@ stat_rec* &dystat)
                             peerconn.writeString(
                                     "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
                             peerconn.writeString(o.language_list.getTranslation(201));
+                            peerconn.writeString(o.language_list.getTranslation(204));
                             peerconn.writeString("</BODY></HTML>\n");
                         } else {
                             message_no = 202;
@@ -663,6 +666,7 @@ stat_rec* &dystat)
                             peerconn.writeString(
                                     "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
                             peerconn.writeString(o.language_list.getTranslation(202));
+                            peerconn.writeString(o.language_list.getTranslation(204));
                             peerconn.writeString("</BODY></HTML>\n");
                         }
                         return 3;
@@ -1343,19 +1347,21 @@ stat_rec* &dystat)
                 if(!( header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
                     && (docheader.in(&proxysock, persistOutgoing)) )) {
                     if (proxysock.isTimedout()) {
-                        message_no = 200;
+                        message_no = 203;
                         peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
                         peerconn.writeString(
                                 "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
-                        peerconn.writeString(o.language_list.getTranslation(201));
+                        peerconn.writeString(o.language_list.getTranslation(203));
+                        peerconn.writeString(o.language_list.getTranslation(204));
                         peerconn.writeString("</BODY></HTML>\n");
                         break;
                     } else {
-                        message_no = 200;
+                        message_no = 205;
                         peerconn.writeString("HTTP/1.0 502 Gateway Error\nContent-Type: text/html\n\n");
                         peerconn.writeString(
                                 "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
-                        peerconn.writeString(o.language_list.getTranslation(202));
+                        peerconn.writeString(o.language_list.getTranslation(205));
+                        peerconn.writeString(o.language_list.getTranslation(206));
                         peerconn.writeString("</BODY></HTML>\n");
                         break;
                 //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
@@ -4373,7 +4379,8 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
     //somewhere to hold the header from the proxy
     HTTPHeader header;
-    header.setTimeout(o.pcon_timeout);
+    //header.setTimeout(o.pcon_timeout);
+    header.setTimeout(o.proxy_timeout);
 
         if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
@@ -4413,11 +4420,6 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
 void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, NaughtyFilter *checkme)
 {
-
-//#ifdef DGDEBUG
-//	std::cout << dbgPeerPort << " -skipping SSL certificate check" << std::endl;
-//#endif
-//	return;
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -checking SSL certificate is valid" << std::endl;

@@ -37,6 +37,10 @@
 "200","Požadovaná URL je chybne zadaná."
 "201","Unable to get response from upstream proxy (timeout)"    # needs translation
 "202","Unable to get response from upstream proxy (error)"    # needs translation
+"203","The site requested is not responding"    # needs translation
+"204"," - Please try again later"    # needs translation
+"205","Upstream proxy is not responding (network error)"    # needs translation
+"206"," - Please try again later"    # needs translation
 "300","Našla sa zakázaná fráza: "
 "301","Našla sa zakázaná fráza."
 "400","Našla sa zakázaná kombinácia fráz: "
