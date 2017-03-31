@@ -118,6 +118,7 @@ class OptionContainer
     bool monitor_flag_flag;
     std::string dstat_location;
     bool dstat_log_flag;
+    bool stats_human_readable;
     int dstat_interval;
     bool dns_user_logging;
     std::string dns_user_logging_domain;
