@@ -35,6 +35,10 @@
 "200","Beg&auml;rd URL &auml;r felformaterad."
 "201","Unable to get response from upstream proxy (timeout)"    # needs translation
 "202","Unable to get response from upstream proxy (error)"    # needs translation
+"203","The site requested is not responding"    # needs translation
+"204"," - Please try again later"    # needs translation
+"205","Upstream proxy is not responding (network error)"    # needs translation
+"206"," - Please try again later"    # needs translation
 "300","F&ouml;rbjuden fras funnen: "
 "301","F&ouml;rbjuden fras funnen."
 "400","F&ouml;rbjuden kombination av fraser funnen: "
