@@ -177,7 +177,6 @@ pcontimeout = 55
 usecustombannedimage = on
 custombannedimagefile = '@DGDATADIR@/transparent1x1.gif'
 
-
 #Banned flash replacement
 usecustombannedflash = on
 custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
@@ -243,7 +242,6 @@ urlcachenumber = 1000  **NOT YET IMPLEMENTED
 # 900 = recommended = 15 mins
 urlcacheage = 900  **NOT YET IMPLEMENTED
 
-
 # Cache for content (AV) scan results as 'clean'
 # By default, to save CPU, files scanned and found to be
 # clean are inserted into the clean cache and NOT scanned
@@ -253,7 +251,6 @@ urlcacheage = 900  **NOT YET IMPLEMENTED
 # off = do not cache; always re-scan
 # (on|off) default = on.
 scancleancache = on  **NOT YET IMPLEMENTED
-
 
 # Smart, Raw and Meta/Title phrase content filtering options
 # Smart is where the multiple spaces and HTML are removed before phrase filtering
@@ -301,7 +298,6 @@ hexdecodecontent = off
 # off (default) | on (Big5 compatible)
 forcequicksearch = off
 
-
 # Reverse lookups for banned site and URLs.
 # If set to on, e2guardian will look up the forward DNS for an IP URL
 # address and search for both in the banned site and URL lists.  This would
@@ -310,8 +306,6 @@ forcequicksearch = off
 # DNS server, leave it off and use the Blanket IP Block option in the
 # bannedsitelist file instead.
 reverseaddresslookups = off
-
-
 
 # Reverse lookups for banned and exception IP lists.
 # If set to on, e2guardian will look up the forward DNS for the IP
@@ -323,7 +317,6 @@ reverseaddresslookups = off
 # It will reduce searching speed somewhat so unless you have a local DNS server, 
 # leave it off.
 reverseclientiplookups = off
-
 
 # Perform reverse lookups on client IPs for successful requests.
 # If set to on, e2guardian will look up the forward DNS for the IP
@@ -344,8 +337,6 @@ logclienthostnames = off
 # use 0 to set it to maxcontentramcachescansize
 maxcontentfiltersize = 256
 
-
-
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
 # This is the max size of file that DG will download and cache
@@ -356,8 +347,6 @@ maxcontentfiltersize = 256
 # This option may be ignored by the configured download manager.
 maxcontentramcachescansize = 2000
 
-
-
 # Max content file cache scan size
 # This is only used if you use a content scanner plugin such as AV
 # This is the max size file that DG will download
@@ -366,12 +355,10 @@ maxcontentramcachescansize = 2000
 # The size is in Kibibytes - eg 10240 = 10Mb
 maxcontentfilecachescansize = 20000
 
-
 # File cache dir
 # Where DG will download files to be scanned if too large for the
 # RAM cache.
 filecachedir = '/tmp'
-
 
 # Delete file cache after user completes download
 # When a file gets save to temp it stays there until it is deleted.
@@ -382,8 +369,6 @@ filecachedir = '/tmp'
 # on|off (defaults to on)
 deletedownloadedtempfiles = on
 
-
-
 # Initial Trickle delay
 # This is the number of seconds a browser connection is left waiting
 # before first being sent *something* to keep it alive.  The
@@ -393,16 +378,12 @@ deletedownloadedtempfiles = on
 # This may be ignored by the configured download manager.
 initialtrickledelay = 20
 
-
-
 # Trickle delay
 # This is the number of seconds a browser connection is left waiting
 # before being sent more *something* to keep it alive.  The
 # *something* depends on the download manager chosen.
 # This may be ignored by the configured download manager.
 trickledelay = 10
-
-
 
 # Download Managers
 # These handle downloads of files to be filtered and scanned.
@@ -435,8 +416,6 @@ trickledelay = 10
 #@TRICKLESUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/trickle.conf'
 downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 
-
-
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
 # for example to AV scan.  The options are limitless.  Eventually all of
@@ -453,16 +432,12 @@ downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 #@ICAPSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/icapscan.conf'
 #@COMMANDLINESUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/commandlinescan.conf'
 
-
-
 # Content scanner timeout
 # Some of the content scanners support using a timeout value to stop
 # processing (eg AV scanning) the file if it takes too long.
 # If supported this will be used.
 # The default of 60 seconds is probably reasonable.
 contentscannertimeout = 60
-
-
 
 # Content scan exceptions
 # If 'on' exception sites, urls, users etc will be scanned
@@ -471,8 +446,6 @@ contentscannertimeout = 60
 # Correct use of grey lists are a better idea.
 # (on|off) default = off
 contentscanexceptions = off
-
-
 
 # Auth plugins
 # These replace the usernameidmethod* options in previous versions. They
@@ -498,7 +471,6 @@ contentscanexceptions = off
 # on (default) | off
 #mapauthtoports = off
 
-
 # Re-check replaced URLs
 # As a matter of course, URLs undergo regular expression search/replace (urlregexplist)
 # *after* checking the exception site/URL/regexpURL lists, but *before* checking against
@@ -510,15 +482,12 @@ contentscanexceptions = off
 # Defaults to off.
 recheckreplacedurls = off
 
-
-
 # Misc settings
 
 # if on it adds an X-Forwarded-For: <clientip> to the HTTP request
 # header.  This may help solve some problem sites that need to know the
 # source ip. on | off
 forwardedfor = off
-
 
 # if on it uses the X-Forwarded-For: <clientip> to determine the client
 # IP. This is for when you have squid between the clients and e2guardian.
@@ -532,7 +501,6 @@ usexforwardedfor = off
 # instance If you want authorize multiple IPs, specify each one on an individual
 # xforwardedforfilterip line.
 # xforwardedforfilterip = 
-
 
 # if on it logs some debug info regarding accept()ing and failed connections
 # which
@@ -549,12 +517,10 @@ logconnectionhandlingerrors = on
 # On large site you might want to try 5000 (max value 20000)
 httpworkers = 200
 
-
 # Sets the maximum number client IP addresses allowed to connect at once.
 # Use this to set a hard limit on the number of users allowed to concurrently
 # browse the web. Set to 0 for no limit, and to disable the IP cache process.
 maxips = 0  **NOT YET IMPLEMENTED
-
 
 # Process options
 # (Change these only if you really know what you are doing).
@@ -668,4 +634,3 @@ enablessl = on
 # When e2guardian is stopping with 'paused' appended
 # Note change in V4!!! - No longer detects cache failure
 # monitorflagprefix = '/home/e2g/run/e2g_flag_'
-
