@@ -398,7 +398,14 @@ bool FOptionContainer::read(const char *filename)
 
 #ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
-            ssl_mitm = true;
+            if (!o.ca){
+                if (!is_daemonised)
+                	std::cout << "sslmitm requires certificates" << std::endl;
+                syslog(LOG_ERR, "sslmitm requires certificates");
+		return false;
+	    }
+   
+	    ssl_mitm = true;
             if (findoptionS("onlymitmsslgrey") == "on") {
                 only_mitm_ssl_grey = true;
             } else {

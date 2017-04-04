@@ -244,7 +244,7 @@ bool OptionContainer::read(std::string& filename, int type)
             set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
         if (ca_certificate_path != "") {
-            ca = new CertificateAuthority(ca_certificate_path.c_str(),
+            	ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
