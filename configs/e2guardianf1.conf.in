@@ -2,7 +2,6 @@
 
 # This file is re-read on gentle restart and any changes actions
 
-
 # Filter group mode IS NOT LONGER SUPPORTED after 4.x
 # This option determines whether members of this group have their web access
 # unfiltered, filtered, or banned. 

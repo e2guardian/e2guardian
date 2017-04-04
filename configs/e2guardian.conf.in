@@ -289,7 +289,6 @@ preservecase = 0
 # on = enabled
 hexdecodecontent = off
 
-
 # Force Quick Search rather than DFA search algorithm
 # The current DFA implementation is not totally 16-bit character compatible
 # but is used by default as it handles large phrase lists much faster.
