@@ -53,7 +53,6 @@ void OptionContainer::reset()
     //deleteRooms();
     //exception_ip_list.reset();
     //banned_ip_list.reset();
-    html_template.reset();
     language_list.reset();
     conffile.clear();
     if (use_filter_groups_list)
@@ -561,7 +560,6 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
         languagepath = findoptionS("languagedir") + "/" + findoptionS("language") + "/";
-        html_template_location = languagepath + "template.html";
 
         if (findoptionS("forwardedfor") == "on") {
             forwarded_for = true;
@@ -775,16 +773,6 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // messages language file
 
-        if (reporting_level == 3) { // only if reporting set to HTML templ
-            if (!html_template.readTemplateFile(html_template_location.c_str())) {
-                if (!is_daemonised) {
-                    std::cerr << "Error reading HTML Template file: " << html_template_location << std::endl;
-                }
-                syslog(LOG_ERR, "Error reading HTML Template file: %s", html_template_location.c_str());
-                return false;
-                // HTML template file
-            }
-        }
 
         if(!createLists(0))  {
                 std::cerr << "Error reading filter group conf file(s)." << std::endl;
