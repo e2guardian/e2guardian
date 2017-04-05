@@ -529,6 +529,9 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         ++dystat->reqs;
+        if (o.forwarded_for) {
+              header.addXForwardedFor(clientip); // add squid-like entry
+         }
         //
         // End of set-up section
         //
@@ -566,6 +569,9 @@ stat_rec* &dystat)
                     break;
                 }
                 ++dystat->reqs;
+                if (o.forwarded_for) {
+                    header.addXForwardedFor(clientip); // add squid-like entry
+                }
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -972,9 +978,9 @@ stat_rec* &dystat)
                 }
             }
 
-            if (o.forwarded_for) {
-                header.addXForwardedFor(clientip); // add squid-like entry
-            }
+//            if (o.forwarded_for) {
+//                header.addXForwardedFor(clientip); // add squid-like entry
+//            }
 
 #ifdef ENABLE_ORIG_IP
             // if working in transparent mode and grabbing of original IP addresses is

@@ -209,6 +209,7 @@ bool OptionContainer::read(std::string& filename, int type)
                enable_ssl  = true;
             }
 
+       if(enable_ssl) {
         // TODO: maybe make these more sensible paths?
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
@@ -250,6 +251,7 @@ bool OptionContainer::read(std::string& filename, int type)
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
                 gen_cert_start, gen_cert_end);
+        }
         }
 
 #endif

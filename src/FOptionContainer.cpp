@@ -388,33 +388,44 @@ bool FOptionContainer::read(const char *filename)
 
 #ifdef __SSLMITM
         if (findoptionS("sslcheckcert") == "on") {
-            ssl_check_cert = true;
+            if(o.enable_ssl) {
+                ssl_check_cert = true;
+                } else {
+                syslog(LOG_ERR, "Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                std::cout << "Warning: sslcheckcert requires ssl to be enabled in e2guardian.conf " << std::endl;
+                ssl_check_cert = false;
+                }
         } else {
-
             ssl_check_cert = false;
         }
 #endif //__SSLCERT
 
 #ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
-            ssl_mitm = true;
-            if (findoptionS("onlymitmsslgrey") == "on") {
-                only_mitm_ssl_grey = true;
+            if(o.enable_ssl) {
+                ssl_mitm = true;
+                if (findoptionS("onlymitmsslgrey") == "on") {
+                    only_mitm_ssl_grey = true;
+                } else {
+                    only_mitm_ssl_grey = false;
+                }
+                if (enable_ssl_legacy_logic) {
+                    syslog(LOG_ERR, "Warning: sslmitm requires ssllegacylogic to be off");
+                    std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
+                    enable_ssl_legacy_logic = false;
+                }
+
+                if (findoptionS("mitmcheckcert") == "off")
+                    mitm_check_cert = false;
+
+                allow_empty_host_certs = false;
+                if (findoptionS("allowemptyhostcert") == "on")
+                    allow_empty_host_certs = true;
             } else {
-                only_mitm_ssl_grey = false;
+                syslog(LOG_ERR, "Warning: To use sslmitm, enablessl in e2guardian.conf must be on");
+                std::cout << "Warning: sslmitm requires ssl to be enabled in e2guardian.conf " << std::endl;
+                ssl_mitm = false;
             }
-            if (enable_ssl_legacy_logic) {
-                syslog(LOG_ERR, "Warning: sslmitm requires ssllegacylogic to be off");
-                std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
-                enable_ssl_legacy_logic = false;
-            }
-
-            if (findoptionS("mitmcheckcert") == "off")
-                mitm_check_cert = false;
-
-            allow_empty_host_certs = false;
-            if (findoptionS("allowemptyhostcert") == "on")
-                allow_empty_host_certs = true;
         } else {
             ssl_mitm = false;
         }
