@@ -2,7 +2,6 @@
 
 # This file is re-read on gentle restart and any changes actions
 
-
 # Filter group mode IS NOT LONGER SUPPORTED after 4.x
 # This option determines whether members of this group have their web access
 # unfiltered, filtered, or banned. 
@@ -59,6 +58,7 @@ refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
 embededreferersitelist = '@DGCONFDIR@/lists/embededreferersitelist'
 embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
+sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
 # enablelocallists = on/off

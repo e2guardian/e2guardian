@@ -72,7 +72,6 @@ void LOptionContainer::reset()
     deleteRooms();
     exception_ip_list.reset();
     banned_ip_list.reset();
-    html_template.reset();
     conffile.clear();
     if (o.use_filter_groups_list)
         filter_groups_list.reset();
@@ -657,12 +656,6 @@ bool LOptionContainer::readFilterGroupConf()
             return false;
         }
     }
-    if (!need_html && (reporting_level != 3)) {
-#ifdef DGDEBUG
-        std::cout << "Global reporting level not 3 & no filter groups using the template; so resetting it." << std::endl;
-#endif
-        html_template.reset();
-    }
     return true;
 }
 
@@ -713,25 +706,5 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     if (!rc) {
         return false;
     }
-//<TODO> ifdef for ssl mitm
-#ifdef __SSLMITM
-    if (((fg[numfg - 1]->reporting_level == 3) || fg[numfg - 1]->ssl_mitm) && (html_template.html.size() == 0)) {
-#else
-    if ((fg[numfg - 1]->reporting_level == 3) && (html_template.html.size() == 0)) {
-#endif
-#ifdef DGDEBUG
-        std::cout << "One of the groups has overridden the reporting level! Loading the HTML template." << std::endl;
-#endif
-        need_html = true;
-        if (!html_template.readTemplateFile(o.html_template_location.c_str())) {
-            if (!is_daemonised) {
-                std::cerr << "Error reading HTML Template file: " << o.html_template_location << std::endl;
-            }
-            syslog(LOG_ERR, "Error reading HTML Template file: %s", o.html_template_location.c_str());
-            return false;
-            // HTML template file
-        }
-    }
-
     return true;
 }

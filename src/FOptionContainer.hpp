@@ -52,7 +52,7 @@ public:
     bool ssl_mitm;
     bool only_mitm_ssl_grey;
     bool mitm_check_cert;
-
+    HTMLTemplate html_template;
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
     bool notifyav;

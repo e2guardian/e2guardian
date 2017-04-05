@@ -269,6 +269,7 @@ void FOptionContainer::resetJustListData()
 }
 
 // grab this FG's HTML template
+// TODO must be removed ?
 HTMLTemplate *FOptionContainer::getHTMLTemplate()
 {
     if (banned_page)
@@ -590,9 +591,19 @@ bool FOptionContainer::read(const char *filename)
                     return false;
                     // HTML template file
                 }
+            } else {
+                html_template = o.languagepath + "template.html";
+                banned_page = new HTMLTemplate;
+                if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
+                    if (!is_daemonised) {
+                        std::cerr << "Error reading default HTML Template file: " << html_template << std::endl;
+                    }
+                    syslog(LOG_ERR, "Error reading default HTML Template file: %s", html_template.toCharArray());
+                    return false;
+                    // HTML template file
+                }
             }
         }
-
         // override ssl default banned page
         sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
         if ((sslaccess_denied_address.length() != 0)) {
