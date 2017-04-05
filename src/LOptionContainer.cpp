@@ -179,7 +179,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 
 //post read filtergroup config checks - only for SLLMITM for now
 
-#ifdef _SSLMITM
+#ifdef  NODEFS
         bool ssl_mitm = false;
         bool mitm_check_cert = false;
         for (i = 0; i < numfg; i++) {

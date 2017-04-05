@@ -108,15 +108,6 @@ bool OptionContainer::read(std::string& filename, int type)
 
 		if (type == 0 || type == 2) {
 
-			if ((ipc_filename = findoptionS("ipcfilename")) == "")
-				ipc_filename = "/tmp/.e2guardianipc";
-
-			if ((urlipc_filename = findoptionS("urlipcfilename")) == "")
-				urlipc_filename = "/tmp/.e2guardianurlipc";
-
-			if ((ipipc_filename = findoptionS("ipipcfilename")) == "")
-				ipipc_filename = "/tmp/.e2guardianipipc";
-
 			if ((pid_filename = findoptionS("pidfilename")) == "") {
 				pid_filename = __PIDDIR;
 				pid_filename += "/e2guardian.pid";
@@ -209,25 +200,41 @@ bool OptionContainer::read(std::string& filename, int type)
             }
 
        if(enable_ssl) {
-        // TODO: maybe make these more sensible paths?
+        bool ret = true;
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
-            //ca_certificate_path = __CONFDIR "/ca.pem";
+		   if (!is_daemonised){
+                    std::cerr << "cacertificatepath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
+             ret = false;
         }
 
         ca_private_key_path = findoptionS("caprivatekeypath");
         if (ca_private_key_path == "") {
-            //ca_private_key_path = __CONFDIR "/ca.key";
+		   if (!is_daemonised){
+                    std::cerr << "caprivatekeypath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
+             ret = false;
         }
 
         cert_private_key_path = findoptionS("certprivatekeypath");
         if (cert_private_key_path == "") {
-            //cert_private_key_path = __CONFDIR "/certs.key";
+		   if (!is_daemonised){
+                    std::cerr << "certprivatekeypath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
+             ret = false;
         }
 
         generated_cert_path = findoptionS("generatedcertpath") + "/";
         if (generated_cert_path == "/") {
-            //generated_cert_path = "/etc/ssl/certs/";
+		   if (!is_daemonised){
+                    std::cerr << "generatedcertpath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
+             ret = false;
         }
 
         time_t gen_cert_start, gen_cert_end;
@@ -244,13 +251,16 @@ bool OptionContainer::read(std::string& filename, int type)
         if (set_cipher_list == "")
             set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
-        if (ca_certificate_path != "") {
+//        if (ca_certificate_path != "" )
+        if (ret) {
             	ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
                 gen_cert_start, gen_cert_end);
-        }
+        } else {
+                return false;
+            }
         }
 
 #endif
