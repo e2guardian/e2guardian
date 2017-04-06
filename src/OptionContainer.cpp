@@ -32,7 +32,7 @@ ListContainer total_block_url_list;
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer()
-    : use_filter_groups_list(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
+    : use_filter_groups_list(false), stats_human_readable(false), auth_requires_user_and_group(false), use_group_names_list(false), auth_needs_proxy_query(false), prefer_cached_lists(false), no_daemon(false), no_logger(false), log_syslog(false), anonymise_logs(false), log_ad_blocks(false), log_timestamp(false), log_user_agent(false), soft_restart(false), delete_downloaded_temp_files(false), max_logitem_length(2000), max_content_filter_size(0), max_content_ramcache_scan_size(0), max_content_filecache_scan_size(0), scan_clean_cache(0), content_scan_exceptions(0), initial_trickle_delay(0), trickle_delay(0), content_scanner_timeout(0), reporting_level(0), weighted_phrase_mode(0), numfg(0), dstat_log_flag(false), dstat_interval(300), dns_user_logging(false), LC_cnt(0)
 {
     log_Q = new Queue<std::string>;
     http_worker_Q = new Queue<Socket*>;
@@ -53,7 +53,6 @@ void OptionContainer::reset()
     //deleteRooms();
     //exception_ip_list.reset();
     //banned_ip_list.reset();
-    html_template.reset();
     language_list.reset();
     conffile.clear();
     if (use_filter_groups_list)
@@ -109,15 +108,6 @@ bool OptionContainer::read(std::string& filename, int type)
 
 		if (type == 0 || type == 2) {
 
-			if ((ipc_filename = findoptionS("ipcfilename")) == "")
-				ipc_filename = "/tmp/.e2guardianipc";
-
-			if ((urlipc_filename = findoptionS("urlipcfilename")) == "")
-				urlipc_filename = "/tmp/.e2guardianurlipc";
-
-			if ((ipipc_filename = findoptionS("ipipcfilename")) == "")
-				ipipc_filename = "/tmp/.e2guardianipipc";
-
 			if ((pid_filename = findoptionS("pidfilename")) == "") {
 				pid_filename = __PIDDIR;
 				pid_filename += "/e2guardian.pid";
@@ -125,9 +115,10 @@ bool OptionContainer::read(std::string& filename, int type)
 
 			if (findoptionS("logsyslog") == "on") {
 				log_syslog = true;
-        if ((name_suffix = findoptionS("namesuffix")) == "") {
-          name_suffix = "";
-        }
+
+                if ((name_suffix = findoptionS("namesuffix")) == "") {
+                    name_suffix = "";
+                }
 			} else 	if ((log_location = findoptionS("loglocation")) == "") {
 				log_location = __LOGLOCATION;
 				log_location += "/access.log";
@@ -143,10 +134,16 @@ bool OptionContainer::read(std::string& filename, int type)
 				dstat_log_flag = false;
 			} else {
 				dstat_log_flag = true;
-				dstat_interval = findoptionI("dstatinterval"); 
+				dstat_interval = findoptionI("dstatinterval");
 				if ( dstat_interval  == 0) {
 					dstat_interval = 300; // 5 mins
 				}
+			}
+
+			if (findoptionS("statshumanreadable") == "on") {
+				stats_human_readable = true;
+			} else {
+				stats_human_readable = false;
 			}
 
             if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
@@ -154,7 +151,6 @@ bool OptionContainer::read(std::string& filename, int type)
             } else {
                 dns_user_logging = true;
             }
-
 
             if (type == 0) {
 				return true;
@@ -197,31 +193,48 @@ bool OptionContainer::read(std::string& filename, int type)
 #endif
 
 #ifdef __SSLMITM
-        if (findoptionS("enablessl") == "") {
-                enable_ssl = false;
-            } else {
+        if (findoptionS("enablessl") == "on") {
                enable_ssl  = true;
+            } else {
+                enable_ssl = false;
             }
 
-        // TODO: maybe make these more sensible paths?
+       if(enable_ssl) {
+        bool ret = true;
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
-            //ca_certificate_path = __CONFDIR "/ca.pem";
+		   if (!is_daemonised){
+                    std::cerr << "cacertificatepath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
+             ret = false;
         }
 
         ca_private_key_path = findoptionS("caprivatekeypath");
         if (ca_private_key_path == "") {
-            //ca_private_key_path = __CONFDIR "/ca.key";
+		   if (!is_daemonised){
+                    std::cerr << "caprivatekeypath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
+             ret = false;
         }
 
         cert_private_key_path = findoptionS("certprivatekeypath");
         if (cert_private_key_path == "") {
-            //cert_private_key_path = __CONFDIR "/certs.key";
+		   if (!is_daemonised){
+                    std::cerr << "certprivatekeypath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
+             ret = false;
         }
 
         generated_cert_path = findoptionS("generatedcertpath") + "/";
         if (generated_cert_path == "/") {
-            //generated_cert_path = "/etc/ssl/certs/";
+		   if (!is_daemonised){
+                    std::cerr << "generatedcertpath is required when ssl is enabled" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
+             ret = false;
         }
 
         time_t gen_cert_start, gen_cert_end;
@@ -238,12 +251,16 @@ bool OptionContainer::read(std::string& filename, int type)
         if (set_cipher_list == "")
             set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
-        if (ca_certificate_path != "") {
-            ca = new CertificateAuthority(ca_certificate_path.c_str(),
+//        if (ca_certificate_path != "" )
+        if (ret) {
+            	ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
                 gen_cert_start, gen_cert_end);
+        } else {
+                return false;
+            }
         }
 
 #endif
@@ -290,14 +307,14 @@ bool OptionContainer::read(std::string& filename, int type)
         exchange_timeout = exchange_timeout_sec  * 1000;
 
         http_workers= findoptionI("httpworkers");
-        if (http_workers == 0) { 
+        if (http_workers == 0) {
 		http_workers = 100;
-		if (!is_daemonised){ 
+		if (!is_daemonised){
                		std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
 		}
                 syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
 	}
-        if (!realitycheck(http_workers, 20, 10000, "httpworkers")) {
+        if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
         return false;
         } // check its a reasonable value
 
@@ -555,7 +572,6 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
         languagepath = findoptionS("languagedir") + "/" + findoptionS("language") + "/";
-        html_template_location = languagepath + "template.html";
 
         if (findoptionS("forwardedfor") == "on") {
             forwarded_for = true;
@@ -737,6 +753,9 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } else {
             use_filter_groups_list = true;
+            if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
+                auth_requires_user_and_group = true;
+
         }
 
         if (group_names_list_location.length() == 0) {
@@ -766,16 +785,6 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // messages language file
 
-        if (reporting_level == 3) { // only if reporting set to HTML templ
-            if (!html_template.readTemplateFile(html_template_location.c_str())) {
-                if (!is_daemonised) {
-                    std::cerr << "Error reading HTML Template file: " << html_template_location << std::endl;
-                }
-                syslog(LOG_ERR, "Error reading HTML Template file: %s", html_template_location.c_str());
-                return false;
-                // HTML template file
-            }
-        }
 
         if(!createLists(0))  {
                 std::cerr << "Error reading filter group conf file(s)." << std::endl;

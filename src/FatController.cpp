@@ -131,21 +131,6 @@ std::atomic<int> reload_cnt;
 extern OptionContainer o;
 extern bool is_daemonised;
 
-//struct stat_rec {
-//    long births; // num of child forks in stat interval
-//    long deaths; // num of child deaths in stat interval
-//    std::atomic<int> conx ; // num of client connections in stat interval
-//    std::atomic<int> reqs; // num of client requests in stat interval
-//    time_t start_int; // time of start of this stat interval
-//    time_t end_int; // target end time of stat interval
-//    std::atomic<int> maxusedfd; // max fd reached
-//    FILE *fs; // file stream
-//    void reset();
-//    void start();
-//    void clear();
-//    void close();
-//};
-
 void stat_rec::clear()
 {
     //births = 0;
@@ -164,12 +149,15 @@ void stat_rec::start()
         old_umask = umask(S_IWGRP | S_IWOTH);
         fs = fopen(o.dstat_location.c_str(), "a");
         if (fs) {
-            fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
+    	   if (o.stats_human_readable){
+               fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt\n");
+	   } else {
+               fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
+	   }
         } else {
-            syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
-
-                o.dstat_location.c_str());
-            o.dstat_log_flag = false;
+           syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
+           o.dstat_location.c_str());
+           o.dstat_log_flag = false;
         };
         maxusedfd = 0;
         fflush(fs);
@@ -186,33 +174,36 @@ void stat_rec::reset()
     long rqx = (long) reqs;
     int mfd = maxusedfd;
     int LC = o.LC_cnt;
-
     // clear and reset stats now so that stats are less likely to be missed
     clear();
     if ((end_int + o.dstat_interval) > now)
         start_int = end_int;
     else
         start_int = now;
+
     end_int = start_int + o.dstat_interval;
 
     long cps = cnx / period;
     long rqs = rqx / period;
-    fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
-        bc,
-        o.http_worker_Q->size(),
-        o.log_Q->size(),
-        cnx,
-        cps,
-            rqx,
-            rqs,
-        mfd,
-    LC);
+    if (o.stats_human_readable){
+        struct tm * timeinfo;
+        time( &now);
+        timeinfo = localtime ( &now );
+        char buffer [50];
+        strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
+    	fprintf(fs, "%s	%d	%d	%d	%d	%d	%d	%d	 %d	%d	 %d\n", buffer, o.http_workers,
+        bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    } else {
+        fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
+        bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    }
+
     fflush(fs);
 };
 
 void stat_rec::close()
 {
-    fclose(fs);
+    if (fs != NULL) fclose(fs);
 };
 // Queues
 //extern Queue<std::string>* log_Q;
@@ -592,7 +583,6 @@ void handle_connections(int tindex)
 // *
 // *
 
-#ifdef NOTDEF
 void tell_monitor(bool active) //may not be needed
 {
 
@@ -605,9 +595,7 @@ void tell_monitor(bool active) //may not be needed
         buff1 = " stop";
 
     syslog(LOG_ERR, "Monitorhelper called: %s%s", buff.c_str(), buff1.c_str());
-
     pid_t childid;
-
     childid = fork();
 
     if (childid == -1) {
@@ -617,7 +605,7 @@ void tell_monitor(bool active) //may not be needed
 
     if (childid == 0) { // Am the child
 	int rc = seteuid(o.root_user);
-	if (rc != -1) {	
+	if (rc != -1) {
        		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
 		if (systemreturn == -1) {
             		syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
@@ -645,7 +633,6 @@ void tell_monitor(bool active) //may not be needed
         };
     };
 };
-#endif
 
 void wait_for_proxy()
 {
@@ -669,10 +656,10 @@ void wait_for_proxy()
 #endif
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
- //   if (o.monitor_helper_flag)
-//        tell_monitor(false);
     if (o.monitor_flag_flag)
         monitor_flag_set(false);
+    if (o.monitor_helper_flag)
+        tell_monitor(false);
     int wait_time = 1;
     //int report_interval = 600; // report every 10 mins to log
     int cnt_down = o.proxy_failure_log_interval;
@@ -682,10 +669,10 @@ void wait_for_proxy()
             proxysock.close();
             cache_erroring = 0;
             syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
-//            if (o.monitor_helper_flag)
- //               tell_monitor(true);
             if (o.monitor_flag_flag)
-                monitor_flag_set(true);
+               monitor_flag_set(true);
+            if (o.monitor_helper_flag)
+               tell_monitor(true);
             return;
         } else {
             if (ttg)
@@ -2003,7 +1990,16 @@ int fc_controlit()   //
     }
     reloadconfig = false;
 
-    wait_for_proxy(); // will return once a test connection established
+    if (is_starting) {
+        if (o.monitor_flag_flag)
+            monitor_flag_set(true);
+    	if (o.monitor_helper_flag){
+        	tell_monitor(true);
+        }
+        is_starting = false;
+   }
+
+    //wait_for_proxy(); // will return once a test connection established - no point listeners are already listening for connections
 
     while (failurecount < 30 && !ttg && !reloadconfig) {
 
@@ -2051,9 +2047,17 @@ int fc_controlit()   //
         std::cout << "busychildren:" << dystat->busychildren << std::endl;
         std::cout << "worker Q size:" << q_size << std::endl;
 #endif
-	int busy_child = dystat->busychildren;
-	if (busy_child > (o.http_workers -10))
-		syslog(LOG_INFO, "Warning system is full : max httpworkers: %d Used: %d", o.http_workers, busy_child);
+        if( o.dstat_log_flag) {
+            if (q_size > 10) {
+                syslog(LOG_INFO,
+                       "Warning: all %d http_worker threads are busy and %d connections are waiting in the queue.",
+                       o.http_workers, q_size);
+            }
+        } else {
+            int busy_child = dystat->busychildren;
+            if (busy_child > (o.http_workers - 10))
+                syslog(LOG_INFO, "Warning system is full : max httpworkers: %d Used: %d", o.http_workers, busy_child);
+        }
 
         //      if (is_starting)
 
@@ -2064,8 +2068,6 @@ int fc_controlit()   //
             dystat->reset();
     }
 
-    //if (o.monitor_flag_flag)
-    //   monitor_flag_set(false);
 
     //  tidy-up
 
@@ -2073,6 +2075,11 @@ int fc_controlit()   //
     pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
 
     syslog(LOG_INFO,"Stopping");
+
+    if (o.monitor_flag_flag)
+       monitor_flag_set(false);
+    if (o.monitor_helper_flag)
+        tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     if (o.logconerror) {
         syslog(LOG_INFO,"sending null socket to http_workers to stop them");
@@ -2099,7 +2106,7 @@ int fc_controlit()   //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    dystat->close();
+    if (o.dstat_log_flag) dystat->close();
 
 #ifdef __SSLMITM
     kill_ssl_locks();

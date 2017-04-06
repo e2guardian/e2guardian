@@ -166,33 +166,35 @@ if (o.logconerror)
 {
    int peerport = peersock.getPeerSourcePort();
 
+    std::string peer_ip = peersock.getPeerIP();
+
     int err = peersock.getErrno();
 
     if (peersock.isTimedout())
-        syslog(LOG_INFO, "%d %s Client Connection timedout - errno: %d", peerport, message, err);
-    if (peersock.isHup())
-        syslog(LOG_INFO, "%d %s Client has disconnected - errno: %d", peerport, message, err);
-     if (peersock.sockError())
-        syslog(LOG_INFO, "%d %s Client Connection socket error - errno: %d", peerport, message, err);
-    if (peersock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read Client Connection - errno: %d ", peerport, message, err);
-    if (peersock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write Client Connection  - errno: %d", peerport, message, err);
-    if (peersock.isNoOpp())
-        syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+        syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip.c_str(), err);
+    else if (peersock.isHup())
+        syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip.c_str(), err);
+     else if (peersock.sockError())
+        syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
+    else if (peersock.isNoRead())
+        syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+    else if (peersock.isNoWrite())
+        syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+    else if (peersock.isNoOpp())
+        syslog(LOG_INFO, "%d %s Client Connection at %s is no-op - errno: %d", peerport, message, peer_ip.c_str(),err);
 
     err = proxysock.getErrno();
     if (proxysock.isTimedout())
         syslog(LOG_INFO, "%d %s proxy timedout - errno: %d", peerport, message, err);
-    if (proxysock.isHup())
+    else if (proxysock.isHup())
         syslog(LOG_INFO, "%d %s proxy has disconnected - errno: %d", peerport, message, err);
-    if (proxysock.sockError())
+    else if (proxysock.sockError())
         syslog(LOG_INFO, "%d %s proxy socket error - errno: %d", peerport, message, err);
-    if (proxysock.isNoRead())
+    else if (proxysock.isNoRead())
         syslog(LOG_INFO, "%d %s cant read proxy Connection - errno: %d ", peerport, message, err);
-    if (proxysock.isNoWrite())
+    else if (proxysock.isNoWrite())
         syslog(LOG_INFO, "%d %s cant write proxy Connection  - errno: %d", peerport, message, err);
-    if (proxysock.isNoOpp())
+    else if (proxysock.isNoOpp())
         syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
 }
     if (proxysock.isNoOpp())
@@ -204,20 +206,21 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
     if (o.logconerror)
     {
         int peerport = peersock.getPeerSourcePort();
+        std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
 
         if (peersock.isTimedout())
-            syslog(LOG_INFO, "%d %s Client Connection timedout - errno: %d", peerport, message, err);
-        if (peersock.isHup())
-            syslog(LOG_INFO, "%d %s Client has disconnected - errno: %d", peerport, message, err);
-        if (peersock.sockError())
-            syslog(LOG_INFO, "%d %s Client Connection socket error - errno: %d", peerport, message, err);
-        if (peersock.isNoRead())
-            syslog(LOG_INFO, "%d %s cant read Client Connection - errno: %d ", peerport, message, err);
-        if (peersock.isNoWrite())
-            syslog(LOG_INFO, "%d %s cant write Client Connection  - errno: %d", peerport, message, err);
-        if (peersock.isNoOpp())
-            syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+            syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip.c_str(), err);
+        else if (peersock.isHup())
+            syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip.c_str(), err);
+        else if (peersock.sockError())
+            syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
+        else if (peersock.isNoRead())
+            syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+        else if (peersock.isNoWrite())
+            syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+        else if (peersock.isNoOpp())
+            syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
     }
     throw std::exception();
 }
@@ -390,7 +393,8 @@ stat_rec* &dystat)
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.proxy_timeout);
+    //peerconn.setTimeout(o.proxy_timeout);
+    peerconn.setTimeout(o.pcon_timeout);
 
    // ldl = o.currentLists();
 
@@ -404,7 +408,8 @@ stat_rec* &dystat)
 
     // to hold the returned page
     DataBuffer docbody;
-    docbody.setTimeout(o.proxy_timeout);
+  //  docbody.setTimeout(o.proxy_timeout);
+    docbody.setTimeout(o.exchange_timeout);
 
     // flags
     bool waschecked = false;
@@ -510,8 +515,12 @@ stat_rec* &dystat)
 
                    int err = peerconn.getErrno();
                    int pport = peerconn.getPeerSourcePort();
+                   std::string peerIP = peerconn.getPeerIP();
 
-                   syslog(LOG_INFO, "%d No header recd from client - errno: %d", pport, err);
+                   syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
+#ifdef DGDEBUG
+            	   std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
+#endif
                } else {
                    syslog(LOG_INFO, "Client connection closed early - no request header received");
                }
@@ -520,6 +529,9 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         ++dystat->reqs;
+        if (o.forwarded_for && !ismitm) {
+              header.addXForwardedFor(clientip); // add squid-like entry
+         }
         //
         // End of set-up section
         //
@@ -557,6 +569,9 @@ stat_rec* &dystat)
                     break;
                 }
                 ++dystat->reqs;
+                if (o.forwarded_for && !ismitm) {
+                    header.addXForwardedFor(clientip); // add squid-like entry
+                }
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -642,13 +657,14 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                         std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
 #endif
-                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), strerror(errno));
+                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), proxysock.getErrno(),strerror(proxysock.getErrno()));
                         if (proxysock.isTimedout()) {
                             message_no = 201;
                             peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
                             peerconn.writeString(
                                     "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
                             peerconn.writeString(o.language_list.getTranslation(201));
+                            peerconn.writeString(o.language_list.getTranslation(204));
                             peerconn.writeString("</BODY></HTML>\n");
                         } else {
                             message_no = 202;
@@ -656,6 +672,7 @@ stat_rec* &dystat)
                             peerconn.writeString(
                                     "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
                             peerconn.writeString(o.language_list.getTranslation(202));
+                            peerconn.writeString(o.language_list.getTranslation(204));
                             peerconn.writeString("</BODY></HTML>\n");
                         }
                         return 3;
@@ -818,6 +835,8 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                             std::cout << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << std::endl;
 #endif
+                            if (o.auth_requires_user_and_group)
+                                continue;
                             filtergroup = 0; //default group - one day configurable?
                             authed = true;
                             break;
@@ -959,9 +978,9 @@ stat_rec* &dystat)
                 }
             }
 
-            if (o.forwarded_for) {
-                header.addXForwardedFor(clientip); // add squid-like entry
-            }
+//            if (o.forwarded_for) {
+//                header.addXForwardedFor(clientip); // add squid-like entry
+//            }
 
 #ifdef ENABLE_ORIG_IP
             // if working in transparent mode and grabbing of original IP addresses is
@@ -1334,19 +1353,21 @@ stat_rec* &dystat)
                 if(!( header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
                     && (docheader.in(&proxysock, persistOutgoing)) )) {
                     if (proxysock.isTimedout()) {
-                        message_no = 200;
+                        message_no = 203;
                         peerconn.writeString("HTTP/1.0 504 Gateway Time-out\nContent-Type: text/html\n\n");
                         peerconn.writeString(
                                 "<HTML><HEAD><TITLE>e2guardian - 504 Gateway Time-out</TITLE></HEAD><BODY><H1>e2guardian - 504 Gateway Time-out</H1>");
-                        peerconn.writeString(o.language_list.getTranslation(201));
+                        peerconn.writeString(o.language_list.getTranslation(203));
+                        peerconn.writeString(o.language_list.getTranslation(204));
                         peerconn.writeString("</BODY></HTML>\n");
                         break;
                     } else {
-                        message_no = 200;
+                        message_no = 205;
                         peerconn.writeString("HTTP/1.0 502 Gateway Error\nContent-Type: text/html\n\n");
                         peerconn.writeString(
                                 "<HTML><HEAD><TITLE>e2guardian - 502 Gateway Error</TITLE></HEAD><BODY><H1>e2guardian - 502 Gateway Error</H1>");
-                        peerconn.writeString(o.language_list.getTranslation(202));
+                        peerconn.writeString(o.language_list.getTranslation(205));
+                        peerconn.writeString(o.language_list.getTranslation(206));
                         peerconn.writeString("</BODY></HTML>\n");
                         break;
                 //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
@@ -3033,6 +3054,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << std::endl;
 #endif
+        if(o.logconerror)
         syslog(LOG_ERR, "POST filtering exception: %s", e.what());
 
         // close connection to proxy
@@ -3043,6 +3065,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << std::endl;
 #endif
+        if(o.logconerror)
         syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
@@ -3292,7 +3315,6 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                 (*checkme).whatIsNaughty = o.language_list.getTranslation(504);
                 // Banned Regular Expression URL found.
                 (*checkme).whatIsNaughtyCategories = (*o.lm.l[(*ldl->fg[filtergroup]).banned_regexpurl_list_ref[j]]).category.toCharArray();
-                syslog(LOG_INFO, "Could not write to logging process:");
                 return;
             } else if ((j = (*ldl->fg[filtergroup]).inBannedRegExpHeaderList(header->header, lastcategory)) >= 0) {
                 checkme->isItNaughty = true;
@@ -4363,7 +4385,8 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
     //somewhere to hold the header from the proxy
     HTTPHeader header;
-    header.setTimeout(o.pcon_timeout);
+    //header.setTimeout(o.pcon_timeout);
+    header.setTimeout(o.proxy_timeout);
 
         if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
@@ -4403,11 +4426,6 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
 void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, NaughtyFilter *checkme)
 {
-
-//#ifdef DGDEBUG
-//	std::cout << dbgPeerPort << " -skipping SSL certificate check" << std::endl;
-//#endif
-//	return;
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -checking SSL certificate is valid" << std::endl;

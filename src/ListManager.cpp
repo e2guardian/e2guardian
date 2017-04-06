@@ -72,6 +72,7 @@ void ListManager::garbageCollect()
 
 void ListManager::deRefList(size_t i)
 {
+    if (l[i] == NULL) return;
     l[i]->refcount--;
 #ifdef DGDEBUG
     std::cout << "de-referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;

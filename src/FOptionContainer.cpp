@@ -269,6 +269,7 @@ void FOptionContainer::resetJustListData()
 }
 
 // grab this FG's HTML template
+// TODO must be removed ?
 HTMLTemplate *FOptionContainer::getHTMLTemplate()
 {
     if (banned_page)
@@ -388,33 +389,44 @@ bool FOptionContainer::read(const char *filename)
 
 #ifdef __SSLMITM
         if (findoptionS("sslcheckcert") == "on") {
-            ssl_check_cert = true;
+            if(o.enable_ssl) {
+                ssl_check_cert = true;
+                } else {
+                syslog(LOG_ERR, "Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                std::cout << "Warning: sslcheckcert requires ssl to be enabled in e2guardian.conf " << std::endl;
+                ssl_check_cert = false;
+                }
         } else {
-
             ssl_check_cert = false;
         }
 #endif //__SSLCERT
 
 #ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
-            ssl_mitm = true;
-            if (findoptionS("onlymitmsslgrey") == "on") {
-                only_mitm_ssl_grey = true;
+            if(o.enable_ssl) {
+                ssl_mitm = true;
+                if (findoptionS("onlymitmsslgrey") == "on") {
+                    only_mitm_ssl_grey = true;
+                } else {
+                    only_mitm_ssl_grey = false;
+                }
+                if (enable_ssl_legacy_logic) {
+                    syslog(LOG_ERR, "Warning: sslmitm requires ssllegacylogic to be off");
+                    std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
+                    enable_ssl_legacy_logic = false;
+                }
+
+                if (findoptionS("mitmcheckcert") == "off")
+                    mitm_check_cert = false;
+
+                allow_empty_host_certs = false;
+                if (findoptionS("allowemptyhostcert") == "on")
+                    allow_empty_host_certs = true;
             } else {
-                only_mitm_ssl_grey = false;
+                syslog(LOG_ERR, "Warning: To use sslmitm, enablessl in e2guardian.conf must be on");
+                std::cout << "Warning: sslmitm requires ssl to be enabled in e2guardian.conf " << std::endl;
+                ssl_mitm = false;
             }
-            if (enable_ssl_legacy_logic) {
-                syslog(LOG_ERR, "Warning: sslmitm requires ssllegacylogic to be off");
-                std::cout << "Warning: sslmitm requires ssllegacylogic to be off" << std::endl;
-                enable_ssl_legacy_logic = false;
-            }
-
-            if (findoptionS("mitmcheckcert") == "off")
-                mitm_check_cert = false;
-
-            allow_empty_host_certs = false;
-            if (findoptionS("allowemptyhostcert") == "on")
-                allow_empty_host_certs = true;
         } else {
             ssl_mitm = false;
         }
@@ -579,9 +591,19 @@ bool FOptionContainer::read(const char *filename)
                     return false;
                     // HTML template file
                 }
+            } else {
+                html_template = o.languagepath + "template.html";
+                banned_page = new HTMLTemplate;
+                if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
+                    if (!is_daemonised) {
+                        std::cerr << "Error reading default HTML Template file: " << html_template << std::endl;
+                    }
+                    syslog(LOG_ERR, "Error reading default HTML Template file: %s", html_template.toCharArray());
+                    return false;
+                    // HTML template file
+                }
             }
         }
-
         // override ssl default banned page
         sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
         if ((sslaccess_denied_address.length() != 0)) {
@@ -616,8 +638,9 @@ bool FOptionContainer::read(const char *filename)
             non_standard_delimiter = true;
         }
 
+	// TODE Remove groupemode CODE
         // group mode: 0 = banned, 1 = filtered, 2 = exception
-        group_mode = findoptionI("groupmode");
+        group_mode = 1;
         if ((group_mode < 0) || (group_mode > 2)) {
             if (!is_daemonised)
                 std::cerr << "Invalid groupmode" << std::endl;

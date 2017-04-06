@@ -72,7 +72,6 @@ void LOptionContainer::reset()
     deleteRooms();
     exception_ip_list.reset();
     banned_ip_list.reset();
-    html_template.reset();
     conffile.clear();
     if (o.use_filter_groups_list)
         filter_groups_list.reset();
@@ -177,35 +176,6 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
             return false;
         }
-
-//post read filtergroup config checks - only for SLLMITM for now
-
-#ifdef _SSLMITM
-        bool ssl_mitm = false;
-        bool mitm_check_cert = false;
-        for (i = 0; i < numfg; i++) {
-            if (fg[i].ssl_mitm)
-                ssl_mitm = true;
-            if (fg[i].mitm_check_cert)
-                mitm_check_cert = true;
-        }
-
-        if (ssl_mitm) {
-            if (ca_certificate_path != "") {
-                ca = new CertificateAuthority(ca_certificate_path.c_str(),
-                    ca_private_key_path.c_str(),
-                    cert_private_key_path.c_str(),
-                    generated_cert_path.c_str(),
-                    gen_cert_start, gen_cert_end);
-            } else {
-                if (!is_daemonised) {
-                    std::cerr << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM." << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
-                return false;
-            }
-        }
-#endif
 
     } catch (std::exception &e) {
         if (!is_daemonised) {
@@ -657,12 +627,6 @@ bool LOptionContainer::readFilterGroupConf()
             return false;
         }
     }
-    if (!need_html && (reporting_level != 3)) {
-#ifdef DGDEBUG
-        std::cout << "Global reporting level not 3 & no filter groups using the template; so resetting it." << std::endl;
-#endif
-        html_template.reset();
-    }
     return true;
 }
 
@@ -713,25 +677,5 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     if (!rc) {
         return false;
     }
-//<TODO> ifdef for ssl mitm
-#ifdef __SSLMITM
-    if (((fg[numfg - 1]->reporting_level == 3) || fg[numfg - 1]->ssl_mitm) && (html_template.html.size() == 0)) {
-#else
-    if ((fg[numfg - 1]->reporting_level == 3) && (html_template.html.size() == 0)) {
-#endif
-#ifdef DGDEBUG
-        std::cout << "One of the groups has overridden the reporting level! Loading the HTML template." << std::endl;
-#endif
-        need_html = true;
-        if (!html_template.readTemplateFile(o.html_template_location.c_str())) {
-            if (!is_daemonised) {
-                std::cerr << "Error reading HTML Template file: " << o.html_template_location << std::endl;
-            }
-            syslog(LOG_ERR, "Error reading HTML Template file: %s", o.html_template_location.c_str());
-            return false;
-            // HTML template file
-        }
-    }
-
     return true;
 }
