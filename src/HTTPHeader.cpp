@@ -939,10 +939,11 @@ void HTTPHeader::checkheader(bool allowpersistent)
         // also only do the necessary checks for the header type (sent/received).
         if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
             phost = &(*i);
-        }
-        // don't allow through multiple host headers
-        else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
-            i->assign("X-DG-IgnoreMe: removed multiple host headers\r");
+        } else if (outgoing &&  i->startsWithLower("upgrade-insecure-requests:")) {
+            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
+            // don't allow through multiple host headers
+        } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
+            i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
         } else if (outgoing && (puseragent == NULL) && i->startsWithLower("user-agent:")) {
             puseragent = &(*i);
         } else if (outgoing && i->startsWithLower("accept-encoding:")) {
