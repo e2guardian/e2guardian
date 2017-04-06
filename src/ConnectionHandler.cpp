@@ -529,7 +529,7 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         ++dystat->reqs;
-        if (o.forwarded_for) {
+        if (o.forwarded_for && !ismitm) {
               header.addXForwardedFor(clientip); // add squid-like entry
          }
         //
@@ -569,7 +569,7 @@ stat_rec* &dystat)
                     break;
                 }
                 ++dystat->reqs;
-                if (o.forwarded_for) {
+                if (o.forwarded_for && !ismitm) {
                     header.addXForwardedFor(clientip); // add squid-like entry
                 }
 
