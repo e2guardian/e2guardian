@@ -2,29 +2,25 @@
 
 # This file is re-read on gentle restart and any changes actions
 
-
-# Filter group mode
+# Filter group mode IS NOT LONGER SUPPORTED after 4.x
 # This option determines whether members of this group have their web access
 # unfiltered, filtered, or banned. 
 #
-# 0 = banned
-# 1 = filtered
-# 2 = unfiltered (exception)
+# 0 = banned 
+# Replaced by bannedsitelist and bannedsitelist 
+# To block all sites except those in the
+# exceptionsitelist and greysitelist files remove
+# the # from the next line to leave only a '**':
 #
-# Only filter groups with a mode of 1 need to define phrase, URL, site, extension,
-# mimetype and PICS lists; in other modes, these options are ignored to conserve
-# memory.
-#
-# Defaults to 0 if unspecified.
 # Unauthenticated users are treated as being in the first filter group.
-groupmode = 1
+# groupmode = 1 #DISABLED
 
 # Filter group name
 # Used to fill in the -FILTERGROUP- placeholder in the HTML template file, and to
 # name the group in the access logs
 # Defaults to empty string
 #groupname = ''
-groupname = ''
+groupname = 'no_mame_group'
 
 # Enable legacy (DG) ssl logic
 # 
@@ -62,6 +58,7 @@ refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
 embededreferersitelist = '@DGCONFDIR@/lists/embededreferersitelist'
 embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
+sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
 # enablelocallists = on/off
