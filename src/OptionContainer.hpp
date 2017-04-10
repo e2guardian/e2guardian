@@ -43,6 +43,8 @@ class OptionContainer
     int log_exception_hits;
     bool non_standard_delimiter;
     int log_file_format;
+    std::string log_header_value;
+    std::string ident_header_value;
     int weighted_phrase_mode; // PIP added in - not sure if still required
     bool show_weighted_found;
     bool forwarded_for;

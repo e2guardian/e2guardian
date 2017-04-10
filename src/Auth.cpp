@@ -33,6 +33,7 @@ extern authcreate_t dnsauthcreate;
 #ifdef ENABLE_NTLM
 extern authcreate_t ntlmcreate;
 #endif
+extern authcreate_t headercreate;
 
 // IMPLEMENTATION
 
@@ -174,6 +175,14 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 #endif
         return ntlmcreate(cv);
     }
+
+    if (plugname == "proxy-header") {
+#ifdef DGDEBUG
+        std::cout << "Enabling proxy-header auth plugin" << std::endl;
+#endif
+        return headercreate(cv);
+    }
+
 #endif
 #ifdef __SSLMITM
 //	if (plugname == "ssl") {
