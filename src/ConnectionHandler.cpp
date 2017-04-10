@@ -530,11 +530,12 @@ stat_rec* &dystat)
         }; // get header from client, allowing persistency and breaking on reloadconfig
         ++dystat->reqs;
 
-        if (o.forwarded_for)
-              header.addXForwardedFor(clientip); // add squid-like entry
+        if (o.forwarded_for && !ismitm) {
+            header.addXForwardedFor(clientip); // add squid-like entry
 #ifdef DGDEBUG
-        header.dbshowheader(&logurl, clientip.c_str());
+        	header.dbshowheader(&logurl, clientip.c_str());
 #endif
+        }
         //
         // End of set-up section
         //
@@ -572,11 +573,12 @@ stat_rec* &dystat)
                     break;
                 }
                 ++dystat->reqs;
-                if (o.forwarded_for)
+                if (o.forwarded_for && !ismitm) {
                     header.addXForwardedFor(clientip); // add squid-like entry
 #ifdef DGDEBUG
-                header.dbshowheader(&logurl, clientip.c_str());
+                    header.dbshowheader(&logurl, clientip.c_str());
 #endif
+                }
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
 

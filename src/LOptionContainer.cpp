@@ -177,35 +177,6 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             return false;
         }
 
-//post read filtergroup config checks - only for SLLMITM for now
-
-#ifdef  NODEFS
-        bool ssl_mitm = false;
-        bool mitm_check_cert = false;
-        for (i = 0; i < numfg; i++) {
-            if (fg[i].ssl_mitm)
-                ssl_mitm = true;
-            if (fg[i].mitm_check_cert)
-                mitm_check_cert = true;
-        }
-
-        if (ssl_mitm) {
-            if (ca_certificate_path != "") {
-                ca = new CertificateAuthority(ca_certificate_path.c_str(),
-                    ca_private_key_path.c_str(),
-                    cert_private_key_path.c_str(),
-                    generated_cert_path.c_str(),
-                    gen_cert_start, gen_cert_end);
-            } else {
-                if (!is_daemonised) {
-                    std::cerr << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM." << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
-                return false;
-            }
-        }
-#endif
-
     } catch (std::exception &e) {
         if (!is_daemonised) {
             std::cerr << e.what() << std::endl; // when called the daemon has not

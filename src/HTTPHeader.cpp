@@ -1780,7 +1780,6 @@ int HTTPHeader::decode1b64(char c)
 // *
 // * encode funcs
 // *
-// *
 
 // get encoded URL?
 String HTTPHeader::URLEncode()
@@ -1848,7 +1847,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             while (true) {
                 if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
                     // reconnect & try again if we've been told to
-                    if (reconnect) {
+                    if (reconnect && !mitm) {
 // don't try more than once
 #ifdef DGDEBUG
                         std::cout << "Proxy connection broken (1); trying to re-establish..." << std::endl;

@@ -194,7 +194,7 @@ void stat_rec::reset()
     	fprintf(fs, "%s	%d	%d	%d	%d	%d	%d	%d	 %d	%d	 %d\n", buffer, o.http_workers,
         bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
-        fprintf(fs, "%ld	%d	%d	%d	%d	%d	 %d	%d	 %d	%d	%d\n", now, o.http_workers,
+        fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
         bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
 

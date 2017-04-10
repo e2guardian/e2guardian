@@ -193,10 +193,10 @@ bool OptionContainer::read(std::string& filename, int type)
 #endif
 
 #ifdef __SSLMITM
-        if (findoptionS("enablessl") == "") {
-                enable_ssl = false;
-            } else {
+        if (findoptionS("enablessl") == "on") {
                enable_ssl  = true;
+            } else {
+                enable_ssl = false;
             }
 
        if(enable_ssl) {
