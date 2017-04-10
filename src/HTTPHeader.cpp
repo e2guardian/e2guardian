@@ -290,6 +290,16 @@ std::string HTTPHeader::getAuthData()
     return "";
 }
 
+std::string HTTPHeader::getAuthHeader()
+{
+    if (pheaderident != NULL) {
+        String line (pheaderident->after(" "));
+        line.resize(line.length() - 1);
+        return line;
+    }
+    return "";
+}
+
 // grab raw contents of Proxy-Authorization header without decoding
 std::string HTTPHeader::getRawAuthData()
 {
@@ -1000,6 +1010,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
         else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
         }
+
+        if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
+            plogheadervalue = &(*i);
+        }
+        if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+            pheaderident = &(*i);
+        }
+
 #ifdef DGDEBUG
         std::cout << (*i) << std::endl;
 #endif

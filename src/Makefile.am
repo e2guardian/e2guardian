@@ -59,6 +59,7 @@ IDENTAUTH_SOURCE = authplugins/ident.cpp
 IPAUTH_SOURCE = authplugins/ip.cpp
 PORTAUTH_SOURCE = authplugins/port.cpp
 DIGESTAUTH_SOURCE = authplugins/digest.cpp
+HEADERAUTH_SOURCE = authplugins/header.cpp
 
 if ENABLE_NTLM
 NTLMAUTH_SOURCE = authplugins/ntlm.cpp

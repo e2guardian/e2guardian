@@ -46,6 +46,11 @@ logexceptionhits = 2
 
 logfileformat = 1
 
+# Log a specific value from header
+# low case only
+# only used with logs: 1,5 and 6
+# logheadervalue = 'proxy-authorization:'
+
 # truncate large items in log lines
 # allowable values 10 to 32000
 # default 2000
@@ -461,6 +466,7 @@ contentscanexceptions = off
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
+#authplugin = '@DGCONFDIR@/proxy-header.conf'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as
