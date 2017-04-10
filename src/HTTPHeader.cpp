@@ -923,6 +923,30 @@ bool HTTPHeader::malformedURL(const String &url)
     return obfuscation;
 }
 
+
+// Show headers values for debug purpose
+
+void HTTPHeader::dbshowheader(String *url, const char *clientip)
+{
+
+        String *line;
+        syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+        for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+            line = &(*i);
+            String line2 = *line;
+            bool outgoing = true;
+            if (header.front().startsWith("HT")) {
+                outgoing = false;
+            }
+            if (outgoing)
+                syslog(LOG_INFO, "OUT: Client IP at %s header: %s", clientip, line2.c_str());
+            if (!outgoing)
+                syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
+        }
+        syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+}
+
+
 // fix bugs in certain web servers that don't obey standards.
 // actually, it's us that don't obey standards - HTTP RFC says header names
 // are case-insensitive. - Anonymous SF Poster, 2006-02-23

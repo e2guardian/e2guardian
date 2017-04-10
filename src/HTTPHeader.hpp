@@ -88,6 +88,8 @@ class HTTPHeader
     std::string getAuthData();
     // grab raw contents of Proxy-Authorization header, without b64 decode
     std::string getRawAuthData();
+    // Debug show header
+    void dbshowheader(String *url, const char *clientip);
     // check whether a connection is persistent
     bool isPersistent()
     {
