@@ -1,6 +1,7 @@
 [Unit]
 Description=E2guardian Web filtering
 After=network.target
+TimeoutStartSec=20
 
 [Service]
 LimitNOFILE=65535
