@@ -987,10 +987,9 @@ void HTTPHeader::checkheader(bool allowpersistent)
     for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
         // index headers - try to perform the checks in the order the average browser sends the headers.
         // also only do the necessary checks for the header type (sent/received).
-        if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
+        // Sequencial if else
+	if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
             phost = &(*i);
-        } else if (outgoing &&  i->startsWithLower("upgrade-insecure-requests:")) {
-            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
             // don't allow through multiple host headers
         } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
             i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
@@ -1026,6 +1025,11 @@ void HTTPHeader::checkheader(bool allowpersistent)
         else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
         }
+
+	//Can be placed anywhere ..
+	if (outgoing && i->startsWithLower("upgrade-insecure-requests:")) {
+            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
+	}
 
         if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
             plogheadervalue = &(*i);
