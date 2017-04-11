@@ -956,6 +956,22 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
         syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
 }
 
+void HTTPHeader::dbshowheader(bool outgoing)
+{
+    String *line;
+ //   syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+        line = &(*i);
+        String line2 = *line;
+        if (outgoing)
+            syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
+        if (!outgoing)
+            syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+    }
+  //  syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+}
+
+
 
 // fix bugs in certain web servers that don't obey standards.
 // actually, it's us that don't obey standards - HTTP RFC says header names
@@ -1846,7 +1862,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
 #ifdef DGDEBUG
-            std::cout << "headertoclient was:" << l << std::endl;
+            std::cout << "headerout was:" << l << std::endl;
 #endif
 
 #ifdef __SSLMITM
@@ -1860,7 +1876,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #endif
 
 #ifdef DGDEBUG
-            std::cout << "headertoclient is:" << l << std::endl;
+            std::cout << "headerout is:" << l << std::endl;
 #endif
             // first reconnect loop - send first line
             while (true) {
@@ -1896,7 +1912,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
     if (header.size() > 1) {
         for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
-            l += (*i) + "\n";
+            if (! (*i).startsWith("X-E2G-IgnoreMe"))
+                l += (*i) + "\n";
         }
     }
     l += "\r\n";
@@ -1960,6 +1977,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     }
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
+    dbshowheader(true);
 #endif
     return true;
 }
@@ -2049,6 +2067,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
     std::cout << "Returning from header:in " << std::endl;
+    dbshowheader(false);
 #endif
     return true;
 }

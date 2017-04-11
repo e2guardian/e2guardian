@@ -532,10 +532,10 @@ stat_rec* &dystat)
 
         if (o.forwarded_for && !ismitm) {
             header.addXForwardedFor(clientip); // add squid-like entry
-#ifdef DGDEBUG
-        	header.dbshowheader(&logurl, clientip.c_str());
-#endif
         }
+#ifdef DGDEBUG
+        header.dbshowheader(&logurl, clientip.c_str());
+#endif
         //
         // End of set-up section
         //
@@ -575,10 +575,10 @@ stat_rec* &dystat)
                 ++dystat->reqs;
                 if (o.forwarded_for && !ismitm) {
                     header.addXForwardedFor(clientip); // add squid-like entry
-#ifdef DGDEBUG
-                    header.dbshowheader(&logurl, clientip.c_str());
-#endif
                 }
+#ifdef DGDEBUG
+                header.dbshowheader(&logurl, clientip.c_str());
+#endif
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
 
@@ -1383,6 +1383,7 @@ stat_rec* &dystat)
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+                docheader.dbshowheader(&logurl, clientip.c_str());
 #endif
                 if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
                       cleanThrow("Unable to send return header to client",peerconn, proxysock);
@@ -2924,10 +2925,10 @@ stat_rec* &dystat)
             } else if (headersent == 0) {
                if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL)) { // send header to client
 #ifdef DGDEBUG
+                   std::cout << dbgPeerPort << " -sent all header failed to client" << std::endl;
+                      } else {
                    std::cout << dbgPeerPort << " -sent all header to client" << std::endl;
                    std::cout << dbgPeerPort << " -waschecked:" << waschecked << std::endl;
-                      } else {
-                   std::cout << dbgPeerPort << " -sent all header failed to client" << std::endl;
 #endif
                }
             }

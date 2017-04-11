@@ -93,6 +93,7 @@ class HTTPHeader
     std::string getRawAuthData();
     // Debug show header
     void dbshowheader(String *url, const char *clientip);
+    void dbshowheader(bool outgoing);
     // check whether a connection is persistent
     bool isPersistent()
     {
