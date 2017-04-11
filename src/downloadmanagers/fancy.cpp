@@ -367,7 +367,8 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             delete[] block;
             block = new char[newsize];
             try {
-                sock->bcheckForInput(d->timeout);
+                if(!sock->bcheckForInput(d->timeout))
+                    break;
             } catch (std::exception &e) {
                 break;
             }
@@ -392,7 +393,8 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             }
         } else {
             try {
-                sock->bcheckForInput(d->timeout);
+                if(!sock->bcheckForInput(d->timeout))
+                    break;
             } catch (std::exception &e) {
                 break;
             }

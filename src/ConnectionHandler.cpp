@@ -3043,6 +3043,9 @@ stat_rec* &dystat)
                     persistProxy = false;
                    // cleanThrow("Error in tunnel 1", peerconn,proxysock);
                 docsize = fdt.throughput;
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
+#endif
                 String rtype(header.requestType());
                 if (!logged && !nolog) {
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,

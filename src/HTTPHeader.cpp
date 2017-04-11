@@ -2033,7 +2033,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 return false;
             }
         } else {
-            rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            // this does not work for sites who are slow to send Content-Lenght so revert to standard
+            // timeout
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
                 return true;        // allow non-terminated headers in http apps - may need a flag to make this optional
