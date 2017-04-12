@@ -106,57 +106,56 @@ bool OptionContainer::read(std::string& filename, int type)
 		}
 		conffiles.close();
 
-		if (type == 0 || type == 2) {
+                if (type == 0 || type == 2) {
 
-			if ((pid_filename = findoptionS("pidfilename")) == "") {
-				pid_filename = __PIDDIR;
-				pid_filename += "/e2guardian.pid";
-			}
+                    if ((pid_filename = findoptionS("pidfilename")) == "") {
+                        pid_filename = __PIDDIR;
+                        pid_filename += "/e2guardian.pid";
+                    }
 
-			if (findoptionS("logsyslog") == "on") {
-				log_syslog = true;
+                    if (findoptionS("logsyslog") == "on") {
+                        log_syslog = true;
+                        if ((name_suffix = findoptionS("namesuffix")) == "") {
+                            name_suffix = "";
+                        }
+                    } else 	if ((log_location = findoptionS("loglocation")) == "") {
+                        log_location = __LOGLOCATION;
+                        log_location += "/access.log";
+                        log_syslog = false;
+                    }
 
-                if ((name_suffix = findoptionS("namesuffix")) == "") {
-                    name_suffix = "";
+                    if ((stat_location = findoptionS("statlocation")) == "") {
+                        stat_location = __LOGLOCATION;
+                        stat_location += "/stats";
+                    }
+
+                    if ((dstat_location = findoptionS("dstatlocation")) == "") {
+                        dstat_log_flag = false;
+                    } else {
+                        dstat_log_flag = true;
+                        dstat_interval = findoptionI("dstatinterval");
+                        if ( dstat_interval  == 0) {
+                            dstat_interval = 300; // 5 mins
+                        }
+                    }
+
+                    if (findoptionS("statshumanreadable") == "on") {
+                        stats_human_readable = true;
+                    } else {
+                        stats_human_readable = false;
+                    }
+
+                    if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
+                        dns_user_logging = false;
+                    } else {
+                        dns_user_logging = true;
+                    }
+
+                    log_header_value = findoptionS("logheadervalue")
+                    if (type == 0) {
+                        return true;
+                    }
                 }
-			} else 	if ((log_location = findoptionS("loglocation")) == "") {
-				log_location = __LOGLOCATION;
-				log_location += "/access.log";
-				log_syslog = false;
-			}
-
-			if ((stat_location = findoptionS("statlocation")) == "") {
-				stat_location = __LOGLOCATION;
-				stat_location += "/stats";
-			}
-
-			if ((dstat_location = findoptionS("dstatlocation")) == "") {
-				dstat_log_flag = false;
-			} else {
-				dstat_log_flag = true;
-				dstat_interval = findoptionI("dstatinterval");
-				if ( dstat_interval  == 0) {
-					dstat_interval = 300; // 5 mins
-				}
-			}
-
-			if (findoptionS("statshumanreadable") == "on") {
-				stats_human_readable = true;
-			} else {
-				stats_human_readable = false;
-			}
-
-            if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-                dns_user_logging = false;
-            } else {
-                dns_user_logging = true;
-            }
-	    log_header_value = findoptionS("logheadervalue");
-
-            if (type == 0) {
-				return true;
-			}
-		}
 
 		if ((daemon_user_name = findoptionS("daemonuser")) == "") {
 			daemon_user_name = __PROXYUSER;
