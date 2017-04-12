@@ -151,11 +151,12 @@ bool OptionContainer::read(std::string& filename, int type)
             } else {
                 dns_user_logging = true;
             }
-	    log_header_value = findoptionS("logheadervalue");
 
-            if (type == 0) {
-				return true;
-			}
+            log_header_value = findoptionS("logheadervalue") {
+                if (type == 0) {
+                    return true;
+                }
+            }
 		}
 
 		if ((daemon_user_name = findoptionS("daemonuser")) == "") {
