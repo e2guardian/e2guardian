@@ -55,7 +55,7 @@ extern bool is_daemonised;
 extern std::atomic<int> ttg;
 //bool reloadconfig = false;
 // If a specific debug line is needed
-int dbgPeerPort = 0;
+thread_local int dbgPeerPort = 0;
 
 
 // IMPLEMENTATION
@@ -3042,6 +3042,9 @@ stat_rec* &dystat)
                 if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true))
                     persistProxy = false;
                    // cleanThrow("Error in tunnel 1", peerconn,proxysock);
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -2tunnel returned from" << std::endl;
+#endif
                 docsize = fdt.throughput;
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
