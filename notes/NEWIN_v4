@@ -1,13 +1,11 @@
-Version 4.0.2.
+Version 4.1.0.
 
-This is the beta pre-release of v4.1.  It is now near-stable
-and you are invited use it in a test environment.
+This is the first production release in the v4 series (v4.1).  
+It is regarded as stable and only bug-fixes releases will be
+released in this series.
 
-Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases (v4.2 on).
-
-Note: Although near stable this version is still work in progress and instructions
-may be incomplete.   If in doubt - read the source!
+Note there will be significant changes to the configuration 
+files in later releases (v4.2 on).
 
 The new version is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the c++11 std::thread library).  
@@ -48,8 +46,8 @@ loaded with filter group and list settings.   Once fully read in a global
 shared pointer is switched from the old list to the new, making actioning 
 list changes immediate an with no interruption to service.
 
-TESTING -  basic and (scripted) load testing with up to 3000 worker threads 
-has been carried out to date.  These tests show a big reduction of memory 
+TESTING -  basic and (scripted) load testing with over 10000 worker threads 
+has been carried out to date.  Showng a big reduction in memory 
 usage. 
 
 It also handles transient peaks more smoothly.  Connections are queued, so 
@@ -83,7 +81,7 @@ ICAP server mode.
 
 Per-user exceptions/blocks.
 
-NOTES  FOR THIS VERSION  - v4.0.2
+NOTES  FOR THIS VERSION  - v4.1.0
 
 All pics support has been removed
 
@@ -93,10 +91,10 @@ Url cache not implemented
 
 IP cache not implemented
 
-Auth plugins - IP, Port and DNSauth tested and working
-	- others now compile but not tested
+Auth plugins - IP, Port, DNSauth, proxy-basic and proxy-digest tested 
+and working
 
-Scan plugins - none tested
+Scan plugins - test status not clear
 
 Configuration in this version is largely backward compatible with v3.4
 just two new options in e2guardian.conf
@@ -112,6 +110,6 @@ message.
 
 Please note the new format for the dstats log. See notes/dstat_format
 
-Philip Pearce 21 March 2017
+Philip Pearce 13 April 2017
 
 
