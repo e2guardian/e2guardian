@@ -77,6 +77,9 @@ class HTTPHeader
     bool isHeaderAdded(FOptionContainer* &foc);
     bool addheaderchecked;
     bool isheaderadded;
+    String *plogheadervalue;
+    String *pheaderident;
+    std::string getAuthHeader();
     // see if search usl and set searchwords
     bool isSearch(FOptionContainer* &foc);
     String searchwords();
@@ -88,6 +91,9 @@ class HTTPHeader
     std::string getAuthData();
     // grab raw contents of Proxy-Authorization header, without b64 decode
     std::string getRawAuthData();
+    // Debug show header
+    void dbshowheader(String *url, const char *clientip);
+    void dbshowheader(bool outgoing);
     // check whether a connection is persistent
     bool isPersistent()
     {

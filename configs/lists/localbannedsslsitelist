@@ -1,4 +1,5 @@
 #domains in banned ssl list
 #Don't bother with the www. or the https://
 #This list is only used for SSL (or CONNECT) requests
+# and has no effect when MITM is enabled
 #Unlike the bannedsitelist it overides all other lists

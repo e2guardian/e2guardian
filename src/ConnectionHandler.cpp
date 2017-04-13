@@ -55,7 +55,7 @@ extern bool is_daemonised;
 extern std::atomic<int> ttg;
 //bool reloadconfig = false;
 // If a specific debug line is needed
-int dbgPeerPort = 0;
+thread_local int dbgPeerPort = 0;
 
 
 // IMPLEMENTATION
@@ -529,9 +529,13 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         ++dystat->reqs;
+
         if (o.forwarded_for && !ismitm) {
-              header.addXForwardedFor(clientip); // add squid-like entry
-         }
+            header.addXForwardedFor(clientip); // add squid-like entry
+        }
+#ifdef DGDEBUG
+        header.dbshowheader(&logurl, clientip.c_str());
+#endif
         //
         // End of set-up section
         //
@@ -572,7 +576,9 @@ stat_rec* &dystat)
                 if (o.forwarded_for && !ismitm) {
                     header.addXForwardedFor(clientip); // add squid-like entry
                 }
-
+#ifdef DGDEBUG
+                header.dbshowheader(&logurl, clientip.c_str());
+#endif
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
 
@@ -1377,6 +1383,7 @@ stat_rec* &dystat)
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+                docheader.dbshowheader(&logurl, clientip.c_str());
 #endif
                 if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
                       cleanThrow("Unable to send return header to client",peerconn, proxysock);
@@ -2918,10 +2925,10 @@ stat_rec* &dystat)
             } else if (headersent == 0) {
                if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL)) { // send header to client
 #ifdef DGDEBUG
+                   std::cout << dbgPeerPort << " -sent all header failed to client" << std::endl;
+                      } else {
                    std::cout << dbgPeerPort << " -sent all header to client" << std::endl;
                    std::cout << dbgPeerPort << " -waschecked:" << waschecked << std::endl;
-                      } else {
-                   std::cout << dbgPeerPort << " -sent all header failed to client" << std::endl;
 #endif
                }
             }
@@ -3035,7 +3042,13 @@ stat_rec* &dystat)
                 if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true))
                     persistProxy = false;
                    // cleanThrow("Error in tunnel 1", peerconn,proxysock);
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -2tunnel returned from" << std::endl;
+#endif
                 docsize = fdt.throughput;
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
+#endif
                 String rtype(header.requestType());
                 if (!logged && !nolog) {
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,

@@ -41,8 +41,12 @@
 "159","Could not connect to proxy server"
 
 "200","The requested URL is malformed."
-"201","Unable to get response from upstream proxy (timeout)"
-"202","Unable to get response from upstream proxy (error)"
+"201","Unable to connect to upstream proxy (timeout)"
+"202","Unable to connect to upstream proxy (network error)"
+"203","The site requested is not responding"
+"204"," - Please try again later"
+"205","Upstream proxy is not responding (network error)"
+"206"," - Please try again later"
 
 "300","Banned phrase found: "
 "301","Banned phrase found."

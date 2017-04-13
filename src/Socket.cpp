@@ -1034,6 +1034,9 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         if (rc < 0) {
             s_errno = errno;
             log_ssl_errors("ssl_read failed %s", "");
+#ifdef DGDEBUG
+        std::cout << "ssl_read failed" << s_errno << " failed to read " << cnt << " bytes" << std::endl;
+#endif
             rc = 0;
         }
         if (rc == 0) { // eof

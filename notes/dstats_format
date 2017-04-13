@@ -1,4 +1,4 @@
-e2guardian  v4  dstats.log columns
+e2guardian  v4  dstats.log columns  - Note the format differs from v3.x
 
 1. Time  - in unix format
 

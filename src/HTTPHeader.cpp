@@ -290,6 +290,16 @@ std::string HTTPHeader::getAuthData()
     return "";
 }
 
+std::string HTTPHeader::getAuthHeader()
+{
+    if (pheaderident != NULL) {
+        String line (pheaderident->after(" "));
+        line.resize(line.length() - 1);
+        return line;
+    }
+    return "";
+}
+
 // grab raw contents of Proxy-Authorization header without decoding
 std::string HTTPHeader::getRawAuthData()
 {
@@ -923,6 +933,46 @@ bool HTTPHeader::malformedURL(const String &url)
     return obfuscation;
 }
 
+
+// Show headers values for debug purpose
+
+void HTTPHeader::dbshowheader(String *url, const char *clientip)
+{
+
+        String *line;
+        syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+        for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+            line = &(*i);
+            String line2 = *line;
+            bool outgoing = true;
+            if (header.front().startsWith("HT")) {
+                outgoing = false;
+            }
+            if (outgoing)
+                syslog(LOG_INFO, "OUT: Client IP at %s header: %s", clientip, line2.c_str());
+            if (!outgoing)
+                syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
+        }
+        syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+}
+
+void HTTPHeader::dbshowheader(bool outgoing)
+{
+    String *line;
+ //   syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+        line = &(*i);
+        String line2 = *line;
+        if (outgoing)
+            syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
+        if (!outgoing)
+            syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+    }
+  //  syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+}
+
+
+
 // fix bugs in certain web servers that don't obey standards.
 // actually, it's us that don't obey standards - HTTP RFC says header names
 // are case-insensitive. - Anonymous SF Poster, 2006-02-23
@@ -937,12 +987,12 @@ void HTTPHeader::checkheader(bool allowpersistent)
     for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
         // index headers - try to perform the checks in the order the average browser sends the headers.
         // also only do the necessary checks for the header type (sent/received).
-        if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
+        // Sequencial if else
+	if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
             phost = &(*i);
-        }
-        // don't allow through multiple host headers
-        else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
-            i->assign("X-DG-IgnoreMe: removed multiple host headers\r");
+            // don't allow through multiple host headers
+        } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
+            i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
         } else if (outgoing && (puseragent == NULL) && i->startsWithLower("user-agent:")) {
             puseragent = &(*i);
         } else if (outgoing && i->startsWithLower("accept-encoding:")) {
@@ -975,6 +1025,19 @@ void HTTPHeader::checkheader(bool allowpersistent)
         else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
         }
+
+	//Can be placed anywhere ..
+	if (outgoing && i->startsWithLower("upgrade-insecure-requests:")) {
+            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
+	}
+
+        if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
+            plogheadervalue = &(*i);
+        }
+        if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+            pheaderident = &(*i);
+        }
+
 #ifdef DGDEBUG
         std::cout << (*i) << std::endl;
 #endif
@@ -1803,7 +1866,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
 #ifdef DGDEBUG
-            std::cout << "headertoclient was:" << l << std::endl;
+            std::cout << "headerout was:" << l << std::endl;
 #endif
 
 #ifdef __SSLMITM
@@ -1817,7 +1880,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #endif
 
 #ifdef DGDEBUG
-            std::cout << "headertoclient is:" << l << std::endl;
+            std::cout << "headerout is:" << l << std::endl;
 #endif
             // first reconnect loop - send first line
             while (true) {
@@ -1853,7 +1916,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
     if (header.size() > 1) {
         for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
-            l += (*i) + "\n";
+            if (! (*i).startsWith("X-E2G-IgnoreMe"))
+                l += (*i) + "\n";
         }
     }
     l += "\r\n";
@@ -1917,6 +1981,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     }
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
+    dbshowheader(true);
 #endif
     return true;
 }
@@ -1972,7 +2037,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 return false;
             }
         } else {
-            rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            // this does not work for sites who are slow to send Content-Lenght so revert to standard
+            // timeout
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
                 return true;        // allow non-terminated headers in http apps - may need a flag to make this optional
@@ -2006,6 +2074,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
     std::cout << "Returning from header:in " << std::endl;
+    dbshowheader(false);
 #endif
     return true;
 }

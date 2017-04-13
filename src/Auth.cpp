@@ -26,6 +26,8 @@ extern authcreate_t digestcreate;
 extern authcreate_t identcreate;
 extern authcreate_t ipcreate;
 extern authcreate_t portcreate;
+extern authcreate_t headercreate;
+
 #ifdef PRT_DNSAUTH
 extern authcreate_t dnsauthcreate;
 #endif
@@ -158,6 +160,13 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
         return portcreate(cv);
     }
 
+    if (plugname == "proxy-header") {
+#ifdef DGDEBUG
+        std::cout << "Enabling proxy-header auth plugin" << std::endl;
+#endif
+        return headercreate(cv);
+    }
+
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
 #ifdef DGDEBUG
@@ -175,6 +184,8 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
         return ntlmcreate(cv);
     }
 #endif
+
+
 #ifdef __SSLMITM
 //	if (plugname == "ssl") {
 #ifdef DGDEBUG

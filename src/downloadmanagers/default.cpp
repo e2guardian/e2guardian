@@ -93,7 +93,9 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     bool geteverything = false;
-    if ((bytesremaining < 0) && !(docheader->isPersistent()))
+    // if ((bytesremaining < 0))
+    //if ((bytesremaining < 0) && !(docheader->isPersistent()))
+         if ((bytesremaining < 0))
         geteverything = true;
 
     char *block = NULL; // buffer for storing a grabbed block from the
@@ -193,9 +195,10 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             delete[] block;
             block = new char[newsize];
             try {
-                sock->bcheckForInput(d->timeout);
-            } catch (std::exception &e) {
-                break;
+                if (!sock->bcheckForInput(d->timeout))
+                   break;
+             } catch (std::exception &e) {
+             break;
             }
             // improved more efficient socket read which uses the buffer better
             rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
@@ -219,7 +222,8 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             }
         } else {
             try {
-                sock->bcheckForInput(d->timeout);
+                if (!sock->bcheckForInput(d->timeout))
+                    break;
             } catch (std::exception &e) {
                 break;
             }
