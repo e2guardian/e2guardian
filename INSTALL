@@ -1,8 +1,3 @@
-NOTE: Change release 3.1.0 onwards
-----------------------------------
-Due to differences in release levels of the GNU autotools on different 
-platforms we are no longer including the configure script as part 
-of the distribution.
 
 NOTE: For v4 - please read notes/NEWIN_v4 first!
 ------------------------------------------------
@@ -55,7 +50,7 @@ configuration options.
         log rotation, optional CGI block page, startup scripts etc.
 
 
-** You can often use "make -j 2" or "make -j 5" to compile DG faster,
+** You can often use "make -j 2" or "make -j 5" to compile E2G faster,
    especially on multiple CPU computers.  As a general rule of thumb,
    use the number of CPUs/cores plus one.
    With Solaris and others you may need "gmake" instead of "make".
@@ -151,22 +146,6 @@ Optional Features:
                           Enable support for command-line content scanners
   --enable-fancydm[=yes]
                           Enable support for the fancy download manager
-  --enable-totalblocklist[=no]
-                          Enable support for total block list
-  --enable-locallists[=no]
-                          Enable support for local lists
-  --enable-refererexception[=yes]
-                          Enable support for referer exception
-  --enable-rxredirects[=yes]
-                          Enable support for regexp redirects
-  --enable-addheader[=yes]
-                          Enable support for add header
-  --enable-sslextralists[=yes]
-                          Enable support for ssl extra lists
-  --enable-searchwords[=yes]
-                          Enable support for ssl extra lists
-  --enable-legacylog[=yes]
-                          Enable support for legacy log format
   --enable-trickledm[=no]
                           Enable support for the trickle download manager
   --enable-ntlm[=no]
