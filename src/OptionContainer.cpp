@@ -151,7 +151,7 @@ bool OptionContainer::read(std::string& filename, int type)
                         dns_user_logging = true;
                     }
 
-                    log_header_value = findoptionS("logheadervalue")
+                    log_header_value = findoptionS("logheadervalue");
                     if (type == 0) {
                         return true;
                     }
