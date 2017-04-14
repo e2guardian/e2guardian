@@ -4,7 +4,7 @@ Major internal rewrite to improve code quality, stability and performance
 The main advantage is the engine itself. It is more faster and powerful than before and tuning FD_SETSIZE is not needed anymore 
 
 
-Tuning settings introduced/changed in v4.0.0:- 
+Tuning settings introduced/changed in v4.0.x:- 
 --------------------------------------------
 
 e2guardian.conf
@@ -22,7 +22,7 @@ proxyfailureloginterval, urlcachenumber, urlcacheage, scancleancache,
 createlistcachefiles, prefercachedlists, maxchildren, minchildren,
 minsparechildren, preforkchildren, maxsparechildren, maxagechildren,
 gentlechunk, maxips, ipcfilename, urlipcfilename, ipipcfilename,
-mailer, monitorhelper, monitorstart
+mailer
 
 If present in the e2guardian.conf file removed options are silently ignored.
 

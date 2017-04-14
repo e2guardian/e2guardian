@@ -579,7 +579,7 @@ softrestart = off
 # Enable SSL support  - NEW for v4.0
 # This must be present to enable MITM and/or Cert checking
 # default is off
-enablessl = on
+enablessl = off
 
 #SSL certificate checking path
 #Path to CA certificates used to validate the certificates of https sites.
