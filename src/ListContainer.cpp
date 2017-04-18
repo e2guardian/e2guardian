@@ -343,12 +343,33 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 #endif
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     String temp, inc, hostname, url;
-    char linebuffer[2048];
+    //char linebuffer[2048];
+    char linebuffer[20000];    // increased to allow checking of line length
+    // NOTE: should check for errors instead but input->fail() always seems to
+    // be true after first failure and input->clear() does not appear to work
+    //  - for future investigation
+
+   // bool skip = false;
     while (!input->eof()) {
         input->getline(linebuffer, sizeof(linebuffer));
+     //   if (input->fail()) {
+     //       skip = true;
+      //      syslog(LOG_ERR, "Line input failure" );
+       //     input->clear();
+        //    break;
+        //}
+        //if (skip) {
+          //  skip = false;
+           // continue;
+        //}
         temp = linebuffer;
         if (temp.length() < 2)
             continue; // its jibberish
+        if (temp.length() > 2048) {
+            temp.limitLength(100);
+            syslog(LOG_ERR, "Line too long in list file - ignored %s....", temp.toCharArray() );
+            continue;
+        }
 
         //item lists (URLs, domains) can be both categorised and time-limited
         if (linebuffer[0] == '#') {
