@@ -749,13 +749,10 @@ bool OptionContainer::read(std::string& filename, int type)
 #ifdef DGDEBUG
             std::cout << "Not using filtergroupslist" << std::endl;
 #endif
-        } else if (!doReadItemList(filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
-            return false;
         } else {
             use_filter_groups_list = true;
             if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
                 auth_requires_user_and_group = true;
-
         }
 
         if (group_names_list_location.length() == 0) {

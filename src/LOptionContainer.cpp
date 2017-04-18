@@ -48,6 +48,13 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
+     if (o.use_filter_groups_list)  {
+          if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
+              std::cout << "Failed to read filtergroupslist" << std::endl;
+              loaded_ok = false;
+          }
+     }
+
     if(! readFilterGroupConf())  {
         loaded_ok = false;
         if (!is_daemonised)
