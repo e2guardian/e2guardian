@@ -1,9 +1,9 @@
 [Unit]
 Description=E2guardian Web filtering
 After=network.target
-TimeoutStartSec=20
 
 [Service]
+TimeoutStartSec=20s
 LimitNOFILE=65535
 Type=forking
 IgnoreSIGPIPE=no
