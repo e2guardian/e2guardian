@@ -13,6 +13,7 @@
 #include "Plugin.hpp"
 #include "ConfigVar.hpp"
 #include "HTTPHeader.hpp"
+#include "ListContainer.hpp"
 
 // DEFINES
 
@@ -58,7 +59,7 @@ class AuthPlugin : public Plugin
     // NOMATCH - did not find a group for this user (query remaining plugins)
     // NOUSER - did not find a group for this user (do not query remaining plugins)
     // any < 0 - error
-    virtual int determineGroup(std::string &user, int &fg);
+    virtual int determineGroup(std::string &user, int &fg,ListContainer &uglc);
 
     // is this a connection-based auth type, i.e. assume all subsequent requests on the pconn are from the same user?
     bool is_connection_based;

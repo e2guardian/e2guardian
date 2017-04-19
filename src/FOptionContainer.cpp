@@ -1927,6 +1927,42 @@ std::string FOptionContainer::findoptionS(const char *option)
     return "";
 }
 
+std::deque<String> FOptionContainer::findoptionM(const char *option)
+{
+    // findoptionS returns all the matching options
+    String temp;
+    String temp2;
+    String o(option);
+    std::deque<String> results;
+
+    for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
+        if ((*i).empty())
+            continue;
+        temp = (*i).c_str();
+        temp2 = temp.before("=");
+        while (temp2.endsWith(" ")) { // get rid of tailing spaces before =
+            temp2.chop();
+        }
+        if (o == temp2) {
+            temp = temp.after("=");
+            while (temp.startsWith(" ")) { // get rid of heading spaces
+                temp.lop();
+            }
+            if (temp.startsWith("'")) { // inverted commas
+                temp.lop();
+            }
+            while (temp.endsWith(" ")) { // get rid of tailing spaces
+                temp.chop();
+            }
+            if (temp.endsWith("'")) { // inverted commas
+                temp.chop();
+            }
+            results.push_back(temp);
+        }
+    }
+    return results;
+}
+
 bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emessage)
 {
     // realitycheck checks a String for certain expected criteria

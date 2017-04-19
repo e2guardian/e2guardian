@@ -825,7 +825,7 @@ stat_rec* &dystat)
                             break;
                         }
                         // try to get the filter group & parse the return value
-                        rc = auth_plugin->determineGroup(clientuser, filtergroup);
+                        rc = auth_plugin->determineGroup(clientuser, filtergroup,ldl->filter_groups_list);
                         if (rc == DGAUTH_OK) {
 #ifdef DGDEBUG
                             std::cout << "Auth plugin found username & group; not querying remaining plugins" << std::endl;

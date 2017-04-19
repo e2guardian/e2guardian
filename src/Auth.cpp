@@ -12,6 +12,7 @@
 #endif
 #include "Auth.hpp"
 #include "OptionContainer.hpp"
+#include "LOptionContainer.hpp"
 
 #include <iostream>
 #include <syslog.h>
@@ -61,7 +62,7 @@ String AuthPlugin::getPluginName()
 }
 // determine what filter group the given username is in
 // return -1 when user not found
-int AuthPlugin::determineGroup(std::string &user, int &fg)
+int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
 {
     if (user.length() < 1 || user == "-") {
         return DGAUTH_NOMATCH;
@@ -73,7 +74,8 @@ int AuthPlugin::determineGroup(std::string &user, int &fg)
     String ue(u);
     ue += "=";
 
-    char *i = o.filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
+    //char *i = ldl->filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
+    char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
 
     if (i == NULL) {
 #ifdef DGDEBUG
