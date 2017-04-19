@@ -59,7 +59,7 @@ class portinstance : public AuthPlugin
     }
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
-    int determineGroup(std::string &user, int &fg);
+    int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
     int quit();
@@ -123,7 +123,7 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     return DGAUTH_OK;
 }
 
-int portinstance::determineGroup(std::string &user, int &fg)
+int portinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
 {
     // check ports
     String s = user;

@@ -764,19 +764,7 @@ bool OptionContainer::read(std::string& filename, int type)
             use_group_names_list = true;
         }
 
-        if (findoptionS("prefercachedlists") == "on")
-            prefer_cached_lists = true;
-        else
-            prefer_cached_lists = false;
 
-        //if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
-        //    std::cout << "Failed to read exceptioniplist" << std::endl;
-        //    return false;
-        //}
-        //if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
-        //    std::cout << "Failed to read bannediplist" << std::endl;
-        //    return false;
-        //}
 
         if (!language_list.readLanguageList(language_list_location.c_str())) {
             return false;
