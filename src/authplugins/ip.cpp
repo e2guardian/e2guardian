@@ -79,7 +79,7 @@ class ipinstance : public AuthPlugin
     };
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
-    int determineGroup(std::string &user, int &fg);
+    int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
     int quit();
@@ -170,7 +170,7 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     return DGAUTH_OK;
 }
 
-int ipinstance::determineGroup(std::string &user, int &fg)
+int ipinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
 {
     struct in_addr sin;
     inet_aton(user.c_str(), &sin);
