@@ -530,33 +530,14 @@ CertificateAuthority::~CertificateAuthority()
 bool CertificateAuthority::addExtension(X509 *cert, int nid, char *value)
 {
     X509_EXTENSION *ex = NULL;
-    X509V3_CTX ctx;
 
-    // This sets the 'context' of the extensions. No configuration database
-    X509V3_set_ctx_nodb(&ctx);
-
-    // Issuer and subject certs: both the target since it is self signed, no request and no CRL
-    X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
-    //ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, value);
     ex = X509V3_EXT_conf_nid(NULL,NULL , nid, value);
-    if (!ex) {
-        return false;
-    }
 
     int result = X509_add_ext(cert, ex, -1);
 
     X509_EXTENSION_free(ex);
 
-    return (result == 0) ? true : false;
+    return (result > 0) ? true : false;
 }
-
-
-
-
-
-
-
-
-
 
 #endif //__SSLMITM
