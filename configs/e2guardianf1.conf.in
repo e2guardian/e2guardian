@@ -1,13 +1,12 @@
 # e2guardian filter group config file for version @PACKAGE_VERSION@
 
 # This file is re-read on gentle restart and any changes actions
-
 # Filter group mode IS NOT LONGER SUPPORTED after 4.x
 # This option determines whether members of this group have their web access
-# unfiltered, filtered, or banned. 
+# unfiltered, filtered, or banned.
 #
-# 0 = banned 
-# Replaced by bannedsitelist and bannedsitelist 
+# 0 = banned
+# Replaced by bannedsitelist and bannedsitelist
 # To block all sites except those in the
 # exceptionsitelist and greysitelist files remove
 # the # from the next line to leave only a '**':
@@ -19,19 +18,19 @@
 # Used to fill in the -FILTERGROUP- placeholder in the HTML template file, and to
 # name the group in the access logs
 # Defaults to empty string
-#groupname = ''
+# groupname = ''
 groupname = 'no_mame_group'
 
 # Enable legacy (DG) ssl logic
-# 
-# Note that the logic for handling SSL is changed. In DG when either blanket block (or SSL blanket block) 
-# was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist. 
-# In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches 
-# exceptionsitelist or greysslsitelist. This ensures that only trusted sites can be accessed via SSL. 
-# The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, 
+#
+# Note that the logic for handling SSL is changed. In DG when either blanket block (or SSL blanket block)
+# was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist.
+# In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches
+# exceptionsitelist or greysslsitelist. This ensures that only trusted sites can be accessed via SSL.
+# The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist,
 # e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
 #
-# Default off (logic as above) 
+# Default off (logic as above)
 # For legacy (DG style) logic then set ssllegacylogic to on
 # Note that MITM cannot work with this flag set
 # ssllegacylogic = off
@@ -63,16 +62,16 @@ sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
 
 # local versions of lists (where LOCAL_LISTS enabled)
 # enablelocallists = on/off
-#localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
-#localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
-#localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'
-#localbannedurllist = '@DGCONFDIR@/lists/localbannedurllist'
-#localgreyurllist = '@DGCONFDIR@/lists/localgreyurllist'
-#localexceptionurllist = '@DGCONFDIR@/lists/localexceptionurllist'
+# localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
+# localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
+# localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'
+# localbannedurllist = '@DGCONFDIR@/lists/localbannedurllist'
+# localgreyurllist = '@DGCONFDIR@/lists/localgreyurllist'
+# localexceptionurllist = '@DGCONFDIR@/lists/localexceptionurllist'
 # Note: localbannedsslsitelist is ignored if MITM is enabled
-#localbannedsslsitelist = '@DGCONFDIR@/lists/localbannedsslsitelist'
-#localgreysslsitelist = '@DGCONFDIR@/lists/localgreysslsitelist'
-#localbannedsearchlist = '@DGCONFDIR@/lists/localbannedsearchlist'
+# localbannedsslsitelist = '@DGCONFDIR@/lists/localbannedsslsitelist'
+# localgreysslsitelist = '@DGCONFDIR@/lists/localgreysslsitelist'
+# localbannedsearchlist = '@DGCONFDIR@/lists/localbannedsearchlist'
 
 @DNSAUTHSUPPORT@authexceptionsitelist = '@DGCONFDIR@/lists/authexceptionsitelist'
 @DNSAUTHSUPPORT@authexceptionurllist = '@DGCONFDIR@/lists/authexceptionurllist'
@@ -116,17 +115,17 @@ exceptionfileurllist = '@DGCONFDIR@/lists/exceptionfileurllist'
 # use 0 for a complete block
 # use higher (e.g. 512 = 512Kbytes) for limiting
 # use -1 for no blocking
-#maxuploadsize = 512
-#maxuploadsize = 0
+# maxuploadsize = 512
+# maxuploadsize = 0
 maxuploadsize = -1
 
 # Categorise without blocking:
 # Supply categorised lists here and the category string shall be logged against
 # matching requests, but matching these lists does not perform any filtering
 # action.
-#logsitelist = '@DGCONFDIR@/lists/logsitelist'
-#logurllist = '@DGCONFDIR@/lists/logurllist'
-#logregexpurllist = '@DGCONFDIR@/lists/logregexpurllist'
+# logsitelist = '@DGCONFDIR@/lists/logsitelist'
+# logurllist = '@DGCONFDIR@/lists/logurllist'
+# logregexpurllist = '@DGCONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
@@ -145,7 +144,7 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in
 # that file.
-#weightedphrasemode = 0
+# weightedphrasemode = 0
 
 # Naughtiness limit
 # This the limit over which the page will be blocked.  Each weighted phrase is given
@@ -157,37 +156,35 @@ addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 naughtynesslimit = 50
 
 # Search term blocking
-# Search terms can be extracted from search URLs and filtered using one or 
+# Search terms can be extracted from search URLs and filtered using one or
 # both of two different methods.
 
-# Method 1 is that developed by Protex where specific 
-# search terms are contained in a bannedsearchlist.  
-# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment 
-# and overide this list as required.)  
-# These lists contain banned search words combinations on each line.  
+# Method 1 is that developed by Protex where specific
+# search terms are contained in a bannedsearchlist.
+# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment
+# and overide this list as required.)
+# These lists contain banned search words combinations on each line.
 # Words are separated by '+' and must be in sorted order within a line.
-#    so to block 'sexy girl' then the list must contain the line
-#    	girl+sexy
-#    and this will block both 'sexy girl' and 'girl sexy'
+# so to block 'sexy girl' then the list must contain the line
+#   girl+sexy
+# and this will block both 'sexy girl' and 'girl sexy'
 # To use this method, the searchregexplist must be enabled and the bannedsearchlist(s) defined
 
-# Method 2 is uses the 
+# Method 2 is uses the
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
 # threshold for blocking than that used for normal page content.
-# To do this, the searchregexplist must be enabled and searchtermlimit 
+# To do this, the searchregexplist must be enabled and searchtermlimit
 # must be greater than 0.
- 
-#
+
 # Search engine regular expression list (need for both options)
 # List of regular expressions for matching search engine URLs.  It is assumed
-# that the search terms themselves will be contained in the 
+# that the search terms themselves will be contained in the
 # of output of each expression.
-#searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
+# searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
-#bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
-#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
-
+# bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
+# bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 # Search term limit (for Option 2)
 # The limit over which requests will be blocked for containing search terms
@@ -197,9 +194,9 @@ naughtynesslimit = 50
 # This option must be uncommented if searchregexplist is uncommented.
 # A value of 0 here indicates that search terms should be extracted,
 # but no phrase filtering should be performed on the resulting text.
-#searchtermlimit = 0
+# searchtermlimit = 0
 #
-# Search term phrase lists (for Option 2) 
+# Search term phrase lists (for Option 2)
 # If the three lines below are uncommented, search term blocking will use
 # the banned, weighted & exception phrases from these lists, instead of using
 # the same phrase lists as for page content.  This is optional but recommended,
@@ -208,9 +205,9 @@ naughtynesslimit = 50
 # of text.
 # Please note that all or none of the below should be uncommented, not a
 # mixture.
-#bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
-#weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
-#exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'
+# bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
+# weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
+# exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'
 
 # Category display threshold
 # This option only applies to pages blocked by weighted phrase filtering.
@@ -315,27 +312,27 @@ reportinglevel = 3
 # 1 and 2.
 #
 # This webserver must be either:
-#  1. Non-proxied. Either a machine on the local network, or listed as an
-#     exception in your browser's proxy configuration.
-#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
-#     only for users using both transparent proxying and a non-local server
-#     to host this script.
+# 1. Non-proxied. Either a machine on the local network, or listed as an
+#    exception in your browser's proxy configuration.
+# 2. Added to the exceptionsitelist. Option 1 is preferable; this option is
+#    only for users using both transparent proxying and a non-local server
+#    to host this script.
 #
-#accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
+# accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
 # e2guardian reporting was copied.
 
-# With ssldeniedrewrite 'off' it works only with firefox 
+# With ssldeniedrewrite 'off' it works only with firefox
 # With ssldeniedrewrite 'on' there are several limitations, SSL warning, basic page, etc, eg this webserver can't be listed as an
 # exception in your browser's proxy configuration.
-# Keep in mind, this is only a trick to avoid blank page, the best way still to use SSLMITM   
-# 
+# Keep in mind, this is only a trick to avoid blank page, the best way still to use SSLMITM
+#
 # sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
 # Break SSL protocol and redirect to another HTTPS website for denied page (sslaccessdeniedaddress url)
 
-#ssldeniedrewrite = 'on'
+# ssldeniedrewrite = 'on'
 
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
@@ -350,7 +347,7 @@ reportinglevel = 3
 # <languagedir>/<language>/<htmltemplate>
 # e.g. @DGDATADIR@/languages/ukenglish/custom.html
 #
-#htmltemplate = 'custom.html'
+# htmltemplate = 'custom.html'
 
 # Non standard delimiter (only used with accessdeniedaddress)
 # To help preserve the full banned URL, including parameters, the variables
@@ -360,7 +357,7 @@ reportinglevel = 3
 # place of "=".
 # Default is enabled, but to go back to the standard mode, disable it.
 
-#nonstandarddelimiter = off
+# nonstandarddelimiter = off
 
 # Email reporting - original patch by J. Gauthier
 
@@ -415,32 +412,32 @@ reportinglevel = 3
 # if enabled the violation/threshold count is kept track of by the user
 @EMAILSUPPORT@thresholdbyuser = off
 
-#violations
+# violations
 # number of violations before notification
 # setting to 0 will never trigger a notification
 @EMAILSUPPORT@violations = 0
 
-#threshold
+# threshold
 # this is in seconds. If 'violations' occur in 'threshold' seconds, then
 # a notification is made.
-# if this is set to 0, then whenever the set number of violations are made a 
+# if this is set to 0, then whenever the set number of violations are made a
 # notifaction will be sent.
 @EMAILSUPPORT@threshold = 0
 
-#NOTE to enable SSL MITM or CERT checking
+# NOTE to enable SSL MITM or CERT checking
 # enablessl must be defined as 'yes' in e2guardian.conf
 
-#SSL certificate checking
+# SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid
 # and signed by a ca in the configured path
 sslcertcheck = off
 
-#SSL man in the middle
+# SSL man in the middle
 # Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
 # using a different private key. Used to filter ssl sites
 sslmitm = off
 
-#Limit SSL MITM to sites in greysslsitelist(s)
+# Limit SSL MITM to sites in greysslsitelist(s)
 # ignored if  sslmitm is off
 # SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
 onlymitmsslgrey = off
@@ -450,7 +447,7 @@ onlymitmsslgrey = off
 # default (recommended) is 'on'
 mitmcheckcert = on
 
-#Do not check ssl certificates for sites listed
+# Do not check ssl certificates for sites listed
 # Can be used to allow sites with self-signed or invalid certificates
 # or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
 # Use with caution!
