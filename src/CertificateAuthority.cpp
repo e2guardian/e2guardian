@@ -118,7 +118,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     // added to generate different serial number than previous versions
     //   needs to be added as an option
     std::string sname(commonname );
-    sname += "A";
+    sname += "B";
 
 #ifdef DGDEBUG
     std::cout << "Generating serial no for " << commonname << std::endl;
@@ -385,6 +385,15 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         X509_free(newCert);
         return NULL;
     }
+    {
+    String temp1 = "DNS:";
+    String temp2 = commonname;
+    temp1 = temp1 + temp2;
+    char    *value = (char*) temp1.toCharArray();
+     if( !addExtension(newCert, NID_subject_alt_name, value))
+        log_ssl_errors("Error adding subjectAltName to the request", commonname);
+     }
+
 
     //sign it using the ca
     ERR_clear_error();
@@ -517,4 +526,37 @@ CertificateAuthority::~CertificateAuthority()
     if (_caPrivKey) EVP_PKEY_free(_caPrivKey);
     if (_certPrivKey) EVP_PKEY_free(_certPrivKey);
 }
+
+bool CertificateAuthority::addExtension(X509 *cert, int nid, char *value)
+{
+    X509_EXTENSION *ex = NULL;
+    X509V3_CTX ctx;
+
+    // This sets the 'context' of the extensions. No configuration database
+    X509V3_set_ctx_nodb(&ctx);
+
+    // Issuer and subject certs: both the target since it is self signed, no request and no CRL
+    X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
+    //ex = X509V3_EXT_conf_nid(NULL, &ctx, nid, value);
+    ex = X509V3_EXT_conf_nid(NULL,NULL , nid, value);
+    if (!ex) {
+        return false;
+    }
+
+    int result = X509_add_ext(cert, ex, -1);
+
+    X509_EXTENSION_free(ex);
+
+    return (result == 0) ? true : false;
+}
+
+
+
+
+
+
+
+
+
+
 #endif //__SSLMITM
