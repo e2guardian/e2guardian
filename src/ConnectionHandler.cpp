@@ -398,8 +398,8 @@ stat_rec* &dystat)
 
    // ldl = o.currentLists();
 
-    HTTPHeader docheader; // to hold the returned page header from proxy
-    HTTPHeader header; // to hold the incoming client request headeri(ldl)
+    HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
+    HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
 
     // set a timeout as we don't want blocking 4 eva
     // this also sets how long a peerconn will wait for other requests
@@ -4397,7 +4397,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 #endif
 
     //somewhere to hold the header from the proxy
-    HTTPHeader header;
+    HTTPHeader header(__HEADER_RESPONSE);
     //header.setTimeout(o.pcon_timeout);
     header.setTimeout(o.proxy_timeout);
 

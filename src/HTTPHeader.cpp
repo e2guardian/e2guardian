@@ -2043,7 +2043,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
-                return true;        // allow non-terminated headers in http apps - may need a flag to make this optional
+                return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
             }
 
         }
@@ -2055,6 +2055,14 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         if (rc > 0 ) line = buff;
         else line = "";// convert the line to a String
 
+        if(firsttime && is_response) {
+            // check first line header
+            if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
+            {
+                syslog(LOG_INFO, "Server did not responded with HTTP");
+                return false;
+            }
+        }
         // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
         discard = false;
         if (not(firsttime && line.length() <= 3))
