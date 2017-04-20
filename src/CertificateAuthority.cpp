@@ -118,7 +118,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     // added to generate different serial number than previous versions
     //   needs to be added as an option
     std::string sname(commonname );
-    sname += "A";
+    sname += "B";
 
 #ifdef DGDEBUG
     std::cout << "Generating serial no for " << commonname << std::endl;
@@ -390,6 +390,14 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         return NULL;
     }
 
+{
+    String temp1 = "DNS:";
+    String temp2 = commonname;
+    temp1 = temp1 + temp2;
+    char    *value = (char*) temp1.toCharArray();
+if( !addExtension(newCert, NID_subject_alt_name, value))
+        log_ssl_errors("Error adding subjectAltName to the request", commonname);
+}
     //sign it using the ca
     ERR_clear_error();
     if (!X509_sign(newCert, _caPrivKey, EVP_sha256())) {
@@ -521,4 +529,18 @@ CertificateAuthority::~CertificateAuthority()
     if (_caPrivKey) EVP_PKEY_free(_caPrivKey);
     if (_certPrivKey) EVP_PKEY_free(_certPrivKey);
 }
+
+bool CertificateAuthority::addExtension(X509 *cert, int nid, char *value)
+{
+    X509_EXTENSION *ex = NULL;
+    
+    ex = X509V3_EXT_conf_nid(NULL,NULL , nid, value);
+
+    int result = X509_add_ext(cert, ex, -1);
+
+    X509_EXTENSION_free(ex);
+
+    return (result > 0) ? true : false;
+}
+
 #endif //__SSLMITM
