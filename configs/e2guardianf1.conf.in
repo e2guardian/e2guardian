@@ -140,6 +140,9 @@ headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
 bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
 addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
 
+# Phrase filtering additional mime types (by default text/*)
+# textmimetypes = 'application/xhtml+xml,application/xml,application/json,application/javascript,application/x-javascript'
+
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in

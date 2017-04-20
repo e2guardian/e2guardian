@@ -76,6 +76,14 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
                 push(line.subString(0, offset));
                 push(result);
                 line = line.subString(offset + result.length(), line.length() - offset - result.length());
+	        if (line.length() <= 0) {
+        		if (!is_daemonised) {
+            			std::cerr << "Syntax error at first: " << result << std::endl;
+			}
+        		syslog(LOG_ERR, "Syntax error at first: %s", result.c_str());
+        		return false;
+        	}
+
             } else {
                 push(result);
                 line = line.subString(result.length(), line.length() - result.length());
@@ -86,7 +94,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         if (line.length() > 0) {
             push(line);
         }
-    }
+    } 
     templatefile.close();
     return true;
 }
