@@ -1,6 +1,10 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-Summary of changes in this release (v4.0.2) can be found in e2guardian.release
+April 2017
+
+- Fix bug #215 Filtergroupslist not being reloaded
+
+Summary of changes in this release (v4.1) can be found in e2guardian.release
 and notes/NEWIN_v4
 
 Changes to E2guardian 3.x.x can be found in ChangeLog3.x
