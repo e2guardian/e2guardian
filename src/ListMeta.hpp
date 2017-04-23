@@ -42,10 +42,12 @@ class ListMeta
 {
     public:
     int items;
+    bool reverse_lookups = false;
 
     struct list_info {
         String name;
         unsigned int type;
+        unsigned int method_type;
         unsigned int list_ref;
         std::deque<RegExp> comp;
         std::deque<String> source;
@@ -54,6 +56,15 @@ class ListMeta
         unsigned int mess_no;
         unsigned int log_mess_no;
     };
+
+    struct list_result {
+        String match;      // to hold match from list
+        String category; // holds list category
+        String result;   // to hold any modified Sting
+        int mess_no;
+        int log_mess_no;
+    };
+
     std::vector<list_info> list_vec;
 
     ListMeta();
@@ -61,19 +72,33 @@ class ListMeta
 
     void reset();
 
-    bool load_type(int type, std::deque<String> list);
+    bool load_type(int type, std::deque<String> &list);
 
     struct list_info findList(String name, int type);
 
     bool list_exists(String name, int type);
 
-   // bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true);
-    //bool ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
-   // bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
-   // bool readItemList(const char *filename, bool startswith, int filters);
+    bool inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res);
+
    bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname);
 
 private:
+
+    char *inURLList(String &url, unsigned int list, bool doblanket , bool ip , bool ssl , String &lastcategory);
+    char *inSiteList(String &url, unsigned int list, bool doblanket , bool ip , bool ssl , String &lastcategory);
+    char *inSearchList(String &words, unsigned int list,String &lastcategory);
+    int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
+bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
+    bool isIPHostname(String url);
+    char *testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory);
+    RegExp isiphost;
+    bool precompileregexps();
+    bool readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
+        std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
+    bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
+        std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
+    bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
+        std::deque<String> &list_rep, std::deque<RegExp> &list_comp);
 
 };
 

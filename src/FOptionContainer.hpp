@@ -13,6 +13,7 @@
 #include "String.hpp"
 #include "HTMLTemplate.hpp"
 #include "ListContainer.hpp"
+#include "ListMeta.hpp"
 #include "LanguageContainer.hpp"
 #include "ImageContainer.hpp"
 #include "RegExp.hpp"
@@ -92,7 +93,7 @@ public:
 #endif
 
     unsigned int banned_phrase_list;
-    unsigned int exception_site_list;
+    //unsigned int exception_site_list;
     unsigned int exception_url_list;
     unsigned int banned_extension_list;
     unsigned int banned_mimetype_list;
@@ -211,7 +212,8 @@ public:
               local_exception_url_flag(false), local_banned_site_flag(false), local_banned_url_flag(false),
               local_grey_site_flag(false), local_grey_url_flag(false), enable_regex_grey(false),
               enable_local_list(false), enable_ssl_legacy_logic(false), use_only_local_allow_lists(false),
-              banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
+              //banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
+              banned_phrase_flag(false),  exception_url_flag(false),
               banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
               banned_url_flag(false), grey_site_flag(false), grey_url_flag(false), banned_regexpurl_flag(false),
               exception_regexpurl_flag(false), banned_regexpheader_flag(false), content_regexp_flag(false),
@@ -269,6 +271,15 @@ public:
     const char *inLogSiteList(String url, String &lastcat);
     const char *inLogRegExpURLList(String url);
 
+
+    bool inSiteListB(String &url, String name,  bool ip, bool ssl, String &lastcategory);
+    char *inSiteListS(String &url, String name,  bool ip, bool ssl, String &lastcategory);
+    bool inURLListB(String &url, String name,  bool ip, bool ssl, String &lastcategory);
+    char *inURLListS(String &url, String name,  bool ip, bool ssl, String &lastcategory);
+    bool inSearchListB(String &terms, String name, String &lastcategory);
+    char *inSearchListS(String &terms, String name, String &lastcategory);
+    bool inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
+
     // get HTML template for this group
     HTMLTemplate *getHTMLTemplate();
     std::deque<std::string> text_mime;
@@ -277,8 +288,10 @@ public:
     // HTML template - if it overrides the default
     HTMLTemplate *banned_page;
 
+    ListMeta LMeta;
+
     bool banned_phrase_flag;
-    bool exception_site_flag;
+ //   bool exception_site_flag;
     bool exception_url_flag;
     bool banned_extension_flag;
     bool banned_mimetype_flag;
