@@ -576,9 +576,9 @@ stat_rec* &dystat)
                 if (o.forwarded_for && !ismitm) {
                     header.addXForwardedFor(clientip); // add squid-like entry
                 }
-#ifdef DGDEBUG
+//#ifdef DGDEBUG
                 header.dbshowheader(&logurl, clientip.c_str());
-#endif
+//#endif
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
 
@@ -984,10 +984,12 @@ stat_rec* &dystat)
                 }
             }
 
-//            if (o.forwarded_for) {
-//                header.addXForwardedFor(clientip); // add squid-like entry
-//            }
-
+            if (o.forwarded_for) {
+                header.addXForwardedFor(clientip); // add squid-like entry
+            }
+#ifdef DGDEBUG
+            header.dbshowheader(&logurl, clientip.c_str());
+#endif
 #ifdef ENABLE_ORIG_IP
             // if working in transparent mode and grabbing of original IP addresses is
             // enabled, does the original IP address match one of those that the host

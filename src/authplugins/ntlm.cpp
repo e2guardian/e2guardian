@@ -195,7 +195,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             } else {
                 clientip = peercon.getPeerIP();
             }
-            h.addXForwardedFor(clientip); // add squid-like entry
+         //   h.addXForwardedFor(clientip); // add squid-like entry
         }
 
         // in transparent mode, we need to make the initial auth required response
@@ -247,7 +247,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     }
                 }
             }
-*/ 
+*/
             string = "http://";
             string += hostname;
             string += ":";
@@ -264,7 +264,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
         // obey forwarded-for options in what we send out
-        if (o.forwarded_for == 1) {
+/*        if (o.forwarded_for == 1) {
             bool use_xforwardedfor;
             std::string clientip;
             use_xforwardedfor = false;
@@ -291,7 +291,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 clientip = peercon.getPeerIP();
             }
             h.addXForwardedFor(clientip); // add squid-like entry
-        }
+        } */
         // send a variant on the original request (has to be something Squid will route to the outside
         // world, and that it will require NTLM authentication for)
         String domain(url.after("?sgtransntlmdest=").after("://"));
@@ -299,7 +299,6 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             domain = domain.before("/");
         domain = "http://" + domain + "/";
         h.setURL(domain);
-        h.makePersistent();
         h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
         // grab the auth required response and make it look like it's from the origin server
         h.in(upstreamcon, true);
@@ -341,14 +340,14 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
 #endif
             h.makePersistent();
-        } 
+        }
         return DGAUTH_NOMATCH;
     }
 
 #ifdef DGDEBUG
     std::cout << "NTLM - sending step 1" << std::endl;
 #endif
-    if (o.forwarded_for == 1) {
+/*    if (o.forwarded_for == 1) {
         bool use_xforwardedfor;
         std::string clientip;
         use_xforwardedfor = false;
@@ -376,7 +375,8 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         }
         h.addXForwardedFor(clientip); // add squid-like entry
     }
-    h.makePersistent();
+*/
+//    h.makePersistent();
     h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
 #ifdef DGDEBUG
     std::cout << "NTLM - receiving step 2" << std::endl;
@@ -472,7 +472,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 // if in transparent mode, send a redirect to the client's original requested URL,
                 // having sent the final headers to the NTLM-only Squid to do with what it will
                 std::string tmp = peercon.getPeerIP();
-                h.addXForwardedFor(tmp);
+//                h.addXForwardedFor(tmp);
                 h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
                 // also, the return code matters in ways it hasn't mattered before:
                 // mustn't send a redirect if it is still 407, or we get a redirection loop
