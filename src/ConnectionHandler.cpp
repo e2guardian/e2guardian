@@ -528,11 +528,15 @@ stat_rec* &dystat)
             firsttime = false;
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
-        ++dystat->reqs;
-
-        if (o.forwarded_for && !ismitm) {
+        // XForwaded_for applied to request before filtering eg 407 requests
+        if (o.forwarded_for) {
             header.addXForwardedFor(clientip); // add squid-like entry
         }
+#ifdef DGDEBUG
+            header.dbshowheader(&logurl, clientip.c_str());
+#endif
+        ++dystat->reqs;
+
 #ifdef DGDEBUG
         header.dbshowheader(&logurl, clientip.c_str());
 #endif
@@ -573,12 +577,6 @@ stat_rec* &dystat)
                     break;
                 }
                 ++dystat->reqs;
-                if (o.forwarded_for && !ismitm) {
-                    header.addXForwardedFor(clientip); // add squid-like entry
-                }
-//#ifdef DGDEBUG
-                header.dbshowheader(&logurl, clientip.c_str());
-//#endif
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
 
@@ -983,7 +981,7 @@ stat_rec* &dystat)
                     }
                 }
             }
-
+// Xforwarded_for applied at the end
             if (o.forwarded_for) {
                 header.addXForwardedFor(clientip); // add squid-like entry
             }

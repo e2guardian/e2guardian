@@ -169,129 +169,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     String at(h.getAuthType());
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
-        if (o.forwarded_for == 1) {
-            bool use_xforwardedfor;
-            std::string clientip;
-            use_xforwardedfor = false;
-            if (o.use_xforwardedfor == 1) {
-                if (o.xforwardedfor_filter_ip.size() > 0) {
-                    const char *ip = peercon.getPeerIP().c_str();
-                    for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                        if (strcmp(ip, o.xforwardedfor_filter_ip[i].c_str()) == 0) {
-                            use_xforwardedfor = true;
-                            break;
-                        }
-                    }
-                } else {
-                    use_xforwardedfor = true;
-                }
-            }
-            if (use_xforwardedfor == 1) {
-                // grab the X-Forwarded-For IP if available
-                clientip = h.getXForwardedForIP();
-                // otherwise, grab the IP directly from the client connection
-                if (clientip.length() == 0)
-                    clientip = peercon.getPeerIP();
-            } else {
-                clientip = peercon.getPeerIP();
-            }
-         //   h.addXForwardedFor(clientip); // add squid-like entry
-        }
-
-        // in transparent mode, we need to make the initial auth required response
-        // appear to come from the smoothie itself as an origin server, not as a proxy.
-        //
-        // accomplish this by redirecting to a URL that results in accessing DG as if it was
-        // a webserver, fudging origin-server-style NTLM auth to the client whilst actually
-        // performing proper proxy-style auth to the parent proxy, then redirecting the client
-        // back to the actual URL.
-
-        if (!url.contains("sgtransntlmdest=")) {
-            // user has not yet been redirected
-            // get the browser to make a request to the proxy port on the relevant interface,
-            // embedding the original URL they were trying to access.
-            // unless they're accessing a domain for which authentication is not required,
-            // in which case return a no match response straight away.
-/*            if (no_auth_list >= 0) {
-#ifdef DGDEBUG
-                std::cout << "NTLM: Checking noauthdomains list" << std::endl;
-#endif
-                std::string::size_type start = url.find("://");
-                if (start != std::string::npos) {
-                    start += 3;
-                    std::string domain;
-                    domain = url.getHostname();
-#ifdef DGDEBUG
-                    std::cout << "NTLM: URL " << url << ", domain " << domain << std::endl;
-#endif
-                    char *i;
-                    while ((start = domain.find('.')) != std::string::npos) {
-                        i = o.lm.l[no_auth_list]->findInList(domain.c_str());
-                        if (i != NULL) {
-#ifdef DGDEBUG
-                            std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-#endif
-                            return DGAUTH_NOMATCH;
-                        }
-                        domain.assign(domain.substr(start + 1));
-                    }
-                    if (!domain.empty()) {
-                        domain = "." + domain;
-                        i = o.lm.l[no_auth_list]->findInList(domain.c_str());
-                        if (i != NULL) {
-#ifdef DGDEBUG
-                            std::cout << "NTLM: Found domain in noauthdomains list" << std::endl;
-#endif
-                            return DGAUTH_NOMATCH;
-                        }
-                    }
-                }
-            }
-*/
-            string = "http://";
-            string += hostname;
-            string += ":";
-            string += String(peercon.getPort()).toCharArray();
-            string += "/?sgtransntlmdest=";
-            string += url.toCharArray();
-#ifdef DGDEBUG
-            std::cout << "NTLM - redirecting client to " << string << std::endl;
-#endif
-            return DGAUTH_REDIRECT;
-        }
-
 #ifdef DGDEBUG
         std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
-        // obey forwarded-for options in what we send out
-/*        if (o.forwarded_for == 1) {
-            bool use_xforwardedfor;
-            std::string clientip;
-            use_xforwardedfor = false;
-            if (o.use_xforwardedfor == 1) {
-                if (o.xforwardedfor_filter_ip.size() > 0) {
-                    const char *ip = peercon.getPeerIP().c_str();
-                    for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                        if (strcmp(ip, o.xforwardedfor_filter_ip[i].c_str()) == 0) {
-                            use_xforwardedfor = true;
-                            break;
-                        }
-                    }
-                } else {
-                    use_xforwardedfor = true;
-                }
-            }
-            if (use_xforwardedfor == 1) {
-                // grab the X-Forwarded-For IP if available
-                clientip = h.getXForwardedForIP();
-                // otherwise, grab the IP directly from the client connection
-                if (clientip.length() == 0)
-                    clientip = peercon.getPeerIP();
-            } else {
-                clientip = peercon.getPeerIP();
-            }
-            h.addXForwardedFor(clientip); // add squid-like entry
-        } */
         // send a variant on the original request (has to be something Squid will route to the outside
         // world, and that it will require NTLM authentication for)
         String domain(url.after("?sgtransntlmdest=").after("://"));
@@ -347,36 +227,6 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #ifdef DGDEBUG
     std::cout << "NTLM - sending step 1" << std::endl;
 #endif
-/*    if (o.forwarded_for == 1) {
-        bool use_xforwardedfor;
-        std::string clientip;
-        use_xforwardedfor = false;
-        if (o.use_xforwardedfor == 1) {
-            if (o.xforwardedfor_filter_ip.size() > 0) {
-                const char *ip = peercon.getPeerIP().c_str();
-                for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                    if (strcmp(ip, o.xforwardedfor_filter_ip[i].c_str()) == 0) {
-                        use_xforwardedfor = true;
-                        break;
-                    }
-                }
-            } else {
-                use_xforwardedfor = true;
-            }
-        }
-        if (use_xforwardedfor == 1) {
-            // grab the X-Forwarded-For IP if available
-            clientip = h.getXForwardedForIP();
-            // otherwise, grab the IP directly from the client connection
-            if (clientip.length() == 0)
-                clientip = peercon.getPeerIP();
-        } else {
-            clientip = peercon.getPeerIP();
-        }
-        h.addXForwardedFor(clientip); // add squid-like entry
-    }
-*/
-//    h.makePersistent();
     h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
 #ifdef DGDEBUG
     std::cout << "NTLM - receiving step 2" << std::endl;
@@ -471,8 +321,6 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     return DGAUTH_OK;
                 // if in transparent mode, send a redirect to the client's original requested URL,
                 // having sent the final headers to the NTLM-only Squid to do with what it will
-                std::string tmp = peercon.getPeerIP();
-//                h.addXForwardedFor(tmp);
                 h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
                 // also, the return code matters in ways it hasn't mattered before:
                 // mustn't send a redirect if it is still 407, or we get a redirection loop
@@ -523,12 +371,7 @@ int ntlminstance::init(void *args)
 
 int ntlminstance::quit()
 {
-/*
-    if (no_auth_list >= 0)
-        o.lm.deRefList(no_auth_list);
-*/
     return 0;
-
 }
 
 bool ntlminstance::isTransparent()
