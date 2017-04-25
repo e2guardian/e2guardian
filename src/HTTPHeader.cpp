@@ -2059,7 +2059,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             // check first line header
             if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
             {
-                syslog(LOG_INFO, "Server did not responded with HTTP");
+                if(o.logconerror)
+                    syslog(LOG_INFO, "Server did not respond with HTTP");
                 return false;
             }
         }
