@@ -531,7 +531,10 @@ stat_rec* &dystat)
         // XForwaded_for applied to request before filtering eg 407 requests
         if (o.forwarded_for) {
             header.addXForwardedFor(clientip); // add squid-like entry
-        }
+	    usexforwardedfor = true;
+        } else {
+	    usexforwardedfor = false;
+	}
 #ifdef DGDEBUG
             header.dbshowheader(&logurl, clientip.c_str());
 #endif
@@ -958,6 +961,13 @@ stat_rec* &dystat)
 #endif
                 }
             }
+// Xforwarded_for applied at the end
+            if (!usexforwardedfor && o.forwarded_for) {
+            	header.addXForwardedFor(clientip); // add squid-like entry
+            }
+#ifdef DGDEBUG
+            header.dbshowheader(&logurl, clientip.c_str());
+#endif
 
             // is this machine banned?
             bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
@@ -981,13 +991,6 @@ stat_rec* &dystat)
                     }
                 }
             }
-// Xforwarded_for applied at the end
-            if (o.forwarded_for) {
-                header.addXForwardedFor(clientip); // add squid-like entry
-            }
-#ifdef DGDEBUG
-            header.dbshowheader(&logurl, clientip.c_str());
-#endif
 #ifdef ENABLE_ORIG_IP
             // if working in transparent mode and grabbing of original IP addresses is
             // enabled, does the original IP address match one of those that the host
