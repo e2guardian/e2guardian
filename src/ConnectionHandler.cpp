@@ -529,20 +529,15 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         // XForwaded_for applied to request before filtering eg 407 requests
-        if (o.forwarded_for) {
-            header.addXForwardedFor(clientip); // add squid-like entry
-	    usexforwardedfor = true;
-        } else {
-	    usexforwardedfor = false;
-	}
+        if (o.forwarded_for && !ismitm) {
+            header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+        } 
+
 #ifdef DGDEBUG
             header.dbshowheader(&logurl, clientip.c_str());
 #endif
         ++dystat->reqs;
 
-#ifdef DGDEBUG
-        header.dbshowheader(&logurl, clientip.c_str());
-#endif
         //
         // End of set-up section
         //
@@ -962,15 +957,15 @@ stat_rec* &dystat)
                 }
             }
 // Xforwarded_for applied at the end
-            if (!usexforwardedfor && o.forwarded_for) {
-            	header.addXForwardedFor(clientip); // add squid-like entry
-            }
+    if (o.forwarded_for) {
+	header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+    }
 #ifdef DGDEBUG
-            header.dbshowheader(&logurl, clientip.c_str());
+    header.dbshowheader(&logurl, clientip.c_str());
 #endif
 
-            // is this machine banned?
-            bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
+    // is this machine banned?
+    bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
             bool part_banned;
             if (isbannedip)
                 matchedip = clienthost == NULL;
