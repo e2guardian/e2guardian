@@ -267,7 +267,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         static char username2[256];
         char *inptr = username;
         char *outptr = username2;
-        size_t l, o;
+        size_t l, b;
 
         // copy the NTLM message into the union's buffer, simultaneously filling in the struct
         if ((message.length() > sizeof(ntlm_auth)) || (message.length() < offsetof(ntlm_auth, payload))) {
@@ -284,12 +284,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             // grab the length & offset of the username within the message
             // cope with the possibility we are a different byte order to Windows
             l = SSWAP(a->user.len);
-            o = WSWAP(a->user.offset);
+            b = WSWAP(a->user.offset);
 
-            if ((l > 0) && (o >= 0) && (o + l) <= sizeof(a->payload) && (l <= 254)) {
+            if ((l > 0) && (b >= 0) && (b + l) <= sizeof(a->payload) && (l <= 254)) {
                 // everything is in range
                 // note offsets are from start of packet - not the start of the payload area
-                memcpy((void *)username, (const void *)&(auth.buf[o]), l);
+                memcpy((void *)username, (const void *)&(auth.buf[b]), l);
                 username[l] = '\0';
                 // check flags - we may need to convert from UTF-16 to something more sensible
                 int f = WSWAP(a->flags);
@@ -317,8 +317,14 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
                     string = username;
                 }
-                if (!transparent)
+                if (!transparent){
+                    if (o.forwarded_for == 1) {
+                        std::string clientip;
+                        clientip = peercon.getPeerIP();
+                        h.addXForwardedFor(clientip); // add squid-like entry
+                    }
                     return DGAUTH_OK;
+                }
                 // if in transparent mode, send a redirect to the client's original requested URL,
                 // having sent the final headers to the NTLM-only Squid to do with what it will
                 h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
