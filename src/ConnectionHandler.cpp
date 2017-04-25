@@ -529,13 +529,7 @@ stat_rec* &dystat)
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
         // XForwaded_for applied to request before filtering eg 407 requests
-        if (o.forwarded_for && !ismitm) {
-            header.addXForwardedFor(clientip.c_str()); // add squid-like entry
-        } 
 
-#ifdef DGDEBUG
-            header.dbshowheader(&logurl, clientip.c_str());
-#endif
         ++dystat->reqs;
 
         //
@@ -636,6 +630,16 @@ stat_rec* &dystat)
             urld = header.decode(url);
             urldomain = url.getHostname();
             is_ssl = header.requestType().startsWith("CONNECT");
+            if (o.forwarded_for && !ismitm) {
+                header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+                usexforwardedfor = true;
+            } else {
+                usexforwardedfor = false;
+            }
+
+#ifdef DGDEBUG
+            header.dbshowheader(&logurl, clientip.c_str());
+#endif
 
             //If proxy connction is not persistent...
             if (!persistProxy) {
@@ -957,15 +961,15 @@ stat_rec* &dystat)
                 }
             }
 // Xforwarded_for applied at the end
-    if (o.forwarded_for) {
-	header.addXForwardedFor(clientip.c_str()); // add squid-like entry
-    }
+            if (o.forwarded_for && !usexforwardedfor) {
+                header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+            }
 #ifdef DGDEBUG
     header.dbshowheader(&logurl, clientip.c_str());
 #endif
 
-    // is this machine banned?
-    bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
+            // is this machine banned?
+            bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
             bool part_banned;
             if (isbannedip)
                 matchedip = clienthost == NULL;

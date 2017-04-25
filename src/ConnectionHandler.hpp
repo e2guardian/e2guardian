@@ -66,7 +66,8 @@ class ConnectionHandler
     bool matchedip;
     bool persistent_authed;
     bool overide_persist;
-    bool is_real_user; 
+    bool is_real_user;
+    bool usexforwardedfor; 
     std::string clientuser;
     std::string *clienthost;
     std::string urlparams;
