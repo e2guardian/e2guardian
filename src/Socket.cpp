@@ -847,7 +847,10 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
   //          if (errno == EINTR ) {
    //             continue;
     //        }
-            std::cout << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
+
+#ifdef DGDEBUG
+            std::cerr << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
+#endif
             log_ssl_errors("ssl_read failed %s", "");
             return -1;
 //            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
