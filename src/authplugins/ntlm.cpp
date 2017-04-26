@@ -158,7 +158,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     Socket ntlmcon;
     String url;
     if (transparent) {
-        // we are actually sending to second Squid, which just does NTLM
+        // we are actually sending to a second Squid, which just does NTLM
         ntlmcon.connect(transparent_ip, transparent_port);
         upstreamcon = &ntlmcon;
         url = h.getUrl();
@@ -167,18 +167,20 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         upstreamcon = &proxycon;
     }
     String at(h.getAuthType());
-// First dance with NTLM - initial auth negociation - 
+
+// First dance with NTLM - initial auth negociation -
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
 #ifdef DGDEBUG
         std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
 // Ugly but needed with NTLM ...
-	if (o.forwarded_for == 1) {
-		std::string clientip;
-		clientip = peercon.getPeerIP();
-		h.addXForwardedFor(clientip); // add squid-like entry}
-	}
+
+        if (o.forwarded_for == 1) {
+            std::string clientip;
+            clientip = peercon.getPeerIP();
+            h.addXForwardedFor(clientip); // add squid-like entry}
+        }
 
         // send a variant on the original request (has to be something Squid will route to the outside
         // world, and that it will require NTLM authentication for)
@@ -201,8 +203,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             h.in(&peercon, true);
             h.makeTransparent(false);
             at = h.getAuthType();
-        } else
+        } else {
             return DGAUTH_NOMATCH;
+        }
     } else if (transparent && url.contains("?sgtransntlmdest=")) {
         // send a variant on the original request (has to be something Squid will route to the outside
         // world, and that it will require NTLM authentication for)
@@ -235,12 +238,16 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #ifdef DGDEBUG
     std::cout << "NTLM - sending step 1" << std::endl;
 #endif
+
+    if (!h.isPersistent()) {
+    	h.makePersistent();
+    }
     h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
+
 #ifdef DGDEBUG
     std::cout << "NTLM - receiving step 2" << std::endl;
 #endif
     h.in(upstreamcon, true);
-
     if (h.authRequired()) {
 #ifdef DGDEBUG
         std::cout << "NTLM - sending step 2" << std::endl;
@@ -248,12 +255,17 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         if (transparent)
             h.makeTransparent(true);
         h.out(NULL, &peercon, __DGHEADER_SENDALL);
-        if (h.contentLength() != -1)
+        if (h.contentLength() != -1){
             fdt.tunnel(*upstreamcon, peercon, false, h.contentLength(), true);
+        }
 #ifdef DGDEBUG
         std::cout << "NTLM - receiving step 3" << std::endl;
 #endif
+        // Buggy with IE and Chrome: todo needs more investigations !
         h.in(&peercon, true);
+        if (h.header.size() == 0) {
+            return DGAUTH_NOIDENTPART;
+        }
         if (transparent) {
             h.makeTransparent(false);
             String domain(url.after("?sgtransntlmdest=").after("://"));
@@ -262,13 +274,10 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             domain = "http://" + domain + "/";
             h.setURL(domain);
         }
-
 #ifdef DGDEBUG
         std::cout << "NTLM - decoding type 3 message" << std::endl;
 #endif
-
         std::string message(h.getAuthData());
-
         ntlm_authenticate auth;
         ntlm_auth *a = &(auth.a);
         static char username[256]; // fixed size
@@ -276,14 +285,17 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         char *inptr = username;
         char *outptr = username2;
         size_t l, b;
-
         // copy the NTLM message into the union's buffer, simultaneously filling in the struct
+        // Need a review IE and Chrome have many requests with INVALID message
         if ((message.length() > sizeof(ntlm_auth)) || (message.length() < offsetof(ntlm_auth, payload))) {
-            syslog(LOG_ERR, "NTLM - Invalid message of length %zd, message was: %s", message.length(), message.c_str());
+            std::string clientip;
+            clientip = peercon.getPeerIP();
 #ifdef DGDEBUG
-            std::cerr << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << std::endl;
+            std::cerr << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << "IP: " << clientip << " header size " << h.header.size() << std::endl;
+            for (unsigned int i = 0; i < h.header.size(); i++)
+                std::cerr << h.header[i] << std::endl;
 #endif
-            return -3;
+              return -3;
         }
         memcpy((void *)auth.buf, (const void *)message.c_str(), message.length());
 
@@ -364,22 +376,6 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
 int ntlminstance::init(void *args)
 {
-    // Load up the list of no-auth domains, if enabled
-/*    if (!cv["noauthdomains"].empty()) {
-#ifdef DGDEBUG
-        std::cout << "NTLM: Reading noauthdomains list" << std::endl;
-#endif
-        no_auth_list = o.lm.newItemList(cv["noauthdomains"].c_str(), true, 1, true);
-        if (no_auth_list < 0) {
-            syslog(LOG_ERR, "Error opening noauthdomains list");
-            return -1;
-        }
-        if (!o.lm.l[no_auth_list]->used) {
-            o.lm.l[no_auth_list]->doSort(true);
-            o.lm.l[no_auth_list]->used = true;
-        }
-    }
-*/
     return 0;
 }
 

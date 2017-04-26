@@ -29,6 +29,9 @@
 // redirect the user to a login page
 #define DGAUTH_REDIRECT 4
 
+// auth plugin found a partial or incomplet answer (Eg NTLM): just break ident loop for this request  
+#define DGAUTH_NOIDENTPART 5
+ 
 // allow access to http[s] based auth system, but with no persitance
 #define DGAUTH_OK_NOPERSIST 9
 

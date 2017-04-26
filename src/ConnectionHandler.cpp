@@ -806,6 +806,9 @@ stat_rec* &dystat)
                             std::cout << "Auth plugin  returned OK but no persist not setting persist auth" << std::endl;
 #endif
                             overide_persist = true;
+                        } else if (rc ==  DGAUTH_NOIDENTPART) {
+                            dobreak = true;
+                            break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
                                 std::cerr << "Auth plugin returned error code: " << rc << std::endl;
@@ -846,6 +849,9 @@ stat_rec* &dystat)
                             filtergroup = 0; //default group - one day configurable?
                             authed = true;
                             break;
+                        } else if (rc == DGAUTH_NOIDENTPART) {
+                            dobreak = true;
+                            break; 
                         } else if (rc < 0) {
                             if (!is_daemonised)
                                 std::cerr << "Auth plugin returned error code: " << rc << std::endl;
