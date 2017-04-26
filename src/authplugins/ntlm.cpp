@@ -158,7 +158,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     Socket ntlmcon;
     String url;
     if (transparent) {
-        // we are actually sending to a second Squid, which just does NTLM
+        // we are actually sending to second Squid, which just does NTLM
         ntlmcon.connect(transparent_ip, transparent_port);
         upstreamcon = &ntlmcon;
         url = h.getUrl();
@@ -167,11 +167,19 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         upstreamcon = &proxycon;
     }
     String at(h.getAuthType());
+// Transparent means first dance with NTLM - initial auth negociation - 
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
 #ifdef DGDEBUG
         std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
+// Ugly but needed with NTLM ...
+	if (o.forwarded_for == 1) {
+		std::string clientip;
+		clientip = peercon.getPeerIP();
+		h.addXForwardedFor(clientip); // add squid-like entry}
+	}
+
         // send a variant on the original request (has to be something Squid will route to the outside
         // world, and that it will require NTLM authentication for)
         String domain(url.after("?sgtransntlmdest=").after("://"));
@@ -317,6 +325,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
                     string = username;
                 }
+// Ugly but needed with NTLM ...
                 if (!transparent){
                     if (o.forwarded_for == 1) {
                         std::string clientip;
