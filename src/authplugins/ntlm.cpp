@@ -167,7 +167,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         upstreamcon = &proxycon;
     }
     String at(h.getAuthType());
-// Transparent means first dance with NTLM - initial auth negociation - 
+// First dance with NTLM - initial auth negociation - 
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
 #ifdef DGDEBUG
