@@ -807,7 +807,11 @@ stat_rec* &dystat)
 #endif
                             overide_persist = true;
                         } else if (rc ==  DGAUTH_NOIDENTPART) {
-                            dobreak = true;
+			    dobreak = true;
+			    if (!docheader.returnCode()) {
+				isexception = true;
+				nolog = true;
+			    }
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
