@@ -1703,7 +1703,7 @@ stat_rec* &dystat)
                         String rtype(header.requestType());
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
                             isexception, false, &thestart,
-                            cachehit, header.returnCode(), mimetype, wasinfected,
+                            cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
                             wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
                     } catch (std::exception &e) {
@@ -2567,9 +2567,9 @@ stat_rec* &dystat)
 
 // TODO: Ugly Temporary: we must remove from filtering many unused HTTP code (V4 ?)
 
-                if ((docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
+                if ((docheader.returnCode() == 407) || (docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
 #ifdef DGDEBUG
-                  std::cout << " -Filtering exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
+                  std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
 #endif
                     nolog = true;
                     isexception = true;
