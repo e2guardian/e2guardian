@@ -1005,15 +1005,21 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
             from = "0.0.0.0";
             clienthost.clear();
         }
-
+        String groupname;
         String stringcode(code);
         String stringgroup(filtergroup + 1);
+
+	if ( stringcode == "407" ){
+        	groupname = "negociate_identification";
+	}else{
+		groupname = ldl->fg[filtergroup]->name;
+	}
 
         switch (o.log_file_format) {
             case 4:
                 builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                             + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
-                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + ldl->fg[filtergroup]->name
+                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
                             #ifdef SG_LOGFORMAT
                             + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
                     + params + "\t" + o.logid_2 + "\t" + postdata;
@@ -1059,14 +1065,14 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                             + how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat + "\",\"" + stringgroup +
                             "\",\""
                             + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
-                            ldl->fg[filtergroup]->name + "\",\""
+                            groupname + "\",\""
                             + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
                             postdata + "\"";
                 break;
             case 1:
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                             + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
-                            + stringcode + " " + mimetype + " " + clienthost + " " + ldl->fg[filtergroup]->name + " "
+                            + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
                             + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
                 break;
             case 5:
@@ -1098,7 +1104,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                             + what + "\t"
                             + sweight + "\t"
                             + cat + "\t"
-                            + ldl->fg[filtergroup]->name + "\t"
+                            + groupname + "\t"
                             + stringgroup;
         }
 
