@@ -439,7 +439,7 @@ stat_rec* &dystat)
     int bypasstimestamp = 0;
     bool urlredirect = false;
     // Remove some results from log: eg: 302 requests
-    bool nolog = false;
+    bool logged = false;
 
     // 0=none,1=first line,2=all
     int headersent = 0;
@@ -528,7 +528,6 @@ stat_rec* &dystat)
             firsttime = false;
             persistPeer = false;
         }; // get header from client, allowing persistency and breaking on reloadconfig
-        // XForwaded_for applied to request before filtering eg 407 requests
 
         ++dystat->reqs;
 
@@ -809,7 +808,7 @@ stat_rec* &dystat)
                         } else if (rc ==  DGAUTH_NOIDENTPART) {
 			    dobreak = true;
 			    isexception = true;
-			    nolog = true;
+			    logged = true;
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
@@ -1701,11 +1700,21 @@ stat_rec* &dystat)
                         docsize = fdt.throughput;
                     try {
                         String rtype(header.requestType());
-                        doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
-                            isexception, false, &thestart,
-                            cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
-                            wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
-
+// Negociate part 407 requests
+			if (docheader.authRequired()) {
+                        	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
+                        	isexception, false, &thestart,
+                        	cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
+                        	wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+                        	isexception = true;
+                        	logged = true;
+// Exception
+                	} else {
+                        	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
+				isexception, false, &thestart,
+                            	cachehit, docheader.returnCode(), mimetype, wasinfected,
+                            	wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+			}
                     } catch (std::exception &e) {
                     }
                         if (!persistProxy)
@@ -2565,14 +2574,18 @@ stat_rec* &dystat)
                     wasrequested = true; // so we know where we are later
                 }
 
-// TODO: Ugly Temporary: we must remove from filtering many unused HTTP code (V4 ?)
+// TODO: Temporary: we must remove from filtering many harmless HTTP codes 
+// But I guess it should do before in the code 
 
-                if ((docheader.returnCode() == 407) || (docheader.returnCode() == 302) || (docheader.returnCode() == 301) || (docheader.returnCode() == 307) || (docheader.returnCode() == 308)) {
+		if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
+
 #ifdef DGDEBUG
-                  std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
+                  	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << std::endl;
 #endif
-                    nolog = true;
-                    isexception = true;
+			String rtype(header.requestType());
+              		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
+                	logged = true;
+                    	isexception = true;
                 }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << std::endl;
@@ -2850,7 +2863,6 @@ stat_rec* &dystat)
             // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
-            bool logged = false;
             if (!authed) {
                 logged = true;
                 String temp;
@@ -2946,7 +2958,7 @@ stat_rec* &dystat)
             if (waschecked) {
                 if (!docheader.authRequired() && !pausedtoobig) {
                     String rtype(header.requestType());
-                    if (!logged && !nolog) {
+                    if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",ldl->fg[filtergroup]), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -3035,7 +3047,7 @@ stat_rec* &dystat)
                         //  cleanThrow("Error in tunnel 1", peerconn,proxysock);
                     docsize += fdt.throughput;
                     String rtype(header.requestType());
-                    if (!logged && !nolog) {
+                    if (!logged) {
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",ldl->fg[filtergroup]), &thestart, cachehit, docheader.returnCode(), mimetype,
@@ -3060,7 +3072,7 @@ stat_rec* &dystat)
                 std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
 #endif
                 String rtype(header.requestType());
-                if (!logged && !nolog) {
+                if (!logged) {
                     doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                         rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                         docheader.isContentType("text",ldl->fg[filtergroup]), &thestart, cachehit, docheader.returnCode(), mimetype,
