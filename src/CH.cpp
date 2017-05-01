@@ -571,10 +571,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-            if (o.forwarded_for) {
+/*            if (o.forwarded_for) {
                 header.addXForwardedFor(clientip); // add squid-like entry
             }
-
+*/
 #ifdef ENABLE_ORIG_IP
             // if working in transparent mode and grabbing of original IP addresses is
             // enabled, does the original IP address match one of those that the host

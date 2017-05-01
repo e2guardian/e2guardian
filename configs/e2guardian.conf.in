@@ -20,7 +20,7 @@ language = 'ukenglish'
 # Logging Settings
 #
 # 0 = none  1 = just denied  2 = all text based  3 = all requests
-loglevel = 2
+loglevel = 1
 
 # Log Exception Hits
 # Log if an exception (user, ip, URL, phrase) is matched and so
