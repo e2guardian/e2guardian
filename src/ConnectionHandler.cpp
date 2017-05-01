@@ -1228,7 +1228,17 @@ stat_rec* &dystat)
                     if (!ismitmcandidate || ldl->fg[filtergroup]->only_mitm_ssl_grey) {
                         requestLocalChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
                         message_no = checkme.message_no;
-                    };
+                    } else {
+                        String lc;
+                        if (ldl->fg[filtergroup]->inLocalBannedSiteList(urld,false,false,true,lc) != NULL) {
+                            checkme.isGrey = true;
+#ifdef DGDEBUG
+                            std::cout << dbgPeerPort << " - mitmcandidate Site in local bannedsitelist:" << urld << std::endl;
+                        } else {
+                            std::cout << dbgPeerPort << " - mitmcandidate Site not in local bannedsitelist:" << urld << std::endl;
+#endif
+                        }
+                    }
                 };
             }
             // orginal section only now called if local list not matched
