@@ -1,8 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 April 2017
-- Fix bug #218 - localbannedsitelist now works in mitm mode
-- Fix bug #212: fix numerous bugs with NTLM (chrome and IE) and log with wrong IP
+- Fix bug #218 localbannedsitelist now works in mitm mode
+- Fix bug #212 fix numerous bugs with NTLM (chrome and IE) and log with wrong IP
 - Fix bug #217 Segfault with wrong htmtemplate
 - Fix bug #216 Chrome rejects generated certificate
 - Fix bug #215 Filtergroupslist not being reloaded
