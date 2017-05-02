@@ -968,7 +968,7 @@ stat_rec* &dystat)
                 }
             }
 // Xforwarded_for applied at the end
-            if (o.forwarded_for && !usexforwardedfor) {
+            if (o.forwarded_for && !usexforwardedfor && !ismitm) {
                 header.addXForwardedFor(clientip.c_str()); // add squid-like entry
             }
 #ifdef DGDEBUG
@@ -4013,15 +4013,16 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // for IFRAMEs, which will end up containing this link instead of the ad (standard non-IFRAMEd
                     // ad images still get image-replaced.)
                     if (strstr(checkme->whatIsNaughtyCategories.c_str(), "ADs") != NULL) {
-                        String writestring("HTTP/1.0 200 ");
-                        writestring += o.language_list.getTranslation(1101); // advert blocked
-                        writestring += "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>E2guardian - ";
-                        writestring += o.language_list.getTranslation(1101); // advert blocked
-                        writestring += "</TITLE></HEAD><BODY><CENTER><FONT SIZE=\"-1\"><A HREF=\"";
-                        writestring += (*url);
-                        writestring += "\" TARGET=\"_BLANK\">";
-                        writestring += o.language_list.getTranslation(1101); // advert blocked
-                        writestring += "</A></FONT></CENTER></BODY></HTML>\n";
+                        String writestring("HTTP/1.0 200 OK");
+                    //    writestring += o.language_list.getTranslation(1101); // advert blocked
+                        writestring += "\nContent-Type: text/html\nContent-Length: 0\n\n";
+                    //    writestring +=  "<HTML><HEAD><TITLE>E2guardian - ";
+                    //    writestring += o.language_list.getTranslation(1101); // advert blocked
+                    //    writestring += "</TITLE></HEAD><BODY><CENTER><FONT SIZE=\"-1\"><A HREF=\"";
+                    //    writestring += (*url);
+                    //    writestring += "\" TARGET=\"_BLANK\">";
+                    //    writestring += o.language_list.getTranslation(1101); // advert blocked
+                    //    writestring += "</A></FONT></CENTER></BODY></HTML>\n";
                             (*peerconn).writeString(writestring.toCharArray());  // ignore errors
                     }
 

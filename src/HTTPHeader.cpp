@@ -1,4 +1,4 @@
-// For all support, instructions and copyright go to:
+//ll support, instructions and copyright go to:
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
@@ -1934,7 +1934,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
         if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
             // reconnect & try again if we've been told to
-            if (reconnect) {
+            if (reconnect && !mitm) {
 // don't try more than once
 #ifdef DGDEBUG
                 std::cout << "Proxy connection broken (2); trying to re-establish..." << std::endl;
