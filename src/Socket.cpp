@@ -774,10 +774,10 @@ bool Socket::checkForInput()
 
 bool Socket::bcheckForInput(int timeout)
 {
-    //if (!isssl) {
+    if (!isssl) {
         return BaseSocket::bcheckForInput(timeout);
-    //}
-    //return true;
+    }
+    return true;
 }
 
 
@@ -1004,7 +1004,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     int tocopy = 0;
     if ((bufflen - buffstart) > 0) {
 #ifdef DGDEBUG
-        std::cout << "Socket::readFromSocket: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
+        std::cout << "Socket::readFromSocket(ssl): data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
 #endif
         tocopy = len;
         if ((bufflen - buffstart) < len)
@@ -1017,14 +1017,26 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
             return len;
     }
 
+#ifdef DGDEBUG
+        std::cout << "Socket::readFromSocket(ssl): now entering loop to read: " << cnt << " bytes: " << std::endl;
+#endif
     int rc;
     while (cnt > 0) {
     if (check_first) {
-          if(!bcheckSForInput(timeout))
-            return -1;
+#ifdef DGDEBUG
+        std::cout << "Socket::readFromSocket(ssl): before bcheckSForInput timeout is: " << timeout  << std::endl;
+#endif
+//          if(!bcheckSForInput(timeout))
+  //          return -1;
+#ifdef DGDEBUG
+        std::cout << "Socket::readFromSocket(ssl): after bcheckSForInput OK return: " << std::endl;
+#endif
    }
 //    while (true)
         bool inbuffer;
+#ifdef DGDEBUG
+        std::cout << "Socket::readFromSocket(ssl): before SSL_read: "  << std::endl;
+#endif
         ERR_clear_error();
         if (cnt > 4095) {
             inbuffer = false;
@@ -1071,6 +1083,9 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         cnt -= rc;
          }
  //       break;
+#ifdef DGDEBUG
+        std::cout << "Still to read (SSL) " << cnt << " bytes" << std::endl;
+#endif
     }
 
 //    return rc + tocopy;

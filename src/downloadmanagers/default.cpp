@@ -94,8 +94,8 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     // a content-length. in these situations, just download everything.
     bool geteverything = false;
     // if ((bytesremaining < 0))
-    //if ((bytesremaining < 0) && !(docheader->isPersistent()))
-         if ((bytesremaining < 0))
+    if ((bytesremaining < 0) && !(docheader->isPersistent()))
+    //     if ((bytesremaining < 0))
         geteverything = true;
 
     char *block = NULL; // buffer for storing a grabbed block from the
@@ -111,9 +111,12 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 
     // buffer size for streaming downloads
     off_t blocksize = 32768;
+    if (!wantall && bytesremaining > -1 && blocksize > bytesremaining)
+        blocksize = bytesremaining;
     // set to a sensible minimum
     if (!wantall && (blocksize > o.max_content_filter_size))
         blocksize = o.max_content_filter_size;
+
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
 #ifdef DGDEBUG
@@ -193,16 +196,30 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             if (!geteverything && (newsize > bytesremaining))
                 newsize = bytesremaining;
             delete[] block;
+
             block = new char[newsize];
+#ifdef DGDEBUG
+            std::cout << "dm-default.in: before bcheckForInput: "  << std::endl;
+#endif
             try {
-                if (!sock->bcheckForInput(d->timeout))
-                   break;
+                if (!sock->bcheckForInput(d->timeout)) {
+#ifdef DGDEBUG
+                    std::cout << "dm-default.in: bcheckForInput timeout or errored: "  << std::endl;
+#endif
+                    break;
+                }
              } catch (std::exception &e) {
              break;
             }
+#ifdef DGDEBUG
+            std::cout << "dm-default.in: after bcheckForInput: "  << std::endl;
+#endif
             // improved more efficient socket read which uses the buffer better
             rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
             // grab a block of input, doubled each time
+#ifdef DGDEBUG
+            std::cout << "bufferReadFromSocket returned: " << rc << std::endl;
+#endif
 
             if (rc <= 0) {
                 break; // an error occured so end the while()

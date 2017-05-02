@@ -508,6 +508,12 @@ stat_rec* &dystat)
         bool persistPeer = true;
         bool persistProxy = true;
 
+      //  if (ismitm) {                   // test to see if cures issues with some sites
+      //      persistOutgoing = false;
+      //      persistPeer = false;
+      //      persistProxy = false;
+      //  }
+
         bool firsttime = true;
         if(!header.in(&peerconn, true, true)) {
            if (o.logconerror) {
@@ -641,7 +647,7 @@ stat_rec* &dystat)
 #endif
 
             //If proxy connction is not persistent...
-            if (!persistProxy) {
+            if (!persistProxy && !ismitm) {
                 try {
                     // ...connect to proxy
                     proxysock.setTimeout(1000);
@@ -706,7 +712,7 @@ stat_rec* &dystat)
                 proxysock.close(); // close connection to proxy
                 // catch (std::exception &e)
                 //
-                break;
+                break;      //  This should also close peerconn
             }
 
             urld = header.decode(url);
@@ -1385,6 +1391,8 @@ stat_rec* &dystat)
                         peerconn.writeString(o.language_list.getTranslation(203));
                         peerconn.writeString(o.language_list.getTranslation(204));
                         peerconn.writeString("</BODY></HTML>\n");
+                        proxysock.close();
+                        overide_persist = true;
                         break;
                     } else {
                         message_no = 205;
@@ -1394,6 +1402,8 @@ stat_rec* &dystat)
                         peerconn.writeString(o.language_list.getTranslation(205));
                         peerconn.writeString(o.language_list.getTranslation(206));
                         peerconn.writeString("</BODY></HTML>\n");
+                        proxysock.close();
+                        overide_persist = true;
                         break;
                 //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
                     }
@@ -1440,7 +1450,7 @@ stat_rec* &dystat)
                 if (!persistProxy)
                     proxysock.close(); // close connection to proxy
 
-                if (persistPeer)
+                if (persistPeer && !ismitm)
                     continue;
 
                 break;
@@ -1727,8 +1737,11 @@ stat_rec* &dystat)
 			}
                     } catch (std::exception &e) {
                     }
-                        if (!persistProxy)
+                        if (!persistProxy) {
                             proxysock.close(); // close connection to proxy
+                            if (ismitm) break;
+                            }
+
 
                     if (persistPeer) {
                         continue;
@@ -2646,6 +2659,9 @@ stat_rec* &dystat)
                     else if ((cl > 0) && (cl > o.max_content_filecache_scan_size))
                         responsescanners.clear();
                 }
+#ifdef DGDEBUG
+                std::cerr << dbgPeerPort << " -Content-Lenght is: " << cl << std::endl;
+#endif
 
                 // now that we have the proxy's header too, we can make a better informed decision on whether or not to scan.
                 // this used to be done before we'd grabbed the proxy's header, rendering exceptionvirusmimetypelist useless,
@@ -2839,6 +2855,9 @@ stat_rec* &dystat)
                                 exceptionreason = csmessage.toCharArray();
                             }
                         } else {
+#ifdef DGDEBUG
+                            std::cout << dbgPeerPort << " -Calling contentFilter " << std::endl;
+#endif
                             contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &headersent, &pausedtoobig,
                                 &docsize, &checkme, wasclean, filtergroup, responsescanners, &clientuser, &clientip,
                                 &wasinfected, &wasscanned, isbypass, urld, urldomain, &scanerror, contentmodified, NULL);
@@ -3026,8 +3045,9 @@ stat_rec* &dystat)
                     std::cout << dbgPeerPort << " -sending body to client" << std::endl;
 #endif
        //             syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
-                    try {docbody.out(&peerconn);} // send doc body to client
-                         catch (std::exception &e) {
+        //            try {docbody.out(&peerconn);} // send doc body to client
+       //                  catch (std::exception &e) {
+                    if (!docbody.out(&peerconn)) { // send doc body to client
                              //syslog(LOG_INFO, " -problem sending body to client %d", dbgPeerPort);
                              pausedtoobig = false;
                          }
