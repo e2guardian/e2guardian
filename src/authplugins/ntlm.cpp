@@ -176,7 +176,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
 // Ugly but needed with NTLM ...
 
-        if (o.forwarded_for == 1) {
+        if (o.forwarded_for) {
             std::string clientip;
             clientip = peercon.getPeerIP();
             h.addXForwardedFor(clientip); // add squid-like entry
@@ -339,7 +339,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 }
 // Ugly but needed with NTLM ...
                 if (!transparent){
-                    if (o.forwarded_for == 1) {
+                    if (o.forwarded_for) {
                         std::string clientip;
                         clientip = peercon.getPeerIP();
                         h.addXForwardedFor(clientip); // add squid-like entry

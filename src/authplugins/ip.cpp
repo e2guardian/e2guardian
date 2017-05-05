@@ -167,7 +167,7 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     } else {
         string = peercon.getPeerIP();
     }
-    if (o.forwarded_for == 1) {
+    if (o.forwarded_for) {
     	std::string clientip;
         clientip = peercon.getPeerIP();
         h.addXForwardedFor(clientip); // add squid-like entry
