@@ -167,6 +167,12 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     } else {
         string = peercon.getPeerIP();
     }
+    if (o.forwarded_for == 1) {
+    	std::string clientip;
+        clientip = peercon.getPeerIP();
+        h.addXForwardedFor(clientip); // add squid-like entry}
+    }
+
     return DGAUTH_OK;
 }
 
