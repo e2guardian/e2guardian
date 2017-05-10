@@ -174,12 +174,13 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #ifdef DGDEBUG
         std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
-// Ugly but needed with NTLM ...
 
-        if (o.forwarded_for) {
-            std::string clientip;
-            clientip = peercon.getPeerIP();
-            h.addXForwardedFor(clientip); // add squid-like entry
+        if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
+            if (o.forwarded_for) {
+                std::string clientip;
+                clientip = peercon.getPeerIP();
+                h.addXForwardedFor(clientip); // add squid-like entry
+            }
         }
 
         // send a variant on the original request (has to be something Squid will route to the outside
@@ -339,10 +340,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 }
 // Ugly but needed with NTLM ...
                 if (!transparent){
-                    if (o.forwarded_for) {
-                        std::string clientip;
-                        clientip = peercon.getPeerIP();
-                        h.addXForwardedFor(clientip); // add squid-like entry
+                    if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
+                        if (o.forwarded_for) {
+                            std::string clientip;
+                            clientip = peercon.getPeerIP();
+                            h.addXForwardedFor(clientip); // add squid-like entry
+                        }
                     }
                     return DGAUTH_OK;
                 }
