@@ -832,6 +832,10 @@ bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
         if (chop)
             i->append("\r");
     }
+#ifdef DGDEBUG
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) 
+        std::cout << "Starting header reg exp replace result: " << *i << std::endl;
+#endif
     return result;
 }
 
@@ -1039,7 +1043,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
 
 #ifdef DGDEBUG
-        std::cout << (*i) << std::endl;
+        std::cout << "Header value from client: " << (*i) << std::endl;
 #endif
     }
 
@@ -1916,7 +1920,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 l += (*i) + "\n";
         }
     }
-    l += "\r\n";
+    l += "\n";
 
 #ifdef DGDEBUG
     std::cout << "headertoclient:" << l << std::endl;
