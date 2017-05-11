@@ -420,7 +420,7 @@ bool drop_priv_completely()
     if (rc == -1) {
         syslog(LOG_ERR, "%s", "Unable to seteuid(suid)");
 #ifdef DGDEBUG
-        std::cout << strerror(errno) << std::endl;
+        std::cout << "Unable to seteuid" << strerror(errno) << std::endl;
 #endif
         return false; // setuid failed for some reason so exit with error
     }
@@ -769,8 +769,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
         loglines.append(o.log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
 #ifdef DGDEBUG
-        std::cout << "received a log request" << std::endl;
-        std::cout << "log request " << loglines << std::endl;
+        std::cout << "received a log request ---------------------------------" << std::endl;
+        std::cout << "log request: " << loglines << std::endl;
+        std::cout << "end log request ----------------------------------------" << std::endl;
 #endif
 
         // Formatting code migration from ConnectionHandler
@@ -1112,9 +1113,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
             *logfile << builtline << std::endl; // append the line
         else
             syslog(LOG_INFO, "%s", builtline.c_str());
-#ifdef DGDEBUG
-        std::cout << itemcount << " " << builtline << std::endl;
-#endif
+
         //    delete ipcpeersock; // close the connection
 
 #ifdef ENABLE_EMAIL

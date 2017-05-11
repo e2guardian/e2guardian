@@ -176,7 +176,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         for (unsigned int j = 0; j < groups[index[i]].length(); j++) {
             std::cout << (unsigned int)(groups[index[i]][j]) << " ";
         }
-        std::cout << (char *)(index[i] * 1000 + urls) << std::endl;
+        std::cout << "url cache table: " << (char *)(index[i] * 1000 + urls) << std::endl;
     }
     std::cout << "****** url cache table ******" << std::endl;
 #endif

@@ -350,7 +350,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             if (needcheck) {
                 bodymeta[j++] = '\0';
 #ifdef DGDEBUG
-                std::cout << bodymeta << std::endl;
+                std::cout << "bodymeta: " << bodymeta << std::endl;
 #endif
                 bodymetalen = j;
                 checkphrase(bodymeta, bodymetalen, NULL, NULL, foc, phraselist, limit, searchterms);
@@ -512,7 +512,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 u = Rre.result(i);
                 u = u.subString(1, u.length() - 2);
 #ifdef DGDEBUG
-                std::cout << u << std::endl;
+                std::cout << "Search string : " << u << std::endl;
 #endif
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
                     !(lastcategory.contains("ADs")))
@@ -570,7 +570,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                     continue;
 
 #ifdef DGDEBUG
-                std::cout << u << std::endl;
+                std::cout << "search domain: " << u << std::endl;
 #endif
                 // remove src/href & quotes
                 u = u.after("=");
@@ -619,7 +619,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
             weighting = ourcat->second.weight;
             weightedphrase += "]";
 #ifdef DGDEBUG
-            std::cout << weightedphrase << std::endl;
+            std::cout << "weightedphrase" << weightedphrase << std::endl;
             std::cout << "score from embedded URLs: " << ourcat->second.weight << std::endl;
 #endif
         }

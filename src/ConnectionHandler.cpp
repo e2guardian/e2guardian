@@ -476,7 +476,7 @@ stat_rec* &dystat)
 
 #ifdef DGDEBUG // debug stuff surprisingly enough
     std::cout << dbgPeerPort << " -got peer connection" << std::endl;
-    std::cout << dbgPeerPort << clientip << std::endl;
+    std::cout << dbgPeerPort << "IP client: " << clientip << std::endl;
 #endif
     // proxysock now passed to function
     // Socket proxysock;
@@ -858,7 +858,7 @@ stat_rec* &dystat)
                             break;
                         } else if (rc == DGAUTH_NOIDENTPART) {
                             dobreak = true;
-                            break; 
+                            break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
                                 std::cerr << "Auth plugin returned error code: " << rc << std::endl;
@@ -2597,8 +2597,8 @@ stat_rec* &dystat)
                     wasrequested = true; // so we know where we are later
                 }
 
-// TODO: Temporary: we must remove from filtering many harmless HTTP codes 
-// But I guess it should do before in the code 
+// TODO: Temporary: we must remove from filtering many harmless HTTP codes
+// But I guess it should do before in the code
 
 		if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
 
@@ -2731,9 +2731,8 @@ stat_rec* &dystat)
                         }
 
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << mimetype.length() << std::endl;
-                        std::cout << dbgPeerPort << " -:" << mimetype;
-                        std::cout << dbgPeerPort << " -:" << std::endl;
+                        std::cout << dbgPeerPort << "Mime type: lenght: " << mimetype.length() << std::endl;
+                        std::cout << dbgPeerPort << "Mimetype -:" << mimetype;
 #endif
                     }
 
@@ -3967,9 +3966,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     writestring += "\nConnection: close\n";
                         (*peerconn).writeString(writestring.toCharArray());   // ignore errors
 #ifdef DGDEBUG // debug stuff surprisingly enough
-                    std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
-                    std::cout << dbgPeerPort << writestring << std::endl;
-                    std::cout << dbgPeerPort << " -*******" << std::endl;
+                    std::cout << dbgPeerPort << " -******* redirecting to: " << writestring << std::endl;
 #endif
                 } else {
                     // Broken, sadly blank page for user
@@ -4176,9 +4173,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             if(!(*peerconn).writeString(writestring.toCharArray()))
                 cleanThrow("Error sending block screen to client", *peerconn, *proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
-            std::cout << dbgPeerPort << " -******* redirecting to:" << std::endl;
-            std::cout << dbgPeerPort << writestring << std::endl;
-            std::cout << dbgPeerPort << " -*******" << std::endl;
+            std::cout << dbgPeerPort << " -******* redirecting to: " << writestring << std::endl;
 #endif
         }
 
@@ -4198,9 +4193,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             if(!(*peerconn).writeString(writestring.toCharArray()))
                 cleanThrow("Error sending to client 3974", *peerconn,*proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
-            std::cout << dbgPeerPort << " -******* displaying:" << std::endl;
-            std::cout << dbgPeerPort << writestring << std::endl;
-            std::cout << dbgPeerPort << " -*******" << std::endl;
+            std::cout << dbgPeerPort << " -******* displaying : " << writestring << std::endl;
 #endif
         }
 
@@ -4241,8 +4234,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         docbody->setDecompress(docheader->contentEncoding());
     }
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << docheader->contentEncoding() << std::endl;
-    std::cout << dbgPeerPort << " -about to get body from proxy" << std::endl;
+    std::cout << dbgPeerPort << "docheader encoding: " << docheader->contentEncoding() << std::endl;
 #endif
     (*pausedtoobig) = docbody->in(proxysock, peerconn, header, docheader, !responsescanners.empty(), headersent); // get body from proxy
 // checkme: surely if pausedtoobig is true, we just want to break here?
@@ -4311,7 +4303,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     (*wasscanned) = false;
                     (*scanerror) = false;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << (*i)->getLastMessage() << std::endl;
+                    std::cout << dbgPeerPort << "scanner warning: " << (*i)->getLastMessage() << std::endl;
 #endif
                     (*csmessage) = (*i)->getLastMessage();
                 } else if (csrc == DGCS_BLOCKED) {
@@ -4385,7 +4377,6 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 std::cout << dbgPeerPort << " -Is a set of auth required headers";
             else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
                 std::cout << dbgPeerPort << " -Not text";
-            std::cout << dbgPeerPort << std::endl;
         }
 #endif
     }
@@ -4410,7 +4401,6 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             std::cout << dbgPeerPort << " -Not text";
         else if (checkme->isItNaughty)
             std::cout << dbgPeerPort << " -Already flagged as naughty";
-        std::cout << dbgPeerPort << std::endl;
     }
     //rc = system("date");
 #endif
