@@ -1254,10 +1254,6 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 //		answer.chop();
 //	}
 
-#ifdef DGDEBUG
-    std::cout << "from header url:" << answer << std::endl;
-#endif
-
 //make sure ssl stuff is logged as https
 #ifdef __SSLMITM
 //	if(isssl){
