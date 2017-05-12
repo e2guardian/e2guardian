@@ -1981,7 +1981,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     }
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
-    dbshowheader(true);
+    if (header.size() == 0) dbshowheader(true);
 #endif
     return true;
 }
@@ -2030,10 +2030,14 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 #endif
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-            std::cout << "header:in after getLine " << std::endl;
+            std::cout << "firstime: header:in after getLine " << std::endl;
 #endif
             if (rc < 0 || truncated) {
                 ispersistent = false;
+#ifdef DGDEBUG
+                std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << std::endl;
+                if (header.size() == 0) dbshowheader(false);
+#endif
                 return false;
             }
         } else {
@@ -2043,6 +2047,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
+#ifdef DGDEBUG
+                std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
+		if (header.size() == 0) dbshowheader(false);
+#endif
                 return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
             }
 
@@ -2061,6 +2069,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             {
                 if(o.logconerror)
                     syslog(LOG_INFO, "Server did not respond with HTTP");
+#ifdef DGDEBUG
+    		std::cout << "Returning from header:in (syslog returns) " << std::endl;
+		if (header.size() == 0) dbshowheader(false);
+#endif
                 return false;
             }
         }
@@ -2076,14 +2088,23 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         }
         firsttime = false;
     }
-    header.pop_back(); // remove the final blank line of a header
-    if (header.size() == 0)  return false;
+    if (header.size() == 0) {
    //     throw std::exception();
+#ifdef DGDEBUG
+    	std::cout << "header:size = 0 " << std::endl;
+#endif
+    	return false;
+    }
+#ifdef DGDEBUG
+    if (header.size() == 0) dbshowheader(false);
+#endif
+
+    header.pop_back(); // remove the final blank line of a header
 
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
     std::cout << "Returning from header:in " << std::endl;
-    dbshowheader(false);
+    if (header.size() == 0) dbshowheader(false);
 #endif
     return true;
 }
