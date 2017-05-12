@@ -833,7 +833,7 @@ bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
             i->append("\r");
     }
 #ifdef DGDEBUG
-    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) 
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
         std::cout << "Starting header reg exp replace result: " << *i << std::endl;
 #endif
     return result;
@@ -943,8 +943,9 @@ bool HTTPHeader::malformedURL(const String &url)
 void HTTPHeader::dbshowheader(String *url, const char *clientip)
 {
 
+	if (header.size() != 0){
         String *line;
-        syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+        syslog(LOG_INFO, "Client: %s %d START-------------------------------", clientip, url);
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
@@ -956,23 +957,28 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
                 syslog(LOG_INFO, "OUT: Client IP at %s header: %s", clientip, line2.c_str());
             if (!outgoing)
                 syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
-        }
-        syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+            }
+            syslog(LOG_INFO, "Client: %s %d END-------------------------------", clientip, url);
+    } else {
+            syslog(LOG_INFO, "Client: %s %d Call to dbshowheader but header is empty", clientip, url);
+    }
 }
 
 void HTTPHeader::dbshowheader(bool outgoing)
 {
-    String *line;
- //   syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
-    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-        line = &(*i);
-        String line2 = *line;
-        if (outgoing)
-            syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
-        if (!outgoing)
-            syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+    if (header.size() != 0){
+        String *line;
+        for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+            line = &(*i);
+            String line2 = *line;
+            if (outgoing)
+                syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
+            if (!outgoing)
+                syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+        }
+    } else {
+            syslog(LOG_INFO, "Client: Call to dbshowheader but header is empty");
     }
-  //  syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
 }
 
 
@@ -1981,7 +1987,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     }
 #ifdef DGDEBUG
     std::cout << "Returning from header:out " << std::endl;
-    if (header.size() == 0) dbshowheader(true);
+    dbshowheader(true);
 #endif
     return true;
 }
@@ -2036,7 +2042,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 ispersistent = false;
 #ifdef DGDEBUG
                 std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << std::endl;
-                if (header.size() == 0) dbshowheader(false);
+                dbshowheader(false);
 #endif
                 return false;
             }
@@ -2049,7 +2055,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 ispersistent = false;
 #ifdef DGDEBUG
                 std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
-		if (header.size() == 0) dbshowheader(false);
+		dbshowheader(false);
 #endif
                 return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
             }
@@ -2071,7 +2077,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                     syslog(LOG_INFO, "Server did not respond with HTTP");
 #ifdef DGDEBUG
     		std::cout << "Returning from header:in (syslog returns) " << std::endl;
-		if (header.size() == 0) dbshowheader(false);
+		dbshowheader(false);
 #endif
                 return false;
             }
@@ -2096,7 +2102,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     	return false;
     }
 #ifdef DGDEBUG
-    if (header.size() == 0) dbshowheader(false);
+    dbshowheader(false);
 #endif
 
     header.pop_back(); // remove the final blank line of a header
@@ -2104,7 +2110,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
     std::cout << "Returning from header:in " << std::endl;
-    if (header.size() == 0) dbshowheader(false);
+    dbshowheader(false);
 #endif
     return true;
 }
