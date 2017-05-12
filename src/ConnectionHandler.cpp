@@ -3198,6 +3198,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
+	//
+	// Checked in Optioncontainer.cpp Fred 12/05/2017
+	/*
         if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
 #ifdef DGDEBUG
             std::cout << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
@@ -3207,7 +3210,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
                 clienthost = new std::string(names->front().toCharArray());
             delete names;
         }
-
+	*/
         // Search 'log-only' domain, url and regexp url lists
         std::string *newcat = NULL;
         if (!cat || cat->length() == 0) {
