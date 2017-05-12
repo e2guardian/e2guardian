@@ -945,7 +945,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
 
 	if (header.size() != 0){
         String *line;
-        syslog(LOG_INFO, "Client: %s %d START-------------------------------", clientip, url);
+        syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
@@ -958,9 +958,9 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
             if (!outgoing)
                 syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
             }
-            syslog(LOG_INFO, "Client: %s %d END-------------------------------", clientip, url);
+            syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
     } else {
-            syslog(LOG_INFO, "Client: %s %d Call to dbshowheader but header is empty", clientip, url);
+            syslog(LOG_INFO, "Client: %s Call to dbshowheader but header is empty", clientip);
     }
 }
 
@@ -972,12 +972,12 @@ void HTTPHeader::dbshowheader(bool outgoing)
             line = &(*i);
             String line2 = *line;
             if (outgoing)
-                syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
+                syslog(LOG_INFO, "OUT: dbshowheader bool - header: %s", line2.c_str());
             if (!outgoing)
-                syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+                syslog(LOG_INFO, "IN: dbshowheader bool - header: %s", line2.c_str());
         }
     } else {
-            syslog(LOG_INFO, "Client: Call to dbshowheader but header is empty");
+            syslog(LOG_INFO, "Call : from HTTPHeader.cpp to dbshowheader but header is empty");
     }
 }
 
