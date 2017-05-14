@@ -2076,7 +2076,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 if(o.logconerror)
                     syslog(LOG_INFO, "Server did not respond with HTTP");
 #ifdef DGDEBUG
-    		std::cout << "Returning from header:in (syslog returns) " << std::endl;
+    		std::cout << "Returning from header:in Server did not respond with HTTP " << std::endl;
 		dbshowheader(false);
 #endif
                 return false;
