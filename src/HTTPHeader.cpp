@@ -2063,10 +2063,19 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
                 dbshowheader(false);
 #endif
-                return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
+                return false;        // do not allow non-terminated headers
             }
 
         }
+
+        if (header.size() > o.max_header_lines) {
+#ifdef DGDEBUG
+            std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+            ispersistent = false;
+            return false;
+        }
+
      //       throw std::exception();
 
         // getline will throw an exception if there is an error which will
@@ -2101,7 +2110,6 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         firsttime = false;
     }
     if (header.size() == 0) {
-   //     throw std::exception();
 #ifdef DGDEBUG
     	std::cout << "header:size = 0 " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif

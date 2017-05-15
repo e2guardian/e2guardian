@@ -36,12 +36,10 @@ logexceptionhits = 2
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
-# Protex format type 1 – Tab delimited, squid style format with extra fields
-# for filter block/result codes, reasons, filter group, and system name –
-# used in arrays so that combined logs show originating server.
-# Protex format type 2 – Same format as above but system name field is blank
-# – used in stand-alone systems.
 # 5 = Protex format
+# Protex format - Tab delimited, squid style format with extra fields
+# for filter block/result codes, reasons, filter group, and system name 
+# used in arrays so that combined logs show originating server.
 # 6 = Protex format with server field blanked
 # 7 = Squid Log File Format Secure extension (SF Actions, use comercial report tools (ex: McAfee Webreport))
 logfileformat = 1
@@ -639,3 +637,13 @@ enablessl = off
 # When e2guardian is stopping with 'paused' appended
 # Note change in V4!!! - No longer detects cache failure
 # monitorflagprefix = '/home/e2g/run/e2g_flag_'
+
+# http header checking setings
+#
+# Limit number of http header lines in a request/response
+# (to guard against attacks)
+# Minimum 10 max 2000
+# default 40
+# maxheaderlines = 40
+
+

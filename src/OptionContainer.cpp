@@ -270,8 +270,13 @@ bool OptionContainer::read(std::string& filename, int type)
         mailer = findoptionS("mailer");
 #endif
 
-        // the e2guardian.conf and pics files get amalgamated into one
-        // deque.
+        max_header_lines = findoptionI("maxheaderlines");
+        if (max_header_lines == 0)
+            max_header_lines= 40;
+        if (!realitycheck(max_header_lines, 10, 250, "maxheaderlines")) {
+            return false;
+        }
+
 
         max_logitem_length = findoptionI("maxlogitemlength");
         // default of unlimited no longer allowed as could cause buffer overflow
