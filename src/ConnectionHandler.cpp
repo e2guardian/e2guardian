@@ -548,7 +548,7 @@ stat_rec* &dystat)
         //    while ((firsttime || persistPeer) && !reloadconfig)
         {
 #ifdef DGDEBUG
-            std::cout << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << " firsttime =" << firsttime << " ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
            // std::shared_ptr<LOptionContainer> ldl = o.currentLists();
             ldl = o.currentLists();
@@ -709,7 +709,7 @@ stat_rec* &dystat)
                     peerconn.writeString("<HTML><HEAD><TITLE>e2guardian - 400 Bad Request</TITLE></HEAD><BODY><H1>e2guardian - 400 Bad Request</H1>");
                     peerconn.writeString(o.language_list.getTranslation(200));
                     peerconn.writeString("</BODY></HTML>\n");
-                proxysock.close(); // close connection to proxy
+		    proxysock.close(); // close connection to proxy
                 // catch (std::exception &e)
                 //
                 break;      //  This should also close peerconn
@@ -718,8 +718,8 @@ stat_rec* &dystat)
             urld = header.decode(url);
 
             if (urldomain == "internal.test.e2guardian.org") {
-                    peerconn.writeString("HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
-                    peerconn.writeString("</BODY></HTML>\n");
+                 peerconn.writeString("HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
+                peerconn.writeString("</BODY></HTML>\n");
                 proxysock.close(); // close connection to proxy
                 break;
             }
@@ -1740,7 +1740,7 @@ stat_rec* &dystat)
                         if (!persistProxy) {
                             proxysock.close(); // close connection to proxy
                             if (ismitm) break;
-                            }
+		    }
 
 
                     if (persistPeer) {
@@ -2562,7 +2562,7 @@ stat_rec* &dystat)
                         persistProxy = docheader.isPersistent();
                         persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << "line: " << __LINE__ << " Function: " << __func__ << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     }  else {
 #ifdef DGDEBUG
@@ -2593,22 +2593,7 @@ stat_rec* &dystat)
                             //        cleanThrow("Unable to read header from proxy", peerconn, proxysock);
                         }
                     }
-
                     wasrequested = true; // so we know where we are later
-                }
-
-// TODO: Temporary: we must remove from filtering many harmless HTTP codes
-// But I guess it should do before in the code
-
-		if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
-
-#ifdef DGDEBUG
-                  	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-			String rtype(header.requestType());
-              		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
-                	logged = true;
-                    	isexception = true;
                 }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -2616,6 +2601,24 @@ stat_rec* &dystat)
                     std::cout << dbgPeerPort << " -header says close, so not persisting" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
+// TODO: Temporary: we must remove from filtering many harmless HTTP codes
+// But I guess it should do before in the code
+		if (persistProxy && !(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
+
+#ifdef DGDEBUG
+                	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+			String rtype(header.requestType());
+              		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
+                	logged = true;
+                    	isexception = true;
+		} 
+#ifdef DGDEBUG
+		if (persistProxy && (docheader.contentLength() == 0))
+			std::cout << " docheader empty ?: " << urldomain << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+                std::cout << "ici" << " -ici header says close, so not persisting" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
                 if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
@@ -3119,7 +3122,7 @@ stat_rec* &dystat)
         std::cerr << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if(o.logconerror)
-        syslog(LOG_ERR, "POST filtering exception: %s", e.what());
+        	syslog(LOG_ERR, "POST filtering exception: %s", e.what());
 
         // close connection to proxy
         proxysock.close();
@@ -3130,7 +3133,7 @@ stat_rec* &dystat)
         std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if(o.logconerror)
-        syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
+        	syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
         proxysock.close();
