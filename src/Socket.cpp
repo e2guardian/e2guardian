@@ -860,6 +860,10 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
             buff[i] = '\0'; // ...terminate string & return what read
             if (truncated)
                 *truncated = true;
+#ifdef DGDEBUG
+            if (truncated)
+            	std::cout << "Getline truncated buffer end reached before we found a newline: bufflen == 0" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
             return i;
         }
         int tocopy = bufflen;
@@ -875,11 +879,18 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
             return i + (result - (buff + i));
         }
         i += tocopy;
+#ifdef DGDEBUG
+            std::cout << "buffer =: " << buff[i] << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
     }
     // oh dear - buffer end reached before we found a newline
     buff[i] = '\0';
     if (truncated)
         *truncated = true;
+#ifdef DGDEBUG
+    	if (truncated)
+            std::cout << "Getline truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
     return i;
 }
 
