@@ -961,6 +961,9 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
             syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
     } else {
             syslog(LOG_INFO, "Client: %s Call to dbshowheader but header is empty", clientip);
+#ifdef DGDEBUG
+            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
     }
 }
 
@@ -978,6 +981,9 @@ void HTTPHeader::dbshowheader(bool outgoing)
         }
     } else {
             syslog(LOG_INFO, "Call : from HTTPHeader.cpp to dbshowheader but header is empty");
+#ifdef DGDEBUG
+            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
     }
 }
 
@@ -2055,7 +2061,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 ispersistent = false;
 #ifdef DGDEBUG
                 std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
-		dbshowheader(false);
+                dbshowheader(false);
 #endif
                 return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
             }
@@ -2076,8 +2082,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
                 if(o.logconerror)
                     syslog(LOG_INFO, "Server did not respond with HTTP");
 #ifdef DGDEBUG
-    		std::cout << "Returning from header:in Server did not respond with HTTP " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
-		dbshowheader(false);
+                std::cout << "Returning from header:in Server did not respond with HTTP " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
 #endif
                 return false;
             }

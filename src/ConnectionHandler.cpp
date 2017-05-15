@@ -2563,7 +2563,7 @@ stat_rec* &dystat)
                         	persistPeer = persistOutgoing && docheader.wasPersistent();
 			} else {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -wrong docheader in: " << urldomain << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << " -wrong docheader in: " << urldomain << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 				break;
 
