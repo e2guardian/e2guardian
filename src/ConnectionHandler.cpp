@@ -2558,9 +2558,16 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " before docheader in 2371: "  << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-                        docheader.in(&proxysock, persistOutgoing);
-                        persistProxy = docheader.isPersistent();
-                        persistPeer = persistOutgoing && docheader.wasPersistent();
+			if (docheader.in(&proxysock, persistOutgoing)){
+                        	persistProxy = docheader.isPersistent();
+                        	persistPeer = persistOutgoing && docheader.wasPersistent();
+			} else {
+#ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " -wrong docheader in: " << urldomain << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+				break;
+
+			}
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -2597,13 +2604,11 @@ stat_rec* &dystat)
                 }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -got header from proxy" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
-                if (!persistProxy)
-                    std::cout << dbgPeerPort << " -header says close, so not persisting" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
 // TODO: Temporary: we must remove from filtering many harmless HTTP codes
 // But I guess it should do before in the code
-		if (persistProxy && !(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
+		if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
 
 #ifdef DGDEBUG
                 	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -2613,12 +2618,7 @@ stat_rec* &dystat)
                 	logged = true;
                     	isexception = true;
 		} 
-#ifdef DGDEBUG
-		if (persistProxy && (docheader.contentLength() == 0))
-			std::cout << " docheader empty ?: " << urldomain << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
 
-                std::cout << "ici" << " -ici header says close, so not persisting" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
                 if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
