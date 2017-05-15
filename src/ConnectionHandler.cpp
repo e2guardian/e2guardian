@@ -3426,8 +3426,8 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
             (*checkme).whatIsNaughtyCategories = lastcategory.toCharArray();
             return;
         }
-        // when enable_regex_grey is false no urls will be test against regex
-        if (ldl->fg[filtergroup]->enable_regex_grey) {
+        // when enable_regex_grey is false no urls will been tested against regex - so do it now
+        if (!ldl->fg[filtergroup]->enable_regex_grey) {
             if ((j = (*ldl->fg[filtergroup]).inBannedRegExpURLList(temp, lastcategory)) >= 0) {
                 (*checkme).isItNaughty = true;
                 (*checkme).whatIsNaughtyLog = o.language_list.getTranslation(503);
