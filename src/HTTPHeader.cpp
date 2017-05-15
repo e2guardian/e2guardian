@@ -346,8 +346,10 @@ String HTTPHeader::contentEncoding()
 // squid adds this so if more support it it may be useful one day
 void HTTPHeader::addXForwardedFor(const std::string &clientip)
 {
-    std::string line("X-Forwarded-For: " + clientip + "\r");
-    header.push_back(String(line.c_str()));
+    if (!mitm) {
+        std::string line("X-Forwarded-For: " + clientip + "\r");
+        header.push_back(String(line.c_str()));
+    }
 }
 
 // set content length header to report given lenth

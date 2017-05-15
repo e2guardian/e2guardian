@@ -1686,6 +1686,8 @@ stat_rec* &dystat)
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
                     if (isconnect)
                         header.sslsiteRegExp(ldl->fg[filtergroup]);
+                     if (o.forwarded_for )
+                            header.addXForwardedFor(clientip.c_str()); // add squid-like entry
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                         cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
                     //check the response headers so we can go ssl
@@ -4439,7 +4441,13 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
     String connect_request = "CONNECT " + hostname + ":";
-    connect_request += "443 HTTP/1.0\r\n\r\n";
+    connect_request += "443 HTTP/1.0\r\n";
+    if ( o.forwarded_for ) {
+       connect_request += "X-Forwarded-For: ";
+       connect_request += sock->getPeerIP();
+       connect_request += "\r\n";
+    }
+    connect_request += "\r\n";
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -creating tunnel through proxy to " << hostname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
