@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
             DataBuffer d(file.c_str(), file.length());
             String f;
             n.checkme(&d, f, f);
-            std::cout << n.isItNaughty << std::endl
+            std::cout << "What is naughty: "<< n.isItNaughty << std::endl
                       << n.whatIsNaughty << std::endl
                       << n.whatIsNaughtyLog << std::endl
                       << n.whatIsNaughtyCategories << std::endl;

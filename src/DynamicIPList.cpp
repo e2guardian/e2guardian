@@ -83,7 +83,7 @@ int DynamicIPList::posInList(unsigned long int ip)
     std::cout << "items: " << items << std::endl;
     int d;
     for (d = 0; d < items; d++) {
-        std::cout << data[d] << std::endl;
+        std::cout << "IP Cache table: " << data[d] << std::endl;
     }
     std::cout << "****** ip cache table ******" << std::endl;
 #endif

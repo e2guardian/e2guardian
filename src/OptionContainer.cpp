@@ -619,7 +619,14 @@ bool OptionContainer::read(std::string& filename, int type)
         } else {
             log_client_hostnames = false;
         }
-
+	
+	if (log_client_hostnames == true && reverse_client_ip_lookups == false){
+            if (!is_daemonised) {
+                std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled" << std::endl;
+            }
+            syslog(LOG_ERR, "logclienthostnames enabled but reverseclientiplookups disabled");
+            return false;
+	}
         if (findoptionS("recheckreplacedurls") == "on") {
             recheck_replaced_urls = true;
         } else {

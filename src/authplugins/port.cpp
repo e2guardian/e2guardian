@@ -51,7 +51,6 @@ class portinstance : public AuthPlugin
 {
     public:
     // keep credentials for the whole of a connection - IP isn't going to change.
-    // not quite true - what about downstream proxy with x-forwarded-for?
     portinstance(ConfigVar &definition)
         : AuthPlugin(definition)
     {

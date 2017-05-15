@@ -165,8 +165,22 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
         if (string.length() == 0)
             string = peercon.getPeerIP();
     } else {
-        string = peercon.getPeerIP();
+            string = peercon.getPeerIP();
     }
+    if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
+        if (o.forwarded_for) {
+            std::string clientip;
+            clientip = peercon.getPeerIP();
+            h.addXForwardedFor(clientip); // add squid-like entry
+        }
+    }
+#ifdef DGDEBUG
+            std::cerr << "IP Plugin: ------ START --------" << std::endl;
+            for (unsigned int i = 0; i < h.header.size(); i++){
+                std::cerr << "IP Plugin: "<<h.header[i] << std::endl;
+            }
+            std::cerr << "IP Plugin: ------ END --------" << std::endl;
+#endif
     return DGAUTH_OK;
 }
 
@@ -317,11 +331,12 @@ int ipinstance::readIPMelangeList(const char *filename)
         std::cout << "value: " << value.toInteger() << std::endl;
 #endif
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
+	    int filtergroups = o.filter_groups;
             if (!is_daemonised)
-                std::cerr << "Filter group out of range; entry " << line << " in " << filename << std::endl;
-            syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), filename);
+                std::cerr << "IP plugin Filter group out of range; entry " << line << " in " << filename << " groups number: " << o.filter_groups << std::endl;
+            syslog(LOG_ERR, "IP plugin Filter group out of range; entry %s in %s groups number: %d", line.toCharArray(), filename, filtergroups);
             warn = true;
-            continue;
+            return -1;
         }
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
         if (matchIP.match(key.toCharArray(),Rre)) {

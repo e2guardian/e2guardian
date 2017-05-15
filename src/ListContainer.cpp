@@ -492,7 +492,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
     sourcefilters = filters;
     std::string linebuffer;
 #ifdef DGDEBUG
-    std::cout << filename << std::endl;
+    std::cout << "Read filename: " << filename << std::endl;
 #endif
     // see if cached .process file is available and up to date,
     // or prefercachedlists has been turned on (SG)

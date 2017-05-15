@@ -219,7 +219,7 @@ String HTTPHeader::getMIMEBoundary()
 bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
 {
 #ifdef DGDEBUG
-             std::cout << "mime type: " << getContentType() << std::endl;
+             std::cout << "mime type: " << getContentType() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 // Do standard check first!
    if (getContentType().startsWith(t))
@@ -234,19 +234,19 @@ bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
         for (i = 0; i < size; i++) {
             if (mime.startsWith(text_mime[i])) {
 #ifdef DGDEBUG
-                std::cout << "mimes match : " << text_mime[i] << std::endl;
+                std::cout << "mimes match : " << text_mime[i] << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 return true;
            }
 #ifdef DGDEBUG
 	   else {
-                std::cout << "mimes check : " << text_mime[i] << std::endl;
+                std::cout << "mimes check : " << text_mime[i] << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 	   }
 #endif
         }
    }
 #ifdef DGDEBUG
-             std::cout << "mimes result : " << "false" << std::endl;
+             std::cout << "mimes result : " << "false" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
    return false;
 }
@@ -319,7 +319,7 @@ bool HTTPHeader::isCompressed()
             return false;
         }
 #ifdef DGDEBUG
-        std::cout << "is compressed" << std::endl;
+        std::cout << "is compressed" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true; // i.e. encoded with something other than clear
     }
@@ -395,7 +395,7 @@ void HTTPHeader::makePersistent(bool persist)
 void HTTPHeader::makeTransparent(bool incoming)
 {
 #ifdef DGDEBUG
-    std::cout << "Making headers transparent" << std::endl;
+    std::cout << "Making headers transparent" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (incoming) {
         // remove references to the proxy before sending to browser
@@ -500,7 +500,7 @@ void HTTPHeader::removeEncoding(int newlen)
         /*			else
 			header[i] = "Content-Encoding: "+newheader;
 #ifdef DGDEBUG
-		std::cout << "New: " << header[i] << std::endl << std::endl;
+		std::cout << "New: " << header[i] << std::endl << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif*/
     }
 }
@@ -529,7 +529,7 @@ void HTTPHeader::setURL(String &url)
     }
 
 #ifdef DGDEBUG
-    std::cout << "setURL: header.front() changed from: " << header.front() << std::endl;
+    std::cout << "setURL: header.front() changed from: " << header.front() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (!https)
         header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
@@ -537,12 +537,12 @@ void HTTPHeader::setURL(String &url)
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
 #ifdef DGDEBUG
-    std::cout << " to: " << header.front() << std::endl;
+    std::cout << " to: " << header.front() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     if (phost != NULL) {
 #ifdef DGDEBUG
-        std::cout << "setURL: header[] line changed from: " << (*phost) << std::endl;
+        std::cout << "setURL: header[] line changed from: " << (*phost) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         (*phost) = String("Host: ") + hostname;
         if (port != (https ? 443 : 80)) {
@@ -551,16 +551,16 @@ void HTTPHeader::setURL(String &url)
         }
         (*phost) += "\r";
 #ifdef DGDEBUG
-        std::cout << " to " << (*phost) << std::endl;
+        std::cout << " to " << (*phost) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
     if (pport != NULL) {
 #ifdef DGDEBUG
-        std::cout << "setURL: header[] line changed from: " << (*pport) << std::endl;
+        std::cout << "setURL: header[] line changed from: " << (*pport) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         (*pport) = String("Port: ") + String(port) + "\r";
 #ifdef DGDEBUG
-        std::cout << " to " << (*pport) << std::endl;
+        std::cout << " to " << (*pport) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
     // Don't just cache the URL we're sent - getUrl() performs some other
@@ -644,7 +644,7 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
                 newLine += line.subString(srcoff, oldlinelen - srcoff);
             }
 #ifdef DGDEBUG
-            std::cout << "Line modified! (" << line << " -> " << newLine << ")" << std::endl;
+            std::cout << "Line modified! (" << line << " -> " << newLine << ")" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             // copy newLine into line and continue with other regexes
             line = newLine;
@@ -662,11 +662,11 @@ bool HTTPHeader::urlRegExp(FOptionContainer* &foc)
     if (not foc->url_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
-    std::cout << "Starting URL reg exp replace" << std::endl;
+    std::cout << "Starting URL reg exp replace" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     String newUrl(getUrl());
 #ifdef DGDEBUG
-    std::cout << "getUrl returns " << newUrl << std::endl;
+    std::cout << "getUrl returns " << newUrl << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (regExp(newUrl, foc->url_regexp_list_comp, foc->url_regexp_list_rep)) {
         setURL(newUrl);
@@ -685,11 +685,11 @@ bool HTTPHeader::sslsiteRegExp(FOptionContainer* &foc)
     if (not foc->sslsite_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
-    std::cout << "Starting SSL site reg exp replace" << std::endl;
+    std::cout << "Starting SSL site reg exp replace" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     String newUrl(getUrl());
 #ifdef DGDEBUG
-    std::cout << "getUrl returns " << newUrl << std::endl;
+    std::cout << "getUrl returns " << newUrl << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (regExp(newUrl, foc->sslsite_regexp_list_comp, foc->sslsite_regexp_list_rep)) {
         setURL(newUrl);
@@ -705,7 +705,7 @@ bool HTTPHeader::urlRedirectRegExp(FOptionContainer* &foc)
     if (not foc->url_redirect_regexp_list_comp.size())
         return false;
 #ifdef DGDEBUG
-    std::cout << "Starting URL reg exp redirect " << std::endl;
+    std::cout << "Starting URL reg exp redirect " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     String newUrl(url());
     if (regExp(newUrl, foc->url_redirect_regexp_list_comp, foc->url_redirect_regexp_list_rep)) {
@@ -730,12 +730,12 @@ bool HTTPHeader::isHeaderAdded(FOptionContainer* &foc)
         addheaderchecked = true;
         isheaderadded = false;
 #ifdef DGDEBUG
-        std::cout << "addheader regexplist empty" << std::endl;
+        std::cout << "addheader regexplist empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "Starting addheader check on url" << std::endl;
+    std::cout << "Starting addheader check on url" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     String newheader(url());
     if (regExp(newheader, foc->addheader_regexp_list_comp, foc->addheader_regexp_list_rep)) {
@@ -744,7 +744,7 @@ bool HTTPHeader::isHeaderAdded(FOptionContainer* &foc)
         std::string line(newheader + "\r");
         header.push_back(String(line.c_str()));
 #ifdef DGDEBUG
-        std::cout << "addheader = " << newheader << std::endl;
+        std::cout << "addheader = " << newheader << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true;
     }
@@ -762,12 +762,12 @@ bool HTTPHeader::isSearch(FOptionContainer* &foc)
     if (not foc->search_regexp_list_comp.size()) {
         searchchecked = true;
 #ifdef DGDEBUG
-        std::cout << "search regexplist empty" << std::endl;
+        std::cout << "search regexplist empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "Starting search check on url " << url() << std::endl;
+    std::cout << "Starting search check on url " << url() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     String searchwd(url());
     if (regExp(searchwd, foc->search_regexp_list_comp, foc->search_regexp_list_rep)) {
@@ -777,13 +777,13 @@ bool HTTPHeader::isSearch(FOptionContainer* &foc)
         issearch = true;
         searchchecked = true;
 #ifdef DGDEBUG
-        std::cout << "issearch = " << issearch << "searchwords = " << searchwds << std::endl;
+        std::cout << "issearch = " << issearch << "searchwords = " << searchwds << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true;
     }
     searchchecked = true;
 #ifdef DGDEBUG
-    std::cout << "issearch = " << issearch << std::endl;
+    std::cout << "issearch = " << issearch << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return false;
 }
@@ -821,7 +821,7 @@ bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
 #ifdef DGDEBUG
-        std::cout << "Starting header reg exp replace: " << *i << std::endl;
+        std::cout << "Starting header reg exp replace: " << *i << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         bool chop = false;
         if (i->endsWith("\r")) {
@@ -832,6 +832,10 @@ bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
         if (chop)
             i->append("\r");
     }
+#ifdef DGDEBUG
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
+        std::cout << "Starting header reg exp replace result: " << *i << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
     return result;
 }
 
@@ -857,7 +861,7 @@ bool HTTPHeader::malformedURL(const String &url)
         host = host.before("/");
     if (host.length() < 2) {
 #ifdef DGDEBUG
-        std::cout << "host len too small" << std::endl;
+        std::cout << "host len too small" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true;
     }
@@ -867,7 +871,7 @@ bool HTTPHeader::malformedURL(const String &url)
     //	if (host.contains("..") || host.endsWith(".")) {
     if (host.contains("..")) {
 #ifdef DGDEBUG
-        std::cout << "double dots in domain name" << std::endl;
+        std::cout << "double dots in domain name" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true;
     }
@@ -887,7 +891,7 @@ bool HTTPHeader::malformedURL(const String &url)
         if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z')
             && !(c >= '0' && c <= '9') && c != '.' && c != '-' && c != '_') {
 #ifdef DGDEBUG
-            std::cout << "bad char in hostname" << std::endl;
+            std::cout << "bad char in hostname" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             return true;
             // only allowed letters, digits, hiphen, dots
@@ -898,7 +902,7 @@ bool HTTPHeader::malformedURL(const String &url)
         return false;
 #ifdef DGDEBUG
     else
-        std::cout << "Checking for IP obfuscation in " << host << std::endl;
+        std::cout << "Checking for IP obfuscation in " << host << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     // Check no IP obfuscation is going on
     // This includes IPs encoded as a single decimal number,
@@ -939,6 +943,7 @@ bool HTTPHeader::malformedURL(const String &url)
 void HTTPHeader::dbshowheader(String *url, const char *clientip)
 {
 
+	if (header.size() != 0){
         String *line;
         syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
@@ -952,23 +957,34 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
                 syslog(LOG_INFO, "OUT: Client IP at %s header: %s", clientip, line2.c_str());
             if (!outgoing)
                 syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
-        }
-        syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+            }
+            syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+    } else {
+            syslog(LOG_INFO, "Client: %s Call to dbshowheader but header is empty", clientip);
+#ifdef DGDEBUG
+            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
+    }
 }
 
 void HTTPHeader::dbshowheader(bool outgoing)
 {
-    String *line;
- //   syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
-    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-        line = &(*i);
-        String line2 = *line;
-        if (outgoing)
-            syslog(LOG_INFO, "OUT: header: %s", line2.c_str());
-        if (!outgoing)
-            syslog(LOG_INFO, "IN: header: %s", line2.c_str());
+    if (header.size() != 0){
+        String *line;
+        for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+            line = &(*i);
+            String line2 = *line;
+            if (outgoing)
+                syslog(LOG_INFO, "OUT: dbshowheader bool - header: %s", line2.c_str());
+            if (!outgoing)
+                syslog(LOG_INFO, "IN: dbshowheader bool - header: %s", line2.c_str());
+        }
+    } else {
+            syslog(LOG_INFO, "Call : from HTTPHeader.cpp to dbshowheader but header is empty");
+#ifdef DGDEBUG
+            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
     }
-  //  syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
 }
 
 
@@ -1039,7 +1055,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
 
 #ifdef DGDEBUG
-        std::cout << (*i) << std::endl;
+        std::cout << "Header value from client: " << (*i) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
 
@@ -1047,7 +1063,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
 #ifdef DGDEBUG
-        std::cout << "CheckHeader: HTTP/1.1 detected" << std::endl;
+        std::cout << "CheckHeader: HTTP/1.1 detected" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         onepointone = true;
         // force HTTP/1.0 - we don't support chunked transfer encoding, possibly amongst other things
@@ -1060,7 +1076,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     if (pproxyconnection != NULL) {
         if (pproxyconnection->contains("lose")) {
 #ifdef DGDEBUG
-            std::cout << "CheckHeader: P-C says close" << std::endl;
+            std::cout << "CheckHeader: P-C says close" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             connectionclose = true;
         } else {
@@ -1076,14 +1092,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
     bool isconnect = false;
     if (outgoing && header.front()[0] == 'C') {
 #ifdef DGDEBUG
-        std::cout << "CheckHeader: CONNECT request detected" << std::endl;
+        std::cout << "CheckHeader: CONNECT request detected" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         isconnect = true;
     }
 
 #ifdef DGDEBUG
     std::cout << "CheckHeader flags before normalisation: AP=" << allowpersistent << " PPC=" << (pproxyconnection != NULL)
-              << " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << std::endl;
+              << " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     if (connectionclose || (outgoing ? isconnect : (pcontentlength == NULL))) {
@@ -1104,7 +1120,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     }
 
 #ifdef DGDEBUG
-    std::cout << "CheckHeader flags after normalisation: AP=" << allowpersistent << " WP=" << waspersistent << std::endl;
+    std::cout << "CheckHeader flags after normalisation: AP=" << allowpersistent << " WP=" << waspersistent << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     // force the headers to reflect whether or not persistency is allowed
@@ -1112,7 +1128,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     if (allowpersistent) {
         if (pproxyconnection == NULL) {
 #ifdef DGDEBUG
-            std::cout << "CheckHeader: Adding our own Proxy-Connection: Keep-Alive" << std::endl;
+            std::cout << "CheckHeader: Adding our own Proxy-Connection: Keep-Alive" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             header.push_back("Connection: keep-alive\r");
             pproxyconnection = &(header.back());
@@ -1122,7 +1138,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     } else {
         if (pproxyconnection == NULL) {
 #ifdef DGDEBUG
-            std::cout << "CheckHeader: Adding our own Proxy-Connection: Close" << std::endl;
+            std::cout << "CheckHeader: Adding our own Proxy-Connection: Close" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             header.push_back("Connection: close\r");
             pproxyconnection = &(header.back());
@@ -1254,10 +1270,6 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 //		answer.chop();
 //	}
 
-#ifdef DGDEBUG
-    std::cout << "from header url:" << answer << std::endl;
-#endif
-
 //make sure ssl stuff is logged as https
 #ifdef __SSLMITM
 //	if(isssl){
@@ -1266,7 +1278,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 #endif
 
 #ifdef DGDEBUG
-    std::cout << "from header url:" << answer << std::endl;
+    std::cout << "from header url:" << answer << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     // Don't include port numbers in the URL in the cached version.
     // Most of the code only copes with URLs *without* port specifiers.
@@ -1354,7 +1366,7 @@ String HTTPHeader::getCookie(const char *cookie)
     }
     line.removeWhiteSpace();
 #ifdef DGDEBUG
-    std::cout << "Found cookie:" << line << std::endl;
+    std::cout << "Found cookie:" << line << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return line;
 }
@@ -1371,7 +1383,7 @@ void HTTPHeader::setCookie(const char *cookie, const char *domain, const char *v
     line += "\r";
     header.push_back(line);
 #ifdef DGDEBUG
-    std::cout << "Setting cookie:" << line << std::endl;
+    std::cout << "Setting cookie:" << line << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     // no expiry specified so ends with the browser session
 }
@@ -1382,7 +1394,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     String cookie(getCookie("GBYPASS"));
     if (!cookie.length()) {
 #ifdef DGDEBUG
-        std::cout << "No bypass cookie" << std::endl;
+        std::cout << "No bypass cookie" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1402,7 +1414,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     }
     if (not matched) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS not match" << std::endl;
+        std::cout << "Cookie GBYPASS not match" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1410,7 +1422,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     time_t timeu = cookietime.toLong();
     if (timeu < timen) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS expired: " << timeu << " " << timen << std::endl;
+        std::cout << "Cookie GBYPASS expired: " << timeu << " " << timen << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1421,22 +1433,22 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
 bool HTTPHeader::isMITMAcceptURL(String *url, const char *magic, const char *clientip)
 {
 #ifdef DGDEBUG
-    std::cout << "Testing for GMACCEPT..." << std::endl;
+    std::cout << "Testing for GMACCEPT..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if ((*url).length() <= 45) {
 #ifdef DGDEBUG
-        std::cout << "too short: " << *url << std::endl;
+        std::cout << "too short: " << *url << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false; // Too short, can't be an accept URL
     }
     if (!(*url).contains("GMACCEPT=")) {
 #ifdef DGDEBUG
-        std::cout << "no tag: " << *url << std::endl;
+        std::cout << "no tag: " << *url << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "URL GMACCEPT found checking..." << std::endl;
+    std::cout << "URL GMACCEPT found checking..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     String url_left((*url).before("GMACCEPT="));
@@ -1446,19 +1458,19 @@ bool HTTPHeader::isMITMAcceptURL(String *url, const char *magic, const char *cli
     String url_hash(url_right.subString(0, 32));
     String url_time(url_right.after(url_hash.toCharArray()));
 #ifdef DGDEBUG
-    std::cout << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << std::endl;
+    std::cout << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     String tohash(clientip + url_time + magic);
     String hashed(tohash.md5());
 
 #ifdef DGDEBUG
-    std::cout << "checking hash: " << clientip << " " << url_left << " " << url_time << " " << magic << " " << hashed << std::endl;
+    std::cout << "checking hash: " << clientip << " " << url_left << " " << url_time << " " << magic << " " << hashed << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     if (hashed != url_hash) {
 #ifdef DGDEBUG
-        std::cout << "URL GMACCEPT HASH mismatch" << std::endl;
+        std::cout << "URL GMACCEPT HASH mismatch" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1468,18 +1480,18 @@ bool HTTPHeader::isMITMAcceptURL(String *url, const char *magic, const char *cli
 
     if (timeu < 1) {
 #ifdef DGDEBUG
-        std::cout << "URL GMACCEPT bad time value" << std::endl;
+        std::cout << "URL GMACCEPT bad time value" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // bad time value
     }
     if (timeu < timen) { // expired key
 #ifdef DGDEBUG
-        std::cout << "URL GMACCEPT expired" << std::endl;
+        std::cout << "URL GMACCEPT expired" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // denotes expired but there
     }
 #ifdef DGDEBUG
-    std::cout << "URL GMACCEPT not expired" << std::endl;
+    std::cout << "URL GMACCEPT not expired" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     return true;
@@ -1490,7 +1502,7 @@ bool HTTPHeader::isMITMAcceptCookie(String url, const char *magic, const char *c
     String cookie(getCookie("GMACCEPT"));
     if (!cookie.length()) {
 #ifdef DGDEBUG
-        std::cout << "No MITM accept cookie" << std::endl;
+        std::cout << "No MITM accept cookie" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1512,7 +1524,7 @@ bool HTTPHeader::isMITMAcceptCookie(String url, const char *magic, const char *c
     }
     if (not matched) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GMACCEPT not match" << std::endl;
+        std::cout << "Cookie GMACCEPT not match" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1520,7 +1532,7 @@ bool HTTPHeader::isMITMAcceptCookie(String url, const char *magic, const char *c
     time_t timeu = cookietime.toLong();
     if (timeu < timen) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GMACCEPT expired: " << timeu << " " << timen << std::endl;
+        std::cout << "Cookie GMACCEPT expired: " << timeu << " " << timen << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
@@ -1545,7 +1557,7 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
         return 0;
 
 #ifdef DGDEBUG
-    std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << std::endl;
+    std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     String url_left((*url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
@@ -1555,7 +1567,7 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
     String url_hash(url_right.subString(0, 32));
     String url_time(url_right.after(url_hash.toCharArray()));
 #ifdef DGDEBUG
-    std::cout << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << std::endl;
+    std::cout << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     String mymagic(magic);
@@ -1565,7 +1577,7 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
 
     if (hashed != url_hash) {
 #ifdef DGDEBUG
-        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " hash mismatch" << std::endl;
+        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " hash mismatch" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 0;
     }
@@ -1575,18 +1587,18 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
 
     if (timeu < 1) {
 #ifdef DGDEBUG
-        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " bad time value" << std::endl;
+        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " bad time value" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // bad time value
     }
     if (timeu < timen) { // expired key
 #ifdef DGDEBUG
-        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " expired" << std::endl;
+        std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " expired" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // denotes expired but there
     }
 #ifdef DGDEBUG
-    std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " not expired" << std::endl;
+    std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " not expired" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (virusbypass)
         (*isvirusbypass) = true;
@@ -1603,7 +1615,7 @@ bool HTTPHeader::isScanBypassURL(String *url, const char *magic, const char *cli
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "URL GSBYPASS found checking..." << std::endl;
+    std::cout << "URL GSBYPASS found checking..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     String url_left((*url).before("GSBYPASS="));
@@ -1612,7 +1624,7 @@ bool HTTPHeader::isScanBypassURL(String *url, const char *magic, const char *cli
 
     String url_hash(url_right.subString(0, 32));
 #ifdef DGDEBUG
-    std::cout << "URL: " << url_left << ", HASH: " << url_hash << std::endl;
+    std::cout << "URL: " << url_left << ", HASH: " << url_hash << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     // format is:
@@ -1630,14 +1642,14 @@ bool HTTPHeader::isScanBypassURL(String *url, const char *magic, const char *cli
 
 #ifdef DGDEBUG
     std::cout << "checking hash: " << clientip << " " << url_left << " " << tempfilename << " "
-              << " " << tempfilemime << " " << tempfiledis << " " << magic << " " << hashed << std::endl;
+              << " " << tempfilemime << " " << tempfiledis << " " << magic << " " << hashed << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     if (hashed == url_hash) {
         return true;
     }
 #ifdef DGDEBUG
-    std::cout << "URL GSBYPASS HASH mismatch" << std::endl;
+    std::cout << "URL GSBYPASS HASH mismatch" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     return false;
@@ -1654,7 +1666,7 @@ String HTTPHeader::getReferer()
     }
     line.removeWhiteSpace();
 #ifdef DGDEBUG
-    std::cout << "Found Referer URL:" << line << std::endl;
+    std::cout << "Found Referer URL:" << line << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return line;
 }
@@ -1673,15 +1685,15 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         return s;
     }
 #ifdef DGDEBUG
-    std::cout << "decoding url" << std::endl;
+    std::cout << "decoding url" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     RegResult Rre;
     if (!urldecode_re.match(s.c_str(),Rre)) {
         return s;
     } // exit if not found
 #ifdef DGDEBUG
-    std::cout << "matches:" << Rre.numberOfMatches() << std::endl;
-    std::cout << "removing %XX" << std::endl;
+    std::cout << "matches:" << Rre.numberOfMatches() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cout << "removing %XX" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     int match;
     int offset;
@@ -1698,7 +1710,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
 #ifdef DGDEBUG
-        std::cout << "encoded: " << Rre.result(match) << " decoded: " << hexToChar(n) << " string so far: " << result << std::endl;
+        std::cout << "encoded: " << Rre.result(match) << " decoded: " << hexToChar(n) << " string so far: " << result << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         pos = offset + 3;
     }
@@ -1866,7 +1878,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
 #ifdef DGDEBUG
-            std::cout << "headerout was:" << l << std::endl;
+            std::cout << "headerout was:" << l << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
 #ifdef __SSLMITM
@@ -1880,7 +1892,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #endif
 
 #ifdef DGDEBUG
-            std::cout << "headerout is:" << l << std::endl;
+            std::cout << "headerout is:" << l << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             // first reconnect loop - send first line
             while (true) {
@@ -1889,7 +1901,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                     if (reconnect && !mitm) {
 // don't try more than once
 #ifdef DGDEBUG
-                        std::cout << "Proxy connection broken (1); trying to re-establish..." << std::endl;
+                        std::cout << "Proxy connection broken (1); trying to re-establish..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
                         syslog(LOG_ERR, "Proxy connection broken (1); trying to re-establish...");
 #endif
                         reconnect = false;
@@ -1920,11 +1932,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 l += (*i) + "\n";
         }
     }
-    l += "\r\n";
+    l += "\n";
 
 #ifdef DGDEBUG
-    std::cout << "headertoclient:" << l << std::endl;
-    std::cout << "timeout:" << timeout << std::endl;
+    std::cout << "headertoclient:" << l << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cout << "timeout:" << timeout << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     // second reconnect loop
@@ -1937,7 +1949,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             if (reconnect && !mitm) {
 // don't try more than once
 #ifdef DGDEBUG
-                std::cout << "Proxy connection broken (2); trying to re-establish..." << std::endl;
+                std::cout << "Proxy connection broken (2); trying to re-establish..." << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
                 syslog(LOG_ERR, "Proxy connection broken (2); trying to re-establish...");
 #endif
                 reconnect = false;
@@ -1957,30 +1969,30 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         break;
     }
 #ifdef DGDEBUG
-    std::cout << "Header written - pstdata_len:" << postdata_len << std::endl;
+    std::cout << "Header written - pstdata_len:" << postdata_len << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     if (postdata_len > 0) {
 #ifdef DGDEBUG
-        std::cout << "Sending manually set POST data" << std::endl;
+        std::cout << "Sending manually set POST data" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if (!sock->writeToSocket(postdata, postdata_len, 0, timeout)) {
 #ifdef DGDEBUG
-            std::cout << "Could not send POST data!" << std::endl;
+            std::cout << "Could not send POST data!" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             //throw std::exception();
             return false;
         }
     } else if ((peersock != NULL) && (!requestType().startsWith("HTTP")) && (pcontentlength != NULL)) {
 #ifdef DGDEBUG
-        std::cout << "Opening tunnel for POST data" << std::endl;
+        std::cout << "Opening tunnel for POST data" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         FDTunnel fdt;
         if (!fdt.tunnel(*peersock, *sock, false, contentLength(), true) )
             return false;
     }
 #ifdef DGDEBUG
-    std::cout << "Returning from header:out " << std::endl;
+    std::cout << "Returning from header:out " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
     dbshowheader(true);
 #endif
     return true;
@@ -2026,14 +2038,18 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         int rc;
         if (firsttime) {
 #ifdef DGDEBUG
-            std::cout << "header:in before getLine - timeout:" << timeout << std::endl;
+            std::cout << "header:in before getLine - timeout:" << timeout << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-            std::cout << "header:in after getLine " << std::endl;
+            std::cout << "firstime: header:in after getLine " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             if (rc < 0 || truncated) {
                 ispersistent = false;
+#ifdef DGDEBUG
+                std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
+#endif
                 return false;
             }
         } else {
@@ -2043,6 +2059,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
+#ifdef DGDEBUG
+                std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
+#endif
                 return false;        // allow non-terminated headers in http apps - may need a flag to make this optional
             }
 
@@ -2061,6 +2081,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
             {
                 if(o.logconerror)
                     syslog(LOG_INFO, "Server did not respond with HTTP");
+#ifdef DGDEBUG
+                std::cout << "Returning from header:in Server did not respond with HTTP " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
+#endif
                 return false;
             }
         }
@@ -2071,18 +2095,27 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         else {
             discard = true;
 #ifdef DGDEBUG
-            std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << std::endl;
+            std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         }
         firsttime = false;
     }
-    header.pop_back(); // remove the final blank line of a header
-    if (header.size() == 0)  return false;
+    if (header.size() == 0) {
    //     throw std::exception();
+#ifdef DGDEBUG
+    	std::cout << "header:size = 0 " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+    	return false;
+    }
+#ifdef DGDEBUG
+    dbshowheader(false);
+#endif
+
+    header.pop_back(); // remove the final blank line of a header
 
     checkheader(allowpersistent); // sort out a few bits in the header
 #ifdef DGDEBUG
-    std::cout << "Returning from header:in " << std::endl;
+    std::cout << "Returning from header:in " << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
     dbshowheader(false);
 #endif
     return true;
