@@ -107,14 +107,14 @@ bool wasClean(HTTPHeader &header, String &url, const int fg)
 #endif
         if(!ipcsock.writeString(myurl.c_str()))  {
 #ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -Exception writing to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -Exception writing to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         syslog(LOG_ERR, "Exception writing to url cache");
     }
     char reply;
         if(!ipcsock.readFromSocket(&reply, 1, 0, 6000)) {
 #ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -Exception reading from url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -Exception reading from url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         syslog(LOG_ERR, "Exception reading from url cache");
     }
@@ -146,8 +146,8 @@ void addToClean(String &url, const int fg)
     myurl += "\n";
     if(!ipcsock.writeString(myurl.c_str())) {
 #ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -Exception adding to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-//        std::cerr << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -Exception adding to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+//        std::cout << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         syslog(LOG_ERR, "Exception adding to url cache");
         //syslog(LOG_ERR, "%s", e.what());
@@ -666,7 +666,7 @@ stat_rec* &dystat)
                     }
                     if (rc) {
 #ifdef DGDEBUG
-                        std::cerr << dbgPeerPort << " -Error connecting to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << " -Error connecting to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                         syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), proxysock.getErrno(),strerror(proxysock.getErrno()));
                         if (proxysock.isTimedout()) {
@@ -690,13 +690,13 @@ stat_rec* &dystat)
                     }
                 } catch (std::exception &e) {
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " -exception while creating proxysock: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 }
             }
 
 #ifdef DGDEBUG
-            std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
@@ -818,7 +818,7 @@ stat_rec* &dystat)
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cerr << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cout << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                             syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
                             dobreak = true;
                             break;
@@ -861,7 +861,7 @@ stat_rec* &dystat)
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cerr << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cout << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                             syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
                             dobreak = true;
                             break;
@@ -1378,7 +1378,7 @@ stat_rec* &dystat)
                 if(!proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Unable to write to proxy",peerconn, proxysock);
 #ifdef DGDEBUG
-                std::cerr << dbgPeerPort << "  got past line 1257 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << dbgPeerPort << "  got past line 1257 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
                 if(!( header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
@@ -1542,7 +1542,7 @@ stat_rec* &dystat)
                         if(!proxysock.breadyForOutput(o.proxy_timeout))
                             cleanThrow("Unable to write to proxy 1415",peerconn, proxysock);
 #ifdef DGDEBUG
-                        std::cerr << dbgPeerPort << "  got past line 1391 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << "  got past line 1391 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                         if(!header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                             cleanThrow("Unable to write header to proxy",peerconn, proxysock);
@@ -1620,7 +1620,7 @@ stat_rec* &dystat)
 
                     //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << "  got past line 1465 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << "  got past line 1465 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true))
                     cleanThrow("Unable to send header to proxy 1524",peerconn, proxysock);
@@ -1936,7 +1936,7 @@ stat_rec* &dystat)
                    if(! proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Error sending header to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << "  got past line 1759 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << "  got past line 1759 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                 } else {
@@ -2183,7 +2183,7 @@ stat_rec* &dystat)
                                                     int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                                                         true, false, isexception, isbypass, disposition, mimetype, part->getLength() - offset);
 #ifdef DGDEBUG
-                                                    std::cerr << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                                    std::cout << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                                                     if (csrc > 0) {
                                                         csrc = (*i)->scanMemory(&header, NULL, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
@@ -2285,7 +2285,7 @@ stat_rec* &dystat)
                                             if(!proxysock.breadyForOutput(o.proxy_timeout))
                                             cleanThrow("Error sending headers to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
-                                            std::cerr << dbgPeerPort << "  got past line 2098 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                            std::cout << dbgPeerPort << "  got past line 2098 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
@@ -2441,7 +2441,7 @@ stat_rec* &dystat)
                             int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                                 true, true, isexception, isbypass, "", "text/plain", result.length());
 #ifdef DGDEBUG
-                            std::cerr << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cout << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                             if (csrc > 0) {
                                 String mimetype("text/plain");
@@ -2541,18 +2541,18 @@ stat_rec* &dystat)
                 // send header to proxy
                 if (!wasrequested) {
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << " before 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " before 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     if(!proxysock.breadyForOutput(o.proxy_timeout))
                         cleanThrow("Error sending headers to proxy", peerconn,proxysock);
                     //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << "  got past line 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << "  got past line 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << "  got past line 2350 proxy header out " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                    std::cerr << dbgPeerPort << "  exchange_timeout is " << o.exchange_timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << "  got past line 2350 proxy header out " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << "  exchange_timeout is " << o.exchange_timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
                     // get header from proxy
@@ -2665,7 +2665,7 @@ stat_rec* &dystat)
                         responsescanners.clear();
                 }
 #ifdef DGDEBUG
-                std::cerr << dbgPeerPort << " -Content-Lenght is: " << cl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << dbgPeerPort << " -Content-Lenght is: " << cl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
                 // now that we have the proxy's header too, we can make a better informed decision on whether or not to scan.
@@ -2673,7 +2673,7 @@ stat_rec* &dystat)
                 // and exceptionvirusextensionlist less effective, because we didn't have a Content-Disposition header.
                 if (!responsescanners.empty()) {
 #ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << " -Number of response CS plugins in candidate list: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " -Number of response CS plugins in candidate list: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 //send header to plugin here needed
 //also send user and group
@@ -2685,7 +2685,7 @@ stat_rec* &dystat)
                         int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                             false, false, isexception, isbypass, docheader.disposition(), docheader.getContentType(), docheader.contentLength());
 #ifdef DGDEBUG
-                        std::cerr << dbgPeerPort << " -willScanData for plugin " << j << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << " -willScanData for plugin " << j << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                         if (csrc > 0)
                             newplugins.push_back(*i);
@@ -2950,7 +2950,7 @@ stat_rec* &dystat)
                     cleanThrow("Error sending headers to proxy", peerconn,proxysock);
                 //proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
-                std::cerr << dbgPeerPort << "  got past line 2659 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << dbgPeerPort << "  got past line 2659 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
                 proxysock.bcheckForInput(o.exchange_timeout); // exceptions on error/timeout
@@ -2970,7 +2970,7 @@ stat_rec* &dystat)
                 cleanThrow("Error sending headers to client", peerconn,proxysock);
             //peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
-            std::cerr << dbgPeerPort << "  got past line 2677 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << dbgPeerPort << "  got past line 2677 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             if (headersent == 1) {
                 docheader.out(NULL, &peerconn, __DGHEADER_SENDREST); // send rest of header to client
@@ -3004,7 +3004,7 @@ stat_rec* &dystat)
                  //   cleanThrow("Error sending body to client 2784", peerconn,proxysock);
                 //peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
 //#ifdef DGDEBUG
-  //              std::cerr << dbgPeerPort << "  got past line 2705 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+  //              std::cout << dbgPeerPort << "  got past line 2705 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 //#endif
 
                 // it must be clean if we got here
@@ -3121,7 +3121,7 @@ stat_rec* &dystat)
         } // while persistOutgoing
     } catch (postfilter_exception &e) {
 #ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if(o.logconerror)
         	syslog(LOG_ERR, "POST filtering exception: %s", e.what());
@@ -3132,7 +3132,7 @@ stat_rec* &dystat)
         return 0;
     } catch (std::exception &e) {
 #ifdef DGDEBUG
-        std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if(o.logconerror)
         	syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
@@ -3162,7 +3162,7 @@ stat_rec* &dystat)
             proxysock.close();
         } catch (std::exception &e) {
 #ifdef DGDEBUG
-            std::cerr << dbgPeerPort << " -connection handler caught an exception on connection closedown: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << dbgPeerPort << " -connection handler caught an exception on connection closedown: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             // close connection to the client
             peerconn.close();
@@ -4304,7 +4304,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     csrc = (*i)->scanMemory(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->data, docbody->buffer_length, checkme);
                 }
 #ifdef DGDEBUG
-                std::cerr << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 if (csrc == DGCS_WARNING) {
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
