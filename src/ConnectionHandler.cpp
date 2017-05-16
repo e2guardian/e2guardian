@@ -645,7 +645,6 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
             header.dbshowheader(&logurl, clientip.c_str());
 #endif
-
             //If proxy connction is not persistent...
             if (!persistProxy && !ismitm) {
                 try {
@@ -812,9 +811,9 @@ stat_rec* &dystat)
 #endif
                             overide_persist = true;
                         } else if (rc ==  DGAUTH_NOIDENTPART) {
-			    dobreak = true;
-			    isexception = true;
-			    logged = true;
+                            dobreak = true;
+                            isexception = true;
+                            logged = true;
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
@@ -978,7 +977,7 @@ stat_rec* &dystat)
                 header.addXForwardedFor(clientip.c_str()); // add squid-like entry
             }
 #ifdef DGDEBUG
-    header.dbshowheader(&logurl, clientip.c_str());
+            header.dbshowheader(&logurl, clientip.c_str());
 #endif
 
             // is this machine banned?
@@ -1686,7 +1685,7 @@ stat_rec* &dystat)
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
                     if (isconnect)
                         header.sslsiteRegExp(ldl->fg[filtergroup]);
-                     if (o.forwarded_for )
+                    if (o.forwarded_for)
                             header.addXForwardedFor(clientip.c_str()); // add squid-like entry
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                         cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
@@ -2619,7 +2618,7 @@ stat_rec* &dystat)
               		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
                 	logged = true;
                     	isexception = true;
-		} 
+		}
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.

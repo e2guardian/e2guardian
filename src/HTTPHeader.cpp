@@ -314,7 +314,7 @@ bool HTTPHeader::isCompressed()
 {
     if (pcontentencoding != NULL) {
         if (pcontentencoding->indexOf("identity") != -1) {
-            // http1.1 says this
+            // http says this
             // should not be here, but not must not
             return false;
         }
@@ -1027,6 +1027,7 @@ void HTTPHeader::dbshowheader(bool outgoing)
 void HTTPHeader::checkheader(bool allowpersistent)
 {
     // are these headers outgoing (from browser), or incoming (from web server)?
+    // Hum Maybe there is something wrong but it should be always from client
     bool outgoing = true;
     if (header.front().startsWith("HT")) {
         outgoing = false;
@@ -1948,6 +1949,10 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                     return false;
                 }
                 // if we got here, we succeeded, so break the reconnect loop
+#ifdef DGDEBUG
+                std::cout << "headertoclient:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << "timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                 break;
             }
         }
@@ -1960,16 +1965,21 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
     if (header.size() > 1) {
         for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
-            if (! (*i).startsWith("X-E2G-IgnoreMe"))
+            if (! (*i).startsWith("X-E2G-IgnoreMe")){
+#ifdef DGDEBUG
+                std::cout << "Found Header: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                 l += (*i) + "\n";
+            }
+#ifdef DGDEBUG
+            else {
+                    std::cout << "Found Header X-E2G-IgnoreMe: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            }
+#endif
         }
+
     }
     l += "\n";
-
-#ifdef DGDEBUG
-    std::cout << "headertoclient:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    std::cout << "timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
 
     // second reconnect loop
     while (true) {
@@ -2066,94 +2076,94 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     // on the first time round the loop, honour the reloadconfig flag if desired
     // - this lets us break when waiting for the next request on a pconn, but not
     // during receipt of a request in progress.
-    bool truncated = false;
-    int rc;
-    if (firsttime) {
+        bool truncated = false;
+        int rc;
+        if (firsttime) {
 #ifdef DGDEBUG
-        std::cout << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-        rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-        std::cout << "firstime: header:in after getLine " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "firstime: header:in after getLine " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-        if (rc < 0 || truncated) {
+           if (rc < 0 || truncated) {
                 ispersistent = false;
 #ifdef DGDEBUG
-            std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            dbshowheader(false);
+                std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
 #endif
-            return false;
-        }
-    } else {
+                return false;
+            }
+        } else {
         //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
         // this does not work for sites who are slow to send Content-Lenght so revert to standard
         // timeout
-        rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
-        if (rc < 0 || truncated) {
-            ispersistent = false;
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            if (rc < 0 || truncated) {
+                ispersistent = false;
 #ifdef DGDEBUG
-            std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            dbshowheader(false);
+                std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
 #endif
-            return false;        // do not allow non-terminated headers
+                return false;        // do not allow non-terminated headers
+            }
+
         }
 
-    }
-
-    if (header.size() > o.max_header_lines) {
+        if (header.size() > o.max_header_lines) {
 #ifdef DGDEBUG
-        std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-        ispersistent = false;
-        return false;
-    }
+            ispersistent = false;
+            return false;
+        }
 
      //       throw std::exception();
 
         // getline will throw an exception if there is an error which will
         // only be caught by HandleConnection()       ?????????????????????
 
-    if (rc > 0 ) line = buff;
-    else line = "";// convert the line to a String
+        if (rc > 0 ) line = buff;
+        else line = "";// convert the line to a String
 
-    if(firsttime && is_response) {
+        if(firsttime && is_response) {
         // check first line header
-        if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
-        {
-            if(o.logconerror)
-                syslog(LOG_INFO, "Server did not respond with HTTP");
+            if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
+            {
+                if(o.logconerror)
+                    syslog(LOG_INFO, "Server did not respond with HTTP");
 #ifdef DGDEBUG
-            std::cout << "Returning from header:in Server did not respond with HTTP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            dbshowheader(false);
+                std::cout << "Returning from header:in Server did not respond with HTTP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                dbshowheader(false);
 #endif
-            return false;
+                return false;
+            }
         }
-    }
         // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
-    discard = false;
-    if (not(firsttime && line.length() <= 3))
-        header.push_back(line); // stick the line in the deque that holds the header
-    else {
-        discard = true;
+        discard = false;
+        if (not(firsttime && line.length() <= 3)) {
+            header.push_back(line); // stick the line in the deque that holds the header
+        } else {
+            discard = true;
 #ifdef DGDEBUG
-        std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-    }
+        }
         firsttime = false;
+#ifdef DGDEBUG
+        std::cout << "Loop catch Header IN from client: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+// End of while
     }
+
     if (header.size() == 0) {
 #ifdef DGDEBUG
-    	std::cout << "header:size = 0 " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "header:size = 0 " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return false;
     }
 
     checkheader(allowpersistent); // sort out a few bits in the header
     header.pop_back(); // remove the final blank line of a header
-
-#ifdef DGDEBUG
-    std::cout << "Returning from header:in " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    dbshowheader(false);
-#endif
     return true;
 }
