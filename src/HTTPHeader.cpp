@@ -977,7 +977,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
             }
             syslog(LOG_INFO, "%d: Client: %s END %s -------------------------------", tid, clientip, reqres.c_str());
 #ifdef DGDEBUG
-        std::cout << tid << "Client: END " << regres << " -------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+        std::cout << tid << "Client: END " << reqres << " -------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     } else {
             syslog(LOG_INFO, "%d: Client: %s Call to dbshowheader but %s header is empty", tid, clientip,reqres);
@@ -2169,11 +2169,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 
     if (header.size() == 0) {
 #ifdef DGDEBUG
-<<<<<<< HEAD
-//    dbshowheader(false);
-=======
         std::cout << "header:size = 0 " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
->>>>>>> 66825414995ef064cb2ef47df91614ea3c4e8824
 #endif
         return false;
     }

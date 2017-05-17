@@ -1419,6 +1419,8 @@ stat_rec* &dystat)
                 if (!(docheader.returnCode() == 200)) {
                     isconnect = false;
                 }
+                if (docheader.authRequired() )
+                    continue;
 
                 if (isconnect) {
                     persistProxy = false;
@@ -1559,6 +1561,8 @@ stat_rec* &dystat)
                         if (!(docheader.returnCode() == 200)) {
                             isconnect = false;
                         }
+                        if (docheader.authRequired())
+                            continue;
                         if (isconnect) {
                             persistProxy = false;
                             persistOutgoing = false;
