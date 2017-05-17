@@ -807,13 +807,17 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
     if (!isssl) {
         return BaseSocket::getLine(buff, size, timeout, honour_reloadconfig, chopped, truncated);
     }
+#ifdef DGDEBUG
+		std::cout << "in getline (SSL): timeout: " << timeout << " size: " << size << std::endl;
+
+#endif
 
     // first, return what's left from the previous buffer read, if anything
     int i = 0;
     if ((bufflen - buffstart) > 0) {
-        /*#ifdef DGDEBUG
-		std::cout << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif*/
+#ifdef DGDEBUG
+		std::cout << "getline(ssl) data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
+#endif
         int tocopy = size - 1;
         if ((bufflen - buffstart) < tocopy)
             tocopy = bufflen - buffstart;
@@ -838,10 +842,10 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
  //       } catch (std::exception &e) {
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
  //       }
-        if( bcheckSForInput(timeout))
+ //       if( bcheckSForInput(timeout))
             bufflen = SSL_read(ssl, buffer, 4096);
 #ifdef DGDEBUG
-//std::cout << "read into buffer; bufflen: " << bufflen <<std::endl;
+std::cout << "getline (SSL) read into buffer; bufflen: " << bufflen <<std::endl;
 #endif
         if (bufflen < 0) {
   //          if (errno == EINTR ) {
@@ -862,7 +866,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
                 *truncated = true;
 #ifdef DGDEBUG
             if (truncated)
-            	std::cout << "Getline truncated buffer end reached before we found a newline: bufflen == 0" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+            	std::cout << "Getline(SSL) truncated buffer end reached before we found a newline: bufflen == 0" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
             return i;
         }
@@ -880,7 +884,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
         }
         i += tocopy;
 #ifdef DGDEBUG
-            std::cout << "buffer =: " << buff[i] << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "getLine(SSL) buffer =: " << buff[i] << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
     // oh dear - buffer end reached before we found a newline
@@ -889,7 +893,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
         *truncated = true;
 #ifdef DGDEBUG
     	if (truncated)
-            std::cout << "Getline truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+            std::cout << "Getline(SSL) truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     return i;
 }
@@ -974,7 +978,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 
     while (cnt > 0) {
     //    try {
-            bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
+    //        bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
     //    } catch (std::exception &e) {
      //       return -1;
      //   }
@@ -1033,23 +1037,23 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 #endif
     int rc;
     while (cnt > 0) {
-    if (check_first) {
-#ifdef DGDEBUG
-        std::cout << "Socket::readFromSocket(ssl): before bcheckSForInput timeout is: " << timeout  << std::endl;
-#endif
+ //   if (check_first) {
+//#ifdef DGDEBUG
+//       std::cout << "Socket::readFromSocket(ssl): before bcheckSForInput timeout is: " << timeout  << std::endl;
+//#endif
 //          if(!bcheckSForInput(timeout))
   //          return -1;
-#ifdef DGDEBUG
-        std::cout << "Socket::readFromSocket(ssl): after bcheckSForInput OK return: " << std::endl;
-#endif
-   }
+//#ifdef DGDEBUG
+//        std::cout << "Socket::readFromSocket(ssl): after bcheckSForInput OK return: " << std::endl;
+//#endif
+  // }
 //    while (true)
         bool inbuffer;
 #ifdef DGDEBUG
         std::cout << "Socket::readFromSocket(ssl): before SSL_read: "  << std::endl;
 #endif
         ERR_clear_error();
-        if (cnt > 4095) {
+       if (true) {     // was if(cnt > 4095)
             inbuffer = false;
            rc = SSL_read(ssl, buff, cnt);        //  data larger than SSL buffer so ok to read directly into output buffer
         } else {
@@ -1086,7 +1090,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
               buffstart += tocopy;
               buff += tocopy;
 #ifdef DGDEBUG
-        std::cout << "Inbuffer SSL read to returned " << tocopy << " bytes" << std::endl;
+        std::cout << "Inbuffer SSL read returned " << tocopy << " bytes" << std::endl;
 #endif
            }
          } else {

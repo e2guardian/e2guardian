@@ -944,47 +944,69 @@ bool HTTPHeader::malformedURL(const String &url)
 
 void HTTPHeader::dbshowheader(String *url, const char *clientip)
 {
+    std::string reqres, inout;
+    if (is_response) {
+        reqres = "RES";
+    } else {
+        reqres = "REQ";
+    }
+    std::hash<std::thread::id> htid;
+//    std::thread::id tid = std::this_thread::get_id();
+    std::size_t tid = htid(std::this_thread::get_id());
+
 
 	if (header.size() != 0){
         String *line;
-        syslog(LOG_INFO, "Client: %s START-------------------------------", clientip);
+        syslog(LOG_INFO, "%d Client: %s START  %s -------------------------------", tid, clientip, reqres.c_str());
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
             bool outgoing = true;
             if (header.front().startsWith("HT")) {
                 outgoing = false;
+                inout = "IN";
+            } else {
+                inout = "OUT";
             }
-            if (outgoing)
-                syslog(LOG_INFO, "OUT: Client IP at %s header: %s", clientip, line2.c_str());
-            if (!outgoing)
-                syslog(LOG_INFO, "IN: Client IP at %s header: %s", clientip, line2.c_str());
+                syslog(LOG_INFO, "%d: %s: Client IP at %s header: %s", tid, inout.c_str(), clientip, line2.c_str());
             }
-            syslog(LOG_INFO, "Client: %s END-------------------------------", clientip);
+            syslog(LOG_INFO, "%d: Client: %s END %s -------------------------------", tid, clientip, reqres.c_str());
     } else {
-            syslog(LOG_INFO, "Client: %s Call to dbshowheader but header is empty", clientip);
+            syslog(LOG_INFO, "%d: Client: %s Call to dbshowheader but %s header is empty", tid, clientip,reqres);
 #ifdef DGDEBUG
-            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+            std::cout << tid << "Call : from HTTPHeader.cpp to dbshowheader but" << reqres << " header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     }
 }
 
 void HTTPHeader::dbshowheader(bool outgoing)
 {
+    std::string reqres, inout;
+    if (is_response) {
+        reqres = "RES";
+    } else {
+        reqres = "REQ";
+    }
+    if (outgoing)
+        inout = reqres + "OUT";
+    else
+        inout = reqres + "IN";
+
+    std::hash<std::thread::id> htid;
+//    std::thread::id tid = std::this_thread::get_id();
+    std::size_t tid = htid(std::this_thread::get_id());
+
     if (header.size() != 0){
         String *line;
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
-            if (outgoing)
-                syslog(LOG_INFO, "OUT: dbshowheader bool - header: %s", line2.c_str());
-            if (!outgoing)
-                syslog(LOG_INFO, "IN: dbshowheader bool - header: %s", line2.c_str());
+                syslog(LOG_INFO, "%d:%s: dbshowheader bool - header: %s", tid, inout.c_str(), line2.c_str());
         }
     } else {
-            syslog(LOG_INFO, "Call : from HTTPHeader.cpp to dbshowheader but header is empty");
+            syslog(LOG_INFO, "%d:Call : from HTTPHeader.cpp to dbshowheader but header is empty", tid);
 #ifdef DGDEBUG
-            std::cout << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+            std::cout <<  tid << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     }
 }
@@ -1934,7 +1956,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 l += (*i) + "\n";
         }
     }
-    l += "\n";
+    l += "\r\n";
 
 #ifdef DGDEBUG
     std::cout << "headertoclient:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -2118,7 +2140,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     	return false;
     }
 #ifdef DGDEBUG
-    dbshowheader(false);
+//    dbshowheader(false);
 #endif
 
     header.pop_back(); // remove the final blank line of a header
