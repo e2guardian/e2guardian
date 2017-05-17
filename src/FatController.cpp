@@ -457,8 +457,8 @@ void flush_urlcache()
 //    } catch (std::exception &e) {
         if(!fipcsock.writeString(request.toCharArray()))  {
 #ifdef DGDEBUG
-        std::cerr << "Exception flushing url cache" << std::endl;
-        //std::cerr << e.what() << std::endl;
+        std::cout << "Exception flushing url cache" << std::endl;
+        //std::cout << e.what() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", "Exception flushing url cache");
        // syslog(LOG_ERR, "%s", e.what());
@@ -537,17 +537,17 @@ void handle_connections(int tindex)
             int stat = 0;
             int rc = 0;
 #ifdef DGDEBUG
-            std::cerr << " in  handle connection"  << std::endl;
+            std::cout << " in handle connection"  << std::endl;
 #endif
             std::thread::id this_id = std::this_thread::get_id();
             //reloadconfig = false;
             while (!ttg) {
 #ifdef DGDEBUG
-                std::cerr << " waiting connection on http_worker_Q "  << this_id << std::endl;
+                std::cout << " waiting connection on http_worker_Q "  << this_id << std::endl;
 #endif
                 Socket *peersock = o.http_worker_Q->pop();
 #ifdef DGDEBUG
-                std::cerr << " popped connection from http_worker_Q"  << std::endl;
+                std::cout << " popped connection from http_worker_Q"  << std::endl;
 #endif
                 if (ttg) break;
 
@@ -562,7 +562,7 @@ void handle_connections(int tindex)
 
                 rc = h.handlePeer(*peersock, peersockip, dystat); // deal with the connection
 #ifdef DGDEBUG
-                std::cerr << "handle_peer returned: " << rc << std::endl;
+                std::cout << "handle_peer returned: " << rc << std::endl;
 #endif
                 --dystat->busychildren;
                 delete peersock;
@@ -652,7 +652,7 @@ void wait_for_proxy()
         }
     } catch (std::exception &e) {
 #ifdef DGDEBUG
-        std::cerr << " -exception while creating proxysock: " << e.what() << std::endl;
+        std::cout << " -exception while creating proxysock: " << e.what() << std::endl;
 #endif
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
@@ -1424,7 +1424,7 @@ int url_list_listener(bool logconerror)  // Needs threadfy
                 if (logconerror) {
 #ifdef DGDEBUG
                     std::cout << "Error reading url ipc. (Ignorable)" << std::endl;
-                    std::cerr << e.what() << std::endl;
+                    std::cout << e.what() << std::endl;
 #endif
                     syslog(LOG_ERR, "%s", "Error reading url ipc. (Ignorable)");
                     syslog(LOG_ERR, "%s", e.what());
@@ -1676,7 +1676,7 @@ int fc_controlit()   //
         // if the socket fd is not +ve then the socket creation failed
         if (serversockfds[i] < 0) {
             if (!is_daemonised) {
-                std::cerr << "Error creating server socket " << i << std::endl;
+                std::cout << "Error creating server socket " << i << std::endl;
             }
             syslog(LOG_ERR, "Error creating server socket %d", i);
             delete[] serversockfds;
@@ -1700,7 +1700,7 @@ int fc_controlit()   //
     if (rc == -1) {
         syslog(LOG_ERR, "%s", "Unable to seteuid() to bind filter port.");
 #ifdef DGDEBUG
-        std::cerr << "Unable to seteuid() to bind filter port." << std::endl;
+        std::cout << "Unable to seteuid() to bind filter port." << std::endl;
 #endif
         delete[] serversockfds;
         return 1;
@@ -1710,7 +1710,7 @@ int fc_controlit()   //
     int pidfilefd = sysv_openpidfile(o.pid_filename);
     if (pidfilefd < 0) {
         syslog(LOG_ERR, "%s", "Error creating/opening pid file.");
-        std::cerr << "Error creating/opening pid file:" << o.pid_filename << std::endl;
+        std::cout << "Error creating/opening pid file:" << o.pid_filename << std::endl;
         delete[] serversockfds;
         return 1;
     }
@@ -1721,7 +1721,7 @@ int fc_controlit()   //
     if (o.filter_ip[0].length() > 6) {
         if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server socket (is something else running on the filter port and ip?"
+                std::cout << "Error binding server socket (is something else running on the filter port and ip?"
                           << std::endl;
             }
             syslog(LOG_ERR, "Error binding server socket (is something else running on the filter port and ip?");
@@ -1734,7 +1734,7 @@ int fc_controlit()   //
         if (o.map_ports_to_ips) {
             if (serversockets.bindSingle(o.filter_port)) {
                 if (!is_daemonised) {
-                    std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
+                    std::cout << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
                               << std::endl;
                 }
                 syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
@@ -1745,7 +1745,7 @@ int fc_controlit()   //
         } else {
             if (serversockets.bindSingleM(o.filter_ports)) {
                 if (!is_daemonised) {
-                    std::cerr << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
+                    std::cout << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
                 }
                 syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
                 close(pidfilefd);
@@ -1765,7 +1765,7 @@ int fc_controlit()   //
     if (rc == -1) {
         syslog(LOG_ERR, "Unable to re-seteuid()");
 #ifdef DGDEBUG
-        std::cerr << "Unable to re-seteuid()" << std::endl;
+        std::cout << "Unable to re-seteuid()" << std::endl;
 #endif
         close(pidfilefd);
         delete[] serversockfds;
@@ -1775,7 +1775,7 @@ int fc_controlit()   //
     if (serversockets.listenAll(256)) { // set it to listen mode with a kernel
         // queue of 256 backlog connections
         if (!is_daemonised) {
-            std::cerr << "Error listening to server socket" << std::endl;
+            std::cout << "Error listening to server socket" << std::endl;
         }
         syslog(LOG_ERR, "Error listening to server socket");
         close(pidfilefd);
@@ -1786,7 +1786,7 @@ int fc_controlit()   //
     if (!daemonise()) {
         // detached daemon
         if (!is_daemonised) {
-            std::cerr << "Error daemonising" << std::endl;
+            std::cout << "Error daemonising" << std::endl;
         }
         syslog(LOG_ERR, "Error daemonising");
         close(pidfilefd);
