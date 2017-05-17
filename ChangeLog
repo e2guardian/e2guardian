@@ -1,5 +1,5 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
-
+- Fix certificate bug with chrome browser
 - Fix bug #181 ERR_RESPONSE_HEADERS with bypass
 - Fix bug #183 whitelist and identification 
 - Fix bug #182 e2guardian systemd service does not support reload 
