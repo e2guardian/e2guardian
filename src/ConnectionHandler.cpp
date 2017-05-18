@@ -1942,9 +1942,13 @@ stat_rec* &dystat)
                     std::cout << dbgPeerPort << "  got past line 1759 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
+                    if (docheader.in(&proxysock))  // test lines to fix X-Forwarded issue
+                        docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);  // test lines
                 } else {
                     docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
                 }
+                if (docheader.returnCode() != 200)
+                    continue;
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Opening tunnel for CONNECT" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
