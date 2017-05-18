@@ -2174,7 +2174,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
         return false;
     }
 
-    checkheader(allowpersistent); // sort out a few bits in the header
     header.pop_back(); // remove the final blank line of a header
+    checkheader(allowpersistent); // sort out a few bits in the header
     return true;
 }
