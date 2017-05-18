@@ -956,7 +956,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
 
 	if (header.size() != 0){
         String *line;
-        syslog(LOG_INFO, "%d Client: %s START  %s -------------------------------", tid, clientip, reqres.c_str());
+        syslog(LOG_INFO, "%zu Client: %s START  %s -------------------------------", tid, clientip, reqres.c_str());
 #ifdef DGDEBUG
             std::cout << tid << "Client: START " << reqres << "-------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
@@ -970,17 +970,17 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
             } else {
                 inout = "OUT";
             }
-                syslog(LOG_INFO, "%d: %s: Client IP at %s header: %s", tid, inout.c_str(), clientip, line2.c_str());
+                syslog(LOG_INFO, "%zu: %s: Client IP at %s header: %s", tid, inout.c_str(), clientip, line2.c_str());
 #ifdef DGDEBUG
             std::cout << tid << inout << ": Client IP " << clientip << " "<< line2.c_str() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
             }
-            syslog(LOG_INFO, "%d: Client: %s END %s -------------------------------", tid, clientip, reqres.c_str());
+            syslog(LOG_INFO, "%zu: Client: %s END %s -------------------------------", tid, clientip, reqres.c_str());
 #ifdef DGDEBUG
         std::cout << tid << "Client: END " << reqres << " -------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     } else {
-            syslog(LOG_INFO, "%d: Client: %s Call to dbshowheader but %s header is empty", tid, clientip,reqres);
+            syslog(LOG_INFO, "%zu: Client: %s Call to dbshowheader but %s header is empty", tid, clientip, reqres.c_str());
 #ifdef DGDEBUG
             std::cout << tid << "Call : from HTTPHeader.cpp to dbshowheader but" << reqres << " header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
@@ -1013,7 +1013,7 @@ void HTTPHeader::dbshowheader(bool outgoing)
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
-                syslog(LOG_INFO, "%d:%s: dbshowheader bool - header: %s", tid, inout.c_str(), line2.c_str());
+                syslog(LOG_INFO, "%zu:%s: dbshowheader bool - header: %s", tid, inout.c_str(), line2.c_str());
 #ifdef DGDEBUG
             std::cout << tid << inout <<": dbshowheader bool: " << line2.c_str() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
@@ -1023,7 +1023,7 @@ void HTTPHeader::dbshowheader(bool outgoing)
         std::cout << "Client: END-------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     } else {
-            syslog(LOG_INFO, "%d:Call : from HTTPHeader.cpp to dbshowheader but header is empty", tid);
+            syslog(LOG_INFO, "%zu:Call : from HTTPHeader.cpp to dbshowheader but header is empty", tid);
 #ifdef DGDEBUG
             std::cout <<  tid << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
