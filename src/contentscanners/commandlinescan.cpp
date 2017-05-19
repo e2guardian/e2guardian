@@ -286,20 +286,19 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     char buff[8192];
     std::string result;
     FILE *readme = fdopen(scannerstdout[0], "r");
-    while (fgets(buff, 8192, readme) != NULL) {
-#ifndef DGDEBUG
-        if (usevirusregexp)
-#endif
-            result += buff;
-    }
-    fclose(readme);
-    readme = fdopen(scannerstderr[0], "r");
-    while (fgets(buff, 8192, readme) != NULL) {
-#ifndef DGDEBUG
-        if (usevirusregexp)
-#endif
-            result += buff;
-    }
+    if (NULL != readme){ 
+    	while (fgets(buff, 8192, readme) != NULL) {
+        	if (usevirusregexp)
+            	result += buff;
+    	} 
+    	fclose(readme);
+    	readme = fdopen(scannerstderr[0], "r");
+
+    	while (fgets(buff, 8192, readme) != NULL) {
+        	if (usevirusregexp)
+            		result += buff;
+    	}
+    } 
     fclose(readme);
 
     // close read ends too now
