@@ -1,4 +1,4 @@
-// ListContainer class - for item and phrase lists
+// ListMeta  - super-class for both item and phrase lists
 
 // For all support, instructions and copyright go to:
 // http://e2guardian.org/

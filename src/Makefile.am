@@ -101,6 +101,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        SysV.cpp SysV.hpp \
                        ListContainer.cpp ListContainer.hpp \
                        ListMeta.cpp ListMeta.hpp \
+                       StoryBoard.cpp StoryBoard.hpp \
                        HTMLTemplate.cpp HTMLTemplate.hpp \
                        LanguageContainer.cpp LanguageContainer.hpp \
                        DynamicURLList.cpp DynamicURLList.hpp \
