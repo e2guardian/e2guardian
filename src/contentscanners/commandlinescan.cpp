@@ -101,7 +101,7 @@ int commandlineinstance::init(void *args)
     progname = cv["progname"];
     if (progname.length() == 0) {
         if (!is_daemonised)
-            std::cerr << "Command-line scanner: No program specified" << std::endl;
+            std::cerr << "Command-line scanner: No program specified" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         syslog(LOG_ERR, "Command-line scanner: No program specified");
         return DGCS_ERROR;
     }
@@ -136,7 +136,7 @@ int commandlineinstance::init(void *args)
     for (int i = 0; i < numarguments; i++) {
         std::cout << arguments[i] << " ";
     }
-    std::cout << std::endl;
+    std::cout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
     // read in virus name regular expression
@@ -145,7 +145,7 @@ int commandlineinstance::init(void *args)
         usevirusregexp = true;
         if (!virusregexp.comp(ucvirusregexp.toCharArray())) {
             if (!is_daemonised)
-                std::cerr << "Command-line scanner: Could not compile regular expression for extracting virus names" << std::endl;
+                std::cerr << "Command-line scanner: Could not compile regular expression for extracting virus names" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Could not compile regular expression for extracting virus names");
             return DGCS_ERROR;
         }
@@ -190,9 +190,6 @@ int commandlineinstance::init(void *args)
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
-#ifdef DGDEBUG
-    std::cout << std::endl;
-#endif
 
     // we need at least one of our three mechanisms (cleancodes, infectedcodes and virus names)
     // to be defined in order to make a decision about the nature of a scanning result.
@@ -200,7 +197,7 @@ int commandlineinstance::init(void *args)
     numinfectedcodes = tempinfectedcodes.size();
     if (!(usevirusregexp || numcleancodes || numinfectedcodes)) {
         if (!is_daemonised)
-            std::cerr << "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp." << std::endl;
+            std::cerr << "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         syslog(LOG_ERR, "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp.");
         return DGCS_ERROR;
     }
@@ -226,7 +223,7 @@ int commandlineinstance::init(void *args)
             defaultresult = 0;
         } else {
             if (!is_daemonised)
-                std::cerr << "Command-line scanner: Default result value not understood" << std::endl;
+                std::cerr << "Command-line scanner: Default result value not understood" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Default result value not understood");
             return DGCS_WARNING;
         }
@@ -247,37 +244,52 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     int scannerstdout[2];
     int scannerstderr[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstdout) == -1) {
-        lastmessage = "Cannot create sockets for communicating with scanner";
+        // lastmessage = "Cannot create sockets for communicating with scanner";
         syslog(LOG_ERR, "Cannot open socket pair for command-line scanner's stdout: %s", strerror(errno));
         return DGCS_SCANERROR;
     }
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstderr) == -1) {
-        lastmessage = "Cannot create sockets for communicating with scanner";
+        // lastmessage = "Cannot create sockets for communicating with scanner";
         syslog(LOG_ERR, "Cannot open socket pair for command-line scanner's stderr: %s", strerror(errno));
         return DGCS_SCANERROR;
     }
     int f = fork();
     if (f == 0) {
 #ifdef DGDEBUG
-        std::cout << "Running: " << progname.toCharArray() << " " << filename << std::endl;
+        std::cout << "Commandline scanner running: " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         // close read ends of sockets
         close(scannerstdout[0]);
         close(scannerstderr[0]);
+#ifdef DGDEBUG
+        std::cout << "Commandline scanner running step1 close: " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         // bind stdout & stderr
         dup2(scannerstdout[1], 1);
         dup2(scannerstderr[1], 2);
         // execute scanner
         arguments[numarguments] = (char *)filename;
-        execv(arguments[0], arguments);
+#ifdef DGDEBUG
+        std::cout << "Commandline scanner Running step3 execv: " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+        execl(progname.toCharArray(), progname.toCharArray() , filename , NULL);
+
+#ifdef DGDEBUG
+        std::cout << "Commandline scanner Running step3 error: " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         // if we get here, an error occurred!
         syslog(LOG_ERR, "Cannot exec command-line scanner (command \"%s %s\"): %s", progname.toCharArray(), filename, strerror(errno));
         _exit(255);
     } else if (f == -1) {
-        lastmessage = "Cannot launch scanner";
+        // lastmessage = "Cannot launch scanner";
         syslog(LOG_ERR, "Cannot fork to launch command-line scanner (command \"%s %s\"): %s", progname.toCharArray(), filename, strerror(errno));
         return DGCS_SCANERROR;
     }
+
+#ifdef DGDEBUG
+        std::cout << "Exit fork command-line scanner : " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
 
     // close write ends of sockets
     close(scannerstdout[1]);
@@ -285,63 +297,64 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
 
     char buff[8192];
     std::string result;
-    FILE *readme = fdopen(scannerstdout[0], "r");
-    if (NULL != readme){ 
-    	while (fgets(buff, 8192, readme) != NULL) {
+    FILE *readme1 = fdopen(scannerstdout[0], "r");
+    if (NULL != readme1){
+    	while (fgets(buff, 8192, readme1) != NULL) {
         	if (usevirusregexp)
             	result += buff;
     	} 
-    	fclose(readme);
-    	readme = fdopen(scannerstderr[0], "r");
-
-    	while (fgets(buff, 8192, readme) != NULL) {
-        	if (usevirusregexp)
-            		result += buff;
-    	}
-    } 
-    fclose(readme);
-
-    // close read ends too now
-    close(scannerstdout[0]);
-    close(scannerstderr[0]);
+    	fclose(readme1);
+	close(scannerstdout[0]);
+    }
+    FILE *readme2 = fdopen(scannerstderr[0], "r");
+    if (NULL != readme2){
+   	 while (fgets(buff, 8192, readme2) != NULL) {
+         	if (usevirusregexp)
+                result += buff;
+        }
+        fclose(readme2);
+    	close(scannerstderr[0]);
+    }
 
     // wait for scanner to quit & retrieve exit status
     int returncode;
     returncode = WEXITSTATUS(returncode);
 
     if (waitpid(f, &returncode, 0) == -1) {
-        lastmessage = "Cannot get scanner return code";
+        // lastmessage = "Cannot get scanner return code";
         syslog(LOG_ERR, "Cannot get command-line scanner return code: %s", strerror(errno));
         return DGCS_SCANERROR;
     }
 
 #ifdef DGDEBUG
-    std::cout << "Scanner result" << std::endl
-              << "--------------" << std::endl
-              << result << std::endl
-              << "--------------" << std::endl
-              << "Code: " << returncode << std::endl;
+    std::cout << "Commandline scanner result " << "Code: " << returncode << " " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (returncode == 255) {
-        lastmessage = "Cannot get scanner return code";
+        // lastmessage = "Cannot get scanner return code";
         syslog(LOG_ERR, "Cannot get command-line scanner return code: scanner exec failed");
         return DGCS_SCANERROR;
     }
 
-    lastvirusname = "Unknown";
+    // lastvirusname = "Unknown";
 
     if (usevirusregexp) {
         virusregexp.match(result.c_str(), virusregexpres);
         if (virusregexpres.matched()) {
-            lastvirusname = virusregexpres.result(submatch);
-            blockFile(NULL, NULL, checkme);
-            return DGCS_INFECTED;
+#ifdef DGDEBUG
+	std::cout << "Commandline scanner return DGCS_INFECTED"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+//	lastvirusname = virusregexpres.result(submatch);
+        blockFile(NULL, NULL, checkme);
+        return DGCS_INFECTED;
         }
     }
 
     if (cleancodes) {
         for (int i = 0; i < numcleancodes; i++) {
             if (returncode == cleancodes[i])
+#ifdef DGDEBUG
+        	std::cout << "Commandline scanner return CLEAN"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                 return DGCS_CLEAN;
         }
     }
@@ -349,19 +362,33 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     if (infectedcodes) {
         for (int i = 0; i < numinfectedcodes; i++) {
             if (returncode == infectedcodes[i]) {
+#ifdef DGDEBUG
+        	std::cout << "Commandline scanner return INFECTED"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                 blockFile(NULL, NULL, checkme);
                 return DGCS_INFECTED;
             }
         }
     }
 
-    if (defaultresult == 1)
+    if (defaultresult == 1){
+#ifdef DGDEBUG
+       	std::cout << "Commandline scanner return CLEAN - default result -"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         return DGCS_CLEAN;
+    }
     else if (defaultresult == 0) {
+#ifdef DGDEBUG
+       	std::cout << "Commandline scanner return INFECTED - default result -"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         blockFile(NULL, NULL, checkme);
         return DGCS_INFECTED;
     }
 
-    if (returncode != 0)
+    if (returncode != 0){
+#ifdef DGDEBUG
+       	std::cout << "Commandline scanner return SCAN_ERROR"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         return DGCS_SCANERROR;
+    }
 }
