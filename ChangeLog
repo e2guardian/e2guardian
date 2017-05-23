@@ -2,7 +2,8 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 May 2017
 
-- Many improvements and changes are done at this version
+Many improvements and changes are done at this version
+- Fix bug #224 part1 segfault with commandlinescan
 - Fix bug #221 (dnsauth) error:cast from pointer
 - Fix bug #213 sudden segfault
 - Fix bug #212 fix bug with IP plugin, log with wrong IP
