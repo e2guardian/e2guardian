@@ -400,7 +400,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         s_errno = 0;
         errno = 0;
         if (bcheckForInput(timeout))
-              bufflen = recv(sck, buffer, 4096, 0);
+              bufflen = recv(sck, buffer, 1024, 0);
   //      } catch (std::exception &e) {
   //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
    //     }
