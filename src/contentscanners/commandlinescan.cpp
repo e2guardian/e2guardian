@@ -302,7 +302,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     	while (fgets(buff, 8192, readme1) != NULL) {
         	if (usevirusregexp)
             	result += buff;
-    	} 
+    	}
     	fclose(readme1);
 	close(scannerstdout[0]);
     }
@@ -330,12 +330,9 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     std::cout << "Commandline scanner result " << "Code: " << returncode << " " << progname.toCharArray() << " " << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     if (returncode == 255) {
-        // lastmessage = "Cannot get scanner return code";
         syslog(LOG_ERR, "Cannot get command-line scanner return code: scanner exec failed");
         return DGCS_SCANERROR;
     }
-
-    // lastvirusname = "Unknown";
 
     if (usevirusregexp) {
         virusregexp.match(result.c_str(), virusregexpres);
@@ -343,7 +340,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
 #ifdef DGDEBUG
 	std::cout << "Commandline scanner return DGCS_INFECTED"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-//	lastvirusname = virusregexpres.result(submatch);
+        lastvirusname = virusregexpres.result(submatch);
         blockFile(NULL, NULL, checkme);
         return DGCS_INFECTED;
         }
