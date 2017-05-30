@@ -140,28 +140,29 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     }
  //   try {
         if( ! stripedsocks.writeString(command.toCharArray()))  {
-        stripedsocks.close();
         lastmessage = "Exception whilst writing to ClamD socket: ";
-        lastmessage += stripedsocks.getErrno();
+            String t = stripedsocks.getErrno();
+            lastmessage +=t;
         syslog(LOG_ERR, "%s", lastmessage);
 #ifdef DGDEBUG
         std::cerr << lastmessage <<std::endl;
 #endif
+            stripedsocks.close();
         return DGCS_SCANERROR;
     }
     char *buff = new char[4096];
     int rc;
-<<<<<<< HEAD
     rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
     if (rc < 1) {
         delete[] buff;
-        stripedsocks.close();
         lastmessage = "Exception whist reading ClamD socket: ";
-        lastmessage += stripedsocks.getErrno();
+        String t = stripedsocks.getErrno();
+        lastmessage +=t;
 #ifdef DGDEBUG
         std::cout << lastmessage << std::endl;
 #endif
         syslog(LOG_ERR, "%s", lastmessage);
+        stripedsocks.close();
         return DGCS_SCANERROR;
     }
 #ifdef DGDEBUG
