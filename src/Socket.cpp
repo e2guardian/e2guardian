@@ -875,6 +875,9 @@ std::cout << "getline (SSL) read into buffer; bufflen: " << bufflen <<std::endl;
             tocopy = (size - 1) - i;
         char *result = (char *)memccpy(buff + i, buffer, '\n', tocopy);
         if (result != NULL) {
+#ifdef DGDEBUG
+        std::cout << "getLine result (SSL): " << result << std::endl;
+#endif
             // indicate that a newline was chopped off, if desired
             if (chopped)
                 *chopped = true;

@@ -130,7 +130,7 @@ int ipinstance::init(void *args)
         return readIPMelangeList(fname.toCharArray());
     } else {
         if (!is_daemonised)
-            std::cerr << "No ipgroups file defined in IP auth plugin config" << std::endl;
+            std::cout << "No ipgroups file defined in IP auth plugin config" << std::endl;
         syslog(LOG_ERR, "No ipgroups file defined in IP auth plugin config");
         return -1;
     }
@@ -175,11 +175,11 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
         }
     }
 #ifdef DGDEBUG
-            std::cerr << "IP Plugin: ------ START --------" << std::endl;
+            std::cout << "IP Plugin: ------ START --------" << std::endl;
             for (unsigned int i = 0; i < h.header.size(); i++){
-                std::cerr << "IP Plugin: "<<h.header[i] << std::endl;
+                std::cout << "IP Plugin: "<<h.header[i] << std::endl;
             }
-            std::cerr << "IP Plugin: ------ END --------" << std::endl;
+            std::cout << "IP Plugin: ------ END --------" << std::endl;
 #endif
     return DGAUTH_OK;
 }
@@ -277,7 +277,7 @@ int ipinstance::readIPMelangeList(const char *filename)
     std::ifstream input(filename);
     if (!input) {
         if (!is_daemonised) {
-            std::cerr << "Error reading file (does it exist?): " << filename << std::endl;
+            std::cout << "Error reading file (does it exist?): " << filename << std::endl;
         }
         syslog(LOG_ERR, "%s%s", "Error reading file (does it exist?): ", filename);
         return -1;
@@ -321,7 +321,7 @@ int ipinstance::readIPMelangeList(const char *filename)
             value = line.after("filter");
         } else {
             if (!is_daemonised)
-                std::cerr << "No filter group given; entry " << line << " in " << filename << std::endl;
+                std::cout << "No filter group given; entry " << line << " in " << filename << std::endl;
             syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), filename);
             warn = true;
             continue;
@@ -333,7 +333,7 @@ int ipinstance::readIPMelangeList(const char *filename)
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
 	    int filtergroups = o.filter_groups;
             if (!is_daemonised)
-                std::cerr << "IP plugin Filter group out of range; entry " << line << " in " << filename << " groups number: " << o.filter_groups << std::endl;
+                std::cout << "IP plugin Filter group out of range; entry " << line << " in " << filename << " groups number: " << o.filter_groups << std::endl;
             syslog(LOG_ERR, "IP plugin Filter group out of range; entry %s in %s groups number: %d", line.toCharArray(), filename, filtergroups);
             warn = true;
             return -1;
@@ -393,7 +393,7 @@ int ipinstance::readIPMelangeList(const char *filename)
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
         else {
             if (!is_daemonised)
-                std::cerr << "Entry " << line << " in " << filename << " was not recognised as an IP address, subnet or range" << std::endl;
+                std::cout << "Entry " << line << " in " << filename << " was not recognised as an IP address, subnet or range" << std::endl;
             syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), filename);
             warn = true;
         }
