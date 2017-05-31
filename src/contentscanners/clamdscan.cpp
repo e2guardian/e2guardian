@@ -122,17 +122,11 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #endif
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
-#ifdef DGDEBUG
-        std::cerr << "Error opening socket to talk to ClamD" <<  std::endl;
-#endif
         lastmessage = "Error opening socket to talk to ClamD";
         syslog(LOG_ERR, "Error creating socket for talking to ClamD");
         return DGCS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
-#ifdef DGDEBUG
-        std::cerr << "Error connecting to ClamD socket" <<  std::endl;
-#endif
         lastmessage = "Error connecting to ClamD socket";
         syslog(LOG_ERR, "Error connecting to ClamD socket");
         stripedsocks.close();
@@ -142,9 +136,9 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         lastmessage = "Exception whilst writing to ClamD socket: ";
             String t = stripedsocks.getErrno();
             lastmessage +=t;
-        syslog(LOG_ERR, "%s", lastmessage);
+        syslog(LOG_ERR, "%s", lastmessage.toCharArray());
 #ifdef DGDEBUG
-        std::cerr << lastmessage <<std::endl;
+        std::cerr << lastmessage.toCharArray() <<std::endl;
 #endif
             stripedsocks.close();
         return DGCS_SCANERROR;
@@ -158,15 +152,12 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         String t = stripedsocks.getErrno();
         lastmessage +=t;
 #ifdef DGDEBUG
-        std::cout << lastmessage << std::endl;
+        std::cout << lastmessage.toCharArray() << std::endl;
 #endif
-        syslog(LOG_ERR, "%s", lastmessage);
+        syslog(LOG_ERR, "%s", lastmessage.toCharArray());
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
-#ifdef DGDEBUG
-    std::cout << "Got from clamdscan raw: " << buff << std::endl;
-#endif
     String reply(buff);
     delete[] buff;
     reply.removeWhiteSpace();
@@ -174,11 +165,8 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     std::cout << "Got from clamdscan: " << reply << std::endl;
 #endif
     stripedsocks.close();
-    if (reply.endsWith("ERROR") || reply.endsWith("TIMED OUT")) {
+    if (reply.endsWith("ERROR")) {
         lastmessage = reply;
-#ifdef DGDEBUG
-        std::cout << "ClamD error: " << reply << std::endl;
-#endif
         syslog(LOG_ERR, "ClamD error: %s", reply.toCharArray());
         return DGCS_SCANERROR;
     } else if (reply.endsWith("FOUND")) {
