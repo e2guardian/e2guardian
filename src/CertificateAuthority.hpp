@@ -25,6 +25,7 @@ class CertificateAuthority
     time_t _ca_end;
     static int do_mkdir(const char *path, mode_t mode);
     int mkpath(const char *path, mode_t mode);
+    bool addExtension(X509 *cert, int nid, char *value);
 
     public:
     CertificateAuthority(const char *caCert,
