@@ -138,8 +138,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
- //   try {
-        if( ! stripedsocks.writeString(command.toCharArray()))  {
+    if( ! stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
             String t = stripedsocks.getErrno();
             lastmessage +=t;
