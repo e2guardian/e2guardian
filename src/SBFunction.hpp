@@ -92,7 +92,7 @@ class SBFunction
     struct com_rec {
 	bool isif;   // true if if  - false is ifnot
 	unsigned int state;	// what is being tested e.g. url site search etc
-	unsigned int list_id;   // id of list being used
+	std::deque<unsigned int> list_id_dq;   // holds ids of list(s) being used
 	unsigned int mess_no;   // optional overide of list defaults
 	unsigned int log_mess_no;   // optional overide of list defaults
 	unsigned int action_id;     // action to take if result true

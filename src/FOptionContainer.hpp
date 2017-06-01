@@ -17,6 +17,7 @@
 #include "LanguageContainer.hpp"
 #include "ImageContainer.hpp"
 #include "RegExp.hpp"
+#include "StoryBoard.hpp"
 #include <string>
 #include <deque>
 
@@ -287,6 +288,7 @@ public:
     HTMLTemplate *banned_page;
 
     ListMeta LMeta;
+    StoryBoard StoryB;
 
     bool banned_phrase_flag;
  //   bool exception_site_flag;

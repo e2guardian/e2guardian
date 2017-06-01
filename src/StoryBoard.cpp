@@ -376,36 +376,38 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
             if(j->state  < SB_STATE_TOPIN)  {   // is an *in condition and requires a list
-                int type;
+                std::deque<int> types;
                 switch (j->state) {
                     case SB_STATE_SITEIN:
-                        type = LIST_TYPE_SITE;
+                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_URLIN:
-                        type = LIST_TYPE_URL;
+                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_SEARCHIN:
-                        type = LIST_TYPE_SEARCH;
+                        types= { LIST_TYPE_SEARCH };
                         break;
                     case SB_STATE_EMBEDDEDIN:
-                        type = LIST_TYPE_URL;
+                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                 }
-                j->list_id = LMeta->findList(j->list_name, type).list_ref;
-                if (j->list_id == 0) {
+                for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
+                    unsigned int lr = LMeta->findList(j->list_name, *k).list_ref;
+                    if (lr) j->list_id_dq.push_back(lr);
+                }
+                if (j->list_id_dq.begin()  == j->list_id_dq.end()) {
                     // warning message
+                    std::cout << "StoryBoard error: List not defined" << j->list_name << "at line " << j->file_lineno << " of " << i->file_name << std::endl;
                 }
 
              }
             // check action
             if ( (j->action_id = getFunctID(j->action_name)) == 0) {
                 // warnign message
+                std::cout << "StoryBoard error: Action not defined" << j->action_name << "at line " << j->file_lineno << " of " << i->file_name << std::endl;
             }
         }
     }
-
-
-
 }
 
 unsigned int StoryBoard::getFunctID( String & fname) {

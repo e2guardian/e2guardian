@@ -1119,6 +1119,12 @@ bool FOptionContainer::read(const char *filename)
 #endif
         }
 
+
+        std::string storyboard_location(findoptionS("storyboard"));
+
+       if( ! StoryB.readFile(storyboard_location.c_str(), LMeta, true))
+           return false;
+
         if (!precompileregexps()) {
             return false;
         } // precompiled reg exps for speed

@@ -91,7 +91,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         return false;
     }
     rec.list_name = list;
-    // check list and get list_ID - needs ListMeta object
+    // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
     rec.mess_no = mno.toInteger();
     rec.log_mess_no = mnolog.toInteger();
 
