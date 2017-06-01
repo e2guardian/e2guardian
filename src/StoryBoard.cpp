@@ -12,7 +12,7 @@
 #include <syslog.h>
 #include <algorithm>
 #include "ListContainer.hpp"
-#include "ListMeta.hpp"
+#include "StoryBoard.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
 #include <cstdlib>
@@ -34,26 +34,28 @@ extern OptionContainer o;
 // DEFINES
 
 // Constructor - set default values
-ListMeta::ListMeta()
+StoryBoard::StoryBoard()
 {
+    fnt_cnt = 0;
 }
 
 // delete the memory block when the class is destryed
-ListMeta::~ListMeta()
+StoryBoard::~StoryBoard()
 {
     reset();
 }
 
 //  clear & reset all values
-void ListMeta::reset() {
-    for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-        o.lm.deRefList(i->list_ref);
-        i->comp.clear();
-        i->reg_list_ref.clear();
-    }
+void StoryBoard::reset() {
+   // for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
+   //     o.lm.deRefList(i->list_ref);
+    //    i->comp.clear();
+     //   i->reg_list_ref.clear();
+    //}
 }
 
-bool ListMeta::load_type(int type, std::deque<String> &list) {
+#ifdef NOTDEF
+bool StoryBoard::load_type(int type, std::deque<String> &list) {
     unsigned int method_type =0;
     switch (type) {
         case LIST_TYPE_IP :
@@ -165,14 +167,14 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
 }
 
 
-bool ListMeta::list_exists(String name, int type) {
+bool StoryBoard::list_exists(String name, int type) {
     if (findList(name, (int)type).name != "" )
         return true;
     else
         return false;
 }
 
-ListMeta::list_info ListMeta::findList(String name, int type) {
+StoryBoard::list_info StoryBoard::findList(String name, int type) {
     list_info t;
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type)
@@ -182,7 +184,7 @@ ListMeta::list_info ListMeta::findList(String name, int type) {
     return t;
 }
 
-bool ListMeta::inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res) {
+bool StoryBoard::inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res) {
     list_info info = findList(name, type);
     if (info.name == "")
         return false;
@@ -271,484 +273,154 @@ bool ListMeta::inList(String name, int type, String &tofind, bool ip, bool ssl, 
             break;
     }
 }
+#endif
 
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw,  const char *listname)
-{
+bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
-            std::cerr << "Required Listname " << listname << " is not defined" << std::endl;
+            std::cerr << "Storyboard file" << filename << " is not defined" << std::endl;
         }
-        syslog(LOG_ERR, "Required Listname %s is not defined", listname);
+        syslog(LOG_ERR, "Storyboard file %s is not defined", filename);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true);
-    if (res < 0) {
+    LMeta = &LM;
+    std::string linebuffer; // a string line buffer ;)
+    String temp; // a String for temporary manipulation
+    String line;
+    String command;
+    String params;
+    String action;
+    SBFunction curr_function;
+    bool in_function = false;
+    size_t len = 0;
+    std::ifstream listfile(filename, std::ios::in); // open the file for reading
+    if (!listfile.good()) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
+            std::cerr << "Error opening Storyboard file (does it exist?): " << filename << std::endl;
         }
-        syslog(LOG_ERR, "Error opening %s", listname);
+        syslog(LOG_ERR, "Error opening Storyboard file (does it exist?): %s", filename);
         return false;
     }
-    (*whichlist) = (unsigned)res;
-    if (!(*o.lm.l[(*whichlist)]).used) {
-        if (sortsw)
-            (*o.lm.l[(*whichlist)]).doSort(true);
-        else
-            (*o.lm.l[(*whichlist)]).doSort(false);
-        (*o.lm.l[(*whichlist)]).used = true;
-    }
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << (*o.lm.l[(*whichlist)]).blanketblock << ":" << (*o.lm.l[(*whichlist)]).blanket_ip_block << ":" << (*o.lm.l[(*whichlist)]).blanketsslblock << ":" << (*o.lm.l[(*whichlist)]).blanketssl_ip_block << std::endl;
-#endif
-    return true;
-}
-
-
-char *ListMeta::inSiteList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-    // Perform blanket matching if desired
-    //if (doblanket) {
-        //char *r = testBlanketBlock(list, ip, ssl, lastcategory);
-        //if (r) {
-            //return r;
-        //}
-    //}
-
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        url = url.before("/"); // chop off any path after the domain
-    }
-    char *i;
-    bool isipurl = isIPHostname(url);
-    if (reverse_lookups && isipurl) { // change that ip into hostname
-        std::deque<String> *url2s = ipToHostname(url.toCharArray());
-        String url2;
-        for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-            url2 = *j;
-            while (url2.contains(".")) {
-                i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
-                if (i != NULL) {
-                    delete url2s;
-                    return i; // exact match
-                }
-                url2 = url2.after("."); // check for being in hld
-            }
-        }
-        delete url2s;
-    }
-    while (url.contains(".")) {
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    if (url.length() > 1) { // allows matching of .tld
-        url = "." + url;
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-    }
-    return NULL; // and our survey said "UUHH UURRGHH"
-}
-
-char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory)
-{
-    char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
-    if (i != NULL) {
-        return i; // exact match
-    }
-    return NULL;
-}
-
-
-// look in given URL list for given URL
-char *ListMeta::inURLList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lc)
-{
-    if (ssl) { // can't be in url list as SSL is site only
-        return NULL;
-    };
-    // Perform blanket matching if desired
- //   if (doblanket) {
- //       char *r = testBlanketBlock(list, ip, ssl, lc);
-  //      if (r) {
-   //         return r;
-    //    }
-    //}
-
-    unsigned int fl;
-    char *i;
-    String foundurl;
-#ifdef DGDEBUG
-    std::cout << "inURLList: " << url << std::endl;
-#endif
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        String tpath("/");
-        tpath += url.after("/");
-        url = url.before("/");
-        tpath.hexDecode();
-        tpath.realPath();
-        url += tpath; // will resolve ../ and %2e2e/ and // etc
-    }
-    if (url.endsWith("/")) {
-        url.chop(); // chop off trailing / if any
-    }
-#ifdef DGDEBUG
-    std::cout << "inURLList (processed): " << url << std::endl;
-#endif
-    if (reverse_lookups && url.after("/").length() > 0) {
-        String hostname(url.getHostname());
-        if (isIPHostname(hostname)) {
-            std::deque<String> *url2s = ipToHostname(hostname.toCharArray());
-            String url2;
-            for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-                url2 = *j;
-                url2 += "/";
-                url2 += url.after("/");
-                while (url2.before("/").contains(".")) {
-                    i = (*o.lm.l[list]).findStartsWith(url2.toCharArray(),lc);
-                    if (i != NULL) {
-                        foundurl = i;
-                        fl = foundurl.length();
-                        if (url2.length() > fl) {
-                            unsigned char c = url[fl];
-                            if (c == '/' || c == '?' || c == '&' || c == '=') {
-                                delete url2s;
-                                return i; // matches /blah/ or /blah/foo
-                                // (or /blah?foo etc.)
-                                // but not /blahfoo
-                            }
-                        } else {
-                            delete url2s;
-                            return i; // exact match
-                        }
-                    }
-                    url2 = url2.after("."); // check for being in hld
-                }
-            }
-            delete url2s;
-        }
-    }
-    while (url.before("/").contains(".")) {
-        i = (*o.lm.l[list]).findStartsWith(url.toCharArray(),lc);
-        if (i != NULL) {
-            foundurl = i;
-            fl = foundurl.length();
-#ifdef DGDEBUG
-            std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cout << "url: " << url << fl << std::endl;
-#endif
-            if (url.length() > fl) {
-                if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                    return i; // matches /blah/ or /blah/foo but not /blahfoo
-                }
-            } else {
-                return i; // exact match
-            }
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    return NULL;
-}
-
-bool ListMeta::isIPHostname(String url)
-{
-    RegResult Rre;
-    if (!isiphost.match(url.toCharArray(),Rre)) {
-        return true;
-    }
-    return false;
-}
-
-
-// check site & URL lists for blanket matches
-char *ListMeta::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory)
-{
-    if (not o.lm.l[list]->isNow())
-        return NULL;
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << o.lm.l[list]->blanketblock << ":" << o.lm.l[list]->blanket_ip_block << ":" << o.lm.l[list]->blanketsslblock << ":" << o.lm.l[list]->blanketssl_ip_block << std::endl;
-#endif
-    if (o.lm.l[list]->blanketblock) {
-        lastcategory = "-";
-        return (char *)o.language_list.getTranslation(502);
-    } else if (o.lm.l[list]->blanket_ip_block and ip) {
-        lastcategory = "IP";
-        return (char *)o.language_list.getTranslation(505);
-    } else if (o.lm.l[list]->blanketsslblock and ssl) {
-        lastcategory = "HTTPS";
-        return (char *)o.language_list.getTranslation(506);
-    } else if (o.lm.l[list]->blanketssl_ip_block and ssl and ip) {
-        lastcategory = "HTTPS_IP";
-        return (char *)o.language_list.getTranslation(507);
-    }
-    return NULL;
-}
-
-bool ListMeta::precompileregexps()
-{
-    if (!isiphost.comp(".*[a-z|A-Z].*")) {
-        if (!is_daemonised) {
-            std::cerr << "Error compiling RegExp isiphost." << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error compiling RegExp isiphost.");
-        return false;
-    }
-
-    return true;
-}
-
-// read regexp url list
-bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
-    std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
-    int result = o.lm.newItemList(filename, true, 32, true);
-    if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
-        return false;
-    }
-    listref = (unsigned)result;
-    return compileRegExMatchFile(listref, list_comp, list_source, list_ref);
-}
-
-// NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUDGE
-// compile regexp url list
-bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
-    std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
-    for (unsigned int i = 0; i < (*o.lm.l[list]).morelists.size(); i++) {
-        if (!compileRegExMatchFile((*o.lm.l[list]).morelists[i], list_comp, list_source, list_ref)) {
-            return false;
-        }
-    }
-    RegExp r;
-    bool rv = true;
-    int len = (*o.lm.l[list]).getListLength();
-    String source;
-    for (int i = 0; i < len; i++) {
-        source = (*o.lm.l[list]).getItemAtInt(i).c_str();
-        rv = r.comp(source.toCharArray());
-        if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << "Error compiling regexp:" << source << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp:");
-            syslog(LOG_ERR, "%s", source.toCharArray());
-            return false;
-        }
-        list_comp.push_back(r);
-        list_source.push_back(source);
-        list_ref.push_back(list);
-    }
-    (*o.lm.l[list]).used = true;
-    return true;
-}
-
-// content and URL regular expression replacement files
-bool ListMeta::readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
-    std::deque<String> &list_rep, std::deque<RegExp> &list_comp)
-{
-    int result = o.lm.newItemList(filename, true, 32, true);
-    if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
-        return false;
-    }
-    listid = (unsigned)result;
-    if (!(*o.lm.l[listid]).used) {
-        //(*o.lm.l[listid]).doSort(true);
-        (*o.lm.l[listid]).used = true;
-    }
-    RegExp r;
-    bool rv = true;
-    String regexp;
-    String replacement;
-    for (int i = 0; i < (*o.lm.l[listid]).getListLength(); i++) {
-        regexp = (*o.lm.l[listid]).getItemAtInt(i).c_str();
-        replacement = regexp.after("\"->\"");
-        while (!replacement.endsWith("\"")) {
-            if (replacement.length() < 2) {
-                break;
-            }
-            replacement.chop();
-        }
-        replacement.chop();
-        regexp = regexp.after("\"").before("\"->\"");
-        if (regexp.length() < 1) { // allow replace with nothing
+    bool caseinsensitive = true;
+    unsigned int line_no = 0;
+    while (!listfile.eof()) { // keep going until end of file
+        getline(listfile, linebuffer); // grab a line
+        ++line_no;
+        if (linebuffer.length() == 0) { // sanity checking
             continue;
         }
-        rv = r.comp(regexp.toCharArray());
-        if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << "Error compiling regexp: " << (*o.lm.l[listid]).getItemAtInt(i) << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp: ");
-            syslog(LOG_ERR, "%s", (*o.lm.l[listid]).getItemAtInt(i).c_str());
-            return false;
-        }
-        list_comp.push_back(r);
-        list_rep.push_back(replacement);
-    }
-    return true;
-}
-
-// is this URL in the given regexp URL list?
-int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inRegExpURLList: " << url << std::endl;
-#endif
-    // check parent list's time limit
-    if (o.lm.l[list]->isNow()) {
-        RegResult Rre;
-        url.removeWhiteSpace(); // just in case of weird browser crap
-        url.toLower();
-        // chop off the PTP (ht(f)tp(s)://)
-        /*String ptp;
-		if (url.contains("//")) {
-			ptp = url.before("//");
-			url = url.after("//");
-		}*/
-
-        // whilst it would be nice to have regexes be able to match the PTP,
-        // it has been assumed for too long that the URL string does not start with one,
-        // and we don't want to break regexes that look explicitly for the start of
-        // the string. changes here have therefore been reverted. 2005-12-07
-        url.removePTP();
-        if (url.contains("/")) {
-            String tpath("/");
-            tpath += url.after("/");
-            url = url.before("/");
-            tpath.hexDecode();
-            tpath.realPath();
-            url += tpath; // will resolve ../ and %2e2e/ and // etc
-        }
-        if (url.endsWith("/")) {
-            url.chop(); // chop off trailing / if any
-        }
-// re-add the PTP
-/*if (ptp.length() > 0)
-			url = ptp + "//" + url;*/
-#ifdef DGDEBUG
-        std::cout << "inRegExpURLList (processed): " << url << std::endl;
-#endif
-        unsigned int i = 0;
-        for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
-            if (o.lm.l[list_ref[i]]->isNow()) {
-                if(j->match(url.toCharArray(),Rre))
-                    return i;
-            }
-#ifdef DGDEBUG
-            else
-                std::cout << "Outside included regexp list's time limit" << std::endl;
-#endif
-            i++;
-        }
-    }
-#ifdef DGDEBUG
-    else {
-        std::cout << "Outside top level regexp list's time limit" << std::endl;
-    }
-#endif
-    return -1;
-}
-
-// Does a regexp search and replace.
-// urlRegExp Code originally from from Ton Gorter 2004
-bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list)
-{
-    RegExp *re;
-    RegResult Rre;
-    String replacement;
-    String repstr;
-    String newLine;
-    bool linemodified = false;
-    unsigned int i;
-    unsigned int j, k;
-    unsigned int s = regexp_list.size();
-    unsigned int matches, submatches;
-    unsigned int match;
-    unsigned int srcoff;
-    unsigned int nextoffset;
-    unsigned int matchlen;
-    unsigned int oldlinelen;
-
-    if ( (line.empty())  || line.length() < 3)
-        return false;
-
-    // iterate over our list of precompiled regexes
-    for (i = 0; i < s; i++) {
-        newLine = "";
-        re = &(regexp_list[i]);
-        if (re->match(line.toCharArray(), Rre)) {
-            repstr = replacement_list[i];
-            matches = Rre.numberOfMatches();
-
-            srcoff = 0;
-
-            for (j = 0; j < matches; j++) {
-                nextoffset = Rre.offset(j);
-                matchlen = Rre.length(j);
-
-                // copy next chunk of unmodified data
-                if (nextoffset > srcoff) {
-                    newLine += line.subString(srcoff, nextoffset - srcoff);
-                    srcoff = nextoffset;
+        line = linebuffer.c_str();
+        line.removeWhiteSpace();
+        if (caseinsensitive)
+            line.toLower();
+        // handle included list files
+        if (line.startsWith(".")) {
+            temp = line.after(".include<").before(">");
+            if (temp.length() > 0) {
+                if (!readFile(temp.toCharArray(), *LMeta, false)) {
+                    listfile.close();
+                    return false;
+                } else {
+                    continue;
                 }
+            } else {
+                continue;
+            }
+        }
+        if (line.startsWith("#")) continue;   // ignore comment lines
+        command = line.before("(");
+        command.removeWhiteSpace();
+        params = line.before(")").after("(");
+        params.removeWhiteSpace();
+        action = line.after(")");
+        action.removeWhiteSpace();
+        if (command == "startfunction") {
+            if (in_function) {    // already in another function definition & so assume end of previous function
+                curr_function.end();
+                // push function to list
+                funct_vec.push_back(curr_function);
+            }
+            in_function = true;
+            curr_function.start(params, ++fnt_cnt, line_no);
+            continue;
+        }
+        if (command == "endfunction") {
+            if (in_function) {
+                curr_function.end();
+                // push function to list
+                funct_vec.push_back(curr_function);
+                in_function = false;
+            }    // otherwise ignore
+            continue;
+        }
+         if(! curr_function.addline(command, params, action, line_no))
+             return false;
+    }
 
-                // Count number of submatches (brackets) in replacement string
-                for (submatches = 0; j + submatches + 1 < matches; submatches++)
-                    if (Rre.offset(j + submatches + 1) + Rre.length(j + submatches + 1) > srcoff + matchlen)
+    if(in_function) {  // at eof so now end
+        curr_function.end();
+        // push function to list
+        funct_vec.push_back(curr_function);
+    }
+
+    if (!is_top)
+         return true;
+
+    // only do the 2nd pass once all file(s) have been read
+    // in top file now do second pass to record action functions ids in command lines and add list_ids
+
+    for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
+        for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
+            // check condition
+            if(j->state  < SB_STATE_TOPIN)  {   // is an *in condition and requires a list
+                int type;
+                switch (j->state) {
+                    case SB_STATE_SITEIN:
+                        type = LIST_TYPE_SITE;
                         break;
-
-                // \1 and $1 replacement
-                replacement = "";
-                for (k = 0; k < repstr.length(); k++) {
-                    // find \1..\9 and $1..$9 and fill them in with submatched strings
-                    if ((repstr[k] == '\\' || repstr[k] == '$') && repstr[k + 1] >= '1' && repstr[k + 1] <= '9') {
-                        match = repstr[++k] - '0';
-                        if (match <= submatches) {
-                            replacement += Rre.result(j + match).c_str();
-                        }
-                    } else {
-                        // unescape \\ and \$, and add non-backreference characters to string
-                        if (repstr[k] == '\\' && (repstr[k + 1] == '\\' || repstr[k + 1] == '$'))
-                            k++;
-                        replacement += repstr.subString(k, 1);
-                    }
+                    case SB_STATE_URLIN:
+                        type = LIST_TYPE_URL;
+                        break;
+                    case SB_STATE_SEARCHIN:
+                        type = LIST_TYPE_SEARCH;
+                        break;
+                    case SB_STATE_EMBEDDEDIN:
+                        type = LIST_TYPE_URL;
+                        break;
+                }
+                j->list_id = LMeta->findList(j->list_name, type).list_ref;
+                if (j->list_id == 0) {
+                    // warning message
                 }
 
-                // copy filled in replacement string
-                newLine += replacement;
-                srcoff += matchlen;
-                j += submatches;
+             }
+            // check action
+            if ( (j->action_id = getFunctID(j->action_name)) == 0) {
+                // warnign message
             }
-            oldlinelen = line.length();
-            if (srcoff < oldlinelen) {
-                newLine += line.subString(srcoff, oldlinelen - srcoff);
-            }
-#ifdef DGDEBUG
-            std::cout << "Line modified! (" << line << " -> " << newLine << ")" << std::endl;
-#endif
-            // copy newLine into line and continue with other regexes
-            line = newLine;
-            linemodified = true;
         }
     }
 
-    return linemodified;
+
+
 }
+
+unsigned int StoryBoard::getFunctID( String & fname) {
+    unsigned int i = 0;
+    // check built in functions first
+    i = funct_vec[0].getBIFunctID(fname);
+    if (i > 0)  return i;
+    // check StoryBoard defined functions
+    for (std::vector<SBFunction>::iterator j = funct_vec.begin(); j != funct_vec.end(); j++) {
+        if (j->name == fname)
+            return j->fn_id;
+    }
+    return 0;
+}
+
+
+
+

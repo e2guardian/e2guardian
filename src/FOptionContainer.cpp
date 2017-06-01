@@ -673,15 +673,6 @@ bool FOptionContainer::read(const char *filename)
             std::cout << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
-            // the e2guardian.conf and pics files get amalgamated into one
-            // deque.  They are only seperate files for clarity.
-
-//            if (findoptionS("enablepics") == "on") {
-                //.enable_PICS = true;
-            //} else {
-                enable_PICS = false;
-            //}
-
             if (findoptionS("ssllegacylogic") == "on") {
                 enable_ssl_legacy_logic = true;
             } else {

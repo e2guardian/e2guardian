@@ -36,8 +36,6 @@ public:
     int embedded_url_weight;
     int naughtyness_limit;
     int searchterm_limit;
-    bool createlistcachefiles;
-    bool enable_PICS;
     bool enable_regex_grey;
     bool enable_ssl_legacy_logic;
     bool enable_local_list;

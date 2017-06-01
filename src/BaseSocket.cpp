@@ -399,16 +399,19 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 //        try {
         s_errno = 0;
         errno = 0;
-            if (bcheckForInput(timeout))
+        if (bcheckForInput(timeout))
               bufflen = recv(sck, buffer, 1024, 0);
   //      } catch (std::exception &e) {
   //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
    //     }
 #ifdef DGDEBUG
-        std::cout << "read into buffer; bufflen: " << bufflen << std::endl;
+        std::cout << "getLine !SSL read into buffer; bufflen: " << bufflen << std::endl;
 #endif
         //if there was a socket error
         if (bufflen < 0) {
+#ifdef DGDEBUG
+        std::cout << "getLine Can't read from socket !SSL: " << std::endl;
+#endif
             s_errno = errno;
             return -1;
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
@@ -416,6 +419,9 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         //if socket closed...
         if (bufflen == 0) {
             buff[i] = '\0'; // ...terminate string & return what read
+#ifdef DGDEBUG
+        std::cout << "getLine terminate string !SSL: " << i << std::endl;
+#endif
             if (truncated)
                 *truncated = true;
             return i;
@@ -425,11 +431,17 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
             tocopy = (size - 1) - i;
         char *result = (char *)memccpy(buff + i, buffer, '\n', tocopy);
         if (result != NULL) {
+#ifdef DGDEBUG
+        std::cout << "getLine result1 !SSL: " << result << i << std::endl;
+#endif
             // indicate that a newline was chopped off, if desired
             if (chopped)
                 *chopped = true;
             *(--result) = '\0';
             buffstart += (result - (buff + i)) + 1;
+#ifdef DGDEBUG
+        std::cout << "getLine result2 !SSL: " << result << std::endl;
+#endif
             return i + (result - (buff + i));
         }
         i += tocopy;
@@ -438,6 +450,10 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
     buff[i] = '\0';
     if (truncated)
         *truncated = true;
+#ifdef DGDEBUG
+    	if (truncated)
+            std::cout << "Getline(SSL) truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
+#endif
     return i;
 }
 
@@ -445,10 +461,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 bool BaseSocket::writeString(const char *line) //throw(std::exception)
 {
     int l = strlen(line);
-    if (!writeToSocket(line, l, 0, timeout)) {
-        return false;
-//        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-    }
+    return writeToSocket(line, l, 0, timeout);
 }
 
 // write data to socket - throws exception on failure, can be told to break on config reloads
