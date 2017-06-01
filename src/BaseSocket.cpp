@@ -465,6 +465,7 @@ bool BaseSocket::writeString(const char *line) //throw(std::exception)
         return false;
 //        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
     }
+    return true;
 }
 
 // write data to socket - throws exception on failure, can be told to break on config reloads
