@@ -304,9 +304,11 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
            //     throw std::exception();
         }
 #ifdef DGDEBUG
-        std::cout << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << ") Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+     return true;
     }
+   return true;
 }
 
 // zlib decompression
