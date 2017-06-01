@@ -135,7 +135,10 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if( ! stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
             String t = stripedsocks.getErrno();
-            lastmessage +=t;
+            lastmessage += t;
+        if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
+        if (stripedsocks.isHup())  lastmessage += " HUPed";
+        if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
 #ifdef DGDEBUG
         std::cerr << lastmessage.toCharArray() <<std::endl;
@@ -151,6 +154,9 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         lastmessage = "Exception whist reading ClamD socket: ";
         String t = stripedsocks.getErrno();
         lastmessage +=t;
+        if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
+        if (stripedsocks.isHup())  lastmessage += " HUPed";
+        if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
 #ifdef DGDEBUG
         std::cout << lastmessage.toCharArray() << std::endl;
 #endif
