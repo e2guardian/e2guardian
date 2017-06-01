@@ -1679,6 +1679,9 @@ time_t getFileDate(const char *filename)
 {
     struct stat status;
     int rc = stat(filename, &status);
+    if (strlen(filename) < 1)
+            return 0;
+	
     if (rc != 0) {
         if (errno == ENOENT) {
 #ifdef DGDEBUG
