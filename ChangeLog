@@ -1,8 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-May 2017
+June 2017
 
 Many improvements and changes are done at this version
+- Fix segfault "Illegal instruction" on FreeBSD 
 - Fix bug #224 part1 segfault with commandlinescan
 - Fix bug #221 (dnsauth) error:cast from pointer
 - Fix bug #213 sudden segfault
