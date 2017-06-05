@@ -319,6 +319,9 @@ bool String::endsWith(const String &s) const
 // is converted)
 bool String::startsWithLower(const String &s) const
 {
+    if (s.length() > this->length()) {
+        return false;
+    }
     for (unsigned int i = 0; i < s.length(); i++) {
         if (tolower((*this)[i]) != s[i])
             return false;
