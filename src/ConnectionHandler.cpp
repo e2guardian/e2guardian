@@ -3954,6 +3954,18 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         }
                         writestring += "::CATEGORIES==";
                         writestring += miniURLEncode(cats.c_str()).c_str();
+	                if (virushash || filterhash) {
+                        // output either a genuine hash, or just flags
+        	        	if (dohash) {
+                        		writestring += "::";
+                        		writestring += hashed.before("=").toCharArray();
+                        		writestring += "==";
+                        		writestring += hashed.after("=").toCharArray();
+                    		} else {
+                        		writestring += "::HASH==";
+                       			writestring += hashed.toCharArray();
+                    		}
+                	}
                         writestring += "::REASON==";
                     } else {
                         writestring += "?DENIEDURL=";
@@ -3968,6 +3980,16 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         }
                         writestring += "&CATEGORIES=";
                         writestring += miniURLEncode(cats.c_str()).c_str();
+		        if (virushash || filterhash) {
+                    	// output either a genuine hash, or just flags
+                    		if (dohash) {
+                        		writestring += "&";
+                        		writestring += hashed.toCharArray();
+                    		} else {
+                        		writestring += "&HASH=";
+                        		writestring += hashed.toCharArray();
+                    		}
+                	}
                         writestring += "&REASON=";
                     }
 
