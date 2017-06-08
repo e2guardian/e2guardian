@@ -721,6 +721,7 @@ bool FOptionContainer::read(const char *filename)
             std::string banned_extension_list_location(findoptionS("bannedextensionlist"));
             std::string banned_mimetype_list_location(findoptionS("bannedmimetypelist"));
             std::string banned_site_list_location(findoptionS("bannedsitelist"));
+	    std::string banned_site_list_withbypass_location(findoptionS("bannedsitelistwithbypass"));
             std::string banned_url_list_location(findoptionS("bannedurllist"));
             std::string grey_site_list_location(findoptionS("greysitelist"));
             std::string grey_url_list_location(findoptionS("greyurllist"));
@@ -834,6 +835,10 @@ bool FOptionContainer::read(const char *filename)
                 return false;
             } // banned domains
             banned_site_flag = true;
+            if (!readFile(banned_site_list_withbypass_location.c_str(), &banned_site_list_withbypass, false, true, "bannedsitelistwithbypass")) {
+                 return false;
+            } // banned domains
+            banned_site_withbypass_flag = true;
             if (!readFile(banned_url_list_location.c_str(), &banned_url_list, true, true, "bannedurllist")) {
                 return false;
             } // banned urls
@@ -1123,13 +1128,6 @@ bool FOptionContainer::read(const char *filename)
             cookie_magic = std::string(16u, ' ');
             for (int i = 0; i < 16; i++) {
                 cookie_magic[i] = (rand() % 26) + 'A';
-            }
-            if (bypass_mode != 0) {
-            	std::string banned_site_list_withbypass_location(findoptionS("bannedsitelistwithbypass"));
-            	if (!readFile(banned_site_list_withbypass_location.c_str(), &banned_site_list_withbypass, false, true, "bannedsitelistwithbypass")) {
-                	return false;
-            	} // banned domains
-            	banned_site_withbypass_flag = true;
             }
         }
 
