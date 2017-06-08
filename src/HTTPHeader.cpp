@@ -1044,63 +1044,69 @@ void HTTPHeader::checkheader(bool allowpersistent)
         outgoing = false;
     }
 
-    for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
-        // index headers - try to perform the checks in the order the average browser sends the headers.
-        // also only do the necessary checks for the header type (sent/received).
-        // Sequencial if else
-	if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
-            phost = &(*i);
-            // don't allow through multiple host headers
-        } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
-            i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
-        } else if (outgoing && (puseragent == NULL) && i->startsWithLower("user-agent:")) {
-            puseragent = &(*i);
-        } else if (outgoing && i->startsWithLower("accept-encoding:")) {
-            (*i) = "Accept-Encoding:" + i->after(":");
-            (*i) = modifyEncodings(*i) + "\r";
-        } else if ((!outgoing) && (pcontentencoding == NULL) && i->startsWithLower("content-encoding:")) {
-            pcontentencoding = &(*i);
-        } else if ((!outgoing) && (pkeepalive == NULL) && i->startsWithLower("keep-alive:")) {
-            pkeepalive = &(*i);
-        } else if ((pcontenttype == NULL) && i->startsWithLower("content-type:")) {
-            pcontenttype = &(*i);
-        } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
-            pcontentlength = &(*i);
-        }
-        // is this ever sent outgoing?
-        else if ((pcontentdisposition == NULL) && i->startsWithLower("content-disposition:")) {
-            pcontentdisposition = &(*i);
-        } else if ((pproxyauthorization == NULL) && i->startsWithLower("proxy-authorization:")) {
-            pproxyauthorization = &(*i);
-        } else if ((pauthorization == NULL) && i->startsWithLower("authorization:")) {
-            pauthorization = &(*i);
-        } else if ((pproxyauthenticate == NULL) && i->startsWithLower("proxy-authenticate:")) {
-            pproxyauthenticate = &(*i);
-        } else if ((pproxyconnection == NULL) && (i->startsWithLower("proxy-connection:") || i->startsWithLower("connection:"))) {
-            pproxyconnection = &(*i);
-        } else if (outgoing && (pxforwardedfor == NULL) && i->startsWithLower("x-forwarded-for:")) {
-            pxforwardedfor = &(*i);
-        }
-        // this one's non-standard, so check for it last
-        else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
-            pport = &(*i);
-        }
+    if (header.size() > 1) {
+        for (std::deque<String>::iterator i = header.begin() + 1;
+             i != header.end(); i++) { // check each line in the headers
+            // index headers - try to perform the checks in the order the average browser sends the headers.
+            // also only do the necessary checks for the header type (sent/received).
+            // Sequencial if else
+            if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
+                phost = &(*i);
+                // don't allow through multiple host headers
+            } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
+                i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
+            } else if (outgoing && (puseragent == NULL) && i->startsWithLower("user-agent:")) {
+                puseragent = &(*i);
+            } else if (outgoing && i->startsWithLower("accept-encoding:")) {
+                (*i) = "Accept-Encoding:" + i->after(":");
+                (*i) = modifyEncodings(*i) + "\r";
+            } else if ((!outgoing) && (pcontentencoding == NULL) && i->startsWithLower("content-encoding:")) {
+                pcontentencoding = &(*i);
+            } else if ((!outgoing) && (pkeepalive == NULL) && i->startsWithLower("keep-alive:")) {
+                pkeepalive = &(*i);
+            } else if ((pcontenttype == NULL) && i->startsWithLower("content-type:")) {
+                pcontenttype = &(*i);
+            } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
+                pcontentlength = &(*i);
+            }
+                // is this ever sent outgoing?
+            else if ((pcontentdisposition == NULL) && i->startsWithLower("content-disposition:")) {
+                pcontentdisposition = &(*i);
+            } else if ((pproxyauthorization == NULL) && i->startsWithLower("proxy-authorization:")) {
+                pproxyauthorization = &(*i);
+            } else if ((pauthorization == NULL) && i->startsWithLower("authorization:")) {
+                pauthorization = &(*i);
+            } else if ((pproxyauthenticate == NULL) && i->startsWithLower("proxy-authenticate:")) {
+                pproxyauthenticate = &(*i);
+            } else if ((pproxyconnection == NULL) &&
+                       (i->startsWithLower("proxy-connection:") || i->startsWithLower("connection:"))) {
+                pproxyconnection = &(*i);
+            } else if (outgoing && (pxforwardedfor == NULL) && i->startsWithLower("x-forwarded-for:")) {
+                pxforwardedfor = &(*i);
+            }
+                // this one's non-standard, so check for it last
+            else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
+                pport = &(*i);
+            }
 
-	//Can be placed anywhere ..
-        if (outgoing && i->startsWithLower("upgrade-insecure-requests:")) {
-            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
-        }
+            //Can be placed anywhere ..
+            if (outgoing && i->startsWithLower("upgrade-insecure-requests:")) {
+                i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
+            }
 
-        if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
-            plogheadervalue = &(*i);
-        }
-        if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
-            pheaderident = &(*i);
-        }
+            if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) &&
+                i->startsWithLower(o.log_header_value)) {
+                plogheadervalue = &(*i);
+            }
+            if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) &&
+                i->startsWithLower(o.ident_header_value)) {
+                pheaderident = &(*i);
+            }
 
 #ifdef DGDEBUG
-        std::cout << "Header value from client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "Header value from client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+        }
     }
 
     //if its http1.1
