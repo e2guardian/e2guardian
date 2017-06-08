@@ -441,6 +441,9 @@ stat_rec* &dystat)
     // Remove some results from log: eg: 302 requests
     bool logged = false;
 
+    bool dohash = false;
+
+
     // 0=none,1=first line,2=all
     int headersent = 0;
     int message_no = 0;
@@ -1134,6 +1137,7 @@ stat_rec* &dystat)
             //
 
             if (isscanbypass) {
+
                 //we need to decode the URL and send the temp file with the
                 //correct header to the client then delete the temp file
                 String tempfilename(url.after("GSBYPASS=").after("&N="));
@@ -1170,12 +1174,25 @@ stat_rec* &dystat)
             //
 
             char *retchar;
-
+            char *nopass;;
             //
             // Start of exception checking
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
+            bool is_ip = isIPHostnameStrip(urld);
+
+            if ((nopass = (*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
+            // need to reintroduce ability to produce the blanket block messages
+                checkme.whatIsNaughty = o.language_list.getTranslation(500); // banned site
+                message_no = 500;
+                checkme.whatIsNaughty += url;
+                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                checkme.isItNaughty = true;
+                checkme.whatIsNaughtyCategories = lastcategory.toCharArray();
+            }
+
+
             if (!(isbanneduser || isbannedip || isbypass || isexception)) {
                 //bool is_ssl = header.requestType() == "CONNECT";
                 bool is_ip = isIPHostnameStrip(urld);
@@ -1244,7 +1261,7 @@ stat_rec* &dystat)
 #endif
                         }
                     }
-                };
+                }
             }
             // orginal section only now called if local list not matched
             if (authed && (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || ldl->fg[filtergroup]->use_only_local_allow_lists))) {
@@ -2617,16 +2634,16 @@ stat_rec* &dystat)
 
 // TODO: Temporary: we must remove from filtering many harmless HTTP codes
 // But I guess it should do before in the code
-		if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
+                if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
 
 #ifdef DGDEBUG
                 	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-			String rtype(header.requestType());
+                    String rtype(header.requestType());
               		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
                 	logged = true;
-                    	isexception = true;
-		}
+                    isexception = true;
+                }
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
@@ -3853,13 +3870,14 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
     try { // writestring throws exception on error/timeout
 
-        // flags to enable filter/infection bypass hash generation
+        // flags to enable filter/infection scanpass hash generation
         bool filterhash = false;
         bool virushash = false;
-        // flag to enable internal generation of hashes (i.e. obey the "-1" setting; to allow the modes but disable hash generation)
-        // (if disabled, just output '1' or '2' to show that the CGI should generate a filter/virus bypass hash;
-        // otherwise, real hashes get put into substitution variables/appended to the ban CGI redirect URL)
         bool dohash = false;
+
+        // flag to enable internal generation of hashes (i.e. obey the "-1" setting; to allow the modes but disable hash generation)
+        // (if disabled, just output '1' or '2' to show that the CGI should generate a filter/virus scanpass hash;
+        // otherwise, real hashes get put into substitution variables/appended to the ban CGI redirect URL)
         if (reporting_level > 0) {
             // generate a filter bypass hash
             if (!wasinfected && ((*ldl->fg[filtergroup]).bypass_mode != 0) && !ispostblock) {
@@ -3884,6 +3902,11 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             }
         }
 
+        if ((url->contains("GBYPASS=")) || (url->contains("GIBYPASS="))) {
+            dohash = false;
+            filterhash = false;
+            virushash = false;
+        }
 // the user is using the full whack of custom banned images and/or HTML templates
 #ifdef __SSLMITM
         if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow)
@@ -3917,12 +3940,12 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 // mickysoft.
                 //
                 // FredB 2013
-                // Wrong Microsoft is right, no data will be accepted without hand shake
-                // This is a Man in the middle problem with Firefox and IE (can't rewrite a ssl page)
+                // Wrong Microsoft is right, no data should be accepted without hand shake
+                // This is a Man in the middle problem with Firefox (can't rewrite a ssl page)
                 // 307 redirection Fix the problem for Firefox - only ? -
                 // TODO: I guess the right thing to do should be a - SSL - DENIED Webpage 307 redirect and direct"
 
-                if (ldl->fg[filtergroup]->sslaccess_denied_address.length() != 0) {
+                if (ldl->fg[filtergroup]->sslaccess_denied_address.length() != 0)  {
                     // grab either the full category list or the thresholded list
                     std::string cats;
                     cats = checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories;
@@ -3954,6 +3977,18 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         }
                         writestring += "::CATEGORIES==";
                         writestring += miniURLEncode(cats.c_str()).c_str();
+	                if (virushash || filterhash) {
+                        // output either a genuine hash, or just flags
+        	        	if (dohash) {
+                        		writestring += "::";
+                        		writestring += hashed.before("=").toCharArray();
+                        		writestring += "==";
+                        		writestring += hashed.after("=").toCharArray();
+                    		} else {
+                        		writestring += "::HASH==";
+                       			writestring += hashed.toCharArray();
+                    		}
+                	}
                         writestring += "::REASON==";
                     } else {
                         writestring += "?DENIEDURL=";
@@ -3968,6 +4003,16 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         }
                         writestring += "&CATEGORIES=";
                         writestring += miniURLEncode(cats.c_str()).c_str();
+                    if (virushash || filterhash) {
+                    	// output either a genuine hash, or just flags
+                    		if (dohash) {
+                        		writestring += "&";
+                        		writestring += hashed.toCharArray();
+                    		} else {
+                        		writestring += "&HASH=";
+                        		writestring += hashed.toCharArray();
+                    		}
+                	}
                         writestring += "&REASON=";
                     }
 

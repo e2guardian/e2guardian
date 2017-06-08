@@ -29,7 +29,7 @@ WLISTS = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist
 	 localgreysitelist localgreysslsitelist localgreyurllist \
 	 refererexceptionsitelist refererexceptionurllist searchregexplist \
 	 embededreferersitelist embededrefererurllist \
-	 authexceptionsitelist authexceptionurllist \
+	 authexceptionsitelist authexceptionurllist bannedsitelistwithbypass \
 	 urlredirectregexplist sslsiteregexplist
  
 EXTRA_DIST = nocheckcertsitelist bannedextensionlist bannediplist bannedmimetypelist \

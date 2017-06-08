@@ -176,6 +176,7 @@ public:
     unsigned int banned_extension_list;
     unsigned int banned_mimetype_list;
     unsigned int banned_site_list;
+    unsigned int banned_site_list_withbypass;
     unsigned int banned_url_list;
     unsigned int grey_site_list;
     unsigned int grey_url_list;
@@ -291,7 +292,7 @@ public:
               local_grey_site_flag(false), local_grey_url_flag(false), enable_regex_grey(false),
               enable_local_list(false), enable_ssl_legacy_logic(false), use_only_local_allow_lists(false),
               banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
-              banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false),
+              banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false), banned_site_withbypass_flag(false),
               banned_url_flag(false), grey_site_flag(false), grey_url_flag(false), banned_regexpurl_flag(false),
               exception_regexpurl_flag(false), banned_regexpheader_flag(false), content_regexp_flag(false),
               url_regexp_flag(false), sslsite_regexp_flag(false), header_regexp_flag(false),
@@ -328,6 +329,7 @@ public:
     bool inRefererExceptionLists(String url);
     bool inEmbededRefererLists(String url);
     char *inBannedSiteList(String url, bool doblanket , bool ip , bool ssl ,String &lastcategory);
+    char *inBannedSiteListwithbypass(String url, bool doblanket , bool ip , bool ssl ,String &lastcategory);
     char *inBannedURLList(String url, bool doblanket , bool ip , bool ssl ,String &lastcategory);
     bool inGreySiteList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
     bool inGreyURLList(String url, bool doblanket = false, bool ip = false, bool ssl = false);
@@ -362,6 +364,7 @@ public:
     bool banned_extension_flag;
     bool banned_mimetype_flag;
     bool banned_site_flag;
+    bool banned_site_withbypass_flag;
     bool banned_url_flag;
     bool grey_site_flag;
     bool grey_url_flag;
