@@ -79,6 +79,8 @@ void FOptionContainer::resetJustListData()
         o.lm.deRefList(banned_mimetype_list);
     if (banned_site_flag)
         o.lm.deRefList(banned_site_list);
+    if (banned_site_withbypass_flag)
+        o.lm.deRefList(banned_site_list_withbypass);
     if (banned_url_flag)
         o.lm.deRefList(banned_url_list);
     if (grey_site_flag)
@@ -175,6 +177,7 @@ void FOptionContainer::resetJustListData()
     banned_extension_flag = false;
     banned_mimetype_flag = false;
     banned_site_flag = false;
+    banned_site_withbypass_flag = false;
     banned_url_flag = false;
     grey_site_flag = false;
     grey_url_flag = false;
@@ -1121,6 +1124,13 @@ bool FOptionContainer::read(const char *filename)
             for (int i = 0; i < 16; i++) {
                 cookie_magic[i] = (rand() % 26) + 'A';
             }
+            if (bypass_mode != 0) {
+            	std::string banned_site_list_withbypass_location(findoptionS("bannedsitelistwithbypass"));
+            	if (!readFile(banned_site_list_withbypass_location.c_str(), &banned_site_list_withbypass, false, true, "bannedsitelistwithbypass")) {
+                	return false;
+            	} // banned domains
+            	banned_site_withbypass_flag = true;
+            }
         }
 
         infection_bypass_mode = findoptionI("infectionbypass");
@@ -1362,6 +1372,15 @@ char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bo
 #endif
     return inSiteList(url, banned_site_list, doblanket, ip, ssl, lastcategory);
 }
+
+char *FOptionContainer::inBannedSiteListwithbypass(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
+{
+#ifdef DGDEBUG
+    std::cout << "inBannedSiteListwithbypass check: doblanket = " << doblanket << " ssl = " << ssl << " url = " << url <<  " lastcategory = " << lastcategory << std::endl;
+#endif
+    return inSiteList(url, banned_site_list_withbypass, doblanket, ip, ssl, lastcategory);
+}
+
 
 bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
 {
