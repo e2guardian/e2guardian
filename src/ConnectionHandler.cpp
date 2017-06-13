@@ -1080,117 +1080,117 @@ stat_rec* &dystat)
             //
             // Start of by pass
             //
-
-            if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                isscanbypass = true;
-                isbypass = true;
-                exceptionreason = o.language_list.getTranslation(608);
-            } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                if (ldl->fg[filtergroup]->bypass_mode != 0)
-                    bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
-                if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-                    bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
-                if (bypasstimestamp > 0) {
-#ifdef DGDEBUG
-                    if (isvirusbypass)
-                        std::cout << dbgPeerPort << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                    else
-                        std::cout << dbgPeerPort << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                    header.chopBypass(logurl, isvirusbypass);
-                    if (bypasstimestamp > 1) { // not expired
-                        isbypass = true;
-                        // checkme: need a TR string for virus bypass
-                        exceptionreason = o.language_list.getTranslation(606);
+            if (ldl->fg[filtergroup]->bypass_mode != 0) {
+                if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+    #ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                    isscanbypass = true;
+                    isbypass = true;
+                    exceptionreason = o.language_list.getTranslation(608);
+                } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
+    #ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                    if (ldl->fg[filtergroup]->bypass_mode != 0)
+                        bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
+                    if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
+                        bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
+                    if (bypasstimestamp > 0) {
+    #ifdef DGDEBUG
+                        if (isvirusbypass)
+                            std::cout << dbgPeerPort << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        else
+                            std::cout << dbgPeerPort << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                        header.chopBypass(logurl, isvirusbypass);
+                        if (bypasstimestamp > 1) { // not expired
+                            isbypass = true;
+                            // checkme: need a TR string for virus bypass
+                            exceptionreason = o.language_list.getTranslation(606);
+                        }
+                    } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
+                        if (header.isBypassCookie(urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
+    #ifdef DGDEBUG
+                            std::cout << dbgPeerPort << " -Bypass cookie match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                            iscookiebypass = true;
+                            isbypass = true;
+                            isexception = true;
+                            exceptionreason = o.language_list.getTranslation(607);
+                        }
                     }
-                } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
-                    if (header.isBypassCookie(urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Bypass cookie match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                        iscookiebypass = true;
-                        isbypass = true;
-                        isexception = true;
-                        exceptionreason = o.language_list.getTranslation(607);
-                    }
+    #ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
                 }
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-            }
 
-#ifdef DGDEBUG
-            if (isbypass) {
-                std::cout << dbgPeerPort << " -Bypass activated!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            }
-#endif
-            //
-            // Start of exception checking
-            //
-            // being a banned user/IP overrides the fact that a site may be in the exception lists
-            // needn't check these lists in bypass modes
-            bool is_ip = isIPHostnameStrip(urld);
-            char *nopass;
-
-            if (isbypass && (nopass = (*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                isexception = false;
-                isbypass = false;
-                ispostblock = true;
-            }
-
-
-            //
-            // End of bypass
-            //
-            // Start of scan by pass
-            //
-
-            if (isscanbypass) {
-
-                //we need to decode the URL and send the temp file with the
-                //correct header to the client then delete the temp file
-                String tempfilename(url.after("GSBYPASS=").after("&N="));
-                String tempfilemime(tempfilename.after("&M="));
-                String tempfiledis(header.decode(tempfilemime.after("&D="), true));
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                String rtype(header.requestType());
-                tempfilemime = tempfilemime.before("&D=");
-                tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
-                try {
-                    docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, url);
-                    header.chopScanBypass(url);
-                    url = header.getLogUrl();
-                    //urld = header.decode(url);  // unneeded really
-
-                    doLog(clientuser, clientip, logurl, header.port, exceptionreason,
-                        rtype, docsize, NULL, false, 0, isexception, false, &thestart,
-                        cachehit, 200, mimetype, wasinfected, wasscanned, 0, filtergroup,
-                        &header);
-
-                    if (o.delete_downloaded_temp_files) {
-                        unlink(tempfilename.toCharArray());
-                    }
-                } catch (std::exception &e) {
+    #ifdef DGDEBUG
+                if (isbypass) {
+                    std::cout << dbgPeerPort << " -Bypass activated!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                 }
-                persistProxy = false;
-                proxysock.close(); // close connection to proxy
-                break;
-            }
-            //
+    #endif
+                //
+                // Start of exception checking
+                //
+                // being a banned user/IP overrides the fact that a site may be in the exception lists
+                // needn't check these lists in bypass modes
+                bool is_ip = isIPHostnameStrip(urld);
+                char *nopass;
+
+                if (((*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
+    #ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                    isexception = false;
+                    isbypass = false;
+                    ispostblock = true;
+                }
+
+
+                //
+                // End of bypass
+                //
+                // Start of scan by pass
+                //
+
+                if (isscanbypass) {
+
+                    //we need to decode the URL and send the temp file with the
+                    //correct header to the client then delete the temp file
+                    String tempfilename(url.after("GSBYPASS=").after("&N="));
+                    String tempfilemime(tempfilename.after("&M="));
+                    String tempfiledis(header.decode(tempfilemime.after("&D="), true));
+    #ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                    String rtype(header.requestType());
+                    tempfilemime = tempfilemime.before("&D=");
+                    tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
+                    try {
+                        docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, url);
+                        header.chopScanBypass(url);
+                        url = header.getLogUrl();
+                        //urld = header.decode(url);  // unneeded really
+
+                        doLog(clientuser, clientip, logurl, header.port, exceptionreason,
+                            rtype, docsize, NULL, false, 0, isexception, false, &thestart,
+                            cachehit, 200, mimetype, wasinfected, wasscanned, 0, filtergroup,
+                            &header);
+
+                        if (o.delete_downloaded_temp_files) {
+                            unlink(tempfilename.toCharArray());
+                        }
+                    } catch (std::exception &e) {
+                    }
+                    persistProxy = false;
+                    proxysock.close(); // close connection to proxy
+                    break;
+                }
+                //
             // End of scan by pass
             //
-
+            }
             char *retchar;
 
             if (!(isbanneduser || isbannedip || isbypass || isexception)) {
@@ -4139,7 +4139,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                             (checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories),
                             clientuser, clientip, clienthost, filtergroup, ldl->fg[filtergroup]->name, hashed);
                     }
-		
+
                 }
             }
         }
