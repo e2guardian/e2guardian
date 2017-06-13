@@ -38,6 +38,8 @@
 UDSocket::UDSocket()
 {
     sck = socket(PF_UNIX, SOCK_STREAM, 0);
+    infds[0].fd = sck;
+    outfds[0].fd = sck;
     memset(&my_adr, 0, sizeof my_adr);
     memset(&peer_adr, 0, sizeof peer_adr);
     my_adr.sun_family = AF_UNIX;
@@ -73,6 +75,8 @@ void UDSocket::reset()
 {
     this->baseReset();
     sck = socket(PF_UNIX, SOCK_STREAM, 0);
+    infds[0].fd = sck;
+    outfds[0].fd = sck;
     memset(&my_adr, 0, sizeof my_adr);
     memset(&peer_adr, 0, sizeof peer_adr);
     my_adr.sun_family = AF_UNIX;
