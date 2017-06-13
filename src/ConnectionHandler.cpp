@@ -1131,6 +1131,24 @@ stat_rec* &dystat)
             }
 #endif
             //
+            // Start of exception checking
+            //
+            // being a banned user/IP overrides the fact that a site may be in the exception lists
+            // needn't check these lists in bypass modes
+            bool is_ip = isIPHostnameStrip(urld);
+            char *nopass;
+
+            if (isbypass && (nopass = (*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                isexception = false;
+                isbypass = false;
+                ispostblock = true;
+            }
+
+
+            //
             // End of bypass
             //
             // Start of scan by pass
@@ -1174,24 +1192,6 @@ stat_rec* &dystat)
             //
 
             char *retchar;
-            char *nopass;;
-            //
-            // Start of exception checking
-            //
-            // being a banned user/IP overrides the fact that a site may be in the exception lists
-            // needn't check these lists in bypass modes
-            bool is_ip = isIPHostnameStrip(urld);
-
-            if ((nopass = (*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
-            // need to reintroduce ability to produce the blanket block messages
-                checkme.whatIsNaughty = o.language_list.getTranslation(500); // banned site
-                message_no = 500;
-                checkme.whatIsNaughty += url;
-                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-                checkme.isItNaughty = true;
-                checkme.whatIsNaughtyCategories = lastcategory.toCharArray();
-            }
-
 
             if (!(isbanneduser || isbannedip || isbypass || isexception)) {
                 //bool is_ssl = header.requestType() == "CONNECT";
@@ -4106,7 +4106,9 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // Mod by Ernest W Lessenger Mon 2nd February 2004
                     // Other bypass code mostly written by Ernest also
                     // create temporary bypass URL to show on denied page
-                    else {
+		    // FIX: Some wrong websites (Certificate supplied by server was not valid: unable to get local issuer certificate)
+		    // was here (no ssl ?) and segfault e2guardian
+                    else if ( reporting_level == 3 ) {
                         String hashed;
                         // generate valid hash locally if enabled
                         if (dohash) {
@@ -4137,6 +4139,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                             (checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories),
                             clientuser, clientip, clienthost, filtergroup, ldl->fg[filtergroup]->name, hashed);
                     }
+		
                 }
             }
         }
