@@ -172,6 +172,7 @@ class OptionContainer
     int initial_trickle_delay;
     int trickle_delay;
     int content_scanner_timeout;
+    int content_scanner_timeout_sec;
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
