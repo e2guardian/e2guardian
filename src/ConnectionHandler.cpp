@@ -1080,20 +1080,21 @@ stat_rec* &dystat)
             //
             // Start of by pass
             //
-            if (ldl->fg[filtergroup]->bypass_mode != 0) {
-                if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-    #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
-                    isscanbypass = true;
-                    isbypass = true;
-                    exceptionreason = o.language_list.getTranslation(608);
-                } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
+            if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
     #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
     #endif
-                    if (ldl->fg[filtergroup]->bypass_mode != 0)
+                    if (ldl->fg[filtergroup]->bypass_mode != 0){
+                        if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+    #ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    #endif
+                        isscanbypass = true;
+                        isbypass = true;
+                        exceptionreason = o.language_list.getTranslation(608);
                         bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
+
+                    }
                     if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
                         bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
                     if (bypasstimestamp > 0) {
@@ -1123,7 +1124,6 @@ stat_rec* &dystat)
     #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
     #endif
-                }
 
     #ifdef DGDEBUG
                 if (isbypass) {
@@ -1187,6 +1187,7 @@ stat_rec* &dystat)
                     proxysock.close(); // close connection to proxy
                     break;
                 }
+            }
                 //
             // End of scan by pass
             //
