@@ -2095,37 +2095,21 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     // during receipt of a request in progress.
         bool truncated = false;
         int rc;
-        if (firsttime) {
 #ifdef DGDEBUG
-            std::cout << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+	std::cout << "header:in before getLine - firsttime : " << firsttime << " timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+	rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-            std::cout << "firstime: header:in after getLine " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+	std::cout << "header:in after getLine - firsttime : " << firsttime << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-           if (rc < 0 || truncated) {
-                ispersistent = false;
+	if (rc < 0 || truncated) {
+		ispersistent = false;
 #ifdef DGDEBUG
-                std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                dbshowheader(false);
+		std::cout << "header:in after getLine - firsttime : " << firsttime << " rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+		dbshowheader(false);
 #endif
-                return false;
-            }
-        } else {
-        //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
-        // this does not work for sites who are slow to send Content-Lenght so revert to standard
-        // timeout
-            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
-            if (rc < 0 || truncated) {
-                ispersistent = false;
-#ifdef DGDEBUG
-                std::cout << "not firstime header:in after getLine: rc: " << rc << " truncated: " << truncated << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                dbshowheader(false);
-#endif
-                return false;        // do not allow non-terminated headers
-            }
-
-        }
+		return false;
+	}
 
         if (header.size() > o.max_header_lines) {
 #ifdef DGDEBUG
