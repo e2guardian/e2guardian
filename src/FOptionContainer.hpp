@@ -74,6 +74,9 @@ public:
     bool force_quick_search;
     int bypass_mode;
     int infection_bypass_mode;
+
+#ifdef NOTDEF
+    // pics now disabled so do not need these
     int pics_rsac_violence;
     int pics_rsac_sex;
     int pics_rsac_nudity;
@@ -153,6 +156,7 @@ public:
     int pics_safenet_language;
     int pics_safenet_gambling;
     int pics_safenet_alcoholtobacco;
+#endif
 
     std::string name;
     std::string magic;
@@ -276,30 +280,7 @@ public:
     //std::deque<unsigned int> searchengine_regexp_list_ref;
     //bool extractSearchTerms(String url, String &terms);
 
-    FOptionContainer()
-            : block_downloads(false), searchterm_flag(false), banned_page(NULL), ssl_mitm(false),
-              only_mitm_ssl_grey(false), no_check_cert_site_flag(false), ssl_check_cert(false), mitm_check_cert(true),
-              referer_exception_site_flag(false), referer_exception_url_flag(false), embeded_referer_site_flag(false),
-              embeded_referer_url_flag(false),
-#ifdef PRT_DNSAUTH
-    auth_exception_site_flag(false)
-    , auth_exception_url_flag(false)
-    ,
-#endif
-              addheader_regexp_flag(false), banned_search_flag(false), search_regexp_flag(false),
-              local_banned_search_flag(false), banned_search_overide_flag(false), local_exception_site_flag(false),
-              local_exception_url_flag(false), local_banned_site_flag(false), local_banned_url_flag(false),
-              local_grey_site_flag(false), local_grey_url_flag(false), enable_regex_grey(false),
-              enable_local_list(false), enable_ssl_legacy_logic(false), use_only_local_allow_lists(false),
-              banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
-              banned_extension_flag(false), banned_mimetype_flag(false), banned_site_flag(false), banned_site_withbypass_flag(false),
-              banned_url_flag(false), grey_site_flag(false), grey_url_flag(false), banned_regexpurl_flag(false),
-              exception_regexpurl_flag(false), banned_regexpheader_flag(false), content_regexp_flag(false),
-              url_regexp_flag(false), sslsite_regexp_flag(false), header_regexp_flag(false),
-              url_redirect_regexp_flag(false), exception_extension_flag(false), exception_mimetype_flag(false),
-              exception_file_site_flag(false), exception_file_url_flag(false), log_site_flag(false),
-              log_url_flag(false), log_regexpurl_flag(false), ssl_denied_rewrite(false), reverse_lookups(false) {};
-
+    FOptionContainer();
     ~FOptionContainer();
     bool read(const char *filename);
     void reset();
