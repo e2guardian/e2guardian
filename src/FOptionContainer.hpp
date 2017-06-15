@@ -298,7 +298,7 @@ public:
               url_regexp_flag(false), sslsite_regexp_flag(false), header_regexp_flag(false),
               url_redirect_regexp_flag(false), exception_extension_flag(false), exception_mimetype_flag(false),
               exception_file_site_flag(false), exception_file_url_flag(false), log_site_flag(false),
-              log_url_flag(false), log_regexpurl_flag(false), ssl_denied_rewrite(false) {};
+              log_url_flag(false), log_regexpurl_flag(false), ssl_denied_rewrite(false), reverse_lookups(false) {};
 
     ~FOptionContainer();
     bool read(const char *filename);
