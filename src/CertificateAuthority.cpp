@@ -243,7 +243,6 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 #endif
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
-        fclose(fp);
         return false;
     }
 
