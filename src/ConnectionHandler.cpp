@@ -269,10 +269,9 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     magic += clientip->c_str();
     magic += timecode;
     String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
-    if (!url->after("://").contains("/")) {
-        String newurl((*url));
-        newurl += "/";
-        res += newurl.md5(magic.toCharArray());
+    if (!url->endsWith("/")) {
+        (*url) += "/";
+        res += url->md5(magic.toCharArray());
     } else {
         res += url->md5(magic.toCharArray());
     }
@@ -3953,6 +3952,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // generate valid hash locally if enabled
                     if (dohash) {
                         hashed = hashedURL(url, filtergroup, clientip, virushash);
+			if (!url->endsWith("/")) 
+				(*url) += "/";
                     }
                     // otherwise, just generate flags showing what to generate
                     else if (filterhash) {
@@ -4113,6 +4114,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         // generate valid hash locally if enabled
                         if (dohash) {
                             hashed = hashedURL(url, filtergroup, clientip, virushash);
+			    if (!url->endsWith("/")) 
+				(*url) += "/";
                         }
                         // otherwise, just generate flags showing what to generate
                         else if (filterhash) {
@@ -4133,6 +4136,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         // buffer method is used and we want the download to be
                         // broken we don't mind too much
                         String fullurl = header->getLogUrl(true);
+			if (dohash)
+				fullurl = (*url);
                         ldl->fg[filtergroup]->getHTMLTemplate()->display(peerconn,
                             &fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
                             // grab either the full category list or the thresholded list
@@ -4154,6 +4159,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             // generate valid hash locally if enabled
             if (dohash) {
                 hashed = hashedURL(url, filtergroup, clientip, virushash);
+		if (!url->endsWith("/")) 
+			(*url) += "/";
             }
             // otherwise, just generate flags showing what to generate
             else if (filterhash) {
@@ -4376,6 +4383,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 } else if (csrc == DGCS_INFECTED) {
                     (*wasinfected) = true;
                     (*scanerror) = false;
+#ifdef DGDEBUG
+		    std::cout << dbgPeerPort << "scanner INFECTED: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                     break;
                 }
                 //if its not clean / we errored then treat it as infected
@@ -4396,6 +4406,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     checkme->isItNaughty = true;
                     checkme->isException = false;
                     (*scanerror) = true;
+#ifdef DGDEBUG
+		    std::cout << dbgPeerPort << "scanner ERROR: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                     break;
                 }
 #ifdef DGDEBUG
@@ -4404,15 +4417,13 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             }
 
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -finished running AV" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-//            rc = system("date");
+            std::cout << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         }
 #ifdef DGDEBUG
         else if (!responsescanners.empty()) {
             std::cout << dbgPeerPort << " -content length large so skipping content scanning (virus) filtering" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         }
-//        rc = system("date");
 #endif
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text",ldl->fg[filtergroup]) || docheader->isContentType("-",ldl->fg[filtergroup]))) {
@@ -4429,17 +4440,17 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         else {
             std::cout << dbgPeerPort << " -Skipping content filtering: ";
             if (dblen > o.max_content_filter_size)
-                std::cout << dbgPeerPort << " -Content too large";
+                std::cout << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             else if (checkme->isException)
-                std::cout << dbgPeerPort << " -Is flagged as an exception";
+                std::cout << dbgPeerPort << " -Is flagged as an exception"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             else if (checkme->isItNaughty)
-                std::cout << dbgPeerPort << " -Is already flagged as naughty (content scanning)";
+                std::cout << dbgPeerPort << " -Is already flagged as naughty (content scanning)"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             else if (isbypass)
-                std::cout << dbgPeerPort << " -Is flagged as a bypass";
+                std::cout << dbgPeerPort << " -Is flagged as a bypass"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             else if (docheader->authRequired())
-                std::cout << dbgPeerPort << " -Is a set of auth required headers";
+                std::cout << dbgPeerPort << " -Is a set of auth required headers"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
-                std::cout << dbgPeerPort << " -Not text";
+                std::cout << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         }
 #endif
     }
@@ -4457,13 +4468,13 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     }
 #ifdef DGDEBUG
     else {
-        std::cout << dbgPeerPort << " -Skipping content modification: ";
+        std::cout << dbgPeerPort << " -Skipping content modification: "  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         if (dblen > o.max_content_filter_size)
-            std::cout << dbgPeerPort << " -Content too large";
+            std::cout << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
-            std::cout << dbgPeerPort << " -Not text";
+            std::cout << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         else if (checkme->isItNaughty)
-            std::cout << dbgPeerPort << " -Already flagged as naughty";
+            std::cout << dbgPeerPort << " -Already flagged as naughty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
     }
     //rc = system("date");
 #endif
@@ -4490,7 +4501,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " Returning from content checking"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-    }
+}
 
 #ifdef __SSLMITM
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
