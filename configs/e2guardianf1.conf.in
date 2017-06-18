@@ -17,8 +17,7 @@
 # Filter group name
 # Used to fill in the -FILTERGROUP- placeholder in the HTML template file, and to
 # name the group in the access logs
-# Defaults to empty string
-# groupname = ''
+# Empty value is empty string
 groupname = 'no_mame_group'
 
 # Enable legacy (DG) ssl logic
