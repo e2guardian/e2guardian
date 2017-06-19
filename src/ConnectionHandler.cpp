@@ -1742,7 +1742,7 @@ stat_rec* &dystat)
                     try {
                         String rtype(header.requestType());
 // Negociate part 407 requests
-			if (docheader.authRequired()) {
+                        if (docheader.authRequired()) {
                         	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
                         	isexception, false, &thestart,
                         	cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
@@ -2846,8 +2846,8 @@ stat_rec* &dystat)
                 // check body from proxy
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
-                if (!checkme.isItNaughty && (cl != 0) && !ishead) {
-                    if (((docheader.isContentType("text",ldl->fg[filtergroup]) || docheader.isContentType("-",ldl->fg[filtergroup])) && !isexception) || !responsescanners.empty()) {
+               if (!checkme.isItNaughty && (cl != 0) && !ishead) {
+                  //  if (((docheader.isContentType("text",ldl->fg[filtergroup]) || docheader.isContentType("-",ldl->fg[filtergroup])) && !isexception) || !responsescanners.empty()) {
                         // don't search the cache if scan_clean_cache disabled & runav true (won't have been cached)
                         // also don't search cache for auth required headers (same reason)
 
@@ -2883,13 +2883,13 @@ stat_rec* &dystat)
                             }
                         } else {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cout << dbgPeerPort << " Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                             contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &headersent, &pausedtoobig,
                                 &docsize, &checkme, wasclean, filtergroup, responsescanners, &clientuser, &clientip,
                                 &wasinfected, &wasscanned, isbypass, urld, urldomain, &scanerror, contentmodified, NULL);
                         }
-                    }
+                    //}
                 }
  // End of "if (!checkme.isItNaughty) {"
             }
@@ -2898,6 +2898,12 @@ stat_rec* &dystat)
                 isexception = true;
                 exceptionreason = checkme.whatIsNaughtyLog;
             }
+#ifdef DGDEBUG
+            std::cout << dbgPeerPort << " ContentFilter for urldomain: " << urldomain << " isbypass: " << isbypass << " wasinfected: " << wasinfected << " isexception: " << isexception << " wasclean: " << wasclean << " checkme.isItNaughty: " << checkme.isItNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+// If bypass but infected exception is removed, still isvirusbypass for disbled block page
+            if (wasinfected && isbypass)
+                 isexception = false;
 
             if (o.url_cache_number > 0) {
                 // add to cache if: wasn't already there, wasn't naughty, wasn't allowed by bypass/soft block, was text,
@@ -2919,38 +2925,39 @@ stat_rec* &dystat)
             // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
+  /*
             if (!authed) {
                 logged = true;
                 String temp;
                 bool is_ip = isIPHostnameStrip(temp);
 
-		if (ldl->fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl, lastcategory)) { // allowed site
-			if (ldl->fg[0]->isOurWebserver(url)) {
-				isourwebserver = true;
-		        } else {
-				isexception = true;
-		                    exceptionreason = o.language_list.getTranslation(602);
-		                    message_no = 602;
-		                    // Exception site match.
-		                    exceptioncat = lastcategory.toCharArray();
-		                }
-		            } else if (ldl->fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl, lastcategory)) { // allowed url
-		                isexception = true;
-		                exceptionreason = o.language_list.getTranslation(603);
-		                message_no = 603;
-		                // Exception url match.
-		                exceptioncat = lastcategory.toCharArray();
-		            } else if ((rc = ldl->fg[filtergroup]->inExceptionRegExpURLList(urld, lastcategory)) > -1) {
-		                isexception = true;
-		                // exception regular expression url match:
-		                exceptionreason = o.language_list.getTranslation(609);
-		                message_no = 609;
-		                exceptionreason += ldl->fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
-		                exceptioncat = lastcategory.toCharArray();
-		          }
-		logged = false;
-		}
-
+                if (ldl->fg[filtergroup]->inExceptionSiteList(urld, true, is_ip, is_ssl, lastcategory)) { // allowed site
+                    if (ldl->fg[0]->isOurWebserver(url)) {
+                        isourwebserver = true;
+                        } else {
+                        isexception = true;
+                                    exceptionreason = o.language_list.getTranslation(602);
+                                    message_no = 602;
+                                    // Exception site match.
+                                    exceptioncat = lastcategory.toCharArray();
+                                }
+                            } else if (ldl->fg[filtergroup]->inExceptionURLList(urld, true, is_ip, is_ssl, lastcategory)) { // allowed url
+                                isexception = true;
+                                exceptionreason = o.language_list.getTranslation(603);
+                                message_no = 603;
+                                // Exception url match.
+                                exceptioncat = lastcategory.toCharArray();
+                            } else if ((rc = ldl->fg[filtergroup]->inExceptionRegExpURLList(urld, lastcategory)) > -1) {
+                                isexception = true;
+                                // exception regular expression url match:
+                                exceptionreason = o.language_list.getTranslation(609);
+                                message_no = 609;
+                                exceptionreason += ldl->fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
+                                exceptioncat = lastcategory.toCharArray();
+                          }
+                logged = false;
+            }
+*/
             if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
@@ -3952,7 +3959,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // generate valid hash locally if enabled
                     if (dohash) {
                         hashed = hashedURL(url, filtergroup, clientip, virushash);
-			if (!url->endsWith("/")) 
+			if (!url->endsWith("/"))
 				(*url) += "/";
                     }
                     // otherwise, just generate flags showing what to generate
@@ -4114,7 +4121,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         // generate valid hash locally if enabled
                         if (dohash) {
                             hashed = hashedURL(url, filtergroup, clientip, virushash);
-			    if (!url->endsWith("/")) 
+			    if (!url->endsWith("/"))
 				(*url) += "/";
                         }
                         // otherwise, just generate flags showing what to generate
@@ -4159,7 +4166,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             // generate valid hash locally if enabled
             if (dohash) {
                 hashed = hashedURL(url, filtergroup, clientip, virushash);
-		if (!url->endsWith("/")) 
+		if (!url->endsWith("/"))
 			(*url) += "/";
             }
             // otherwise, just generate flags showing what to generate
@@ -4384,7 +4391,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     (*wasinfected) = true;
                     (*scanerror) = false;
 #ifdef DGDEBUG
-		    std::cout << dbgPeerPort << "scanner INFECTED: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " scanner INFECTED: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     break;
                 }
