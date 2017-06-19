@@ -1,29 +1,101 @@
+<?php
+
+// Created by Marcello Coutinho based on Pfsensation (GitHub @Forid786) template.html
+
+// you can translate via gettext or directly on these vars
+
+$access_denied = gettext("Access Denied");
+$oops1 = gettext("Oops!");
+$oops2 = gettext("You have tried visiting a website which has been deemed inappropriate");
+$because = gettext("Because");
+$details = gettext("Your details are below");
+$ack = gettext("Acknowledge");
+
+// end of translate text
+$allow_html_code = 0;
+$in = &ReadEnvs();
+
+$deniedurl = $in['DENIEDURL'];
+$reason = $in['REASON'];
+$user = $in['USER'];
+$ip = $in['IP'];
+$cats = $in['CATEGORIES'];
+
+# originating hostname - can be undefined
+
+if (strlen($in['HOST']) > 0) {
+	$host = $in['HOST'];
+} else {
+	$host = $_SERVER['REMOTE_ADDR'] ."&nbsp;(" . $_SERVER['REMOTE_HOST'] . ")";
+}
+
+# virus/filter bypass hashes
+# if bypass modes have been set to > 0,
+# then the GBYPASS or GIBYPASS variable will contain the filter/infection bypass hash.
+# if bypass modes have been set to -1,
+# then the HASH variable will be set to 1 if the CGI should generate a GBYPASS hash (filter bypass),
+# or 2 if the CGI should generate a GIBYPASS hash (infection bypass).
+
+$fbypasshash = $in['GBYPASS']; # filter bypass hash - can be undefined
+$ibypasshash = $in['GIBYPASS']; # infection bypass hash - can be undefined
+$hashflag = $in['HASH']; # hash flag - can be undefined; 1 = generate GBYPASS; 2 = generate GIBYPASS
+
+if ( strlen($in['GBYPASS']) > 0) {
+$bypass = $in['GBYPASS'];
+}
+if ( strlen($in['GIBYPASS']) > 0) {
+$bypass = $in['GIBYPASS'];
+}
+
+$user_info = "-";
+if (strlen($user) > 0) {
+	$user_info = $user;
+}
+
+if (strlen($cats) > 0) {
+  $cats_info = 'categories:<BR>$cats';
+}
+
+function ReadEnvs () {
+  global $allow_html_code;
+  $in = array();
+  if (isset($_SERVER['QUERY_STRING'])) {
+ 	$clp = preg_split("/::/", $_SERVER['QUERY_STRING']);
+	
+	foreach ($clp as $pair) {
+		$name = $value = "";
+		list($name, $value) = (preg_split("/==/", $pair));
+		$value = urldecode($value);
+		$value = preg_replace("/\+/", " ", $value);
+		$value = preg_replace("/\|/", " | ", $value);
+		$value = preg_replace("/\<\!--.*--\>/", "", $value);
+		if ($allow_html_code != 1) {
+			$value = preg_replace("/\<.*\>/",'',$value);
+		}
+		$in[$name] = $value;
+	}
+ }
+ return $in;
+}
+
+$html = <<<EOF
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
 <!--
 
-
-Custom E2 Guardian Block page by Pfsensation (GitHub @Forid786) - V1.0.1 
+Based on E2 Guardian template Block page by Pfsensation (GitHub @Forid786) - V1.0.1 
 - Thanks to Chris L. for the table code (allowed me to be a little lazy)
 - Thanks to E2 Guardian team and everyone who contribued!
 - Thanks to Marcello Coutinho for keeping this project alive (on pfsense), making an amazing GUI and continuing the amazing work! <3
-
-The available variables are as follows:
-- URL- gives the URL the user was trying to get to.
-- REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase).
-- REASONLOGGED- gives the reason that gets logged including full details.
-- USER- gives the username if known.
-- IP- gives the originating IP.
-- FILTERGROUP- gives the group number.
-- BYPASS- gives URL which allows temporary bypass of denied page
-
 
 -->
 
 
 <html>
 <head>
-		<title>E2Guardian - Acesso negado</title>
+		<title>E2Guardian - {$access_denied}</title>
 		<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
 		<!-- Ensure local favicon is loaded or site's is blanked, some sites have shady favicons. -->
 		<!-- <link rel="shortcut icon" href="favicon.ico"> -->
@@ -140,23 +212,33 @@ return; Rounded("div#nifty","#377CB1","#9BD1FA");}
 
   <div id="nifty">
     <P>
-     <h3>Opa! Voc&ecirc; tentou visitar um site que foi considerado inadequado:</h3><BR>
+     <h3>{$oops1}! {$oops2}:</h3><BR>
       <BR>
-     <I>-URL-</I>
+     <I>{$deniedurl}</I>
       <BR><BR>
-      <B>Motivo</B><BR>
+      <B>{$because}</B><BR>
       <BR>
-      <span class="errortext">-REASONGIVEN-</span>&nbsp;
-	   <span class="errortext">-CATEGORIES-</span>
+      <span class="errortext">{$reason}</span>&nbsp;
+	   <span class="errortext">{$cats}</span>
       <BR><BR><BR>
-      <h4>Detalhes da conex&atilde;o:</h4>
-      <I>-USER-&nbsp</I>
+      <h4>{$details}:</h4>
+      <I>User: {$user_info}<br>Host:{$host}</I>
       <BR><BR><BR>
-      <!--ypass link below -->
-      <a href="-BYPASS-" title="O Administrador pode configura uma chave para acesso temporario ao site" class="bypasstext">Confirmar e continuar</a>
+      <!--Bypass link below ->
+      <a href="{$bypass}" class="bypasstext">{$ack}</a>
+   </P>
+   <P>
+      <font size=-3>Powered by <a href="http://e2guardian.org" target="_blank">e2guardian</a></font>
    </P>
    </div>
   </TD>
  </Table>
 </Body>
 </html>
+
+EOF;
+
+print $html;
+
+?>
+
