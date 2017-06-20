@@ -2925,7 +2925,7 @@ stat_rec* &dystat)
             // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
-  /*
+
             if (!authed) {
                 logged = true;
                 String temp;
@@ -2957,7 +2957,7 @@ stat_rec* &dystat)
                           }
                 logged = false;
             }
-*/
+
             if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
