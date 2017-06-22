@@ -4513,23 +4513,29 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef __SSLMITM
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
+    //somewhere to hold the header from the proxy
+    HTTPHeader header(__HEADER_RESPONSE);
+    //header.setTimeout(o.pcon_timeout);
+    header.setTimeout(o.proxy_timeout);
+
     String connect_request = "CONNECT " + hostname + ":";
     connect_request += "443 HTTP/1.0\r\n";
     if ( o.forwarded_for ) {
+       std::string xforwardip(header.getXForwardedForIP());
        connect_request += "X-Forwarded-For: ";
-       connect_request += sock->getPeerIP();
-       connect_request += "\r\n";
+       if ((xforwardip.length() > 6) && o.use_xforwardedfor) {
+            connect_request += xforwardip;
+            connect_request += "\r\n";
+       } else {
+            connect_request += sock->getPeerIP();
+            connect_request += "\r\n";
+       }
     }
     connect_request += "\r\n";
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -creating tunnel through proxy to " << hostname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-
-    //somewhere to hold the header from the proxy
-    HTTPHeader header(__HEADER_RESPONSE);
-    //header.setTimeout(o.pcon_timeout);
-    header.setTimeout(o.proxy_timeout);
 
         if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
