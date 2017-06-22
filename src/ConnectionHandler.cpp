@@ -1705,8 +1705,12 @@ stat_rec* &dystat)
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
                     if (isconnect)
                         header.sslsiteRegExp(ldl->fg[filtergroup]);
-                    if (o.forwarded_for)
-                            header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+
+                    if (o.forwarded_for){
+                        std::string xforwardip(header.getXForwardedForIP());
+                        if (xforwardip.length() > 6)
+                            header.addXForwardedFor(xforwardip);
+                    }
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                         cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
                     //check the response headers so we can go ssl
