@@ -3,6 +3,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 June 2017
 
 Many improvements and changes are done at this version
+- Fix bug #241 SSLMITM and XForwarded_for
 - Fix several bugs with GYBYPASS
 - Add new banned list bannedsitelistwithbypass (block definitively a domain) 
 - Fix bug #224 part2 clamdscan
