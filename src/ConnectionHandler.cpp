@@ -638,10 +638,17 @@ stat_rec* &dystat)
             urldomain = url.getHostname();
             is_ssl = header.requestType().startsWith("CONNECT");
             if (o.forwarded_for && !ismitm) {
-                header.addXForwardedFor(clientip.c_str()); // add squid-like entry
-                usexforwardedfor = true;
-            } else {
-                usexforwardedfor = false;
+                if (o.use_xforwardedfor) {
+                    std::string xforwardip(header.getXForwardedForIP());
+                    if (xforwardip.length() > 6) {
+                        header.addXForwardedFor(xforwardip); // add squid-like entry
+                    } else {
+                        header.addXForwardedFor(clientip.c_str());
+                    }
+                    usexforwardedfor = true;
+                } else {
+                    usexforwardedfor = false;
+                }
             }
 
 #ifdef DGDEBUG
