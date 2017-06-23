@@ -14,6 +14,7 @@
 #include "HTTPHeader.hpp"
 #include "NaughtyFilter.hpp"
 #include "FatController.hpp"
+#include "Auth.hpp"
 
 // DECLARATIONS
 
@@ -60,6 +61,8 @@ class ConnectionHandler
     int load_id;
     // pass data between proxy and client, filtering as we go.
     int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat);
+
+    auth_rec SBauth;      // record persists for whole connection
 
     private:
     int filtergroup;

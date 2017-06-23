@@ -11,6 +11,9 @@
 #define __DGHEADER_SENDFIRSTLINE 1
 #define __DGHEADER_SENDREST 2
 
+#define  __HEADER_REQUEST      1
+#define  __HEADER_RESPONSE   2
+
 // INCLUDES
 
 #include <deque>
@@ -29,6 +32,7 @@ class HTTPHeader
     std::deque<String> header;
     //DataBuffer postdata;
     unsigned int port;
+    bool is_response;
 
     // reset header object for future use
     void reset();
@@ -168,18 +172,33 @@ class HTTPHeader
     String getReferer();
 
     HTTPHeader()
-        : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true)
+        : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
     {
         reset();
     };
+    HTTPHeader(int type)
+            : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
+    {
+        reset();
+        setType(type);
+    };
+
     ~HTTPHeader()
     {
         delete postdata;
     };
 
-    private:
-    // timeout for socket operations
-    int timeout;
+    void setType(int type) {
+        if (type == __HEADER_RESPONSE)
+            is_response = true;
+        else
+            is_response = false;
+    };
+
+       private:
+        // timeout for socket operations
+        int timeout;
+
 
     // header index pointers
     String *phost;

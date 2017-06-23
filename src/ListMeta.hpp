@@ -76,9 +76,14 @@ class ListMeta
 
     struct list_info findList(String name, int type);
 
+    unsigned int findListId(String name, int type);
+
     bool list_exists(String name, int type);
 
     bool inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res);
+    bool inList(list_info &list, String &tofind, bool ip,  bool ssl, list_result &res);
+
+
 
    bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname);
 

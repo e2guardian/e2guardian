@@ -286,6 +286,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         syslog(LOG_ERR, "Storyboard file %s is not defined", filename);
         return false;
     }
+    std::cerr << "REading storyboard file " << filename << std::endl;
+
     LMeta = &LM;
     std::string linebuffer; // a string line buffer ;)
     String temp; // a String for temporary manipulation
@@ -312,6 +314,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         if (linebuffer.length() == 0) { // sanity checking
             continue;
         }
+        std::cerr << "Readline " << linebuffer << std::endl;
         line = linebuffer.c_str();
         line.removeWhiteSpace();
         if (caseinsensitive)
@@ -344,7 +347,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                 funct_vec.push_back(curr_function);
             }
             in_function = true;
-            curr_function.start(params, ++fnt_cnt, line_no);
+            String temp  = filename;
+            curr_function.start(params, ++fnt_cnt, line_no, temp);
             continue;
         }
         if (command == "endfunction") {
@@ -365,16 +369,19 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         // push function to list
         funct_vec.push_back(curr_function);
     }
+    std::cerr << "SB read file finished function vect size is "  << funct_vec.size() << "is_top " << is_top << std::endl;
 
-    if (!is_top)
-         return true;
+    if (!is_top) return true;
 
     // only do the 2nd pass once all file(s) have been read
     // in top file now do second pass to record action functions ids in command lines and add list_ids
+    std::cerr << "SB Start 2nd pass checking"  << std::endl;
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
+            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << std::endl;
+
             if(j->state  < SB_STATE_TOPIN)  {   // is an *in condition and requires a list
                 std::deque<int> types;
                 switch (j->state) {
@@ -391,23 +398,33 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                         types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                 }
+                bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
-                    unsigned int lr = LMeta->findList(j->list_name, *k).list_ref;
-                    if (lr) j->list_id_dq.push_back(lr);
+                    std::cerr << "SB  list name "  << j->list_name << " checking type  " << *k <<  std::endl;
+                    ListMeta::list_info listi = LMeta->findList(j->list_name, *k);
+                    std::cerr << "list reference " << listi.list_ref   << " '" << listi.name << "' found for " << j->list_name << std::endl;
+                    if (listi.name.length()) {
+                        j->list_id_dq.push_back(listi);
+                        found = true;
+                    }
                 }
-                if (j->list_id_dq.begin()  == j->list_id_dq.end()) {
+                if (! found ) {
                     // warning message
-                    std::cout << "StoryBoard error: List not defined" << j->list_name << "at line " << j->file_lineno << " of " << i->file_name << std::endl;
+                    std::cerr << "StoryBoard error: List not defined " << j->list_name << " at line " << j->file_lineno << " of " << i->file_name << std::endl;
+                } else {
+                    std::cerr << j->list_name << " matches " << j->list_id_dq.size() << " types" << std::endl;
                 }
 
              }
             // check action
             if ( (j->action_id = getFunctID(j->action_name)) == 0) {
                 // warnign message
-                std::cout << "StoryBoard error: Action not defined" << j->action_name << "at line " << j->file_lineno << " of " << i->file_name << std::endl;
+                std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno << " of " << i->file_name << std::endl;
             }
+            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << std::endl;
         }
     }
+    return true;
 }
 
 unsigned int StoryBoard::getFunctID( String & fname) {

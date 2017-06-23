@@ -53,10 +53,11 @@ void SBFunction::reset() {
     //}
 }
 
-bool SBFunction::start(String & sname, unsigned int id, unsigned int& line_no) {
+bool SBFunction::start(String & sname, unsigned int id, unsigned int& line_no, String filename) {
     name = sname;
     fn_id = id;
     file_lineno = line_no;
+    file_name = filename;
     return true;
 }
 
@@ -78,22 +79,61 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     }
     rec.file_lineno = line_no;
     // process params
-    String state = params.before(",");
-    String temp = params.after(",");
-    String list = temp.before(",");
-    temp = temp.after(",");
-    String mno = temp.before(",");
-    temp = temp.after(",");
-    String mnolog = temp.before(",");
+    std::cerr << "CLine " << params << " Action " << action << std::endl;
+    String state;
+    String temp;
+    String temp2;
+    if (params.contains(",")) {
+        state = params.before(",");
+        std::cerr << "CLine state is " << state << std::endl;
+        temp = params.after(",");
+    } else {
+        state = params;
+    }
+    state.removeWhiteSpace();
     rec.state = getStateID(state);
     if (rec.state == 0) {
         std::cout << "StoryBoard error: Invalid state" << state << "at line " << line_no << " of " << file_name << std::endl;
         return false;
     }
-    rec.list_name = list;
+
+    if ( temp.length() ) {
+        if (temp.contains(",")) {
+            temp2 = temp.before(",");
+            temp = temp.after(",");
+        } else {
+            temp2 = temp;
+            temp = "";
+        }
+        temp2.removeWhiteSpace();
+        rec.list_name = temp2;
+            std::cerr << "CLine list is " << temp2 << std::endl;
+     }
+    if ( temp.length() ) {
+        if (temp.contains(",")) {
+            temp2 = temp.before(",");
+            temp = temp.after(",");
+        } else {
+            temp2 = temp;
+            temp = "";
+        }
+        temp2.removeWhiteSpace();
+        rec.mess_no = temp2.toInteger();
+        std::cerr << "CLine mno is " << temp2 << std::endl;
+    }
+    if ( temp.length() ) {
+        if (temp.contains(",")) {
+            temp2 = temp.before(",");
+            temp = temp.after(",");
+        } else {
+            temp2 = temp;
+            temp = "";
+        }
+        temp2.removeWhiteSpace();
+        rec.log_mess_no = temp2.toInteger();
+        std::cerr << "CLine logmno is " << temp2 << std::endl;
+    }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
-    rec.mess_no = mno.toInteger();
-    rec.log_mess_no = mnolog.toInteger();
 
     if (action.startsWith("return")) {
         rec.return_after_action = true;

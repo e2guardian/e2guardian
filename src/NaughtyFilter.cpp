@@ -55,6 +55,15 @@ class listent
 NaughtyFilter::NaughtyFilter()
     : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
+//    request_header.setType(__HEADER_REQUEST);
+//    response_header.setType(__HEADER_RESPONSE);
+}
+NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
+        : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
+{
+    request_header = &request;
+    response_header = &response;
+    reset();
 }
 
 void NaughtyFilter::reset()
@@ -72,6 +81,31 @@ void NaughtyFilter::reset()
     isSSLGrey = false;
     isSearch = false;
     message_no = 0;
+
+    // resets from CH
+                waschecked = false; // flags
+                wasrequested = false;
+                isexception = false;
+                isourwebserver = false;
+                wasclean = false;
+                isbypass = false;
+                iscookiebypass = false;
+                isvirusbypass = false;
+                bypasstimestamp = 0;
+                isscanbypass = false;
+                ispostblock = false;
+                pausedtoobig = false;
+                wasinfected = false;
+                wasscanned = false;
+                contentmodified = false;
+                urlmodified = false;
+                headermodified = false;
+                headeradded = false;
+                urlredirect = false;
+    //            authed = false;
+    //            isbanneduser = false;
+                mimetype = "-";
+                docsize = 0; // to store the size of the returned document for logging
 }
 
 // check the given document body for banned, weighted, and exception phrases (and PICS, and regexes, &c.)

@@ -15,6 +15,7 @@
 #include <string>
 #include "String.hpp"
 #include "RegExp.hpp"
+#include "ListMeta.hpp"
 
 // commands 
 #define  SB_COM_STARTFUNCTION	1
@@ -41,16 +42,19 @@
 #define SB_STATE_BLOCKSET	8
 #define SB_STATE_MITMSET        9
 #define SB_STATE_DONESET       10
+#define SB_STATE_RETURNSET       11
 
-#define SB_STATE_MAP_SIZE  10
+#define SB_STATE_MAP_SIZE  11
 
 // BUILT_IN functions
 #define SB_FUNC_SETEXCEPTION	    5001
 #define SB_FUNC_SETGREY		            5002
 #define SB_FUNC_SETBLOCK	            5003
 #define SB_FUNC_SETDONE		            5004
+#define SB_FUNC_SETTRUE		            5005
+#define SB_FUNC_SETFALSE		            5006
 
-#define SB_FUNC_MAP_SIZE  4
+#define SB_FUNC_MAP_SIZE  6
 
 // Defined functions IDs start at 51
 #define SB_BI_FUNC_BASE		5000
@@ -71,6 +75,7 @@ class SBFunction
 			"blockset",
 			"mitmset",
 			"doneset",
+			"returnset"
 			};
    String command_map[4] = { "startfunction",
 			"endfunction",
@@ -83,6 +88,8 @@ class SBFunction
             "setgrey",
             "setblock",
             "setdone",
+			"true",
+			"false"
     };
 
   public:
@@ -92,7 +99,7 @@ class SBFunction
     struct com_rec {
 	bool isif;   // true if if  - false is ifnot
 	unsigned int state;	// what is being tested e.g. url site search etc
-	std::deque<unsigned int> list_id_dq;   // holds ids of list(s) being used
+	std::deque<ListMeta::list_info> list_id_dq;   // holds ids of list(s) being used
 	unsigned int mess_no;   // optional overide of list defaults
 	unsigned int log_mess_no;   // optional overide of list defaults
 	unsigned int action_id;     // action to take if result true
@@ -112,7 +119,7 @@ class SBFunction
     ~SBFunction();
 
     void reset();
-	bool start(String & name, unsigned int id, unsigned int& line_no);
+	bool start(String & name, unsigned int id, unsigned int& line_noi, String filename);
 	bool end();
 	bool addline(String command, String params, String action, unsigned int line_no);
 	unsigned int getStateID(String & state);

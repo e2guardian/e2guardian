@@ -34,6 +34,13 @@
 
 // any < 0 return code signifies error
 
+// auth_rec structure for use by storyboarding
+struct auth_rec {
+    String user_name;
+    bool is_authed;
+    int filter_group;
+};
+
 // DECLARATIONS
 
 class AuthPlugin : public Plugin

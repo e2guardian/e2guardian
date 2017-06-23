@@ -65,6 +65,7 @@ class OptionContainer
     int url_cache_age;
     int phrase_filter_mode;
     int preserve_case;
+    int max_header_lines;
     bool hex_decode_content;
     bool force_quick_search;
     bool map_auth_to_ports;

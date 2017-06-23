@@ -763,6 +763,8 @@ bool FOptionContainer::read(const char *filename)
             //std::string no_check_cert_site_list_location(findoptionS("nocheckcertsitelist"));
 #endif
 
+       std::string storyboard_location(findoptionS("storyboard"));
+
 #ifdef DGDEBUG
             std::cout << "Read settings into memory" << std::endl;
             std::cout << "Reading phrase, URL and site lists into memory" << std::endl;
@@ -1120,7 +1122,7 @@ bool FOptionContainer::read(const char *filename)
         }
 
 
-        std::string storyboard_location(findoptionS("storyboard"));
+ //       std::string storyboard_location(findoptionS("storyboard"));
 
        if( ! StoryB.readFile(storyboard_location.c_str(), LMeta, true))
            return false;

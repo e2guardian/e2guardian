@@ -174,18 +174,35 @@ bool ListMeta::list_exists(String name, int type) {
 
 ListMeta::list_info ListMeta::findList(String name, int type) {
     list_info t;
+    std::cerr << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-        if (i->name == name && i->type == type)
+        if (i->name == name && i->type == type) {
+            std::cerr << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
             t = *i;
             return t;
+        }
+       // std::cerr << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
+    std::cerr << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
+    t.list_ref = 0;
     return t;
+}
+
+unsigned int ListMeta::findListId(String name, int type) {
+    list_info t;
+    t.list_ref = 0;
+    t = findList(name, type);
+    return t.list_ref;
 }
 
 bool ListMeta::inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res) {
     list_info info = findList(name, type);
-    if (info.name == "")
-        return false;
+    return inList(info, tofind, ip, ssl, res);
+}
+
+bool ListMeta::inList(list_info &info, String &tofind, bool ip, bool ssl, list_result &res) {
+    if (info.name == "") return false;
+    int type = info.type;
     char *match;
     switch (type)   {
         case LIST_TYPE_SITE :
