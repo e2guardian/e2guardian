@@ -638,10 +638,17 @@ stat_rec* &dystat)
             urldomain = url.getHostname();
             is_ssl = header.requestType().startsWith("CONNECT");
             if (o.forwarded_for && !ismitm) {
-                header.addXForwardedFor(clientip.c_str()); // add squid-like entry
-                usexforwardedfor = true;
-            } else {
-                usexforwardedfor = false;
+                if (o.use_xforwardedfor) {
+                    std::string xforwardip(header.getXForwardedForIP());
+                    if (xforwardip.length() > 6) {
+                        header.addXForwardedFor(xforwardip); // add squid-like entry
+                    } else {
+                        header.addXForwardedFor(clientip.c_str());
+                    }
+                    usexforwardedfor = true;
+                } else {
+                    usexforwardedfor = false;
+                }
             }
 
 #ifdef DGDEBUG
@@ -1705,8 +1712,12 @@ stat_rec* &dystat)
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
                     if (isconnect)
                         header.sslsiteRegExp(ldl->fg[filtergroup]);
-                    if (o.forwarded_for)
-                            header.addXForwardedFor(clientip.c_str()); // add squid-like entry
+
+                    if (o.forwarded_for){
+                        std::string xforwardip(header.getXForwardedForIP());
+                        if (xforwardip.length() > 6)
+                            header.addXForwardedFor(xforwardip);
+                    }
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                         cleanThrow("Unable to send header to proxy 1586",peerconn, proxysock);
                     //check the response headers so we can go ssl
@@ -4513,23 +4524,29 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef __SSLMITM
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
+    //somewhere to hold the header from the proxy
+    HTTPHeader header(__HEADER_RESPONSE);
+    //header.setTimeout(o.pcon_timeout);
+    header.setTimeout(o.proxy_timeout);
+
     String connect_request = "CONNECT " + hostname + ":";
     connect_request += "443 HTTP/1.0\r\n";
     if ( o.forwarded_for ) {
+       std::string xforwardip(header.getXForwardedForIP());
        connect_request += "X-Forwarded-For: ";
-       connect_request += sock->getPeerIP();
-       connect_request += "\r\n";
+       if ((xforwardip.length() > 6) && o.use_xforwardedfor) {
+            connect_request += xforwardip;
+            connect_request += "\r\n";
+       } else {
+            connect_request += sock->getPeerIP();
+            connect_request += "\r\n";
+       }
     }
     connect_request += "\r\n";
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -creating tunnel through proxy to " << hostname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-
-    //somewhere to hold the header from the proxy
-    HTTPHeader header(__HEADER_RESPONSE);
-    //header.setTimeout(o.pcon_timeout);
-    header.setTimeout(o.proxy_timeout);
 
         if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
