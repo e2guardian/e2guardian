@@ -1122,6 +1122,7 @@ stat_rec* &dystat)
 // Replace this with storyboard call - local exception checks
                 String funct = "localexceptions";
                 ldl->fg[filtergroup]->StoryB.runFunct( funct, checkme);
+                std::cerr << "After StoryB isexception " << checkme.isexception << " mess_no " << checkme.message_no   << std::endl;
             }
 
 // Replace this with storyboard call - local requestLocalChecks

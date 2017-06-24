@@ -499,6 +499,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 state_result = cm.isReturn;
                 break;
         }
+        std::cerr << "target" << target << " target2 " << target2 <<   std::endl;
 
         if (isListCheck) {
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
@@ -509,14 +510,17 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 } else {
                     t = target;
                 }
-               if ( LMeta->inList(*j,target,res)) {  //found
+                std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+               if ( LMeta->inList(*j,t,res)) {  //found
                 state_result = true;
                    if (i->isif) {
                        cm.lastcategory = res.category;
+                       cm.whatIsNaughtyCategories = res.category;
                        cm.message_no = res.mess_no;
                        cm.log_message_no = res.log_mess_no;
                        cm.whatIsNaughty = res.match;
                    }
+                   std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << res.match << std::endl;
                    break;
                     }
 
@@ -533,6 +537,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
         if  (i->mess_no > 0)  cm.message_no = i->mess_no;
         if  (i->log_mess_no > 0)  cm.log_message_no = i->log_mess_no;
+
+        std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << cm.whatIsNaughty << std::endl;
 
         if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
             switch (i->action_id) {
@@ -554,7 +560,6 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     break;
             }
-
         } else {      // is SB defined function
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id,cm);
@@ -562,6 +567,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
         }
         if ( i->return_after_action)
+            break;
+        if (i->return_after_action_is_true && action_return)
             break;
     }
 

@@ -135,13 +135,19 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 
-    if (action.startsWith("return")) {
+    rec.return_after_action = false;
+    rec.return_after_action_is_true = false;
+
+    if (action.startsWith("return ")) {
         rec.return_after_action = true;
-        action = action.after("return");
-        action.removeWhiteSpace();
-    } else {
-        rec.return_after_action = false;
-    }
+        action = action.after("return ");
+    } else if (action.startsWith("returnif ")) {
+                rec.return_after_action_is_true = true;
+                action = action.after("returnif ");
+    };
+
+    action.removeWhiteSpace();
+
     rec.action_name = action;   // will check this and get action_id later as function may not yet be defined.
     comm_dq.push_back(rec);
     return true;
