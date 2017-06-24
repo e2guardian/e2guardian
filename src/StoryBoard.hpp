@@ -18,6 +18,11 @@
 #include "SBFunction.hpp"
 #include "ListMeta.hpp"
 
+// #include "NaughtyFilter.hpp"
+
+//#ifndef __HPP_SB
+
+class NaughtyFilter;
 
 // DECLARATIONS
 
@@ -41,6 +46,11 @@ class StoryBoard
    bool readFile(const char *filename, ListMeta & LMeta, bool is_top = true);
    unsigned int getFunctID(String &fname);
 
+    bool runFunct(String &fname, NaughtyFilter &cm);
+    bool runFunct(unsigned int fID, NaughtyFilter &cm);
+
 };
 
+//#endif
+#define __HPP_SB
 #endif

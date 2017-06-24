@@ -80,8 +80,8 @@ class ListMeta
 
     bool list_exists(String name, int type);
 
-    bool inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res);
-    bool inList(list_info &list, String &tofind, bool ip,  bool ssl, list_result &res);
+    bool inList(String name, int type, String &tofind, list_result &res);
+    bool inList(list_info &list, String &tofind, list_result &res);
 
 
 
@@ -89,8 +89,8 @@ class ListMeta
 
 private:
 
-    char *inURLList(String &url, unsigned int list, bool doblanket , bool ip , bool ssl , String &lastcategory);
-    char *inSiteList(String &url, unsigned int list, bool doblanket , bool ip , bool ssl , String &lastcategory);
+    char *inURLList(String &url, unsigned int list,  String &lastcategory);
+    char *inSiteList(String &url, unsigned int list,  String &lastcategory);
     char *inSearchList(String &words, unsigned int list,String &lastcategory);
     int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);

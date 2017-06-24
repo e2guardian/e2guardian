@@ -5,6 +5,8 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+//#include "NaughtyFilter.hpp"
+//#include "StoryBoard.hpp"
 #include "ConnectionHandler.hpp"
 #include "DataBuffer.hpp"
 #include "UDSocket.hpp"
@@ -474,7 +476,7 @@ stat_rec* &dystat)
                 header.addXForwardedFor(clientip); // add squid-like entry
             }
 #ifdef DGDEBUG
-            header.dbshowheader(&checkme.logurl, clientip.c_str());
+            //header.dbshowheader(&checkme.logurl, clientip.c_str());
 #endif
         }
         //
@@ -579,12 +581,20 @@ stat_rec* &dystat)
                 // our filter
                 //checkme.reset();
             }
-
+//
+            // do all of this normalisation etc just the once at the start.
             checkme.url = header.getUrl(false, ismitm);
+            checkme.baseurl = checkme.url;
+            checkme.baseurl.removeWhiteSpace();
+            checkme.baseurl.toLower();
+            checkme.baseurl.removePTP();
             checkme.logurl = header.getLogUrl(false, ismitm);
             checkme.urld = header.decode(checkme.url);
             checkme.urldomain = checkme.url.getHostname();
+            checkme.urldomain.toLower();
+            checkme.isiphost = isIPHostnameStrip(checkme.urldomain);
             checkme.is_ssl = header.requestType().startsWith("CONNECT");
+            checkme.ismitm = ismitm;
 
             //If proxy connction is not persistent...
             if (!persistProxy) {
@@ -1110,6 +1120,8 @@ stat_rec* &dystat)
                 }
 
 // Replace this with storyboard call - local exception checks
+                String funct = "localexceptions";
+                ldl->fg[filtergroup]->StoryB.runFunct( funct, checkme);
             }
 
 // Replace this with storyboard call - local requestLocalChecks
@@ -1300,7 +1312,7 @@ stat_rec* &dystat)
             if (checkme.urlredirect) {
                 checkme.url = header.redirecturl();
 #ifdef DGDEBUG
-                std::cout << "urlRedirectRegExp told us to redirect client to \"" << url << std::endl;
+        //        std::cout << "urlRedirectRegExp told us to redirect client to \"" << url << std::endl;
 #endif
                 proxysock.close();
                 String writestring("HTTP/1.0 302 Redirect\nLocation: ");
@@ -2896,7 +2908,7 @@ stat_rec* &dystat)
 #endif
                 checkme.docsize = fdt.throughput;
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
+                //std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << std::endl;
 #endif
                 String rtype(header.requestType());
                 if (!logged && !checkme.nolog) {

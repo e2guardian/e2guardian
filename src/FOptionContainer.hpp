@@ -17,10 +17,13 @@
 #include "LanguageContainer.hpp"
 #include "ImageContainer.hpp"
 #include "RegExp.hpp"
+//#include "HTTPHeader.hpp"
+//#include "NaughtyFilter.hpp"
 #include "StoryBoard.hpp"
 #include <string>
 #include <deque>
 
+//#ifndef __HPP_FOPTIONCONTAINER
 // DECLARATIONS
 
 std::deque<String> *ipToHostname(const char *ip);
@@ -279,6 +282,8 @@ public:
     char *inSearchListS(String &terms, String name, String &lastcategory);
     bool inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 
+    StoryBoard StoryB;
+
     // get HTML template for this group
     HTMLTemplate *getHTMLTemplate();
     std::deque<std::string> text_mime;
@@ -288,7 +293,6 @@ public:
     HTMLTemplate *banned_page;
 
     ListMeta LMeta;
-    StoryBoard StoryB;
 
     bool banned_phrase_flag;
  //   bool exception_site_flag;
@@ -367,4 +371,5 @@ public:
     char *testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory);
 };
 
+#define __HPP_FOPTIONCONTAINER
 #endif

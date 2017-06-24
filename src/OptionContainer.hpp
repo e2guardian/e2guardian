@@ -7,13 +7,13 @@
 
 // INCLUDES
 
+#include "FOptionContainer.hpp"
 #include "DownloadManager.hpp"
 #include "ContentScanner.hpp"
 #include "String.hpp"
 #include "HTMLTemplate.hpp"
 #include "ListContainer.hpp"
 #include "ListManager.hpp"
-#include "FOptionContainer.hpp"
 #include "LanguageContainer.hpp"
 #include "ImageContainer.hpp"
 #include "RegExp.hpp"

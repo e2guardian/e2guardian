@@ -424,6 +424,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
             std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << std::endl;
         }
     }
+    // check for required functions
+
     return true;
 }
 
@@ -441,5 +443,129 @@ unsigned int StoryBoard::getFunctID( String & fname) {
 }
 
 
+bool StoryBoard::runFunct(String &fname, NaughtyFilter &cm) {
+    return runFunct(getFunctID(fname),cm);
+}
+
+bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
+    --fID;
+    std::cerr << "fID " << fID << " funct_vec size " << funct_vec.size() <<   std::endl;
+    SBFunction* F = &(funct_vec[fID]);
+    bool isListCheck = false;
+    bool state_result = false;
+    bool action_return = true;
+    String target;
+    String target2;
+
+    for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
+        switch (i->state ) {
+                case SB_STATE_SITEIN:
+                    isListCheck = true;
+                    target = cm.urldomain;
+                    target2 = target;
+                    break;
+                case SB_STATE_URLIN:
+                    isListCheck = true;
+                target = cm.baseurl;
+                target2 = cm.urldomain;
+                    break;
+                case SB_STATE_SEARCHIN:
+                    isListCheck = true;
+                    target = cm.request_header->searchwords();
+                    break;
+                case SB_STATE_EMBEDDEDIN:
+                    isListCheck = true;
+                // multi targets - maybe we need a target deque???
+                    break;
+            case SB_STATE_CONNECT:
+                state_result = cm.isconnect;
+                break;
+            case SB_STATE_EXCEPTIONSET:
+                state_result = cm.isexception;
+                break;
+            case SB_STATE_GREYSET:
+                state_result = cm.isGrey;
+                break;
+            case SB_STATE_BLOCKSET:
+                state_result = cm.isBlocked;
+                break;
+            case SB_STATE_MITMSET:
+                state_result = cm.ismitm;
+                break;
+            case SB_STATE_DONESET:
+                state_result = cm.isdone;
+                break;
+            case SB_STATE_RETURNSET:
+                state_result = cm.isReturn;
+                break;
+        }
+
+        if (isListCheck) {
+            for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
+               ListMeta::list_result res;
+                String t;
+                if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
+                    t = target2;
+                } else {
+                    t = target;
+                }
+               if ( LMeta->inList(*j,target,res)) {  //found
+                state_result = true;
+                   if (i->isif) {
+                       cm.lastcategory = res.category;
+                       cm.message_no = res.mess_no;
+                       cm.log_message_no = res.log_mess_no;
+                       cm.whatIsNaughty = res.match;
+                   }
+                   break;
+                    }
+
+
+            }
+        }
+        if (!i->isif)  {
+            state_result = !state_result;
+        }
+        if (!state_result)
+            continue;        // nothing to do so continue to next SB line
+
+        action_return = true;
+
+        if  (i->mess_no > 0)  cm.message_no = i->mess_no;
+        if  (i->log_mess_no > 0)  cm.log_message_no = i->log_mess_no;
+
+        if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
+            switch (i->action_id) {
+                case SB_FUNC_SETEXCEPTION:
+                    cm.isexception = true;
+                    break;
+                case SB_FUNC_SETGREY:
+                    cm.isGrey = true;
+                    break;
+                case SB_FUNC_SETBLOCK:
+                    cm.isBlocked = true;
+                    break;
+                case SB_FUNC_SETDONE:
+                    cm.isdone = true;
+                    break;
+                case SB_FUNC_SETTRUE:
+                    break;
+                case SB_FUNC_SETFALSE:
+                    action_return = false;
+                    break;
+            }
+
+        } else {      // is SB defined function
+            if (i->action_id > 0) {
+                action_return = runFunct(i->action_id,cm);
+            }
+
+        }
+        if ( i->return_after_action)
+            break;
+    }
+
+    return action_return;
+}
 
 

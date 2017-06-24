@@ -1330,7 +1330,7 @@ char *FOptionContainer::testBlanketBlock(unsigned int list, bool ip, bool ssl, S
 bool FOptionContainer::inSiteListB(String &url, String name, bool ip, bool ssl, String &lastcategory) {
     ListMeta::list_result res;
     bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SITE, url, ip, ssl, res));
+    found = (LMeta.inList(name, LIST_TYPE_SITE, url,  res));
     if (found) {
         lastcategory = res.category;
     }
@@ -1340,7 +1340,7 @@ bool FOptionContainer::inSiteListB(String &url, String name, bool ip, bool ssl, 
 char *FOptionContainer::inSiteListS(String &url, String name, bool ip, bool ssl, String &lastcategory) {
     ListMeta::list_result res;
     bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SITE, url, ip, ssl, res));
+    found = (LMeta.inList(name, LIST_TYPE_SITE, url,  res));
     if (found) {
         lastcategory = res.category;
     }
@@ -1350,7 +1350,7 @@ char *FOptionContainer::inSiteListS(String &url, String name, bool ip, bool ssl,
     bool FOptionContainer::inURLListB(String &url, String name, bool ip, bool ssl, String &lastcategory) {
         ListMeta::list_result res;
         bool found;
-        found = (LMeta.inList(name, LIST_TYPE_URL, url, ip, ssl, res));
+        found = (LMeta.inList(name, LIST_TYPE_URL, url,  res));
         if (found) {
             lastcategory = res.category;
         }
@@ -1360,7 +1360,7 @@ char *FOptionContainer::inSiteListS(String &url, String name, bool ip, bool ssl,
         char *FOptionContainer::inURLListS(String &url, String name, bool ip, bool ssl, String &lastcategory) {
             ListMeta::list_result res;
             bool found;
-            found = (LMeta.inList(name, LIST_TYPE_URL, url, ip, ssl, res));
+            found = (LMeta.inList(name, LIST_TYPE_URL, url,  res));
             if (found) {
                 lastcategory = res.category;
             }
@@ -1370,7 +1370,7 @@ char *FOptionContainer::inSiteListS(String &url, String name, bool ip, bool ssl,
 bool FOptionContainer::inSearchListB(String &terms, String name, String &lastcategory) {
     ListMeta::list_result res;
     bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms, false, false, res));
+    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms,  res));
     if (found) {
         lastcategory = res.category;
     }
@@ -1380,7 +1380,7 @@ bool FOptionContainer::inSearchListB(String &terms, String name, String &lastcat
 char *FOptionContainer::inSearchListS(String &terms, String name,  String &lastcategory) {
     ListMeta::list_result res;
     bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms, false, false, res));
+    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms,  res));
     if (found) {
         lastcategory = res.category;
     }
@@ -1390,7 +1390,7 @@ char *FOptionContainer::inSearchListS(String &terms, String name,  String &lastc
 bool FOptionContainer::inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory) {
     ListMeta::list_result res;
     bool found;
-    found = (LMeta.inList(name, LIST_TYPE_REGEXP_BOOL,url, false, false, res));
+    found = (LMeta.inList(name, LIST_TYPE_REGEXP_BOOL,url,  res));
     if (found) {
         lastcategory = res.category;
     }

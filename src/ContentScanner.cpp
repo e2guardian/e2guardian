@@ -10,7 +10,9 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+#include <deque>
 #include "String.hpp"
+#include "HTTPHeader.hpp"
 #include "NaughtyFilter.hpp"
 #include "ContentScanner.hpp"
 #include "ConfigVar.hpp"

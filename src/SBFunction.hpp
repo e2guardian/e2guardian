@@ -103,7 +103,7 @@ class SBFunction
 	unsigned int mess_no;   // optional overide of list defaults
 	unsigned int log_mess_no;   // optional overide of list defaults
 	unsigned int action_id;     // action to take if result true
-		bool return_after_action;
+	bool return_after_action;
 	unsigned int file_lineno;   // used for debug output
 	String action_name; 	    // name of action
 	String list_name;	    // name of list

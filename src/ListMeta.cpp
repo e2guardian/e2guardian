@@ -195,18 +195,18 @@ unsigned int ListMeta::findListId(String name, int type) {
     return t.list_ref;
 }
 
-bool ListMeta::inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res) {
+bool ListMeta::inList(String name, int type, String &tofind, list_result &res) {
     list_info info = findList(name, type);
-    return inList(info, tofind, ip, ssl, res);
+    return inList(info, tofind,  res);
 }
 
-bool ListMeta::inList(list_info &info, String &tofind, bool ip, bool ssl, list_result &res) {
+bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
     if (info.name == "") return false;
     int type = info.type;
     char *match;
     switch (type)   {
         case LIST_TYPE_SITE :
-            match = inSiteList(tofind,info.list_ref, false, ip, ssl, res.category);
+            match = inSiteList(tofind,info.list_ref,  res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -217,7 +217,7 @@ bool ListMeta::inList(list_info &info, String &tofind, bool ip, bool ssl, list_r
             }
             break;
         case LIST_TYPE_URL:
-            match = inURLList(tofind,info.list_ref, false, ip, ssl, res.category);
+            match = inURLList(tofind,info.list_ref,  res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -324,8 +324,9 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 }
 
 
-char *ListMeta::inSiteList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lastcategory)
+char *ListMeta::inSiteList(String &urlp, unsigned int list,  String &lastcategory)
 {
+    String url = urlp;
     // Perform blanket matching if desired
     //if (doblanket) {
         //char *r = testBlanketBlock(list, ip, ssl, lastcategory);
@@ -334,30 +335,30 @@ char *ListMeta::inSiteList(String &url, unsigned int list, bool doblanket, bool 
         //}
     //}
 
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        url = url.before("/"); // chop off any path after the domain
-    }
-    char *i;
-    bool isipurl = isIPHostname(url);
-    if (reverse_lookups && isipurl) { // change that ip into hostname
-        std::deque<String> *url2s = ipToHostname(url.toCharArray());
-        String url2;
-        for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-            url2 = *j;
-            while (url2.contains(".")) {
-                i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
-                if (i != NULL) {
-                    delete url2s;
-                    return i; // exact match
-                }
-                url2 = url2.after("."); // check for being in hld
-            }
-        }
-        delete url2s;
-    }
+   // url.removeWhiteSpace(); // just in case of weird browser crap
+   // url.toLower();
+   // url.removePTP(); // chop off the ht(f)tp(s)://
+   // if (url.contains("/")) {
+   //     url = url.before("/"); // chop off any path after the domain
+   // }
+   char *i;
+   // bool isipurl = isIPHostname(url);
+   // if (reverse_lookups && isipurl) { // change that ip into hostname
+   //     std::deque<String> *url2s = ipToHostname(url.toCharArray());
+   //     String url2;
+   //     for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
+   //         url2 = *j;
+   //         while (url2.contains(".")) {
+   //             i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
+   //             if (i != NULL) {
+   //                 delete url2s;
+   //                 return i; // exact match
+    //            }
+    //            url2 = url2.after("."); // check for being in hld
+    //        }
+    //    }
+     //   delete url2s;
+    //}
     while (url.contains(".")) {
         i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
@@ -386,19 +387,19 @@ char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcateg
 
 
 // look in given URL list for given URL
-char *ListMeta::inURLList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lc)
+char *ListMeta::inURLList(String &urlp, unsigned int list,  String &lc)
 {
-    if (ssl) { // can't be in url list as SSL is site only
-        return NULL;
-    };
+    //if (ssl) { // can't be in url list as SSL is site only
+        //return NULL;
+ //   };
     // Perform blanket matching if desired
  //   if (doblanket) {
  //       char *r = testBlanketBlock(list, ip, ssl, lc);
-  //      if (r) {
+  //      if (r) {:362
    //         return r;
     //    }
     //}
-
+     String url = urlp;
     unsigned int fl;
     char *i;
     String foundurl;
@@ -422,39 +423,6 @@ char *ListMeta::inURLList(String &url, unsigned int list, bool doblanket, bool i
 #ifdef DGDEBUG
     std::cout << "inURLList (processed): " << url << std::endl;
 #endif
-    if (reverse_lookups && url.after("/").length() > 0) {
-        String hostname(url.getHostname());
-        if (isIPHostname(hostname)) {
-            std::deque<String> *url2s = ipToHostname(hostname.toCharArray());
-            String url2;
-            for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-                url2 = *j;
-                url2 += "/";
-                url2 += url.after("/");
-                while (url2.before("/").contains(".")) {
-                    i = (*o.lm.l[list]).findStartsWith(url2.toCharArray(),lc);
-                    if (i != NULL) {
-                        foundurl = i;
-                        fl = foundurl.length();
-                        if (url2.length() > fl) {
-                            unsigned char c = url[fl];
-                            if (c == '/' || c == '?' || c == '&' || c == '=') {
-                                delete url2s;
-                                return i; // matches /blah/ or /blah/foo
-                                // (or /blah?foo etc.)
-                                // but not /blahfoo
-                            }
-                        } else {
-                            delete url2s;
-                            return i; // exact match
-                        }
-                    }
-                    url2 = url2.after("."); // check for being in hld
-                }
-            }
-            delete url2s;
-        }
-    }
     while (url.before("/").contains(".")) {
         i = (*o.lm.l[list]).findStartsWith(url.toCharArray(),lc);
         if (i != NULL) {

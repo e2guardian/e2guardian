@@ -10,10 +10,13 @@
 // not sure if these are needed - but are in protexofe - PIP
 //#include "String.hpp"
 //#include "OptionContainer.hpp"
-#include "DataBuffer.hpp"
-#include "HTTPHeader.hpp"
+//#include "DataBuffer.hpp"
+//#include "HTTPHeader.hpp"
+//#include "FOptionContainer.hpp"
 
-#include "FOptionContainer.hpp"
+class FOptionContainer;
+
+
 // DECLARATIONS
 
 class NaughtyFilter
@@ -63,25 +66,29 @@ class NaughtyFilter
     bool urlmodified = false;
     bool headermodified = false;
     bool headeradded = false;
-    bool isconnect;
-    bool ishead;
-    bool scanerror;
+    bool isconnect = false;
+    bool ishead = false;
+    bool isiphost = false;
+    bool scanerror = false;
     bool ismitmcandidate = false;
     bool is_ssl = false;
-    int bypasstimestamp = 0;
-    bool urlredirect = false;
-    // Remove some results from log: eg: 302 requests
+    bool ismitm = false;
+    bool isdone = false;
     bool nolog = false;
+    bool urlredirect = false;
 
     // 0=none,1=first line,2=all
     int headersent = 0;
 
+    int bypasstimestamp = 0;
+
     std::string mimetype;
 
-    String url;
-    String logurl;
-    String urld;
-    String urldomain;
+    String url;     // the normalised url
+    String baseurl;   // url with 'http[s]://'  removed
+    String logurl;      // url with called protocol
+    String urld;          // decoded url
+    String urldomain;   // the domain or site part of the url
 
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;
@@ -132,4 +139,5 @@ class NaughtyFilter
 
 };
 
+#define __HPP_NAUGHTYFILTER
 #endif
