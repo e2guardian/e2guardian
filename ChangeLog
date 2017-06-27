@@ -2,6 +2,9 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 June 2017
 
+- Fix bug #229 Segmentation fault with -HOST- placeholder 
+
+Verion 4.1.1
 Many improvements and changes are done at this version
 - Fix bug #241 SSLMITM and XForwarded_for
 - Fix several bugs with GYBYPASS
