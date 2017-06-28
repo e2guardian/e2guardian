@@ -4018,7 +4018,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         writestring += (*clientip).c_str();
                         writestring += "&USER=";
                         writestring += (*clientuser).c_str();
-		 	writestring += "::FILTERGROUP==";
+		 	writestring += "&FILTERGROUP==";
 			writestring += ldl->fg[filtergroup]->name;
                         if (clienthost != NULL) {
                             writestring += "&HOST=";
@@ -4240,7 +4240,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 writestring += (*clientip).c_str();
                 writestring += "&USER=";
                 writestring += (*clientuser).c_str();
-		writestring += "::FILTERGROUP==";
+		writestring += "&FILTERGROUP==";
 		writestring += ldl->fg[filtergroup]->name;
                 if (clienthost != NULL) {
                     writestring += "&HOST=";
