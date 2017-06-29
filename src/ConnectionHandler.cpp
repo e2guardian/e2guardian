@@ -435,6 +435,7 @@ stat_rec* &dystat)
     bool ismitmcandidate = false;
     bool do_mitm = false;
     bool is_ssl = false;
+    bool nopass = false;
     int bypasstimestamp = 0;
     bool urlredirect = false;
     // Remove some results from log: eg: 302 requests
@@ -500,7 +501,6 @@ stat_rec* &dystat)
         int oldfg = 0, gmode;
         bool authed = false;
         bool isbanneduser = false;
-        bool nopass = false;
 
         FDTunnel fdt;
         NaughtyFilter checkme;
@@ -1884,7 +1884,7 @@ stat_rec* &dystat)
                         badcert = checkme.isItNaughty;
                     }
                 }
-
+			
                 //handleConnection inside the ssl tunnel
                 if (!checkme.isItNaughty) {
                     bool writecert = true;
@@ -1915,21 +1915,30 @@ stat_rec* &dystat)
                 }
                 o.ca->free_ca_serial(&caser);
 
+		if (nopass){
+                    proxysock.stopSsl();
+                    //tidy up key and cert
+                    X509_free(cert);
+                    EVP_PKEY_free(pkey);
+		    persistProxy = false;
+                    proxysock.close();
+		    break;  
+		}
                 //stopssl on the proxy connection
                 //if it was marked as naughty then show a deny page and close the connection
-                if ((checkme.isItNaughty) && (nopass)) {
+                if (checkme.isItNaughty) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                   std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
-                    String rtype(header.requestType());
-                    doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
+                  String rtype(header.requestType());
+                  doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype,
                         isexception, false, &thestart,
                         cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
                         wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
 
-                    denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,
-                        &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
+                  denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,
+                       &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
                 }
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -Shutting down ssl to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -3455,7 +3464,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     }
 
     // only apply bans to things not in the grey lists
-    if (!(*checkme).isGrey) {
+    if (!(*checkme).isGrey){
         if ((i = (*ldl->fg[filtergroup]).inBannedSiteList(temp, true, is_ip, is_ssl,lastcategory)) != NULL) {
             // need to reintroduce ability to produce the blanket block messages
             (*checkme).whatIsNaughty = o.language_list.getTranslation(500); // banned site
