@@ -500,6 +500,7 @@ stat_rec* &dystat)
         int oldfg = 0, gmode;
         bool authed = false;
         bool isbanneduser = false;
+        bool nopass = false;
 
         FDTunnel fdt;
         NaughtyFilter checkme;
@@ -1143,15 +1144,16 @@ stat_rec* &dystat)
                 // being a banned user/IP overrides the fact that a site may be in the exception lists
                 // needn't check these lists in bypass modes
                 bool is_ip = isIPHostnameStrip(urld);
-                char *nopass;
 
                 if (((*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
         #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         #endif
+                    iscookiebypass = false;
                     isexception = false;
                     isbypass = false;
                     ispostblock = true;
+		    nopass = true;
                 }
 
 
@@ -1915,7 +1917,7 @@ stat_rec* &dystat)
 
                 //stopssl on the proxy connection
                 //if it was marked as naughty then show a deny page and close the connection
-                if (checkme.isItNaughty) {
+                if ((checkme.isItNaughty) && (nopass)) {
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
