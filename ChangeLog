@@ -1,7 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-June 2017
+July 2017
 
+Verion 4.1.2
+- Fix segfault in HTTPHeader::returnCode
 - Fix bug #229 Segmentation fault with -HOST- placeholder 
 - Fix fail with "Make dist"
 
