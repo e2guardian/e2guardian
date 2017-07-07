@@ -92,7 +92,11 @@ String HTTPHeader::requestType()
 // grab return code
 int HTTPHeader::returnCode()
 {
-    return header.front().after(" ").before(" ").toInteger();
+   if (header.size() > 0) {
+        return header.front().after(" ").before(" ").toInteger();
+   }else {
+        return 0;
+   }
 }
 
 // grab content length
