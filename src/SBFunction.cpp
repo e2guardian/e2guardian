@@ -58,6 +58,7 @@ bool SBFunction::start(String & sname, unsigned int id, unsigned int& line_no, S
     fn_id = id;
     file_lineno = line_no;
     file_name = filename;
+    comm_dq.clear();
     return true;
 }
 

@@ -23,24 +23,24 @@ class NaughtyFilter
 {
     public:
     // should the content be blocked?
-    bool isItNaughty;
+    bool isItNaughty = false;
     // should the content bypass any further filtering?
-    bool isException;
+    bool isException = false;
     // is the url/site in Greylist - forces content check
-    bool isGrey;
+    bool isGrey = false;
     // is the url/site in SSLGreylist
-    bool isSSLGrey;
+    bool isSSLGrey = false;
     // is the url a search request
-    bool isSearch;
+    bool isSearch = false;
     // is the url to be blocked
-    bool isBlocked;
-    bool isConnect;
-    bool isIP;
+    bool isBlocked = false;
+    bool isConnect = false;
+    bool isIP = false;
 
     // return true or false?
-    bool isReturn;
+    bool isReturn = false;
 
-    bool hasEmbededURL;
+    bool hasEmbededURL = false;
     std::deque<String> embededURLs;
     std::deque<String> reversedURLs;
 
@@ -72,10 +72,15 @@ class NaughtyFilter
     bool scanerror = false;
     bool ismitmcandidate = false;
     bool is_ssl = false;
+    bool is_ip = false;
     bool ismitm = false;
     bool isdone = false;
     bool nolog = false;
     bool urlredirect = false;
+    bool tunnel_rest = false;
+    bool tunnel_2way = false;
+    bool is_text = false;
+    struct timeval thestart;
 
     // 0=none,1=first line,2=all
     int headersent = 0;
@@ -89,10 +94,13 @@ class NaughtyFilter
     String logurl;      // url with called protocol
     String urld;          // decoded url
     String urldomain;   // the domain or site part of the url
+    String lastmatch;
+    String result;
 
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;
     off_t docsize;   // to store the size of the returned document for logging
+    int filtergroup;
 
     // should the browser use the categories string or the displaycategories string?
     // (related to category list thresholding)
@@ -104,9 +112,6 @@ class NaughtyFilter
     // for future inspection.  storage only implemented for POST data.
     bool store;
 
-    // not sure if these are needed - but are in protexofe - PIP
-    //int filtergroup;
-    // Used in Protex format logs??
     int message_no;
     int log_message_no;
 

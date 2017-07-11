@@ -313,8 +313,7 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
     return true;
 }
 
-bool FOptionContainer::read(const char *filename)
-{
+bool FOptionContainer::read(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage
@@ -330,7 +329,7 @@ bool FOptionContainer::read(const char *filename)
             getline(conffiles, linebuffer);
             if (!conffiles.eof() && linebuffer.length() != 0) {
                 if (linebuffer[0] != '#') { // i.e. not commented out
-                    temp = (char *)linebuffer.c_str();
+                    temp = (char *) linebuffer.c_str();
                     if (temp.contains("#")) {
                         temp = temp.before("#");
                     }
@@ -368,18 +367,18 @@ bool FOptionContainer::read(const char *filename)
         if (mimes != "") {
             size_t comma = mimes.find(',');
             while (comma != std::string::npos) {
-              text_mime.push_back(mimes.substr(0, comma));
-              mimes = mimes.substr(comma + 1);
-              comma = mimes.find(',');
-             }
-              text_mime.push_back(mimes.substr(0, comma));
-              mimes = mimes.substr(comma + 1);
+                text_mime.push_back(mimes.substr(0, comma));
+                mimes = mimes.substr(comma + 1);
+                comma = mimes.find(',');
+            }
+            text_mime.push_back(mimes.substr(0, comma));
+            mimes = mimes.substr(comma + 1);
 #ifdef DGDEBUG
-              int size = (int) text_mime.size();
-	      int i;
-	      for (i = 0; i < size; i++) {
-                    std::cout << "mimes filtering : " << text_mime[i] << std::endl;
-              }
+            int size = (int) text_mime.size();
+        int i;
+        for (i = 0; i < size; i++) {
+                  std::cout << "mimes filtering : " << text_mime[i] << std::endl;
+            }
 #endif
         }
 
@@ -613,7 +612,8 @@ bool FOptionContainer::read(const char *filename)
             sslaccess_denied_domain = sslaccess_denied_domain.after("://");
             sslaccess_denied_domain.removeWhiteSpace();
             if (sslaccess_denied_domain.contains("/")) {
-                sslaccess_denied_domain = sslaccess_denied_domain.before("/"); // access_denied_domain now contains the FQ host nom of the
+                sslaccess_denied_domain = sslaccess_denied_domain.before(
+                        "/"); // access_denied_domain now contains the FQ host nom of the
                 // server that serves the accessdenied.html file
             }
             if (sslaccess_denied_domain.contains(":")) {
@@ -640,19 +640,6 @@ bool FOptionContainer::read(const char *filename)
             non_standard_delimiter = true;
         }
 
-	// TODE Remove groupemode CODE
-        // group mode: 0 = banned, 1 = filtered, 2 = exception
-        group_mode = 1;
-        if ((group_mode < 0) || (group_mode > 2)) {
-            if (!is_daemonised)
-                std::cerr << "Invalid groupmode" << std::endl;
-            syslog(LOG_ERR, "Invalid groupmode");
-            return false;
-        }
-#ifdef DGDEBUG
-        std::cout << "Group mode: " << group_mode << std::endl;
-#endif
-
         // grab group name (if not using external group names file)
         if (!o.use_group_names_list) {
             name = findoptionS("groupname");
@@ -661,158 +648,143 @@ bool FOptionContainer::read(const char *filename)
 #endif
         }
 
-//        if (group_mode == 1) {
-
-            embedded_url_weight = findoptionI("embeddedurlweight");
+        embedded_url_weight = findoptionI("embeddedurlweight");
 #ifdef DGDEBUG
-            std::cout << "Embedded URL Weight: " << embedded_url_weight << std::endl;
+        std::cout << "Embedded URL Weight: " << embedded_url_weight << std::endl;
 #endif
 
-            category_threshold = findoptionI("categorydisplaythreshold");
+        category_threshold = findoptionI("categorydisplaythreshold");
 #ifdef DGDEBUG
-            std::cout << "Category display threshold: " << category_threshold << std::endl;
+        std::cout << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
-            if (findoptionS("ssllegacylogic") == "on") {
-                enable_ssl_legacy_logic = true;
-            } else {
-                enable_ssl_legacy_logic = false;
-            }
+        if (findoptionS("ssllegacylogic") == "on") {
+            enable_ssl_legacy_logic = true;
+        } else {
+            enable_ssl_legacy_logic = false;
+        }
 
-            if (findoptionS("bannedregexwithblanketblock") == "on") {
-                enable_regex_grey = true;
-            } else {
-                enable_regex_grey = false;
-            }
+        if (findoptionS("bannedregexwithblanketblock") == "on") {
+            enable_regex_grey = true;
+        } else {
+            enable_regex_grey = false;
+        }
 
-            if (findoptionS("enablelocallists") == "on") {
-                enable_local_list = true;
-            } else {
-                enable_local_list = false;
-            }
+        if (findoptionS("enablelocallists") == "on") {
+            enable_local_list = true;
+        } else {
+            enable_local_list = false;
+        }
 
-            if (findoptionS("blockdownloads") == "on") {
-                block_downloads = true;
-            } else {
-                block_downloads = false;
-            }
+        if (findoptionS("blockdownloads") == "on") {
+            block_downloads = true;
+        } else {
+            block_downloads = false;
+        }
 
 
-            // Support weighted phrase mode per group
-            if (findoptionS("weightedphrasemode").length() > 0) {
-                weighted_phrase_mode = findoptionI("weightedphrasemode");
-                if (!realitycheck(weighted_phrase_mode, 0, 3, "weightedphrasemode"))
-                    return false;
-            }
+        // Support weighted phrase mode per group
+        if (findoptionS("weightedphrasemode").length() > 0) {
+            weighted_phrase_mode = findoptionI("weightedphrasemode");
+            if (!realitycheck(weighted_phrase_mode, 0, 3, "weightedphrasemode"))
+                return false;
+        }
 
-            std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));
-            std::string weighted_phrase_list_location(findoptionS("weightedphraselist"));
-            std::string banned_phrase_list_location(findoptionS("bannedphraselist"));
-            std::string banned_extension_list_location(findoptionS("bannedextensionlist"));
-            std::string banned_mimetype_list_location(findoptionS("bannedmimetypelist"));
-            //std::string banned_site_list_location(findoptionS("bannedsitelist"));
-            //std::string banned_url_list_location(findoptionS("bannedurllist"));
-            //std::string grey_site_list_location(findoptionS("greysitelist"));
-            //std::string grey_url_list_location(findoptionS("greyurllist"));
-            std::string banned_regexpurl_list_location(findoptionS("bannedregexpurllist"));
-            std::string exception_regexpurl_list_location(findoptionS("exceptionregexpurllist"));
-            std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
-            std::string content_regexp_list_location(findoptionS("contentregexplist"));
-            std::string url_regexp_list_location(findoptionS("urlregexplist"));
-            std::string sslsite_regexp_list_location(findoptionS("sslsiteregexplist"));
-            std::string header_regexp_list_location(findoptionS("headerregexplist"));
-            //std::string exceptions_site_list_location(findoptionS("exceptionsitelist"));
-            //std::string exceptions_url_list_location(findoptionS("exceptionurllist"));
-            std::string exception_extension_list_location(findoptionS("exceptionextensionlist"));
-            std::string exception_mimetype_list_location(findoptionS("exceptionmimetypelist"));
-            std::string exception_file_site_list_location(findoptionS("exceptionfilesitelist"));
-            std::string exception_file_url_list_location(findoptionS("exceptionfileurllist"));
-            std::string log_url_list_location(findoptionS("logurllist"));
-            std::string log_site_list_location(findoptionS("logsitelist"));
-            std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
+        std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));
+        std::string weighted_phrase_list_location(findoptionS("weightedphraselist"));
+        std::string banned_phrase_list_location(findoptionS("bannedphraselist"));
+        std::string banned_extension_list_location(findoptionS("bannedextensionlist"));
+        std::string banned_mimetype_list_location(findoptionS("bannedmimetypelist"));
+        //std::string banned_site_list_location(findoptionS("bannedsitelist"));
+        //std::string banned_url_list_location(findoptionS("bannedurllist"));
+        //std::string grey_site_list_location(findoptionS("greysitelist"));
+        //std::string grey_url_list_location(findoptionS("greyurllist"));
+        std::string banned_regexpurl_list_location(findoptionS("bannedregexpurllist"));
+        std::string exception_regexpurl_list_location(findoptionS("exceptionregexpurllist"));
+        std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
+        std::string content_regexp_list_location(findoptionS("contentregexplist"));
+        std::string url_regexp_list_location(findoptionS("urlregexplist"));
+        std::string sslsite_regexp_list_location(findoptionS("sslsiteregexplist"));
+        std::string header_regexp_list_location(findoptionS("headerregexplist"));
+        //std::string exceptions_site_list_location(findoptionS("exceptionsitelist"));
+        //std::string exceptions_url_list_location(findoptionS("exceptionurllist"));
+        std::string exception_extension_list_location(findoptionS("exceptionextensionlist"));
+        std::string exception_mimetype_list_location(findoptionS("exceptionmimetypelist"));
+        std::string exception_file_site_list_location(findoptionS("exceptionfilesitelist"));
+        std::string exception_file_url_list_location(findoptionS("exceptionfileurllist"));
+        std::string log_url_list_location(findoptionS("logurllist"));
+        std::string log_site_list_location(findoptionS("logsitelist"));
+        std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
 
-            // search term blocking
-            std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
+        // search term blocking
+        std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
 
 #ifdef PRT_DNSAUTH
-            std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
-            std::string auth_exceptions_url_list_location(findoptionS("authexceptionurllist"));
+        std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
+        std::string auth_exceptions_url_list_location(findoptionS("authexceptionurllist"));
 #endif
-            std::string url_redirect_regexp_list_location(findoptionS("urlredirectregexplist"));
-            //std::string referer_exceptions_site_list_location(findoptionS("refererexceptionsitelist"));
-            //std::string referer_exceptions_url_list_location(findoptionS("refererexceptionurllist"));
-            std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
-            std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
-            std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
-            //std::string banned_search_list_location(findoptionS("bannedsearchlist"));
-            std::string search_regexp_list_location(findoptionS("searchregexplist"));
-            //std::string local_banned_search_list_location(findoptionS("localbannedsearchlist"));
-            //std::string banned_search_overide_list_location(findoptionS("bannedsearchoveridelist"));
-            //std::string local_banned_site_list_location(findoptionS("localbannedsitelist"));
-            //std::string local_banned_url_list_location(findoptionS("localbannedurllist"));
-            //std::string local_grey_site_list_location(findoptionS("localgreysitelist"));
-            //std::string local_grey_url_list_location(findoptionS("localgreyurllist"));
-            //std::string local_exceptions_site_list_location(findoptionS("localexceptionsitelist"));
-            //std::string local_exceptions_url_list_location(findoptionS("localexceptionurllist"));
-            //std::string local_banned_ssl_site_list_location(findoptionS("localbannedsslsitelist"));
-            //std::string local_grey_ssl_site_list_location(findoptionS("localgreysslsitelist"));
+        std::string url_redirect_regexp_list_location(findoptionS("urlredirectregexplist"));
+        std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
+        std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
+        std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
+        std::string search_regexp_list_location(findoptionS("searchregexplist"));
 
-            //std::string banned_ssl_site_list_location(findoptionS("bannedsslsitelist"));
-            //std::string grey_ssl_site_list_location(findoptionS("greysslsitelist"));
-#ifdef __SSLMITM
-            //std::string no_check_cert_site_list_location(findoptionS("nocheckcertsitelist"));
-#endif
-
-       std::string storyboard_location(findoptionS("storyboard"));
+        std::string storyboard_location(findoptionS("storyboard"));
 
 #ifdef DGDEBUG
-            std::cout << "Read settings into memory" << std::endl;
-            std::cout << "Reading phrase, URL and site lists into memory" << std::endl;
+        std::cout << "Read settings into memory" << std::endl;
+        std::cout << "Reading phrase, URL and site lists into memory" << std::endl;
 #endif
 
-            if (!block_downloads) {
+        if (!block_downloads) {
 #ifdef DGDEBUG
-                std::cout << "Blanket download block disabled; using standard banned file lists" << std::endl;
+            std::cout << "Blanket download block disabled; using standard banned file lists" << std::endl;
 #endif
-                if (!readFile(banned_extension_list_location.c_str(), &banned_extension_list, false, false, "bannedextensionlist")) {
-                    return false;
-                } // file extensions
-                banned_extension_flag = true;
-                if (!readFile(banned_mimetype_list_location.c_str(), &banned_mimetype_list, false, true, "bannedmimetypelist")) {
-                    return false;
-                } // mime types
-                banned_mimetype_flag = true;
-            }
-            if (!readFile(exception_extension_list_location.c_str(), &exception_extension_list, false, false, "exceptionextensionlist")) {
+            if (!readFile(banned_extension_list_location.c_str(), &banned_extension_list, false, false,
+                          "bannedextensionlist")) {
                 return false;
             } // file extensions
-            exception_extension_flag = true;
-            if (!readFile(exception_mimetype_list_location.c_str(), &exception_mimetype_list, false, true, "exceptionmimetypelist")) {
+            banned_extension_flag = true;
+            if (!readFile(banned_mimetype_list_location.c_str(), &banned_mimetype_list, false, true,
+                          "bannedmimetypelist")) {
                 return false;
             } // mime types
-            exception_mimetype_flag = true;
-            if (!readFile(exception_file_site_list_location.c_str(), &exception_file_site_list, false, true, "exceptionfilesitelist")) {
-                return false;
-            } // download site exceptions
-            exception_file_site_flag = true;
-            if (!readFile(exception_file_url_list_location.c_str(), &exception_file_url_list, true, true, "exceptionfileurllist")) {
-                return false;
-            } // download site exceptions
-            exception_file_url_flag = true;
+            banned_mimetype_flag = true;
+        }
+        if (!readFile(exception_extension_list_location.c_str(), &exception_extension_list, false, false,
+                      "exceptionextensionlist")) {
+            return false;
+        } // file extensions
+        exception_extension_flag = true;
+        if (!readFile(exception_mimetype_list_location.c_str(), &exception_mimetype_list, false, true,
+                      "exceptionmimetypelist")) {
+            return false;
+        } // mime types
+        exception_mimetype_flag = true;
+        if (!readFile(exception_file_site_list_location.c_str(), &exception_file_site_list, false, true,
+                      "exceptionfilesitelist")) {
+            return false;
+        } // download site exceptions
+        exception_file_site_flag = true;
+        if (!readFile(exception_file_url_list_location.c_str(), &exception_file_url_list, true, true,
+                      "exceptionfileurllist")) {
+            return false;
+        } // download site exceptions
+        exception_file_url_flag = true;
 
-            if (weighted_phrase_mode > 0) {
-                naughtyness_limit = findoptionI("naughtynesslimit");
-                if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
-                    return false;
+        if (weighted_phrase_mode > 0) {
+            naughtyness_limit = findoptionI("naughtynesslimit");
+            if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
+                return false;
 
-                if (!o.lm.readbplfile(banned_phrase_list_location.c_str(),
-                        exception_phrase_list_location.c_str(),
-                        weighted_phrase_list_location.c_str(), banned_phrase_list,
-                        force_quick_search)) {
-                    return false;
-                } // read banned, exception, weighted phrase list
-                banned_phrase_flag = true;
-            }
+            if (!o.lm.readbplfile(banned_phrase_list_location.c_str(),
+                                  exception_phrase_list_location.c_str(),
+                                  weighted_phrase_list_location.c_str(), banned_phrase_list,
+                                  force_quick_search)) {
+                return false;
+            } // read banned, exception, weighted phrase list
+            banned_phrase_flag = true;
+        }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
@@ -845,347 +817,172 @@ bool FOptionContainer::read(const char *filename)
         }
 
         {
-            std::deque<String> dq = findoptionM("regexpbool");
-            std::cout << "regexpbool deque is size " << dq.size() << std::endl;
+            std::deque<String> dq = findoptionM("regexpboollist");
+            std::cout << "regexpboollist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq);
         }
 
+        {
+            std::deque<String> dq = findoptionM("regexpreplacelist");
+            std::cout << "regexpreplacelist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_REGEXP_REP, dq);
+        }
 
-            //if (!readFile(exceptions_site_list_location.c_str(), &exception_site_list, false, true, "exceptionsitelist")) {
-             //   return false;
-            //} //// site exceptions
-            //exception_site_flag = true;
-            //if (!readFile(exceptions_url_list_location.c_str(), &exception_url_list, true, true, "exceptionurllist")) {
-                //return false;
-            //} // url exceptions
-            //exception_url_flag = true;
-            //if (!readFile(banned_site_list_location.c_str(), &banned_site_list, false, true, "bannedsitelist")) {
-                //return false;
-            //} // banned domains
-            //banned_site_flag = true;
-            //if (!readFile(banned_url_list_location.c_str(), &banned_url_list, true, true, "bannedurllist")) {
-                //return false;
-            //} // banned urls
-            //banned_url_flag = true;
-            //if (!readFile(grey_site_list_location.c_str(), &grey_site_list, false, true, "greysitelist")) {
-                //return false;
-            //} // grey domains
-            //grey_site_flag = true;
-            //if (!readFile(grey_url_list_location.c_str(), &grey_url_list, true, true, "greyurllist")) {
-                //return false;
-            //} // grey urls
-            //grey_url_flag = true;
 
 #ifdef PRT_DNSAUTH
-            //if (!readFile(auth_exceptions_site_list_location.c_str(), &auth_exception_site_list, false, true, "authexceptionsitelist")) {
-                //return false;
-            //} // non_auth site exceptions
-            //auth_exception_site_flag = true;
-            if (!readFile(auth_exceptions_url_list_location.c_str(), &auth_exception_url_list, true, true, "authexceptionurllist")) {
-                return false;
-            } // non-auth url exceptions
-            auth_exception_url_flag = true;
+        auth_exception_url_flag = true;
 #endif
-            //if (referer_exceptions_site_list_location.length() && readFile(referer_exceptions_site_list_location.c_str(), &referer_exception_site_list, false, true, "refererexceptionsitelist")) {
-                //referer_exception_site_flag = true;
-            //} else { // referer site exceptions
-                //referer_exception_site_flag = false;
-            //}
 
-            //if (referer_exceptions_url_list_location.length() && readFile(referer_exceptions_url_list_location.c_str(), &referer_exception_url_list, true, true, "refererexceptionurllist")) {
-                //referer_exception_url_flag = true;
-            //} else { // referer url exceptions
-                //referer_exception_url_flag = false;
-            //}
+        if (embeded_referer_site_list_location.length() &&
+            readFile(embeded_referer_site_list_location.c_str(), &embeded_referer_site_list, false, true,
+                     "embededreferersitelist")) {
+            embeded_referer_site_flag = true;
+        } else { // referer site exceptions
+            embeded_referer_site_flag = false;
+        }
 
-            if (embeded_referer_site_list_location.length() && readFile(embeded_referer_site_list_location.c_str(), &embeded_referer_site_list, false, true, "embededreferersitelist")) {
-                embeded_referer_site_flag = true;
-            } else { // referer site exceptions
-                embeded_referer_site_flag = false;
+        if (embeded_referer_url_list_location.length() &&
+            readFile(embeded_referer_url_list_location.c_str(), &embeded_referer_url_list, true, true,
+                     "embededrefererurllist")) {
+            embeded_referer_url_flag = true;
+        } else { // referer url exceptions
+            embeded_referer_url_flag = false;
+        }
+
+        if (addheader_regexp_list_location.length() &&
+            readRegExReplacementFile(addheader_regexp_list_location.c_str(), "addheaderregexplist",
+                                     addheader_regexp_list, addheader_regexp_list_rep, addheader_regexp_list_comp)) {
+            addheader_regexp_flag = true;
+        } else { // url regular expressions for header insertions
+            addheader_regexp_flag = false;
+        }
+
+        if (searchengine_regexp_list_location.length()) {
+            if (!is_daemonised) {
+                std::cerr
+                        << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. "
+                        << std::endl;
             }
+            syslog(LOG_ERR,
+                   "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead.");
+            return false;
+        }
 
-            if (embeded_referer_url_list_location.length() && readFile(embeded_referer_url_list_location.c_str(), &embeded_referer_url_list, true, true, "embededrefererurllist")) {
-                embeded_referer_url_flag = true;
-            } else { // referer url exceptions
-                embeded_referer_url_flag = false;
-            }
+        if (search_regexp_list_location.length() &&
+            readRegExReplacementFile(search_regexp_list_location.c_str(), "searchregexplist", search_regexp_list,
+                                     search_regexp_list_rep, search_regexp_list_comp)) {
+            search_regexp_flag = true;
+#ifdef DGDEBUG
+            std::cout << "Enabled search term extraction RegExp list" << std::endl;
+#endif
+        } else {
+            search_regexp_flag = false;
+        } // search engine searchwords regular expressions
 
-            if (addheader_regexp_list_location.length() && readRegExReplacementFile(addheader_regexp_list_location.c_str(), "addheaderregexplist", addheader_regexp_list, addheader_regexp_list_rep, addheader_regexp_list_comp)) {
-                addheader_regexp_flag = true;
-            } else { // url regular expressions for header insertions
-                addheader_regexp_flag = false;
-            }
 
-            if (searchengine_regexp_list_location.length()) {
-                if (!is_daemonised) {
-                    std::cerr << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. " << std::endl;
+        // search term blocking
+        //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
+        //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
+        if (search_regexp_flag) {
+            if (weighted_phrase_mode > 0) {
+                searchterm_limit = findoptionI("searchtermlimit");
+                if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
+                    return false;
                 }
-                syslog(LOG_ERR, "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead.");
-                return false;
-            }
 
-            //if (banned_search_list_location.length() && readFile(banned_search_list_location.c_str(), &banned_search_list, true, true, "bannedsearchlist")) {
-                //banned_search_flag = true;
-            //} else {
-                //banned_search_flag = false;
-            //} // banned search words
-
-            if (search_regexp_list_location.length() && readRegExReplacementFile(search_regexp_list_location.c_str(), "searchregexplist", search_regexp_list, search_regexp_list_rep, search_regexp_list_comp)) {
-                search_regexp_flag = true;
-#ifdef DGDEBUG
-                std::cout << "Enabled search term extraction RegExp list" << std::endl;
-#endif
-           } else {
-                search_regexp_flag = false;
-            } // search engine searchwords regular expressions
-
-            // local list
-            if (enable_local_list) {
-                //if (local_banned_search_list_location.length() && readFile(local_banned_search_list_location.c_str(), &local_banned_search_list, true, true, "localbannedsearchlist")) {
-                    //local_banned_search_flag = true;
-                //} else {
-                    //local_banned_search_flag = false;
-                //} // local banned search words
-
-                //if (banned_search_overide_list_location.length() && readFile(banned_search_overide_list_location.c_str(), &banned_search_overide_list, true, true, "bannedsearchoveridelist")) {
-                    //banned_search_overide_flag = true;
-                //} else {
-                    //banned_search_overide_flag = false;
-                //} // banned search overide words
-
-                //if (!readFile(local_exceptions_site_list_location.c_str(), &local_exception_site_list, false, true, "localexceptionsitelist")) {
-                    //return false;
-                //} // site exceptions
-                //local_exception_site_flag = true;
-                //if (!readFile(local_exceptions_url_list_location.c_str(), &local_exception_url_list, true, true, "localexceptionurllist")) {
-                    //return false;
-                //} // url exceptions
-                //local_exception_url_flag = true;
-                //if (!readFile(local_banned_site_list_location.c_str(), &local_banned_site_list, false, true, "localbannedsitelist")) {
-                    //return false;
-                //} // banned domains
-                //local_banned_site_flag = true;
-                //if (!readFile(local_banned_url_list_location.c_str(), &local_banned_url_list, true, true, "localbannedurllist")) {
-                    //return false;
-                //} // banned urls
-                //local_banned_url_flag = true;
-                //if (!readFile(local_grey_site_list_location.c_str(), &local_grey_site_list, false, true, "localgreysitelist")) {
-                    //return false;
-                //} // grey domains
-                //local_grey_site_flag = true;
-                //if (!readFile(local_grey_url_list_location.c_str(), &local_grey_url_list, true, true, "localgreyurllist")) {
-                    //return false;
-                //} // grey urls
-                //local_grey_url_flag = true;
-
-                //if (local_banned_ssl_site_list_location.length() && readFile(local_banned_ssl_site_list_location.c_str(), &local_banned_ssl_site_list, false, true, "localbannedsslsitelist")) {
-                    //local_banned_ssl_site_flag = true;
-                //} else { // banned domains
-                    //local_banned_ssl_site_flag = false;
-                //}
-                //if (local_grey_ssl_site_list_location.length() && readFile(local_grey_ssl_site_list_location.c_str(), &local_grey_ssl_site_list, false, true, "localgreysslsitelist")) {
-                    //local_grey_ssl_site_flag = true;
-                //} else { // grey domains
-                    //local_grey_ssl_site_flag = false;
-                //}
-            //}
-
-            //if (banned_ssl_site_list_location.length() && readFile(banned_ssl_site_list_location.c_str(), &banned_ssl_site_list, false, true, "bannedsslsitelist")) {
-                //banned_ssl_site_flag = true;
-            //} else { // banned domains
-                //banned_ssl_site_flag = false;
-            //}
-
-            //if (grey_ssl_site_list_location.length() && readFile(grey_ssl_site_list_location.c_str(), &grey_ssl_site_list, false, true, "greysslsitelist")) {
-                //grey_ssl_site_flag = true;
-            //} else {
-                //if (only_mitm_ssl_grey) {
-                    //syslog(LOG_ERR, "onlymitmsslgrey requires greysslsitelist");
-                    //std::cout << "onlymitmsslgrey requires greysslsitelist" << std::endl;
-                    //return false;
-                //} else {
-                    //grey_ssl_site_flag = false;
-                //}
-            //}
-#ifdef __SSLMITM
-            //if (mitm_check_cert && no_check_cert_site_list_location.length() && readFile(no_check_cert_site_list_location.c_str(), &no_check_cert_site_list, false, true, "nocheckcertsitelist")) {
-             //   no_check_cert_site_flag = true;
-            //} // do not check certs for these sites
-            //else {
-                //no_check_cert_site_flag = false;
-            //}
-#endif
-            // log-only lists
-            if (log_url_list_location.length() && readFile(log_url_list_location.c_str(), &log_url_list, true, true, "logurllist")) {
-                log_url_flag = true;
-#ifdef DGDEBUG
-                std::cout << "Enabled log-only URL list" << std::endl;
-#endif
-            } else {
-                log_url_flag = false;
-            }
-
-            if (log_site_list_location.length() && readFile(log_site_list_location.c_str(), &log_site_list, false, true, "logsitelist")) {
-                log_site_flag = true;
-#ifdef DGDEBUG
-                std::cout << "Enabled log-only domain list" << std::endl;
-#endif
-            } else {
-                log_site_flag = false;
-            }
-
-            if (log_regexpurl_list_location.length() && readRegExMatchFile(log_regexpurl_list_location.c_str(), "logregexpurllist", log_regexpurl_list,
-                                                            log_regexpurl_list_comp, log_regexpurl_list_source, log_regexpurl_list_ref)) {
-                log_regexpurl_flag = true;
-#ifdef DGDEBUG
-                std::cout << "Enabled log-only RegExp URL list" << std::endl;
-#endif
-            } else {
-                log_regexpurl_flag = false;
-            }
-            // search term blocking
-            //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
-            //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
-            if (search_regexp_flag) {
-                if (weighted_phrase_mode > 0) {
-                    searchterm_limit = findoptionI("searchtermlimit");
-                    if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
-                        return false;
-                    }
-
-                    // Optionally override the normal phrase lists for search term blocking.
-                    // We need all three lists to build a phrase tree, so fail if we encounter
-                    // anything other than all three enabled/disabled simultaneously.
-                    if (searchterm_limit > 0) {
-                        std::string exception_searchterm_list_location(findoptionS("exceptionsearchtermlist"));
-                        std::string weighted_searchterm_list_location(findoptionS("weightedsearchtermlist"));
-                        std::string banned_searchterm_list_location(findoptionS("bannedsearchtermlist"));
-                        if (!(exception_searchterm_list_location.length() == 0 && weighted_searchterm_list_location.length() == 0 && banned_searchterm_list_location.length() == 0)) {
-                            // At least one is enabled - try to load all three.
-                            if (!o.lm.readbplfile(banned_searchterm_list_location.c_str(),
-                                    exception_searchterm_list_location.c_str(),
-                                    weighted_searchterm_list_location.c_str(), searchterm_list,
-                                    force_quick_search)) {
-                                return false;
-                            }
-                            searchterm_flag = true;
+                // Optionally override the normal phrase lists for search term blocking.
+                // We need all three lists to build a phrase tree, so fail if we encounter
+                // anything other than all three enabled/disabled simultaneously.
+                if (searchterm_limit > 0) {
+                    std::string exception_searchterm_list_location(findoptionS("exceptionsearchtermlist"));
+                    std::string weighted_searchterm_list_location(findoptionS("weightedsearchtermlist"));
+                    std::string banned_searchterm_list_location(findoptionS("bannedsearchtermlist"));
+                    if (!(exception_searchterm_list_location.length() == 0 &&
+                          weighted_searchterm_list_location.length() == 0 &&
+                          banned_searchterm_list_location.length() == 0)) {
+                        // At least one is enabled - try to load all three.
+                        if (!o.lm.readbplfile(banned_searchterm_list_location.c_str(),
+                                              exception_searchterm_list_location.c_str(),
+                                              weighted_searchterm_list_location.c_str(), searchterm_list,
+                                              force_quick_search)) {
+                            return false;
                         }
+                        searchterm_flag = true;
                     }
                 }
             }
-
-            if (!readRegExMatchFile(banned_regexpurl_list_location.c_str(), "bannedregexpurllist", banned_regexpurl_list,
-                    banned_regexpurl_list_comp, banned_regexpurl_list_source, banned_regexpurl_list_ref)) {
-                return false;
-            } // banned reg exp urls
-            banned_regexpurl_flag = true;
-
-            if (!readRegExMatchFile(exception_regexpurl_list_location.c_str(), "exceptionregexpurllist", exception_regexpurl_list,
-                    exception_regexpurl_list_comp, exception_regexpurl_list_source, exception_regexpurl_list_ref)) {
-                return false;
-            } // exception reg exp urls
-            exception_regexpurl_flag = true;
-
-            if (!readRegExMatchFile(banned_regexpheader_list_location.c_str(), "bannedregexpheaderlist", banned_regexpheader_list,
-                    banned_regexpheader_list_comp, banned_regexpheader_list_source, banned_regexpheader_list_ref)) {
-                return false;
-            } // banned reg exp headers
-            banned_regexpheader_flag = true;
-
-            if (!readRegExReplacementFile(content_regexp_list_location.c_str(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
-                return false;
-            } // content replacement regular expressions
-            content_regexp_flag = true;
-
-            if (!readRegExReplacementFile(url_regexp_list_location.c_str(), "urlregexplist", url_regexp_list, url_regexp_list_rep, url_regexp_list_comp)) {
-                return false;
-            } // url replacement regular expressions
-            url_regexp_flag = true;
-
-            if (!readRegExReplacementFile(sslsite_regexp_list_location.c_str(), "sslsiteregexplist", sslsite_regexp_list, sslsite_regexp_list_rep, sslsite_regexp_list_comp)) {
-                return false;
-            } // url replacement regular expressions
-            sslsite_regexp_flag = true;
-
-            if (!readRegExReplacementFile(header_regexp_list_location.c_str(), "headerregexplist", header_regexp_list, header_regexp_list_rep, header_regexp_list_comp)) {
-                return false;
-            } // header replacement regular expressions
-            header_regexp_flag = true;
-
-            if (url_redirect_regexp_list_location.length() && readRegExReplacementFile(url_redirect_regexp_list_location.c_str(), "urlredirectregexplist", url_redirect_regexp_list, url_redirect_regexp_list_rep, url_redirect_regexp_list_comp)) {
-                url_redirect_regexp_flag = true;
-            } // url redirect expressions
-
-#ifdef DGDEBUG
-            std::cout << "Lists in memory" << std::endl;
-#endif
         }
 
 
- //       std::string storyboard_location(findoptionS("storyboard"));
-
-       if( ! StoryB.readFile(storyboard_location.c_str(), LMeta, true))
-           return false;
-
-        if (!precompileregexps()) {
-            return false;
-        } // precompiled reg exps for speed
-
-        //
-        //
-        // Bypass/infection bypass modes
-        //
-        //
-
-        bypass_mode = findoptionI("bypass");
-        if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
-            return false;
-        }
-        // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
-        if ((bypass_mode != 0) || (disable_content_scan != 1)) {
-            magic = findoptionS("bypasskey");
-            if (magic.length() < 9) {
-                std::string s(16u, ' ');
-                for (int i = 0; i < 16; i++) {
-                    s[i] = (rand() % 26) + 'A';
-                }
-                magic = s;
-            }
 #ifdef DGDEBUG
-            std::cout << "Setting magic key to '" << magic << "'" << std::endl;
+        std::cout << "Lists in memory" << std::endl;
 #endif
-            // Create the Bypass Cookie magic key
-            cookie_magic = std::string(16u, ' ');
+
+
+    //       std::string storyboard_location(findoptionS("storyboard"));
+
+    if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
+        return false;
+
+    if (!precompileregexps()) {
+        return false;
+    } // precompiled reg exps for speed
+
+    //
+    //
+    // Bypass/infection bypass modes
+    //
+    //
+
+    bypass_mode = findoptionI("bypass");
+    if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
+        return false;
+    }
+    // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
+    if ((bypass_mode != 0) || (disable_content_scan != 1)) {
+        magic = findoptionS("bypasskey");
+        if (magic.length() < 9) {
+            std::string s(16u, ' ');
             for (int i = 0; i < 16; i++) {
-                cookie_magic[i] = (rand() % 26) + 'A';
+                s[i] = (rand() % 26) + 'A';
             }
+            magic = s;
         }
+#ifdef DGDEBUG
+        std::cout << "Setting magic key to '" << magic << "'" << std::endl;
+#endif
+        // Create the Bypass Cookie magic key
+        cookie_magic = std::string(16u, ' ');
+        for (int i = 0; i < 16; i++) {
+            cookie_magic[i] = (rand() % 26) + 'A';
+        }
+    }
 
-        infection_bypass_mode = findoptionI("infectionbypass");
-        if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
-            return false;
-        }
-        if (infection_bypass_mode != 0) {
-            imagic = findoptionS("infectionbypasskey");
-            if (imagic.length() < 9) {
-                std::string s(16u, ' ');
-                for (int i = 0; i < 16; i++) {
-                    s[i] = (rand() % 26) + 'A';
-                }
-                imagic = s;
+    infection_bypass_mode = findoptionI("infectionbypass");
+    if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
+        return false;
+    }
+    if (infection_bypass_mode != 0) {
+        imagic = findoptionS("infectionbypasskey");
+        if (imagic.length() < 9) {
+            std::string s(16u, ' ');
+            for (int i = 0; i < 16; i++) {
+                s[i] = (rand() % 26) + 'A';
             }
-#ifdef DGDEBUG
-            std::cout << "Setting imagic key to '" << imagic << "'" << std::endl;
-#endif
-            if (findoptionS("infectionbypasserrorsonly") == "off") {
-                infection_bypass_errors_only = false;
-            } else {
-#ifdef DGDEBUG
-                std::cout << "Only allowing infection bypass on scan error" << std::endl;
-#endif
-                infection_bypass_errors_only = true;
-            }
+            imagic = s;
         }
+#ifdef DGDEBUG
+        std::cout << "Setting imagic key to '" << imagic << "'" << std::endl;
+#endif
+        if (findoptionS("infectionbypasserrorsonly") == "off") {
+            infection_bypass_errors_only = false;
+        } else {
+#ifdef DGDEBUG
+            std::cout << "Only allowing infection bypass on scan error" << std::endl;
+#endif
+            infection_bypass_errors_only = true;
+        }
+    }
             } catch (std::exception &e) {
         if (!is_daemonised) {
             std::cerr << e.what() << std::endl; // when called the daemon has not

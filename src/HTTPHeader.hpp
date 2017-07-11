@@ -40,7 +40,9 @@ class HTTPHeader
     // network communication funcs
 
     void setTimeout(int t);
-    bool in(Socket *sock, bool allowpersistent = false, bool honour_reloadconfig = false);
+    bool in(Socket *sock, bool allowpersistent = false );
+
+    void setClientIP(String &ip);
 
     // send headers out over the given socket
     // "reconnect" flag gives permission to reconnect to the socket on write error
@@ -218,7 +220,9 @@ class HTTPHeader
     // cached result of getUrl()
     std::string cachedurl;
     // used to record if it is a header within a MITM
-    bool mitm;
+    bool mitm = false;
+    // is direct rather than via proxy
+    bool isdirect = false;
 
     String redirect;
     String searchwds;
@@ -238,6 +242,8 @@ class HTTPHeader
     bool ispersistent, waspersistent;
 
     bool dirty;
+
+    std::string s_clientip;
 
     // check & fix headers from servers that don't obey standards
     void checkheader(bool allowpersistent);

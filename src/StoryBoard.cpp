@@ -340,7 +340,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         params.removeWhiteSpace();
         action = line.after(")");
         action.removeWhiteSpace();
-        if (command == "startfunction") {
+        if (command == "function") {
             if (in_function) {    // already in another function definition & so assume end of previous function
                 curr_function.end();
                 // push function to list
@@ -351,7 +351,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
             curr_function.start(params, ++fnt_cnt, line_no, temp);
             continue;
         }
-        if (command == "endfunction") {
+        if (command == "end") {
             if (in_function) {
                 curr_function.end();
                 // push function to list
@@ -380,7 +380,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
-            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << std::endl;
+            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << " function " << i->name << " id " << i->fn_id << std::endl;
 
             if(j->state  < SB_STATE_TOPIN)  {   // is an *in condition and requires a list
                 std::deque<int> types;
@@ -396,6 +396,12 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                         break;
                     case SB_STATE_EMBEDDEDIN:
                         types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        break;
+                    case SB_STATE_REFERERIN:
+                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        break;
+                    case SB_STATE_FULLURLIN:
+                        types = {  LIST_TYPE_REGEXP_REP };
                         break;
                 }
                 bool found = false;
@@ -451,14 +457,16 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     --fID;
     std::cerr << "fID " << fID << " funct_vec size " << funct_vec.size() <<   std::endl;
     SBFunction* F = &(funct_vec[fID]);
-    bool isListCheck = false;
-    bool state_result = false;
-    bool action_return = true;
-    String target;
-    String target2;
+    bool action_return = false;
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
-        switch (i->state ) {
+        bool isListCheck = false;
+        bool state_result = false;
+        String target;
+        String target2;
+        String targetful;
+
+            switch (i->state) {
                 case SB_STATE_SITEIN:
                     isListCheck = true;
                     target = cm.urldomain;
@@ -466,8 +474,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_STATE_URLIN:
                     isListCheck = true;
-                target = cm.baseurl;
-                target2 = cm.urldomain;
+                    target = cm.baseurl;
+                    target2 = cm.urldomain;
+                    targetful = cm.url;
+                    break;
+                case SB_STATE_FULLURLIN:
+                    isListCheck = true;
+                    target = cm.baseurl;
+                    target2 = cm.urldomain;
+                    targetful = cm.url;
                     break;
                 case SB_STATE_SEARCHIN:
                     isListCheck = true;
@@ -475,8 +490,71 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_STATE_EMBEDDEDIN:
                     isListCheck = true;
-                // multi targets - maybe we need a target deque???
+                    // multi targets - maybe we need a target deque???
                     break;
+                case SB_STATE_REFERERIN:
+                    isListCheck = true;
+                    target = cm.request_header->getReferer();   // needs spliting before??
+                    target2 = target.getHostname();
+                    break;
+                case SB_STATE_CONNECT:
+                    state_result = cm.isconnect;
+                    break;
+                case SB_STATE_EXCEPTIONSET:
+                    state_result = cm.isexception;
+                    break;
+                case SB_STATE_GREYSET:
+                    state_result = cm.isGrey;
+                    break;
+                case SB_STATE_BLOCKSET:
+                    state_result = cm.isBlocked;
+                    break;
+                case SB_STATE_MITMSET:
+                    state_result = cm.ismitm;
+                    break;
+                case SB_STATE_DONESET:
+                    state_result = cm.isdone;
+                    break;
+                case SB_STATE_RETURNSET:
+                    state_result = cm.isReturn;
+                    break;
+                case SB_STATE_TRUE:
+                    state_result = true;
+                    break;
+            }
+            std::cerr << "SB target" << target << " target2 " << target2 <<   " state_result " << state_result <<
+                      " list_check " << isListCheck << std::endl;
+        switch (i->state) {
+            case SB_STATE_SITEIN:
+                isListCheck = true;
+                target = cm.urldomain;
+                target2 = target;
+                break;
+            case SB_STATE_URLIN:
+                isListCheck = true;
+                target = cm.baseurl;
+                target2 = cm.urldomain;
+                targetful = cm.url;
+                break;
+            case SB_STATE_FULLURLIN:
+                isListCheck = true;
+                target = cm.baseurl;
+                target2 = cm.urldomain;
+                targetful = cm.url;
+                break;
+            case SB_STATE_SEARCHIN:
+                isListCheck = true;
+                target = cm.request_header->searchwords();
+                break;
+            case SB_STATE_EMBEDDEDIN:
+                isListCheck = true;
+                // multi targets - maybe we need a target deque???
+                break;
+            case SB_STATE_REFERERIN:
+                isListCheck = true;
+                target = cm.request_header->getReferer();   // needs spliting before??
+                target2 = target.getHostname();
+                break;
             case SB_STATE_CONNECT:
                 state_result = cm.isconnect;
                 break;
@@ -498,8 +576,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_RETURNSET:
                 state_result = cm.isReturn;
                 break;
+            case SB_STATE_TRUE:
+                state_result = true;
+                break;
         }
-        std::cerr << "target" << target << " target2 " << target2 <<   std::endl;
+        std::cerr << "SB target" << target << " target2 " << target2 <<   " state_result " << state_result <<
+                                                                                                           " list_check " << isListCheck << std::endl;
 
         if (isListCheck) {
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
@@ -507,8 +589,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 String t;
                 if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
                     t = target2;
-                } else {
-                    t = target;
+                } else if ( j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP){
+                    t = targetful;
                 }
                 std::cerr << "checking " << j->name << " type " << j->type << std::endl;
                if ( LMeta->inList(*j,t,res)) {  //found
@@ -518,9 +600,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                        cm.whatIsNaughtyCategories = res.category;
                        cm.message_no = res.mess_no;
                        cm.log_message_no = res.log_mess_no;
-                       cm.whatIsNaughty = res.match;
+                       cm.lastmatch = res.match;
+                       cm.result = res.result;
                    }
-                   std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << res.match << std::endl;
+                   std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << res.match << std::endl;
                    break;
                     }
 
@@ -538,18 +621,45 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if  (i->mess_no > 0)  cm.message_no = i->mess_no;
         if  (i->log_mess_no > 0)  cm.log_message_no = i->log_mess_no;
 
-        std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << cm.whatIsNaughty << std::endl;
+        std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << cm.whatIsNaughty << " actionis " << i->action_id << std::endl;
 
         if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
             switch (i->action_id) {
                 case SB_FUNC_SETEXCEPTION:
                     cm.isexception = true;
+                    //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
+                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if (cm.log_message_no == 0)
+                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                    else
+                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                    cm.exceptioncat  = cm.lastcategory;
                     break;
                 case SB_FUNC_SETGREY:
                     cm.isGrey = true;
                     break;
                 case SB_FUNC_SETBLOCK:
                     cm.isBlocked = true;
+                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if (cm.log_message_no == 0)
+                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                    else
+                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                    cm.whatIsNaughtyCategories = cm.lastcategory;
+                    break;
+                case SB_FUNC_SETMODURL:
+                    cm.urlmodified = true;
+                    cm.request_header->setURL(cm.result);
+                    cm.url = cm.result;
+                    cm.baseurl = cm.url;
+                    cm.baseurl.removeWhiteSpace();
+                    cm.baseurl.toLower();
+                    cm.baseurl.removePTP();
+                    cm.logurl = cm.request_header->getLogUrl(false, cm.ismitm);
+                    cm.urld = cm.request_header->decode(cm.url);
+                    cm.urldomain = cm.url.getHostname();
+                    cm.urldomain.toLower();
+                std::cerr << "SB URL modified to " << cm.url << std::endl;
                     break;
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;

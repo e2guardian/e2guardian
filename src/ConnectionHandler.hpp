@@ -67,12 +67,14 @@ class ConnectionHandler
 
     private:
     int filtergroup;
+    int oldfg = 0;
     bool matchedip;
     bool persistent_authed;
     bool overide_persist;
     bool is_real_user;
 
     std::string clientuser;
+    std::string oldclientuser;
     std::string *clienthost;
     std::string urlparams;
     std::list<postinfo> postparts;
@@ -90,13 +92,19 @@ class ConnectionHandler
     String dns_error(int herror);
 
     // write a log entry containing the given data (if required)
-    void doLog(std::string &who, std::string &from, String &where, unsigned int &port,
-        std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
-        bool isexception, bool istext, struct timeval *thestart, bool cachehit, int code,
-        std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
-        HTTPHeader *reqheader, int message_no = 999, bool contentmodified = false,
-        bool urlmodified = false, bool headermodified = false,
-        bool headeradded = false);
+  //  void doLog(std::string &who, std::string &from, String &where, unsigned int &port,
+  //      std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
+  //      bool isexception, bool istext, struct timeval *thestart, bool cachehit, int code,
+  //      std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
+  //      HTTPHeader *reqheader, int message_no = 999, bool contentmodified = false,
+  //      bool urlmodified = false, bool headermodified = false,
+   //     bool headeradded = false);
+
+    void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
+
+    bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip);
+
+
 
     // perform URL encoding on a string
     std::string miniURLEncode(const char *s);
@@ -138,6 +146,12 @@ class ConnectionHandler
     // send a file to the client - used during bypass of blocked downloads
     off_t sendFile(Socket *peerconn, String &filename, String &filemime, String &filedis, String &url);
 
+    bool writeback_error( NaughtyFilter &cm, Socket & cl_sock, int mess_no1, int mess_no2, std::string mess);
+
+    bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header);
+
+    bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
+    Socket &peerconn, std::string &clientip, bool & persistProxy);
 #ifdef __SSLMITM
     //ssl certificat checking
     void checkCertificate(String &hostname, Socket *sslSock, NaughtyFilter *checkme);

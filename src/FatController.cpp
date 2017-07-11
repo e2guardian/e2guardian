@@ -849,6 +849,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                     break;
                 case 17:
                     filtergroup = atoi(logline.c_str());
+                    if (filtergroup < 0 || filtergroup > o.numfg ) filtergroup = 0;
                     break;
                 case 18:
                     code = atoi(logline.c_str());

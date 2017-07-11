@@ -54,6 +54,7 @@ void HTTPHeader::reset()
         clcached = false;
 
         mitm = false;
+        isdirect = false;
 
         phost = NULL;
         pport = NULL;
@@ -350,7 +351,7 @@ String HTTPHeader::contentEncoding()
 // squid adds this so if more support it it may be useful one day
 void HTTPHeader::addXForwardedFor(const std::string &clientip)
 {
-    if (!mitm) {
+    if (!isdirect) {
         std::string line("X-Forwarded-For: " + clientip + "\r");
         header.push_back(String(line.c_str()));
     }
@@ -948,6 +949,7 @@ bool HTTPHeader::malformedURL(const String &url)
 
 void HTTPHeader::dbshowheader(String *url, const char *clientip)
 {
+    return;   // temporally disable
     std::string reqres, inout;
     if (is_response) {
         reqres = "RES";
@@ -993,6 +995,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
 
 void HTTPHeader::dbshowheader(bool outgoing)
 {
+    return;   // temporally disable
     std::string reqres, inout;
     if (is_response) {
         reqres = "RES";
@@ -1235,8 +1238,10 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
         return cachedurl;
     port = 80;
     bool https = false;
-    if (!mitm)
+    if (isssl) {
         mitm = isssl;
+        isdirect = true;
+    }
     String hostname;
     String userpassword;
     String answer(header.front().after(" "));
@@ -1919,7 +1924,7 @@ String HTTPHeader::URLEncode()
 // timed out but the client's end hasn't. not much use with NTLM, since squid
 // will throw a 407 and restart negotiation, but works well with basic & others.
 //void HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect) throw(std::exception)
-bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect)
+bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect )
 {
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
 
@@ -1928,7 +1933,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
 #ifdef DGDEBUG
-            std::cout << "headerout was:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            if(is_response)  {
+    std::cout << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    } else {
+    std::cout << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    }
 #endif
 
 #ifdef __SSLMITM
@@ -1942,7 +1951,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #endif
 
 #ifdef DGDEBUG
-            std::cout << "headerout is:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            if(is_response)  {
+    std::cout << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    } else {
+    std::cout << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    }
 #endif
             // first reconnect loop - send first line
             while (true) {
@@ -1995,6 +2008,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #endif
         }
 
+    }
+    if (!is_response && o.forwarded_for && !isdirect)  {
+        std::string line("X-Forwarded-For: ");
+        line.append(s_clientip).append("\r\n");
+       l += line;
     }
     l += "\r\n";
 
@@ -2073,11 +2091,22 @@ void HTTPHeader::discard(Socket *sock, off_t cl)
     }
 }
 
-bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig)
+void HTTPHeader::setClientIP(String &ip) {
+    s_clientip = ip.toCharArray();
+}
+
+bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 {
     if (dirty)
         reset();
     dirty = true;
+
+#ifdef DGDEBUG
+    if(is_response)
+    std::cout << "Start of response header:in"  << std::endl;
+    else
+    std::cout << "Start of request header:in"  << std::endl;
+#endif
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins
@@ -2095,6 +2124,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
     // during receipt of a request in progress.
         bool truncated = false;
         int rc;
+        bool honour_reloadconfig = false;  // TEMPORARY FIX!!!!
         if (firsttime) {
 #ifdef DGDEBUG
             std::cout << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;

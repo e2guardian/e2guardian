@@ -35,16 +35,24 @@ void LanguageContainer::reset()
 }
 
 // look for the translated string corresponding to the given key
-const char *LanguageContainer::getTranslation(const unsigned int index)
+//const char *LanguageContainer::getTranslation(const unsigned int index)
+char *LanguageContainer::getTranslation(const unsigned int index)
 {
     int i;
     int s = keys.size();
     for (i = 0; i < s; i++) {
         if (keys[i] == index) {
-            return values[i].toCharArray();
+            return (char*) values[i].toCharArray();
         }
     }
-    return "MISSING TRANSLATION KEY";
+        String t = "TRANSLATION KEY ";
+        String m(index);
+        t +=  m;
+        t += " MISSING ";
+    std::cerr << "response is " << t << std::endl;
+//    return (char*) t.toCharArray();
+
+    return " MISSING TRANSLATION KEY ";
 }
 
 // open a language file, containing message names (keys) and translated messages (values)

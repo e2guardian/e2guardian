@@ -30,31 +30,36 @@
 #define SB_STATE_SITEIN		2
 #define SB_STATE_SEARCHIN	3
 #define SB_STATE_EMBEDDEDIN	4
+#define SB_STATE_REFERERIN	5
+#define SB_STATE_HEADERIN	6
+#define SB_STATE_FULLURLIN	 7
 
-#define SB_STATE_TOPIN      5   // all below this require a valid list
+#define SB_STATE_TOPIN      8   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	5
+#define SB_STATE_CONNECT	8
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	6
-#define SB_STATE_GREYSET	7
-#define SB_STATE_BLOCKSET	8
-#define SB_STATE_MITMSET        9
-#define SB_STATE_DONESET       10
-#define SB_STATE_RETURNSET       11
+#define SB_STATE_EXCEPTIONSET	9
+#define SB_STATE_GREYSET	10
+#define SB_STATE_BLOCKSET	11
+#define SB_STATE_MITMSET        12
+#define SB_STATE_DONESET       13
+#define SB_STATE_RETURNSET       14
+#define SB_STATE_TRUE				15
 
-#define SB_STATE_MAP_SIZE  11
+#define SB_STATE_MAP_SIZE  15
 
 // BUILT_IN functions
 #define SB_FUNC_SETEXCEPTION	    5001
 #define SB_FUNC_SETGREY		            5002
 #define SB_FUNC_SETBLOCK	            5003
-#define SB_FUNC_SETDONE		            5004
-#define SB_FUNC_SETTRUE		            5005
-#define SB_FUNC_SETFALSE		            5006
+#define SB_FUNC_SETMODURL			5004
+#define SB_FUNC_SETDONE		            5005
+#define SB_FUNC_SETTRUE		            5006
+#define SB_FUNC_SETFALSE		            5007
 
-#define SB_FUNC_MAP_SIZE  6
+#define SB_FUNC_MAP_SIZE  7
 
 // Defined functions IDs start at 51
 #define SB_BI_FUNC_BASE		5000
@@ -65,20 +70,25 @@
 class SBFunction
 {
  private:
-   String state_map[SB_STATE_MAP_SIZE] = { "urlin",
+   String state_map[SB_STATE_MAP_SIZE] = {
+             "urlin",
 			"sitein",
 			"searchin",
 			"embeddedin",
+             "refererin",
+			 "headerin",
+			 "fullurlin",
 			"connect",
 			"exceptionset",
 			"greyset",
 			"blockset",
 			"mitmset",
 			"doneset",
-			"returnset"
+			"returnset",
+			 "true"
 			};
-   String command_map[4] = { "startfunction",
-			"endfunction",
+   String command_map[4] = { "function",
+			"end",
 			"if",
 			"ifnot",
 			};
@@ -87,6 +97,7 @@ class SBFunction
             "setexception",
             "setgrey",
             "setblock",
+			"setmodurl",
             "setdone",
 			"true",
 			"false"

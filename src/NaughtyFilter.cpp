@@ -68,6 +68,7 @@ NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
 
 void NaughtyFilter::reset()
 {
+    logurl = "";
     isItNaughty = false;
     isException = false;
     whatIsNaughty = "";
@@ -81,6 +82,8 @@ void NaughtyFilter::reset()
     isSSLGrey = false;
     isSearch = false;
     message_no = 0;
+    is_text = false;
+    filtergroup = 0;
 
     // resets from CH
                 waschecked = false; // flags
@@ -101,11 +104,15 @@ void NaughtyFilter::reset()
                 urlmodified = false;
                 headermodified = false;
                 headeradded = false;
+                headersent = 0;
+                message_no = 0;
+                log_message_no = 0;
                 urlredirect = false;
     //            authed = false;
     //            isbanneduser = false;
                 mimetype = "-";
                 docsize = 0; // to store the size of the returned document for logging
+
 }
 
 // check the given document body for banned, weighted, and exception phrases (and PICS, and regexes, &c.)
