@@ -506,6 +506,7 @@ stat_rec* &dystat) {
             checkme.is_ssl = header.requestType().startsWith("CONNECT");
             checkme.isconnect = checkme.is_ssl;
             checkme.ismitm = ismitm;
+            checkme.docsize = 0;
 
             //If proxy connction is not persistent...
             if (!persistProxy) {
@@ -839,7 +840,7 @@ stat_rec* &dystat) {
                     checkme.tunnel_rest = true;
             }
 
-            //TODO if ismitm - GO MITM (new function??)
+            //TODO if ismitm - GO MITM 
             // check ssl_grey - or cover in storyboard???
             if (!checkme.isItNaughty && checkme.isconnect && !checkme.isexception && checkme.ismitmcandidate) {
                 std::cerr << "Going MITM ...." << std::endl;
@@ -852,24 +853,67 @@ stat_rec* &dystat) {
 
             //TODO call SB checkresponse
 
+            if(!checkme.isItNaughty ) {
+                if (checkme.ishead || docheader.contentLength() == 0)
+                    checkme.tunnel_rest = true;
+            }
+
+            //TODO - if grey content check
+                // can't do content filtering on HEAD or redirections (no content)
+                // actually, redirections CAN have content
+                if (checkme.isGrey && !checkme.tunnel_rest) {
+                    if (((docheader.isContentType("text",ldl->fg[filtergroup]) || docheader.isContentType("-",ldl->fg[filtergroup])) && !checkme.isexception) || !responsescanners.empty()) {
+                        checkme.waschecked = true;
+                        if (!responsescanners.empty()) {
+#ifdef DGDEBUG
+                            std::cout << dbgPeerPort << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                            String csmessage;
+                            contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &checkme.headersent, &checkme.pausedtoobig,
+                                &checkme.docsize, &checkme, checkme.wasclean, filtergroup, responsescanners, &clientuser, &clientip,
+                                &checkme.wasinfected, &checkme.wasscanned, checkme.isbypass, checkme.urld, checkme.urldomain, &checkme.scanerror, checkme.contentmodified, &csmessage);
+                            if (csmessage.length() > 0) {
+#ifdef DGDEBUG
+                                std::cout << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                                checkme.exceptionreason = csmessage.toCharArray();
+                            }
+                        } else {
+#ifdef DGDEBUG
+                            std::cout << dbgPeerPort << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                            contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &checkme.headersent, &checkme.pausedtoobig,
+                                &checkme.docsize, &checkme, checkme.wasclean, filtergroup, responsescanners, &clientuser, &clientip,
+                                &checkme.wasinfected, &checkme.wasscanned, checkme.isbypass, checkme.urld, checkme.urldomain, &checkme.scanerror, checkme.contentmodified, NULL);
+                        }
+                    } else {
+                        checkme.tunnel_rest = true;
+                    }
+                    std::cerr << dbgPeerPort << "End content check isitNaughty is  " << checkme.isItNaughty << std::endl;
+                }
+
             //TODO send response header to client
             if (!checkme.isItNaughty) {
                 if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false ))
                     cleanThrow("Unable to send return header to client", peerconn, proxysock);
             }
-            checkme.tunnel_rest = true;
+
+            if(!checkme.isItNaughty &&checkme.waschecked)  {
+                if(!docbody.out(&peerconn))
+                    checkme.pausedtoobig = false;
+                if(checkme.pausedtoobig)
+                    checkme.tunnel_rest = true;
+            }
+
 
             //TODO if not grey tunnel response
             if (!checkme.isItNaughty && checkme.tunnel_rest) {
-                if (!fdt.tunnel(proxysock, peerconn,checkme.isconnect, docheader.contentLength(), true))
+                std::cerr << dbgPeerPort << " -Tunnelling to client" << std::endl;
+                if (!fdt.tunnel(proxysock, peerconn,checkme.isconnect, docheader.contentLength() - checkme.docsize, true))
                     persistProxy = false;
-                checkme.docsize = fdt.throughput;
-//                         cleanThrow("Error Connect tunnel", peerconn,proxysock);
-                //syslog(LOG_INFO, "after tunnel 1327");
-
+                checkme.docsize += fdt.throughput;
             }
 
-            //TODO - if grey content check
 
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -Forwarding body to client" << std::endl;
