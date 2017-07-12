@@ -1,17 +1,16 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is development beta pre-release of v4.0.  It is now near-stable
-and you are invited use it in a test environment.
+This is the v5 development version.  v5.0.  
 
-Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases.
+Note that large sections of the code are being re-written and there are
+significant changes to the configuration files in this release.
 
 Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
 
 **For copyright go to: http://e2guardian.org**
 
-e2guardian is a content filtering proxy that works in conjunction with another
+e2guardian is a content filtering proxy that can work in conjunction with another
 caching proxy such as Squid . More information can be found in the
 e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
@@ -26,8 +25,8 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	v4develop is used to develop new features
-*	Bugfixes primarily occurs in the version branch (v4.0)
+*	v5develop is used to develop new features
+*	Bugfixes primarily occurs in the version branch (v4.1)
 *	From v4 on, even numbered releases are pre-release
 		odd numbered releases are stable.
 
@@ -42,7 +41,7 @@ Github: https://github.com/e2guardian/e2guardian/issues
 
 ## License
 
-Copyright 2014, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2017, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as

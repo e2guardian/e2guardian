@@ -1,0 +1,77 @@
+This is the v5 development version (v5.0).  
+
+Note that large sections of the code are being re-written and there are
+significant changes to the configuration files in this releases.
+
+Note: This version is work in progress and instructions 
+may be incomplete.   If in doubt - read the source!
+
+The v5 is written in c++11 and so to compile it you will need gcc v5.4 
+or later. (or another complier that supports the c++11 std::thread library).  
+Note that the target systems may also need an c++11 library update.
+
+See notes/NEWIN_v4 for details of the major process model changes 
+incorporated in this version.
+
+REVISED LIST and STORYBOARDING MODEL
+
+This version has a completely revised model for defining and using lists.
+
+List definition is now separated from list application. These are no longer 
+hard-coded, but mapped to a function using a storyboard.  
+
+Filtering logic flow is simplified and made more consistent.  Requests are 
+analysed first and flags set (exception, grey, blocked etc) and once this 
+checking is complete actions are taken.  Large sections of duplicate logic
+has been removed from ConnectionHandler.
+
+Storyboarding is a simple scripting language that maps lists to function 
+and allows flags to be set. 
+
+This means that new lists can be added without changing the code, by adding
+a new list definition and then applying it in a revised storyboard.  
+
+A different storyboard can be applied to each filtergroup, so if required, 
+each filtergroup can have a different logic flow.
+
+TESTING -  
+
+This version is at an early test stage. It should always be compliled and
+run in debug mode.
+
+TODO - for this release.
+
+Add siteiplist type.
+
+List definition & storyboarding for pre-auth checks (e2guardian.conf)
+
+Embedded url checks
+
+Search term checks
+
+Reverse IP look-up list checks
+
+By-pass code
+
+Enable download plugins
+
+Clean up defunct code.
+
+New debug system (to start for storyboarding only)
+
+Transparent https option.
+
+ICAP server mode.
+
+WISHLIST
+
+
+Re-impliment mailing option.
+
+Per-user exceptions/blocks.
+
+Per-room blocks.
+
+Philip Pearce 12 July 2017 
+
+

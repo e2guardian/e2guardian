@@ -386,19 +386,19 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                 std::deque<int> types;
                 switch (j->state) {
                     case SB_STATE_SITEIN:
-                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_REGEXP_BOOL};
+                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_URLIN:
-                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_SEARCHIN:
                         types= { LIST_TYPE_SEARCH };
                         break;
                     case SB_STATE_EMBEDDEDIN:
-                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_REFERERIN:
-                        types = { LIST_TYPE_SITE, LIST_TYPE_IP, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_FULLURLIN:
                         types = {  LIST_TYPE_REGEXP_REP };

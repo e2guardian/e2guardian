@@ -1,10 +1,4 @@
-This is the v4 development version (v4.2).  
-
-Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in this releases.
-
-Note: This version is work in progress and instructions 
-may be incomplete.   If in doubt - read the source!
+New in v4 (v4.1).  
 
 The v4 is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the c++11 std::thread library).  
@@ -45,9 +39,7 @@ loaded with filter group and list settings.   Once fully read in a global
 shared pointer is switched from the old list to the new, making actioning 
 list changes immediate an with no interruption to service.
 
-TESTING -  
-
-TODO - for this release.
+TODO - for next release (v5).
 
 Make lists parameter based rather than hard coded.
 
@@ -74,17 +66,17 @@ Url cache not implimented
 
 IP cache not implimented
 
-Auth plugins - IP, Port and DNSauth tested and working
-	- others should work but not tested
+Auth plugins - tested and working
 
-Scan plugins - none tested
+Scan plugins - some tested
 
+New e2guardian.conf options
 
    httpworkers
    enablessl
 
 Please note the new format for the dstats log. See notes/dstat_format
 
-Philip Pearce 21 March 2017 
+Philip Pearce 12 July 2017 
 
 
