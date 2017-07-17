@@ -1884,7 +1884,7 @@ stat_rec* &dystat)
                         badcert = checkme.isItNaughty;
                     }
                 }
-			
+
                 //handleConnection inside the ssl tunnel
                 if (!checkme.isItNaughty) {
                     bool writecert = true;
@@ -1922,7 +1922,7 @@ stat_rec* &dystat)
                     EVP_PKEY_free(pkey);
 		    persistProxy = false;
                     proxysock.close();
-		    break;  
+		    break;
 		}
                 //stopssl on the proxy connection
                 //if it was marked as naughty then show a deny page and close the connection
@@ -2973,7 +2973,7 @@ stat_rec* &dystat)
                                 isexception = true;
                                 // exception regular expression url match:
                                 exceptionreason = o.language_list.getTranslation(609);
-                                message_no = 609;
+
                                 exceptionreason += ldl->fg[filtergroup]->exception_regexpurl_list_source[rc].toCharArray();
                                 exceptioncat = lastcategory.toCharArray();
                           }
@@ -3231,11 +3231,16 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
     int code, std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
     HTTPHeader *reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified, bool headeradded)
 {
+    bool bypass = false;
+    std::string execptionreasoncookie = o.language_list.getTranslation(607);
+    if (execptionreasoncookie == what)
+        bypass = true;
 
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
+
     if (
-        (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) || ((o.log_exception_hits == 0) && isexception)) {
+        (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) || ((o.log_exception_hits == 0) && isexception && !bypass)) {
 #ifdef DGDEBUG
         if (o.ll != 0) {
             if (isexception)
@@ -3246,18 +3251,16 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 #endif
         return;
     }
-
     std::string data, cr("\n");
 
-    if ((isexception && (o.log_exception_hits == 2))
-        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
+    if ((isexception && (o.log_exception_hits == 2)) || bypass || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-	//
-	// Checked in Optioncontainer.cpp Fred 12/05/2017
-	/*
+        //
+        // Checked in Optioncontainer.cpp Fred 12/05/2017
+
         if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
 #ifdef DGDEBUG
             std::cout << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -3265,9 +3268,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
             std::deque<String> *names = ipToHostname(from.c_str());
             if (names->size() > 0)
                 clienthost = new std::string(names->front().toCharArray());
-            delete names;
+                delete names;
         }
-	*/
+
         // Search 'log-only' domain, url and regexp url lists
         std::string *newcat = NULL;
         if (!cat || cat->length() == 0) {
@@ -3335,9 +3338,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
             is_real_user = true;    // avoid looping on persistent connections
         };
 
-#ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Building raw log data string... ";
-#endif
+//#ifdef DGDEBUG
+        std::cout << dbgPeerPort << where << " -Building raw log data string... ";
+//#endif
 
         data = String(isexception) + cr;
         data += (cat ? (*cat) + cr : cr);
