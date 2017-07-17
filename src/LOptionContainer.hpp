@@ -52,7 +52,8 @@ class LOptionContainer
     ListContainer filter_groups_list;
     IPList exception_ip_list;
     IPList banned_ip_list;
-
+    ListMeta LMeta;
+    StoryBoard StoryA;
     ListManager lm;
     FOptionContainer **fg;
     bool loaded_ok;

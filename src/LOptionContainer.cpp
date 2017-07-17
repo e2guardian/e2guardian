@@ -155,6 +155,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 		}
 
 
+        std::string storyboard_location(findoptionS("storyboard"));
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
             loadRooms(true);
@@ -166,6 +167,17 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 //        std::string exception_ip_list_location(findoptionS("exceptioniplist"));
 //        group_names_list_location = findoptionS("groupnamesfile");
 //        std::string language_list_location(languagepath + "messages");
+        {
+            std::deque<String> dq = findoptionM("iplist");
+            std::cout << "iplist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_IP, dq);
+        }
+
+        {
+            std::deque<String> dq = findoptionM("sitelist");
+            std::cout << "sitelist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_SITE, dq);
+        }
 
         if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
             std::cout << "Failed to read exceptioniplist" << std::endl;
@@ -175,6 +187,9 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             std::cout << "Failed to read bannediplist" << std::endl;
             return false;
         }
+
+        if (!StoryA.readFile(storyboard_location.c_str(), LMeta, true))
+            return false;
 
         if (!readFilterGroupConf()) {
             if (!is_daemonised) {

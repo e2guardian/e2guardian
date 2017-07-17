@@ -787,6 +787,18 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         {
+            std::deque<String> dq = findoptionM("ipsitelist");
+            std::cout << "ipsitelist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_IPSITE, dq);
+        }
+
+        {
+            std::deque<String> dq = findoptionM("iplist");
+            std::cout << "iplist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_IP, dq);
+        }
+
+        {
             std::deque<String> dq = findoptionM("sitelist");
             std::cout << "sitelist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_SITE, dq);

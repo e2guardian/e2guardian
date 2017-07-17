@@ -1910,7 +1910,7 @@ const char *ListContainer::inIPList(const std::string &ipstr )
         }
     }
 
-    return false;
+    return NULL;
 }
 
 const char *ListContainer::hIPtoChar(uint32_t ip) {
