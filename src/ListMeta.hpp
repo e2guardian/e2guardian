@@ -85,7 +85,7 @@ class ListMeta
 
 
 
-   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname);
+   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false);
 
 private:
 

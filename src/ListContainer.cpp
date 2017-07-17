@@ -110,6 +110,11 @@ void ListContainer::reset()
     bannedpfiledate = 0;
     exceptionpfiledate = 0;
     weightedpfiledate = 0;
+    if(is_iplist) {
+        iplist.clear();
+        iprangelist.clear();
+        ipsubnetlist.clear();
+    }
 }
 
 // for item lists - during a config reload, can we simply retain the already loaded list?
@@ -337,6 +342,21 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
+    if(is_iplist) {
+#ifdef HAVE_PCRE
+        matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+    matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
+    matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
+#else
+        matchIP.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+        matchSubnet.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+        matchCIDR.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}/[0-9]{1,2}$");
+        matchRange.comp("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}-[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+#endif
+    }
+
 #ifdef DGDEBUG
     if (filters != 32)
         std::cout << "Converting to lowercase" << std::endl;
@@ -390,20 +410,6 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
             continue; // it's a comment
         }
 
-        // blanket block flags
-        if (temp.startsWith("**s")) {
-            blanketsslblock = true;
-            continue;
-        } else if (temp.startsWith("**ips")) {
-            blanketssl_ip_block = true;
-            continue;
-        } else if (temp.startsWith("**")) {
-            blanketblock = true;
-            continue;
-        } else if (temp.startsWith("*ip")) {
-            blanket_ip_block = true;
-            continue;
-        }
 
         // Strip off comments that don't necessarily start at the beginning of a line
         // - but not regular expression comments
@@ -456,9 +462,6 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
         if (temp.length() > 0)
             addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
     }
-#ifdef DGDEBUG
-    std::cout << "Blanket flags set:" << blanketblock << ":" << blanket_ip_block << ":" << blanketsslblock << ":" << blanketssl_ip_block << std::endl;
-#endif
     return true; // sucessful read
 }
 
@@ -484,18 +487,17 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstrin
 }
 
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, bool startswith, int filters)
+bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip)
 {
     ++refcount;
     sourcefile = filename;
     sourcestartswith = startswith;
     sourcefilters = filters;
     std::string linebuffer;
+    if(isip) is_iplist = true;
 #ifdef DGDEBUG
     std::cout << filename << std::endl;
 #endif
-    // see if cached .process file is available and up to date,
-    // or prefercachedlists has been turned on (SG)
     struct stat s;
     filedate = getFileDate(filename);
     size_t len = 0;
@@ -613,8 +615,13 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
         if (mem_used > data_memory) {
             increaseMemoryBy(2048);
         }
-        addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
+        if (is_iplist)
+            addToIPList(temp);
+        else
+            addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
     }
+    //if (is_iplist)
+         //std::sort(iplist.begin(), iplist.end());
     //listfile.close();
     return true; // sucessful read
 }
@@ -623,7 +630,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
 bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)
 {
 
-    int result = o.lm.newItemList(filename, startswith, filters, false);
+    int result = o.lm.newItemList(filename, startswith, filters, false, is_iplist);
     if (result < 0) {
         if (!is_daemonised) {
             std::cerr << "Error opening file: " << filename << std::endl;
@@ -692,7 +699,12 @@ bool ListContainer::inListStartsWith(const char *string, String &lastcategory)
 char *ListContainer::findInList(const char *string, String &lastcategory)
 {
     if (isNow()) {
-        if (items > 0) {
+        if (is_iplist) {
+            if(inIPList(string) ) {
+                lastcategory = category;
+                return (data );      //TODO - should also return string rep of ip range
+            }
+        } else if (items > 0) {
             int r;
             if (isSW) {
                 r = search(&ListContainer::greaterThanSWF, 0, items - 1, string);
@@ -867,6 +879,10 @@ void ListContainer::doSort(const bool startsWith)
 { // sort by ending of line
     for (size_t i = 0; i < morelists.size(); i++)
         (*o.lm.l[morelists[i]]).doSort(startsWith);
+    if (is_iplist) {
+        std::sort(iplist.begin(), iplist.end());
+        return;
+    }
     if (items < 2 || issorted)
         return;
     if (startsWith) {
@@ -1456,98 +1472,6 @@ void ListContainer::graphAdd(String s, const int inx, int item)
     }
 }
 
-bool ListContainer::readProcessedItemList(const char *filename, bool startswith, int filters)
-{
-#ifdef DGDEBUG
-    std::cout << "reading processed file:" << filename << std::endl;
-#endif
-    size_t len = 0;
-    size_t slen;
-    try {
-        len = getFileLength(filename);
-    } catch (std::runtime_error &e) {
-        if (!is_daemonised) {
-            std::cerr << "Error reading file " << filename << ": " << e.what() << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
-        return false;
-    }
-    if (len < 5) {
-        if (!is_daemonised) {
-            std::cerr << "File too small (less than 5 bytes - is it corrupt?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "File too small (less than 5 bytes - is it corrupt?):");
-        syslog(LOG_ERR, "%s", filename);
-        return false;
-    }
-    increaseMemoryBy(len + 2);
-    std::ifstream listfile(filename, std::ios::in);
-    if (!listfile.good()) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening: %s", filename);
-        return false;
-    }
-    std::string linebuffer;
-    String temp, inc;
-    while (!listfile.eof()) {
-        getline(listfile, linebuffer);
-        if (linebuffer[0] == '.') {
-            temp = linebuffer.c_str();
-            if (temp.startsWith(".Include<")) { // see if we have another list
-                inc = temp.after(".Include<").before(">"); // to include
-                if (!readAnotherItemList(inc.toCharArray(), startswith, filters)) { // read it
-                    listfile.close();
-                    return false;
-                }
-                continue;
-            }
-        } else if (linebuffer[0] == '#') {
-            temp = linebuffer.c_str();
-            if (temp.startsWith("#time: ")) { // see if we have a time tag
-                if (!readTimeTag(&temp, listtimelimit)) {
-                    return false;
-                }
-                continue;
-            } else if (temp.startsWith("#listcategory:")) { // see if we have a category
-                category = temp.after("\"").before("\"");
-#ifdef DGDEBUG
-                std::cout << "found item processed list category: " << category << std::endl;
-#endif
-                continue;
-            }
-            continue; // it's a comment man
-        }
-        // blanket block flags
-        if (temp.startsWith("**s")) {
-            blanketsslblock = true;
-            continue;
-        } else if (temp.startsWith("**ips")) {
-            blanketssl_ip_block = true;
-            continue;
-        } else if (temp.startsWith("**")) {
-            blanketblock = true;
-            continue;
-        } else if (temp.startsWith("*ip")) {
-            blanket_ip_block = true;
-            continue;
-        }
-        slen = linebuffer.length();
-        if (slen < 3)
-            continue;
-        list.push_back(data_length);
-        lengthlist.push_back(slen);
-        for (size_t i = 0; i < slen; i++) {
-            data[data_length + i] = linebuffer[i];
-        }
-        data[data_length + slen] = 0;
-        data_length += slen + 1;
-        items++;
-    }
-    listfile.close();
-    return true;
-}
 
 void ListContainer::addToItemList(const char *s, size_t len)
 {
@@ -1559,6 +1483,62 @@ void ListContainer::addToItemList(const char *s, size_t len)
     data[data_length + len] = 0;
     data_length += len + 1;
     items++;
+}
+
+void ListContainer::addToIPList(String& line)
+{
+    RegResult Rre;
+
+    // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
+    if (matchIP.match(line.toCharArray(),Rre)) {
+        struct in_addr address;
+        if (inet_aton(line.toCharArray(), &address)) {
+            uint32_t addr = ntohl(address.s_addr);
+            iplist.push_back(addr);
+        }
+    } else if (matchSubnet.match(line.toCharArray(),Rre)) {
+        struct in_addr address;
+        struct in_addr addressmask;
+        String subnet(line.before("/"));
+        String mask(line.after("/"));
+        if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
+            ipl_subnetstruct s;
+            uint32_t addr = ntohl(address.s_addr);
+            s.mask = ntohl(addressmask.s_addr);
+            // pre-mask the address for quick comparison
+            s.maskedaddr = addr & s.mask;
+            ipsubnetlist.push_back(s);
+        }
+    } else if (matchCIDR.match(line.toCharArray(),Rre)) {
+        struct in_addr address;
+        struct in_addr addressmask;
+        String subnet(line.before("/"));
+        String cidr(line.after("/"));
+        int m = cidr.toInteger();
+        int host_part = 32 - m;
+        if (host_part > -1) {
+            String mask = (0xFFFFFFFF << host_part);
+            if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
+                ipl_subnetstruct s;
+                uint32_t addr = ntohl(address.s_addr);
+                s.mask = ntohl(addressmask.s_addr);
+                // pre-mask the address for quick comparison
+                s.maskedaddr = addr & s.mask;
+                ipsubnetlist.push_back(s);
+            }
+        }
+    } else if (matchRange.match(line.toCharArray(),Rre)) {
+        struct in_addr addressstart;
+        struct in_addr addressend;
+        String start(line.before("-"));
+        String end(line.after("-"));
+        if (inet_aton(start.toCharArray(), &addressstart) && inet_aton(end.toCharArray(), &addressend)) {
+            ipl_rangestruct r;
+            r.startaddr = ntohl(addressstart.s_addr);
+            r.endaddr = ntohl(addressend.s_addr);
+            iprangelist.push_back(r);
+        }
+    }
 }
 
 int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p)
@@ -1895,4 +1875,46 @@ String ListContainer::getListCategoryAtD(int index)
         return "";
     }
     return listcategory[index];
+}
+
+
+// search for IP in list of individual IPs, ranges, subnets 
+const char *ListContainer::inIPList(const std::string &ipstr )
+{
+    struct in_addr addr;
+    inet_aton(ipstr.c_str(), &addr);
+    uint32_t ip = ntohl(addr.s_addr);
+    // start with individual IPs
+    if (std::binary_search(iplist.begin(), iplist.end(), ip)) {
+        // only return a hostname if that's what we matched against
+        return ipstr.c_str();
+    }
+
+    // ranges
+    for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+            String ret = hIPtoChar(i->startaddr);
+            ret += "-";
+            ret += hIPtoChar(i->startaddr);
+            return ret.toCharArray();
+        }
+    }
+
+    // subnets
+    for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
+        if (i->maskedaddr == (ip & i->mask)) {
+            String ret = hIPtoChar(i->maskedaddr);
+            ret += "/";
+            ret += hIPtoChar(i->mask);
+            return ret.toCharArray();
+        }
+    }
+
+    return false;
+}
+
+const char *ListContainer::hIPtoChar(uint32_t ip) {
+    struct in_addr addr;
+    addr.s_addr = htonl(ip);
+    return inet_ntoa(addr);
 }

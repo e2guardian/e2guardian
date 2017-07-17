@@ -129,6 +129,14 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                                              << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl ;
 
         switch (method_type) {
+            case LIST_METHOD_IP:
+                if (readFile(fpath.toCharArray(),&rec.list_ref,false,nm.toCharArray(),true)) {
+                    list_vec.push_back( rec);
+                } else {
+                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    errors = true;
+                };
+                break;
             case LIST_METHOD_READF_EWS :
                 if (readFile(fpath.toCharArray(),&rec.list_ref,false,nm.toCharArray())) {
                     list_vec.push_back( rec);
@@ -205,6 +213,28 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
     int type = info.type;
     char *match;
     switch (type)   {
+        case LIST_TYPE_IP:
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
+            if (match == NULL) {
+                return false;
+            } else {
+                res.match = match;
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                return true;
+            }
+            break;
+        case LIST_TYPE_IPSITE:
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
+            if (match == NULL) {
+                return false;
+            } else {
+                res.match = match;
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                return true;
+            }
+            break;
         case LIST_TYPE_SITE :
             match = inSiteList(tofind,info.list_ref,  res.category);
             if (match == NULL) {
@@ -292,7 +322,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw,  const char *listname)
+bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw,  const char *listname, bool isip)
 {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
@@ -301,7 +331,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true);
+    int res = o.lm.newItemList(filename, sortsw, 1, true,isip);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << "Error opening " << listname << std::endl;
@@ -317,9 +347,6 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
             (*o.lm.l[(*whichlist)]).doSort(false);
         (*o.lm.l[(*whichlist)]).used = true;
     }
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << (*o.lm.l[(*whichlist)]).blanketblock << ":" << (*o.lm.l[(*whichlist)]).blanket_ip_block << ":" << (*o.lm.l[(*whichlist)]).blanketsslblock << ":" << (*o.lm.l[(*whichlist)]).blanketssl_ip_block << std::endl;
-#endif
     return true;
 }
 

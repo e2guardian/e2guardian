@@ -12,8 +12,11 @@
 #include <vector>
 #include <deque>
 #include <map>
+#include <list>
 #include <string>
 #include "String.hpp"
+#include "RegExp.hpp"
+#include "IPList.hpp"
 
 // DECLARATIONS
 
@@ -23,6 +26,19 @@ struct TimeLimit {
     String days, timetag;
 };
 
+#ifndef __HPP_IPLIST      // only needed if IPList.hpp is gone
+// convenience structs for subnets and IP ranges
+struct ipl_subnetstruct {
+    uint32_t maskedaddr;
+    uint32_t mask;
+};
+
+struct ipl_rangestruct {
+    uint32_t startaddr;
+    uint32_t endaddr;
+}
+#endif
+
 time_t getFileDate(const char *filename);
 size_t getFileLength(const char *filename);
 
@@ -30,6 +46,7 @@ class ListContainer
 {
     public:
     std::vector<int> combilist;
+    bool is_iplist = false;
     int refcount;
     bool parent;
     time_t filedate;
@@ -45,6 +62,7 @@ class ListContainer
     //String lastcategory;
     std::vector<int> morelists; // has to be non private as reg exp compiler needs to access these
 
+
     ListContainer();
     ~ListContainer();
 
@@ -53,7 +71,7 @@ class ListContainer
     bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true);
     bool ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
-    bool readItemList(const char *filename, bool startswith, int filters);
+    bool readItemList(const char *filename, bool startswith, int filters, bool isip = false);
     bool readStdinItemList(bool startswith, int filters, const char *startstr);
     bool inList(const char *string, String &lastcategory);
     bool inListEndsWith(const char *string, String &lastcategory);
@@ -140,6 +158,13 @@ class ListContainer
     std::vector<int> timelimitindex;
     std::vector<TimeLimit> timelimits;
 
+    RegExp matchIP, matchSubnet, matchRange, matchCIDR;
+
+    //iplists
+    std::vector<uint32_t> iplist;
+    std::list<ipl_rangestruct> iprangelist;
+    std::list<ipl_subnetstruct> ipsubnetlist;
+
     bool readAnotherItemList(const char *filename, bool startswith, int filters);
 
     void readPhraseListHelper(String line, bool isexception, int catindex, int timeindex);
@@ -152,6 +177,7 @@ class ListContainer
     int bmsearch(char *file, off_t fl, const std::string &s);
     bool readProcessedItemList(const char *filename, bool startswith, int filters);
     void addToItemList(const char *s, size_t len);
+    void addToIPList(String &line);
     int greaterThanEWF(const char *a, const char *b); // full match
     int greaterThanEW(const char *a, const char *b); // partial ends with
     int greaterThanSWF(const char *a, const char *b); // full match
@@ -161,6 +187,8 @@ class ListContainer
     //categorised & time-limited lists support
     bool readTimeTag(String *tag, TimeLimit &tl);
     int getCategoryIndex(String *lcat);
+    const char *inIPList(const std::string &ipstr );
+    const char *hIPtoChar(uint32_t ip);
 };
 
 #endif
