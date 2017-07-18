@@ -41,7 +41,7 @@ run in debug mode.
 
 TODO - for this release.
 
-List definition & storyboarding for pre-auth checks (e2guardian.conf)
+Storyboarding for pre-auth checks (e2guardian.conf)
 
 Embedded url checks
 
@@ -50,8 +50,6 @@ Search term checks
 Reverse IP look-up list checks
 
 Enable download plugins
-
-Log-only SB flag
 
 Clean up defunct code.
 
