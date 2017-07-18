@@ -727,6 +727,20 @@ String HTTPHeader::redirecturl()
     return redirect;
 }
 
+bool HTTPHeader::addHeader(String &newheader) {
+    if (newheader.size() > 0) {
+    isheaderadded = true;
+    addheaderchecked = true;
+    std::string line(newheader + "\r");
+    header.push_back(String(line.c_str()));
+#ifdef DGDEBUG
+    std::cout << "addheader = " << newheader << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        return true;
+        }
+    return false;
+}
+
 // check if addheader regexp url
 bool HTTPHeader::isHeaderAdded(FOptionContainer* &foc)
 {

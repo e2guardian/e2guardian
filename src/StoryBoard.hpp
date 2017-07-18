@@ -29,6 +29,8 @@ class NaughtyFilter;
 class StoryBoard
 {
  private:
+    unsigned int entry1 = 0;
+    unsigned int entry2 = 0;
 
   public:
     int items;
@@ -48,6 +50,10 @@ class StoryBoard
 
     bool runFunct(String &fname, NaughtyFilter &cm);
     bool runFunct(unsigned int fID, NaughtyFilter &cm);
+    bool runFunctEntry1(NaughtyFilter &cm);
+    bool runFunctEntry2(NaughtyFilter &cm);
+    bool setEntry1(String fname);
+    bool setEntry2(String fname);
 
 };
 

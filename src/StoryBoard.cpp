@@ -661,6 +661,32 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.urldomain.toLower();
                 std::cerr << "SB URL modified to " << cm.url << std::endl;
                     break;
+                case SB_FUNC_SETLOGCAT:
+                    cm.logcategory = true;
+                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if (cm.log_message_no == 0)
+                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                    else
+                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                    cm.whatIsNaughtyCategories = cm.lastcategory;
+                    break;
+
+                    break;
+                case SB_FUNC_SETREDIRECT:
+                    if (cm.result.size() > 0) {
+                        cm.request_header->redirect = cm.result;
+                        cm.urlredirect = true;
+                    } else {
+                        action_return = false;
+                    }
+                    break;
+                case SB_FUNC_SETGOMITM:
+                    cm.gomitm = true;
+                    break;
+                case SB_FUNC_SETADDHEADER:
+                    cm.headeradded = true;
+                    cm.request_header->addHeader(cm.result);
+                    break;
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;
                     break;
@@ -685,4 +711,32 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     return action_return;
 }
 
+bool StoryBoard::setEntry1( String fname) {
+    entry1 = getFunctID(fname);
+    if (entry1 > 0) {
+        return true;
+    }
+    return false;
+};
 
+bool StoryBoard::setEntry2( String fname) {
+    entry2 = getFunctID(fname);
+    if (entry2 > 0) {
+        return true;
+    }
+    return false;
+}
+
+bool StoryBoard::runFunctEntry1(NaughtyFilter &cm) {
+    if (entry1 > 0 )
+        return runFunct(entry1, cm);
+    else
+        return false;
+};
+
+bool StoryBoard::runFunctEntry2(NaughtyFilter &cm) {
+    if (entry2 > 0 )
+        return runFunct(entry2, cm);
+    else
+        return false;
+};

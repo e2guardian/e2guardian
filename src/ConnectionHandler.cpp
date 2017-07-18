@@ -771,8 +771,9 @@ stat_rec* &dystat) {
                 } else {
 
 // Main checking is now done in Storyboard function(s)
-                    String funct = "checkrequest";
-                    ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
+                 //   String funct = "checkrequest";
+                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
+                    ldl->fg[filtergroup]->StoryB.runFunctEntry1(checkme);
                     std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;

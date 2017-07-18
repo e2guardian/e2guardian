@@ -47,6 +47,8 @@ class NaughtyFilter
     HTTPHeader* request_header;
     HTTPHeader* response_header;
 
+    bool gomitm = false;
+
     // flags from ConnectionHandler
     bool waschecked = false;
     bool wasrequested = false;
@@ -76,6 +78,7 @@ class NaughtyFilter
     bool ismitm = false;
     bool isdone = false;
     bool nolog = false;
+    bool logcategory = false;
     bool urlredirect = false;
     bool tunnel_rest = false;
     bool tunnel_2way = false;

@@ -936,6 +936,17 @@ bool FOptionContainer::read(const char *filename) {
     if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
         return false;
 
+
+        if(!StoryB.setEntry1("checkrequest")) {
+            std::cerr << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
+            return false;
+        }
+
+        //if(!StoryB.setEntry2("checkresponse")) {
+        //   std::cerr << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+         //   return false;
+        //}
+
     if (!precompileregexps()) {
         return false;
     } // precompiled reg exps for speed

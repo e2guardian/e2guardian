@@ -33,6 +33,7 @@ class HTTPHeader
     //DataBuffer postdata;
     unsigned int port;
     bool is_response;
+    String redirect;
 
     // reset header object for future use
     void reset();
@@ -79,6 +80,7 @@ class HTTPHeader
     bool isRedirection();
     // see if content-type is something other than "identity"
     bool isCompressed();
+    bool addHeader(String & xheader);
     //bool isHeaderAdded(int filtergroup);
     bool isHeaderAdded(FOptionContainer* &foc);
     bool addheaderchecked;
@@ -224,7 +226,6 @@ class HTTPHeader
     // is direct rather than via proxy
     bool isdirect = false;
 
-    String redirect;
     String searchwds;
     //std::string searchwds;
     //std::string searchtms;

@@ -85,6 +85,7 @@ void NaughtyFilter::reset()
     is_text = false;
     filtergroup = 0;
 
+    gomitm = false;
     // resets from CH
                 waschecked = false; // flags
                 wasrequested = false;
@@ -108,6 +109,7 @@ void NaughtyFilter::reset()
                 message_no = 0;
                 log_message_no = 0;
                 urlredirect = false;
+                logcategory = false;
     //            authed = false;
     //            isbanneduser = false;
                 mimetype = "-";

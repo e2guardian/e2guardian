@@ -11,7 +11,7 @@ or later. (or another complier that supports the c++11 std::thread library).
 Note that the target systems may also need an c++11 library update.
 
 See notes/NEWIN_v4 for details of the major process model changes 
-incorporated in this version.
+incorporated from this version.
 
 REVISED LIST and STORYBOARDING MODEL
 
@@ -41,8 +41,6 @@ run in debug mode.
 
 TODO - for this release.
 
-Add siteiplist type.
-
 List definition & storyboarding for pre-auth checks (e2guardian.conf)
 
 Embedded url checks
@@ -51,13 +49,15 @@ Search term checks
 
 Reverse IP look-up list checks
 
-By-pass code
-
 Enable download plugins
+
+Log-only SB flag
 
 Clean up defunct code.
 
 New debug system (to start for storyboarding only)
+
+By-pass code
 
 Transparent https option.
 
@@ -72,6 +72,6 @@ Per-user exceptions/blocks.
 
 Per-room blocks.
 
-Philip Pearce 12 July 2017 
+Philip Pearce 18 July 2017 
 
 

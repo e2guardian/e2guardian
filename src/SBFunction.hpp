@@ -33,22 +33,31 @@
 #define SB_STATE_REFERERIN	5
 #define SB_STATE_HEADERIN	6
 #define SB_STATE_FULLURLIN	 7
+#define SB_STATE_EXTENSIONIN	 8
+#define SB_STATE_MIMEIN	 9
+#define SB_STATE_CLIENTIN	 10
 
-#define SB_STATE_TOPIN      8   // all below this require a valid list
+#define SB_STATE_TOPIN      11   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	8
+#define SB_STATE_CONNECT	11
+#define SB_STATE_POST			12
+#define SB_STATE_GET				13
+#define SB_STATE_SITEISIP       14
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	9
-#define SB_STATE_GREYSET	10
-#define SB_STATE_BLOCKSET	11
-#define SB_STATE_MITMSET        12
-#define SB_STATE_DONESET       13
-#define SB_STATE_RETURNSET       14
-#define SB_STATE_TRUE				15
+#define SB_STATE_EXCEPTIONSET	15
+#define SB_STATE_GREYSET	16
+#define SB_STATE_BLOCKSET	17
+#define SB_STATE_MITMSET        18
+#define SB_STATE_DONESET       19
+#define SB_STATE_RETURNSET       20
+#define SB_STATE_TRUE				21
 
-#define SB_STATE_MAP_SIZE  15
+#define SB_STATE_MAP_SIZE  21
+
+// Storyboard defined functions IDs start at 1 - Built-in actions at 5001
+#define SB_BI_FUNC_BASE		5000
 
 // BUILT_IN functions
 #define SB_FUNC_SETEXCEPTION	    5001
@@ -57,12 +66,13 @@
 #define SB_FUNC_SETMODURL			5004
 #define SB_FUNC_SETDONE		            5005
 #define SB_FUNC_SETTRUE		            5006
-#define SB_FUNC_SETFALSE		            5007
+#define SB_FUNC_SETFALSE		        5007
+#define SB_FUNC_SETGOMITM            5008
+#define SB_FUNC_SETLOGCAT            5009
+#define SB_FUNC_SETADDHEADER   5010
+#define SB_FUNC_SETREDIRECT        5011
 
-#define SB_FUNC_MAP_SIZE  7
-
-// Defined functions IDs start at 51
-#define SB_BI_FUNC_BASE		5000
+#define SB_FUNC_MAP_SIZE  11
 
 
 // DECLARATIONS
@@ -78,7 +88,13 @@ class SBFunction
              "refererin",
 			 "headerin",
 			 "fullurlin",
+			 "extensionin",
+			 "mimein",
+			 "clientin",
 			"connect",
+			 "post",
+			 "get",
+			 "siteip",
 			"exceptionset",
 			"greyset",
 			"blockset",
@@ -100,7 +116,11 @@ class SBFunction
 			"setmodurl",
             "setdone",
 			"true",
-			"false"
+			"false",
+            "setgomitm",
+            "setlogcategory",
+            "setaddheader",
+            "setredirect"
     };
 
   public:
