@@ -1089,27 +1089,48 @@ stat_rec* &dystat)
             //
             if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->bypass_mode != 0)) {
                 if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
+#endif
                     isscanbypass = true;
                     isbypass = true;
                     exceptionreason = o.language_list.getTranslation(608);
                 } else {
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
+#endif
                     if (ldl->fg[filtergroup]->bypass_mode != 0)
                         bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
-                    if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
+                    if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
                         bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
+                    }
                     if (bypasstimestamp > 0) {
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
                         if (isvirusbypass)
                             std::cout << dbgPeerPort << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                         else
                             std::cout << dbgPeerPort << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
+#endif
+                        int reporting_level = ldl->fg[filtergroup]->reporting_level;
+
+                        // Security check if the referer is right at first !
+                        // TODO: This kind of control must be also added to the html_template
+                        if (reporting_level != 3) {
+                            std::string getreferer = header.getReferer();
+                            int accesssize = ldl->fg[filtergroup]->access_denied_address.length();
+                            int accesssizessl = ldl->fg[filtergroup]->sslaccess_denied_address.length();
+                            if ((strncmp, getreferer, ldl->fg[filtergroup]->access_denied_address, accesssize) || (strncmp, getreferer, ldl->fg[filtergroup]->sslaccess_denied_address, accesssizessl)){
+#ifdef DGDEBUG
+                                std::cout << " right referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
+#endif
+                            } else {
+#ifdef DGDEBUG
+                                std::cout << " wrong referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
+#endif
+                                bypasstimestamp = 0;
+                            }
+
+                        }
                         header.chopBypass(logurl, isvirusbypass);
                         if (bypasstimestamp > 1) { // not expired
                             isbypass = true;
@@ -1118,9 +1139,9 @@ stat_rec* &dystat)
                         }
                     } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
                         if (header.isBypassCookie(urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
                             std::cout << dbgPeerPort << " -Bypass cookie match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
+#endif
                             iscookiebypass = true;
                             isbypass = true;
                             isexception = true;
@@ -1128,16 +1149,16 @@ stat_rec* &dystat)
                         }
                     }
                 }
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    #endif
+#endif
 
 
-        #ifdef DGDEBUG
+#ifdef DGDEBUG
                 if (isbypass) {
                     std::cout << dbgPeerPort << " -Bypass activated!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                 }
-        #endif
+#endif
                 //
                 // Start of exception checking
                 //
@@ -1146,14 +1167,14 @@ stat_rec* &dystat)
                 bool is_ip = isIPHostnameStrip(urld);
 
                 if (((*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
-        #ifdef DGDEBUG
+#ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-        #endif
+#endif
                     iscookiebypass = false;
                     isexception = false;
                     isbypass = false;
                     ispostblock = true;
-		    nopass = true;
+                    nopass = true;
                 }
 
 
@@ -1171,9 +1192,9 @@ stat_rec* &dystat)
                     String tempfilename(url.after("GSBYPASS=").after("&N="));
                     String tempfilemime(tempfilename.after("&M="));
                     String tempfiledis(header.decode(tempfilemime.after("&D="), true));
-        #ifdef DGDEBUG
+#ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-        #endif
+#endif
                     String rtype(header.requestType());
                     tempfilemime = tempfilemime.before("&D=");
                     tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
@@ -3338,9 +3359,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
             is_real_user = true;    // avoid looping on persistent connections
         };
 
-//#ifdef DGDEBUG
+#ifdef DGDEBUG
         std::cout << dbgPeerPort << where << " -Building raw log data string... ";
-//#endif
+#endif
 
         data = String(isexception) + cr;
         data += (cat ? (*cat) + cr : cr);
@@ -3984,8 +4005,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // generate valid hash locally if enabled
                     if (dohash) {
                         hashed = hashedURL(url, filtergroup, clientip, virushash);
-			if (!url->endsWith("/"))
-				(*url) += "/";
+                        if (!url->endsWith("/"))
+                        (*url) += "/";
                     }
                     // otherwise, just generate flags showing what to generate
                     else if (filterhash) {
@@ -4004,8 +4025,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         writestring += (*clientip).c_str();
                         writestring += "::USER==";
                         writestring += (*clientuser).c_str();
-			writestring += "::FILTERGROUP==";
-			writestring += ldl->fg[filtergroup]->name;
+                        writestring += "::FILTERGROUP==";
+                        writestring += ldl->fg[filtergroup]->name;
                         if (clienthost != NULL) {
                             writestring += "::HOST==";
                             writestring += clienthost->c_str();
@@ -4032,8 +4053,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         writestring += (*clientip).c_str();
                         writestring += "&USER=";
                         writestring += (*clientuser).c_str();
-		 	writestring += "&FILTERGROUP=";
-			writestring += ldl->fg[filtergroup]->name;
+                        writestring += "&FILTERGROUP=";
+                        writestring += ldl->fg[filtergroup]->name;
                         if (clienthost != NULL) {
                             writestring += "&HOST=";
                             writestring += clienthost->c_str();
@@ -4143,15 +4164,15 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // Mod by Ernest W Lessenger Mon 2nd February 2004
                     // Other bypass code mostly written by Ernest also
                     // create temporary bypass URL to show on denied page
-		    // FIX: Some wrong websites (Certificate supplied by server was not valid: unable to get local issuer certificate)
-		    // was here (no ssl ?) and segfault e2guardian
+                    // FIX: Some wrong websites (Certificate supplied by server was not valid: unable to get local issuer certificate)
+                    // was here (no ssl ?) and segfault e2guardian
                     else if ( reporting_level == 3 ) {
                         String hashed;
                         // generate valid hash locally if enabled
                         if (dohash) {
                             hashed = hashedURL(url, filtergroup, clientip, virushash);
-			    if (!url->endsWith("/"))
-				(*url) += "/";
+                            if (!url->endsWith("/"))
+                            (*url) += "/";
                         }
                         // otherwise, just generate flags showing what to generate
                         else if (filterhash) {
@@ -4172,8 +4193,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         // buffer method is used and we want the download to be
                         // broken we don't mind too much
                         String fullurl = header->getLogUrl(true);
-			if (dohash)
-				fullurl = (*url);
+                        if (dohash)
+                            fullurl = (*url);
                         ldl->fg[filtergroup]->getHTMLTemplate()->display(peerconn,
                             &fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
                             // grab either the full category list or the thresholded list
@@ -4226,8 +4247,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 writestring += (*clientip).c_str();
                 writestring += "::USER==";
                 writestring += (*clientuser).c_str();
-		writestring += "::FILTERGROUP==";
-		writestring += ldl->fg[filtergroup]->name;
+                writestring += "::FILTERGROUP==";
+                writestring += ldl->fg[filtergroup]->name;
                 if (clienthost != NULL) {
                     writestring += "::HOST==";
                     writestring += clienthost->c_str();
@@ -4254,8 +4275,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 writestring += (*clientip).c_str();
                 writestring += "&USER=";
                 writestring += (*clientuser).c_str();
-		writestring += "&FILTERGROUP=";
-		writestring += ldl->fg[filtergroup]->name;
+                writestring += "&FILTERGROUP=";
+                writestring += ldl->fg[filtergroup]->name;
                 if (clienthost != NULL) {
                     writestring += "&HOST=";
                     writestring += clienthost->c_str();

@@ -2,6 +2,8 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 July 2017
 
+- Fix bug #262 unable to compile with Kavdscan and avastdscan
+- Security update, user with GBYPASS must pass through deny page (reportinglevel !3) 
 - Force log for BYPASS requests
 
 Version 4.1.2
