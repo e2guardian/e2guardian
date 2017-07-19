@@ -155,7 +155,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 		}
 
 
-        std::string storyboard_location(findoptionS("storyboard"));
+        std::string storyboard_location(findoptionS("preauthstoryboard"));
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
             loadRooms(true);
@@ -179,17 +179,22 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             LMeta.load_type(LIST_TYPE_SITE, dq);
         }
 
-        if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
-            std::cout << "Failed to read exceptioniplist" << std::endl;
-            return false;
-        }
-        if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
-            std::cout << "Failed to read bannediplist" << std::endl;
-            return false;
-        }
+       // if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
+       //     std::cout << "Failed to read exceptioniplist" << std::endl;
+       //     return false;
+       // }
+        //if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
+        //    std::cout << "Failed to read bannediplist" << std::endl;
+        //    return false;
+        //}
 
         if (!StoryA.readFile(storyboard_location.c_str(), LMeta, true))
             return false;
+
+        if (!StoryA.setEntry1("pre-authcheck")) {
+            std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+            return false;
+        }
 
         if (!readFilterGroupConf()) {
             if (!is_daemonised) {

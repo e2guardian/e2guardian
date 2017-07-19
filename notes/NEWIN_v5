@@ -41,7 +41,8 @@ run in debug mode.
 
 TODO - for this release.
 
-Storyboarding for pre-auth checks (e2guardian.conf)
+Storyboarding for pre-auth checks (e2guardian.conf) - done needs testing 
+and sample storyboards
 
 Embedded url checks
 

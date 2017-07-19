@@ -105,6 +105,7 @@ void NaughtyFilter::reset()
                 urlmodified = false;
                 headermodified = false;
                 headeradded = false;
+                nocheckcert = false;
                 headersent = 0;
                 message_no = 0;
                 log_message_no = 0;

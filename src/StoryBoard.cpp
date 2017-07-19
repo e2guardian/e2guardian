@@ -403,6 +403,18 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                     case SB_STATE_FULLURLIN:
                         types = {  LIST_TYPE_REGEXP_REP };
                         break;
+                    case SB_STATE_HEADERIN:
+                        types = {  LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL };
+                        break;
+                    case SB_STATE_CLIENTIN:
+                        types = {  LIST_TYPE_IP, LIST_TYPE_SITE };
+                        break;
+                    case SB_STATE_EXTENSIONIN:
+                        types = {  LIST_TYPE_FILE_EXT };
+                        break;
+                    case SB_STATE_MIMEIN:
+                        types = {  LIST_TYPE_MIME};
+                        break;
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
@@ -484,6 +496,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     target2 = cm.urldomain;
                     targetful = cm.url;
                     break;
+                case SB_STATE_MIMEIN:
+                    isListCheck = true;
+                    target = cm.response_header->getContentType();
+                    break;
+                case SB_STATE_EXTENSIONIN:
+                    isListCheck = true;
+                    target = cm.response_header->disposition();
+                    break;
                 case SB_STATE_SEARCHIN:
                     isListCheck = true;
                     target = cm.request_header->searchwords();
@@ -555,6 +575,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 target = cm.request_header->getReferer();   // needs spliting before??
                 target2 = target.getHostname();
                 break;
+            case SB_STATE_CLIENTIN:
+                isListCheck = true;
+                target = cm.clientip;
+                target2 = cm.clienthost;
+                break;
             case SB_STATE_CONNECT:
                 state_result = cm.isconnect;
                 break;
@@ -591,6 +616,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     t = target2;
                 } else if ( j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP){
                     t = targetful;
+                } else {
+                    t = target;
                 }
                 std::cerr << "checking " << j->name << " type " << j->type << std::endl;
                if ( LMeta->inList(*j,t,res)) {  //found
@@ -686,6 +713,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETADDHEADER:
                     cm.headeradded = true;
                     cm.request_header->addHeader(cm.result);
+                    break;
+                case SB_FUNC_SETNOCHECKCERT:
+                    cm.nocheckcert = true;
                     break;
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;

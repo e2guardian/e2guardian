@@ -78,6 +78,7 @@ class NaughtyFilter
     bool ismitm = false;
     bool isdone = false;
     bool nolog = false;
+    bool nocheckcert = false;
     bool logcategory = false;
     bool urlredirect = false;
     bool tunnel_rest = false;
@@ -124,6 +125,8 @@ class NaughtyFilter
     std::string whatIsNaughtyLog;
     std::string whatIsNaughtyCategories;
     std::string whatIsNaughtyDisplayCategories;
+    std::string clienthost;
+    std::string clientip;
 
     NaughtyFilter();
     NaughtyFilter(HTTPHeader &request, HTTPHeader &response);

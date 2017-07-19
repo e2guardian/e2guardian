@@ -623,6 +623,7 @@ stat_rec* &dystat) {
             // Now check if user or machine is banned and room-based checking
             //
             //
+
             // is this user banned?
             isbanneduser = false;
             if (o.use_xforwardedfor) {
@@ -648,20 +649,35 @@ stat_rec* &dystat) {
 #endif
                 }
             }
+            checkme.clientip = clientip;
 
+            // Look up reverse DNS name of client if needed
+            if (o.reverse_client_ip_lookups) {
+                std::unique_ptr<std::deque<String> > hostnames;
+                    hostnames.reset(ipToHostname(clientip.c_str()));
+                    checkme.clienthost = std::string(hostnames->front().toCharArray());
+            }
+
+            //CALL SB pre-authcheck
+            ldl->StoryA.runFunctEntry1(checkme);
+            std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
+                      << checkme.message_no << std::endl;
+            checkme.isItNaughty = checkme.isBlocked;
             // is this machine banned?
-            bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
+            //bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
+            bool isbannedip = checkme.isBlocked;
             bool part_banned;
-            if (isbannedip)
-                matchedip = clienthost == NULL;
-            else {
+            if (isbannedip) {
+               // matchedip = clienthost == NULL;
+            } else {
                 if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
                                 checkme.urld)) {
 #ifdef DGDEBUG
                     std::cout << " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
 #endif
                     if (isbannedip) {
-                        matchedip = clienthost == NULL;
+                 //       matchedip = clienthost == NULL;
+                        checkme.isBlocked = checkme.isItNaughty = true;
                     }
                     if (checkme.isexception) {
                         // do reason codes etc
@@ -823,7 +839,7 @@ stat_rec* &dystat) {
             }
 
 
-            //TODO check response code -DONE
+            //check response code
             if (!checkme.isItNaughty) {
                 int rcode = docheader.returnCode();
                 if (checkme.isconnect &&
@@ -841,9 +857,9 @@ stat_rec* &dystat) {
                     checkme.tunnel_rest = true;
             }
 
-            //TODO if ismitm - GO MITM 
-            // check ssl_grey - or cover in storyboard???
-            if (!checkme.isItNaughty && checkme.isconnect && !checkme.isexception && checkme.ismitmcandidate) {
+            //if ismitm - GO MITM
+            // check ssl_grey is covered in storyboard
+            if (!checkme.isItNaughty && checkme.isconnect && checkme.gomitm) {
                 std::cerr << "Going MITM ...." << std::endl;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip);
                 if (!checkme.isItNaughty)
@@ -852,7 +868,11 @@ stat_rec* &dystat) {
                 persistProxy = false;
             }
 
-            //TODO call SB checkresponse
+            //CALL SB checkresponse
+            ldl->fg[filtergroup]->StoryB.runFunctEntry2(checkme);
+            std::cerr << "After StoryB checkresponse" << checkme.isexception << " mess_no "
+                      << checkme.message_no << std::endl;
+            checkme.isItNaughty = checkme.isBlocked;
 
             if(!checkme.isItNaughty ) {
                 if (checkme.ishead || docheader.contentLength() == 0)
@@ -862,6 +882,7 @@ stat_rec* &dystat) {
             //TODO - if grey content check
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
+            //TODO - break this out to separate function
                 if (checkme.isGrey && !checkme.tunnel_rest) {
                     if (((docheader.isContentType("text",ldl->fg[filtergroup]) || docheader.isContentType("-",ldl->fg[filtergroup])) && !checkme.isexception) || !responsescanners.empty()) {
                         checkme.waschecked = true;
@@ -1056,42 +1077,6 @@ bool headeradded = cm.headeradded;
             delete names;
         }
 
-        // Search 'log-only' domain, url and regexp url lists
-#ifdef NOTDEF
-        std::string *newcat = NULL;
-        if (!cat || cat->length() == 0) {
-#ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Checking for log-only categories" << std::endl;
-#endif
-            const char *c = ldl->fg[filtergroup]->inLogSiteList(where, lastcategory);
-#ifdef DGDEBUG
-            if (c)
-                std::cout << dbgPeerPort << " -Found log-only domain category: " << c << std::endl;
-#endif
-            if (!c) {
-                c = ldl->fg[filtergroup]->inLogURLList(where, lastcategory);
-#ifdef DGDEBUG
-                if (c)
-                    std::cout << dbgPeerPort << " -Found log-only URL category: " << c << std::endl;
-#endif
-            }
-            if (!c) {
-                c = ldl->fg[filtergroup]->inLogRegExpURLList(where);
-#ifdef DGDEBUG
-                if (c)
-                    std::cout << dbgPeerPort << " -Found log-only regexp URL category: " << c << std::endl;
-#endif
-            }
-            if (c) {
-                newcat = new std::string(c);
-                cat = newcat;
-            }
-        }
-#ifdef DGDEBUG
-        else
-            std::cout << dbgPeerPort << " -Not looking for log-only category; current cat string is: " << *cat << " (" << cat->length() << ")" << std::endl;
-#endif
-#endif
 
         // Build up string describing POST data parts, if any
         std::ostringstream postdata;

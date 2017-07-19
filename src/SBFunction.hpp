@@ -71,8 +71,9 @@
 #define SB_FUNC_SETLOGCAT            5009
 #define SB_FUNC_SETADDHEADER   5010
 #define SB_FUNC_SETREDIRECT        5011
+#define SB_FUNC_SETNOCHECKCERT 5012
 
-#define SB_FUNC_MAP_SIZE  11
+#define SB_FUNC_MAP_SIZE  12
 
 
 // DECLARATIONS
@@ -120,7 +121,8 @@ class SBFunction
             "setgomitm",
             "setlogcategory",
             "setaddheader",
-            "setredirect"
+            "setredirect",
+            "setnocheckcert"
     };
 
   public:
