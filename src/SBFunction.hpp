@@ -72,8 +72,9 @@
 #define SB_FUNC_SETADDHEADER   5010
 #define SB_FUNC_SETREDIRECT        5011
 #define SB_FUNC_SETNOCHECKCERT 5012
+#define SB_FUNC_SETSEARCHTERM 5013
 
-#define SB_FUNC_MAP_SIZE  12
+#define SB_FUNC_MAP_SIZE  13
 
 
 // DECLARATIONS
@@ -122,7 +123,8 @@ class SBFunction
             "setlogcategory",
             "setaddheader",
             "setredirect",
-            "setnocheckcert"
+            "setnocheckcert",
+			"setsearchterm"
     };
 
   public:

@@ -84,6 +84,8 @@ class NaughtyFilter
     bool tunnel_rest = false;
     bool tunnel_2way = false;
     bool is_text = false;
+    String search_words;
+    String search_terms;
     struct timeval thestart;
 
     // 0=none,1=first line,2=all

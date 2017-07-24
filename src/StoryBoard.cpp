@@ -563,8 +563,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 targetful = cm.url;
                 break;
             case SB_STATE_SEARCHIN:
-                isListCheck = true;
-                target = cm.request_header->searchwords();
+                if (cm.isSearch) {
+                    isListCheck = true;
+                    target = cm.search_words;
+                    }
                 break;
             case SB_STATE_EMBEDDEDIN:
                 isListCheck = true;
@@ -716,6 +718,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETNOCHECKCERT:
                     cm.nocheckcert = true;
+                    break;
+                case SB_FUNC_SETSEARCHTERM:
+                    if (cm.result.size() > 0) {
+                        cm.isSearch = true;
+                        cm.search_words = cm.result.sort_search();
+                        cm.search_terms = cm.result;
+                        cm.search_terms.swapChar('+', ' ');
+                    };
                     break;
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;
