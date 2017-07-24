@@ -44,7 +44,7 @@ class LOptionContainer
     Queue<std::string>* log_Q;
     Queue<Socket*>* http_worker_Q;
 
-    // all our many, many options
+    // all our options
 
     std::string name_suffix;
 
@@ -76,7 +76,7 @@ class LOptionContainer
               std::string& banned_ip_list_location);
     void reset();
     bool inExceptionIPList(const std::string *ip, std::string *&host);
-    bool inBannedIPList(const std::string *ip, std::string *&host);
+    //bool inBannedIPList(const std::string *ip, std::string *&host);
     bool readFilterGroupConf();
     // public so fc_controlit can reload filter group config files
     bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
@@ -103,11 +103,11 @@ class LOptionContainer
     bool precompileregexps();
     long int findoptionI(const char *option);
     std::string findoptionS(const char *option);
-    bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
+    //bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
 
-    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
+    //bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
     std::list<room_item> rooms;
 };
 

@@ -39,21 +39,41 @@ LOptionContainer::LOptionContainer(int load_id)
         :   reporting_level(0), fg(NULL), numfg(0)
 {
     loaded_ok = true;
-    if (!exception_ip_list.readIPMelangeList(o.exception_ip_list_location.c_str())) {
-        std::cout << "Failed to read exceptioniplist" << std::endl;
-        loaded_ok = false;
+
+    {
+        std::cout << "iplist deque is size " << o.iplist_dq.size() << std::endl;
+        LMeta.load_type(LIST_TYPE_IP, o.iplist_dq);
     }
-    if (!banned_ip_list.readIPMelangeList(o.banned_ip_list_location.c_str())) {
-        std::cout << "Failed to read bannediplist" << std::endl;
+
+    {
+        std::cout << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
+        LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq);
+    }
+
+    {
+        std::cout << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
+        LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq);
+    }
+
+    {
+        std::cout << "urllist deque is size " << o.urllist_dq.size() << std::endl;
+        LMeta.load_type(LIST_TYPE_URL, o.urllist_dq);
+    }
+
+    if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true))
+        loaded_ok = false;
+
+    if (!StoryA.setEntry1("pre-authcheck")) {
+        std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
-     if (o.use_filter_groups_list)  {
-          if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
-              std::cout << "Failed to read filtergroupslist" << std::endl;
-              loaded_ok = false;
-          }
-     }
+    if (o.use_filter_groups_list)  {
+        if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
+            std::cout << "Failed to read filtergroupslist" << std::endl;
+            loaded_ok = false;
+        }
+    }
 
     if(! readFilterGroupConf())  {
         loaded_ok = false;
@@ -65,153 +85,6 @@ LOptionContainer::LOptionContainer(int load_id)
     reload_id = load_id;
     ++o.LC_cnt;
     if (load_id == 0)    o.numfg = numfg;   // do this on first load only
-}
-
-
-LOptionContainer::~LOptionContainer()
-{
-    reset();
-}
-
-void LOptionContainer::reset()
-{
-    deleteFilterGroups();
-    deleteRooms();
-    exception_ip_list.reset();
-    banned_ip_list.reset();
-    conffile.clear();
-    if (o.use_filter_groups_list)
-        filter_groups_list.reset();
-    --o.LC_cnt;
-}
-
-void LOptionContainer::deleteFilterGroups()
-{
-    for (int i = 0; i < numfg; i++) {
-        if (fg[i] != NULL) {
-#ifdef DGDEBUG
-            std::cout << "In deleteFilterGroups loop" << std::endl;
-#endif
-            delete fg[i]; // delete extra FOptionContainer objects
-            fg[i] = NULL;
-        }
-    }
-    if (numfg > 0) {
-        delete[] fg;
-        numfg = 0;
-    }
-}
-
-void LOptionContainer::deleteFilterGroupsJustListData()
-{
-    for (int i = 0; i < numfg; i++) {
-        if (fg[i] != NULL) {
-            fg[i]->resetJustListData();
-        }
-    }
-}
-
-
-bool LOptionContainer::read(std::string& filename, int type, std::string& exception_ip_list_location,
-                            std::string& banned_ip_list_location)
-{
-	conffilename = filename;
-
-	// all sorts of exceptions could occur reading conf files
-	try {
-		std::string linebuffer;
-		String temp;  // for tempory conversion and storage
-		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
-		if (!conffiles.good()) {
-			if (!is_daemonised) {
-				std::cerr << "error reading: " << filename.c_str() << std::endl;
-			}
-			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
-			return false;
-		}
-		while (!conffiles.eof()) {
-			getline(conffiles, linebuffer);
-			if (!conffiles.eof() && linebuffer.length() != 0) {
-				if (linebuffer[0] != '#') {	// i.e. not commented out
-					temp = (char *) linebuffer.c_str();
-					if (temp.contains("#")) {
-						temp = temp.before("#");
-					}
-					temp.removeWhiteSpace();  // get rid of spaces at end of line
-					linebuffer = temp.toCharArray();
-					conffile.push_back(linebuffer);  // stick option in deque
-				}
-			}
-		}
-		conffiles.close();
-
-		if (type == 0 || type == 2) {
-
-
-
-            if (type == 0) {
-				return true;
-			}
-		}
-
-
-        std::string storyboard_location(findoptionS("preauthstoryboard"));
-
-        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
-            loadRooms(true);
-        }
-
-
-//        filter_groups_list_location = findoptionS("filtergroupslist");
-//        std::string banned_ip_list_location(findoptionS("bannediplist"));
-//        std::string exception_ip_list_location(findoptionS("exceptioniplist"));
-//        group_names_list_location = findoptionS("groupnamesfile");
-//        std::string language_list_location(languagepath + "messages");
-        {
-            std::deque<String> dq = findoptionM("iplist");
-            std::cout << "iplist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_IP, dq);
-        }
-
-        {
-            std::deque<String> dq = findoptionM("sitelist");
-            std::cout << "sitelist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_SITE, dq);
-        }
-
-       // if (!exception_ip_list.readIPMelangeList(exception_ip_list_location.c_str())) {
-       //     std::cout << "Failed to read exceptioniplist" << std::endl;
-       //     return false;
-       // }
-        //if (!banned_ip_list.readIPMelangeList(banned_ip_list_location.c_str())) {
-        //    std::cout << "Failed to read bannediplist" << std::endl;
-        //    return false;
-        //}
-
-        if (!StoryA.readFile(storyboard_location.c_str(), LMeta, true))
-            return false;
-
-        if (!StoryA.setEntry1("pre-authcheck")) {
-            std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
-            return false;
-        }
-
-        if (!readFilterGroupConf()) {
-            if (!is_daemonised) {
-                std::cerr << "Error reading filter group conf file(s)." << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
-            return false;
-        }
-
-    } catch (std::exception &e) {
-        if (!is_daemonised) {
-            std::cerr << e.what() << std::endl; // when called the daemon has not
-            // detached so we can do this
-        }
-        return false;
-    }
-    return true;
 }
 
 
@@ -318,11 +191,6 @@ bool LOptionContainer::inExceptionIPList(const std::string *ip, std::string *&ho
     return exception_ip_list.inList(*ip, host);
 }
 
-bool LOptionContainer::inBannedIPList(const std::string *ip, std::string *&host)
-{
-    return banned_ip_list.inList(*ip, host);
-}
-
 // TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
 
 bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::string *&host, bool *block, bool *part_block, bool *isexception, String url)
@@ -375,7 +243,162 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
     return false;
 }
 
-// TODO: Filter rules should migrate to FOptionContainer.cpp ?
+
+
+LOptionContainer::~LOptionContainer()
+{
+    reset();
+}
+
+void LOptionContainer::reset()
+{
+    deleteFilterGroups();
+    deleteRooms();
+    conffile.clear();
+    if (o.use_filter_groups_list)
+        filter_groups_list.reset();
+    --o.LC_cnt;
+}
+
+void LOptionContainer::deleteFilterGroups()
+{
+    for (int i = 0; i < numfg; i++) {
+        if (fg[i] != NULL) {
+#ifdef DGDEBUG
+            std::cout << "In deleteFilterGroups loop" << std::endl;
+#endif
+            delete fg[i]; // delete extra FOptionContainer objects
+            fg[i] = NULL;
+        }
+    }
+    if (numfg > 0) {
+        delete[] fg;
+        numfg = 0;
+    }
+}
+
+void LOptionContainer::deleteFilterGroupsJustListData()
+{
+    for (int i = 0; i < numfg; i++) {
+        if (fg[i] != NULL) {
+            fg[i]->resetJustListData();
+        }
+    }
+}
+
+#ifdef NOTDEF
+bool LOptionContainer::read(std::string& filename, int type, std::string& exception_ip_list_location,
+                            std::string& banned_ip_list_location)
+{
+	conffilename = filename;
+
+	// all sorts of exceptions could occur reading conf files
+	try {
+		std::string linebuffer;
+		String temp;  // for tempory conversion and storage
+		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
+		if (!conffiles.good()) {
+			if (!is_daemonised) {
+				std::cerr << "error reading: " << filename.c_str() << std::endl;
+			}
+			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
+			return false;
+		}
+		while (!conffiles.eof()) {
+			getline(conffiles, linebuffer);
+			if (!conffiles.eof() && linebuffer.length() != 0) {
+				if (linebuffer[0] != '#') {	// i.e. not commented out
+					temp = (char *) linebuffer.c_str();
+					if (temp.contains("#")) {
+						temp = temp.before("#");
+					}
+					temp.removeWhiteSpace();  // get rid of spaces at end of line
+					linebuffer = temp.toCharArray();
+					conffile.push_back(linebuffer);  // stick option in deque
+				}
+			}
+		}
+		conffiles.close();
+
+		if (type == 0 || type == 2) {
+
+
+
+            if (type == 0) {
+				return true;
+			}
+		}
+
+
+
+        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
+            loadRooms(true);
+        }
+
+
+//        filter_groups_list_location = findoptionS("filtergroupslist");
+//        std::string banned_ip_list_location(findoptionS("bannediplist"));
+//        std::string exception_ip_list_location(findoptionS("exceptioniplist"));
+//        group_names_list_location = findoptionS("groupnamesfile");
+//        std::string language_list_location(languagepath + "messages");
+        {
+            std::deque<String> dq = findoptionM("iplist");
+            std::cout << "iplist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_IP, dq);
+        }
+
+        {
+            std::deque<String> dq = findoptionM("sitelist");
+            std::cout << "sitelist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_SITE, dq);
+        }
+
+        {
+            std::deque<String> dq = findoptionM("ipsitelist");
+            std::cout << "ipsitelist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_IPSITE, dq);
+        }
+
+        {
+            std::deque<String> dq = findoptionM("urllist");
+            std::cout << "urllist deque is size " << dq.size() << std::endl;
+            LMeta.load_type(LIST_TYPE_URL, dq);
+        }
+
+        if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true))
+            return false;
+
+        if (!StoryA.setEntry1("pre-authcheck")) {
+            std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+            return false;
+        }
+
+        if (!readFilterGroupConf()) {
+            if (!is_daemonised) {
+                std::cerr << "Error reading filter group conf file(s)." << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+            return false;
+        }
+
+    } catch (std::exception &e) {
+        if (!is_daemonised) {
+            std::cerr << e.what() << std::endl; // when called the daemon has not
+            // detached so we can do this
+        }
+        return false;
+    }
+    return true;
+}
+#endif
+
+
+
+
+
+// TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
+
+
 
 void LOptionContainer::loadRooms(bool throw_error)
 {
@@ -593,6 +616,7 @@ std::deque<String> LOptionContainer::findoptionM(const char *option)
     return results;
 }
 
+#ifdef NOTDEF
 bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage)
 {
     // realitycheck checks an amount for certain expected criteria
@@ -610,6 +634,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
     }
     return true;
 }
+#endif
 
 bool LOptionContainer::readFilterGroupConf()
 {

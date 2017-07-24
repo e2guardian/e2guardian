@@ -75,8 +75,8 @@ void FOptionContainer::resetJustListData()
     //    o.lm.deRefList(exception_site_list);
 //    if (exception_url_flag)
     //o.lm.deRefList(exception_url_list);
-    if (banned_extension_flag)
-        o.lm.deRefList(banned_extension_list);
+    //if (banned_extension_flag)
+        //o.lm.deRefList(banned_extension_list);
     //if (banned_mimetype_flag)
         //o.lm.deRefList(banned_mimetype_list);
     //if (banned_site_flag)
@@ -87,36 +87,36 @@ void FOptionContainer::resetJustListData()
         //o.lm.deRefList(grey_site_list);
     //if (grey_url_flag)
         //o.lm.deRefList(grey_url_list);
-    if (banned_regexpurl_flag)
-        o.lm.deRefList(banned_regexpurl_list);
-    if (exception_regexpurl_flag)
-        o.lm.deRefList(exception_regexpurl_list);
-    if (banned_regexpheader_flag)
-        o.lm.deRefList(banned_regexpheader_list);
-    if (content_regexp_flag)
-        o.lm.deRefList(content_regexp_list);
-    if (url_regexp_flag)
-        o.lm.deRefList(url_regexp_list);
-    if (sslsite_regexp_flag)
-        o.lm.deRefList(sslsite_regexp_list);
-    if (url_redirect_regexp_flag)
-        o.lm.deRefList(url_redirect_regexp_list);
-    if (header_regexp_flag)
-        o.lm.deRefList(header_regexp_list);
-    if (exception_extension_flag)
-        o.lm.deRefList(exception_extension_list);
-    if (exception_mimetype_flag)
-        o.lm.deRefList(exception_mimetype_list);
-    if (exception_file_site_flag)
-        o.lm.deRefList(exception_file_site_list);
-    if (exception_file_url_flag)
-        o.lm.deRefList(exception_file_url_list);
-    if (log_site_flag)
-        o.lm.deRefList(log_site_list);
-    if (log_url_flag)
-        o.lm.deRefList(log_url_list);
-    if (log_regexpurl_flag)
-        o.lm.deRefList(log_regexpurl_list);
+    //if (banned_regexpurl_flag)
+        //o.lm.deRefList(banned_regexpurl_list);
+    //if (exception_regexpurl_flag)
+        //o.lm.deRefList(exception_regexpurl_list);
+    //if (banned_regexpheader_flag)
+        //o.lm.deRefList(banned_regexpheader_list);
+    //if (content_regexp_flag)
+        //o.lm.deRefList(content_regexp_list);
+    //if (url_regexp_flag)
+        //o.lm.deRefList(url_regexp_list);
+    //if (sslsite_regexp_flag)
+        //o.lm.deRefList(sslsite_regexp_list);
+    //if (url_redirect_regexp_flag)
+        //o.lm.deRefList(url_redirect_regexp_list);
+    //if (header_regexp_flag)
+        //o.lm.deRefList(header_regexp_list);
+    //if (exception_extension_flag)
+        //o.lm.deRefList(exception_extension_list);
+    //if (exception_mimetype_flag)
+        //o.lm.deRefList(exception_mimetype_list);
+    //if (exception_file_site_flag)
+        //o.lm.deRefList(exception_file_site_list);
+    //if (exception_file_url_flag)
+        //o.lm.deRefList(exception_file_url_list);
+    //if (log_site_flag)
+        //o.lm.deRefList(log_site_list);
+    //if (log_url_flag)
+        //o.lm.deRefList(log_url_list);
+    //if (log_regexpurl_flag)
+        //o.lm.deRefList(log_regexpurl_list);
 //if (searchengine_regexp_flag) o.lm.deRefList(searchengine_regexp_list);
 #ifdef PRT_DNSAUTH
     //if (auth_exception_site_flag)
@@ -124,21 +124,21 @@ void FOptionContainer::resetJustListData()
     //if (auth_exception_url_flag)
         //o.lm.deRefList(auth_exception_url_list);
 #endif
-    if (referer_exception_site_flag)
-        o.lm.deRefList(referer_exception_site_list);
-    if (referer_exception_url_flag)
-        o.lm.deRefList(referer_exception_url_list);
-    if (embeded_referer_site_flag)
-        o.lm.deRefList(embeded_referer_site_list);
-    if (embeded_referer_url_flag)
-        o.lm.deRefList(embeded_referer_url_list);
-    if (addheader_regexp_flag)
-        o.lm.deRefList(addheader_regexp_list);
-    //if (banned_search_flag)
+    //if (referer_exception_site_flag)
+        //o.lm.deRefList(referer_exception_site_list);
+    //if (referer_exception_url_flag)
+        //o.lm.deRefList(referer_exception_url_list);
+    //if (embeded_referer_site_flag)
+        //o.lm.deRefList(embeded_referer_site_list);
+    //if (embeded_referer_url_flag)
+        //o.lm.deRefList(embeded_referer_url_list);
+    //if (addheader_regexp_flag)
+        //o.lm.deRefList(addheader_regexp_list);
+    ////if (banned_search_flag)
         //o.lm.deRefList(banned_search_list);
-    if (search_regexp_flag)
-        o.lm.deRefList(search_regexp_list);
-    if (enable_local_list) {
+    //if (search_regexp_flag)
+        //o.lm.deRefList(search_regexp_list);
+    //if (enable_local_list) {
         //if (local_banned_search_flag)
             //o.lm.deRefList(local_banned_search_list);
         //if (banned_search_overide_flag)
@@ -159,17 +159,17 @@ void FOptionContainer::resetJustListData()
             //o.lm.deRefList(local_banned_ssl_site_list);
         //if (local_grey_ssl_site_flag)
             //o.lm.deRefList(local_grey_ssl_site_list);
-    }
+    //}
 
 #ifdef __SSLMITM
-    if (no_check_cert_site_flag)
-        o.lm.deRefList(no_check_cert_site_list);
+    //if (no_check_cert_site_flag)
+    //    o.lm.deRefList(no_check_cert_site_list);
 #endif
 
-    if (banned_ssl_site_flag)
-        o.lm.deRefList(banned_ssl_site_list);
-    if (grey_ssl_site_flag)
-        o.lm.deRefList(grey_ssl_site_list);
+    //if (banned_ssl_site_flag)
+        //o.lm.deRefList(banned_ssl_site_list);
+    //if (grey_ssl_site_flag)
+        //o.lm.deRefList(grey_ssl_site_list);
     banned_phrase_flag = false;
     //searchterm_flag = false;
     //exception_site_flag = false;
@@ -205,10 +205,10 @@ void FOptionContainer::resetJustListData()
     auth_exception_site_flag = false;
     auth_exception_url_flag = false;
 #endif
-    referer_exception_site_flag = false;
-    referer_exception_url_flag = false;
-    embeded_referer_site_flag = false;
-    embeded_referer_url_flag = false;
+    //referer_exception_site_flag = false;
+    //referer_exception_url_flag = false;
+    //embeded_referer_site_flag = false;
+    //embeded_referer_url_flag = false;
     use_only_local_allow_lists = false;
     //local_exception_site_flag = false;
     //local_exception_url_flag = false;
@@ -218,21 +218,21 @@ void FOptionContainer::resetJustListData()
     //local_grey_url_flag = false;
     //local_banned_ssl_site_flag = false;
     //local_grey_ssl_site_flag = false;
-    addheader_regexp_flag = false;
-    addheader_regexp_list_comp.clear();
-    addheader_regexp_list_rep.clear();
+    //addheader_regexp_flag = false;
+    //addheader_regexp_list_comp.clear();
+    //addheader_regexp_list_rep.clear();
     //banned_search_flag = false;
     search_regexp_flag = false;
-    search_regexp_list_comp.clear();
-    search_regexp_list_rep.clear();
+    //search_regexp_list_comp.clear();
+    //search_regexp_list_rep.clear();
     //local_banned_search_flag = false;
     //banned_search_overide_flag = false;
     //banned_ssl_site_flag = false;
     //grey_ssl_site_flag = false;
 
-#ifdef __SSLMITM
-    no_check_cert_site_flag = false;
-#endif
+//#ifdef __SSLMITM
+//    no_check_cert_site_flag = false;
+//#endif
 
     block_downloads = false;
 
@@ -242,26 +242,26 @@ void FOptionContainer::resetJustListData()
 
     content_regexp_list_comp.clear();
     content_regexp_list_rep.clear();
-    url_regexp_list_comp.clear();
-    url_regexp_list_rep.clear();
-    sslsite_regexp_list_comp.clear();
-    sslsite_regexp_list_rep.clear();
-    url_redirect_regexp_list_comp.clear();
-    url_redirect_regexp_list_rep.clear();
-    header_regexp_list_comp.clear();
-    header_regexp_list_rep.clear();
-    banned_regexpurl_list_comp.clear();
-    banned_regexpurl_list_source.clear();
-    banned_regexpurl_list_ref.clear();
-    exception_regexpurl_list_comp.clear();
-    exception_regexpurl_list_source.clear();
-    exception_regexpurl_list_ref.clear();
-    banned_regexpheader_list_comp.clear();
-    banned_regexpheader_list_source.clear();
-    banned_regexpheader_list_ref.clear();
-    log_regexpurl_list_comp.clear();
-    log_regexpurl_list_source.clear();
-    log_regexpurl_list_ref.clear();
+    //url_regexp_list_comp.clear();
+    //url_regexp_list_rep.clear();
+    //sslsite_regexp_list_comp.clear();
+    //sslsite_regexp_list_rep.clear();
+    //url_redirect_regexp_list_comp.clear();
+    //url_redirect_regexp_list_rep.clear();
+    //header_regexp_list_comp.clear();
+    //header_regexp_list_rep.clear();
+    //banned_regexpurl_list_comp.clear();
+    //banned_regexpurl_list_source.clear();
+    //banned_regexpurl_list_ref.clear();
+    //exception_regexpurl_list_comp.clear();
+    //exception_regexpurl_list_source.clear();
+    //exception_regexpurl_list_ref.clear();
+    //banned_regexpheader_list_comp.clear();
+    //banned_regexpheader_list_source.clear();
+    //banned_regexpheader_list_ref.clear();
+    //log_regexpurl_list_comp.clear();
+    //log_regexpurl_list_source.clear();
+    //log_regexpurl_list_ref.clear();
     //searchengine_regexp_list_comp.clear();
     //searchengine_regexp_list_source.clear();
     //searchengine_regexp_list_ref.clear();
@@ -693,28 +693,28 @@ bool FOptionContainer::read(const char *filename) {
         std::string exception_phrase_list_location(findoptionS("exceptionphraselist"));
         std::string weighted_phrase_list_location(findoptionS("weightedphraselist"));
         std::string banned_phrase_list_location(findoptionS("bannedphraselist"));
-        std::string banned_extension_list_location(findoptionS("bannedextensionlist"));
-        std::string banned_mimetype_list_location(findoptionS("bannedmimetypelist"));
+        //std::string banned_extension_list_location(findoptionS("bannedextensionlist"));
+        //std::string banned_mimetype_list_location(findoptionS("bannedmimetypelist"));
         //std::string banned_site_list_location(findoptionS("bannedsitelist"));
         //std::string banned_url_list_location(findoptionS("bannedurllist"));
         //std::string grey_site_list_location(findoptionS("greysitelist"));
         //std::string grey_url_list_location(findoptionS("greyurllist"));
-        std::string banned_regexpurl_list_location(findoptionS("bannedregexpurllist"));
-        std::string exception_regexpurl_list_location(findoptionS("exceptionregexpurllist"));
-        std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
-        std::string content_regexp_list_location(findoptionS("contentregexplist"));
-        std::string url_regexp_list_location(findoptionS("urlregexplist"));
-        std::string sslsite_regexp_list_location(findoptionS("sslsiteregexplist"));
-        std::string header_regexp_list_location(findoptionS("headerregexplist"));
+        //std::string banned_regexpurl_list_location(findoptionS("bannedregexpurllist"));
+        //std::string exception_regexpurl_list_location(findoptionS("exceptionregexpurllist"));
+        //std::string banned_regexpheader_list_location(findoptionS("bannedregexpheaderlist"));
+        //std::string content_regexp_list_location(findoptionS("contentregexplist"));
+        //std::string url_regexp_list_location(findoptionS("urlregexplist"));
+        //std::string sslsite_regexp_list_location(findoptionS("sslsiteregexplist"));
+        //std::string header_regexp_list_location(findoptionS("headerregexplist"));
         //std::string exceptions_site_list_location(findoptionS("exceptionsitelist"));
         //std::string exceptions_url_list_location(findoptionS("exceptionurllist"));
-        std::string exception_extension_list_location(findoptionS("exceptionextensionlist"));
-        std::string exception_mimetype_list_location(findoptionS("exceptionmimetypelist"));
-        std::string exception_file_site_list_location(findoptionS("exceptionfilesitelist"));
-        std::string exception_file_url_list_location(findoptionS("exceptionfileurllist"));
-        std::string log_url_list_location(findoptionS("logurllist"));
-        std::string log_site_list_location(findoptionS("logsitelist"));
-        std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
+        //std::string exception_extension_list_location(findoptionS("exceptionextensionlist"));
+        //std::string exception_mimetype_list_location(findoptionS("exceptionmimetypelist"));
+        //std::string exception_file_site_list_location(findoptionS("exceptionfilesitelist"));
+        //std::string exception_file_url_list_location(findoptionS("exceptionfileurllist"));
+        //std::string log_url_list_location(findoptionS("logurllist"));
+        //std::string log_site_list_location(findoptionS("logsitelist"));
+        //std::string log_regexpurl_list_location(findoptionS("logregexpurllist"));
 
         // search term blocking
         std::string searchengine_regexp_list_location(findoptionS("searchengineregexplist"));
@@ -723,11 +723,11 @@ bool FOptionContainer::read(const char *filename) {
         std::string auth_exceptions_site_list_location(findoptionS("authexceptionsitelist"));
         std::string auth_exceptions_url_list_location(findoptionS("authexceptionurllist"));
 #endif
-        std::string url_redirect_regexp_list_location(findoptionS("urlredirectregexplist"));
-        std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
-        std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
-        std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
-        std::string search_regexp_list_location(findoptionS("searchregexplist"));
+        //std::string url_redirect_regexp_list_location(findoptionS("urlredirectregexplist"));
+        //std::string embeded_referer_site_list_location(findoptionS("embededreferersitelist"));
+        //std::string embeded_referer_url_list_location(findoptionS("embededrefererurllist"));
+        //std::string addheader_regexp_list_location(findoptionS("addheaderregexplist"));
+        //std::string search_regexp_list_location(findoptionS("searchregexplist"));
 
         std::string storyboard_location(findoptionS("storyboard"));
 
@@ -740,38 +740,7 @@ bool FOptionContainer::read(const char *filename) {
 #ifdef DGDEBUG
             std::cout << "Blanket download block disabled; using standard banned file lists" << std::endl;
 #endif
-            if (!readFile(banned_extension_list_location.c_str(), &banned_extension_list, false, false,
-                          "bannedextensionlist")) {
-                return false;
-            } // file extensions
-            banned_extension_flag = true;
-            if (!readFile(banned_mimetype_list_location.c_str(), &banned_mimetype_list, false, true,
-                          "bannedmimetypelist")) {
-                return false;
-            } // mime types
-            banned_mimetype_flag = true;
         }
-        if (!readFile(exception_extension_list_location.c_str(), &exception_extension_list, false, false,
-                      "exceptionextensionlist")) {
-            return false;
-        } // file extensions
-        exception_extension_flag = true;
-        if (!readFile(exception_mimetype_list_location.c_str(), &exception_mimetype_list, false, true,
-                      "exceptionmimetypelist")) {
-            return false;
-        } // mime types
-        exception_mimetype_flag = true;
-        if (!readFile(exception_file_site_list_location.c_str(), &exception_file_site_list, false, true,
-                      "exceptionfilesitelist")) {
-            return false;
-        } // download site exceptions
-        exception_file_site_flag = true;
-        if (!readFile(exception_file_url_list_location.c_str(), &exception_file_url_list, true, true,
-                      "exceptionfileurllist")) {
-            return false;
-        } // download site exceptions
-        exception_file_url_flag = true;
-
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
             if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
@@ -845,56 +814,6 @@ bool FOptionContainer::read(const char *filename) {
         auth_exception_url_flag = true;
 #endif
 
-        if (embeded_referer_site_list_location.length() &&
-            readFile(embeded_referer_site_list_location.c_str(), &embeded_referer_site_list, false, true,
-                     "embededreferersitelist")) {
-            embeded_referer_site_flag = true;
-        } else { // referer site exceptions
-            embeded_referer_site_flag = false;
-        }
-
-        if (embeded_referer_url_list_location.length() &&
-            readFile(embeded_referer_url_list_location.c_str(), &embeded_referer_url_list, true, true,
-                     "embededrefererurllist")) {
-            embeded_referer_url_flag = true;
-        } else { // referer url exceptions
-            embeded_referer_url_flag = false;
-        }
-
-        if (addheader_regexp_list_location.length() &&
-            readRegExReplacementFile(addheader_regexp_list_location.c_str(), "addheaderregexplist",
-                                     addheader_regexp_list, addheader_regexp_list_rep, addheader_regexp_list_comp)) {
-            addheader_regexp_flag = true;
-        } else { // url regular expressions for header insertions
-            addheader_regexp_flag = false;
-        }
-
-        if (searchengine_regexp_list_location.length()) {
-            if (!is_daemonised) {
-                std::cerr
-                        << "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead. "
-                        << std::endl;
-            }
-            syslog(LOG_ERR,
-                   "Error: searchengineregexplist is no longer supported. Please use searchregexplist instead.");
-            return false;
-        }
-
-        if (search_regexp_list_location.length() &&
-            readRegExReplacementFile(search_regexp_list_location.c_str(), "searchregexplist", search_regexp_list,
-                                     search_regexp_list_rep, search_regexp_list_comp)) {
-            search_regexp_flag = true;
-#ifdef DGDEBUG
-            std::cout << "Enabled search term extraction RegExp list" << std::endl;
-#endif
-        } else {
-            search_regexp_flag = false;
-        } // search engine searchwords regular expressions
-
-
-        // search term blocking
-        //			if (searchengine_regexp_list_location.length() && readRegExMatchFile(searchengine_regexp_list_location.c_str(), "searchengineregexplist", searchengine_regexp_list,
-        //				searchengine_regexp_list_comp, searchengine_regexp_list_source, searchengine_regexp_list_ref))
         if (search_regexp_flag) {
             if (weighted_phrase_mode > 0) {
                 searchterm_limit = findoptionI("searchtermlimit");
@@ -931,7 +850,6 @@ bool FOptionContainer::read(const char *filename) {
 #endif
 
 
-    //       std::string storyboard_location(findoptionS("storyboard"));
 
     if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
         return false;
@@ -942,10 +860,10 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         }
 
-        //if(!StoryB.setEntry2("checkresponse")) {
-        //   std::cerr << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
-         //   return false;
-        //}
+        if(!StoryB.setEntry2("checkresponse")) {
+           std::cerr << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+           return false;
+        }
 
     if (!precompileregexps()) {
         return false;
@@ -1016,823 +934,7 @@ bool FOptionContainer::read(const char *filename) {
     return true;
 }
 
-// read regexp url list
-bool FOptionContainer::readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
-    std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
-    int result = o.lm.newItemList(filename, true, 32, true);
-    if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
-        return false;
-    }
-    listref = (unsigned)result;
-    return compileRegExMatchFile(listref, list_comp, list_source, list_ref);
-}
 
-// NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUDGE
-// compile regexp url list
-bool FOptionContainer::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
-    std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
-    for (unsigned int i = 0; i < (*o.lm.l[list]).morelists.size(); i++) {
-        if (!compileRegExMatchFile((*o.lm.l[list]).morelists[i], list_comp, list_source, list_ref)) {
-            return false;
-        }
-    }
-    RegExp r;
-    bool rv = true;
-    int len = (*o.lm.l[list]).getListLength();
-    String source;
-    for (int i = 0; i < len; i++) {
-        source = (*o.lm.l[list]).getItemAtInt(i).c_str();
-        rv = r.comp(source.toCharArray());
-        if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << "Error compiling regexp:" << source << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp:");
-            syslog(LOG_ERR, "%s", source.toCharArray());
-            return false;
-        }
-        list_comp.push_back(r);
-        list_source.push_back(source);
-        list_ref.push_back(list);
-    }
-    (*o.lm.l[list]).used = true;
-    return true;
-}
-
-// content and URL regular expression replacement files
-bool FOptionContainer::readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
-    std::deque<String> &list_rep, std::deque<RegExp> &list_comp)
-{
-    int result = o.lm.newItemList(filename, true, 32, true);
-    if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
-        return false;
-    }
-    listid = (unsigned)result;
-    if (!(*o.lm.l[listid]).used) {
-        //(*o.lm.l[listid]).doSort(true);
-        (*o.lm.l[listid]).used = true;
-    }
-    RegExp r;
-    bool rv = true;
-    String regexp;
-    String replacement;
-    for (int i = 0; i < (*o.lm.l[listid]).getListLength(); i++) {
-        regexp = (*o.lm.l[listid]).getItemAtInt(i).c_str();
-        replacement = regexp.after("\"->\"");
-        while (!replacement.endsWith("\"")) {
-            if (replacement.length() < 2) {
-                break;
-            }
-            replacement.chop();
-        }
-        replacement.chop();
-        regexp = regexp.after("\"").before("\"->\"");
-        if (regexp.length() < 1) { // allow replace with nothing
-            continue;
-        }
-        rv = r.comp(regexp.toCharArray());
-        if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << "Error compiling regexp: " << (*o.lm.l[listid]).getItemAtInt(i) << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp: ");
-            syslog(LOG_ERR, "%s", (*o.lm.l[listid]).getItemAtInt(i).c_str());
-            return false;
-        }
-        list_comp.push_back(r);
-        list_rep.push_back(replacement);
-    }
-    return true;
-}
-
-// Recursively check site & URL lists for blanket matches
-char *FOptionContainer::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory)
-{
-    if (not o.lm.l[list]->isNow())
-        return NULL;
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << o.lm.l[list]->blanketblock << ":" << o.lm.l[list]->blanket_ip_block << ":" << o.lm.l[list]->blanketsslblock << ":" << o.lm.l[list]->blanketssl_ip_block << std::endl;
-#endif
-    if (o.lm.l[list]->blanketblock) {
-        lastcategory = "-";
-        return (char *)o.language_list.getTranslation(502);
-    } else if (o.lm.l[list]->blanket_ip_block and ip) {
-        lastcategory = "IP";
-        return (char *)o.language_list.getTranslation(505);
-    } else if (o.lm.l[list]->blanketsslblock and ssl) {
-        lastcategory = "HTTPS";
-        return (char *)o.language_list.getTranslation(506);
-    } else if (o.lm.l[list]->blanketssl_ip_block and ssl and ip) {
-        lastcategory = "HTTPS_IP";
-        return (char *)o.language_list.getTranslation(507);
-    }
-    /* # Disable recursive to reduce wasted CPU and fix wrong lastcategory issue PIP
-	for (std::vector<int>::iterator i = o.lm.l[list]->morelists.begin(); i != o.lm.l[list]->morelists.end(); i++) {
-		char *r = testBlanketBlock(*i, ip, ssl);
-		if (r) {
-			return r;
-		}
-	}
-*/
-    return NULL;
-}
-
-bool FOptionContainer::inSiteListB(String &url, String name, bool ip, bool ssl, String &lastcategory) {
-    ListMeta::list_result res;
-    bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SITE, url,  res));
-    if (found) {
-        lastcategory = res.category;
-    }
-    return found;
-}
-
-char *FOptionContainer::inSiteListS(String &url, String name, bool ip, bool ssl, String &lastcategory) {
-    ListMeta::list_result res;
-    bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SITE, url,  res));
-    if (found) {
-        lastcategory = res.category;
-    }
-    return (char *) res.match.toCharArray();
-}
-
-    bool FOptionContainer::inURLListB(String &url, String name, bool ip, bool ssl, String &lastcategory) {
-        ListMeta::list_result res;
-        bool found;
-        found = (LMeta.inList(name, LIST_TYPE_URL, url,  res));
-        if (found) {
-            lastcategory = res.category;
-        }
-        return found;
-    }
-
-        char *FOptionContainer::inURLListS(String &url, String name, bool ip, bool ssl, String &lastcategory) {
-            ListMeta::list_result res;
-            bool found;
-            found = (LMeta.inList(name, LIST_TYPE_URL, url,  res));
-            if (found) {
-                lastcategory = res.category;
-            }
-            return (char *) res.match.toCharArray();
-        }
-
-bool FOptionContainer::inSearchListB(String &terms, String name, String &lastcategory) {
-    ListMeta::list_result res;
-    bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms,  res));
-    if (found) {
-        lastcategory = res.category;
-    }
-    return found;
-}
-
-char *FOptionContainer::inSearchListS(String &terms, String name,  String &lastcategory) {
-    ListMeta::list_result res;
-    bool found;
-    found = (LMeta.inList(name, LIST_TYPE_SEARCH,terms,  res));
-    if (found) {
-        lastcategory = res.category;
-    }
-    return (char *) res.match.toCharArray();
-}
-
-bool FOptionContainer::inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory) {
-    ListMeta::list_result res;
-    bool found;
-    found = (LMeta.inList(name, LIST_TYPE_REGEXP_BOOL,url,  res));
-    if (found) {
-        lastcategory = res.category;
-    }
-    return found;
-}
-
-// checkme: there's an awful lot of removing whitespace, PTP, etc. going on here.
-// checkme: there's an awful lot of removing whitespace, PTP, etc. going on here.
-// perhaps connectionhandler could keep a suitably modified version handy to prevent repitition of work?
-
-char *FOptionContainer::inSiteList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-    // Perform blanket matching if desired
-    if (doblanket) {
-        char *r = testBlanketBlock(list, ip, ssl, lastcategory);
-        if (r) {
-            return r;
-        }
-    }
-
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        url = url.before("/"); // chop off any path after the domain
-    }
-    char *i;
-    bool isipurl = isIPHostname(url);
-    if (reverse_lookups && isipurl) { // change that ip into hostname
-        std::deque<String> *url2s = ipToHostname(url.toCharArray());
-        String url2;
-        for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-            url2 = *j;
-            while (url2.contains(".")) {
-                i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
-                if (i != NULL) {
-                    delete url2s;
-                    return i; // exact match
-                }
-                url2 = url2.after("."); // check for being in hld
-            }
-        }
-        delete url2s;
-    }
-    while (url.contains(".")) {
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    if (url.length() > 1) { // allows matching of .tld
-        url = "." + url;
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-    }
-    return NULL; // and our survey said "UUHH UURRGHH"
-}
-
-char *FOptionContainer::inSearchList(String &words, unsigned int list, String &lastcategory)
-{
-    char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
-    if (i != NULL) {
-        return i; // exact match
-    }
-    return NULL;
-}
-
-// checkme: remove things like this & make inSiteList/inIPList public?
-
-char *FOptionContainer::inBannedSiteList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inBannedSiteList check: doblanket = " << doblanket << " ssl = " << ssl << std::endl;
-#endif
-    //return inSiteList(url, banned_site_list, doblanket, ip, ssl, lastcategory);
-    return inSiteListS(url, (String) "banned",  ip, ssl, lastcategory);
-}
-
-bool FOptionContainer::inGreySiteList(String url, bool doblanket, bool ip, bool ssl)
-{
-    //	if (enable_local_list) {
-    if (use_only_local_allow_lists) {
-        return false;
-    };
-    //	}
-    if (ssl && !enable_ssl_legacy_logic) {
-        return inGreySSLSiteList(url, doblanket, ip, ssl);
-    };
-    String lastcategory;
-    return inSiteListB(url, (String) "grey",  ip, ssl, lastcategory);
-    //return inSiteList(url, grey_site_list, doblanket, ip, ssl, lastcategory) != NULL;
-}
-
-char *FOptionContainer::inBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-    if (banned_ssl_site_flag) {
-        return inSiteList(url, banned_ssl_site_list, doblanket, ip, ssl, lastcategory);
-    } else {
-        return NULL;
-    }
-}
-
-bool FOptionContainer::inGreySSLSiteList(String url, bool doblanket, bool ip, bool ssl)
-{
-    //if (grey_ssl_site_flag) {
-        String lastcat;
-        //return inSiteList(url, grey_ssl_site_list, doblanket, ip, ssl, lastcat) != NULL;
-        return inSiteListB(url, (String) "greyssl",  ip, ssl, lastcat);
-    //} else {
-        //return false;
-    //}
-}
-
-bool FOptionContainer::inNoCheckCertSiteList(String url, bool ip)
-{
-    //if (no_check_cert_site_flag) {
-        String lastcat;
-        //return inSiteList(url, no_check_cert_site_list, false, ip, true, lastcat) != NULL;
-        return inSiteListB(url, (String) "nocheckcert",  ip, true, lastcat);
-    //} else {
-        //return false;
-    //}
-}
-#ifdef PRT_DNSAUTH
-bool FOptionContainer::inAuthExceptionSiteList(String url, bool doblanket, bool ip, bool ssl)
-{
-    String lc;
-    //return inSiteList(url, auth_exception_site_list, doblanket, ip, ssl,lc) != NULL;
-        return inSiteListB(url, (String) "authexception",  ip, ssl, lc);
-}
-#endif
-
-bool FOptionContainer::inRefererExceptionLists(String url)
-{
-    String temp = url;
-    String lc;
-    if ((url.length() > 0)
-        && ((referer_exception_site_flag && (inSiteList(url, referer_exception_site_list, false, false, false,lc) != NULL))
-               || (referer_exception_url_flag && (inURLList(temp, referer_exception_url_list, false, false, false, lc) != NULL))))
-        return true;
-    return false;
-}
-
-bool FOptionContainer::inEmbededRefererLists(String url)
-{
-    String temp = url;
-    String lc;
-    if ((url.length() > 0)
-        && (inSiteListB(url, (String) "embededreferer",  false, false, lc)
-             || inURLListB(temp, (String) "embededreferer", false,  false, lc)))
-        return true;
-    return false;
-}
-
-char *FOptionContainer::inBannedSearchList(String words, String &lc)
-{
-
-#ifdef DGDEBUG
-    std::cout << "Checking Banned Search Overide list for " << words << std::endl;
-#endif
-    if (enable_local_list) {
-        if (inBannedSearchOverideList(words))
-            return NULL;
-    }
-#ifdef DGDEBUG
-    std::cout << "Checking Banned Search list for " << words << std::endl;
-#endif
-    //return inSearchList(words, banned_search_list, lc);
-    return inSearchListS(words, "banned", lc);
-}
-
-char *FOptionContainer::inLocalBannedSearchList(String words, String &lc)
-{
-#ifdef DGDEBUG
-    std::cout << "Checking Local Banned Search list for " << words << std::endl;
-#endif
-    //return inSearchList(words, local_banned_search_list, lc);
-    return inSearchListS(words, "localbanned", lc);
-}
-
-bool FOptionContainer::inBannedSearchOverideList(String words)
-{
-    String lc;
-#ifdef DGDEBUG
-    std::cout << "Checking Banned Search Overide list for " << words << std::endl;
-#endif
-    //return inSearchList(words, banned_search_overide_list, lc) != NULL;
-    return inSearchListB(words, (String) "overide", lc);
-}
-
-bool FOptionContainer::inLocalExceptionSiteList(String url, bool doblanket, bool ip, bool ssl, String &lc)
-{
-#ifdef DGDEBUG
-    std::cout << "inLocalExceptionSiteList" << std::endl;
-#endif
-    //return inSiteList(url, local_exception_site_list, doblanket, ip, ssl, lc) != NULL;
-    return inSiteListB(url, (String) "localexception",  ip, ssl, lc);
-}
-
-char *FOptionContainer::inLocalBannedSiteList(String url, bool doblanket, bool ip, bool ssl, String &lc)
-{
-#ifdef DGDEBUG
-    std::cout << "inLocalBannedSiteList" << std::endl;
-#endif
-    return inSiteList(url, local_banned_site_list, doblanket, ip, ssl, lc);
-    return inSiteListS(url, (String) "localbanned",  ip, ssl, lc);
-}
-
-bool FOptionContainer::inLocalGreySiteList(String url, bool doblanket, bool ip, bool ssl)
-{
-    String lc;
-    if (ssl) {
-    //    return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl, lc) != NULL;
-        return inSiteListB(url, (String) "localgreyssl",  ip, ssl, lc);
-    };
-    //return inSiteList(url, local_grey_site_list, doblanket, ip, ssl, lc) != NULL;
-    return inSiteListB(url, (String) "localgrey",  ip, ssl, lc);
-}
-
-char *FOptionContainer::inLocalBannedSSLSiteList(String url, bool doblanket, bool ip, bool ssl, String &lc)
-{
-    return inSiteList(url, local_banned_ssl_site_list, doblanket, ip, ssl, lc);
-}
-
-bool FOptionContainer::inLocalGreySSLSiteList(String url, bool doblanket, bool ip, bool ssl)
-{
-    String lc;
-    //return inSiteList(url, local_grey_ssl_site_list, doblanket, ip, ssl, lc) != NULL;
-    return inSiteListB(url, (String) "localgreyssl",  ip, ssl, lc);
-}
-
-bool FOptionContainer::inExceptionSiteList(String url, bool doblanket, bool ip, bool ssl, String &lc)
-{
-    return inSiteListB(url, (String) "exception",  ip, ssl, lc);
-}
-
-bool FOptionContainer::inExceptionFileSiteList(String url)
-{
-    String lc;
-    return inSiteListB(url, (String) "exceptionfile",  false, false, lc);
-}
-
-// look in given URL list for given URL
-char *FOptionContainer::inURLList(String &url, unsigned int list, bool doblanket, bool ip, bool ssl, String &lc)
-{
-    if (ssl) { // can't be in url list as SSL is site only
-        return NULL;
-    };
-    // Perform blanket matching if desired
-    if (doblanket) {
-        char *r = testBlanketBlock(list, ip, ssl, lc);
-        if (r) {
-            return r;
-        }
-    }
-
-    unsigned int fl;
-    char *i;
-    String foundurl;
-#ifdef DGDEBUG
-    std::cout << "inURLList: " << url << std::endl;
-#endif
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        String tpath("/");
-        tpath += url.after("/");
-        url = url.before("/");
-        tpath.hexDecode();
-        tpath.realPath();
-        url += tpath; // will resolve ../ and %2e2e/ and // etc
-    }
-    if (url.endsWith("/")) {
-        url.chop(); // chop off trailing / if any
-    }
-#ifdef DGDEBUG
-    std::cout << "inURLList (processed): " << url << std::endl;
-#endif
-    if (reverse_lookups && url.after("/").length() > 0) {
-        String hostname(url.getHostname());
-        if (isIPHostname(hostname)) {
-            std::deque<String> *url2s = ipToHostname(hostname.toCharArray());
-            String url2;
-            for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-                url2 = *j;
-                url2 += "/";
-                url2 += url.after("/");
-                while (url2.before("/").contains(".")) {
-                    i = (*o.lm.l[list]).findStartsWith(url2.toCharArray(),lc);
-                    if (i != NULL) {
-                        foundurl = i;
-                        fl = foundurl.length();
-                        if (url2.length() > fl) {
-                            unsigned char c = url[fl];
-                            if (c == '/' || c == '?' || c == '&' || c == '=') {
-                                delete url2s;
-                                return i; // matches /blah/ or /blah/foo
-                                // (or /blah?foo etc.)
-                                // but not /blahfoo
-                            }
-                        } else {
-                            delete url2s;
-                            return i; // exact match
-                        }
-                    }
-                    url2 = url2.after("."); // check for being in hld
-                }
-            }
-            delete url2s;
-        }
-    }
-    while (url.before("/").contains(".")) {
-        i = (*o.lm.l[list]).findStartsWith(url.toCharArray(),lc);
-        if (i != NULL) {
-            foundurl = i;
-            fl = foundurl.length();
-#ifdef DGDEBUG
-            std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cout << "url: " << url << fl << std::endl;
-#endif
-            if (url.length() > fl) {
-                if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                    return i; // matches /blah/ or /blah/foo but not /blahfoo
-                }
-            } else {
-                return i; // exact match
-            }
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    return NULL;
-}
-
-char *FOptionContainer::inBannedURLList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inBannedURLList" << std::endl;
-#endif
-    //return inURLList(url, banned_url_list, doblanket, ip, ssl, lastcategory);
-    return inURLListS(url, (String) "banned",  ip, ssl, lastcategory);
-}
-
-bool FOptionContainer::inGreyURLList(String url, bool doblanket, bool ip, bool ssl)
-{
-#ifdef DGDEBUG
-    std::cout << "inGreyURLList" << std::endl;
-#endif
-    if (enable_local_list) {
-        if (use_only_local_allow_lists) {
-            return false;
-        };
-    };
-    String lastcategory;
-    //return inURLList(url, grey_url_list, doblanket, ip, ssl, lastcategory) != NULL;
-    return inURLListB(url, (String) "grey",  ip, ssl, lastcategory);
-}
-
-bool FOptionContainer::inExceptionURLList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inExceptionURLList" << std::endl;
-#endif
-    //return inURLList(url, exception_url_list, doblanket, ip, ssl, lastcategory) != NULL;
-    return inURLListB(url, (String) "exception",  ip, ssl, lastcategory);
-}
-
-char *FOptionContainer::inLocalBannedURLList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inLocalBannedURLList" << std::endl;
-#endif
-    //return inURLList(url, local_banned_url_list, doblanket, ip, ssl, lastcategory);
-    return inURLListS(url, (String) "localbanned",  ip, ssl, lastcategory);
-}
-
-bool FOptionContainer::inLocalGreyURLList(String url, bool doblanket, bool ip, bool ssl)
-{
-#ifdef DGDEBUG
-    std::cout << "inLocalGreyURLList" << std::endl;
-#endif
-    String lastcategory;
-    //return inURLList(url, local_grey_url_list, doblanket, ip, ssl, lastcategory) != NULL;
-    return inURLListB(url, (String) "localgrey",  ip, ssl, lastcategory);
-}
-
-bool FOptionContainer::inLocalExceptionURLList(String url, bool doblanket, bool ip, bool ssl, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inLocalExceptionURLList" << std::endl;
-#endif
-    //return inURLList(url, local_exception_url_list, doblanket, ip, ssl, lastcategory) != NULL;
-    return inURLListB(url, (String) "localexception",  ip, ssl, lastcategory);
-}
-
-#ifdef PRT_DNSAUTH
-bool FOptionContainer::inAuthExceptionURLList(String url, bool doblanket, bool ip, bool ssl)
-{
-#ifdef DGDEBUG
-    std::cout << "inAuthExceptionURLList" << std::endl;
-#endif
-    String lc;
-    return inURLList(url, auth_exception_url_list, doblanket, ip, ssl, lc) != NULL;
-}
-#endif
-
-// New log-only site lists
-const char *FOptionContainer::inLogURLList(String url, String &lastcategory)
-{
-    if (!log_url_flag)
-        return NULL;
-    if (inURLList(url, log_url_list, false, false, false, lastcategory) != NULL) {
-        return lastcategory.toCharArray();
-    }
-    return NULL;
-}
-
-const char *FOptionContainer::inLogSiteList(String url, String &lastcategory)
-{
-    if (!log_site_flag)
-        return NULL;
-    if (inSiteList(url, log_site_list, false, false, false, lastcategory) != NULL) {
-        return lastcategory.toCharArray();
-    }
-    return NULL;
-}
-
-const char *FOptionContainer::inLogRegExpURLList(String url)
-{
-    if (!log_regexpurl_flag)
-        return NULL;
-    String lc;
-    int j = inRegExpURLList(url, log_regexpurl_list_comp, log_regexpurl_list_ref, log_regexpurl_list, lc);
-    if (j == -1)
-        return NULL;
-    return o.lm.l[log_regexpurl_list_ref[j]]->category.toCharArray();
-}
-
-// TODO: Store the modified URL somewhere, instead of re-processing it every time.
-
-char *FOptionContainer::inExtensionList(unsigned int list, String url)
-{
-    String lc;
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.hexDecode();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    url = url.after("/"); // chop off any domain before the path
-    if (url.length() < 2) { // will never match
-        return NULL;
-    }
-    return (*o.lm.l[list]).findEndsWith(url.toCharArray(), lc);
-}
-
-// replaced by HTTPHeader::isSearch function in e2g so undefined but
-// retained for reference.
-#ifdef NOTDEFINED
-// search term blocking
-// is this URL recognised by the search engine regexp list?  if so, return extracted search terms
-bool FOptionContainer::extractSearchTerms(String url, String &terms)
-{
-    if (!searchengine_regexp_flag)
-        return false;
-
-    url.removeWhiteSpace();
-    url.removePTP();
-
-#ifdef DGDEBUG
-    std::cout << "extractSearchTerms: " << url << std::endl;
-#endif
-    unsigned int i = 0;
-    // iterate over all regexes in the compiled list.  if the source list is enabled
-    // at the current time, test to see if the regex itself matches the URL.
-    for (std::deque<RegExp>::iterator j = searchengine_regexp_list_comp.begin(); j != searchengine_regexp_list_comp.end(); j++) {
-        if (o.lm.l[searchengine_regexp_list_ref[i]]->isNow()) {
-            j->match(url.toCharArray());
-            if (j->matched()) {
-                // return the first submatch.
-                // if there are no submatches, the regex isn't suitable for
-                // actually extracting search terms; treat this as an error.
-                // match 1 is the whole string matched by the regex - we need
-                // at least 2 matches for there to have been a submatch.
-                if (j->numberOfMatches() < 2) {
-#ifdef DGDEBUG
-                    std::cout << "extractSearchTerms: matched a regex with no submatches: " << searchengine_regexp_list_source[i] << std::endl;
-#endif
-                    syslog(LOG_ERR, "extractSearchTerms: no submatches in regex! (%s)", searchengine_regexp_list_source[i].toCharArray());
-                    return false;
-                }
-                terms = j->result(1);
-                // change '+' to ' ' then hex decode (remove URL parameter encoding)
-                terms.replaceall("+", " ");
-                terms.hexDecode();
-                // also replace any characters which could potentially screw up logging
-                terms.replaceall("\t", " ");
-                terms.replaceall(",", " ");
-                terms.replaceall(";", " ");
-#ifdef DGDEBUG
-                std::cout << "extractSearchTerms: matched something: " << searchengine_regexp_list_source[i] << ", " << terms << std::endl;
-#endif
-                return true;
-            }
-        }
-        ++i;
-    }
-    return false;
-}
-#endif
-
-// is this line of the headers in the banned regexp header list?
-int FOptionContainer::inBannedRegExpHeaderList(std::deque<String> &header, String &lastcategory)
-{
-     RegResult Rre;
-    for (std::deque<String>::iterator k = header.begin(); k != header.end(); k++) {
-#ifdef DGDEBUG
-        std::cout << "inBannedRegExpHeaderList: " << *k << std::endl;
-#endif
-        unsigned int i = 0;
-        for (std::deque<RegExp>::iterator j = banned_regexpheader_list_comp.begin(); j != banned_regexpheader_list_comp.end(); j++) {
-            if (o.lm.l[banned_regexpheader_list_ref[i]]->isNow()) {
-                if(j->match(k->toCharArray(),Rre))
-                    return i;
-            }
-#ifdef DGDEBUG
-            else
-                std::cout << "Outside included regexp list's time limit" << std::endl;
-#endif
-            i++;
-        }
-    }
-    return -1;
-}
-
-// is this URL in the given regexp URL list?
-int FOptionContainer::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inRegExpURLList: " << url << std::endl;
-#endif
-    // check parent list's time limit
-    if (o.lm.l[list]->isNow()) {
-        RegResult Rre;
-        url.removeWhiteSpace(); // just in case of weird browser crap
-        url.toLower();
-        // chop off the PTP (ht(f)tp(s)://)
-        /*String ptp;
-		if (url.contains("//")) {
-			ptp = url.before("//");
-			url = url.after("//");
-		}*/
-
-        // whilst it would be nice to have regexes be able to match the PTP,
-        // it has been assumed for too long that the URL string does not start with one,
-        // and we don't want to break regexes that look explicitly for the start of
-        // the string. changes here have therefore been reverted. 2005-12-07
-        url.removePTP();
-        if (url.contains("/")) {
-            String tpath("/");
-            tpath += url.after("/");
-            url = url.before("/");
-            tpath.hexDecode();
-            tpath.realPath();
-            url += tpath; // will resolve ../ and %2e2e/ and // etc
-        }
-        if (url.endsWith("/")) {
-            url.chop(); // chop off trailing / if any
-        }
-// re-add the PTP
-/*if (ptp.length() > 0)
-			url = ptp + "//" + url;*/
-#ifdef DGDEBUG
-        std::cout << "inRegExpURLList (processed): " << url << std::endl;
-#endif
-        unsigned int i = 0;
-        for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
-            if (o.lm.l[list_ref[i]]->isNow()) {
-                if(j->match(url.toCharArray(),Rre))
-                    return i;
-            }
-#ifdef DGDEBUG
-            else
-                std::cout << "Outside included regexp list's time limit" << std::endl;
-#endif
-            i++;
-        }
-    }
-#ifdef DGDEBUG
-    else {
-        std::cout << "Outside top level regexp list's time limit" << std::endl;
-    }
-#endif
-    return -1;
-}
-
-// use above to check banned/exception RegExp URLs
-int FOptionContainer::inBannedRegExpURLList(String url, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inBannedRegExpURLList" << std::endl;
-#endif
-    return inRegExpURLList(url, banned_regexpurl_list_comp, banned_regexpurl_list_ref, banned_regexpurl_list, lastcategory);
-}
-
-int FOptionContainer::inExceptionRegExpURLList(String url, String &lastcategory)
-{
-#ifdef DGDEBUG
-    std::cout << "inExceptionRegExpURLList" << std::endl;
-#endif
-    return inRegExpURLList(url, exception_regexpurl_list_comp, exception_regexpurl_list_ref, exception_regexpurl_list, lastcategory);
-}
-
-bool FOptionContainer::isIPHostname(String url)
-{
-    RegResult Rre;
-    if (!isiphost.match(url.toCharArray(),Rre)) {
-        return true;
-    }
-    return false;
-}
 
 int FOptionContainer::findoptionI(const char *option)
 {

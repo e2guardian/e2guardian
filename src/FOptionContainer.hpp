@@ -82,7 +82,7 @@ public:
     std::string magic;
     std::string imagic;
     std::string cookie_magic;
-    std::string mitm_magic;
+    //std::string mitm_magic;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -96,13 +96,13 @@ public:
 
     unsigned int banned_phrase_list;
     //unsigned int exception_site_list;
-    unsigned int exception_url_list;
+    //unsigned int exception_url_list;
     unsigned int banned_extension_list;
     unsigned int banned_mimetype_list;
-    unsigned int banned_site_list;
-    unsigned int banned_url_list;
-    unsigned int grey_site_list;
-    unsigned int grey_url_list;
+    //unsigned int banned_site_list;
+    //unsigned int banned_url_list;
+    //unsigned int grey_site_list;
+    //unsigned int grey_url_list;
     unsigned int banned_regexpurl_list;
     unsigned int exception_regexpurl_list;
     unsigned int banned_regexpheader_list;
@@ -127,18 +127,18 @@ public:
     unsigned int auth_exception_url_list;
 #endif
     unsigned int addheader_regexp_list;
-    unsigned int banned_search_list;
+    //unsigned int banned_search_list;
     unsigned int search_regexp_list;
-    unsigned int local_banned_search_list;
-    unsigned int banned_search_overide_list;
-    unsigned int local_exception_site_list;
-    unsigned int local_exception_url_list;
+    //unsigned int local_banned_search_list;
+    //unsigned int banned_search_overide_list;
+    //unsigned int local_exception_site_list;
+    //unsigned int local_exception_url_list;
     unsigned int local_banned_site_list;
     unsigned int local_banned_ssl_site_list;
-    unsigned int local_grey_ssl_site_list;
-    unsigned int local_banned_url_list;
-    unsigned int local_grey_site_list;
-    unsigned int local_grey_url_list;
+    //unsigned int local_grey_ssl_site_list;
+    //unsigned int local_banned_url_list;
+    //unsigned int local_grey_site_list;
+    //unsigned int local_grey_url_list;
     bool use_only_local_allow_lists;
     unsigned int banned_ssl_site_list;
     unsigned int grey_ssl_site_list;
@@ -180,8 +180,8 @@ public:
     std::deque <String> addheader_regexp_list_rep;
 
     // precompiled reg exps for speed
-    RegExp pics1;
-    RegExp pics2;
+    //RegExp pics1;
+    //RegExp pics2;
     RegExp isiphost;
 
     // access denied address & domain - if they override the defaults
@@ -201,7 +201,7 @@ public:
 
     FOptionContainer()
             : block_downloads(false), searchterm_flag(false), banned_page(NULL), ssl_mitm(false),
-              only_mitm_ssl_grey(false), no_check_cert_site_flag(false), ssl_check_cert(false), mitm_check_cert(true),
+              only_mitm_ssl_grey(false), ssl_check_cert(false), mitm_check_cert(true),
               referer_exception_site_flag(false), referer_exception_url_flag(false), embeded_referer_site_flag(false),
               embeded_referer_url_flag(false),
 #ifdef PRT_DNSAUTH
@@ -210,9 +210,7 @@ public:
     ,
 #endif
               addheader_regexp_flag(false), banned_search_flag(false), search_regexp_flag(false),
-              local_banned_search_flag(false), banned_search_overide_flag(false), local_exception_site_flag(false),
-              local_exception_url_flag(false), local_banned_site_flag(false), local_banned_url_flag(false),
-              local_grey_site_flag(false), local_grey_url_flag(false), enable_regex_grey(false),
+              enable_regex_grey(false),
               enable_local_list(false), enable_ssl_legacy_logic(false), use_only_local_allow_lists(false),
               //banned_phrase_flag(false), exception_site_flag(false), exception_url_flag(false),
               banned_phrase_flag(false),  exception_url_flag(false),
@@ -230,9 +228,9 @@ public:
     void resetJustListData();
 
     bool isOurWebserver(String url);
-    char *inAddheaderList(String &words, unsigned int list,String &lastcategory);
+    //char *inAddheaderList(String &words, unsigned int list,String &lastcategory);
     char *inBannedSearchList(String words,String &lastcategory);
-    char *inSearchList(String &words, unsigned int list,String &lastcategory);
+    //char *inSearchList(String &words, unsigned int list,String &lastcategory);
     char *inLocalBannedSearchList(String words,String &lastcategory);
     bool inBannedSearchOverideList(String words);
     char *inLocalBannedSiteList(String url, bool doblanket , bool ip , bool ssl ,String &lastcategory);
@@ -280,7 +278,7 @@ public:
     char *inURLListS(String &url, String name,  bool ip, bool ssl, String &lastcategory);
     bool inSearchListB(String &terms, String name, String &lastcategory);
     char *inSearchListS(String &terms, String name, String &lastcategory);
-    bool inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
+    //bool inRegExpURLListB(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 
     StoryBoard StoryB;
 
@@ -327,19 +325,19 @@ public:
     //	bool addheader_regexp_flag;  // moved to public as used by HTTPHeader.cpp
     bool banned_search_flag;
     //bool search_regexp_flag;  // moved to public as used by HTTPHeader.cpp
-    bool local_banned_search_flag;
-    bool banned_search_overide_flag;
-    bool local_exception_site_flag;
-    bool local_exception_url_flag;
-    bool local_banned_site_flag;
-    bool local_banned_url_flag;
-    bool local_grey_site_flag;
-    bool local_grey_url_flag;
-    bool local_grey_ssl_site_flag;
-    bool local_banned_ssl_site_flag;
-    bool grey_ssl_site_flag;
-    bool banned_ssl_site_flag;
-    bool no_check_cert_site_flag;
+    //bool local_banned_search_flag;
+    //bool banned_search_overide_flag;
+    //bool local_exception_site_flag;
+    //bool local_exception_url_flag;
+    //bool local_banned_site_flag;
+    //bool local_banned_url_flag;
+    //bool local_grey_site_flag;
+    //bool local_grey_url_flag;
+    //bool local_grey_ssl_site_flag;
+    //bool local_banned_ssl_site_flag;
+    //bool grey_ssl_site_flag;
+    //bool banned_ssl_site_flag;
+    //bool no_check_cert_site_flag;
 
     // search term blocking
     //bool searchengine_regexp_flag;
@@ -350,10 +348,10 @@ public:
 
     bool precompileregexps();
     // Not sure if this next line is needed - PIP
-    bool readbplfil(const char *banned, const char *exception, const char *weighted);
+    //bool readbplfil(const char *banned, const char *exception, const char *weighted);
     bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, bool cache, const char *listname);
-    bool readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
-        std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
+    //bool readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
+        //std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
     bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
         std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
     bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,

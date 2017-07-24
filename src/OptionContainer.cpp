@@ -641,6 +641,8 @@ bool OptionContainer::read(std::string& filename, int type)
 
         filter_groups = findoptionI("filtergroups");
 
+        storyboard_location = findoptionS("preauthstoryboard");
+
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
             //loadRooms(true);
         }
@@ -748,6 +750,10 @@ bool OptionContainer::read(std::string& filename, int type)
         exception_ip_list_location = findoptionS("exceptioniplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
+        iplist_dq = findoptionM("iplist");
+        sitelist_dq = findoptionM("sitelist");
+        ipsitelist_dq = findoptionM("ipsitelist");
+        urllist_dq = findoptionM("urllist");
 
         if (filter_groups_list_location.length() == 0) {
             use_filter_groups_list = false;
@@ -782,18 +788,8 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
 
-//post read filtergroup config checks - only for SLLMITM for now
 
 #ifdef _SSLMITM
-        //bool ssl_mitm = false;
-        //bool mitm_check_cert = false;
-        //for (i = 0; i < numfg; i++) {
-            //if (fg[i].ssl_mitm)
-                //ssl_mitm = true;
-            //if (fg[i].mitm_check_cert)
-                //mitm_check_cert = true;
-        //}
-
         if (enable_ssl) {
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
@@ -949,6 +945,7 @@ bool OptionContainer::inTotalBlockList(String &url)
     return false;
 }
 
+#ifdef NOTDEF
 bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort)
 {
     bool result = lc->readItemList(filename, false, 0);
@@ -965,6 +962,7 @@ bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, co
         lc->doSort(false);
     return true;
 }
+#endif
 
 
 long int OptionContainer::findoptionI(const char *option)

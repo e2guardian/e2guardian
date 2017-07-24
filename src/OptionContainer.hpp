@@ -160,6 +160,13 @@ class OptionContainer
     std::string mailer;
 #endif
 
+    std::string storyboard_location;
+
+    std::deque<String> iplist_dq;
+    std::deque<String> sitelist_dq;
+    std::deque<String> ipsitelist_dq;
+    std::deque<String> urllist_dq;
+
     std::string daemon_user;
     std::string daemon_group;
     off_t max_content_filter_size;
@@ -192,7 +199,6 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_end;
 
     ListManager lm;
-   // FOptionContainer **fg;
     int numfg;
 
     // access denied domain (when using the CGI)
@@ -215,7 +221,7 @@ class OptionContainer
   //  bool inBannedIPList(const std::string *ip, std::string *&host);
     //bool readFilterGroupConf();
     // public so fc_controlit can reload filter group config files
-    bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
+//    bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
     char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
@@ -232,7 +238,7 @@ class OptionContainer
     //LOptionContainer* current_LOC;
     std::shared_ptr<LOptionContainer> current_LOC;
     std::string conffilename;
-    std::string html_template_location;
+ //   std::string html_template_location;
     std::string group_names_list_location;
 
     private:
@@ -242,11 +248,11 @@ class OptionContainer
 
     bool loadDMPlugins();
 
-    bool precompileregexps();
+  //  bool precompileregexps();
     long int findoptionI(const char *option);
     std::string findoptionS(const char *option);
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
-    bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
+   // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
 
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);

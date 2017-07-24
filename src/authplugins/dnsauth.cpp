@@ -307,15 +307,18 @@ bool dnsauthinstance::inAuthByPassLists(HTTPHeader &h)
     if (url.contains("/")) {
         url = url.before("/");
     }
-    bool is_ip = (*foc).isIPHostname(url);
-    bool is_ssl = h.requestType() == "CONNECT";
 
-    if ((*foc).inAuthExceptionSiteList(urld, true, is_ip, is_ssl)) {
-        //						exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_site_list]).lastcategory.toCharArray();
-        return true;
-    } else if ((*foc).inAuthExceptionURLList(urld, true, is_ip, is_ssl)) {
-        //					exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_url_list]).lastcategory.toCharArray();
-        return true;
-    }
+    // Find other way to do this using Storyboarding
+
+   // bool is_ip = (*foc).isIPHostname(url);
+//    bool is_ssl = h.requestType() == "CONNECT";
+
+ //   if ((*foc).inAuthExceptionSiteList(urld, true, is_ip, is_ssl)) {
+  //      //						exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_site_list]).lastcategory.toCharArray();
+   //     return true;
+    //} else if ((*foc).inAuthExceptionURLList(urld, true, is_ip, is_ssl)) {
+     //   //					exceptioncat = (*o.lm.l[(*o.fg[filtergroup]).exception_url_list]).lastcategory.toCharArray();
+      //  return true;
+    //}
     return false;
 }

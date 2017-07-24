@@ -536,6 +536,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #ifdef HAVE_PCRE
     // if weighted phrases are enabled, and we have been passed a URL and domain, and embedded URL checking is enabled...
     // then check for embedded URLs!
+#ifdef LEAVE_OUT_FOR_NOW
+    // TODO - THIS SECTION DISABLED IN V5 - REVIISIT LATER IF NEEDED
     if (url != NULL && foc->embedded_url_weight > 0) {
         std::map<int, listent>::iterator ourcat;
         bool catinited = false;
@@ -668,6 +670,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #endif
         }
     }
+#endif // END OF LEAVE_OUT_FOR_NOW
 #endif
 
     std::string bannedphrase;
