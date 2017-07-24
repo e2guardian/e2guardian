@@ -124,8 +124,8 @@ class ConnectionHandler
     // strip the URL down to just the IP/hostname, then do an isIPHostname on the result
     bool isIPHostnameStrip(String url);
 
-    RegExp ch_isiphost;
-    RegResult Rch_isiphost;
+  //  RegExp ch_isiphost;
+  //  RegResult Rch_isiphost;
 
     // show the relevant banned page depending upon the report level settings, request type, etc.
     bool denyAccess(Socket *peerconn, Socket *proxysock, HTTPHeader *header, HTTPHeader *docheader,

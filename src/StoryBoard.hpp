@@ -17,6 +17,7 @@
 #include "RegExp.hpp"
 #include "SBFunction.hpp"
 #include "ListMeta.hpp"
+#include "UrlRec.hpp"
 
 // #include "NaughtyFilter.hpp"
 
@@ -54,7 +55,7 @@ class StoryBoard
     bool runFunctEntry2(NaughtyFilter &cm);
     bool setEntry1(String fname);
     bool setEntry2(String fname);
-
+    std::deque<url_rec> deep_urls(String & url, NaughtyFilter &cm);
 };
 
 //#endif

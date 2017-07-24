@@ -64,7 +64,7 @@ thread_local int dbgPeerPort = 0;
 
 ConnectionHandler::ConnectionHandler()
     : clienthost(NULL) {
-     ch_isiphost.comp(",*[a-z|A-Z].*");
+     //ch_isiphost.comp(",*[a-z|A-Z].*");
 
     // initialise SBauth structure
     SBauth.filter_group = 0;
@@ -168,15 +168,15 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
 }
 
 // strip the URL down to just the IP/hostname, then do an isIPHostname on the result
-bool ConnectionHandler::isIPHostnameStrip(String url)
-{
-    url = url.getHostname();
-    if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
-        return false;
-    else
-        return true;
-//    return ldl->fg[0]->isIPHostname(url);
-}
+//bool ConnectionHandler::isIPHostnameStrip(String url)
+//{
+    //url = url.getHostname();
+    //if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
+        //return false;
+    //else
+        //return true;
+////    return ldl->fg[0]->isIPHostname(url);
+//}
 
 // perform URL encoding on a string
 std::string ConnectionHandler::miniURLEncode(const char *s)
@@ -502,7 +502,7 @@ stat_rec* &dystat) {
             checkme.urld = header.decode(checkme.url);
             checkme.urldomain = checkme.url.getHostname();
             checkme.urldomain.toLower();
-            checkme.isiphost = isIPHostnameStrip(checkme.urldomain);
+            checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.is_ssl = header.requestType().startsWith("CONNECT");
             checkme.isconnect = checkme.is_ssl;
             checkme.ismitm = ismitm;

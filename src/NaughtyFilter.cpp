@@ -55,14 +55,14 @@ class listent
 NaughtyFilter::NaughtyFilter()
     : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
-//    request_header.setType(__HEADER_REQUEST);
-//    response_header.setType(__HEADER_RESPONSE);
+    ch_isiphost.comp(",*[a-z|A-Z].*");
 }
 NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
         : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
     request_header = &request;
     response_header = &response;
+    ch_isiphost.comp(",*[a-z|A-Z].*");
     reset();
 }
 
@@ -84,6 +84,8 @@ void NaughtyFilter::reset()
     message_no = 0;
     is_text = false;
     filtergroup = 0;
+    deep_urls_checked = false;
+    has_deep_urls = false;
 
     gomitm = false;
     // resets from CH
@@ -986,3 +988,13 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 }
 
 
+// strip the URL down to just the IP/hostname, then do an isIPHostname on the result
+bool NaughtyFilter::isIPHostnameStrip(String url)
+{
+    url = url.getHostname();
+    if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
+        return false;
+    else
+        return true;
+//    return ldl->fg[0]->isIPHostname(url);
+}

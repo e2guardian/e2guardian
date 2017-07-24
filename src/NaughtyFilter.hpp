@@ -13,11 +13,11 @@
 //#include "DataBuffer.hpp"
 //#include "HTTPHeader.hpp"
 //#include "FOptionContainer.hpp"
+#include "UrlRec.hpp"
 
 class FOptionContainer;
 
-
-// DECLARATIONS
+// DECLARATIONS        bool isListCheck = false;
 
 class NaughtyFilter
 {
@@ -37,6 +37,7 @@ class NaughtyFilter
     bool isConnect = false;
     bool isIP = false;
 
+
     // return true or false?
     bool isReturn = false;
 
@@ -47,7 +48,15 @@ class NaughtyFilter
     HTTPHeader* request_header;
     HTTPHeader* response_header;
 
+    bool isIPHostnameStrip(String url);
+
+    RegExp ch_isiphost;
+    RegResult Rch_isiphost;
+
     bool gomitm = false;
+    bool deep_urls_checked = false;
+    bool has_deep_urls = false;
+    std::deque<url_rec> deep_urls;
 
     // flags from ConnectionHandler
     bool waschecked = false;

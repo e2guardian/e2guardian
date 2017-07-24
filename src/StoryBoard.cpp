@@ -473,10 +473,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
         bool isListCheck = false;
+        bool isMultiListCheck = false;
         bool state_result = false;
         String target;
         String target2;
         String targetful;
+        std::deque<url_rec> targetdq;
 
             switch (i->state) {
                 case SB_STATE_SITEIN:
@@ -569,7 +571,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
                 break;
             case SB_STATE_EMBEDDEDIN:
-                isListCheck = true;
+                if (!cm.deep_urls_checked) {
+                    cm.deep_urls = deep_urls(cm.baseurl, cm);
+                    if (cm.deep_urls.size() > 0)
+                        cm.hasEmbededURL = true;
+                }
+                if (cm.hasEmbededURL) {
+                    isMultiListCheck = true;
+                    targetdq = cm.deep_urls;
+                }
                 // multi targets - maybe we need a target deque???
                 break;
             case SB_STATE_REFERERIN:
@@ -635,8 +645,43 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                    std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << res.match << std::endl;
                    break;
                     }
+            }
+        }
+        if (isMultiListCheck) {
+            for (std::deque<url_rec>::iterator u = targetdq.begin(); u != targetdq.end(); u++) {
 
-
+                for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
+                     j != i->list_id_dq.end(); j++) {
+                    ListMeta::list_result res;
+                    String t;
+                    if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
+                        t = u->urldomain;
+                    } else if (j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP) {
+                        t = u->fullurl;
+                    } else {
+                        t = u->baseurl;
+                    }
+                    if (u->is_siteonly && j->type == LIST_TYPE_URL)
+                        continue;
+                    if ( !( u->site_is_ip) && j->type == LIST_TYPE_IPSITE )
+                        continue;
+                    std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+                    if (LMeta->inList(*j, t, res)) {  //found
+                        state_result = true;
+                        if (i->isif) {
+                            cm.lastcategory = res.category;
+                            cm.whatIsNaughtyCategories = res.category;
+                            cm.message_no = res.mess_no;
+                            cm.log_message_no = res.log_mess_no;
+                            cm.lastmatch = res.match;
+                            cm.result = res.result;
+                        }
+                        std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
+                                  << cm.log_message_no << " match " << res.match << std::endl;
+                        break;
+                    }
+                }
+                if (state_result) break;
             }
         }
         if (!i->isif)  {
@@ -779,4 +824,27 @@ bool StoryBoard::runFunctEntry2(NaughtyFilter &cm) {
         return runFunct(entry2, cm);
     else
         return false;
-};
+} ;
+
+std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter & cm) {
+    std::deque<url_rec> temp;
+    String durl = urld;
+    while (durl.contains(":")) {
+        durl = durl.after(":");
+        while (durl.startsWith(":'") || durl.startsWith("/")) {
+            durl.lop();
+        }
+        if (durl.size() > 0) {
+            url_rec t;
+            t.baseurl = durl;
+            t.fullurl = durl;
+            t.urldomain = durl.getHostname();
+            if (t.baseurl == t.urldomain)
+                t.is_siteonly = true;
+            if (cm.isIPHostnameStrip(t.urldomain))
+                t.site_is_ip = true;
+           temp.push_back(t) ;
+        }
+    }
+    return temp;
+}
