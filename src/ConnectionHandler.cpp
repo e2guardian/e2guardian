@@ -167,17 +167,6 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
     throw std::exception();
 }
 
-// strip the URL down to just the IP/hostname, then do an isIPHostname on the result
-//bool ConnectionHandler::isIPHostnameStrip(String url)
-//{
-    //url = url.getHostname();
-    //if(ch_isiphost.match(url.toCharArray(), Rch_isiphost))
-        //return false;
-    //else
-        //return true;
-////    return ldl->fg[0]->isIPHostname(url);
-//}
-
 // perform URL encoding on a string
 std::string ConnectionHandler::miniURLEncode(const char *s)
 {

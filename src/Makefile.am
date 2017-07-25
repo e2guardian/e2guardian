@@ -120,7 +120,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        e2guardian.cpp \ Plugin.hpp \
 		       LOptionContainer.cpp LOptionContainer.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
-		       Queue.hpp \
+		       Queue.hpp, UrlRec.hpp, \
 		       Auth.cpp Auth.hpp \
 		       $(ICAPSCAN_SOURCE) \
                        $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
