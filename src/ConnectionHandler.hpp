@@ -135,6 +135,8 @@ class ConnectionHandler
 
     bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
     Socket &peerconn, std::string &clientip, bool & persistProxy);
+
+    void check_search_terms(NaughtyFilter &cm);
 #ifdef __SSLMITM
     //ssl certificat checking
     void checkCertificate(String &hostname, Socket *sslSock, NaughtyFilter *checkme);

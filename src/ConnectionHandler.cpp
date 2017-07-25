@@ -796,7 +796,7 @@ stat_rec* &dystat) {
                 }
             }
 
-            //TODO check for redirect
+            //check for redirect
             // URL regexp search and edirect
             if (checkme.urlredirect) {
                 checkme.url = header.redirecturl();
@@ -807,6 +807,10 @@ stat_rec* &dystat) {
                 peerconn.writeString(writestring.toCharArray());
                 break;
             }
+
+            //if  is a search - content check search terms
+            if (checkme.isSearch)
+                check_search_terms(checkme);  // will set isItNaughty if needed
 
 
             // TODO V5 call POST scanning code New NaughtyFilter function????
@@ -914,7 +918,7 @@ stat_rec* &dystat) {
                     std::cerr << dbgPeerPort << "End content check isitNaughty is  " << checkme.isItNaughty << std::endl;
                 }
 
-            //TODO send response header to client
+            //send response header to client
             if (!checkme.isItNaughty) {
                 if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false ))
                     cleanThrow("Unable to send return header to client", peerconn, proxysock);
@@ -928,7 +932,7 @@ stat_rec* &dystat) {
             }
 
 
-            //TODO if not grey tunnel response
+            //if not grey tunnel response
             if (!checkme.isItNaughty && checkme.tunnel_rest) {
                 std::cerr << dbgPeerPort << " -Tunnelling to client" << std::endl;
                 if (!fdt.tunnel(proxysock, peerconn,checkme.isconnect, docheader.contentLength() - checkme.docsize, true))
@@ -945,7 +949,8 @@ stat_rec* &dystat) {
                            filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror))
                     persistPeer = false;
             }
-            //TODO Log
+
+            //Log
             if (!checkme.isourwebserver) { // don't log requests to the web server
                 doLog(clientuser, clientip, checkme);
             }
@@ -2491,4 +2496,26 @@ proxysock.close(); // close connection to proxy
 // End of scan by pass
 
     return false;
+}
+
+void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
+    if (ldl->fg[filtergroup]->searchterm_limit > 0) {
+        String terms;
+        terms = cm.search_terms;
+// search terms are URL parameter type "0"
+        urlparams.append("0=").append(terms).append(";");
+// Add spaces at beginning and end of block before filtering, so
+// that the quick & dirty trick of putting spaces around words
+// (Scunthorpe problem) can still be used, bearing in mind the block
+// of text here is usually very small.
+            terms.insert(terms.begin(), ' ');
+            terms.append(" ");
+            cm.checkme(terms.c_str(), terms.length(), NULL, NULL, ldl->fg[filtergroup],
+                             (ldl->fg[filtergroup]->searchterm_flag ? ldl->fg[filtergroup]->searchterm_list : ldl->fg[filtergroup]->banned_phrase_list),
+                             ldl->fg[filtergroup]->searchterm_limit, true);
+            if (cm.isItNaughty) {
+                cm.blocktype = 2;
+            }
+        }
+    return;
 }
