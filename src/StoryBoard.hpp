@@ -56,6 +56,8 @@ class StoryBoard
     bool setEntry1(String fname);
     bool setEntry2(String fname);
     std::deque<url_rec> deep_urls(String & url, NaughtyFilter &cm);
+    std::deque<url_rec>  ipToHostname(NaughtyFilter &cm);
+    bool has_reverse_hosts(std::deque<url_rec> & urec, NaughtyFilter &cm);
 };
 
 //#endif

@@ -34,16 +34,15 @@ class NaughtyFilter
     bool isSearch = false;
     // is the url to be blocked
     bool isBlocked = false;
-    bool isConnect = false;
-    bool isIP = false;
-
 
     // return true or false?
     bool isReturn = false;
 
+    bool reverse_checked = false;
+
     bool hasEmbededURL = false;
     std::deque<String> embededURLs;
-    std::deque<String> reversedURLs;
+    std::deque<url_rec> reversedURLs;
 
     HTTPHeader* request_header;
     HTTPHeader* response_header;

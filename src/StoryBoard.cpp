@@ -11,6 +11,7 @@
 #endif
 #include <syslog.h>
 #include <algorithm>
+#include <netdb.h> // for gethostby
 #include "ListContainer.hpp"
 #include "StoryBoard.hpp"
 #include "OptionContainer.hpp"
@@ -47,233 +48,8 @@ StoryBoard::~StoryBoard()
 
 //  clear & reset all values
 void StoryBoard::reset() {
-   // for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-   //     o.lm.deRefList(i->list_ref);
-    //    i->comp.clear();
-     //   i->reg_list_ref.clear();
-    //}
 }
 
-#ifdef NOTDEF
-bool StoryBoard::load_type(int type, std::deque<String> &list) {
-    unsigned int method_type =0;
-    switch (type) {
-        case LIST_TYPE_IP :
-            method_type = LIST_METHOD_IP;
-            break;
-        case LIST_TYPE_IPSITE :
-            method_type = LIST_METHOD_IP;
-            break;
-        case LIST_TYPE_SITE :
-            method_type = LIST_METHOD_READF_EWS;
-            break;
-        case LIST_TYPE_URL :
-            method_type = LIST_METHOD_READF_SWS;
-            break;
-        case LIST_TYPE_SEARCH:
-            method_type = LIST_METHOD_READF_SWS;
-            break;
-        case LIST_TYPE_REGEXP_BOOL:
-            method_type = LIST_METHOD_REGEXP_BOOL;
-            break;
-        case LIST_TYPE_REGEXP_REP :
-            method_type = LIST_METHOD_REGEXP_REPL;
-            break;
-        case LIST_TYPE_FILE_EXT:
-            method_type = LIST_METHOD_READF_EWS;
-            break;
-        case LIST_TYPE_MIME:
-            method_type = LIST_METHOD_READF_SWS;
-            break;
-            // PhraseList types to be added
-                }
-    std::cerr << "reading deque" << std::endl;
-    bool errors = false;
-    int dq_size = list.size();
-    for (int i = dq_size -1; i > -1; i--) { // search backward thru list
-        // parse line
-        String t;
-        t = list[i];
-        std::cerr << "reading %s" << t.toCharArray() << std::endl;
-        String nm, fpath;
-        unsigned int m_no, log_m_no=0;
-        t.removeWhiteSpace();
-        t = t + ",";
-        while (t.length() > 0) {
-            if (t.startsWith("name=")) {
-                nm = t.after("=").before(",");
-            } else if (t.startsWith("messageno=")) {
-                m_no = t.after("=").before(",").toInteger();
-            } else if (t.startsWith("logmessageno=")) {
-            log_m_no = t.after("=").before(",").toInteger();
-            } else if (t.startsWith("path=")) {
-                fpath = t.after("=").before(",");
-             }
-            t = t.after(",");
-        }
-        if (list_exists(nm, type)) {
-            syslog(LOG_INFO, "List name %s of this type already defined - ignoring %s", nm.toCharArray(), t.toCharArray() );
-            errors = true;
-            continue;
-        }
-
-        list_info rec;
-        rec.type = type;
-        rec.method_type = method_type;
-        rec.name = nm;
-        rec.mess_no = m_no;
-        if (log_m_no) {
-            rec.log_mess_no = log_m_no;
-        } else {
-            rec.log_mess_no = m_no;
-        }
-        std::cerr << "name = " << nm.toCharArray() << " m_no=" << (int)m_no << "log_m_no="
-                                             << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl ;
-
-        switch (method_type) {
-            case LIST_METHOD_READF_EWS :
-                if (readFile(fpath.toCharArray(),&rec.list_ref,false,nm.toCharArray())) {
-                    list_vec.push_back( rec);
-                } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
-                    errors = true;
-                };
-                break;
-            case LIST_METHOD_READF_SWS :
-                if (readFile(fpath.toCharArray(),&rec.list_ref,true,nm.toCharArray())) {
-                    list_vec.push_back( rec);
-                } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
-                    errors = true;
-                };
-                break;
-            case LIST_METHOD_REGEXP_BOOL :
-                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(),rec.list_ref,rec.comp,rec.source,rec.reg_list_ref)) {
-                    list_vec.push_back( rec);
-                } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
-                    errors = true;
-                };
-            case LIST_METHOD_REGEXP_REPL :
-               if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(),rec.list_ref,rec.replace,rec.comp)) {
-                    list_vec.push_back( rec);
-                } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
-                    errors = true;
-                };
-                break;
-        }
-}
-}
-
-
-bool StoryBoard::list_exists(String name, int type) {
-    if (findList(name, (int)type).name != "" )
-        return true;
-    else
-        return false;
-}
-
-StoryBoard::list_info StoryBoard::findList(String name, int type) {
-    list_info t;
-    for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-        if (i->name == name && i->type == type)
-            t = *i;
-            return t;
-    }
-    return t;
-}
-
-bool StoryBoard::inList(String name, int type, String &tofind, bool ip, bool ssl, list_result &res) {
-    list_info info = findList(name, type);
-    if (info.name == "")
-        return false;
-    char *match;
-    switch (type)   {
-        case LIST_TYPE_SITE :
-            match = inSiteList(tofind,info.list_ref, false, ip, ssl, res.category);
-            if (match == NULL) {
-                return false;
-            } else {
-                res.match = match;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            break;
-        case LIST_TYPE_URL:
-            match = inURLList(tofind,info.list_ref, false, ip, ssl, res.category);
-            if (match == NULL) {
-                return false;
-            } else {
-                res.match = match;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            break;
-        case LIST_TYPE_SEARCH :
-            match = inSearchList(tofind,info.list_ref,  res.category);
-            if (match == NULL) {
-                return false;
-            } else {
-                res.match = match;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            break;
-        case LIST_TYPE_MIME:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
-            if (match == NULL) {
-                return false;
-            } else {
-                res.match = match;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            break;
-        case LIST_TYPE_FILE_EXT:
-            match = o.lm.l[info.list_ref]->findEndsWith(tofind.toCharArray(),res.category);
-            if (match == NULL) {
-                return false;
-            } else {
-                res.match = match;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            break;
-        case LIST_TYPE_REGEXP_BOOL : {
-            int rc = inRegExpURLList(tofind, info.comp, info.reg_list_ref, info.list_ref, res.category);
-            if (rc == -1) {
-                return false;
-            } else {
-                res.category = o.lm.l[info.reg_list_ref[rc]]->category;
-                res.match = info.source[rc];
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-        }
-            break;
-        case LIST_TYPE_REGEXP_REP: {
-            if (info.comp.size() == 0)
-                return false;
-            String modified = tofind;
-            if (regExp(modified, info.comp, info.replace)) {
-                res.result = modified;
-                res.mess_no = info.mess_no;
-                res.log_mess_no = info.log_mess_no;
-                return true;
-            }
-            return false;
-         }
-            break;
-    }
-}
-#endif
 
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
@@ -480,89 +256,29 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         String targetful;
         std::deque<url_rec> targetdq;
 
-            switch (i->state) {
-                case SB_STATE_SITEIN:
-                    isListCheck = true;
-                    target = cm.urldomain;
-                    target2 = target;
-                    break;
-                case SB_STATE_URLIN:
-                    isListCheck = true;
-                    target = cm.baseurl;
-                    target2 = cm.urldomain;
-                    targetful = cm.url;
-                    break;
-                case SB_STATE_FULLURLIN:
-                    isListCheck = true;
-                    target = cm.baseurl;
-                    target2 = cm.urldomain;
-                    targetful = cm.url;
-                    break;
-                case SB_STATE_MIMEIN:
-                    isListCheck = true;
-                    target = cm.response_header->getContentType();
-                    break;
-                case SB_STATE_EXTENSIONIN:
-                    isListCheck = true;
-                    target = cm.response_header->disposition();
-                    break;
-                case SB_STATE_SEARCHIN:
-                    isListCheck = true;
-                    target = cm.request_header->searchwords();
-                    break;
-                case SB_STATE_EMBEDDEDIN:
-                    isListCheck = true;
-                    // multi targets - maybe we need a target deque???
-                    break;
-                case SB_STATE_REFERERIN:
-                    isListCheck = true;
-                    target = cm.request_header->getReferer();   // needs spliting before??
-                    target2 = target.getHostname();
-                    break;
-                case SB_STATE_CONNECT:
-                    state_result = cm.isconnect;
-                    break;
-                case SB_STATE_EXCEPTIONSET:
-                    state_result = cm.isexception;
-                    break;
-                case SB_STATE_GREYSET:
-                    state_result = cm.isGrey;
-                    break;
-                case SB_STATE_BLOCKSET:
-                    state_result = cm.isBlocked;
-                    break;
-                case SB_STATE_MITMSET:
-                    state_result = cm.ismitm;
-                    break;
-                case SB_STATE_DONESET:
-                    state_result = cm.isdone;
-                    break;
-                case SB_STATE_RETURNSET:
-                    state_result = cm.isReturn;
-                    break;
-                case SB_STATE_TRUE:
-                    state_result = true;
-                    break;
-            }
-            std::cerr << "SB target" << target << " target2 " << target2 <<   " state_result " << state_result <<
-                      " list_check " << isListCheck << std::endl;
         switch (i->state) {
             case SB_STATE_SITEIN:
                 isListCheck = true;
                 target = cm.urldomain;
                 target2 = target;
+                if(has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
                 break;
             case SB_STATE_URLIN:
                 isListCheck = true;
                 target = cm.baseurl;
                 target2 = cm.urldomain;
                 targetful = cm.url;
+                if(has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
                 break;
             case SB_STATE_FULLURLIN:
                 isListCheck = true;
                 target = cm.baseurl;
                 target2 = cm.urldomain;
                 targetful = cm.url;
+                if(has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
                 break;
             case SB_STATE_SEARCHIN:
                 if (cm.isSearch) {
@@ -647,7 +363,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
             }
         }
-        if (isMultiListCheck) {
+        if (isMultiListCheck && !state_result) {
             for (std::deque<url_rec>::iterator u = targetdq.begin(); u != targetdq.end(); u++) {
 
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
@@ -847,4 +563,42 @@ std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter & cm) {
         }
     }
     return temp;
+}
+
+// reverse DNS lookup on IP. be aware that this can return multiple results, unlike a standard lookup.
+std::deque<url_rec>  StoryBoard::ipToHostname(NaughtyFilter &cm)
+{
+    std::deque<url_rec> result ;
+    const char * ip = cm.urldomain.c_str();
+    String urlp = cm.urld.after("/");
+    struct in_addr address, **addrptr;
+    if (inet_aton(ip, &address)) { // convert to in_addr
+        struct hostent *answer;
+        answer = gethostbyaddr((char *)&address, sizeof(address), AF_INET);
+        if (answer) { // sucess in reverse dns
+            url_rec t;
+            t.urldomain = answer->h_name;
+            t.baseurl = t.urldomain + "/" + urlp;
+            t.fullurl = "http://" + t.baseurl;
+            result.push_back(t);
+            //for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
+              //  result->push_back(String(inet_ntoa(**addrptr)));
+            //}
+        }
+    }
+    return result;
+}
+
+bool StoryBoard::has_reverse_hosts(std::deque<url_rec> & urec, NaughtyFilter &cm) {
+    if (!( cm.isiphost && o.reverse_lookups))
+        return false;
+    if (!cm.reverse_checked) {
+        cm.reversedURLs = ipToHostname(cm);
+        cm.reverse_checked = true;
+    }
+    if (cm.reversedURLs.size() > 0) {
+        urec = cm.reversedURLs;
+        return true;
+    }
+    return false;
 }
