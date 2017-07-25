@@ -137,6 +137,8 @@ class ConnectionHandler
     Socket &peerconn, std::string &clientip, bool & persistProxy);
 
     void check_search_terms(NaughtyFilter &cm);
+    void check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
+                                          std::deque<CSPlugin *> &responsescanners);
 #ifdef __SSLMITM
     //ssl certificat checking
     void checkCertificate(String &hostname, Socket *sslSock, NaughtyFilter *checkme);

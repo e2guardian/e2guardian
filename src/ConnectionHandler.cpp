@@ -883,39 +883,11 @@ stat_rec* &dystat) {
                     checkme.tunnel_rest = true;
             }
 
-            //TODO - if grey content check
+            //- if grey content check
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
-            //TODO - break this out to separate function
                 if (checkme.isGrey && !checkme.tunnel_rest) {
-                    if (((docheader.isContentType("text",ldl->fg[filtergroup]) || docheader.isContentType("-",ldl->fg[filtergroup])) && !checkme.isexception) || !responsescanners.empty()) {
-                        checkme.waschecked = true;
-                        if (!responsescanners.empty()) {
-#ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                            String csmessage;
-                            contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &checkme.headersent, &checkme.pausedtoobig,
-                                &checkme.docsize, &checkme, checkme.wasclean, filtergroup, responsescanners, &clientuser, &clientip,
-                                &checkme.wasinfected, &checkme.wasscanned, checkme.isbypass, checkme.urld, checkme.urldomain, &checkme.scanerror, checkme.contentmodified, &csmessage);
-                            if (csmessage.length() > 0) {
-#ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                                checkme.exceptionreason = csmessage.toCharArray();
-                            }
-                        } else {
-#ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                            contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &checkme.headersent, &checkme.pausedtoobig,
-                                &checkme.docsize, &checkme, checkme.wasclean, filtergroup, responsescanners, &clientuser, &clientip,
-                                &checkme.wasinfected, &checkme.wasscanned, checkme.isbypass, checkme.urld, checkme.urldomain, &checkme.scanerror, checkme.contentmodified, NULL);
-                        }
-                    } else {
-                        checkme.tunnel_rest = true;
-                    }
-                    std::cerr << dbgPeerPort << "End content check isitNaughty is  " << checkme.isItNaughty << std::endl;
+                    check_content(checkme, docbody,proxysock, peerconn,responsescanners);
                 }
 
             //send response header to client
@@ -2518,4 +2490,37 @@ void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
             }
         }
     return;
+}
+
+void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
+std::deque<CSPlugin *> &responsescanners)
+{
+    if (((cm.response_header->isContentType("text",ldl->fg[filtergroup]) || cm.response_header->isContentType("-",ldl->fg[filtergroup])) && !cm.isexception) || !responsescanners.empty()) {
+        cm.waschecked = true;
+        if (!responsescanners.empty()) {
+#ifdef DGDEBUG
+            std::cout << dbgPeerPort << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+            String csmessage;
+            contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent, &cm.pausedtoobig,
+                          &cm.docsize, &cm, cm.wasclean, filtergroup, responsescanners, &clientuser, &cm.clientip,
+                          &cm.wasinfected, &cm.wasscanned, cm.isbypass, cm.urld, cm.urldomain, &cm.scanerror, cm.contentmodified, &csmessage);
+            if (csmessage.length() > 0) {
+#ifdef DGDEBUG
+                std::cout << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                cm.exceptionreason = csmessage.toCharArray();
+            }
+        } else {
+#ifdef DGDEBUG
+            std::cout << dbgPeerPort << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+            contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent, &cm.pausedtoobig,
+                          &cm.docsize, &cm, cm.wasclean, filtergroup, responsescanners, &clientuser, &cm.clientip,
+                          &cm.wasinfected, &cm.wasscanned, cm.isbypass, cm.urld, cm.urldomain, &cm.scanerror, cm.contentmodified, NULL);
+        }
+    } else {
+        cm.tunnel_rest = true;
+    }
+    std::cerr << dbgPeerPort << "End content check isitNaughty is  " << cm.isItNaughty << std::endl;
 }
