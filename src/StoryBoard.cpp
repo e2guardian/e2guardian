@@ -123,7 +123,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                 curr_function.end();
                 // push function to list
                 if (overwrite)
-                    funct_vec.at(fnt_id) = curr_function;
+                    funct_vec.at(--fnt_id) = curr_function;
                 else
                     funct_vec.push_back(curr_function);
             }
@@ -150,7 +150,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                 curr_function.end();
                 // push function to list
                 if (overwrite)
-                    funct_vec.at(fnt_id) = curr_function;
+                    funct_vec.at(--fnt_id) = curr_function;
                 else
                     funct_vec.push_back(curr_function);
                 in_function = false;
@@ -165,7 +165,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         curr_function.end();
         // push function to list
         if (overwrite)
-            funct_vec.at(fnt_id) = curr_function;
+            funct_vec.at(--fnt_id) = curr_function;
         else
             funct_vec.push_back(curr_function);
     }
