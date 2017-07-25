@@ -72,6 +72,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     String params;
     String action;
     SBFunction curr_function;
+    int fnt_id = 0;
+    bool overwrite = false;
     bool in_function = false;
     size_t len = 0;
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
@@ -120,18 +122,37 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
             if (in_function) {    // already in another function definition & so assume end of previous function
                 curr_function.end();
                 // push function to list
-                funct_vec.push_back(curr_function);
+                if (overwrite)
+                    funct_vec.at(fnt_id) = curr_function;
+                else
+                    funct_vec.push_back(curr_function);
             }
             in_function = true;
             String temp  = filename;
-            curr_function.start(params, ++fnt_cnt, line_no, temp);
+            int oldf = 0;
+            if ((oldf = getFunctID(temp)) > 0) {
+                if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
+                    std::cerr << "SB: error - reserved word used a function name - " << temp.c_str() << std::endl;
+                    return false;
+                } else {
+                    fnt_id = oldf;
+                    overwrite = true;
+                }
+            } else {
+                fnt_id = ++fnt_cnt;
+                overwrite = false;
+            }
+            curr_function.start(params, fnt_id, line_no, temp);
             continue;
         }
         if (command == "end") {
             if (in_function) {
                 curr_function.end();
                 // push function to list
-                funct_vec.push_back(curr_function);
+                if (overwrite)
+                    funct_vec.at(fnt_id) = curr_function;
+                else
+                    funct_vec.push_back(curr_function);
                 in_function = false;
             }    // otherwise ignore
             continue;
@@ -143,7 +164,10 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     if(in_function) {  // at eof so now end
         curr_function.end();
         // push function to list
-        funct_vec.push_back(curr_function);
+        if (overwrite)
+            funct_vec.at(fnt_id) = curr_function;
+        else
+            funct_vec.push_back(curr_function);
     }
     std::cerr << "SB read file finished function vect size is "  << funct_vec.size() << "is_top " << is_top << std::endl;
 
