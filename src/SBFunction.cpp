@@ -36,6 +36,23 @@ extern OptionContainer o;
 // Constructor - set default values
 SBFunction::SBFunction()
 {
+#ifdef NOT_DEF
+    bi_funct_map = {
+            "setexception",
+            "setgrey",
+            "setblock",
+            "setmodurl",
+            "setdone",
+            "true",
+            "false",
+            "setgomitm",
+            "setlogcategory",
+            "setaddheader",
+            "setredirect",
+            "setnocheckcert",
+            "setsearchterm"
+    };
+#endif
 }
 
 // delete the memory block when the class is destryed
@@ -134,6 +151,19 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         rec.log_mess_no = temp2.toInteger();
         std::cerr << "CLine logmno is " << temp2 << std::endl;
     }
+    if ( temp.length() ) {
+        if (temp.contains(",")) {
+            temp2 = temp.before(",");
+            temp = temp.after(",");
+        } else {
+            temp2 = temp;
+            temp = "";
+        }
+        temp2.removeWhiteSpace();
+        if (temp2 == "optional")
+            rec.optional = true;
+        std::cerr << "CLine optional is true" << std::endl;
+    }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 
     rec.return_after_action = false;
@@ -167,8 +197,11 @@ unsigned int SBFunction::getStateID(String & state) {
 
 unsigned int SBFunction::getBIFunctID(String &action)  {
     unsigned int i = 0;
+//    std::cerr << "getBIFuctID looking for " << action << " in map_size " << bi_funct_map.size() << std::endl;
     while (i < SB_FUNC_MAP_SIZE) {
-        if ( action == bi_funct_map[i]) {
+  //      std::cerr << "getBIFuctID checking index " << i << " " << bi_funct_map.at(i) << std::endl;
+        if ( action == bi_funct_map.at(i)) {
+    //        std::cerr << "getBIFuctID l;ooking for " << action << std::endl;
             return ++i + SB_BI_FUNC_BASE;
         }
         ++i;
@@ -176,6 +209,21 @@ unsigned int SBFunction::getBIFunctID(String &action)  {
     return 0;
 }
 
+String SBFunction::getState(unsigned int id) {
+    if (--id < SB_STATE_MAP_SIZE)
+        return state_map[id];
+    return "";
+};
 
+String SBFunction::getBIFunct(unsigned int &id) {
+    if (id > 5000) {
+        unsigned int i = id - 5001;
+        if (i < SB_FUNC_MAP_SIZE)
+            return bi_funct_map[i];
+    }
+    return "";
+};
 
-
+String SBFunction::getName() {
+    return name;
+}

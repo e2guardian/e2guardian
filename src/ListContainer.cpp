@@ -67,7 +67,7 @@ void ListContainer::reset()
     if (refcount > 0) {
         --refcount;
 #ifdef DGDEBUG
-        std::cout << "de-reffing " << sourcefile << " due to manual list reset, refcount: " << refcount << std::endl;
+//        std::cout << "de-reffing " << sourcefile << " due to manual list reset, refcount: " << refcount << std::endl;
 #endif
         for (size_t i = 0; i < morelists.size(); ++i)
             o.lm.deRefList(morelists[i]);

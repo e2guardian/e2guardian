@@ -51,9 +51,6 @@ void StoryBoard::reset() {
 }
 
 
-// read in the given file, write the list's ID into the given identifier,
-// sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
-// listname is used in error messages.
 bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
@@ -128,7 +125,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                     funct_vec.push_back(curr_function);
             }
             in_function = true;
-            String temp  = filename;
+            String temp  = params;
             int oldf = 0;
             if ((oldf = getFunctID(temp)) > 0) {
                 if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
@@ -142,7 +139,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                 fnt_id = ++fnt_cnt;
                 overwrite = false;
             }
-            curr_function.start(params, fnt_id, line_no, temp);
+            curr_function.start(params, fnt_id, line_no, filename);
             continue;
         }
         if (command == "end") {
@@ -250,8 +247,10 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
 unsigned int StoryBoard::getFunctID( String & fname) {
     unsigned int i = 0;
     // check built in functions first
-    i = funct_vec[0].getBIFunctID(fname);
-    if (i > 0)  return i;
+    if(!funct_vec.empty()) {
+        i = funct_vec[0].getBIFunctID(fname);
+        if (i > 0) return i;
+    }
     // check StoryBoard defined functions
     for (std::vector<SBFunction>::iterator j = funct_vec.begin(); j != funct_vec.end(); j++) {
         if (j->name == fname)
@@ -267,64 +266,65 @@ bool StoryBoard::runFunct(String &fname, NaughtyFilter &cm) {
 
 bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     --fID;
-    std::cerr << "fID " << fID << " funct_vec size " << funct_vec.size() <<   std::endl;
-    SBFunction* F = &(funct_vec[fID]);
-    bool action_return = false;
+SBFunction* F = &(funct_vec[fID]);
+bool action_return = false;
 
-    for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
-        bool isListCheck = false;
-        bool isMultiListCheck = false;
-        bool state_result = false;
-        String target;
-        String target2;
-        String targetful;
-        std::deque<url_rec> targetdq;
+    std::cerr << "fID " << fID << " Function " << F->getName() << " funct_vec size " << funct_vec.size() <<   std::endl;
 
-        switch (i->state) {
-            case SB_STATE_SITEIN:
+for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
+    bool isListCheck = false;
+    bool isMultiListCheck = false;
+    bool state_result = false;
+    String target;
+    String target2;
+    String targetful;
+    std::deque<url_rec> targetdq;
+
+    switch (i->state) {
+        case SB_STATE_SITEIN:
+            isListCheck = true;
+            target = cm.urldomain;
+            target2 = target;
+            if(has_reverse_hosts(targetdq, cm))
+                isMultiListCheck = true;
+            break;
+        case SB_STATE_URLIN:
+            isListCheck = true;
+            target = cm.baseurl;
+            target2 = cm.urldomain;
+            targetful = cm.url;
+            if(has_reverse_hosts(targetdq, cm))
+                isMultiListCheck = true;
+            break;
+        case SB_STATE_FULLURLIN:
+            isListCheck = true;
+            target = cm.baseurl;
+            target2 = cm.urldomain;
+            targetful = cm.url;
+            if(has_reverse_hosts(targetdq, cm))
+                isMultiListCheck = true;
+            break;
+        case SB_STATE_SEARCHIN:
+            if (cm.isSearch) {
                 isListCheck = true;
-                target = cm.urldomain;
-                target2 = target;
-                if(has_reverse_hosts(targetdq, cm))
-                    isMultiListCheck = true;
-                break;
-            case SB_STATE_URLIN:
-                isListCheck = true;
-                target = cm.baseurl;
-                target2 = cm.urldomain;
-                targetful = cm.url;
-                if(has_reverse_hosts(targetdq, cm))
-                    isMultiListCheck = true;
-                break;
-            case SB_STATE_FULLURLIN:
-                isListCheck = true;
-                target = cm.baseurl;
-                target2 = cm.urldomain;
-                targetful = cm.url;
-                if(has_reverse_hosts(targetdq, cm))
-                    isMultiListCheck = true;
-                break;
-            case SB_STATE_SEARCHIN:
-                if (cm.isSearch) {
-                    isListCheck = true;
-                    target = cm.search_words;
-                    }
-                break;
-            case SB_STATE_EMBEDDEDIN:
-                if (!cm.deep_urls_checked) {
-                    cm.deep_urls = deep_urls(cm.baseurl, cm);
-                    if (cm.deep_urls.size() > 0)
-                        cm.hasEmbededURL = true;
+                target = cm.search_words;
                 }
-                if (cm.hasEmbededURL) {
-                    isMultiListCheck = true;
-                    targetdq = cm.deep_urls;
-                }
-                // multi targets - maybe we need a target deque???
-                break;
-            case SB_STATE_REFERERIN:
-                isListCheck = true;
-                target = cm.request_header->getReferer();   // needs spliting before??
+            break;
+        case SB_STATE_EMBEDDEDIN:
+            if (!cm.deep_urls_checked) {
+                cm.deep_urls = deep_urls(cm.baseurl, cm);
+                if (cm.deep_urls.size() > 0)
+                    cm.hasEmbededURL = true;
+            }
+            if (cm.hasEmbededURL) {
+                isMultiListCheck = true;
+                targetdq = cm.deep_urls;
+                target = "mutli";
+            }
+            break;
+        case SB_STATE_REFERERIN:
+            isListCheck = true;
+            target = cm.request_header->getReferer();   // needs spliting before??
                 target2 = target.getHostname();
                 break;
             case SB_STATE_CLIENTIN:
@@ -357,8 +357,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 state_result = true;
                 break;
         }
-        std::cerr << "SB target" << target << " target2 " << target2 <<   " state_result " << state_result <<
-                                                                                                           " list_check " << isListCheck << std::endl;
+    std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2 <<   " state_result " << state_result <<
+              " list_check " << isListCheck << " targetfull " << targetful << " isSearch " << cm.isSearch << std::endl;
 
         if (isListCheck) {
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
@@ -405,7 +405,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         continue;
                     if ( !( u->site_is_ip) && j->type == LIST_TYPE_IPSITE )
                         continue;
-                    std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+                    std::cerr << "checking " << j->name << " type " << j->type << "Target " << t << std::endl;
                     if (LMeta->inList(*j, t, res)) {  //found
                         state_result = true;
                         if (i->isif) {
@@ -427,8 +427,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (!i->isif)  {
             state_result = !state_result;
         }
-        if (!state_result)
+    std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2 <<   " state_result " << state_result <<
+              " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
+        if (!state_result) {
+            action_return = false;
             continue;        // nothing to do so continue to next SB line
+        }
 
         action_return = true;
 
@@ -441,6 +445,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             switch (i->action_id) {
                 case SB_FUNC_SETEXCEPTION:
                     cm.isexception = true;
+                    cm.isGrey = false;
+                    cm.isBlocked = false;
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
@@ -451,9 +457,13 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETGREY:
                     cm.isGrey = true;
+                    cm.isexception = false;
+                    cm.isBlocked = false;
                     break;
                 case SB_FUNC_SETBLOCK:
                     cm.isBlocked = true;
+                    cm.isGrey = false;
+                    cm.isexception = false;
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
                         cm.whatIsNaughtyLog = cm.whatIsNaughty;
@@ -577,8 +587,11 @@ std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter & cm) {
         if (durl.size() > 0) {
             url_rec t;
             t.baseurl = durl;
+            t.baseurl.removePTP();
             t.fullurl = durl;
-            t.urldomain = durl.getHostname();
+            if (durl.startsWith("http:") || durl.startsWith("https:"))
+                durl = durl.after(":");
+            t.urldomain = t.baseurl.getHostname();
             if (t.baseurl == t.urldomain)
                 t.is_siteonly = true;
             if (cm.isIPHostnameStrip(t.urldomain))

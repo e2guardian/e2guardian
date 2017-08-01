@@ -60,22 +60,24 @@ LOptionContainer::LOptionContainer(int load_id)
         LMeta.load_type(LIST_TYPE_URL, o.urllist_dq);
     }
 
-    if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true))
+    if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
+        std::cout << "Storyboard not loaded OK" << std::endl;
         loaded_ok = false;
+    }
 
-    if (!StoryA.setEntry1("pre-authcheck")) {
+    if (loaded_ok && !StoryA.setEntry1("pre-authcheck")) {
         std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
-    if (o.use_filter_groups_list)  {
+    if (loaded_ok && o.use_filter_groups_list)  {
         if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
             std::cout << "Failed to read filtergroupslist" << std::endl;
             loaded_ok = false;
         }
     }
 
-    if(! readFilterGroupConf())  {
+    if(loaded_ok && ! readFilterGroupConf())  {
         loaded_ok = false;
         if (!is_daemonised)
             std::cout << "Error in reading filter group files" << std::endl;
@@ -721,7 +723,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 
     bool rc = (*fg[numfg]).read(filename);
 #ifdef DGDEBUG
-    std::cout << "read filter group: " << numfg << " " << filename << std::endl;
+    std::cout << "read filter group: " << numfg << " " << filename << " return is " << rc << std::endl;
 #endif
 
     numfg++;

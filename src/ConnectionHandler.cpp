@@ -764,17 +764,6 @@ stat_rec* &dystat) {
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
             if (!(isbanneduser || isbannedip || checkme.isbypass || checkme.isexception)) {
-                //bool is_ssl = header.requestType() == "CONNECT";
-                ///
-                /// bool is_ip = isIPHostnameStrip(checkme.urld);
-                // Exception client user match.
-                if (ldl->inExceptionIPList(&clientip, clienthost)) { // admin pc
-                    matchedip = clienthost == NULL;
-                    checkme.isexception = true;
-                    checkme.exceptionreason = o.language_list.getTranslation(600);
-                    // Exception client IP match.
-                } else {
-
 // Main checking is now done in Storyboard function(s)
                  //   String funct = "checkrequest";
                  //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
@@ -782,7 +771,6 @@ stat_rec* &dystat) {
                     std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;
-                }
             }
 
             //check for redirect
@@ -807,7 +795,7 @@ stat_rec* &dystat) {
             // don't run willScanRequest if content scanning is disabled, or on exceptions if contentscanexceptions is off,
             // or on SSL (CONNECT) requests, or on HEAD requests, or if in AV bypass mode
 
-            //TODO now send upstream and get response
+            //now send upstream and get response
             if (!checkme.isItNaughty) {
                 if (!proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Unable to write to proxy", peerconn, proxysock);

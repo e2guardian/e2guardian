@@ -75,7 +75,7 @@ void ListManager::deRefList(size_t i)
     if (l[i] == NULL) return;
     l[i]->refcount--;
 #ifdef DGDEBUG
-    std::cout << "de-referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
+    //std::cout << "de-referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
 #endif
     for (size_t j = 0; j < l[i]->morelists.size(); ++j)
         deRefList(l[i]->morelists[j]);
