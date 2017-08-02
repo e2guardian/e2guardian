@@ -22,6 +22,7 @@
 //#include "DataBuffer.hpp"
 #include "Socket.hpp"
 #include "RegExp.hpp"
+#include "ListMeta.hpp"
 #include "FOptionContainer.hpp"
 
 // DECLARATIONS
@@ -139,7 +140,7 @@ class HTTPHeader
     bool sslsiteRegExp(FOptionContainer* &foc);
     bool urlRedirectRegExp(FOptionContainer* &foc);
     bool DenySSL(FOptionContainer* &foc);
-    bool headerRegExp(FOptionContainer* &foc);
+    bool headerRegExp(ListMeta::list_info &linfo);
     // make a connection persistent - or not
     void makePersistent(bool persist = true);
     // make the request look as if its coming from the origin server
@@ -147,7 +148,6 @@ class HTTPHeader
     // modifies the URL in all relevant header lines after a regexp search and replace
     // setURL Code originally from from Ton Gorter 2004
     void setURL(String &url);
-
     // do URL decoding (%xx) on string
     // decode everything, or just numbers, letters and -
     static String decode(const String &s, bool decodeAll = false);

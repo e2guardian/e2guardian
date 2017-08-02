@@ -9,6 +9,7 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+
 #include <syslog.h>
 #include <algorithm>
 #include "ListContainer.hpp"
@@ -34,13 +35,11 @@ extern OptionContainer o;
 // DEFINES
 
 // Constructor - set default values
-ListMeta::ListMeta()
-{
+ListMeta::ListMeta() {
 }
 
 // delete the memory block when the class is destryed
-ListMeta::~ListMeta()
-{
+ListMeta::~ListMeta() {
     reset();
 }
 
@@ -54,7 +53,7 @@ void ListMeta::reset() {
 }
 
 bool ListMeta::load_type(int type, std::deque<String> &list) {
-    unsigned int method_type =0;
+    unsigned int method_type = 0;
     switch (type) {
         case LIST_TYPE_IP :
             method_type = LIST_METHOD_IP;
@@ -84,17 +83,17 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             method_type = LIST_METHOD_READF_SWS;
             break;
             // PhraseList types to be added
-                }
+    }
     std::cerr << "reading deque" << std::endl;
     bool errors = false;
     int dq_size = list.size();
-    for (int i = dq_size -1; i > -1; i--) { // search backward thru list
+    for (int i = dq_size - 1; i > -1; i--) { // search backward thru list
         // parse line
         String t;
         t = list[i];
         std::cerr << "reading %s" << t.toCharArray() << std::endl;
         String nm, fpath;
-        unsigned int m_no, log_m_no=0;
+        unsigned int m_no, log_m_no = 0;
         t.removeWhiteSpace();
         t = t + ",";
         while (t.length() > 0) {
@@ -103,14 +102,15 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             } else if (t.startsWith("messageno=")) {
                 m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("logmessageno=")) {
-            log_m_no = t.after("=").before(",").toInteger();
+                log_m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("path=")) {
                 fpath = t.after("=").before(",");
-             }
+            }
             t = t.after(",");
         }
         if (list_exists(nm, type)) {
-            syslog(LOG_INFO, "List name %s of this type already defined - ignoring %s", nm.toCharArray(), t.toCharArray() );
+            syslog(LOG_INFO, "List name %s of this type already defined - ignoring %s", nm.toCharArray(),
+                   t.toCharArray());
             errors = true;
             continue;
         }
@@ -125,56 +125,58 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         } else {
             rec.log_mess_no = m_no;
         }
-        std::cerr << "name = " << nm.toCharArray() << " m_no=" << (int)m_no << "log_m_no="
-                                             << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl ;
+        std::cerr << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
+                  << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl;
 
         switch (method_type) {
             case LIST_METHOD_IP:
-                if (readFile(fpath.toCharArray(),&rec.list_ref,false,nm.toCharArray(),true)) {
-                    list_vec.push_back( rec);
+                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
+                    list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
                 break;
             case LIST_METHOD_READF_EWS :
-                if (readFile(fpath.toCharArray(),&rec.list_ref,false,nm.toCharArray())) {
-                    list_vec.push_back( rec);
+                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray())) {
+                    list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
                 break;
             case LIST_METHOD_READF_SWS :
-                if (readFile(fpath.toCharArray(),&rec.list_ref,true,nm.toCharArray())) {
-                    list_vec.push_back( rec);
+                if (readFile(fpath.toCharArray(), &rec.list_ref, true, nm.toCharArray())) {
+                    list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
                 break;
             case LIST_METHOD_REGEXP_BOOL :
-                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(),rec.list_ref,rec.comp,rec.source,rec.reg_list_ref)) {
-                    list_vec.push_back( rec);
+                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.comp, rec.source,
+                                       rec.reg_list_ref)) {
+                    list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
             case LIST_METHOD_REGEXP_REPL :
-               if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(),rec.list_ref,rec.replace,rec.comp)) {
-                    list_vec.push_back( rec);
+                if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.replace,
+                                             rec.comp)) {
+                    list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
                 break;
         }
-}
+    }
 }
 
 
 bool ListMeta::list_exists(String name, int type) {
-    if (findList(name, (int)type).name != "" )
+    if (findList(name, (int) type).name != "")
         return true;
     else
         return false;
@@ -189,7 +191,7 @@ ListMeta::list_info ListMeta::findList(String name, int type) {
             t = *i;
             return t;
         }
-       // std::cerr << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
+        // std::cerr << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
     std::cerr << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
     t.list_ref = 0;
@@ -205,16 +207,48 @@ unsigned int ListMeta::findListId(String name, int type) {
 
 bool ListMeta::inList(String name, int type, String &tofind, list_result &res) {
     list_info info = findList(name, type);
-    return inList(info, tofind,  res);
+    return inList(info, tofind, res);
 }
 
-bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
+bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &res) {
+// this is only used for checking headers
     if (info.name == "") return false;
     int type = info.type;
     char *match;
-    switch (type)   {
+    switch (type) {
+        case LIST_TYPE_REGEXP_BOOL : {
+            int rc = inHeaderRegExp(info, header, res, res.category);
+            if (rc == -1) {
+                return false;
+            } else {
+                res.category = o.lm.l[info.reg_list_ref[rc]]->category;
+                res.match = info.source[rc];
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                return true;
+            }
+        }
+        case LIST_TYPE_REGEXP_REP: {
+            if (info.comp.size() == 0)
+                return false;
+            if (headerRegExpReplace(info, header, res)) {
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                return true;
+            }
+            return false;
+        }
+    }
+    return false;
+}
+
+bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
+    if (info.name == "") return false;
+    int type = info.type;
+    char *match;
+    switch (type) {
         case LIST_TYPE_IP:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -225,7 +259,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_IPSITE:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -236,7 +270,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_SITE :
-            match = inSiteList(tofind,info.list_ref,  res.category);
+            match = inSiteList(tofind, info.list_ref, res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -247,7 +281,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_URL:
-            match = inURLList(tofind,info.list_ref,  res.category);
+            match = inURLList(tofind, info.list_ref, res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -258,7 +292,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_SEARCH :
-            match = inSearchList(tofind,info.list_ref,  res.category);
+            match = inSearchList(tofind, info.list_ref, res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -269,7 +303,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_MIME:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(),res.category);
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -280,7 +314,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
             }
             break;
         case LIST_TYPE_FILE_EXT:
-            match = o.lm.l[info.list_ref]->findEndsWith(tofind.toCharArray(),res.category);
+            match = o.lm.l[info.list_ref]->findEndsWith(tofind.toCharArray(), res.category);
             if (match == NULL) {
                 return false;
             } else {
@@ -314,7 +348,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
                 return true;
             }
             return false;
-         }
+        }
             break;
     }
 }
@@ -322,8 +356,7 @@ bool ListMeta::inList(list_info &info, String &tofind,  list_result &res) {
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw,  const char *listname, bool isip)
-{
+bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
             std::cerr << "Required Listname " << listname << " is not defined" << std::endl;
@@ -331,7 +364,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true,isip);
+    int res = o.lm.newItemList(filename, sortsw, 1, true, isip);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << "Error opening " << listname << std::endl;
@@ -339,7 +372,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
     }
-    (*whichlist) = (unsigned)res;
+    (*whichlist) = (unsigned) res;
     if (!(*o.lm.l[(*whichlist)]).used) {
         if (sortsw)
             (*o.lm.l[(*whichlist)]).doSort(true);
@@ -351,40 +384,39 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 }
 
 
-char *ListMeta::inSiteList(String &urlp, unsigned int list,  String &lastcategory)
-{
+char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory) {
     String url = urlp;
     // Perform blanket matching if desired
     //if (doblanket) {
-        //char *r = testBlanketBlock(list, ip, ssl, lastcategory);
-        //if (r) {
-            //return r;
-        //}
+    //char *r = testBlanketBlock(list, ip, ssl, lastcategory);
+    //if (r) {
+    //return r;
+    //}
     //}
 
-   // url.removeWhiteSpace(); // just in case of weird browser crap
-   // url.toLower();
-   // url.removePTP(); // chop off the ht(f)tp(s)://
-   // if (url.contains("/")) {
-   //     url = url.before("/"); // chop off any path after the domain
-   // }
-   char *i;
-   // bool isipurl = isIPHostname(url);
-   // if (reverse_lookups && isipurl) { // change that ip into hostname
-   //     std::deque<String> *url2s = ipToHostname(url.toCharArray());
-   //     String url2;
-   //     for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-   //         url2 = *j;
-   //         while (url2.contains(".")) {
-   //             i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
-   //             if (i != NULL) {
-   //                 delete url2s;
-   //                 return i; // exact match
+    // url.removeWhiteSpace(); // just in case of weird browser crap
+    // url.toLower();
+    // url.removePTP(); // chop off the ht(f)tp(s)://
+    // if (url.contains("/")) {
+    //     url = url.before("/"); // chop off any path after the domain
+    // }
+    char *i;
+    // bool isipurl = isIPHostname(url);
+    // if (reverse_lookups && isipurl) { // change that ip into hostname
+    //     std::deque<String> *url2s = ipToHostname(url.toCharArray());
+    //     String url2;
+    //     for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
+    //         url2 = *j;
+    //         while (url2.contains(".")) {
+    //             i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
+    //             if (i != NULL) {
+    //                 delete url2s;
+    //                 return i; // exact match
     //            }
     //            url2 = url2.after("."); // check for being in hld
     //        }
     //    }
-     //   delete url2s;
+    //   delete url2s;
     //}
     while (url.contains(".")) {
         i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
@@ -403,8 +435,7 @@ char *ListMeta::inSiteList(String &urlp, unsigned int list,  String &lastcategor
     return NULL; // and our survey said "UUHH UURRGHH"
 }
 
-char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory)
-{
+char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory) {
     char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
     if (i != NULL) {
         return i; // exact match
@@ -414,19 +445,18 @@ char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcateg
 
 
 // look in given URL list for given URL
-char *ListMeta::inURLList(String &urlp, unsigned int list,  String &lc)
-{
+char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
     //if (ssl) { // can't be in url list as SSL is site only
-        //return NULL;
- //   };
+    //return NULL;
+    //   };
     // Perform blanket matching if desired
- //   if (doblanket) {
- //       char *r = testBlanketBlock(list, ip, ssl, lc);
-  //      if (r) {:362
-   //         return r;
+    //   if (doblanket) {
+    //       char *r = testBlanketBlock(list, ip, ssl, lc);
+    //      if (r) {:362
+    //         return r;
     //    }
     //}
-     String url = urlp;
+    String url = urlp;
     unsigned int fl;
     char *i;
     String foundurl;
@@ -451,7 +481,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list,  String &lc)
     std::cout << "inURLList (processed): " << url << std::endl;
 #endif
     while (url.before("/").contains(".")) {
-        i = (*o.lm.l[list]).findStartsWith(url.toCharArray(),lc);
+        i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();
@@ -472,10 +502,9 @@ char *ListMeta::inURLList(String &urlp, unsigned int list,  String &lc)
     return NULL;
 }
 
-bool ListMeta::isIPHostname(String url)
-{
+bool ListMeta::isIPHostname(String url) {
     RegResult Rre;
-    if (!isiphost.match(url.toCharArray(),Rre)) {
+    if (!isiphost.match(url.toCharArray(), Rre)) {
         return true;
     }
     return false;
@@ -483,8 +512,7 @@ bool ListMeta::isIPHostname(String url)
 
 
 // check site & URL lists for blanket matches
-char *ListMeta::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory)
-{
+char *ListMeta::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory) {
     if (not o.lm.l[list]->isNow())
         return NULL;
 #ifdef DGDEBUG
@@ -492,22 +520,21 @@ char *ListMeta::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &l
 #endif
     if (o.lm.l[list]->blanketblock) {
         lastcategory = "-";
-        return (char *)o.language_list.getTranslation(502);
+        return (char *) o.language_list.getTranslation(502);
     } else if (o.lm.l[list]->blanket_ip_block and ip) {
         lastcategory = "IP";
-        return (char *)o.language_list.getTranslation(505);
+        return (char *) o.language_list.getTranslation(505);
     } else if (o.lm.l[list]->blanketsslblock and ssl) {
         lastcategory = "HTTPS";
-        return (char *)o.language_list.getTranslation(506);
+        return (char *) o.language_list.getTranslation(506);
     } else if (o.lm.l[list]->blanketssl_ip_block and ssl and ip) {
         lastcategory = "HTTPS_IP";
-        return (char *)o.language_list.getTranslation(507);
+        return (char *) o.language_list.getTranslation(507);
     }
     return NULL;
 }
 
-bool ListMeta::precompileregexps()
-{
+bool ListMeta::precompileregexps() {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
         if (!is_daemonised) {
             std::cerr << "Error compiling RegExp isiphost." << std::endl;
@@ -521,8 +548,8 @@ bool ListMeta::precompileregexps()
 
 // read regexp url list
 bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
-    std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
+                                  std::deque<RegExp> &list_comp, std::deque<String> &list_source,
+                                  std::deque<unsigned int> &list_ref) {
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
@@ -531,15 +558,14 @@ bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, un
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
     }
-    listref = (unsigned)result;
+    listref = (unsigned) result;
     return compileRegExMatchFile(listref, list_comp, list_source, list_ref);
 }
 
 // NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUDGE
 // compile regexp url list
 bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
-    std::deque<String> &list_source, std::deque<unsigned int> &list_ref)
-{
+                                     std::deque<String> &list_source, std::deque<unsigned int> &list_ref) {
     for (unsigned int i = 0; i < (*o.lm.l[list]).morelists.size(); i++) {
         if (!compileRegExMatchFile((*o.lm.l[list]).morelists[i], list_comp, list_source, list_ref)) {
             return false;
@@ -570,8 +596,7 @@ bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list
 
 // content and URL regular expression replacement files
 bool ListMeta::readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
-    std::deque<String> &list_rep, std::deque<RegExp> &list_comp)
-{
+                                        std::deque<String> &list_rep, std::deque<RegExp> &list_comp) {
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
@@ -580,7 +605,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
     }
-    listid = (unsigned)result;
+    listid = (unsigned) result;
     if (!(*o.lm.l[listid]).used) {
         //(*o.lm.l[listid]).doSort(true);
         (*o.lm.l[listid]).used = true;
@@ -619,8 +644,8 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
 }
 
 // is this URL in the given regexp URL list?
-int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory)
-{
+int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
+                              unsigned int list, String &lastcategory) {
 #ifdef DGDEBUG
     std::cout << "inRegExpURLList: " << url << std::endl;
 #endif
@@ -661,7 +686,7 @@ int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::d
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
             if (o.lm.l[list_ref[i]]->isNow()) {
-                if(j->match(url.toCharArray(),Rre))
+                if (j->match(url.toCharArray(), Rre))
                     return i;
             }
 #ifdef DGDEBUG
@@ -681,8 +706,7 @@ int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::d
 
 // Does a regexp search and replace.
 // urlRegExp Code originally from from Ton Gorter 2004
-bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list)
-{
+bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list) {
     RegExp *re;
     RegResult Rre;
     String replacement;
@@ -699,7 +723,7 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
     unsigned int matchlen;
     unsigned int oldlinelen;
 
-    if ( (line.empty())  || line.length() < 3)
+    if ((line.empty()) || line.length() < 3)
         return false;
 
     // iterate over our list of precompiled regexes
@@ -763,4 +787,57 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
     }
 
     return linemodified;
+
 }
+
+bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String> &header, list_result &res) {
+    // exit immediately if list is empty
+    if (not listi.comp.size())
+        return false;
+    bool result = false;
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+#ifdef DGDEBUG
+        std::cout << "Starting header reg exp replace: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        bool chop = false;
+        if (i->endsWith("\r")) {
+            i->chop();
+            chop = true;
+        }
+        result |= regExp(*i, listi.comp, listi.replace);
+        if (chop)
+            i->append("\r");
+    }
+#ifdef DGDEBUG
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
+        std::cout << "Starting header reg exp replace result: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+    return result;
+}
+
+int ListMeta::inHeaderRegExp(list_info &listi, std::deque<String> &header, list_result &res, String &lastcategory) {
+    // exit immediately if list is empty
+    if (not listi.comp.size())
+        return false;
+    int result = -1;
+    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+#ifdef DGDEBUG
+        std::cout << "Starting header reg exp check " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        bool chop = false;
+        if (i->endsWith("\r")) {
+            i->chop();
+            chop = true;
+        }
+        result = inRegExpURLList(*i, listi.comp, listi.reg_list_ref, listi.list_ref, lastcategory);
+        if (chop)
+            i->append("\r");
+        if (result > -1) {
+            res.category = lastcategory;
+            //res.match =     TODO add the info
+            break;
+        }
+    }
+    return result;
+}
+

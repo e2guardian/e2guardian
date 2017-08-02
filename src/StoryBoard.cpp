@@ -9,6 +9,7 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+
 #include <syslog.h>
 #include <algorithm>
 #include <netdb.h> // for gethostby
@@ -35,14 +36,12 @@ extern OptionContainer o;
 // DEFINES
 
 // Constructor - set default values
-StoryBoard::StoryBoard()
-{
+StoryBoard::StoryBoard() {
     fnt_cnt = 0;
 }
 
 // delete the memory block when the class is destryed
-StoryBoard::~StoryBoard()
-{
+StoryBoard::~StoryBoard() {
     reset();
 }
 
@@ -51,7 +50,7 @@ void StoryBoard::reset() {
 }
 
 
-bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
+bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
             std::cerr << "Storyboard file" << filename << " is not defined" << std::endl;
@@ -125,7 +124,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
                     funct_vec.push_back(curr_function);
             }
             in_function = true;
-            String temp  = params;
+            String temp = params;
             int oldf = 0;
             if ((oldf = getFunctID(temp)) > 0) {
                 if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
@@ -154,11 +153,11 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
             }    // otherwise ignore
             continue;
         }
-         if(! curr_function.addline(command, params, action, line_no))
-             return false;
+        if (!curr_function.addline(command, params, action, line_no))
+            return false;
     }
 
-    if(in_function) {  // at eof so now end
+    if (in_function) {  // at eof so now end
         curr_function.end();
         // push function to list
         if (overwrite)
@@ -166,77 +165,82 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
         else
             funct_vec.push_back(curr_function);
     }
-    std::cerr << "SB read file finished function vect size is "  << funct_vec.size() << "is_top " << is_top << std::endl;
+    std::cerr << "SB read file finished function vect size is " << funct_vec.size() << "is_top " << is_top << std::endl;
 
     if (!is_top) return true;
 
     // only do the 2nd pass once all file(s) have been read
     // in top file now do second pass to record action functions ids in command lines and add list_ids
-    std::cerr << "SB Start 2nd pass checking"  << std::endl;
+    std::cerr << "SB Start 2nd pass checking" << std::endl;
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
-            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << " function " << i->name << " id " << i->fn_id << std::endl;
+            std::cerr << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
+                      << " listname " << j->list_name << " function " << i->name << " id " << i->fn_id << std::endl;
 
-            if(j->state  < SB_STATE_TOPIN)  {   // is an *in condition and requires a list
+            if (j->state < SB_STATE_TOPIN) {   // is an *in condition and requires a list
                 std::deque<int> types;
                 switch (j->state) {
                     case SB_STATE_SITEIN:
-                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_URLIN:
-                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_SEARCHIN:
-                        types= { LIST_TYPE_SEARCH };
+                        types = {LIST_TYPE_SEARCH};
                         break;
                     case SB_STATE_EMBEDDEDIN:
-                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_REFERERIN:
-                        types = { LIST_TYPE_IPSITE,LIST_TYPE_SITE,  LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_FULLURLIN:
-                        types = {  LIST_TYPE_REGEXP_REP };
+                        types = {LIST_TYPE_REGEXP_REP};
                         break;
                     case SB_STATE_HEADERIN:
-                        types = {  LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL };
+                        types = {LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_CLIENTIN:
-                        types = {  LIST_TYPE_IP, LIST_TYPE_SITE };
+                        types = {LIST_TYPE_IP, LIST_TYPE_SITE};
                         break;
                     case SB_STATE_EXTENSIONIN:
-                        types = {  LIST_TYPE_FILE_EXT };
+                        types = {LIST_TYPE_FILE_EXT};
                         break;
                     case SB_STATE_MIMEIN:
-                        types = {  LIST_TYPE_MIME};
+                        types = {LIST_TYPE_MIME};
                         break;
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
-                    std::cerr << "SB  list name "  << j->list_name << " checking type  " << *k <<  std::endl;
+                    std::cerr << "SB  list name " << j->list_name << " checking type  " << *k << std::endl;
                     ListMeta::list_info listi = LMeta->findList(j->list_name, *k);
-                    std::cerr << "list reference " << listi.list_ref   << " '" << listi.name << "' found for " << j->list_name << std::endl;
+                    std::cerr << "list reference " << listi.list_ref << " '" << listi.name << "' found for "
+                              << j->list_name << std::endl;
                     if (listi.name.length()) {
                         j->list_id_dq.push_back(listi);
                         found = true;
                     }
                 }
-                if (! found ) {
+                if (!found) {
                     // warning message
-                    std::cerr << "StoryBoard error: List not defined " << j->list_name << " at line " << j->file_lineno << " of " << i->file_name << std::endl;
+                    std::cerr << "StoryBoard error: List not defined " << j->list_name << " at line " << j->file_lineno
+                              << " of " << i->file_name << std::endl;
                 } else {
                     std::cerr << j->list_name << " matches " << j->list_id_dq.size() << " types" << std::endl;
                 }
 
-             }
-            // check action
-            if ( (j->action_id = getFunctID(j->action_name)) == 0) {
-                // warnign message
-                std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno << " of " << i->file_name << std::endl;
             }
-            std::cerr << "Line " << j->file_lineno <<  " state is " << j->state << " actionid " << j->action_id << " listname " << j->list_name << std::endl;
+            // check action
+            if ((j->action_id = getFunctID(j->action_name)) == 0) {
+                // warnign message
+                std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno
+                          << " of " << i->file_name << std::endl;
+            }
+            std::cerr << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
+                      << " listname " << j->list_name << std::endl;
         }
     }
     // check for required functions
@@ -244,10 +248,10 @@ bool StoryBoard::readFile(const char *filename, ListMeta & LM, bool is_top) {
     return true;
 }
 
-unsigned int StoryBoard::getFunctID( String & fname) {
+unsigned int StoryBoard::getFunctID(String &fname) {
     unsigned int i = 0;
     // check built in functions first
-    if(!funct_vec.empty()) {
+    if (!funct_vec.empty()) {
         i = funct_vec[0].getBIFunctID(fname);
         if (i > 0) return i;
     }
@@ -261,71 +265,75 @@ unsigned int StoryBoard::getFunctID( String & fname) {
 
 
 bool StoryBoard::runFunct(String &fname, NaughtyFilter &cm) {
-    return runFunct(getFunctID(fname),cm);
+    return runFunct(getFunctID(fname), cm);
 }
 
 bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     --fID;
-SBFunction* F = &(funct_vec[fID]);
-bool action_return = false;
+    SBFunction *F = &(funct_vec[fID]);
+    bool action_return = false;
 
-    std::cerr << "fID " << fID << " Function " << F->getName() << " funct_vec size " << funct_vec.size() <<   std::endl;
+    std::cerr << "fID " << fID << " Function " << F->getName() << " funct_vec size " << funct_vec.size() << std::endl;
 
-for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
-    bool isListCheck = false;
-    bool isMultiListCheck = false;
-    bool state_result = false;
-    String target;
-    String target2;
-    String targetful;
-    std::deque<url_rec> targetdq;
+    for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
+        bool isListCheck = false;
+        bool isMultiListCheck = false;
+        bool isHeaderCheck = false;
+        bool state_result = false;
+        String target;
+        String target2;
+        String targetful;
+        std::deque<url_rec> targetdq;
 
-    switch (i->state) {
-        case SB_STATE_SITEIN:
-            isListCheck = true;
-            target = cm.urldomain;
-            target2 = target;
-            if(has_reverse_hosts(targetdq, cm))
-                isMultiListCheck = true;
-            break;
-        case SB_STATE_URLIN:
-            isListCheck = true;
-            target = cm.baseurl;
-            target2 = cm.urldomain;
-            targetful = cm.url;
-            if(has_reverse_hosts(targetdq, cm))
-                isMultiListCheck = true;
-            break;
-        case SB_STATE_FULLURLIN:
-            isListCheck = true;
-            target = cm.baseurl;
-            target2 = cm.urldomain;
-            targetful = cm.url;
-            if(has_reverse_hosts(targetdq, cm))
-                isMultiListCheck = true;
-            break;
-        case SB_STATE_SEARCHIN:
-            if (cm.isSearch) {
+        switch (i->state) {
+            case SB_STATE_SITEIN:
                 isListCheck = true;
-                target = cm.search_words;
+                target = cm.urldomain;
+                target2 = target;
+                if (has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
+                break;
+            case SB_STATE_URLIN:
+                isListCheck = true;
+                target = cm.baseurl;
+                target2 = cm.urldomain;
+                targetful = cm.url;
+                if (has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
+                break;
+            case SB_STATE_FULLURLIN:
+                isListCheck = true;
+                target = cm.baseurl;
+                target2 = cm.urldomain;
+                targetful = cm.url;
+                if (has_reverse_hosts(targetdq, cm))
+                    isMultiListCheck = true;
+                break;
+            case SB_STATE_SEARCHIN:
+                if (cm.isSearch) {
+                    isListCheck = true;
+                    target = cm.search_words;
                 }
-            break;
-        case SB_STATE_EMBEDDEDIN:
-            if (!cm.deep_urls_checked) {
-                cm.deep_urls = deep_urls(cm.baseurl, cm);
-                if (cm.deep_urls.size() > 0)
-                    cm.hasEmbededURL = true;
-            }
-            if (cm.hasEmbededURL) {
-                isMultiListCheck = true;
-                targetdq = cm.deep_urls;
-                target = "mutli";
-            }
-            break;
-        case SB_STATE_REFERERIN:
-            isListCheck = true;
-            target = cm.request_header->getReferer();   // needs spliting before??
+                break;
+            case SB_STATE_EMBEDDEDIN:
+                if (!cm.deep_urls_checked) {
+                    cm.deep_urls = deep_urls(cm.baseurl, cm);
+                    if (cm.deep_urls.size() > 0)
+                        cm.hasEmbededURL = true;
+                }
+                if (cm.hasEmbededURL) {
+                    isMultiListCheck = true;
+                    targetdq = cm.deep_urls;
+                    target = "mutli";
+                }
+                break;
+            case SB_STATE_REFERERIN:
+                isListCheck = true;
+                target = cm.request_header->getReferer();   // needs spliting before??
                 target2 = target.getHostname();
+                break;
+            case SB_STATE_HEADERIN:
+                isHeaderCheck = true;
                 break;
             case SB_STATE_CLIENTIN:
                 isListCheck = true;
@@ -357,34 +365,57 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                 state_result = true;
                 break;
         }
-    std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2 <<   " state_result " << state_result <<
-              " list_check " << isListCheck << " targetfull " << targetful << " isSearch " << cm.isSearch << std::endl;
+        std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2
+                  << " state_result " << state_result <<
+                  " list_check " << isListCheck << " targetfull " << targetful << " isSearch " << cm.isSearch
+                  << std::endl;
 
+        if (isHeaderCheck) {
+            for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
+                ListMeta::list_result res;
+                std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+                if (LMeta->inList(*j, cm.request_header->header, res)) {  //found
+                    state_result = true;
+                    if (i->isif) {
+                        cm.lastcategory = res.category;
+                        cm.whatIsNaughtyCategories = res.category;
+                        cm.message_no = res.mess_no;
+                        cm.log_message_no = res.log_mess_no;
+                        cm.lastmatch = res.match;
+                        cm.result = res.result;
+                    }
+                    std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
+                              << cm.log_message_no << " match " << res.match << std::endl;
+                    break;
+                }
+            }
+        }
         if (isListCheck) {
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
-               ListMeta::list_result res;
+                ListMeta::list_result res;
                 String t;
                 if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
                     t = target2;
-                } else if ( j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP){
+                } else if (j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP) {
                     t = targetful;
                 } else {
                     t = target;
                 }
                 std::cerr << "checking " << j->name << " type " << j->type << std::endl;
-               if ( LMeta->inList(*j,t,res)) {  //found
-                state_result = true;
-                   if (i->isif) {
-                       cm.lastcategory = res.category;
-                       cm.whatIsNaughtyCategories = res.category;
-                       cm.message_no = res.mess_no;
-                       cm.log_message_no = res.log_mess_no;
-                       cm.lastmatch = res.match;
-                       cm.result = res.result;
-                   }
-                   std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << res.match << std::endl;
-                   break;
+                if (LMeta->inList(*j, t, res)) {  //found
+                    state_result = true;
+                    if (i->isif) {
+                        cm.lastcategory = res.category;
+                        cm.whatIsNaughtyCategories = res.category;
+                        cm.message_no = res.mess_no;
+                        cm.log_message_no = res.log_mess_no;
+                        cm.lastmatch = res.match;
+                        cm.result = res.result;
                     }
+                    std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
+                              << cm.log_message_no << " match " << res.match << std::endl;
+                    break;
+                }
             }
         }
         if (isMultiListCheck && !state_result) {
@@ -403,7 +434,7 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                     }
                     if (u->is_siteonly && j->type == LIST_TYPE_URL)
                         continue;
-                    if ( !( u->site_is_ip) && j->type == LIST_TYPE_IPSITE )
+                    if (!(u->site_is_ip) && j->type == LIST_TYPE_IPSITE)
                         continue;
                     std::cerr << "checking " << j->name << " type " << j->type << "Target " << t << std::endl;
                     if (LMeta->inList(*j, t, res)) {  //found
@@ -424,11 +455,12 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                 if (state_result) break;
             }
         }
-        if (!i->isif)  {
+        if (!i->isif) {
             state_result = !state_result;
         }
-    std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2 <<   " state_result " << state_result <<
-              " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
+        std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2
+                  << " state_result " << state_result <<
+                  " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
         if (!state_result) {
             action_return = false;
             continue;        // nothing to do so continue to next SB line
@@ -436,10 +468,11 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
 
         action_return = true;
 
-        if  (i->mess_no > 0)  cm.message_no = i->mess_no;
-        if  (i->log_mess_no > 0)  cm.log_message_no = i->log_mess_no;
+        if (i->mess_no > 0) cm.message_no = i->mess_no;
+        if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
 
-        std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no <<   " log_mess " << cm.log_message_no << " match " << cm.whatIsNaughty << " actionis " << i->action_id << std::endl;
+        std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess " << cm.log_message_no
+                  << " match " << cm.whatIsNaughty << " actionis " << i->action_id << std::endl;
 
         if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
             switch (i->action_id) {
@@ -453,7 +486,7 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                         cm.whatIsNaughtyLog = cm.whatIsNaughty;
                     else
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
-                    cm.exceptioncat  = cm.lastcategory;
+                    cm.exceptioncat = cm.lastcategory;
                     break;
                 case SB_FUNC_SETGREY:
                     cm.isGrey = true;
@@ -483,7 +516,7 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                     cm.urld = cm.request_header->decode(cm.url);
                     cm.urldomain = cm.url.getHostname();
                     cm.urldomain.toLower();
-                std::cerr << "SB URL modified to " << cm.url << std::endl;
+                    std::cerr << "SB URL modified to " << cm.url << std::endl;
                     break;
                 case SB_FUNC_SETLOGCAT:
                     cm.logcategory = true;
@@ -511,6 +544,9 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
                     cm.headeradded = true;
                     cm.request_header->addHeader(cm.result);
                     break;
+                case SB_FUNC_SETMODHEADER:
+                    cm.headermodified = true;
+                    break;
                 case SB_FUNC_SETNOCHECKCERT:
                     cm.nocheckcert = true;
                     break;
@@ -533,11 +569,11 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
             }
         } else {      // is SB defined function
             if (i->action_id > 0) {
-                action_return = runFunct(i->action_id,cm);
+                action_return = runFunct(i->action_id, cm);
             }
 
         }
-        if ( i->return_after_action)
+        if (i->return_after_action)
             break;
         if (i->return_after_action_is_true && action_return)
             break;
@@ -546,7 +582,7 @@ for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->c
     return action_return;
 }
 
-bool StoryBoard::setEntry1( String fname) {
+bool StoryBoard::setEntry1(String fname) {
     entry1 = getFunctID(fname);
     if (entry1 > 0) {
         return true;
@@ -554,7 +590,7 @@ bool StoryBoard::setEntry1( String fname) {
     return false;
 };
 
-bool StoryBoard::setEntry2( String fname) {
+bool StoryBoard::setEntry2(String fname) {
     entry2 = getFunctID(fname);
     if (entry2 > 0) {
         return true;
@@ -563,20 +599,20 @@ bool StoryBoard::setEntry2( String fname) {
 }
 
 bool StoryBoard::runFunctEntry1(NaughtyFilter &cm) {
-    if (entry1 > 0 )
+    if (entry1 > 0)
         return runFunct(entry1, cm);
     else
         return false;
 };
 
 bool StoryBoard::runFunctEntry2(NaughtyFilter &cm) {
-    if (entry2 > 0 )
+    if (entry2 > 0)
         return runFunct(entry2, cm);
     else
         return false;
-} ;
+};
 
-std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter & cm) {
+std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter &cm) {
     std::deque<url_rec> temp;
     String durl = urld;
     while (durl.contains(":")) {
@@ -596,22 +632,21 @@ std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter & cm) {
                 t.is_siteonly = true;
             if (cm.isIPHostnameStrip(t.urldomain))
                 t.site_is_ip = true;
-           temp.push_back(t) ;
+            temp.push_back(t);
         }
     }
     return temp;
 }
 
 // reverse DNS lookup on IP. be aware that this can return multiple results, unlike a standard lookup.
-std::deque<url_rec>  StoryBoard::ipToHostname(NaughtyFilter &cm)
-{
-    std::deque<url_rec> result ;
-    const char * ip = cm.urldomain.c_str();
+std::deque<url_rec> StoryBoard::ipToHostname(NaughtyFilter &cm) {
+    std::deque<url_rec> result;
+    const char *ip = cm.urldomain.c_str();
     String urlp = cm.urld.after("/");
     struct in_addr address, **addrptr;
     if (inet_aton(ip, &address)) { // convert to in_addr
         struct hostent *answer;
-        answer = gethostbyaddr((char *)&address, sizeof(address), AF_INET);
+        answer = gethostbyaddr((char *) &address, sizeof(address), AF_INET);
         if (answer) { // sucess in reverse dns
             url_rec t;
             t.urldomain = answer->h_name;
@@ -619,15 +654,15 @@ std::deque<url_rec>  StoryBoard::ipToHostname(NaughtyFilter &cm)
             t.fullurl = "http://" + t.baseurl;
             result.push_back(t);
             //for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
-              //  result->push_back(String(inet_ntoa(**addrptr)));
+            //  result->push_back(String(inet_ntoa(**addrptr)));
             //}
         }
     }
     return result;
 }
 
-bool StoryBoard::has_reverse_hosts(std::deque<url_rec> & urec, NaughtyFilter &cm) {
-    if (!( cm.isiphost && o.reverse_lookups))
+bool StoryBoard::has_reverse_hosts(std::deque<url_rec> &urec, NaughtyFilter &cm) {
+    if (!(cm.isiphost && o.reverse_lookups))
         return false;
     if (!cm.reverse_checked) {
         cm.reversedURLs = ipToHostname(cm);

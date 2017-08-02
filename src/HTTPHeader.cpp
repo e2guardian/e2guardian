@@ -834,10 +834,10 @@ bool HTTPHeader::DenySSL(FOptionContainer* &foc)
 }
 
 // Perform searches and replacements on header lines
-bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
+bool HTTPHeader::headerRegExp(ListMeta::list_info &listi)
 {
     // exit immediately if list is empty
-    if (not foc->header_regexp_list_comp.size())
+    if (not listi.comp.size())
         return false;
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
@@ -849,7 +849,7 @@ bool HTTPHeader::headerRegExp(FOptionContainer* &foc)
             i->chop();
             chop = true;
         }
-        result |= regExp(*i, foc->header_regexp_list_comp, foc->header_regexp_list_rep);
+        result |= regExp(*i, listi.comp, listi.replace);
         if (chop)
             i->append("\r");
     }
