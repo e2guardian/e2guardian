@@ -662,65 +662,7 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
     return linemodified;
 }
 
-// Perform searches and replacements on URL
-bool HTTPHeader::urlRegExp(FOptionContainer* &foc)
-{
-    // exit immediately if list is empty
-    if (not foc->url_regexp_list_comp.size())
-        return false;
-#ifdef DGDEBUG
-    std::cout << "Starting URL reg exp replace" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    String newUrl(getUrl());
-#ifdef DGDEBUG
-    std::cout << "getUrl returns " << newUrl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    if (regExp(newUrl, foc->url_regexp_list_comp, foc->url_regexp_list_rep)) {
-        setURL(newUrl);
-        return true;
-    }
-    return false;
-}
 
-
-// Perform searches and replacements on SSL site names
-bool HTTPHeader::sslsiteRegExp(FOptionContainer* &foc)
-{
-    // exit immediately if list is empty
-    if ( ! foc->sslsite_regexp_flag)
-        return false;
-    if (not foc->sslsite_regexp_list_comp.size())
-        return false;
-#ifdef DGDEBUG
-    std::cout << "Starting SSL site reg exp replace" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    String newUrl(getUrl());
-#ifdef DGDEBUG
-    std::cout << "getUrl returns " << newUrl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    if (regExp(newUrl, foc->sslsite_regexp_list_comp, foc->sslsite_regexp_list_rep)) {
-        setURL(newUrl);
-        return true;
-    }
-    return false;
-}
-
-// Perform searches and replacements on URL for redirect
-bool HTTPHeader::urlRedirectRegExp(FOptionContainer* &foc)
-{
-    // exit immediately if list is empty
-    if (not foc->url_redirect_regexp_list_comp.size())
-        return false;
-#ifdef DGDEBUG
-    std::cout << "Starting URL reg exp redirect " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    String newUrl(url());
-    if (regExp(newUrl, foc->url_redirect_regexp_list_comp, foc->url_redirect_regexp_list_rep)) {
-        redirect = newUrl;
-        return true;
-    }
-    return false;
-}
 
 String HTTPHeader::redirecturl()
 {
@@ -741,89 +683,7 @@ bool HTTPHeader::addHeader(String &newheader) {
     return false;
 }
 
-// check if addheader regexp url
-bool HTTPHeader::isHeaderAdded(FOptionContainer* &foc)
-{
-    if (addheaderchecked)
-        return isheaderadded;
-    // exit immediately if list is empty
-    if (not foc->addheader_regexp_list_comp.size()) {
-        addheaderchecked = true;
-        isheaderadded = false;
-#ifdef DGDEBUG
-        std::cout << "addheader regexplist empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-#ifdef DGDEBUG
-    std::cout << "Starting addheader check on url" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    String newheader(url());
-    if (regExp(newheader, foc->addheader_regexp_list_comp, foc->addheader_regexp_list_rep)) {
-        isheaderadded = true;
-        addheaderchecked = true;
-        std::string line(newheader + "\r");
-        header.push_back(String(line.c_str()));
-#ifdef DGDEBUG
-        std::cout << "addheader = " << newheader << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return true;
-    }
-    addheaderchecked = true;
-    isheaderadded = false;
-    return false;
-}
 
-// check if search
-bool HTTPHeader::isSearch(FOptionContainer* &foc)
-{
-    if (searchchecked)
-        return issearch;
-    // exit immediately if list is empty
-    if (not foc->search_regexp_list_comp.size()) {
-        searchchecked = true;
-#ifdef DGDEBUG
-        std::cout << "search regexplist empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-#ifdef DGDEBUG
-    std::cout << "Starting search check on url " << url() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    String searchwd(url());
-    if (regExp(searchwd, foc->search_regexp_list_comp, foc->search_regexp_list_rep)) {
-        searchwds = searchwd.sort_search();
-        searchwd.swapChar('+', ' ');
-        searchtms = searchwd;
-        issearch = true;
-        searchchecked = true;
-#ifdef DGDEBUG
-        std::cout << "issearch = " << issearch << "searchwords = " << searchwds << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return true;
-    }
-    searchchecked = true;
-#ifdef DGDEBUG
-    std::cout << "issearch = " << issearch << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    return false;
-}
-
-// return searchwords - in sorted order
-String HTTPHeader::searchwords()
-{
-    if (issearch)
-        return searchwds;
-    return "";
-};
-
-// return searchterms - not sorted
-String HTTPHeader::searchterms()
-{
-    if (issearch)
-        return searchtms;
-    return "";
-};
 
 bool HTTPHeader::DenySSL(FOptionContainer* &foc)
 {
@@ -833,32 +693,6 @@ bool HTTPHeader::DenySSL(FOptionContainer* &foc)
     return true;
 }
 
-// Perform searches and replacements on header lines
-bool HTTPHeader::headerRegExp(ListMeta::list_info &listi)
-{
-    // exit immediately if list is empty
-    if (not listi.comp.size())
-        return false;
-    bool result = false;
-    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-#ifdef DGDEBUG
-        std::cout << "Starting header reg exp replace: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        bool chop = false;
-        if (i->endsWith("\r")) {
-            i->chop();
-            chop = true;
-        }
-        result |= regExp(*i, listi.comp, listi.replace);
-        if (chop)
-            i->append("\r");
-    }
-#ifdef DGDEBUG
-    for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
-        std::cout << "Starting header reg exp replace result: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    return result;
-}
 
 void HTTPHeader::setPostData(const char *data, size_t len)
 {
@@ -1223,16 +1057,6 @@ void HTTPHeader::checkheader(bool allowpersistent)
     }
 }
 
-// A request may be in the form:
-//  GET http://foo.bar:80/ HTTP/1.0 (if :80 is omitted 80 is assumed)
-// or:
-//  GET / HTML/1.0
-//  Host: foo.bar (optional header in HTTP/1.0, but like HTTP/1.1, we require it!)
-//  Port: 80 (not a standard header; do any clients send it?)
-// or:
-//  CONNECT foo.bar:443  HTTP/1.1
-// So we need to handle all 3
-
 String HTTPHeader::getLogUrl(bool withport, bool isssl)
 {
 
@@ -1400,20 +1224,6 @@ void HTTPHeader::chopScanBypass(String url)
     cachedurl = "";
 }
 
-// same for MITM accept
-void HTTPHeader::chopMITMAccept(String url)
-{
-    if (url.contains("GMACCEPT=")) {
-        if (url.contains("?GMACCEPT=")) {
-            String bypass(url.after("?GMACCEPT="));
-            header.front() = header.front().before("?GMACCEPT=") + header.front().after(bypass.toCharArray());
-        } else {
-            String bypass(url.after("&GMACCEPT="));
-            header.front() = header.front().before("&GMACCEPT=") + header.front().after(bypass.toCharArray());
-        }
-    }
-    cachedurl = "";
-}
 
 // I'm not proud of this... --Ernest
 String HTTPHeader::getCookie(const char *cookie)
@@ -1498,115 +1308,6 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     return true;
 }
 
-// is this a MITM acceptance URL?
-bool HTTPHeader::isMITMAcceptURL(String *url, const char *magic, const char *clientip)
-{
-#ifdef DGDEBUG
-    std::cout << "Testing for GMACCEPT..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    if ((*url).length() <= 45) {
-#ifdef DGDEBUG
-        std::cout << "too short: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false; // Too short, can't be an accept URL
-    }
-    if (!(*url).contains("GMACCEPT=")) {
-#ifdef DGDEBUG
-        std::cout << "no tag: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-#ifdef DGDEBUG
-    std::cout << "URL GMACCEPT found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    String url_left((*url).before("GMACCEPT="));
-    url_left.chop(); // remove the ? or &
-    String url_right((*url).after("GMACCEPT="));
-
-    String url_hash(url_right.subString(0, 32));
-    String url_time(url_right.after(url_hash.toCharArray()));
-#ifdef DGDEBUG
-    std::cout << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    String tohash(clientip + url_time + magic);
-    String hashed(tohash.md5());
-
-#ifdef DGDEBUG
-    std::cout << "checking hash: " << clientip << " " << url_left << " " << url_time << " " << magic << " " << hashed << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    if (hashed != url_hash) {
-#ifdef DGDEBUG
-        std::cout << "URL GMACCEPT HASH mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-
-    time_t timen = time(NULL);
-    time_t timeu = url_time.toLong();
-
-    if (timeu < 1) {
-#ifdef DGDEBUG
-        std::cout << "URL GMACCEPT bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return 1; // bad time value
-    }
-    if (timeu < timen) { // expired key
-#ifdef DGDEBUG
-        std::cout << "URL GMACCEPT expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return 1; // denotes expired but there
-    }
-#ifdef DGDEBUG
-    std::cout << "URL GMACCEPT not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    return true;
-}
-
-bool HTTPHeader::isMITMAcceptCookie(String url, const char *magic, const char *clientip)
-{
-    String cookie(getCookie("GMACCEPT"));
-    if (!cookie.length()) {
-#ifdef DGDEBUG
-        std::cout << "No MITM accept cookie" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-    String cookiehash(cookie.subString(0, 32));
-    String cookietime(cookie.after(cookiehash.toCharArray()));
-    String mymagic(magic);
-    mymagic += clientip;
-    mymagic += cookietime;
-    bool matched = false;
-    while (url.contains(".")) {
-        url = "." + url;
-        String hashed(url.md5(mymagic.toCharArray()));
-        if (hashed == cookiehash) {
-            matched = true;
-            break;
-        }
-        url = url.after(".");
-        url = url.after(".");
-    }
-    if (not matched) {
-#ifdef DGDEBUG
-        std::cout << "Cookie GMACCEPT not match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-    time_t timen = time(NULL);
-    time_t timeu = cookietime.toLong();
-    if (timeu < timen) {
-#ifdef DGDEBUG
-        std::cout << "Cookie GMACCEPT expired: " << timeu << " " << timen << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return false;
-    }
-    return true;
-}
 
 // is this a temporary filter bypass URL?
 int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip, bool *isvirusbypass)

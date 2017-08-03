@@ -135,12 +135,8 @@ class HTTPHeader
     // strip content-encoding, and simultaneously set content-length to newlen
     void removeEncoding(int newlen);
     void setContentLength(int newlen);
-    // regexp search and replace
-    bool urlRegExp(FOptionContainer* &foc);
-    bool sslsiteRegExp(FOptionContainer* &foc);
-    bool urlRedirectRegExp(FOptionContainer* &foc);
+
     bool DenySSL(FOptionContainer* &foc);
-    bool headerRegExp(ListMeta::list_info &linfo);
     // make a connection persistent - or not
     void makePersistent(bool persist = true);
     // make the request look as if its coming from the origin server
@@ -158,14 +154,9 @@ class HTTPHeader
     int isBypassURL(String *url, const char *magic, const char *clientip, bool *isvirusbypass);
     // is this a scan bypass URL? (download previously scanned file)
     bool isScanBypassURL(String *url, const char *magic, const char *clientip);
-    bool isMITMAcceptURL(String *url, const char *magic, const char *clientip);
-    // is this a temporary filter bypass cookie?
     bool isBypassCookie(String url, const char *magic, const char *clientip);
-    bool isMITMAcceptCookie(String url, const char *magic, const char *clientip);
-    // chop GBYPASS/GSPYBASS off URLs (must know it's there to begin with)
     void chopBypass(String url, bool infectionbypass);
     void chopScanBypass(String url);
-    void chopMITMAccept(String url);
     // add cookie to outgoing headers with given name & value
     void setCookie(const char *cookie, const char *domain, const char *value);
 

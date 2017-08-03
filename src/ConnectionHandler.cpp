@@ -2008,6 +2008,7 @@ bool ConnectionHandler::writeback_error( NaughtyFilter &cm, Socket & cl_sock, in
     return true;
 }
 
+#ifdef __SSLMITM
 bool  ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip) {
 
 #ifdef DGDEBUG
@@ -2113,7 +2114,6 @@ if (!checkme.isItNaughty) {
 std::cout << dbgPeerPort << " -Checking certificate" << std::endl;
 #endif
 //will fill in checkme of its own accord
-//if (ldl->fg[filtergroup]->mitm_check_cert && !ldl->fg[filtergroup]->inNoCheckCertSiteList(checkme.urldomain, false)) {
 if( !checkme.nocheckcert) {
 checkCertificate(checkme.urldomain, &proxysock, &checkme);
 badcert = checkme.isItNaughty;
@@ -2180,6 +2180,7 @@ EVP_PKEY_free(pkey);
     persistProxy = false;
     proxysock.close();
 }
+#endif
 
 bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header) {
 
