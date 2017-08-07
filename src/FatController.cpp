@@ -192,10 +192,10 @@ void stat_rec::reset()
         char buffer [50];
         strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
     	fprintf(fs, "%s	%d	%d	%d	%d	%d	%d	%d	 %d	%d	 %d\n", buffer, o.http_workers,
-        bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
         fprintf(fs, "%ld	%d	%d	%d	%d	%d	%d	%d	%d	%d	%d\n", now, o.http_workers,
-        bc, o.http_worker_Q->size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
 
     fflush(fs);
@@ -545,7 +545,8 @@ void handle_connections(int tindex)
 #ifdef DGDEBUG
                 std::cerr << " waiting connection on http_worker_Q "  << this_id << std::endl;
 #endif
-                Socket *peersock = o.http_worker_Q->pop();
+                LQ_rec rec = o.http_worker_Q.pop();
+                Socket *peersock = rec.sock;
 #ifdef DGDEBUG
                 std::cerr << " popped connection from http_worker_Q"  << std::endl;
 #endif
@@ -1323,7 +1324,10 @@ void accept_connections(int index) // thread to listen on a single listening soc
 #endif
                 if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
                 errorcount = 0;
-                o.http_worker_Q->push(peersock);
+                LQ_rec rec;
+                rec.sock = peersock;
+                rec.ct_type = CT_PROXY;
+                o.http_worker_Q.push(rec);
 #ifdef DGDEBUG
                 std::cout << "pushed connection to http_worker_Q" << std::endl;
 #endif
@@ -2043,7 +2047,7 @@ int fc_controlit()   //
                 syslog(LOG_INFO, "sigtimedwait() signal %d recd:", rc);
             }
         }
-        int q_size = o.http_worker_Q->size();
+        int q_size = o.http_worker_Q.size();
 #ifdef DGDEBUG
         std::cout << "busychildren:" << dystat->busychildren << std::endl;
         std::cout << "worker Q size:" << q_size << std::endl;
@@ -2086,8 +2090,11 @@ int fc_controlit()   //
         syslog(LOG_INFO,"sending null socket to http_workers to stop them");
     }
     Socket* NS = NULL;
+    LQ_rec rec;
+    rec.sock = NS;
+    rec.ct_type = CT_PROXY;
     for (i = 0; i < o.http_workers; i++) {
-        o.http_worker_Q->push(NS);
+        o.http_worker_Q.push(rec);
     }
    // dystat->reset();    // remove this line for production version
 

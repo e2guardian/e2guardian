@@ -36,7 +36,7 @@ class OptionContainer
 {
     public:
     Queue<std::string>* log_Q;
-    Queue<Socket*>* http_worker_Q;
+    Queue<LQ_rec> http_worker_Q;
 
     // all our many, many options
     int filter_groups;

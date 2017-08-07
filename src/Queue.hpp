@@ -38,5 +38,19 @@ public:
     }
 };
 
+struct LQ_rec {
+    Socket *sock;
+    unsigned int ct_type;
+};
+
+
+//  CT_TYPE DEFS
+#define CT_PROXY          1     // Normal proxy connection also handles tranpartent http
+#define CT_THTTPS       2     // Transparent https connection
+#define CT_ICAP              4     //  ICAP connection
+
+
+
+
 
 #endif //V4_0_QUEUE_HPP
