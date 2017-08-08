@@ -65,7 +65,7 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
-    if (loaded_ok && !StoryA.setEntry1("pre-authcheck")) {
+    if (loaded_ok && !StoryA.setEntry(1,"pre-authcheck")) {
         std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }

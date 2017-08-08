@@ -655,7 +655,7 @@ stat_rec* &dystat) {
             }
 
             //CALL SB pre-authcheck
-            ldl->StoryA.runFunctEntry1(checkme);
+            ldl->StoryA.runFunctEntry(1,checkme);
             std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
             checkme.isItNaughty = checkme.isBlocked;
@@ -774,7 +774,7 @@ stat_rec* &dystat) {
 // Main checking is now done in Storyboard function(s)
                  //   String funct = "checkrequest";
                  //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
-                    ldl->fg[filtergroup]->StoryB.runFunctEntry1(checkme);
+                    ldl->fg[filtergroup]->StoryB.runFunctEntry(1,checkme);
                     std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;
@@ -857,7 +857,7 @@ stat_rec* &dystat) {
             }
 
             //CALL SB checkresponse
-            ldl->fg[filtergroup]->StoryB.runFunctEntry2(checkme);
+            ldl->fg[filtergroup]->StoryB.runFunctEntry(2,checkme);
             std::cerr << "After StoryB checkresponse" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
             checkme.isItNaughty = checkme.isBlocked;
@@ -2712,7 +2712,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             }
 
             //CALL SB pre-authcheck
-            ldl->StoryA.runFunctEntry1(checkme);
+            ldl->StoryA.runFunctEntry(1,checkme);
             std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
             checkme.isItNaughty = checkme.isBlocked;
@@ -2818,7 +2818,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 // Main checking is now done in Storyboard function(s)
                  //   String funct = "checkrequest";
                  //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
-                    ldl->fg[filtergroup]->StoryB.runFunctEntry1(checkme);
+                    ldl->fg[filtergroup]->StoryB.runFunctEntry(1,checkme);
                     std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;

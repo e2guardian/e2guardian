@@ -597,12 +597,12 @@ bool FOptionContainer::read(const char *filename) {
         return false;
 
 
-        if(!StoryB.setEntry1("checkrequest")) {
+        if(!StoryB.setEntry(1,"checkrequest")) {
             std::cerr << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
             return false;
         }
 
-        if(!StoryB.setEntry2("checkresponse")) {
+        if(!StoryB.setEntry(2,"checkresponse")) {
            std::cerr << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
            return false;
         }

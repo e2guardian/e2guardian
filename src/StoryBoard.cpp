@@ -582,32 +582,17 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     return action_return;
 }
 
-bool StoryBoard::setEntry1(String fname) {
-    entry1 = getFunctID(fname);
-    if (entry1 > 0) {
+bool StoryBoard::setEntry(unsigned int index, String fname) {
+    entrys[index] = getFunctID(fname);
+    if (entrys[index] > 0) {
         return true;
     }
     return false;
 };
 
-bool StoryBoard::setEntry2(String fname) {
-    entry2 = getFunctID(fname);
-    if (entry2 > 0) {
-        return true;
-    }
-    return false;
-}
-
-bool StoryBoard::runFunctEntry1(NaughtyFilter &cm) {
-    if (entry1 > 0)
-        return runFunct(entry1, cm);
-    else
-        return false;
-};
-
-bool StoryBoard::runFunctEntry2(NaughtyFilter &cm) {
-    if (entry2 > 0)
-        return runFunct(entry2, cm);
+bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
+    if (entrys[index] > 0)
+        return runFunct(entrys[index], cm);
     else
         return false;
 };

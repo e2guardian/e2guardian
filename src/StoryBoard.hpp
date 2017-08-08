@@ -30,9 +30,9 @@ class NaughtyFilter;
 class StoryBoard
 {
  private:
-    unsigned int entry1 = 0;
-    unsigned int entry2 = 0;
-
+    //unsigned int entry1 = 0;
+    //unsigned int entry2 = 0;
+    unsigned int entrys[10];
   public:
     int items;
 
@@ -51,10 +51,12 @@ class StoryBoard
 
     bool runFunct(String &fname, NaughtyFilter &cm);
     bool runFunct(unsigned int fID, NaughtyFilter &cm);
-    bool runFunctEntry1(NaughtyFilter &cm);
-    bool runFunctEntry2(NaughtyFilter &cm);
-    bool setEntry1(String fname);
-    bool setEntry2(String fname);
+    //bool runFunctEntry1(NaughtyFilter &cm);
+    //bool runFunctEntry2(NaughtyFilter &cm);
+    bool runFunctEntry(unsigned int index,  NaughtyFilter &cm);
+    bool setEntry(unsigned int index, String fname);
+    //bool setEntry1(String fname);
+    //bool setEntry2(String fname);
     std::deque<url_rec> deep_urls(String & url, NaughtyFilter &cm);
     std::deque<url_rec>  ipToHostname(NaughtyFilter &cm);
     bool has_reverse_hosts(std::deque<url_rec> & urec, NaughtyFilter &cm);
