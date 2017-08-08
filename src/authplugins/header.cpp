@@ -33,6 +33,7 @@ class headerinstance : public AuthPlugin
     	String fname(cv["header"]);
 	o.ident_header_value = fname;
         needs_proxy_query = true;
+        client_ip_based = false;
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
 };

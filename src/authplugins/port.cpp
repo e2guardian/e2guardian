@@ -56,6 +56,7 @@ class portinstance : public AuthPlugin
         : AuthPlugin(definition)
     {
         is_connection_based = true;
+        client_ip_based = false;
     }
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);

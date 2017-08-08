@@ -515,6 +515,16 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // check its a reasonable value
 
+        transparenthttps_port = findoptionI("transparenthttpsport");
+        if (!realitycheck(filter_port, 0, 65535, "transparenthttpsport")) {
+            return false;
+        } // check its a reasonable value
+
+        icap_port = findoptionI("icapport");
+        if (!realitycheck(filter_port, 0, 65535, "icapport")) {
+            return false;
+        } // check its a reasonable value
+
 #ifdef ENABLE_ORIG_IP
         if (findoptionS("originalip") == "on") {
             get_orig_ip = true;

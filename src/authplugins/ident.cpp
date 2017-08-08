@@ -25,7 +25,9 @@ class identinstance : public AuthPlugin
 {
     public:
     identinstance(ConfigVar &definition)
-        : AuthPlugin(definition){};
+        : AuthPlugin(definition){
+        client_ip_based = false;    // not sure if this is correct!!
+    };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
 };
 

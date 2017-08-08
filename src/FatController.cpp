@@ -524,7 +524,6 @@ bool daemonise()
 // *  worker thread code
 // *
 // *
-// cleaning up for brand new child processes - only the parent needs the signal handlers installed, and so forth
 
 // handle any connections received by this thread
 void handle_connections(int tindex)
@@ -561,7 +560,7 @@ void handle_connections(int tindex)
                 ++dystat->busychildren;
                 ++dystat->conx;
 
-                rc = h.handlePeer(*peersock, peersockip, dystat); // deal with the connection
+                rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
 #ifdef DGDEBUG
                 std::cerr << "handle_peer returned: " << rc << std::endl;
 #endif
@@ -1313,6 +1312,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 void accept_connections(int index) // thread to listen on a single listening socket
 {
     try {
+        unsigned int ct_type = serversockets.getType(index);
         int errorcount = 0;
         while ((errorcount < 30) && !ttg) {
             Socket *peersock = serversockets[index]->accept();
@@ -1326,7 +1326,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
                 errorcount = 0;
                 LQ_rec rec;
                 rec.sock = peersock;
-                rec.ct_type = CT_PROXY;
+                rec.ct_type = ct_type;
                 o.http_worker_Q.push(rec);
 #ifdef DGDEBUG
                 std::cout << "pushed connection to http_worker_Q" << std::endl;
@@ -1669,6 +1669,13 @@ int fc_controlit()   //
         }
     }
 
+    int serversocktopproxy = serversocketcount;
+
+    if (o.transparenthttps_port > 0)
+        ++serversocketcount;
+    if (o.icap_port> 0)
+        ++serversocketcount;
+
     serversockets.reset(serversocketcount);
     int *serversockfds = serversockets.getFDAll();
     std::thread *listen_treads[serversocketcount];
@@ -1754,6 +1761,30 @@ int fc_controlit()   //
             }
         }
     }
+
+    if (o.transparenthttps_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
+            if (!is_daemonised) {
+                std::cerr << "Error binding server thttps socket: (" << strerror(errno) << ")" << std::endl;
+            }
+            syslog(LOG_ERR, "Error binding server thttps socket  (%s)", strerror(errno));
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
+    };
+
+    if (o.icap_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
+            if (!is_daemonised) {
+                std::cerr << "Error binding server icap socket: (" << strerror(errno) << ")" << std::endl;
+            }
+            syslog(LOG_ERR, "Error binding server icap socket  (%s)", strerror(errno));
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
+    };
 
 // Made unconditional for same reasons as above
 //if (needdrop)

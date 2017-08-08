@@ -59,7 +59,7 @@ class ConnectionHandler
 
     int load_id;
     // pass data between proxy and client, filtering as we go.
-    int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat);
+    int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat, unsigned int LC_type);
 
     auth_rec SBauth;      // record persists for whole connection
 
@@ -85,6 +85,7 @@ class ConnectionHandler
     //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
+    int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     bool getdnstxt(std::string &clientip, String &user);
 
     String dns_error(int herror);
@@ -131,7 +132,8 @@ class ConnectionHandler
 
     bool writeback_error( NaughtyFilter &cm, Socket & cl_sock, int mess_no1, int mess_no2, std::string mess);
 
-    bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header);
+    bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header,
+        bool only_client_ip = false);
 
     bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
     Socket &peerconn, std::string &clientip, bool & persistProxy);
@@ -146,5 +148,7 @@ class ConnectionHandler
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
 #endif //__SSLMITM
 };
+
+char *get_TLS_SNI(char *bytes, int* len);
 
 #endif

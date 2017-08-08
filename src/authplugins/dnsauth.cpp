@@ -71,6 +71,7 @@ class dnsauthinstance : public AuthPlugin
     dnsauthinstance(ConfigVar &definition)
         : AuthPlugin(definition)
     {
+        client_ip_based = true;
         if (!o.use_xforwardedfor)
             is_connection_based = true;
     };

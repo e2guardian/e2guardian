@@ -76,6 +76,7 @@ class ipinstance : public AuthPlugin
     {
         if (!o.use_xforwardedfor)
             is_connection_based = true;
+        client_ip_based = true;
     };
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);

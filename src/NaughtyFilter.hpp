@@ -34,6 +34,7 @@ class NaughtyFilter
     bool isSearch = false;
     // is the url to be blocked
     bool isBlocked = false;
+    bool hasSNI = false;     // used in transparent https mode
 
     // return true or false?
     bool isReturn = false;

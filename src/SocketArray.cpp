@@ -10,6 +10,7 @@
 #include "dgconfig.h"
 #endif
 #include "SocketArray.hpp"
+#include "Queue.hpp"
 
 #include <syslog.h>
 #include <cerrno>
@@ -51,8 +52,22 @@ int SocketArray::bindSingle(int port)
 #ifdef DGDEBUG
     std::cerr << "bindSingle binding port" << port << std::endl;
 #endif
+    lc_types.push_back(CT_PROXY);
     return drawer[0].bind(port);
 }
+
+int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
+{
+    if (socknum <= index) {
+        return -1;
+    }
+#ifdef DGDEBUG
+    std::cerr << "bindSingle binding port" << port  << " with type " << type << std::endl;
+#endif
+    lc_types.push_back(type);
+    return drawer[index].bind(port);
+}
+
 
 // bind our first socket to any IP and one or more ports
 int SocketArray::bindSingleM(std::deque<String> &ports)
@@ -60,7 +75,7 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
     if (socknum < ports.size()) {
         return -1;
     }
-    for (unsigned int i = 0; i < socknum; i++) {
+    for (unsigned int i = 0; i < ports.size(); i++) {
 #ifdef DGDEBUG
         std::cerr << "bindSingleM binding port" << ports[i] << std::endl;
 #endif
@@ -73,6 +88,7 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
             syslog(LOG_ERR, "Error binding socket: [%s %d] (%s)", p.toCharArray(), i, strerror(errno));
             return -1;
         }
+        lc_types.push_back(CT_PROXY);
     }
     return 0;
 }
@@ -111,7 +127,8 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     if (ips.size() > socknum) {
         return -1;
     }
-    for (unsigned int i = 0; i < socknum; i++) {
+    //for (unsigned int i = 0; i < socknum; i++) {
+    for (unsigned int i = 0; i < ips.size(); i++) {
 #ifdef DGDEBUG
         std::cerr << "Binding server socket[" << ports[i] << " " << ips[i] << " " << i << "])" << std::endl;
 #endif
@@ -123,6 +140,7 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
             syslog(LOG_ERR, "Error binding socket: [%s %s %d] (%s)", ports[i].toCharArray(), ips[i].toCharArray(), i, strerror(errno));
             return -1;
         }
+        lc_types.push_back(CT_PROXY);
     }
     return 0;
 }
@@ -141,3 +159,6 @@ void SocketArray::self_connect() {
     }
 }
 
+unsigned int SocketArray::getType(unsigned int ind) {
+    return lc_types.at(ind);
+}

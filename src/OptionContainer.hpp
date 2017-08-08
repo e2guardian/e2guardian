@@ -72,6 +72,8 @@ class OptionContainer
     bool map_ports_to_ips;
     int filter_port;
     int proxy_port;
+    int transparenthttps_port;
+    int icap_port;
     std::string proxy_ip;
     std::deque<String> filter_ip;
     std::deque<String> filter_ports;
