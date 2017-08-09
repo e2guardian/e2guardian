@@ -8,6 +8,7 @@
 #ifdef HAVE_CONFIG_H
 #include "dgconfig.h"
 #endif
+
 #include "Socket.hpp"
 
 #include <string.h>
@@ -43,8 +44,7 @@ extern bool reloadconfig;
 // IMPLEMENTATION
 
 // constructor - create an INET socket & clear address structs
-Socket::Socket()
-{
+Socket::Socket() {
     sck = socket(AF_INET, SOCK_STREAM, 0);
     if (sck < 0) {
         s_errno = errno;
@@ -74,8 +74,7 @@ Socket::Socket()
 
 // create socket from pre-existing FD (address structs will be invalid!)
 Socket::Socket(int fd)
-    : BaseSocket(fd)
-{
+        : BaseSocket(fd) {
     memset(&my_adr, 0, sizeof my_adr);
     memset(&peer_adr, 0, sizeof peer_adr);
     my_adr.sin_family = AF_INET;
@@ -99,8 +98,7 @@ Socket::Socket(int fd)
 
 // create socket from pre-existing FD, storing local & remote IPs
 Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
-    : BaseSocket(newfd)
-{
+        : BaseSocket(newfd) {
     memset(&my_adr, 0, sizeof my_adr); // ***
     memset(&peer_adr, 0, sizeof peer_adr); // ***
     my_adr.sin_family = AF_INET; // *** Fix suggested by
@@ -125,40 +123,35 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
 }
 
 // find the ip to which the client has connected
-std::string Socket::getLocalIP()
-{
+std::string Socket::getLocalIP() {
     return inet_ntoa(my_adr.sin_addr);
 }
 
 // find the ip of the client connecting to us
-std::string Socket::getPeerIP()
-{
+std::string Socket::getPeerIP() {
     return inet_ntoa(peer_adr.sin_addr);
 }
 
 // find the port of the client connecting to us
-int Socket::getPeerSourcePort()
-{
+int Socket::getPeerSourcePort() {
     return ntohs(peer_adr.sin_port);
 }
-int Socket::getPort()
-{
+
+int Socket::getPort() {
     return my_port;
 }
-void Socket::setPort(int port)
-{
+
+void Socket::setPort(int port) {
     my_port = port;
 }
 
 // return the address of the client connecting to us
-unsigned long int Socket::getPeerSourceAddr()
-{
-    return (unsigned long int)ntohl(peer_adr.sin_addr.s_addr);
+unsigned long int Socket::getPeerSourceAddr() {
+    return (unsigned long int) ntohl(peer_adr.sin_addr.s_addr);
 }
 
 // close connection & wipe address structs
-void Socket::reset()
-{
+void Socket::reset() {
     this->baseReset();
 
     sck = socket(AF_INET, SOCK_STREAM, 0);
@@ -183,13 +176,13 @@ void Socket::reset()
 }
 
 // connect to given IP & port (following default constructor)
-int Socket::connect(const std::string &ip, int port)
-{
+int Socket::connect(const std::string &ip, int port) {
     //if (sck > -1)  reset();   // just in case this is called with socket still open
     reset();   // do it anyway as we need sck to be allocated
 
     if (sck < 0) // socket creation error
-    { return -1;
+    {
+        return -1;
     }
 
     int len = sizeof my_adr;
@@ -200,20 +193,18 @@ int Socket::connect(const std::string &ip, int port)
     fcntl(sck, F_SETFL, O_NONBLOCK);
     s_errno = 0;
     errno = 0;
-    int ret = ::connect(sck, (struct sockaddr *)&peer_adr, len);
+    int ret = ::connect(sck, (struct sockaddr *) &peer_adr, len);
     if (ret < 0 && errno == EINPROGRESS) ret = 0;
     else s_errno = errno;
-    if (ret == 0){
-        int rc = poll(outfds,1,timeout);
+    if (ret == 0) {
+        int rc = poll(outfds, 1, timeout);
         if (rc == 0) {
             timedout = true;
             ret = -1;
-        }
-        else if (rc < 0) {
+        } else if (rc < 0) {
             s_errno = errno;
             ret = -1;
-        }
-        else {  // ret == 1
+        } else {  // ret == 1
             int so_error;
             socklen_t len = sizeof so_error;
             getsockopt(sck, SOL_SOCKET, SO_ERROR, &so_error, &len);
@@ -230,9 +221,9 @@ int Socket::connect(const std::string &ip, int port)
     if (ret < 0) close();
     return ret;
 }
+
 // bind socket to given port
-int Socket::bind(int port)
-{
+int Socket::bind(int port) {
     int len = sizeof my_adr;
     int i = 1;
 
@@ -241,12 +232,11 @@ int Socket::bind(int port)
     my_adr.sin_port = htons(port);
     my_port = port;
 
-    return ::bind(sck, (struct sockaddr *)&my_adr, len);
+    return ::bind(sck, (struct sockaddr *) &my_adr, len);
 }
 
 // bind socket to given port & IP
-int Socket::bind(const std::string &ip, int port)
-{
+int Socket::bind(const std::string &ip, int port) {
     int len = sizeof my_adr;
     int i = 1;
 
@@ -256,17 +246,16 @@ int Socket::bind(const std::string &ip, int port)
     my_adr.sin_addr.s_addr = inet_addr(ip.c_str());
     my_port = port;
 
-    return ::bind(sck, (struct sockaddr *)&my_adr, len);
+    return ::bind(sck, (struct sockaddr *) &my_adr, len);
 }
 
 // accept incoming connections & return new Socket
-Socket *Socket::accept()
-{
+Socket *Socket::accept() {
     peer_adr_length = sizeof(struct sockaddr_in);
     s_errno = 0;
     errno = 0;
 //    int newfd = this->baseAccept((struct sockaddr *)&peer_adr, &peer_adr_length);
-    int newfd = ::accept(sck,( struct sockaddr *)&peer_adr, &peer_adr_length);
+    int newfd = ::accept(sck, (struct sockaddr *) &peer_adr, &peer_adr_length);
 
     if (newfd > 0) {
         Socket *s = new Socket(newfd, my_adr, peer_adr);
@@ -700,7 +689,14 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     SSL_set_accept_state(ssl);
 
     ERR_clear_error();
-    SSL_set_fd(ssl, this->getFD());
+    if(!SSL_set_fd(ssl, this->getFD())) {
+#ifdef DGDEBUG
+        std::cout << "Error setting ssl fd connection" << std::endl;
+#endif
+        log_ssl_errors("ssl_set_fd failed to client %s", "");
+        stopSsl();
+        return -1;
+    };
 
     //make io non blocking as select wont tell us if we can do a read without blocking
 
@@ -812,7 +808,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
     int i = 0;
     if ((bufflen - buffstart) > 0) {
         /*#ifdef DGDEBUG
-		std::cout << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
+        std::cout << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
 #endif*/
         int tocopy = size - 1;
         if ((bufflen - buffstart) < tocopy)

@@ -70,6 +70,11 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
+    if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(2,"thttps-pre-authcheck")) {
+        std::cerr << "Required storyboard entry function 'thttps-pre-authcheck' is missing" << std::endl;
+        loaded_ok = false;
+    }
+
     if (loaded_ok && o.use_filter_groups_list)  {
         if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
             std::cout << "Failed to read filtergroupslist" << std::endl;

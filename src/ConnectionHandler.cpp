@@ -1792,7 +1792,6 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #endif
     }
 
-#ifdef __SSLMITM
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
     String connect_request = "CONNECT " + hostname + ":";
@@ -1803,7 +1802,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 #endif
 
     //somewhere to hold the header from the proxy
-    HTTPHeader header;
+    HTTPHeader header(__HEADER_RESPONSE);
     //header.setTimeout(o.pcon_timeout);
     header.setTimeout(o.proxy_timeout);
 
@@ -1843,6 +1842,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     return 0;
 }
 
+#ifdef __SSLMITM
 void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, NaughtyFilter *checkme)
 {
 
@@ -2016,7 +2016,7 @@ bool ConnectionHandler::writeback_error( NaughtyFilter &cm, Socket & cl_sock, in
 }
 
 #ifdef __SSLMITM
-bool  ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip) {
+bool  ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent) {
 
 #ifdef DGDEBUG
 std::cout << dbgPeerPort << " -Intercepting HTTPS connection" << std::endl;
@@ -2076,11 +2076,14 @@ if (!checkme.isItNaughty) {
 #ifdef DGDEBUG
 std::cout << dbgPeerPort << " -Going SSL on the peer connection" << std::endl;
 #endif
+
+if (!transparent) {
 //send a 200 to the client no matter what because they managed to get a connection to us
 //and we can use it for a blockpage if nothing else
 std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
 if(!peerconn.writeString(msg.c_str()))
 cleanThrow("Unable to send to client 1670",peerconn,proxysock);
+}
 
 if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
 //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
@@ -2512,6 +2515,7 @@ std::deque<CSPlugin *> &responsescanners)
     std::cerr << dbgPeerPort << "End content check isitNaughty is  " << cm.isItNaughty << std::endl;
 }
 
+#ifdef __SSLMITM
 int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
@@ -2542,8 +2546,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
 
 #ifdef DGDEBUG // debug stuff surprisingly enough
-    std::cout << dbgPeerPort << " -got peer connection" << std::endl;
-    std::cout << dbgPeerPort << clientip << std::endl;
+    std::cerr << dbgPeerPort << " -got peer connection" << std::endl;
+    std::cerr << dbgPeerPort << clientip << std::endl;
 #endif
 
     try {
@@ -2560,10 +2564,18 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         // RFC states that connections are persistent
         bool persistOutgoing = true;
         bool persistPeer = true;
-        bool persistProxy = true;
+        bool persistProxy = false;
 
         char buff[2048];
-        rc = peerconn.readFromSocket(buff, 2040, MSG_PEEK, 10000, false);
+        rc = peerconn.readFromSocket(buff, 4, (MSG_PEEK ), 20000, true);
+       // rc = recv(peerconn.getFD(), buff, 4, 0);
+            std::cerr << "bytes peeked " << rc << std::endl;
+
+   // unsigned short toread = ntohs(*(unsigned short*)(buff+1));
+   unsigned short toread = (buff[1] << (8 * 2) | buff[2] << (8*1) | buff[3]);
+    std::cerr << "hello length is " << toread << std::endl;
+
+        rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
         if (rc < 1 ) {     // get header from client, allowing persistency
             if (o.logconerror) {
                 if (peerconn.getFD() > -1) {
@@ -2572,10 +2584,10 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                     int pport = peerconn.getPeerSourcePort();
                     std::string peerIP = peerconn.getPeerIP();
                     if(peerconn.isTimedout())
-                        std::cout << "Connection timed out" << std::endl;
+                        std::cerr << "Connection timed out" << std::endl;
                     syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
 #ifdef DGDEBUG
-                    std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
+                    std::cerr << "pport" << " No header recd from client - errno: " << err << std::endl;
 #endif
                 } else {
                     syslog(LOG_INFO, "Client connection closed early - no TLS header received");
@@ -2584,7 +2596,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             firsttime = false;
             persistPeer = false;
         } else {
-            std::cout << "bytes peeked " << rc << std::endl;
+            std::cerr << "bytes peeked " << rc << std::endl;
             checkme.urldomain = get_TLS_SNI(buff, &rc);
             if(checkme.urldomain.size() > 0)
                 checkme.hasSNI = true;
@@ -2592,7 +2604,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             ++dystat->reqs;
         }
 #ifdef DGDEBUG
-    std::cout << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  std::endl;
+    std::cerr << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  std::endl;
 #endif
         //
         // End of set-up section
@@ -2712,8 +2724,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             }
 
             //CALL SB pre-authcheck
-            ldl->StoryA.runFunctEntry(1,checkme);
-            std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
+            ldl->StoryA.runFunctEntry(2,checkme);
+            std::cerr << "After StoryA thttps-pre-authcheck" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
@@ -2814,12 +2826,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
-            if (!(isbanneduser || isbannedip || checkme.isbypass || checkme.isexception)) {
-// Main checking is now done in Storyboard function(s)
-                 //   String funct = "checkrequest";
-                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
-                    ldl->fg[filtergroup]->StoryB.runFunctEntry(1,checkme);
-                    std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
+            if (!(isbanneduser || isbannedip || checkme.isexception)) {
+                    ldl->fg[filtergroup]->StoryB.runFunctEntry(3,checkme);
+                    std::cerr << "After StoryB thttps-checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;
             }
@@ -2827,52 +2836,20 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //now send upstream and get response
             if (!checkme.isItNaughty) {
-                if (!proxysock.breadyForOutput(o.proxy_timeout))
-                    cleanThrow("Unable to write to proxy", peerconn, proxysock);
-#ifdef DGDEBUG
-                std::cerr << dbgPeerPort << "  got past line 727 rfo " << std::endl;
-#endif
-
-                if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true ) // send proxy the request
-                      && (docheader.in(&proxysock, persistOutgoing)))) {
-                    if (proxysock.isTimedout()) {
-                        writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
-                    } else {
-                        writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
-                    }
-                    break;
-                }
-                persistProxy = docheader.isPersistent();
-                persistPeer = persistOutgoing && docheader.wasPersistent();
-#ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
-#endif
+                if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
+                break;
             }
 
 
-            //check response code
-            if (!checkme.isItNaughty) {
-                int rcode = docheader.returnCode();
-                if (checkme.isconnect &&
-                    (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
-                {
-                    checkme.ismitmcandidate = false;  // only applies to connect
-                    checkme.tunnel_rest = true;
-                    checkme.tunnel_2way = false;
-                } else if (rcode == 407) {   // proxy auth required
-                    // tunnel thru - no content
-                    checkme.tunnel_rest = true;
-                }
                 //TODO check for other codes which do not have content payload make these tunnel_rest.
                 if (checkme.isexception)
                     checkme.tunnel_rest = true;
-            }
 
             //if ismitm - GO MITM
             // check ssl_grey is covered in storyboard
             if (!checkme.isItNaughty && checkme.hasSNI && checkme.gomitm) {
                 std::cerr << "Going MITM ...." << std::endl;
-                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip);
+                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 if (!checkme.isItNaughty)
                     break;
                 persistPeer = false;
@@ -2882,7 +2859,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //if not grey tunnel response
             if (!checkme.isItNaughty && checkme.tunnel_rest) {
                 std::cerr << dbgPeerPort << " -Tunnelling to client" << std::endl;
-                if (!fdt.tunnel(proxysock, peerconn,checkme.isconnect, docheader.contentLength() - checkme.docsize, true))
+                if (!fdt.tunnel(proxysock, peerconn,true, -1 , true))
                     persistProxy = false;
                 checkme.docsize += fdt.throughput;
             }
@@ -2953,3 +2930,5 @@ char *get_TLS_SNI(char *inbytes, int* len)
     //if (curr != maxchar) throw std::exception("incomplete SSL Client Hello");
     return NULL; //SNI was not present
 }
+
+#endif

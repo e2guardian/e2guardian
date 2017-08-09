@@ -607,6 +607,11 @@ bool FOptionContainer::read(const char *filename) {
            return false;
         }
 
+        if((o.transparenthttps_port > 0) && !StoryB.setEntry(3,"thttps-checkrequest")) {
+            std::cerr << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
+            return false;
+        }
+
     if (!precompileregexps()) {
         return false;
     } // precompiled reg exps for speed

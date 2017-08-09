@@ -126,6 +126,14 @@ filterports = 8080
 # on (default) | off
 #mapportstoips = off
 
+#port for transparent https
+#if defined enables tranparent https
+#transparenthttpsport = 8443
+
+#port for ICAP
+#if defined enables icap mode 
+#icapport = 1344  // not yet implimented 
+
 # the ip of the proxy (default is the loopback - i.e. this server)
 proxyip = 127.0.0.1
 
@@ -204,8 +212,9 @@ filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 # authrequiresuserandgroup = off
 
 # Authentication files location
-bannediplist = '@DGCONFDIR@/lists/bannediplist'
-exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
+# These are now replaced with pre-authstoryboard
+#bannediplist = '@DGCONFDIR@/lists/bannediplist'
+#exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
 
 # Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
@@ -639,3 +648,6 @@ enablessl = on
 # When e2guardian is stopping with 'paused' appended
 # Note change in V4!!! - No longer detects cache failure
 # monitorflagprefix = '/home/e2g/run/e2g_flag_'
+
+# Much logic has moved to storyboard files
+preauthstoryboard = '@DGCONFDIR@/preauth.story'

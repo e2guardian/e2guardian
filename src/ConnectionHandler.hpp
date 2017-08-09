@@ -101,7 +101,7 @@ class ConnectionHandler
 
     void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
 
-    bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip);
+    bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
 
 
 
@@ -144,9 +144,9 @@ class ConnectionHandler
 #ifdef __SSLMITM
     //ssl certificat checking
     void checkCertificate(String &hostname, Socket *sslSock, NaughtyFilter *checkme);
+#endif //__SSLMITM
 
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
-#endif //__SSLMITM
 };
 
 char *get_TLS_SNI(char *bytes, int* len);
