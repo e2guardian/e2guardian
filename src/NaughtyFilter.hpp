@@ -35,6 +35,9 @@ class NaughtyFilter
     // is the url to be blocked
     bool isBlocked = false;
     bool hasSNI = false;     // used in transparent https mode
+    bool isTLS = false;     // used in transparent https mode
+    String orig_ip;     // used in transparent https mode
+    int orig_port = 0;     // used in transparent https mode
 
     // return true or false?
     bool isReturn = false;

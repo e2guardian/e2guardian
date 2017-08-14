@@ -44,17 +44,19 @@
 #define SB_STATE_POST			12
 #define SB_STATE_GET				13
 #define SB_STATE_SITEISIP       14
+#define SB_STATE_TLS				15
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	15
-#define SB_STATE_GREYSET	16
-#define SB_STATE_BLOCKSET	17
-#define SB_STATE_MITMSET        18
-#define SB_STATE_DONESET       19
-#define SB_STATE_RETURNSET       20
-#define SB_STATE_TRUE				21
+#define SB_STATE_EXCEPTIONSET	16
+#define SB_STATE_GREYSET	17
+#define SB_STATE_BLOCKSET	18
+#define SB_STATE_MITMSET        19
+#define SB_STATE_DONESET       20
+#define SB_STATE_RETURNSET       21
+#define SB_STATE_TRUE				22
+#define SB_STATE_HASSNI			23
 
-#define SB_STATE_MAP_SIZE  21
+#define SB_STATE_MAP_SIZE  23
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -98,13 +100,15 @@ class SBFunction
 			 "post",
 			 "get",
 			 "siteip",
+			 "tls",
 			"exceptionset",
 			"greyset",
 			"blockset",
 			"mitmset",
 			"doneset",
 			"returnset",
-			 "true"
+			 "true",
+			 "hassniset"
 			};
    String command_map[4] = { "function",
 			"end",

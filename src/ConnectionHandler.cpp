@@ -36,6 +36,8 @@
 #include <strings.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <istream>
 #include <sstream>
 #include <memory>
@@ -2567,14 +2569,19 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         bool persistProxy = false;
 
         char buff[2048];
-        rc = peerconn.readFromSocket(buff, 4, (MSG_PEEK ), 20000, true);
+        rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
        // rc = recv(peerconn.getFD(), buff, 4, 0);
             std::cerr << "bytes peeked " << rc << std::endl;
 
-   // unsigned short toread = ntohs(*(unsigned short*)(buff+1));
-   unsigned short toread = (buff[1] << (8 * 2) | buff[2] << (8*1) | buff[3]);
-    std::cerr << "hello length is " << toread << std::endl;
+        if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
+            checkme.isTLS = true;
 
+        unsigned short toread = ( buff[3] << (8*1) | buff[4]);
+
+
+        std::cerr << "hello length is " << toread << " magic is " << buff[0]  << buff[1] << buff[2] << " isTLS is " << checkme.isTLS << std::endl;
+
+       if(checkme.isTLS) {
         rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
         if (rc < 1 ) {     // get header from client, allowing persistency
             if (o.logconerror) {
@@ -2603,8 +2610,31 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             ++dystat->reqs;
         }
+        }
+        {   // get original IP destination & port
+
+                sockaddr_in origaddr;
+                socklen_t origaddrlen(sizeof(sockaddr_in));
+                if (
+#ifdef SOL_IP       // linux
+#define SO_ORIGINAL_DST 80
+                        getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) < 0
+#else                       // BSD
+                        getsockname(peerconn.getFD(), (struct sockaddr *)&origaddr, &origaddrlen) < 0
+#endif
+                ) {
+                    syslog(LOG_ERR, "Failed to get client's original destination IP: %s", strerror(errno));
+                } else {
+                checkme.orig_ip = inet_ntoa(origaddr.sin_addr);
+                checkme.orig_port = ntohs(origaddr.sin_port);
+                }
+         }
+
+        if(!checkme.hasSNI) {
+        checkme.urldomain = checkme.orig_ip;
+         }
 #ifdef DGDEBUG
-    std::cerr << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  std::endl;
+    std::cerr << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
 #endif
         //
         // End of set-up section
@@ -2751,73 +2781,6 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                     //}
                 //}
             //}
-
-
-#ifdef ENABLE_ORIG_IP
-            // if working in transparent mode and grabbing of original IP addresses is
-            // enabled, does the original IP address match one of those that the host
-            // we are going to resolves to?
-            // Resolves http://www.kb.cert.org/vuls/id/435052
-            if (o.get_orig_ip) {
-                // XXX This will currently only work on Linux/Netfilter.
-                sockaddr_in origaddr;
-                socklen_t origaddrlen(sizeof(sockaddr_in));
-                // Note: we assume that for non-redirected connections, this getsockopt call will
-                // return the proxy server's IP, and not -1.  Hence, comparing the result with
-                // the return value of Socket::getLocalIP() should tell us that the client didn't
-                // connect transparently, and we can assume they aren't vulnerable.
-                if (getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen) < 0) {
-                    syslog(LOG_ERR, "Failed to get client's original destination IP: %s", strerror(errno));
-                    break;
-                }
-
-                std::string orig_dest_ip(inet_ntoa(origaddr.sin_addr));
-                if (orig_dest_ip == peerconn.getLocalIP()) {
-// The destination IP before redirection is the same as the IP the
-// client has actually been connected to - they aren't connecting transparently.
-#ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -SO_ORIGINAL_DST and getLocalIP are equal; client not connected transparently" << std::endl;
-#endif
-                } else {
-                    // Look up domain from request URL, and check orig IP against resolved IPs
-                    addrinfo hints;
-                    memset(&hints, 0, sizeof(hints));
-                    hints.ai_family = AF_INET;
-                    hints.ai_socktype = SOCK_STREAM;
-                    hints.ai_protocol = IPPROTO_TCP;
-                    addrinfo *results;
-                    int result = getaddrinfo(checkme.urldomain.c_str(), NULL, &hints, &results);
-                    if (result) {
-                        freeaddrinfo(results);
-                        syslog(LOG_ERR, "Cannot resolve hostname for host header checks: %s", gai_strerror(errno));
-                        break;
-                    }
-                    addrinfo *current = results;
-                    bool matched = false;
-                    while (current != NULL) {
-                        if (orig_dest_ip == inet_ntoa(((sockaddr_in *)(current->ai_addr))->sin_addr)) {
-#ifdef DGDEBUG
-                            std::cout << dbgPeerPort << checkme.urldomain << " matched to original destination of " << orig_dest_ip << std::endl;
-#endif
-                            matched = true;
-                            break;
-                        }
-                        current = current->ai_next;
-                    }
-                    freeaddrinfo(results);
-                    if (!matched) {
-// Host header/URL said one thing, but the original destination IP said another.
-// This is exactly the vulnerability we want to prevent.
-#ifdef DGDEBUG
-                        std::cout << dbgPeerPort << checkme.urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << std::endl;
-#endif
-                        syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", checkme.urldomain.c_str(), orig_dest_ip.c_str());
-//                            writeback_error(checkme,peercon,200,0,"400 Bad Request");
-                        break;
-                    }
-                }
-            }
-#endif
 
             char *retchar;
 

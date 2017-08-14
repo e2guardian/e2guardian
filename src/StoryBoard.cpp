@@ -343,6 +343,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_CONNECT:
                 state_result = cm.isconnect;
                 break;
+            case SB_STATE_GET:
+                state_result = (cm.request_header->requestType() == "GET");
+                break;
+            case SB_STATE_POST:
+                state_result = (cm.request_header->requestType() == "POST");
+                break;
             case SB_STATE_EXCEPTIONSET:
                 state_result = cm.isexception;
                 break;
@@ -360,6 +366,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
             case SB_STATE_RETURNSET:
                 state_result = cm.isReturn;
+                break;
+            case SB_STATE_HASSNI:
+                state_result = cm.hasSNI;
+                break;
+            case SB_STATE_TLS:
+                state_result = cm.isTLS;
+                break;
+            case SB_STATE_SITEISIP:
+                state_result = cm.isiphost;
                 break;
             case SB_STATE_TRUE:
                 state_result = true;
