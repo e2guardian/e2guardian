@@ -8,6 +8,8 @@ significant changes to the configuration files in this release.
 Note: This version is work in progress and instructions 
 may be incomplete.   If in doubt - read the source!
 
+Please read notes/NEWIN_v5 before installing.
+
 **For copyright go to: http://e2guardian.org**
 
 e2guardian is a content filtering proxy that can work in conjunction with another

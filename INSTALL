@@ -4,7 +4,7 @@ Due to differences in release levels of the GNU autotools on different
 platforms we are no longer including the configure script as part 
 of the distribution.
 
-NOTE: For v4 - please read notes/NEWIN_v4 first!
+NOTE: For v5 - please read notes/NEWIN_v5 first!
 ------------------------------------------------
 
 HOW TO BUILD:
@@ -19,8 +19,6 @@ Most users should then follow the standard
 
 Please read the sections below for your OS for the most widely used
 configuration options.
-
-*** Solaris users, please read the Solaris section first. ***
 
 *** xBSD users, please ensure you have bash1 installed first ***
 
@@ -153,20 +151,6 @@ Optional Features:
                           Enable support for the fancy download manager
   --enable-totalblocklist[=no]
                           Enable support for total block list
-  --enable-locallists[=no]
-                          Enable support for local lists
-  --enable-refererexception[=yes]
-                          Enable support for referer exception
-  --enable-rxredirects[=yes]
-                          Enable support for regexp redirects
-  --enable-addheader[=yes]
-                          Enable support for add header
-  --enable-sslextralists[=yes]
-                          Enable support for ssl extra lists
-  --enable-searchwords[=yes]
-                          Enable support for ssl extra lists
-  --enable-legacylog[=yes]
-                          Enable support for legacy log format
   --enable-trickledm[=no]
                           Enable support for the trickle download manager
   --enable-ntlm[=no]
@@ -220,15 +204,6 @@ Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
 See ./configure --help for more details.
-
-
-HP-UX:
-------
-
-No specific notes are available.  Consult your documentation for file paths.
-Otherwise follow the FreeBSD instructions which are likely to work.
-(Contributions welcome!)
-
 
 
 MACOSX:
@@ -301,32 +276,6 @@ OpenBSD and the associated programs in their default locations.
         --bindir=/usr/sbin \
         --mandir=/usr/share/man \
         --sysconfdir=/etc
-
-SOLARIS:
---------
-
-Only Solaris 8 (7/01 and beyond) and Solaris 9 has been tested.
-E2Guardian requires the GNU version of make (gmake), and GCC version
-3.01 will *not* work; use 2.95.3 or a more recent version.
-
-Both gmake and GCC 2.95.3 are included with the OS on the "Companion CD",
-and are usually installed in /opt/sfw/bin.  To ensure these are in your
-path, simply do (in csh; bash syntax is different):
-
-    setenv PATH /opt/sfw/bin\:$PATH
-
-Also, to ensure that the right libraries are used, simply do:
-
-    setenv LD_RUN_PATH /opt/sfw/lib:/usr/lib
-
-Before you *compile* (not necessary during run-time).
-
-To configure and compile, do:
-    ./configure --prefix=/opt/e2guardian \
-      --bindir=/opt/e2guardian/sbin \
-      --with-logdir=/opt/e2guardian/log \
-      --with-piddir=/var/run
-
 
 
 HOW TO CONFIGURE:

@@ -17,15 +17,16 @@ REVISED LIST and STORYBOARDING MODEL
 
 This version has a completely revised model for defining and using lists.
 
-List definition is now separated from list application. These are no longer 
+List definition is now separated from list application. Lists are no longer
 hard-coded, but mapped to a function using a storyboard.  
 
 Filtering logic flow is simplified and made more consistent.  Requests are 
 analysed first and flags set (exception, grey, blocked etc) and once this 
 checking is complete actions are taken.  Large sections of duplicate logic
-has been removed from ConnectionHandler.
+has been removed from ConnectionHandler and large sections are now
+separate functions.
 
-Storyboarding is a simple scripting language that maps lists to function 
+Storyboarding is a simple scripting language that maps lists to functions
 and allows flags to be set. 
 
 This means that new lists can be added without changing the code, by adding
@@ -34,6 +35,13 @@ a new list definition and then applying it in a revised storyboard.
 A different storyboard can be applied to each filtergroup, so if required, 
 each filtergroup can have a different logic flow.
 
+For details see notes/V5_list_definition.pdf & notes/V5_Storyboard.pdf
+
+TRANSPARENT HTTPS
+
+This is now in testable form - currently still uses upstream proxy.
+Detects SNI and flags whether traffic is TLS.  Limited to port 443 traffic.
+
 TESTING -  
 
 This version is at an early test stage. It should always be compliled and
@@ -41,29 +49,21 @@ run in debug mode.
 
 TODO - for this release.
 
-Storyboarding for pre-auth checks (e2guardian.conf) - done needs testing 
-and sample storyboards
-
-Embedded url checks
-
-Search term checks
-
-Reverse IP look-up list checks
-
 Enable download plugins
-
-Clean up defunct code.
 
 New debug system (to start for storyboarding only)
 
 By-pass code
 
-Transparent https option.
-
 ICAP server mode.
 
-WISHLIST
+Direct (not via proxy) option.
 
+Transparent HTTPS on ports other than 443
+
+Cut and splice certificates where required.
+
+WISHLIST
 
 Re-impliment mailing option.
 
@@ -71,6 +71,6 @@ Per-user exceptions/blocks.
 
 Per-room blocks.
 
-Philip Pearce 18 July 2017 
+Philip Pearce 15 August 2017
 
 
