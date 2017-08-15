@@ -881,11 +881,14 @@ bool Socket::writeString(const char *line) //throw(std::exception)
 {
     int l = strlen(line);
     return writeToSocket(line, l, 0, timeout);
-//    if (!writeToSocket(line, l, 0, timeout)) {
- //       throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-    //}
 }
 
+// write line to socket
+bool Socket::writeString(std::string line)
+{
+    int l = line.length();
+    return writeToSocket(line.c_str(), l, 0, timeout);
+}
 
 // write data to socket - can be told not to do an initial readyForOutput, and to break on config reloads
 bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
@@ -1071,3 +1074,32 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 }
 
 #endif //__SSLMITM
+
+
+bool Socket::writeChunk( char *buffout, int len, int timeout){
+    std::stringstream stm;
+    stm << std::hex << len;
+    std::string hexs (stm.str());
+    int lw;
+    hexs += "\r\n";
+    if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
+        return true;
+    return false;
+};
+
+int Socket::readChunk( char *buffin, int maxlen, int timeout){
+    char size[20];
+    int len = getLine(size,18, timeout);
+    String l = size;
+    l.chop();
+    int clen = l.hexToInteger();
+    if (clen > maxlen)
+        return -1;
+    int rc = readFromSocketn(buffin, clen, 0, timeout);
+    len = getLine(size,18, timeout);
+    if (size[0] == '\r') {
+        return rc;
+    } else {
+        return -1;
+    }
+}

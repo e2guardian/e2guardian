@@ -10,6 +10,9 @@
 // INCLUDES
 
 #include "BaseSocket.hpp"
+#include "String.hpp"
+#include <sstream>
+#include <iomanip>
 
 #ifdef __SSLMITM
 #include "openssl/ssl.h"
@@ -54,6 +57,8 @@ class Socket : public BaseSocket
     // get local IP
     std::string getLocalIP();
     int getLocalPort();
+    bool writeChunk( char *buffout, int len, int timeout);
+    int readChunk( char *buffout, int maxlen, int timeout);
 
 #ifdef __SSLMITM
     //use this socket as an ssl server
@@ -96,8 +101,10 @@ class Socket : public BaseSocket
     // get a line from the socket - can break on config reloads
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) throw(std::exception);
 
-    // write buffer to string - throws std::exception on error
-    bool writeString(const char *line); //throw(std::exception);
+    // write buffer to string
+    bool writeString(const char *line);
+    bool writeString(std::string line);
+
     // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // read from socket, returning number of bytes read

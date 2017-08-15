@@ -20,7 +20,7 @@ class LanguageContainer
     bool readLanguageList(const char *filename);
 
     //const char *getTranslation(const unsigned int index);
-    char *getTranslation(const unsigned int index);
+    std::string getTranslation(const unsigned int index);
 
     private:
     std::deque<unsigned int> keys;

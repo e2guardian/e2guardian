@@ -510,30 +510,6 @@ bool ListMeta::isIPHostname(String url) {
     return false;
 }
 
-
-// check site & URL lists for blanket matches
-char *ListMeta::testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory) {
-    if (not o.lm.l[list]->isNow())
-        return NULL;
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << o.lm.l[list]->blanketblock << ":" << o.lm.l[list]->blanket_ip_block << ":" << o.lm.l[list]->blanketsslblock << ":" << o.lm.l[list]->blanketssl_ip_block << std::endl;
-#endif
-    if (o.lm.l[list]->blanketblock) {
-        lastcategory = "-";
-        return (char *) o.language_list.getTranslation(502);
-    } else if (o.lm.l[list]->blanket_ip_block and ip) {
-        lastcategory = "IP";
-        return (char *) o.language_list.getTranslation(505);
-    } else if (o.lm.l[list]->blanketsslblock and ssl) {
-        lastcategory = "HTTPS";
-        return (char *) o.language_list.getTranslation(506);
-    } else if (o.lm.l[list]->blanketssl_ip_block and ssl and ip) {
-        lastcategory = "HTTPS_IP";
-        return (char *) o.language_list.getTranslation(507);
-    }
-    return NULL;
-}
-
 bool ListMeta::precompileregexps() {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
         if (!is_daemonised) {
