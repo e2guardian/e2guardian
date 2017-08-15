@@ -90,6 +90,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        ConnectionHandler.cpp ConnectionHandler.hpp \
                        DataBuffer.cpp DataBuffer.hpp \
                        HTTPHeader.cpp HTTPHeader.hpp \
+                       ICAPHeader.cpp ICAPHeader.hpp \
                        NaughtyFilter.cpp NaughtyFilter.hpp \
 		       BackedStore.cpp BackedStore.hpp\
                        RegExp.cpp RegExp.hpp \
