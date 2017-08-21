@@ -3961,9 +3961,9 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
         }
 // the user is using the full whack of custom banned images and/or HTML templates
 #ifdef __SSLMITM
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow)
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || ldl->fg[filtergroup]->sslaccess_denied_address.length() )
 #else
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0))
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || ldl->fg[filtergroup]->sslaccess_denied_address.length())
 #endif
         {
             // if reporting_level = 1 or 2 and headersent then we can't
