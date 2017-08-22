@@ -2676,15 +2676,15 @@ stat_rec* &dystat)
 
 // TODO: Temporary: we must remove from filtering many harmless HTTP codes
 // But I guess it should do before in the code
-                if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
+                if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304) && (o.log_exception_hits == 0)) {
 
 #ifdef DGDEBUG
-                	std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     String rtype(header.requestType());
-              		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
-                	logged = true;
-                    isexception = true;
+		    doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
+                   logged = true;
+                   isexception = true;
                 }
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
@@ -3274,7 +3274,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
     }
     std::string data, cr("\n");
 
-    if ((isexception && (o.log_exception_hits == 2)) || bypass || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
+    if ((isexception && (o.log_exception_hits >= 2)) || bypass || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
