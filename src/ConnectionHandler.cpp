@@ -1206,7 +1206,6 @@ stat_rec* &dystat)
                             rtype, docsize, NULL, false, 0, isexception, false, &thestart,
                             cachehit, 200, mimetype, wasinfected, wasscanned, 0, filtergroup,
                             &header);
-
                             if (o.delete_downloaded_temp_files) {
                                 unlink(tempfilename.toCharArray());
                             }
@@ -1490,7 +1489,8 @@ stat_rec* &dystat)
                         doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,
                             false, &thestart, cachehit, ((!isconnect && persistPeer) ? docheader.returnCode() : 200),
                             mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
-                    }
+
+  }
                 } catch (std::exception &e) {
                 }
 
@@ -1777,11 +1777,13 @@ stat_rec* &dystat)
                         String rtype(header.requestType());
 // Negociate part 407 requests
                         if (docheader.authRequired()) {
-                        	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
-                        	isexception, false, &thestart,
-                        	cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
-                        	wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
                         	isexception = true;
+				if (o.log_exception_hits == 3){
+                        		doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0,
+					isexception, false, &thestart,
+					cachehit, (wasrequested ? docheader.returnCode() : 407), mimetype, wasinfected,
+					wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+				}
                         	logged = true;
 // Exception
                 	} else {
@@ -1789,6 +1791,7 @@ stat_rec* &dystat)
 				isexception, false, &thestart,
                             	cachehit, docheader.returnCode(), mimetype, wasinfected,
                             	wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
+
 			}
                     } catch (std::exception &e) {
                     }
@@ -1957,7 +1960,6 @@ stat_rec* &dystat)
                         isexception, false, &thestart,
                         cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected,
                         wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
-
                   denyAccess(&peerconn, &proxysock, &header, &docheader, &logurl, &checkme, &clientuser,
                        &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
                 }
@@ -2681,12 +2683,12 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
                     std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+                    isexception = true;
 		    if (o.log_exception_hits == 3){
 		   	String rtype(header.requestType());
 		   	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
-                   	logged = true;
 		    }
-                   isexception = true;
+                    logged = true;
                 }
 
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
@@ -3156,12 +3158,13 @@ stat_rec* &dystat)
                         //  cleanThrow("Error in tunnel 1", peerconn,proxysock);
                     docsize += fdt.throughput;
                     String rtype(header.requestType());
-                    if (!logged) {
-                        doLog(clientuser, clientip, logurl, header.port, exceptionreason,
+                    if (!logged && !docheader.authRequired()) {
+                         doLog(clientuser, clientip, logurl, header.port, exceptionreason,
                             rtype, docsize, &checkme.whatIsNaughtyCategories, false, 0, isexception,
                             docheader.isContentType("text",ldl->fg[filtergroup]), &thestart, cachehit, docheader.returnCode(), mimetype,
                             wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                             contentmodified, urlmodified, headermodified, headeradded);
+
                     }
                 }
             } else if (!ishead) {
@@ -3187,6 +3190,7 @@ stat_rec* &dystat)
                         docheader.isContentType("text",ldl->fg[filtergroup]), &thestart, cachehit, docheader.returnCode(), mimetype,
                         wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no,
                         contentmodified, urlmodified, headermodified, headeradded);
+
                 }
             }
 
