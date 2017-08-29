@@ -29,6 +29,7 @@ loglevel = 1
 # 0 = never log exceptions
 # 1 = log exceptions, but do not explicitly mark them as such
 # 2 = always log & mark exceptions (default)
+# 3 = always log & mark exceptions and hidden requests (like identifications)
 logexceptionhits = 2
 
 # Log File Format
