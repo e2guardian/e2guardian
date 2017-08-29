@@ -2676,14 +2676,16 @@ stat_rec* &dystat)
 
 // TODO: Temporary: we must remove from filtering many harmless HTTP codes
 // But I guess it should do before in the code
-                if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304) && (o.log_exception_hits == 0)) {
+                if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
 
 #ifdef DGDEBUG
                     std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-                    String rtype(header.requestType());
-		    doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
-                   logged = true;
+		    if (o.log_exception_hits == 3){
+		   	String rtype(header.requestType());
+		   	doLog(clientuser, clientip, logurl, header.port, exceptionreason, rtype, docsize, (exceptioncat.length() ? &exceptioncat : NULL), false, 0, isexception,false, &thestart, cachehit, docheader.returnCode(),mimetype, wasinfected, wasscanned, 0, filtergroup, &header, message_no);
+                   	logged = true;
+		    }
                    isexception = true;
                 }
 
