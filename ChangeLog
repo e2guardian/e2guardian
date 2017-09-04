@@ -1,6 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-Aout 2017
+September
+- Fix bug #276 give better informations about header size filtering
+
+August 2017
 - Fix bug #270 add logexceptionhits level 3
 - Fix issue with sslaccessdeniedaddress and reporting level < 3
 
