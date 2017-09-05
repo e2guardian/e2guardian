@@ -1876,7 +1876,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 #ifdef DGDEBUG
             std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-	    syslog(LOG_INFO, "header:size too big: %s, see maxheaderlines", header.size());
+	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
 	    dbshowheader(false);
             ispersistent = false;
             return false;
