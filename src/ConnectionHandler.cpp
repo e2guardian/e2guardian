@@ -2570,6 +2570,11 @@ stat_rec* &dystat)
                                 else if (csrc != DGCS_CLEAN && csrc != DGCS_WARNING) {
                                     if (csrc < 0) {
                                         syslog(LOG_ERR, "Unknown return code from content scanner: %d", csrc);
+					if (ldl->fg[filtergroup]->disable_content_scan_error) {
+                                        	syslog(LOG_ERR, "disablecontentscanerror is on : bypass actived USER: %s URL: %s ", clientip.c_str(), urldomain.c_str());
+                                    		wasinfected = false;
+                                		break;
+					}
                                     } else {
                                         syslog(LOG_ERR, "scanFile/Memory returned error: %d", csrc);
                                     }
@@ -4459,6 +4464,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 else if (csrc != DGCS_CLEAN) {
                     if (csrc < 0) {
                         syslog(LOG_ERR, "Unknown return code from content scanner: %d", csrc);
+                        if (ldl->fg[filtergroup]->disable_content_scan_error) {
+                        	syslog(LOG_ERR, "disablecontentscanerror is on : bypass actived USER: %s URL: %s ", clientip->c_str(), url.c_str());
+                    		(*wasscanned) = false;
+                    		(*scanerror) = false;
+				break;
+                        }
                     } else {
                         syslog(LOG_ERR, "scanFile/Memory returned error: %d", csrc);
                     }
