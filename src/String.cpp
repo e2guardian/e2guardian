@@ -350,6 +350,8 @@ bool String::contains(const char *s) const
 // grab the part of the string that follows the first occurrence of given text
 String String::after(const char *bs) const
 {
+    if (this->length() < strlen(bs))
+        return "";
     size_type i = this->find(bs);
     if (i == std::string::npos)
         return "";
@@ -359,6 +361,8 @@ String String::after(const char *bs) const
 // grab the part of the string that precedes the first occurrence of given text
 String String::before(const char *bs) const
 {
+    if (this->length() < strlen(bs))
+        return "";
     size_type i = this->find(bs);
     if (i == std::string::npos)
         return "";
