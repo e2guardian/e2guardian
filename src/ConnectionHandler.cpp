@@ -1813,6 +1813,11 @@ stat_rec* &dystat)
 
                 X509 *cert = NULL;
                 struct ca_serial caser;
+		caser.asn = NULL;
+		caser.charhex = NULL;
+		caser.filepath = NULL;
+		caser.filename = NULL;
+
                 EVP_PKEY *pkey = NULL;
                 bool certfromcache = false;
                 //generate the cert
