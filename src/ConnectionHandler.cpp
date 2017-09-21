@@ -269,13 +269,22 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     magic += clientip->c_str();
     magic += timecode;
     String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
-    if (!url->endsWith("/")) {
-        (*url) += "/";
-        res += url->md5(magic.toCharArray());
+    String urldomain = url->getHostname();
+    String hostname = url->after("://");
+//  Some url with specific mine returns will be breaked if "/" is added
+    if ((urldomain == hostname) && (!urldomain.endsWith("/"))) {
+	(*url) += "/";
+#ifdef DGDEBUG
+	std::cout << dbgPeerPort << " -we add / to domain bypass = " << res << " domain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+     	res += url->md5(magic.toCharArray());
     } else {
         res += url->md5(magic.toCharArray());
     }
     res += timecode;
+#ifdef DGDEBUG
+    std::cout << dbgPeerPort << " -temporary bypass = " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
     return res;
 }
 
@@ -288,9 +297,8 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     data += timecode;
     String res(url->md5(data.toCharArray()));
     res += timecode;
-
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -hashedCookie=" << res << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cout << dbgPeerPort << " -hashedCookie= " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return res;
 }
@@ -1087,7 +1095,7 @@ stat_rec* &dystat)
             //
             // Start of by pass
             //
-            if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->bypass_mode != 0)) {
+            if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->bypass_mode != 0) && !isexception) {
                 if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -1140,7 +1148,7 @@ stat_rec* &dystat)
                     } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
                         if (header.isBypassCookie(urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Bypass cookie match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cout << dbgPeerPort << " -Bypass cookie match" << " urldomain " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                             iscookiebypass = true;
                             isbypass = true;
@@ -1156,7 +1164,7 @@ stat_rec* &dystat)
 
 #ifdef DGDEBUG
                 if (isbypass) {
-                    std::cout << dbgPeerPort << " -Bypass activated!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " -Bypass activated!" << " urldomain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                 }
 #endif
                 //
@@ -1771,7 +1779,7 @@ stat_rec* &dystat)
                         // tunnel from proxy to client
                         if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true) )
                             persistProxy = false;
-//                            cleanThrow("Error forwarding body to client", peerconn,proxysock);
+//                      cleanThrow("Error forwarding body to client", peerconn,proxysock);
                         docsize = fdt.throughput;
                     try {
                         String rtype(header.requestType());
@@ -2701,11 +2709,14 @@ stat_rec* &dystat)
                     logged = true;
                 }
 
+#ifdef DGDEBUG
+                    std::cout << dbgPeerPort << " -url " << logurl << " isbypass: " << isbypass << " isexception: " << isexception << " iscookiebypass: " << iscookiebypass << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
                 if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
 #ifdef DGDEBUG
-                    std::cout << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+	    	    std::cout << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << " url: " << logurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     String ud(urldomain);
                     if (ud.startsWith("www.")) {
@@ -2723,9 +2734,11 @@ stat_rec* &dystat)
                         loc += header.getUrl(true);
                         docheader.header.push_back(loc);
                         docheader.setContentLength(0);
-
                         persistOutgoing = false;
                         docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
+#ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " cookie injected  -url " << logurl << " Location 302: " << loc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
                     }
 
                     if (!persistProxy)
@@ -4021,8 +4034,6 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     // generate valid hash locally if enabled
                     if (dohash) {
                         hashed = hashedURL(url, filtergroup, clientip, virushash);
-                        if (!url->endsWith("/"))
-                        (*url) += "/";
                     }
                     // otherwise, just generate flags showing what to generate
                     else if (filterhash) {
@@ -4187,8 +4198,6 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                         // generate valid hash locally if enabled
                         if (dohash) {
                             hashed = hashedURL(url, filtergroup, clientip, virushash);
-                            if (!url->endsWith("/"))
-                            (*url) += "/";
                         }
                         // otherwise, just generate flags showing what to generate
                         else if (filterhash) {
@@ -4232,8 +4241,6 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             // generate valid hash locally if enabled
             if (dohash) {
                 hashed = hashedURL(url, filtergroup, clientip, virushash);
-		if (!url->endsWith("/"))
-			(*url) += "/";
             }
             // otherwise, just generate flags showing what to generate
             else if (filterhash) {

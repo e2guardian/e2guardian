@@ -1,6 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 September
+- Fix segfault with SSLMITM
+- Fix many bugs with BYPASS
 - Fix bug #277 add option "disablecontentscanerror" 
 - Fix bug #276 give better informations about header size filtering
 
