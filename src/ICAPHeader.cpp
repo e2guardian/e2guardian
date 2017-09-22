@@ -33,28 +33,69 @@ void ICAPHeader::setTimeout(int t)
     timeout = t;
 }
 
+void ICAPHeader::setHTTPhdrs(HTTPHeader &req, HTTPHeader &res) {
+    HTTPrequest = &req;
+    HTTPresponse = &res;
+}
+
+bool ICAPHeader::setEncapRecs() {
+    String t = *pencapsulated;
+    std::cerr << "pencapsulated is " << t << std::endl;
+    t = t.after(": ");
+    std::cerr << "stripped pencapsulated is " << t << std::endl;
+    while ( t.length() ) {
+        String t1 = t.before(",");
+        if (t1 == "")
+            t1 = t;
+        struct encap_rec erec;
+        erec.name = t1.before("=");
+        String t2 = t1.after("=");
+        if (erec.name ==  "" || t2 == "")
+            return false;
+        erec.value = t2.toInteger();
+        encap_recs.push_back(erec);
+        t = t.after(",");
+    }
+}
+
 // reset header object for future use
 void ICAPHeader::reset()
 {
     if (dirty) {
         header.clear();
+        encap_recs.clear();
         waspersistent = false;
         ispersistent = false;
 
 
-        phost = NULL;
-        pport = NULL;
-        pcontentlength = NULL;
-        pcontenttype = NULL;
-        pproxyauthorization = NULL;
+        pproxyconnection = NULL;
+        pencapsulated= NULL;
         pauthorization = NULL;
-        pproxyauthenticate = NULL;
-        pcontentdisposition = NULL;
+        pallow= NULL;
+        allow_204 = false;
+        pfrom= NULL;
+        phost = NULL;
+        preferer = NULL;
         puseragent = NULL;
         pxforwardedfor = NULL;
-        pcontentencoding = NULL;
-        pproxyconnection = NULL;
         pkeepalive = NULL;
+        pupgrade = NULL;
+        pencapsulated = NULL;
+
+        pproxyauthorization = NULL;
+        pproxyauthenticate = NULL;
+        pcontentdisposition = NULL;
+        pclientip= NULL;
+        pclientuser= NULL;
+
+        req_hdr_flag = false;
+        res_hdr_flag = false;
+        out_req_hdr_flag = false;
+        out_res_hdr_flag = false;
+        req_body_flag = false;
+        res_body_flag = false;
+        opt_body_flag = false;
+        null_body_flag = false;
 
         dirty = false;
 
@@ -67,14 +108,14 @@ void ICAPHeader::reset()
 // *
 // *
 
-// grab request type (GET, HEAD etc.)
+// grab request type (REQMOD, RESPMOD, OPTIONS)
 String ICAPHeader::requestType()
 {
     return header.front().before(" ");
 }
 
 // grab return code
-int ICAPHeader::returnCode()
+int ICAPHeader::returnCode()    // does not apply to ICAP ?  May do if we use for ICAP client
 {
     if (header.size() > 0) {
         return header.front().after(" ").before(" ").toInteger();
@@ -83,8 +124,6 @@ int ICAPHeader::returnCode()
     }
 }
 
-// grab content length
-
 
 // *
 // *
@@ -92,10 +131,8 @@ int ICAPHeader::returnCode()
 // *
 // *
 
-
-
+#ifdef NOTDEF
 // modifies the URL in all relevant header lines after a regexp search and replace
-// setURL Code originally from from Ton Gorter 2004
 void ICAPHeader::setURL(String &url)
 {
     String hostname;
@@ -154,6 +191,8 @@ void ICAPHeader::setURL(String &url)
     }
 }
 
+#endif
+
 
 // *
 // *
@@ -161,169 +200,57 @@ void ICAPHeader::setURL(String &url)
 // *
 // *
 
-
-
-
-
-// fix bugs in certain web servers that don't obey standards.
-// actually, it's us that don't obey standards - HTTP RFC says header names
-// are case-insensitive. - Anonymous SF Poster, 2006-02-23
 void ICAPHeader::checkheader(bool allowpersistent)
 {
-    // are these headers outgoing (from browser), or incoming (from web server)?
-    // Hum Maybe there is something wrong but it should be always from client
     bool outgoing = true;
-    if (header.front().startsWith("HT")) {
-        outgoing = false;
-    }
 
     if (header.size() > 1) {
     for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
         // index headers - try to perform the checks in the order the average browser sends the headers.
         // also only do the necessary checks for the header type (sent/received).
         // Sequencial if else
-	if (outgoing && (phost == NULL) && i->startsWithLower("host:")) {
+        std::cerr << "Checking header: " << &(*i) << std::endl;
+        if ((phost == NULL) && i->startsWithLower("host:")) {
             phost = &(*i);
-            // don't allow through multiple host headers
-        } else if (outgoing && (phost != NULL) && i->startsWithLower("host:")) {
-            i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
-        } else if ((!outgoing) && (pcontentencoding == NULL) && i->startsWithLower("content-encoding:")) {
-            pcontentencoding = &(*i);
-        } else if ((!outgoing) && (pkeepalive == NULL) && i->startsWithLower("keep-alive:")) {
-            pkeepalive = &(*i);
-        } else if ((pcontenttype == NULL) && i->startsWithLower("content-type:")) {
-            pcontenttype = &(*i);
-        } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
-            pcontentlength = &(*i);
-        }
-        // is this ever sent outgoing?
-        else if ((pcontentdisposition == NULL) && i->startsWithLower("content-disposition:")) {
-            pcontentdisposition = &(*i);
-        } else if ((pproxyauthorization == NULL) && i->startsWithLower("proxy-authorization:")) {
-            pproxyauthorization = &(*i);
         } else if ((pauthorization == NULL) && i->startsWithLower("authorization:")) {
             pauthorization = &(*i);
-        } else if ((pproxyauthenticate == NULL) && i->startsWithLower("proxy-authenticate:")) {
-            pproxyauthenticate = &(*i);
-        } else if ((pproxyconnection == NULL) && (i->startsWithLower("proxy-connection:") || i->startsWithLower("connection:"))) {
-            pproxyconnection = &(*i);
-        } else if (outgoing && (pxforwardedfor == NULL) && i->startsWithLower("x-forwarded-for:")) {
-            pxforwardedfor = &(*i);
+        } else if ((pallow == NULL) && i->startsWithLower("allow:")) {
+            pallow = &(*i);
+            allow_204 = pallow->contains("204");
+        } else if ((pfrom == NULL) && i->startsWithLower("from:")) {
+            pfrom = &(*i);
+        } else if ((phost == NULL) && i->startsWithLower("host:")) {
+            phost = &(*i);
+        } else if ((ppreview == NULL) && i->startsWithLower("preview:")) {
+            ppreview = &(*i);
+            allow_204 = true;
+        } else if ((pkeepalive == NULL) && i->startsWithLower("keep-alive:")) {
+            pkeepalive = &(*i);
+        } else if (i->startsWithLower("encapsulated:")) {
+            pencapsulated = &(*i);
+            setEncapRecs();
+            //i->assign("X-E2G-IgnoreMe: encapuslated always regenerated\r");
+        } else if (i->startsWithLower("x-client-ip:")) {
+            pclientip = &(*i);
+            String t = pclientip->after(": ");
+            t.chop();
+            setClientIP(t);
+        } else if (i->startsWithLower("x-client-username:")) {
+            pclientuser = &(*i);
+            username = pclientuser->after(": ");
+            username.chop();
         }
-        // this one's non-standard, so check for it last
-        else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
-            pport = &(*i);
-        }
-
-	//Can be placed anywhere ..
-        if (outgoing && i->startsWithLower("upgrade-insecure-requests:")) {
-            i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
-        }
-
-
 #ifdef DGDEBUG
-        std::cout << "Header value from client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Header value from ICAP client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+
+        std::cout << "allow_204 is " << allow_204 << std::endl;
 #endif
     }
 }
 
-    //if its http1.1
-    bool onepointone = false;
-    if (header.front().after("ICAP/").startsWith("1.1")) {
-#ifdef DGDEBUG
-        std::cout << "CheckHeader: ICAP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        onepointone = true;
-        // force ICAP/1.0 - we don't support chunked transfer encoding, possibly amongst other things
-        if (outgoing)
-            header.front() = header.front().before(" ICAP/") + " ICAP/1.0\r";
-    }
-
-    //work out if we should explicitly close this connection after this request
-    bool connectionclose;
-    if (pproxyconnection != NULL) {
-        if (pproxyconnection->contains("lose")) {
-#ifdef DGDEBUG
-            std::cout << "CheckHeader: P-C says close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-            connectionclose = true;
-        } else {
-            connectionclose = false;
-        }
-    } else {
-        connectionclose = true;
-    }
-
-    // Do not allow persistent connections on CONNECT requests - the browser thinks it has a tunnel
-    // directly to the external server, not a connection to the proxy, so it won't be re-used in the
-    // manner expected by DG and will result in waiting for time-outs.  Bug identified by Jason Deasi.
-    bool isconnect = false;
-    if (outgoing && header.front()[0] == 'C') {
-#ifdef DGDEBUG
-        std::cout << "CheckHeader: CONNECT request detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        isconnect = true;
-    }
-
-#ifdef DGDEBUG
-    std::cout << "CheckHeader flags before normalisation: AP=" << allowpersistent << " PPC=" << (pproxyconnection != NULL)
-              << " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    if (connectionclose || (outgoing ? isconnect : (pcontentlength == NULL))) {
-        // couldnt have done persistency even if we wanted to
-        allowpersistent = false;
-    }
-
-    if (outgoing) {
-        // Even though persistent CONNECT requests usually break things, waspersistent should
-        // reflect the intention of the original request headers, or NTLM breaks.
-        if (isconnect && !connectionclose) {
-            waspersistent = true;
-        }
-    } else {
-        if (!connectionclose && !(pcontentlength == NULL)) {
-            waspersistent = true;
-        }
-    }
-
-#ifdef DGDEBUG
-    std::cout << "CheckHeader flags after normalisation: AP=" << allowpersistent << " WP=" << waspersistent << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    // force the headers to reflect whether or not persistency is allowed
-    // (modify pproxyconnection or add connection close/keep-alive - Client version, of course)
-    if (allowpersistent) {
-        if (pproxyconnection == NULL) {
-#ifdef DGDEBUG
-            std::cout << "CheckHeader: Adding our own Proxy-Connection: Keep-Alive" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-            header.push_back("Connection: keep-alive\r");
-            pproxyconnection = &(header.back());
-        } else {
-            (*pproxyconnection) = "Connection: keep-alive\r";
-        }
-    } else {
-        if (pproxyconnection == NULL) {
-#ifdef DGDEBUG
-            std::cout << "CheckHeader: Adding our own Proxy-Connection: Close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-            header.push_back("Connection: close\r");
-            pproxyconnection = &(header.back());
-        } else {
-            (*pproxyconnection) = "Connection: close\r";
-        }
-    }
-
-    ispersistent = allowpersistent;
-
-    // Normalise request headers (fix host, port, first line of header, etc. to all be consistent)
-    if (outgoing) {
-        String newurl(getUrl());
-        setURL(newurl);
-    }
 }
 
+#ifdef NOTDEF
 String ICAPHeader::getUrl()
 {
     // Version of URL *with* port is not cached,
@@ -416,6 +343,7 @@ String ICAPHeader::url()
 {
     return getUrl();
 }
+#endif
 
 // *
 // *
@@ -536,104 +464,122 @@ int ICAPHeader::decode1b64(char c)
 // *
 
 // send headers out over the given socket
-// "reconnect" flag gives permission to reconnect to the socket on write error
-// - this allows us to re-open the proxy connection on pconns if squid's end has
-// timed out but the client's end hasn't. not much use with NTLM, since squid
-// will throw a 407 and restart negotiation, but works well with basic & others.
-//void ICAPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect) throw(std::exception)
-bool ICAPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnect )
+bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
 {
+    bool body_done = false;
+
+    std::cerr << "ICAPresponse starting - RCode " << res_code << "echo is " << echo << std::endl;
+
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
-
-    if (sendflag == __DGHEADER_SENDALL || sendflag == __DGHEADER_SENDFIRSTLINE) {
-        if (header.size() > 0) {
-            l = header.front() + "\n";
-
-#ifdef DGDEBUG
-            if(is_response)  {
-    std::cout << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    } else {
-    std::cout << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    }
-#endif
-
-#ifdef __SSLMITM
-            //if a socket is ssl we want to send relative paths not absolute urls
-            //also ICAP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
-            if (sock->isSsl() && !sock->isSslServer()) {
-                //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif ICAP/1.0
-                //	get the request method		//get the relative path					//everything after that in the header
-                l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " ICAP/1.0\r\n";
-            }
-#endif
-
-#ifdef DGDEBUG
-            if(is_response)  {
-    std::cout << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    } else {
-    std::cout << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    }
-#endif
-            // first reconnect loop - send first line
-            while (true) {
-                if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
-                    // throw std::exception();
-                    return false;
-                }
-                // if we got here, we succeeded, so break the reconnect loop
-#ifdef DGDEBUG
-                std::cout << "headertoclient:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                std::cout << "timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                break;
-            }
+    if(echo) {
+        if (service_reqmod && !(out_res_hdr_flag || out_req_hdr_flag)) {
+            out_req_header = HTTPrequest->stringHeader();
+            std::cerr << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
+            out_req_hdr_flag = true;
+            if (req_body > 0)
+                size_req_body = req_body; // TODO Check this!
         }
-        if (sendflag == __DGHEADER_SENDFIRSTLINE) {
-            return true;
+
+        if (service_resmod && !(out_res_hdr_flag)) {
+            out_res_header = HTTPresponse->stringHeader();
+            out_res_hdr_flag = true;
+            if (res_body > 0)
+                size_res_body = res_body;// TODO Check this!
         }
     }
 
-    l = "";
 
-    if (header.size() > 1) {
-        for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
-            if (! (*i).startsWith("X-E2G-IgnoreMe")){
-#ifdef DGDEBUG
-                std::cout << "Found Header: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                l += (*i) + "\n";
-            }
-#ifdef DGDEBUG
-            else {
-                    std::cout << "Found Header X-E2G-IgnoreMe: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            }
-#endif
-        }
-
-    }
+    l = "ICAP/1.0 " + res_code + "\r\n";
+    l += "ISTag:";
+    l += ISTag;
     l += "\r\n";
 
-    // second reconnect loop
-    while (true) {
+    // add Encapsulated header logic
+    int offset = 0;
+    String soffset (offset);
+    String sep = " ";
+    l += "Encapsulated:";
+    if (out_req_hdr_flag && out_req_header.size() > 0) {
+        l += sep;
+        sep = ", ";
+        l += "req-hdr=";
+        l += soffset;
+        offset += out_req_header.size();
+        soffset = offset;
+    }
+    if (out_res_hdr_flag && out_res_header.size() > 0) {
+        l += sep;
+        sep = ", ";
+        l += "res-hdr=";
+        l += soffset;
+        offset += out_res_header.size();
+        soffset = offset;
+    }
+    if (out_req_body_flag) {
+    l += sep;
+    l += "req-body=";
+    l += soffset;
+    } else if (out_res_body_flag) {
+        l += sep;
+        l += "res-body=";
+        l += soffset;
+    } else {
+        l += sep;
+        l += "null-body=";
+        l += soffset;
+    }
+    l += "\r\n\r\n";
+
         // send header to the output stream
         // need exception for bad write
-
-        if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
-            //throw std::exception();
-            return false;
-        }
-        // if we got here, we succeeded, so break the reconnect loop
-        break;
+    if (out_req_hdr_flag ) {
+        String temp = out_req_header.toCharArray();
+        l += temp;
     }
 
+    if (out_res_hdr_flag ) {
+        String temp = out_res_header.toCharArray();
+        l += temp;
+    }
+
+    std::cerr << "Icap response header is: " << l << std::endl;
+
+    if (!sock.writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
+        return false;
+    }
+
+
+
 #ifdef DGDEBUG
-    std::cout << "Returning from header:out " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << "Returning from icapheader:respond" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return true;
 }
 
+bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &res_body) {
+    // set IAP outs and then output ICAP header and res_header/body
+    out_res_header = res_header;
+    out_res_hdr_flag = true;
+    out_res_body_flag = true;
+    if (res_body.length() < 0) {
+        out_res_body = res_body;
+        out_res_body_flag = true;
+    }
+    std::cerr << "out_res_header: " << out_res_header << std::endl;
+    std::cerr << "out_res_body: " << out_res_body << std::endl;
+    if (!respond(peerconn))
+        return false;
+    if (!peerconn.writeChunk((char*)res_body.toCharArray(), res_body.length(), timeout))
+        return false;
+    char nothing[3];
+    nothing[0] = '\0';
+    if (!peerconn.writeChunk(nothing, 0, timeout))
+        return false;
+    return true;
+}
+
 void ICAPHeader::setClientIP(String &ip) {
-    s_clientip = ip.toCharArray();
+    clientip = ip;
 }
 
 bool ICAPHeader::in(Socket *sock, bool allowpersistent)
@@ -646,7 +592,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
     if(is_response)
     std::cout << "Start of response header:in"  << std::endl;
     else
-    std::cout << "Start of request header:in"  << std::endl;
+    std::cout << "Start of request ICAPheader:in"  << std::endl;
 #endif
 
     // the RFCs don't specify a max header line length so this should be
@@ -657,35 +603,32 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
     bool firsttime = true;
     bool discard = false;
     while (line.length() > 3 || discard) { // loop until the stream is
-    // failed or we get to the end of the header (a line by itself)
+        // failed or we get to the end of the header (a line by itself)
 
-    // get a line of header from the stream
-    // on the first time round the loop, honour the reloadconfig flag if desired
-    // - this lets us break when waiting for the next request on a pconn, but not
-    // during receipt of a request in progress.
+        // get a line of header from the stream
         bool truncated = false;
         int rc;
         bool honour_reloadconfig = false;  // TEMPORARY FIX!!!!
         if (firsttime) {
 #ifdef DGDEBUG
-            std::cout << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "ICAPheader:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
 #ifdef DGDEBUG
-            std::cout << "firstime: header:in after getLine " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "firstime: ICAPheader:in after getLine " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-           if (rc < 0 || truncated) {
+            if (rc == 0) return false;
+            if (rc < 0 || truncated) {
                 ispersistent = false;
 #ifdef DGDEBUG
-                std::cout << "firstime: header:in after getLine: rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << "firstime: ICAPheader:in after getLine: rc: " << rc << " truncated: " << truncated  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 return false;
             }
         } else {
-        //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
-        // this does not work for sites who are slow to send Content-Lenght so revert to standard
-        // timeout
-            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL,
+                               &truncated);   // timeout reduced to 100ms for lines after first
+            if (rc == 0) return false;
             if (rc < 0 || truncated) {
                 ispersistent = false;
 #ifdef DGDEBUG
@@ -704,42 +647,73 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             return false;
         }
 
-     //       throw std::exception();
+        //       throw std::exception();
 
         // getline will throw an exception if there is an error which will
         // only be caught by HandleConnection()       ?????????????????????
 
-        if (rc > 0 ) line = buff;
+        if (rc > 0) line = buff;
         else line = "";// convert the line to a String
 
-        if(firsttime && is_response) {
-        // check first line header
-            if (!(line.length() > 11 && line.startsWith("ICAP/") && (line.after(" ").before(" ").toInteger() > 99)))
-            {
-                if(o.logconerror)
-                    syslog(LOG_INFO, "Server did not respond with ICAP");
+        if (firsttime) {
+            // check first line header
+            if (is_response) {
+                if (!(line.length() > 11 && line.startsWith("ICAP/") &&
+                      (line.after(" ").before(" ").toInteger() > 99))) {
+                    if (o.logconerror)
+                        syslog(LOG_INFO, "Server did not respond with ICAP");
 #ifdef DGDEBUG
-                std::cout << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-                return false;
+                    return false;
+                }
+            } else {
+                method = line.before(" ");
+                std::cerr << "line is " << line << std::endl;
+                String t = line.after(" ").before(" ");
+                std::cerr << "t is " << t << std::endl;
+                if (t.startsWith("icap://")) {
+                    // valid protocol
+                } else {
+                    icap_error = "400 Bad Request";
+                    return false;
+                }
+                t = t.after("//").after("/");
+                if (t == o.icap_reqmod_url) {
+                    icap_reqmod_service = true;
+                } else if (t == o.icap_resmod_url) {
+                    icap_resmod_service = true;
+                } else {
+                    icap_error = "404 ICAP Service not found";
+                }
+                if (method == "OPTIONS") {
+                    service_options = true;
+                } else if (icap_reqmod_service && method == "REQMOD") {
+                    service_reqmod = true;
+                } else if (icap_resmod_service && method == "RESMOD") {
+                    service_resmod = true;
+                } else {
+                    icap_error = "405 Method not allowed for service";
+                }
             }
         }
-        // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
-        discard = false;
-        if (not(firsttime && line.length() <= 3)) {
-            header.push_back(line); // stick the line in the deque that holds the header
-        } else {
-            discard = true;
+            // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
+            discard = false;
+            if (not(firsttime && line.length() <= 3)) {
+                header.push_back(line); // stick the line in the deque that holds the header
+            } else {
+                discard = true;
 #ifdef DGDEBUG
-            std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cout << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-        }
-        firsttime = false;
+            }
+            firsttime = false;
 #ifdef DGDEBUG
-        std::cout << "Loop catch Header IN from client: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << "Loop catch Header IN from client: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 // End of while
-    }
+        }
+
 
     if (header.size() == 0) {
 #ifdef DGDEBUG
@@ -750,5 +724,35 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
     header.pop_back(); // remove the final blank line of a header
     checkheader(allowpersistent); // sort out a few bits in the header
+     std::cerr << "ICAPcheckheader done- " << encap_recs.size() << " encap_recs" << std::endl;
+    //now need to get http req and res headers - if present
+    for (std::deque<encap_rec>::iterator i = encap_recs.begin(); i < encap_recs.end(); i++) {
+            if( i->name == "req-hdr") {
+                req_hdr_flag = HTTPrequest->in(sock);
+                if (!req_hdr_flag)
+                    return false;
+                req_hdr = i->value;
+            } else if ( i->name == "res-hdr") {
+                res_hdr_flag = HTTPresponse->in(sock);
+                if (!res_hdr_flag)
+                    return false;
+                res_hdr = i->value;
+            } else if ( i->name == "req-body") {
+                req_body_flag = true;
+                req_body = i->value;
+            } else if ( i->name == "res-body") {
+                res_body_flag = true;
+                res_body = i->value;
+            } else if (i->name == "null-body") {
+                null_body_flag = true;
+                null_body = i->value;
+            } else if ( i->name == "opt-body" ) {      // may not need this as only sent in respone
+                opt_body_flag = true;
+                opt_body = i->value;
+            }
+        // add further checking in here for REQMOD, RESPMOD and OPTIONS
+    }
+
+
     return true;
 }

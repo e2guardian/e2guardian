@@ -59,6 +59,7 @@ class Socket : public BaseSocket
     int getLocalPort();
     bool writeChunk( char *buffout, int len, int timeout);
     int readChunk( char *buffout, int maxlen, int timeout);
+    int loopChunk(int timeout);
 
 #ifdef __SSLMITM
     //use this socket as an ssl server
@@ -115,6 +116,7 @@ class Socket : public BaseSocket
   //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
     void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false);
 #endif //__SSLMITM
+    bool getIeof();
 
     private:
 #ifdef __SSLMITM
@@ -130,6 +132,7 @@ class Socket : public BaseSocket
     struct sockaddr_in my_adr;
     struct sockaddr_in peer_adr;
     int my_port;
+    bool ieof;
 };
 
 #endif

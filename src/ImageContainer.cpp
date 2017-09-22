@@ -61,6 +61,15 @@ bool ImageContainer::display(Socket *s)
     return true;
 }
 
+
+bool ImageContainer::display_hb(String &eheader, String &ebody) {
+    eheader += "Content-type: " ;
+    eheader +=   mimetype.toCharArray();
+    eheader +=  "\n\n";
+    ebody = image;
+    return true;
+}
+
 // read image from file
 bool ImageContainer::read(const char *filename)
 {

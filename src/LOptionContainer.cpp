@@ -12,6 +12,7 @@
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
 
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -38,6 +39,11 @@ LOptionContainer::LOptionContainer()
 LOptionContainer::LOptionContainer(int load_id)
         :   reporting_level(0), fg(NULL), numfg(0)
 {
+    char buff[40];
+
+    sprintf(buff, "%ld", time(NULL));
+    start_time = buff;
+
     loaded_ok = true;
 
     {
@@ -65,13 +71,18 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
-    if (loaded_ok && !StoryA.setEntry(1,"pre-authcheck")) {
+    if (loaded_ok && !StoryA.setEntry(ENT_STORYA_PRE_AUTH,"pre-authcheck")) {
         std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
-    if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(2,"thttps-pre-authcheck")) {
+    if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
         std::cerr << "Required storyboard entry function 'thttps-pre-authcheck' is missing" << std::endl;
+        loaded_ok = false;
+    }
+
+    if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
+        std::cerr << "Required storyboard entry function 'icap-pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 

@@ -27,6 +27,48 @@ class ICAPHeader
     bool is_response;
     HTTPHeader *HTTPrequest;
     HTTPHeader *HTTPresponse;
+    String icap_error;
+    bool service_options;
+    bool service_reqmod;
+    bool service_resmod;
+    bool icap_reqmod_service;
+    bool icap_resmod_service;
+
+    bool req_hdr_flag;
+    bool res_hdr_flag;
+    bool req_body_flag;
+    bool res_body_flag;
+    bool opt_body_flag;
+    bool null_body_flag;
+    bool out_req_hdr_flag;
+    bool out_res_hdr_flag;
+    String out_req_header;
+    String out_res_header;
+    bool out_req_body_flag;
+    bool out_res_body_flag;
+    String out_req_body;
+    String out_res_body;
+    int size_req_body;
+    int size_res_body;
+    String ISTag;
+    String username;
+    String clientip;
+
+    int req_hdr;
+    int res_hdr;
+    int req_body;
+    int res_body;
+    int opt_body;
+    int null_body;
+
+    bool allow_204 = false;
+
+    struct encap_rec {
+        String name;
+        int value;
+    };
+
+    std::deque<encap_rec> encap_recs;
 
     // reset header object for future use
     void reset();
@@ -34,12 +76,17 @@ class ICAPHeader
     // network communication funcs
 
     void setTimeout(int t);
+    void setHTTPhdrs(HTTPHeader &req, HTTPHeader &res);
     bool in(Socket *sock, bool allowpersistent = false );
 
     void setClientIP(String &ip);
 
-    // send headers out over the given socket
-    bool out(Socket *peersock, Socket *sock, int sendflag, bool reconnect = false);
+    bool setEncapRecs();
+
+    // respond with ICAP and HTTP headers and if given body
+    bool respond(Socket &peersock, String rescode = "200 OK", bool echo = false);
+
+    bool errorResponse(Socket &peersock, String &reshdr, String & resbody);
 
     // discard remainder of POST data
     // amount to discard can be passed in, or will default to contentLength()
@@ -77,6 +124,7 @@ class ICAPHeader
     {
         reset();
     };
+
     ICAPHeader(int type)
             : port(0), timeout(120000),  dirty(true), is_response(false)
     {
@@ -101,25 +149,38 @@ class ICAPHeader
 
 
     // header index pointers
-    String *phost;
-    String *pport;
-    String *pcontentlength;
-    String *pcontenttype;
-    String *pproxyauthorization;
+
+    //general
+    String *pproxyconnection;
+    String *pencapsulated;
+
+    //requests
     String *pauthorization;
+    String *pallow;
+    String *pfrom;
+    String *phost;
+    String *preferer;
+    String *puseragent;
+    String *ppreview;
+    String *pxforwardedfor;
+
+    String *pproxyauthorization;
     String *pproxyauthenticate;
     String *pcontentdisposition;
-    String *puseragent;
-    String *pxforwardedfor;
-    String *pcontentencoding;
-    String *pproxyconnection;
     String *pkeepalive;
+    String *pupgrade;
+    String *pclientip;
+    String *pclientuser;
+    String method;
+
 
     bool ispersistent, waspersistent;
 
+
+
+
     bool dirty;
 
-    std::string s_clientip;
 
     // check & fix headers from servers that don't obey standards
     void checkheader(bool allowpersistent);

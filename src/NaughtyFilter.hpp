@@ -145,6 +145,8 @@ class NaughtyFilter
     NaughtyFilter();
     NaughtyFilter(HTTPHeader &request, HTTPHeader &response);
     void reset();
+    void setURL();
+
     void checkme(const char *rawbody, off_t rawbodylen, const String *url, const String *domain,
         FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms = false);
 

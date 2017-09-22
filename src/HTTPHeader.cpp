@@ -1627,6 +1627,27 @@ String HTTPHeader::URLEncode()
     return returnS;
 }
 
+String HTTPHeader::stringHeader() {
+    String l;
+    if (header.size() > 0) {
+        for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
+            if (! (*i).startsWith("X-E2G-IgnoreMe")){
+#ifdef DGDEBUG
+                std::cout << "Found Header: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                l += (*i) + "\n";
+            }
+#ifdef DGDEBUG
+            else {
+                    std::cout << "Found Header X-E2G-IgnoreMe: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            }
+#endif
+        }
+        l += "\r\n";
+    }
+    return l;
+}
+
 // *
 // *
 // * network send/receive funcs

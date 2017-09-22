@@ -525,6 +525,14 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // check its a reasonable value
 
+        icap_reqmod_url = findoptionS("icapreqmodurl");
+        if (icap_reqmod_url == "")
+            icap_reqmod_url = "request";
+
+        icap_resmod_url = findoptionS("icapresmodurl");
+        if (icap_resmod_url == "")
+            icap_resmod_url = "response";
+
 #ifdef ENABLE_ORIG_IP
         if (findoptionS("originalip") == "on") {
             get_orig_ip = true;

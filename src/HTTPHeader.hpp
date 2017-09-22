@@ -46,6 +46,8 @@ class HTTPHeader
 
     void setClientIP(String &ip);
 
+    String stringHeader();  // output header as a String (used by ICAP)
+
     // send headers out over the given socket
     // "reconnect" flag gives permission to reconnect to the socket on write error
     // - this allows us to re-open the proxy connection on pconns if squid's end has

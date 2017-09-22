@@ -100,11 +100,8 @@ void makeURLSafe(String &url)
     url.replaceall(">", "%3E");
 }
 
-// fill in placeholders with the given information and send the resulting page to the client
-// only useful if you used the default set of placeholders
-void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
-    std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed)
-{
+void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
+                           std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip) {
 #ifdef DGDEBUG
     std::cout << "Displaying TEMPLATE" << std::endl;
 #endif
@@ -135,7 +132,7 @@ void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::str
                 line += "...";
             }
         } else if (line == "-SERVERIP-") {
-            line = s->getLocalIP();
+            line = localip;
         } else if (line == "-REASONGIVEN-") {
             String safereason = reason;
             makeURLSafe(safereason);
@@ -193,12 +190,24 @@ void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::str
             }
         }
         if (line.length() > 0) {
-            s->writeString(line.toCharArray());
+            ebody += line;
         }
         if (newline) {
-            s->writeString("\n");
+            ebody += "\n";
         }
     }
-    s->writeString(html[sz].toCharArray());
-    s->writeString("\n");
+    ebody += html[sz].toCharArray();
+    ebody += "\n";
+}
+
+// fill in placeholders with the given information and send the resulting page to the client
+// only useful if you used the default set of placeholders
+    void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
+                               std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed)
+{
+    String ebody;
+    String localip = s->getLocalIP();
+    display_hb(ebody, url, reason, logreason, categories,
+                               user, ip, host, filtergroup, grpname, hashed, localip);
+    s->writeString(ebody.toCharArray());
 }

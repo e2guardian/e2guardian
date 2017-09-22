@@ -74,6 +74,8 @@ class OptionContainer
     int proxy_port;
     int transparenthttps_port;
     int icap_port;
+    std::string icap_reqmod_url;
+    std::string icap_resmod_url;
     std::string proxy_ip;
     std::deque<String> filter_ip;
     std::deque<String> filter_ports;

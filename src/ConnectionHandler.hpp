@@ -14,6 +14,7 @@
 #include "NaughtyFilter.hpp"
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
+#include "ICAPHeader.hpp"
 #include "FatController.hpp"
 #include "Auth.hpp"
 
@@ -86,6 +87,10 @@ class ConnectionHandler
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
     int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
+    int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
+    int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
+    int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead) ;
+
     bool getdnstxt(std::string &clientip, String &user);
 
     String dns_error(int herror);
@@ -110,6 +115,10 @@ class ConnectionHandler
 
   //  RegExp ch_isiphost;
   //  RegResult Rch_isiphost;
+    bool genDenyAccess(Socket &peerconn, String &eheader, String &ebody, HTTPHeader *header, HTTPHeader *docheader,
+                       String *url, NaughtyFilter *checkme, std::string *clientuser, std::string *clientip,
+                       int filtergroup,
+                       bool ispostblock, int headersent, bool wasinfected, bool scanerror, bool forceshow = false);
 
     // show the relevant banned page depending upon the report level settings, request type, etc.
     bool denyAccess(Socket *peerconn, Socket *proxysock, HTTPHeader *header, HTTPHeader *docheader,
@@ -131,9 +140,12 @@ class ConnectionHandler
     off_t sendFile(Socket *peerconn, String &filename, String &filemime, String &filedis, String &url);
 
     bool writeback_error( NaughtyFilter &cm, Socket & cl_sock, int mess_no1, int mess_no2, std::string mess);
+    bool gen_error_mess( Socket &peerconn, NaughtyFilter &cm, String &eheader, String &ebody, int mess_no1, int mess_no2, std::string mess);
 
     bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header,
         bool only_client_ip = false);
+
+    bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, HTTPHeader & header, bool only_client_ip = false);
 
     bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
     Socket &peerconn, std::string &clientip, bool & persistProxy);

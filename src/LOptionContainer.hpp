@@ -41,8 +41,8 @@ struct room_item {
 class LOptionContainer
 {
     public:
-    Queue<std::string>* log_Q;
-    Queue<Socket*>* http_worker_Q;
+    //Queue<std::string>* log_Q;
+    //Queue<Socket*>* http_worker_Q;
 
     // all our options
 
@@ -59,6 +59,7 @@ class LOptionContainer
     bool loaded_ok;
     int reload_id;
     int numfg;
+    String start_time;
 
     // access denied domain (when using the CGI)
     String access_denied_domain;
@@ -88,6 +89,10 @@ class LOptionContainer
 
     char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
+
+    String ISTag() {
+        return start_time;
+    }
 
 
     private:

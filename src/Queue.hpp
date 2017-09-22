@@ -32,7 +32,7 @@ public:
         Q.pop();
         return rc;
     };
-    long size() {
+    int size() {
         std::lock_guard<std::mutex> lock(d_mutex);
         return Q.size();
     }

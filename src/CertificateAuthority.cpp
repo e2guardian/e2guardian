@@ -34,11 +34,17 @@ extern OptionContainer o;
 void log_ssl_errors( const char *mess, const char *site) {
     if( o.log_ssl_errors ) {
         syslog(LOG_ERR, mess, site);
+#ifdef DGDEBUG
+        std::cout << "SSL Error: " << mess << " at: " << site << std::endl;
+#endif
         unsigned long e;
         char buff[512];
         while (e = ERR_get_error()) {
            ERR_error_string(e, &buff[0]);
            syslog(LOG_ERR, "%s", buff );
+#ifdef DGDEBUG
+        std::cout << "SSL Error: " << buff << " at: " << site << std::endl;
+#endif
         }
     }
 }
@@ -118,7 +124,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     // added to generate different serial number than previous versions
     //   needs to be added as an option
     std::string sname(commonname );
-    sname += "A";
+    sname += "B";
 
 #ifdef DGDEBUG
     std::cout << "Generating serial no for " << commonname << std::endl;
@@ -237,7 +243,6 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 #endif
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
-        fclose(fp);
         return false;
     }
 
@@ -385,6 +390,15 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         X509_free(newCert);
         return NULL;
     }
+    {
+    String temp1 = "DNS:";
+    String temp2 = commonname;
+    temp1 = temp1 + temp2;
+    char    *value = (char*) temp1.toCharArray();
+     if( !addExtension(newCert, NID_subject_alt_name, value))
+        log_ssl_errors("Error adding subjectAltName to the request", commonname);
+     }
+
 
     //sign it using the ca
     ERR_clear_error();
@@ -501,8 +515,10 @@ int CertificateAuthority::mkpath(const char *path, mode_t mode)
 
 bool CertificateAuthority::free_ca_serial(struct ca_serial *cs)
 {
-    ASN1_INTEGER_free(cs->asn);
-    OPENSSL_free(cs->charhex);
+    if (cs->asn != NULL)
+        ASN1_INTEGER_free(cs->asn);
+    if (cs->charhex != NULL)
+        OPENSSL_free(cs->charhex);
     //	free(cs->charhex);
     if (cs->filepath != NULL)
         free(cs->filepath);
@@ -517,4 +533,18 @@ CertificateAuthority::~CertificateAuthority()
     if (_caPrivKey) EVP_PKEY_free(_caPrivKey);
     if (_certPrivKey) EVP_PKEY_free(_certPrivKey);
 }
+
+bool CertificateAuthority::addExtension(X509 *cert, int nid, char *value)
+{
+    X509_EXTENSION *ex = NULL;
+
+    ex = X509V3_EXT_conf_nid(NULL,NULL , nid, value);
+
+    int result = X509_add_ext(cert, ex, -1);
+
+    X509_EXTENSION_free(ex);
+
+    return (result > 0) ? true : false;
+}
+
 #endif //__SSLMITM

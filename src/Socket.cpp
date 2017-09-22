@@ -893,6 +893,8 @@ bool Socket::writeString(std::string line)
 // write data to socket - can be told not to do an initial readyForOutput, and to break on config reloads
 bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
 {
+    if (len == 0)   // nothing to write
+        return true;
     if (!isssl) {
         return BaseSocket::writeToSocket(buff, len, flags, timeout, check_first, honour_reloadconfig);
     }
@@ -991,6 +993,8 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 // read what's available and return error status - can be told not to do an initial checkForInput, and to break on reloads
 int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
 {
+    if (len == 0)  // nothing to read
+         return 0;
     if (!isssl) {
         return BaseSocket::readFromSocket(buff, len, flags, timeout, check_first, honour_reloadconfig);
     }
@@ -1089,9 +1093,17 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
 
 int Socket::readChunk( char *buffin, int maxlen, int timeout){
     char size[20];
+    ieof = false;
     int len = getLine(size,18, timeout);
     String l = size;
     l.chop();
+    String t = l.before(";");
+    if (t.length() > 0) {
+        if (l.endsWith("; ieof")) {
+            ieof = true;
+        }
+        l = t;
+    }
     int clen = l.hexToInteger();
     if (clen > maxlen)
         return -1;
@@ -1102,4 +1114,22 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
     } else {
         return -1;
     }
+}
+
+int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len chunk or timeout
+{
+    char buff[32000];
+    int tot_size = 0;
+    int csize = 1;
+    while (csize > 0) {
+        csize = readChunk(buff,32000, timeout);
+        if (!(csize > -1 && writeChunk(buff,csize,timeout)))
+            return -1;
+        tot_size += csize;
+    }
+    return tot_size;
+}
+
+bool Socket::getIeof() {
+    return ieof;
 }

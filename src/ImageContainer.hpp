@@ -23,6 +23,7 @@ class ImageContainer
     bool read(const char *filename);
     // send image to client
    bool display(Socket *s);
+   bool display_hb(String &eheader, String &ebody);
 
     private:
     long int imagelength;

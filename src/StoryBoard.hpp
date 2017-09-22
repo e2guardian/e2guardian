@@ -23,6 +23,16 @@
 
 //#ifndef __HPP_SB
 
+#define  ENT_STORYA_PRE_AUTH    1
+#define  ENT_STORYA_PRE_AUTH_THTTPS    2
+#define  ENT_STORYA_PRE_AUTH_ICAP       3
+#define  ENT_STORYB_PROXY_REQUEST    1
+#define  ENT_STORYB_PROXY_RESPONSE  2
+#define  ENT_STORYB_THTTPS_REQUEST    3
+#define  ENT_STORYB_ICAP_REQMOD 4
+#define  ENT_STORYB_ICAP_RESMOD 5
+
+
 class NaughtyFilter;
 
 // DECLARATIONS
