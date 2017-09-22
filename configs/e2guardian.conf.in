@@ -132,7 +132,7 @@ filterports = 8080
 
 #port for ICAP
 #if defined enables icap mode 
-#icapport = 1344  // not yet implimented 
+#icapport = 1344  
 
 # the ip of the proxy (default is the loopback - i.e. this server)
 proxyip = 127.0.0.1

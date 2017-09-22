@@ -1,0 +1,11 @@
+ICAP - Brief notes
+
+To enable uncomment icapport in e2guardian.conf
+
+Suggest these lines in squid.conf for testing:-
+
+icap_enable on
+icap_service service_req reqmod_precache bypass=0 icap://127.0.0.1:1344/request
+adaptation_access service_req allow all
+icap_send_client_ip on
+icap_send_client_username on

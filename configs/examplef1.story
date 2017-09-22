@@ -30,6 +30,28 @@ if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
 if(fullurlin, change) setmodurl
 
+function(icap-checkrequest)
+# comment out the following line if you do not use 'local' list files
+#ifnot(greyset) returnif localcheckrequest
+#if(true) return setexception
+if(connect) return icapsslrequestcheck
+ifnot(greyset) returnif exceptioncheck
+if(refererin,refererexception) return setexception
+ifnot(greyset) greycheck
+#ifnot(greyset) return setblock
+ifnot(greyset) returnif bannedcheck
+if(fullurlin, change) setmodurl
+if(true) returnif embeddedcheck
+# uncomment next line if local lists NOT used
+if(fullurlin,searchterms) setsearchterm
+if(searchin,override) return setgrey
+if(searchin,banned) return setblock
+if(headerin,headermods) setheadermod
+if(fullurlin, addheader) setaddheader
+if(true) setgrey
+
+function(icap-checkresponse)
+if(true) return checkresponse
 
 function(embeddedcheck)
 if(embeddedin, localexception) return false
@@ -93,4 +115,9 @@ if(true) setgomitm
 if(sitein, nocheckcert) setnocheckcert
 if(true) sslreplace
 #if(sitein, banned) return setblock
+
+function(icapsslrequestcheck)
+if(true) returnif sslexceptioncheck
+if(true) sslreplace
+if(sitein, banned) return setblock
 
