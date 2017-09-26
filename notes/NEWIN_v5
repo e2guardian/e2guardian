@@ -47,6 +47,18 @@ ICAP SERVER
 This is now in testable form - only in REQMOD currently.
 Uncomment icapport to enable.
 
+DIRECT ACCESS I.e. not via proxy.  
+
+This is now in testable form.  
+
+To implement globaly comment out 'proxyip =' in e2guardian.conf.
+
+The storyboard action setgodirect can be used within checkrequest functions 
+to enable selected protocols/site/urls to godirect.
+e.g. to send all connect requests directly add
+		if(connect) setgodirect
+	to a requestchecks function.
+
 TESTING -  
 
 This version is at an early test stage. It should always be compliled and
@@ -54,17 +66,21 @@ run in debug mode.
 
 TODO - for this release.
 
+ICAP RESMOD - content checking
+
+Content chunking for proxyed/thttp traffic - i.e. HTTP/1.1
+
 Enable download plugins
 
 New debug system (to start for storyboarding only)
 
 By-pass code
 
-Direct (not via proxy) option.
-
 Transparent HTTPS on ports other than 443
 
-Cut and splice certificates where required.
+Re-look at MITM certificate generation.
+
+Tidy code, error messages.
 
 WISHLIST
 
