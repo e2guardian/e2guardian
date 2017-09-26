@@ -1146,7 +1146,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                             fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
                             // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
                             String swhat(what);
-                            fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100)).toCharArray() + 1);
+                            fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100).c_str()).toCharArray());
                             fprintf(mail, "%-10s%s\n", "Method:", how.c_str());
                             fprintf(mail, "%-10s%s\n", "Size:", ssize.c_str());
                             fprintf(mail, "%-10s%s\n", "Weight:", sweight.c_str());

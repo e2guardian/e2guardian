@@ -357,9 +357,13 @@ switch (lc_type) {
     case  CT_PROXY:
         rc = handleConnection(peerconn, ip, false, proxysock, dystat);
         break;
+
+#ifdef __SSLMITM
     case  CT_THTTPS:
         rc = handleTHTTPSConnection(peerconn, ip, proxysock, dystat);
         break;
+#endif
+
     case  CT_ICAP:
         rc = handleICAPConnection(peerconn, ip, proxysock, dystat);
         break;
@@ -895,6 +899,7 @@ stat_rec* &dystat) {
             if (checkme.isexception)
                 checkme.tunnel_rest = true;
 
+#ifdef __SSLMITM
             //if ismitm - GO MITM
             // check ssl_grey is covered in storyboard
             if (!checkme.isItNaughty && checkme.isconnect && checkme.gomitm) {
@@ -905,6 +910,7 @@ stat_rec* &dystat) {
                 if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
                     break;
             }
+#endif
 
             //CALL SB checkresponse
             if(!checkme.isItNaughty) {
