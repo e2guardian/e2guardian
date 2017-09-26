@@ -86,7 +86,9 @@ class ConnectionHandler
     //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
+#ifdef __SSLMITM
     int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
+#endif
     int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
     int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead) ;
@@ -106,8 +108,9 @@ class ConnectionHandler
 
     void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
 
+#ifdef __SSLMITM
     bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
-
+#endif
 
 
     // perform URL encoding on a string
