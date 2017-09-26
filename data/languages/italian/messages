@@ -39,6 +39,10 @@
 "204"," - Please try again later"    # needs translation
 "205","Upstream proxy is not responding (network error)"    # needs translation
 "206"," - Please try again later"    # needs translation
+"207","The site requested does not exist"    # needs translation
+"208","The site requested does not have an IPv4 address"    # needs translation
+"209","Temporary DNS service failure - please try again"    # needs translation
+"210","DNS service failure - please try again later"    # needs translation
 "300","Trovata una frase vietata: "
 "301","Trovata una frase vietata."
 "400","Trovata una combinazione di frasi vietata: "
