@@ -487,11 +487,18 @@ bool OptionContainer::read(std::string& filename, int type)
             banned_flash.read(custom_banned_flash_file.c_str());
         }
 
-        proxy_port = findoptionI("proxyport");
-        if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
-            return false;
-        } // etc
         proxy_ip = findoptionS("proxyip");
+        if (proxy_ip == "")
+            no_proxy = true;
+        else
+            no_proxy = false;
+
+        if (!no_proxy) {
+            proxy_port = findoptionI("proxyport");
+            if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
+                return false;
+            } // etc
+        }
 
         // multiple listen IP support
         filter_ip = findoptionM("filterip");

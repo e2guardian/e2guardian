@@ -93,6 +93,7 @@ class NaughtyFilter
     bool nocheckcert = false;
     bool logcategory = false;
     bool urlredirect = false;
+    bool isdirect = false;   // go direct if true via proxy if false
     bool tunnel_rest = false;
     bool tunnel_2way = false;
     bool is_text = false;

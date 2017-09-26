@@ -573,6 +573,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         cm.search_terms.swapChar('+', ' ');
                     };
                     break;
+                case SB_FUNC_SETGODIRECT:
+                    cm.isdirect = true;
+                    break;
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;
                     break;

@@ -130,6 +130,7 @@ void NaughtyFilter::reset()
                 log_message_no = 0;
                 urlredirect = false;
                 logcategory = false;
+                isdirect = o.no_proxy;  // always set if no proxy defined
     //            authed = false;
     //            isbanneduser = false;
                 mimetype = "-";

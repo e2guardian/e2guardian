@@ -300,6 +300,46 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
     return sent;
 }
 
+int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm)   // connects to to proxy or directly
+{
+    if (cm.isdirect) {
+        String des_ip;
+        if (cm.isiphost) {
+            des_ip = cm.urldomain;
+            sock.setTimeout(o.proxy_timeout);
+            std::cerr << "Connecting to IP " << des_ip << " port " << cm.request_header->port << std::endl;
+            return sock.connect(des_ip,cm.request_header->port);
+        } else {
+            //dns lookup
+            struct addrinfo hints, *infoptr;
+            hints.ai_family = AF_INET;
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_flags = 0;
+            hints.ai_protocol = 0;
+            hints.ai_canonname = NULL;
+            hints.ai_addr = NULL;
+            hints.ai_next = NULL;
+            int rc = getaddrinfo(cm.urldomain.toCharArray(), NULL, &hints, &infoptr);
+            std::cerr << "connectUpstream: getaddrinfo returned " << rc << " for " << cm.urldomain << gai_strerror(rc) << std::endl;
+            if (rc)  // problem
+                return -1;
+            char t[256];
+            struct addrinfo *p;
+            for (p = infoptr; p != NULL; p = p->ai_next)
+            {
+                getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+                std::cerr << "Connecting to IP " << t << " port " << cm.request_header->port << std::endl;
+                if (sock.connect(t,cm.request_header->port))
+                    return 0;
+            }
+            return -1;  //TODO set some sort of flag here!!!
+        }
+    } else {  //is via proxy
+        sock.setTimeout(1000);
+        return sock.connect(o.proxy_ip, o.proxy_port);
+    }
+}
+
 // pass data between proxy and client, filtering as we go.
 // this is the only public function of ConnectionHandler
 int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat, unsigned int lc_type)
@@ -311,7 +351,8 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec* &dysta
     // for debug info only - TCP peer port
     dbgPeerPort = peerconn.getPeerSourcePort();
 //#endif
-    Socket proxysock;
+    Socket proxysock;    // also used for direct connection
+
 switch (lc_type) {
     case  CT_PROXY:
         rc = handleConnection(peerconn, ip, false, proxysock, dystat);
@@ -496,7 +537,8 @@ stat_rec* &dystat) {
             // do this normalisation etc just the once at the start.
             checkme.setURL();
 
-            //If proxy connction is not persistent...
+            //If proxy connction is not persistent..// do this later after checking if direct or via proxy
+#ifdef NOTDEF
             if (!persistProxy) {
                 try {
                     // ...connect to proxy
@@ -535,6 +577,7 @@ stat_rec* &dystat) {
 #endif
                 }
             }
+#endif
 
 #ifdef DGDEBUG
             std::cerr << getpid() << "Start URL " << checkme.url.c_str() << "is_ssl=" << checkme.is_ssl << "ismitm=" << ismitm << std::endl;
@@ -548,6 +591,7 @@ stat_rec* &dystat) {
                 break;
             }
 
+            // TODO this needs moving is proxy operation is still to be tested
             if (checkme.urldomain == "internal.test.e2guardian.org") {
                 peerconn.writeString(
                         "HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
@@ -770,6 +814,7 @@ stat_rec* &dystat) {
                     std::cerr << "After StoryB checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
                     checkme.isItNaughty = checkme.isBlocked;
+                    if (checkme.isdirect) header.setDirect();
             }
 
             //check for redirect
@@ -796,52 +841,65 @@ stat_rec* &dystat) {
 
             //now send upstream and get response
             if (!checkme.isItNaughty) {
+                if (!persistProxy) // open upstream connection
+                {
+                    if (!connectUpstream(proxysock, checkme)) {
+                        // give error - depending on answer
+                        // timeout -etc
+                    }
+                }
+
                 if (!proxysock.breadyForOutput(o.proxy_timeout))
-                    cleanThrow("Unable to write to proxy", peerconn, proxysock);
+                    cleanThrow("Unable to write upstream", peerconn, proxysock);
 #ifdef DGDEBUG
                 std::cerr << dbgPeerPort << "  got past line 727 rfo " << std::endl;
 #endif
+                if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
+                    std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
+                    if(!peerconn.writeString(msg.c_str()))
+                        cleanThrow("Unable to send to client 859",peerconn,proxysock);
+                } else {  // in all other cases send header upstream and get response
 
-                if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true ) // send proxy the request
-                      && (docheader.in(&proxysock, persistOutgoing)))) {
-                    if (proxysock.isTimedout()) {
-                        writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
-                    } else {
-                        writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                    if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
+                          && (docheader.in(&proxysock, persistOutgoing)))) {
+                        if (proxysock.isTimedout()) {
+                            writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
+                        } else {
+                            writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                        }
+                        break;
                     }
-                    break;
-                }
-                persistProxy = docheader.isPersistent();
-                persistPeer = persistOutgoing && docheader.wasPersistent();
+                    persistProxy = docheader.isPersistent();
+                    persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
 #endif
-            }
-
-
-            //check response code
-            if (!checkme.isItNaughty) {
-                int rcode = docheader.returnCode();
-                if (checkme.isconnect &&
-                    (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
-                {
-                    checkme.ismitmcandidate = false;  // only applies to connect
-                    checkme.tunnel_rest = true;
-                    checkme.tunnel_2way = false;
-                } else if (rcode == 407) {   // proxy auth required
-                    // tunnel thru - no content
-                    checkme.tunnel_rest = true;
                 }
-                //TODO check for other codes which do not have content payload make these tunnel_rest.
-                if (checkme.isexception)
-                    checkme.tunnel_rest = true;
+
+                //check response code
+                if (!checkme.isItNaughty) {
+                    int rcode = docheader.returnCode();
+                    if (checkme.isconnect &&
+                        (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
+                    {
+                        checkme.ismitmcandidate = false;  // only applies to connect
+                        checkme.tunnel_rest = true;
+                        checkme.tunnel_2way = false;
+                    } else if (rcode == 407) {   // proxy auth required
+                        // tunnel thru - no content
+                        checkme.tunnel_rest = true;
+                    }
+                    //TODO check for other codes which do not have content payload make these tunnel_rest.
+                }
             }
+            if (checkme.isexception)
+                checkme.tunnel_rest = true;
 
             //if ismitm - GO MITM
             // check ssl_grey is covered in storyboard
             if (!checkme.isItNaughty && checkme.isconnect && checkme.gomitm) {
                 std::cerr << "Going MITM ...." << std::endl;
-                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip);
+                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
                 persistPeer = false;
                 persistProxy = false;
                 if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
@@ -1773,6 +1831,8 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #endif
     }
 
+
+
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
     String connect_request = "CONNECT " + hostname + ":";
@@ -2567,6 +2627,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         bool persistOutgoing = true;
         bool persistPeer = true;
         bool persistProxy = false;
+        bool direct = false;
 
         char buff[2048];
         rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
@@ -2659,7 +2720,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.docsize = 0;
 
-            //If proxy connction is not persistent...
+            //If proxy connction is not persistent...  // TODO move this section into connectUpstream
+            // TODO Delay connection until we know if direct or not.
+#ifdef NOTDEF
             if (!persistProxy) {
                 try {
                     // ...connect to proxy
@@ -2698,6 +2761,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 #endif
                 }
             }
+#endif
 
 
             //if (checkme.urldomain == "internal.test.e2guardian.org") {
@@ -2798,9 +2862,15 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
 
             //now send upstream and get response
-            if (!checkme.isItNaughty) {
-                if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
-                break;
+            if (!checkme.isItNaughty && !persistProxy) {
+                if (connectUpstream(proxysock, checkme)) {
+                    if(!checkme.isdirect) {
+                        if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
 
 

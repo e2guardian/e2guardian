@@ -72,6 +72,7 @@ class OptionContainer
     bool map_ports_to_ips;
     int filter_port;
     int proxy_port;
+    bool no_proxy;
     int transparenthttps_port;
     int icap_port;
     std::string icap_reqmod_url;

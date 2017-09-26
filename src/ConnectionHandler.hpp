@@ -159,6 +159,8 @@ class ConnectionHandler
 #endif //__SSLMITM
 
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
+
+    int connectUpstream(Socket &sock, NaughtyFilter &cm);
 };
 
 char *get_TLS_SNI(char *bytes, int* len);

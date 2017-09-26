@@ -1680,11 +1680,15 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             //if a socket is ssl we want to send relative paths not absolute urls
             //also HTTP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
             if (sock->isSsl() && !sock->isSslServer()) {
+            setDirect();
+            }
+#endif
+
+            if (isdirect) {
                 //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
                 //	get the request method		//get the relative path					//everything after that in the header
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.0\r\n";
             }
-#endif
 
 #ifdef DGDEBUG
             if(is_response)  {
@@ -1697,7 +1701,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             while (true) {
                 if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
                     // reconnect & try again if we've been told to
-                    if (reconnect && !mitm) {
+                    if (reconnect && !isdirect) {
 // don't try more than once
 #ifdef DGDEBUG
                         std::cout << "Proxy connection broken (1); trying to re-establish..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -1759,7 +1763,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
         if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
             // reconnect & try again if we've been told to
-            if (reconnect && !mitm) {
+            if (reconnect && !isdirect) {
 // don't try more than once
 #ifdef DGDEBUG
                 std::cout << "Proxy connection broken (2); trying to re-establish..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -1829,6 +1833,10 @@ void HTTPHeader::discard(Socket *sock, off_t cl)
 
 void HTTPHeader::setClientIP(String &ip) {
     s_clientip = ip.toCharArray();
+}
+
+void HTTPHeader::setDirect() {
+    isdirect = true;
 }
 
 bool HTTPHeader::in(Socket *sock, bool allowpersistent)

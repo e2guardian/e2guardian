@@ -121,6 +121,9 @@ class HTTPHeader
     // is called.
     void setPostData(const char *data, size_t len);
 
+    void setDirect();
+
+
     // detailed value/type checks
 
     bool malformedURL(const String &url);
