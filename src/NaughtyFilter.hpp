@@ -62,6 +62,7 @@ class NaughtyFilter
     std::deque<url_rec> deep_urls;
 
     // flags from ConnectionHandler
+    bool upfailure = false;  //set when problem with upstream connection (site or proxy)
     bool waschecked = false;
     bool wasrequested = false;
     bool isexception = false;

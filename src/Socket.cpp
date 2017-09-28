@@ -177,7 +177,6 @@ void Socket::reset() {
 
 // connect to given IP & port (following default constructor)
 int Socket::connect(const std::string &ip, int port) {
-    //if (sck > -1)  reset();   // just in case this is called with socket still open
     reset();   // do it anyway as we need sck to be allocated
 
     if (sck < 0) // socket creation error

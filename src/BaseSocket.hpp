@@ -49,6 +49,7 @@ class BaseSocket
     bool isNoOpp();
     bool isNoRead();
     bool isNoWrite();
+    bool isOpen();
     bool ishup;
 
     // close & reset the connection - these must clear address structures & call baseReset/baseAccept

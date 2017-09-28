@@ -542,8 +542,6 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                     cm.whatIsNaughtyCategories = cm.lastcategory;
                     break;
-
-                    break;
                 case SB_FUNC_SETREDIRECT:
                     if (cm.result.size() > 0) {
                         cm.request_header->redirect = cm.result;
@@ -591,6 +589,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             }
 
         }
+       cm.isReturn = action_return;
         if (i->return_after_action)
             break;
         if (i->return_after_action_is_true && action_return)

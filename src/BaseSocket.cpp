@@ -175,6 +175,11 @@ int BaseSocket::getTimeout()
     return timeout;
 }
 
+bool BaseSocket::isOpen()
+{
+    return (sck > -1);
+}
+
 bool BaseSocket::isClosing()
 {
     return isclosing;

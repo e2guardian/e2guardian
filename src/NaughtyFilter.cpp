@@ -106,35 +106,36 @@ void NaughtyFilter::reset()
 
     gomitm = false;
     // resets from CH
-                waschecked = false; // flags
-                wasrequested = false;
-                isexception = false;
-                isourwebserver = false;
-                wasclean = false;
-                isbypass = false;
-                iscookiebypass = false;
-                isvirusbypass = false;
-                bypasstimestamp = 0;
-                isscanbypass = false;
-                ispostblock = false;
-                pausedtoobig = false;
-                wasinfected = false;
-                wasscanned = false;
-                contentmodified = false;
-                urlmodified = false;
-                headermodified = false;
-                headeradded = false;
-                nocheckcert = false;
-                headersent = 0;
-                message_no = 0;
-                log_message_no = 0;
-                urlredirect = false;
-                logcategory = false;
-                isdirect = o.no_proxy;  // always set if no proxy defined
+    waschecked = false; // flags
+    wasrequested = false;
+    isexception = false;
+    isourwebserver = false;
+    wasclean = false;
+    isbypass = false;
+    iscookiebypass = false;
+    isvirusbypass = false;
+    bypasstimestamp = 0;
+    isscanbypass = false;
+    ispostblock = false;
+    pausedtoobig = false;
+    wasinfected = false;
+    wasscanned = false;
+    contentmodified = false;
+    urlmodified = false;
+    headermodified = false;
+    headeradded = false;
+    nocheckcert = false;
+    headersent = 0;
+    message_no = 0;
+    log_message_no = 0;
+    urlredirect = false;
+    logcategory = false;
+    upfailure = false;
+    isdirect = o.no_proxy;  // always set if no proxy defined
     //            authed = false;
     //            isbanneduser = false;
-                mimetype = "-";
-                docsize = 0; // to store the size of the returned document for logging
+    mimetype = "-";
+    docsize = 0; // to store the size of the returned document for logging
 
 }
 
