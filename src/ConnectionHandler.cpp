@@ -859,7 +859,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_REQUEST, checkme);
-                std::cerr << "After StoryB checkrequest isexception " << checkme.isexception << " gomitm " << checkme.gomitm << " mess_no "
+                std::cerr << "After StoryB checkrequest isexception " << checkme.isexception << " gomitm "
+                          << checkme.gomitm << " mess_no "
                           << checkme.message_no << std::endl;
                 checkme.isItNaughty = checkme.isBlocked;
                 if (checkme.isdirect) header.setDirect();
@@ -892,8 +893,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     if (connectUpstream(proxysock, checkme) < 0) {
-        //                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && checkme.upfailure)
-         //                   checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                        //                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && checkme.upfailure)
+                        //                   checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                         // give error - depending on answer
                         // timeout -etc
                     }
@@ -905,47 +906,54 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::cerr << dbgPeerPort << "  got past line 727 rfo " << std::endl;
 #endif
                 }
-                    if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
-                        std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
-                        if (!peerconn.writeString(msg.c_str()))
-                            cleanThrow("Unable to send to client 859", peerconn, proxysock);
-                    } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
-                    {
-                        if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
-                              && (docheader.in(&proxysock, persistOutgoing)))) {
-                            if (proxysock.isTimedout()) {
-                                writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
-                            } else {
-                                writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
-                            }
-                            break;
+                if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
+                    std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
+                    if (!peerconn.writeString(msg.c_str()))
+                        cleanThrow("Unable to send to client 859", peerconn, proxysock);
+                } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
+                {
+                    if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
+                          && (docheader.in(&proxysock, persistOutgoing)))) {
+                        if (proxysock.isTimedout()) {
+                            writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
+                        } else {
+                            writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
                         }
-                        persistProxy = docheader.isPersistent();
-                        persistPeer = persistOutgoing && docheader.wasPersistent();
+                        break;
+                    }
+                    persistProxy = docheader.isPersistent();
+                    persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
+                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << std::endl;
 #endif
 
-                //check response code
-                if ((!checkme.isItNaughty) && (!checkme.upfailure) ) {
-                    int rcode = docheader.returnCode();
-                    if (checkme.isconnect &&
-                        (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
-                    {
-                        checkme.ismitmcandidate = false;  // only applies to connect
-                        checkme.tunnel_rest = true;
-                        checkme.tunnel_2way = false;
-                    } else if (rcode == 407) {   // proxy auth required
-                        // tunnel thru - no content
-                        checkme.tunnel_rest = true;
+                    //check response code
+                    if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
+                        int rcode = docheader.returnCode();
+                        if (checkme.isconnect &&
+                            (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
+                        {
+                            checkme.ismitmcandidate = false;  // only applies to connect
+                            checkme.tunnel_rest = true;
+                            checkme.tunnel_2way = false;
+                        } else if (rcode == 407) {   // proxy auth required
+                            // tunnel thru - no content
+                            checkme.tunnel_rest = true;
+                        }
                     }
                 }
-                }
-                    //TODO check for other codes which do not have content payload make these tunnel_rest.
-                }
-                if (checkme.isexception && !checkme.upfailure)
+                //TODO check for other codes which do not have content payload make these tunnel_rest.
+            }
+            if (checkme.isexception && !checkme.upfailure)
+            {
+                if (checkme.isconnect) {
+                    checkme.tunnel_2way = true;
+                    checkme.tunnel_rest = false;
+                } else {
+                    checkme.tunnel_2way = false;
                     checkme.tunnel_rest = true;
-
+                }
+            }
 
 #ifdef __SSLMITM
             //if ismitm - GO MITM
@@ -965,7 +973,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
 
             //CALL SB checkresponse
-            if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
+            if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect)) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
                 std::cerr << "After StoryB checkresponse" << checkme.isexception << " mess_no "
                           << checkme.message_no << std::endl;
@@ -983,7 +991,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //send response header to client
-            if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
+            if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
                 if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false))
                     cleanThrow("Unable to send return header to client", peerconn, proxysock);
 
@@ -997,12 +1005,18 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
 
             //if not grey tunnel response
-            if ((!checkme.isItNaughty) && checkme.tunnel_rest) {
-                std::cerr << dbgPeerPort << " -Tunnelling to client" << std::endl;
-                if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
-                                true))
-                    persistProxy = false;
-                checkme.docsize += fdt.throughput;
+            if (!checkme.isItNaughty) {
+                if (checkme.tunnel_rest) {
+                    std::cerr << dbgPeerPort << " -Tunnelling to client" << std::endl;
+                    if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
+                                    true))
+                        persistProxy = false;
+                    checkme.docsize += fdt.throughput;
+                } else if (checkme.tunnel_2way) {
+                    if (!fdt.tunnel(proxysock, peerconn, true))
+                        persistProxy = false;
+                    checkme.docsize = fdt.throughput;
+                }
             }
 
 
@@ -1010,16 +1024,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             std::cout << dbgPeerPort << " -Forwarding body to client : Upfailure is " << checkme.upfailure << std::endl;
 #endif
             if (checkme.upfailure || checkme.isItNaughty) {
-                if (checkme.whatIsNaughty == "" && checkme.message_no > 0) {
-                    checkme.whatIsNaughty = o.language_list.getTranslation(checkme.message_no);
-                }
-                if (checkme.whatIsNaughtyLog == "") {
-                    if (checkme.log_message_no > 0) {
-                        checkme.whatIsNaughtyLog = o.language_list.getTranslation(checkme.log_message_no);
-                    } else {
-                        checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-                    }
-                }
                 if (denyAccess(&peerconn, &proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser,
                                &clientip,
                                filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
@@ -1302,6 +1306,16 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
     std::cout << dbgPeerPort << " -reporting level is " << reporting_level << std::endl;
 
 #endif
+    if (checkme->whatIsNaughty == "" && checkme->message_no > 0) {
+        checkme->whatIsNaughty = o.language_list.getTranslation(checkme->message_no);
+    }
+    if (checkme->whatIsNaughtyLog == "") {
+        if (checkme->log_message_no > 0) {
+            checkme->whatIsNaughtyLog = o.language_list.getTranslation(checkme->log_message_no);
+        } else {
+            checkme->whatIsNaughtyLog = checkme->whatIsNaughty;
+        }
+    }
 
     try { // writestring throws exception on error/timeout
 
@@ -2260,7 +2274,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     }
 
 //handleConnection inside the ssl tunnel
-    if (!checkme.isItNaughty || !checkme.upfailure) {
+    if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
         bool writecert = true;
         if (!certfromcache) {
             writecert = o.ca->writeCertificate(checkme.urldomain.c_str(), cert,

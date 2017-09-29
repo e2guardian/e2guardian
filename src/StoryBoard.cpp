@@ -290,6 +290,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 isListCheck = true;
                 target = cm.urldomain;
                 target2 = target;
+                targetful = cm.url;
                 if (has_reverse_hosts(targetdq, cm))
                     isMultiListCheck = true;
                 break;
@@ -478,6 +479,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                   " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
         if (!state_result) {
             action_return = false;
+            cm.isReturn = action_return;
             continue;        // nothing to do so continue to next SB line
         }
 
@@ -595,6 +597,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (i->return_after_action_is_true && action_return)
             break;
     }
+
+    std::cerr << "fID " << fID << " Function " << F->getName() << " returning " << action_return << std::endl;
 
     return action_return;
 }

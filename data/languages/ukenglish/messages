@@ -31,6 +31,7 @@
 "157","Unable to create tunnel through local proxy"
 "158","Opening tunnel failed"
 "159","Could not connect to proxy server"
+"160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","The requested URL is malformed."
 "201","Unable to get response from upstream proxy (timeout)" 
 "202","Unable to connect to upstream proxy (network error)"

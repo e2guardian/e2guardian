@@ -33,6 +33,7 @@
 "157","Es konnte kein Verbindung zum lokalen Proxy hergestellt werden"
 "158","Verbindungsaufbau fehlgeschlagen"
 "159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
+"160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","Die angeforderte URL ist ungültig"
 "201","Unable to get response from upstream proxy (timeout)"    # needs translation
 "202","Unable to get response from upstream proxy (error)"    # needs translation
