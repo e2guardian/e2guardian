@@ -200,10 +200,21 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 # e2guardian will automatically look for e2guardianfN.conf where N is the filter
 # group.  To assign users to groups use the filtergroupslist option.  All users default
 # to filter group 1.  You must have some sort of authentication to be able to map users
-# to a group.  The more filter groups the more copies of the lists will be in RAM so
-# use as few as possible.
+# to a group.
 filtergroups = 1
 filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
+
+# default filtergroup for standard (explicit) mode
+# optional defaults to 1
+#defaultfiltergroup = 1;
+
+# default filtergroup for transparent proxy mode
+# optional defaults to 1
+#defaulttransparentfiltergroup = 1;
+
+# default filtergroup for ICAP mode
+# optional defaults to 1
+#defaulticapfiltergroup = 1;
 
 # If on it a user without group is considered like unauthenfied
 # E2guardian tries the next plugin

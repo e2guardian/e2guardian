@@ -666,6 +666,36 @@ bool OptionContainer::read(std::string& filename, int type)
 
         filter_groups = findoptionI("filtergroups");
 
+        default_fg = findoptionI("defaultfiltergroup");
+        if (default_fg > 0) {
+            if (default_fg <= filter_groups) {
+                default_fg--;
+            } else  {
+                syslog(LOG_ERR, "defaultfiltergroup out of range");
+                return false;
+            }
+        }
+
+        default_trans_fg = findoptionI("defaulttransparentfiltergroup");
+        if (default_trans_fg > 0) {
+            if (default_trans_fg <= filter_groups) {
+                default_trans_fg--;
+            } else  {
+                syslog(LOG_ERR, "defaulttransparentfiltergroup out of range");
+                return false;
+            }
+        }
+
+        default_icap_fg = findoptionI("defaulticapfiltergroup");
+        if (default_icap_fg > 0) {
+            if (default_icap_fg <= filter_groups) {
+                default_icap_fg--;
+            } else  {
+                syslog(LOG_ERR, "defaulticapfiltergroup out of range");
+                return false;
+            }
+        }
+
         storyboard_location = findoptionS("preauthstoryboard");
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
@@ -679,7 +709,6 @@ bool OptionContainer::read(std::string& filename, int type)
             if (!is_daemonised) {
                 std::cerr << "filtergroups too small" << std::endl;
             }
-            syslog(LOG_ERR, "filtergroups too small");
             return false;
         }
 

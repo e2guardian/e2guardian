@@ -66,6 +66,10 @@ class OptionContainer
     int phrase_filter_mode;
     int preserve_case;
     int max_header_lines;
+    int default_fg;
+    int default_trans_fg;
+    int default_icap_fg;
+
     bool hex_decode_content;
     bool force_quick_search;
     bool map_auth_to_ports;

@@ -670,6 +670,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
             if (!persistent_authed) {
+                filtergroup = o.default_fg;    //TODO need to change this for transparent HTTP
                 if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header))
                     break;
                 //checkme.filtergroup = filtergroup;
@@ -2444,7 +2445,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
 #endif
                             if (o.auth_requires_user_and_group)
                                 continue;
-                            filtergroup = 0; //default group - one day configurable?
+                            //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
                             authed = true;
                             break;
                         } else if (rc < 0) {
@@ -2479,7 +2480,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                             std::cout << dbgPeerPort << " -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication" << std::endl;
 #endif
                         clientuser = "-";
-                        filtergroup = 0; //default group - one day configurable?
+                        //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
                     } else {
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -Identity found; caching username & group" << std::endl;
@@ -2500,7 +2501,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
 #endif
                     authed = true;
                     clientuser = "-";
-                    filtergroup = 0;
+                    //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
                     persistent_authed = true;
                 }
     return true;
@@ -2872,6 +2873,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
+            filtergroup = o.default_trans_fg;
                 if (!doAuth(authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true) )
                     break;
                 //checkme.filtergroup = filtergroup;
@@ -3327,13 +3329,11 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
+    filtergroup = o.default_icap_fg;
     if (!doAuth(authed, filtergroup, auth_plugin, peerconn, *icaphead.HTTPrequest, true)) {
         //break;  // TODO Error return????
     }
     authed = true;
-    // temp fudge for default ICAP fg
-    if (filtergroup == 0)
-        filtergroup = 2;
     checkme.filtergroup = filtergroup;
 
 #ifdef DGDEBUG
@@ -3493,6 +3493,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             //
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
+            filtergroup = o.default_icap_fg;
                 if (!doAuth(authed, filtergroup, auth_plugin,  peerconn, proxysock,  header) )
                 {
                     // need error checking or just set to default???
