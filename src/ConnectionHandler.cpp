@@ -894,8 +894,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     if (connectUpstream(proxysock, checkme) < 0) {
-                        //                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && checkme.upfailure)
-                        //                   checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                                        if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && checkme.upfailure)
+                                           checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                         // give error - depending on answer
                         // timeout -etc
                     }
@@ -2962,19 +2962,21 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 }
             }
 
+            if(checkme.upfailure) checkme.gomitm = true;  // allows us to send splash page
 
-                //TODO check for other codes which do not have content payload make these tunnel_rest.
-                if (checkme.isexception)
+            if (checkme.isexception && !checkme.upfailure) {
                     checkme.tunnel_rest = true;
+             } else {
 
             //if ismitm - GO MITM
-            if (!checkme.isItNaughty && checkme.hasSNI && checkme.gomitm) {
+                if (checkme.hasSNI && checkme.gomitm) {
                 std::cerr << "Going MITM ...." << std::endl;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;
                 persistProxy = false;
                 if (!checkme.isItNaughty)
                     break;
+                }
             }
 
             //if not grey tunnel response
