@@ -96,6 +96,11 @@ void ICAPHeader::reset()
         res_body_flag = false;
         opt_body_flag = false;
         null_body_flag = false;
+        service_reqmod = false;
+        service_resmod = false;
+        service_options = false;
+        icap_reqmod_service = false;
+        icap_resmod_service = false;
 
         dirty = false;
 
@@ -725,32 +730,36 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
     header.pop_back(); // remove the final blank line of a header
     checkheader(allowpersistent); // sort out a few bits in the header
      std::cerr << "ICAPcheckheader done- " << encap_recs.size() << " encap_recs" << std::endl;
-    //now need to get http req and res headers - if present
-    for (std::deque<encap_rec>::iterator i = encap_recs.begin(); i < encap_recs.end(); i++) {
-            if( i->name == "req-hdr") {
+            //now need to get http req and res headers - if present
+    HTTPrequest->reset();
+    HTTPresponse->reset();
+    if(encap_recs.size() > 0) {
+        for (std::deque<encap_rec>::iterator i = encap_recs.begin(); i < encap_recs.end(); i++) {
+            if (i->name == "req-hdr") {
                 req_hdr_flag = HTTPrequest->in(sock);
                 if (!req_hdr_flag)
                     return false;
                 req_hdr = i->value;
-            } else if ( i->name == "res-hdr") {
+            } else if (i->name == "res-hdr") {
                 res_hdr_flag = HTTPresponse->in(sock);
                 if (!res_hdr_flag)
                     return false;
                 res_hdr = i->value;
-            } else if ( i->name == "req-body") {
+            } else if (i->name == "req-body") {
                 req_body_flag = true;
                 req_body = i->value;
-            } else if ( i->name == "res-body") {
+            } else if (i->name == "res-body") {
                 res_body_flag = true;
                 res_body = i->value;
             } else if (i->name == "null-body") {
                 null_body_flag = true;
                 null_body = i->value;
-            } else if ( i->name == "opt-body" ) {      // may not need this as only sent in respone
+            } else if (i->name == "opt-body") {      // may not need this as only sent in respone
                 opt_body_flag = true;
                 opt_body = i->value;
             }
-        // add further checking in here for REQMOD, RESPMOD and OPTIONS
+            // add further checking in here for REQMOD, RESPMOD and OPTIONS
+        }
     }
 
 

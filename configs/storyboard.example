@@ -12,7 +12,9 @@
 #
 function(checkrequest)
 # comment out the following line if you do not use 'local' list files
-ifnot(greyset) returnif localcheckrequest
+if(true) setgodirect
+#ifnot(greyset) returnif localcheckrequest
+#if(connect) return setblock
 if(connect) return sslrequestcheck
 ifnot(greyset) returnif exceptioncheck
 if(refererin,refererexception) return setexception
@@ -104,7 +106,9 @@ if(headerin, exceptionheader) return setexception
 
 function(sslexceptioncheck)
 if(sitein, exception) setexception
-if(returnset) return sslreplace
+ifnot(returnset) return false
+if(true) sslreplace
+if(true) return true
 
 function(greycheck)
 if(urlin, grey) return setgrey
