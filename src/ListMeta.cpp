@@ -84,7 +84,6 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             break;
             // PhraseList types to be added
     }
-    std::cerr << "reading deque" << std::endl;
     bool errors = false;
     int dq_size = list.size();
     for (int i = dq_size - 1; i > -1; i--) { // search backward thru list
@@ -125,8 +124,10 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         } else {
             rec.log_mess_no = m_no;
         }
+#ifdef DGDEBUG
         std::cerr << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
                   << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl;
+#endif
 
         switch (method_type) {
             case LIST_METHOD_IP:
@@ -172,6 +173,8 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 break;
         }
     }
+    if (errors && o.abort_on_missing_list) return false;
+    return true;
 }
 
 
@@ -187,13 +190,17 @@ ListMeta::list_info ListMeta::findList(String name, int type) {
     std::cerr << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
+#ifdef DGDEBUG
             std::cerr << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
+#endif
             t = *i;
             return t;
         }
         // std::cerr << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
+#ifdef DGDEBUG
     std::cerr << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
+#endif
     t.list_ref = 0;
     return t;
 }
@@ -386,38 +393,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 
 char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory) {
     String url = urlp;
-    // Perform blanket matching if desired
-    //if (doblanket) {
-    //char *r = testBlanketBlock(list, ip, ssl, lastcategory);
-    //if (r) {
-    //return r;
-    //}
-    //}
-
-    // url.removeWhiteSpace(); // just in case of weird browser crap
-    // url.toLower();
-    // url.removePTP(); // chop off the ht(f)tp(s)://
-    // if (url.contains("/")) {
-    //     url = url.before("/"); // chop off any path after the domain
-    // }
     char *i;
-    // bool isipurl = isIPHostname(url);
-    // if (reverse_lookups && isipurl) { // change that ip into hostname
-    //     std::deque<String> *url2s = ipToHostname(url.toCharArray());
-    //     String url2;
-    //     for (std::deque<String>::iterator j = url2s->begin(); j != url2s->end(); j++) {
-    //         url2 = *j;
-    //         while (url2.contains(".")) {
-    //             i = (*o.lm.l[list]).findInList(url2.toCharArray(), lastcategory);
-    //             if (i != NULL) {
-    //                 delete url2s;
-    //                 return i; // exact match
-    //            }
-    //            url2 = url2.after("."); // check for being in hld
-    //        }
-    //    }
-    //   delete url2s;
-    //}
     while (url.contains(".")) {
         i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
@@ -446,16 +422,6 @@ char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcateg
 
 // look in given URL list for given URL
 char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
-    //if (ssl) { // can't be in url list as SSL is site only
-    //return NULL;
-    //   };
-    // Perform blanket matching if desired
-    //   if (doblanket) {
-    //       char *r = testBlanketBlock(list, ip, ssl, lc);
-    //      if (r) {:362
-    //         return r;
-    //    }
-    //}
     String url = urlp;
     unsigned int fl;
     char *i;

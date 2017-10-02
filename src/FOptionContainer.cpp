@@ -501,56 +501,74 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
+#ifdef DGDEBUG
             std::cout << "ipsitelist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_IPSITE, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
 
         {
-            std::deque<String> dq = findoptionM("iplist");
+        std::deque<String> dq = findoptionM("iplist");
+#ifdef DGDEBUG
             std::cout << "iplist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_IP, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
 
         {
-            std::deque<String> dq = findoptionM("sitelist");
+        std::deque<String> dq = findoptionM("sitelist");
+#ifdef DGDEBUG
             std::cout << "sitelist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_SITE, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
 
         {
-            std::deque<String> dq = findoptionM("urllist");
+        std::deque<String> dq = findoptionM("urllist");
+#ifdef DGDEBUG
             std::cout << "urllist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_URL, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("searchlist");
+#ifdef DGDEBUG
             std::cout << "searchlist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_SEARCH, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
+#ifdef DGDEBUG
             std::cout << "fileextlist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_FILE_EXT, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("mimelist");
+#ifdef DGDEBUG
             std::cout << "mimelist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_MIME, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
+#ifdef DGDEBUG
             std::cout << "regexpboollist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
+#ifdef DGDEBUG
             std::cout << "regexpreplacelist deque is size " << dq.size() << std::endl;
-            LMeta.load_type(LIST_TYPE_REGEXP_REP, dq);
+#endif
+            if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 
 

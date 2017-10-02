@@ -58,7 +58,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         syslog(LOG_ERR, "Storyboard file %s is not defined", filename);
         return false;
     }
-    std::cerr << "REading storyboard file " << filename << std::endl;
+#ifdef DGDEBUG
+    std::cerr << "Reading storyboard file " << filename << std::endl;
+#endif
 
     LMeta = &LM;
     std::string linebuffer; // a string line buffer ;)
@@ -88,7 +90,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         if (linebuffer.length() == 0) { // sanity checking
             continue;
         }
+#ifdef DGDEBUG
         std::cerr << "Readline " << linebuffer << std::endl;
+#endif
         line = linebuffer.c_str();
         line.removeWhiteSpace();
         if (caseinsensitive)
@@ -165,19 +169,25 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         else
             funct_vec.push_back(curr_function);
     }
+#ifdef DGDEBUG
     std::cerr << "SB read file finished function vect size is " << funct_vec.size() << "is_top " << is_top << std::endl;
+#endif
 
     if (!is_top) return true;
 
     // only do the 2nd pass once all file(s) have been read
     // in top file now do second pass to record action functions ids in command lines and add list_ids
+#ifdef DGDEBUG
     std::cerr << "SB Start 2nd pass checking" << std::endl;
+#endif
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
+#ifdef DGDEBUG
             std::cerr << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
                       << " listname " << j->list_name << " function " << i->name << " id " << i->fn_id << std::endl;
+#endif
 
             if (j->state < SB_STATE_TOPIN) {   // is an *in condition and requires a list
                 std::deque<int> types;
@@ -215,10 +225,14 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
-                    std::cerr << "SB  list name " << j->list_name << " checking type  " << *k << std::endl;
+#ifdef DGDEBUG
+                                        std::cerr << "SB  list name " << j->list_name << " checking type  " << *k << std::endl;
+#endif
                     ListMeta::list_info listi = LMeta->findList(j->list_name, *k);
+#ifdef DGDEBUG
                     std::cerr << "list reference " << listi.list_ref << " '" << listi.name << "' found for "
                               << j->list_name << std::endl;
+#endif
                     if (listi.name.length()) {
                         j->list_id_dq.push_back(listi);
                         found = true;
@@ -239,8 +253,10 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno
                           << " of " << i->file_name << std::endl;
             }
+#ifdef DGDEBUG
             std::cerr << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
                       << " listname " << j->list_name << std::endl;
+#endif
         }
     }
     // check for required functions
