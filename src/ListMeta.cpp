@@ -90,7 +90,9 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         // parse line
         String t;
         t = list[i];
+#ifdef DGDEBUG
         std::cerr << "reading %s" << t.toCharArray() << std::endl;
+#endif
         String nm, fpath;
         unsigned int m_no, log_m_no = 0;
         t.removeWhiteSpace();
@@ -187,7 +189,9 @@ bool ListMeta::list_exists(String name, int type) {
 
 ListMeta::list_info ListMeta::findList(String name, int type) {
     list_info t;
+#ifdef DGDEBUG
     std::cerr << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
+#endif
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
 #ifdef DGDEBUG

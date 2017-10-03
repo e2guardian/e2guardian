@@ -63,11 +63,6 @@ SBFunction::~SBFunction()
 
 //  clear & reset all values
 void SBFunction::reset() {
-   // for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-   //     o.lm.deRefList(i->list_ref);
-    //    i->comp.clear();
-     //   i->reg_list_ref.clear();
-    //}
 }
 
 bool SBFunction::start(String & sname, unsigned int id, unsigned int& line_no, String filename) {
@@ -97,13 +92,17 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     }
     rec.file_lineno = line_no;
     // process params
+#ifdef DGDEBUG
     std::cerr << "CLine " << params << " Action " << action << std::endl;
+#endif
     String state;
     String temp;
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
+#ifdef DGDEBUG
         std::cerr << "CLine state is " << state << std::endl;
+#endif
         temp = params.after(",");
     } else {
         state = params;
@@ -125,7 +124,9 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
+#ifdef DGDEBUG
             std::cerr << "CLine list is " << temp2 << std::endl;
+#endif
      }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -137,7 +138,9 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
+#ifdef DGDEBUG
         std::cerr << "CLine mno is " << temp2 << std::endl;
+#endif
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -149,7 +152,9 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
+#ifdef DGDEBUG
         std::cerr << "CLine logmno is " << temp2 << std::endl;
+#endif
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -162,7 +167,9 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         temp2.removeWhiteSpace();
         if (temp2 == "optional")
             rec.optional = true;
+#ifdef DGDEBUG
         std::cerr << "CLine optional is true" << std::endl;
+#endif
     }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 
@@ -195,7 +202,7 @@ unsigned int SBFunction::getStateID(String & state) {
     return 0;
 }
 
-unsigned int SBFunction::getBIFunctID(String &action)  {
+unsigned int SBFunction::getBIFunctID(String &action)  {    // get built-in function id
     unsigned int i = 0;
 //    std::cerr << "getBIFuctID looking for " << action << " in map_size " << bi_funct_map.size() << std::endl;
     while (i < SB_FUNC_MAP_SIZE) {
@@ -209,13 +216,13 @@ unsigned int SBFunction::getBIFunctID(String &action)  {
     return 0;
 }
 
-String SBFunction::getState(unsigned int id) {
+String SBFunction::getState(unsigned int id) {     // get condition statement from state_id
     if (--id < SB_STATE_MAP_SIZE)
         return state_map[id];
     return "";
 };
 
-String SBFunction::getBIFunct(unsigned int &id) {
+String SBFunction::getBIFunct(unsigned int &id) {    // get built-in function (action) from funct_id
     if (id > 5000) {
         unsigned int i = id - 5001;
         if (i < SB_FUNC_MAP_SIZE)

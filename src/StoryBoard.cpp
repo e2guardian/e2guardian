@@ -240,16 +240,18 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 if (!found) {
                     // warning message
-                    std::cerr << "StoryBoard error: List not defined " << j->list_name << " at line " << j->file_lineno
+                    std::cerr << "SB warning: Undefined list " << j->list_name << " used at line " << j->file_lineno
                               << " of " << i->file_name << std::endl;
                 } else {
+#ifdef DGDEBUG
                     std::cerr << j->list_name << " matches " << j->list_id_dq.size() << " types" << std::endl;
+#endif
                 }
 
             }
             // check action
             if ((j->action_id = getFunctID(j->action_name)) == 0) {
-                // warnign message
+                // warning message
                 std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno
                           << " of " << i->file_name << std::endl;
             }
@@ -289,7 +291,20 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     SBFunction *F = &(funct_vec[fID]);
     bool action_return = false;
 
-    std::cerr << "fID " << fID << " Function " << F->getName() << " funct_vec size " << funct_vec.size() << std::endl;
+    if(o.SB_trace) {
+        String ot = "SB:Entering ";
+        ot += F->getName();
+        ot += " line:";
+        String ln(F->file_lineno);
+        ot += ln;
+        ot += " of ";
+        ot += F->file_name;
+#ifdef DGDEBUG
+        std::cerr << ot << std::endl;
+#else
+        syslog(LOG_INFO, "%s", ot.toCharArray());
+#endif
+    }
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
         bool isListCheck = false;
@@ -397,29 +412,42 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 state_result = true;
                 break;
         }
+#ifdef DGDEBUG
         std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2
                   << " state_result " << state_result <<
                   " list_check " << isListCheck << " targetfull " << targetful << " isSearch " << cm.isSearch
                   << std::endl;
+#endif
 
         if (isHeaderCheck) {
-            for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
-                ListMeta::list_result res;
-                std::cerr << "checking " << j->name << " type " << j->type << std::endl;
-                if (LMeta->inList(*j, cm.request_header->header, res)) {  //found
-                    state_result = true;
-                    if (i->isif) {
-                        cm.lastcategory = res.category;
-                        cm.whatIsNaughtyCategories = res.category;
-                        cm.message_no = res.mess_no;
-                        cm.log_message_no = res.log_mess_no;
-                        cm.lastmatch = res.match;
-                        cm.result = res.result;
+            for (std::deque<String>::iterator u = cm.request_header->header.begin();
+                 u != cm.request_header->header.end(); u++) {
+                String t = *u;
+                for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
+                     j != i->list_id_dq.end(); j++) {
+                    ListMeta::list_result res;
+#ifdef DGDEBUG
+                    std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+#endif
+                    if (LMeta->inList(*j, t, res)) {  //found
+                        state_result = true;
+                        if (i->isif) {
+                            cm.lastcategory = res.category;
+                            cm.whatIsNaughtyCategories = res.category;
+                            cm.message_no = res.mess_no;
+                            cm.log_message_no = res.log_mess_no;
+                            cm.lastmatch = res.match;
+                            cm.result = res.result;
+                        }
+#ifdef DGDEBUG
+                        std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
+                                  << cm.log_message_no << " match " << res.match << std::endl;
+#endif
+                        break;
                     }
-                    std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
-                              << cm.log_message_no << " match " << res.match << std::endl;
-                    break;
                 }
+                if(state_result)
+                    break;
             }
         }
         if (isListCheck) {
@@ -433,7 +461,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 } else {
                     t = target;
                 }
+#ifdef DGDEBUG
                 std::cerr << "checking " << j->name << " type " << j->type << std::endl;
+#endif
                 if (LMeta->inList(*j, t, res)) {  //found
                     state_result = true;
                     if (i->isif) {
@@ -444,8 +474,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         cm.lastmatch = res.match;
                         cm.result = res.result;
                     }
+
+#ifdef DGDEBUG
                     std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
                               << cm.log_message_no << " match " << res.match << std::endl;
+#endif
                     break;
                 }
             }
@@ -479,8 +512,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.lastmatch = res.match;
                             cm.result = res.result;
                         }
+#ifdef DGDEBUG
                         std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
                                   << cm.log_message_no << " match " << res.match << std::endl;
+#endif
                         break;
                     }
                 }
@@ -490,9 +525,33 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (!i->isif) {
             state_result = !state_result;
         }
+#ifdef DGDEBUG
         std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2
                   << " state_result " << state_result <<
                   " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
+#endif
+        if(o.SB_trace) {
+            String ot = "SB:";
+            String ln(i->file_lineno);
+            ot += ln;
+            if (i->isif)
+                ot += " if(";
+            else
+                ot += " ifnot(";
+            ot += F->getState(i->state);
+            ot += ",";
+            ot += i->list_name;
+            ot += ") is ";
+            if (state_result) {
+                ot += "true ";
+            }
+            else ot += "false ";
+#ifdef DGDEBUG
+            std::cerr << ot << std::endl;
+#else
+            syslog(LOG_INFO, "%s", ot.toCharArray());
+#endif
+        }
         if (!state_result) {
             action_return = false;
             cm.isReturn = action_return;
@@ -601,9 +660,31 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     break;
             }
+            if (o.SB_trace) {
+                String ot = "SB:";
+                ot += F->getBIFunct(i->action_id);
+                if (action_return) {
+                    ot += " true";
+                    //   ot +=
+                } else ot += " false ";
+#ifdef DGDEBUG
+                std::cerr << ot << std::endl;
+#else
+                syslog(LOG_INFO, "%s", ot.toCharArray());
+#endif
+            }
         } else {      // is SB defined function
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id, cm);
+                if(o.SB_trace) {
+                    String ot = "SB:resuming: ";
+                    ot += F->name;
+#ifdef DGDEBUG
+                    std::cerr << ot << std::endl;
+#else
+                    syslog(LOG_INFO, "%s", ot.toCharArray());
+#endif
+                }
             }
 
         }
@@ -614,7 +695,20 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             break;
     }
 
-    std::cerr << "fID " << fID << " Function " << F->getName() << " returning " << action_return << std::endl;
+        if(o.SB_trace) {
+            String ot = "SB:";
+            ot += F->getName();
+            ot += " returned ";
+            if (action_return)
+                ot += "true";
+            else
+                ot += "false";
+#ifdef DGDEBUG
+            std::cerr << ot << std::endl;
+#else
+            syslog(LOG_INFO, "%s", ot.toCharArray());
+#endif
+        }
 
     return action_return;
 }
