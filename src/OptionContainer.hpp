@@ -85,6 +85,8 @@ class OptionContainer
     std::deque<String> filter_ip;
     std::deque<String> filter_ports;
     std::map<int, String> auth_map;
+    bool abort_on_missing_list;
+    bool SB_trace;
 #ifdef ENABLE_ORIG_IP
     bool get_orig_ip;
 #endif

@@ -47,23 +47,35 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
+#ifdef DGDEBUG
         std::cout << "iplist deque is size " << o.iplist_dq.size() << std::endl;
-        LMeta.load_type(LIST_TYPE_IP, o.iplist_dq);
+#endif
+        if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
+            loaded_ok = false;
     }
 
     {
+#ifdef DGDEBUG
         std::cout << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
-        LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq);
+#endif
+        if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
+        loaded_ok = false;
     }
 
     {
+#ifdef DGDEBUG
         std::cout << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
-        LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq);
+#endif
+        if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
+        loaded_ok = false;
     }
 
     {
+#ifdef DGDEBUG
         std::cout << "urllist deque is size " << o.urllist_dq.size() << std::endl;
-        LMeta.load_type(LIST_TYPE_URL, o.urllist_dq);
+#endif
+        if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
+        loaded_ok = false;
     }
 
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {

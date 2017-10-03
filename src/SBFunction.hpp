@@ -154,7 +154,7 @@ class SBFunction
 		String list_name;	    // name of list
 	};
 
-    String name;
+    String name;			// holds name of function
     unsigned int fn_id;
     std::deque<com_rec> comm_dq;
     String file_name;	// holds source file path for debug

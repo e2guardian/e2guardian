@@ -662,3 +662,14 @@ enablessl = on
 
 # Much logic has moved to storyboard files
 preauthstoryboard = '@DGCONFDIR@/preauth.story'
+
+# Storyboard tracing
+# Warning - produces verbose output - do not use in production
+# Output goes to syslog (or stderr in debug mode)
+# default off
+# storyboardtrace = off
+
+# Abort if list is missing or unreadable
+# default is to warn but then ignore missing lists
+# To abort on missing list set to on
+# abortiflistmissing = off  //NOT YET IMPLIMENTED

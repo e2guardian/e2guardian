@@ -149,7 +149,7 @@ maxuploadsize = -1
 #logurllist = '/usr/local/etc/dansguardian/lists/logurllist'
 #urllist = 'name=log,path=@DGCONFDIR@/lists/logurllist'
 #logregexpurllist = '/usr/local/etc/dansguardian/lists/logregexpurllist'
-#regexpbool = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
+#regexpboollist = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
@@ -162,9 +162,9 @@ maxuploadsize = -1
 # Use for example, to remove cookies or prevent certain user-agents.
 headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
 bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
-regexpbool = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
+regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
 exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
-regexpbool = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
+regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
 
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf

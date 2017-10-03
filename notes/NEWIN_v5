@@ -35,12 +35,14 @@ a new list definition and then applying it in a revised storyboard.
 A different storyboard can be applied to each filtergroup, so if required, 
 each filtergroup can have a different logic flow.
 
-For details see notes/V5_list_definition.pdf & notes/V5_Storyboard.pdf
+Please read notes/V5_list_definition.pdf & notes/V5_Storyboard.pdf for
+details.
 
 TRANSPARENT HTTPS
 
 This is now in testable form - currently still uses upstream proxy.
-Detects SNI and flags whether traffic is TLS.  Limited to port 443 traffic.
+Detects SNI and flags whether traffic is TLS.  
+Currently limited to port 443 traffic.
 
 ICAP SERVER
 
@@ -59,20 +61,25 @@ e.g. to send all connect requests directly add
 		if(connect) setgodirect
 	to a requestchecks function.
 
+STORYBOARD TRACING
+
+New option 'storyboardtrace' to enable tracing output -
+for storyboard bug-fixing
+
+
 TESTING -  
 
-This version is at an early test stage. It should always be compliled and
-run in debug mode.
+This version is at a test stage. 
 
 TODO - for this release.
 
 ICAP RESMOD - content checking
 
+POST filtering
+
 Content chunking for proxyed/thttp traffic - i.e. HTTP/1.1
 
 Enable download plugins
-
-New debug system (to start for storyboarding only)
 
 By-pass code
 
@@ -80,7 +87,7 @@ Transparent HTTPS on ports other than 443
 
 Re-look at MITM certificate generation.
 
-Tidy code, error messages.
+Final tidy code, error messages.
 
 WISHLIST
 
@@ -90,6 +97,6 @@ Per-user exceptions/blocks.
 
 Per-room blocks.
 
-Philip Pearce 15 August 2017
+Philip Pearce 03 October 2017
 
 
