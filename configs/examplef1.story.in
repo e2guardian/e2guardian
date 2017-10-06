@@ -1,0 +1,10 @@
+.Include<@DGCONFDIR@/common.story>
+
+# add any altered functions here
+# They will overwrite common definitions
+
+# e.g. to create blanket block re-define bannedcheck
+
+#function(bannedcheck)
+#if(true,,502) return setblock  # = ** total blanket
+

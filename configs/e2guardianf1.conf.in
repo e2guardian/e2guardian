@@ -11,10 +11,10 @@
 # name the group in the access logs
 # Defaults to empty string
 #groupname = ''
-groupname = 'no_mame_group'
+groupname = 'no_name_group'
 
 # Much logic has moved to storyboard files
-storyboard = '@DGCONFDIR@/storyboard.example'
+storyboard = '@DGCONFDIR@/examplef1.story'
 
 # Enable legacy (DG) ssl logic
 # 
@@ -46,10 +46,13 @@ urllist = 'name=grey,path=@DGCONFDIR@/lists/greyurllist'
 #exceptionurllist = '@DGCONFDIR@/lists/exceptionurllist'
 urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
 
-exceptionregexpurllist = '@DGCONFDIR@/lists/exceptionregexpurllist'
-bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
+#exceptionregexpurllist = '@DGCONFDIR@/lists/exceptionregexpurllist'
+regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
+#bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
+regexpurlboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
 contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
-urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
+#umrlregexplist = '@DGCONFDIR@/lists/urlregexplist'
+regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
 #refererexceptionsitelist = '@DGCONFDIR@/lists/refererexceptionsitelist'
 sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
 #refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
@@ -59,12 +62,13 @@ sitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersitelist'
 #embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
 urllist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededrefererurllist'
 
-urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
+#urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
+regexpreplacelist = 'name=redirect,path=@DGCONFDIR@/lists/urlredirectregexplist'
 
-sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
+#sslsiteregexplist = '@DGCONFDIR@/lists/sslsiteregexplist'
+regexpreplacelist = 'name=sslreplace,path=@DGCONFDIR@/lists/sslsiteregexplist'
 
-# local versions of lists (where LOCAL_LISTS enabled)
-# enablelocallists = on/off
+# local versions of lists 
 ##localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
 #sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
 # Note: localbannedsslsitelist is ignored if MITM is enabled
@@ -108,25 +112,25 @@ searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbanneds
 # (on | off)
 #
 blockdownloads = off
-exceptionextensionlist = '@DGCONFDIR@/lists/exceptionextensionlist'
+#exceptionextensionlist = '@DGCONFDIR@/lists/exceptionextensionlist'
 fileextlist = 'name=exceptionextension,messageno=900,path=@DGCONFDIR@/lists/exceptionextensionlist'
-exceptionmimetypelist = '@DGCONFDIR@/lists/exceptionmimetypelist'
+#exceptionmimetypelist = '@DGCONFDIR@/lists/exceptionmimetypelist'
 mimelist = 'name=exceptionmime,messageno=750,path=@DGCONFDIR@/lists/exceptionextensionlist'
 #
 # Use the following lists to block specific kinds of file downloads.
 # The two exception lists above can be used to override these.
 #
-bannedextensionlist = '@DGCONFDIR@/lists/bannedextensionlist'
+#bannedextensionlist = '@DGCONFDIR@/lists/bannedextensionlist'
 fileextlist = 'name=bannedextension,messageno=999,path=@DGCONFDIR@/lists/bannedextensionlist'
-bannedmimetypelist = '@DGCONFDIR@/lists/bannedmimetypelist'
+#bannedmimetypelist = '@DGCONFDIR@/lists/bannedmimetypelist'
 mimelist = 'name=bannedmime,messageno=750,path=@DGCONFDIR@/lists/bannedmimeitypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
 #
-exceptionfilesitelist = '@DGCONFDIR@/lists/exceptionfilesitelist'
+#exceptionfilesitelist = '@DGCONFDIR@/lists/exceptionfilesitelist'
 sitelist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfilesitelist'
-exceptionfileurllist = '@DGCONFDIR@/lists/exceptionfileurllist'
+#exceptionfileurllist = '@DGCONFDIR@/lists/exceptionfileurllist'
 urllist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfileurllist'
 
 # POST protection (web upload and forms)
@@ -144,11 +148,11 @@ maxuploadsize = -1
 # Supply categorised lists here and the category string shall be logged against
 # matching requests, but matching these lists does not perform any filtering
 # action.
-#logsitelist = '/usr/local/etc/dansguardian/lists/logsitelist'
+##logsitelist = '/usr/local/etc/dansguardian/lists/logsitelist'
 #sitelist = 'name=log,path=@DGCONFDIR@/lists/logsitelist'
-#logurllist = '/usr/local/etc/dansguardian/lists/logurllist'
+##logurllist = '/usr/local/etc/dansguardian/lists/logurllist'
 #urllist = 'name=log,path=@DGCONFDIR@/lists/logurllist'
-#logregexpurllist = '/usr/local/etc/dansguardian/lists/logregexpurllist'
+##logregexpurllist = '/usr/local/etc/dansguardian/lists/logregexpurllist'
 #regexpboollist = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP header rules:
@@ -160,10 +164,11 @@ maxuploadsize = -1
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove cookies or prevent certain user-agents.
-headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
-bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
+#headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
+regexpreplacelist = 'name=headermods,path=@DGCONFDIR@/lists/headerregexplist'
+##bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
 regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
-exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
+##exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
 regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
 
 # Weighted phrase mode
@@ -208,10 +213,13 @@ naughtynesslimit = 50
 # that the search terms themselves will be contained in the 
 # of output of each expression.
 #searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
+regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
 #bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
+searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
 #bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
+searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)
@@ -479,4 +487,5 @@ mitmcheckcert = on
 # or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
 # Use with caution!
 # Ignored if mitmcheckcert is 'off'
-nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'
+#nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'
+sitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsitelist'
