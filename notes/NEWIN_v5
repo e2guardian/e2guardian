@@ -11,7 +11,7 @@ or later. (or another complier that supports the c++11 std::thread library).
 Note that the target systems may also need an c++11 library update.
 
 See notes/NEWIN_v4 for details of the major process model changes 
-incorporated from this version.
+incorporated from version 4.
 
 REVISED LIST and STORYBOARDING MODEL
 
@@ -40,7 +40,7 @@ details.
 
 TRANSPARENT HTTPS
 
-This is now in testable form - currently still uses upstream proxy.
+This is now in testable form. 
 Detects SNI and flags whether traffic is TLS.  
 Currently limited to port 443 traffic.
 
@@ -97,6 +97,6 @@ Per-user exceptions/blocks.
 
 Per-room blocks.
 
-Philip Pearce 03 October 2017
+Philip Pearce 07 October 2017
 
 
