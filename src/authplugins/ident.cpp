@@ -100,7 +100,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 #ifdef DGDEBUG
         std::cerr << "Error writing to ident connection to: " << clientip << std::endl;
 #endif
-        iq.close(); // close conection to client
+        iq.close(); // close connection to client
         return -1;
     }
 #ifdef DGDEBUG
@@ -117,7 +117,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 #ifdef DGDEBUG
     std::cout << "got ident reply: " << temp << " from: " << clientip << std::endl;
 #endif
-    iq.close(); // close conection to client
+    iq.close(); // close connection to client
     temp = temp.after(":");
     if (!temp.before(":").contains("USERID")) {
         return -3;

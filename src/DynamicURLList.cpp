@@ -26,7 +26,7 @@ extern bool is_daemonised;
 
 // note - the list of URLs itself is simply a ring buffer, so the oldest entry/next empty entry is always the
 // last position we wrote to plus one, wrapping round when we get to the top.
-// however, we also maintain a seperate index list, which points to the entries in alphabetical order.
+// however, we also maintain a separate index list, which points to the entries in alphabetical order.
 
 // constructor - initialise values to empty defaults
 DynamicURLList::DynamicURLList()
