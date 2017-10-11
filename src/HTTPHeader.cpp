@@ -1448,7 +1448,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     String cookie(getCookie("GBYPASS"));
     if (!cookie.length()) {
 #ifdef DGDEBUG
-        std::cout << "No bypass cookie" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "No bypass cookie" << " url: " << url << std::endl;
 #endif
         return false;
     }
@@ -1468,7 +1468,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     }
     if (not matched) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS not match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Cookie GBYPASS not match" << " url: " << url << std::endl;
 #endif
         return false;
     }
@@ -1476,7 +1476,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     time_t timeu = cookietime.toLong();
     if (timeu < timen) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS expired: " << timeu << " " << timen << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Cookie GBYPASS expired: " << " url: " << url << timeu << " " << timen << std::endl;
 #endif
         return false;
     }
@@ -2119,6 +2119,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 #ifdef DGDEBUG
             std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
+	    dbshowheader(false);
             ispersistent = false;
             return false;
         }

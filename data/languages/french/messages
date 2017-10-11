@@ -80,7 +80,7 @@
 "604","Exception de phrase trouvée : "
 "605","Exception de combinaison de mots trouvée : "
 "606","Exception d`URL sans controle trouvée."
-"607","Exception de cookie sans controle trouvée."
+"607","Exception de cookie BYPASS, navigation sans contrôle trouvée."
 "608","Exception d`URL sans inspection des logiciels malveillants trouvée."
 "609","Exception d`expression régulière d'URL trouvée : "
 "620","Referer match: "    # needs translation
