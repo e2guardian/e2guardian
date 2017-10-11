@@ -60,6 +60,7 @@ String AuthPlugin::getPluginName()
 {
     return pluginName;
 }
+
 // determine what filter group the given username is in
 // return -1 when user not found
 int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
@@ -93,12 +94,13 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
         if (l < 1 || l > 2) {
             return DGAUTH_NOUSER;
         }
-        fg = ue.toInteger();
-        if (fg > o.numfg) {
+        int t;
+        t = ue.toInteger();
+        if (t > o.numfg) {
             return DGAUTH_NOUSER;
         }
-        if (fg > 0) {
-            fg--;
+        if (t > 0) {
+            fg = t--;
         }
         return DGAUTH_OK;
     }

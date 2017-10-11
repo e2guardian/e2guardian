@@ -164,8 +164,11 @@ class ConnectionHandler
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
 
     int connectUpstream(Socket &sock, NaughtyFilter &cm);
+
+    int determineGroup(std::string &user, int &fg, ListContainer & uglc);
 };
 
 char *get_TLS_SNI(char *bytes, int* len);
 
 #endif
+
