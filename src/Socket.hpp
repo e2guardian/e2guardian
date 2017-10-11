@@ -67,7 +67,7 @@ class Socket : public BaseSocket
     //shuts down the current ssl connection
     void stopSsl();
 
-    //check that everything in this certificate is correct appart from the hostname
+    //check that everything in this certificate is correct apart from the hostname
     long checkCertValid();
 
     //check the common name and altnames of a certificate against hostname

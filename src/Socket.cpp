@@ -393,7 +393,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         return -3;
     }
 
-    //should be safer to do this last as nothing will ever try to use a ssl socket that isnt fully setup
+    //should be safer to do this last as nothing will ever try to use a ssl socket that isn't fully setup
     isssl = true;
     issslserver = false;
     return 0;
@@ -480,7 +480,7 @@ void Socket::stopSsl()
     }
 }
 
-//check that everything in this certificate is correct appart from the hostname
+//check that everything in this certificate is correct apart from the hostname
 long Socket::checkCertValid()
 {
     //check we have a certificate
@@ -521,7 +521,7 @@ int Socket::checkCertHostname(const std::string &_hostname)
     for (int i = 0; i < r; ++i) {
         const GENERAL_NAME *gn = sk_GENERAL_NAME_value(gens, i);
 
-        //if its not a dns entry we really dont care about it
+        //if its not a dns entry we really don't care about it
         if (gn->type != GEN_DNS) {
             continue;
         }
@@ -787,7 +787,7 @@ bool Socket::readyForOutput()
         return BaseSocket::readyForOutput();
     //}
 
-    //cant do this on a blocking ssl socket as far as i can work out
+    //can't do this on a blocking ssl socket as far as i can work out
 
     //return true;
 }

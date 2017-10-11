@@ -1937,7 +1937,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
 #ifdef __SSLMITM
             //if a socket is ssl we want to send relative paths not absolute urls
-            //also HTTP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
+            //also HTTP responses don't want to be processed (if we are writing to an ssl client socket then we are doing a request)
             if (sock->isSsl() && !sock->isSslServer()) {
                 //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
                 //	get the request method		//get the relative path					//everything after that in the header
@@ -2085,7 +2085,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins
-    char buff[32768]; // setup a buffer to hold the incomming HTTP line
+    char buff[32768]; // setup a buffer to hold the incoming HTTP line
     String line; // temp store to hold the line after processing
     line = "----"; // so we get past the first while
     bool firsttime = true;
