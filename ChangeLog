@@ -1,13 +1,27 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+September
+- Fix segfault with SSLMITM
+- Fix many bugs with BYPASS
+- Fix bug #277 add option "disablecontentscanerror" 
+- Fix bug #276 give better informations about header size filtering
+
+August 2017
+- Fix bug #270 add logexceptionhits level 3
+- Fix issue with sslaccessdeniedaddress and reporting level < 3
+
 July 2017
 
-Verion 4.1.2
+- Fix bug #262 unable to compile with Kavdscan and avastdscan
+- Security update, user with GBYPASS must pass through deny page (reportinglevel !3) 
+- Force log for BYPASS requests
+
+Version 4.1.2
 - Fix segfault in HTTPHeader::returnCode
 - Fix bug #229 Segmentation fault with -HOST- placeholder 
 - Fix fail with "Make dist"
 
-Verion 4.1.1
+Version 4.1.1
 Many improvements and changes are done at this version
 - Fix bug #241 SSLMITM and XForwarded_for
 - Fix several bugs with GYBYPASS

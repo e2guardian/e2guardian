@@ -585,7 +585,7 @@ bool OptionContainer::read(std::string& filename, int type)
             forwarded_for = false;
         }
         log_exception_hits = findoptionI("logexceptionhits");
-        if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
+        if (!realitycheck(log_exception_hits, 0, 3, "logexceptionhits")) {
             return false;
         }
         if (findoptionS("createlistcachefiles") == "off") {

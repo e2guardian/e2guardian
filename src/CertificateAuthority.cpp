@@ -515,8 +515,10 @@ int CertificateAuthority::mkpath(const char *path, mode_t mode)
 
 bool CertificateAuthority::free_ca_serial(struct ca_serial *cs)
 {
-    ASN1_INTEGER_free(cs->asn);
-    OPENSSL_free(cs->charhex);
+    if (cs->asn != NULL)
+        ASN1_INTEGER_free(cs->asn);
+    if (cs->charhex != NULL)
+        OPENSSL_free(cs->charhex);
     //	free(cs->charhex);
     if (cs->filepath != NULL)
         free(cs->filepath);

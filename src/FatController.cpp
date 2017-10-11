@@ -932,7 +932,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
         }
         if (isnaughty) {
             what = denied_word + stype + "* " + what;
-        } else if (isexception && (o.log_exception_hits == 2)) {
+        } else if (isexception && (o.log_exception_hits >= 2)) {
             what = exception_word + what;
         }
 
