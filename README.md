@@ -1,24 +1,16 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is development beta pre-release of v4.0.  It is now near-stable
-and you are invited use it in a test environment.
-
-Note that large sections of the code are being re-written and there will be 
-significant changes to the configuration files in later releases.
-
-Note: This version is work in progress and instructions 
-may be incomplete.   If in doubt - read the source!
-
-**For copyright go to: http://e2guardian.org**
+**For all support, instructions and copyright go to: http://e2guardian.org**
 
 e2guardian is a content filtering proxy that works in conjunction with another
-caching proxy such as Squid . More information can be found in the
+caching proxy such as Squid or Oops. More information can be found in the
 e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
 
 e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the maintainers fully acknowledge
-the work carried out by and the copyright of Daniel Baron and other
-contributors to the Dansguardian project.
+the work carried out by and the copyright of Daniel Baron and other contributors to the Dansguardian project. 
+
+DansGuardian is licensed under the GPL version 2 with permission to link OpenSSL
 
 Read the INSTALL for installation instructions.
 
@@ -26,10 +18,8 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	v4develop is used to develop new features
-*	Bugfixes primarily occurs in the version branch (v4.0)
-*	From v4 on, even numbered releases are pre-release
-		odd numbered releases are stable.
+*	Develop is used to develop new features
+*	Bugfixes primarily occurs in the default branch
 
 ## Bugs and Feature Requests
 
@@ -42,7 +32,7 @@ Github: https://github.com/e2guardian/e2guardian/issues
 
 ## License
 
-Copyright 2014, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2014, Philip Pearce [E2BN Protex](http://protex.e2bn.org) Ltd, [Frederic Bourgeois](http://numsys.eu) and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
@@ -55,7 +45,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 In addition, as a special exception, the copyright holders
 of this work, give permission to link the code of its release of e2guardian

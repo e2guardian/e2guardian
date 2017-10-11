@@ -92,7 +92,11 @@ String HTTPHeader::requestType()
 // grab return code
 int HTTPHeader::returnCode()
 {
-    return header.front().after(" ").before(" ").toInteger();
+   if (header.size() > 0) {
+        return header.front().after(" ").before(" ").toInteger();
+   }else {
+        return 0;
+   }
 }
 
 // grab content length
@@ -1444,7 +1448,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     String cookie(getCookie("GBYPASS"));
     if (!cookie.length()) {
 #ifdef DGDEBUG
-        std::cout << "No bypass cookie" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "No bypass cookie" << " url: " << url << std::endl;
 #endif
         return false;
     }
@@ -1464,7 +1468,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     }
     if (not matched) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS not match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Cookie GBYPASS not match" << " url: " << url << std::endl;
 #endif
         return false;
     }
@@ -1472,7 +1476,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     time_t timeu = cookietime.toLong();
     if (timeu < timen) {
 #ifdef DGDEBUG
-        std::cout << "Cookie GBYPASS expired: " << timeu << " " << timen << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << "Cookie GBYPASS expired: " << " url: " << url << timeu << " " << timen << std::endl;
 #endif
         return false;
     }
@@ -1933,7 +1937,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
 #ifdef __SSLMITM
             //if a socket is ssl we want to send relative paths not absolute urls
-            //also HTTP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
+            //also HTTP responses don't want to be processed (if we are writing to an ssl client socket then we are doing a request)
             if (sock->isSsl() && !sock->isSslServer()) {
                 //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
                 //	get the request method		//get the relative path					//everything after that in the header
@@ -2081,7 +2085,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins
-    char buff[32768]; // setup a buffer to hold the incomming HTTP line
+    char buff[32768]; // setup a buffer to hold the incoming HTTP line
     String line; // temp store to hold the line after processing
     line = "----"; // so we get past the first while
     bool firsttime = true;
@@ -2115,6 +2119,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent, bool honour_reloadconfig
 #ifdef DGDEBUG
             std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
+	    dbshowheader(false);
             ispersistent = false;
             return false;
         }

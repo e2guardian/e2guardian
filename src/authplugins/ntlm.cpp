@@ -107,7 +107,7 @@ struct ntlmhdr {
 };
 
 // this struct is only valid if h.type == 3
-// as we only evesdrop to get userid dont care about type 1 and 2 messages
+// as we only evesdrop to get userid don't care about type 1 and 2 messages
 struct ntlm_auth {
     ntlmhdr h;
     strhdr lmresponse; // LANMAN challenge response
@@ -168,7 +168,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     }
     String at(h.getAuthType());
 
-// First dance with NTLM - initial auth negociation -
+// First dance with NTLM - initial auth negotiation -
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
 #ifdef DGDEBUG

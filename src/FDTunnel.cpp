@@ -97,7 +97,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     bool done = false; // so we get past the first while
 
     while (!done && (targetthroughput > -1 ? throughput < targetthroughput : true)) {
-        done = true; // if we don't make a sucessful read and write this
+        done = true; // if we don't make a successful read and write this
         // flag will stay true and so the while() will exit
 #ifdef DGDEBUG
         std::cout << "Start of tunnel loop: throughput:" << throughput
@@ -113,8 +113,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         //gets gets dumped out to the client.
         //This will break if the server is ever expecting data from
         //the client.
-        //There isnt and SSL_select function, SSL_pending only reports
-        //whats waiting in the current record, and nbio doesnt seem to
+        //There isn't and SSL_select function, SSL_pending only reports
+        //whats waiting in the current record, and nbio doesn't seem to
         //work if you use BIO_setfd (like we have to) so no ideas how
         //to actually fix this other than rewrite dg
      if (sockfrom.isSsl()) {
@@ -129,7 +129,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 std::cout << "tunnel tw poll returned error or timeout::" << rc
                   << std::endl;
 #endif
-                break; // an error occured or it timed out so end while()
+                break; // an error occurred or it timed out so end while()
             }
 #ifdef DGDEBUG
             std::cout << "tunnel tw poll returned ok:" << rc
@@ -150,7 +150,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
                 // read as much as is available
                 if (rc < 0) {
-                    break; // an error occured so end the while()
+                    break; // an error occurred so end the while()
                 } else if (!rc) {
                     done = true; // none received so pipe is closed so flag it
                 } else { // some data read
@@ -161,7 +161,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     throughput += rc; // increment our counter used to log
                     if (poll (tooutfds,1, timeout ) < 1)
                      {
-                        break; // an error occured or timed out so end while()
+                        break; // an error occurred or timed out so end while()
                     }
 
                     //if (FD_ISSET(fdto, &outset))  // fdto ready to write to
@@ -201,7 +201,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 rc = sockto.readFromSocket(buff, sizeof(buff), 0, 0, false);
 
                 if (rc < 0) {
-                    break; // an error occured so end the while()
+                    break; // an error occurred so end the while()
                 } else if (!rc) {
                     done = true; // none received so pipe is closed so flag it
                     break;
@@ -215,7 +215,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                    // if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1)
                     if (poll (fromoutfds,1, timeout ) < 1)
                     {
-                        break; // an error occured or timed out so end while()
+                        break; // an error occurred or timed out so end while()
                     }
 
                     //if (FD_ISSET(fdfrom, &outset))  // fdfrom ready to write to

@@ -30,6 +30,7 @@ public:
     int category_threshold;
     bool infection_bypass_errors_only;
     bool disable_content_scan;
+    bool disable_content_scan_error;
     int weighted_phrase_mode;
     int group_mode;
     int embedded_url_weight;

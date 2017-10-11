@@ -377,7 +377,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             // grab a block of input, doubled each time
 
             if (rc <= 0) {
-                break; // an error occured so end the while()
+                break; // an error occurred so end the while()
                 // or none received so pipe is closed
             } else {
                 /*if (d->data != temp)

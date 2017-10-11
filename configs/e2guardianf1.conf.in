@@ -289,6 +289,14 @@ infectionbypasserrorsonly = on
 # (on|off) default = off.
 disablecontentscan = off
 
+# Disable content scanning with error (timeout, AV crash, etc)
+# If you enable this option you will allow object with an unexpected result
+# Content scanning primarily is AV scanning (if enabled) but could include
+# other types.
+# With "on" you can allow INFECTED objects 
+# (on|off) default = off. (default and highly recommended)
+disablecontentscanerror = off
+
 # Enable Deep URL Analysis
 # When enabled, DG looks for URLs within URLs, checking against the bannedsitelist and
 # bannedurllist. This can be used, for example, to block images originating from banned

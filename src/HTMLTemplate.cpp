@@ -162,12 +162,18 @@ void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::str
                 std::cout << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
 #endif
                 std::deque<String> *names = ipToHostname(ip->c_str());
+#ifdef DGDEBUG
+		std::cout << "-HOST- return from ipToHostname size=" << names->size() << " Host: "<< names->front().toCharArray() << std::endl;
+#endif
                 if (names->size() > 0) {
-                    *host = names->front();
-                }
+                    line = names->front().toCharArray();
+                } else {
+		    line = "";	
+		}
                 delete names;
-            }
-            line = (host ? *host : "");
+            } else {
+            line = *host;
+	    }
         } else if (line == "-FILTERGROUP-") {
             line = grpname;
         } else if (line == "-RAWFILTERGROUP-") {

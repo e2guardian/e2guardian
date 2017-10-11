@@ -226,9 +226,9 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
         close(fd);
         return false;
     } else if (pos > 0) {
-//didnt get first lock so cert should be there now
+//didn't get first lock so cert should be there now
 #ifdef DGDEBUG
-        std::cout << "didnt get first lock pos was " << pos << std::endl;
+        std::cout << "didn't get first lock pos was " << pos << std::endl;
 #endif
         fl.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &fl);
@@ -451,7 +451,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
 
         fclose(link);
 
-        //dont need to check the return as this returns null if it couldnt load a cert
+        //don't need to check the return as this returns null if it couldnt load a cert
         return true;
     } else {
 #ifdef DGDEBUG
@@ -515,8 +515,10 @@ int CertificateAuthority::mkpath(const char *path, mode_t mode)
 
 bool CertificateAuthority::free_ca_serial(struct ca_serial *cs)
 {
-    ASN1_INTEGER_free(cs->asn);
-    OPENSSL_free(cs->charhex);
+    if (cs->asn != NULL)
+        ASN1_INTEGER_free(cs->asn);
+    if (cs->charhex != NULL)
+        OPENSSL_free(cs->charhex);
     //	free(cs->charhex);
     if (cs->filepath != NULL)
         free(cs->filepath);

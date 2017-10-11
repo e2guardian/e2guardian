@@ -38,7 +38,7 @@ std::deque<String> *ipToHostname(const char *ip)
     if (inet_aton(ip, &address)) { // convert to in_addr
         struct hostent *answer;
         answer = gethostbyaddr((char *)&address, sizeof(address), AF_INET);
-        if (answer) { // sucess in reverse dns
+        if (answer) { // success in reverse dns
             result->push_back(String(answer->h_name));
             for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
                 result->push_back(String(inet_ntoa(**addrptr)));
@@ -392,6 +392,13 @@ bool FOptionContainer::read(const char *filename)
             disable_content_scan = false;
         }
 
+        if (findoptionS("disablecontentscanerror") == "on") {
+            disable_content_scan_error = true;
+        } else {
+            disable_content_scan_error = false;
+        }
+
+
         if (findoptionS("useonlylocalallowlists") == "on") {
             use_only_local_allow_lists = true;
         } else {
@@ -708,7 +715,7 @@ bool FOptionContainer::read(const char *filename)
 #endif
 
             // the e2guardian.conf and pics files get amalgamated into one
-            // deque.  They are only seperate files for clarity.
+            // deque.  They are only separate files for clarity.
 
 //            if (findoptionS("enablepics") == "on") {
                 //.enable_PICS = true;
