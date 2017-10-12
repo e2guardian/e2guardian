@@ -222,6 +222,7 @@ void ICAPHeader::checkheader(bool allowpersistent)
         } else if ((pallow == NULL) && i->startsWithLower("allow:")) {
             pallow = &(*i);
             allow_204 = pallow->contains("204");
+            allow_206 = pallow->contains("206");
         } else if ((pfrom == NULL) && i->startsWithLower("from:")) {
             pfrom = &(*i);
         } else if ((phost == NULL) && i->startsWithLower("host:")) {

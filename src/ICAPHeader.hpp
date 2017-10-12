@@ -62,6 +62,7 @@ class ICAPHeader
     int null_body;
 
     bool allow_204 = false;
+    bool allow_206 = false;
 
     struct encap_rec {
         String name;
