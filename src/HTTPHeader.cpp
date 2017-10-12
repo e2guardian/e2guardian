@@ -1310,17 +1310,17 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
 
 
 // is this a temporary filter bypass URL?
-int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip, bool *isvirusbypass)
+int HTTPHeader::isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass)
 {
-    if ((*url).length() <= 45)
+    if ((url).length() <= 45)
         return false; // Too short, can't be a bypass
 
     // check to see if this is a bypass URL, and which type it is
     bool filterbypass = false;
     bool virusbypass = false;
-    if ((isvirusbypass == NULL) && ((*url).contains("GBYPASS="))) {
+    if ((isvirusbypass == NULL) && ((url).contains("GBYPASS="))) {
         filterbypass = true;
-    } else if ((isvirusbypass != NULL) && (*url).contains("GIBYPASS=")) {
+    } else if ((isvirusbypass != NULL) && (url).contains("GIBYPASS=")) {
         virusbypass = true;
     }
     if (!(filterbypass || virusbypass))
@@ -1330,9 +1330,9 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
     std::cout << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
-    String url_left((*url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
+    String url_left((url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
     url_left.chop(); // remove the ? or &
-    String url_right((*url).after(filterbypass ? "GBYPASS=" : "GIBYPASS="));
+    String url_right((url).after(filterbypass ? "GBYPASS=" : "GIBYPASS="));
 
     String url_hash(url_right.subString(0, 32));
     String url_time(url_right.after(url_hash.toCharArray()));
@@ -1376,21 +1376,21 @@ int HTTPHeader::isBypassURL(String *url, const char *magic, const char *clientip
 }
 
 // is this a scan bypass URL? i.e. a "magic" URL for retrieving a previously scanned file
-bool HTTPHeader::isScanBypassURL(String *url, const char *magic, const char *clientip)
+bool HTTPHeader::isScanBypassURL(String url, const char *magic, const char *clientip)
 {
-    if ((*url).length() <= 45)
+    if ((url).length() <= 45)
         return false; // Too short, can't be a bypass
 
-    if (!(*url).contains("GSBYPASS=")) { // If this is not a bypass url
+    if (!(url).contains("GSBYPASS=")) { // If this is not a bypass url
         return false;
     }
 #ifdef DGDEBUG
     std::cout << "URL GSBYPASS found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
-    String url_left((*url).before("GSBYPASS="));
+    String url_left((url).before("GSBYPASS="));
     url_left.chop(); // remove the ? or &
-    String url_right((*url).after("GSBYPASS="));
+    String url_right((url).after("GSBYPASS="));
 
     String url_hash(url_right.subString(0, 32));
 #ifdef DGDEBUG
