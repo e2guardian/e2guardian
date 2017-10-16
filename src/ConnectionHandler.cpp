@@ -770,7 +770,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                     if (checkme.isexception) {
                         // do reason codes etc
- //                       checkme.exceptionreason = o.language_list.getTranslation(630);
+                        checkme.exceptionreason = o.language_list.getTranslation(630);
                         checkme.exceptionreason.append(room);
                         checkme.exceptionreason.append(o.language_list.getTranslation(631));
                         checkme.message_no = 632;
@@ -847,10 +847,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // Start of by pass
             //
+            std::cout << dbgPeerPort << " -Scan bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
             if (ldl->fg[filtergroup]->bypass_mode != 0) {
                 if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " -Scan bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                     isscanbypass = true;
                     isbypass = true;
@@ -895,17 +896,18 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         if (bypasstimestamp > 1) { // not expired
                             isbypass = true;
                             // checkme: need a TR string for virus bypass
-                            // exceptionreason = o.language_list.getTranslation(606);
+                            checkme.exceptionreason = o.language_list.getTranslation(606);
                         }
                     } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
                         if (header.isBypassCookie(checkme.url, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Bypass cookie match" << " url " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cout << dbgPeerPort << " -bypass cookie match" << " url " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                             iscookiebypass = true;
                             isbypass = true;
+                            checkme.isexception = true;
  //                           isexception = true;
-                           // exceptionreason = o.language_list.getTranslation(607);
+                            checkme.exceptionreason = o.language_list.getTranslation(607);
                         }
                     }
                 }
@@ -916,7 +918,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
 #ifdef DGDEBUG
                 if (isbypass) {
-                    std::cout << dbgPeerPort << " -Bypass activated!" << " url: " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cout << dbgPeerPort << " -bypass activated!" << " url: " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                 }
 #endif
                 //
@@ -1238,30 +1240,30 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
     //int code, std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
     ////HTTPHeader *reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified, bool headeradded)
 ///
-String where = cm.logurl;
-unsigned int port = cm.request_header->port;
-std::string what = cm.whatIsNaughtyLog;
-String how = rtype;
-off_t size = cm.docsize;
-std::string *cat = &cm.whatIsNaughtyCategories;
-bool isnaughty = cm.isItNaughty;
-int naughtytype = cm.blocktype;
-bool isexception = cm.isexception;
-bool istext = cm.is_text;
-struct timeval *thestart = &cm.thestart;
-bool cachehit = false;
-int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);
-std::string mimetype = cm.mimetype;
-bool wasinfected = cm.wasinfected;
-bool wasscanned = cm.wasscanned;
-int naughtiness = cm.naughtiness;
-int filtergroup = cm.filtergroup;
-HTTPHeader *reqheader = cm.request_header;
-int message_no = cm.message_no;
-bool contentmodified = cm.contentmodified;
-bool urlmodified = cm.urlmodified;
-bool headermodified = cm.headermodified;
-bool headeradded = cm.headeradded;
+    String where = cm.logurl;
+    unsigned int port = cm.request_header->port;
+    std::string what = cm.whatIsNaughtyLog;
+    String how = rtype;
+    off_t size = cm.docsize;
+    std::string *cat = &cm.whatIsNaughtyCategories;
+    bool isnaughty = cm.isItNaughty;
+    int naughtytype = cm.blocktype;
+    bool isexception = cm.isexception;
+    bool istext = cm.is_text;
+    struct timeval *thestart = &cm.thestart;
+    bool cachehit = false;
+    int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);
+    std::string mimetype = cm.mimetype;
+    bool wasinfected = cm.wasinfected;
+    bool wasscanned = cm.wasscanned;
+    int naughtiness = cm.naughtiness;
+    int filtergroup = cm.filtergroup;
+    HTTPHeader *reqheader = cm.request_header;
+    int message_no = cm.message_no;
+    bool contentmodified = cm.contentmodified;
+    bool urlmodified = cm.urlmodified;
+    bool headermodified = cm.headermodified;
+    bool headeradded = cm.headeradded;
 
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
@@ -1453,7 +1455,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 
     try { // writestring throws exception on error/timeout
 
-        // flags to enable filter/infection bypass hash generation
+        // flags to enable filter/infection / hash generation
         bool filterhash = false;
         bool virushash = false;
         // flag to enable internal generation of hashes (i.e. obey the "-1" setting; to allow the modes but disable hash generation)
@@ -2700,44 +2702,44 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
 // Start of scan by pass
 //
 
-if (checkme.isscanbypass) {
+    if (checkme.isscanbypass) {
 //we need to decode the URL and send the temp file with the
-    //correct header to the client then delete the temp file
-    String tempfilename(checkme.url.after("GSBYPASS=").after("&N="));
-    String tempfilemime(tempfilename.after("&M="));
-    String tempfiledis(header.decode(tempfilemime.after("&D="), true));
-    #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << std::endl;
-    #endif
-    String rtype(header.requestType());
-    tempfilemime = tempfilemime.before("&D=");
-    tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
-    try {
-    checkme.docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, checkme.url);
-    header.
-    chopScanBypass(checkme.url);
-    checkme.url = header.getLogUrl();
-    //urld = header.decode(url);  // unneeded really
+        //correct header to the client then delete the temp file
+        String tempfilename(checkme.url.after("GSBYPASS=").after("&N="));
+        String tempfilemime(tempfilename.after("&M="));
+        String tempfiledis(header.decode(tempfilemime.after("&D="), true));
+        #ifdef DGDEBUG
+        std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << std::endl;
+        #endif
+        String rtype(header.requestType());
+        tempfilemime = tempfilemime.before("&D=");
+        tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
+        try {
+        checkme.docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, checkme.url);
+        header.
+        chopScanBypass(checkme.url);
+        checkme.url = header.getLogUrl();
+        //urld = header.decode(url);  // unneeded really
 
-    doLog(clientuser, clientip, checkme );
-//doLog(clientuser, clientip, checkme.logurl, header.port, checkme.exceptionreason,
-//    rtype, checkme.docsize, NULL, false, 0, checkme.isexception, false, &thestart,
-//    checkme.cachehit, 200, checkme.mimetype, checkme.wasinfected, checkme.wasscanned, 0, filtergroup,
-//    &header);
+        doLog(clientuser, clientip, checkme );
+    //doLog(clientuser, clientip, checkme.logurl, header.port, checkme.exceptionreason,
+    //    rtype, checkme.docsize, NULL, false, 0, checkme.isexception, false, &thestart,
+    //    checkme.cachehit, 200, checkme.mimetype, checkme.wasinfected, checkme.wasscanned, 0, filtergroup,
+    //    &header);
 
-if (o.delete_downloaded_temp_files) {
-    unlink(tempfilename.toCharArray() );
+    if (o.delete_downloaded_temp_files) {
+        unlink(tempfilename.toCharArray() );
+        }
+    } catch (
+        std::exception &e
+    ) {
     }
-} catch (
-    std::exception &e
-) {
-}
-    persistProxy = false;
-    proxysock.close(); // close connection to proxy
-//break;
-    return true;
-}
-//
+        persistProxy = false;
+        proxysock.close(); // close connection to proxy
+    //break;
+        return true;
+    }
+    //
 // End of scan by pass
 
     return false;
@@ -3247,10 +3249,10 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         while ((firsttime || persistPeer) && !ttg)
         {
             ldl = o.currentLists();
-    HTTPHeader docheader(__HEADER_RESPONSE); // to hold any HTTP response header sent by ICAP client
-    HTTPHeader header(__HEADER_REQUEST); // to hold the HTTP request header sent by ICAP client
-    ICAPHeader icaphead;
-    icaphead.setHTTPhdrs(header, docheader);
+            HTTPHeader docheader(__HEADER_RESPONSE); // to hold any HTTP response header sent by ICAP client
+            HTTPHeader header(__HEADER_REQUEST); // to hold the HTTP request header sent by ICAP client
+            ICAPHeader icaphead;
+            icaphead.setHTTPhdrs(header, docheader);
             icaphead.ISTag = ldl->ISTag();
 
             NaughtyFilter checkme(header, docheader);
@@ -3266,7 +3268,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
            {
 // another round...
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " LDAP -persisting (count " << ++pcount << ")" << std::endl;
+                std::cout << dbgPeerPort << " ICAP -persisting (count " << ++pcount << ")" << std::endl;
                 syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
                 std::cout << dbgPeerPort << " - " << clientip << std::endl;
 #endif
@@ -3274,7 +3276,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -LDAP Persistent connection timed out" << std::endl;
+                        std::cout << dbgPeerPort << " -ICAP Persistent connection timed out" << std::endl;
 #endif
                         //send error response
                         String wline = "ICAP/1.0 408 Request timeout\r\n";
@@ -3287,7 +3289,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         peerconn.writeString(wline.toCharArray());
                     } else {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -LDAP Persistent connection closed" << std::endl;
+                            std::cout << dbgPeerPort << " -ICAP Persistent connection closed" << std::endl;
 #endif
                             // TODO: send error reply if needed
                             break;
@@ -3326,51 +3328,51 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
             }
 
-// Check service option REQMOD, RESMOD, OPTIONS and call appropreate function(s)
-//
-if (icaphead.service_reqmod&& icaphead.icap_reqmod_service) {
-    if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0)
-        continue;
-    else
-        break;
+            // Check service option REQMOD, RESMOD, OPTIONS and call appropreate function(s)
+            //
+            if (icaphead.service_reqmod&& icaphead.icap_reqmod_service) {
+                if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0)
+                    continue;
+                else
+                    break;
 
-} else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
-    // auth ??
-    // if reqhdr request SB ?????
-    // response SB on res_hdr
-    // respond & process body
+            } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
+                // auth ??
+                // if reqhdr request SB ?????
+                // response SB on res_hdr
+                // respond & process body
 
-} else if (icaphead.service_options && icaphead.icap_reqmod_service) {
-    // respond with option response
-    String wline = "ICAP/1.0 200 OK\r\n";
-    wline += "Methods: REQMOD\r\n";
-    wline += "Service: e2guardian 5.0\r\n";
-    wline += "ISTag: \"";
-    wline += ldl->ISTag();
-     wline += "\"\r\n";
-    wline += "Encapsulated: null-body=0\r\n";
-    wline += "Allow: 204\r\n";
-    wline += "Preview: 0\r\n";
-    wline += "\r\n";
-    std::cerr << "options response : " << wline;
-    peerconn.writeString(wline.toCharArray());
+            } else if (icaphead.service_options && icaphead.icap_reqmod_service) {
+                // respond with option response
+                String wline = "ICAP/1.0 200 OK\r\n";
+                wline += "Methods: REQMOD\r\n";
+                wline += "Service: e2guardian 5.0\r\n";
+                wline += "ISTag: \"";
+                wline += ldl->ISTag();
+                 wline += "\"\r\n";
+                wline += "Encapsulated: null-body=0\r\n";
+                wline += "Allow: 204\r\n";
+                wline += "Preview: 0\r\n";
+                wline += "\r\n";
+                std::cerr << "options response : " << wline;
+                peerconn.writeString(wline.toCharArray());
 
-} else if (icaphead.service_options && icaphead.icap_resmod_service) {
-    // respond with option response
-    String wline = "ICAP/1.0 200 OK\r\n";
-    wline += "Methods: RESMOD\r\n";
-    wline += "Service: e2guardian 5.0\r\n";
-    wline += "ISTag:";
-    wline += ldl->ISTag();
-    wline += "\r\n";
-    wline += "Encapsulated: null-body=0\r\n";
-    wline += "Allow: 204\r\n";
-    wline += "Preview: 2048\r\n";
-    wline += "\r\n";
-    std::cerr << "options response : " << wline;
-    peerconn.writeString(wline.toCharArray());
-} else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
-        (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
+            } else if (icaphead.service_options && icaphead.icap_resmod_service) {
+                // respond with option response
+                String wline = "ICAP/1.0 200 OK\r\n";
+                wline += "Methods: RESMOD\r\n";
+                wline += "Service: e2guardian 5.0\r\n";
+                wline += "ISTag:";
+                wline += ldl->ISTag();
+                wline += "\r\n";
+                wline += "Encapsulated: null-body=0\r\n";
+                wline += "Allow: 204\r\n";
+                wline += "Preview: 2048\r\n";
+                wline += "\r\n";
+                std::cerr << "options response : " << wline;
+                peerconn.writeString(wline.toCharArray());
+            } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
+                (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 String wline = "ICAP/1.0 405 Method not allowed for service\n";
                 wline += "Service: e2guardian 5.0\n";
                 //wline += "ISTag:";
@@ -3404,7 +3406,7 @@ if (icaphead.service_reqmod&& icaphead.icap_reqmod_service) {
             return -1;
         }
 #endif
-    if (!ismitm)
+        if (!ismitm)
         try {
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -3535,10 +3537,10 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // Start of by pass
     //  TODO Need ICAP veriosn of checkByPass???
-    //if (checkByPass( checkme,  ldl, header,  proxysock, peerconn, clientip, persistProxy)) {
-    //    break;
-    //}
-
+ /*   if (checkByPass( checkme,  ldl, header,  proxysock, peerconn, clientip, persistProxy)) {
+        break;
+    }
+*/
     //
     // End of scan by pass
     //
