@@ -3349,7 +3349,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "Service: e2guardian 5.0\r\n";
                 wline += "ISTag: \"";
                 wline += ldl->ISTag();
-                 wline += "\"\r\n";
+                wline += "\"\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "Allow: 204\r\n";
                 wline += "Preview: 0\r\n";
@@ -3409,7 +3409,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         if (!ismitm)
         try {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cout << dbgPeerPort << "ICAP -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             //syslog(LOG_INFO, " -Attempting graceful connection close" );
             int fd = peerconn.getFD();
@@ -3474,8 +3474,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
 
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -username: " << clientuser << std::endl;
-    std::cout << dbgPeerPort << " -filtergroup: " << filtergroup << std::endl;
+    std::cout << dbgPeerPort << " ICAP -username: " << clientuser << std::endl;
+    std::cout << dbgPeerPort << " ICAP -filtergroup: " << filtergroup << std::endl;
 #endif
 //
 //
@@ -3515,7 +3515,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
                         checkme.urld)) {
 #ifdef DGDEBUG
-            std::cout << " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
+            std::cout << "ICAP isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
 #endif
             if (isbannedip) {
          //       matchedip = clienthost == NULL;
@@ -3597,6 +3597,11 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
                           checkme.scanerror)) {
             icaphead.errorResponse(peerconn, res_hdr, res_body);
             done = true;
+#ifdef DGDEBUG
+            std::cout << "ICAP Naughty" << std::endl;
+#endif
+	// break loop "// maintain a persistent connection"
+   	   return 1;
         };
     }
 
