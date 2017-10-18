@@ -177,9 +177,9 @@ if (o.logconerror)
      else if (peersock.sockError())
         syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
     else if (peersock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+        syslog(LOG_INFO, "%d %s can't read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
     else if (peersock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+        syslog(LOG_INFO, "%d %s can't write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
     else if (peersock.isNoOpp())
         syslog(LOG_INFO, "%d %s Client Connection at %s is no-op - errno: %d", peerport, message, peer_ip.c_str(),err);
 
@@ -191,9 +191,9 @@ if (o.logconerror)
     else if (proxysock.sockError())
         syslog(LOG_INFO, "%d %s proxy socket error - errno: %d", peerport, message, err);
     else if (proxysock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read proxy Connection - errno: %d ", peerport, message, err);
+        syslog(LOG_INFO, "%d %s can't read proxy Connection - errno: %d ", peerport, message, err);
     else if (proxysock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write proxy Connection  - errno: %d", peerport, message, err);
+        syslog(LOG_INFO, "%d %s can't write proxy Connection  - errno: %d", peerport, message, err);
     else if (proxysock.isNoOpp())
         syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
 }
@@ -216,9 +216,9 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
         else if (peersock.sockError())
             syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
         else if (peersock.isNoRead())
-            syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%d %s can't read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
         else if (peersock.isNoWrite())
-            syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%d %s can't write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
         else if (peersock.isNoOpp())
             syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
     }
@@ -1299,7 +1299,7 @@ stat_rec* &dystat)
                     }
                 }
             }
-            // orginal section only now called if local list not matched
+            // original section only now called if local list not matched
             if (authed && (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || ldl->fg[filtergroup]->use_only_local_allow_lists))) {
                 //bool is_ssl = header.requestType() == "CONNECT";
                 bool is_ip = isIPHostnameStrip(urld);
@@ -1783,7 +1783,7 @@ stat_rec* &dystat)
                         docsize = fdt.throughput;
                     try {
                         String rtype(header.requestType());
-// Negociate part 407 requests
+// Negotiate part 407 requests
                         if (docheader.authRequired()) {
                         	isexception = true;
 				if (o.log_exception_hits == 3){
@@ -1836,8 +1836,8 @@ stat_rec* &dystat)
 
                     pkey = o.ca->getServerPkey();
 
-                    //generate the certificate but dont write it to disk (avoid someone
-                    //requesting lots of places that dont exist causing the disk to fill
+                    //generate the certificate but don't write it to disk (avoid someone
+                    //requesting lots of places that don't exist causing the disk to fill
                     //up / run out of inodes
                     certfromcache = o.ca->getServerCertificate(urldomain.CN().c_str(), &cert,
                         &caser);
@@ -1930,7 +1930,7 @@ stat_rec* &dystat)
                             &caser);
                     }
 
-                    //if we cant write the certificate its not the end of the world but it is slow
+                    //if we can't write the certificate its not the end of the world but it is slow
                     if (!writecert) {
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -Couldn't save certificate to on disk cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -2829,7 +2829,7 @@ stat_rec* &dystat)
                         }
 
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << "Mime type: lenght: " << mimetype.length() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cout << dbgPeerPort << "Mime type: length: " << mimetype.length() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                         std::cout << dbgPeerPort << "Mimetype -:" << mimetype;
 #endif
                     }
@@ -3307,9 +3307,10 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
-        // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        //
-        // Checked in Optioncontainer.cpp Fred 12/05/2017
+        // and we don't have a straight IP match against the banned or exception IP lists.
+	      //
+	      // Checked in Optioncontainer.cpp Fred 12/05/2017
+	
 
         if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
 #ifdef DGDEBUG
@@ -3890,7 +3891,7 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
     }
 }
 
-// check if embeded url trusted referer
+// check if embedded url trusted referer
 bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, String *url,
     int filtergroup)
 {
@@ -3912,7 +3913,7 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
 
 // look for referer URLs within URLs
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -starting embeded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << dbgPeerPort << " -starting embedded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         String deepurl(temp.after("p://"));
         deepurl = header->decode(deepurl, true);
@@ -4353,7 +4354,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
         // stealth mode
         else if (reporting_level == -1) {
-            (*checkme).isItNaughty = false; // dont block
+            (*checkme).isItNaughty = false; // don't block
         }
     } catch (std::exception &e) {
     }
@@ -4664,7 +4665,7 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
 #endif
 
     long rc = sslsock->checkCertValid();
-    //check that everything in this certificate is correct appart from the hostname
+    //check that everything in this certificate is correct apart from the hostname
     if (rc < 0) {
         //no certificate
         if ( ldl->fg[filtergroup]->allow_empty_host_certs)

@@ -116,9 +116,9 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
     while (pos < size) {
         rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
         if (rc < 1) {
-            // none recieved or an error
+            // none received or an error
             if (pos > 0) {
-                return pos; // some was recieved previous into buffer
+                return pos; // some was received previous into buffer
             }
             return rc; // just return with the return code
         }
@@ -142,9 +142,9 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
     while (pos < size) {
         rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, false);
         if (rc < 1) {
-            // none recieved or an error
+            // none received or an error
             if (pos > 0) {
-                return pos; // some was recieved previous into buffer
+                return pos; // some was received previous into buffer
             }
             return rc; // just return with the return code
         }

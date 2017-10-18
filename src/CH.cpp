@@ -809,7 +809,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     };
                 };
             }
-            // orginal section only now called if local list not matched
+            // original section only now called if local list not matched
             if (!(isbanneduser || isbannedip || isbypass || isexception || checkme.isGrey || checkme.isItNaughty || ldl->fg[filtergroup]->use_only_local_allow_lists)) {
                 //bool is_ssl = header.requestType() == "CONNECT";
                 bool is_ip = isIPHostnameStrip(urld);
@@ -1307,8 +1307,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
                     pkey = o.ca->getServerPkey();
 
-                    //generate the certificate but dont write it to disk (avoid someone
-                    //requesting lots of places that dont exist causing the disk to fill
+                    //generate the certificate but don't write it to disk (avoid someone
+                    //requesting lots of places that don't exist causing the disk to fill
                     //up / run out of inodes
                     certfromcache = o.ca->getServerCertificate(urldomain.CN().c_str(), &cert,
                         &caser);
@@ -1401,7 +1401,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             &caser);
                     }
 
-                    //if we cant write the certificate its not the end of the world but it is slow
+                    //if we can't write the certificate its not the end of the world but it is slow
                     if (!writecert) {
 #ifdef DGDEBUG
                         std::cout << dbgPeerPort << " -Couldn't save certificate to on disk cache" << std::endl;

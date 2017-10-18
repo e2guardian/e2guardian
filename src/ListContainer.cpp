@@ -222,7 +222,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
         }
     }
     listfile.close();
-    return true; // sucessful read
+    return true; // successful read
 }
 
 // for phrase lists - helper function for readPhraseList
@@ -416,7 +416,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
         while ((commentstart = temp.find_first_of('#', commentstart)) != std::string::npos) {
             // Don't treat "(?#...)" as a DG comment - it's a regex comment
             // if (temp[commentstart - 1] != '?')
-            // Changed to only treat ' #' as an embeded comment
+            // Changed to only treat ' #' as an embedded comment
             if (temp[commentstart - 1] == ' ') {
                 temp = temp.substr(0, commentstart);
                 break;
@@ -459,7 +459,7 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 #ifdef DGDEBUG
     std::cout << "Blanket flags set:" << blanketblock << ":" << blanket_ip_block << ":" << blanketsslblock << ":" << blanketssl_ip_block << std::endl;
 #endif
-    return true; // sucessful read
+    return true; // successful read
 }
 
 bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
@@ -529,7 +529,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
         return false;
     }
     listfile.close();
-    return true; // sucessful read
+    return true; // successful read
 }
 
 // for stdin item lists - read item list from stdin
@@ -616,7 +616,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
         addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
     }
     //listfile.close();
-    return true; // sucessful read
+    return true; // successful read
 }
 
 // for item lists - read nested item lists
