@@ -73,6 +73,7 @@ void DataBuffer::reset()
     dontsendbody = false;
     preservetemp = false;
     decompress = "";
+    chunked = false;
 }
 
 // delete the memory block when the class is destroyed
@@ -111,20 +112,24 @@ void DataBuffer::swapbacktocompressed()
 // the buffer gets filled thus reducing memcpy()ing and new()ing
 int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout)
 {
-    int pos = 0;
-    int rc;
-    while (pos < size) {
-        rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
-        if (rc < 1) {
-            // none recieved or an error
-            if (pos > 0) {
-                return pos; // some was recieved previous into buffer
+    if (chunked) {
+        return sock->readChunk(buffer, size, sockettimeout);
+    } else {
+        int pos = 0;
+        int rc;
+        while (pos < size) {
+            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
+            if (rc < 1) {
+                // none recieved or an error
+                if (pos > 0) {
+                    return pos; // some was recieved previous into buffer
+                }
+                return rc; // just return with the return code
             }
-            return rc; // just return with the return code
+            pos += rc;
         }
-        pos += rc;
+        return size; // full buffer
     }
-    return size; // full buffer
 }
 
 // a much more efficient reader that does not assume the contents of
@@ -140,7 +145,11 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
     struct timeval nowadays;
     gettimeofday(&starttime, NULL);
     while (pos < size) {
-        rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, false);
+        if (chunked) {
+            rc = sock->readChunk(&buffer[pos], size - pos,sockettimeout );
+        } else {
+            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, false);
+        }
         if (rc < 1) {
             // none recieved or an error
             if (pos > 0) {
@@ -276,9 +285,13 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
                 break; // should never happen
             }
             // as it's cached to disk the buffer must be reasonably big
-            if (!sock->writeToSocket(data, rc, 0, stimeout)) {
-                return false;
-//                throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+            if(chunked) {
+                if (!sock->writeChunk(data, rc, stimeout))
+                    return false;
+            } else {
+                if (!sock->writeToSocket(data, rc, 0, stimeout)) {
+                    return false;
+                }
             }
             sent += rc;
 #ifdef DGDEBUG
@@ -295,13 +308,24 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         // it's in RAM, so just send it, no streaming from disk
         if (buffer_length != 0) {
-            if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, stimeout))
-                return false;
+            if(chunked)
+            {
+                if (!sock->writeChunk(data + bytesalreadysent, buffer_length - bytesalreadysent, stimeout))
+                    return false;
+
+            } else {
+                if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, stimeout))
+                    return false;
+            }
           //      throw std::exception();
         } else {
-            if (!sock->writeToSocket("\r\n\r\n", 4, 0, stimeout))
-                return false;
-           //     throw std::exception();
+            if(chunked) {
+                if (!sock->writeChunk(data + bytesalreadysent, 0, stimeout))
+                    return false;
+            } else {
+                if (!sock->writeToSocket("\r\n\r\n", 4, 0, stimeout))
+                    return false;
+            }
         }
 #ifdef DGDEBUG
         std::cout << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
@@ -550,4 +574,15 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
         }
     }
     return contentmodified;
+}
+
+void DataBuffer::setChunked(bool ch = true) {
+    chunked = ch;
+    return;
+}
+
+void DataBuffer::setICAP(bool ch = true) {
+    chunked = ch;
+    icap = ch;
+    return;
 }

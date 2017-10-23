@@ -490,19 +490,19 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         bool firsttime = true;
         if (!header.in(&peerconn, true)) {     // get header from client, allowing persistency
             if (o.logconerror) {
-                if (peerconn.getFD() > -1) {
+                    if (peerconn.getFD() > -1) {
 
-                    int err = peerconn.getErrno();
-                    int pport = peerconn.getPeerSourcePort();
-                    std::string peerIP = peerconn.getPeerIP();
+                        int err = peerconn.getErrno();
+                        int pport = peerconn.getPeerSourcePort();
+                        std::string peerIP = peerconn.getPeerIP();
 
-                    syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
+                        syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
 #ifdef DGDEBUG
-                    std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
+                        std::cout << "pport" << " No header recd from client - errno: " << err << std::endl;
 #endif
-                } else {
-                    syslog(LOG_INFO, "Client connection closed early - no request header received");
-                }
+                    } else {
+                        syslog(LOG_INFO, "Client connection closed early - no request header received");
+                    }
             }
             firsttime = false;
             persistPeer = false;

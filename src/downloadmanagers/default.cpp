@@ -89,6 +89,8 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     int rc = 0;
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
+    if (!d->icap)
+        d->chunked = docheader->ptransfercoding->contains("chunked");
 
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
@@ -131,13 +133,16 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 #ifdef DGDEBUG
                     std::cout << "sending first line of header first" << std::endl;
 #endif
-                    docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
-                    (*headersent) = 1;
+       if(!d->icap) {
+           docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
+           (*headersent) = 1;
+       }
                 }
 #ifdef DGDEBUG
                 std::cout << "trickle delay - sending X-DGKeepAlive: on" << std::endl;
 #endif
-                peersock->writeString("X-DGKeepAlive: on\r\n");
+                if(!d->icap)
+                    peersock->writeString("X-E2GKeepAlive: on\r\n");
             }
         }
 

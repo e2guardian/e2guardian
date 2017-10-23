@@ -25,6 +25,8 @@ class DataBuffer
     off_t tempfilesize;
     String tempfilepath;
     bool dontsendbody; // used for fancy download manager for example
+    bool chunked;
+    bool icap;
     int tempfilefd;
 
     // the download manager we used during the last "in"
@@ -68,6 +70,9 @@ class DataBuffer
 
     // create a temp file and return its FD	- NOT a simple accessor function
     int getTempFileFD();
+
+    void setChunked(bool ch);
+    void setICAP(bool ch);
 
     void reset();
 

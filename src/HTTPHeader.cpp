@@ -940,6 +940,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
         // this one's non-standard, so check for it last
         else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
+    } else if ((ptransfercoding == NULL) && i->startsWithLower("transfer-coding:")) {
+        ptransfercoding = &(*i);
         }
 
 	//Can be placed anywhere ..

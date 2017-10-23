@@ -90,6 +90,7 @@ class HTTPHeader
     bool isheaderadded;
     String *plogheadervalue;
     String *pheaderident;
+    String *ptransfercoding;
     std::string getAuthHeader();
     // see if search usl and set searchwords
     bool isSearch(FOptionContainer* &foc);
