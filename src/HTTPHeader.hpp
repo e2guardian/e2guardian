@@ -157,9 +157,9 @@ class HTTPHeader
     // Bypass URL & Cookie funcs
 
     // is this a temporary filter bypass URL?
-    int isBypassURL(String *url, const char *magic, const char *clientip, bool *isvirusbypass);
+    int isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass);
     // is this a scan bypass URL? (download previously scanned file)
-    bool isScanBypassURL(String *url, const char *magic, const char *clientip);
+    bool isScanBypassURL(String url, const char *magic, const char *clientip);
     bool isBypassCookie(String url, const char *magic, const char *clientip);
     void chopBypass(String url, bool infectionbypass);
     void chopScanBypass(String url);

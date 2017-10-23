@@ -343,7 +343,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
 #ifdef DGDEBUG
-        std::cout << "Group " << findoptionS("groupname") << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
+        std::cout << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -436,7 +436,11 @@ bool FOptionContainer::read(const char *filename) {
 
         // grab group name (if not using external group names file)
         if (!o.use_group_names_list) {
-            name = findoptionS("groupname");
+	    if (findoptionS("groupname").length() > 0) {
+            	name = findoptionS("groupname");
+	    } else {
+		name = "no_name_group";
+	    }
 #ifdef DGDEBUG
             std::cout << "Group name: " << name << std::endl;
 #endif

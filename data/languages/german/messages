@@ -35,12 +35,12 @@
 "159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
 "160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","Die angeforderte URL ist ungültig"
-"201","Unable to get response from upstream proxy (timeout)"    # needs translation
-"202","Unable to get response from upstream proxy (error)"    # needs translation
-"203","The site requested is not responding"    # needs translation
-"204"," - Please try again later"    # needs translation
-"205","Upstream proxy is not responding (network error)"    # needs translation
-"206"," - Please try again later"    # needs translation
+"201","Antwort vom Upstream-Proxy nicht möglich (Zeitüberschreitung)"
+"202","Antwort vom Upstream-Proxy nicht möglich (Fehler)"
+"203","Die angeforderte Seite antwortet nicht"
+"204"," - Bitte versuchen Sie es später noch einmal"
+"205","Upstream-Proxy antwortet nicht (Netzwerkfehler)"
+"206"," - Bitte versuchen Sie es später noch einmal"
 "207","The site requested does not exist"    # needs translation
 "208","The site requested does not have an IPv4 address"    # needs translation
 "209","Temporary DNS service failure - please try again"    # needs translation
@@ -108,4 +108,4 @@
 "1220","Überprüfung abgeschlossen.</p><p>Zum herunterladen hier klicken: "
 "1221","Herunterladen abgeschlossen. Datei konnte nicht überprüft werden.</p><p>Zum herunterladen hier klicken: "
 "1222","Datei zu gross zum zwischenspeichern.</p><p>Zum erneuten herunterladen, OHNE Überprüfung, hier klicken: "
-"1230","Die heruntergeladene Datei ist nicht länger verfügbar"
+"1230","Die Datei wurde bereits abgerufen und ist daher nicht mehr gespeichert!"
