@@ -300,8 +300,10 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
     return sent;
 }
 
-int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm)   // connects to to proxy or directly
+int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0)   // connects to to proxy or directly
 {
+ if(port == 0)
+     port = cm.request_header->port;
 
     cm.upfailure = false;
     if (cm.isdirect) {
@@ -309,8 +311,8 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm)   // con
         if (cm.isiphost) {
             des_ip = cm.urldomain;
             sock.setTimeout(o.proxy_timeout);
-            std::cerr << "Connecting to IPHost " << des_ip << " port " << cm.request_header->port << std::endl;
-            int rc = sock.connect(des_ip,cm.request_header->port);
+            std::cerr << "Connecting to IPHost " << des_ip << " port " << port << std::endl;
+            int rc = sock.connect(des_ip,port);
             if (rc < 0) {
                 cm.message_no = 203;
                 cm.upfailure = true;
@@ -356,8 +358,8 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm)   // con
             for (p = infoptr; p != NULL; p = p->ai_next)
             {
                 getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
-                std::cerr << "Connecting to IP " << t << " port " << cm.request_header->port << std::endl;
-                int rc = sock.connect(t,cm.request_header->port);
+                std::cerr << "Connecting to IP " << t << " port " << port << std::endl;
+                int rc = sock.connect(t,port);
                 if (rc == 0){
                     freeaddrinfo(infoptr);
                         std::cerr << "Got connection upfailure is " << cm.upfailure << std::endl;
@@ -1580,7 +1582,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                     eheader += "\nContent-Length: 0";
                     eheader += "\nCache-control: no-cache";
-                    eheader += "\nConnection: close\n";
+                    eheader += "\nConnection: close\r\n\r\n";
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
@@ -2290,6 +2292,10 @@ bool
 ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn, bool &persistProxy, bool &authed,
                           bool &persistent_authed, String &ip, stat_rec *&dystat, std::string &clientip,
                           bool transparent) {
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " Start goMITM nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
 
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " -Intercepting HTTPS connection" << std::endl;
@@ -2378,6 +2384,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
     if (proxysock.isOpen()) {
 // tsslclient connected to the proxy and check the certificate of the server
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
         if (!checkme.isItNaughty) {
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -Going SSL on upstream connection " << std::endl;
@@ -2395,6 +2405,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                 checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             }
         }
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
 
         if (!checkme.isItNaughty) {
 
@@ -2409,6 +2423,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
     }
 
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
 //handleConnection inside the ssl tunnel
     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
         bool writecert = true;
@@ -2443,7 +2461,8 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 //if it was marked as naughty then show a deny page and close the connection
     if (checkme.isItNaughty || checkme.upfailure) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << std::endl;
+        std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
 #endif
 
         doLog(clientuser, clientip, checkme);
@@ -2819,6 +2838,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     //docheader.setTimeout(o.exchange_timeout);
 
     NaughtyFilter checkme(header, docheader);
+    checkme.reset();
 
 
     std::string clientip(ip.toCharArray()); // hold the clients ip
@@ -3084,19 +3104,26 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                     checkme.isItNaughty = checkme.isBlocked;
             }
 
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " before connectUpstream nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
 
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
-                if (connectUpstream(proxysock, checkme)) {
+                if (connectUpstream(proxysock, checkme,443) > -1) {
                     if(!checkme.isdirect) {
                         if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
-                        checkme.upfailure = true;
-                       // break;
+                       checkme.upfailure = true;
                     }
                 } else {
-                        checkme.upfailure = true;
+                       checkme.upfailure = true;
                 }
             }
+#ifdef DGDEBUG
+        std::cout << dbgPeerPort << " after connectUpstream nf " << checkme.isItNaughty <<
+                " upfail " << checkme.upfailure << std::endl;
+#endif
 
             if(checkme.upfailure) checkme.gomitm = true;  // allows us to send splash page
 
