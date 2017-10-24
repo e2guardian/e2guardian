@@ -33,6 +33,7 @@
 "157","Es konnte kein Verbindung zum lokalen Proxy hergestellt werden"
 "158","Verbindungsaufbau fehlgeschlagen"
 "159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
+"160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","Die angeforderte URL ist ungültig"
 "201","Antwort vom Upstream-Proxy nicht möglich (Zeitüberschreitung)"
 "202","Antwort vom Upstream-Proxy nicht möglich (Fehler)"
@@ -40,6 +41,10 @@
 "204"," - Bitte versuchen Sie es später noch einmal"
 "205","Upstream-Proxy antwortet nicht (Netzwerkfehler)"
 "206"," - Bitte versuchen Sie es später noch einmal"
+"207","The site requested does not exist"    # needs translation
+"208","The site requested does not have an IPv4 address"    # needs translation
+"209","Temporary DNS service failure - please try again"    # needs translation
+"210","DNS service failure - please try again later"    # needs translation
 "300","Verbotener Ausdruck gefunden: "
 "301","Verbotener Ausdruck gefunden"
 "400","Verbotene Kombination von Ausdrücken gefunden: "
