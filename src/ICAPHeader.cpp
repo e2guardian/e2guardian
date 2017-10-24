@@ -482,6 +482,7 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
             out_req_header = HTTPrequest->stringHeader();
             std::cerr << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
             out_req_hdr_flag = true;
+            out_req_body_flag = req_body_flag;
             if (req_body > 0)
                 size_req_body = req_body; // TODO Check this!
         }

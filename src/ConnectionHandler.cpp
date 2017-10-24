@@ -3090,10 +3090,11 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 if (connectUpstream(proxysock, checkme)) {
                     if(!checkme.isdirect) {
                         if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
-                        break;
+                        checkme.upfailure = true;
+                       // break;
                     }
                 } else {
-                    break;
+                        checkme.upfailure = true;
                 }
             }
 
@@ -3258,6 +3259,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             NaughtyFilter checkme(header, docheader);
             DataBuffer docbody;
             docbody.setTimeout(o.exchange_timeout);
+            docbody.setICAP(true);
             FDTunnel fdt;
 
             if (firsttime) {
@@ -3325,6 +3327,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 // reset now.
                 docheader.reset();
                 docbody.reset();
+                docbody.setICAP(true);
 
             }
 
@@ -3373,23 +3376,23 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 peerconn.writeString(wline.toCharArray());
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
-                String wline = "ICAP/1.0 405 Method not allowed for service\n";
-                wline += "Service: e2guardian 5.0\n";
+                String wline = "ICAP/1.0 405 Method not allowed for service\r\n";
+                wline += "Service: e2guardian 5.0\r\n";
                 //wline += "ISTag:";
                 //wline += ldl->ISTag();
                 //wline += "\n";
-                wline += "Encapsulated: null-body=0\n";
-                wline += "\n";
+                wline += "Encapsulated: null-body=0\r\n";
+                wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
             } else {
                 //send error response
-                String wline = "ICAP/1.0 400 Bad request\n";
-                wline += "Service: e2guardian 5.0\n";
+                String wline = "ICAP/1.0 400 Bad request\r\n";
+                wline += "Service: e2guardian 5.0\r\n";
                 //wline += "ISTag:";
                 //wline += ldl->ISTag();
                 //wline += "\n";
-                wline += "Encapsulated: null-body=0\n";
-                wline += "\n";
+                wline += "Encapsulated: null-body=0\r\n";
+                wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
         };
 
@@ -3448,6 +3451,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         gen_error_mess(peerconn, checkme, res_hdr, res_body, 200, 0, "400 Bad Request");
         checkme.isdone = true;
         icaphead.errorResponse(peerconn, res_hdr, res_body);
+        if (icaphead.req_body_flag)
+            peerconn.drainChunk(peerconn.getTimeout());   // drains body
         return 0;
     }
 
@@ -3456,6 +3461,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         res_hdr = "HTTP/1.0 200 OK\n";
         o.banned_image.display_hb(res_hdr, res_body);
         icaphead.errorResponse(peerconn, res_hdr, res_body);
+        if (icaphead.req_body_flag)
+            peerconn.drainChunk(peerconn.getTimeout());   // drains body
         return 0;
     }
 
@@ -3573,9 +3580,15 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if (checkme.isexception) {
         if (icaphead.allow_204) {
             icaphead.respond(peerconn, "204 No Content");
+            if (icaphead.req_body_flag)
+                peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             done = true;
         } else {
             // pipe through headers and body
+            icaphead.respond(peerconn, "200 OK", true);
+            if (icaphead.req_body_flag)
+                peerconn.loopChunk(peerconn.getTimeout());   // echos any body
+            done = true;
         }
     }
 
@@ -3588,6 +3601,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         writestring += "\n\n";
         res_hdr = writestring;
         icaphead.errorResponse(peerconn, res_hdr, res_body);
+        if (icaphead.req_body_flag)
+            peerconn.drainChunk(peerconn.getTimeout());   // drains any body
         done = true;
     }
 
@@ -3604,6 +3619,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
                           filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                           checkme.scanerror)) {
             icaphead.errorResponse(peerconn, res_hdr, res_body);
+            if (icaphead.req_body_flag)
+                peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             done = true;
 #ifdef DGDEBUG
             std::cout << "ICAP Naughty" << std::endl;
@@ -3614,8 +3631,11 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
 
-    if (!done)
+    if (!done) {
         icaphead.respond(peerconn, "200 OK", true);
+        if (icaphead.req_body_flag)
+            peerconn.loopChunk(peerconn.getTimeout());   // echoes any body
+    }
     //Log
     if (!checkme.isourwebserver) { // don't log requests to the web server
         doLog(clientuser, clientip, checkme);

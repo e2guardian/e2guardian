@@ -1129,6 +1129,20 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
     return tot_size;
 }
 
+int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or timeout
+{
+    char buff[32000];
+    int tot_size = 0;
+    int csize = 1;
+    while (csize > 0) {
+        csize = readChunk(buff,32000, timeout);
+        if (!(csize > -1 ))
+            return -1;
+        tot_size += csize;
+    }
+    return tot_size;
+}
+
 bool Socket::getIeof() {
     return ieof;
 }
