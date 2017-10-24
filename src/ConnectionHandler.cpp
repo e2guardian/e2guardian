@@ -1582,7 +1582,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                     eheader += "\nContent-Length: 0";
                     eheader += "\nCache-control: no-cache";
-                    eheader += "\nConnection: close\n";
+                    eheader += "\nConnection: close\r\n\r\n";
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
