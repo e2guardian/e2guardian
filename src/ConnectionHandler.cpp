@@ -1027,7 +1027,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // or on SSL (CONNECT) requests, or on HEAD requests, or if in AV bypass mode
 
             //now send upstream and get response
-            if (!checkme.isItNaughty) {
+            if (checkme.isItNaughty) {
+                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm)
+                    checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+            } else {
                 if (!persistProxy) // open upstream connection
                 {
                     if (connectUpstream(proxysock, checkme) < 0) {
@@ -1081,6 +1084,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
                 //TODO check for other codes which do not have content payload make these tunnel_rest.
+
+            if(checkme.isconnect && checkme.isGrey) {  // allow legacy SSL behavour when mitm not enabled
+                checkme.tunnel_2way = true;
+                checkme.tunnel_rest = false;
+            }
             }
             if (checkme.isexception && !checkme.upfailure)
             {
@@ -2354,7 +2362,9 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
 
 //startsslserver on the connection to the client
-    if (!checkme.isItNaughty) {
+    //if (!checkme.isItNaughty)
+    if (true)
+    {
 #ifdef DGDEBUG
         std::cout << dbgPeerPort << " -Going SSL on the peer connection" << std::endl;
 #endif
@@ -2965,46 +2975,6 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //If proxy connction is not persistent...  // TODO move this section into connectUpstream
             // TODO Delay connection until we know if direct or not.
-#ifdef NOTDEF
-            if (!persistProxy) {
-                try {
-                    // ...connect to proxy
-                    proxysock.setTimeout(1000);
-                    for (int i = 0; i < o.proxy_timeout_sec; i++) {
-                        rc = proxysock.connect(o.proxy_ip, o.proxy_port);
-
-                        if (!rc) {
-                            if (i > 0) {
-                                syslog(LOG_ERR, "Proxy responded after %d retrys", i);
-                            }
-                            break;
-                        } else {
-                            if (!proxysock.isTimedout())
-                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                        }
-                    }
-                    if (rc) {
-#ifdef DGDEBUG
-                        std::cerr << dbgPeerPort << " -Error connecting to proxy" << std::endl;
-#endif
-                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s",
-                               o.proxy_timeout_sec, clientip.c_str(), checkme.urldomain.c_str(), proxysock.getErrno(),
-                               strerror(proxysock.getErrno()));
-                   //     if (proxysock.isTimedout()) {
-                    //        writeback_error(checkme, peerconn, 201, 204, "504 Gateway Time-out");
-                     //   } else {
-                      //      writeback_error(checkme, peerconn, 202, 204, "502 Gateway Error");
-                       // }
-                        peerconn.close();
-                        return 3;
-                    }
-                } catch (std::exception &e) {
-#ifdef DGDEBUG
-                    std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << std::endl;
-#endif
-                }
-            }
-#endif
 
 
             //if (checkme.urldomain == "internal.test.e2guardian.org") {
@@ -3125,7 +3095,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 " upfail " << checkme.upfailure << std::endl;
 #endif
 
-            if(checkme.upfailure) checkme.gomitm = true;  // allows us to send splash page
+            if((checkme.isItNaughty ||checkme.upfailure) && ldl->fg[filtergroup]->ssl_mitm) checkme.gomitm = true;  // allows us to send splash page
 
             if (checkme.isexception && !checkme.upfailure) {
                     checkme.tunnel_rest = true;
