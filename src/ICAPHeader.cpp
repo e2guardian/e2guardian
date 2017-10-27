@@ -11,7 +11,6 @@
 #include "Socket.hpp"
 #include "OptionContainer.hpp"
 #include "FDTunnel.hpp"
-//#include "DebugManager.hpp"
 #include <unistd.h>
 #include <sys/socket.h>
 #include <exception>
@@ -27,7 +26,6 @@ extern OptionContainer o;
 
 // IMPLEMENTATION
 
-//DebugManager * myDebug = new DebugManager(o.debuglevel);
 
 // set timeout for socket operations
 
@@ -684,7 +682,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 #ifdef DGDEBUG
             std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-	    //syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
+	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
             ispersistent = false;
             return false;
         }
@@ -703,7 +701,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
-             //           syslog(LOG_INFO, "Server did not respond with ICAP");
+                        syslog(LOG_INFO, "Server did not respond with ICAP");
 #ifdef DGDEBUG
                     std::cout << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif

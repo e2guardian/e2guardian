@@ -121,21 +121,8 @@ class ICAPHeader
     // encode url
     String URLEncode();
 
- /*   ICAPHeader()
-        : port(0), timeout(120000),  dirty(true)
-    {
-        reset();
-    };*/
-    /*
-    ICAPHeader(int type)
-            : port(0), timeout(120000),  dirty(true), is_response(false)
-    {
-        reset();
-        setType(type);
-    };
-	*/
-	ICAPHeader();
-	ICAPHeader(int type);
+    ICAPHeader();
+    ICAPHeader(int type);
     ~ICAPHeader()
     {
     };
