@@ -117,6 +117,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        DownloadManager.cpp DownloadManager.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
+		       DebugManager.cpp DebugManager.hpp \
 		       SocketArray.cpp SocketArray.hpp \
                        e2guardian.cpp \ Plugin.hpp \
 		       LOptionContainer.cpp LOptionContainer.hpp \

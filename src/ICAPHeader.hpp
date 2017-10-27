@@ -15,8 +15,7 @@
 #include "ListMeta.hpp"
 #include "FOptionContainer.hpp"
 #include "HTTPHeader.hpp"
-
-
+#include "DebugManager.hpp"
 // DECLARATIONS
 
 class ICAPHeader
@@ -60,6 +59,9 @@ class ICAPHeader
     int res_body;
     int opt_body;
     int null_body;
+
+
+    DebugManager * myDebug;
 
     bool allow_204 = false;
 
@@ -119,19 +121,21 @@ class ICAPHeader
     // encode url
     String URLEncode();
 
-    ICAPHeader()
+ /*   ICAPHeader()
         : port(0), timeout(120000),  dirty(true)
     {
         reset();
-    };
-
+    };*/
+    /*
     ICAPHeader(int type)
             : port(0), timeout(120000),  dirty(true), is_response(false)
     {
         reset();
         setType(type);
     };
-
+	*/
+	ICAPHeader();
+	ICAPHeader(int type);
     ~ICAPHeader()
     {
     };

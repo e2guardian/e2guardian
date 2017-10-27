@@ -11,7 +11,7 @@
 #include "Socket.hpp"
 #include "OptionContainer.hpp"
 #include "FDTunnel.hpp"
-
+//#include "DebugManager.hpp"
 #include <unistd.h>
 #include <sys/socket.h>
 #include <exception>
@@ -27,7 +27,21 @@ extern OptionContainer o;
 
 // IMPLEMENTATION
 
+//DebugManager * myDebug = new DebugManager(o.debuglevel);
+
 // set timeout for socket operations
+
+ICAPHeader::ICAPHeader() : port(0), timeout(120000),  dirty(true), myDebug(new DebugManager(o.debuglevel))
+{
+    reset();
+}
+
+ICAPHeader::ICAPHeader(int type) : port(0), timeout(120000),  dirty(true), is_response(false)
+{
+    reset();
+    setType(type);
+}
+
 void ICAPHeader::setTimeout(int t)
 {
     timeout = t;
@@ -158,10 +172,15 @@ void ICAPHeader::setURL(String &url)
         }
         hostname = hostname.before(":"); // chop off the port bit
     }
+    	
+    if(o.debuglevel != "")
+    {
+	std::ostringstream oss (std::ostringstream::out);
+	oss << "setURL: header.front() changed from: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ ;
+	myDebug->Debug("HEADER,ICAP", oss.str());
+    }
 
-#ifdef DGDEBUG
-    std::cout << "setURL: header.front() changed from: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+
     if (!https)
         header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
     else
@@ -214,7 +233,14 @@ void ICAPHeader::checkheader(bool allowpersistent)
         // index headers - try to perform the checks in the order the average browser sends the headers.
         // also only do the necessary checks for the header type (sent/received).
         // Sequencial if else
-        std::cerr << "Checking header: " << &(*i) << std::endl;
+
+	if(o.debuglevel != "")
+	{
+		std::ostringstream oss (std::ostringstream::out);
+		oss << "Checking header: " << &(*i) << " Line: " << __LINE__ << " Function: " << __func__;
+		myDebug->Debug("HEADER", oss.str());
+	}
+
         if ((phost == NULL) && i->startsWithLower("host:")) {
             phost = &(*i);
         } else if ((pauthorization == NULL) && i->startsWithLower("authorization:")) {
@@ -338,9 +364,14 @@ String ICAPHeader::getUrl()
         }
     }
 
-#ifdef DGDEBUG
-    std::cout << "from header url:" << answer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+
+    if(o.debuglevel != "")
+    {
+	std::ostringstream oss (std::ostringstream::out);
+	oss << "from header url:" << answer << " Line: " << __LINE__ << " Function: " << __func__;
+	myDebug->Debug("ICAP", oss.str());
+    }
+
     return answer;
 }
 
@@ -547,7 +578,12 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
         l += temp;
     }
 
-    std::cerr << "Icap response header is: " << l << std::endl;
+if(o.debuglevel != "")
+     {
+         std::ostringstream oss (std::ostringstream::out);
+         oss  << "Icap response header is: " << l;
+         myDebug->Debug("HEADER,ICAP", oss.str());
+     }
 
     if (!sock.writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
         return false;
@@ -648,7 +684,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 #ifdef DGDEBUG
             std::cout << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
+	    //syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
             ispersistent = false;
             return false;
         }
@@ -667,7 +703,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
-                        syslog(LOG_INFO, "Server did not respond with ICAP");
+             //           syslog(LOG_INFO, "Server did not respond with ICAP");
 #ifdef DGDEBUG
                     std::cout << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -730,8 +766,8 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
     header.pop_back(); // remove the final blank line of a header
     checkheader(allowpersistent); // sort out a few bits in the header
-     std::cerr << "ICAPcheckheader done- " << encap_recs.size() << " encap_recs" << std::endl;
-            //now need to get http req and res headers - if present
+
+    //now need to get http req and res headers - if present
     HTTPrequest->reset();
     HTTPresponse->reset();
     if(encap_recs.size() > 0) {
