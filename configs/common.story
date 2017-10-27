@@ -143,6 +143,7 @@ if(urlin, grey) return setgrey
 # Banned list check
 #  returns true on match
 function(bannedcheck)
+if(true) returnif checkblanketblock
 if(urlin, banned) return setblock
 if(headerin, bannedheader) return setblock
 
@@ -168,8 +169,10 @@ if(true) return true
 function(sslrequestcheck)
 if(true) returnif sslexceptioncheck
 if(true) returnif sslcheckmitm
+if(true) returnif sslcheckblanketblock
+if(sitein, banned) return setblock
 if(true) sslreplace
-#if(sitein, banned) return setblock
+if(true) setgrey
 
 # ICAP SSL request check
 #  returns true if exception 
@@ -177,4 +180,15 @@ function(icapsslrequestcheck)
 if(true) returnif sslexceptioncheck
 if(true) sslreplace
 if(sitein, banned) return setblock
+
+# Blanket block
+#  returns true if to block
+#  Placeholder function - overide in fn.story
+function(checkblanketblock)
+
+# SSL Blanket block
+#  returns true if to block
+#  Placeholder function - overide in fn.story
+function(sslcheckblanketblock)
+
 
