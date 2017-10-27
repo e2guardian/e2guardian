@@ -37,7 +37,9 @@ class OptionContainer
     public:
     Queue<std::string>* log_Q;
     Queue<LQ_rec> http_worker_Q;
-
+    
+    std::string debuglevel; 
+    
     // all our many, many options
     int filter_groups;
     int log_exception_hits;

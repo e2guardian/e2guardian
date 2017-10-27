@@ -105,6 +105,15 @@ bool OptionContainer::read(std::string& filename, int type)
 			}
 		}
 		conffiles.close();
+				
+		//parsing for specific log needed
+
+		if ((debuglevel = findoptionS("debuglevel")) != "")
+		{
+			//todo			
+		}
+		
+
 
                 if (type == 0 || type == 2) {
 
