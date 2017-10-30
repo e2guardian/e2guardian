@@ -2834,7 +2834,6 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    //peerconn.setTimeout(o.proxy_timeout);
     peerconn.setTimeout(o.pcon_timeout);
 
     // ldl = o.currentLists();
@@ -3102,7 +3101,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
              } else {
 
             //if ismitm - GO MITM
-                if (checkme.hasSNI && checkme.gomitm) {
+                //if (checkme.hasSNI && checkme.gomitm)
+                if (checkme.gomitm)
+                {
                 std::cerr << "Going MITM ...." << std::endl;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;

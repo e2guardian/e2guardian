@@ -341,8 +341,10 @@ int String::indexOf(const char *s) const
 // does this string contain given substring?
 bool String::contains(const char *s) const
 {
-    if (indexOf(s) != -1) {
-        return true;
+    if (this->length() >= strlen(s)) {
+        if (indexOf(s) != -1) {
+            return true;
+        }
     }
     return false;
 }

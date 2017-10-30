@@ -87,7 +87,11 @@ void HTTPHeader::reset()
 // grab request type (GET, HEAD etc.)
 String HTTPHeader::requestType()
 {
-    return header.front().before(" ");
+    if (header.size() > 0) {
+        return header.front().before(" ");
+    } else {
+        return "";
+    }
 }
 
 // grab return code
@@ -1464,7 +1468,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         return s;
     } // exit if not found
 #ifdef DGDEBUG
-    std::cout << "matches:" << Rre.numberOfMatches() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+
     std::cout << "removing %XX" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     int match;
