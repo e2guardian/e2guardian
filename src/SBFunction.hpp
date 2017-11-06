@@ -77,8 +77,9 @@
 #define SB_FUNC_SETSEARCHTERM 5013
 #define SB_FUNC_SETMODHEADER   5014
 #define  SB_FUNC_SETGODIRECT	    5015
+#define  SB_FUNC_SETNOLOG				5016
 
-#define SB_FUNC_MAP_SIZE  15
+#define SB_FUNC_MAP_SIZE  16
 
 
 // DECLARATIONS
@@ -132,7 +133,8 @@ class SBFunction
             "setnocheckcert",
 			"setsearchterm",
 			 "setmodheader",
-			 "setgodirect"
+			 "setgodirect",
+			 "setnolog"
     };
 
   public:

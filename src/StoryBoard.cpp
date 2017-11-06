@@ -657,6 +657,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETDONE:
                     cm.isdone = true;
                     break;
+                case SB_FUNC_SETNOLOG:
+                    cm.nolog = true;
+                    break;
                 case SB_FUNC_SETTRUE:
                     break;
                 case SB_FUNC_SETFALSE:

@@ -546,12 +546,12 @@ void handle_connections(int tindex)
             //reloadconfig = false;
             while (!ttg) {
 #ifdef DGDEBUG
-                std::cerr << " waiting connection on http_worker_Q "  << this_id << std::endl;
+                std::cerr << thread_id << " waiting connection on http_worker_Q "  << this_id << std::endl;
 #endif
                 LQ_rec rec = o.http_worker_Q.pop();
                 Socket *peersock = rec.sock;
 #ifdef DGDEBUG
-                std::cerr << " popped connection from http_worker_Q"  << std::endl;
+                std::cerr << thread_id << " popped connection from http_worker_Q"  << std::endl;
 #endif
                 if (ttg) break;
 
@@ -566,7 +566,7 @@ void handle_connections(int tindex)
 
                 rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
 #ifdef DGDEBUG
-                std::cerr << "handle_peer returned: " << rc << std::endl;
+                std::cerr << thread_id << "handle_peer returned: " << rc << std::endl;
 #endif
                 --dystat->busychildren;
                 delete peersock;
@@ -656,7 +656,7 @@ void wait_for_proxy()
         }
     } catch (std::exception &e) {
 #ifdef DGDEBUG
-        std::cerr << " -exception while creating proxysock: " << e.what() << std::endl;
+        std::cerr << thread_id << " -exception while creating proxysock: " << e.what() << std::endl;
 #endif
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
@@ -725,7 +725,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
     long tv_sec = 0, tv_usec = 0;
     int contentmodified = 0, urlmodified = 0, headermodified = 0;
     int headeradded = 0;
-    thread_id = "logger: ";
+    thread_id = "log: ";
 
     std::ofstream *logfile = NULL;
     if (!logsyslog) {
@@ -1446,7 +1446,7 @@ int url_list_listener(bool logconerror)  // Needs threadfy
                 if (logconerror) {
 #ifdef DGDEBUG
                     std::cout << "Error reading url ipc. (Ignorable)" << std::endl;
-                    std::cerr << e.what() << std::endl;
+                    std::cerr << thread_id << e.what() << std::endl;
 #endif
                     syslog(LOG_ERR, "%s", "Error reading url ipc. (Ignorable)");
                     syslog(LOG_ERR, "%s", e.what());
@@ -1706,7 +1706,7 @@ int fc_controlit()   //
         // if the socket fd is not +ve then the socket creation failed
         if (serversockfds[i] < 0) {
             if (!is_daemonised) {
-                std::cerr << "Error creating server socket " << i << std::endl;
+                std::cerr << thread_id << "Error creating server socket " << i << std::endl;
             }
             syslog(LOG_ERR, "Error creating server socket %d", i);
             delete[] serversockfds;
@@ -1730,7 +1730,7 @@ int fc_controlit()   //
     if (rc == -1) {
         syslog(LOG_ERR, "%s", "Unable to seteuid() to bind filter port.");
 #ifdef DGDEBUG
-        std::cerr << "Unable to seteuid() to bind filter port." << std::endl;
+        std::cerr << thread_id << "Unable to seteuid() to bind filter port." << std::endl;
 #endif
         delete[] serversockfds;
         return 1;
@@ -1740,7 +1740,7 @@ int fc_controlit()   //
     int pidfilefd = sysv_openpidfile(o.pid_filename);
     if (pidfilefd < 0) {
         syslog(LOG_ERR, "%s", "Error creating/opening pid file.");
-        std::cerr << "Error creating/opening pid file:" << o.pid_filename << std::endl;
+        std::cerr << thread_id << "Error creating/opening pid file:" << o.pid_filename << std::endl;
         delete[] serversockfds;
         return 1;
     }
@@ -1751,7 +1751,7 @@ int fc_controlit()   //
     if (o.filter_ip[0].length() > 6) {
         if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server socket (is something else running on the filter port and ip?"
+                std::cerr << thread_id << "Error binding server socket (is something else running on the filter port and ip?"
                           << std::endl;
             }
             syslog(LOG_ERR, "Error binding server socket (is something else running on the filter port and ip?");
@@ -1764,7 +1764,7 @@ int fc_controlit()   //
         if (o.map_ports_to_ips) {
             if (serversockets.bindSingle(o.filter_port)) {
                 if (!is_daemonised) {
-                    std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
+                    std::cerr << thread_id << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
                               << std::endl;
                 }
                 syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
@@ -1775,7 +1775,7 @@ int fc_controlit()   //
         } else {
             if (serversockets.bindSingleM(o.filter_ports)) {
                 if (!is_daemonised) {
-                    std::cerr << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
+                    std::cerr << thread_id << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
                 }
                 syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
                 close(pidfilefd);
@@ -1788,7 +1788,7 @@ int fc_controlit()   //
     if (o.transparenthttps_port > 0) {
         if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server thttps socket: (" << strerror(errno) << ")" << std::endl;
+                std::cerr << thread_id << "Error binding server thttps socket: (" << strerror(errno) << ")" << std::endl;
             }
             syslog(LOG_ERR, "Error binding server thttps socket  (%s)", strerror(errno));
             close(pidfilefd);
@@ -1800,7 +1800,7 @@ int fc_controlit()   //
     if (o.icap_port > 0) {
         if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server icap socket: (" << strerror(errno) << ")" << std::endl;
+                std::cerr << thread_id << "Error binding server icap socket: (" << strerror(errno) << ")" << std::endl;
             }
             syslog(LOG_ERR, "Error binding server icap socket  (%s)", strerror(errno));
             close(pidfilefd);
@@ -1819,7 +1819,7 @@ int fc_controlit()   //
     if (rc == -1) {
         syslog(LOG_ERR, "Unable to re-seteuid()");
 #ifdef DGDEBUG
-        std::cerr << "Unable to re-seteuid()" << std::endl;
+        std::cerr << thread_id << "Unable to re-seteuid()" << std::endl;
 #endif
         close(pidfilefd);
         delete[] serversockfds;
@@ -1829,7 +1829,7 @@ int fc_controlit()   //
     if (serversockets.listenAll(256)) { // set it to listen mode with a kernel
         // queue of 256 backlog connections
         if (!is_daemonised) {
-            std::cerr << "Error listening to server socket" << std::endl;
+            std::cerr << thread_id << "Error listening to server socket" << std::endl;
         }
         syslog(LOG_ERR, "Error listening to server socket");
         close(pidfilefd);
@@ -1840,7 +1840,7 @@ int fc_controlit()   //
     if (!daemonise()) {
         // detached daemon
         if (!is_daemonised) {
-            std::cerr << "Error daemonising" << std::endl;
+            std::cerr << thread_id << "Error daemonising" << std::endl;
         }
         syslog(LOG_ERR, "Error daemonising");
         close(pidfilefd);

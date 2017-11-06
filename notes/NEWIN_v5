@@ -46,7 +46,7 @@ Currently limited to port 443 traffic.
 
 ICAP SERVER
 
-This is now in testable form - only in REQMOD currently.
+This is now in testable form - both REQMOD and RESPMOD.
 Uncomment icapport to enable.
 
 DIRECT ACCESS I.e. not via proxy.  
@@ -66,6 +66,22 @@ STORYBOARD TRACING
 New option 'storyboardtrace' to enable tracing output -
 for storyboard bug-fixing
 
+READABLE THREAD_ID FOR LOGS & DEBUG
+
+Id's are:
+
+master: for master thread
+
+listen1_proxy:  normal proxy listener
+listen1_thttps: tranparent https listener
+listen1_icap: icap listener
+
+where '1' is index
+
+hw10: for http_worker threads where '10' is the thread number
+
+log: for logging thread
+
 
 TESTING -  
 
@@ -73,7 +89,7 @@ This version is at a test stage.
 
 TODO - for this release.
 
-ICAP RESMOD - content checking
+ICAP RESPMOD - content checking
 
 POST filtering
 
