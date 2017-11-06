@@ -515,6 +515,7 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
     nothing[0] = '\0';
     if (!peerconn.writeChunk(nothing, 0, timeout))
         return false;
+    //peerconn.writeString("\r\n");   // add ICAP tail
     return true;
 }
 

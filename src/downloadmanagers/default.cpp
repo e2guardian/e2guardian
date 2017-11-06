@@ -25,13 +25,13 @@ extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
-class dminstance : public DMPlugin
-{
-    public:
+class dminstance : public DMPlugin {
+public:
     dminstance(ConfigVar &definition)
-        : DMPlugin(definition){};
+            : DMPlugin(definition) {};
+
     int in(DataBuffer *d, Socket *sock, Socket *peersock, HTTPHeader *requestheader,
-        HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig);
+           HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig);
 
     // default plugin is as basic as you can get - no initialisation, and uses the default
     // set of matching mechanisms. uncomment and implement these to override default behaviour.
@@ -43,8 +43,7 @@ class dminstance : public DMPlugin
 
 // class factory code *MUST* be included in every plugin
 
-DMPlugin *defaultdmcreate(ConfigVar &definition)
-{
+DMPlugin *defaultdmcreate(ConfigVar &definition) {
 #ifdef DGDEBUG
     std::cout << "Creating default DM" << std::endl;
 #endif
@@ -67,8 +66,7 @@ DMPlugin *defaultdmcreate(ConfigVar &definition)
 
 // download body for this request
 int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader *requestheader,
-    class HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig)
-{
+                   class HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig) {
 
 //DataBuffer *d = where to stick the data back into
 //Socket *sock = where to read from
@@ -88,6 +86,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
 
     int rc = 0;
+    d->got_all = false;
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
     if (!d->icap) {
@@ -98,9 +97,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     bool geteverything = false;
-    // if ((bytesremaining < 0))
-    //if ((bytesremaining < 0) && !(docheader->isPersistent()))
-         if ((bytesremaining < 0))
+    if ((bytesremaining < 0) || (d->chunked))
         geteverything = true;
 
     char *block = NULL; // buffer for storing a grabbed block from the
@@ -129,22 +126,23 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         // send x-header keep-alive here
         if (o.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
-            if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay : nowadays.tv_sec - themdays.tv_sec > o.initial_trickle_delay) {
+            if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay :
+                nowadays.tv_sec - themdays.tv_sec > o.initial_trickle_delay) {
                 themdays.tv_sec = nowadays.tv_sec;
                 doneinitialdelay = true;
                 if ((*headersent) < 1) {
 #ifdef DGDEBUG
                     std::cout << "sending first line of header first" << std::endl;
 #endif
-       if(!d->icap) {
-           docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
-           (*headersent) = 1;
-       }
+                    if (!d->icap) {
+                        docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
+                        (*headersent) = 1;
+                    }
                 }
 #ifdef DGDEBUG
                 std::cout << "trickle delay - sending X-DGKeepAlive: on" << std::endl;
 #endif
-                if(!d->icap)
+                if (!d->icap)
                     peersock->writeString("X-E2GKeepAlive: on\r\n");
             }
         }
@@ -202,19 +200,21 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 newsize = bytesremaining;
             delete[] block;
             block = new char[newsize];
-            try {
                 if (!sock->bcheckForInput(d->timeout))
-                   break;
-             } catch (std::exception &e) {
-             break;
-            }
+                    break;
             // improved more efficient socket read which uses the buffer better
-            rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
+            if (d->chunked) {
+                rc = sock->readChunk(block,newsize,d->timeout);
+            } else {
+                rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
+            }
             // grab a block of input, doubled each time
 
             if (rc <= 0) {
+                if(d->chunked)
+                    d->got_all = true;
                 break; // an error occured so end the while()
-                // or none received so pipe is closed
+                // or none received so pipe iis closed or chunking has ended
             } else {
                 bytesremaining -= rc;
                 /*if (d->data != temp)
@@ -229,16 +229,20 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 d->buffer_length += rc; // update data size counter
             }
         } else {
-            try {
                 if (!sock->bcheckForInput(d->timeout))
                     break;
-            } catch (std::exception &e) {
-                break;
-            }
+            if(d->chunked) {
+                rc = sock->readChunk(d->data, d->buffer_length,d->timeout);
+            } else {
             rc = d->bufferReadFromSocket(sock, d->data,
-                // if not getting everything until connection close, grab only what is left
-                (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining : d->buffer_length), d->timeout);
+                    // if not getting everything until connection close, grab only what is left
+                                         (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining
+                                                                                                : d->buffer_length),
+                                         d->timeout);
+            }
             if (rc <= 0) {
+                if(d->chunked)
+                    d->got_all = true;
                 break;
             } else {
                 bytesremaining -= rc;

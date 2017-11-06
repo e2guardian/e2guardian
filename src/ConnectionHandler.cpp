@@ -1872,9 +1872,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 // in fact, why don't we check the content length (when it's not -1) before even triggering the download managers?
 #ifdef DGDEBUG
     if ((*pausedtoobig)) {
-        std::cout << thread_id << " -got PARTIAL body from proxy" << std::endl;
+        std::cout << thread_id << " -got PARTIAL body " << std::endl;
     } else {
-        std::cout << thread_id << " -got body from proxy" << std::endl;
+        std::cout << thread_id << " -got body" << std::endl;
     }
 #endif
     off_t dblen;
@@ -3353,7 +3353,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\"\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "Allow: 204\r\n";
-                wline += "Preview: 0\r\n";
+             //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 std::cerr << "options response : " << wline;
                 peerconn.writeString(wline.toCharArray());
@@ -3368,7 +3368,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "Allow: 204\r\n";
-                wline += "Preview: 2048\r\n";
+             //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 std::cerr << "options response : " << wline;
                 peerconn.writeString(wline.toCharArray());
@@ -3637,7 +3637,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             std::cout << "ICAP Naughty" << std::endl;
 #endif
 	// break loop "// maintain a persistent connection"
-   	   return 1;
+   	  // return 1;
         };
     }
 
@@ -3651,7 +3651,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
     }
     //Log
-    if (!checkme.isourwebserver) { // don't log requests to the web server  //TODO should only log blocks here - rest logged by RESPMOD
+    if (!(checkme.isourwebserver || checkme.nolog))  { // don't log requests to the web server
         doLog(clientuser, clientip, checkme);
     }
     return 0;
@@ -3733,17 +3733,12 @@ if (checkme.isexception || !icaphead.res_body_flag) {
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
                 if (!done && !checkme.isItNaughty && checkme.isGrey ) {
-                    // TODO  function needs adapting to ICAP chunked???
                     check_content(checkme, docbody,peerconn, peerconn,responsescanners);
                 }
 
             //send response header to client
-            if (!checkme.isItNaughty) {
-                // TODO needs revised out for ICAP
-            }
 
             if(!checkme.isItNaughty &&checkme.waschecked)  {
-                // TODO needs revised out for ICAP
                 icaphead.respond(peerconn, "200 OK", true);
                 if (!docbody.out(&peerconn))
                     checkme.pausedtoobig = false;
@@ -3751,6 +3746,7 @@ if (checkme.isexception || !icaphead.res_body_flag) {
                     checkme.tunnel_rest = true;
                 if (checkme.tunnel_rest)
                     peerconn.loopChunk(peerconn.getTimeout());   // echos any body
+                peerconn.loopTail();
                 done = true;
             }
 

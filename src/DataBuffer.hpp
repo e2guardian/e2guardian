@@ -27,6 +27,7 @@ class DataBuffer
     bool dontsendbody; // used for fancy download manager for example
     bool chunked;
     bool icap;
+    bool got_all;   // used with chunked it all read-in
     int tempfilefd;
 
     // the download manager we used during the last "in"

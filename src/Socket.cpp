@@ -1092,7 +1092,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     int lw;
     hexs += "\r\n";
-    std::cerr << thread_id << "writeChunk  size=" << len << std::endl;
+    std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
     return false;
@@ -1165,6 +1165,7 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
 }
 
 bool Socket::loopTail() {
+    return true;
     char buff[32000];
     int len = 4;
     while (len > 2) {
@@ -1199,6 +1200,7 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
 
 bool Socket::drainTail()
 {
+    return true;
     char buff[32000];
     int len = 4;
     while (len > 2) {

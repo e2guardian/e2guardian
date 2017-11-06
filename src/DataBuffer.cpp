@@ -112,9 +112,9 @@ void DataBuffer::swapbacktocompressed()
 // the buffer gets filled thus reducing memcpy()ing and new()ing
 int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout)
 {
-    if (chunked) {
-        return sock->readChunk(buffer, size, sockettimeout);
-    } else {
+  //  if (chunked) {
+ //       return sock->readChunk(buffer, size, sockettimeout);
+ //   } else {
         int pos = 0;
         int rc;
         while (pos < size) {
@@ -129,7 +129,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
             pos += rc;
         }
         return size; // full buffer
-    }
+   // }
 }
 
 // a much more efficient reader that does not assume the contents of
@@ -265,9 +265,14 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0)
             return false;
 //            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
+         int block_len;
+        if(chunked)
+            block_len = 4048;
+        else
+            block_len = buffer_length;
 
         while (sent < tempfilesize) {
-            rc = readEINTR(tempfilefd, data, buffer_length);
+            rc = readEINTR(tempfilefd, data, block_len);
 #ifdef DGDEBUG
             std::cout << "reading temp file rc:" << rc << std::endl;
 #endif
@@ -298,26 +303,44 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             std::cout << "total sent from temp:" << sent << std::endl;
 #endif
         }
+        if (chunked && got_all) {
+            if (!sock->writeChunk(data, 0, stimeout))
+                return false;
+        }
         close(tempfilefd);
         tempfilefd = -1;
         tempfilesize = 0;
         unlink(tempfilepath.toCharArray());
     } else {
+        off_t sent = bytesalreadysent;
 #ifdef DGDEBUG
         std::cout << "Sending " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length << " in buffer; " << bytesalreadysent << " already sent)" << std::endl;
 #endif
         // it's in RAM, so just send it, no streaming from disk
-        if (buffer_length != 0) {
-            if(chunked)
-            {
-                if (!sock->writeChunk(data + bytesalreadysent, buffer_length - bytesalreadysent, stimeout))
-                    return false;
+        int block_len;
+        if(chunked)
+            block_len = 4048;
+        else
+            block_len = buffer_length;
 
-            } else {
-                if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, stimeout))
+        if (buffer_length != 0) {
+            while (sent < buffer_length) {
+                if( block_len > (buffer_length - sent))
+                    block_len = (buffer_length - sent);
+                if (chunked) {
+                    if (!sock->writeChunk(data + sent, block_len, stimeout))
+                        return false;
+
+                } else {
+                    if (!sock->writeToSocket(data + sent, buffer_length - sent, 0, stimeout))
+                        return false;
+                }
+                sent += block_len;
+            }
+            if (chunked && got_all) {
+                if (!sock->writeChunk(data, 0, stimeout))
                     return false;
             }
-          //      throw std::exception();
         } else {
             if(chunked) {
                 if (!sock->writeChunk(data + bytesalreadysent, 0, stimeout))
