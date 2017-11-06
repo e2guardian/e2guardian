@@ -130,6 +130,7 @@ std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 void stat_rec::clear()
 {
@@ -528,6 +529,9 @@ bool daemonise()
 // handle any connections received by this thread
 void handle_connections(int tindex)
 {
+    thread_id = "hw";
+    thread_id += std::to_string(tindex);
+    thread_id += ": ";
     try {
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
             ConnectionHandler h;
@@ -536,7 +540,7 @@ void handle_connections(int tindex)
             int stat = 0;
             int rc = 0;
 #ifdef DGDEBUG
-            std::cerr << " in  handle connection"  << std::endl;
+            std::cerr << thread_id << " in  handle connection"  << std::endl;
 #endif
             std::thread::id this_id = std::this_thread::get_id();
             //reloadconfig = false;
@@ -721,6 +725,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
     long tv_sec = 0, tv_usec = 0;
     int contentmodified = 0, urlmodified = 0, headermodified = 0;
     int headeradded = 0;
+    thread_id = "logger: ";
 
     std::ofstream *logfile = NULL;
     if (!logsyslog) {
@@ -1314,6 +1319,23 @@ void accept_connections(int index) // thread to listen on a single listening soc
     try {
         unsigned int ct_type = serversockets.getType(index);
         int errorcount = 0;
+        thread_id = "listen";
+        thread_id += std::to_string(index);
+        thread_id += "_";
+        switch(ct_type) {
+            case CT_PROXY:
+                thread_id += "proxy: ";
+                break;
+            case CT_ICAP:
+                thread_id += "icap: ";
+                break;
+            case CT_THTTPS:
+                thread_id += "thttps: ";
+                break;
+
+        }
+        thread_id += std::to_string(ct_type);
+        thread_id += ": ";
         while ((errorcount < 30) && !ttg) {
             Socket *peersock = serversockets[index]->accept();
             if (ttg) break;
@@ -1329,7 +1351,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
                 rec.ct_type = ct_type;
                 o.http_worker_Q.push(rec);
 #ifdef DGDEBUG
-                std::cout << "pushed connection to http_worker_Q" << std::endl;
+                std::cout << thread_id << "pushed connection to http_worker_Q" << std::endl;
 #endif
             } else {
 #ifdef DGDEBUG
@@ -1653,6 +1675,7 @@ int fc_controlit()   //
     reload_cnt = 0;
 
     o.lm.garbageCollect();
+    thread_id = "master: ";
 
 // Create Qs
 //    o.log_Q = new Queue<std::string>;

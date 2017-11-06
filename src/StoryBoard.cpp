@@ -32,6 +32,7 @@
 
 extern bool is_daemonised;
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // DEFINES
 
@@ -292,7 +293,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     bool action_return = false;
 
     if(o.SB_trace) {
-        String ot = "SB:Entering ";
+        String ot = thread_id;
+        ot += "SB:Entering ";
         ot += F->getName();
         ot += " line:";
         String ln(F->file_lineno);
@@ -531,7 +533,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                   " list_check " << isListCheck << " isSearch " << cm.isSearch << std::endl;
 #endif
         if(o.SB_trace) {
-            String ot = "SB:";
+            String ot = thread_id;
+            ot += "SB:";
             String ln(i->file_lineno);
             ot += ln;
             if (i->isif)
@@ -661,7 +664,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
             }
             if (o.SB_trace) {
-                String ot = "SB:";
+                String ot = thread_id;
+                ot += "SB:";
                 ot += F->getBIFunct(i->action_id);
                 if (action_return) {
                     ot += " true";
@@ -677,7 +681,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id, cm);
                 if(o.SB_trace) {
-                    String ot = "SB:resuming: ";
+                    String ot = thread_id;
+                    ot += "SB:resuming: ";
                     ot += F->name;
 #ifdef DGDEBUG
                     std::cerr << ot << std::endl;
@@ -696,7 +701,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     }
 
         if(o.SB_trace) {
-            String ot = "SB:";
+            String ot = thread_id;
+            ot += "SB:";
             ot += F->getName();
             ot += " returned ";
             if (action_return)

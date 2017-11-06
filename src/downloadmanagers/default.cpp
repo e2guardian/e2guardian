@@ -21,6 +21,7 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -80,7 +81,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
 #ifdef DGDEBUG
-    std::cout << "Inside default download manager plugin" << std::endl;
+    std::cout << thread_id << "Inside default download manager plugin  icap=" << d->icap << std::endl;
 #endif
 
     //  To access settings for the plugin use the following example:

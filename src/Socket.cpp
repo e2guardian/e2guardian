@@ -41,6 +41,8 @@ extern bool reloadconfig;
 #endif
 #endif
 
+extern thread_local std::string thread_id;
+
 // IMPLEMENTATION
 
 // constructor - create an INET socket & clear address structs
@@ -60,6 +62,7 @@ Socket::Socket() {
             int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
 
         my_port = 0;
+        chunkError = false;
 
 #ifdef __SSLMITM
         ssl = NULL;
@@ -85,6 +88,7 @@ Socket::Socket(int fd)
     int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
     if (res < 0) s_errno = errno;
     my_port = 0;
+    chunkError = false;
 
 #ifdef __SSLMITM
     ssl = NULL;
@@ -111,6 +115,7 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
     int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
     if (res < 0) s_errno = errno;
     my_port = 0;
+    chunkError = false;
 
 #ifdef __SSLMITM
     ssl = NULL;
@@ -167,6 +172,8 @@ void Socket::reset() {
     peer_adr_length = sizeof(struct sockaddr_in);
     infds[0].fd = sck;
     outfds[0].fd = sck;
+
+    chunkError = false;
 
 #ifdef __SSLMITM
     if (isssl) {
@@ -1085,15 +1092,21 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     int lw;
     hexs += "\r\n";
+    std::cerr << thread_id << "writeChunk  size=" << len << std::endl;
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
     return false;
 };
 
 int Socket::readChunk( char *buffin, int maxlen, int timeout){
-    char size[20];
+    char size[40];
     ieof = false;
-    int len = getLine(size,18, timeout);
+    int len = getLine(size,38, timeout);
+    if (len < 1)  {
+        chunkError = true;
+        return -1;
+    }
+    std::cerr << thread_id << "readChunk  size=" << size << std::endl;
     String l = size;
     l.chop();
     String t = l.before(";");
@@ -1104,13 +1117,32 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         l = t;
     }
     int clen = l.hexToInteger();
-    if (clen > maxlen)
+    std::cerr << thread_id << "readChunk  clen=" << clen << std::endl;
+    if (clen > maxlen) {
+        chunkError = true;
         return -1;
-    int rc = readFromSocketn(buffin, clen, 0, timeout);
-    len = getLine(size,18, timeout);
-    if (size[0] == '\r') {
-        return rc;
+    }
+    int read_d = 0;
+   int rc = 0;
+    while (clen > 0) {
+        rc = readFromSocketn(buffin + read_d, clen, 0, timeout);
+        std::cerr << thread_id << "readChunk  read " << rc << std::endl;
+        if (rc < 0) {
+            chunkError = true;
+            return -1;
+        }
+        read_d += rc;
+        clen -= rc;
+    }
+    len = readFromSocketn(size, 2, 0, timeout);
+   // len = getLine(size,18, timeout);
+   // std::cerr << thread_id << "readChunk  size=" << size << std::endl;
+    if (size[0] == '\r' && size[1] == '\n') {
+        std::cerr << thread_id << "readChunk  totread " << read_d << std::endl;
+        return read_d;
     } else {
+        chunkError = true;
+        std::cerr << thread_id << "readChunk - tail in error" << std::endl;
         return -1;
     }
 }
@@ -1122,11 +1154,30 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
     int csize = 1;
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
-        if (!(csize > -1 && writeChunk(buff,csize,timeout)))
+        if (!(csize > -1 && writeChunk(buff,csize,timeout))) {
+            std::cerr << thread_id << "loopChunk - error" << std::endl;
             return -1;
+        }
         tot_size += csize;
     }
+    std::cerr << thread_id << "loopChunk  tot_size=" << tot_size << std::endl;
     return tot_size;
+}
+
+bool Socket::loopTail() {
+    char buff[32000];
+    int len = 4;
+    while (len > 2) {
+        len = getLine(buff, 32000, timeout);
+        if (len > 0)
+        {
+            String l = buff;
+            l += '\n';
+            std::cerr << thread_id << "loopTail writing " << l << std::endl;
+            writeString(l.c_str());
+        }
+    }
+    return (len > -1);
 }
 
 int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or timeout
@@ -1136,11 +1187,24 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
     int csize = 1;
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
-        if (!(csize > -1 ))
+        if (!(csize > -1 )) {
+            std::cerr << thread_id << "drainChunk - error" << std::endl;
             return -1;
+        }
         tot_size += csize;
     }
+    std::cerr << thread_id << "drainChunk  tot_size=" << tot_size << std::endl;
     return tot_size;
+}
+
+bool Socket::drainTail()
+{
+    char buff[32000];
+    int len = 4;
+    while (len > 2) {
+        len = getLine(buff,32000,timeout);
+    }
+    return (len > -1);
 }
 
 bool Socket::getIeof() {

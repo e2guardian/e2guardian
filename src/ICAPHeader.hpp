@@ -25,8 +25,8 @@ class ICAPHeader
     std::deque<String> header;
     unsigned int port;
     bool is_response;
-    HTTPHeader *HTTPrequest;
-    HTTPHeader *HTTPresponse;
+    HTTPHeader HTTPrequest;
+    HTTPHeader HTTPresponse;
     String icap_error;
     bool service_options;
     bool service_reqmod;
@@ -71,13 +71,22 @@ class ICAPHeader
 
     std::deque<encap_rec> encap_recs;
 
+    struct icap_com_rec {
+        String user;
+        String EBG;
+        int filtergroup;
+    };
+
+    icap_com_rec icap_com;
+
+    void set_icap_com (std::string &user, String EBG, int &filtergroup);
+
     // reset header object for future use
     void reset();
 
     // network communication funcs
 
     void setTimeout(int t);
-    void setHTTPhdrs(HTTPHeader &req, HTTPHeader &res);
     bool in(Socket *sock, bool allowpersistent = false );
 
     void setClientIP(String &ip);

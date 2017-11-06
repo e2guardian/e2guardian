@@ -50,6 +50,7 @@
 #endif
 
 OptionContainer o;
+thread_local std::string thread_id;
 
 bool is_daemonised;
 

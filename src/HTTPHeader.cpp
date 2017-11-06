@@ -1635,6 +1635,7 @@ String HTTPHeader::URLEncode()
 
 String HTTPHeader::stringHeader() {
     String l;
+    std::cerr << "stringHeader started hsize=" << header.size() << std::endl;
     if (header.size() > 0) {
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             if (! (*i).startsWith("X-E2G-IgnoreMe")){
@@ -1949,9 +1950,6 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 #endif
         }
         firsttime = false;
-#ifdef DGDEBUG
-        std::cout << "Loop catch Header IN from client: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
 // End of while
     }
 
@@ -1963,6 +1961,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
     }
 
     header.pop_back(); // remove the final blank line of a header
+    std::cout << "header:size =  " << header.size() << std::endl;
     checkheader(allowpersistent); // sort out a few bits in the header
     return true;
 }

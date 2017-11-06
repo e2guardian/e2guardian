@@ -91,7 +91,7 @@ class ConnectionHandler
 #endif
     int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
-    int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead) ;
+    int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, DataBuffer &docbody) ;
 
     bool getdnstxt(std::string &clientip, String &user);
 

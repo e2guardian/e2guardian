@@ -61,6 +61,10 @@ class Socket : public BaseSocket
     int readChunk( char *buffout, int maxlen, int timeout);
     int loopChunk(int timeout);
     int drainChunk(int timeout);
+    bool drainTail();
+    bool loopTail();
+
+    bool chunkError;
 
 #ifdef __SSLMITM
     //use this socket as an ssl server
