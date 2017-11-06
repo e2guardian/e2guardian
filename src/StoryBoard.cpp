@@ -401,6 +401,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_RETURNSET:
                 state_result = cm.isReturn;
                 break;
+            case SB_STATE_REDIRECTSET:
+                state_result = cm.urlredirect;
+                break;
             case SB_STATE_HASSNI:
                 state_result = cm.hasSNI;
                 break;

@@ -55,8 +55,9 @@
 #define SB_STATE_RETURNSET       21
 #define SB_STATE_TRUE				22
 #define SB_STATE_HASSNI			23
+#define SB_STATE_REDIRECTSET 24
 
-#define SB_STATE_MAP_SIZE  23
+#define SB_STATE_MAP_SIZE  24
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -110,7 +111,8 @@ class SBFunction
 			"doneset",
 			"returnset",
 			 "true",
-			 "hassniset"
+			 "hassniset",
+             "redirectset"
 			};
    String command_map[4] = { "function",
 			"end",
