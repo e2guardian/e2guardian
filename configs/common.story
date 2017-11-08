@@ -18,7 +18,6 @@ ifnot(greyset) returnif localcheckrequest
 #if(connect) return setblock
 if(connect) return sslrequestcheck
 ifnot(greyset) returnif exceptioncheck
-if(refererin,refererexception) return setexception
 ifnot(greyset) greycheck
 ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
@@ -49,12 +48,18 @@ if(fullurlin, change) setmodurl
 
 # Entry function called by ICAP module to check reqmod
 function(icap-checkrequest)
+#unless blocked or redirect or connect - leave logging for RESPMOD
+if(connect) return icapsslrequestcheck
+ifnot(greyset) icap-checkrequest2
+if(redirectset) return true
+ifnot(blockset) setnolog
+
+
+
+function(icap-checkrequest2)
 # comment out the following line if you do not use 'local' list files
 #ifnot(greyset) returnif localcheckrequest
-#if(true) return setexception
-if(connect) return icapsslrequestcheck
 ifnot(greyset) returnif exceptioncheck
-if(refererin,refererexception) return setexception
 ifnot(greyset) greycheck
 #ifnot(greyset) return setblock
 ifnot(greyset) returnif bannedcheck
@@ -68,7 +73,7 @@ if(searchin,override) return setgrey
 if(searchin,banned) return setblock
 if(true) setgrey
 
-# Entry function called by ICAP module to check resmod
+# Entry function called by ICAP module to check respmod
 function(icap-checkresponse)
 if(true) return checkresponse
 
