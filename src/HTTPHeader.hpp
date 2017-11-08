@@ -91,6 +91,7 @@ class HTTPHeader
     String *plogheadervalue;
     String *pheaderident;
     String *ptransfercoding;
+    String *ptransferencoding;
     std::string getAuthHeader();
     // see if search usl and set searchwords
     bool isSearch(FOptionContainer* &foc);
@@ -98,6 +99,7 @@ class HTTPHeader
     String searchterms();
     bool searchchecked;
     String contentEncoding();
+    String transferEncoding();
     // grab the contents of Proxy-Authorization header
     // returns base64-decoding of the chunk of data after the auth type string
     std::string getAuthData();

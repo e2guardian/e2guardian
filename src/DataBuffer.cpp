@@ -36,13 +36,13 @@ extern OptionContainer o;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false), stimeout(20000)
+    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false), stimeout(20000), icap(false)
 {
     data[0] = '\0';
 }
 
 DataBuffer::DataBuffer(const void *indata, off_t length)
-    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20), bytesalreadysent(0), preservetemp(false)
+    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
 {
     memcpy(data, indata, length);
 }
@@ -74,6 +74,7 @@ void DataBuffer::reset()
     preservetemp = false;
     decompress = "";
     chunked = false;
+    icap = false;
 }
 
 // delete the memory block when the class is destroyed

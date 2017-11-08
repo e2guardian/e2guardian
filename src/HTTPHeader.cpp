@@ -67,6 +67,8 @@ void HTTPHeader::reset()
         puseragent = NULL;
         pxforwardedfor = NULL;
         pcontentencoding = NULL;
+        ptransfercoding = NULL;
+        ptransferencoding = NULL;
         pproxyconnection = NULL;
         pkeepalive = NULL;
 
@@ -340,6 +342,17 @@ String HTTPHeader::contentEncoding()
 {
     if (pcontentencoding != NULL) {
         String ce(pcontentencoding->after(": "));
+        ce.toLower();
+        return ce;
+    }
+    return ""; // we need a default don't we?
+}
+
+// grab transfer encoding header
+String HTTPHeader::transferEncoding()
+{
+    if (ptransferencoding != NULL) {
+        String ce(ptransferencoding->after(": "));
         ce.toLower();
         return ce;
     }
@@ -944,7 +957,9 @@ void HTTPHeader::checkheader(bool allowpersistent)
         // this one's non-standard, so check for it last
         else if (outgoing && (pport == NULL) && i->startsWithLower("port:")) {
             pport = &(*i);
-    } else if ((ptransfercoding == NULL) && i->startsWithLower("transfer-coding:")) {
+    } else if ( i->startsWithLower("transfer-encoding:")) {
+        ptransferencoding = &(*i);
+    } else if ( i->startsWithLower("transfer-coding:")) {
         ptransfercoding = &(*i);
         }
 
@@ -974,8 +989,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
 #endif
         onepointone = true;
         // force HTTP/1.0 - we don't support chunked transfer encoding, possibly amongst other things
-        if (outgoing)
-            header.front() = header.front().before(" HTTP/") + " HTTP/1.0\r";
+        //if (outgoing)
+         //   header.front() = header.front().before(" HTTP/") + " HTTP/1.0\r";
     }
 
     //work out if we should explicitly close this connection after this request
@@ -1694,7 +1709,8 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             if (isdirect) {
                 //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
                 //	get the request method		//get the relative path					//everything after that in the header
-                l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.0\r\n";
+                //l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.0\r\n";
+                l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
             }
 
 #ifdef DGDEBUG

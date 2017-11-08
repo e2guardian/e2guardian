@@ -3738,12 +3738,14 @@ if (checkme.isexception || !icaphead.res_body_flag) {
 
             //send response header to client
 
-            if(!checkme.isItNaughty &&checkme.waschecked)  {
+            if(!checkme.isItNaughty)  {
                 icaphead.respond(peerconn, "200 OK", true);
-                if (!docbody.out(&peerconn))
-                    checkme.pausedtoobig = false;
-                if (checkme.pausedtoobig)
-                    checkme.tunnel_rest = true;
+                if(checkme.waschecked) {
+                    if (!docbody.out(&peerconn))
+                        checkme.pausedtoobig = false;
+                    if (checkme.pausedtoobig)
+                        checkme.tunnel_rest = true;
+                }
                 if (checkme.tunnel_rest)
                     peerconn.loopChunk(peerconn.getTimeout());   // echos any body
                 peerconn.loopTail();

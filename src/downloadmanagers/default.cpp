@@ -90,8 +90,8 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
     if (!d->icap) {
-        std::cerr << "tranencodeing is " << docheader->contentEncoding() << std::endl;
-        d->chunked = docheader->contentEncoding().contains("chunked");
+        std::cerr << "tranencodeing is " << docheader->transferEncoding() << std::endl;
+        d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
     // if using non-persistent connections, some servers will not report

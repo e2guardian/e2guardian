@@ -186,8 +186,8 @@ int String::hexToInteger()
     int m = 0; // position in digit[] to shift
     int count; // loop index
     int intValue = 0; // integer value of hex string
-    int digit[6]; // hold values to convert
-    while (n < 5) {
+    int digit[10]; // hold values to convert
+    while (n < 9) {
         if ((*this)[n] == '\0')
             break;
         if ((*this)[n] >= '0' && (*this)[n] <= '9')
