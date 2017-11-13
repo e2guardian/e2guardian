@@ -595,7 +595,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 //
             // do this normalisation etc just the once at the start.
-            checkme.setURL();
+            checkme.setURL(ismitm);
 
             //If proxy connction is not persistent..// do this later after checking if direct or via proxy
 #ifdef NOTDEF

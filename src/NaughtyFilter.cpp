@@ -65,21 +65,22 @@ NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
     ch_isiphost.comp(",*[a-z|A-Z].*");
     reset();
 }
-void NaughtyFilter::setURL() {
+
+void NaughtyFilter::setURL(bool set_ismitm) {
     // do all of this normalisation etc just the once at the start.
     url = request_header->getUrl(false, false);
     baseurl = url;
     baseurl.removeWhiteSpace();
     baseurl.toLower();
     baseurl.removePTP();
-    logurl = request_header->getLogUrl(false, false);
+    logurl = request_header->getLogUrl(false, set_ismitm);
     urld = request_header->decode(url);
     urldomain = url.getHostname();
     urldomain.toLower();
     isiphost = isIPHostnameStrip(urldomain);
     is_ssl = request_header->requestType().startsWith("CONNECT");
     isconnect = is_ssl;
-    ismitm = false;
+    ismitm = set_ismitm;
     docsize = 0;
 }
 
