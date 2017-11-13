@@ -167,6 +167,7 @@ class HTTPHeader
     void chopScanBypass(String url);
     // add cookie to outgoing headers with given name & value
     void setCookie(const char *cookie, const char *domain, const char *value);
+    bool isProxyRequest;
 
     // encode url
     String URLEncode();

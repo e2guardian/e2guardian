@@ -74,6 +74,8 @@ void HTTPHeader::reset()
 
         dirty = false;
 
+        isProxyRequest = false;
+
         delete postdata;
         postdata = NULL;
         postdata_len = 0;
@@ -1113,6 +1115,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
     if (requestType() == "CONNECT") {
         https = true;
         port = 443;
+        isProxyRequest = true;
         if (!answer.startsWith("https://")) {
             answer = "https://" + answer;
         }
@@ -1147,6 +1150,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
             if (!answer.after("://").contains("/")) {
                 answer += "/"; // needed later on so correct host is extracted
             }
+            isProxyRequest = true;
             String protocol(answer.before("://"));
             hostname = answer.after("://");
             String url(hostname.after("/"));

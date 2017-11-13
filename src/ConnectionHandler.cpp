@@ -682,7 +682,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
             if (!persistent_authed) {
-                filtergroup = o.default_fg;    //TODO need to change this for transparent HTTP
+                if (header.isProxyRequest) filtergroup = o.default_fg;
+                else filtergroup = o.default_trans_fg;
                 if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header))
                     break;
                 //checkme.filtergroup = filtergroup;
