@@ -584,7 +584,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 #ifdef DGDEBUG
             std::cout << thread_id << "ICAP header:size too big =  " << header.size() <<  std::endl;
 #endif
-	    syslog(LOG_INFO, "%sheader:size too big: %d, see maxheaderlines", thread_id, header.size());
+	    syslog(LOG_INFO, "%sheader:size too big: %d, see maxheaderlines", thread_id.c_str(), header.size());
             ispersistent = false;
             return false;
         }
@@ -603,7 +603,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
-                        syslog(LOG_INFO, "%sServer did not respond with ICAP", thread_id);
+                        syslog(LOG_INFO, "%sServer did not respond with ICAP", thread_id.c_str());
 #ifdef DGDEBUG
                     std::cout << thread_id << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
