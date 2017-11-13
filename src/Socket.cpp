@@ -776,10 +776,10 @@ bool Socket::checkForInput()
 
 bool Socket::bcheckForInput(int timeout)
 {
-    //if (!isssl) {
+    if (!isssl) {
         return BaseSocket::bcheckForInput(timeout);
-    //}
-    //return true;
+    }
+    return true;
 }
 
 
@@ -840,7 +840,7 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
  //       } catch (std::exception &e) {
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
  //       }
-        if( bcheckSForInput(timeout))
+//        if( bcheckSForInput(timeout))
             bufflen = SSL_read(ssl, buffer, 4096);
 #ifdef DGDEBUG
 //std::cout << "read into buffer; bufflen: " << bufflen <<std::endl;
@@ -967,7 +967,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 
     while (cnt > 0) {
     //    try {
-            bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
+            //bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
     //    } catch (std::exception &e) {
      //       return -1;
      //   }
@@ -1025,14 +1025,14 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 
     int rc;
     while (cnt > 0) {
-    if (check_first) {
-          if(!bcheckSForInput(timeout))
-            return -1;
-   }
+    //if (check_first) {
+          //if(!bcheckSForInput(timeout))
+            //return -1;
+   //}
 //    while (true)
         bool inbuffer;
         ERR_clear_error();
-        if (cnt > 4095) {
+        if(true) {   //   was if (cnt > 4095)
             inbuffer = false;
            rc = SSL_read(ssl, buff, cnt);        //  data larger than SSL buffer so ok to read directly into output buffer
         } else {

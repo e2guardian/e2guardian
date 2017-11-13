@@ -241,14 +241,14 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
         std::cout << thread_id << " -Error reading file to send:" << filename << std::endl;
 #endif
         String fnf(o.language_list.getTranslation(1230));
-        String message("HTTP/1.0 404 " + fnf + "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>" + fnf + "</TITLE></HEAD><BODY><H1>" + fnf + "</H1></BODY></HTML>\n");
+        String message("HTTP/1.1 404 " + fnf + "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>" + fnf + "</TITLE></HEAD><BODY><H1>" + fnf + "</H1></BODY></HTML>\n");
         peerconn->writeString(message.toCharArray());
         return 0;
     }
 
     off_t filesize = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
-    String message("HTTP/1.0 200 OK\nContent-Type: " + filemime + "\nContent-Length: " + String(filesize));
+    String message("HTTP/1.1 200 OK\nContent-Type: " + filemime + "\nContent-Length: " + String(filesize));
     if (filedis.length() == 0) {
         filedis = url.before("?");
         while (filedis.contains("/"))
@@ -654,7 +654,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // TODO this needs moving is proxy operation is still to be tested
             if (checkme.urldomain == "internal.test.e2guardian.org") {
                 peerconn.writeString(
-                        "HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
+                        "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                 peerconn.writeString("</BODY></HTML>\n");
                 proxysock.close(); // close connection to proxy
                 break;
@@ -665,7 +665,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (checkme.isconnect) {
                     writeback_error(checkme, peerconn, 0, 0, "404 Banned Site");
                 } else { // write blank graphic
-                    peerconn.writeString("HTTP/1.0 200 OK\n");
+                    peerconn.writeString("HTTP/1.1 200 OK\n");
                     o.banned_image.display(&peerconn);
                 }
                 proxysock.close(); // close connection to proxy
@@ -1010,7 +1010,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (checkme.urlredirect) {
                 checkme.url = header.redirecturl();
                 proxysock.close();
-                String writestring("HTTP/1.0 302 Redirect\nLocation: ");
+                String writestring("HTTP/1.1 302 Redirect\nLocation: ");
                 writestring += checkme.url;
                 writestring += "\n\n";
                 peerconn.writeString(writestring.toCharArray());
@@ -1049,7 +1049,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
                 }
                 if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
-                    std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
+                    std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
                     if (!peerconn.writeString(msg.c_str()))
                         cleanThrow("Unable to send to client 859", peerconn, proxysock);
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
@@ -1154,9 +1154,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //if not grey tunnel response
             if (!checkme.isItNaughty) {
                 if (checkme.tunnel_rest) {
+                    bool chunked = docheader.transferEncoding().contains("chunked");
                     std::cerr << thread_id << " -Tunnelling to client" << std::endl;
                     if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
-                                    true))
+                                    true, chunked))
                         persistProxy = false;
                     checkme.docsize += fdt.throughput;
                 } else if (checkme.tunnel_2way) {
@@ -1595,7 +1596,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
-                    eheader = "HTTP/1.0 403 ";
+                    eheader = "HTTP/1.1 403 ";
                     eheader += o.language_list.getTranslation(500); // banned site
                     eheader += "\nContent-Type: text/html\n\n";
                     ebody = "<HTML><HEAD><TITLE>e2guardian - ";
@@ -1640,12 +1641,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // (or advanced ad block page, or HTML page with bypass URLs)
                 if (replaceimage) {
                     if (headersent == 0) {
-                        eheader = "HTTP/1.0 200 OK\n";
+                        eheader = "HTTP/1.1 200 OK\n";
                     }
                     o.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
-                        eheader = "HTTP/1.0 200 OK\n";
+                        eheader = "HTTP/1.1 200 OK\n";
                     }
                     o.banned_flash.display_hb(eheader, ebody);
                 } else {
@@ -1654,7 +1655,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     // for IFRAMEs, which will end up containing this link instead of the ad (standard non-IFRAMEd
                     // ad images still get image-replaced.)
                     if (strstr(checkme->whatIsNaughtyCategories.c_str(), "ADs") != NULL) {
-                        eheader = "HTTP/1.0 200 \n";
+                        eheader = "HTTP/1.1 200 \n";
                         eheader += o.language_list.getTranslation(1101); // advert blocked
                         eheader += "\nContent-Type: text/html\n\n";
                         ebody = "<HTML><HEAD><TITLE>E2guardian - ";
@@ -1683,7 +1684,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         }
 
                         if (headersent == 0) {
-                            eheader = "HTTP/1.0 200 \n";
+                            eheader = "HTTP/1.1 200 \n";
                         }
                         if (headersent < 2) {
                             eheader += "Content-type: text/html\n\n";
@@ -1733,7 +1734,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*checkme).whatIsNaughtyLog.length() > 2048) {
                 (*checkme).whatIsNaughtyLog = String((*checkme).whatIsNaughtyLog.c_str()).subString(0, 2048).toCharArray();
             }
-            eheader = "HTTP/1.0 302 Redirect\n";
+            eheader = "HTTP/1.1 302 Redirect\n";
             eheader += "Location: ";
             eheader += ldl->fg[filtergroup]->access_denied_address;
 
@@ -1802,7 +1803,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 
         // the user is using the barebones banned page
         else if (reporting_level == 0) {
-            eheader = "HTTP/1.0 200 OK\n";
+            eheader = "HTTP/1.1 200 OK\n";
             eheader += "Content-type: text/html\n\n";
             ebody = "<HTML><HEAD><TITLE>e2guardian - ";
             ebody += o.language_list.getTranslation(1); // access denied
@@ -2065,7 +2066,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme)
 {
     String connect_request = "CONNECT " + hostname + ":";
-    connect_request += "443 HTTP/1.0\r\n\r\n";
+    connect_request += "443 HTTP/1.1\r\n\r\n";
 
 #ifdef DGDEBUG
     std::cout << thread_id << " -creating tunnel through proxy to " << hostname << std::endl;
@@ -2274,7 +2275,7 @@ String ConnectionHandler::dns_error(int herror)
 
 bool ConnectionHandler::gen_error_mess( Socket &peerconn, NaughtyFilter &cm, String &eheader, String &ebody, int mess_no1, int mess_no2, std::string mess) {
     cm.message_no = mess_no1;
-    eheader = "HTTP/1.0 " + mess +"\nContent-Type: text/html\r\n";
+    eheader = "HTTP/1.1 " + mess +"\nContent-Type: text/html\r\n";
     ebody =  "<HTML><HEAD><TITLE>e2guardian - ";
     ebody += mess;
     ebody += "</TITLE></HEAD><BODY><H1>e2guardian - ";
@@ -2373,7 +2374,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         if (!transparent) {
 //send a 200 to the client no matter what because they managed to get a connection to us
 //and we can use it for a blockpage if nothing else
-            std::string msg = "HTTP/1.0 200 Connection established\r\n\r\n";
+            std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
             if (!peerconn.writeString(msg.c_str()))
                 cleanThrow("Unable to send to client 1670", peerconn, proxysock);
         }
@@ -2562,7 +2563,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                             std::cout << "Auth plugin told us to redirect client to \"" << clientuser << "\"; not querying remaining plugins" << std::endl;
 #endif
                             // ident plugin told us to redirect to a login page
-                            String writestring("HTTP/1.0 302 Redirect\r\nLocation: ");
+                            String writestring("HTTP/1.1 302 Redirect\r\nLocation: ");
                             writestring += clientuser;
                             writestring += "\r\n\r\n";
                             peerconn.writeString(writestring.toCharArray());   // no action on failure
@@ -3458,7 +3459,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     // do total block list checking here
     if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
-        res_hdr = "HTTP/1.0 200 OK\n";
+        res_hdr = "HTTP/1.1 200 OK\n";
         o.banned_image.display_hb(res_hdr, res_body);
         icaphead.errorResponse(peerconn, res_hdr, res_body);
         if (icaphead.req_body_flag) {
@@ -3603,7 +3604,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     // URL regexp search and edirect
     if (checkme.urlredirect) {
         checkme.url = icaphead.HTTPrequest.redirecturl();
-        String writestring("HTTP/1.0 302 Redirect\nLocation: ");
+        String writestring("HTTP/1.1 302 Redirect\nLocation: ");
         writestring += checkme.url;
         writestring += "\n\n";
         res_hdr = writestring;

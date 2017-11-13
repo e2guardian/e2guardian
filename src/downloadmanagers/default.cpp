@@ -90,9 +90,11 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
     if (!d->icap) {
-        std::cerr << "tranencodeing is " << docheader->transferEncoding() << std::endl;
+        std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
+
+    std::cerr << thread_id << "bytes remaining is " << bytesremaining << std::endl;
 
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
@@ -192,14 +194,14 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             } else {
                 newsize = blocksize;
             }
-#ifdef DGDEBUG
-            std::cout << "newsize: " << newsize << std::endl;
-#endif
             // if not getting everything until connection close, grab only what is left
             if (!geteverything && (newsize > bytesremaining))
                 newsize = bytesremaining;
             delete[] block;
             block = new char[newsize];
+#ifdef DGDEBUG
+            std::cout << thread_id << "newsize: " << newsize << std::endl;
+#endif
                 if (!sock->bcheckForInput(d->timeout))
                     break;
             // improved more efficient socket read which uses the buffer better

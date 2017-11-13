@@ -30,6 +30,8 @@
 
 // IMPLEMENTATION
 
+extern thread_local std::string thread_id;
+
 FDTunnel::FDTunnel()
     : throughput(0)
 {
@@ -42,30 +44,47 @@ void FDTunnel::reset()
 
 // tunnel data from fdfrom to fdto (unfiltered)
 // return false if throughput larger than target throughput
-bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targetthroughput, bool ignore)
+bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targetthroughput, bool ignore, bool chunked)
 {
+    if (chunked) {
+#ifdef DGDEBUG
+    std::cout << thread_id << "tunnelling chunked data." << std::endl;
+#endif
+        int maxlen = 32000;
+        char buff[maxlen];
+        int timeout = sockfrom.getTimeout();
+        int rd = 0;
+        int total_rd = 0;
+        while ( (rd = sockfrom.readChunk(buff,maxlen,timeout)) > 0) {
+            sockto.writeChunk(buff, rd, timeout);
+            total_rd += rd;
+        }
+        sockto.writeChunk(buff,0,timeout );
+        throughput = total_rd;
+        return true;
+    }
     if (targetthroughput == 0) {
 #ifdef DGDEBUG
-        std::cout << "No data expected, tunnelling aborted." << std::endl;
+        std::cout << thread_id << "No data expected, tunnelling aborted." << std::endl;
 #endif
         return true;
     }
 
 #ifdef DGDEBUG
     if (targetthroughput < 0)
-        std::cout << "Tunnelling without known content-length" << std::endl;
+        std::cout <<thread_id << "Tunnelling without known content-length" << std::endl;
     else
-        std::cout << "Tunnelling with content length " << targetthroughput << std::endl;
+        std::cout <<thread_id << "Tunnelling with content length " << targetthroughput << std::endl;
 #endif
     if ((sockfrom.bufflen - sockfrom.buffstart) > 0) {
 #ifdef DGDEBUG
-        std::cout << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
+        std::cout <<thread_id << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
 #endif
         if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120000, false))
             return false;
            // throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
 #ifdef DGDEBUG
-        std::cout << "Data in fdfrom's buffer; sent " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
+        std::cout <<thread_id << "Data in fdfrom's buffer; sent " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
 #endif
 
         throughput += sockfrom.bufflen - sockfrom.buffstart;
@@ -100,7 +119,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         done = true; // if we don't make a sucessful read and write this
         // flag will stay true and so the while() will exit
 #ifdef DGDEBUG
-        std::cout << "Start of tunnel loop: throughput:" << throughput
+        std::cout <<thread_id << "Start of tunnel loop: throughput:" << throughput
             << " target:"  << targetthroughput  << std::endl;
 #endif
 
@@ -126,13 +145,13 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             int rc = poll(twayfds, 2, timeout);
             if (rc < 1) {
 #ifdef DGDEBUG
-                std::cout << "tunnel tw poll returned error or timeout::" << rc
+                std::cout <<thread_id << "tunnel tw poll returned error or timeout::" << rc
                   << std::endl;
 #endif
                 break; // an error occured or it timed out so end while()
             }
 #ifdef DGDEBUG
-            std::cout << "tunnel tw poll returned ok:" << rc
+            std::cout <<thread_id << "tunnel tw poll returned ok:" << rc
                   << std::endl;
 #endif
                   }
@@ -155,7 +174,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     done = true; // none received so pipe is closed so flag it
                 } else { // some data read
 #ifdef DGDEBUG
-                    std::cout << "tunnel got data from sockfrom: " << rc << " bytes"
+                    std::cout <<thread_id << "tunnel got data from sockfrom: " << rc << " bytes"
                         << std::endl;
 #endif
                     throughput += rc; // increment our counter used to log
@@ -171,7 +190,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                             break; // was an error writing
                             }
 #ifdef DGDEBUG
-                         std::cout << "tunnel wrote data out: " << rc << " bytes"
+                         std::cout <<thread_id << "tunnel wrote data out: " << rc << " bytes"
                         << std::endl;
 #endif
                         done = false; // flag to say data still to be handled
@@ -192,7 +211,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     // different webserver. This is important for proper filtering when
     // persistent connection support gets implemented. PRA 2005-11-14
 #ifdef DGDEBUG
-                    std::cout << "fdto is sending data; closing tunnel. (This must be a persistent connection.)" << std::endl;
+                    std::cout <<thread_id << "fdto is sending data; closing tunnel. (This must be a persistent connection.)" << std::endl;
 #endif
                     break;
                 }
@@ -233,9 +252,9 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         }
 #ifdef DGDEBUG
         if ((throughput >= targetthroughput) && (targetthroughput > -1))
-            std::cout << "All expected data tunnelled. (expected " << targetthroughput << "; tunnelled " << throughput << ")" << std::endl;
+            std::cout <<thread_id << "All expected data tunnelled. (expected " << targetthroughput << "; tunnelled " << throughput << ")" << std::endl;
         else
-            std::cout << "Tunnel closed." << std::endl;
+            std::cout <<thread_id << "Tunnel closed." << std::endl;
 #endif
         //return (targetthroughput > -1) ? (throughput <= targetthroughput) : true;
         return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;
