@@ -3560,14 +3560,23 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
             bool part_banned;
 
-
-
             char *retchar;
+
+    // virus checking candidate?
+    // checkme.noviruscheck defaults to true
+    if (icaphead.res_body_flag    //  can only  scan if  body present
+        && !(checkme.isBlocked)  // or already blocked
+        && (o.csplugins.size() > 0)            //  and we have scan plugins
+        && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
+        && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
+        // and not exception unless scan exceptions enabled
+            )
+        checkme.noviruscheck = false;   // note this may be reset by Storyboard to enable exceptions
 
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
-            if (!(checkme.isexception)) {
+            if (!(checkme.isexception) || !checkme.noviruscheck) {
 // Main checking is done in Storyboard function(s)
                     ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
                     std::cerr << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no "
@@ -3575,7 +3584,10 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                     checkme.isItNaughty = checkme.isBlocked;
             }
 
-if (checkme.isexception || !icaphead.res_body_flag) {
+    if(checkme.isexception &&!checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)
+        checkme.noviruscheck = true;
+
+if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
         if (icaphead.allow_204) {
             icaphead.respond(peerconn, "204 No Content");
             if (icaphead.res_body_flag) {
@@ -3598,7 +3610,17 @@ if (checkme.isexception || !icaphead.res_body_flag) {
             //- if grey content check
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
-                if (!done && !checkme.isItNaughty && checkme.isGrey ) {
+                if (!done && !checkme.isItNaughty) {
+                    if(!checkme.noviruscheck)
+                    {
+                        for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                            int csrc = ((CSPlugin *)(*i))->willScanRequest(checkme.url, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
+                            if (csrc > 0)
+                                responsescanners.push_back((CSPlugin *)(*i));
+                            else if (csrc < 0)
+                                syslog(LOG_ERR, "%swillScanRequest returned error: %d", thread_id.c_str(), csrc);
+                        }
+                    }
                     check_content(checkme, docbody,peerconn, peerconn,responsescanners);
                 }
 

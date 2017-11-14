@@ -78,6 +78,7 @@ if(true) setgrey
 
 # Entry function called by ICAP module to check respmod
 function(icap-checkresponse)
+ifnot(noviruscheckset) checknoscanlists
 if(true) return checkresponse
 
 # Checks embeded urls
