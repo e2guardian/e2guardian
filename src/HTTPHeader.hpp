@@ -98,6 +98,7 @@ class HTTPHeader
     String searchwords();
     String searchterms();
     bool searchchecked;
+    bool chunked;
     String contentEncoding();
     String transferEncoding();
     // grab the contents of Proxy-Authorization header

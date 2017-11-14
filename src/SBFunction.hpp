@@ -56,8 +56,9 @@
 #define SB_STATE_TRUE				22
 #define SB_STATE_HASSNI			23
 #define SB_STATE_REDIRECTSET 24
+#define SB_STATE_NOVIRUSCHECKSET 25
 
-#define SB_STATE_MAP_SIZE  24
+#define SB_STATE_MAP_SIZE  25
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -79,8 +80,9 @@
 #define SB_FUNC_SETMODHEADER   5014
 #define  SB_FUNC_SETGODIRECT	    5015
 #define  SB_FUNC_SETNOLOG				5016
+#define  SB_FUNC_SETNOVIRUSCHECK		5017
 
-#define SB_FUNC_MAP_SIZE  16
+#define SB_FUNC_MAP_SIZE  17
 
 
 // DECLARATIONS
@@ -112,7 +114,9 @@ class SBFunction
 			"returnset",
 			 "true",
 			 "hassniset",
-             "redirectset"
+             "redirectset",
+			 "noviruscheckset"
+
 			};
    String command_map[4] = { "function",
 			"end",
@@ -136,7 +140,8 @@ class SBFunction
 			"setsearchterm",
 			 "setmodheader",
 			 "setgodirect",
-			 "setnolog"
+			 "setnolog",
+			 "setnoviruscheck"
     };
 
   public:

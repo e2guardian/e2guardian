@@ -598,46 +598,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.setURL(ismitm);
 
             //If proxy connction is not persistent..// do this later after checking if direct or via proxy
-#ifdef NOTDEF
-            if (!persistProxy) {
-                try {
-                    // ...connect to proxy
-                    proxysock.setTimeout(1000);
-                    for (int i = 0; i < o.proxy_timeout_sec; i++) {
-                        rc = proxysock.connect(o.proxy_ip, o.proxy_port);
-
-                        if (!rc) {
-                            if (i > 0) {
-                                syslog(LOG_ERR, "Proxy responded after %d retrys", i);
-                            }
-                            break;
-                        } else {
-                            if (!proxysock.isTimedout())
-                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                        }
-                    }
-                    if (rc) {
-#ifdef DGDEBUG
-                        std::cerr << thread_id << " -Error connecting to proxy" << std::endl;
-#endif
-                        syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s",
-                               o.proxy_timeout_sec, clientip.c_str(), checkme.urldomain.c_str(), proxysock.getErrno(),
-                               strerror(proxysock.getErrno()));
-                        if (proxysock.isTimedout()) {
-                            writeback_error(checkme, peerconn, 201, 204, "504 Gateway Time-out");
-                        } else {
-                            writeback_error(checkme, peerconn, 202, 204, "502 Gateway Error");
-                        }
-                        peerconn.close();
-                        return 3;
-                    }
-                } catch (std::exception &e) {
-#ifdef DGDEBUG
-                    std::cerr << thread_id << " -exception while creating proxysock: " << e.what() << std::endl;
-#endif
-                }
-            }
-#endif
 
 #ifdef DGDEBUG
             std::cerr << getpid() << "Start URL " << checkme.url.c_str() << "is_ssl=" << checkme.is_ssl << "ismitm=" << ismitm << std::endl;
@@ -851,141 +811,23 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // Start of by pass
             //
-            std::cout << thread_id << " -Scan bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            if (ldl->fg[filtergroup]->bypass_mode != 0) {
-                if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-                    std::cout << thread_id << " -Scan bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                    isscanbypass = true;
-                    isbypass = true;
-//                    exceptionreason = o.language_list.getTranslation(608);
-                } else {
-#ifdef DGDEBUG
-                    std::cout << thread_id << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                    if (ldl->fg[filtergroup]->bypass_mode != 0)
-                        bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
-                    if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
-                        bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(), clientip.c_str(), &isvirusbypass);
-                    }
-                    if (bypasstimestamp > 0) {
-#ifdef DGDEBUG
-                        if (isvirusbypass)
-                            std::cout << thread_id << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                        else
-                            std::cout << thread_id << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                        int reporting_level = ldl->fg[filtergroup]->reporting_level;
+                if(checkByPass(checkme,ldl, header, proxysock, peerconn, clientip, persistProxy))
+                    break;
 
-                        // Security check if the referer is right at first !
-                        // TODO: This kind of control must be also added to the html_template
-                        if (reporting_level != 3) {
-                            std::string getreferer = header.getReferer();
-                            int accesssize = ldl->fg[filtergroup]->access_denied_address.length();
-                            int accesssizessl = ldl->fg[filtergroup]->sslaccess_denied_address.length();
-                            if ((strncmp, getreferer, ldl->fg[filtergroup]->access_denied_address, accesssize) || (strncmp, getreferer, ldl->fg[filtergroup]->sslaccess_denied_address, accesssizessl)){
-#ifdef DGDEBUG
-                                std::cout << " right referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
-#endif
-                            } else {
-#ifdef DGDEBUG
-                                std::cout << " wrong referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
-#endif
-                                bypasstimestamp = 0;
-                            }
-
-                        }
-                        header.chopBypass(checkme.url, isvirusbypass);
-                        if (bypasstimestamp > 1) { // not expired
-                            isbypass = true;
-                            // checkme: need a TR string for virus bypass
-                            checkme.exceptionreason = o.language_list.getTranslation(606);
-                        }
-                    } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
-                        if (header.isBypassCookie(checkme.url, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
-#ifdef DGDEBUG
-                            std::cout << thread_id << " -bypass cookie match" << " url " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                            iscookiebypass = true;
-                            isbypass = true;
-                            checkme.isexception = true;
- //                           isexception = true;
-                            checkme.exceptionreason = o.language_list.getTranslation(607);
-                        }
-                    }
-                }
-#ifdef DGDEBUG
-                std::cout << thread_id << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-
-#ifdef DGDEBUG
-                if (isbypass) {
-                    std::cout << thread_id << " -bypass activated!" << " url: " << checkme.url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                }
-#endif
-                //
-                // Start of exception checking
-                //
-                // being a banned user/IP overrides the fact that a site may be in the exception lists
-                // needn't check these lists in bypass modes
-/*                bool is_ip = isIPHostnameStrip(checkme.url);
-
-                if (((*ldl->fg[filtergroup]).inBannedSiteListwithbypass(checkme.url, true, is_ip, is_ssl,lastcategory)) != NULL){
-#ifdef DGDEBUG
-                    std::cout << thread_id << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                    iscookiebypass = false;
-                    isexception = false;
-                    isbypass = false;
-                    ispostblock = true;
-                    nopass = true;
-                }
-
-*/
-                //
-                // End of bypass
-                //
-
-                // Start of scan by pass
-                //
-
-                if (isscanbypass) {
-
-                    //we need to decode the URL and send the temp file with the
-                    //correct header to the client then delete the temp file
-                    String tempfilename(checkme.url.after("GSBYPASS=").after("&N="));
-                    String tempfilemime(tempfilename.after("&M="));
-                    String tempfiledis(header.decode(tempfilemime.after("&D="), true));
-#ifdef DGDEBUG
-                    std::cout << thread_id << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-                    String rtype(header.requestType());
-                    tempfilemime = tempfilemime.before("&D=");
-                    tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
-                    try {
- //                       docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, checkme.url);
-                        header.chopScanBypass(checkme.url);
-                        checkme.url = header.getLogUrl();
- /*                       doLog(clientuser, clientip, logurl, header.port, exceptionreason,
-                            rtype, docsize, NULL, false, 0, isexception, false, &thestart,
-                            cachehit, 200, mimetype, wasinfected, wasscanned, 0, filtergroup,
-                            &header);
-                            */
-                            if (o.delete_downloaded_temp_files) {
-                                unlink(tempfilename.toCharArray());
-                            }
-                    } catch (std::exception &e) {
-                        persistProxy = false;
-                        proxysock.close(); // close connection to proxy
-                        break;
-                    }
-                }
-            }
             //
-            // End of scan by pass
+            // End by pass
             //
+
+            // virus checking candidate?
+            // checkme.noviruscheck defaults to true
+            if (!(checkme.isconnect || checkme.ishead)    //  can't scan connect or head
+                && !(checkme.isBlocked)  // or already blocked
+                && (o.csplugins.size() > 0)            //  and we have scan plugins
+                && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
+                && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
+                            // and not exception unless scan exceptions enabled
+                    )
+                checkme.noviruscheck = false;   // note this may be reset by Storyboard to enable exceptions
 
             char *retchar;
 
@@ -994,7 +836,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
-            if (!(isbanneduser || isbannedip || checkme.isbypass || checkme.isexception)) {
+            if (!(checkme.isBlocked || checkme.isbypass)) {
 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
@@ -1098,8 +940,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     checkme.tunnel_2way = true;
                     checkme.tunnel_rest = false;
                 } else {
-                    checkme.tunnel_2way = false;
-                    checkme.tunnel_rest = true;
+                    if(!checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)
+                        checkme.noviruscheck = true;
+                    if(checkme.noviruscheck) {
+                        checkme.tunnel_2way = false;
+                        checkme.tunnel_rest = true;
+                    }
                 }
             }
 
@@ -1127,13 +973,32 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                           << checkme.message_no << std::endl;
                 checkme.isItNaughty = checkme.isBlocked;
 
-                if (checkme.ishead || docheader.contentLength() == 0)
+                if (checkme.ishead || (docheader.contentLength() == 0 && !docheader.chunked))
                     checkme.tunnel_rest = true;
+
+                if(checkme.isexception  && !ldl->fg[filtergroup]->content_scan_exceptions) {
+                    checkme.tunnel_rest = true;
+                    checkme.noviruscheck = true;
+                }
+
+                if(!checkme.noviruscheck)
+                {
+                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                        int csrc = ((CSPlugin *)(*i))->willScanRequest(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
+                        if (csrc > 0)
+                            responsescanners.push_back((CSPlugin *)(*i));
+                        else if (csrc < 0)
+                            syslog(LOG_ERR, "%swillScanRequest returned error: %d", thread_id.c_str(), csrc);
+                    }
+#ifdef DGDEBUG
+                std::cout << thread_id << " -Content scanners interested in response data: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+                }
 
                 //- if grey content check
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
-                if (checkme.isGrey && !checkme.tunnel_rest) {
+                if ((checkme.isGrey || !checkme.noviruscheck) && !checkme.tunnel_rest) {
                     check_content(checkme, docbody, proxysock, peerconn, responsescanners);
                 }
             }
@@ -1200,7 +1065,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         std::cout << thread_id << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if (o.logconerror)
-            syslog(LOG_ERR, " -connection handler caught an exception %s", e.what());
+            syslog(LOG_ERR, "%s-connection handler caught an exception %s", thread_id.c_str(), e.what());
 
         // close connection to proxy
         proxysock.close();
@@ -2748,8 +2613,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
         tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
         try {
         checkme.docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, checkme.url);
-        header.
-        chopScanBypass(checkme.url);
+        header.chopScanBypass(checkme.url);
         checkme.url = header.getLogUrl();
         //urld = header.decode(url);  // unneeded really
 
@@ -3824,4 +3688,5 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer 
     }
     return DGAUTH_NOUSER;
 }
+
 

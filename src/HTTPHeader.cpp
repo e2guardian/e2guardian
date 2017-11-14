@@ -55,6 +55,7 @@ void HTTPHeader::reset()
 
         mitm = false;
         isdirect = false;
+        chunked = false;
 
         phost = NULL;
         pport = NULL;
@@ -961,6 +962,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pport = &(*i);
     } else if ( i->startsWithLower("transfer-encoding:")) {
         ptransferencoding = &(*i);
+        if (i->contains("chunked"))
+            chunked = true;
     } else if ( i->startsWithLower("transfer-coding:")) {
         ptransfercoding = &(*i);
         }

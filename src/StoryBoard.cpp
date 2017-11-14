@@ -404,6 +404,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_REDIRECTSET:
                 state_result = cm.urlredirect;
                 break;
+            case SB_STATE_NOVIRUSCHECKSET:
+                state_result = cm.noviruscheck;
+                break;
             case SB_STATE_HASSNI:
                 state_result = cm.hasSNI;
                 break;
@@ -662,6 +665,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETNOLOG:
                     cm.nolog = true;
+                    break;
+                case SB_FUNC_SETNOVIRUSCHECK:
+                    cm.noviruscheck = true;
                     break;
                 case SB_FUNC_SETTRUE:
                     break;

@@ -318,8 +318,16 @@ infectionbypasserrorsonly = on
 # Content scanning primarily is AV scanning (if enabled) but could include
 # other types.
 # (on|off) default = off.
-disablecontentscan = off  #NOT YET DONE
+disablecontentscan = off  
 
+# If 'on' exception sites, urls, users etc will be scanned
+# This is probably not desirable behavour as exceptions are
+# supposed to be trusted and will increase load.
+# Correct use of grey lists are a better idea.
+# (on|off) default = off
+contentscanexceptions = off
+
+# Auth plugins
 # Enable Deep URL Analysis
 # When enabled, DG looks for URLs within URLs, checking against the bannedsitelist and
 # bannedurllist. This can be used, for example, to block images originating from banned

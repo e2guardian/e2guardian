@@ -12,6 +12,8 @@
 #
 # Entry function called by proxy module to check http request
 function(checkrequest)
+ifnot(noviruscheckset) checknoscanlists
+if(exceptionset) return true
 #if(true) setgodirect
 # comment out the following line if you do not use 'local' list files
 ifnot(greyset) returnif localcheckrequest
@@ -33,6 +35,7 @@ if(true) setgrey
 
 # Entry function called by proxy module to check http response
 function(checkresponse)
+ifnot(noviruscheckset) checknoscantypes
 if(mimein, exceptionmime) return setexception
 if(mimein, bannedmime) return setblock
 if(extensionin, exceptionextension) setexception
@@ -178,6 +181,13 @@ if(true) returnif sslcheckblanketblock
 if(sitein, banned) return setblock
 if(true) sslreplace
 if(true) setgrey
+
+function(checknoscanlists)
+if(urlin,exceptionvirus) setnoviruscheck
+
+function(checknoscantypes)
+if(mimein,exceptionvirus) return setnoviruscheck
+if(extensionin,exceptionvirus) return setnoviruscheck
 
 # ICAP SSL request check
 #  returns true if exception 
