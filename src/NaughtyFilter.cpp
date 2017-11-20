@@ -93,6 +93,9 @@ void NaughtyFilter::reset()
     whatIsNaughty = "";
     whatIsNaughtyLog = "";
     whatIsNaughtyCategories = "";
+    tempfilename = "";
+    tempfilemime= "";
+    tempfiledis= "";
     usedisplaycats = false;
     blocktype = 0;
     store = false;

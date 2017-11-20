@@ -123,6 +123,10 @@ class NaughtyFilter
     off_t docsize;   // to store the size of the returned document for logging
     int filtergroup;
 
+    String tempfilename;
+    String tempfilemime;
+    String tempfiledis;
+
     // should the browser use the categories string or the displaycategories string?
     // (related to category list thresholding)
     bool usedisplaycats;

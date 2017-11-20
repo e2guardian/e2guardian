@@ -232,42 +232,64 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
 
 
 // send a file to the client - used during bypass of blocked downloads
-off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &filemime, String &filedis, String &url)
+off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bool is_icap, ICAPHeader *icap_head)
 {
-    int fd = open(filename.toCharArray(), O_RDONLY);
+    String filedis = cm.tempfiledis;
+    int fd = open(cm.tempfilename.toCharArray(), O_RDONLY);
     if (fd < 0) { // file access error
-        syslog(LOG_ERR, "Error reading file to send");
+        syslog(LOG_ERR, "%sError reading file to send", thread_id.c_str());
 #ifdef DGDEBUG
-        std::cout << thread_id << " -Error reading file to send:" << filename << std::endl;
+        std::cout << thread_id << " -Error reading file to send:" << cm.tempfilename << std::endl;
 #endif
         String fnf(o.language_list.getTranslation(1230));
-        String message("HTTP/1.1 404 " + fnf + "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>" + fnf + "</TITLE></HEAD><BODY><H1>" + fnf + "</H1></BODY></HTML>\n");
-        peerconn->writeString(message.toCharArray());
+        String head("HTTP/1.1 404 " + fnf + "\r\nContent-Type: text/html\r\n\r\n");
+        String body("<HTML><HEAD><TITLE>" + fnf + "</TITLE></HEAD><BODY><H1>" + fnf + "</H1></BODY></HTML>\r\n");
+
+        if (is_icap)
+        {
+            icap_head->out_res_header = head;
+            icap_head->out_res_body = body;
+            icap_head->out_res_hdr_flag = true;
+            icap_head->out_res_body_flag = true;
+            icap_head->respond(*peerconn);
+        } else {
+            peerconn->writeString(head.toCharArray());
+            peerconn->writeString(body.toCharArray());
+        }
+
         return 0;
     }
 
     off_t filesize = lseek(fd, 0, SEEK_END);
     lseek(fd, 0, SEEK_SET);
-    String message("HTTP/1.1 200 OK\nContent-Type: " + filemime + "\nContent-Length: " + String(filesize));
+    String head("HTTP/1.1 200 OK\r\nContent-Type: " + cm.tempfilemime + "\r\nContent-Length: " + String(filesize));
     if (filedis.length() == 0) {
         filedis = url.before("?");
         while (filedis.contains("/"))
             filedis = filedis.after("/");
     }
-    message += "\nContent-disposition: attachment; filename=" + filedis;
-    message += "\n\n";
-        //peerconn->writeString(message.toCharArray());
-    if(!peerconn->writeString(message.toCharArray())) {
-        close(fd);
-        return 0;
+    head += "\r\nContent-disposition: attachment; filename=" + filedis;
+    head += "\r\n\r\n";
+
+    if (is_icap) {
+        icap_head->out_res_header = head;
+        icap_head->out_res_hdr_flag = true;
+        icap_head->out_res_body_flag = true;
+        icap_head->respond(*peerconn);
+    } else {
+        if (!peerconn->writeString(head.toCharArray())) {
+            close(fd);
+            return 0;
+        }
     }
 
     // perform the actual sending
     off_t sent = 0;
     int rc;
-    char *buffer = new char[250000];
+    //char *buffer = new char[250000];
+    char *buffer = new char[64000];
     while (sent < filesize) {
-        rc = readEINTR(fd, buffer, 250000);
+        rc = readEINTR(fd, buffer, 64000);
 #ifdef DGDEBUG
         std::cout << thread_id << " -reading send file rc:" << rc << std::endl;
 #endif
@@ -285,16 +307,26 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
 #endif
             break; // should never happen
         }
-        // as it's cached to disk the buffer must be reasonably big
-        if (!peerconn->writeToSocket(buffer, rc, 0, 100)) {
-            delete[] buffer;
-            cleanThrow("Error sending file to client", *peerconn);
-           // throw std::exception();
+        if (is_icap) {
+            if (!peerconn->writeChunk(buffer,rc,100000)) {
+                delete[] buffer;
+                cleanThrow("Error sending file to client", *peerconn);
+            }
+        } else {
+            // as it's cached to disk the buffer must be reasonably big
+            if (!peerconn->writeToSocket(buffer, rc, 0,100000)) {
+                delete[] buffer;
+                cleanThrow("Error sending file to client", *peerconn);
+                // throw std::exception();
+            }
         }
         sent += rc;
 #ifdef DGDEBUG
         std::cout << thread_id << " -total sent from temp:" << sent << std::endl;
 #endif
+    }
+    if (is_icap) {
+        peerconn->writeChunk(buffer,0, 10000);
     }
     delete[] buffer;
     close(fd);
@@ -811,8 +843,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // Start of by pass
             //
-                if(checkByPass(checkme,ldl, header, proxysock, peerconn, clientip, persistProxy))
-                    break;
+            if(checkByPass(checkme,ldl, header, proxysock, peerconn, clientip)
+                    && sendScanFile(peerconn,checkme)) {
+                persistProxy = false;
+                break;
+            }
 
             //
             // End by pass
@@ -832,11 +867,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             char *retchar;
 
             //
-            // Start of exception checking
+            // Start of Storyboard checking
             //
-            // being a banned user/IP overrides the fact that a site may be in the exception lists
-            // needn't check these lists in bypass modes
-            if (!(checkme.isBlocked || checkme.isbypass)) {
+//            if (!(checkme.isBlocked || checkme.isbypass))
+            if (!checkme.isBlocked) {
 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
@@ -870,7 +904,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // don't run willScanRequest if content scanning is disabled, or on exceptions if contentscanexceptions is off,
             // or on SSL (CONNECT) requests, or on HEAD requests, or if in AV bypass mode
 
-            //now send upstream and get response
+            //if not naughty now send upstream and get response
             if (checkme.isItNaughty) {
                 if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm)
                     checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
@@ -2539,60 +2573,66 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
     return true;
 }
 
-bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock, Socket &peerconn, std::string &clientip, bool & persistProxy) {
+bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock, Socket &peerconn, std::string &clientip ) {
 
-    int bypasstimestamp =0;
-    if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic. c_str(), clientip.c_str() )) {
-    #ifdef DGDEBUG
-    std::cout << thread_id << " -Scan Bypass URL match" << std::endl;
-    #endif
+    int bypasstimestamp = 0;
+    if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+#ifdef DGDEBUG
+        std::cout << thread_id << " -Scan Bypass URL match" << std::endl;
+#endif
         checkme.isscanbypass = true;
         checkme.isbypass = true;
+        checkme.message_no = 608;
+        checkme.log_message_no = 608;
         checkme.exceptionreason = o.language_list.getTranslation(608);
     } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
-    #ifdef DGDEBUG
-    std::cout << thread_id << " -About to check for bypass..." << std::endl;
-    #endif
+#ifdef DGDEBUG
+        std::cout << thread_id << " -About to check for bypass..." << std::endl;
+#endif
         if (ldl->fg[filtergroup]->bypass_mode != 0)
             bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
-                                         clientip.c_str(), NULL);
+                                                 clientip.c_str(), NULL);
         if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
             bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
-                                         clientip.c_str(), &checkme.isvirusbypass);
+                                                 clientip.c_str(), &checkme.isvirusbypass);
         if (bypasstimestamp > 0) {
-    #ifdef DGDEBUG
-        if (checkme.isvirusbypass)
-            std::cout << thread_id << " -Infection bypass URL match" << std::endl;
-        else
-            std::cout << thread_id << " -Filter bypass URL match" << std::endl;
-    #endif
-        header.chopBypass(checkme.logurl, checkme.isvirusbypass);
-        if (bypasstimestamp > 1) { // not expired
-            checkme.isbypass = true;
-    // checkme: need a TR string for virus bypass
-            checkme.exceptionreason = o.language_list.getTranslation(606);
+#ifdef DGDEBUG
+            if (checkme.isvirusbypass)
+                std::cout << thread_id << " -Infection bypass URL match" << std::endl;
+            else
+                std::cout << thread_id << " -Filter bypass URL match" << std::endl;
+#endif
+            header.chopBypass(checkme.logurl, checkme.isvirusbypass);
+            if (bypasstimestamp > 1) { // not expired
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                // checkme: need a TR string for virus bypass
+                checkme.exceptionreason = o.language_list.getTranslation(606);
+                checkme.message_no = 606;
+                checkme.log_message_no = 606;
+            }
+        } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
+            if (header.isBypassCookie(checkme.urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(),
+                                      clientip.c_str())) {
+#ifdef DGDEBUG
+                std::cout << thread_id << " -Bypass cookie match" << std::endl;
+#endif
+                checkme.iscookiebypass = true;
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                checkme.exceptionreason = o.language_list.getTranslation(607);
+            }
         }
-    } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
-        if (header.isBypassCookie(checkme.urldomain, ldl->fg[filtergroup]->cookie_magic. c_str(),clientip.c_str() )) {
-    #ifdef DGDEBUG
-    std::cout << thread_id << " -Bypass cookie match" << std::endl;
-    #endif
-            checkme.iscookiebypass = true;
-            checkme.isbypass = true;
-            checkme.isexception = true;
-            checkme.exceptionreason = o.language_list.getTranslation(607);
-        }
-    }
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
         std::cout << thread_id << " -Finished bypass checks." << std::endl;
-    #endif
+#endif
     }
 
-    #ifdef DGDEBUG
+#ifdef DGDEBUG
     if (checkme.isbypass) {
         std::cout << thread_id << " -bypass activated!" << std::endl;
     }
-    #endif
+#endif
     //
 // End of bypass
 //
@@ -2602,43 +2642,44 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
     if (checkme.isscanbypass) {
 //we need to decode the URL and send the temp file with the
         //correct header to the client then delete the temp file
-        String tempfilename(checkme.url.after("GSBYPASS=").after("&N="));
-        String tempfilemime(tempfilename.after("&M="));
-        String tempfiledis(header.decode(tempfilemime.after("&D="), true));
-        #ifdef DGDEBUG
-        std::cout << thread_id << " -Original filename: " << tempfiledis << std::endl;
-        #endif
+        checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
+        checkme.tempfilemime = (checkme.tempfilename.after("&M="));
+        checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
+#ifdef DGDEBUG
+        std::cout << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
+#endif
         String rtype(header.requestType());
-        tempfilemime = tempfilemime.before("&D=");
-        tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
+        checkme.tempfilemime = checkme.tempfilemime.before("&D=");
+        checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
+        return true;
+    }
+    return false;
+}
+
+bool ConnectionHandler::sendScanFile( Socket &peerconn, NaughtyFilter &checkme, bool is_icap, ICAPHeader *icaphead)
+{
         try {
-        checkme.docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, checkme.url);
-        header.chopScanBypass(checkme.url);
-        checkme.url = header.getLogUrl();
+        checkme.docsize = sendFile(&peerconn, checkme, checkme.url, is_icap, icaphead);
+        checkme.request_header->chopScanBypass(checkme.url);
+        checkme.logurl = checkme.request_header->getLogUrl();
         //urld = header.decode(url);  // unneeded really
 
-        doLog(clientuser, clientip, checkme );
+        doLog(clientuser, checkme.clientip, checkme );
     //doLog(clientuser, clientip, checkme.logurl, header.port, checkme.exceptionreason,
     //    rtype, checkme.docsize, NULL, false, 0, checkme.isexception, false, &thestart,
     //    checkme.cachehit, 200, checkme.mimetype, checkme.wasinfected, checkme.wasscanned, 0, filtergroup,
     //    &header);
 
     if (o.delete_downloaded_temp_files) {
-        unlink(tempfilename.toCharArray() );
+        unlink(checkme.tempfilename.toCharArray() );
         }
     } catch (
         std::exception &e
     ) {
     }
-        persistProxy = false;
-        proxysock.close(); // close connection to proxy
-    //break;
+     //   persistProxy = false;
+     //   proxysock.close(); // close connection to proxy
         return true;
-    }
-    //
-// End of scan by pass
-
-    return false;
 }
 
 void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
@@ -3419,11 +3460,10 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     //
     // Start of by pass
-    //  TODO Need ICAP veriosn of checkByPass???
- /*   if (checkByPass( checkme,  ldl, header,  proxysock, peerconn, clientip, persistProxy)) {
-        break;
+   if (checkByPass(checkme, ldl, icaphead.HTTPrequest, peerconn, peerconn, clientip)
+           && sendScanFile(peerconn,checkme,true,&icaphead)) {
+        return 0;      // returns only when Scanfile sent. Sets checkme.isbypass if it is a bypass.
     }
-*/
     //
     // End of scan by pass
     //

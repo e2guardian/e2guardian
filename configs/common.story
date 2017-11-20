@@ -12,7 +12,8 @@
 #
 # Entry function called by proxy module to check http request
 function(checkrequest)
-ifnot(noviruscheckset) checknoscanlists
+if(viruscheckset) checknoscanlists
+if(bypassset) checknobypasslists
 if(exceptionset) return true
 #if(true) setgodirect
 # comment out the following line if you do not use 'local' list files
@@ -35,7 +36,7 @@ if(true) setgrey
 
 # Entry function called by proxy module to check http response
 function(checkresponse)
-ifnot(noviruscheckset) checknoscantypes
+if(viruscheckset) checknoscantypes
 if(mimein, exceptionmime) return setexception
 if(mimein, bannedmime) return setblock
 if(extensionin, exceptionextension) setexception
@@ -43,7 +44,6 @@ if(extensionin, bannedextension) setblock
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
-#if(true) return setexception
 # comment out the following line if you do not use 'local' list files
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
@@ -57,9 +57,10 @@ ifnot(greyset) icap-checkrequest2
 if(redirectset) return true
 ifnot(blockset) setnolog
 
-
-
 function(icap-checkrequest2)
+if(viruscheckset) checknoscanlists
+if(bypassset) checknobypasslists
+if(exceptionset) return true
 # comment out the following line if you do not use 'local' list files
 #ifnot(greyset) returnif localcheckrequest
 ifnot(greyset) returnif exceptioncheck
@@ -78,7 +79,7 @@ if(true) setgrey
 
 # Entry function called by ICAP module to check respmod
 function(icap-checkresponse)
-ifnot(noviruscheckset) checknoscanlists
+if(viruscheckset) checknoscanlists
 if(true) return checkresponse
 
 # Checks embeded urls
@@ -184,11 +185,14 @@ if(true) sslreplace
 if(true) setgrey
 
 function(checknoscanlists)
-if(urlin,exceptionvirus) setnoviruscheck
+if(urlin,exceptionvirus) unsetviruscheck
 
 function(checknoscantypes)
-if(mimein,exceptionvirus) return setnoviruscheck
-if(extensionin,exceptionvirus) return setnoviruscheck
+if(mimein,exceptionvirus) return unsetviruscheck
+if(extensionin,exceptionvirus) return unsetviruscheck
+
+function(checknobypasslists)
+if(urlin,overridebypass) unsetbypass
 
 # ICAP SSL request check
 #  returns true if exception 

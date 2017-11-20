@@ -56,9 +56,10 @@
 #define SB_STATE_TRUE				22
 #define SB_STATE_HASSNI			23
 #define SB_STATE_REDIRECTSET 24
-#define SB_STATE_NOVIRUSCHECKSET 25
+#define SB_STATE_VIRUSCHECKSET 25
+#define SB_STATE_BYPASSSET  26
 
-#define SB_STATE_MAP_SIZE  25
+#define SB_STATE_MAP_SIZE  26
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -80,9 +81,10 @@
 #define SB_FUNC_SETMODHEADER   5014
 #define  SB_FUNC_SETGODIRECT	    5015
 #define  SB_FUNC_SETNOLOG				5016
-#define  SB_FUNC_SETNOVIRUSCHECK		5017
+#define  SB_FUNC_UNSETVIRUSCHECK		5017
+#define  SB_FUNC_UNSETBYPASS       5018
 
-#define SB_FUNC_MAP_SIZE  17
+#define SB_FUNC_MAP_SIZE  18
 
 
 // DECLARATIONS

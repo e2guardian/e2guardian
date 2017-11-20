@@ -404,8 +404,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_REDIRECTSET:
                 state_result = cm.urlredirect;
                 break;
-            case SB_STATE_NOVIRUSCHECKSET:
-                state_result = cm.noviruscheck;
+            case SB_STATE_VIRUSCHECKSET:
+                state_result = !cm.noviruscheck;
+                break;
+            case SB_STATE_BYPASSSET:
+                state_result = cm.isbypass;
                 break;
             case SB_STATE_HASSNI:
                 state_result = cm.hasSNI;
@@ -666,8 +669,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETNOLOG:
                     cm.nolog = true;
                     break;
-                case SB_FUNC_SETNOVIRUSCHECK:
+                case SB_FUNC_UNSETVIRUSCHECK:
                     cm.noviruscheck = true;
+                    break;
+                case SB_FUNC_UNSETBYPASS:
+                    cm.isbypass= false;
+                    cm.iscookiebypass = false;
+                    cm.isscanbypass = false;
+                    cm.isvirusbypass = false;
+                    cm.isexception = false;
                     break;
                 case SB_FUNC_SETTRUE:
                     break;
