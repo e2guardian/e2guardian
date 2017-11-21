@@ -5,7 +5,7 @@ After=network.target
 [Service]
 TimeoutStartSec=20s
 LimitNOFILE=65535
-Type=forking
+Type=simple
 IgnoreSIGPIPE=no
 GuessMainPID=no
 ExecStart=@DGBINDIR@/e2guardian
