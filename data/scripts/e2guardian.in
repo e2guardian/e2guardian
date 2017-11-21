@@ -1,13 +1,10 @@
 @DGLOGLOCATION@/access.log {
-  rotate 4
-  weekly
-  sharedscripts
-  prerotate
-    killall e2guardian > /dev/null
-    sleep 5
-  endscript
-
-  postrotate
-    @DGBINDIR@/e2guardian > /dev/null
-  endscript
+	rotate 5
+	daily
+	prerotate
+		service e2guardian stop > /dev/null 2>&1 || true
+	endscript
+	postrotate
+		service e2guardian start > /dev/null 2>&1
+	endscript
 }
