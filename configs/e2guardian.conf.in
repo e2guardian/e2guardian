@@ -463,13 +463,8 @@ downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 # The default of 60 seconds is probably reasonable.
 contentscannertimeout = 60
 
-# Content scan exceptions
-# If 'on' exception sites, urls, users etc will be scanned
-# This is probably not desirable behavour as exceptions are
-# supposed to be trusted and will increase load.
-# Correct use of grey lists are a better idea.
-# (on|off) default = off
-contentscanexceptions = off
+# Content scan exceptions // THIS MOVED to e2guardianf1.conf
+# contentscanexceptions = off
 
 # Auth plugins
 # These replace the usernameidmethod* options in previous versions. They

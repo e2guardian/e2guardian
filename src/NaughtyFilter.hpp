@@ -93,6 +93,7 @@ class NaughtyFilter
     bool nolog = false;
     bool nocheckcert = false;
     bool logcategory = false;
+    bool noviruscheck = true;
     bool urlredirect = false;
     bool isdirect = false;   // go direct if true via proxy if false
     bool tunnel_rest = false;
@@ -121,6 +122,10 @@ class NaughtyFilter
     std::string exceptioncat;
     off_t docsize;   // to store the size of the returned document for logging
     int filtergroup;
+
+    String tempfilename;
+    String tempfilemime;
+    String tempfiledis;
 
     // should the browser use the categories string or the displaycategories string?
     // (related to category list thresholding)

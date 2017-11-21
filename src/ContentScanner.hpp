@@ -100,10 +100,10 @@ class CSPlugin : public Plugin
 
     private:
     // lists of all the various things we may not want to scan
-    ListContainer exceptionvirusmimetypelist;
-    ListContainer exceptionvirusextensionlist;
-    ListContainer exceptionvirussitelist;
-    ListContainer exceptionvirusurllist;
+   // ListContainer exceptionvirusmimetypelist;
+   // ListContainer exceptionvirusextensionlist;
+   // ListContainer exceptionvirussitelist;
+   // ListContainer exceptionvirusurllist;
 
     protected:
     ConfigVar cv;

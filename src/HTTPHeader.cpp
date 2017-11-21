@@ -55,6 +55,7 @@ void HTTPHeader::reset()
 
         mitm = false;
         isdirect = false;
+        chunked = false;
 
         phost = NULL;
         pport = NULL;
@@ -73,6 +74,8 @@ void HTTPHeader::reset()
         pkeepalive = NULL;
 
         dirty = false;
+
+        isProxyRequest = false;
 
         delete postdata;
         postdata = NULL;
@@ -959,6 +962,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pport = &(*i);
     } else if ( i->startsWithLower("transfer-encoding:")) {
         ptransferencoding = &(*i);
+        if (i->contains("chunked"))
+            chunked = true;
     } else if ( i->startsWithLower("transfer-coding:")) {
         ptransfercoding = &(*i);
         }
@@ -1113,6 +1118,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
     if (requestType() == "CONNECT") {
         https = true;
         port = 443;
+        isProxyRequest = true;
         if (!answer.startsWith("https://")) {
             answer = "https://" + answer;
         }
@@ -1147,6 +1153,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
             if (!answer.after("://").contains("/")) {
                 answer += "/"; // needed later on so correct host is extracted
             }
+            isProxyRequest = true;
             String protocol(answer.before("://"));
             hostname = answer.after("://");
             String url(hostname.after("/"));

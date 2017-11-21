@@ -98,6 +98,7 @@ class HTTPHeader
     String searchwords();
     String searchterms();
     bool searchchecked;
+    bool chunked;
     String contentEncoding();
     String transferEncoding();
     // grab the contents of Proxy-Authorization header
@@ -167,6 +168,7 @@ class HTTPHeader
     void chopScanBypass(String url);
     // add cookie to outgoing headers with given name & value
     void setCookie(const char *cookie, const char *domain, const char *value);
+    bool isProxyRequest;
 
     // encode url
     String URLEncode();

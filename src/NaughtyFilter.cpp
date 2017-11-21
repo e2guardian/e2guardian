@@ -79,6 +79,7 @@ void NaughtyFilter::setURL(bool set_ismitm) {
     urldomain.toLower();
     isiphost = isIPHostnameStrip(urldomain);
     is_ssl = request_header->requestType().startsWith("CONNECT");
+    ishead = request_header->requestType().startsWith("HEAD");
     isconnect = is_ssl;
     ismitm = set_ismitm;
     docsize = 0;
@@ -92,6 +93,9 @@ void NaughtyFilter::reset()
     whatIsNaughty = "";
     whatIsNaughtyLog = "";
     whatIsNaughtyCategories = "";
+    tempfilename = "";
+    tempfilemime= "";
+    tempfiledis= "";
     usedisplaycats = false;
     blocktype = 0;
     store = false;
@@ -126,6 +130,7 @@ void NaughtyFilter::reset()
     headermodified = false;
     headeradded = false;
     nocheckcert = false;
+    noviruscheck = true;
     headersent = 0;
     message_no = 0;
     log_message_no = 0;

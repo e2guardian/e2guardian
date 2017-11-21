@@ -140,7 +140,7 @@ class ConnectionHandler
         bool *scanerror, bool &contentmodified, String *csmessage);
 
     // send a file to the client - used during bypass of blocked downloads
-    off_t sendFile(Socket *peerconn, String &filename, String &filemime, String &filedis, String &url);
+    off_t sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bool is_icap = false, ICAPHeader *icap_head = NULL);
 
     bool writeback_error( NaughtyFilter &cm, Socket & cl_sock, int mess_no1, int mess_no2, std::string mess);
     bool gen_error_mess( Socket &peerconn, NaughtyFilter &cm, String &eheader, String &ebody, int mess_no1, int mess_no2, std::string mess);
@@ -151,7 +151,8 @@ class ConnectionHandler
     bool doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, HTTPHeader & header, bool only_client_ip = false);
 
     bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
-    Socket &peerconn, std::string &clientip, bool & persistProxy);
+    Socket &peerconn, std::string &clientip );
+    bool sendScanFile( Socket &peerconn, NaughtyFilter &checkme, bool is_icap = false, ICAPHeader *icaphead = NULL);
 
     void check_search_terms(NaughtyFilter &cm);
     void check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,

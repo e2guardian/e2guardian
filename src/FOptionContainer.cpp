@@ -166,6 +166,12 @@ bool FOptionContainer::read(const char *filename) {
             disable_content_scan = false;
         }
 
+        if (findoptionS("contentscanexceptions") == "on") {
+            content_scan_exceptions = true;
+        } else {
+            content_scan_exceptions = false;
+        }
+
 
         String mimes = findoptionS("textmimetypes");
         if (mimes != "") {

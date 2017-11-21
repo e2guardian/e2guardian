@@ -155,8 +155,11 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
 }
 
 // read in all the lists of various things we do not wish to scan
-bool CSPlugin::readStandardLists()
+bool CSPlugin::readStandardLists()      // this is now done in Storyboard
 {
+    return true;
+
+#ifdef NOTDEF
     exceptionvirusmimetypelist.reset(); // incase this is a reload
     exceptionvirusextensionlist.reset();
     exceptionvirussitelist.reset();
@@ -194,6 +197,7 @@ bool CSPlugin::readStandardLists()
     }
     exceptionvirusurllist.doSort(true);
     return true;
+#endif
 }
 
 // Test whether or not a particular request's incoming/outgoing data should be scanned.
@@ -227,6 +231,13 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         }
     }
 
+
+   // all list checkng is now done in Storyboard request
+    // and filetype checking in Storyboard response
+    //
+    return DGCS_NEEDSCAN;
+
+#ifdef NOTDEF
     String urld(HTTPHeader::decode(url));
     String lc;
     urld.removeWhiteSpace();
@@ -306,15 +317,20 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     std::cout << "willScanRequest: I'm interested" << std::endl;
 #endif
     return DGCS_NEEDSCAN;
+#endif
 }
 
 // Test whether or not a particular request's incoming/outgoing data should be scanned.
 // This is a later-stage test; info is known about the actual data itself when this is called.
 int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer* &foc, const char *ip, bool post,
     bool reconstituted, bool exception, bool bypass, const String &disposition, const String &mimetype,
-    off_t size)
-{
-    String lc;
+    off_t size) {
+    // this function is no longer required as mime/extension exceptions are now handled by Storyboard response
+    return DGCS_NEEDSCAN; // match
+}
+
+#ifdef NOTDEF
+{    String lc;
     //exceptionvirusmimetypelist
     if (mimetype.length() > 2) {
         if (exceptionvirusmimetypelist.findInList(mimetype.toCharArray(), lc) != NULL) {
@@ -392,6 +408,7 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
 #endif
     return DGCS_NEEDSCAN;
 }
+#endif
 
 //set the blocking information
 void CSPlugin::blockFile(std::string *_category, std::string *_message, NaughtyFilter *checkme)

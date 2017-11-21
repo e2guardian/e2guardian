@@ -40,83 +40,96 @@ details.
 
 TRANSPARENT HTTPS
 
-This is now in testable form. 
-Detects SNI and flags whether traffic is TLS.  
-Currently limited to port 443 traffic.
+    This is now in testable form. 
+    Detects SNI and flags whether traffic is TLS.  
+    Currently limited to port 443 traffic.
 
 ICAP SERVER
 
-This is now in testable form - both REQMOD and RESPMOD.
-See notes/icap.
+    This is now in testable form - both REQMOD and RESPMOD.
+    See notes/icap.
 
 DIRECT ACCESS I.e. not via proxy.  
 
-This is now in testable form.  
+    This is now in testable form.  
 
-To implement globaly comment out 'proxyip =' in e2guardian.conf.
+    To implement globaly comment out 'proxyip =' in e2guardian.conf.
 
-The storyboard action setgodirect can be used within checkrequest functions 
-to enable selected protocols/site/urls to godirect.
-e.g. to send all connect requests directly add
+    The storyboard action setgodirect can be used within checkrequest functions 
+    to enable selected protocols/site/urls to godirect.
+    e.g. to send all connect requests directly add
 		if(connect) setgodirect
 	to a requestchecks function.
 
 STORYBOARD TRACING
 
-New option 'storyboardtrace' to enable tracing output -
-for storyboard bug-fixing
+    New option 'storyboardtrace' to enable tracing output -
+    for storyboard bug-fixing
 
 READABLE THREAD_ID FOR LOGS & DEBUG
 
-Id's are:
+    Id's are:
 
-master: for master thread
+    master: for master thread
 
-listen1_proxy:  normal proxy listener
-listen1_thttps: tranparent https listener
-listen1_icap: icap listener
+    listen1_proxy:  normal proxy listener
+    listen1_thttps: tranparent https listener
+    listen1_icap: icap listener
 
-where '1' is index
+    where '1' is index
 
-hw10: for http_worker threads where '10' is the thread number
+    hw10: for http_worker threads where '10' is the thread number
 
-log: for logging thread
+    log: for logging thread
 
 HTTP/1.1
 
-First stage in supporting HTTP v1.1 completed - Chunked encoding now testable
+    2nd stage in supporting HTTP v1.1 completed - Chunked encoding now testable
 
+ANTI-VIRUS PLUGINS
+
+    Anti-virus plugins implimented for proxy, trans and ICAP - but individual
+    plug-ins not tested
 
 TESTING -  
+---------
 
-This version is at a test stage. 
+    This version is at a test stage. 
 
 TODO - for this release.
+-----------------------
 
-ICAP - correct logging
+    Complete By-pass code
 
-POST filtering
+    ICAP - correct logging
 
-Content chunking for proxyed/thttp traffic - i.e. HTTP/1.1
+    Config examples of and with new/revised lists
 
-Enable download/anti-virus plugins
+    Final tidy code, error messages.
 
-By-pass code
+TODO - for next release.
+-----------------------
 
-Transparent HTTPS on ports other than 443
+    Transparent HTTP/HTTPS on ports other than 80/443
 
-Re-look at MITM certificate generation.
+    POST content filtering
 
-Final tidy code, error messages.
+    Re-look at MITM certificate generation.
+
+    OpenSSL 1.1 support
+
+    Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
+        no log option)
 
 WISHLIST
+--------
 
-Re-impliment mailing option.
+    Re-impliment mailing option.
 
-Per-user exceptions/blocks.
+    Per-user exceptions/blocks.
 
-Per-room blocks.
+    Per-room blocks.
 
-Philip Pearce 08 November 2017
+Philip Pearce 15 November 2017
 
 

@@ -258,23 +258,24 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             }
 #ifdef DGDEBUG
             std::cerr << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
-                      << " listname " << j->list_name << std::endl;
+        << " listname " << j->list_name << std::endl;
 #endif
-        }
     }
-    // check for required functions
+}
+// check for required functions
 
-    return true;
+return true;
 }
 
 unsigned int StoryBoard::getFunctID(String &fname) {
-    unsigned int i = 0;
-    // check built in functions first
-    if (!funct_vec.empty()) {
-        i = funct_vec[0].getBIFunctID(fname);
-        if (i > 0) return i;
+unsigned int i = 0;
+// check built in functions first
+if (!funct_vec.empty()) {
+    i = funct_vec[0].getBIFunctID(fname);
+    if (i > 0) return i;
     }
     // check StoryBoard defined functions
+   // std::cerr << "Looking for function " << fname << std::endl;;
     for (std::vector<SBFunction>::iterator j = funct_vec.begin(); j != funct_vec.end(); j++) {
         if (j->name == fname)
             return j->fn_id;
@@ -403,6 +404,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
             case SB_STATE_REDIRECTSET:
                 state_result = cm.urlredirect;
+                break;
+            case SB_STATE_VIRUSCHECKSET:
+                state_result = !cm.noviruscheck;
+                break;
+            case SB_STATE_BYPASSSET:
+                state_result = cm.isbypass;
                 break;
             case SB_STATE_HASSNI:
                 state_result = cm.hasSNI;
@@ -662,6 +669,16 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETNOLOG:
                     cm.nolog = true;
+                    break;
+                case SB_FUNC_UNSETVIRUSCHECK:
+                    cm.noviruscheck = true;
+                    break;
+                case SB_FUNC_UNSETBYPASS:
+                    cm.isbypass= false;
+                    cm.iscookiebypass = false;
+                    cm.isscanbypass = false;
+                    cm.isvirusbypass = false;
+                    cm.isexception = false;
                     break;
                 case SB_FUNC_SETTRUE:
                     break;
