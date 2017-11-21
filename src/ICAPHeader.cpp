@@ -99,6 +99,7 @@ void ICAPHeader::reset()
         icap_resmod_service = false;
 
         icap_com.filtergroup = -1;
+        username = "";
 
         dirty = false;
 

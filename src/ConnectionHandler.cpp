@@ -3383,6 +3383,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
     filtergroup = o.default_icap_fg;
+    clientuser = icaphead.username;
 
     int rc = DGAUTH_NOUSER;
     if(clientuser != "") {

@@ -204,7 +204,7 @@ unsigned int SBFunction::getStateID(String & state) {
 
 unsigned int SBFunction::getBIFunctID(String &action)  {    // get built-in function id
     unsigned int i = 0;
-//    std::cerr << "getBIFuctID looking for " << action << " in map_size " << bi_funct_map.size() << std::endl;
+  //  std::cerr << "getBIFuctID looking for " << action << " in map_size " << bi_funct_map.size() << std::endl;
     while (i < SB_FUNC_MAP_SIZE) {
   //      std::cerr << "getBIFuctID checking index " << i << " " << bi_funct_map.at(i) << std::endl;
         if ( action == bi_funct_map.at(i)) {

@@ -117,7 +117,8 @@ class SBFunction
 			 "true",
 			 "hassniset",
              "redirectset",
-			 "noviruscheckset"
+			 "viruscheckset",
+			 "bypassset"
 
 			};
    String command_map[4] = { "function",
@@ -143,7 +144,8 @@ class SBFunction
 			 "setmodheader",
 			 "setgodirect",
 			 "setnolog",
-			 "setnoviruscheck"
+			 "unsetviruscheck",
+			 "unsetbypass"
     };
 
   public:
