@@ -3383,6 +3383,9 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
     filtergroup = o.default_icap_fg;
+#ifdef DGBEBUG
+    std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " < std::endl;
+#endif
     clientuser = icaphead.username;
 
     int rc = DGAUTH_NOUSER;
@@ -3462,9 +3465,12 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     //
     // Start of by pass
-   if (checkByPass(checkme, ldl, icaphead.HTTPrequest, peerconn, peerconn, clientip)
-           && sendScanFile(peerconn,checkme,true,&icaphead)) {
-        return 0;      // returns only when Scanfile sent. Sets checkme.isbypass if it is a bypass.
+    if(!checkme.is_ssl) {
+
+        if (checkByPass(checkme, ldl, icaphead.HTTPrequest, peerconn, peerconn, clientip)
+            && sendScanFile(peerconn, checkme, true, &icaphead)) {
+            return 0;      // returns only when Scanfile sent. Sets checkme.isbypass if it is a bypass.
+        }
     }
     //
     // End of scan by pass
@@ -3731,7 +3737,7 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer 
         return DGAUTH_NOUSER;
     }
 #ifdef DGDEBUG
-    std::cout << "User found: " << i << std::endl;
+    std::cout << thread_id << "User found: " << i << std::endl;
 #endif
     ue = i;
     if (ue.before("=") == u) {
@@ -3745,10 +3751,13 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer 
         if (t > o.numfg) {
             return DGAUTH_NOUSER;
         }
-        if (t > 0) {
-            fg = t--;
+        if (t > 0 ) {
+            fg = --t;
+#ifdef DGDEBUG
+            std::cout << thread_id << "determineGroup gives fg:  " << fg << std::endl;
+#endif
+            return DGAUTH_OK;
         }
-        return DGAUTH_OK;
     }
     return DGAUTH_NOUSER;
 }

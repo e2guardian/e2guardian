@@ -100,9 +100,9 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
             return DGAUTH_NOUSER;
         }
         if (t > 0) {
-            fg = t--;
+            fg = --t;
+            return DGAUTH_OK;
         }
-        return DGAUTH_OK;
     }
     return DGAUTH_NOUSER;
 }
