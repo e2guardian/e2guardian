@@ -140,10 +140,9 @@ if(headerin, exceptionheader) return setexception
 # SSL Exception check
 #  returns true on match
 function(sslexceptioncheck)
-if(sitein, exception) setexception
-ifnot(returnset) return false
-#if(true) sslreplace
-if(true) return true
+if(sitein, exception) return setexception
+if(headerin, exceptionheader) return setexception
+if(true) return false
 
 # Greylist check
 #  returns true on match
