@@ -3389,7 +3389,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if(clientuser != "") {
         rc = determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
     }
-    if (rc != DGAUTH_OK) {
+    //if (rc != DGAUTH_OK)
+    else {                              // TODO - NEED to allow alternate group checking when no match in filter_groups_list
             if (!doAuth(authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, true)) {
                 //break;  // TODO Error return????
             }
