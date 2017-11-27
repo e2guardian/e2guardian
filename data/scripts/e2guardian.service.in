@@ -11,6 +11,7 @@ IgnoreSIGPIPE=no
 GuessMainPID=no
 ExecStart=@DGBINDIR@/e2guardian
 ExecReload=@DGBINDIR@/e2guardian -r
+UMask=027
 
 [Install]
 WantedBy=multi-user.target
