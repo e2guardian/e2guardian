@@ -1056,7 +1056,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                 hier += o.proxy_ip;
 
                 builtline =
-                        utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss +
+                        utime + " " + duration + " " + from + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss +
                         " " + ssize + " "
                         + how + " " + where + " " + who + " " + hier + " " + mimetype;
                 break;
