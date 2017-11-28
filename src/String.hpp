@@ -106,6 +106,10 @@ class String : public std::string
     // search & replace
     void replaceall(const char *what, const char *with);
 
+    // return header value (after ':' and any leading whitespace) - assumes header finishes with '\r\
+
+    bool headerVal();
+
     // remove character from end/beginning
     void chop();
     void lop();

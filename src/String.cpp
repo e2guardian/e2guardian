@@ -371,16 +371,27 @@ String String::before(const char *bs) const
     return this->substr(0, i);
 }
 
+bool String::headerVal()
+{
+    *this = this->after(":");
+    this->removeWhiteSpace();
+    if (this->length() > 0)
+        return true;
+    else
+        return false;
+};
+
 // remove characters from end/beginning
 void String::chop()
 {
+    if (this->length() > 0)
     *this = this->substr(0, this->length() - 1);
 }
+
 void String::lop()
 {
-    try {
+        if (this->length() > 0)
         *this = this->substr(1);
-    } catch (std::exception *e){};
 }
 
 // remove leading & trailing whitespace

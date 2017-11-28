@@ -35,6 +35,10 @@ class HTTPHeader
     unsigned int port;
     bool is_response;
     String redirect;
+    String useragent;
+    String contenttype;
+    String contentencoding;
+    String transferencoding;
 
     // reset header object for future use
     void reset();
@@ -64,7 +68,10 @@ class HTTPHeader
 
     // request type: GET, HEAD, POST etc.
     String requestType();
+    String requesttype;
     int returnCode();
+    int returncode;
+
     // get content length - returns -1 if undetermined
     off_t contentLength();
     String getContentType();

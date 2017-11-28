@@ -73,6 +73,15 @@ void HTTPHeader::reset()
         pproxyconnection = NULL;
         pkeepalive = NULL;
 
+        useragent = "";
+        contenttype = "";
+        contentencoding = "";
+        transferencoding = "";
+
+        contentlength = -1;
+        requesttype = "";
+        returncode  = 0;
+
         dirty = false;
 
         isProxyRequest = false;
@@ -92,42 +101,33 @@ void HTTPHeader::reset()
 // grab request type (GET, HEAD etc.)
 String HTTPHeader::requestType()
 {
-    if (header.size() > 0) {
-        return header.front().before(" ");
-    } else {
-        return "";
-    }
+    return requesttype;
 }
 
 // grab return code
 int HTTPHeader::returnCode()
 {
-    if (header.size() > 0) {
-        return header.front().after(" ").before(" ").toInteger();
-    }else {
-        return 0;
-    }
+    return returncode;
 }
 
 // grab content length
 off_t HTTPHeader::contentLength()
 {
-    if (clcached)
         return contentlength;
 
-    clcached = true;
-    contentlength = -1;
+//    clcached = true;
+//    contentlength = -1;
 
-    // code 304 - not modified - no content
-    String temp(header.front().after(" "));
-    if (temp.startsWith("304"))
-        contentlength = 0;
-    else if (pcontentlength != NULL) {
-        temp = pcontentlength->after(":");
-        contentlength = temp.toOffset();
-    }
+ //   // code 304 - not modified - no content
+ //   String temp(header.front().after(" "));
+ //   if (temp.startsWith("304"))
+ //       contentlength = 0;
+ //   else if (pcontentlength != NULL) {
+ //       temp = pcontentlength->after(":");
+ //       contentlength = temp.toOffset();
+ //}
 
-    return contentlength;
+//    return contentlength;
 }
 
 // grab the auth type
@@ -142,11 +142,10 @@ String HTTPHeader::getAuthType()
 // check the request's return code to see if it's an auth required message
 bool HTTPHeader::authRequired()
 {
-    String temp(header.front().after(" "));
-    if (temp.startsWith("407")) {
+    if (returncode == 407)
         return true;
-    }
-    return false;
+    else
+        return false;
 }
 
 // grab content disposition
@@ -174,13 +173,7 @@ String HTTPHeader::disposition()
 // grab the user agent
 String HTTPHeader::userAgent()
 {
-    if (puseragent != NULL) {
-        // chop off '/r'
-        String result(puseragent->after(" "));
-        result.resize(result.length() - 1);
-        return result;
-    }
-    return "";
+    return useragent;
 }
 
 // grab the content type header
@@ -912,12 +905,11 @@ void HTTPHeader::dbshowheader(bool outgoing)
 // are case-insensitive. - Anonymous SF Poster, 2006-02-23
 void HTTPHeader::checkheader(bool allowpersistent)
 {
-    // are these headers outgoing (from browser), or incoming (from web server)?
-    // Hum Maybe there is something wrong but it should be always from client
-    bool outgoing = true;
-    if (header.front().startsWith("HT")) {
-        outgoing = false;
-    }
+    bool outgoing = !is_response;
+//    if (header.front().startsWith("HT")) {
+//        outgoing = false;
+//    }
+    String tp;
 
     if (header.size() > 1) {
     for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
@@ -931,6 +923,9 @@ void HTTPHeader::checkheader(bool allowpersistent)
             i->assign("X-E2G-IgnoreMe: removed multiple host headers\r");
         } else if (outgoing && (puseragent == NULL) && i->startsWithLower("user-agent:")) {
             puseragent = &(*i);
+             useragent = *i;
+             if(!useragent.headerVal())
+                 puseragent = NULL;
         } else if (outgoing && i->startsWithLower("accept-encoding:")) {
             (*i) = "Accept-Encoding:" + i->after(":");
             (*i) = modifyEncodings(*i) + "\r";
@@ -942,13 +937,20 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pcontenttype = &(*i);
         } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
             pcontentlength = &(*i);
+        tp = *i;
+        if(!tp.headerVal())
+            pcontentlength = NULL;
+        else {
+            contentlength = tp.toInteger();
+        }
+
         }
         // is this ever sent outgoing?
         else if ((pcontentdisposition == NULL) && i->startsWithLower("content-disposition:")) {
             pcontentdisposition = &(*i);
         } else if ((pproxyauthorization == NULL) && i->startsWithLower("proxy-authorization:")) {
             pproxyauthorization = &(*i);
-        } else if ((pauthorization == NULL) && i->startsWithLower("authorization:")) {
+        } else if ((pauthorization = NULL) && i->startsWithLower("authorization:")) {
             pauthorization = &(*i);
         } else if ((pproxyauthenticate == NULL) && i->startsWithLower("proxy-authenticate:")) {
             pproxyauthenticate = &(*i);
@@ -996,6 +998,18 @@ void HTTPHeader::checkheader(bool allowpersistent)
         // force HTTP/1.0 - we don't support chunked transfer encoding, possibly amongst other things
         //if (outgoing)
          //   header.front() = header.front().before(" HTTP/") + " HTTP/1.0\r";
+    }
+
+    if (outgoing) {        // set request Type
+        requesttype = header.front().before(" ");
+        if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
+            contentlength = 0;
+    } else {                    // set status code
+        tp = header.front().after(" ").before(" ");
+        tp.removeWhiteSpace();
+        returncode = tp.toInteger();
+        if ((returncode < 200) || (returncode == 204) || (returncode = 304))    // no content body allowed
+            contentlength = 0;
     }
 
     //work out if we should explicitly close this connection after this request
