@@ -75,11 +75,14 @@ class ICAPHeader
         String user;
         String EBG;
         int filtergroup;
+        int mess_no;
+        int log_mess_no;
+        String mess_string;
     };
 
     icap_com_rec icap_com;
 
-    void set_icap_com (std::string &user, String EBG, int &filtergroup);
+    void set_icap_com (std::string &user, String EBG, int &filtergroup, int &mess_no, int &log_mess_no, std::string &mess_string);
 
     // reset header object for future use
     void reset();

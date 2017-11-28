@@ -3494,7 +3494,15 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
 // TODO add logicv for 204 response etc.
     if (checkme.isexception) {
-        icaphead.set_icap_com(clientuser,"E", filtergroup);
+        std::string code;
+        if (checkme.isvirusbypass)
+            code = "V";
+        else if (checkme.isbypass)
+            code = "Y";
+        else
+            code = "E";
+        icaphead.set_icap_com(clientuser,code, filtergroup, checkme.message_no, checkme.log_message_no,
+        checkme.whatIsNaughtyLog);
         if (icaphead.allow_204) {
             icaphead.respond(peerconn, "204 No Content");
             if (icaphead.req_body_flag) {
@@ -3557,7 +3565,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
 
     if (!done) {
-        icaphead.set_icap_com(clientuser, "G", filtergroup);
+        icaphead.set_icap_com(clientuser, "G", filtergroup,checkme.message_no,checkme.log_message_no,
+        checkme.whatIsNaughtyLog);
         icaphead.respond(peerconn, "200 OK", true);
         if (icaphead.req_body_flag) {
             peerconn.loopChunk(peerconn.getTimeout());   // echoes any body
@@ -3586,10 +3595,30 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             overide_persist = false;
             checkme.filtergroup = icaphead.icap_com.filtergroup;
             clientuser =  icaphead.icap_com.user;
-            if (icaphead.icap_com.EBG == "E")
+
+            if (icaphead.icap_com.EBG == "E") {    // exception
                 checkme.isexception = true;
-            else if (icaphead.icap_com.EBG == "G")
+                checkme.message_no = icaphead.icap_com.mess_no;
+                checkme.log_message_no = icaphead.icap_com.log_mess_no;
+                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+            }
+            else if (icaphead.icap_com.EBG == "G")     // grey - content check
                 checkme.isGrey = true;
+            else if (icaphead.icap_com.EBG == "Y") {   // ordinary bypass
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                checkme.message_no = icaphead.icap_com.mess_no;
+                checkme.log_message_no = icaphead.icap_com.log_mess_no;
+                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+            }
+            else if (icaphead.icap_com.EBG == "V") {   // virus bypass
+                checkme.isvirusbypass = true;
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                checkme.message_no = icaphead.icap_com.mess_no;
+                checkme.log_message_no = icaphead.icap_com.log_mess_no;
+                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+            }
 
 #ifdef DGDEBUG
             std::cout << thread_id << " -username: " << clientuser << std::endl;
@@ -3613,13 +3642,15 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     // virus checking candidate?
     // checkme.noviruscheck defaults to true
     if (icaphead.res_body_flag    //  can only  scan if  body present
-        && !(checkme.isBlocked)  // or already blocked
+        && !(checkme.isBlocked)  // or not already blocked
         && (o.csplugins.size() > 0)            //  and we have scan plugins
         && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
         && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
-        // and not exception unless scan exceptions enabled
-            )
+        && !checkme.isvirusbypass   // and is not virus bypass
+        // and not exception unless scan exceptions enable
+        ) {
         checkme.noviruscheck = false;   // note this may be reset by Storyboard to enable exceptions
+    }
 
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists

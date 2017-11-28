@@ -99,9 +99,9 @@ TESTING -
 TODO - for this release.
 -----------------------
 
-    Complete By-pass code
+    Test By-pass code
 
-    ICAP - correct logging
+    User-agent block/exception - new storyboard BI function state useragentin
 
     Config examples of and with new/revised lists
 
@@ -130,6 +130,8 @@ WISHLIST
 
     Per-room blocks.
 
-Philip Pearce 15 November 2017
+    Rate-limiting feature 
+
+Philip Pearce 27 November 2017
 
 

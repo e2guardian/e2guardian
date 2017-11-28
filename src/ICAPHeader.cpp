@@ -176,11 +176,18 @@ void ICAPHeader::checkheader(bool allowpersistent)
             username.chop();
     } else if (i->startsWithLower("x-icap-e2g:")) {
             String t = *i;
+            t.chop();   // remove '\r'
             t = t.after(":");
             icap_com.user = t.before(",");
             t  = t.after(",");
             icap_com.EBG = t.before(",");
-            icap_com.filtergroup = t.after(",").toInteger();
+            t  = t.after(",");
+            icap_com.filtergroup = t.before(",").toInteger();
+            t  = t.after(",");
+            icap_com.mess_no = t.before(",").toInteger();
+            t  = t.after(",");
+            icap_com.log_mess_no = t.before(",").toInteger();
+            icap_com.mess_string = t.after(",");
         }
 #ifdef DGDEBUG
         std::cout << thread_id << "Header value from ICAP client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -432,6 +439,12 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
         l += icap_com.EBG;
         l += ",";
         l += std::to_string(icap_com.filtergroup);
+        l += ",";
+        l += std::to_string(icap_com.mess_no);
+        l += ",";
+        l += std::to_string(icap_com.log_mess_no);
+        l += ",";
+        l += icap_com.mess_string;
         l += "\r\n";
     }
 
@@ -701,8 +714,11 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
     return true;
 }
 
-void ICAPHeader::set_icap_com(std::string &user, String EBG, int &filtergroup) {
+void ICAPHeader::set_icap_com(std::string &user, String EBG, int &filtergroup, int &mess_no, int &log_mess_no, std::string &mess) {
     icap_com.user = user;
     icap_com.EBG = EBG;
     icap_com.filtergroup = filtergroup;
+    icap_com.mess_no = mess_no;
+    icap_com.log_mess_no = log_mess_no;
+    icap_com.mess_string = mess;
 }
