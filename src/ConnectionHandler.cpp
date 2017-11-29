@@ -1057,7 +1057,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!checkme.isItNaughty) {
                 if (checkme.tunnel_rest) {
                     bool chunked = docheader.transferEncoding().contains("chunked");
+#ifdef DGDEBUG
                     std::cerr << thread_id << " -Tunnelling to client" << std::endl;
+                    std::cerr << thread_id << " - Content-Length:" << docheader.contentLength() << "cm.docsize:" << checkme.docsize << std::endl;
+#endif
+
                     if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
                                     true, chunked))
                         persistProxy = false;

@@ -24,6 +24,7 @@
 
 // GLOBALS
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // regexp for decoding %xx in URLs
 extern RegExp urldecode_re;
@@ -113,6 +114,7 @@ int HTTPHeader::returnCode()
 // grab content length
 off_t HTTPHeader::contentLength()
 {
+    std::cerr << thread_id << "contentLength() should return " << contentlength << std::endl;
         return contentlength;
 
 //    clcached = true;
@@ -938,11 +940,17 @@ void HTTPHeader::checkheader(bool allowpersistent)
         } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
             pcontentlength = &(*i);
         tp = *i;
+#ifdef DGDEBUG
+        std::cerr << thread_id << "tp =" << tp << std::endl;
+#endif
         if(!tp.headerVal())
             pcontentlength = NULL;
         else {
             contentlength = tp.toInteger();
         }
+#ifdef DGDEBUG
+        std::cerr << thread_id << "tp =" << tp << " Contentlen.int =" << contentlength << std::endl;
+#endif
 
         }
         // is this ever sent outgoing?
@@ -1003,13 +1011,23 @@ void HTTPHeader::checkheader(bool allowpersistent)
     if (outgoing) {        // set request Type
         requesttype = header.front().before(" ");
         if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
+        {
+#ifdef DGDEBUG
+            std::cerr << thread_id << "zero contentlength due to POST " << std::endl;
+#endif
             contentlength = 0;
+        }
     } else {                    // set status code
         tp = header.front().after(" ").before(" ");
         tp.removeWhiteSpace();
         returncode = tp.toInteger();
-        if ((returncode < 200) || (returncode == 204) || (returncode = 304))    // no content body allowed
+        if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
+        {
+#ifdef DGDEBUG
+            std::cerr << thread_id << "zero contentlength due to returncode " << returncode << std::endl;
+#endif
             contentlength = 0;
+        }
     }
 
     //work out if we should explicitly close this connection after this request
