@@ -959,9 +959,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // tunnel thru - no content
                             checkme.tunnel_rest = true;
                         }
+
+                        if(docheader.contentLength() == 0)   // no content
+                            checkme.tunnel_rest = true;
                     }
                 }
-                //TODO check for other codes which do not have content payload make these tunnel_rest.
 
             if(checkme.isconnect && checkme.isGrey) {  // allow legacy SSL behavour when mitm not enabled
                 checkme.tunnel_2way = true;
@@ -3283,9 +3285,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 String wline = "ICAP/1.0 405 Method not allowed for service\r\n";
                 wline += "Service: e2guardian 5.0\r\n";
-                //wline += "ISTag:";
-                //wline += ldl->ISTag();
-                //wline += "\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
@@ -3593,32 +3592,40 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             checkme.setURL();
 
             overide_persist = false;
-            checkme.filtergroup = icaphead.icap_com.filtergroup;
-            clientuser =  icaphead.icap_com.user;
+    if(icaphead.icap_com.filtergroup < 0)    //i.e. no X-ICAP-E2G
+    {
+        String wline = "ICAP/1.0 418 Bad composition - X-ICAP-E2G header not present\r\n";
+        wline += "Service: e2guardian 5.0\r\n";
+        wline += "Encapsulated: null-body=0\r\n";
+        wline += "\r\n";
+        peerconn.writeString(wline.toCharArray());
+        return 1;
+    }
 
-            if (icaphead.icap_com.EBG == "E") {    // exception
-                checkme.isexception = true;
-                checkme.message_no = icaphead.icap_com.mess_no;
-                checkme.log_message_no = icaphead.icap_com.log_mess_no;
-                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
-            }
-            else if (icaphead.icap_com.EBG == "G")     // grey - content check
-                checkme.isGrey = true;
-            else if (icaphead.icap_com.EBG == "Y") {   // ordinary bypass
-                checkme.isbypass = true;
-                checkme.isexception = true;
-                checkme.message_no = icaphead.icap_com.mess_no;
-                checkme.log_message_no = icaphead.icap_com.log_mess_no;
-                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
-            }
-            else if (icaphead.icap_com.EBG == "V") {   // virus bypass
-                checkme.isvirusbypass = true;
-                checkme.isbypass = true;
-                checkme.isexception = true;
-                checkme.message_no = icaphead.icap_com.mess_no;
-                checkme.log_message_no = icaphead.icap_com.log_mess_no;
-                checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
-            }
+        checkme.filtergroup = icaphead.icap_com.filtergroup;
+        clientuser = icaphead.icap_com.user;
+
+        if (icaphead.icap_com.EBG == "E") {    // exception
+            checkme.isexception = true;
+            checkme.message_no = icaphead.icap_com.mess_no;
+            checkme.log_message_no = icaphead.icap_com.log_mess_no;
+            checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+        } else if (icaphead.icap_com.EBG == "G")     // grey - content check
+            checkme.isGrey = true;
+        else if (icaphead.icap_com.EBG == "Y") {   // ordinary bypass
+            checkme.isbypass = true;
+            checkme.isexception = true;
+            checkme.message_no = icaphead.icap_com.mess_no;
+            checkme.log_message_no = icaphead.icap_com.log_mess_no;
+            checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+        } else if (icaphead.icap_com.EBG == "V") {   // virus bypass
+            checkme.isvirusbypass = true;
+            checkme.isbypass = true;
+            checkme.isexception = true;
+            checkme.message_no = icaphead.icap_com.mess_no;
+            checkme.log_message_no = icaphead.icap_com.log_mess_no;
+            checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+        }
 
 #ifdef DGDEBUG
             std::cout << thread_id << " -username: " << clientuser << std::endl;
