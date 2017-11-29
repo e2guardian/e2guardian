@@ -114,22 +114,7 @@ int HTTPHeader::returnCode()
 // grab content length
 off_t HTTPHeader::contentLength()
 {
-    std::cerr << thread_id << "contentLength() should return " << contentlength << std::endl;
         return contentlength;
-
-//    clcached = true;
-//    contentlength = -1;
-
- //   // code 304 - not modified - no content
- //   String temp(header.front().after(" "));
- //   if (temp.startsWith("304"))
- //       contentlength = 0;
- //   else if (pcontentlength != NULL) {
- //       temp = pcontentlength->after(":");
- //       contentlength = temp.toOffset();
- //}
-
-//    return contentlength;
 }
 
 // grab the auth type
