@@ -4,6 +4,8 @@
 #The bannedurllist is for blocking PART of a site
 #The bannedsitelist is for blocking ALL of a site
 
+#NOTE: Sites using just IP should be put into bannedsiteiplist
+
 #You can include
 #.tld so for example you can match .gov for example
 
@@ -39,28 +41,8 @@
 
 # badboys.com
 
-# NOTE: In e2guardian Blanket blocks are now ONLY supported in this top file
-# WARNING: Blanket blocks in .included files will be silently ignored
-
-#Blanket Block.  To block all sites except those in the
-#exceptionsitelist and greysitelist files, remove
-#the # from the next line to leave only a '**':
-#**
-
-#Blanket SSL/CONNECT Block.  To block all SSL
-#and CONNECT tunnels except to addresses in the
-#exceptionsitelist and greysitelist files, remove
-#the # from the next line to leave only a '**s':
-#**s
-
-#Blanket IP Block.  To block all sites specified only as an IP,
-#remove the # from the next line to leave only a '*ip':
-#*ip
-
-#Blanket SSL/CONNECT IP Block.  To block all SSL and CONNECT
-#tunnels to sites specified only as an IP,
-#remove the # from the next line to leave only a '**ips':
-#**ips
+# NOTE: From v5 Blanket blocks are now implimented using Storyboarding 
+# WARNING: Old style Blanket blocks in this file will be silently ignored
 
 
 # The squidGuard advert domain/URL lists are now included by default.

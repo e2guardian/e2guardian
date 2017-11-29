@@ -1,0 +1,15 @@
+#IP sites in banned ssl list
+#This list is only used for SSL (or CONNECT) requests
+#Unlike the bannedsitelist it overides all other lists
+# so can be used ban an https site white the http is allowed or made an exception
+# 
+#Only list sites where you only want the https site blocked
+#Use bannedsiteiplist for sites where you want both http & https blocked
+# IP site addresses 
+#
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#

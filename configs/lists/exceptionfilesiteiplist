@@ -1,0 +1,15 @@
+# Exception file site ip list
+# Use this list to define ip sites from which files can be downloaded,
+# overriding a blanket download block (blockdownloads = on) or the
+# banned MIME type and extension lists (blockdownloads = off).
+#
+# DOES NOT override content/virus scanning or site/URL bans.
+
+# IP site addresses 
+#
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#
