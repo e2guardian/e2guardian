@@ -474,6 +474,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     int bypasstimestamp = 0;
 
+
     // Content scanning plugins to use for request (POST) & response data
     std::deque<CSPlugin *> requestscanners;
     std::deque<CSPlugin *> responsescanners;
@@ -674,9 +675,17 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
             if (!persistent_authed) {
-                if (header.isProxyRequest) filtergroup = o.default_fg;
-                else filtergroup = o.default_trans_fg;
-                if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header))
+                bool only_ip_auth;
+                if (header.isProxyRequest) {
+                    filtergroup = o.default_fg;
+                    only_ip_auth = false;
+                }
+                else
+                {
+                    filtergroup = o.default_trans_fg;
+                    only_ip_auth = true;
+                }
+                if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
                     break;
                 //checkme.filtergroup = filtergroup;
             } else {

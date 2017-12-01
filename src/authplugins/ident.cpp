@@ -26,7 +26,7 @@ class identinstance : public AuthPlugin
     public:
     identinstance(ConfigVar &definition)
         : AuthPlugin(definition){
-        client_ip_based = false;    // not sure if this is correct!!
+        client_ip_based = true;    // not sure if this is correct!!
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
 };
@@ -79,7 +79,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     std::cout << "to ask about: " << clientport << std::endl;
 #endif
     Socket iq;
-    iq.setTimeout(5);
+    iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
 #ifdef DGDEBUG
@@ -98,7 +98,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 #ifdef DGDEBUG
     std::cout << "About to send:" << request << std::endl;
 #endif
-    if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5)) {
+    if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
 #ifdef DGDEBUG
         std::cerr << "Error writing to ident connection to: " << clientip << std::endl;
 #endif
@@ -110,7 +110,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 #endif
     char buff[8192];
     try {
-        iq.getLine(buff, 8192, 5);
+        iq.getLine(buff, 8192, 5000);
     } catch (std::exception &e) {
         return -2;
     }
