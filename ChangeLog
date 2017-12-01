@@ -1,6 +1,7 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 November
+- Fix bug #288 307 Answer is not CRLF just LF
 - Fix bug #302 Client address is missing with squid format logs
 - Fix random crashes with: Header without size
 - Fix bug #300 restrict log permissions with systemd 
