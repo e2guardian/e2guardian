@@ -84,8 +84,10 @@
 #define  SB_FUNC_SETNOLOG				5016
 #define  SB_FUNC_UNSETVIRUSCHECK		5017
 #define  SB_FUNC_UNSETBYPASS       5018
+#define SB_FUNC_SETCONNECTSITE 5019
 
-#define SB_FUNC_MAP_SIZE  18
+
+#define SB_FUNC_MAP_SIZE  19
 
 
 // DECLARATIONS
@@ -147,7 +149,8 @@ class SBFunction
 			 "setgodirect",
 			 "setnolog",
 			 "unsetviruscheck",
-			 "unsetbypass"
+			 "unsetbypass",
+			 "setconnectsite"
     };
 
   public:

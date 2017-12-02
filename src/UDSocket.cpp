@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <stddef.h>
 
-#ifdef DGDEBUG
+#ifdef NETDEBUG
 #include <iostream>
 #endif
 
@@ -97,7 +97,7 @@ int UDSocket::connect(const char *path)
     if (strlen(path) > 108)
         return -1;
 
-#ifdef DGDEBUG
+#ifdef NETDEBUG
     std::cout << "uds connect:" << path << std::endl;
 #endif
     strcpy(my_adr.sun_path, path);

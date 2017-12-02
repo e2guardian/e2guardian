@@ -361,10 +361,12 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
             hints.ai_canonname = NULL;
             hints.ai_addr = NULL;
             hints.ai_next = NULL;
-            int rc = getaddrinfo(cm.urldomain.toCharArray(), NULL, &hints, &infoptr);
-            std::cerr << "connectUpstream: getaddrinfo returned " << rc << " for " << cm.urldomain << gai_strerror(rc) << std::endl;
+            int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
             if (rc )  // problem
             {
+#ifdef DGDEBUG
+                std::cerr << thread_id << "connectUpstream: getaddrinfo returned " << rc << " for " << cm.connect_site << " " << gai_strerror(rc) << std::endl;
+#endif
                 switch (rc) {
                     case EAI_NONAME:
                         cm.message_no = 207;
@@ -391,11 +393,15 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
             for (p = infoptr; p != NULL; p = p->ai_next)
             {
                 getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
-                std::cerr << "Connecting to IP " << t << " port " << port << std::endl;
+#ifdef DGDEBUG
+                std::cerr << thread_id << "Connecting to IP " << t << " port " << port << std::endl;
+#endif
                 int rc = sock.connect(t,port);
                 if (rc == 0){
                     freeaddrinfo(infoptr);
-                        std::cerr << "Got connection upfailure is " << cm.upfailure << std::endl;
+#ifdef DGDEBUG
+                        std::cerr << thread_id << "Got connection upfailure is " << cm.upfailure << std::endl;
+#endif
                         return 0;
                     }
                 }
@@ -633,7 +639,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //If proxy connction is not persistent..// do this later after checking if direct or via proxy
 
 #ifdef DGDEBUG
-            std::cerr << getpid() << "Start URL " << checkme.url.c_str() << "is_ssl=" << checkme.is_ssl << "ismitm=" << ismitm << std::endl;
+            std::cerr << thread_id << getpid() << "Start URL " << checkme.url.c_str() << "is_ssl=" << checkme.is_ssl << "ismitm=" << ismitm << std::endl;
 #endif
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
@@ -754,8 +760,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH, checkme);
+#ifdef DGDEBUG
             std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
+#endif
             checkme.isItNaughty = checkme.isBlocked;
             // is this machine banned?
             //bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
@@ -884,9 +892,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_REQUEST, checkme);
-                std::cerr << "After StoryB checkrequest isexception " << checkme.isexception << " gomitm "
+#ifdef DGDEBUG
+                std::cerr << thread_id << "After StoryB checkrequest isexception " << checkme.isexception << " gomitm "
                           << checkme.gomitm << " mess_no "
                           << checkme.message_no << std::endl;
+#endif
                 checkme.isItNaughty = checkme.isBlocked;
                 if (checkme.isdirect) header.setDirect();
             }
@@ -952,7 +962,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                    std::cout << thread_id << " -persistPeer: " << persistPeer << std::endl;
+                    std::cerr << thread_id << " -persistPeer: " << persistPeer << std::endl;
 #endif
 
                     //check response code
@@ -997,8 +1007,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef __SSLMITM
             //if ismitm - GO MITM
             // check ssl_grey is covered in storyboard
-            //if(!checkme.upfailure) {         // TODO may need change goMITM to cater for upstream failure i.e. Just MITM to client
-            //if ((!checkme.isItNaughty) && checkme.isconnect && checkme.gomitm)
             if (checkme.isconnect && checkme.gomitm)
             {
                 std::cerr << "Going MITM ...." << std::endl;
@@ -1008,14 +1016,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
                     break;
             }
-            //}
 #endif
 
             //CALL SB checkresponse
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect)) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
-                std::cerr << "After StoryB checkresponse" << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+                std::cerr << thread_id << "After StoryB checkresponse" << checkme.isexception << " mess_no "
                           << checkme.message_no << std::endl;
+#endif
                 checkme.isItNaughty = checkme.isBlocked;
 
                 if (checkme.ishead || (docheader.contentLength() == 0 && !docheader.chunked))
@@ -1609,7 +1618,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         // only going to be happening if the unsafe trickle
                         // buffer method is used and we want the download to be
                         // broken we don't mind too much
-                        String fullurl = header->getLogUrl(true);
+                        //String fullurl = header->getLogUrl(true);
+                        String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
                         ldl->fg[filtergroup]->getHTMLTemplate()->display_hb(ebody,
                             &fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
@@ -2491,17 +2501,17 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                             overide_persist = true;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cerr << "Auth plugin returned error code: " << rc << std::endl;
-                            syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
+                                std::cerr << thread_id << "Auth plugin returned error code: " << rc << std::endl;
+                            syslog(LOG_ERR, "%sAuth plugin returned error code: %d", thread_id.c_str(), rc);
                             dobreak = true;
                             break;
                         }
 #ifdef DGDEBUG
-                        std::cout << thread_id << " -Auth plugin found username " << clientuser << " (" << oldclientuser << "), now determining group" << std::endl;
+                        std::cerr << thread_id << " -Auth plugin found username " << clientuser << " (" << oldclientuser << "), now determining group" << std::endl;
 #endif
                         if (clientuser == oldclientuser) {
 #ifdef DGDEBUG
-                            std::cout << thread_id << " -Same user as last time, re-using old group no." << std::endl;
+                            std::cerr << thread_id << " -Same user as last time, re-using old group no." << std::endl;
 #endif
                             authed = true;
                             filtergroup = oldfg;
@@ -2511,18 +2521,18 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                         rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
                         if (rc == DGAUTH_OK) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin found username & group; not querying remaining plugins" << std::endl;
+                            std::cerr << thread_id << "Auth plugin found username & group; not querying remaining plugins" << std::endl;
 #endif
                             authed = true;
                             break;
                         } else if (rc == DGAUTH_NOMATCH) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin did not find a match; querying remaining plugins" << std::endl;
+                            std::cerr << thread_id << "Auth plugin did not find a match; querying remaining plugins" << std::endl;
 #endif
                             continue;
                         } else if (rc == DGAUTH_NOUSER) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << std::endl;
+                            std::cerr << thread_id << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << std::endl;
 #endif
                             if (o.auth_requires_user_and_group)
                                 continue;
@@ -2531,8 +2541,8 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cerr << "Auth plugin returned error code: " << rc << std::endl;
-                            syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
+                                std::cerr << thread_id << "Auth plugin returned error code: " << rc << std::endl;
+                            syslog(LOG_ERR, "%sAuth plugin returned error code: %d", thread_id.c_str(), rc);
                             dobreak = true;
                             break;
                         }
@@ -2546,9 +2556,9 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                     if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
 #ifdef DGDEBUG
                         if (!authed)
-                            std::cout << thread_id << " -No identity found; using defaults" << std::endl;
+                            std::cerr << thread_id << " -No identity found; using defaults" << std::endl;
                         else
-                            std::cout << thread_id << " -Plugin returned out-of-range filter group number; using defaults" << std::endl;
+                            std::cerr << thread_id << " -Plugin returned out-of-range filter group number; using defaults" << std::endl;
 #endif
                         // If none of the auth plugins currently loaded rely on querying the proxy,
                         // such as 'ident' or 'ip', then pretend we're authed. What this flag
@@ -2558,17 +2568,17 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                         authed = !o.auth_needs_proxy_query;
 #ifdef DGDEBUG
                         if (!o.auth_needs_proxy_query)
-                            std::cout << thread_id << " -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication" << std::endl;
+                            std::cerr << thread_id << " -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication" << std::endl;
 #endif
                         clientuser = "-";
                         //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
                     } else {
 #ifdef DGDEBUG
-                        std::cout << thread_id << " -Identity found; caching username & group" << std::endl;
+                        std::cerr << thread_id << " -Identity found; caching username & group" << std::endl;
 #endif
                         if (auth_plugin->is_connection_based && !overide_persist) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin is for a connection-based auth method - keeping credentials for entire connection" << std::endl;
+                            std::cerr << "Auth plugin is for a connection-based auth method - keeping credentials for entire connection" << std::endl;
 #endif
                             persistent_authed = true;
                         }
@@ -2578,7 +2588,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
                 } else {
 // We don't have any auth plugins loaded
 #ifdef DGDEBUG
-                    std::cout << thread_id << " -No auth plugins loaded; using defaults & feigning persistency" << std::endl;
+                    std::cerr << thread_id << " -No auth plugins loaded; using defaults & feigning persistency" << std::endl;
 #endif
                     authed = true;
                     clientuser = "-";
@@ -2593,7 +2603,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
     int bypasstimestamp = 0;
     if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-        std::cout << thread_id << " -Scan Bypass URL match" << std::endl;
+        std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
 #endif
         checkme.isscanbypass = true;
         checkme.isbypass = true;
@@ -2602,7 +2612,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
         checkme.exceptionreason = o.language_list.getTranslation(608);
     } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
 #ifdef DGDEBUG
-        std::cout << thread_id << " -About to check for bypass..." << std::endl;
+        std::cerr << thread_id << " -About to check for bypass..." << std::endl;
 #endif
         if (ldl->fg[filtergroup]->bypass_mode != 0)
             bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
@@ -2613,9 +2623,9 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
         if (bypasstimestamp > 0) {
 #ifdef DGDEBUG
             if (checkme.isvirusbypass)
-                std::cout << thread_id << " -Infection bypass URL match" << std::endl;
+                std::cerr << thread_id << " -Infection bypass URL match" << std::endl;
             else
-                std::cout << thread_id << " -Filter bypass URL match" << std::endl;
+                std::cerr << thread_id << " -Filter bypass URL match" << std::endl;
 #endif
             header.chopBypass(checkme.logurl, checkme.isvirusbypass);
             if (bypasstimestamp > 1) { // not expired
@@ -2630,7 +2640,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
             if (header.isBypassCookie(checkme.urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(),
                                       clientip.c_str())) {
 #ifdef DGDEBUG
-                std::cout << thread_id << " -Bypass cookie match" << std::endl;
+                std::cerr << thread_id << " -Bypass cookie match" << std::endl;
 #endif
                 checkme.iscookiebypass = true;
                 checkme.isbypass = true;
@@ -2639,13 +2649,13 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
             }
         }
 #ifdef DGDEBUG
-        std::cout << thread_id << " -Finished bypass checks." << std::endl;
+        std::cerr << thread_id << " -Finished bypass checks." << std::endl;
 #endif
     }
 
 #ifdef DGDEBUG
     if (checkme.isbypass) {
-        std::cout << thread_id << " -bypass activated!" << std::endl;
+        std::cerr << thread_id << " -bypass activated!" << std::endl;
     }
 #endif
     //
@@ -2661,7 +2671,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
         checkme.tempfilemime = (checkme.tempfilename.after("&M="));
         checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
 #ifdef DGDEBUG
-        std::cout << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
+        std::cerr << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
 #endif
         String rtype(header.requestType());
         checkme.tempfilemime = checkme.tempfilemime.before("&D=");
@@ -2677,13 +2687,8 @@ bool ConnectionHandler::sendScanFile( Socket &peerconn, NaughtyFilter &checkme, 
         checkme.docsize = sendFile(&peerconn, checkme, checkme.url, is_icap, icaphead);
         checkme.request_header->chopScanBypass(checkme.url);
         checkme.logurl = checkme.request_header->getLogUrl();
-        //urld = header.decode(url);  // unneeded really
 
         doLog(clientuser, checkme.clientip, checkme );
-    //doLog(clientuser, clientip, checkme.logurl, header.port, checkme.exceptionreason,
-    //    rtype, checkme.docsize, NULL, false, 0, checkme.isexception, false, &thestart,
-    //    checkme.cachehit, 200, checkme.mimetype, checkme.wasinfected, checkme.wasscanned, 0, filtergroup,
-    //    &header);
 
     if (o.delete_downloaded_temp_files) {
         unlink(checkme.tempfilename.toCharArray() );
@@ -2726,7 +2731,7 @@ std::deque<CSPlugin *> &responsescanners)
         cm.waschecked = true;
         if (!responsescanners.empty()) {
 #ifdef DGDEBUG
-            std::cout << thread_id << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << thread_id << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             String csmessage;
             contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent, &cm.pausedtoobig,
@@ -2734,13 +2739,13 @@ std::deque<CSPlugin *> &responsescanners)
                           &cm.wasinfected, &cm.wasscanned, cm.isbypass, cm.urld, cm.urldomain, &cm.scanerror, cm.contentmodified, &csmessage);
             if (csmessage.length() > 0) {
 #ifdef DGDEBUG
-                std::cout << thread_id << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << thread_id << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 cm.exceptionreason = csmessage.toCharArray();
             }
         } else {
 #ifdef DGDEBUG
-            std::cout << thread_id << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << thread_id << " -Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent, &cm.pausedtoobig,
                           &cm.docsize, &cm, cm.wasclean, filtergroup, responsescanners, &clientuser, &cm.clientip,
@@ -2759,15 +2764,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
     peerconn.setTimeout(o.pcon_timeout);
 
-    // ldl = o.currentLists();
-
     HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
     HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
-
-    // set a timeout as we don't want blocking 4 eva
-    // this also sets how long a peerconn will wait for other requests
-    //header.setTimeout(o.pcon_timeout);
-    //docheader.setTimeout(o.exchange_timeout);
 
     NaughtyFilter checkme(header, docheader);
     checkme.reset();
@@ -2783,8 +2781,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
 
 #ifdef DGDEBUG // debug stuff surprisingly enough
-    std::cerr << thread_id << " -got peer connection" << std::endl;
-    std::cerr << thread_id << clientip << std::endl;
+std::cerr << thread_id << " -got peer connection - clientip is " << clientip << std::endl;
 #endif
 
     try {
@@ -2806,16 +2803,18 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
         char buff[2048];
         rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
-       // rc = recv(peerconn.getFD(), buff, 4, 0);
-            std::cerr << "bytes peeked " << rc << std::endl;
+#ifdef DGDEBUG
+            std::cerr << thread_id << "bytes peeked " << rc << std::endl;
+#endif
 
         if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
             checkme.isTLS = true;
 
         unsigned short toread = ( buff[3] << (8*1) | buff[4]);
 
-
-        std::cerr << "hello length is " << toread << " magic is " << buff[0]  << buff[1] << buff[2] << " isTLS is " << checkme.isTLS << std::endl;
+#ifdef DGDEBUG
+        std::cerr << thread_id << "hello length is " << toread << " magic is " << buff[0]  << buff[1] << buff[2] << " isTLS is " << checkme.isTLS << std::endl;
+#endif
 
        if(checkme.isTLS) {
         rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
@@ -2827,19 +2826,26 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                     int pport = peerconn.getPeerSourcePort();
                     std::string peerIP = peerconn.getPeerIP();
                     if(peerconn.isTimedout())
-                        std::cerr << "Connection timed out" << std::endl;
-                    syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
+                    {
 #ifdef DGDEBUG
-                    std::cerr << "pport" << " No header recd from client - errno: " << err << std::endl;
+                        std::cerr << thread_id << "Connection timed out" << std::endl;
+#endif
+                        }
+                    syslog(LOG_INFO, "%sNo header recd from client at %s - errno: %d", thread_id.c_str(), peerIP.c_str(), err);
+#ifdef DGDEBUG
+                    std::cerr << thread_id << "No header recd from client - errno: " << err << std::endl;
 #endif
                 } else {
-                    syslog(LOG_INFO, "Client connection closed early - no TLS header received");
+                    syslog(LOG_INFO, "%sClient connection closed early - no TLS header received",
+                            thread_id.c_str() );
                 }
             }
             firsttime = false;
             persistPeer = false;
         } else {
-            std::cerr << "bytes peeked " << rc << std::endl;
+#ifdef DGDEBUG
+            std::cerr << thread_id << "bytes peeked " << rc << std::endl;
+#endif
             checkme.urldomain = get_TLS_SNI(buff, &rc);
             if(checkme.urldomain.size() > 0)
                 checkme.hasSNI = true;
@@ -2859,7 +2865,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                         getsockname(peerconn.getFD(), (struct sockaddr *)&origaddr, &origaddrlen) < 0
 #endif
                 ) {
-                    syslog(LOG_ERR, "Failed to get client's original destination IP: %s", strerror(errno));
+                    syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
                 } else {
                 checkme.orig_ip = inet_ntoa(origaddr.sin_addr);
                 checkme.orig_port = ntohs(origaddr.sin_port);
@@ -2870,7 +2876,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         checkme.urldomain = checkme.orig_ip;
          }
 #ifdef DGDEBUG
-    std::cerr << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
+    std::cerr << thread_id << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
 #endif
         //
         // End of set-up section
@@ -2892,20 +2898,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             checkme.logurl = checkme.url;
             checkme.urld = header.decode(checkme.url);
             checkme.urldomain.toLower();
+            checkme.connect_site = checkme.urldomain;
             checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.docsize = 0;
-
-            //If proxy connction is not persistent...  // TODO move this section into connectUpstream
-            // TODO Delay connection until we know if direct or not.
-
-
-            //if (checkme.urldomain == "internal.test.e2guardian.org") {
-                //peerconn.writeString(
-                        //"HTTP/1.0 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
-                //peerconn.writeString("</BODY></HTML>\n");
-                //proxysock.close(); // close connection to proxy
-                //break;
-            //}
 
             // do total block list checking here
             //if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {     // not sure if we should do this here!!!!
@@ -2923,12 +2918,10 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             filtergroup = o.default_trans_fg;
                 if (!doAuth(authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true) )
                     break;
-                //checkme.filtergroup = filtergroup;
             checkme.filtergroup = filtergroup;
 
 #ifdef DGDEBUG
-            std::cout << thread_id << " -username: " << clientuser << std::endl;
-            std::cout << thread_id << " -filtergroup: " << filtergroup << std::endl;
+            std::cout << thread_id << " -username: " << clientuser << " -filtergroup: " << filtergroup << std::endl;
 #endif
 //
 //
@@ -2955,11 +2948,15 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
-            std::cerr << "After StoryA thttps-pre-authcheck" << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+            std::cerr << thread_id << "After StoryA thttps-pre-authcheck" << checkme.isexception << " mess_no "
                       << checkme.message_no << std::endl;
+#endif
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
             bool part_banned;
+
+            // TODO restore this for THTTPS ??
             //if (isbannedip) {
                // matchedip = clienthost == NULL;
             //} else {
@@ -2991,27 +2988,25 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             // needn't check these lists in bypass modes
             if (!(isbanneduser || isbannedip || checkme.isexception)) {
                     ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_THTTPS_REQUEST,checkme);
-                    std::cerr << "After StoryB thttps-checkrequest " << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+                    std::cerr << thread_id << "After StoryB thttps-checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
+#endif
                     checkme.isItNaughty = checkme.isBlocked;
             }
-
-#ifdef DGDEBUG
-        std::cout << thread_id << " before connectUpstream nf " << checkme.isItNaughty <<
-                " upfail " << checkme.upfailure << std::endl;
-#endif
 
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
                 if (connectUpstream(proxysock, checkme,443) > -1) {
                     if(!checkme.isdirect) {
-                        if (sendProxyConnect(checkme.urldomain,&proxysock, &checkme) != 0)
+                        if (sendProxyConnect(checkme.connect_site,&proxysock, &checkme) != 0)
                        checkme.upfailure = true;
                     }
                 } else {
                        checkme.upfailure = true;
                 }
             }
+
 #ifdef DGDEBUG
         std::cout << thread_id << " after connectUpstream nf " << checkme.isItNaughty <<
                 " upfail " << checkme.upfailure << std::endl;
@@ -3024,10 +3019,11 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
              } else {
 
             //if ismitm - GO MITM
-                //if (checkme.hasSNI && checkme.gomitm)
                 if (checkme.gomitm)
                 {
-                std::cerr << "Going MITM ...." << std::endl;
+#ifdef DGDEBUG
+                std::cerr << thread_id << "Going MITM ...." << std::endl;
+#endif
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;
                 persistProxy = false;
@@ -3038,7 +3034,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //if not grey tunnel response
             if (!checkme.isItNaughty && checkme.tunnel_rest) {
+#ifdef DGDEBUG
                 std::cerr << thread_id << " -Tunnelling to client" << std::endl;
+#endif
                 if (!fdt.tunnel(proxysock, peerconn,true, -1 , true))
                     persistProxy = false;
                 checkme.docsize += fdt.throughput;
@@ -3063,10 +3061,10 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         } catch (std::exception & e)
         {
 #ifdef DGDEBUG
-        std::cout << thread_id << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cout << thread_id << " - THTTPS connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         if(o.logconerror)
-            syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
+            syslog(LOG_ERR, " - THTTPS connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
         proxysock.close();
@@ -3114,9 +3112,6 @@ char *get_TLS_SNI(char *inbytes, int* len)
 #endif
 
 
-//#include "ConnectionHandler.hpp"
-//#include "StoryBoard.hpp"
-
 int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
 
     int pcount = 0;
@@ -3127,12 +3122,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
     peerconn.setTimeout(o.pcon_timeout);
 
-
-    // set a timeout as we don't want blocking 4 eva
-    // this also sets how long a peerconn will wait for other requests
-    //header.setTimeout(o.pcon_timeout);
-    //docheader.setTimeout(o.exchange_timeout);
-
     std::string clientip(ip.toCharArray()); // hold the ICAP clients ip
 
     if (clienthost) delete clienthost;
@@ -3142,8 +3131,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
 
 #ifdef DGDEBUG // debug stuff surprisingly enough
-    std::cerr << thread_id << " -got ICAP peer connection" << std::endl;
-    std::cerr << thread_id << clientip << std::endl;
+    std::cerr << thread_id << " -got ICAP peer connection from " << clientip << std::endl;
 #endif
 
     //try
@@ -3171,10 +3159,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         while ((firsttime || persistPeer) && !ttg)
         {
             ldl = o.currentLists();
-           // HTTPHeader docheader(__HEADER_RESPONSE); // to hold any HTTP response header sent by ICAP client
-            //HTTPHeader header(__HEADER_REQUEST); // to hold the HTTP request header sent by ICAP client
             ICAPHeader icaphead;
-            //icaphead.setHTTPhdrs(header, docheader);
             icaphead.ISTag = ldl->ISTag();
 
             NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse );
@@ -3192,7 +3177,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 // another round...
 #ifdef DGDEBUG
                 std::cout << thread_id << " ICAP -persisting (count " << ++pcount << ")" << std::endl;
-                syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
+                syslog(LOG_ERR, "%sServed %d requests on this connection so far - ismitm=%d", thread_id.c_str(),
+                            pcount, ismitm);
                 std::cout << thread_id << " - " << clientip << std::endl;
 #endif
                 icaphead.reset();
@@ -3204,11 +3190,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         //send error response
                         String wline = "ICAP/1.0 408 Request timeout\r\n";
                         wline += "Service: e2guardian 5.0\r\n";
-                        //wline += "ISTag:";
-                        //wline += ldl->ISTag();
-                        //wline += "\n";
                         wline += "Encapsulated: null-body=0\r\n";
-                        wline += "\n";
+                        wline += "\r\n";
                         peerconn.writeString(wline.toCharArray());
                     } else {
 #ifdef DGDEBUG
@@ -3277,7 +3260,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "Allow: 204\r\n";
              //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
-                std::cerr << "options response : " << wline;
+#ifdef DGDEBUG
+                std::cerr << thread_id << "reqmod service options response : " << wline;
+#endif
                 peerconn.writeString(wline.toCharArray());
 
             } else if (icaphead.service_options && icaphead.icap_resmod_service) {
@@ -3292,7 +3277,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "Allow: 204\r\n";
              //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
-                std::cerr << "options response : " << wline;
+#ifdef DGDEBUG
+                std::cerr << "respmod service options response : " << wline;
+#endif
                 peerconn.writeString(wline.toCharArray());
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
@@ -3305,9 +3292,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //send error response
                 String wline = "ICAP/1.0 400 Bad request\r\n";
                 wline += "Service: e2guardian 5.0\r\n";
-                //wline += "ISTag:";
-                //wline += ldl->ISTag();
-                //wline += "\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
@@ -3316,22 +3300,12 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
         }
         } //catch (std::exception & e)
-#ifdef NOTDEF
-        {
-#ifdef DGDEBUG
-        std::cout << thread_id << " -ICAP connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        if(o.logconerror)
-            syslog(LOG_ERR, " -ICAP connection handler caught an exception %s" , e.what());
-            return -1;
-        }
-#endif
+
         if (!ismitm)
         try {
 #ifdef DGDEBUG
             std::cout << thread_id << "ICAP -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-            //syslog(LOG_INFO, " -Attempting graceful connection close" );
             int fd = peerconn.getFD();
             if (fd > -1) {
                 if (shutdown(fd, SHUT_WR) == 0) {
@@ -3415,8 +3389,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
 
 #ifdef DGDEBUG
-    std::cout << thread_id << " ICAP -username: " << clientuser << std::endl;
-    std::cout << thread_id << " ICAP -filtergroup: " << filtergroup << std::endl;
+    std::cout << thread_id << " ICAP -username: " << clientuser << " ICAP -filtergroup: " << filtergroup << std::endl;
 #endif
 //
 //
@@ -3444,19 +3417,21 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     //CALL SB pre-authcheck
     ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_ICAP, checkme);
-    std::cerr << "After StoryA icap-pre-authcheck" << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+    std::cerr << thread_id << "After StoryA icap-pre-authcheck" << checkme.isexception << " mess_no "
               << checkme.message_no << std::endl;
+#endif
     checkme.isItNaughty = checkme.isBlocked;
     bool isbannedip = checkme.isBlocked;
     bool part_banned;
     if (isbannedip) {
         // matchedip = clienthost == NULL;
     } else {
-#ifdef NOTDEF
+#ifdef NOTDEF      // TODO does this need restoring???
         if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
                         checkme.urld)) {
 #ifdef DGDEBUG
-            std::cout << "ICAP isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
+            std::cout << thread_id << "ICAP isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
 #endif
             if (isbannedip) {
          //       matchedip = clienthost == NULL;
@@ -3499,8 +3474,10 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(isbanneduser || isbannedip || checkme.isbypass || checkme.isexception)) {
 // Main checking is now done in Storyboard function(s)
         ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_REQMOD, checkme);
-        std::cerr << "After StoryB checkreqmod" << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+        std::cerr << thread_id << "After StoryB checkreqmod" << checkme.isexception << " mess_no "
                   << checkme.message_no << " allow_204 : " << icaphead.allow_204 << std::endl;
+#endif
         checkme.isItNaughty = checkme.isBlocked;
     }
 
@@ -3568,7 +3545,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             }
             done = true;
 #ifdef DGDEBUG
-            std::cout << "ICAP Naughty" << std::endl;
+            std::cout << thread_id << "ICAP Naughty" << std::endl;
 #endif
 	// break loop "// maintain a persistent connection"
    	  // return 1;
@@ -3641,8 +3618,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         }
 
 #ifdef DGDEBUG
-            std::cout << thread_id << " -username: " << clientuser << std::endl;
-            std::cout << thread_id << " -filtergroup: " << filtergroup << std::endl;
+            std::cout << thread_id << " -username: " << clientuser << " -filtergroup: " << filtergroup << std::endl;
 #endif
 //
 
@@ -3678,8 +3654,10 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             if (!(checkme.isexception) || !checkme.noviruscheck) {
 // Main checking is done in Storyboard function(s)
                     ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
-                    std::cerr << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no "
+#ifdef DGDEBUG
+                    std::cerr << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
+#endif
                     checkme.isItNaughty = checkme.isBlocked;
             }
 
@@ -3783,12 +3761,12 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer 
 
     if (i == NULL) {
 #ifdef DGDEBUG
-        std::cout << "User not in filter groups list: " << ue << std::endl;
+        std::cout << thread_id << "User not in filter groups list: " << ue << std::endl;
 #endif
         return DGAUTH_NOUSER;
     }
 #ifdef DGDEBUG
-    std::cout << thread_id << "User found: " << i << std::endl;
+    std::cout << thread_id << "User found in filter group list: " << i << std::endl;
 #endif
     ue = i;
     if (ue.before("=") == u) {

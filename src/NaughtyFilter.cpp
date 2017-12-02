@@ -77,6 +77,7 @@ void NaughtyFilter::setURL(bool set_ismitm) {
     urld = request_header->decode(url);
     urldomain = url.getHostname();
     urldomain.toLower();
+    connect_site = urldomain;
     isiphost = isIPHostnameStrip(urldomain);
     is_ssl = request_header->requestType().startsWith("CONNECT");
     ishead = request_header->requestType().startsWith("HEAD");

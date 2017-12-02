@@ -113,7 +113,7 @@ if(sitein, localexception) return setexception
 # SSL site replace (used instead of dns kulge)
 #  always returns true 
 function(sslreplace)
-if(fullurlin,sslreplace) return setmodurl
+if(fullurlin,sslreplace) return setconnectsite
 if(true) return true
 
 # Local grey check
@@ -171,6 +171,7 @@ if(true) setgomitm
 #if(sitein, greyssl) setgomitm
 ifnot(returnset) return false
 if(sitein, nocheckcert) setnocheckcert
+if(true) sslreplace
 if(true) return true
 
 # SSL request check
