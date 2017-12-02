@@ -21,6 +21,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -60,13 +61,13 @@ int DynamicURLList::posInList(const char *url)
 {
     if (items == 0) {
 #ifdef DGDEBUG
-        std::cout << "url list cache is empty" << std::endl;
+        std::cerr << thread_id << "url list cache is empty" << std::endl;
 #endif
         // if the list is empty, indicate that the entry should go in pos 0
         return -1;
     }
 #ifdef DGDEBUG
-    std::cout << "url list cache: performing search..." << std::endl;
+    std::cerr << thread_id << "url list cache: performing search..." << std::endl;
 #endif
     return search(0, items - 1, url);
 }
@@ -82,7 +83,7 @@ int DynamicURLList::search(int a, int s, const char *url)
     char *i = index[m] * 1000 + urls;
 
     /*#ifdef DGDEBUG
-	std::cout << "url list cache: comparing " << i << " to " << url << std::endl;
+	std::cerr << thread_id << "url list cache: comparing " << i << " to " << url << std::endl;
 #endif*/
 
     int alen = strlen(i);
@@ -164,21 +165,21 @@ bool DynamicURLList::setListSize(unsigned int s, unsigned int t)
 bool DynamicURLList::inURLList(const char *url, const int fg)
 {
 #ifdef DGDEBUG
-    std::cout << "url cache search request: " << fg << " " << url << std::endl;
+    std::cerr << thread_id << "url cache search request: " << fg << " " << url << std::endl;
 #endif
     if (items == 0) {
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "****** url cache table ******" << std::endl;
-    std::cout << "items: " << items << std::endl;
+    std::cerr << thread_id << "****** url cache table ******" << std::endl;
+    std::cerr << thread_id << "items: " << items << std::endl;
     for (int i = 0; i < items; i++) {
         for (unsigned int j = 0; j < groups[index[i]].length(); j++) {
-            std::cout << (unsigned int)(groups[index[i]][j]) << " ";
+            std::cerr << thread_id << (unsigned int)(groups[index[i]][j]) << " ";
         }
-        std::cout << (char *)(index[i] * 1000 + urls) << std::endl;
+        std::cerr << thread_id << (char *)(index[i] * 1000 + urls) << std::endl;
     }
-    std::cout << "****** url cache table ******" << std::endl;
+    std::cerr << thread_id << "****** url cache table ******" << std::endl;
 #endif
 
     // truncate URL if necessary, as we have a length limit on our buffers
@@ -191,7 +192,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
     }
 
 #ifdef DGDEBUG
-    std::cout << "pos: " << pos << std::endl;
+    std::cerr << thread_id << "pos: " << pos << std::endl;
 #endif
 
     // if we have found an entry, also check to see that it hasn't gone inactive.
@@ -204,7 +205,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         unsigned long int timenow = time(NULL);
         if ((timenow - urlreftime[index[pos]]) > timeout) {
 #ifdef DGDEBUG
-            std::cout << "found but url ttl exceeded: " << (timenow - urlreftime[index[pos]]) << std::endl;
+            std::cerr << thread_id << "found but url ttl exceeded: " << (timenow - urlreftime[index[pos]]) << std::endl;
 #endif
             return false;
         }
@@ -214,11 +215,11 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         lookfor += (char)o.filter_groups + 1;
         if (groups[index[pos]].find_first_of(lookfor) == std::string::npos) {
 #ifdef DGDEBUG
-            std::cout << "found but url not flagged clean for this group: " << fg << " (is clean for: ";
+            std::cerr << thread_id << "found but url not flagged clean for this group: " << fg << " (is clean for: ";
             for (unsigned int j = 0; j < groups[index[pos]].length(); j++) {
-                std::cout << (unsigned int)(groups[index[pos]][j]) << " ";
+                std::cerr << thread_id << (unsigned int)(groups[index[pos]][j]) << " ";
             }
-            std::cout << ")" << std::endl;
+            std::cerr << thread_id << ")" << std::endl;
 #endif
             return false;
         }
@@ -232,8 +233,8 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
 void DynamicURLList::addEntry(const char *url, const int fg)
 {
 #ifdef DGDEBUG
-    std::cout << "url cache add request: " << fg << " " << url << std::endl;
-    std::cout << "itemsbeforeadd: " << items << std::endl;
+    std::cerr << thread_id << "url cache add request: " << fg << " " << url << std::endl;
+    std::cerr << thread_id << "itemsbeforeadd: " << items << std::endl;
 #endif
     int len = strlen(url);
     bool resized = false;
@@ -256,7 +257,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
             delete[] u;
         }
 #ifdef DGDEBUG
-        std::cout << "Entry found at pos: " << pos << std::endl;
+        std::cerr << thread_id << "Entry found at pos: " << pos << std::endl;
 #endif
         urlreftime[index[pos]] = time(NULL); // reset refresh counter
         if (groups[index[pos]].find((char)fg, 0) == std::string::npos)
@@ -267,14 +268,14 @@ void DynamicURLList::addEntry(const char *url, const int fg)
     pos = 0 - pos - 1; // now contains the insertion point
 
 #ifdef DGDEBUG
-    std::cout << "insertion pos: " << pos << std::endl;
-    std::cout << "size: " << size << std::endl;
+    std::cerr << thread_id << "insertion pos: " << pos << std::endl;
+    std::cerr << thread_id << "size: " << size << std::endl;
 #endif
 
     // the list isn't full, so simply push new entry onto the back
     if (items < size) {
 #ifdef DGDEBUG
-        std::cout << "items<size: " << items << "<" << size << std::endl;
+        std::cerr << thread_id << "items<size: " << items << "<" << size << std::endl;
 #endif
         char *urlref;
         urlref = items * 1000 + urls;

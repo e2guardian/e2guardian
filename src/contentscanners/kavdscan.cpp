@@ -27,6 +27,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -68,7 +69,7 @@ int kavdinstance::init(void *args)
     udspath = cv["kavdudsfile"];
     if (udspath.length() < 3) {
         if (!is_daemonised)
-            std::cerr << "Error reading kavdudsfile option." << std::endl;
+            std::cerr << thread_id << "Error reading kavdudsfile option." << std::endl;
         syslog(LOG_ERR, "%s", "Error reading kavdudsfile option.");
         return DGCS_ERROR;
         // it would be far better to do a test connection to the file but
@@ -108,7 +109,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     }
     command += "\r\n";
 #ifdef DGDEBUG
-    std::cerr << "kavdscan command:" << command << std::endl;
+    std::cerr << thread_id << "kavdscan command:" << command << std::endl;
 #endif
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
@@ -152,11 +153,11 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     }
     String reply(buff);
 #ifdef DGDEBUG
-    std::cout << "Got from kavdscan:" << reply << std::endl;
+    std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
 #endif
     if (reply[0] == '2') { // clean
 #ifdef DGDEBUG
-        std::cerr << "kavdscan - clean" << std::endl;
+        std::cerr << thread_id << "kavdscan - clean" << std::endl;
 #endif
         delete[] buff;
         stripedsocks.close();
@@ -178,10 +179,10 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             }
             reply = buff;
 #ifdef DGDEBUG
-            std::cout << "Got from kavdscan:" << reply << std::endl;
+            std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
 #endif
         }
-        std::cout << "lastvirusname: " << lastvirusname << std::endl;
+        std::cerr << thread_id << "lastvirusname: " << lastvirusname << std::endl;
         delete[] buff;
         stripedsocks.close();
 

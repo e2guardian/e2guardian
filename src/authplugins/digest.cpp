@@ -14,6 +14,8 @@
 
 #include <syslog.h>
 
+extern thread_local std::string thread_id;
+
 // DECLARATIONS
 
 // class name is relevant!

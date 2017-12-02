@@ -17,6 +17,7 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -75,20 +76,20 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     int clientport = peercon.getPeerSourcePort();
     int serverport = peercon.getPort();
 #ifdef DGDEBUG
-    std::cout << "Connecting to: " << clientip << std::endl;
-    std::cout << "to ask about: " << clientport << std::endl;
+    std::cerr << thread_id << "Connecting to: " << clientip << std::endl;
+    std::cerr << thread_id << "to ask about: " << clientport << std::endl;
 #endif
     Socket iq;
     iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
 #ifdef DGDEBUG
-        std::cerr << "Error connecting to obtain ident from: " << clientip << std::endl;
+        std::cerr << thread_id << "Error connecting to obtain ident from: " << clientip << std::endl;
 #endif
         return DGAUTH_NOMATCH;
     }
 #ifdef DGDEBUG
-    std::cout << "Connected to:" << clientip << std::endl;
+    std::cerr << thread_id << "Connected to:" << clientip << std::endl;
 #endif
     std::string request;
     request = String(clientport).toCharArray();
@@ -96,17 +97,17 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     request += String(serverport).toCharArray();
     request += "\r\n";
 #ifdef DGDEBUG
-    std::cout << "About to send:" << request << std::endl;
+    std::cerr << thread_id << "About to send:" << request << std::endl;
 #endif
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
 #ifdef DGDEBUG
-        std::cerr << "Error writing to ident connection to: " << clientip << std::endl;
+        std::cerr << thread_id << "Error writing to ident connection to: " << clientip << std::endl;
 #endif
         iq.close(); // close conection to client
         return -1;
     }
 #ifdef DGDEBUG
-    std::cout << "wrote ident request to:" << clientip << std::endl;
+    std::cerr << thread_id << "wrote ident request to:" << clientip << std::endl;
 #endif
     char buff[8192];
     try {
@@ -117,7 +118,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     String temp;
     temp = buff; // convert to String
 #ifdef DGDEBUG
-    std::cout << "got ident reply: " << temp << " from: " << clientip << std::endl;
+    std::cerr << thread_id << "got ident reply: " << temp << " from: " << clientip << std::endl;
 #endif
     iq.close(); // close conection to client
     temp = temp.after(":");

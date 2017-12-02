@@ -20,6 +20,7 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 extern bool is_daemonised;
 
 extern authcreate_t proxycreate;
@@ -80,12 +81,12 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
 
     if (i == NULL) {
 #ifdef DGDEBUG
-        std::cout << "User not in filter groups list: " << ue << std::endl;
+        std::cerr << "User not in filter groups list: " << ue << std::endl;
 #endif
         return DGAUTH_NOUSER;
     }
 #ifdef DGDEBUG
-    std::cout << "User found: " << i << std::endl;
+    std::cerr << "User found: " << i << std::endl;
 #endif
     ue = i;
     if (ue.before("=") == u) {
@@ -114,59 +115,59 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
         if (!is_daemonised) {
-            std::cerr << "Unable to load plugin config: " << pluginConfigPath << std::endl;
+            std::cerr << thread_id << "Unable to load plugin config: " << pluginConfigPath << std::endl;
         }
-        syslog(LOG_ERR, "Unable to load plugin config %s", pluginConfigPath);
+        syslog(LOG_ERR, "%sUnable to load plugin config %s", thread_id.c_str(), pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {
         if (!is_daemonised) {
-            std::cerr << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
+            std::cerr << thread_id << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
         }
-        syslog(LOG_ERR, "Unable read plugin config plugname variable %s", pluginConfigPath);
+        syslog(LOG_ERR, "%sUnable read plugin config plugname variable %s", thread_id.c_str(), pluginConfigPath);
         return NULL;
     }
 
     if (plugname == "proxy-basic") {
 #ifdef DGDEBUG
-        std::cout << "Enabling proxy-basic auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling proxy-basic auth plugin" << std::endl;
 #endif
         return proxycreate(cv);
     }
 
     if (plugname == "proxy-digest") {
 #ifdef DGDEBUG
-        std::cout << "Enabling proxy-digest auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling proxy-digest auth plugin" << std::endl;
 #endif
         return digestcreate(cv);
     }
 
     if (plugname == "ident") {
 #ifdef DGDEBUG
-        std::cout << "Enabling ident server auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling ident server auth plugin" << std::endl;
 #endif
         return identcreate(cv);
     }
 
     if (plugname == "ip") {
 #ifdef DGDEBUG
-        std::cout << "Enabling IP-based auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling IP-based auth plugin" << std::endl;
 #endif
         return ipcreate(cv);
     }
 
     if (plugname == "port") {
 #ifdef DGDEBUG
-        std::cout << "Enabling port-based auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling port-based auth plugin" << std::endl;
 #endif
         return portcreate(cv);
     }
 
     if (plugname == "proxy-header") {
 #ifdef DGDEBUG
-        std::cout << "Enabling proxy-header auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling proxy-header auth plugin" << std::endl;
 #endif
         return headercreate(cv);
     }
@@ -174,7 +175,7 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
 #ifdef DGDEBUG
-        std::cout << "Enabling DNS-based auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling DNS-based auth plugin" << std::endl;
 #endif
         return dnsauthcreate(cv);
     }
@@ -183,7 +184,7 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_NTLM
     if (plugname == "proxy-ntlm") {
 #ifdef DGDEBUG
-        std::cout << "Enabling proxy-NTLM auth plugin" << std::endl;
+        std::cerr << thread_id << "Enabling proxy-NTLM auth plugin" << std::endl;
 #endif
         return ntlmcreate(cv);
     }
@@ -193,22 +194,22 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 #ifdef __SSLMITM
 //	if (plugname == "ssl") {
 #ifdef DGDEBUG
-//		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
+//		std::cerr << "Enabling SSL login/core auth plugin" << std::endl;
 #endif
 //		return sslcorecreate(cv);
 //	}
 
 //	if (plugname == "core") {
 #ifdef DGDEBUG
-//		std::cout << "Enabling SSL login/core auth plugin" << std::endl;
+//		std::cerr << "Enabling SSL login/core auth plugin" << std::endl;
 #endif
 //		return sslcorecreate(cv);
 //	}
 #endif //__SSLMITM
 
     if (!is_daemonised) {
-        std::cerr << "Unable to load plugin: " << pluginConfigPath << std::endl;
+        std::cerr << thread_id << "Unable to load plugin: " << pluginConfigPath << std::endl;
     }
-    syslog(LOG_ERR, "Unable to load plugin %s", pluginConfigPath);
+    syslog(LOG_ERR, "%sUnable to load plugin %s", thread_id.c_str(), pluginConfigPath);
     return NULL;
 }

@@ -13,6 +13,8 @@
 #include <cstring>
 #include <iostream>
 
+extern thread_local std::string thread_id;
+
 RegResult::RegResult()
     : imatched(false)
 {
@@ -119,16 +121,16 @@ bool RegExp::comp(const char *exp)
         wascompiled = false;
     }
 #ifdef DGDEBUG
-    std::cout << "Compiling " << exp << std::endl;
+    std::cerr << thread_id << "Compiling " << exp << std::endl;
 #endif
 #ifdef HAVE_PCRE
 #ifdef DGDEBUG
-    std::cout << "...with PCRE " << std::endl;
+    std::cerr << thread_id << "...with PCRE " << std::endl;
 #endif
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED | REG_DOTALL) != 0) { // compile regex
 #else
 #ifdef DGDEBUG
-    std::cout << "...without PCRE " << std::endl;
+    std::cerr << thread_id << "...without PCRE " << std::endl;
 #endif
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED) != 0) {
 #endif
@@ -171,7 +173,7 @@ bool RegExp::match(const char *text, RegResult &rs)
         delete[] pmatch;
         rs.imatched = false;
         //        #ifdef DGDEBUG
-        //            std::cout << "no match for:" << searchstring << std::endl;
+        //            std::cerr << thread_id << "no match for:" << searchstring << std::endl;
         //        #endif
         return false; // if no match
     }
@@ -206,7 +208,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     rs.imatched = true;
     delete[] pmatch;
 #ifdef DGDEBUG
-    std::cout << "match(s) for:" << searchstring << std::endl;
+    std::cerr << thread_id << "match(s) for:" << searchstring << std::endl;
 #endif
     return true; // match(s) found
 }

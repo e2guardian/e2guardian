@@ -45,7 +45,7 @@ public:
 
 DMPlugin *defaultdmcreate(ConfigVar &definition) {
 #ifdef DGDEBUG
-    std::cout << "Creating default DM" << std::endl;
+    std::cerr << thread_id << "Creating default DM" << std::endl;
 #endif
     return new dminstance(definition);
 }
@@ -79,11 +79,11 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
 #ifdef DGDEBUG
-    std::cout << thread_id << "Inside default download manager plugin  icap=" << d->icap << std::endl;
+    std::cerr << thread_id << "Inside default download manager plugin  icap=" << d->icap << std::endl;
 #endif
 
     //  To access settings for the plugin use the following example:
-    //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
+    //      std::cerr << "cvtest:" << cv["dummy"] << std::endl;
 
     int rc = 0;
     d->got_all = false;
@@ -121,7 +121,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
 #ifdef DGDEBUG
-    std::cout << "blocksize: " << blocksize << std::endl;
+    std::cerr << thread_id << "blocksize: " << blocksize << std::endl;
 #endif
 
     while ((bytesremaining > 0) || geteverything) {
@@ -134,7 +134,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 doneinitialdelay = true;
                 if ((*headersent) < 1) {
 #ifdef DGDEBUG
-                    std::cout << "sending first line of header first" << std::endl;
+                    std::cerr << thread_id << "sending first line of header first" << std::endl;
 #endif
                     if (!d->icap) {
                         docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
@@ -142,7 +142,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                     }
                 }
 #ifdef DGDEBUG
-                std::cout << "trickle delay - sending X-DGKeepAlive: on" << std::endl;
+                std::cerr << thread_id << "trickle delay - sending X-DGKeepAlive: on" << std::endl;
 #endif
                 if (!d->icap)
                     peersock->writeString("X-E2GKeepAlive: on\r\n");
@@ -154,12 +154,12 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 // if not swapped to disk and file is too large for RAM, then swap to disk
                 if (d->buffer_length > o.max_content_ramcache_scan_size) {
 #ifdef DGDEBUG
-                    std::cout << "swapping to disk" << std::endl;
+                    std::cerr << thread_id << "swapping to disk" << std::endl;
 #endif
                     d->tempfilefd = d->getTempFileFD();
                     if (d->tempfilefd < 0) {
 #ifdef DGDEBUG
-                        std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
+                        std::cerr << thread_id << "error buffering to disk so skipping disk buffering" << std::endl;
 #endif
                         syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
                         (*toobig) = true;
@@ -172,7 +172,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             } else if (d->tempfilesize > o.max_content_filecache_scan_size) {
 // if swapped to disk and file too large for that too, then give up
 #ifdef DGDEBUG
-                std::cout << "defaultdm: file too big to be scanned, halting download" << std::endl;
+                std::cerr << thread_id << "defaultdm: file too big to be scanned, halting download" << std::endl;
 #endif
                 (*toobig) = true;
                 break;
@@ -181,7 +181,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             if (d->buffer_length > o.max_content_filter_size) {
 // if we aren't downloading for virus scanning, and file too large for filtering, give up
 #ifdef DGDEBUG
-                std::cout << "defaultdm: file too big to be filtered, halting download" << std::endl;
+                std::cerr << "defaultdm: file too big to be filtered, halting download" << std::endl;
 #endif
                 (*toobig) = true;
                 break;
@@ -200,7 +200,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             delete[] block;
             block = new char[newsize];
 #ifdef DGDEBUG
-            std::cout << thread_id << "newsize: " << newsize << std::endl;
+            std::cerr << thread_id << "newsize: " << newsize << std::endl;
 #endif
                 if (!sock->bcheckForInput(d->timeout))
                     break;
@@ -252,7 +252,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 writeEINTR(d->tempfilefd, d->data, rc);
                 d->tempfilesize += rc;
 #ifdef DGDEBUG
-                std::cout << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
+                std::cerr << thread_id << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
 #endif
             }
         }
@@ -261,19 +261,19 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
 #ifdef DGDEBUG
-            std::cout << "zlib format" << std::endl;
+            std::cerr << thread_id << "zlib format" << std::endl;
 #endif
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
 #ifdef DGDEBUG
-            std::cout << "gzip format" << std::endl;
+            std::cerr << thread_id << "gzip format" << std::endl;
 #endif
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
     d->bytesalreadysent = 0;
 #ifdef DGDEBUG
-    std::cout << "Leaving default download manager plugin" << std::endl;
+    std::cerr << thread_id << "Leaving default download manager plugin" << std::endl;
 #endif
     delete[] block;
     /*if (d->data != temp)

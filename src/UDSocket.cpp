@@ -26,6 +26,8 @@
 #include <iostream>
 #endif
 
+extern thread_local std::string thread_id;
+
 // necessary for calculating size of sockaddr_un in a portable manner
 
 #ifndef offsetof
@@ -98,7 +100,7 @@ int UDSocket::connect(const char *path)
         return -1;
 
 #ifdef NETDEBUG
-    std::cout << "uds connect:" << path << std::endl;
+    std::cerr << thread_id << "uds connect:" << path << std::endl;
 #endif
     strcpy(my_adr.sun_path, path);
 

@@ -26,6 +26,7 @@
 extern bool is_daemonised;
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 
 
@@ -48,7 +49,7 @@ LOptionContainer::LOptionContainer(int load_id)
 
     {
 #ifdef DGDEBUG
-        std::cout << "iplist deque is size " << o.iplist_dq.size() << std::endl;
+        std::cerr << thread_id << "iplist deque is size " << o.iplist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
             loaded_ok = false;
@@ -56,7 +57,7 @@ LOptionContainer::LOptionContainer(int load_id)
 
     {
 #ifdef DGDEBUG
-        std::cout << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
+        std::cerr << thread_id << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
         loaded_ok = false;
@@ -64,7 +65,7 @@ LOptionContainer::LOptionContainer(int load_id)
 
     {
 #ifdef DGDEBUG
-        std::cout << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
+        std::cerr << thread_id << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
         loaded_ok = false;
@@ -72,35 +73,35 @@ LOptionContainer::LOptionContainer(int load_id)
 
     {
 #ifdef DGDEBUG
-        std::cout << "urllist deque is size " << o.urllist_dq.size() << std::endl;
+        std::cerr << thread_id << "urllist deque is size " << o.urllist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
         loaded_ok = false;
     }
 
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
-        std::cout << "Storyboard not loaded OK" << std::endl;
+        std::cerr << thread_id << "Storyboard not loaded OK" << std::endl;
         loaded_ok = false;
     }
 
     if (loaded_ok && !StoryA.setEntry(ENT_STORYA_PRE_AUTH,"pre-authcheck")) {
-        std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+        std::cerr << thread_id << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
-        std::cerr << "Required storyboard entry function 'thttps-pre-authcheck' is missing" << std::endl;
+        std::cerr << thread_id << "Required storyboard entry function 'thttps-pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
-        std::cerr << "Required storyboard entry function 'icap-pre-authcheck' is missing" << std::endl;
+        std::cerr << thread_id << "Required storyboard entry function 'icap-pre-authcheck' is missing" << std::endl;
         loaded_ok = false;
     }
 
     if (loaded_ok && o.use_filter_groups_list)  {
         if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
-            std::cout << "Failed to read filtergroupslist" << std::endl;
+            std::cerr << thread_id << "Failed to read filtergroupslist" << std::endl;
             loaded_ok = false;
         }
     }
@@ -108,7 +109,7 @@ LOptionContainer::LOptionContainer(int load_id)
     if(loaded_ok && ! readFilterGroupConf())  {
         loaded_ok = false;
         if (!is_daemonised)
-            std::cout << "Error in reading filter group files" << std::endl;
+            std::cerr << thread_id << "Error in reading filter group files" << std::endl;
         else
             syslog(LOG_INFO, "Error in reading filter group files");
     }
@@ -154,7 +155,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     String lastcategory;
     String foundurl;
 #ifdef DGDEBUG
-    std::cout << "inURLList: " << url << std::endl;
+    std::cerr << thread_id << "inURLList: " << url << std::endl;
 #endif
     //syslog(LOG_ERR, "inURLList url %s", url.c_str());
     url.removeWhiteSpace(); // just in case of weird browser crap
@@ -172,7 +173,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
         url.chop(); // chop off trailing / if any
     }
 #ifdef DGDEBUG
-    std::cout << "inURLList (processed): " << url << std::endl;
+    std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
 #endif
     //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
     while (url.before("/").contains(".")) {
@@ -181,8 +182,8 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
             foundurl = i;
             fl = foundurl.length();
 #ifdef DGDEBUG
-            std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cout << "url: " << url << fl << std::endl;
+            std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
+            std::cerr << thread_id << "url: " << url << fl << std::endl;
 #endif
             //syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
             if (url.length() > fl) {
@@ -204,7 +205,7 @@ bool LOptionContainer::doReadItemList(const char *filename, ListContainer *lc, c
     bool result = lc->readItemList(filename, false, 0);
     if (!result) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << fname << std::endl;
+            std::cerr << thread_id << "Error opening " << fname << std::endl;
         }
         syslog(LOG_ERR, "Error opening %s", fname);
         return false;
@@ -230,7 +231,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
 #ifdef DGDEBUG
-            std::cerr << " IP is in room: " << i->name << std::endl;
+            std::cerr << thread_id << " IP is in room: " << i->name << std::endl;
 #endif
             temp = url;
             ListContainer *lc;
@@ -238,7 +239,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 lc = i->sitelist;
                 if (inSiteList(temp, lc, false, false)) {
 #ifdef DGDEBUG
-                    std::cerr << " room site exception found: " << std::endl;
+                    std::cerr << thread_id << " room site exception found: " << std::endl;
 #endif
                     *isexception = true;
                     room = i->name;
@@ -248,7 +249,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             temp = url;
             if (i->urllist && inURLList(temp, i->urllist, false, false)) {
 #ifdef DGDEBUG
-                std::cerr << " room url exception found: " << std::endl;
+                std::cerr << thread_id << " room url exception found: " << std::endl;
 #endif
                 *isexception = true;
                 room = i->name;
@@ -259,12 +260,12 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 *part_block = i->part_block;
                 room = i->name;
 #ifdef DGDEBUG
-                std::cerr << " room blanket block active: " << std::endl;
+                std::cerr << thread_id << " room blanket block active: " << std::endl;
 #endif
                 return true;
             } else {
 #ifdef DGDEBUG
-                std::cerr << " room - no url/site exception or block found: " << std::endl;
+                std::cerr << thread_id << " room - no url/site exception or block found: " << std::endl;
 #endif
                 return false;
             }
@@ -295,7 +296,7 @@ void LOptionContainer::deleteFilterGroups()
     for (int i = 0; i < numfg; i++) {
         if (fg[i] != NULL) {
 #ifdef DGDEBUG
-            std::cout << "In deleteFilterGroups loop" << std::endl;
+            std::cerr << thread_id << "In deleteFilterGroups loop" << std::endl;
 #endif
             delete fg[i]; // delete extra FOptionContainer objects
             fg[i] = NULL;
@@ -329,7 +330,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
 			if (!is_daemonised) {
-				std::cerr << "error reading: " << filename.c_str() << std::endl;
+				std::cerr << thread_id << "error reading: " << filename.c_str() << std::endl;
 			}
 			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
 			return false;
@@ -373,25 +374,25 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 //        std::string language_list_location(languagepath + "messages");
         {
             std::deque<String> dq = findoptionM("iplist");
-            std::cout << "iplist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_IP, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            std::cout << "sitelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "sitelist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_SITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            std::cout << "ipsitelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "ipsitelist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_IPSITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            std::cout << "urllist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "urllist deque is size " << dq.size() << std::endl;
             LMeta.load_type(LIST_TYPE_URL, dq);
         }
 
@@ -399,13 +400,13 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             return false;
 
         if (!StoryA.setEntry1("pre-authcheck")) {
-            std::cerr << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+            std::cerr << thread_id << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
             return false;
         }
 
         if (!readFilterGroupConf()) {
             if (!is_daemonised) {
-                std::cerr << "Error reading filter group conf file(s)." << std::endl;
+                std::cerr << thread_id << "Error reading filter group conf file(s)." << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
             return false;
@@ -413,7 +414,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 
     } catch (std::exception &e) {
         if (!is_daemonised) {
-            std::cerr << e.what() << std::endl; // when called the daemon has not
+            std::cerr << thread_id << e.what() << std::endl; // when called the daemon has not
             // detached so we can do this
         }
         return false;
@@ -438,7 +439,7 @@ void LOptionContainer::loadRooms(bool throw_error)
     if (d == NULL) {
         if (throw_error) {
             syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-            std::cerr << "Could not open room definitions directory" << std::endl;
+            std::cerr << thread_id << "Could not open room definitions directory" << std::endl;
             exit(1);
         } else {
             return;
@@ -452,45 +453,45 @@ void LOptionContainer::loadRooms(bool throw_error)
         std::string filename(per_room_directory_location);
         filename.append(f->d_name);
 #ifdef DGDEBUG
-        std::cerr << " Room file found : " << filename.c_str() << std::endl;
+        std::cerr << thread_id << " Room file found : " << filename.c_str() << std::endl;
 #endif
         std::ifstream infile(filename.c_str(), std::ios::in);
         if (!infile.good()) {
             syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
+            std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
             exit(1);
         }
 #ifdef DGDEBUG
-        std::cerr << " Opened room file : " << filename.c_str() << std::endl;
+        std::cerr << thread_id << " Opened room file : " << filename.c_str() << std::endl;
 #endif
 
         std::string roomname;
 #ifdef DGDEBUG
-        std::cerr << " Reading room file : " << filename.c_str() << std::endl;
+        std::cerr << thread_id << " Reading room file : " << filename.c_str() << std::endl;
 #endif
         getline(infile, roomname);
         if (infile.eof()) {
             syslog(LOG_ERR, " Unexpected EOF ");
-            std::cerr << " Unexpected EOF: " << filename.c_str() << std::endl;
+            std::cerr << thread_id << " Unexpected EOF: " << filename.c_str() << std::endl;
             exit(1);
         }
         if (infile.fail()) {
             syslog(LOG_ERR, " Unexpected failue on read");
-            std::cerr << " Unexpected failure on read: " << filename.c_str() << std::endl;
+            std::cerr << thread_id << " Unexpected failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
         if (infile.bad()) {
             syslog(LOG_ERR, " Unexpected badbit failue on read");
-            std::cerr << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
+            std::cerr << thread_id << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
         if (!infile.good()) {
             syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << " Could not open file room definitions: " << filename.c_str() << std::endl;
+            std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
             exit(1);
         }
 #ifdef DGDEBUG
-        std::cerr << " Room name is: " << roomname.c_str() << std::endl;
+        std::cerr << thread_id << " Room name is: " << roomname.c_str() << std::endl;
 #endif
         roomname = roomname.substr(1);
         room_item this_room;
@@ -540,7 +541,7 @@ void LOptionContainer::loadRooms(bool throw_error)
         infile.close();
         if (roomname.size() <= 2) {
             if (!is_daemonised) {
-                std::cerr << "Could not read room from definitions file \"" << filename << '"' << std::endl;
+                std::cerr << thread_id << "Could not read room from definitions file \"" << filename << '"' << std::endl;
             }
             syslog(LOG_ERR, "Could not read room from definitions file \"%s\"",
                 filename.c_str());
@@ -657,7 +658,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
             // the console so we can write back an
             // error
 
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << thread_id << "Config problem; check allowed values for " << emessage << std::endl;
         }
         syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
         return false;
@@ -679,7 +680,7 @@ bool LOptionContainer::readFilterGroupConf()
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
             if (!is_daemonised)
-                std::cerr << "Error opening group names file: " << group_names_list_location << std::endl;
+                std::cerr << thread_id << "Error opening group names file: " << group_names_list_location << std::endl;
             syslog(LOG_ERR, "Error opening group names file: %s", group_names_list_location.c_str());
             return false;
         }
@@ -693,17 +694,17 @@ bool LOptionContainer::readFilterGroupConf()
             groupname = groupnamesfile[groupnum.str().c_str()];
             if (groupname.length() == 0) {
                 if (!is_daemonised)
-                    std::cerr << "Group names file too short: " << group_names_list_location << std::endl;
+                    std::cerr << thread_id << "Group names file too short: " << group_names_list_location << std::endl;
                 syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
                 return false;
             }
 #ifdef DGDEBUG
-            std::cout << "Group name: " << groupname << std::endl;
+            std::cerr << thread_id << "Group name: " << groupname << std::endl;
 #endif
         }
         if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
             if (!is_daemonised) {
-                std::cerr << "Error opening filter group config: " << file << std::endl;
+                std::cerr << thread_id << "Error opening filter group config: " << file << std::endl;
             }
             syslog(LOG_ERR, "Error opening filter group config: %s", file.toCharArray());
             return false;
@@ -715,7 +716,7 @@ bool LOptionContainer::readFilterGroupConf()
 bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html)
 {
 #ifdef DGDEBUG
-    std::cout << "adding filter group: " << numfg << " " << filename << std::endl;
+    std::cerr << thread_id << "adding filter group: " << numfg << " " << filename << std::endl;
 #endif
 
     // array of pointers to FOptionContainer
@@ -731,7 +732,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     fg[numfg] = new FOptionContainer;
 
 #ifdef DGDEBUG
-    std::cout << "added filter group: " << numfg << " " << filename << std::endl;
+    std::cerr << thread_id << "added filter group: " << numfg << " " << filename << std::endl;
 #endif
 
     // pass all the vars from OptionContainer needed
@@ -746,12 +747,12 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     (*fg[numfg]).reporting_level = reporting_level;
 
 #ifdef DGDEBUG
-    std::cout << "passed variables to filter group: " << numfg << " " << filename << std::endl;
+    std::cerr << thread_id << "passed variables to filter group: " << numfg << " " << filename << std::endl;
 #endif
 
     bool rc = (*fg[numfg]).read(filename);
 #ifdef DGDEBUG
-    std::cout << "read filter group: " << numfg << " " << filename << " return is " << rc << std::endl;
+    std::cerr << thread_id << "read filter group: " << numfg << " " << filename << " return is " << rc << std::endl;
 #endif
 
     numfg++;

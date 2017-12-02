@@ -25,6 +25,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // INPLEMENTATION
 
@@ -132,7 +133,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         if (strlen(buffer) < 7)
             continue;
 #ifdef DGDEBUG
-        std::cout << "line: " << line << std::endl;
+        std::cerr << thread_id << "line: " << line << std::endl;
 #endif
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
         if (matchIP.match(line.toCharArray(),Rre)) {
@@ -192,34 +193,34 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         }
     }
 #ifdef DGDEBUG
-    std::cout << "starting sort" << std::endl;
+    std::cerr << thread_id << "starting sort" << std::endl;
 #endif
     std::sort(iplist.begin(), iplist.end());
     std::sort(hostlist.begin(), hostlist.end());
 #ifdef DGDEBUG
-    std::cout << "sort complete" << std::endl;
-    std::cout << "ip list dump:" << std::endl;
+    std::cerr << thread_id << "sort complete" << std::endl;
+    std::cerr << thread_id << "ip list dump:" << std::endl;
     std::vector<uint32_t>::iterator i = iplist.begin();
     while (i != iplist.end()) {
-        std::cout << "IP: " << *i << std::endl;
+        std::cerr << thread_id << "IP: " << *i << std::endl;
         ++i;
     }
-    std::cout << "subnet list dump:" << std::endl;
+    std::cerr << thread_id << "subnet list dump:" << std::endl;
     std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        std::cout << "Masked IP: " << j->maskedaddr << " Mask: " << j->mask << std::endl;
+        std::cerr << thread_id << "Masked IP: " << j->maskedaddr << " Mask: " << j->mask << std::endl;
         ++j;
     }
-    std::cout << "range list dump:" << std::endl;
+    std::cerr << thread_id << "range list dump:" << std::endl;
     std::list<ipl_rangestruct>::iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        std::cout << "Start IP: " << k->startaddr << " End IP: " << k->endaddr << std::endl;
+        std::cerr << thread_id << "Start IP: " << k->startaddr << " End IP: " << k->endaddr << std::endl;
         ++k;
     }
-    std::cout << "host list dump:" << std::endl;
+    std::cerr << thread_id << "host list dump:" << std::endl;
     std::vector<String>::iterator l = hostlist.begin();
     while (l != hostlist.end()) {
-        std::cout << "Hostname: " << *l << std::endl;
+        std::cerr << thread_id << "Hostname: " << *l << std::endl;
         ++l;
     }
 #endif
@@ -233,13 +234,13 @@ bool IPList::readIPMelangeList(const char *filename)
     std::ifstream input(filename);
     if (!input) {
         if (!is_daemonised) {
-            std::cerr << "Error reading file (does it exist?): " << filename << std::endl;
+            std::cerr << thread_id << "Error reading file (does it exist?): " << filename << std::endl;
         }
-        syslog(LOG_ERR, "%s%s", "Error reading file (does it exist?): ", filename);
+        syslog(LOG_ERR, "%s%s%s", thread_id.c_str(), "Error reading file (does it exist?): ", filename);
         return false;
     }
 #ifdef DGDEBUG
-    std::cout << "reading: " << filename << std::endl;
+    std::cerr << thread_id << "reading: " << filename << std::endl;
 #endif
     if (ifsreadIPMelangeList(&input, false, NULL)) {
         input.close();

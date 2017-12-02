@@ -20,6 +20,7 @@
 // GLOBALS
 
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -48,8 +49,8 @@ void ImageContainer::reset()
 bool ImageContainer::display(Socket *s)
 {
 #ifdef DGDEBUG
-    std::cout << "Displaying custom image file" << std::endl;
-    std::cout << "mimetype: " << mimetype << std::endl;
+    std::cerr << thread_id << "Displaying custom image file" << std::endl;
+    std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
 #endif
     s->writeString("Content-type: ");
     s->writeString(mimetype.toCharArray());
@@ -99,13 +100,13 @@ bool ImageContainer::read(const char *filename)
         imagefile.read(image, imagelength);
         if (!imagefile.good()) {
             if (!is_daemonised)
-                std::cerr << "Error reading custom image file: " << filename << std::endl;
+                std::cerr << thread_id << "Error reading custom image file: " << filename << std::endl;
             syslog(LOG_ERR, "%s", "Error reading custom image file.");
             return false;
         }
     } else {
         if (!is_daemonised)
-            std::cerr << "Error reading custom image file: " << filename << std::endl;
+            std::cerr << thread_id << "Error reading custom image file: " << filename << std::endl;
         syslog(LOG_ERR, "%s", "Error reading custom image file.");
         return false;
     }

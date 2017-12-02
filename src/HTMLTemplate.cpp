@@ -26,6 +26,7 @@
 
 extern bool is_daemonised;
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -58,7 +59,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     std::ifstream templatefile(filename, std::ios::in); // e2guardian.conf
     if (!templatefile.good()) {
         if (!is_daemonised) {
-            std::cerr << "error reading: " << filename << std::endl;
+            std::cerr << thread_id << "error reading: " << filename << std::endl;
         }
         syslog(LOG_ERR, "%s", "error reading HTML template file.");
         return false;
@@ -103,7 +104,7 @@ void makeURLSafe(String &url)
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                            std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip) {
 #ifdef DGDEBUG
-    std::cout << "Displaying TEMPLATE" << std::endl;
+    std::cerr << thread_id << "Displaying TEMPLATE" << std::endl;
 #endif
     String line;
     bool newline;
@@ -148,7 +149,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         } else if (line == "-HOST-") {
             if (host == NULL) {
 #ifdef DGDEBUG
-                std::cout << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
+                std::cerr << thread_id << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
 #endif
                 std::deque<String> *names = ipToHostname(ip->c_str());
                 if (names->size() > 0) {

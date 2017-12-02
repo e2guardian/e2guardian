@@ -24,6 +24,8 @@
 #include <memory>
 #include <syslog.h>
 
+extern thread_local std::string thread_id;
+
 
 // construct string representations of ints/longs
 #if defined(__GNUC__) && __GNUC__ < 3 && __GNUC_MINOR__ < 96
@@ -586,7 +588,7 @@ String String::sort_search()
 #ifdef DGDEBUG
     int k = 0;
     while (k <= c)
-        std::cout << "Search word " << k << " is " << p[k++] << std::endl;
+        std::cerr << thread_id << "Search word " << k << " is " << p[k++] << std::endl;
 #endif
 
     // sort
@@ -608,7 +610,7 @@ String String::sort_search()
 #ifdef DGDEBUG
     k = 0;
     while (k <= c)
-        std::cout << "Search word after sort" << k << " is " << p[k++] << std::endl;
+        std::cerr << thread_id << "Search word after sort" << k << " is " << p[k++] << std::endl;
 #endif
 
     String ret(p[0]);
@@ -620,7 +622,7 @@ String String::sort_search()
            ret = ret + "+" + p[j++];
     }
 #ifdef DGDEBUG
-    std::cout << "Search words after sort are "  << ret.c_str() << std::endl;
+    std::cerr << thread_id << "Search words after sort are "  << ret.c_str() << std::endl;
 #endif
    // delete [] temp;
     return ret;

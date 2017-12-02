@@ -25,6 +25,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -74,7 +75,7 @@ int clamdinstance::init(void *args)
     udspath = cv["clamdudsfile"];
     if (udspath.length() < 3) {
         if (!is_daemonised)
-            std::cerr << "Error reading clamdudsfile option." << std::endl;
+            std::cerr << thread_id << "Error reading clamdudsfile option." << std::endl;
         syslog(LOG_ERR, "Error reading clamdudsfile option.");
         return DGCS_ERROR;
         // it would be far better to do a test connection to the file but
@@ -118,7 +119,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     }
     command += "\r\n";
 #ifdef DGDEBUG
-    std::cerr << "clamdscan command:" << command << std::endl;
+    std::cerr << thread_id << "clamdscan command:" << command << std::endl;
 #endif
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
@@ -141,7 +142,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
 #ifdef DGDEBUG
-        std::cerr << lastmessage.toCharArray() <<std::endl;
+        std::cerr << thread_id << lastmessage.toCharArray() <<std::endl;
 #endif
             stripedsocks.close();
         return DGCS_SCANERROR;
@@ -158,7 +159,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
 #ifdef DGDEBUG
-        std::cout << lastmessage.toCharArray() << std::endl;
+        std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
         stripedsocks.close();
@@ -168,7 +169,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     delete[] buff;
     reply.removeWhiteSpace();
 #ifdef DGDEBUG
-    std::cout << "Got from clamdscan: " << reply << std::endl;
+    std::cerr << thread_id << "Got from clamdscan: " << reply << std::endl;
 #endif
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
@@ -180,11 +181,11 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // format is:
 // /foo/path/file: foovirus FOUND
 #ifdef DGDEBUG
-        std::cerr << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
+        std::cerr << thread_id << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
 #endif
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
 #ifdef DGDEBUG
-            std::cerr << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
+            std::cerr << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
 #endif
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
@@ -198,7 +199,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
 #ifdef DGDEBUG
-    std::cerr << "clamdscan - he say yes (clean)" << std::endl;
+    std::cerr << thread_id << "clamdscan - he say yes (clean)" << std::endl;
 #endif
     return DGCS_CLEAN;
 }

@@ -21,6 +21,7 @@ HTTPHeader *reqheader;
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 String fname = "";
 
 // class name is relevant!

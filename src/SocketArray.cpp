@@ -19,6 +19,7 @@
 // GLOBALS
 
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -50,7 +51,7 @@ int SocketArray::bindSingle(int port)
         return -1;
     }
 #ifdef DGDEBUG
-    std::cerr << "bindSingle binding port" << port << std::endl;
+    std::cerr << thread_id << "bindSingle binding port" << port << std::endl;
 #endif
     lc_types.push_back(CT_PROXY);
     return drawer[0].bind(port);
@@ -62,7 +63,7 @@ int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
         return -1;
     }
 #ifdef DGDEBUG
-    std::cerr << "bindSingle binding port" << port  << " with type " << type << std::endl;
+    std::cerr << thread_id << "bindSingle binding port" << port  << " with type " << type << std::endl;
 #endif
     lc_types.push_back(type);
     return drawer[index].bind(port);
@@ -77,11 +78,11 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
     }
     for (unsigned int i = 0; i < ports.size(); i++) {
 #ifdef DGDEBUG
-        std::cerr << "bindSingleM binding port" << ports[i] << std::endl;
+        std::cerr << thread_id << "bindSingleM binding port" << ports[i] << std::endl;
 #endif
         if (drawer[i].bind(ports[i].toInteger())) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server socket: ["
+                std::cerr << thread_id << "Error binding server socket: ["
                           << ports[i] << " " << i << "] (" << strerror(errno) << ")" << std::endl;
             }
             String p = ports[i];
@@ -99,7 +100,7 @@ int *SocketArray::getFDAll()
     int *fds = new int[socknum];
     for (unsigned int i = 0; i < socknum; i++) {
 #ifdef DGDEBUG
-        std::cerr << "Socket " << i << " fd:" << drawer[i].getFD() << std::endl;
+        std::cerr << thread_id << "Socket " << i << " fd:" << drawer[i].getFD() << std::endl;
 #endif
         fds[i] = drawer[i].getFD();
     }
@@ -112,7 +113,7 @@ int SocketArray::listenAll(int queue)
     for (unsigned int i = 0; i < socknum; i++) {
         if (drawer[i].listen(queue)) {
             if (!is_daemonised) {
-                std::cerr << "Error listening to socket" << std::endl;
+                std::cerr << thread_id << "Error listening to socket" << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error listening to socket");
             return -1;
@@ -130,11 +131,11 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     //for (unsigned int i = 0; i < socknum; i++) {
     for (unsigned int i = 0; i < ips.size(); i++) {
 #ifdef DGDEBUG
-        std::cerr << "Binding server socket[" << ports[i] << " " << ips[i] << " " << i << "])" << std::endl;
+        std::cerr << thread_id << "Binding server socket[" << ports[i] << " " << ips[i] << " " << i << "])" << std::endl;
 #endif
         if (drawer[i].bind(ips[i].toCharArray(), ports[i].toInteger())) {
             if (!is_daemonised) {
-                std::cerr << "Error binding server socket: ["
+                std::cerr << thread_id << "Error binding server socket: ["
                           << ports[i] << " " << ips[i] << " " << i << "] (" << strerror(errno) << ")" << std::endl;
             }
             syslog(LOG_ERR, "Error binding socket: [%s %s %d] (%s)", ports[i].toCharArray(), ips[i].toCharArray(), i, strerror(errno));

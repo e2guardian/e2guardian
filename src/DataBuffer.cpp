@@ -32,6 +32,7 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -162,7 +163,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         gettimeofday(&nowadays, NULL);
         if (nowadays.tv_sec - starttime.tv_sec > timeout) {
 #ifdef DGDEBUG
-            std::cout << "buffered socket read more than timeout" << std::endl;
+            std::cerr << thread_id << "buffered socket read more than timeout" << std::endl;
 #endif
             return pos; // just return how much got so far then
         }
@@ -184,9 +185,9 @@ int DataBuffer::getTempFileFD()
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 0) {
 #ifdef DGDEBUG
-        std::cerr << "error creating temp " << tempfilepath << ": " << strerror(errno) << std::endl;
+        std::cerr << thread_id << "error creating temp " << tempfilepath << ": " << strerror(errno) << std::endl;
 #endif
-        syslog(LOG_ERR, "Could not create temp file to store download for scanning: %s", strerror(errno));
+        syslog(LOG_ERR, "%sCould not create temp file to store download for scanning: %s", thread_id.c_str(), strerror(errno));
         tempfilefd = -1;
         tempfilepath = "";
     } else {
@@ -220,7 +221,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
         if ((i + 1) == o.dmplugins_end) {
 #ifdef DGDEBUG
-            std::cerr << "Got to final download manager so defaulting to always match." << std::endl;
+            std::cerr << thread_id << "Got to final download manager so defaulting to always match." << std::endl;
 #endif
             dm_plugin = (DMPlugin *)(*i);
             rc = dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
@@ -228,7 +229,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
         } else {
             if (((DMPlugin *)(*i))->willHandle(requestheader, docheader)) {
 #ifdef DGDEBUG
-                std::cerr << "Matching download manager number: " << j << std::endl;
+                std::cerr << thread_id << "Matching download manager number: " << j << std::endl;
 #endif
                 dm_plugin = (DMPlugin *)(*i);
                 rc = dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
@@ -249,7 +250,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 {
     if (dontsendbody) {
 #ifdef DGDEBUG
-        std::cout << "dontsendbody true; not sending" << std::endl;
+        std::cerr << thread_id << "dontsendbody true; not sending" << std::endl;
 #endif
         return true;
     }
@@ -258,7 +259,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks
 #ifdef DGDEBUG
-        std::cout << "Sending " << tempfilesize - bytesalreadysent << " bytes from temp file (" << bytesalreadysent << " already sent)" << std::endl;
+        std::cerr << thread_id << "Sending " << tempfilesize - bytesalreadysent << " bytes from temp file (" << bytesalreadysent << " already sent)" << std::endl;
 #endif
         off_t sent = bytesalreadysent;
         int rc;
@@ -275,18 +276,18 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         while (sent < tempfilesize) {
             rc = readEINTR(tempfilefd, data, block_len);
 #ifdef DGDEBUG
-            std::cout << "reading temp file rc:" << rc << std::endl;
+            std::cerr << thread_id << "reading temp file rc:" << rc << std::endl;
 #endif
             if (rc < 0) {
 #ifdef DGDEBUG
-                std::cout << "error reading temp file so throwing exception" << std::endl;
+                std::cerr << thread_id << "error reading temp file so throwing exception" << std::endl;
 #endif
                 return false;
     //            throw std::exception();
             }
             if (rc == 0) {
 #ifdef DGDEBUG
-                std::cout << "got zero bytes reading temp file" << std::endl;
+                std::cerr << thread_id << "got zero bytes reading temp file" << std::endl;
 #endif
                 break; // should never happen
             }
@@ -301,7 +302,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
             sent += rc;
 #ifdef DGDEBUG
-            std::cout << "total sent from temp:" << sent << std::endl;
+            std::cerr << thread_id << "total sent from temp:" << sent << std::endl;
 #endif
         }
         if (chunked && got_all) {
@@ -315,7 +316,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
     } else {
         off_t sent = bytesalreadysent;
 #ifdef DGDEBUG
-        std::cout << "Sending " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length << " in buffer; " << bytesalreadysent << " already sent)" << std::endl;
+        std::cerr << thread_id << "Sending " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length << " in buffer; " << bytesalreadysent << " already sent)" << std::endl;
 #endif
         // it's in RAM, so just send it, no streaming from disk
         int block_len;
@@ -352,7 +353,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
         }
 #ifdef DGDEBUG
-        std::cout << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
+        std::cerr << thread_id << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
 #endif
     }
 }
@@ -364,7 +365,7 @@ void DataBuffer::zlibinflate(bool header)
         return; // it can't possibly be zlib'd
     }
 #ifdef DGDEBUG
-    std::cout << "compressed size:" << buffer_length << std::endl;
+    std::cerr << thread_id << "compressed size:" << buffer_length << std::endl;
 #endif
 
 #if ZLIB_VERNUM < 0x1210
@@ -408,13 +409,13 @@ void DataBuffer::zlibinflate(bool header)
     if (err != Z_OK) { // was a problem so just return
         delete[] block; // don't forget to free claimed memory
 #ifdef DGDEBUG
-        std::cerr << "bad init inflate: " << err << std::endl;
+        std::cerr << thread_id << "bad init inflate: " << err << std::endl;
 #endif
         return;
     }
     while (true) {
 #ifdef DGDEBUG
-        std::cerr << "inflate loop" << std::endl;
+        std::cerr << thread_id << "inflate loop" << std::endl;
 #endif
         err = inflate(&d_stream, Z_SYNC_FLUSH);
         bytesgot = d_stream.total_out;
@@ -423,7 +424,7 @@ void DataBuffer::zlibinflate(bool header)
             if (err != Z_OK) {
                 delete[] block;
 #ifdef DGDEBUG
-                std::cerr << "bad inflateEnd: " << d_stream.msg << std::endl;
+                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
 #endif
                 return;
             }
@@ -432,12 +433,12 @@ void DataBuffer::zlibinflate(bool header)
         if (err != Z_OK) { // was a problem so just return
             delete[] block; // don't forget to free claimed memory
 #ifdef DGDEBUG
-            std::cerr << "bad inflate: " << d_stream.msg << std::endl;
+            std::cerr << thread_id << "bad inflate: " << d_stream.msg << std::endl;
 #endif
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
 #ifdef DGDEBUG
-                std::cerr << "bad inflateEnd: " << d_stream.msg << std::endl;
+                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
 #endif
             }
             return;
@@ -445,12 +446,12 @@ void DataBuffer::zlibinflate(bool header)
         if (bytesgot > o.max_content_filter_size) {
             delete[] block; // don't forget to free claimed memory
 #ifdef DGDEBUG
-            std::cerr << "inflated file larger than maxcontentfiltersize, not inflating further" << std::endl;
+            std::cerr << thread_id << "inflated file larger than maxcontentfiltersize, not inflating further" << std::endl;
 #endif
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
 #ifdef DGDEBUG
-                std::cerr << "bad inflateEnd: " << d_stream.msg << std::endl;
+                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
 #endif
             }
             return;
@@ -472,7 +473,7 @@ void DataBuffer::zlibinflate(bool header)
     compressed_buffer_length = buffer_length;
     buffer_length = bytesgot;
 #ifdef DGDEBUG
-    std::cout << "decompressed size: " << buffer_length << std::endl;
+    std::cerr << thread_id << "decompressed size: " << buffer_length << std::endl;
 #endif
     data = new char[bytesgot + 1];
     data[bytesgot] = '\0';
@@ -489,7 +490,7 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
 {
 
 #ifdef DGDEBUG
-    std::cout << "Starting content reg exp replace" << std::endl;
+    std::cerr << thread_id << "Starting content reg exp replace" << std::endl;
 #endif
     bool contentmodified = false;
     unsigned int i;
@@ -569,7 +570,7 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
             matches = m;
 
 #ifdef DGDEBUG
-            std::cout << "content matches:" << matches << std::endl;
+            std::cerr << thread_id << "content matches:" << matches << std::endl;
 #endif
             // replace top-level matches using filled-out replacement strings
             newreplacement *newrep;

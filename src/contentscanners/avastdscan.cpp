@@ -23,6 +23,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -75,7 +76,7 @@ int avastdinstance::init(void *args)
     udspath = cv["avastdudsfile"];
     if (udspath.length() < 3) {
         if (!is_daemonised)
-            std::cerr << "Error reading avastdudsfile option." << udspath << std::endl;
+            std::cerr << thread_id << "Error reading avastdudsfile option." << udspath << std::endl;
         syslog(LOG_ERR, "Error reading avastdudsfile option.");
         return DGCS_ERROR;
         // it would be far better to do a test connection to the file but
@@ -84,24 +85,24 @@ int avastdinstance::init(void *args)
 
     archivewarn = cv["archivewarn"] == "on";
 #ifdef DGDEBUG
-    std::cout << "avastd configuration: archivewarn = " << archivewarn << std::endl;
+    std::cerr << thread_id << "avastd configuration: archivewarn = " << archivewarn << std::endl;
 #endif
     avastprotocol = cv["avastprotocol"];
     if (avastprotocol.length() < 3) {
         avastprotocol = "avast4";
         syslog(LOG_ERR, "avasd configuration missing avastprotocol: use avast4");
 #ifdef DGDEBUG
-        std::cout << "avastd configuration: set default paramater = " << avastprotocol << std::endl;
+        std::cerr << thread_id << "avastd configuration: set default paramater = " << avastprotocol << std::endl;
 #endif
     }
     if (avastprotocol.compare("avast4") != 0 && avastprotocol.compare("avast2014") != 0) {
         if (!is_daemonised)
-            std::cerr << "Error reading avastprotocol option." << std::endl;
+            std::cerr << thread_id << "Error reading avastprotocol option." << std::endl;
         syslog(LOG_ERR, "Error reading avastprotocol option.");
         return DGCS_ERROR;
     }
 #ifdef DGDEBUG
-    std::cout << "avastd configuration: avastprotocol = " << avastprotocol << std::endl;
+    std::cerr << thread_id << "avastd configuration: avastprotocol = " << avastprotocol << std::endl;
 #endif
     // set some parameter by avastd protocol version
     if (avastprotocol.compare("avast4") == 0) {
@@ -155,7 +156,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         // 220 Welcome to avast! Virus scanning daemon x.x (VPS yy-yy dd.mm.yyyy)
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
 #ifdef DGDEBUG
-        std::cout << "Got from avastd: " << encode(buffer) << std::endl;
+        std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
         if (strncmp(buffer, "220 ", 4) != 0) {
             lastmessage = "Unexpected reply during AvastD handshake: ";
@@ -170,7 +171,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         command += encode(filename);
         command += "\r\n";
 #ifdef DGDEBUG
-        std::cerr << "avastd command: " << encode(command) << std::endl;
+        std::cerr << thread_id << "avastd command: " << encode(command) << std::endl;
 #endif
         stripedsocks.writeString(command.toCharArray());
 
@@ -182,7 +183,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
 #ifdef DGDEBUG
-        std::cout << "Got from avastd: " << encode(buffer) << std::endl;
+        std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
         if (strncmp(buffer, scanreturncode.toCharArray(), 4) != 0) {
             lastmessage = "Unexpected reply to scan command: ";
@@ -209,7 +210,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
              rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, false, NULL, &truncated)) {
 #ifdef DGDEBUG
-            std::cout << "Got from avastd: " << encode(buffer) << std::endl;
+            std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
             // If a line can't fit in our buffer, we're probably dealing with a zip bomb or
             // something similarly nasty. Let's consider it an error, whatever archivewarn says.
@@ -223,7 +224,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
             char *result = strchr(buffer, '\t');
             if (strncmp(buffer, "200 ", 4) == 0 && avastprotocol.compare("avast2014") == 0) {
 #ifdef DGDEBUG
-                std::cout << "ignore 200 SCAN OK and exit loop" << std::endl;
+                std::cerr << thread_id << "ignore 200 SCAN OK and exit loop" << std::endl;
 #endif
                 break;
             } else {
@@ -240,14 +241,14 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                 case '+':
 // Clean!
 #ifdef DGDEBUG
-                    std::cout << "avastd result: " << encode(buffer) << "\tclean!" << std::endl;
+                    std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tclean!" << std::endl;
 #endif
                     break;
 
                 case 'L':
 // Infected!
 #ifdef DGDEBUG
-                    std::cout << "avastd result: " << encode(buffer) << "\tinfected with " << result << std::endl;
+                    std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tinfected with " << result << std::endl;
 #endif
                     if (!lastvirusname.empty())
                         lastvirusname += " ";
@@ -261,7 +262,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                 default:
 // Can't interpret result.
 #ifdef DGDEBUG
-                    std::cout << "avastd result: " << encode(buffer) << "\tcan't analyze (" << result << ")" << std::endl;
+                    std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tcan't analyze (" << result << ")" << std::endl;
 #endif
                     if (!lastvirusname.empty())
                         lastvirusname += " ";
@@ -278,7 +279,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         return DGCS_SCANERROR;
     }
 #ifdef DGDEBUG
-    std::cout << "avastd final result: infected: " << infected << "\twarning: " << warning << "\tlastvirusname: " << lastvirusname << "\ttruncated: " << truncated << std::endl;
+    std::cerr << thread_id << "avastd final result: infected: " << infected << "\twarning: " << warning << "\tlastvirusname: " << lastvirusname << "\ttruncated: " << truncated << std::endl;
 #endif
 
     // Socket unexpectedly closed.
@@ -321,7 +322,7 @@ String avastdinstance::encode(const String &Str)
 #ifdef DGDEBUG
         case '\0':
             // This shouldn't happen.
-            std::cerr << "Warning: '\\0' found in filename." << std::endl;
+            std::cerr << thread_id << "Warning: '\\0' found in filename." << std::endl;
             *(p++) = '\\';
             *(p++) = '0';
             break;

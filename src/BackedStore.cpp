@@ -30,6 +30,9 @@
 #ifdef DGDEBUG
 #include <iostream>
 #endif
+
+extern thread_local std::string thread_id;
+
 // IMPLEMENTATION
 
 BackedStore::BackedStore(size_t _ramsize, size_t _disksize, const char *_tempdir)
@@ -44,7 +47,7 @@ BackedStore::~BackedStore()
 
     if (fd >= 0) {
 #ifdef DGDEBUG
-        std::cout << "BackedStore: closing & deleting temp file " << filename << " BADGERS!" << std::endl;
+        std::cerr << thread_id << "BackedStore: closing & deleting temp file " << filename << " BADGERS!" << std::endl;
 #endif
         int rc = 0;
         do {
@@ -52,12 +55,12 @@ BackedStore::~BackedStore()
         } while (rc < 0 && errno == EINTR);
 #ifdef DGDEBUG
         if (rc < 0)
-            std::cout << "BackedStore: cannot close temp file fd: " << strerror(errno) << std::endl;
+            std::cerr << thread_id << "BackedStore: cannot close temp file fd: " << strerror(errno) << std::endl;
 #endif
         rc = unlink(filename);
 #ifdef DGDEBUG
         if (rc < 0)
-            std::cout << "BackedStore: cannot delete temp file: " << strerror(errno) << std::endl;
+            std::cerr << thread_id << "BackedStore: cannot delete temp file: " << strerror(errno) << std::endl;
 #endif
         free(filename);
     }
@@ -67,7 +70,7 @@ bool BackedStore::append(const char *data, size_t len)
 {
     if (fd < 0) {
 #ifdef DGDEBUG
-        std::cout << "BackedStore: appending to RAM" << std::endl;
+        std::cerr << thread_id << "BackedStore: appending to RAM" << std::endl;
 #endif
         // Temp file not yet opened - try to write to RAM
         if (rambuf.size() + len > ramsize) {
@@ -76,13 +79,13 @@ bool BackedStore::append(const char *data, size_t len)
 // Would also exceed disk threshold
 // - give up
 #ifdef DGDEBUG
-                std::cout << "BackedStore: data would exceed both RAM and disk thresholds" << std::endl;
+                std::cerr << thread_id << "BackedStore: data would exceed both RAM and disk thresholds" << std::endl;
 #endif
                 return false;
             }
 
 #ifdef DGDEBUG
-            std::cout << "BackedStore: data would exceed RAM threshold; dumping RAM to disk" << std::endl;
+            std::cerr << thread_id << "BackedStore: data would exceed RAM threshold; dumping RAM to disk" << std::endl;
 #endif
 
             // Open temp file, dump current data in there,
@@ -91,18 +94,18 @@ bool BackedStore::append(const char *data, size_t len)
             std::string filename_str = tempdir + "/__dgbsXXXXXX";
             filename = const_cast<char *>(filename_str.c_str());
 #ifdef DGDEBUG
-            std::cout << "BackedStore: filename template: " << filename << std::endl;
+            std::cerr << thread_id << "BackedStore: filename template: " << filename << std::endl;
 #endif
             //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
             umask(0007); // only allow access to e2g user and group
             if ((fd = mkstemp(filename)) < 0) {
                 std::ostringstream ss;
-                ss << "BackedStore could not create temp file: " << strerror(errno);
+                ss << thread_id << "BackedStore could not create temp file: " << strerror(errno);
                 free(filename);
                 throw std::runtime_error(ss.str().c_str());
             }
 #ifdef DGDEBUG
-            std::cout << "BackedStore: filename: " << filename << std::endl;
+            std::cerr << thread_id << "BackedStore: filename: " << filename << std::endl;
 #endif
             free(filename);
 
@@ -115,7 +118,7 @@ bool BackedStore::append(const char *data, size_t len)
             } while (bytes_written < rambuf.size() && (rc > 0 || errno == EINTR));
             if (rc < 0 && errno != EINTR) {
                 std::ostringstream ss;
-                ss << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
+                ss << thread_id << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
                 throw std::runtime_error(ss.str().c_str());
             }
             length = rambuf.size();
@@ -126,14 +129,14 @@ bool BackedStore::append(const char *data, size_t len)
 
     if (fd >= 0) {
 #ifdef DGDEBUG
-        std::cout << "BackedStore: appending to disk" << std::endl;
+        std::cerr << thread_id << "BackedStore: appending to disk" << std::endl;
 #endif
         // Temp file opened - try to write to disk
         if (map != MAP_FAILED)
             throw std::runtime_error("BackedStore could not append to temp file: store already finalised");
         if (len + length > disksize) {
 #ifdef DGDEBUG
-            std::cout << "BackedStore: data would exceed disk threshold" << std::endl;
+            std::cerr << thread_id << "BackedStore: data would exceed disk threshold" << std::endl;
 #endif
             return false;
         }
@@ -146,14 +149,14 @@ bool BackedStore::append(const char *data, size_t len)
         } while (bytes_written < len && (rc > 0 || errno == EINTR));
         if (rc < 0 && errno != EINTR) {
             std::ostringstream ss;
-            ss << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
+            ss << thread_id << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
             throw std::runtime_error(ss.str().c_str());
         }
         length += len;
     }
 
 #ifdef DGDEBUG
-    std::cout << "BackedStore: finished appending" << std::endl;
+    std::cerr << thread_id << "BackedStore: finished appending" << std::endl;
 #endif
 
     return true;
@@ -177,7 +180,7 @@ void BackedStore::finalise()
     map = mmap(0, length, PROT_READ, MAP_PRIVATE, fd, 0);
     if (map == MAP_FAILED) {
         std::ostringstream ss;
-        ss << "BackedStore could not mmap() temp file: " << strerror(errno);
+        ss << thread_id << "BackedStore could not mmap() temp file: " << strerror(errno);
         throw std::runtime_error(ss.str().c_str());
     }
 }
@@ -186,12 +189,12 @@ const char *BackedStore::getData() const
 {
     if (fd < 0) {
 #ifdef DGDEBUG
-        std::cout << "BackedStore: returning pointer to RAM" << std::endl;
+        std::cerr << thread_id << "BackedStore: returning pointer to RAM" << std::endl;
 #endif
         return &(rambuf.front());
     } else {
 #ifdef DGDEBUG
-        std::cout << "BackedStore: returning pointer to mmap-ed file" << std::endl;
+        std::cerr << thread_id << "BackedStore: returning pointer to mmap-ed file" << std::endl;
 #endif
         if (map == MAP_FAILED)
             throw std::runtime_error("BackedStore could not return data pointer: store not finalised");
@@ -215,7 +218,7 @@ std::string BackedStore::store(const char *prefix)
 
         char *name = strrchr(filename, '/');
 #ifdef DGDEBUG
-//        std::cout << "BackedStore: creating hard link: " << (char)storedname << std::endl;
+//        std::cerr << thread_id << "BackedStore: creating hard link: " << (char)storedname << std::endl;
 #endif
         std::string storedname_str(storedname.str());
         int rc = link(name, storedname_str.c_str());
@@ -226,7 +229,7 @@ std::string BackedStore::store(const char *prefix)
             // Failure - but ignore EXDEV, as we can "recover"
             // from that by taking a different approach
             std::ostringstream ss;
-            ss << "BackedStore could not create link to existing temp file: " << strerror(errno);
+            ss << thread_id << "BackedStore could not create link to existing temp file: " << strerror(errno);
             throw std::runtime_error(ss.str().c_str());
         }
     }
@@ -240,17 +243,17 @@ std::string BackedStore::store(const char *prefix)
     std::string storedname_str(timedprefix.str() + "XXXXXX");
     char *storedname = const_cast<char *>(storedname_str.c_str());
 #ifdef DGDEBUG
-    std::cout << "BackedStore: storedname template: " << storedname << std::endl;
+    std::cerr << thread_id << "BackedStore: storedname template: " << storedname << std::endl;
 #endif
     int storefd;
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if ((storefd = mkstemp(storedname)) < 0) {
         std::ostringstream ss;
-        ss << "BackedStore could not create stored file: " << strerror(errno);
+        ss << thread_id << "BackedStore could not create stored file: " << strerror(errno);
         throw std::runtime_error(ss.str().c_str());
     }
 #ifdef DGDEBUG
-    std::cout << "BackedStore: storedname: " << storedname << std::endl;
+    std::cerr << thread_id << "BackedStore: storedname: " << storedname << std::endl;
 #endif
 
     // Dump the RAM buffer/mmap-ed file contents to disk in the new location
@@ -275,7 +278,7 @@ std::string BackedStore::store(const char *prefix)
 
     if (rc < 0 && errno != EINTR) {
         std::ostringstream ss;
-        ss << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
+        ss << thread_id << "BackedStore could not dump RAM buffer to temp file: " << strerror(errno);
         do {
             rc = close(storefd);
         } while (rc < 0 && errno == EINTR);

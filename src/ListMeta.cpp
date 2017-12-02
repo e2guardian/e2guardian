@@ -31,6 +31,7 @@
 
 extern bool is_daemonised;
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // DEFINES
 
@@ -91,7 +92,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         String t;
         t = list[i];
 #ifdef DGDEBUG
-        std::cerr << "reading %s" << t.toCharArray() << std::endl;
+        std::cerr << thread_id << "reading %s" << t.toCharArray() << std::endl;
 #endif
         String nm, fpath;
         unsigned int m_no, log_m_no = 0;
@@ -127,7 +128,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             rec.log_mess_no = m_no;
         }
 #ifdef DGDEBUG
-        std::cerr << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
+        std::cerr << thread_id << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
                   << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl;
 #endif
 
@@ -190,20 +191,20 @@ bool ListMeta::list_exists(String name, int type) {
 ListMeta::list_info ListMeta::findList(String name, int type) {
     list_info t;
 #ifdef DGDEBUG
-    std::cerr << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
+    std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
 #endif
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
 #ifdef DGDEBUG
-            std::cerr << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
+            std::cerr << thread_id << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
 #endif
             t = *i;
             return t;
         }
-        // std::cerr << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
+        // std::cerr << thread_id << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
 #ifdef DGDEBUG
-    std::cerr << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
+    std::cerr << thread_id << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
 #endif
     t.list_ref = 0;
     return t;
@@ -370,7 +371,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
-            std::cerr << "Required Listname " << listname << " is not defined" << std::endl;
+            std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
         }
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
@@ -378,7 +379,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
     int res = o.lm.newItemList(filename, sortsw, 1, true, isip);
     if (res < 0) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
+            std::cerr << thread_id << "Error opening " << listname << std::endl;
         }
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
@@ -431,7 +432,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
     char *i;
     String foundurl;
 #ifdef DGDEBUG
-    std::cout << "inURLList: " << url << std::endl;
+    std::cerr << thread_id << "inURLList: " << url << std::endl;
 #endif
     url.removeWhiteSpace(); // just in case of weird browser crap
     url.toLower();
@@ -448,7 +449,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
         url.chop(); // chop off trailing / if any
     }
 #ifdef DGDEBUG
-    std::cout << "inURLList (processed): " << url << std::endl;
+    std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
 #endif
     while (url.before("/").contains(".")) {
         i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
@@ -456,8 +457,8 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
             foundurl = i;
             fl = foundurl.length();
 #ifdef DGDEBUG
-            std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cout << "url: " << url << fl << std::endl;
+            std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
+            std::cerr << thread_id << "url: " << url << fl << std::endl;
 #endif
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
@@ -483,7 +484,7 @@ bool ListMeta::isIPHostname(String url) {
 bool ListMeta::precompileregexps() {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
         if (!is_daemonised) {
-            std::cerr << "Error compiling RegExp isiphost." << std::endl;
+            std::cerr << thread_id << "Error compiling RegExp isiphost." << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error compiling RegExp isiphost.");
         return false;
@@ -499,7 +500,7 @@ bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, un
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
+            std::cerr << thread_id << "Error opening " << listname << std::endl;
         }
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
@@ -526,7 +527,7 @@ bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list
         rv = r.comp(source.toCharArray());
         if (rv == false) {
             if (!is_daemonised) {
-                std::cerr << "Error compiling regexp:" << source << std::endl;
+                std::cerr << thread_id << "Error compiling regexp:" << source << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error compiling regexp:");
             syslog(LOG_ERR, "%s", source.toCharArray());
@@ -546,7 +547,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
+            std::cerr << thread_id << "Error opening " << listname << std::endl;
         }
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
@@ -577,7 +578,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
         rv = r.comp(regexp.toCharArray());
         if (rv == false) {
             if (!is_daemonised) {
-                std::cerr << "Error compiling regexp: " << (*o.lm.l[listid]).getItemAtInt(i) << std::endl;
+                std::cerr << thread_id << "Error compiling regexp: " << (*o.lm.l[listid]).getItemAtInt(i) << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error compiling regexp: ");
             syslog(LOG_ERR, "%s", (*o.lm.l[listid]).getItemAtInt(i).c_str());
@@ -593,7 +594,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
 int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
                               unsigned int list, String &lastcategory) {
 #ifdef DGDEBUG
-    std::cout << "inRegExpURLList: " << url << std::endl;
+    std::cerr << thread_id << "inRegExpURLList: " << url << std::endl;
 #endif
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
@@ -627,7 +628,7 @@ int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::d
 /*if (ptp.length() > 0)
 			url = ptp + "//" + url;*/
 #ifdef DGDEBUG
-        std::cout << "inRegExpURLList (processed): " << url << std::endl;
+        std::cerr << thread_id << "inRegExpURLList (processed): " << url << std::endl;
 #endif
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
@@ -637,14 +638,14 @@ int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::d
             }
 #ifdef DGDEBUG
             else
-                std::cout << "Outside included regexp list's time limit" << std::endl;
+                std::cerr << thread_id << "Outside included regexp list's time limit" << std::endl;
 #endif
             i++;
         }
     }
 #ifdef DGDEBUG
     else {
-        std::cout << "Outside top level regexp list's time limit" << std::endl;
+        std::cerr << thread_id << "Outside top level regexp list's time limit" << std::endl;
     }
 #endif
     return -1;
@@ -724,7 +725,7 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
                 newLine += line.subString(srcoff, oldlinelen - srcoff);
             }
 #ifdef DGDEBUG
-            std::cout << "Line modified! (" << line << " -> " << newLine << ")" << std::endl;
+            std::cerr << thread_id << "Line modified! (" << line << " -> " << newLine << ")" << std::endl;
 #endif
             // copy newLine into line and continue with other regexes
             line = newLine;
@@ -743,7 +744,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
 #ifdef DGDEBUG
-        std::cout << "Starting header reg exp replace: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "Starting header reg exp replace: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         bool chop = false;
         if (i->endsWith("\r")) {
@@ -756,7 +757,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
     }
 #ifdef DGDEBUG
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
-        std::cout << "Starting header reg exp replace result: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "Starting header reg exp replace result: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     return result;
 }
@@ -768,7 +769,7 @@ int ListMeta::inHeaderRegExp(list_info &listi, std::deque<String> &header, list_
     int result = -1;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
 #ifdef DGDEBUG
-        std::cout << "Starting header reg exp check " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "Starting header reg exp check " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         bool chop = false;
         if (i->endsWith("\r")) {

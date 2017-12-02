@@ -28,6 +28,8 @@
 
 extern bool is_daemonised;
 extern OptionContainer o;
+extern thread_local std::string thread_id;
+
 ///ListMeta LMeta;
 
 // IMPLEMENTATION
@@ -100,7 +102,7 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
 {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
-            std::cerr << "Required Listname " << listname << " is not defined" << std::endl;
+            std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
         }
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
@@ -108,7 +110,7 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
     int res = o.lm.newItemList(filename, sortsw, 1, true);
     if (res < 0) {
         if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
+            std::cerr << thread_id << "Error opening " << listname << std::endl;
         }
         syslog(LOG_ERR, "Error opening %s", listname);
         return false;
@@ -121,9 +123,6 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
             (*o.lm.l[(*whichlist)]).doSort(false);
         (*o.lm.l[(*whichlist)]).used = true;
     }
-#ifdef DGDEBUG
-    std::cout << "Blanket flags are **:*ip:**s:**sip = " << (*o.lm.l[(*whichlist)]).blanketblock << ":" << (*o.lm.l[(*whichlist)]).blanket_ip_block << ":" << (*o.lm.l[(*whichlist)]).blanketsslblock << ":" << (*o.lm.l[(*whichlist)]).blanketssl_ip_block << std::endl;
-#endif
     return true;
 }
 
@@ -134,7 +133,7 @@ bool FOptionContainer::read(const char *filename) {
         std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
         if (!conffiles.good()) {
             if (!is_daemonised) {
-                std::cerr << "Error reading: " << filename << std::endl;
+                std::cerr << thread_id << "Error reading: " << filename << std::endl;
             }
             syslog(LOG_ERR, "Error reading %s", filename);
             return false;
@@ -156,7 +155,7 @@ bool FOptionContainer::read(const char *filename) {
         conffiles.close();
 
 #ifdef DGDEBUG
-        std::cout << "Read conf into memory: " << filename << std::endl;
+        std::cerr << thread_id << "Read conf into memory: " << filename << std::endl;
 #endif
 
 
@@ -187,7 +186,7 @@ bool FOptionContainer::read(const char *filename) {
             int size = (int) text_mime.size();
         int i;
         for (i = 0; i < size; i++) {
-                  std::cout << "mimes filtering : " << text_mime[i] << std::endl;
+                  std::cerr << thread_id << "mimes filtering : " << text_mime[i] << std::endl;
             }
 #endif
         }
@@ -199,7 +198,7 @@ bool FOptionContainer::read(const char *filename) {
                 ssl_check_cert = true;
                 } else {
                 syslog(LOG_ERR, "Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
-                std::cout << "Warning: sslcheckcert requires ssl to be enabled in e2guardian.conf " << std::endl;
+                std::cerr << thread_id << "Warning: sslcheckcert requires ssl to be enabled in e2guardian.conf " << std::endl;
                 ssl_check_cert = false;
                 }
         } else {
@@ -225,7 +224,7 @@ bool FOptionContainer::read(const char *filename) {
                     allow_empty_host_certs = true;
             } else {
                 syslog(LOG_ERR, "Warning: To use sslmitm, enablessl in e2guardian.conf must be on");
-                std::cout << "Warning: sslmitm requires ssl to be enabled in e2guardian.conf " << std::endl;
+                std::cerr << thread_id << "Warning: sslmitm requires ssl to be enabled in e2guardian.conf " << std::endl;
                 ssl_mitm = false;
             }
         } else {
@@ -250,7 +249,7 @@ bool FOptionContainer::read(const char *filename) {
         if (findoptionS("notifyav") == "on") {
             if (!use_smtp) {
                 if (!is_daemonised)
-                    std::cerr << "notifyav cannot be on while usesmtp is off." << std::endl;
+                    std::cerr << thread_id << "notifyav cannot be on while usesmtp is off." << std::endl;
                 syslog(LOG_ERR, "notifyav cannot be on while usesmtp is off.");
                 return false;
             }
@@ -262,7 +261,7 @@ bool FOptionContainer::read(const char *filename) {
         if (findoptionS("notifycontent") == "on") {
             if (!use_smtp) {
                 if (!is_daemonised)
-                    std::cerr << "notifycontent cannot be on while usesmtp is off." << std::endl;
+                    std::cerr << thread_id << "notifycontent cannot be on while usesmtp is off." << std::endl;
                 syslog(LOG_ERR, "notifycontent cannot be on while usesmtp is off.");
                 return false;
             }
@@ -281,7 +280,7 @@ bool FOptionContainer::read(const char *filename) {
         if (avadmin.length() == 0) {
             if (notifyav == 1) {
                 if (!is_daemonised)
-                    std::cerr << "avadmin cannot be blank while notifyav is on." << std::endl;
+                    std::cerr << thread_id << "avadmin cannot be blank while notifyav is on." << std::endl;
                 syslog(LOG_ERR, "avadmin cannot be blank while notifyav is on.");
                 return false;
             }
@@ -291,7 +290,7 @@ bool FOptionContainer::read(const char *filename) {
         if (contentadmin.length() == 0) {
             if (use_smtp) {
                 if (!is_daemonised)
-                    std::cerr << "contentadmin cannot be blank while usesmtp is on." << std::endl;
+                    std::cerr << thread_id << "contentadmin cannot be blank while usesmtp is on." << std::endl;
                 syslog(LOG_ERR, "contentadmin cannot be blank while usesmtp is on.");
                 return false;
             }
@@ -301,7 +300,7 @@ bool FOptionContainer::read(const char *filename) {
         if (mailfrom.length() == 0) {
             if (use_smtp) {
                 if (!is_daemonised)
-                    std::cerr << "mailfrom cannot be blank while usesmtp is on." << std::endl;
+                    std::cerr << thread_id << "mailfrom cannot be blank while usesmtp is on." << std::endl;
                 syslog(LOG_ERR, "mailfrom cannot be blank while usesmtp is on.");
                 return false;
             }
@@ -309,7 +308,7 @@ bool FOptionContainer::read(const char *filename) {
         avsubject = findoptionS("avsubject");
         if (avsubject.length() == 0 && notifyav == 1 && use_smtp == 1) {
             if (!is_daemonised)
-                std::cerr << "avsubject cannot be blank while notifyav is on." << std::endl;
+                std::cerr << thread_id << "avsubject cannot be blank while notifyav is on." << std::endl;
             syslog(LOG_ERR, "avsubject cannot be blank while notifyav is on.");
             return false;
         }
@@ -317,7 +316,7 @@ bool FOptionContainer::read(const char *filename) {
         contentsubject = findoptionS("contentsubject");
         if (contentsubject.length() == 0 && use_smtp) {
             if (!is_daemonised)
-                std::cerr << "contentsubject cannot be blank while usesmtp is on." << std::endl;
+                std::cerr << thread_id << "contentsubject cannot be blank while usesmtp is on." << std::endl;
             syslog(LOG_ERR, "contentsubject cannot be blank while usesmtp is on.");
             return false;
         }
@@ -330,7 +329,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         if (reporting_level == 0) {
-            std::cerr << "Reporting_level is : " << reporting_level << " file " << filename << std::endl;
+            std::cerr << thread_id << "Reporting_level is : " << reporting_level << " file " << filename << std::endl;
             syslog(LOG_ERR, "Reporting_level is : %d file %s", reporting_level, filename);
         }
 
@@ -343,13 +342,13 @@ bool FOptionContainer::read(const char *filename) {
                 max_upload_size *= 1024;
         } else {
             if (!is_daemonised)
-                std::cerr << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
+                std::cerr << thread_id << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
             syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
             return false;
         }
 
 #ifdef DGDEBUG
-        std::cout << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
+        std::cerr << thread_id << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -372,7 +371,7 @@ bool FOptionContainer::read(const char *filename) {
                 access_denied_domain = "localhost"; // No initialized value
                 if (access_denied_domain.length() < 4) {
                     if (!is_daemonised) {
-                        std::cerr << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
+                        std::cerr << thread_id << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
                     }
                     syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong.");
                 }
@@ -386,7 +385,7 @@ bool FOptionContainer::read(const char *filename) {
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     if (!is_daemonised) {
-                        std::cerr << "Error reading HTML Template file: " << html_template << std::endl;
+                        std::cerr << thread_id << "Error reading HTML Template file: " << html_template << std::endl;
                     }
                     syslog(LOG_ERR, "Error reading HTML Template file: %s", html_template.toCharArray());
                     return false;
@@ -397,7 +396,7 @@ bool FOptionContainer::read(const char *filename) {
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     if (!is_daemonised) {
-                        std::cerr << "Error reading default HTML Template file: " << html_template << std::endl;
+                        std::cerr << thread_id << "Error reading default HTML Template file: " << html_template << std::endl;
                     }
                     syslog(LOG_ERR, "Error reading default HTML Template file: %s", html_template.toCharArray());
                     return false;
@@ -422,7 +421,7 @@ bool FOptionContainer::read(const char *filename) {
 
             if (sslaccess_denied_domain.length() < 4) {
                 if (!is_daemonised) {
-                    std::cerr << " sslaccessdeniedaddress setting appears to be wrong." << std::endl;
+                    std::cerr << thread_id << " sslaccessdeniedaddress setting appears to be wrong." << std::endl;
                 }
                 syslog(LOG_ERR, "%s", " sslaccessdeniedaddress setting appears to be wrong.");
                 return false;
@@ -448,18 +447,18 @@ bool FOptionContainer::read(const char *filename) {
 		name = "no_name_group";
 	    }
 #ifdef DGDEBUG
-            std::cout << "Group name: " << name << std::endl;
+            std::cerr << thread_id << "Group name: " << name << std::endl;
 #endif
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
 #ifdef DGDEBUG
-        std::cout << "Embedded URL Weight: " << embedded_url_weight << std::endl;
+        std::cerr << thread_id << "Embedded URL Weight: " << embedded_url_weight << std::endl;
 #endif
 
         category_threshold = findoptionI("categorydisplaythreshold");
 #ifdef DGDEBUG
-        std::cout << "Category display threshold: " << category_threshold << std::endl;
+        std::cerr << thread_id << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
 
@@ -486,13 +485,13 @@ bool FOptionContainer::read(const char *filename) {
         std::string storyboard_location(findoptionS("storyboard"));
 
 #ifdef DGDEBUG
-        std::cout << "Read settings into memory" << std::endl;
-        std::cout << "Reading phrase, URL and site lists into memory" << std::endl;
+        std::cerr << thread_id << "Read settings into memory" << std::endl;
+        std::cerr << thread_id << "Reading phrase, URL and site lists into memory" << std::endl;
 #endif
 
         if (!block_downloads) {
 #ifdef DGDEBUG
-            std::cout << "Blanket download block disabled; using standard banned file lists" << std::endl;
+            std::cerr << thread_id << "Blanket download block disabled; using standard banned file lists" << std::endl;
 #endif
         }
         if (weighted_phrase_mode > 0) {
@@ -512,7 +511,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("ipsitelist");
 #ifdef DGDEBUG
-            std::cout << "ipsitelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "ipsitelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
@@ -520,7 +519,7 @@ bool FOptionContainer::read(const char *filename) {
         {
         std::deque<String> dq = findoptionM("iplist");
 #ifdef DGDEBUG
-            std::cout << "iplist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
@@ -528,7 +527,7 @@ bool FOptionContainer::read(const char *filename) {
         {
         std::deque<String> dq = findoptionM("sitelist");
 #ifdef DGDEBUG
-            std::cout << "sitelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "sitelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
@@ -536,7 +535,7 @@ bool FOptionContainer::read(const char *filename) {
         {
         std::deque<String> dq = findoptionM("urllist");
 #ifdef DGDEBUG
-            std::cout << "urllist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "urllist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
@@ -544,7 +543,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("searchlist");
 #ifdef DGDEBUG
-            std::cout << "searchlist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "searchlist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
@@ -552,7 +551,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("fileextlist");
 #ifdef DGDEBUG
-            std::cout << "fileextlist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "fileextlist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
@@ -560,7 +559,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("mimelist");
 #ifdef DGDEBUG
-            std::cout << "mimelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "mimelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
@@ -568,7 +567,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("regexpboollist");
 #ifdef DGDEBUG
-            std::cout << "regexpboollist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "regexpboollist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
@@ -576,7 +575,7 @@ bool FOptionContainer::read(const char *filename) {
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
 #ifdef DGDEBUG
-            std::cout << "regexpreplacelist deque is size " << dq.size() << std::endl;
+            std::cerr << thread_id << "regexpreplacelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
@@ -616,7 +615,7 @@ bool FOptionContainer::read(const char *filename) {
 
 
 #ifdef DGDEBUG
-        std::cout << "Lists in memory" << std::endl;
+        std::cerr << thread_id << "Lists in memory" << std::endl;
 #endif
 
 
@@ -626,27 +625,27 @@ bool FOptionContainer::read(const char *filename) {
 
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
-            std::cerr << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
+            std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
             return false;
         }
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
-           std::cerr << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+           std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
            return false;
         }
 
         if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
-            std::cerr << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
+            std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
             return false;
         }
 
         if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
-            std::cerr << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
+            std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
             return false;
         }
 
             if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-                std::cerr << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
+                std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
                 return false;
             }
     if (!precompileregexps()) {
@@ -674,7 +673,7 @@ bool FOptionContainer::read(const char *filename) {
             magic = s;
         }
 #ifdef DGDEBUG
-        std::cout << "Setting magic key to '" << magic << "'" << std::endl;
+        std::cerr << thread_id << "Setting magic key to '" << magic << "'" << std::endl;
 #endif
         // Create the Bypass Cookie magic key
         cookie_magic = std::string(16u, ' ');
@@ -697,20 +696,20 @@ bool FOptionContainer::read(const char *filename) {
             imagic = s;
         }
 #ifdef DGDEBUG
-        std::cout << "Setting imagic key to '" << imagic << "'" << std::endl;
+        std::cerr << thread_id << "Setting imagic key to '" << imagic << "'" << std::endl;
 #endif
         if (findoptionS("infectionbypasserrorsonly") == "off") {
             infection_bypass_errors_only = false;
         } else {
 #ifdef DGDEBUG
-            std::cout << "Only allowing infection bypass on scan error" << std::endl;
+            std::cerr << thread_id << "Only allowing infection bypass on scan error" << std::endl;
 #endif
             infection_bypass_errors_only = true;
         }
     }
             } catch (std::exception &e) {
         if (!is_daemonised) {
-            std::cerr << e.what() << std::endl; // when called the daemon has not
+            std::cerr << thread_id << e.what() << std::endl; // when called the daemon has not
             // detached so we can do this
         }
         return false;
@@ -804,7 +803,7 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
             // the console so we can write back an
             // error
 
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
+            std::cerr << thread_id << "Config problem; check allowed values for " << emessage << std::endl;
         }
         syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
 
@@ -817,7 +816,7 @@ bool FOptionContainer::precompileregexps()
 {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
         if (!is_daemonised) {
-            std::cerr << "Error compiling RegExp isiphost." << std::endl;
+            std::cerr << thread_id << "Error compiling RegExp isiphost." << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error compiling RegExp isiphost.");
         return false;

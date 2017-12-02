@@ -30,6 +30,7 @@
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -101,7 +102,7 @@ int commandlineinstance::init(void *args)
     progname = cv["progname"];
     if (progname.length() == 0) {
         if (!is_daemonised)
-            std::cerr << "Command-line scanner: No program specified" << std::endl;
+            std::cerr << thread_id << "Command-line scanner: No program specified" << std::endl;
         syslog(LOG_ERR, "Command-line scanner: No program specified");
         return DGCS_ERROR;
     }
@@ -132,11 +133,11 @@ int commandlineinstance::init(void *args)
     progname = cv["progname"];
 
 #ifdef DGDEBUG
-    std::cout << "Program and arguments: ";
+    std::cerr << thread_id << "Program and arguments: ";
     for (int i = 0; i < numarguments; i++) {
-        std::cout << arguments[i] << " ";
+        std::cerr << thread_id << arguments[i] << " ";
     }
-    std::cout << std::endl;
+    std::cerr << thread_id << std::endl;
 #endif
 
     // read in virus name regular expression
@@ -145,7 +146,7 @@ int commandlineinstance::init(void *args)
         usevirusregexp = true;
         if (!virusregexp.comp(ucvirusregexp.toCharArray())) {
             if (!is_daemonised)
-                std::cerr << "Command-line scanner: Could not compile regular expression for extracting virus names" << std::endl;
+                std::cerr << thread_id << "Command-line scanner: Could not compile regular expression for extracting virus names" << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Could not compile regular expression for extracting virus names");
             return DGCS_ERROR;
         }
@@ -164,12 +165,12 @@ int commandlineinstance::init(void *args)
     strncpy(tempcodes, sinfectedcodes.c_str(), sinfectedcodes.length());
     result = strtok(tempcodes, ",");
 #ifdef DGDEBUG
-    std::cout << "Infected file return codes: ";
+    std::cerr << thread_id << "Infected file return codes: ";
 #endif
     while (result) {
         tempinfectedcodes.push_back(atoi(result));
 #ifdef DGDEBUG
-        std::cout << tempinfectedcodes.back() << " ";
+        std::cerr << thread_id << tempinfectedcodes.back() << " ";
 #endif
         result = strtok(NULL, ",");
     }
@@ -179,19 +180,19 @@ int commandlineinstance::init(void *args)
     strncpy(tempcodes, scleancodes.c_str(), scleancodes.length());
     result = strtok(tempcodes, ",");
 #ifdef DGDEBUG
-    std::cout << std::endl
+    std::cerr << thread_id << std::endl
               << "Clean file return codes: ";
 #endif
     while (result) {
         tempcleancodes.push_back(atoi(result));
 #ifdef DGDEBUG
-        std::cout << tempcleancodes.back() << " ";
+        std::cerr << thread_id << tempcleancodes.back() << " ";
 #endif
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
 #ifdef DGDEBUG
-    std::cout << std::endl;
+    std::cerr << thread_id << std::endl;
 #endif
 
     // we need at least one of our three mechanisms (cleancodes, infectedcodes and virus names)
@@ -200,7 +201,7 @@ int commandlineinstance::init(void *args)
     numinfectedcodes = tempinfectedcodes.size();
     if (!(usevirusregexp || numcleancodes || numinfectedcodes)) {
         if (!is_daemonised)
-            std::cerr << "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp." << std::endl;
+            std::cerr << thread_id << "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp." << std::endl;
         syslog(LOG_ERR, "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp.");
         return DGCS_ERROR;
     }
@@ -226,7 +227,7 @@ int commandlineinstance::init(void *args)
             defaultresult = 0;
         } else {
             if (!is_daemonised)
-                std::cerr << "Command-line scanner: Default result value not understood" << std::endl;
+                std::cerr << thread_id << "Command-line scanner: Default result value not understood" << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Default result value not understood");
             return DGCS_WARNING;
         }
@@ -259,7 +260,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     int f = fork();
     if (f == 0) {
 #ifdef DGDEBUG
-        std::cout << "Running: " << progname.toCharArray() << " " << filename << std::endl;
+        std::cerr << thread_id << "Running: " << progname.toCharArray() << " " << filename << std::endl;
 #endif
         // close read ends of sockets
         close(scannerstdout[0]);
@@ -317,7 +318,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     }
 
 #ifdef DGDEBUG
-    std::cout << "Scanner result" << std::endl
+    std::cerr << thread_id << "Scanner result" << std::endl
               << "--------------" << std::endl
               << result << std::endl
               << "--------------" << std::endl

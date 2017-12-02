@@ -26,6 +26,7 @@
 
 extern bool is_daemonised;
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 extern dmcreate_t defaultdmcreate;
 
@@ -60,13 +61,13 @@ int DMPlugin::init(void *args)
         String r(cv["useragentregexp"]);
         if (r.length() > 0) {
 #ifdef DGDEBUG
-            std::cout << "useragent regexp: " << r << std::endl;
+            std::cerr << thread_id << "useragent regexp: " << r << std::endl;
 #endif
             ua_match.comp(r.toCharArray());
         } else {
 // no useragent regex? then default to .*
 #ifdef DGDEBUG
-            std::cout << "no useragent regular expression; defaulting to .*" << std::endl;
+            std::cerr << thread_id << "no useragent regular expression; defaulting to .*" << std::endl;
 #endif
             alwaysmatchua = true;
         }
@@ -75,7 +76,7 @@ int DMPlugin::init(void *args)
     }
 #ifdef DGDEBUG
     else
-        std::cout << "Fallback DM plugin; no matching options loaded" << std::endl;
+        std::cerr << thread_id << "Fallback DM plugin; no matching options loaded" << std::endl;
 #endif
     return 0;
 }
@@ -105,7 +106,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
 #ifdef DGDEBUG
-        std::cout << "mimetype: " << mimetype << std::endl;
+        std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
 #endif
         String lc;
         if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
@@ -147,7 +148,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
             }
         }
 #ifdef DGDEBUG
-        std::cout << "extension: " << extension << std::endl;
+        std::cerr << thread_id << "extension: " << extension << std::endl;
 #endif
         // check the extension list
         String lc;
@@ -168,7 +169,7 @@ bool DMPlugin::readStandardLists()
     if (filename.length() > 0) {
         if (!mimetypelist.readItemList(filename.toCharArray(), false, 0)) {
             if (!is_daemonised) {
-                std::cerr << "Error opening managedmimetypelist" << std::endl;
+                std::cerr << thread_id << "Error opening managedmimetypelist" << std::endl;
             }
             syslog(LOG_ERR, "Error opening managedmimetypelist");
             return false;
@@ -183,7 +184,7 @@ bool DMPlugin::readStandardLists()
     if (filename.length() > 0) {
         if (!extensionlist.readItemList(filename.toCharArray(), false, 0)) {
             if (!is_daemonised) {
-                std::cerr << "Error opening managedextensionlist" << std::endl;
+                std::cerr << thread_id << "Error opening managedextensionlist" << std::endl;
             }
             syslog(LOG_ERR, "Error opening managedextensionlist");
             return false;
@@ -204,7 +205,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
         if (!is_daemonised) {
-            std::cerr << "Unable to load plugin config: " << pluginConfigPath << std::endl;
+            std::cerr << thread_id << "Unable to load plugin config: " << pluginConfigPath << std::endl;
         }
         syslog(LOG_ERR, "Unable to load plugin config %s", pluginConfigPath);
         return NULL;
@@ -214,7 +215,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 
     if (plugname.length() < 1) {
         if (!is_daemonised) {
-            std::cerr << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
+            std::cerr << thread_id << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
         }
         syslog(LOG_ERR, "Unable read plugin config plugname variable %s", pluginConfigPath);
         return NULL;
@@ -222,7 +223,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 
     if (plugname == "default") {
 #ifdef DGDEBUG
-        std::cout << "Enabling default DM plugin" << std::endl;
+        std::cerr << thread_id << "Enabling default DM plugin" << std::endl;
 #endif
         return defaultdmcreate(cv);
     }
@@ -230,7 +231,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_FANCYDM
     if (plugname == "fancy") {
 #ifdef DGDEBUG
-        std::cout << "Enabling fancy DM plugin" << std::endl;
+        std::cerr << thread_id << "Enabling fancy DM plugin" << std::endl;
 #endif
         return fancydmcreate(cv);
     }
@@ -239,14 +240,14 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_TRICKLEDM
     if (plugname == "trickle") {
 #ifdef DGDEBUG
-        std::cout << "Enabling trickle DM plugin" << std::endl;
+        std::cerr << thread_id << "Enabling trickle DM plugin" << std::endl;
 #endif
         return trickledmcreate(cv);
     }
 #endif
 
     if (!is_daemonised) {
-        std::cerr << "Unable to load plugin: " << plugname << std::endl;
+        std::cerr << thread_id << "Unable to load plugin: " << plugname << std::endl;
     }
     syslog(LOG_ERR, "Unable to load plugin %s", plugname.toCharArray());
     return NULL;

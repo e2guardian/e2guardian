@@ -22,6 +22,9 @@
 #include <iostream>
 #endif
 
+// GLOBALS
+extern thread_local std::string thread_id;
+
 // IMPLEMENTATION
 
 // constructor - store our options & allocate our lists
@@ -79,13 +82,13 @@ void DynamicIPList::purgeOldEntries()
 int DynamicIPList::posInList(unsigned long int ip)
 {
 #ifdef DGDEBUG
-    std::cout << "****** ip cache table ******" << std::endl;
-    std::cout << "items: " << items << std::endl;
+    std::cerr << thread_id << "****** ip cache table ******" << std::endl;
+    std::cerr << thread_id << "items: " << items << std::endl;
     int d;
     for (d = 0; d < items; d++) {
-        std::cout << data[d] << std::endl;
+        std::cerr << thread_id << data[d] << std::endl;
     }
-    std::cout << "****** ip cache table ******" << std::endl;
+    std::cerr << thread_id << "****** ip cache table ******" << std::endl;
 #endif
     if (items == 0) {
         return -1;

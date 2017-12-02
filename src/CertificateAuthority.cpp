@@ -30,20 +30,23 @@
 #include "OptionContainer.hpp"
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 void log_ssl_errors( const char *mess, const char *site) {
     if( o.log_ssl_errors ) {
-        syslog(LOG_ERR, mess, site);
+        std::string tmess = thread_id;
+        tmess += mess;
+        syslog(LOG_ERR, tmess.c_str(), site);
 #ifdef DGDEBUG
-        std::cout << "SSL Error: " << mess << " at: " << site << std::endl;
+        std::cout  << thread_id << "SSL Error: " << mess << " at: " << site << std::endl;
 #endif
         unsigned long e;
         char buff[512];
         while (e = ERR_get_error()) {
            ERR_error_string(e, &buff[0]);
-           syslog(LOG_ERR, "%s", buff );
+           syslog(LOG_ERR, "%s%s", thread_id.c_str(), buff );
 #ifdef DGDEBUG
-        std::cout << "SSL Error: " << buff << " at: " << site << std::endl;
+        std::cout  << thread_id << "SSL Error: " << buff << " at: " << site << std::endl;
 #endif
         }
     }
@@ -61,13 +64,13 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the ca cert
     fp = fopen(caCert, "r");
     if (fp == NULL) {
-        syslog(LOG_ERR, "Couldn't open ca certificate");
+        syslog(LOG_ERR, "%sCouldn't open ca certificate", thread_id.c_str());
         exit(1);
     }
     _caCert = PEM_read_X509(fp, NULL, NULL, NULL);
     if (_caCert == NULL) {
         //syslog(LOG_ERR, "Couldn't load ca certificate");
-        log_ssl_errors("Couldn't load ca certificate from %s", caCert);
+        log_ssl_errors("Couldn't load ca certificate from %s",  caCert);
         //ERR_print_errors_fp(stderr);
         exit(1);
     }
@@ -77,12 +80,12 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the ca priv key
     fp = fopen(caPrivKey, "r");
     if (fp == NULL) {
-        syslog(LOG_ERR, "Couldn't open ca private key");
+        syslog(LOG_ERR, "%sCouldn't open ca private key", thread_id.c_str());
         exit(1);
     }
     _caPrivKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
     if (_caPrivKey == NULL) {
-        syslog(LOG_ERR, "Couldn't load ca private key");
+        syslog(LOG_ERR, "%sCouldn't load ca private key", thread_id.c_str());
         //ERR_print_errors_fp(stderr);
         exit(1);
     }
@@ -92,13 +95,13 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the priv key to use with generated certificates
     fp = fopen(certPrivKey, "r");
     if (fp == NULL) {
-        syslog(LOG_ERR, "Couldn't open certificate private key");
+        syslog(LOG_ERR, "%sCouldn't open certificate private key", thread_id.c_str());
         exit(1);
     }
     _certPrivKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
 
     if (_certPrivKey == NULL) {
-        syslog(LOG_ERR, "Couldn't load certificate private key");
+        syslog(LOG_ERR, "%sCouldn't load certificate private key", thread_id.c_str());
         //ERR_print_errors_fp(stderr);
         exit(1);
     }
@@ -127,7 +130,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     sname += "B";
 
 #ifdef DGDEBUG
-    std::cout << "Generating serial no for " << commonname << std::endl;
+    std::cout  << thread_id << "Generating serial no for " << commonname << std::endl;
 #endif
 
     EVP_MD_CTX mdctx;
@@ -163,9 +166,9 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     char *dbg = BN_bn2hex(bn);
 #ifdef DGDEBUG
     if (dbg != NULL) {
-        std::cout << "Serial no is " << dbg << std::endl;
+        std::cout  << thread_id << "Serial no is " << dbg << std::endl;
     } else {
-        std::cout << "bn2hex returned null instead of serial number" << std::endl;
+        std::cout  << thread_id << "bn2hex returned null instead of serial number" << std::endl;
     }
 #endif
     caser->charhex = dbg;
@@ -186,7 +189,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     // make directory path
     int rc = mkpath(dirpath.c_str(), 0700); // only want e2g to have access to these dir
     if (rc != 0) {
-        syslog(LOG_ERR, "error creating certificate sub-directory: %s", dirpath.c_str());
+        syslog(LOG_ERR, "%serror creating certificate sub-directory: %s",  thread_id.c_str(),dirpath.c_str());
         exit(1);
     }
 
@@ -201,10 +204,10 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR); //only e2g has access
 
 #ifdef DGDEBUG
-    std::cout << "certificate file is " << path << std::endl;
+    std::cout  << thread_id << "certificate file is " << path << std::endl;
 #endif
     if (fd < 0) {
-        syslog(LOG_ERR, "error opening new certificate");
+        syslog(LOG_ERR, "%serror opening new certificate", thread_id.c_str());
         exit(1);
     }
 
@@ -219,7 +222,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     //check if someone else created the file before we did (avoid the race condition)
     if (pos < 0) {
 #ifdef DGDEBUG
-        std::cout << "error seeking to find certificate size " << std::endl;
+        std::cout  << thread_id << "error seeking to find certificate size " << std::endl;
 #endif
         fl.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &fl);
@@ -228,7 +231,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     } else if (pos > 0) {
 //didnt get first lock so cert should be there now
 #ifdef DGDEBUG
-        std::cout << "didnt get first lock pos was " << pos << std::endl;
+        std::cout  << thread_id << "didnt get first lock pos was " << pos << std::endl;
 #endif
         fl.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &fl);
@@ -239,7 +242,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 //looks like we got the first lock so write the certificate
 //write the cert to a file
 #ifdef DGDEBUG
-    std::cout << "got first lock " << std::endl;
+    std::cout  << thread_id << "got first lock " << std::endl;
 #endif
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
@@ -284,7 +287,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     X509 *newCert = X509_new();
     if (newCert == NULL) {
 #ifdef DGDEBUG
-        std::cout << "new blank cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "new blank cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("new blank cert failed for %s", commonname);
         return NULL;
@@ -293,7 +296,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     if (X509_set_version(newCert, 2) < 1) {
 #ifdef DGDEBUG
-        std::cout << "set_version on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "set_version on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("set_version on cert failed for %s", commonname);
         X509_free(newCert);
@@ -304,7 +307,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     if (X509_set_serialNumber(newCert, (cser->asn)) < 1) {
 #ifdef DGDEBUG
-        std::cout << "set_serialNumber on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "set_serialNumber on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("set_serialNumber on cert failed for %s", commonname);
         X509_free(newCert);
@@ -315,7 +318,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     // now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
     if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)) {
 #ifdef DGDEBUG
-        std::cout << "get_notBefore on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "get_notBefore on cert failed for " << commonname << std::endl;
 #endif
         X509_free(newCert);
         return NULL;
@@ -323,7 +326,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     if (!ASN1_TIME_set(X509_get_notAfter(newCert), _ca_end)) {
 #ifdef DGDEBUG
-        std::cout << "get_notAfter on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "get_notAfter on cert failed for " << commonname << std::endl;
 #endif
         X509_free(newCert);
         return NULL;
@@ -334,7 +337,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     if (X509_set_pubkey(newCert, _certPrivKey) < 1) {
 #ifdef DGDEBUG
-        std::cout << "set_pubkey on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "set_pubkey on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("set_pubkey on cert failed for %s", commonname);
         X509_free(newCert);
@@ -346,7 +349,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     X509_NAME *name = X509_get_subject_name(newCert);
     if (name == NULL) {
 #ifdef DGDEBUG
-        std::cout << "get_subject_name on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "get_subject_name on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("get_subject_name on cert failed for %s", commonname);
         X509_free(newCert);
@@ -360,7 +363,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
     if (rc < 1) {
 #ifdef DGDEBUG
-        std::cout << "NAME_add_entry_by_txt on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "NAME_add_entry_by_txt on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("NAME_add_entry_by_txt on cert failed for %s", commonname);
         X509_NAME_free(name);
@@ -373,7 +376,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     X509_NAME *subjectName = X509_get_subject_name(_caCert);
     if (subjectName == NULL) {
 #ifdef DGDEBUG
-        std::cout << "get_subject_name on ca_cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "get_subject_name on ca_cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("get_subject_name on ca_cert failed for %s", commonname);
         X509_free(newCert);
@@ -383,7 +386,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     if (X509_set_issuer_name(newCert, subjectName) < 1) {
 #ifdef DGDEBUG
-        std::cout << "set_issuer_name on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "set_issuer_name on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("set_issuer_name on cert failed for %s", commonname);
         X509_NAME_free(subjectName);
@@ -404,7 +407,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     ERR_clear_error();
     if (!X509_sign(newCert, _caPrivKey, EVP_sha256())) {
 #ifdef DGDEBUG
-        std::cout << "X509_sign on cert failed for " << commonname << std::endl;
+        std::cout  << thread_id << "X509_sign on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("X509_sign on cert failed for %s", commonname);
         X509_free(newCert);
@@ -412,7 +415,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     }
 
 #ifdef DGDEBUG
-    std::cout << "certificate create " << name << std::endl;
+    std::cout  << thread_id << "certificate create " << name << std::endl;
 #endif
 
     return newCert;
@@ -435,7 +438,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
     caser->filename = strdup(path.c_str());
 
 #ifdef DGDEBUG
-    std::cout << "looking for cert " << path << std::endl;
+    std::cout  << thread_id << "looking for cert " << path << std::endl;
 #endif
     //check to see if there is a symlink to the file
     //	std::string path(_certLinks + filename);
@@ -443,7 +446,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
 
     if (link != NULL) {
 #ifdef DGDEBUG
-        std::cout << "Certificate found" << std::endl;
+        std::cout  << thread_id << "Certificate found" << std::endl;
 #endif
 
         //if there was then the certificate has already been created
@@ -455,7 +458,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
         return true;
     } else {
 #ifdef DGDEBUG
-        std::cout << "Certificate not found. Creating one" << std::endl;
+        std::cout  << thread_id << "Certificate not found. Creating one" << std::endl;
 #endif
 
         //generate a certificate

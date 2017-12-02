@@ -21,6 +21,7 @@
 // DEFINES
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
 
 // NTLM username grabbing needs to be independent of endianness
 
@@ -62,7 +63,7 @@ class ntlminstance : public AuthPlugin
         // whether or not to enable the magic "transparent NTLM" (NTLM auth for transparent proxies) mode
         if (definition["transparent"] == "on") {
 #ifdef DGDEBUG
-            std::cout << "Transparent NTLM Enabled" << std::endl;
+            std::cerr << thread_id << "Transparent NTLM Enabled" << std::endl;
 #endif
             transparent = true;
             transparent_ip = definition["transparent_ip"].toCharArray();
@@ -173,7 +174,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
 #ifdef DGDEBUG
-        std::cout << "NTLM - forging initial auth required from origin server" << std::endl;
+        std::cerr << thread_id << "NTLM - forging initial auth required from origin server" << std::endl;
 #endif
 
         if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
@@ -219,9 +220,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     }
 
 #ifdef DGDEBUG
-    std::cout << "NTLM - header - " << std::endl;
+    std::cerr << thread_id << "NTLM - header - " << std::endl;
     for (unsigned int i = 0; i < h.header.size(); i++)
-    	std::cout << h.header[i] << std::endl;
+    	std::cerr << thread_id << h.header[i] << std::endl;
 #endif
 
     if (at != "NTLM") {
@@ -230,7 +231,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 // allow the initial request through so the client will get the proxy's initial auth required response.
 // advertise persistent connections so that parent proxy will agree to advertise NTLM support.
 #ifdef DGDEBUG
-            std::cout << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
+            std::cerr << thread_id << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
 #endif
             h.makePersistent();
         }
@@ -238,7 +239,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     }
 
 #ifdef DGDEBUG
-    std::cout << "NTLM - sending step 1" << std::endl;
+    std::cerr << thread_id << "NTLM - sending step 1" << std::endl;
 #endif
 
     if (!h.isPersistent()) {
@@ -247,12 +248,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
 
 #ifdef DGDEBUG
-    std::cout << "NTLM - receiving step 2" << std::endl;
+    std::cerr << thread_id << "NTLM - receiving step 2" << std::endl;
 #endif
     h.in(upstreamcon, true);
     if (h.authRequired()) {
 #ifdef DGDEBUG
-        std::cout << "NTLM - sending step 2" << std::endl;
+        std::cerr << thread_id << "NTLM - sending step 2" << std::endl;
 #endif
         if (transparent)
             h.makeTransparent(true);
@@ -261,7 +262,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             fdt.tunnel(*upstreamcon, peercon, false, h.contentLength(), true);
         }
 #ifdef DGDEBUG
-        std::cout << "NTLM - receiving step 3" << std::endl;
+        std::cerr << thread_id << "NTLM - receiving step 3" << std::endl;
 #endif
         // Buggy with IE and Chrome: todo needs more investigations !
         h.in(&peercon, true);
@@ -277,7 +278,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             h.setURL(domain);
         }
 #ifdef DGDEBUG
-        std::cout << "NTLM - decoding type 3 message" << std::endl;
+        std::cerr << thread_id << "NTLM - decoding type 3 message" << std::endl;
 #endif
         std::string message(h.getAuthData());
         ntlm_authenticate auth;
@@ -293,9 +294,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::string clientip;
             clientip = peercon.getPeerIP();
 #ifdef DGDEBUG
-            std::cerr << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << "IP: " << clientip << " header size " << h.header.size() << std::endl;
+            std::cerr << thread_id << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << "IP: " << clientip << " header size " << h.header.size() << std::endl;
             for (unsigned int i = 0; i < h.header.size(); i++)
-                std::cerr << h.header[i] << std::endl;
+                std::cerr << thread_id << h.header[i] << std::endl;
 #endif
               return -3;
         }
@@ -320,7 +321,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     if (ic == (iconv_t)-1) {
                         syslog(LOG_ERR, "NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: %s", strerror(errno));
 #ifdef DGDEBUG
-                        std::cerr << "NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: " << strerror(errno) << std::endl;
+                        std::cerr << thread_id << "NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: " << strerror(errno) << std::endl;
 #endif
                         iconv_close(ic);
                         return -2;
@@ -330,12 +331,12 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     iconv_close(ic);
                     username2[256 - l2] = '\0';
 #ifdef DGDEBUG
-                    std::cout << "NTLM - got username (converted from UTF-16LE) " << username2 << std::endl;
+                    std::cerr << thread_id << "NTLM - got username (converted from UTF-16LE) " << username2 << std::endl;
 #endif
                     string = username2;
                 } else {
 #ifdef DGDEBUG
-                    std::cout << "NTLM - got username " << username << std::endl;
+                    std::cerr << thread_id << "NTLM - got username " << username << std::endl;
 #endif
                     string = username;
                 }
@@ -369,9 +370,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         return DGAUTH_NOMATCH;
     } else {
 #ifdef DGDEBUG
-        std::cout << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
+        std::cerr << thread_id << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
         for (unsigned int i = 0; i < h.header.size(); i++)
-            std::cout << h.header[i] << std::endl;
+            std::cerr << thread_id << h.header[i] << std::endl;
 #endif
         syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
         return -1;
