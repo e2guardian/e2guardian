@@ -207,7 +207,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     }
     rs.imatched = true;
     delete[] pmatch;
-#ifdef DGDEBUG
+#ifdef REDEBUG
     std::cerr << thread_id << "match(s) for:" << searchstring << std::endl;
 #endif
     return true; // match(s) found
