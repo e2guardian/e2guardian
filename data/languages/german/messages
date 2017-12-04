@@ -71,6 +71,7 @@
 "509","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet."
 "520","Geblockte HTTPS-Seite: "
 "521","Geblockte Ausdrücke: "
+"522","Blocked User-Agent: "    # needs translation
 "560","Geblockte Seite (lokal): "
 "561","Geblockte URL (lokal): "
 "580","Geblockte HTTPS-Seite (lokal): "
@@ -85,6 +86,7 @@
 "607","Umgehungs-Cookie gefunden"
 "608","Überprüfe Umgehungs-URL Ausnahme."
 "609","Ausnahme von regular expression URL gefunden: "
+"610","User-Agent pattern match: "    # needs translation
 "620","Ursprungsseite gefunden: "
 "630","URL gefunden in "
 "631"," erlaubte Lokations-Liste"

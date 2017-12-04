@@ -22,30 +22,41 @@ storyboard = '@DGCONFDIR@/examplef1.story'
 # ssllegacylogic = off
 
 # Content filtering files location
-### NOTE - New format for list definition in v5.0 - work in progress
 
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 
+### NOTE - New format for all other list definition in v5.0 
+
+#banned lists
 sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
 ipsitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplist'
-sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'
-ipsitelist = 'name=grey,path=@DGCONFDIR@/lists/greysiteiplist'
+urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
+regexpurlboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
+regexpurlboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
+
 sitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitelist'
 ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsiteiplist'
+
+#grey (i.e. content check) lists
+sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'
+ipsitelist = 'name=grey,path=@DGCONFDIR@/lists/greysiteiplist'
+urllist = 'name=grey,path=@DGCONFDIR@/lists/greyurllist'
 sitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsitelist'
 ipsitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsiteiplist'
+
+#exception lists
 sitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsitelist'
 ipsitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsiteiplist'
-urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
-urllist = 'name=grey,path=@DGCONFDIR@/lists/greyurllist'
 urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
-
 regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
-regexpurlboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
-contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
-regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
+regexpurlboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
+
+#sitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsitelist'
+#ipsitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsiteiplist'
+#urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
+
 sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
 ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
 urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
@@ -53,30 +64,41 @@ sitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersitelist'
 ipsitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersiteiplist'
 urllist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededrefererurllist'
 
-regexpreplacelist = 'name=redirect,path=@DGCONFDIR@/lists/urlredirectregexplist'
+sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
+ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
+urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
 
+#modification lists
+regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
 regexpreplacelist = 'name=sslreplace,path=@DGCONFDIR@/lists/sslsiteregexplist'
 
+#redirection lists
+regexpreplacelist = 'name=redirect,path=@DGCONFDIR@/lists/urlredirectregexplist'
+
+contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
+
 # local versions of lists 
+
+#local banned
 #sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
 #ipsitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsiteiplist'
-# Note: localbannedsslsitelist is ignored if MITM is enabled
+#urllist = 'name=localbanned,messageno=561,path=@DGCONFDIR@/lists/localbannedurllist'
 #sitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsitelist'
 #ipsitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsiteiplist'
-#sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
-#ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
-#sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
-#ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
-#sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
-#ipsitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsiteiplist'
-#urllist = 'name=localbanned,messageno=561,path=@DGCONFDIR@/lists/localbannedurllist'
-#urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
-#urllist = 'name=localexception,messageno=663,path=@DGCONFDIR@/lists/localexceptionurllist'
 searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbannedsearchlist'
 
-#sitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsitelist'
-#ipsitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsiteiplist'
-#urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
+#local grey lists
+#sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
+#ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
+#urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
+#sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
+#ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
+
+#local exception lists
+#sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
+#ipsitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsiteiplist'
+#urllist = 'name=localexception,messageno=663,path=@DGCONFDIR@/lists/localexceptionurllist'
+
 
 # Filetype filtering
 #
@@ -148,6 +170,13 @@ regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlis
 ##exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
 regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
 
+#Virus checking exceptions - matched urls will not be virus checked
+mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+fileextlist = 'name=exceptionvirus,path=/home/dg/etc/config_i1/e2guardian/lists/contentscanners/exceptionvirusextensionlist'
+sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
+urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
+
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in
@@ -189,13 +218,10 @@ naughtynesslimit = 50
 # List of regular expressions for matching search engine URLs.  It is assumed
 # that the search terms themselves will be contained in the 
 # of output of each expression.
-#searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
 regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
-#bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
 searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
-#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
 searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
@@ -218,6 +244,7 @@ searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 # of text.
 # Please note that all or none of the below should be uncommented, not a
 # mixture.
+# NOTE: these are phrase lists and still use the old style defines
 #bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
 #weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
 #exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'

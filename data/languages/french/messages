@@ -74,6 +74,7 @@
 "509","Expression régulière d`entète HTTP interdite trouvée."
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
+"522","Blocked User-Agent: "    # needs translation
 "560","Blocked site (local): "    # needs translation
 "561","Blocked URL (local): "    # needs translation
 "580","Blocked HTTPS site (local): "    # needs translation
@@ -88,6 +89,7 @@
 "607","Exception de cookie sans controle trouvée."
 "608","Exception d`URL sans inspection des logiciels malveillants trouvée."
 "609","Exception d`expression régulière d'URL trouvée : "
+"610","User-Agent pattern match: "    # needs translation
 "620","Referer match: "    # needs translation
 "630","URL match in "    # needs translation
 "631"," location allow list"    # needs translation

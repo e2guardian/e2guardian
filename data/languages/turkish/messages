@@ -71,6 +71,7 @@
 "509","Access not allowed using this browser (or app)."    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
+"522","Blocked User-Agent: "    # needs translation
 "560","Blocked site (local): "    # needs translation
 "561","Blocked URL (local): "    # needs translation
 "580","Blocked HTTPS site (local): "    # needs translation
@@ -85,6 +86,7 @@
 "607","Bu sitede cookie kesfedildi."
 "608","Ayricalikli URL adresi taraniyor."
 "609","Ayricalikli duzenlenmis url adresi: "
+"610","User-Agent pattern match: "    # needs translation
 "620","Referer match: "    # needs translation
 "630","URL match in "    # needs translation
 "631"," location allow list"    # needs translation

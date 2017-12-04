@@ -1,0 +1,7 @@
+#Banned User-Agents based on regular expressions
+#
+# E.g. ' .*MSIE' would block several versions of Internet Explorer
+# (assuming the user-agent is not being spoofed by the client)
+#
+#listcategory: "user-agent"
+

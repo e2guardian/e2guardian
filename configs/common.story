@@ -108,7 +108,8 @@ if(searchin,localbanned) return setblock
 #  returns true if matches local exception 
 function(localsslrequestcheck)
 if(sitein, localexception) return setexception
-#if(returnset) return sslreplace
+if(sitein, localblocked) setgomitm
+if(returnset) return sslreplace
 
 # SSL site replace (used instead of dns kulge)
 #  always returns true 
@@ -136,12 +137,14 @@ if(urlin, localexception) return setexception
 function(exceptioncheck)
 if(urlin, exception) return setexception
 if(headerin, exceptionheader) return setexception
+if(useragentin, exceptionuseragent) return setexception
 
 # SSL Exception check
 #  returns true on match
 function(sslexceptioncheck)
 if(sitein, exception) return setexception
 if(headerin, exceptionheader) return setexception
+if(useragentin, exceptionuseragent) return setexception
 if(true) return false
 
 # Greylist check
@@ -154,6 +157,7 @@ if(urlin, grey) return setgrey
 function(bannedcheck)
 if(true) returnif checkblanketblock
 if(urlin, banned) return setblock
+if(useragentin, banneduseragent) return setblock
 if(headerin, bannedheader) return setblock
 
 # Local SSL list(s) check
@@ -166,9 +170,23 @@ if(sitein, localexception) return setexception
 #  returns true if yes, false if no
 function(sslcheckmitm)
 # use next line to have general MITM
-if(true) setgomitm
+if(true) return sslcheckmitmgeneral
 # use next line instead of last to limit MITM to greylist
-#if(sitein, greyssl) setgomitm
+#if(true) return sslcheckmitmgreyonly
+
+# Always go MITM
+#  returns true if yes, false if no
+function(sslcheckmitmgeneral)
+if(true) setgomitm
+ifnot(returnset) return false
+if(sitein, nocheckcert) setnocheckcert
+if(true) sslreplace
+if(true) return true
+
+# Only go MITM when in greyssl list
+#  returns true if yes, false if no
+function(sslcheckmitmgreyonly)
+if(sitein, greyssl) setgomitm
 ifnot(returnset) return false
 if(sitein, nocheckcert) setnocheckcert
 if(true) sslreplace
