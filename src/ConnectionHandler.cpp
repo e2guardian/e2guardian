@@ -2946,6 +2946,8 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                     checkme.clienthost = std::string(hostnames->front().toCharArray());
             }
 
+            checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
+
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
 #ifdef DGDEBUG

@@ -682,7 +682,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
                     break;
                 case SB_FUNC_SETGOMITM:
-                    cm.gomitm = true;
+                    if(cm.ismitmcandidate) {
+                        cm.gomitm = true;
+                    } else {
+                        action_return = false;
+                    }
                     break;
                 case SB_FUNC_SETADDHEADER:
                     cm.headeradded = true;
