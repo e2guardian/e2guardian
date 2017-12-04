@@ -104,8 +104,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     // not usually very convenient. so instead, just allow group read on the
     // file, and tell users to make sure the daemongroup option is friendly to
     // the AV daemon's group membership.
-    // TODO? chmod can error out with EINTR, we may wish to ignore this
-    if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
+    if (chmod(filename, S_IRGRP | S_IRUSR ) != 0) {
         lastmessage = "Error giving ClamD read access to temp file";
         syslog(LOG_ERR, "Could not change file ownership to give ClamD read access: %s", strerror(errno));
         return DGCS_SCANERROR;
