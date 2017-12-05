@@ -1528,7 +1528,7 @@ int fc_controlit()   //
     // this has to be done after daemonise to ensure we get the correct PID.
     rc = sysv_writepidfile(pidfilefd); // also closes the fd
     if (rc != 0) {
-        syslog(LOG_ERR, "%sError writing to the e2guardian.pid file: %s", thread_id, strerror(errno));
+        syslog(LOG_ERR, "%sError writing to the e2guardian.pid file: %s", thread_id.c_str(), strerror(errno));
         delete[] serversockfds;
         return false;
     }

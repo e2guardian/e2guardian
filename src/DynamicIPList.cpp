@@ -17,7 +17,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
-
+#include <string>
 #ifdef DGDEBUG
 #include <iostream>
 #endif
