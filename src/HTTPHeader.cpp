@@ -538,11 +538,11 @@ void HTTPHeader::setURL(String &url)
 #ifdef DGDEBUG
     std::cerr << thread_id << "setURL: header.front() changed from: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-    if (!https)
-        header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
-    else
+    if (https && header.front().startsWith("CONNECT"))
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
+    else
+        header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
 #ifdef DGDEBUG
     std::cerr << thread_id << " to: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
