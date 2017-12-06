@@ -35,6 +35,7 @@
 #include <sys/time.h>
 #include <strings.h>
 #include <fcntl.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -1497,7 +1498,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         hashed = "2";
                     }
 
-                    eheader = "HTTP/1.1 307 Temporary Redirect\n";
+                    eheader = "HTTP/1.1 307 Temporary Redirect\r\n";
                     eheader += "Location: ";
                     eheader += ldl->fg[filtergroup]->sslaccess_denied_address; // banned site for ssl
                     if (ldl->fg[filtergroup]->non_standard_delimiter) {
@@ -1539,22 +1540,25 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     } else {
                         eheader += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
                     }
-                    eheader += "\nContent-Length: 0";
-                    eheader += "\nCache-control: no-cache";
-                    eheader += "\nConnection: close\r\n\r\n";
+                    eheader += "\r\nContent-Length: 0";
+                    eheader += "\r\nCache-control: no-cache";
+                    eheader += "\r\nConnection: close\r\n\r\n";
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
                     eheader = "HTTP/1.1 403 ";
                     eheader += o.language_list.getTranslation(500); // banned site
-                    eheader += "\nContent-Type: text/html\n\n";
+                    eheader += "\r\nContent-Type: text/html\r\n";
                     ebody = "<HTML><HEAD><TITLE>e2guardian - ";
                     ebody += o.language_list.getTranslation(500); // banned site
                     ebody += "</TITLE></HEAD><BODY><H1>e2guardian - ";
                     ebody += o.language_list.getTranslation(500); // banned site
                     ebody += "</H1>";
                     ebody += (*url);
-                    ebody += "</BODY></HTML>\n";
+                    ebody += "</BODY></HTML>\r\n";
+                    eheader += "Content-Length: ";
+                    eheader += std::to_string(ebody.size());
+                    eheader += "\r\n\r\n";
                 }
 
             } else {
@@ -1606,14 +1610,17 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if (strstr(checkme->whatIsNaughtyCategories.c_str(), "ADs") != NULL) {
                         eheader = "HTTP/1.1 200 \n";
                         eheader += o.language_list.getTranslation(1101); // advert blocked
-                        eheader += "\nContent-Type: text/html\n\n";
+                        eheader += "\r\nContent-Type: text/html\r\n";
                         ebody = "<HTML><HEAD><TITLE>E2guardian - ";
                         ebody += o.language_list.getTranslation(1101); // advert blocked
                         ebody += "</TITLE></HEAD><BODY><CENTER><FONT SIZE=\"-1\"><A HREF=\"";
                         ebody += (*url);
                         ebody += "\" TARGET=\"_BLANK\">";
                         ebody += o.language_list.getTranslation(1101); // advert blocked
-                        ebody += "</A></FONT></CENTER></BODY></HTML>\n";
+                        ebody += "</A></FONT></CENTER></BODY></HTML>\r\n";
+                        eheader += "Content-Length: ";
+                        eheader += std::to_string(ebody.size());
+                        eheader += "\r\n\r\n";
                     }
 
                     // Mod by Ernest W Lessenger Mon 2nd February 2004
@@ -1684,7 +1691,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*checkme).whatIsNaughtyLog.length() > 2048) {
                 (*checkme).whatIsNaughtyLog = String((*checkme).whatIsNaughtyLog.c_str()).subString(0, 2048).toCharArray();
             }
-            eheader = "HTTP/1.1 302 Redirect\n";
+            eheader = "HTTP/1.1 302 Redirect\r\n";
             eheader += "Location: ";
             eheader += ldl->fg[filtergroup]->access_denied_address;
 
@@ -1748,18 +1755,21 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             } else {
                 eheader += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
             }
-            eheader += "\n\n";
+            eheader += "\r\n\r\n";
         }
 
         // the user is using the barebones banned page
         else if (reporting_level == 0) {
-            eheader = "HTTP/1.1 200 OK\n";
-            eheader += "Content-type: text/html\n\n";
+            eheader = "HTTP/1.1 200 OK\r\n";
+            eheader += "Content-type: text/html\r\n";
             ebody = "<HTML><HEAD><TITLE>e2guardian - ";
             ebody += o.language_list.getTranslation(1); // access denied
             ebody += "</TITLE></HEAD><BODY><CENTER><H1>e2guardian - ";
             ebody += o.language_list.getTranslation(1); // access denied
-            ebody += "</H1></CENTER></BODY></HTML>";
+            ebody += "</H1></CENTER></BODY></HTML>\r\n";
+            eheader += "Content-Length: ";
+            eheader += std::to_string(ebody.size());
+            eheader += "\r\n\r\n";
         }
 
         // stealth mode
