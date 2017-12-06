@@ -7,11 +7,10 @@
 
 // INCLUDES
 
-// not sure if these are needed - but are in protexofe - PIP
 //#include "String.hpp"
 //#include "OptionContainer.hpp"
 //#include "DataBuffer.hpp"
-//#include "HTTPHeader.hpp"
+#include "HTTPHeader.hpp"
 //#include "FOptionContainer.hpp"
 #include "UrlRec.hpp"
 
