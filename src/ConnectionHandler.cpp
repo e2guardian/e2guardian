@@ -901,6 +901,31 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (checkme.isdirect) header.setDirect();
             }
 
+            if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
+#ifdef DGDEBUG
+                std::cout << thread_id << "Setting GBYPASS cookie; bypasstimestamp = " << checkme.bypasstimestamp << __func__ << std::endl;
+#endif
+                String ud(checkme.urldomain);
+                if (ud.startsWith("www.")) {
+                    ud = ud.after("www.");
+                }
+                // redirect user to URL with GBYPASS parameter no longer appended
+                String outhead = "HTTP/1.1 302 Redirect\r\n";
+                outhead += "Set-Cookie: GBYPASS=";
+                outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(),&clientip,
+                                        checkme.bypasstimestamp).toCharArray();
+                outhead += "; path=/; domain=.";
+                outhead += ud;
+                outhead += "\r\n";
+                outhead += "Location: ";
+                outhead += header.getUrl(true);
+                outhead += "\r\n";
+                outhead += "\r\n";
+                peerconn.writeString(outhead.c_str());
+                return 0;
+            }
+
+
             //check for redirect
             // URL regexp search and edirect
             if (checkme.urlredirect) {
@@ -3473,7 +3498,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // being a banned user/IP overrides the fact that a site may be in the exception lists
     // needn't check these lists in bypass modes
-    if (!(isbanneduser || isbannedip || checkme.isbypass || checkme.isexception)) {
+    if (!(isbanneduser || isbannedip ||  checkme.isexception)) {
 // Main checking is now done in Storyboard function(s)
         ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_REQMOD, checkme);
 #ifdef DGDEBUG
@@ -3481,6 +3506,32 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
                   << checkme.message_no << " allow_204 : " << icaphead.allow_204 << std::endl;
 #endif
         checkme.isItNaughty = checkme.isBlocked;
+    }
+
+    if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
+#ifdef DGDEBUG
+        std::cout << thread_id << "Setting GBYPASS cookie; bypasstimestamp = " << checkme.bypasstimestamp << __func__ << std::endl;
+#endif
+        String ud(checkme.urldomain);
+        if (ud.startsWith("www.")) {
+            ud = ud.after("www.");
+        }
+        // redirect user to URL with GBYPASS parameter no longer appended
+        String outhead = "HTTP/1.1 302 Redirect\r\n";
+        outhead += "Set-Cookie: GBYPASS=";
+        outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(),&clientip,
+                                checkme.bypasstimestamp).toCharArray();
+        outhead += "; path=/; domain=.";
+        outhead += ud;
+        outhead += "\r\n";
+        outhead += "Location: ";
+        outhead += icaphead.HTTPrequest.getUrl(true);
+        outhead += "\r\n";
+        outhead += "\r\n";
+        icaphead.out_res_header = outhead;
+        icaphead.out_res_hdr_flag = true;
+        icaphead.respond(peerconn);
+        return 0;
     }
 
 // TODO add logicv for 204 response etc.
@@ -3516,9 +3567,9 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     // URL regexp search and edirect
     if (checkme.urlredirect) {
         checkme.url = icaphead.HTTPrequest.redirecturl();
-        String writestring("HTTP/1.1 302 Redirect\nLocation: ");
+        String writestring("HTTP/1.1 302 Redirect\r\nLocation: ");
         writestring += checkme.url;
-        writestring += "\n\n";
+        writestring += "\r\n\r\n";
         res_hdr = writestring;
         icaphead.errorResponse(peerconn, res_hdr, res_body);
         if (icaphead.req_body_flag) {
