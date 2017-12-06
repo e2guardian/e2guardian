@@ -81,8 +81,8 @@
 "581","Banned Search Words (local): "    # needs translation
 "600","Exception d`adresse IP client trouvée."
 "601","Exception d`utilisateur client trouvée."
-"602","Exception de site trouvée."
-"603","Exception d`URL trouvée."
+"602","Exception de site trouvée : "
+"603","Exception d`URL trouvée : "
 "604","Exception de phrase trouvée : "
 "605","Exception de combinaison de mots trouvée : "
 "606","Exception d`URL sans controle trouvée."
@@ -94,8 +94,8 @@
 "630","URL match in "    # needs translation
 "631"," location allow list"    # needs translation
 "632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
+"662","Site (local): "    # needs translation
+"663","URL (local): "    # needs translation
 "700","L`upload web est interdit."
 "701","Dépassement de la limite d`upload Web."
 "750","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce type MIME n`est pas dans la liste blanche : "

@@ -93,8 +93,8 @@
 
 "600","Client IP match."
 "601","Client user match."
-"602","Site match."
-"603","URL match."
+"602","Site match: "
+"603","URL match: "
 "604","Phrase found: "
 "605","Combination phrase found: "
 "606","Bypass URL."
@@ -107,8 +107,8 @@
 "631"," location allow list"
 "632","Location overide allow list matched"
 
-"662","Site (local)."
-"663","URL (local)."
+"662","Site (local): "
+"663","URL (local): "
 
 "700","Web upload is banned."
 "701","Web upload limit exceeded."
@@ -119,8 +119,6 @@
 "800","Banned MIME file type: "
 
 "900","Banned file extension: "
-
-"1000","PICS labeling level exceeded on the above site."
 
 "1100","Virus or bad content detected."
 "1101","Advert blocked"
