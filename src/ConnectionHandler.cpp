@@ -1594,12 +1594,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // (or advanced ad block page, or HTML page with bypass URLs)
                 if (replaceimage) {
                     if (headersent == 0) {
-                        eheader = "HTTP/1.1 200 OK\n";
+                        eheader = "HTTP/1.1 200 OK\r\n";
                     }
                     o.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
-                        eheader = "HTTP/1.1 200 OK\n";
+                        eheader = "HTTP/1.1 200 OK\r\n";
                     }
                     o.banned_flash.display_hb(eheader, ebody);
                 } else {
@@ -1608,7 +1608,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     // for IFRAMEs, which will end up containing this link instead of the ad (standard non-IFRAMEd
                     // ad images still get image-replaced.)
                     if (strstr(checkme->whatIsNaughtyCategories.c_str(), "ADs") != NULL) {
-                        eheader = "HTTP/1.1 200 \n";
+                        eheader = "HTTP/1.1 200 \r\n";
                         eheader += o.language_list.getTranslation(1101); // advert blocked
                         eheader += "\r\nContent-Type: text/html\r\n";
                         ebody = "<HTML><HEAD><TITLE>E2guardian - ";
@@ -1640,7 +1640,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         }
 
                         if (headersent == 0) {
-                            eheader = "HTTP/1.1 200 \n";
+                            eheader = "HTTP/1.1 200 \r\n";
                         }
                         if (headersent < 2) {
                             eheader += "Content-type: text/html\n\n";
