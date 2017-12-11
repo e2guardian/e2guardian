@@ -46,7 +46,7 @@ TRANSPARENT HTTPS
 
 ICAP SERVER
 
-    This is now in testable form - both REQMOD and RESPMOD.
+    This is now in testable form - REQMOD and RESPMOD mode supported.
     See notes/icap.
 
 DIRECT UPSTREAM ACCESS I.e. not via proxy.  
@@ -96,7 +96,7 @@ REVISED DEBUG STAGE 1
 
 HTTP/1.1
 
-    2nd stage in supporting HTTP v1.1 completed - Chunked encoding now testable
+    Support for HTTP v1.1 completed - Chunked encoding now testable
 
 ANTI-VIRUS PLUGINS
 
@@ -117,8 +117,7 @@ TODO - for this release.
 -----------------------
 
     Final tidy code.
-
-    Chunked encoding to HTTP/1.1 standard
+    Add more notes.
 
 TODO - for next releases.
 -----------------------
@@ -147,6 +146,6 @@ WISHLIST
 
     Rate-limiting feature 
 
-Philip Pearce 4 December 2017
+Philip Pearce 11 December 2017
 
 

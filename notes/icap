@@ -7,6 +7,14 @@ REQMOD service does url checking and any url modification and logs blocked reque
 RESPMOD service does content checking where REQMOD has not identified request 
 as an exception, and logs request.
 
+Possible modes are:-
+
+	REQMOD only
+
+	REQMOD and RESPMOD (recommended)
+
+	RESPMOD only is not supported
+
 REQMOD service communicates user, filtergroup and classification of request via
 X-ICAP-E2G ICAP header
 
