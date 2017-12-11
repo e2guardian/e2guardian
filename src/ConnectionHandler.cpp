@@ -4107,9 +4107,10 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     } else {
                         writestring += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
                     }
-                    writestring += "\nContent-Length: 0";
-                    writestring += "\nCache-control: no-cache";
-                    writestring += "\nConnection: close\n";
+                    writestring += "\nContent-Length: 0\r\n";
+                    writestring += "Cache-control: no-cache\r\n";
+                    writestring += "Connection: close\r\n";
+                    writestring += "\r\n";
                         (*peerconn).writeString(writestring.toCharArray());   // ignore errors
 #ifdef DGDEBUG // debug stuff surprisingly enough
                     std::cout << dbgPeerPort << " -******* redirecting to: " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;

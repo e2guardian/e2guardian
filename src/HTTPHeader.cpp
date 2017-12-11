@@ -114,9 +114,12 @@ off_t HTTPHeader::contentLength()
         contentlength = 0;
     else if (pcontentlength != NULL) {
         temp = pcontentlength->after(":");
-        contentlength = temp.toOffset();
+	if (temp.size() < 1){
+    		contentlength = -1;
+	} else {
+        	contentlength = temp.toOffset();
+	}
     }
-
     return contentlength;
 }
 
