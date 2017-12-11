@@ -1540,10 +1540,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     } else {
                         eheader += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
                     }
-                    eheader += "\r\nContent-Length: 0\r\n";
-                    eheader += "\r\nCache-control: no-cache\r\n";
-                    eheader += "\r\nConnection: close\r\n";
-                    eheader += "\r\n";
+                    eheader += "\r\nContent-Length: 0";
+                    eheader += "\r\nCache-control: no-cache";
+                    eheader += "\r\nConnection: close\r\n\r\n";
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
