@@ -57,7 +57,11 @@ class Socket : public BaseSocket
     // get local IP
     std::string getLocalIP();
     int getLocalPort();
+
+    // Chunked i/o
+    String chunked_trailer;
     bool writeChunk( char *buffout, int len, int timeout);
+    bool writeChunkTrailer( String &trailer);
     int readChunk( char *buffout, int maxlen, int timeout);
     int loopChunk(int timeout);
     int drainChunk(int timeout);

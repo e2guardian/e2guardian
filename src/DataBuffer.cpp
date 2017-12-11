@@ -306,7 +306,8 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         }
         if (chunked && got_all) {
-            if (!sock->writeChunk(data, 0, stimeout))
+            String n;
+            if (!sock->writeChunkTrailer(n))
                 return false;
         }
         close(tempfilefd);
@@ -340,7 +341,8 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
                 sent += block_len;
             }
             if (chunked && got_all) {
-                if (!sock->writeChunk(data, 0, stimeout))
+                String n;
+                if (!sock->writeChunkTrailer(n))
                     return false;
             }
         } else {

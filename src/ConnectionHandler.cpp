@@ -327,7 +327,8 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &u
 #endif
     }
     if (is_icap) {
-        peerconn->writeChunk(buffer,0, 10000);
+        String n;
+        peerconn->writeChunkTrailer(n);
     }
     delete[] buffer;
     close(fd);
@@ -3381,7 +3382,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.errorResponse(peerconn, res_hdr, res_body);
         if (icaphead.req_body_flag) {
             peerconn.drainChunk(peerconn.getTimeout());   // drains body
-            peerconn.drainTail();
         }
         return 0;
     }
@@ -3393,7 +3393,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.errorResponse(peerconn, res_hdr, res_body);
         if (icaphead.req_body_flag) {
             peerconn.drainChunk(peerconn.getTimeout());   // drains body
-            peerconn.drainTail();
         }
         return 0;
     }
@@ -3559,7 +3558,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             icaphead.respond(peerconn, "204 No Content");
             if (icaphead.req_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-                peerconn.drainTail();
             }
             done = true;
         } else {
@@ -3567,7 +3565,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             icaphead.respond(peerconn, "200 OK", true);
             if (icaphead.req_body_flag) {
                 peerconn.loopChunk(peerconn.getTimeout());   // echos any body
-                peerconn.loopTail();
             }
             done = true;
         }
@@ -3584,7 +3581,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.errorResponse(peerconn, res_hdr, res_body);
         if (icaphead.req_body_flag) {
             peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-            peerconn.drainTail();
         }
         done = true;
     }
@@ -3604,7 +3600,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             icaphead.errorResponse(peerconn, res_hdr, res_body);
             if (icaphead.req_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-                peerconn.drainTail();
             }
             done = true;
 #ifdef DGDEBUG
@@ -3622,7 +3617,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.respond(peerconn, "200 OK", true);
         if (icaphead.req_body_flag) {
             peerconn.loopChunk(peerconn.getTimeout());   // echoes any body
-            peerconn.loopTail();
         }
     }
     //Log
@@ -3732,14 +3726,12 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
             icaphead.respond(peerconn, "204 No Content");
             if (icaphead.res_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-                peerconn.drainTail();
             }
         } else {
             // pipe through headers and body
             icaphead.respond(peerconn, "200 OK", true);
             if (icaphead.res_body_flag) {
                 peerconn.loopChunk(peerconn.getTimeout());   // echos any body
-                peerconn.loopTail();
             }
         }
     done = true;
@@ -3776,7 +3768,6 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
                 }
                 if (checkme.tunnel_rest)
                     peerconn.loopChunk(peerconn.getTimeout());   // echos any body
-                peerconn.loopTail();
                 done = true;
             }
 
@@ -3788,7 +3779,6 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
                     icaphead.errorResponse(peerconn, res_hdr, res_body);
                     if (icaphead.res_body_flag) {
                         peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-                        peerconn.drainTail();
                     }
                     done = true;
                 }

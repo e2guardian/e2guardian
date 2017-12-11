@@ -1098,11 +1098,19 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     return false;
 };
 
+bool Socket::writeChunkTrailer( String &trailer) {
+    std::string hexs ("0\r\n");
+    std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
+    if(writeString(hexs.c_str()) && writeToSocket(trailer.c_str(),trailer.length(),0,timeout) && writeString("\r\n"))
+        return true;
+    return false;
+};
+
 int Socket::readChunk( char *buffin, int maxlen, int timeout){
     char size[40];
     ieof = false;
     int len = getLine(size,38, timeout);
-    if (len < 1)  {
+    if (len < 2)  {   // min valid length is 2 i.e.  "0\r"
         chunkError = true;
         return -1;
     }
@@ -1124,6 +1132,20 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
     }
     int read_d = 0;
    int rc = 0;
+
+    if(clen == 0) {
+        chunked_trailer = "";
+        char trailer[32000];
+        while( len > 2) {
+            len = getLine(trailer, 31900, timeout);
+            if (len > 2) {
+                chunked_trailer += trailer;
+                chunked_trailer += "\n";
+            }
+        }
+        return 0;
+    }
+
     while (clen > 0) {
         rc = readFromSocketn(buffin + read_d, clen, 0, timeout);
         std::cerr << thread_id << "readChunk  read " << rc << std::endl;
@@ -1160,6 +1182,7 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
         }
         tot_size += csize;
     }
+    writeChunkTrailer(chunked_trailer);
     std::cerr << thread_id << "loopChunk  tot_size=" << tot_size << std::endl;
     return tot_size;
 }

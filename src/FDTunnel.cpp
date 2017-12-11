@@ -59,7 +59,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             sockto.writeChunk(buff, rd, timeout);
             total_rd += rd;
         }
-        sockto.writeChunk(buff,0,timeout );
+        sockto.writeChunkTrailer(sockfrom.chunked_trailer);
         throughput = total_rd;
         return true;
     }
