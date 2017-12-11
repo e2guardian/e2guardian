@@ -522,13 +522,13 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
     std::cerr << thread_id << "out_res_body: " << out_res_body << std::endl;
     if (!respond(peerconn))
         return false;
-    if (!peerconn.writeChunk((char*)res_body.toCharArray(), res_body.length(), timeout))
-        return false;
-    char nothing[3];
-    nothing[0] = '\0';
-    if (!peerconn.writeChunk(nothing, 0, timeout))
-        return false;
-    //peerconn.writeString("\r\n");   // add ICAP tail
+    if(out_res_body_flag) {
+        if (!peerconn.writeChunk((char *) res_body.toCharArray(), res_body.length(), timeout))
+            return false;
+        String n;
+        if (!peerconn.writeChunk((char*)  n.toCharArray(),0, timeout))
+            return false;
+    }
     return true;
 }
 
