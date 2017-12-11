@@ -514,8 +514,7 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
     // set IAP outs and then output ICAP header and res_header/body
     out_res_header = res_header;
     out_res_hdr_flag = true;
-    out_res_body_flag = true;
-    if (res_body.length() < 0) {
+    if (res_body.length() > 0) {
         out_res_body = res_body;
         out_res_body_flag = true;
     }
