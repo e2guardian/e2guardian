@@ -1092,7 +1092,9 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     int lw;
     hexs += "\r\n";
+#ifdef NETDEBUG
     std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
+#endif
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
     return false;
@@ -1100,7 +1102,9 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
 
 bool Socket::writeChunkTrailer( String &trailer) {
     std::string hexs ("0\r\n");
+#ifdef NETDEBUG
     std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
+#endif
     if(writeString(hexs.c_str()) && writeToSocket(trailer.c_str(),trailer.length(),0,timeout) && writeString("\r\n"))
         return true;
     return false;
@@ -1114,7 +1118,9 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         chunkError = true;
         return -1;
     }
+#ifdef NETDEBUG
     std::cerr << thread_id << "readChunk  size=" << size << std::endl;
+#endif
     String l = size;
     l.chop();
     String t = l.before(";");
@@ -1125,7 +1131,9 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         l = t;
     }
     int clen = l.hexToInteger();
+#ifdef NETDEBUG
     std::cerr << thread_id << "readChunk  clen=" << clen << std::endl;
+#endif
     if (clen > maxlen) {
         chunkError = true;
         return -1;
@@ -1148,7 +1156,9 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
 
     while (clen > 0) {
         rc = readFromSocketn(buffin + read_d, clen, 0, timeout);
+#ifdef NETDEBUG
         std::cerr << thread_id << "readChunk  read " << rc << std::endl;
+#endif
         if (rc < 0) {
             chunkError = true;
             return -1;
@@ -1157,14 +1167,16 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         clen -= rc;
     }
     len = readFromSocketn(size, 2, 0, timeout);
-   // len = getLine(size,18, timeout);
-   // std::cerr << thread_id << "readChunk  size=" << size << std::endl;
     if (size[0] == '\r' && size[1] == '\n') {
+#ifdef NETDEBUG
         std::cerr << thread_id << "readChunk  totread " << read_d << std::endl;
+#endif
         return read_d;
     } else {
         chunkError = true;
+#ifdef NETDEBUG
         std::cerr << thread_id << "readChunk - tail in error" << std::endl;
+#endif
         return -1;
     }
 }
@@ -1177,32 +1189,20 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
         if (!(csize > -1 && writeChunk(buff,csize,timeout))) {
+#ifdef NETDEBUG
             std::cerr << thread_id << "loopChunk - error" << std::endl;
+#endif
             return -1;
         }
         tot_size += csize;
     }
     writeChunkTrailer(chunked_trailer);
+#ifdef NETDEBUG
     std::cerr << thread_id << "loopChunk  tot_size=" << tot_size << std::endl;
+#endif
     return tot_size;
 }
 
-bool Socket::loopTail() {
-    return true;
-    char buff[32000];
-    int len = 4;
-    while (len > 2) {
-        len = getLine(buff, 32000, timeout);
-        if (len > 0)
-        {
-            String l = buff;
-            l += '\n';
-            std::cerr << thread_id << "loopTail writing " << l << std::endl;
-            writeString(l.c_str());
-        }
-    }
-    return (len > -1);
-}
 
 int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or timeout
 {
@@ -1212,24 +1212,17 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
         if (!(csize > -1 )) {
+#ifdef NETDEBUG
             std::cerr << thread_id << "drainChunk - error" << std::endl;
+#endif
             return -1;
         }
         tot_size += csize;
     }
+#ifdef NETDEBUG
     std::cerr << thread_id << "drainChunk  tot_size=" << tot_size << std::endl;
+#endif
     return tot_size;
-}
-
-bool Socket::drainTail()
-{
-    return true;
-    char buff[32000];
-    int len = 4;
-    while (len > 2) {
-        len = getLine(buff,32000,timeout);
-    }
-    return (len > -1);
 }
 
 bool Socket::getIeof() {
