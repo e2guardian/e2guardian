@@ -126,33 +126,52 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
     return true;
 }
 
+bool FOptionContainer::readConfFile(const char *filename) {
+    std::string linebuffer;
+    String temp; // for tempory conversion and storage
+    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
+    if (!conffiles.good()) {
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error reading: " << filename << std::endl;
+        }
+        syslog(LOG_ERR, "Error reading %s", filename);
+        return false;
+    }
+    while (!conffiles.eof()) {
+        getline(conffiles, linebuffer);
+        if (!conffiles.eof() && linebuffer.length() != 0) {
+            if (linebuffer[0] != '#') { // i.e. not commented out
+                temp = (char *) linebuffer.c_str();
+                if (temp.contains("#")) {
+                    temp = temp.before("#");
+                }
+                temp.removeWhiteSpace(); // get rid of spaces at end of line
+                // deal with included files
+                if (temp.startsWith(".")) {
+                    temp = temp.after(".include<").before(">");
+                    if (temp.length() > 0) {
+                        if (!readConfFile(temp.toCharArray())) {
+                            conffiles.close();
+                            return false;
+                        }
+                    }
+                    continue;
+                }
+                linebuffer = temp.toCharArray();
+                conffile.push_back(linebuffer); // stick option in deque
+            }
+        }
+    }
+    conffiles.close();
+    return true;
+}
+
 bool FOptionContainer::read(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage
-        std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
-        if (!conffiles.good()) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error reading: " << filename << std::endl;
-            }
-            syslog(LOG_ERR, "Error reading %s", filename);
+        if(!readConfFile(filename))
             return false;
-        }
-        while (!conffiles.eof()) {
-            getline(conffiles, linebuffer);
-            if (!conffiles.eof() && linebuffer.length() != 0) {
-                if (linebuffer[0] != '#') { // i.e. not commented out
-                    temp = (char *) linebuffer.c_str();
-                    if (temp.contains("#")) {
-                        temp = temp.before("#");
-                    }
-                    temp.removeWhiteSpace(); // get rid of spaces at end of line
-                    linebuffer = temp.toCharArray();
-                    conffile.push_back(linebuffer); // stick option in deque
-                }
-            }
-        }
-        conffiles.close();
 
 #ifdef DGDEBUG
         std::cerr << thread_id << "Read conf into memory: " << filename << std::endl;

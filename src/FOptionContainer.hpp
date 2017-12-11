@@ -123,6 +123,7 @@ public:
 
     ~FOptionContainer();
     bool read(const char *filename);
+    bool readConfFile(const char *filename);
     void reset();
     void resetJustListData();
 
