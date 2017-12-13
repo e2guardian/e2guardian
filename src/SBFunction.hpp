@@ -59,8 +59,10 @@
 #define SB_STATE_REDIRECTSET 25
 #define SB_STATE_VIRUSCHECKSET 26
 #define SB_STATE_BYPASSSET  27
+#define SB_STATE_BYPASSALLOWEDSET  28
+#define SB_STATE_INFECTIONBYPASSALLOWEDSET  29
 
-#define SB_STATE_MAP_SIZE  27
+#define SB_STATE_MAP_SIZE  29
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -85,9 +87,11 @@
 #define  SB_FUNC_UNSETVIRUSCHECK		5017
 #define  SB_FUNC_UNSETBYPASS       5018
 #define SB_FUNC_SETCONNECTSITE 5019
+#define SB_FUNC_UNSETBYPASSALLOW 5020
+#define SB_FUNC_UNSETINFECTIONBYPASSALLOW 5021
 
 
-#define SB_FUNC_MAP_SIZE  19
+#define SB_FUNC_MAP_SIZE  21
 
 
 // DECLARATIONS
@@ -122,9 +126,11 @@ class SBFunction
 			 "hassniset",
              "redirectset",
 			 "viruscheckset",
-			 "bypassset"
-
+			 "bypassset",
+			"bypassallowedset",
+			 "infectionbypassallowedset"
 			};
+
    String command_map[4] = { "function",
 			"end",
 			"if",
@@ -150,7 +156,9 @@ class SBFunction
 			 "setnolog",
 			 "unsetviruscheck",
 			 "unsetbypass",
-			 "setconnectsite"
+			 "setconnectsite",
+			 "unsetbypassallow",
+			 "unsetinfectionbypassallow"
     };
 
   public:

@@ -72,6 +72,8 @@ class NaughtyFilter
     bool iscookiebypass = false;
     bool isvirusbypass = false;
     bool isscanbypass = false;
+    bool isbypassallowed = false;
+    bool isinfectionbypassallowed = false;
     bool ispostblock = false;
     bool pausedtoobig = false;
     bool wasinfected = false;

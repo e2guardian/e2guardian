@@ -1427,7 +1427,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
         bool dohash = false;
         if (reporting_level > 0) {
             // generate a filter bypass hash
-            if (!wasinfected && ((*ldl->fg[filtergroup]).bypass_mode != 0) && !ispostblock) {
+            if (!wasinfected && (checkme->isbypassallowed) && !ispostblock) {
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -Enabling filter bypass hash generation" << std::endl;
 #endif
@@ -1436,7 +1436,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     dohash = true;
             }
             // generate an infection bypass hash
-            else if (wasinfected && (*ldl->fg[filtergroup]).infection_bypass_mode != 0) {
+            else if (wasinfected && checkme->isinfectionbypassallowed) {
                 // only generate if scanerror (if option to only bypass scan errors is enabled)
                 if ((*ldl->fg[filtergroup]).infection_bypass_errors_only ? scanerror : true) {
 #ifdef DGDEBUG
@@ -1792,7 +1792,8 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
     if (genDenyAccess(*peerconn,eheader, ebody, header, docheader, url, checkme, clientuser, clientip, filtergroup,
     ispostblock, headersent, wasinfected, scanerror, forceshow)) {
         peerconn->writeString(eheader.toCharArray());
-        peerconn->writeString(ebody.toCharArray());
+        if(ebody.length() > 0)
+            peerconn->writeString(ebody.toCharArray());
     };
 
     // we blocked the request, so flush the client connection & close the proxy connection.
@@ -2636,6 +2637,12 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
 }
 
 bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock, Socket &peerconn, std::string &clientip ) {
+
+    //first check if bypass allowed and set isbypassallowed
+    checkme.isbypassallowed = (ldl->fg[filtergroup]->bypass_mode != 0);
+    checkme.isinfectionbypassallowed= (ldl->fg[filtergroup]->infection_bypass_mode != 0);
+    if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed))
+        return false;
 
     int bypasstimestamp = 0;
     if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {

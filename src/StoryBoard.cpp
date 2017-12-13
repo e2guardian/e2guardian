@@ -424,6 +424,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_BYPASSSET:
                 state_result = cm.isbypass;
                 break;
+            case SB_STATE_BYPASSALLOWEDSET:
+                state_result = cm.isbypassallowed;
+                break;
+            case SB_STATE_INFECTIONBYPASSALLOWEDSET:
+                state_result = cm.isinfectionbypassallowed;
+                break;
             case SB_STATE_HASSNI:
                 state_result = cm.hasSNI;
                 break;
@@ -724,6 +730,18 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isscanbypass = false;
                     cm.isvirusbypass = false;
                     cm.isexception = false;
+                    break;
+                case SB_FUNC_UNSETBYPASSALLOW:
+                    if (cm.isbypassallowed)
+                        cm.isbypassallowed = false;
+                    else
+                        action_return = false;
+                    break;
+                case SB_FUNC_UNSETINFECTIONBYPASSALLOW:
+                    if (cm.isinfectionbypassallowed)
+                        cm.isinfectionbypassallowed = false;
+                    else
+                        action_return = false;
                     break;
                 case SB_FUNC_SETTRUE:
                     break;

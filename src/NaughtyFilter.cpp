@@ -122,6 +122,8 @@ void NaughtyFilter::reset()
     isbypass = false;
     iscookiebypass = false;
     isvirusbypass = false;
+    isbypassallowed = false;
+    isinfectionbypassallowed = false;
     bypasstimestamp = 0;
     isscanbypass = false;
     ispostblock = false;
