@@ -1,9 +1,14 @@
-# Storyboard example file for referencing in e2guardianfn.conf
+# Storyboard library file
+
+# For ease of upgrade DO CHANGE THIS library file 
+# Make your function changes by overriding functions
+# in the site.story file - for site wide changes
+# and in filtergroup specific story file - see examplef1.story
 #
-# This example file is built to largely duplicate the logic in V4
+# This library is built to largely duplicate the logic in V4
 # 
-# Many e2guardian[f1].conf flags are replaced by commenting in/out lines 
-# in the storyboard file
+# Many e2guardian[f1].conf flags are replaced by overiding
+# library functions - see site.story and examplef1.story
 #
 # Simple functions are defined which control the logic flow and the
 # lists that are used.  See notes/Storyboard for details.
@@ -13,20 +18,16 @@
 # Entry function called by proxy module to check http request
 function(checkrequest)
 if(viruscheckset) checknoscanlists
-if(bypassset) checknobypasslists
+if(bypassallowedset) checknobypasslists
 if(exceptionset) return true
-#if(true) setgodirect
-# comment out the following line if you do not use 'local' list files
+if(fullurlin,searchterms) setsearchterm
 ifnot(greyset) returnif localcheckrequest
-#if(connect) return setblock
 if(connect) return sslrequestcheck
 ifnot(greyset) returnif exceptioncheck
 ifnot(greyset) greycheck
 ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
-# uncomment next line if local lists NOT used
-#if(fullurlin,searchterms) setsearchterm
 if(headerin,headermods) setmodheader
 if(fullurlin, addheader) setaddheader
 if(searchin,override) return setgrey
@@ -44,7 +45,6 @@ if(extensionin, bannedextension) setblock
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
-# comment out the following line if you do not use 'local' list files
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
 if(fullurlin, change) setmodurl
@@ -59,18 +59,15 @@ ifnot(blockset) setnolog
 
 function(icap-checkrequest2)
 if(viruscheckset) checknoscanlists
-if(bypassset) checknobypasslists
+if(bypassallowedset) checknobypasslists
 if(exceptionset) return true
-# comment out the following line if you do not use 'local' list files
-#ifnot(greyset) returnif localcheckrequest
+if(fullurlin,searchterms) setsearchterm
+ifnot(greyset) returnif localcheckrequest
 ifnot(greyset) returnif exceptioncheck
 ifnot(greyset) greycheck
-#ifnot(greyset) return setblock
 ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
-# uncomment next line if local lists NOT used
-if(fullurlin,searchterms) setsearchterm
 if(headerin,headermods) setmodheader
 if(fullurlin, addheader) setaddheader
 if(searchin,override) return setgrey
@@ -99,9 +96,7 @@ if(connect) return localsslrequestcheck
 ifnot(greyset) returnif localexceptioncheck
 ifnot(greyset) localgreycheck
 ifnot(greyset) returnif localbannedcheck
-if(fullurlin,searchterms) setsearchterm
 if(searchin,localbanned) return setblock
-#if(true) return false
 
 
 # Local SSL checks
@@ -210,11 +205,12 @@ if(mimein,exceptionvirus) return unsetviruscheck
 if(extensionin,exceptionvirus) return unsetviruscheck
 
 function(checknobypasslists)
-if(urlin,overridebypass) unsetbypass
+if(urlin,bannedbypass) return unsetbypassallowed
 
 # ICAP SSL request check
 #  returns true if exception 
 function(icapsslrequestcheck)
+if(true) returnif icapsquidbump
 if(true) returnif sslexceptioncheck
 if(true) sslreplace
 if(sitein, banned) return setblock
@@ -228,5 +224,9 @@ function(checkblanketblock)
 #  returns true if to block
 #  Placeholder function - overide in fn.story
 function(sslcheckblanketblock)
+
+# ICAP Squid bump
+#  override in site.story to return true if bump is being deployed on squid
+function(icapsquidbump)
 
 
