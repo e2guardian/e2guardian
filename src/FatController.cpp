@@ -770,250 +770,253 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
         if (logger_ttg) break;
 #ifdef DGDEBUG
         std::cout << "received a log request ---------------------------------" << std::endl;
-        std::cout << "log request: " << loglines << std::endl;
-        std::cout << "end log request ----------------------------------------" << std::endl;
-#endif
+		std::cout << "log request: " << loglines << std::endl;
+		std::cout << "end log request ----------------------------------------" << std::endl;
+	#endif
 
-        // Formatting code migration from ConnectionHandler
-        // and email notification code based on patch provided
-        // by J. Gauthier
+		// Formatting code migration from ConnectionHandler
+		// and email notification code based on patch provided
+		// by J. Gauthier
 
-        // read in the various parts of the log string
-        bool error = true;
-        int itemcount = 0;
-        //char * dup = strdup(loglines.c_str());
-        const char *delim = "\n";
-        std::istringstream iss(loglines);
-        std::string logline;
-        std::shared_ptr <LOptionContainer> ldl;
-        ldl = o.currentLists();
+		// read in the various parts of the log string
+		bool error = true;
+		int itemcount = 0;
+		//char * dup = strdup(loglines.c_str());
+		const char *delim = "\n";
+		std::istringstream iss(loglines);
+		std::string logline;
+		std::shared_ptr <LOptionContainer> ldl;
+		ldl = o.currentLists();
 
-        while (std::getline(iss, logline)) {
-            // Loop around reading in data, because we might have huge URLs
-            std::string s;
-            if (logline == "") {
-                s = "-";
-            } else {
-                s = logline;
-            }
-            switch (itemcount) {
-                case 0:
-                    isexception = atoi(logline.c_str());
-                    break;
-                case 1:
-                    cat = s;
-                    break;
-                case 2:
-                    isnaughty = atoi(logline.c_str());
-                    break;
-                case 3:
-                    naughtytype = atoi(logline.c_str());
-                    break;
-                case 4:
-                    sweight = s;
-                    break;
-                case 5:
-                    where = s;
-                    break;
-                case 6:
-                    what = s;
-                    break;
-                case 7:
-                    how = s;
-                    break;
-                case 8:
-                    who = s;
-                    break;
-                case 9:
-                    from = s;
-                    break;
-                case 10:
-                    port = atoi(logline.c_str());
-                    break;
-                case 11:
-                    wasscanned = atoi(logline.c_str());
-                    break;
-                case 12:
-                    wasinfected = atoi(logline.c_str());
-                    break;
-                case 13:
-                    contentmodified = atoi(logline.c_str());
-                    break;
-                case 14:
-                    urlmodified = atoi(logline.c_str());
-                    break;
-                case 15:
-                    headermodified = atoi(logline.c_str());
-                    break;
-                case 16:
-                    ssize = s;
-                    break;
-                case 17:
-                    filtergroup = atoi(logline.c_str());
-                    break;
-                case 18:
-                    code = atoi(logline.c_str());
-                    break;
-                case 19:
-                    cachehit = atoi(logline.c_str());
-                    break;
-                case 20:
-                    mimetype = s;
-                    break;
-                case 21:
-                    tv_sec = atol(logline.c_str());
-                    break;
-                case 22:
-                    tv_usec = atol(logline.c_str());
-                    break;
-                case 23:
-                    clienthost = s;
-                    break;
-                case 24:
-                    useragent = s;
-                    break;
-                case 25:
-                    params = s;
-                    break;
-                case 26:
-                    postdata = s;
-                    break;
-                case 27:
-                    message_no = s;
-                    break;
-                case 28:
-                    headeradded = atoi(logline.c_str());
-                    error = false;
-                    break;
-            }
-            itemcount++;
-        }
+		while (std::getline(iss, logline)) {
+		    // Loop around reading in data, because we might have huge URLs
+		    std::string s;
+		    if (logline == "") {
+			s = "-";
+		    } else {
+			s = logline;
+		    }
+		    switch (itemcount) {
+			case 0:
+			    isexception = atoi(logline.c_str());
+			    break;
+			case 1:
+			    cat = s;
+			    break;
+			case 2:
+			    isnaughty = atoi(logline.c_str());
+			    break;
+			case 3:
+			    naughtytype = atoi(logline.c_str());
+			    break;
+			case 4:
+			    sweight = s;
+			    break;
+			case 5:
+			    where = s;
+			    break;
+			case 6:
+			    what = s;
+			    break;
+			case 7:
+			    how = s;
+			    break;
+			case 8:
+			    who = s;
+			    break;
+			case 9:
+			    from = s;
+			    break;
+			case 10:
+			    port = atoi(logline.c_str());
+			    break;
+			case 11:
+			    wasscanned = atoi(logline.c_str());
+			    break;
+			case 12:
+			    wasinfected = atoi(logline.c_str());
+			    break;
+			case 13:
+			    contentmodified = atoi(logline.c_str());
+			    break;
+			case 14:
+			    urlmodified = atoi(logline.c_str());
+			    break;
+			case 15:
+			    headermodified = atoi(logline.c_str());
+			    break;
+			case 16:
+			    ssize = s;
+			    break;
+			case 17:
+			    filtergroup = atoi(logline.c_str());
+			    break;
+			case 18:
+			    code = atoi(logline.c_str());
+			    break;
+			case 19:
+			    cachehit = atoi(logline.c_str());
+			    break;
+			case 20:
+			    mimetype = s;
+			    break;
+			case 21:
+			    tv_sec = atol(logline.c_str());
+			    break;
+			case 22:
+			    tv_usec = atol(logline.c_str());
+			    break;
+			case 23:
+			    clienthost = s;
+			    break;
+			case 24:
+			    useragent = s;
+			    break;
+			case 25:
+			    params = s;
+			    break;
+			case 26:
+			    postdata = s;
+			    break;
+			case 27:
+			    message_no = s;
+			    break;
+			case 28:
+			    headeradded = atoi(logline.c_str());
+			    error = false;
+			    break;
+		    }
+		    itemcount++;
+		}
 
 
-        // don't build the log line if we couldn't read all the component parts
-        if (error)
-            continue;
+		// don't build the log line if we couldn't read all the component parts
+		if (error)
+		    continue;
 
-        // Start building the log line
+		// Start building the log line
 
-        if (port != 0 && port != 80) {
-            // put port numbers of non-standard HTTP requests into the logged URL
-            String newwhere(where);
-            if (newwhere.after("://").contains("/")) {
-                String proto, host, path;
-                proto = newwhere.before("://");
-                host = newwhere.after("://");
-                path = host.after("/");
-                host = host.before("/");
-                newwhere = proto;
-                newwhere += "://";
-                newwhere += host;
-                newwhere += ":";
-                newwhere += String((int) port);
-                newwhere += "/";
-                newwhere += path;
-                where = newwhere;
-            } else {
-                where += ":";
-                where += String((int) port);
-            }
-        }
+		if (port != 0 && port != 80) {
+		    // put port numbers of non-standard HTTP requests into the logged URL
+		    String newwhere(where);
+		    if (newwhere.after("://").contains("/")) {
+			String proto, host, path;
+			proto = newwhere.before("://");
+			host = newwhere.after("://");
+			path = host.after("/");
+			host = host.before("/");
+			newwhere = proto;
+			newwhere += "://";
+			newwhere += host;
+			newwhere += ":";
+			newwhere += String((int) port);
+			newwhere += "/";
+			newwhere += path;
+			where = newwhere;
+		    } else {
+			where += ":";
+			where += String((int) port);
+		    }
+		}
 
-        // stamp log entries so they stand out/can be searched
-        switch (naughtytype) {
-            case 1:
-                stype = "-POST";
-                break;
-            case 2:
-                stype = "-PARAMS";
-                break;
-            default:
-                stype.clear();
-        }
-        if (isnaughty) {
-            what = denied_word + stype + "* " + what;
-        } else if (isexception && (o.log_exception_hits >= 2)) {
-            what = exception_word + what;
-        }
+		// stamp log entries so they stand out/can be searched
+		switch (naughtytype) {
+		    case 1:
+			stype = "-POST";
+			break;
+		    case 2:
+			stype = "-PARAMS";
+			break;
+		    default:
+			stype.clear();
+		}
+		if (isnaughty) {
+		    what = denied_word + stype + "* " + what;
+		} else if (isexception && (o.log_exception_hits >= 2)) {
+		    what = exception_word + what;
+		}
 
-        if (wasinfected)
-            what = infected_word + stype + "* " + what;
-        else if (wasscanned)
-            what = scanned_word + what;
+		if (wasinfected)
+		    what = infected_word + stype + "* " + what;
+		else if (wasscanned)
+		    what = scanned_word + what;
 
-        if (contentmodified) {
-            what = contentmod_word + what;
-        }
-        if (urlmodified) {
-            what = urlmod_word + what;
-        }
-        if (headermodified) {
-            what = headermod_word + what;
-        }
-        if (headeradded) {
-            what = headeradd_word + what;
-        }
+		if (contentmodified) {
+		    what = contentmod_word + what;
+		}
+		if (urlmodified) {
+		    what = urlmod_word + what;
+		}
+		if (headermodified) {
+		    what = headermod_word + what;
+		}
+		if (headeradded) {
+		    what = headeradd_word + what;
+		}
 
-        std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
-        struct timeval theend;
+		std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
+		struct timeval theend;
 
-        // create a string representation of UNIX timestamp if desired
-        if (o.log_timestamp || (o.log_file_format == 3)
-            || (o.log_file_format > 4)) {
-            gettimeofday(&theend, NULL);
-            String temp((int) (theend.tv_usec / 1000));
-            while (temp.length() < 3) {
-                temp = "0" + temp;
-            }
-            if (temp.length() > 3) {
-                temp = "999";
-            }
-            utime = temp;
-            utime = "." + utime;
-            utime = String((int) theend.tv_sec) + utime;
-        }
+		// create a string representation of UNIX timestamp if desired
+		if (o.log_timestamp || (o.log_file_format == 3)
+		    || (o.log_file_format > 4)) {
+		    gettimeofday(&theend, NULL);
+		    String temp((int) (theend.tv_usec / 1000));
+		    while (temp.length() < 3) {
+			temp = "0" + temp;
+		    }
+		    if (temp.length() > 3) {
+			temp = "999";
+		    }
+		    utime = temp;
+		    utime = "." + utime;
+		    utime = String((int) theend.tv_sec) + utime;
+		}
 
-        if (o.log_file_format != 3) {
-            // "when" not used in format 3, and not if logging timestamps instead
-            String temp;
-            time_t tnow; // to hold the result from time()
-            struct tm *tmnow; // to hold the result from localtime()
-            time(&tnow); // get the time after the lock so all entries in order
-            tmnow = localtime(&tnow); // convert to local time (BST, etc)
-            year = String(tmnow->tm_year + 1900);
-            month = String(tmnow->tm_mon + 1);
-            day = String(tmnow->tm_mday);
-            hour = String(tmnow->tm_hour);
-            temp = String(tmnow->tm_min);
-            if (temp.length() == 1) {
-                temp = "0" + temp;
-            }
-            min = temp;
-            temp = String(tmnow->tm_sec);
-            if (temp.length() == 1) {
-                temp = "0" + temp;
-            }
-            sec = temp;
-            when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
-            // append timestamp if desired
-            if (o.log_timestamp)
-                when += " " + utime;
-        }
+		if (o.log_file_format != 3) {
+		    // "when" not used in format 3, and not if logging timestamps instead
+		    String temp;
+		    time_t tnow; // to hold the result from time()
+		    struct tm *tmnow; // to hold the result from localtime()
+		    time(&tnow); // get the time after the lock so all entries in order
+		    tmnow = localtime(&tnow); // convert to local time (BST, etc)
+		    year = String(tmnow->tm_year + 1900);
+		    month = String(tmnow->tm_mon + 1);
+		    day = String(tmnow->tm_mday);
+		    hour = String(tmnow->tm_hour);
+		    temp = String(tmnow->tm_min);
+		    if (temp.length() == 1) {
+			temp = "0" + temp;
+		    }
+		    min = temp;
+		    temp = String(tmnow->tm_sec);
+		    if (temp.length() == 1) {
+			temp = "0" + temp;
+		    }
+		    sec = temp;
+		    when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
+		    // append timestamp if desired
+		    if (o.log_timestamp)
+			when += " " + utime;
+		}
 
-        // blank out IP, hostname and username if desired
-        if (o.anonymise_logs) {
-            who = "";
-            from = "0.0.0.0";
-            clienthost.clear();
-        }
-        String groupname;
-        String stringcode(code);
-        String stringgroup(filtergroup + 1);
+		// blank out IP, hostname and username if desired
+		if (o.anonymise_logs) {
+		    who = "";
+		    from = "0.0.0.0";
+		    clienthost.clear();
+		} else if ((clienthost.length() < 1) || clienthost == "DNSERROR"){
+			clienthost = from;
+		}
+		
+		String groupname;
+		String stringcode(code);
+		String stringgroup(filtergroup + 1);
 
-	if ( stringcode == "407" ){
-        	groupname = "negociate_identification";
-	}else{
-		groupname = ldl->fg[filtergroup]->name;
+		if ( stringcode == "407" ){
+			groupname = "negociate_identification";
+		}else{
+			groupname = ldl->fg[filtergroup]->name;
 	}
 
         switch (o.log_file_format) {
@@ -1054,9 +1057,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                 }
                 hier = "DEFAULT_PARENT/";
                 hier += o.proxy_ip;
-
                 builtline =
-                        utime + " " + duration + " " + from + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss +
+                        utime + " " + duration + " " + clienthost + " " + hitmiss +
                         " " + ssize + " "
                         + how + " " + where + " " + who + " " + hier + " " + mimetype;
                 break;
