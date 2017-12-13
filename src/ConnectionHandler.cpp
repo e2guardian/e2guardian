@@ -2197,7 +2197,8 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
                 for (unsigned int j1 = 1; j1 < ns_rr_rdlen(rr); j1++) {
                     p[j++] = k[j1];
                 }
-                p[j] = (char)NULL;
+//                p[j] = (char)NULL;
+                p[j] = '\0';
 #ifdef DGDEBUG
                 std::cerr << "ns_rr_data returned " << p << std::endl;
 #endif
