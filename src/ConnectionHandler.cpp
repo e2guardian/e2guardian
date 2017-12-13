@@ -4456,7 +4456,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 if (csrc == DGCS_WARNING) {
-                    syslog(LOG_ERR, "Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
+                    syslog(LOG_ERR, "1 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
                     (*scanerror) = false;
@@ -4500,6 +4500,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     checkme->isItNaughty = true;
                     checkme->isException = false;
                     (*scanerror) = true;
+                    syslog(LOG_ERR, "2 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
 #ifdef DGDEBUG
 		    std::cout << dbgPeerPort << "scanner ERROR: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
