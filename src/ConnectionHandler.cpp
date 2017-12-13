@@ -3310,7 +3310,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         // and we don't have a straight IP match against the banned or exception IP lists.
 	      //
 	      // Checked in Optioncontainer.cpp Fred 12/05/2017
-	
+
 
         if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
 #ifdef DGDEBUG
@@ -4443,6 +4443,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
                         unlink(docbody->tempfilepath.toCharArray());
+                        syslog(LOG_ERR, "Delete infected (or unscanned due to error) file straight away: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                         // delete infected (or unscanned due to error) file straight away
                     }
                 } else {
@@ -4455,6 +4456,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 if (csrc == DGCS_WARNING) {
+                    syslog(LOG_ERR, "Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
                     (*scanerror) = false;
