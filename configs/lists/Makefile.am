@@ -26,10 +26,13 @@ bannedregexpurllist \
 bannedregexpuseragentlist \
 bannedsearchlist \
 bannedsiteiplist \
+bannedsiteiplistwithbypass \
 bannedsitelist \
+bannedsitelistwithbypass \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist \
+bannedurllistwithbypass \
 contentregexplist \
 embededreferersiteiplist \
 embededreferersitelist \
@@ -95,10 +98,13 @@ bannedregexpurllist \
 bannedregexpuseragentlist \
 bannedsearchlist \
 bannedsiteiplist \
+bannedsiteiplistwithbypass \
 bannedsitelist.in \
+bannedsitelistwithbypass.in \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist.in \
+bannedurllistwithbypass.in \
 contentregexplist \
 embededreferersiteiplist \
 embededreferersitelist \

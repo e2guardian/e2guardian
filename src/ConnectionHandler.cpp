@@ -373,9 +373,11 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
                     case EAI_NONAME:
                         cm.message_no = 207;
                         break;
+#ifdef EAI_NODATA
                     case EAI_NODATA:
                         cm.message_no = 208;
                         break;
+#endif
                     case EAI_AGAIN:
                         cm.message_no = 209;
                         break;
