@@ -4510,7 +4510,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 k++;
 #endif
             }
-
+                syslog(LOG_ERR, "finished running AV result: %d %s URL: %s File: %s ", csrc, clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
