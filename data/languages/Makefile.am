@@ -1,4 +1,4 @@
-MAINTAINERCLEANFILES = Makefile.in
+DISTCLEANFILES = Makefile.in
 
 LANGDIR = $(datadir)/$(PACKAGE_NAME)/languages
 LANGUAGES = 	czech   hebrew      turkish \

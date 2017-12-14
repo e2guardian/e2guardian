@@ -1,4 +1,9 @@
 #domains in banned ssl list
 #Don't bother with the www. or the https://
 #This list is only used for SSL (or CONNECT) requests
+# and will not have any effect when MITM is enabled.
 #Unlike the bannedsitelist it overides all other lists
+# so can be used ban an https site white the http is allowed or made an exception
+# 
+#Only list sites where you only want the https site blocked
+#Use bannedsitelist for sites where you want both http & https blocked

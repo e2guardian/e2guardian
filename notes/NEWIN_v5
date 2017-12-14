@@ -1,0 +1,151 @@
+This is the v5 development version (v5.0).  
+
+Note that large sections of the code are being re-written and there are
+significant changes to the configuration files in this releases.
+
+Note: This version is work in progress and instructions 
+may be incomplete.   If in doubt - read the source!
+
+The v5 is written in c++11 and so to compile it you will need gcc v5.4 
+or later. (or another complier that supports the full c++11).  
+Note that the target systems may also need an c++11 library update.
+
+See notes/NEWIN_v4 for details of the major process model changes 
+incorporated from version 4.
+
+REVISED LIST and STORYBOARDING MODEL
+
+This version has a completely revised model for defining and using lists.
+
+List definition is now separated from list application. Lists are no longer
+hard-coded, but mapped to a function using a storyboard.  
+
+Filtering logic flow is simplified and made more consistent.  Requests are 
+analysed first and flags set (exception, grey, blocked etc) and once this 
+checking is complete actions are taken.  Large sections of duplicate logic
+has been removed from ConnectionHandler and large sections are now
+separate functions.
+
+Storyboarding is a simple scripting language that maps lists to functions
+and allows flags to be set. 
+
+This means that new lists can be added without changing the code, by adding
+a new list definition and then applying it in a revised storyboard.  
+
+A different storyboard can be applied to each filtergroup, so if required, 
+each filtergroup can have a different logic flow.
+
+Please read notes/V5_list_definition.pdf & notes/V5_Storyboard.pdf for
+details.
+
+TRANSPARENT HTTPS
+
+    This is now in testable form. 
+    Detects SNI and flags whether traffic is TLS.  
+    Currently limited to port 443 traffic.
+
+ICAP SERVER
+
+    This is now in testable form - REQMOD and RESPMOD mode supported.
+    See notes/icap.
+
+DIRECT UPSTREAM ACCESS I.e. not via proxy.  
+
+    This is now in testable form.  
+
+    To implement globaly comment out 'proxyip =' in e2guardian.conf.
+
+    The storyboard action setgodirect can be used within checkrequest functions 
+    to enable selected protocols/site/urls to godirect.
+    e.g. to send all connect requests directly add
+		if(connect) setgodirect
+	to a requestchecks function.
+
+STORYBOARD TRACING
+
+    New option 'storyboardtrace' to enable tracing output -
+    for storyboard bug-fixing
+
+READABLE THREAD_ID FOR LOGS & DEBUG
+
+    Most debug and syslog messages are now prefixed with a thread ID as
+    follows:- 
+
+    master: for master thread
+
+    listen1_proxy:  normal proxy listener
+    listen1_thttps: tranparent https listener
+    listen1_icap: icap listener
+
+    where '1' is index
+
+    hw10: for http_worker threads where '10' is the thread number
+
+    log: for logging thread
+
+REVISED DEBUG STAGE 1
+
+    The following low level debugs are no longer enabled by DGDEBUG:
+
+    Network sockets - use NETDEBUG instead
+
+    Regular expressions - use REDEBUG instead
+
+    This reduces the volume of inforamtion and makes the debug
+    log easier to read.
+
+HTTP/1.1
+
+    Support for HTTP v1.1 completed - Chunked encoding now testable
+
+ANTI-VIRUS PLUGINS
+
+    Anti-virus plugins implimented for proxy, trans and ICAP - but individual
+    plug-ins not tested
+
+TESTING -  
+---------
+
+    This version is at a test stage. 
+
+    Please test all functions.
+
+    Please prefix all bug reports with "V5.0 "
+
+
+TODO - for this release.
+-----------------------
+
+    Final tidy code.
+    Add more notes.
+
+TODO - for next releases.
+-----------------------
+
+    Multiple total blocks list and revised input format.
+
+    Transparent HTTP/HTTPS on ports other than 80/443
+
+    POST content filtering
+
+    Re-look at MITM certificate generation.
+
+    OpenSSL 1.1 support
+
+    Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
+        no log option)
+
+WISHLIST
+--------
+
+    Re-impliment mailing option.
+
+    Per-user exceptions/blocks.
+
+    Per-room blocks.
+
+    Rate-limiting feature 
+
+Philip Pearce 11 December 2017
+
+

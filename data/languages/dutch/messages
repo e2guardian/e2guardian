@@ -1,23 +1,64 @@
 # e2guardian berichten in het Nederlands
 # Door S.A. de Heer
 # Updates door Eric Hameleers
-
 "1","Toegang geweigerd"
-
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
 "100","Uw IP adres mag niet websurfen: "
 "101","Uw IP adres mag niet websurfen."
 "102","Uw gebruikersnaam mag niet websurfen: "
-
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
+"160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","De gevraagde URL is syntactisch incorrect."
-
+"201","Unable to get response from upstream proxy (timeout)"    # needs translation
+"202","Unable to get response from upstream proxy (error)"    # needs translation
+"203","The site requested is not responding"    # needs translation
+"204"," - Please try again later"    # needs translation
+"205","Upstream proxy is not responding (network error)"    # needs translation
+"206"," - Please try again later"    # needs translation
+"207","The site requested does not exist"    # needs translation
+"208","The site requested does not have an IPv4 address"    # needs translation
+"209","Temporary DNS service failure - please try again"    # needs translation
+"210","DNS service failure - please try again later"    # needs translation
 "300","Geblokkeerd woord gevonden: "
 "301","Geblokkeerd woord gevonden."
-
 "400","Geblokkerde combinatie van woorden gevonden: "
 "401","Geblokkerde combinatie van woorden gevonden."
 "402","Gewogen woorden limiet van: "
 "403","Gewogen woorden limiet overschreden."
-
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
 "500","Geblokkeerde website: "
 "501","Geblokkeerde URL: "
 "502","Web blokkade is actief en deze website is niet in de toegangslijst."
@@ -26,7 +67,15 @@
 "505","IP adressen zijn geblokkeerd en dat adres is enkel een IP adres."
 "506","SSL is geblokkeerd en deze website komt niet voor op de toegangslijsten."
 "507","SSL IP adressen zijn geblokkeerd en dat adres is enkel een IP addres."
-
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"522","Blocked User-Agent: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
 "600","Uitzonderings IP adres gevonden."
 "601","Uitzonderings gebruiker gevonden."
 "602","Uitzonderings website gevonden."
@@ -37,30 +86,28 @@
 "607","Cookie omzeiling uitzondering."
 "608","Scan omzeiling URL uitzondering."
 "609","Uitzondering reguliere expressie URL gevonden: "
-
+"610","User-Agent pattern match: "    # needs translation
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
 "700","Uploaden via het web is geblokkerd."
 "701","Web upload limiet overschreden."
-
 "750","Bestands-download is geblokkeerd en dit MIME type komt niet voor op de goedkeuringslijst: "
 "751","Bestands-download is geblokkeerd en dit bestand komt niet voor op de goedkeuringslijsten: "
-
 "800","Geblokkeerd MIME Type: "
-
 "900","Geblokkeerd bestandstype: "
-
 "1000","'PICS labeling' niveau overschrijding op bovenvermelde site."
-
 "1100","Virus of onbetamelijke inhoud ontdekt."
 "1101","Advertentie geblokkeerd."
-
 "1200","Geduld a.u.b. - bezig met downloaden om te scannen..."
 "1201","Waarschuwing: bestand te groot om te scannen. Vermoedt u dat dit bestand groter is dan "
 "1202",", ververs dan deze pagina om direct te downloaden."
-
+"1203","WARNING: Could not perform content scan!"    # needs translation
 "1210","Download Compleet. Scan wordt gestart..."
-
 "1220","Scan compleet.</p><p>Klik hier om te downloaden: "
 "1221","Download compleet; bestand niet gescand.</p><p>Klik hier om te downloaden: "
 "1222","Bestand te groot voor tussenopslag.</p><p>Klik hier om opnieuw te downloaden zonder scan: "
-
 "1230","Bestand niet langer beschikbaar"

@@ -1,0 +1,17 @@
+# IP sites which are NOT to have their certificates checked (when in MITM mode)
+#
+# Do not check ssl certificates for IP sites listed
+#
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+
+# IP site addresses 
+#
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#

@@ -3,3 +3,5 @@
 *.Tpo
 *~
 Makefile
+autom4te.cache
+README

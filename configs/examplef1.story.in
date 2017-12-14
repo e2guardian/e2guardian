@@ -1,0 +1,17 @@
+.Include<@DGCONFDIR@/common.story>
+.Include<@DGCONFDIR@/site.story>
+
+# add any altered functions for this filtergroup here
+# They will overwrite library or site level definitions
+
+# e.g. to create blanket block for http re-define checkblanketblock 
+
+#function(checkblanketblock)
+#if(true,,502) return setblock  # = ** total blanket
+#if(siteisip,,505) return setblock  # = *ip ip blanket
+
+# or for ssl (i.e. CONNECT)
+#function(sslcheckblanketblock)
+#if(true,,506) return setblock  # = **s total blanket
+#if(siteisip,,507) return setblock  # = **ips ip blanket
+

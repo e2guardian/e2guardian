@@ -10,3 +10,7 @@ using ones you submit instead.
 When editing, the line may not contain a " as this is used to
 denote the start and end.  Instead use a '.
 
+Maintainers, if you add a new message option, please update 
+the message_master file (in english) and then run the update_messages 
+script from this directory to update all the language files with the 
+new message(s) which will be marked 'needs translation'.

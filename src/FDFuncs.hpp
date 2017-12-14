@@ -9,12 +9,10 @@
 #ifndef __HPP_FDFUNCS
 #define __HPP_FDFUNCS
 
-
 // INCLUDES
 
 #include <unistd.h>
 #include <cerrno>
-
 
 // IMPLEMENTATION
 

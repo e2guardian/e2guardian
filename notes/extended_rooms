@@ -1,0 +1,57 @@
+Extended Room functions in e2guardian 3.1
+
+The previous room function has been extended so that hosts in a room can have a override list of urls with or without a blanket block function.
+
+The perbannedroomdirectory directive in e2guardian.conf is replaced by perroomdirectory, although for backward compatibility perbannedroomdirectory will still work.
+
+Each file in the rooms directory defines name, ip range and actions for that room.
+
+File format:-
+
+1st line must contain a '#' followed by the room name
+
+The following lines define the IP ranges, one IP or range per lines e.g.
+172.167.58.3
+172.167.59.1-172.167.59.65
+177.167.60.0/255.255.255.0
+177.167.61.0/24
+
+End the list with:
+#ENDLIST
+
+Then optional whitelists can be added by using #SITELIST or #URLLIST
+Each list must be ended with #ENDLIST
+
+To block all access (other than listed in one of the above lists) use #BLOCK.
+
+If #BLOCK is absent than the trusted sites listed will overide any block in the users filter group.
+
+So there are 4 cases:-
+
+1.  #BLOCK and no (#SITELIST or #URLLIST) - block all access
+2.  #SITELIST and/or #URLLIST and no #BLOCK - trust these urls and allow normal access.
+3.  #SITELIST and/or #URLLIST and #BLOCK - only allow these urls.
+4.  #SITELIST, #URLLIST, #BLOCK all missing - Legacy foramt file - block all access.
+
+e.g.
+
+#MyRoom
+172.167.58.3
+172.167.59.1-172.167.59.65
+177.167.60.0/255.255.255.0
+#ENDLIST
+
+#SITELIST
+site1.com
+site2.net
+#ENDLIST
+
+#URLLIST
+site3.com/url
+site4.net/url
+#ENDLIST
+
+#BLOCK
+
+end_of_example
+

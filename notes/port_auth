@@ -1,0 +1,34 @@
+The port authentication plug-in is used to determine the filter group based on the listening port.
+
+With this enabled you are able to direct a user's browser to the appropreate filter level by setting the proxy port
+number in their browser settings.
+
+The user name in the logs and block pages will be set to the port number.
+
+The port auth plugin is enabled by default on all e2guardian complilations.
+There is no corresponding configure flag.
+
+To enable the port auth plugin:
+
+    Make sure both mapportstoips and mapauthtoports are set to 'off' in e2guardian.conf.
+
+    Add multiple filterports to e2guardian.conf:
+    e.g.
+    filterports = 8080
+    filterports = 8081
+    filterports = 8082
+
+    Add authplugin line:
+    authplugin = /usr/local/etc/e2guardian/authplugins/port.conf
+
+    Create a portgroups file:
+    Note that ports MUST be entered in ascending order
+    e.g.
+    8082 = filter3
+    8083 = filter2
+
+    Edit the portgroups entry in port.conf to point at your portgroups file.
+
+If you do not list all your ports in the portgroups file it is also possible to run other auth methods on the remaining port(s), but the port.conf authplugin line must appear first in the e2guardian.conf with the other authplugin lines following.
+
+You can also use the IP auth plugin either before or after the port plugin - if used before the port will only be checked if no IP match is found - if used after port will have priority.

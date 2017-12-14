@@ -1,7 +1,5 @@
-// For all support, instructions and copyright go to:
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
-
 
 // INCLUDES
 
@@ -22,26 +20,30 @@
 #include <fstream>
 #include <sys/time.h>
 #include <sys/poll.h>
-#ifdef linux
-/* Epoll linux only */
-#include <sys/epoll.h>
-#endif
+
+// LINUX ONLY FEATURE
+//#ifdef HAVE_SYS_EPOLL_H
+//#include <sys/epoll.h>
+//#endif
+
 #include <istream>
 #include <map>
 #include <memory>
+#include <vector>
+#include <atomic>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/select.h>
 
-#ifdef ENABLE_SEGV_BACKTRACE
-#include <execinfo.h>
-#include <ucontext.h>
-#endif
+//#ifdef ENABLE_SEGV_BACKTRACE
+//#include <execinfo.h>
+//#include <ucontext.h>
+//#endif
 
-#ifdef __SSLCERT
+#ifdef __SSLMITM
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 #include "FatController.hpp"
 #include "ConnectionHandler.hpp"
@@ -51,1013 +53,601 @@
 #include "SocketArray.hpp"
 #include "UDSocket.hpp"
 #include "SysV.hpp"
+#include "Queue.hpp"
+#include "OptionContainer.hpp"
+
+#ifdef VALGRD
+  extern "C"
+  {
+    static void*
+    execute_native_thread_routine(void* __p)
+    {
+      std::thread::_Impl_base* __t = static_cast<std::thread::_Impl_base*>(__p);
+      std::thread::__shared_base_type __local;
+      __local.swap(__t->_M_this_ptr);
+
+      __try
+	{
+	  __t->_M_run();
+	}
+      __catch(const __cxxabiv1::__forced_unwind&)
+	{
+	  __throw_exception_again;
+	}
+      __catch(...)
+	{
+	  std::terminate();
+	}
+
+      return nullptr;
+    }
+  } // extern "C"
+
+
+  void
+  std::thread::_M_start_thread(__shared_base_type __b)
+  {
+    if (!__gthread_active_p())
+#if __cpp_exceptions
+      throw system_error(make_error_code(errc::operation_not_permitted),
+			 "Enable multithreading to use std::thread");
+#else
+      __throw_system_error(int(errc::operation_not_permitted));
+#endif
+
+    _M_start_thread(std::move(__b), nullptr);
+  }
+
+
+  void
+  std::thread::_M_start_thread(__shared_base_type __b, void (*)())
+  {
+    auto ptr = __b.get();
+    ptr->_M_this_ptr = std::move(__b);
+    int __e = __gthread_create(&_M_id._M_thread,
+			       &execute_native_thread_routine, ptr);
+    if (__e)
+    {
+      ptr->_M_this_ptr.reset();
+      __throw_system_error(__e);
+    }
+  }
+
+#endif
 
 // GLOBALS
 
 // these are used in signal handlers - "volatile" indicates they can change at
 // any time, and therefore value reading on them does not get optimised. since
 // the values can get altered by outside influences, this is useful.
-static volatile bool ttg = false;
-static volatile bool gentlereload = false;
-static volatile bool sig_term_killall = false;
-volatile bool reloadconfig = false;
+//static volatile bool ttg = false;
+std::atomic<bool> ttg;
+std::atomic<bool> logger_ttg;
+std::atomic<bool> gentlereload;
+//static volatile bool sig_term_killall = false;
+std::atomic<bool> reloadconfig ;
+std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
-int numchildren;  // to keep count of our children
-int busychildren;  // to keep count of our children
-int waitingfor;  // num procs waiting for to be preforked
-int *childrenpids;  // so when one exits we know who
-int *childrenstates;  // so we know what they're up to
-struct pollfd *pids;
-#ifdef linux
-/* Epoll linux only */
-struct epoll_event e_ev; //added PIP
-struct epoll_event* revents; //added PIP
-int epfd; // added PIP
-int fds; // added PIP
-int serversockfd; // added PIP - may need to change
+void stat_rec::clear()
+{
+    conx = 0;
+    reqs = 0;
+};
+
+void stat_rec::start()
+{
+    clear();
+    start_int = time(NULL);
+    end_int = start_int + o.dstat_interval;
+    if (o.dstat_log_flag) {
+        mode_t old_umask;
+        old_umask = umask(S_IWGRP | S_IWOTH);
+        fs = fopen(o.dstat_location.c_str(), "a");
+        if (fs) {
+    	   if (o.stats_human_readable){
+               fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt\n");
+	   } else {
+               fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
+	   }
+        } else {
+           syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
+           o.dstat_location.c_str());
+           o.dstat_log_flag = false;
+        };
+        maxusedfd = 0;
+        fflush(fs);
+        umask(old_umask);
+    };
+};
+
+void stat_rec::reset()
+{
+    time_t now = time(NULL);
+    int bc = busychildren;
+    long period = now - start_int;
+    long cnx = (long)conx;
+    long rqx = (long) reqs;
+    int mfd = maxusedfd;
+    int LC = o.LC_cnt;
+    // clear and reset stats now so that stats are less likely to be missed
+    clear();
+    if ((end_int + o.dstat_interval) > now)
+        start_int = end_int;
+    else
+        start_int = now;
+
+    end_int = start_int + o.dstat_interval;
+
+    long cps = cnx / period;
+    long rqs = rqx / period;
+    if (o.stats_human_readable){
+        struct tm * timeinfo;
+        time( &now);
+        timeinfo = localtime ( &now );
+        char buffer [50];
+        strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
+    	fprintf(fs, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d\n", buffer, o.http_workers,
+        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    } else {
+        fprintf(fs, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d\n", now, o.http_workers,
+        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    }
+
+    fflush(fs);
+};
+
+void stat_rec::close()
+{
+    if (fs != NULL) fclose(fs);
+};
+
+
+//int cache_erroring; // num cache errors reported by children
+//int restart_cnt = 0;
+//int restart_numchildren; // numchildren at time of gentle restart
+//int hup_index;
+//int gentle_to_hup = 0;
+
+//bool gentle_in_progress = false;
+int top_child_fds; // cross platform maxchildren position in children array
+#ifdef HAVE_SYS_EPOLL_H
+//int serversockfd; // added PIP - may need to change
 #endif
-UDSocket **childsockets;
 int failurecount;
 int serversocketcount;
-SocketArray serversockets;  // the sockets we will listen on for connections
-UDSocket loggersock;  // the unix domain socket to be used for ipc with the forked children
-UDSocket urllistsock;
-UDSocket iplistsock;
-Socket *peersock(NULL);  // the socket which will contain the connection
+SocketArray serversockets; // the sockets we will listen on for connections
+Socket *peersock(NULL); // the socket which will contain the connection
 
-String peersockip;  // which will contain the connection ip
+//String peersockip; // which will contain the connection ip
 
+#ifdef __SSLMITM
+static pthread_mutex_t  *ssl_lock_array;
+
+static void ssl_lock_callback(int mode, int type, char *file, int line)
+{
+  (void)file;
+  (void)line;
+  if (mode & CRYPTO_LOCK) {
+    pthread_mutex_lock(&(ssl_lock_array[type]));
+  }
+  else {
+    pthread_mutex_unlock(&(ssl_lock_array[type]));
+  }
+}
+static void init_ssl_locks(void)
+{
+  int i;
+
+  ssl_lock_array=(pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() *
+                                        sizeof(pthread_mutex_t));
+  for (i=0; i<CRYPTO_num_locks(); i++) {
+    pthread_mutex_init(&(ssl_lock_array[i]),NULL);
+  }
+
+  //CRYPTO_set_id_callback((unsigned long (*)())thread_id);
+  CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))ssl_lock_callback);
+}
+
+static void kill_ssl_locks(void)
+{
+  int i;
+
+  CRYPTO_set_locking_callback(NULL);
+  for (i=0; i<CRYPTO_num_locks(); i++)
+    pthread_mutex_destroy(&(ssl_lock_array[i]));
+
+  OPENSSL_free(ssl_lock_array);
+}
+#endif
+
+void monitor_flag_set(bool action)
+{
+
+    String fulink = o.monitor_flag_prefix;
+    String ftouch = fulink;
+    if (action) {
+        fulink += "paused";
+        ftouch += "running";
+    } else {
+        fulink += "running";
+        ftouch += "paused";
+    }
+
+    mode_t old_umask;
+    old_umask = umask(S_IWOTH);
+    FILE *fs = fopen(ftouch.c_str(), "w");
+    if (!fs) {
+        syslog(LOG_ERR, "Unable to open monitor_flag %s for writing\n",
+            ftouch.c_str());
+        o.monitor_flag_flag = false;
+    }
+    fclose(fs);
+    if (unlink(fulink.c_str()) == -1) {
+        syslog(LOG_ERR, "Unable to unlink monitor_flag %s error: %s", fulink.c_str(), strerror(errno));
+    }
+    return;
+}
+
+stat_rec dstat;
+stat_rec *dystat = &dstat;
 
 // DECLARATIONS
 
 // Signal handlers
-extern "C"
-{
-	void sig_chld(int signo);
-	void sig_term(int signo);  // This is so we can kill our children
-	void sig_termsafe(int signo);  // This is so we can kill our children safer
-	void sig_hup(int signo);  // This is so we know if we should re-read our config.
-	void sig_usr1(int signo);  // This is so we know if we should re-read our config but not kill current connections
-	void sig_childterm(int signo);
-#ifdef ENABLE_SEGV_BACKTRACE
-	void sig_segv(int signo, siginfo_t *info, void *secret); // Generate a backtrace on segfault
-#endif
+extern "C" {
+//void sig_chld(int signo);
+//void sig_term(int signo); // This is so we can kill our children
+//void sig_termsafe(int signo); // This is so we can kill our children safer
+//void sig_hup(int signo); // This is so we know if we should re-read our config.
+//void sig_usr1(int signo); // This is so we know if we should re-read our config but not kill current connections
+//void sig_childterm(int signo);
+//#ifdef ENABLE_SEGV_BACKTRACE
+//void sig_segv(int signo, siginfo_t *info, void *secret); // Generate a backtrace on segfault
+//#endif
 }
 
 // logging & URL cache processes
-int log_listener(std::string log_location, bool logconerror, bool logsyslog);
-int url_list_listener(bool logconerror);
-// send flush message over URL cache IPC socket
-void flush_urlcache();
+void log_listener(std::string log_location, bool logconerror, bool logsyslog);
 
 // fork off into background
 bool daemonise();
-// create specified amount of child processes
-int prefork(int num);
+// create specified amount of child threads
 
-// check child process is ready to start work
-#ifdef linux
-/* Epoll linux only */
-bool check_kid_readystatus(int tofind, int* ssp);
-#else
-bool check_kid_readystatus(int tofind);
-#endif
-// child process informs parent process that it is ready
-int send_readystatus(UDSocket &pipe);
-
-// child process main loop - sits waiting for incoming connections & processes them
-int handle_connections(UDSocket &pipe);
-// tell a non-busy child process to accept the incoming connection
-void tellchild_accept(int num, int whichsock);
-// child process accept()s connection from server socket
-bool getsock_fromparent(UDSocket &fd);
-
-// add known info about a child to our info lists
-#ifdef linux
-/* Epoll linux only */
-void addchild(int fd, pid_t child_pid); // added PIP
-#else
-void addchild(int pos, int fd, pid_t child_pid);
-#endif
-// find ID of first non-busy child
-int getfreechild();
-// find an empty slot in our child info lists
-int getchildslot();
-// cull up to this number of non-busy children
-void cullchildren(int num);
-// delete this child from our info lists
-void deletechild(int child_pid);
-// clean up any dead child processes (calls deletechild with exit values)
-void mopup_afterkids();
-
-// tidy up resources for a brand new child process (uninstall signal handlers, delete copies of unnecessary data, etc.)
-void tidyup_forchild();
-
-// send SIGTERM or SIGHUP to call children
-void kill_allchildren();
-void hup_allchildren();
+//void handle_connections(int tindex);  // needs changing to be threadish
 
 // setuid() to proxy user (not just seteuid()) - used by child processes & logger/URL cache for security & resource usage reasons
 bool drop_priv_completely();
 
-
-
 // IMPLEMENTATION
 
 // signal handlers
-extern "C"
-{	// The kernel knows nothing of objects so
-	// we have to have a lump of c
-	void sig_term(int signo)
-	{
-		sig_term_killall = true;
-		ttg = true;  // its time to go
-	}
-	void sig_termsafe(int signo)
-	{
-		ttg = true;  // its time to go
-	}
-	void sig_hup(int signo)
-	{
-		reloadconfig = true;
-#ifdef DGDEBUG
-		std::cout << "HUP received." << std::endl;
-#endif
-	}
-	void sig_usr1(int signo)
-	{
-		gentlereload = true;
-#ifdef DGDEBUG
-		std::cout << "USR1 received." << std::endl;
-#endif
-	}
-	void sig_childterm(int signo)
-	{
-#ifdef DGDEBUG
-		std::cout << "TERM recieved." << std::endl;
-#endif
-		_exit(0);
-	}
+extern "C" { // The kernel knows nothing of objects so
+// we have to have a lump of c
+//void sig_term(int signo)
+//{
+    //sig_term_killall = true;
+    //ttg = true; // its time to go
+//}
+//void sig_termsafe(int signo)
+//{
+    //ttg = true; // its time to go
+//}
+//void sig_hup(int signo)
+//{
+    //reloadconfig = true;
+//#ifdef DGDEBUG
+    //std::cerr << "HUP received." << std::endl;
+//#endif
+//}
+//void sig_usr1(int signo)
+//{
+    //gentlereload = true;
+//#ifdef DGDEBUG
+    //std::cerr << "USR1 received." << std::endl;
+//#endif
+//}
+//void sig_childterm(int signo)
+//{
+//#ifdef DGDEBUG
+    //std::cerr << "TERM received." << std::endl;
+//#endif
+    //_exit(0);
+//}
+
+#ifdef  NOTDEF
 #ifdef ENABLE_SEGV_BACKTRACE
-	void sig_segv(int signo, siginfo_t *info, void *secret)
-	{
+void sig_segv(int signo, siginfo_t *info, void *secret)
+{
 #ifdef DGDEBUG
-		std::cout << "SEGV received." << std::endl;
+    std::cerr << "SEGV received." << std::endl;
 #endif
-		// Extract "real" info about first stack frame
-		ucontext_t *uc = (ucontext_t *) secret;
+    // Extract "real" info about first stack frame
+    ucontext_t *uc = (ucontext_t *)secret;
 #ifdef REG_EIP
-		syslog(LOG_ERR, "SEGV received: memory address %p, EIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_EIP]));
+    syslog(LOG_ERR, "SEGV received: memory address %p, EIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_EIP]));
 #else
-		syslog(LOG_ERR, "SEGV received: memory address %p, RIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_RIP]));
+    syslog(LOG_ERR, "SEGV received: memory address %p, RIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_RIP]));
 #endif
-		// Generate backtrace
-		void *addresses[10];
-		char **strings;
-		int c = backtrace(addresses, 10);
-		// Overwrite call to sigaction with caller's address
-		// to give a more useful backtrace
+    // Generate backtrace
+    void *addresses[20];
+    char **strings;
+    int c = backtrace(addresses, 20);
+// Overwrite call to sigaction with caller's address
+// to give a more useful backtrace
 #ifdef REG_EIP
-		addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_EIP]);
+    addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_EIP]);
 #else
-		addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_RIP]);
+    addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_RIP]);
 #endif
-		strings = backtrace_symbols(addresses,c);
-		printf("backtrace returned: %d\n", c);
-		// Skip first stack frame - it points to this signal handler
-		for (int i = 1; i < c; i++) {
-			syslog(LOG_ERR, "%d: %zX ", i, (size_t)addresses[i]);
-			syslog(LOG_ERR, "%s", strings[i]);
-		}
-		// Kill off the current process
-		raise(SIGTERM);
-	}
+    strings = backtrace_symbols(addresses, c);
+    printf("backtrace returned: %d\n", c);
+    // Skip first stack frame - it points to this signal handler
+    for (int i = 1; i < c; i++) {
+        syslog(LOG_ERR, "%d: %zX ", i, (size_t)addresses[i]);
+        syslog(LOG_ERR, "%s", strings[i]);
+    }
+    // Kill off the current process
+    //raise(SIGTERM); // Do we want to do this?
+}
+#endif
 #endif
 }
 
 // completely drop our privs - i.e. setuid, not just seteuid
 bool drop_priv_completely()
 {
-	// This is done to solve the problem where the total processes for the
-	// uid rather than euid is taken for RLIMIT_NPROC and so can't fork()
-	// as many as expected.
-	// It is also more secure.
-	//
-	// Suggested fix by Lawrence Manning Tue 25th February 2003
-	//
+    // This is done to solve the problem where the total processes for the
+    // uid rather than euid is taken for RLIMIT_NPROC and so can't fork()
+    // as many as expected.
+    // It is also more secure.
+    //
+    // Suggested fix by Lawrence Manning Tue 25th February 2003
+    //
 
-	int rc = seteuid(o.root_user);  // need to be root again to drop properly
-	if (rc == -1) {
-		syslog(LOG_ERR, "%s", "Unable to seteuid(suid)");
+    int rc = seteuid(o.root_user); // need to be root again to drop properly
+    if (rc == -1) {
+        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid(suid)");
 #ifdef DGDEBUG
-		std::cout << strerror(errno) << std::endl;
+        std::cerr << thread_id << strerror(errno) << std::endl;
 #endif
-		return false;  // setuid failed for some reason so exit with error
-	}
-	rc = setuid(o.proxy_user);
-	if (rc == -1) {
-		syslog(LOG_ERR, "%s", "Unable to setuid()");
-		return false;  // setuid failed for some reason so exit with error
-	}
-	return true;
-}
-
-// signal the URL cache to flush via IPC
-void flush_urlcache()
-{
-	if (o.url_cache_number < 1) {
-		return;  // no cache running to flush
-	}
-	UDSocket fipcsock;
-	if (fipcsock.getFD() < 0) {
-		syslog(LOG_ERR, "%s", "Error creating ipc socket to url cache for flush");
-		return;
-	}
-	if (fipcsock.connect(o.urlipc_filename.c_str()) < 0) {	// conn to dedicated url cach proc
-		syslog(LOG_ERR, "%s", "Error connecting via ipc to url cache for flush");
-#ifdef DGDEBUG
-		std::cout << "Error connecting via ipc to url cache for flush" << std::endl;
-#endif
-		return;
-	}
-	String request("f\n");
-	try {
-		fipcsock.writeString(request.toCharArray());  // throws on err
-	}
-	catch(std::exception & e) {
-#ifdef DGDEBUG
-		std::cerr << "Exception flushing url cache" << std::endl;
-		std::cerr << e.what() << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Exception flushing url cache");
-		syslog(LOG_ERR, "%s", e.what());
-	}
+        return false; // setuid failed for some reason so exit with error
+    }
+    rc = setuid(o.proxy_user);
+    if (rc == -1) {
+        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to setuid()");
+        return false; // setuid failed for some reason so exit with error
+    }
+    return true;
 }
 
 // Fork ourselves off into the background
 bool daemonise()
 {
 
-	if (o.no_daemon) {
-		return true;
-	}
+    if (o.no_daemon) {
+        return true;
+    }
 #ifdef DGDEBUG
-	return true;  // if debug mode is enabled we don't want to detach
+    return true; // if debug mode is enabled we don't want to detach
 #endif
 
-	if (is_daemonised) {
-		return true;  // we are already daemonised so this must be a
-		// reload caused by a HUP
-	}
+    if (is_daemonised) {
+        return true; // we are already daemonised so this must be a
+        // reload caused by a HUP
+    }
 
-	int nullfd = -1;
-	if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
-		syslog(LOG_ERR, "%s", "Couldn't open /dev/null");
-		return false;
-	}
+    int nullfd = -1;
+    if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
+        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Couldn't open /dev/null");
+        return false;
+    }
 
-	pid_t pid;
-	if ((pid = fork()) < 0) {
-		// Error!!
-		close(nullfd);
-		return false;
-	}
-	else if (pid != 0) {
-		// parent goes...
-		if (nullfd != -1) {
-			close(nullfd);
-		}
+    pid_t pid;
+    if ((pid = fork()) < 0) {
+        // Error!!
+        close(nullfd);
+        return false;
+    } else if (pid != 0) {
+        // parent goes...
+        if (nullfd != -1) {
+            close(nullfd);
+        }
 
-		// bye-bye
-		exit(0);
-	}
+        // bye-bye
+        exit(0);
+    }
 
-	// child continues
-	dup2(nullfd, 0);  // stdin
-	dup2(nullfd, 1);  // stdout
-	dup2(nullfd, 2);  // stderr
-	close(nullfd);
+    // child continues
+    dup2(nullfd, 0); // stdin
+    dup2(nullfd, 1); // stdout
+    dup2(nullfd, 2); // stderr
+    close(nullfd);
 
-	setsid();  // become session leader
-	int dummy = chdir("/");  // change working directory
-	umask(0);  // clear our file mode creation mask
+    setsid(); // become session leader
+    int dummy = chdir("/"); // change working directory
+    umask(0); // clear our file mode creation mask
+    umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
 
-	is_daemonised = true;
+    is_daemonised = true;
 
-	return true;
+    return true;
 }
 
+// *
+// *
+// *  worker thread code
+// *
+// *
 
-// *
-// *
-// *  child process code
-// *
-// *
-
-// prefork specified num of children and set them handling connections
-int prefork(int num)
+// handle any connections received by this thread
+void handle_connections(int tindex)
 {
-	if (num < waitingfor) {
-		return 3;  // waiting for forks already
-	}
+    thread_id = "hw";
+    thread_id += std::to_string(tindex);
+    thread_id += ": ";
+    try {
+        while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
+            ConnectionHandler h;
+            // the class that handles the connections
+            String ip;
+            int stat = 0;
+            int rc = 0;
 #ifdef DGDEBUG
-	std::cout << "attempting to prefork:" << num << std::endl;
+            std::cerr << thread_id << " in  handle connection"  << std::endl;
 #endif
-	int sv[2];
-	pid_t child_pid;
-	while (num--) {
-		if (numchildren >= o.max_children) {
-			syslog(LOG_ERR, "E2guardian is running out of MaxChildren\n");
-			return 2;  // too many - geddit?
-		}
-		if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-			return -1;  // error
-		}
-		child_pid = fork();
-
-		if (child_pid == -1) {	// fork failed, for example, if the
-			// process is not allowed to create
-			// any more
-			syslog(LOG_ERR, "%s", "Unable to fork() any more.");
+//            std::thread::id this_id = std::this_thread::get_id();
+            //reloadconfig = false;
+            while (!ttg) {
 #ifdef DGDEBUG
-			std::cout << "Unable to fork() any more." << std::endl;
-			std::cout << strerror(errno) << std::endl;
-			std::cout << "numchildren:" << numchildren << std::endl;
+                std::cerr << thread_id << " waiting connection on http_worker_Q "  << std::endl;
 #endif
-			failurecount++;  // log the error/failure
-			// A DoS attack on a server allocated
-			// too many children in the conf will
-			// kill the server.  But this is user
-			// error.
-			sleep(1);  // need to wait until we have a spare slot
-			num--;
-			continue;  // Nothing doing, go back to listening
-		}
-		else if (child_pid == 0) {
-			// I am the child - I am alive!
-			close(sv[0]);  // we only need our copy of this
-			tidyup_forchild();
-			if (!drop_priv_completely()) {
-				return -1;  //error
-			}
-			// no need to deallocate memory etc as already done when fork()ed
-			// right - let's do our job!
-			
-			//  code to make fd low number
-			int low_fd = dup(sv[1]);
-			if(low_fd < 0) {
-				return -1;  //error
-			}
-			//close(sv[1]);
-			//sv[1] = low_fd;
-			UDSocket sock(low_fd);
-			//UDSocket sock(sv[1]);
-			int rc = handle_connections(sock);
-
-			// ok - job done, time to tidy up.
-			_exit(rc);  // baby go bye bye
-		} else {
-			// I am the parent
-			// close the end of the socketpair we don't need
-			close(sv[1]);
-
-			int child_slot;
+                LQ_rec rec = o.http_worker_Q.pop();
+                Socket *peersock = rec.sock;
 #ifdef DGDEBUG
-			std::cout << "child_slot" << child_slot << std::endl;
+                std::cerr << thread_id << " popped connection from http_worker_Q"  << std::endl;
 #endif
+                if (ttg) break;
 
-		// add the child and its FD/PID to an empty child slot
-#ifdef linux
-/* Epoll linux only */
-
-		if ( sv[0] >= fds ) {
-	    		if (o.logchildprocs)
-				syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], fds);	
-			close(sv[0]);
-			kill(child_pid,SIGTERM);
-			return(1);
-		};
-#else
-		/* Fix BSD Crash */
-
-		if ((child_slot = getchildslot()) >= 0) {
-			if (o.logchildprocs) {
-                                syslog(LOG_ERR, "Adding child to slot %d (pid %d)", child_slot, child_pid);
-                                }
-                	addchild(child_slot, sv[0], child_pid);
+                String peersockip = peersock->getPeerIP();
+                if (peersock->getFD() < 0 || peersockip.length() < 7) {
+//            if (o.logconerror)
+                    syslog(LOG_INFO, "%sError accepting. (Ignorable)", thread_id.c_str());
+                    continue;
                 }
-                else {
-                	if (o.logchildprocs) {
-                        	syslog(LOG_ERR, "Prefork - Child fd (%d) out of range (max %d)", sv[0], o.max_children);
-                        }
-                        close(sv[0]);
-                        kill(child_pid,SIGTERM);
-                        return(1);
-                }
-#endif
+                ++dystat->busychildren;
+                ++dystat->conx;
 
-#ifdef linux
-/* Epoll linux only */
-           	addchild(sv[0], child_pid);
-        	e_ev.data.fd = sv[0];
-        	e_ev.events = EPOLLIN;
-        	if(epoll_ctl( epfd, EPOLL_CTL_ADD, sv[0], &e_ev )) {
-            	#ifdef DGDEBUG
-               		std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
-            	#endif
-            		syslog(LOG_ERR, "%s","Error registering child fd in epoll");
-            		return(1);
-			}
-#endif
-
+                rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
 #ifdef DGDEBUG
-		std::cout << "Preforked parent added child to list" << std::endl;
+                std::cerr << thread_id << "handle_peer returned: " << rc << std::endl;
 #endif
-		}
-	}
-	return 1;  // parent returning
-}
-
-// cleaning up for brand new child processes - only the parent needs the signal handlers installed, and so forth
-void tidyup_forchild()
-{
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = &sig_childterm;
-	if (sigaction(SIGTERM, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGTERM" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGTERM");
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	if (sigaction(SIGUSR1, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGUSR1" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGUSR1");
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = &sig_hup;
-	if (sigaction(SIGHUP, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGHUP" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGHUP");
-	}
-	// now close open socket pairs don't need
-#ifdef linux
-/* Epoll linux only */
-	for (int i = 0; i < fds; i++) {
-#else
-	for (int i = 0; i < o.max_children; i++) {
-#endif
-#ifdef linux
-/* Epoll linux only */
-		if (childrenstates[i] > -1) {
-#else
-		if (pids[i].fd != -1) {
-#endif
-			delete childsockets[i];
-		}
-	}
-	delete[]childrenpids;
-	delete[]childrenstates;
-	delete[]childsockets;
-	delete[]pids;  // 4 deletes good, memory leaks bad
-#ifdef linux
-/* Epoll linux only */
-	delete[]revents; // 5 deletes good, memory leaks bad
-#endif
-}
-
-// send Ready signal to parent process over the socketpair (used in handle_connections)
-int send_readystatus(UDSocket &pipe)
-{				// blocks until timeout
-	String message("2\n");
-	try {
-		if (!pipe.writeToSocket(message.toCharArray(), message.length(), 0, 15, true, true)) {
-			return -1;
-		}
-	}
-	catch(std::exception & e) {
-		return -1;
-	}
-	return 0;
-}
-
-// handle any connections received by this child (also tell parent we're ready each time we become idle)
-int handle_connections(UDSocket &pipe)
-{
-	ConnectionHandler h;  // the class that handles the connections
-	String ip;
-	bool toldparentready = false;
-	int cycle = o.maxage_children;
-	int stat = 0;
-	reloadconfig = false;
-
-	// stay alive both for the maximum allowed age of child processes, and whilst we aren't supposed to be re-reading configuration
-	while (cycle-- && !reloadconfig) {
-		if (!toldparentready) {
-			if (send_readystatus(pipe) == -1) {	// non-blocking (timed)
-#ifdef DGDEBUG
-				std::cout << "parent timed out telling it we're ready" << std::endl;
-#endif
-				break;  // parent timed out telling it we're ready
-				// so either parent gone or problem so lets exit this joint
-			}
-			toldparentready = true;
-		}
-
-		if (!getsock_fromparent(pipe)) {	// blocks waiting for a few mins
-			continue;
-		}
-		toldparentready = false;
-
-		// now check the connection is actually good
-		if (peersock->getFD() < 0 || peersockip.length() < 7) {
-			if (o.logconerror)
-				syslog(LOG_INFO, "Error accepting. (Ignorable)");
-			continue;
-		}
-
-		h.handlePeer(*peersock, peersockip);  // deal with the connection
-		delete peersock;
-	}
-	if (!(++cycle) && o.logchildprocs)
-		syslog(LOG_ERR, "Child has handled %d requests and is exiting", o.maxage_children);
-#ifdef DGDEBUG
-	if (reloadconfig) {
-		std::cout << "child been told to exit by hup" << std::endl;
-	}
-#endif
-	if (!toldparentready) {
-		stat = 2;
-	}
-	return stat;
-}
-
-// the parent process recieves connections - children receive notifications of this over their socketpair, and accept() them for handling
-bool getsock_fromparent(UDSocket &fd)
-{
-	String message;
-	char buf;
-	int rc;
-	try {
-		rc = fd.readFromSocket(&buf, 1, 0, 360, true, true);  // blocks for a few mins
-	}
-	catch(std::exception & e) {
-		// whoop! we received a SIGHUP. we should reload our configuration - and no, we didn't get an FD.
-
-		reloadconfig = true;
-		return false;
-	}
-	// that way if child does nothing for a long time it will eventually
-	// exit reducing the forkpool depending on o.maxage_children which is
-	// usually 500 so max time a child hangs around is lonngggg
-	// it needs to be a long block to stop the machine needing to page in
-	// the process
-
-	// check the message from the parent
-	if (rc < 1) {
-		return false;
-	}
-
-	// woo! we have a connection. accept it.
-	peersock = serversockets[buf]->accept();
-	peersockip = peersock->getPeerIP();
-
-	try {
-		fd.writeToSockete("K", 1, 0, 10, true);  // need to make parent wait for OK
-		// so effectively providing a lock
-	}
-	catch(std::exception & e) {
-		if (o.logconerror)
-			syslog(LOG_ERR, "Error telling parent we accepted: %s", e.what());
-		peersock->close();
-		return false;
-	}
-
-	return true;
+                --dystat->busychildren;
+                delete peersock;
+                break;
+            };
+        };
+    } catch (...) {
+        syslog(LOG_ERR,"%sworker thread caught unexpected exception - exiting", thread_id.c_str());
+    }
 }
 
 
 // *
 // *
-// * end of child process code
+// * end of worker thread code
 // *
 // *
 
-
-// *
-// *
-// * start of child process handling (minus prefork)
-// *
-// *
-
-// look for any dead children, and clean them up
-void mopup_afterkids()
+void tell_monitor(bool active) //may not be needed
 {
-	pid_t pid;
-	int stat_val;
-	while (true) {
-		pid = waitpid(-1, &stat_val, WNOHANG);
-		if (pid < 1) {
-			break;
+
+    String buff(o.monitor_helper);
+    String buff1;
+
+    if (active)
+        buff1 = " start";
+    else
+        buff1 = " stop";
+
+    syslog(LOG_ERR, "%sMonitorhelper called: %s%s", thread_id.c_str(), buff.c_str(), buff1.c_str());
+    pid_t childid;
+    childid = fork();
+
+    if (childid == -1) {
+        syslog(LOG_ERR, "%sUnable to fork to tell monitorhelper error: %s", thread_id.c_str(), strerror(errno));
+        return;
+    };
+
+    if (childid == 0) { // Am the child
+	int rc = seteuid(o.root_user);
+	if (rc != -1) {
+       		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
+		if (systemreturn == -1) {
+            		syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
+            		exit(0);
 		}
+        } else {
+            	syslog(LOG_ERR, "Unable to set uid root");
+            	exit(0);
+	}
+    };
+
+    if (childid > 0) { // Am the parent
+        int rc;
+        int status;
+        rc = waitpid(childid, &status, 0);
+        if (rc == -1) {
+            syslog(LOG_ERR, "%sWait for monitorhelper returned : errno %s", thread_id.c_str(), strerror(errno));
+            return;
+        };
+        if (WIFEXITED(status)) {
+            return;
+        } else {
+            syslog(LOG_ERR, "%sMonitorhelper exited abnormally", thread_id.c_str());
+            return;
+        };
+    };
+};
+
+#ifdef NOTDEF
+void wait_for_proxy()
+{
+    Socket proxysock;
+    int rc;
+
+    try {
+        // ...connect to proxy
+        rc = proxysock.connect(o.proxy_ip, o.proxy_port);
+        if (!rc) {
+            proxysock.close();
+            //cache_erroring = 0;
+            return;
+        }
+        if (errno == EINTR) {
+            return;
+        }
+    } catch (std::exception &e) {
 #ifdef DGDEBUG
-        if (WIFEXITED(stat_val)) {
-	std::cout << "child " << pid << " exited with status " << WEXITSTATUS(stat_val) << std::endl;
-	} else {
-            if (WIFSIGNALED(stat_val)) {
-	std::cout << "child " << pid << " exited on signal " << WTERMSIG(stat_val) << std::endl;
-	    }
-	};
-
-	std::cout << "mopup deleting child" << pid  << std::endl;
+        std::cerr << thread_id << " -exception while creating proxysock: " << e.what() << std::endl;
 #endif
-	deletechild((int) pid);
-	}
-}
-
-// get a free slot in out PID list, if there is one - return -1 if not
-int getchildslot()
-{
-	int i;
-#ifdef linux
-/* Epoll linux only */
-	for (i = 0; i < fds; i++) {
-#else
-	for (i = 0; i < o.max_children; i++) {
-#endif
-		if (childrenpids[i] == -1) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-// add the given child, including FD & PID, to the given slot in our lists
-#ifdef linux
-/* Epoll linux only */
-void addchild(int fd, pid_t child_pid)
-#else
-void addchild(int pos, int fd, pid_t child_pid)
-#endif
-{
-#ifdef linux
-/* Epoll linux only */
-	if ( fd >= fds ) {
-		syslog(LOG_ERR, "Child fd (%d) out of range (max %d)", fd, fds);
-		return;
-	};
-#else
-	if (pos < 0)
-		return;
-#endif
-	numchildren++;
-	busychildren++;
-	waitingfor++;
-
-#ifdef linux
-/* Epoll linux only */
-	childrenpids[fd] = (int) child_pid;
-	childrenstates[fd] = 4;  // busy waiting for init
-	pids[fd].fd = fd;
-	UDSocket* sock = new UDSocket(fd);
-	childsockets[fd] = sock;
-	if (o.logchildprocs)
-		syslog(LOG_ERR, "added child: fd: %d pid: %d", fd, child_pid);
-#else
-	childrenpids[pos] = (int) child_pid;
-	childrenstates[pos] = 4;  // busy waiting for init
-	pids[pos].fd = fd;
-	UDSocket* sock = new UDSocket(fd);
-	childsockets[pos] = sock;
-#ifdef DGDEBUG
-	std::cout << "added child:" << fd << ":" << childrenpids[fd] << std::endl;
-#endif
-	if (o.logchildprocs)
-		syslog(LOG_ERR, "added child: fd: %d pid: %d", fd, child_pid);
-#endif
-}
-
-// kill give number of non-busy children
-void cullchildren(int num)
-{
-#ifdef DGDEBUG
-	std::cout << "culling childs:" << num << std::endl;
-#endif
-	int i;
-	int count = 0;
-#ifdef linux
-/* Epoll linux only */
-	for (i = fds - 1; i >= 0; i--) {
-#else
-	for (i = o.max_children - 1; i >= 0; i--) {
-#endif
-		if (childrenstates[i] == 0) {
-			kill(childrenpids[i], SIGTERM);
-			count++;
-			childrenstates[i] = -2;  // dieing
-			numchildren--;
-
-#ifdef linux
-/* Epoll linux only */
-      		if(epoll_ctl( epfd, EPOLL_CTL_DEL, i, &e_ev )) {
-              		#ifdef DGDEBUG
-                		std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
-              		#endif
-	    		}
-#endif
-			close(i);
-			delete childsockets[i];
-			childsockets[i] = NULL;
-			pids[i].fd = -1;
-		if (o.logchildprocs)
-			syslog(LOG_ERR, "deleted child: fd: %d pid: %d", i, childrenpids[i]);
-			if (count >= num) {
-				break;
-			}
-		}
-	}
-}
-
-// send SIGTERM to all child processes
-void kill_allchildren()
-{
-#ifdef DGDEBUG
-	std::cout << "killing all childs:" << std::endl;
-#endif
-#ifdef linux
-/* Epoll linux only */
-	for (int i = fds - 1; i >= 0; i--) {
-#else
-	for (int i = o.max_children - 1; i >= 0; i--) {
-#endif
-		if (childrenstates[i] >= 0) {
-			kill(childrenpids[i], SIGTERM);
-			childrenstates[i] = -2;  // dieing
-			numchildren--;
-			delete childsockets[i];
-			childsockets[i] = NULL;
-			pids[i].fd = -1;
-#ifdef linux
-/* Epoll linux only */
-		if (o.logchildprocs)
-			syslog(LOG_ERR, "deleted child: fd: %d pid: %d", i, childrenpids[i]);
-#endif
-		}
-	}
-}
-
-// send SIGHUP to all child processes
-void hup_allchildren()
-{
-#ifdef DGDEBUG
-	std::cout << "huping all childs:" << std::endl;
-#endif
-#ifdef linux
-/* Epoll linux only */
-	for (int i = fds - 1; i >= 0; i--) {
-#else
-	for (int i = o.max_children - 1; i >= 0; i--) {
-#endif
-		if (childrenstates[i] >= 0) {
-			kill(childrenpids[i], SIGHUP);
-		}
-	}
-}
-
-// attempt to receive the message from the child's send_readystatus call
-#ifdef linux
-/* Epoll linux only */
-bool check_kid_readystatus(int tofind, int* ssp)
-{
-	bool found = false;
-	char *buf = new char[5];
-	int rc = -1;  // for compiler warnings
-	for (int i = 0; i < tofind; i++) {
-		int f = revents[i].data.fd;
-
-		if (pids[f].fd == -1) {
-			continue;
-		}
-		if (childrenstates[f] == -4) { // is a server
-			childrenstates[f] = -5;
-			pids[f].revents = i;
-			*ssp = *ssp + 1;
-			continue;
-		}
-		if ((revents[i].events & EPOLLIN) > 0) {
-			if (childrenstates[f] < 0) {
-//				tofind--;  // this may be an error!!!!
-				continue;
-			}
-			try {
-				rc = childsockets[f]->getLine(buf, 4, 100, true);
-			}
-			catch(std::exception & e) {
-				kill(childrenpids[f], SIGTERM);
-#ifdef DGDEBUG
-	std::cout << "check_kid_ready deleting child after failed getline" << f << ":" << childrenpids[f]  << std::endl;
-#endif
-				deletechild(childrenpids[f]);
-//				tofind--;  // this may be an error!!!!
-				continue;
-			}
-			if (rc > 0) {
-				if (buf[0] == '2') {
-					if (childrenstates[f] == 4) {
-						waitingfor--;
-					}
-					childrenstates[f] = 0;
-					busychildren--;
-//					tofind--; // this may be an error!!!!
-				}
-			} else {	// child -> parent communications failure so kill it
-				kill(childrenpids[f], SIGTERM);
-#ifdef DGDEBUG
-std::cout << "check_kid_ready deleting child after comms error" << f << ":"<< childrenpids[f]  << std::endl;
-#endif
-				deletechild(childrenpids[f]);
-//				tofind--;// this may be an error!!!!
-			}
-		}
-		if (childrenstates[f] == 0) {
-			found = true;
-		} else {
-			found = false;
-		}
-	}
-	// if unbusy found then true otherwise false
-	delete[]buf;
-	return found;
-}
-#else
-bool check_kid_readystatus(int tofind)
-{
-	bool found = false;
-	char *buf = new char[5];
-	int rc = -1;  // for compiler warnings
-	for (int f = 0; f < o.max_children; f++) {
-		if (tofind < 1) {
-			break;  // no point looping through all if all found
-		}
-		if (pids[f].fd == -1) {
-			continue;
-		}
-		if ((pids[f].revents & POLLIN) > 0) {
-			if (childrenstates[f] < 0) {
-//				tofind--;  // this may be an error!!!!
-				continue;
-			}
-			try {
-				rc = childsockets[f]->getLine(buf, 4, 100, true);
-			}
-			catch(std::exception & e) {
-				kill(childrenpids[f], SIGTERM);
-				deletechild(childrenpids[f]);
-//				tofind--;  // this may be an error!!!!
-				continue;
-			}
-			if (rc > 0) {
-				if (buf[0] == '2') {
-					if (childrenstates[f] == 4) {
-						waitingfor--;
-					}
-					childrenstates[f] = 0;
-					busychildren--;
-//					tofind--; // this may be an error!!!!
-				}
-			} else {	// child -> parent communications failure so kill it
-				kill(childrenpids[f], SIGTERM);
-				deletechild(childrenpids[f]);
-//				tofind--;// this may be an error!!!!
-			}
-		}
-		if (childrenstates[f] == 0) {
-			found = true;
-		} else {
-			found = false;
-		}
-	}
-	// if unbusy found then true otherwise false
-	delete[]buf;
-	return found;
+    }
+    syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
+    if (o.monitor_flag_flag)
+        monitor_flag_set(false);
+    if (o.monitor_helper_flag)
+        tell_monitor(false);
+    int wait_time = 1;
+    //int report_interval = 600; // report every 10 mins to log
+    int cnt_down = o.proxy_failure_log_interval;
+    while (true) {
+        rc = proxysock.connect(o.proxy_ip, o.proxy_port);
+        if (!rc) {
+            proxysock.close();
+            //cache_erroring = 0;
+            syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
+            if (o.monitor_flag_flag)
+               monitor_flag_set(true);
+            if (o.monitor_helper_flag)
+               tell_monitor(true);
+            return;
+        } else {
+            if (ttg)
+                return;
+            wait_time++;
+            cnt_down--;
+            if (cnt_down < 1) {
+                syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds", wait_time);
+                cnt_down = o.proxy_failure_log_interval;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+    }
 }
 #endif
-
-// remove child from our PID/FD and slot lists
-void deletechild(int child_pid)
-{
-	int i;
-#ifdef linux
-/* Epoll linux only */
-	for (i = 0; i < fds; i++) {
-#else
-	for (i = 0; i < o.max_children; i++) {
-#endif
-		if (childrenpids[i] == child_pid) {
-			childrenpids[i] = -1;
-			// Delete a busy child
-			if (childrenstates[i] == 1)
-				busychildren--;
-			// Delete a child which isn't "ready" yet
-			if (childrenstates[i] == 4)
-			{
-				busychildren--;
-				waitingfor--;
-			}
-			// Common code for any non-"culled" child
-			if (childrenstates[i] != -2) {
-				numchildren--;
-#ifdef linux
-/* Epoll linux only */
-      			try {
-                 	epoll_ctl(epfd, EPOLL_CTL_DEL, i, &e_ev);
-                 	} catch (std::exception & e) {};
-#endif
-			delete childsockets[i];
-			childsockets[i] = NULL;
-			pids[i].fd = -1;
-		}
-		childrenstates[i] = -1;  // unused
-#ifdef linux
-/* Epoll linux only */
-		if (o.logchildprocs)
-			syslog(LOG_ERR, "deleted child: fd: %d pid: %d", i, childrenpids[i]);
-#endif
-			break;
-		}
-	}
-	// never should happen that passed pid is not known,
-	// unless its the logger or url cache process, in which case we
-	// don't want to do anything anyway. and this can only happen
-	// when shutting down or restarting.
-}
-
-// get the index of the first non-busy child
-int getfreechild()
-{				// check that there is 1 free done
-	// before calling
-	int i;
-#ifdef linux
-/* Epoll linux only */
-	for (i = 0; i < fds; i++) {
-#else
-	for (i = 0; i < o.max_children; i++) {
-#endif
-		if (childrenstates[i] == 0) {	// not busy (free)
-			return i;
-		}
-	}
-	return -1;
-}
-
-// tell given child process to accept an incoming connection
-void tellchild_accept(int num, int whichsock)
-{
-	std::string sstr;
-	sstr = whichsock;
-
-	// include server socket number in message
-	try {
-		childsockets[num]->writeToSockete(sstr.c_str(), 1, 0, 5, true);
-	} catch(std::exception & e) {
-		kill(childrenpids[num], SIGTERM);
-		deletechild(childrenpids[num]);
-		return;
-	}
-
-	// check for response from child
-	char buf;
-	try {
-		childsockets[num]->readFromSocket(&buf, 1, 0, 5, false, true);
-	} catch(std::exception & e) {
-		kill(childrenpids[num], SIGTERM);
-		deletechild(childrenpids[num]);
-		return;
-	}
-	// no need to check what it actually contains,
-	// as the very fact the child sent something back is a good sign 
-	busychildren++;
-	childrenstates[num] = 1;  // busy
-}
-
-
-// *
-// *
-// * end of child process handling code
-// *
-// *
 
 
 // *
@@ -1066,981 +656,677 @@ void tellchild_accept(int num, int whichsock)
 // *
 // *
 
-
-int log_listener(std::string log_location, bool logconerror, bool logsyslog)
-{
+void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
+    thread_id = "log: ";
+    try {
 #ifdef DGDEBUG
-	std::cout << "log listener started" << std::endl;
+    std::cerr << thread_id << "log listener started" << std::endl;
 #endif
-	if (!drop_priv_completely()) {
-		return 1;  //error
-	}
-	o.deleteFilterGroupsJustListData();
-	o.lm.garbageCollect();
-	UDSocket* ipcpeersock;  // the socket which will contain the ipc connection
-	int rc, ipcsockfd;
+    int rc;
 
 #ifdef ENABLE_EMAIL
-	// Email notification patch by J. Gauthier
-	std::map<std::string, int> violation_map;
-	std::map<std::string, int> timestamp_map;   
-	std::map<std::string, std::string> vbody_map;
+    // Email notification patch by J. Gauthier
+    std::map<std::string, int> violation_map;
+    std::map<std::string, int> timestamp_map;
+    std::map<std::string, std::string> vbody_map;
 
-	int curv_tmp, stamp_tmp, byuser;
+    int curv_tmp, stamp_tmp, byuser;
 #endif
-	
-	//String where, what, how;
-	std::string cr("\n");
-   
-	std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
-	std::string stype, postdata;
-	int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
-	int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
-	long tv_sec = 0, tv_usec = 0;
-	int contentmodified = 0, urlmodified = 0, headermodified = 0;
-	int headeradded = 0;
 
-	std::ofstream* logfile = NULL;
-	if (!logsyslog) {
-		logfile = new std::ofstream(log_location.c_str(), std::ios::app);
-		if (logfile->fail()) {
-			syslog(LOG_ERR, "Error opening/creating log file.");
+    //String where, what, how;
+    std::string cr("\n");
+
+    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
+    std::string stype, postdata;
+    int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
+    int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
+    long tv_sec = 0, tv_usec = 0;
+    int contentmodified = 0, urlmodified = 0, headermodified = 0;
+    int headeradded = 0;
+
+    std::ofstream *logfile = NULL;
+    if (!logsyslog) {
+        logfile = new std::ofstream(log_location.c_str(), std::ios::app);
+        if (logfile->fail()) {
+            syslog(LOG_ERR, "%sError opening/creating log file.", thread_id.c_str());
 #ifdef DGDEBUG
-			std::cout << "Error opening/creating log file: " << log_location << std::endl;
+            std::cerr << thread_id << "Error opening/creating log file: " << log_location << std::endl;
 #endif
-			delete logfile;
-			return 1;  // return with error
-		}
-	}
+            delete logfile;
+            return; // return with error
+        }
+    }
 
-	ipcsockfd = loggersock.getFD();
+    // Get server name - only needed for format 5
+    String server("");
+    if (o.log_file_format == 5) {
+        char sysname[256];
+        int r;
+        r = gethostname(sysname, 256);
+        if (r == 0) {
+            server = sysname;
+            server = server.before(".");
+        }
+    }
 
-	fd_set fdSet;  // our set of fds (only 1) that select monitors for us
-	fd_set fdcpy;  // select modifies the set so we need to use a copy
-	FD_ZERO(&fdSet);  // clear the set
-	FD_SET(ipcsockfd, &fdSet);  // add ipcsock to the set
+    std::string exception_word = o.language_list.getTranslation(51);
+    exception_word = "*" + exception_word + "* ";
+    std::string denied_word = o.language_list.getTranslation(52);
+    denied_word = "*" + denied_word;
+    std::string infected_word = o.language_list.getTranslation(53);
+    infected_word = "*" + infected_word + "* ";
+    std::string scanned_word = o.language_list.getTranslation(54);
+    scanned_word = "*" + scanned_word + "* ";
+    std::string contentmod_word = o.language_list.getTranslation(55);
+    contentmod_word = "*" + contentmod_word + "* ";
+    std::string urlmod_word = o.language_list.getTranslation(56);
+    urlmod_word = "*" + urlmod_word + "* ";
+    std::string headermod_word = o.language_list.getTranslation(57);
+    headermod_word = "*" + headermod_word + "* ";
+    std::string headeradd_word = o.language_list.getTranslation(58);
+    headeradd_word = "*" + headeradd_word + "* ";
 
-
-// Get server name - only needed for format 5
-	String server("");
-	if ( o.log_file_format == 5 ) {
-		char sysname[256];
-		int r;
-                r = gethostname(sysname, 256);
-		if ( r == 0 ) {
-			server = sysname;
-			server = server.before(".");
-		}
-	}
-
-	while (true) {		// loop, essentially, for ever
-		fdcpy = fdSet;  // take a copy
-		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, NULL);  // block
-
-		// until something happens
-		if (rc < 0) {	// was an error
-			if (errno == EINTR) {
-				continue;  // was interupted by a signal so restart
-			}
-			if (logconerror) {
-				syslog(LOG_ERR, "ipc rc<0. (Ignorable)");
-			}
-			continue;
-		}
-		if (rc < 1) {
-			if (logconerror) {
-				syslog(LOG_ERR, "ipc rc<1. (Ignorable)");
-			}
-			continue;
-		}
-		if (FD_ISSET(ipcsockfd, &fdcpy)) {
+    while (!logger_ttg) { // loop, essentially, for ever
+        std::string loglines;
+        loglines.append(o.log_Q->pop());  // get logdata from queue
+        if (logger_ttg) break;
 #ifdef DGDEBUG
-			std::cout << "received a log request" << std::endl;
-#endif
-			ipcpeersock = loggersock.accept();
-			if (ipcpeersock->getFD() < 0) {
-				delete ipcpeersock;
-				if (logconerror) {
-					syslog(LOG_ERR, "Error accepting ipc. (Ignorable)");
-				}
-				continue;  // if the fd of the new socket < 0 there was error
-				// but we ignore it as its not a problem
-			}
-
-			// Formatting code migration from ConnectionHandler
-			// and email notification code based on patch provided
-			// by J. Gauthier
-
-			// read in the various parts of the log string
-			bool error = false;
-			int itemcount = 0;
-			
-			while(itemcount < 29) {
-				try {
-					// Loop around reading in data, because we might have huge URLs
-					std::string logline;
-					char logbuff[8192];
-					bool truncated = false;
-					do
-					{
-						truncated = false;
-						rc = ipcpeersock->getLine(logbuff, 8192, 3, true, NULL, &truncated);  // throws on err
-						if (rc < 0) {
-							delete ipcpeersock;
-							if (!is_daemonised)
-								std::cout << "Error reading from log socket" <<std::endl;
-							syslog(LOG_ERR, "Error reading from log socket");
-							error = true;
-							break;
-						}
-						if (rc == 0)
-							break;
-						// Limit overall item length, but we still need to
-						// read from the socket until next newline
-						if (logline.length() < 32768)
-							logline.append(logbuff, rc);
-					}
-					while (truncated);
-					if (error)
-						break;
-
-					switch (itemcount) {
-					case 0:
-						isexception = atoi(logline.c_str());
-						break;
-					case 1:
-						cat = logline;
-						break;
-					case 2:
-						isnaughty = atoi(logline.c_str());
-						break;
-					case 3:
-						naughtytype = atoi(logline.c_str());
-						break;
-					case 4:
-						sweight = logline;
-						break;
-					case 5:
-						where = logline;
-						break;
-					case 6:
-						what = logline;
-						break;
-					case 7:
-						how = logline;
-						break;
-					case 8:
-						who = logline;
-						break;
-					case 9:
-						from = logline;
-						break;
-					case 10:
-						port = atoi(logline.c_str());
-						break;
-					case 11:
-						wasscanned = atoi(logline.c_str());
-						break;
-					case 12:
-						wasinfected = atoi(logline.c_str());
-						break;
-					case 13:
-						contentmodified = atoi(logline.c_str());
-						break;
-					case 14:
-						urlmodified = atoi(logline.c_str());
-						break;
-					case 15:
-						headermodified = atoi(logline.c_str());
-						break;
-					case 16:
-						ssize = logline;
-						break;
-					case 17:
-						filtergroup = atoi(logline.c_str());
-						break;
-					case 18:
-						code = atoi(logline.c_str());
-						break;
-					case 19:
-						cachehit = atoi(logline.c_str());
-						break;
-					case 20:
-						mimetype = logline;
-						break;
-					case 21:
-						tv_sec = atol(logline.c_str());
-						break;
-					case 22:
-						tv_usec = atol(logline.c_str());
-						break;
-					case 23:
-						clienthost = logline;
-						break;
-					case 24:
-						useragent = logline;
-						break;
-					case 25:
-						params = logline;
-						break;
-					case 26:
-						postdata = logline;
-						break;
-					case 27:
-						message_no = logline;
-						break;
-					case 28:
-						headeradded = atoi(logline.c_str());
-						break;
-					}
-				}
-				catch(std::exception & e) {
-					delete ipcpeersock;
-					if (logconerror)
-						syslog(LOG_ERR, "Error reading ipc. (Ignorable)");
-					error = true;
-					break;
-				}
-				itemcount++;
-			}
-
-			// don't build the log line if we couldn't read all the component parts
-			if (error)
-				continue;
-
-			// Start building the log line
-
-			if (port != 0 && port != 80) {
-				// put port numbers of non-standard HTTP requests into the logged URL
-				String newwhere(where);
-				if (newwhere.after("://").contains("/")) {
-					String proto, host, path;
-					proto = newwhere.before("://");
-					host = newwhere.after("://");
-					path = host.after("/");
-					host = host.before("/");
-					newwhere = proto;
-					newwhere += "://";
-					newwhere += host;
-					newwhere += ":";
-					newwhere += String((int) port);
-					newwhere += "/";
-					newwhere += path;
-					where = newwhere;
-				} else {
-					where += ":";
-					where += String((int) port);
-				}
-			}
-
-			// stamp log entries so they stand out/can be searched
-			switch (naughtytype)
-			{
-				case 1:
-					stype = "-POST";
-					break;
-				case 2:
-					stype = "-PARAMS";
-					break;
-				default:
-					stype.clear();
-			}
-			if (isnaughty) {
-				what = "*DENIED" + stype + "* " + what;
-			}
-			else if (isexception && (o.log_exception_hits == 2)) {
-#ifdef LEGACY_LOG
-				what = "*EXCEPTION* " + what;
-#else
-				what = "*TRUSTED* " + what;
+        std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
 #endif
 
+        // Formatting code migration from ConnectionHandler
+        // and email notification code based on patch provided
+        // by J. Gauthier
 
-			}
-		   
-			if (wasinfected)
-				what = "*INFECTED" + stype + "* " + what;
-			else if (wasscanned)
-				what = "*SCANNED* " + what;
-			
-			if (contentmodified) {
-				what = "*CONTENTMOD* " + what;
-			}
-			if (urlmodified) {
-				what = "*URLMOD* " + what;
-			}
-			if (headermodified) {
-				what = "*HEADERMOD* " + what;
-			}
-			if (headeradded) {
-				what = "*HEADERADD* " + what;
-			}
+        // read in the various parts of the log string
+        bool error = true;
+        int itemcount = 0;
+        //char * dup = strdup(loglines.c_str());
+        const char *delim = "\n";
+        std::istringstream iss(loglines);
+        std::string logline;
+        std::shared_ptr <LOptionContainer> ldl;
+        ldl = o.currentLists();
 
-			std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
-			struct timeval theend;
+        while (std::getline(iss, logline)) {
+            // Loop around reading in data, because we might have huge URLs
+            std::string s;
+            if (logline == "") {
+                s = "-";
+            } else {
+                s = logline;
+            }
+            switch (itemcount) {
+                case 0:
+                    isexception = atoi(logline.c_str());
+                    break;
+                case 1:
+                    cat = s;
+                    break;
+                case 2:
+                    isnaughty = atoi(logline.c_str());
+                    break;
+                case 3:
+                    naughtytype = atoi(logline.c_str());
+                    break;
+                case 4:
+                    sweight = s;
+                    break;
+                case 5:
+                    where = s;
+                    break;
+                case 6:
+                    what = s;
+                    break;
+                case 7:
+                    how = s;
+                    break;
+                case 8:
+                    who = s;
+                    break;
+                case 9:
+                    from = s;
+                    break;
+                case 10:
+                    port = atoi(logline.c_str());
+                    break;
+                case 11:
+                    wasscanned = atoi(logline.c_str());
+                    break;
+                case 12:
+                    wasinfected = atoi(logline.c_str());
+                    break;
+                case 13:
+                    contentmodified = atoi(logline.c_str());
+                    break;
+                case 14:
+                    urlmodified = atoi(logline.c_str());
+                    break;
+                case 15:
+                    headermodified = atoi(logline.c_str());
+                    break;
+                case 16:
+                    ssize = s;
+                    break;
+                case 17:
+                    filtergroup = atoi(logline.c_str());
+                    if (filtergroup < 0 || filtergroup > o.numfg ) filtergroup = 0;
+                    break;
+                case 18:
+                    code = atoi(logline.c_str());
+                    break;
+                case 19:
+                    cachehit = atoi(logline.c_str());
+                    break;
+                case 20:
+                    mimetype = s;
+                    break;
+                case 21:
+                    tv_sec = atol(logline.c_str());
+                    break;
+                case 22:
+                    tv_usec = atol(logline.c_str());
+                    break;
+                case 23:
+                    clienthost = s;
+                    break;
+                case 24:
+                    useragent = s;
+                    break;
+                case 25:
+                    params = s;
+                    break;
+                case 26:
+                    postdata = s;
+                    break;
+                case 27:
+                    message_no = s;
+                    break;
+                case 28:
+                    headeradded = atoi(logline.c_str());
+                    error = false;
+                    break;
+            }
+            itemcount++;
+        }
 
-			// create a string representation of UNIX timestamp if desired
-			if (o.log_timestamp || (o.log_file_format == 3)
-			    || (o.log_file_format > 4)) {
-				gettimeofday(&theend, NULL);
-				String temp((int) (theend.tv_usec / 1000));
-				while (temp.length() < 3) {
-					temp = "0" + temp;
-				}
-				if (temp.length() > 3) {
-					temp = "999";
-				}
-				utime = temp;
-				utime = "." + utime;
-				utime = String((int) theend.tv_sec) + utime;
-			}
 
-			if (o.log_file_format != 3) {
-				// "when" not used in format 3, and not if logging timestamps instead
-				String temp;
-				time_t tnow;  // to hold the result from time()
-				struct tm *tmnow;  // to hold the result from localtime()
-				time(&tnow);  // get the time after the lock so all entries in order
-				tmnow = localtime(&tnow);  // convert to local time (BST, etc)
-				year = String(tmnow->tm_year + 1900);
-				month = String(tmnow->tm_mon + 1);
-				day = String(tmnow->tm_mday);
-				hour = String(tmnow->tm_hour);
-				temp = String(tmnow->tm_min);
-				if (temp.length() == 1) {
-					temp = "0" + temp;
-				}
-				min = temp;
-				temp = String(tmnow->tm_sec);
-				if (temp.length() == 1) {
-					temp = "0" + temp;
-				}
-				sec = temp;
-				when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
-				// append timestamp if desired
-				if (o.log_timestamp)
-					when += " " + utime;
-					
-			}
+        // don't build the log line if we couldn't read all the component parts
+        if (error)
+            continue;
 
+        // Start building the log line
 
-#ifdef NOTDEFINED
-			// truncate long log items
-			// moved to ConnectionHandler to avoid IPC overload
-			// on very large URLs
-			if (o.max_logitem_length > 0) {
-				//where.limitLength(o.max_logitem_length);
-				if (cat.length() > o.max_logitem_length)
-					cat.resize(o.max_logitem_length);
-				if (what.length() > o.max_logitem_length)
-					what.resize(o.max_logitem_length);
-				if (where.length() > o.max_logitem_length)
-					where.resize(o.max_logitem_length);
-				/*if (who.length() > o.max_logitem_length)
-					who.resize(o.max_logitem_length);
-				if (from.length() > o.max_logitem_length)
-					from.resize(o.max_logitem_length);
-				if (how.length() > o.max_logitem_length)
-					how.resize(o.max_logitem_length);
-				if (ssize.length() > o.max_logitem_length)
-					ssize.resize(o.max_logitem_length);*/
-			}
+        if (port != 0 && port != 80) {
+            // put port numbers of non-standard HTTP requests into the logged URL
+            String newwhere(where);
+            if (newwhere.after("://").contains("/")) {
+                String proto, host, path;
+                proto = newwhere.before("://");
+                host = newwhere.after("://");
+                path = host.after("/");
+                host = host.before("/");
+                newwhere = proto;
+                newwhere += "://";
+                newwhere += host;
+                newwhere += ":";
+                newwhere += String((int) port);
+                newwhere += "/";
+                newwhere += path;
+                where = newwhere;
+            } else {
+                where += ":";
+                where += String((int) port);
+            }
+        }
+
+        // stamp log entries so they stand out/can be searched
+        switch (naughtytype) {
+            case 1:
+                stype = "-POST";
+                break;
+            case 2:
+                stype = "-PARAMS";
+                break;
+            default:
+                stype.clear();
+        }
+        if (isnaughty) {
+            what = denied_word + stype + "* " + what;
+        } else if (isexception && (o.log_exception_hits == 2)) {
+            what = exception_word + what;
+        }
+
+        if (wasinfected)
+            what = infected_word + stype + "* " + what;
+        else if (wasscanned)
+            what = scanned_word + what;
+
+        if (contentmodified) {
+            what = contentmod_word + what;
+        }
+        if (urlmodified) {
+            what = urlmod_word + what;
+        }
+        if (headermodified) {
+            what = headermod_word + what;
+        }
+        if (headeradded) {
+            what = headeradd_word + what;
+        }
+
+        std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
+        struct timeval theend;
+
+        // create a string representation of UNIX timestamp if desired
+        if (o.log_timestamp || (o.log_file_format == 3)
+            || (o.log_file_format > 4)) {
+            gettimeofday(&theend, NULL);
+            String temp((int) (theend.tv_usec / 1000));
+            while (temp.length() < 3) {
+                temp = "0" + temp;
+            }
+            if (temp.length() > 3) {
+                temp = "999";
+            }
+            utime = temp;
+            utime = "." + utime;
+            utime = String((int) theend.tv_sec) + utime;
+        }
+
+        if (o.log_file_format != 3) {
+            // "when" not used in format 3, and not if logging timestamps instead
+            String temp;
+            time_t tnow; // to hold the result from time()
+            struct tm *tmnow; // to hold the result from localtime()
+            time(&tnow); // get the time after the lock so all entries in order
+            tmnow = localtime(&tnow); // convert to local time (BST, etc)
+            year = String(tmnow->tm_year + 1900);
+            month = String(tmnow->tm_mon + 1);
+            day = String(tmnow->tm_mday);
+            hour = String(tmnow->tm_hour);
+            temp = String(tmnow->tm_min);
+            if (temp.length() == 1) {
+                temp = "0" + temp;
+            }
+            min = temp;
+            temp = String(tmnow->tm_sec);
+            if (temp.length() == 1) {
+                temp = "0" + temp;
+            }
+            sec = temp;
+            when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
+            // append timestamp if desired
+            if (o.log_timestamp)
+                when += " " + utime;
+        }
+
+        // blank out IP, hostname and username if desired
+        if (o.anonymise_logs) {
+            who = "";
+            from = "0.0.0.0";
+            clienthost.clear();
+        }
+
+        String stringcode(code);
+        String stringgroup(filtergroup + 1);
+
+        switch (o.log_file_format) {
+            case 4:
+                builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
+                            + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
+                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + ldl->fg[filtergroup]->name
+                            #ifdef SG_LOGFORMAT
+                            + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
+                    + params + "\t" + o.logid_2 + "\t" + postdata;
+                            #else
+                            + "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" + postdata;
 #endif
+                break;
+            case 3: {
+                // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
+                std::string duration, hier, hitmiss;
+                long durationsecs, durationusecs;
+                durationsecs = (theend.tv_sec - tv_sec);
+                durationusecs = theend.tv_usec - tv_usec;
+                durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                String temp((int) durationusecs);
+                while (temp.length() < 6) {
+                    temp = " " + temp;
+                }
+                duration = temp;
 
-			// blank out IP, hostname and username if desired
-			if (o.anonymise_logs) {
-				who = "";
-				from = "0.0.0.0";
-				clienthost.clear();
-			}
+                if (code == 403) {
+                    hitmiss = "TCP_DENIED/403";
+                } else {
+                    if (cachehit) {
+                        hitmiss = "TCP_HIT/";
+                        hitmiss.append(stringcode);
+                    } else {
+                        hitmiss = "TCP_MISS/";
+                        hitmiss.append(stringcode);
+                    }
+                }
+                hier = "DEFAULT_PARENT/";
+                hier += o.proxy_ip;
 
-			String stringcode(code);
-			String stringgroup(filtergroup+1);
+                builtline =
+                        utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss +
+                        " " + ssize + " "
+                        + how + " " + where + " " + who + " " + hier + " " + mimetype;
+                break;
+            }
+            case 2:
+                builtline = "\"" + when + "\",\"" + who + "\",\"" + from + "\",\"" + where + "\",\"" + what + "\",\""
+                            + how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat + "\",\"" + stringgroup +
+                            "\",\""
+                            + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
+                            ldl->fg[filtergroup]->name + "\",\""
+                            + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
+                            postdata + "\"";
+                break;
+            case 1:
+                builtline = when + " " + who + " " + from + " " + where + " " + what + " "
+                            + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
+                            + stringcode + " " + mimetype + " " + clienthost + " " + ldl->fg[filtergroup]->name + " "
+                            + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                break;
+            case 5:
+            case 6:
+            default:
+                std::string duration;
+                long durationsecs, durationusecs;
+                durationsecs = (theend.tv_sec - tv_sec);
+                durationusecs = theend.tv_usec - tv_usec;
+                durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                String temp((int) durationusecs);
+                duration = temp;
 
-			switch (o.log_file_format) {
-			case 4:
-				builtline = when +"\t"+ who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
-					+ "\t" + ssize + "\t" + sweight + "\t" + cat +  "\t" + stringgroup + "\t"
-					+ stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + o.fg[filtergroup]->name
-#ifdef SG_LOGFORMAT
-					+ "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
-					+ params + "\t" + o.logid_2 + "\t" + postdata;
-#else
-					+ "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" + postdata;
-#endif
-				break;
-			case 3:
-				{
-					// as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
-					std::string duration, hier, hitmiss;
-					long durationsecs, durationusecs;
-					durationsecs = (theend.tv_sec - tv_sec);
-					durationusecs = theend.tv_usec - tv_usec;
-					durationusecs = (durationusecs / 1000) + durationsecs * 1000;
-					String temp((int) durationusecs);
-					while (temp.length() < 6) {
-						temp = " " + temp;
-					}
-					duration = temp;
+                builtline = utime + "\t"
+                            + server + "\t"
+                            + who + "\t"
+                            + from + "\t"
+                            + clienthost + "\t"
+                            + where + "\t"
+                            + how + "\t"
+                            + stringcode + "\t"
+                            + ssize + "\t"
+                            + mimetype + "\t"
+                            + (o.log_user_agent ? useragent : "-") + "\t"
+                            + "-\t" // squid result code
+                            + duration + "\t"
+                            + "-\t" // squid peer code
+                            + message_no + "\t" // dg message no
+                            + what + "\t"
+                            + sweight + "\t"
+                            + cat + "\t"
+                            + ldl->fg[filtergroup]->name + "\t"
+                            + stringgroup;
+        }
 
-					if (code == 403) {
-						hitmiss = "TCP_DENIED/403";
-					} else {
-						if (cachehit) {
-							hitmiss = "TCP_HIT/";
-							hitmiss.append(stringcode);
-						} else {
-							hitmiss = "TCP_MISS/";
-							hitmiss.append(stringcode);
-						}
-					}
-					hier = "DEFAULT_PARENT/";
-					hier += o.proxy_ip;
-
-					/*if (o.max_logitem_length > 0) {
-						if (utime.length() > o.max_logitem_length)
-							utime.resize(o.max_logitem_length);
-						if (duration.length() > o.max_logitem_length)
-							duration.resize(o.max_logitem_length);
-						if (hier.length() > o.max_logitem_length)
-							hier.resize(o.max_logitem_length);
-						if (hitmiss.length() > o.max_logitem_length)
-							hitmiss.resize(o.max_logitem_length);
-					}*/
-
-					builtline = utime + " " + duration + " " + ( (clienthost.length() > 0) ? clienthost : from) + " " + hitmiss + " " + ssize + " "
-						+ how + " " + where + " " + who + " " + hier + " " + mimetype;
-					break;
-				}
-			case 2:
-				builtline = "\"" + when  +"\",\""+ who + "\",\"" + from + "\",\"" + where + "\",\"" + what + "\",\""
-					+ how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat +  "\",\"" + stringgroup + "\",\""
-					+ stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" + o.fg[filtergroup]->name + "\",\""
-					+ useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" + postdata + "\"";
-				break;
-			case 1:
-				builtline = when +" "+ who + " " + from + " " + where + " " + what + " "
-					+ how + " " + ssize + " " + sweight + " " + cat +  " " + stringgroup + " "
-					+ stringcode + " " + mimetype + " " + clienthost + " " + o.fg[filtergroup]->name + " "
-					+ useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
-				break;
-			case 5:
-			case 6:
-			default:
-					std::string duration;
-					long durationsecs, durationusecs;
-					durationsecs = (theend.tv_sec - tv_sec);
-					durationusecs = theend.tv_usec - tv_usec;
-					durationusecs = (durationusecs / 1000) + durationsecs * 1000;
-					String temp((int) durationusecs);
-					duration = temp;
-
-				builtline = utime + "\t"
-					+ server + "\t" 
-					+ who + "\t" 
-					+ from + "\t" 
-					+ clienthost + "\t" 
-					+ where + "\t" 
-					+ how + "\t" 
-					+ stringcode + "\t" 
-					+ ssize + "\t" 
-					+ mimetype + "\t" 
-					+ (o.log_user_agent ? useragent : "-") + "\t"
-					+ "-\t"   // squid result code
-					+ duration + "\t"
-					+ "-\t"   // squid peer code
-					+ message_no + "\t"   // dg message no
-					+ what + "\t" 
-					+ sweight + "\t" 
-					+ cat +  "\t" 
-					+ o.fg[filtergroup]->name + "\t" 
-					+ stringgroup ;
-			}
-
-			if (!logsyslog)
-				*logfile << builtline << std::endl;  // append the line
-			else
-				syslog(LOG_INFO, "%s", builtline.c_str());
+        if (!logsyslog)
+            *logfile << builtline << std::endl; // append the line
+        else
+            syslog(LOG_INFO, "%s", builtline.c_str());
 #ifdef DGDEBUG
-			std::cout << itemcount << " " << builtline << std::endl;
+        std::cerr << itemcount << " " << builtline << std::endl;
 #endif
-			delete ipcpeersock;  // close the connection
+        //    delete ipcpeersock; // close the connection
 
 #ifdef ENABLE_EMAIL
-			// do the notification work here, but fork for speed
-			if (o.fg[filtergroup]->use_smtp==true) {
+        // do the notification work here, but fork for speed
+        if (ldl->fg[filtergroup]->use_smtp == true) {
 
-				// run through the gambit to find out of we're sending notification
-				// because if we're not.. then fork()ing is a waste of time.
+            // run through the gambit to find out of we're sending notification
+            // because if we're not.. then fork()ing is a waste of time.
 
-				// virus
-				if ((wasscanned && wasinfected) && (o.fg[filtergroup]->notifyav))  {
-					// Use a double fork to ensure child processes are reaped adequately.
-					pid_t smtppid;
-					if ((smtppid = fork()) != 0) {
-						// Parent immediately waits for first child
-						waitpid(smtppid, NULL, 0);
-					} else {
-						// First child forks off the *real* process, but immediately exits itself
-						if (fork() == 0)  {
-							// Second child - do stuff
-							setsid();
-							FILE* mail = popen (o.mailer.c_str(), "w");
-							if (mail==NULL) {
-								syslog(LOG_ERR, "Unable to contact defined mailer.");
-							}
-							else {
-								fprintf(mail, "To: %s\n", o.fg[filtergroup]->avadmin.c_str());
-								fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
-								fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->avsubject.c_str());
-								fprintf(mail, "A virus was detected by e2guardian.\n\n");
-								fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
-								if (who != "-")
-									fprintf(mail, "%-10s%s\n", "User:", who.c_str());
-								fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(),  ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
-								fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
-								// specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
-								String swhat(what);
-								fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100)).toCharArray() + 1);
-								fprintf(mail, "%-10s%s\n", "Method:", how.c_str());
-								fprintf(mail, "%-10s%s\n", "Size:", ssize.c_str());
-								fprintf(mail, "%-10s%s\n", "Weight:", sweight.c_str());
-								if (cat.c_str()!=NULL)
-									fprintf(mail, "%-10s%s\n", "Category:", cat.c_str());
-								fprintf(mail, "%-10s%s\n", "Mime type:", mimetype.c_str());
-								fprintf(mail, "%-10s%s\n", "Group:", o.fg[filtergroup]->name.c_str());
-								fprintf(mail, "%-10s%s\n", "HTTP resp:", stringcode.c_str());
+            // virus
+            if ((wasscanned && wasinfected) && (ldl->fg[filtergroup]->notifyav)) {
+                // Use a double fork to ensure child processes are reaped adequately.
+                pid_t smtppid;
+                if ((smtppid = fork()) != 0) {
+                    // Parent immediately waits for first child
+                    waitpid(smtppid, NULL, 0);
+                } else {
+                    // First child forks off the *real* process, but immediately exits itself
+                    if (fork() == 0) {
+                        // Second child - do stuff
+                        setsid();
+                        FILE *mail = popen(o.mailer.c_str(), "w");
+                        if (mail == NULL) {
+                            syslog(LOG_ERR, "Unable to contact defined mailer.");
+                        } else {
+                            fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->avadmin.c_str());
+                            fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
+                            fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->avsubject.c_str());
+                            fprintf(mail, "A virus was detected by e2guardian.\n\n");
+                            fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
+                            if (who != "-")
+                                fprintf(mail, "%-10s%s\n", "User:", who.c_str());
+                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
+                            fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
+                            // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
+                            String swhat(what);
+                            fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100).c_str()).toCharArray());
+                            fprintf(mail, "%-10s%s\n", "Method:", how.c_str());
+                            fprintf(mail, "%-10s%s\n", "Size:", ssize.c_str());
+                            fprintf(mail, "%-10s%s\n", "Weight:", sweight.c_str());
+                            if (cat.c_str() != NULL)
+                                fprintf(mail, "%-10s%s\n", "Category:", cat.c_str());
+                            fprintf(mail, "%-10s%s\n", "Mime type:", mimetype.c_str());
+                            fprintf(mail, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
+                            fprintf(mail, "%-10s%s\n", "HTTP resp:", stringcode.c_str());
 
-								pclose(mail);
-							}
-							// Second child exits
-							_exit(0);
-						}
-						// First child exits
-						_exit(0);
-					}
-				}
+                            pclose(mail);
+                        }
+                        // Second child exits
+                        _exit(0);
+                    }
+                    // First child exits
+                    _exit(0);
+                }
+            }
 
-				// naughty OR virus 
-				else if ((isnaughty || (wasscanned && wasinfected)) && (o.fg[filtergroup]->notifycontent)) {
-					byuser = o.fg[filtergroup]->byuser;
+            // naughty OR virus
+            else if ((isnaughty || (wasscanned && wasinfected)) && (ldl->fg[filtergroup]->notifycontent)) {
+                byuser = ldl->fg[filtergroup]->byuser;
 
-					// if no violations so far by this user/group,
-					// reset threshold counters 
-					if (byuser) {
-						if (!violation_map[who]) {
-							// set the time of the first violation
-							timestamp_map[who] = time(0);
-							vbody_map[who] = "";
-						}
-					}
-					else if (!o.fg[filtergroup]->current_violations) {
-						// set the time of the first violation 
-						o.fg[filtergroup]->threshold_stamp = time(0);
-						o.fg[filtergroup]->violationbody="";
-					}
+                // if no violations so far by this user/group,
+                // reset threshold counters
+                if (byuser) {
+                    if (!violation_map[who]) {
+                        // set the time of the first violation
+                        timestamp_map[who] = time(0);
+                        vbody_map[who] = "";
+                    }
+                } else if (!ldl->fg[filtergroup]->current_violations) {
+                    // set the time of the first violation
+                    ldl->fg[filtergroup]->threshold_stamp = time(0);
+                    ldl->fg[filtergroup]->violationbody = "";
+                }
 
-					// increase per-user or per-group violation count
-					if (byuser)
-						violation_map[who]++;
-					else
-						o.fg[filtergroup]->current_violations++;
+                // increase per-user or per-group violation count
+                if (byuser)
+                    violation_map[who]++;
+                else
+                    ldl->fg[filtergroup]->current_violations++;
 
-					// construct email report
-					char *vbody_temp = new char[8192];   
-					sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
-					vbody+=vbody_temp;
+                // construct email report
+                char *vbody_temp = new char[8192];
+                sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
+                vbody += vbody_temp;
 
-					if ((!byuser) && (who != "-")) {
-						sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
-						vbody+=vbody_temp;
-					}
-					sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(),  ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Why:", what.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Method:", how.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Size:", ssize.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Weight:", sweight.c_str());
-					vbody+=vbody_temp;
-					if (cat.c_str()!=NULL) {
-						sprintf(vbody_temp, "%-10s%s\n", "Category:", cat.c_str());
-						vbody+=vbody_temp;
-					}
-					sprintf(vbody_temp, "%-10s%s\n", "Mime type:", mimetype.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n", "Group:", o.fg[filtergroup]->name.c_str());
-					vbody+=vbody_temp;
-					sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
-					vbody+=vbody_temp;
-					delete[] vbody_temp;
-					
-					// store the report with the group/user
-					if (byuser) {
-						vbody_map[who]+=vbody;
-						curv_tmp = violation_map[who];
-						stamp_tmp = timestamp_map[who];
-					}
-					else {
-						o.fg[filtergroup]->violationbody+=vbody;
-						curv_tmp = o.fg[filtergroup]->current_violations;
-						stamp_tmp = o.fg[filtergroup]->threshold_stamp;
-					}
+                if ((!byuser) && (who != "-")) {
+                    sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
+                    vbody += vbody_temp;
+                }
+                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Why:", what.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Method:", how.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Size:", ssize.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Weight:", sweight.c_str());
+                vbody += vbody_temp;
+                if (cat.c_str() != NULL) {
+                    sprintf(vbody_temp, "%-10s%s\n", "Category:", cat.c_str());
+                    vbody += vbody_temp;
+                }
+                sprintf(vbody_temp, "%-10s%s\n", "Mime type:", mimetype.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
+                vbody += vbody_temp;
+                sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
+                vbody += vbody_temp;
+                delete[] vbody_temp;
 
-					// if threshold exceeded, send mail
-					if (curv_tmp >= o.fg[filtergroup]->violations) {
-						if ((o.fg[filtergroup]->threshold == 0) || ( (time(0) - stamp_tmp) <= o.fg[filtergroup]->threshold)) {
-							// Use a double fork to ensure child processes are reaped adequately.
-							pid_t smtppid;
-							if ((smtppid = fork()) != 0) {
-								// Parent immediately waits for first child
-								waitpid(smtppid, NULL, 0);
-							} else {
-								// First child forks off the *real* process, but immediately exits itself
-								if (fork() == 0)  {
-									// Second child - do stuff
-									setsid();
-									FILE* mail = popen (o.mailer.c_str(), "w");
-									if (mail==NULL) {
-										syslog(LOG_ERR, "Unable to contact defined mailer.");
-									}
-									else {
-										fprintf(mail, "To: %s\n", o.fg[filtergroup]->contentadmin.c_str());
-										fprintf(mail, "From: %s\n", o.fg[filtergroup]->mailfrom.c_str());
+                // store the report with the group/user
+                if (byuser) {
+                    vbody_map[who] += vbody;
+                    curv_tmp = violation_map[who];
+                    stamp_tmp = timestamp_map[who];
+                } else {
+                    ldl->fg[filtergroup]->violationbody += vbody;
+                    curv_tmp = ldl->fg[filtergroup]->current_violations;
+                    stamp_tmp = ldl->fg[filtergroup]->threshold_stamp;
+                }
 
-										if (byuser)
-											fprintf(mail, "Subject: %s (%s)\n", o.fg[filtergroup]->contentsubject.c_str(), who.c_str());
-										else
-											fprintf(mail, "Subject: %s\n", o.fg[filtergroup]->contentsubject.c_str());
+                // if threshold exceeded, send mail
+                if (curv_tmp >= ldl->fg[filtergroup]->violations) {
+                    if ((ldl->fg[filtergroup]->threshold == 0) || ((time(0) - stamp_tmp) <= ldl->fg[filtergroup]->threshold)) {
+                        // Use a double fork to ensure child processes are reaped adequately.
+                        pid_t smtppid;
+                        if ((smtppid = fork()) != 0) {
+                            // Parent immediately waits for first child
+                            waitpid(smtppid, NULL, 0);
+                        } else {
+                            // First child forks off the *real* process, but immediately exits itself
+                            if (fork() == 0) {
+                                // Second child - do stuff
+                                setsid();
+                                FILE *mail = popen(o.mailer.c_str(), "w");
+                                if (mail == NULL) {
+                                    syslog(LOG_ERR, "Unable to contact defined mailer.");
+                                } else {
+                                    fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->contentadmin.c_str());
+                                    fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
 
-										fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
-											curv_tmp,
-											(curv_tmp==1)?"":"s",
-											(curv_tmp==1)?"s":"ve",									 
-											o.fg[filtergroup]->threshold);
+                                    if (byuser)
+                                        fprintf(mail, "Subject: %s (%s)\n", ldl->fg[filtergroup]->contentsubject.c_str(), who.c_str());
+                                    else
+                                        fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->contentsubject.c_str());
 
-										fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
-										if (byuser)
-											fprintf(mail, "%s", vbody_map[who].c_str());
-										else
-											fprintf(mail, "%s", o.fg[filtergroup]->violationbody.c_str());
-										pclose(mail);
-									}
-									// Second child exits
-									_exit(0);
-								}
-								// First child exits
-								_exit(0);
-							}
-						}
-						if (byuser)
-							violation_map[who]=0;
-						else
-							o.fg[filtergroup]->current_violations=0;
-					}
-				} // end naughty OR virus
-			} // end usesmtp
+                                    fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
+                                        curv_tmp,
+                                        (curv_tmp == 1) ? "" : "s",
+                                        (curv_tmp == 1) ? "s" : "ve",
+                                        ldl->fg[filtergroup]->threshold);
+
+                                    fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
+                                    if (byuser)
+                                        fprintf(mail, "%s", vbody_map[who].c_str());
+                                    else
+                                        fprintf(mail, "%s", ldl->fg[filtergroup]->violationbody.c_str());
+                                    pclose(mail);
+                                }
+                                // Second child exits
+                                _exit(0);
+                            }
+                            // First child exits
+                            _exit(0);
+                        }
+                    }
+                    if (byuser)
+                        violation_map[who] = 0;
+                    else
+                        ldl->fg[filtergroup]->current_violations = 0;
+                }
+            } // end naughty OR virus
+        } // end usesmtp
 #endif
 
-			continue;  // go back to listening
-		}
-	}
-	// should never get here
-	syslog(LOG_ERR, "%s", "Something wicked has ipc happened");
+        continue; // go back to listening
+    }
+#ifdef DGDEBUG
+    if( !logger_ttg)
+        std::cerr << thread_id << "log_listener exiting with error" << std::endl;
+#endif
+    if (logfile) {
+        logfile->close(); // close the file
+        delete logfile;
+    }
+    } catch (...) {
+        syslog(LOG_ERR,"%slog_listener caught unexpected exception - exiting", thread_id.c_str());
+    }
+    if (!logger_ttg)
+        syslog(LOG_ERR, "%slog_listener exiting with error", thread_id.c_str());
+    else if (o.logconerror)
+        syslog(LOG_INFO,"%slog_listener exiting", thread_id.c_str());
 
-	if (logfile) {
-		logfile->close();  // close the file
-		delete logfile;
-	}
-	loggersock.close();
-	return 1;  // It is only possible to reach here with an error
+    return; // It is only possible to reach here with an error
 }
 
-int url_list_listener(bool logconerror)
+void accept_connections(int index) // thread to listen on a single listening socket
 {
-#ifdef DGDEBUG
-	std::cout << "url listener started" << std::endl;
-#endif
-	if (!drop_priv_completely()) {
-		return 1;  //error
-	}
-	o.deleteFilterGroupsJustListData();
-	o.lm.garbageCollect();
-	UDSocket* ipcpeersock = NULL;  // the socket which will contain the ipc connection
-	int rc, ipcsockfd;
-	char *logline = new char[32000];
-	char reply;
-	DynamicURLList urllist;
-#ifdef DGDEBUG
-	std::cout << "setting url list size-age:" << o.url_cache_number << "-" << o.url_cache_age << std::endl;
-#endif
-	urllist.setListSize(o.url_cache_number, o.url_cache_age);
-	ipcsockfd = urllistsock.getFD();
-#ifdef DGDEBUG
-	std::cout << "url ipcsockfd:" << ipcsockfd << std::endl;
-#endif
+    try {
+        unsigned int ct_type = serversockets.getType(index);
+        int errorcount = 0;
+        thread_id = "listen";
+        thread_id += std::to_string(index);
+        thread_id += "_";
+        switch(ct_type) {
+            case CT_PROXY:
+                thread_id += "proxy: ";
+                break;
+            case CT_ICAP:
+                thread_id += "icap: ";
+                break;
+            case CT_THTTPS:
+                thread_id += "thttps: ";
+                break;
 
-	fd_set fdSet;  // our set of fds (only 1) that select monitors for us
-	fd_set fdcpy;  // select modifes the set so we need to use a copy
-	FD_ZERO(&fdSet);  // clear the set
-	FD_SET(ipcsockfd, &fdSet);  // add ipcsock to the set
-
+        }
+        thread_id += std::to_string(ct_type);
+        thread_id += ": ";
+        while ((errorcount < 30) && !ttg) {
+            Socket *peersock = serversockets[index]->accept();
+            if (ttg) break;
+            int err = serversockets[index]->getErrno();
+            if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
 #ifdef DGDEBUG
-	std::cout << "url listener entering select()" << std::endl;
+                std::cerr << thread_id << "got connection from accept" << std::endl;
 #endif
-	while (true) {		// loop, essentially, for ever
-
-		fdcpy = fdSet;  // take a copy
-
-		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, NULL);  // block
-		// until something happens
+                if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
+                errorcount = 0;
+                LQ_rec rec;
+                rec.sock = peersock;
+                rec.ct_type = ct_type;
+                o.http_worker_Q.push(rec);
 #ifdef DGDEBUG
-		std::cout << "url listener select returned" << std::endl;
+                std::cerr << thread_id << "pushed connection to http_worker_Q" << std::endl;
 #endif
-		if (rc < 0) {	// was an error
-			if (errno == EINTR) {
-				continue;  // was interupted by a signal so restart
-			}
-			if (logconerror) {
-				syslog(LOG_ERR, "%s", "url ipc rc<0. (Ignorable)");
-			}
-			continue;
-		}
-		if (FD_ISSET(ipcsockfd, &fdcpy)) {
+            } else {
 #ifdef DGDEBUG
-			std::cout << "received an url request" << std::endl;
+                std::cerr << thread_id << "Error on accept: errorcount " << errorcount << " errno: " << err << std::endl;
 #endif
-			ipcpeersock = urllistsock.accept();
-			if (ipcpeersock->getFD() < 0) {
-				delete ipcpeersock;
-				if (logconerror) {
-#ifdef DGDEBUG
-					std::cout << "Error accepting url ipc. (Ignorable)" << std::endl;
-#endif
-					syslog(LOG_ERR, "%s", "Error accepting url ipc. (Ignorable)");
-				}
-				continue;  // if the fd of the new socket < 0 there was error
-				// but we ignore it as its not a problem
-			}
-			try {
-				rc = ipcpeersock->getLine(logline, 32000, 3, true);  // throws on err
-			}
-			catch(std::exception & e) {
-				delete ipcpeersock;  // close the connection
-				if (logconerror) {
-#ifdef DGDEBUG
-					std::cout << "Error reading url ipc. (Ignorable)" << std::endl;
-					std::cerr << e.what() << std::endl;
-#endif
-					syslog(LOG_ERR, "%s", "Error reading url ipc. (Ignorable)");
-					syslog(LOG_ERR, "%s", e.what());
-				}
-				continue;
-			}
-			// check the command type
-			// f: flush the cache
-			// g: add a URL to the cache
-			// everything else: search the cache
-			// n.b. we use command characters with ASCII encoding
-			// > 100, because we can have up to 99 filter groups, and
-			// group no. plus 1 is the first character in the 'everything else'
-			// case.
-			if (logline[0] == 'f') {
-				delete ipcpeersock;  // close the connection
-				urllist.flush();
-#ifdef DGDEBUG
-				std::cout << "url FLUSH request" << std::endl;
-#endif
-				continue;
-			}
-			if (logline[0] == 'g') {
-				delete ipcpeersock;  // close the connection
-				urllist.addEntry(logline + 2, logline[1]-1);
-				continue;
-			}
-			if (urllist.inURLList(logline + 1, logline[0]-1)) {
-				reply = 'Y';
-			} else {
-				reply = 'N';
-			}
-			try {
-				ipcpeersock->writeToSockete(&reply, 1, 0, 6);
-			}
-			catch(std::exception & e) {
-				delete ipcpeersock;  // close the connection
-				if (logconerror) {
-					syslog(LOG_ERR, "%s", "Error writing url ipc. (Ignorable)");
-					syslog(LOG_ERR, "%s", e.what());
-				}
-				continue;
-			}
-			delete ipcpeersock;  // close the connection
-#ifdef DGDEBUG
-			std::cout << "url list reply: " << reply << std::endl;
-#endif
-			continue;  // go back to listening
-		}
-	}
-	delete[]logline;
-	urllistsock.close();  // be nice and neat
-	return 1;  // It is only possible to reach here with an error
+                syslog(LOG_ERR, "%sError %d on accept: errorcount %d", thread_id.c_str(), err, errorcount);
+                ++errorcount;
+                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+        };
+        if (!ttg) syslog(LOG_ERR, "%sError count on accept exceeds 30", thread_id.c_str());
+        serversockets[index]->close();
+    } catch (...) {
+       syslog(LOG_ERR,"%slistener thread caught unexpected exception exiting", thread_id.c_str());
+    }
+    if (o.logconerror) {
+        syslog(LOG_INFO, "%slistener thread exiting", thread_id.c_str());
+    }
 }
-
-int ip_list_listener(std::string stat_location, bool logconerror) {
-#ifdef DGDEBUG
-	std::cout << "ip listener started" << std::endl;
-#endif
-	if (!drop_priv_completely()) {
-		return 1;  //error
-	}
-	o.deleteFilterGroupsJustListData();
-	o.lm.garbageCollect();
-	UDSocket *ipcpeersock;
-	int rc, ipcsockfd;
-	char* inbuff = new char[16];
-
-	// pass in size of list, and max. age of entries (7 days, apparently)
-	DynamicIPList iplist(o.max_ips, 604799);
-
-	ipcsockfd = iplistsock.getFD();
-
-	unsigned long int ip;
-	char reply;
-	struct in_addr inaddr;
-
-	struct timeval sleep;  // used later on for a short sleep
-	sleep.tv_sec = 180;
-	sleep.tv_usec = 0;
-	struct timeval scopy;  // copy to use as select() can modify
-
-	int maxusage = 0;  // usage statistics:
-		// current & highest no. of concurrent IPs using the filter
-
-	double elapsed = 0;  // keep a 3 minute counter so license statistics
-	time_t before;   // are written even on busy networks (don't rely on timeout)
-
-	fd_set fdSet;  // our set of fds (only 1) that select monitors for us
-	fd_set fdcpy;  // select modifes the set so we need to use a copy
-	FD_ZERO(&fdSet);  // clear the set
-	FD_SET(ipcsockfd, &fdSet);  // add ipcsock to the set
-
-#ifdef DGDEBUG
-	std::cout << "ip listener entering select()" << std::endl;
-#endif
-	scopy = sleep;
-	// loop, essentially, for ever
-	while (true) {
-		fdcpy = fdSet;  // take a copy
-		before = time(NULL);
-		rc = select(ipcsockfd + 1, &fdcpy, NULL, NULL, &scopy);  // block until something happens
-		elapsed += difftime(time(NULL), before);
-#ifdef DGDEBUG
-		std::cout << "ip listener select returned: " << rc << ", 3 min timer: " << elapsed << ", scopy: " << scopy.tv_sec << " " << scopy.tv_usec << std::endl;
-#endif
-		if (rc < 0) {  // was an error
-			if (errno == EINTR) {
-				continue;  // was interupted by a signal so restart
-			}
-			if (logconerror) {
-				syslog(LOG_ERR, "ip ipc rc<0. (Ignorable)");
-			}
-			continue;
-		}
-		if (rc == 0 || elapsed >= 180) {
-#ifdef DGDEBUG
-			std::cout << "ips in list: " << iplist.getNumberOfItems() << std::endl;
-			std::cout << "purging old ip entries" << std::endl;
-			std::cout << "ips in list: " << iplist.getNumberOfItems() << std::endl;
-#endif
-			// should only get here after a timeout
-			iplist.purgeOldEntries();
-			// write usage statistics
-			int currusage = iplist.getNumberOfItems();
-			if (currusage > maxusage)
-				maxusage = currusage;
-			String usagestats;
-			usagestats += String(currusage) + "\n" + String(maxusage) + "\n";
-#ifdef DGDEBUG
-			std::cout << "writing usage stats: " << currusage << " " << maxusage << std::endl;
-#endif
-			int statfd = open(stat_location.c_str(), O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
-			if (statfd > 0) {
-				int dummy = write(statfd, usagestats.toCharArray(), usagestats.length());
-			}
-			close(statfd);
-			// reset sleep timer
-			scopy = sleep;
-			elapsed = 0;
-			// only skip back to top of loop if there was a genuine timeout
-			if (rc == 0)
-				continue;
-		}
-		if (FD_ISSET(ipcsockfd, &fdcpy)) {
-#ifdef DGDEBUG
-			std::cout << "received an ip request" << std::endl;
-#endif
-			ipcpeersock = iplistsock.accept();
-			if (ipcpeersock->getFD() < 0) {
-				delete ipcpeersock;
-				if (logconerror) {
-#ifdef DGDEBUG
-					std::cout << "Error accepting ip ipc. (Ignorable)" << std::endl;
-#endif
-					syslog(LOG_ERR, "Error accepting ip ipc. (Ignorable)");
-				}
-				continue; // if the fd of the new socket < 0 there was error
-						  // but we ignore it as its not a problem
-			}
-			try {
-				rc = ipcpeersock->getLine(inbuff, 16, 3);  // throws on err
-			} catch (std::exception& e) {
-				delete ipcpeersock;
-				if (logconerror) {
-#ifdef DGDEBUG
-					std::cout << "Error reading ip ipc. (Ignorable)" << std::endl;
-#endif
-					syslog(LOG_ERR, "Error reading ip ipc. (Ignorable)");
-				}
-				continue;
-			}
-#ifdef DGDEBUG
-			std::cout << "recieved ip:" << inbuff << std::endl;
-#endif
-			inet_aton(inbuff, &inaddr);
-			ip = inaddr.s_addr;
-			// is the ip in our list? this also takes care of adding it if not.
-			if (iplist.inList(ip))
-				reply = 'Y';
-			else
-				reply = 'N';
-			try {
-				ipcpeersock->writeToSockete(&reply, 1, 0, 6);
-			} catch (std::exception& e) {
-				delete ipcpeersock;
-				if (logconerror) {
-#ifdef DGDEBUG
-					std::cout << "Error writing ip ipc. (Ignorable)" << std::endl;
-#endif
-					syslog(LOG_ERR, "Error writing ip ipc. (Ignorable)");
-				}
-				continue;
-			}
-			delete ipcpeersock;  // close the connection
-#ifdef DGDEBUG
-			std::cout << "ip list reply: " << reply << std::endl;
-#endif
-			continue;  // go back to listening
-		}
-	}
-	delete[] inbuff;
-	iplistsock.close();  // be nice and neat
-	return 1; // It is only possible to reach here with an error
-}
-
 
 // *
 // *
@@ -2048,919 +1334,435 @@ int ip_list_listener(std::string stat_location, bool logconerror) {
 // *
 // *
 
-
-// Does lots and lots of things - forks off url cache & logger processes, preforks child processes for connection handling, does tidying up on exit
-// also handles the various signalling options DG supports (reload config, flush cache, kill all processes etc.)
-int fc_controlit()
+// Does lots and lots of things - creates url cache & logger threads, creates child threads for connection handling, does tidying up on exit
+// also handles the various signalling options e2g supports (reload config, flush cache, kill all processes etc.)
+int fc_controlit()   //
 {
-#ifdef linux
-/* Epoll linux only */
-	int rc;
-#else
-	int rc, fds;
-#endif
+    int rc;
+    bool is_starting = true;
+    ttg = false;
+    logger_ttg = false;
+    reloadconfig = false;
+    gentlereload = false;
+    reload_cnt = 0;
 
-	o.lm.garbageCollect();
+    o.lm.garbageCollect();
+    thread_id = "master: ";
 
-	// allocate & create our server sockets
-	if (o.map_ports_to_ips) {
-		serversocketcount = o.filter_ip.size();
-	} 
-	else {
-             if ( o.filter_ip.size() > 0 ) {
-	     	serversocketcount = o.filter_ip.size() * o.filter_ports.size();
-	     }
-	     else {
-		serversocketcount = o.filter_ports.size();
-     	     }
-	}
+    // allocate & create our server sockets
+    if (o.map_ports_to_ips) {
+        serversocketcount = o.filter_ip.size();
+    } else {
+        if (o.filter_ip.size() > 0) {
+            serversocketcount = o.filter_ip.size() * o.filter_ports.size();
+        } else {
+            serversocketcount = o.filter_ports.size();
+        }
+    }
 
-	serversockets.reset(serversocketcount);
-	int *serversockfds = serversockets.getFDAll();
+    int serversocktopproxy = serversocketcount;
 
-	for (int i = 0; i < serversocketcount; i++) {
-		// if the socket fd is not +ve then the socket creation failed
-		if (serversockfds[i] < 0) {
-			if (!is_daemonised) {
-				std::cerr << "Error creating server socket " << i << std::endl;
-			}
-			syslog(LOG_ERR, "Error creating server socket %d", i);
-			free(serversockfds);
-			return 1;
-		}
-	}
+    if (o.transparenthttps_port > 0)
+        ++serversocketcount;
+    if (o.icap_port> 0)
+        ++serversocketcount;
 
+    serversockets.reset(serversocketcount);
+    int *serversockfds = serversockets.getFDAll();
+    std::thread *listen_treads[serversocketcount];
+    for (int i = 0; i < serversocketcount; i++) {
+        // if the socket fd is not +ve then the socket creation failed
+        if (serversockfds[i] < 0) {
+            if (!is_daemonised) {
+                std::cerr << thread_id << "Error creating server socket " << i << std::endl;
+            }
+            syslog(LOG_ERR, "%sError creating server socket %d", thread_id.c_str(), i);
+            delete[] serversockfds;
+            return 1;
+        }
+    }
 
-	if (o.no_logger) {
-		loggersock.close();
-	} else {
-		loggersock.reset();
-	}
-	if (o.url_cache_number > 0) {
-		urllistsock.reset();
-	} else {
-		urllistsock.close();
-	}
-	if (o.max_ips > 0) {
-		iplistsock.reset();
-	} else {
-		iplistsock.close();
-	}
+// PRA 10-10-2005
+/*bool needdrop = false;
 
-	pid_t loggerpid = 0;  // to hold the logging process pid
-	pid_t urllistpid = 0;  // url cache process id
-	pid_t iplistpid = 0; // ip cache process id
-
-	if (!o.no_logger) {
-		if (loggersock.getFD() < 0) {
-			if (!is_daemonised) {
-				std::cerr << "Error creating ipc socket" << std::endl;
-			}
-			syslog(LOG_ERR, "%s", "Error creating ipc socket");
-			free(serversockfds);
-			return 1; 
-		}
-	}
-
-	// Made unconditional such that we have root privs when creating pidfile & deleting old IPC sockets
-	// PRA 10-10-2005
-	/*bool needdrop = false;
-
-	if (o.filter_port < 1024) {*/
+	if (o.filter_port < 1024) */
 #ifdef DGDEBUG
-		std::cout << "seteuiding for low port binding/pidfile creation" << std::endl;
+    std::cerr << thread_id << "seteuiding for low port binding/pidfile creation" << std::endl;
 #endif
-		//needdrop = true;
+//needdrop = true;
 #ifdef HAVE_SETREUID
-		rc = setreuid((uid_t) - 1, o.root_user);
+    rc = setreuid((uid_t)-1, o.root_user);
 #else
-		rc = seteuid(o.root_user);
+    rc = seteuid(o.root_user);
 #endif
-		if (rc == -1) {
-			syslog(LOG_ERR, "%s", "Unable to seteuid() to bind filter port.");
+    if (rc == -1) {
+        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid() to bind filter port.");
 #ifdef DGDEBUG
-			std::cerr << "Unable to seteuid() to bind filter port." << std::endl;
+        std::cerr << thread_id << "Unable to seteuid() to bind filter port." << std::endl;
 #endif
-			free(serversockfds);
-			return 1;
-		}
+        delete[] serversockfds;
+        return 1;
+    }
 
-	// we have to open/create as root before drop privs
-	int pidfilefd = sysv_openpidfile(o.pid_filename);
-	if (pidfilefd < 0) {
-		syslog(LOG_ERR, "%s", "Error creating/opening pid file.");
-		std::cerr << "Error creating/opening pid file:" << o.pid_filename << std::endl;
-		free(serversockfds);
-		return 1;
-	}
+    // we have to open/create as root before drop privs
+    int pidfilefd = sysv_openpidfile(o.pid_filename);
+    if (pidfilefd < 0) {
+        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating/opening pid file.");
+        std::cerr << thread_id << "Error creating/opening pid file:" << o.pid_filename << std::endl;
+        delete[] serversockfds;
+        return 1;
+    }
 
-	// we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
-	// if we don't find one, bind to any, as per old behaviour.
-	// XXX AAAARGH!
-	if (o.filter_ip[0].length() > 6) {
-		if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
-			if (!is_daemonised) {
-				std::cerr << "Error binding server socket (is something else running on the filter port and ip?" << std::endl;
-			}
-			syslog(LOG_ERR, "Error binding server socket (is something else running on the filter port and ip?");
-		close(pidfilefd);
-		free(serversockfds);
-		return 1;
-		}
-	} else {
-		// listen/bind to a port (or ports) on any interface
-		if (o.map_ports_to_ips) {
-			if (serversockets.bindSingle(o.filter_port)) {
-				if (!is_daemonised) {
-					std::cerr << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")" << std::endl;
-				}
-				syslog(LOG_ERR, "Error binding server socket: [%d] (%s)", o.filter_port, strerror(errno));
-				close(pidfilefd);
-				free(serversockfds);
-				return 1;
-			}
-		}
-		else {
-			if (serversockets.bindSingleM(o.filter_ports)) {
-				if (!is_daemonised) {
-					std::cerr << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
-				}
-				syslog(LOG_ERR, "Error binding server sockets  (%s)", strerror(errno));
-				close(pidfilefd);
-				free(serversockfds);
-				return 1;
-			}
-		}
-	}
+    // we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
+    // if we don't find one, bind to any, as per old behaviour.
+    // XXX AAAARGH!
+    if (o.filter_ip[0].length() > 6) {
+        if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
+            if (!is_daemonised) {
+                std::cerr << thread_id << "Error binding server socket (is something else running on the filter port and ip?"
+                          << std::endl;
+            }
+            syslog(LOG_ERR, "%sError binding server socket (is something else running on the filter port and ip?", thread_id.c_str());
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
+    } else {
+        // listen/bind to a port (or ports) on any interface
+        if (o.map_ports_to_ips) {
+            if (serversockets.bindSingle(o.filter_port)) {
+                if (!is_daemonised) {
+                    std::cerr << thread_id << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
+                              << std::endl;
+                }
+                syslog(LOG_ERR, "%sError binding server socket: [%d] (%s)", thread_id.c_str(), o.filter_port, strerror(errno));
+                close(pidfilefd);
+                delete[] serversockfds;
+                return 1;
+            }
+        } else {
+            if (serversockets.bindSingleM(o.filter_ports)) {
+                if (!is_daemonised) {
+                    std::cerr << thread_id << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
+                }
+                syslog(LOG_ERR, "%sError binding server sockets  (%s)", thread_id.c_str(), strerror(errno));
+                close(pidfilefd);
+                delete[] serversockfds;
+                return 1;
+            }
+        }
+    }
 
-	// Made unconditional for same reasons as above
-	//if (needdrop) {
+    if (o.transparenthttps_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
+            if (!is_daemonised) {
+                std::cerr << thread_id << "Error binding server thttps socket: (" << strerror(errno) << ")" << std::endl;
+            }
+            syslog(LOG_ERR, "%sError binding server thttps socket  (%s)", thread_id.c_str(), strerror(errno));
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
+    };
+
+    if (o.icap_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
+            if (!is_daemonised) {
+                std::cerr << thread_id << "Error binding server icap socket: (" << strerror(errno) << ")" << std::endl;
+            }
+            syslog(LOG_ERR, "%sError binding server icap socket  (%s)", thread_id.c_str(), strerror(errno));
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
+    };
+
+// Made unconditional for same reasons as above
+//if (needdrop)
 #ifdef HAVE_SETREUID
-		rc = setreuid((uid_t) - 1, o.proxy_user);
+    rc = setreuid((uid_t)-1, o.proxy_user);
 #else
-		rc = seteuid(o.proxy_user);  // become low priv again
+    rc = seteuid(o.proxy_user); // become low priv again
 #endif
-		if (rc == -1) {
-			syslog(LOG_ERR, "Unable to re-seteuid()");
+    if (rc == -1) {
+        syslog(LOG_ERR, "%sUnable to re-seteuid()", thread_id.c_str());
 #ifdef DGDEBUG
-			std::cerr << "Unable to re-seteuid()" << std::endl;
+        std::cerr << thread_id << "Unable to re-seteuid()" << std::endl;
 #endif
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;  // seteuid failed for some reason so exit with error
-		}
+        close(pidfilefd);
+        delete[] serversockfds;
+        return 1; // seteuid failed for some reason so exit with error
+    }
 
-	// Needs deleting if its there
-	unlink(o.ipc_filename.c_str());  // this would normally be in a -r situation.
-	// disabled as requested by Christopher Weimann <csw@k12hq.com>
-	// Fri, 11 Feb 2005 15:42:28 -0500
-	// re-enabled temporarily
-	unlink(o.urlipc_filename.c_str());
-	unlink(o.ipipc_filename.c_str());
+    if (serversockets.listenAll(256)) { // set it to listen mode with a kernel
+        // queue of 256 backlog connections
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error listening to server socket" << std::endl;
+        }
+        syslog(LOG_ERR, "%sError listening to server socket", thread_id.c_str());
+        close(pidfilefd);
+        delete[] serversockfds;
+        return 1;
+    }
 
-	if (!o.no_logger) {
-		if (loggersock.bind(o.ipc_filename.c_str())) {	// bind to file
-			if (!is_daemonised) {
-				std::cerr << "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipc_filename << "')." << std::endl;
-			}
-			syslog(LOG_ERR, "Error binding ipc server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipc_filename.c_str());
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-		if (loggersock.listen(256)) {	// set it to listen mode with a kernel
-			// queue of 256 backlog connections
-			if (!is_daemonised) {
-				std::cerr << "Error listening to ipc server file" << std::endl;
-			}
-			syslog(LOG_ERR, "Error listening to ipc server file");
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-	}
+    if (!daemonise()) {
+        // detached daemon
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error daemonising" << std::endl;
+        }
+        syslog(LOG_ERR, "%sError daemonising", thread_id.c_str());
+        close(pidfilefd);
+        delete[] serversockfds;
+        return 1;
+    }
 
-	if (o.url_cache_number > 0) {
-		if (urllistsock.bind(o.urlipc_filename.c_str())) {	// bind to file
-			if (!is_daemonised) {
-				std::cerr << "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.urlipc_filename << "')." << std::endl;
-			}
-			syslog(LOG_ERR, "Error binding urllistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.urlipc_filename.c_str());
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-		if (urllistsock.listen(256)) {	// set it to listen mode with a kernel
-			// queue of 256 backlog connections
-			if (!is_daemonised) {
-				std::cerr << "Error listening to url ipc server file" << std::endl;
-			}
-			syslog(LOG_ERR, "Error listening to url ipc server file");
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-	}
+#ifdef __SSLMITM
+    //init open ssl
+    SSL_load_error_strings();
+    OpenSSL_add_all_algorithms();
+    OpenSSL_add_all_digests();
+    SSL_library_init();
+    init_ssl_locks();
+#endif
 
-	if (o.max_ips > 0) {
-		if (iplistsock.bind(o.ipipc_filename.c_str())) {	// bind to file
-			if (!is_daemonised) {
-				std::cerr << "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm " << o.ipipc_filename << "')." << std::endl;
-			}
-			syslog(LOG_ERR, "Error binding iplistsock server file (try using the SysV to stop e2guardian then try starting it again or doing an 'rm %s').", o.ipipc_filename.c_str());
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-		if (iplistsock.listen(256)) {	// set it to listen mode with a kernel
-			// queue of 256 backlog connections
-			if (!is_daemonised) {
-				std::cerr << "Error listening to ip ipc server file" << std::endl;
-			}
-			syslog(LOG_ERR, "Error listening to ip ipc server file");
-			close(pidfilefd);
-			free(serversockfds);
-			return 1;
-		}
-	}
+    // this has to be done after daemonise to ensure we get the correct PID.
+    rc = sysv_writepidfile(pidfilefd); // also closes the fd
+    if (rc != 0) {
+        syslog(LOG_ERR, "%sError writing to the e2guardian.pid file: %s", thread_id.c_str(), strerror(errno));
+        delete[] serversockfds;
+        return false;
+    }
+    // We are now a daemon so all errors need to go in the syslog, rather
+    // than being reported on screen as we've detached from the console and
+    // trying to write to stdout will not be nice.
 
-	if (serversockets.listenAll(256)) {	// set it to listen mode with a kernel
-		// queue of 256 backlog connections
-		if (!is_daemonised) {
-			std::cerr << "Error listening to server socket" << std::endl;
-		}
-		syslog(LOG_ERR, "Error listening to server socket");
-		close(pidfilefd);
-		free(serversockfds);
-		return 1;
-	}
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
 
-	if (!daemonise()) {
-		// detached daemon
-		if (!is_daemonised) {
-			std::cerr << "Error daemonising" << std::endl;
-		}
-		syslog(LOG_ERR, "Error daemonising");
-		close(pidfilefd);
-		free(serversockfds);
-		return 1;
-	}
-
-#ifdef __SSLCERT
-	//init open ssl
-	SSL_load_error_strings();
-	OpenSSL_add_all_algorithms();
-	OpenSSL_add_all_digests();
-	SSL_library_init();
-#endif	
-
-	// this has to be done after daemonise to ensure we get the correct PID.
-	rc = sysv_writepidfile(pidfilefd);  // also closes the fd
-	if (rc != 0) {
-		syslog(LOG_ERR, "Error writing to the e2guardian.pid file: %s", strerror(errno));
-		free(serversockfds);
-		return false;
-	}
-	// We are now a daemon so all errors need to go in the syslog, rather
-	// than being reported on screen as we've detached from the console and
-	// trying to write to stdout will not be nice.
-
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	if (sigaction(SIGPIPE, &sa, NULL)) {	// ignore SIGPIPE so we can handle
-		// premature disconections better
-		syslog(LOG_ERR, "%s", "Error ignoring SIGPIPE");
-		return (1);
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	if (sigaction(SIGHUP, &sa, NULL)) {	// ignore HUP
-		syslog(LOG_ERR, "%s", "Error ignoring HUP");
-		return (1);
-	}
-
-	// Next thing we need to do is to split into two processes - one to
-	// handle incoming TCP connections from the clients and one to handle
-	// incoming UDS ipc from our forked children.  This helps reduce
-	// bottlenecks by not having only one select() loop.
-	if (!o.no_logger) {
-		loggerpid = fork();  // make a child processes copy of self to be logger
-
-		if (loggerpid == 0) {	// ma ma!  i am the child
-			serversockets.deleteAll();  // we don't need our copy of this so close it
-			free(serversockfds);
-			if (o.max_ips > 0) {
-				iplistsock.close();
-			}
-			if (o.url_cache_number > 0) {
-				urllistsock.close();  // we don't need our copy of this so close it
-			}	
-			if((log_listener(o.log_location, o.logconerror, o.log_syslog)) > 0) {
-			   syslog(LOG_ERR, "Error starting log listener");
-			}
+    // Now start creating threads so main thread can just handle signals, list reloads and stats
+    // This removes need for select and/or epoll greatly simplifying the code
+    // Threads are created for logger, a separate thread for each listening port
+    // and an array of worker threads to deal with the work.
+    if (!o.no_logger) {
+        std::thread log_thread(log_listener, o.log_location, o.logconerror, o.log_syslog);
+        log_thread.detach();
 #ifdef DGDEBUG
-			std::cout << "Log listener exiting" << std::endl;
+    std::cerr << thread_id << "log_listener thread created" << std::endl;
 #endif
-			_exit(0);  // is reccomended for child and daemons to use this instead
-		}
-	}
-
-	// Same for URL list listener
-	if (o.url_cache_number > 0) {
-		urllistpid = fork();
-		if (urllistpid == 0) {	// ma ma!  i am the child
-			serversockets.deleteAll(); // we don't need our copy of this so close it
-			free(serversockfds);
-			if (!o.no_logger) {
-				loggersock.close();  // we don't need our copy of this so close it
-			}
-			if (o.max_ips > 0) {
-				iplistsock.close();
-			}
-			if((url_list_listener(o.logconerror)) > 0) {
-			   syslog(LOG_ERR, "Error starting url list listener");
-			}
-#ifdef DGDEBUG
-			std::cout << "URL List listener exiting" << std::endl;
-#endif
-			_exit(0);  // is reccomended for child and daemons to use this instead
-		}
-	}
-
-	// and for IP list listener
-	if (o.max_ips > 0) {
-		iplistpid = fork();
-		if (iplistpid == 0) {	// ma ma!  i am the child
-			serversockets.deleteAll(); // we don't need our copy of this so close it
-			free(serversockfds);
-			if (!o.no_logger) {
-				loggersock.close();  // we don't need our copy of this so close it
-			}
-			if (o.url_cache_number > 0) {
-			        urllistsock.close();  // we don't need our copy of this so close it
-			}
-			if((ip_list_listener(o.stat_location, o.logconerror)) > 0 ) {
-			   syslog(LOG_ERR, "Error starting ip list listener");
-			}
-#ifdef DGDEBUG
-			std::cout << "IP List listener exiting" << std::endl;
-#endif
-			_exit(0);  // is reccomended for child and daemons to use this instead
-		}
-	}
-
-	// I am the parent process here onwards.
-
-#ifdef DGDEBUG
-	std::cout << "Parent process created children" << std::endl;
-#endif
-
-	if (o.url_cache_number > 0) {
-		urllistsock.close();  // we don't need our copy of this so close it
-	}
-	if (!o.no_logger) {
-		loggersock.close();  // we don't need our copy of this so close it
-	}
-	if (o.max_ips > 0) {
-		iplistsock.close();
-	}
-
-	memset(&sa, 0, sizeof(sa));
-	if (!o.soft_restart) {
-		sa.sa_handler = &sig_term;  // register sig_term as our handler
-	} else {
-		sa.sa_handler = &sig_termsafe;
-	}
-	if (sigaction(SIGTERM, &sa, NULL)) {	// when the parent process gets a
-		// sigterm we need to kill our
-		// children which this will do,
-		// then we need to exit
-		syslog(LOG_ERR, "Error registering SIGTERM handler");
-		return (1);
-	}
-
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = &sig_hup;  // register sig_hup as our handler
-	if (sigaction(SIGHUP, &sa, NULL)) {	// when the parent process gets a
-		// sighup we need to kill our
-		// children which this will do,
-		// then we need to read config
-		syslog(LOG_ERR, "Error registering SIGHUP handler");
-		return (1);
-	}
-
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = &sig_usr1;  // register sig_usr1 as our handler
-	if (sigaction(SIGUSR1, &sa, NULL)) {	// when the parent process gets a
-		// sigusr1 we need to hup our
-		// children to make them exit
-		// then we need to read fg config
-		syslog(LOG_ERR, "Error registering SIGUSR handler");
-		return (1);
-	}
-
-#ifdef ENABLE_SEGV_BACKTRACE
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_sigaction = &sig_segv;
-	sa.sa_flags = SA_SIGINFO;
-	if (sigaction(SIGSEGV, &sa, NULL)) {
-		syslog(LOG_ERR, "Error registering SIGSEGV handler");
-		return 1;
-	}
-#endif
-
-#ifdef DGDEBUG
-	std::cout << "Parent process sig handlers done" << std::endl;
-#endif
-
-	numchildren = 0;  // to keep count of our children
-	busychildren = 0;  // to keep count of our children
-	int freechildren = 0;  // to keep count of our children
-
-#ifdef linux
-// moved here PIP 
-// fds is now the max possible number of file descriptors
-// extra 50 for safety ( + 5 should be ok )
-// add 6 for already open fds and maxspare_children as allowance for
-//   overlap whilst waiting for children to die. 
- 	fds = o.max_children + serversocketcount + 6 + o.maxspare_children;
-    childrenpids = new int[fds];  // so when one exits we know who
-	childrenstates = new int[fds];  // so we know what they're up to
-	childsockets = new UDSocket* [fds];
-#else
-	childrenpids = new int[o.max_children];  // so when one exits we know who
-	childrenstates = new int[o.max_children];  // so we know what they're up to
-	childsockets = new UDSocket* [o.max_children];
-	fds = o.max_children + serversocketcount;
-#endif
-	pids = new struct pollfd[fds];
-
-#ifdef linux
-/* Epoll linux only */
-	revents = new struct epoll_event[fds]; 
-#endif
-
-	int i;
-
-	time_t tnow;
-	time_t tmaxspare;
-
-	time(&tmaxspare);
-
-#ifdef linux
-/* Epoll linux only */
-	epfd = epoll_create(fds);
-#endif
-
-
-#ifdef DGDEBUG
-	std::cout << "Parent process pid structs allocated" << std::endl;
-#endif
-
-	// store child fds...
-#ifdef linux
-	for (i = 0; i < fds; i++) {
-#else
-	for (i = 0; i < o.max_children; i++) {
-#endif
-		childrenpids[i] = -1;
-		childrenstates[i] = -1;
-		childsockets[i] = NULL;
-		pids[i].fd = -1;
-		pids[i].events = POLLIN;
-
-	}
-
-#ifdef linux
-// Epoll linux only
-// ...and set server fds entries and register with epoll
-	for (i = 0; i < serversocketcount; i++) {
-	     	int f = serversockfds[i];
-        	pids[f].fd = f;
-        	childrenpids[f] = -4;
-       		childrenstates[f] = -4;
-        	e_ev.data.fd = f;
-        	e_ev.events = EPOLLIN;
-
-        	if(epoll_ctl( epfd, EPOLL_CTL_ADD, f, &e_ev )) { 
-#ifdef DGDEBUG
-        		std::cout << "epoll_ctl errno:" << errno << " " << strerror(errno) << std::endl;
-#endif
-            	syslog(LOG_ERR, "%s","Error registering serversockfd in epoll");
-            	return(1);
-       }
 }
-#else
-	// ...and server fds
-	for (i = o.max_children; i < fds; i++) {
-		pids[i].fd = serversockfds[i - o.max_children];
-		pids[i].events = POLLIN;
-	}
-#endif
 
+
+
+// I am the main thread here onwards.
 
 #ifdef DGDEBUG
-	std::cout << "Parent process pid structs zeroed" << std::endl;
+    std::cerr << thread_id << "Master thread created threads" << std::endl;
 #endif
 
-	failurecount = 0;  // as we don't exit on an error with select()
-	// due to the fact that these errors do happen
-	// every so often on a fully working, but busy
-	// system, we just watch for too many errors
-	// consecutivly.
 
-	waitingfor = 0;
-	rc = prefork(o.min_children);
-
-	sleep(2);  // need to allow some of the forks to complete
+    sigset_t signal_set;
+    pthread_t signal_thread_id;
+    struct timespec timeout;
+    int stat;
+    sigemptyset(&signal_set);
+    //sigfillset(&signal_set);
+    sigaddset(&signal_set, SIGHUP);
+    sigaddset(&signal_set, SIGPIPE);
+    sigaddset(&signal_set, SIGTERM);
+    sigaddset(&signal_set, SIGUSR1);
+    stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
+    if (stat != 0) {
+        syslog(LOG_ERR, "%sError setting sigmask", thread_id.c_str());
+        return 1;
+    }
 
 #ifdef DGDEBUG
-	std::cout << "Parent process preforked rc:" << rc << std::endl;
-	std::cout << "Parent process pid:" << getpid() << std::endl;
+    std::cerr << thread_id << "sig handlers done" << std::endl;
 #endif
 
-	if (rc < 0) {
-		ttg = true;
-		syslog(LOG_ERR, "%s", "Error creating initial fork pool - exiting...");
-	}
+    dystat->busychildren = 0; // to keep count of our children
+    //
 
-	int tofind;
+    // worker thread generation
+    std::vector <std::thread> http_wt;
+    http_wt.reserve(o.http_workers);
 
-        if (reloadconfig){ 
-                syslog(LOG_INFO, "Reconfiguring E2guardian: done");
-	} else {
-		syslog(LOG_INFO, "Started sucessfully.");
-	}
-	reloadconfig = false;
-	while (failurecount < 30 && !ttg && !reloadconfig) {
-
-		// loop, essentially, for ever until 30
-		// consecutive errors in which case something
-		// is badly wrong.
-		// OR, its timetogo - got a sigterm
-		// OR, we need to exit to reread config
-		if (gentlereload) {
+    int i;
+    for (i = 0; i < o.http_workers; i++) {
+        http_wt.push_back(std::thread(handle_connections, i));
+    }
+    for (auto &i : http_wt) {
+        i.detach();
+   }
 #ifdef DGDEBUG
-			std::cout << "gentle reload activated" << std::endl;
+    std::cerr << thread_id << "http_worker threads created" << std::endl;
 #endif
-			o.deleteFilterGroups();
-			if (!o.readFilterGroupConf()) {
-				reloadconfig = true;  // filter groups problem so lets
-				// try and reload entire config instead
-				// if that fails it will bomb out
-			} else {
-				if (o.use_filter_groups_list) {
-					o.filter_groups_list.reset();
-					if (!o.doReadItemList(o.filter_groups_list_location.c_str(),&(o.filter_groups_list),"filtergroupslist",true))
-						reloadconfig = true;  // filter groups problem...
-				}
-				if (!reloadconfig) {
-					o.deletePlugins(o.csplugins);
-					if (!o.loadCSPlugins())
-						reloadconfig = true;  // content scan plugs problem
-					if (!reloadconfig) {
-						o.deletePlugins(o.authplugins);
-						if (!o.loadAuthPlugins())
-							reloadconfig = true;  // auth plugs problem
-					}
-					if (!reloadconfig) {
-						o.deleteRooms();
-						o.loadRooms();
-						hup_allchildren();
-			        		o.lm.garbageCollect();
-						prefork(o.min_children);
-						gentlereload = false;
-						syslog(LOG_INFO, "Reconfiguring E2guardian: gentle reload done");
-						// everything ok - no full reload needed
-						// clear gentle reload flag for next run of the loop
-					}
-				}
-			}
-			flush_urlcache();
-			continue;
-		}
-	
-		// Lets take the opportunity to clean up our dead children if any
-#ifdef linux
-		mopup_afterkids();
-#else
-		if ( fds > FD_SETSIZE) {
-			syslog(LOG_ERR, "Error polling child process sockets: You should reduce your maxchildren");
+
+    //   set listener threads going
+
+    std::vector <std::thread> listen_threads;
+    listen_threads.reserve(serversocketcount);
+    for (int i = 0; i < serversocketcount; i++) {
+        listen_threads.push_back(std::thread(accept_connections, i));
+    }
+    for (auto &i : listen_threads) {
+        i.detach();
+    }
 #ifdef DGDEBUG
-			std::cout << "Error polling child process sockets: You should reduce your maxchildren" << std::endl;
-#endif
-			_exit(0); 
-		} else {
-			for (i = 0; i < fds; i++) {
-				pids[i].revents = 0;
-			}
-		}
-		mopup_afterkids();
-#endif
-#ifdef linux
-/* Epoll linux only */
-		rc = epoll_wait(epfd, revents, fds, 60 * 1000);
-#else
-		rc = poll(pids, fds, 60 * 1000);
-		mopup_afterkids();
+    std::cerr << "listen  threads created" << std::endl;
 #endif
 
-		if (rc < 0) {	// was an error
+    time_t tnow;
+    time_t tmaxspare;
+
+    time(&tmaxspare);
+
+    failurecount = 0; // as we don't exit on an error with select()
+    // due to the fact that these errors do happen
+    // every so often on a fully working, but busy
+    // system, we just watch for too many errors
+    // consecutivly.
+
+    is_starting = true;
+
+
+    int tofind;
+
+    if (reloadconfig) {
+        syslog(LOG_INFO, "Reconfiguring E2guardian: done");
+    } else {
+        syslog(LOG_INFO, "Started sucessfully.");
+        dystat->start();
+    }
+    reloadconfig = false;
+
+    if (is_starting) {
+        if (o.monitor_flag_flag)
+            monitor_flag_set(true);
+    	if (o.monitor_helper_flag){
+        	tell_monitor(true);
+        }
+        is_starting = false;
+   }
+
+    while (failurecount < 30 && !ttg && !reloadconfig) {
+
+        // loop, essentially, for ever until 30
+        // consecutive errors in which case something
+        // is badly wrong.
+        // OR, its timetogo - got a sigterm
+        // OR, we need to exit to reread config
+        if (gentlereload) {
 #ifdef DGDEBUG
-			std::cout << "errno:" << errno << " " << strerror(errno) << std::endl;
+            std::cerr << thread_id << "gentle reload activated" << std::endl;
 #endif
+            syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload starting", thread_id.c_str());
+            if (o.createLists(++reload_cnt))
+                syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload completed", thread_id.c_str());
+            else
+                syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload failed", thread_id.c_str());
 
-			if (errno == EINTR) {
-				continue;  // was interupted by a signal so restart
-			}
-			if (o.logconerror)
-				syslog(LOG_ERR, "Error polling child process sockets: %s", strerror(errno));
-			failurecount++;  // log the error/failure
-			continue;  // then continue with the looping
-		}
-
-		tofind = rc;
-#ifdef linux
-/* Epoll linux only */
-		mopup_afterkids();
-		int ssp = 0;  //to hold number of serversockfd entries in revents
-#else
-		if (rc < 0) {
-			for (i = o.max_children; i < fds; i++) {
-				if (pids[i].revents) {
-					tofind--;
-				}
-			}
-		}
-#endif
-
-		if (tofind > 0) {
-#ifdef linux
-			check_kid_readystatus(tofind, &ssp);
-#else
-			check_kid_readystatus(tofind);
-			mopup_afterkids();
-#endif
-		}
-
-		freechildren = numchildren - busychildren;
-
+            gentlereload = false;
+            continue;        //  OK to continue even if gentle failed - just continue to use previous lists
+        }
+        timeout.tv_sec = 5;
+        timeout.tv_nsec = (long) 0;
+        rc = sigtimedwait(&signal_set, NULL, &timeout);
+        if (rc < 0) {
+            if (errno != EAGAIN) {
+                syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
+            }
+        } else {
+            if (rc == SIGUSR1)
+                gentlereload = true;
+            if (rc == SIGTERM)
+                ttg = true;
+            if (rc == SIGHUP)
+                gentlereload = true;
 #ifdef DGDEBUG
-		std::cout << "numchildren:" << numchildren << std::endl;
-		std::cout << "busychildren:" << busychildren << std::endl;
-		std::cout << "freechildren:" << freechildren << std::endl;
-		std::cout << "waitingfor:" << waitingfor << std::endl << std::endl;
+            std::cerr << "signal:" << rc << std::endl;
 #endif
-
-#ifdef linux
-/* Epoll linux only */
-		if (ssp > 0) {   // event on server socket
-		    for (i = 0; i < serversocketcount; i++) {
-			if (childrenstates[serversockfds[i]] == -5) {
-				childrenstates[serversockfds[i]] = -4;
-				int ev_off = pids[serversockfds[i]].revents;
-
-            		if ((revents[ev_off].events & EPOLLIN) > 0) {
-					// socket ready to accept() a connection
-					failurecount = 0;  // something is clearly working so reset count
-					if (freechildren < 1 && numchildren < o.max_children) {
-						
-						if (waitingfor == 0) {
-							int num = o.prefork_children;
-							if ((o.max_children - numchildren) < num)
-								num = o.max_children - numchildren;
-							if (o.logchildprocs)
-								syslog(LOG_ERR, "Under load - Spawning %d process(es)", num);
-							rc = prefork(num);
-							if (rc < 0) {
-								syslog(LOG_ERR, "Error forking %d extra process(es).", num);
-								failurecount++;
-							}
-						} else
-							usleep(1000);
-						continue;
-					}
-					if (freechildren > 0) {
-					    int p_freechild = getfreechild();
-					    if ( p_freechild > -1 ) {
-					
-					
+            if (o.logconerror) {
+                syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+            }
+        }
+        int q_size = o.http_worker_Q.size();
 #ifdef DGDEBUG
-						std::cout<<"telling child to accept "<<(i)<<std::endl;
+        std::cerr << thread_id << "busychildren:" << dystat->busychildren << " worker Q size:" << q_size << std::endl;
 #endif
-						//tellchild_accept(getfreechild(), i);
-						tellchild_accept(p_freechild, i);
-					    } else {
-		syslog(LOG_ERR, "freechildren gt 0 (%d) and no freechildren: busy %d, num %d ", freechildren, busychildren, numchildren);	
-						usleep(1000);
-					    }
-					} else {
-						usleep(1000);
-					}
-				}
-				else if (revents[ev_off].events) {
-					ttg = true;
-					syslog(LOG_ERR, "Error with main listening socket.  Exiting.");
-					break;
-				}
-			}
-			if (ttg)
-				break;
-		    }
-		}
-#else    // non-linux code
-		if (rc > 0) {
-			for (i = o.max_children; i < fds; i++) {
-				if ((pids[i].revents & POLLIN) > 0) {
-					// socket ready to accept() a connection
-					failurecount = 0;  // something is clearly working so reset count
-					if (freechildren < 1 && numchildren < o.max_children) {
-						if (waitingfor == 0) {
-							int num = o.prefork_children;
-							if ((o.max_children - numchildren) < num)
-								num = o.max_children - numchildren;
-							if (o.logchildprocs)
-								syslog(LOG_ERR, "Under load - Spawning %d process(es)", num);
-							rc = prefork(num);
-							if (rc < 0) {
-								syslog(LOG_ERR, "Error forking %d extra process(es).", num);
-								failurecount++;
-							}
-						} else
-							usleep(1000);
-						continue;
-					}
-					if (freechildren > 0) {
-#ifdef DGDEBUG
-						std::cout<<"telling child to accept "<<(i-o.max_children)<<std::endl;
-#endif
-						int childnum = getfreechild();
-						if (childnum < 0)
-						{
-							// Oops! weren't actually any free children.
-							// Not sure why as yet, but it seems this can
-							// sometimes happen. :(  PRA 2009-03-11
-							syslog(LOG_WARNING,
-								"No free children from getfreechild(): numchildren = %d, busychildren = %d, waitingfor = %d",
-								numchildren, busychildren, waitingfor
-							);
-							freechildren = 0;
-							usleep(1000);
-						}
-						else
-						{
-							tellchild_accept(childnum, i - o.max_children);
-							--freechildren;
-						}
-					} else {
-						usleep(1000);
-					}
-				}
-				else if (pids[i].revents) {
-					ttg = true;
-					syslog(LOG_ERR, "Error with main listening socket.  Exiting.");
-					break;
-				}
-			}
-			if (ttg)
-				break;
-		}
-#endif   
-		if (freechildren < o.minspare_children && (waitingfor == 0) && numchildren < o.max_children) {
-			if (o.logchildprocs)
-				syslog(LOG_ERR, "Fewer than %d free children - Spawning %d process(es)", o.minspare_children, o.prefork_children);
-			rc = prefork(o.prefork_children);
-			if (rc < 0) {
-				syslog(LOG_ERR, "Error forking preforkchildren extra processes.");
-				failurecount++;
-			}
-		}
+        if( o.dstat_log_flag) {
+            if (q_size > 10) {
+                syslog(LOG_INFO,
+                       "%sWarning: all %d http_worker threads are busy and %d connections are waiting in the queue.",
+                       thread_id.c_str(), o.http_workers, q_size);
+            }
+        } else {
+            int busy_child = dystat->busychildren;
+            if (busy_child > (o.http_workers - 10))
+                syslog(LOG_INFO, "%sWarning system is full : max httpworkers: %d Used: %d", thread_id.c_str(),
+                       o.http_workers, busy_child);
+        }
 
-		if (freechildren <= o.maxspare_children) {
-			time(&tmaxspare);
-		}
-		if (freechildren > o.maxspare_children) {
-			time(&tnow);
-			if ((tnow - tmaxspare) > (2 * 60)) {
-				if (o.logchildprocs)
-					syslog(LOG_ERR, "More than %d free children - Killing %d process(es)", o.maxspare_children, freechildren - o.maxspare_children);
-				cullchildren(freechildren - o.maxspare_children);
-			}
-		}
-	}
-	cullchildren(numchildren);  // remove the fork pool of spare children
-#ifdef linux
-/* Epoll linux only */
-	for (int i = 0; i < fds; i++) {
-#else
-	for (int i = 0; i < o.max_children; i++) {
-#endif
-		if (pids[i].fd != -1) {
-			delete childsockets[i];
-			childsockets[i] = NULL;
-		}
-	}
-	if (numchildren > 0) {
-		hup_allchildren();
-		sleep(2);  // give them a small chance to exit nicely before we force
-		// hmmmm I wonder if sleep() will get interupted by sigchlds?
-	}
-	if (numchildren > 0) {
-		kill_allchildren();
-	}
-	// we might not giving enough time for defuncts to be created and then
-	// mopped but on exit or reload config they'll get mopped up
-	sleep(1);
-	mopup_afterkids();
+        //      if (is_starting)
 
-	delete[]childrenpids;
-	delete[]childrenstates;
-	delete[]childsockets;
-	delete[]pids;  // 4 deletes good, memory leaks bad
-#ifdef linux
-/* Epoll linux only */
-	delete[]revents;  // 5 deletes good, memory leaks bad
-#endif 
+        time_t now = time(NULL);
 
-	if (failurecount >= 30) {
-		syslog(LOG_ERR, "%s", "Exiting due to high failure count.");
-#ifdef DGDEBUG
-		std::cout << "Exiting due to high failure count." << std::endl;
-#endif
-	}
-#ifdef DGDEBUG
-	std::cout << "Main parent process exiting." << std::endl;
+
+        if (o.dstat_log_flag && (now >= dystat->end_int))
+            dystat->reset();
+    }
+
+
+    //  tidy-up
+
+    sigfillset(&signal_set);
+    pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
+
+    syslog(LOG_INFO,"%sStopping", thread_id.c_str());
+
+    if (o.monitor_flag_flag)
+       monitor_flag_set(false);
+    if (o.monitor_helper_flag)
+        tell_monitor(false); // tell monitor that we are not accepting any more connections
+
+    if (o.logconerror) {
+        syslog(LOG_INFO,"%ssending null socket to http_workers to stop them", thread_id.c_str());
+    }
+    Socket* NS = NULL;
+    LQ_rec rec;
+    rec.sock = NS;
+    rec.ct_type = CT_PROXY;
+    for (i = 0; i < o.http_workers; i++) {
+        o.http_worker_Q.push(rec);
+    }
+   // dystat->reset();    // remove this line for production version
+
+    //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    //syslog(LOG_INFO,"2nd wait complete");
+    logger_ttg = true;
+    std::string nullstr("");
+    o.log_Q->push(nullstr);
+
+    if (o.logconerror) {
+        syslog(LOG_INFO,"%sstopping any remaining connections", thread_id.c_str());
+    }
+    serversockets.self_connect();   // stop accepting connections
+    if (o.logconerror) {
+        syslog(LOG_INFO,"%sconnections stopped", thread_id.c_str());
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    if (o.dstat_log_flag) dystat->close();
+
+#ifdef __SSLMITM
+    kill_ssl_locks();
 #endif
 
-	serversockets.deleteAll();
-	free(serversockfds);
+    delete[] serversockfds;
 
-#ifdef linux
-/* Epoll linux only */
-	close(epfd);  // close epoll fd
-#endif
-
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_DFL;
-	if (sigaction(SIGTERM, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGTERM" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGTERM");
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	if (sigaction(SIGHUP, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGHUP" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGHUP");
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_IGN;
-	if (sigaction(SIGUSR1, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGUSR1" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGUSR1");
-	}
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_handler = SIG_DFL;
-	if (sigaction(SIGPIPE, &sa, NULL)) {	// restore sig handler
-		// in child process
-#ifdef DGDEBUG
-		std::cerr << "Error resetting signal for SIGPIPE" << std::endl;
-#endif
-		syslog(LOG_ERR, "%s", "Error resetting signal for SIGPIPE");
-	}
-
-	if (sig_term_killall) {
-		struct sigaction sa, oldsa;
-		memset(&sa, 0, sizeof(sa));
-		sa.sa_handler = SIG_IGN;
-		sigaction(SIGTERM, &sa, &oldsa);  // ignore sigterm for us
-		kill(0, SIGTERM);  // send everyone in this process group a TERM
-		// which causes them to exit as the default action
-		// but it also seems to send itself a TERM
-		// so we ignore it
-		sigaction(SIGTERM, &oldsa, NULL);  // restore prev state
-	}
-
-	if (reloadconfig || ttg) {
-		if (!o.no_logger)
-			::kill(loggerpid, SIGTERM);  // get rid of logger
-		if (o.url_cache_number > 0)
-			::kill(urllistpid, SIGTERM);  // get rid of url cache
-		if (o.max_ips > 0)
-			::kill(iplistpid, SIGTERM); // get rid of iplist
-		return reloadconfig ? 2 : 0;
-	}
-	if (o.logconerror) {
-		syslog(LOG_ERR, "%s", "Main parent process exiting.");
-	}
-	return 1;  // It is only possible to reach here with an error
+    if (o.logconerror) {
+        syslog(LOG_INFO, "%s%s",  thread_id.c_str(), "Main thread exiting.");
+    }
+    return 0;
 }

@@ -1,10 +1,38 @@
 # e2guardian messages file in UK English
+# alternative version with messages similar to dansguardian
+#
+# This file needs translation
+#
 
 "1","Access Denied"
+
+"50"," in "
+"51","EXCEPTION"
+"52","DENIED"
+"53","INFECTED"
+"54","SCANNED"
+"55","CONTENTMOD"
+"56","URLMOD"
+"57","HEADERMOD"
+"58","HEADERADD"
+"70","SSL SITE"
 
 "100","Your IP address is not allowed to web browse: "
 "101","Your IP address is not allowed to web browse."
 "102","Your username is not allowed to web browse: "
+"103","Banned Client IP"
+"104","Banned Room"
+"105","Banned User"
+
+"150","Certificate supplied by server was not valid"
+"151","Could not open ssl connection" 
+"152","Failed to get ssl certificate"
+"153","Failed to load ssl private key"
+"154","Failed to negotiate ssl connection to client"
+"155","No SSL certificate supplied by server"
+"156","Server's SSL certificate does not match domain name"
+
+"200","The requested URL is malformed."
 
 "200","The requested URL is malformed."
 
@@ -53,6 +81,9 @@
 "608","Scan bypass URL exception."
 "609","Exception regular expression URL match: "
 "620","Referer match: "
+"630","URL match in "
+"631"," Room allow list"
+"632","Room overide allow list matched"
 "662","Site (local)."
 "663","URL (local)."
 

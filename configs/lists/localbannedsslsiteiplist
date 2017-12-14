@@ -1,0 +1,12 @@
+# IP sites in local banned ssl list
+#This list is only used for SSL (or CONNECT) requests
+#Unlike the bannedsitelist it overides all other lists
+
+# IP site addresses 
+#
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#

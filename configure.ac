@@ -1,20 +1,15 @@
 # Autoconf script
 
-AC_DEFINE([SEARCHWORDS],[""],[Define to enable search word checking])
 
-AC_DEFINE([ADDHEADER],[""],[Define to enable insert http header function])
-
-AC_DEFINE([REFEREXCEPT],[""],[Define to enable exceptions on http referer header])
-AC_DEFINE([RXREDIRECTS],[""],[Define to enable browser redirects based on regexp])
-AC_DEFINE([SSL_EXTRA_LISTS],[""],[Define to enable extra SSL lists ])
-AC_DEFINE([TOTAL_BLOCK_LIST],[""],[Define to enable total block list via stdin])
-AC_DEFINE([LOCAL_LISTS],[""],[Define to enable local lists which override main lists])
+AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 3.0.4)
+AC_INIT(e2guardian, 5.0.0)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CACHE_LOAD
 
@@ -30,10 +25,19 @@ AC_LANG(C++)
 
 AC_CACHE_SAVE
 
+#########################################################################
+# Get GCC version
+#########################################################################
+GCC_VERSION=$(gcc --version | head -1 | awk '{print $NF}')
+
+GCC_VERSION_MAJOR=$(echo $GCC_VERSION |cut -d'.' -f1 2>/dev/null)
+GCC_VERSION_MINOR=$(echo $GCC_VERSION |cut -d'.' -f2 2>/dev/null)
+GCC_VERSION_PATCH=$(echo $GCC_VERSION |cut -d'.' -f3 2>/dev/null)
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netdb.h netinet/in.h stdlib.h])
 AC_CHECK_HEADERS([string.h sys/socket.h sys/time.h syslog.h unistd.h locale.h])
-AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h sys/resource.h])
+AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h sys/epoll.h sys/resource.h])
 AC_CHECK_HEADERS([pwd.h grp.h])
 AC_CHECK_HEADERS([byteswap.h])
 
@@ -114,7 +118,7 @@ AC_MSG_RESULT($build_os)
 AC_MSG_CHECKING(for debug option)
 AC_ARG_WITH(dgdebug,
 [AC_HELP_STRING([--with-dgdebug@<:@=off@:>@], [switch on debug build mode])],
-[if test "x${withval}" == "xoff" ; then
+[if test "x${withval}" = "xoff" ; then
   AC_MSG_RESULT(no)
 else
   AC_MSG_RESULT(yes)
@@ -213,6 +217,7 @@ pcre=true
 AC_MSG_RESULT(yes)
 ]
 )
+
 if test "x$pcre" = "xtrue"; then
 PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
 AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
@@ -221,6 +226,37 @@ else
 AC_CHECK_FUNCS([regcomp])
 fi
 AM_CONDITIONAL(HAVE_PCRE, test "x$pcre" = "xtrue")
+
+AC_CHECK_HEADERS([pthread.h], [ LIBS="-lpthread ${LIBS}"], [
+echo "pthread.h required, failing"
+exit -1
+])
+#AC_CHECK_HEADERS([event2/thread.h], [
+#LIBS="-levent_pthreads ${LIBS}"
+#], [
+#echo "libevent_pthreads required, failing"
+#exit -1
+#])
+
+[if test "$GCC_VERSION_MAJOR" -eq 4; then
+	if test "$GCC_VERSION_MINOR" -ge 9; then
+		if test "$GCC_VERSION_PATCH" -ge 3; then
+                        echo "Version: $GCC_VERSION"
+                        CXXFLAGS="--std=c++11"
+                fi
+        fi
+	echo "Version: $GCC_VERSION "
+        CXXFLAGS="--std=c++1y"
+else
+        if test "$GCC_VERSION_MAJOR" -ge 5; then
+        echo "Version: $GCC_VERSION "
+        CXXFLAGS="--std=c++11"
+	else
+	echo "Version: $GCC_VERSION "
+        CXXFLAGS="--std=c++1y"
+	fi
+fi
+]
 
 # ask user if they want a backtrace logged after segfault
 AC_MSG_CHECKING(for backtrace on segfault support)
@@ -244,7 +280,7 @@ AC_MSG_ERROR([no native or standard library backtrace function found! (needed by
 ])
 AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
 # add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS}"
+CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
 fi
 ],
 [ # disable by default
@@ -262,7 +298,7 @@ else
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -272,7 +308,7 @@ fi
 lfsflags=`getconf LFS_CFLAGS`
 lfsld=`getconf LFS_LDFLAGS`
 lfslib=`getconf LFS_LIBS`
-CXXFLAGS="${CXXFLAGS} $lfsflags"
+CXXFLAGS="${CXXFLAGS} $lfsflags -DFD_SETSIZE=65535"
 LDFLAGS="${LDFLAGS} $lfsld"
 LIBS="${LIBS} $lfslib"
 AC_MSG_RESULT(yes)
@@ -490,205 +526,6 @@ AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
 AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
 AC_SUBST(FANCYSUPPORT)
 
-# asking user if they want total block list support
-AC_MSG_CHECKING(for total block list support)
-AC_ARG_ENABLE(
-totblock,
-[AC_HELP_STRING([--enable-totalblocklist@<:@=no@:>@], [Enable support for total block list])],
-[ if test "x$enableval" = "xyes"; then
-AC_MSG_RESULT(yes)
-totblock=true
-dmlists=true
-TOTALBLOCKSUPPORT=""
-AC_DEFINE([TOTAL_BLOCK_LIST],[],[Define to enable support for total block list])
-else
-totblock=false
-TOTALBLOCKSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-fi],
-[
-totblock=false
-TOTALBLOCKSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(TOTAL_BLOCK_LIST, test "x$totblock" = "xtrue")
-AC_SUBST(TOTALBLOCKSUPPORT)
-
-# asking user if they want local list support
-AC_MSG_CHECKING(for local list support)
-AC_ARG_ENABLE(
-locallists,
-[AC_HELP_STRING([--enable-locallists@<:@=no@:>@], [Enable support for local lists])],
-[ if test "x$enableval" = "xyes"; then
-AC_MSG_RESULT(yes)
-locallists=true
-LOCALLISTSUPPORT=""
-AC_DEFINE([LOCAL_LISTS],[],[Define to enable support for local lists])
-else
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-fi],
-[
-locallists=false
-LOCALLISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(LOCAL_LISTS, test "x$locallists" = "xtrue")
-AC_SUBST(LOCALLISTSSUPPORT)
-
-# asking user if they want referer exception support
-AC_MSG_CHECKING(for referer exception support)
-AC_ARG_ENABLE(
-refererexception,
-[AC_HELP_STRING([--enable-refererexception@<:@=yes@:>@], [Enable support for referer exception ])],
-[ if test "x$enableval" = "xno"; then
-refererexception=false
-REFEREREXCEPTSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-refererexception=true
-REFEREREXCEPTSUPPORT=""
-AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
-fi],
-[
-AC_MSG_RESULT(yes)
-refererexception=true
-REFEREREXCEPTSUPPORT=""
-AC_DEFINE([REFEREREXCEPT],[],[Define to enable support for referer exceptions])
-]
-)
-AM_CONDITIONAL(REFEREREXCEPT, test "x$refererexception" = "xtrue")
-AC_SUBST(REFEREREXCEPTSUPPORT)
-
-# asking user if they want regexp redirects support
-AC_MSG_CHECKING(for regexp redirects support)
-AC_ARG_ENABLE(
-rxredirects,
-[AC_HELP_STRING([--enable-rxredirects@<:@=yes@:>@], [Enable support for regexp redirects])],
-[ if test "x$enableval" = "xno"; then
-rxredirects=false
-RXREDIRECTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-rxredirects=true
-RXREDIRECTSSUPPORT=""
-AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects])
-fi],
-[
-AC_MSG_RESULT(yes)
-rxredirects=true
-RXREDIRECTSSUPPORT=""
-AC_DEFINE([RXREDIRECTS],[],[Define to enable support for regexp redirects ])
-]
-)
-AM_CONDITIONAL(RXREDIRECTS, test "x$rxredirects" = "xtrue")
-AC_SUBST(RXREDIRECTSSUPPORT)
-
-# asking user if they want add header support
-AC_MSG_CHECKING(for add header support)
-AC_ARG_ENABLE(
-addheader,
-[AC_HELP_STRING([--enable-addheader@<:@=yes@:>@], [Enable support for add header])],
-[ if test "x$enableval" = "xno"; then
-addheader=false
-ADDHEADERSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-addheader=true
-ADDHEADERSUPPORT=""
-AC_DEFINE([ADDHEADER],[],[Define to enable support for add header])
-fi],
-[
-AC_MSG_RESULT(yes)
-addheader=true
-ADDHEADERSUPPORT=""
-AC_DEFINE([ADDHEADER],[],[Define to enable support for add header ])
-]
-)
-AM_CONDITIONAL(ADDHEADER, test "x$addheader" = "xtrue")
-AC_SUBST(ADDHEADERSUPPORT)
-
-# asking user if they want ssl extra lists support
-AC_MSG_CHECKING(for ssl extra lists support)
-AC_ARG_ENABLE(
-sslextralists,
-[AC_HELP_STRING([--enable-sslextralists@<:@=yes@:>@], [Enable support for ssl extra lists])],
-[ if test "x$enableval" = "xno"; then
-sslextralists=false
-SSL_EXTRA_LISTSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists])
-fi],
-[
-AC_MSG_RESULT(yes)
-sslextralists=true
-SSL_EXTRA_LISTSSUPPORT=""
-AC_DEFINE([SSL_EXTRA_LISTS],[],[Define to enable support for ssl extra lists ])
-]
-)
-AM_CONDITIONAL(SSL_EXTRA_LISTS, test "x$sslextralists" = "xtrue")
-AC_SUBST(SSL_EXTRA_LISTSSUPPORT)
-
-# asking user if they want searchwords support
-AC_MSG_CHECKING(for searchwords support)
-AC_ARG_ENABLE(
-searchwords,
-[AC_HELP_STRING([--enable-searchwords@<:@=yes@:>@], [Enable support for ssl extra lists])],
-[ if test "x$enableval" = "xno"; then
-searchwords=false
-SEARCHWORDSSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-searchwords=true
-SEARCHWORDSSUPPORT=""
-AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists])
-fi],
-[
-AC_MSG_RESULT(yes)
-searchwords=true
-SEARCHWORDSSUPPORT=""
-AC_DEFINE([SEARCHWORDS],[],[Define to enable support for ssl extra lists ])
-]
-)
-AM_CONDITIONAL(SEARCHWORDS, test "x$searchwords" = "xtrue")
-AC_SUBST(SEARCHWORDSSUPPORT)
-
-# asking user if they want legacy log support
-AC_MSG_CHECKING(for legacy log support)
-AC_ARG_ENABLE(
-legacylog,
-[AC_HELP_STRING([--enable-legacylog@<:@=yes@:>@], [Enable support for legacy log format])],
-[ if test "x$enableval" = "xno"; then
-legacylog=false
-LEGACY_LOGSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-legacylog=true
-LEGACY_LOGSUPPORT=""
-AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format])
-fi],
-[
-AC_MSG_RESULT(yes)
-legacylog=true
-LEGACY_LOGSUPPORT=""
-AC_DEFINE([LEGACY_LOG],[],[Define to enable support for legacy log format ])
-]
-)
-AM_CONDITIONAL(LEGACY_LOG, test "x$legacylog" = "xtrue")
-AC_SUBST(LEGACY_LOGSUPPORT)
-
 # asking user if they want trickle downloadmanager support
 AC_MSG_CHECKING(for trickle download manager support)
 AC_ARG_ENABLE(
@@ -775,6 +612,34 @@ NTLMSUPPORT="!! Not compiled !! "
 AM_CONDITIONAL(ENABLE_NTLM, test "x$ntlm" = "xtrue")
 AC_SUBST(NTLMSUPPORT)
 
+# asking user if they want SSL MITM support
+AC_MSG_CHECKING(for SSL MITM support)
+AC_ARG_ENABLE(
+sslmitm,
+[AC_HELP_STRING([--enable-sslmitm@<:@=no@:>@], [Enable support for the SSL MITM plugin])],
+[ if test "x$enableval" = "xno"; then
+	AC_MSG_RESULT(no)
+	sslmitm=false
+	SSLMITMSUPPORT="!! Not compiled !! "
+else
+	AC_MSG_RESULT(yes)
+	sslmitm=true
+	SSLMITMSUPPORT=""
+	LIBS="${LIBS} -lssl -lcrypto"
+	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
+	AC_DEFINE([__SSLCERT],[],[Define to enable SSL CERT ])
+	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.0.1])
+fi],
+[
+	AC_MSG_RESULT(no)
+	sslmitm=false
+	SSLMITMSUPPORT="!! Not compiled !! "
+]
+)
+AM_CONDITIONAL(__SSLMITM, test "x$sslmitm" = "xtrue")
+AM_CONDITIONAL(__SSLCERT, test "x$sslmitm" = "xtrue")
+AC_SUBST(SSLMITMSUPPORT)
+
 # asking user if they want DNS auth support
 AC_MSG_CHECKING(for DNS support)
 AC_ARG_ENABLE(
@@ -788,7 +653,7 @@ else
 	AC_MSG_RESULT(yes)
 	dnsauth=true
 	DNSAUTHSUPPORT=""
-	CXXFLAGS="${CXXFLAGS} -lresolv"
+	LIBS="${LIBS} -lresolv"
 	AC_DEFINE([PRT_DNSAUTH],[],[Define to enable DNS auth plugin])
 fi],
 [
@@ -800,40 +665,6 @@ fi],
 AM_CONDITIONAL(PRT_DNSAUTH, test "x$dnsauth" = "xtrue")
 AC_SUBST(DNSAUTHSUPPORT)
 
-
-AC_ARG_WITH(filedescriptors,
-  AS_HELP_STRING([--with-filedescriptors=NUMBER],
-                 [Force support of NUMBER filedescriptors]),
-[
-  case ${withval} in
-    [[0-9]]*)
-      dans_filedescriptors_num=$withval
-      ;;
-    *)
-      AC_MSG_ERROR(--with-filedescriptors expects a numeric argument)
-      ;;
-    esac
-])
-
-
-if test -n "$dans_filedescriptors_num"; then
-	
-	if test `expr $dans_filedescriptors_num % 64` != 0; then
-    		{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&5
-		$as_echo "$as_me: WARNING: $dans_filedescriptors_num is not an multiple of 64. This may cause issues on certain platforms." >&2;}
-	fi
-
-	if test "$dans_filedescriptors_num" -lt 512; then
-	    AC_MSG_WARN([$dans_filedescriptors_num may not be enough filedescriptors if])
-	    AC_MSG_WARN([e2guardian will be very busy.])
-	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-	fi
-
-	if test "$dans_filedescriptors_num" -ge 512; then
-	    AC_MSG_NOTICE([forcing use of $dans_filedescriptors_num filedescriptors (user-forced)])
-	    AC_DEFINE_UNQUOTED(DANS_MAXFD, $dans_filedescriptors_num,[Maximum number of open filedescriptors])
-	fi
-fi
 
 # asking the user if they want email notifications
 AC_MSG_CHECKING(for email notification support)
@@ -890,22 +721,20 @@ data/scripts/e2guardian
 data/scripts/logrotation
 data/scripts/solaris-init
 data/scripts/systemv-init
-migration_installation/installation_or_migration_from_dg.sh
-migration_installation/Makefile
+data/scripts/e2guardian.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile
-configs/lists/blacklists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
-configs/lists/weightedphraselist
-configs/lists/exceptionphraselist
 configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
+configs/lists/exceptionphraselist
+configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/downloadmanagers/fancy.conf
@@ -918,9 +747,10 @@ configs/contentscanners/kavdscan.conf
 configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
 configs/authplugins/ip.conf
+configs/authplugins/port.conf
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
-                src/Makefile
+src/Makefile
 ])
 
 AC_OUTPUT

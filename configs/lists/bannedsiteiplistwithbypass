@@ -1,0 +1,13 @@
+# IP sites in banned list
+
+#The bannedsiteiplistwithbypass is for blocking ALL of an IP site
+# no bypass is allowed
+
+# IP site addresses 
+#
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#

@@ -4,7 +4,7 @@ index fbff15d..ba028d8 100644
 +++ b/src/FatController.cpp
 @@ -477,7 +477,7 @@ int handle_connections(UDSocket &pipe)
  		toldparentready = false;
- 
+
  		// now check the connection is actually good
 -		if (peersock->getFD() < 0 || peersockip.length() < 7) {
 +		if (peersock->getFD() < 0) {
@@ -13,7 +13,7 @@ index fbff15d..ba028d8 100644
  			continue;
 @@ -1677,19 +1677,6 @@ int fc_controlit()
  	serversocketcount = o.filter_ip.size();
- 
+
  	serversockets.reset(serversocketcount);
 -	int *serversockfds = serversockets.getFDAll();
 -
@@ -28,11 +28,11 @@ index fbff15d..ba028d8 100644
 -		}
 -	}
 -
- 
+
  	if (o.no_logger) {
  		loggersock.close();
 @@ -1754,7 +1741,7 @@ int fc_controlit()
- 
+
  	// we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
  	// if we don't find one, bind to any, as per old behaviour.
 -	if (o.filter_ip[0].length() > 6) {
@@ -50,7 +50,7 @@ index fbff15d..ba028d8 100644
  		}
  	}
 @@ -1903,7 +1890,6 @@ int fc_controlit()
- 
+
  		if (loggerpid == 0) {	// ma ma!  i am the child
  			serversockets.deleteAll();  // we don't need our copy of this so close it
 -			delete[] serversockfds;
@@ -74,7 +74,7 @@ index fbff15d..ba028d8 100644
  				loggersock.close();  // we don't need our copy of this so close it
  			}
 @@ -2041,6 +2025,19 @@ int fc_controlit()
- 
+
  	}
  	// ...and server fds
 +	int *serversockfds = serversockets.getFDAll();
@@ -100,7 +100,7 @@ index 14cbf62..3815fc1 100644
 @@ -351,14 +351,8 @@ bool OptionContainer::read(const char *filename, int type)
  		custom_banned_image_file = findoptionS("custombannedimagefile");
  		banned_image.read(custom_banned_image_file.c_str());
- 
+
 -		filter_port = findoptionI("filterport");
 -		if (!realitycheck(filter_port, 1, 65535, "filterport")) {
 -			return false;
@@ -112,7 +112,7 @@ index 14cbf62..3815fc1 100644
 +		filter_port = findoptionS("filterport");
 +		proxy_port = findoptionS("proxyport");
  		proxy_ip = findoptionS("proxyip");
- 
+
  		// multiple listen IP support
 diff --git a/src/OptionContainer.hpp b/src/OptionContainer.hpp
 index dd79390..ac274de 100644
@@ -136,7 +136,7 @@ index a154bac..8dd0478 100644
 @@ -1,4 +1,5 @@
  // Socket class - implements BaseSocket for INET domain sockets
 +// IPv6 support added by Sascha Hlusiak, 2011.
- 
+
  //Please refer to http://e2guardian.org/?page=copyright2
  //for the license for this code.
 @@ -34,6 +35,8 @@
@@ -145,8 +145,8 @@ index a154bac..8dd0478 100644
  #include <netinet/tcp.h>
 +#include <netdb.h>
 +#include <stdlib.h>
- 
- 
+
+
  // IMPLEMENTATION
 @@ -41,12 +44,11 @@
  // constructor - create an INET socket & clear address structs
@@ -176,7 +176,7 @@ index a154bac..8dd0478 100644
  	int f = 1;
  	setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
  }
- 
+
  // create socket from pre-existing FD, storing local & remote IPs
 -Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip):BaseSocket(newfd)
 +Socket::Socket(int newfd, struct sockaddr_storage myip, socklen_t myiplen, struct sockaddr_storage peerip, socklen_t peeriplen):BaseSocket(newfd)
@@ -207,10 +207,10 @@ index a154bac..8dd0478 100644
 +                NULL,
 +                0,
 +                NI_NUMERICHOST);
-+  
++
 +	return buf;
  }
- 
+
  // find the ip of the client connecting to us
  std::string Socket::getPeerIP()
  {
@@ -224,10 +224,10 @@ index a154bac..8dd0478 100644
 +                NULL,
 +                0,
 +                NI_NUMERICHOST);
-+  
++
 +	return buf;
  }
- 
+
  // find the port of the client connecting to us
  int Socket::getPeerSourcePort()
  {
@@ -247,10 +247,10 @@ index a154bac..8dd0478 100644
 +                buf,
 +                sizeof(buf),
 +                NI_NUMERICSERV);
-+  
++
 +	return atoi(buf);
  }
- 
+
  // close connection & wipe address structs
  void Socket::reset()
  {
@@ -265,7 +265,7 @@ index a154bac..8dd0478 100644
 +	peer_adr_length = 0;
 +	my_adr_length = 0;
  }
- 
+
  // connect to given IP & port (following default constructor)
 -int Socket::connect(const std::string &ip, int port)
 +int Socket::connect(const std::string &ip, const std::string& port)
@@ -285,13 +285,13 @@ index a154bac..8dd0478 100644
 -	return ::bind(sck, (struct sockaddr *) &my_adr, len);
 +	struct addrinfo *addr_info, *p, hints;
 +	int ret, s;
-+	
++
 +	memset(&hints, 0, sizeof(hints));
 +	hints.ai_family = AF_UNSPEC;
 +	hints.ai_socktype = SOCK_STREAM;
 +	hints.ai_protocol = IPPROTO_TCP;
 +	hints.ai_flags = 0;
-+	
++
 +	ret = getaddrinfo(ip.c_str(), port.c_str(), &hints, &addr_info);
 +        if (ret)
 +		return -1;
@@ -299,7 +299,7 @@ index a154bac..8dd0478 100644
 +        p = addr_info;
 +        while (p)
 +        {
-+		/* Create socket for found family */		
++		/* Create socket for found family */
 +                s = socket(p->ai_family, p->ai_socktype, 0);
 +
 +
@@ -320,7 +320,7 @@ index a154bac..8dd0478 100644
 +        freeaddrinfo(addr_info);
 +	return -1;
  }
- 
+
  // bind socket to given port & IP
 -int Socket::bind(const std::string &ip, int port)
 +int Socket::bind(const std::string &ip, const std::string &port)
@@ -334,7 +334,7 @@ index a154bac..8dd0478 100644
 -}
 +	struct addrinfo *addr_info, *p, hints;
 +	int ret, s;
-+  
++
 +	memset(&hints, 0, sizeof(hints));
 +	hints.ai_family = AF_UNSPEC;
 +	hints.ai_socktype = SOCK_STREAM;
@@ -350,9 +350,9 @@ index a154bac..8dd0478 100644
 +        {
 +		int on = 1;
 +
-+		/* Create socket for found family */		
++		/* Create socket for found family */
 +                s = socket(p->ai_family, p->ai_socktype, 0);
-+		
++
 +		if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
 +			/* maybe not so fatal, continue */
 +		}
@@ -379,7 +379,7 @@ index a154bac..8dd0478 100644
 +	freeaddrinfo(addr_info);
 +	return -1;
 +  }
- 
+
  // accept incoming connections & return new Socket
  Socket* Socket::accept()
  {
@@ -400,17 +400,17 @@ index d109a67..54f0372 100644
  	// create socket from pre-existing FD, storing given local & remote IPs
 -	Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip);
 +	Socket(int newfd, struct sockaddr_storage myip, socklen_t myiplen, struct sockaddr_storage peerip, socklen_t peeriplen);
- 	
+
  	// connect to given IP & port (following default constructor)
 -	int connect(const std::string& ip, int port);
 +	int connect(const std::string& ip, const std::string& port);
- 	
+
 -	// bind to given port
 -	int bind(int port);
  	// bind to given IP & port, for machines with multiple NICs
 -	int bind(const std::string& ip, int port);
 +	int bind(const std::string& ip, const std::string& port);
- 
+
  	// accept incoming connections & return new Socket
  	Socket* accept();
 @@ -56,15 +54,15 @@ public:
@@ -418,10 +418,10 @@ index d109a67..54f0372 100644
  	std::string getPeerIP();
  	int getPeerSourcePort();
 -	unsigned long int getPeerSourceAddr();
- 	
+
  	// get local IP
  	std::string getLocalIP();
- 
+
  private:
  	// local & remote addresses
 -	struct sockaddr_in my_adr;
@@ -430,7 +430,7 @@ index d109a67..54f0372 100644
 +	socklen_t my_adr_length;
 +	struct sockaddr_storage peer_adr;
  };
- 
+
  #endif
 diff --git a/src/SocketArray.cpp b/src/SocketArray.cpp
 index fdd9fe6..bf39aad 100644
@@ -438,7 +438,7 @@ index fdd9fe6..bf39aad 100644
 +++ b/src/SocketArray.cpp
 @@ -58,12 +58,12 @@ void SocketArray::reset(int sockcount)
  }
- 
+
  // bind our first socket to any IP
 -int SocketArray::bindSingle(int port)
 +int SocketArray::bindSingle(const std::string &port)
@@ -449,11 +449,11 @@ index fdd9fe6..bf39aad 100644
 -	return drawer[0].bind(port);
 +	return drawer[0].bind("0.0.0.0", port);
  }
- 
+
  // return an array of our socket FDs
 @@ -95,7 +95,7 @@ int SocketArray::listenAll(int queue)
  }
- 
+
  // bind all sockets to given IP list
 -int SocketArray::bindAll(std::deque<String> &ips, int port)
 +int SocketArray::bindAll(std::deque<String> &ips, const std::string &port)
@@ -516,7 +516,7 @@ index a0dd92b..cb8c3ad 100644
 -
 -	// close all old socks & create specified amount of new ones
 -	void reset(int sockcount);
--	
+-
 -	// just delete the lot of 'em
 -	void deleteAll();
 -
@@ -606,7 +606,7 @@ index a0dd92b..cb8c3ad 100644
 
 +	void reset(int sockcount);
 
-+	
++
 
 +	// just delete the lot of 'em
 

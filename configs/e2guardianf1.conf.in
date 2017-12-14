@@ -1,71 +1,111 @@
 # e2guardian filter group config file for version @PACKAGE_VERSION@
 
+# This file is re-read on gentle restart and any changes actioned
 
-# Filter group mode
-# This option determines whether members of this group have their web access
-# unfiltered, filtered, or banned. 
-#
-# 0 = banned
-# 1 = filtered
-# 2 = unfiltered (exception)
-#
-# Only filter groups with a mode of 1 need to define phrase, URL, site, extension,
-# mimetype and PICS lists; in other modes, these options are ignored to conserve
-# memory.
-#
-# Defaults to 0 if unspecified.
+# Filter group mode IS NOT LONGER SUPPORTED after 4.x
 # Unauthenticated users are treated as being in the first filter group.
-groupmode = 1
+# groupmode = 1 #DISABLED
 
 # Filter group name
 # Used to fill in the -FILTERGROUP- placeholder in the HTML template file, and to
 # name the group in the access logs
 # Defaults to empty string
 #groupname = ''
-groupname = ''
+groupname = 'no_name_group'
+
+# Much logic has moved to storyboard files
+storyboard = '@DGCONFDIR@/examplef1.story'
+
+# Enable legacy (DG) ssl logic
+# 
+# The following option is replaced by storyboard logic
+# ssllegacylogic = off
 
 # Content filtering files location
+
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
-bannedsitelist = '@DGCONFDIR@/lists/bannedsitelist'
-greysitelist = '@DGCONFDIR@/lists/greysitelist'
-bannedsslsitelist = '@DGCONFDIR@/lists/bannedsslsitelist'
-greysslsitelist = '@DGCONFDIR@/lists/greysslsitelist'
-exceptionsitelist = '@DGCONFDIR@/lists/exceptionsitelist'
-bannedurllist = '@DGCONFDIR@/lists/bannedurllist'
-greyurllist = '@DGCONFDIR@/lists/greyurllist'
-exceptionurllist = '@DGCONFDIR@/lists/exceptionurllist'
-exceptionregexpurllist = '@DGCONFDIR@/lists/exceptionregexpurllist'
-bannedregexpurllist = '@DGCONFDIR@/lists/bannedregexpurllist'
-picsfile = '@DGCONFDIR@/lists/pics'
+
+### NOTE - New format for all other list definition in v5.0 
+
+#banned lists
+sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
+ipsitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplist'
+urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
+regexpurlboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
+regexpurlboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
+
+sitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitelist'
+ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsiteiplist'
+
+#grey (i.e. content check) lists
+sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'
+ipsitelist = 'name=grey,path=@DGCONFDIR@/lists/greysiteiplist'
+urllist = 'name=grey,path=@DGCONFDIR@/lists/greyurllist'
+sitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsitelist'
+ipsitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsiteiplist'
+
+#exception lists
+sitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsitelist'
+ipsitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsiteiplist'
+urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
+regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
+regexpurlboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
+
+#sitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsitelist'
+#ipsitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsiteiplist'
+#urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
+
+sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
+ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
+urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
+sitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersitelist'
+ipsitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersiteiplist'
+urllist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededrefererurllist'
+
+sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
+ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
+urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
+
+#modification lists
+regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
+regexpreplacelist = 'name=sslreplace,path=@DGCONFDIR@/lists/sslsiteregexplist'
+
+#redirection lists
+regexpreplacelist = 'name=redirect,path=@DGCONFDIR@/lists/urlredirectregexplist'
+
 contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
-urlregexplist = '@DGCONFDIR@/lists/urlregexplist'
-refererexceptionsitelist = '@DGCONFDIR@/lists/refererexceptionsitelist'
-refererexceptionurllist = '@DGCONFDIR@/lists/refererexceptionurllist'
-embededreferersitelist = '@DGCONFDIR@/lists/embededreferersitelist'
-embededrefererurllist = '@DGCONFDIR@/lists/embededrefererurllist'
-urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
 
-# local versions of lists (where LOCAL_LISTS enabled)
-#localbannedsitelist = '@DGCONFDIR@/lists/localbannedsitelist'
-#localgreysitelist = '@DGCONFDIR@/lists/localgreysitelist'
-#localexceptionsitelist = '@DGCONFDIR@/lists/localexceptionsitelist'
-#localbannedurllist = '@DGCONFDIR@/lists/localbannedurllist'
-#localgreyurllist = '@DGCONFDIR@/lists/localgreyurllist'
-#localexceptionurllist = '@DGCONFDIR@/lists/localexceptionurllist'
-#localbannedsslsitelist = '@DGCONFDIR@/lists/localbannedsslsitelist'
-#localgreysslsitelist = '@DGCONFDIR@/lists/localgreysslsitelist'
-#localbannedsearchlist = '@DGCONFDIR@/lists/localbannedsearchlist'
+# local versions of lists 
 
-@DNSAUTHSUPPORT@authexceptionsitelist = '@DGCONFDIR@/lists/authexceptionsitelist'
-@DNSAUTHSUPPORT@authexceptionurllist = '@DGCONFDIR@/lists/authexceptionurllist'
+#local banned
+#sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
+#ipsitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsiteiplist'
+#urllist = 'name=localbanned,messageno=561,path=@DGCONFDIR@/lists/localbannedurllist'
+#sitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsitelist'
+#ipsitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsiteiplist'
+searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbannedsearchlist'
+
+#local grey lists
+#sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
+#ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
+#urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
+#sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
+#ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
+
+#local exception lists
+#sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
+#ipsitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsiteiplist'
+#urllist = 'name=localexception,messageno=663,path=@DGCONFDIR@/lists/localexceptionurllist'
+
 
 # Filetype filtering
 #
 # Allow bannedregexpurllist with grey list mode
 # bannedregexpheaderlist and bannedregexpurllist
 #
+# The following option is replaced by storyboard logic
 # bannedregexwithblanketblock = off
 #
 # Blanket download blocking
@@ -78,20 +118,21 @@ urlredirectregexplist = '@DGCONFDIR@/lists/urlredirectregexplist'
 # (on | off)
 #
 blockdownloads = off
-exceptionextensionlist = '@DGCONFDIR@/lists/exceptionextensionlist'
-exceptionmimetypelist = '@DGCONFDIR@/lists/exceptionmimetypelist'
+fileextlist = 'name=exceptionextension,messageno=900,path=@DGCONFDIR@/lists/exceptionextensionlist'
+mimelist = 'name=exceptionmime,messageno=750,path=@DGCONFDIR@/lists/exceptionextensionlist'
 #
 # Use the following lists to block specific kinds of file downloads.
 # The two exception lists above can be used to override these.
 #
-bannedextensionlist = '@DGCONFDIR@/lists/bannedextensionlist'
-bannedmimetypelist = '@DGCONFDIR@/lists/bannedmimetypelist'
+fileextlist = 'name=bannedextension,messageno=999,path=@DGCONFDIR@/lists/bannedextensionlist'
+mimelist = 'name=bannedmime,messageno=750,path=@DGCONFDIR@/lists/bannedmimeitypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
 #
-exceptionfilesitelist = '@DGCONFDIR@/lists/exceptionfilesitelist'
-exceptionfileurllist = '@DGCONFDIR@/lists/exceptionfileurllist'
+sitelist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfilesitelist'
+ipsitelist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfilesiteiplist'
+urllist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfileurllist'
 
 # POST protection (web upload and forms)
 # does not block forms without any file upload, i.e. this is just for
@@ -108,9 +149,10 @@ maxuploadsize = -1
 # Supply categorised lists here and the category string shall be logged against
 # matching requests, but matching these lists does not perform any filtering
 # action.
-#logsitelist = '@DGCONFDIR@/lists/logsitelist'
-#logurllist = '@DGCONFDIR@/lists/logurllist'
-#logregexpurllist = '@DGCONFDIR@/lists/logregexpurllist'
+#sitelist = 'name=log,path=@DGCONFDIR@/lists/logsitelist'
+#ipsitelist = 'name=log,path=@DGCONFDIR@/lists/logsiteiplist'
+#urllist = 'name=log,path=@DGCONFDIR@/lists/logurllist'
+#regexpboollist = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
@@ -121,9 +163,19 @@ maxuploadsize = -1
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove cookies or prevent certain user-agents.
-headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
-bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
-addheaderregexplist = '@DGCONFDIR@/lists/addheaderregexplist'
+#headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
+regexpreplacelist = 'name=headermods,path=@DGCONFDIR@/lists/headerregexplist'
+##bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
+regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
+##exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
+regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
+
+#Virus checking exceptions - matched urls will not be virus checked
+mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+fileextlist = 'name=exceptionvirus,path=/home/dg/etc/config_i1/e2guardian/lists/contentscanners/exceptionvirusextensionlist'
+sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
+urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
 
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
@@ -159,18 +211,18 @@ naughtynesslimit = 50
 # bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
 # threshold for blocking than that used for normal page content.
 # To do this, the searchregexplist must be enabled and searchtermlimit 
-# must be grater than 0.
+# must be greater than 0.
  
 #
 # Search engine regular expression list (need for both options)
 # List of regular expressions for matching search engine URLs.  It is assumed
 # that the search terms themselves will be contained in the 
 # of output of each expression.
-#searchregexplist = '@DGCONFDIR@/lists/searchregexplist'
+regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
-#bannedsearchlist = '@DGCONFDIR@/lists/bannedsearchlist'
-#bannedsearchoveridelist = '@DGCONFDIR@/lists/bannedsearchoveridelist'
+searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
+searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)
@@ -192,6 +244,7 @@ naughtynesslimit = 50
 # of text.
 # Please note that all or none of the below should be uncommented, not a
 # mixture.
+# NOTE: these are phrase lists and still use the old style defines
 #bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
 #weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
 #exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'
@@ -217,19 +270,13 @@ categorydisplaythreshold = 0
 # affected by the weightedphrasemode setting.
 #
 # NB: Currently, this feature uses regular expressions that require the PCRE library.
-# As such, it is only available if you compiled DansGuardian with '--enable-pcre=yes'.
+# As such, it is only available if you compiled e2guardian with '--enable-pcre=yes'.
 # You can check compile-time options by running 'e2guardian -v'.
 #
 # Set to 0 to disable.
 # Defaults to 0.
 # WARNING: This option is highly CPU intensive!
 embeddedurlweight = 0
-
-# Enable PICS rating support
-#
-# Defaults to disabled
-# (on | off)
-enablepics = off
 
 # Temporary Denied Page Bypass
 # This provides a link on the denied page to bypass the ban for a few minutes.  To be
@@ -248,6 +295,11 @@ bypass = 0
 # 'Mary had a little lamb.' = an example
 # '76b42abc1cd0fdcaf6e943dcbc93b826' = an example
 bypasskey = ''
+
+#  Users will not be able to bypass sites/urls in these lists
+sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelistwithbypass'
+ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplistwithbypass'
+urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/bannedurllistwithbypass'
 
 # Infection/Scan Error Bypass
 # Similar to the 'bypass' setting, but specifically for bypassing files scanned and found
@@ -275,8 +327,16 @@ infectionbypasserrorsonly = on
 # Content scanning primarily is AV scanning (if enabled) but could include
 # other types.
 # (on|off) default = off.
-disablecontentscan = off
+disablecontentscan = off  
 
+# If 'on' exception sites, urls, users etc will be scanned
+# This is probably not desirable behavour as exceptions are
+# supposed to be trusted and will increase load.
+# Correct use of grey lists are a better idea.
+# (on|off) default = off
+contentscanexceptions = off
+
+# Auth plugins
 # Enable Deep URL Analysis
 # When enabled, DG looks for URLs within URLs, checking against the bannedsitelist and
 # bannedurllist. This can be used, for example, to block images originating from banned
@@ -309,15 +369,16 @@ reportinglevel = 3
 #     only for users using both transparent proxying and a non-local server
 #     to host this script.
 #
-# If defined, this overrides the global setting in e2guardian.conf for
-# members of this filter group.
-#
 #accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
 
 # sslaccessdeniedaddress is the address of your web server to which the static page
-# e2guardian reporting was copied. Only used in reporting levels 3 (avoid blank page)
-# Work only in firefox with ssldeniedrewrite off
+# e2guardian reporting was copied.
 
+# With ssldeniedrewrite 'off' it works only with firefox 
+# With ssldeniedrewrite 'on' there are several limitations, SSL warning, basic page, etc, eg this webserver can't be listed as an
+# exception in your browser's proxy configuration.
+# Keep in mind, this is only a trick to avoid blank page, the best way still to use SSLMITM   
+# 
 # sslaccessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/denyssl.htm'
 
 # Break SSL protocol and redirect to another HTTPS website for denied page (sslaccessdeniedaddress url)
@@ -356,7 +417,7 @@ reportinglevel = 3
 # need to configure mail program (see 'mailer' in global config)
 # and email recipients
 # default usesmtp = off
-@EMAILSUPPORT@usesmtp = off
+@EMAILSUPPORT@usesmtp = off   #NOT YET TESTED
 
 # mailfrom
 # who the email would come from
@@ -414,13 +475,36 @@ reportinglevel = 3
 # notifaction will be sent.
 @EMAILSUPPORT@threshold = 0
 
+#NOTE to enable SSL MITM or CERT checking
+# enablessl must be defined as 'yes' in e2guardian.conf
+
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid
 # and signed by a ca in the configured path
 sslcertcheck = off
 
 #SSL man in the middle
-# Forge ssl certificates for all sites, decrypt the data then re encrypt it
+# Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
 # using a different private key. Used to filter ssl sites
 sslmitm = off
 
+#Limit SSL MITM to sites in greysslsitelist(s)
+# ignored if  sslmitm is off
+# SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
+# The following option is replaced by storyboard logic
+onlymitmsslgrey = off
+
+# Enable MITM site certificate checking
+# ignored if  sslmitm is off
+# default (recommended) is 'on'
+mitmcheckcert = on
+
+#Do not check ssl certificates for sites listed
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+#nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'
+sitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsitelist'
+ipsitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsiteiplist'
+#

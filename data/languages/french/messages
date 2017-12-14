@@ -1,27 +1,59 @@
 # e2guardian messages file in French
-
 # Translated by: Bernard Wanadoo and Jacques Theys
 # Improvements by Jeanuel
 # Improvements by Mathieu Parent (2011)
-
+#
+# ! Quote "'" changed by backquote "`" to avoid bad interpretation !
 "1","Accès interdit"
-
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
 "52","Accès interdit"
-
-"100","Votre addresse IP n'est pas autorisée à naviguer sur le site : "
-"101","Votre addresse IP n'est pas autorisée à naviguer."
-"102","Votre compte utilisateur n'est pas autorisé à afficher le site : "
-
-"200","L'URL demandée n'est pas bien formée."
-
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
+"100","Votre addresse IP n`est pas autorisée à naviguer sur le site : "
+"101","Votre addresse IP n`est pas autorisée à naviguer."
+"102","Votre compte utilisateur n`est pas autorisé à afficher le site : "
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server`s SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
+"160","Failed to nogotiate ssl connection to server"    # needs translation
+"200","L`URL demandée n'est pas bien formée."
+"201","Unable to get response from upstream proxy (timeout)"    # needs translation
+"202","Unable to get response from upstream proxy (error)"    # needs translation
+"203","The site requested is not responding"    # needs translation
+"204"," - Please try again later"    # needs translation
+"205","Upstream proxy is not responding (network error)"    # needs translation
+"206"," - Please try again later"    # needs translation
+"207","The site requested does not exist"    # needs translation
+"208","The site requested does not have an IPv4 address"    # needs translation
+"209","Temporary DNS service failure - please try again"    # needs translation
+"210","DNS service failure - please try again later"    # needs translation
 "300","Phrase interdite : "
 "301","Phrase interdite trouvée."
-
 "400","Combinaison de mots interdite : "
 "401","Combinaison de mots interdite trouvée."
 "402","Limite de pondération "
 "403","Limite de pondération dépassée."
-
 "450","Terme de recherche interdit : "
 "451","Terme de recherche interdit trouvé."
 "452","Combinaison de termes de recherche interdite : "
@@ -30,52 +62,55 @@
 "455","Limite de pondération de termes de recherche dépassée."
 "456","Exception de combinaison de termes de recherche autorisée : "
 "457","Exception de terme de recherche autorisé : "
-
 "500","Site interdit : "
 "501","URL interdite : "
-"502","Le mode liste blanche (Blanket Block) est actif et ce site n'est pas dans la liste autorisée, blanche ou grise."
-"503","Expression régulière d'URL interdite : "
-"504","Expression régulière d'URL interdite trouvée."
-"505","Le mode liste blanche d'IPs (IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
-"506","Le mode liste blanche SSL (SSL Blanket Block) est actif et ce site n'est pas dans la liste autorisée, blanche ou grise."
-"507","Le mode liste blanche SSL d'IPs (SSL IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
-"508","Expression régulière d'entète HTTP interdite : ",
-"509","Expression régulière d'entète HTTP interdite trouvée."
-
-"600","Exception d'adresse IP client trouvée."
-"601","Exception d'utilisateur client trouvée."
-"602","Exception de site trouvée."
-"603","Exception d'URL trouvée."
+"502","Le mode liste blanche (Blanket Block) est actif et ce site n`est pas dans la liste autorisée, blanche ou grise."
+"503","Expression régulière d`URL interdite : "
+"504","Expression régulière d`URL interdite trouvée."
+"505","Le mode liste blanche d`IPs (IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
+"506","Le mode liste blanche SSL (SSL Blanket Block) est actif et ce site n`est pas dans la liste autorisée, blanche ou grise."
+"507","Le mode liste blanche SSL d`IPs (SSL IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
+"508","Expression régulière d`entète HTTP interdite : ",
+"509","Expression régulière d`entète HTTP interdite trouvée."
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"522","Blocked User-Agent: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
+"600","Exception d`adresse IP client trouvée."
+"601","Exception d`utilisateur client trouvée."
+"602","Exception de site trouvée : "
+"603","Exception d`URL trouvée : "
 "604","Exception de phrase trouvée : "
 "605","Exception de combinaison de mots trouvée : "
-"606","Exception d'URL sans controle trouvée."
+"606","Exception d`URL sans controle trouvée."
 "607","Exception de cookie sans controle trouvée."
-"608","Exception d'URL sans inspection des logiciels malveillants trouvée."
-"609","Exception d'expression régulière d'URL trouvée : "
-
-"700","L'upload web est interdit."
-"701","Dépassement de la limite d'upload Web."
-
-"750","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce type MIME n'est pas dans la liste blanche : "
-"751","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce fichier n'est pas dans la liste blanche."
-
+"608","Exception d`URL sans inspection des logiciels malveillants trouvée."
+"609","Exception d`expression régulière d'URL trouvée : "
+"610","User-Agent pattern match: "    # needs translation
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local): "    # needs translation
+"663","URL (local): "    # needs translation
+"700","L`upload web est interdit."
+"701","Dépassement de la limite d`upload Web."
+"750","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce type MIME n`est pas dans la liste blanche : "
+"751","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce fichier n`est pas dans la liste blanche."
 "800","Type MIME interdit: "
-
 "900","Type de fichier interdit : "
-
 "1000","Niveau PICS depassé sur le site entier."
-
 "1100","Logiciel malveillant détecté."
 "1101","Publicité bloqué"
-
 "1200","Veuillez patienter - téléchargement du fichier en cours ..."
 "1201","Avertissement : fichier trop volumineux pour ètre inspecté. Si vous pensez que le fichier est plus volumineux que "
 "1202",", raffraîchissez la page pour le télécharger directement."
-
+"1203","WARNING: Could not perform content scan!"    # needs translation
 "1210","Téléchargement terminé. Inspection des logiciels malveillants en cours ..."
-
 "1220","Inspection du fichier terminée.</p><p>Cliquez ici pour le télécharger : "
 "1221","Télécharge terminé. fichier non inspecté.</p><p>Cliquez ici pour le télécharger : "
 "1222","Fichier trop volumineux pour ètre mis en cache.</p><p>Cliquez ici pour le télécharger à nouveau, sans inspection des logiciels malveillants : "
-
-"1230","Le fichier n'est plus disponible"
+"1230","Le fichier n`est plus disponible"

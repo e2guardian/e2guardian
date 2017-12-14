@@ -1,6 +1,6 @@
 <html>
 	<head>
-	<title>Downloading -FILENAME- (-FILESIZE- bytes)</title>
+	<title>Baixando -FILENAME- (-FILESIZE- bytes)</title>
 	<script	language='javascript'>
 	<!--
 		var scanned = 1;
@@ -54,9 +54,9 @@
 				var sofar = (got/fs)*16;
 				for (var i = 1; i <=sofar; i++)
 					document.getElementById('progress'+i).style.backgroundColor = 'blue';
-				msg = Math.round((got/-FILESIZE-)*100)+"%, time remaining: "+timestring(Math.round((fs-got)/speed))+"; "+filesizestring(speed)+"/s; total downloaded: "+filesizestring(got);
+				msg = Math.round((got/-FILESIZE-)*100)+"%, tempo restante: "+timestring(Math.round((fs-got)/speed))+"; "+filesizestring(speed)+"/s; total baixado: "+filesizestring(got);
 			} else {
-				msg = "Time remaining: unknown; "+filesizestring(speed)+"/s; total downloaded: "+filesizestring(got);
+				msg = "Tempo restante: desconhecido; "+filesizestring(speed)+"/s; total baixado: "+filesizestring(got);
 			}
 			document.getElementById('message1').innerHTML = msg;
 		}
@@ -64,17 +64,17 @@
 			for (var i = 1; i <=16; i++)
 				document.getElementById('progress'+i).style.backgroundColor = 'blue';
 			if (scanned == 1) {
-				var msg = "Download complete! Now scanning...";
+				var msg = "Download efetuado com sucesso! Verificando...";
 				document.getElementById('message1').innerHTML = msg;
 			}
 		}
 		function downloadlink(rawlink, prettylink, type) {
 			if (type == 0)
-				var msg = "File scanned";
+				var msg = "Arquivo verificado";
 			else if (type == 1)
-				var msg = "File downloaded, but not scanned due to size";
+				var msg = "Arquivo baixado, mas n&atilde;o verificado, devido ao seu tamanho";
 			else if (type == 2)
-				var msg = "File too large to cache, please download directly";
+				var msg = "Arquivo muito grande para o cache, por favor, fa&ccedil;a o download direto.";
 			document.getElementById('message1').innerHTML = msg;
 			if (type != 2)
 				document.getElementById('message2').innerHTML = "<a href='"+rawlink+"'>"+prettylink+"</a>";
@@ -84,7 +84,7 @@
 		}
 		function downloadwarning(sizelimit) {
 			scanned = 0;
-			document.getElementById('message2').innerHTML = "Warning: File too large for content scanning. If you suspect that this file is larger than "+filesizestring(sizelimit)+", refresh this page to download directly.";
+			document.getElementById('message2').innerHTML = "Aviso: arquivo muito grande para ser verificado. Se voc&ecirc; suspeita que este arquivo &eacute; maior que "+filesizestring(sizelimit)+", recarregue esta p&aacute;gina para baixar diretamente.";
 		}
 	//-->
 	</script>
@@ -118,56 +118,58 @@ document.write(unescape("\
 </script>
 
 <!--
-The available variables are as follows:
-- FILENAME- gives the name of the file being downloaded
-- FILESIZE- gives the size of the file in bytes
+As seguintes variáveis possíveis são:
+- FILENAME- informa o nome do arquivo que está sendo baixado
+- FILESIZE- informa o tamanho do arquivo em bytes
 
-- FILESIZE- of zero indicates that file size is not known
+- FILESIZE- de zero indica que o tamanho do arquivo é desconhecido
 
-You need to remove the space between the - and the variable to use them
-in your HTML.  They are there above so extra processing is not required.
+É necessário remover o espaço entre o hífen e a variável para usá-las no
+seu código HTML. Eles já estão disponíveis, não há a necessidade de
+processamento extra.
 
-The following JavaScript functions must be defined:
+s seguintes funções em JavaScript devem ser definidas:
 
 progressupdate(got, speed)
-	This is called when the page is initially displayed (i.e. after
-	initialtrickledelay has passed), and periodically afterwards to
-	update progress (once every trickledelay seconds).
-	Parameters:
-	got - how much of the file we have downloaded, in bytes.
-	speed - current estimate of download speed, in bytes per second.
+	É chamado quando a página é inicialmente apresentada (exemplo:
+	após initialtrickledelay tiver sido executado), e periodicamente após
+	o progresso de atualização (a cada trickledelay de segundos).
+	Parâmetros:
+	got - quanto que o arquivo já foi baixado, em bytes.
+	speed - velocidade estimada atual do download, em bytes por segundo.
 
 nowscanning()
-	This is called once downloading is complete, and scanning has
-	begun. (Note: scanning has not actually begun if downloadwarning()
-	has been called at some point.)
+	É chamado quando o download está completo, e a verificação já foi
+	iniciada. (Obs.: a verificação não começou de fato se
+	downloadwarning() tenha sido chamado em um determinado ponto.)
 
 downloadlink(rawlink, prettylink, type)
-	This is called after scanning has completed, and the file is
-	ready to be sent to the user.
-	Parameters:
-	rawlink - the URL from which the scanned file can be grabbed
-	prettylink - the original URL which triggered the fancy download manager
-	type - the status of the download/scan:
-		0 - downloaded & scanned
-		1 - downloaded, but too big to have been scanned
-		2 - too big to be completely downloaded
-	codes 1 and 2 can only be encountered on files for which the content
-	length is not known in advance. "rawlink" should be ignored for code 2.
+	É chamado logo quando a verificação acabar e o arquivo estiver pronto
+	para ser enviado ao usuário.
+	Parâmetros:
+	rawlink - a URL pelo qual o arquivo verificado pode ser capturado
+	prettylink - a URL original que disparou o fancy download manager
+	type - o estado do download/verificação:
+		0 - baixado e verificado
+		1 - baixado, mas muito grande para ser verificado
+		2 - muito grande para ser completamente baixado
+	códigos 1 e 2 podem ser encontrados apenas em arquivos do qual o
+	tamanho do conteúdo é desconhecido antecipadamente. "rawlink" deve
+	ser ignorado para o código 2.
 
 downloadwarning(sizelimit)
-	This is called when a file with unknown content-length has exceeded
-	the configured maxcontentfilecachescansize. Used to warn the user
-	that the fancy DM may not be able to retrieve the entire file,
-	and that they should download directly (refresh the page; the URL will
-	have been added to DG's clean cache) if they know it to be larger
-	than sizelimit.
-	sizelimit - the value of the fancy DM's maxdownloadsize. If a file
-		exceeds this limit also, the fancy DM cannot continue
-		(will trigger downloadlink status type 2).
+	É chamado quando um arquivo com o conteúdo-tamanho desconhecido
+	excedeu o maxcontentfilecachescansize configurado. Usado para alertar
+	o usuário que o fancy DM pode não estar apto a obter todo o arquivo,
+	e que devem baixar diretamente (recarregue a página; a URL será
+	adicionada ao cache do e2guardian) se eles souberem que pode ser
+	maior que o sizelimit.
+	sizelimit - o valor do maxdownloadsize do fancy DM. Se um arquivo
+		exceder este limite também, o fancy DM não pode continuar
+		(irá disparar o estado tipo 2 em downloadlink)
 
-Please note that the fancy download manager also outputs content contained in
-<noscript> tags, for browsers which disable or do not support javascript. If you
-customise this template, you may wish to test its behaviour and appearance in
-such circumstances.
+Por favor, note que o fancy download manager também informa o conteúdo
+contido nas tags <noscript>, para navegadores que desabilitam ou não
+suportam JavaScript. Se você personalizar esta amostra, talvez queira testar
+seu comportamento e aparência em certas circunstâncias.
 -->

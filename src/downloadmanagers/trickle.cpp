@@ -9,10 +9,9 @@
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
-
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-	#include "dgconfig.h"
+#include "dgconfig.h"
 #endif
 
 #include "../DownloadManager.hpp"
@@ -24,38 +23,36 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
 // GLOBALS
 
 extern OptionContainer o;
 
-
 // DECLARATIONS
 
-class trickledm:public DMPlugin
+class trickledm : public DMPlugin
 {
-public:
-	trickledm(ConfigVar & definition):DMPlugin(definition) {};
-	int in(DataBuffer * d, Socket * sock, Socket * peersock, HTTPHeader * requestheader,
-		HTTPHeader * docheader, bool wantall, int *headersent, bool * toobig);
+    public:
+    trickledm(ConfigVar &definition)
+        : DMPlugin(definition){};
+    int in(DataBuffer *d, Socket *sock, Socket *peersock, HTTPHeader *requestheader,
+        HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig);
 
-	// default plugin is as basic as you can get - no initialisation, and uses the default
-	// set of matching mechanisms. uncomment and implement these to override default behaviour.
-	//int init(void* args);
-	//bool willHandle(HTTPHeader *requestheader, HTTPHeader *docheader);
+    // default plugin is as basic as you can get - no initialisation, and uses the default
+    // set of matching mechanisms. uncomment and implement these to override default behaviour.
+    //int init(void* args);
+    //bool willHandle(HTTPHeader *requestheader, HTTPHeader *docheader);
 };
-
 
 // IMPLEMENTATION
 
 // class factory code *MUST* be included in every plugin
 
-DMPlugin *trickledmcreate(ConfigVar & definition)
+DMPlugin *trickledmcreate(ConfigVar &definition)
 {
 #ifdef DGDEBUG
-	std::cout << "Creating trickle DM" << std::endl;
+    std::cout << "Creating trickle DM" << std::endl;
 #endif
-	return new trickledm(definition);
+    return new trickledm(definition);
 }
 
 // end of Class factory
@@ -73,231 +70,229 @@ DMPlugin *trickledmcreate(ConfigVar & definition)
 //}
 
 // download body for this request
-int trickledm::in(DataBuffer * d, Socket * sock, Socket * peersock, class HTTPHeader * requestheader,
-	class HTTPHeader * docheader, bool wantall, int *headersent, bool * toobig)
+int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader *requestheader,
+    class HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig)
 {
 
-	//DataBuffer *d = where to stick the data back into
-	//Socket *sock = where to read from
-	//Socket *peersock = browser to send stuff to for keeping it alive
-	//HTTPHeader *requestheader = header client used to request
-	//HTTPHeader *docheader = header used for sending first line of reply
-	//bool wantall = to determine if just content filter or a full scan
-	//int *headersent = to use to send the first line of header if needed
-	//                                or to mark the header has already been sent
-	//bool *toobig = flag to modify to say if it could not all be downloaded
+//DataBuffer *d = where to stick the data back into
+//Socket *sock = where to read from
+//Socket *peersock = browser to send stuff to for keeping it alive
+//HTTPHeader *requestheader = header client used to request
+//HTTPHeader *docheader = header used for sending first line of reply
+//bool wantall = to determine if just content filter or a full scan
+//int *headersent = to use to send the first line of header if needed
+//                                or to mark the header has already been sent
+//bool *toobig = flag to modify to say if it could not all be downloaded
 
 #ifdef DGDEBUG
-	std::cout << "Inside trickle download manager plugin" << std::endl;
+    std::cout << "Inside trickle download manager plugin" << std::endl;
 #endif
 
-//  To access settings for the plugin use the following example:
-//      std::cout << "cvtest:" << cv["dummy"] << std::endl;
+    //  To access settings for the plugin use the following example:
+    //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
 
-	int rc = 0;
-	d->bytesalreadysent = 0;
-	off_t newsize;
-	off_t bytesremaining = docheader->contentLength();
-	
-	// if using non-persistent connections, some servers will not report
-	// a content-length. in these situations, just download everything.
-	bool geteverything = false;
-	if ((bytesremaining < 0) && !(docheader->isPersistent()))
-		geteverything = true;
+    int rc = 0;
+    d->bytesalreadysent = 0;
+    off_t newsize;
+    off_t bytesremaining = docheader->contentLength();
 
-	char *block = NULL;  // buffer for storing a grabbed block from the
-	// imput stream
-	char *temp = NULL;
+    // if using non-persistent connections, some servers will not report
+    // a content-length. in these situations, just download everything.
+    bool geteverything = false;
+    if ((bytesremaining < 0) && !(docheader->isPersistent()))
+        geteverything = true;
 
-	bool swappedtodisk = false;
-	bool doneinitialdelay = false;
+    char *block = NULL; // buffer for storing a grabbed block from the
+    // imput stream
+    char *temp = NULL;
 
-	struct timeval themdays;
-	struct timeval nowadays;
-	gettimeofday(&themdays, NULL);
+    bool swappedtodisk = false;
+    bool doneinitialdelay = false;
 
-	// buffer size for streaming downloads
-	off_t blocksize = 32768;
-	// set to a sensible minimum
-	if (!wantall && (blocksize > o.max_content_filter_size))
-		blocksize = o.max_content_filter_size;
-	else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
-		blocksize = o.max_content_ramcache_scan_size;
+    struct timeval themdays;
+    struct timeval nowadays;
+    gettimeofday(&themdays, NULL);
+
+    // buffer size for streaming downloads
+    off_t blocksize = 32768;
+    // set to a sensible minimum
+    if (!wantall && (blocksize > o.max_content_filter_size))
+        blocksize = o.max_content_filter_size;
+    else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
+        blocksize = o.max_content_ramcache_scan_size;
 #ifdef DGDEBUG
-	std::cout << "blocksize: " << blocksize << std::endl;
+    std::cout << "blocksize: " << blocksize << std::endl;
 #endif
 
-	while ((bytesremaining > 0) || geteverything) {
-		// send keep-alive bytes here
-		if (o.trickle_delay > 0) {
-			gettimeofday(&nowadays, NULL);
-			if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay : nowadays.tv_sec > o.initial_trickle_delay) {
-				themdays.tv_sec = nowadays.tv_sec;
-				doneinitialdelay = true;
-				if ((*headersent) < 1) {
+    while ((bytesremaining > 0) || geteverything) {
+        // send keep-alive bytes here
+        if (o.trickle_delay > 0) {
+            gettimeofday(&nowadays, NULL);
+            if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay : nowadays.tv_sec > o.initial_trickle_delay) {
+                themdays.tv_sec = nowadays.tv_sec;
+                doneinitialdelay = true;
+                if ((*headersent) < 1) {
 #ifdef DGDEBUG
-					std::cout << "sending header first" << std::endl;
+                    std::cout << "sending header first" << std::endl;
 #endif
-					docheader->out(NULL,peersock, __DGHEADER_SENDALL);
-					(*headersent) = 2;
-				}
-				if (!swappedtodisk) {
-					// leave a kilobyte "barrier" so the whole file does not get sent before scanning
-					if ((d->buffer_length > 1024) && (d->bytesalreadysent < (d->buffer_length - 1024))) {
+                    docheader->out(NULL, peersock, __DGHEADER_SENDALL);
+                    (*headersent) = 2;
+                }
+                if (!swappedtodisk) {
+                    // leave a kilobyte "barrier" so the whole file does not get sent before scanning
+                    if ((d->buffer_length > 1024) && (d->bytesalreadysent < (d->buffer_length - 1024))) {
 #ifdef DGDEBUG
-						std::cout << "trickle delay - sending a byte from the memory buffer" << std::endl;
+                        std::cout << "trickle delay - sending a byte from the memory buffer" << std::endl;
 #endif
-						peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
-					}
+                        peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
+                    }
 #ifdef DGDEBUG
-					else
-						std::cout << "trickle delay - no unsent bytes remaining! (memory)" << std::endl;
+                    else
+                        std::cout << "trickle delay - no unsent bytes remaining! (memory)" << std::endl;
 #endif
-				} else {
-					// check the file is at least one kilobyte ahead of our send pointer, so
-					// the whole file does not get sent before scanning
-					if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t)-1) {
-						ssize_t bytes_written; //new just remove GCC warning 
-						lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
+                } else {
+                    // check the file is at least one kilobyte ahead of our send pointer, so
+                    // the whole file does not get sent before scanning
+                    if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t)-1) {
+                        ssize_t bytes_written; //new just remove GCC warning
+                        lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
 #ifdef DGDEBUG
-						std::cout << "trickle delay - sending a byte from the file" << std::endl;
+                        std::cout << "trickle delay - sending a byte from the file" << std::endl;
 #endif
-						char byte;
-						bytes_written = read(d->tempfilefd, &byte, 1);
-						peersock->writeToSocket(&byte, 1, 0, d->timeout);
-						d->bytesalreadysent++;
-					}
+                        char byte;
+                        bytes_written = read(d->tempfilefd, &byte, 1);
+                        peersock->writeToSocket(&byte, 1, 0, d->timeout);
+                        d->bytesalreadysent++;
+                    }
 #ifdef DGDEBUG
-					else
-						std::cout << "trickle delay - no unsent bytes remaining! (file)" << std::endl;
+                    else
+                        std::cout << "trickle delay - no unsent bytes remaining! (file)" << std::endl;
 #endif
-				}
-			}
-		}
+                }
+            }
+        }
 
-		if (wantall) {
-			if (!swappedtodisk) {
-				// if not swapped to disk and file is too large for RAM, then swap to disk
-				if (d->buffer_length > o.max_content_ramcache_scan_size) {
+        if (wantall) {
+            if (!swappedtodisk) {
+                // if not swapped to disk and file is too large for RAM, then swap to disk
+                if (d->buffer_length > o.max_content_ramcache_scan_size) {
 #ifdef DGDEBUG
-					std::cout << "swapping to disk" << std::endl;
+                    std::cout << "swapping to disk" << std::endl;
 #endif
-					d->tempfilefd = d->getTempFileFD();
-					if (d->tempfilefd < 0) {
+                    d->tempfilefd = d->getTempFileFD();
+                    if (d->tempfilefd < 0) {
 #ifdef DGDEBUG
-						std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
+                        std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
 #endif
-						syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
-						(*toobig) = true;
-						break;
-					}
-					writeEINTR(d->tempfilefd, d->data, d->buffer_length);
-					swappedtodisk = true;
-					d->tempfilesize = d->buffer_length;
-				}
-			} else if (d->tempfilesize > o.max_content_filecache_scan_size) {
-				// if swapped to disk and file too large for that too, then give up
+                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
+                        (*toobig) = true;
+                        break;
+                    }
+                    writeEINTR(d->tempfilefd, d->data, d->buffer_length);
+                    swappedtodisk = true;
+                    d->tempfilesize = d->buffer_length;
+                }
+            } else if (d->tempfilesize > o.max_content_filecache_scan_size) {
+// if swapped to disk and file too large for that too, then give up
 #ifdef DGDEBUG
-				std::cout << "defaultdm: file too big to be scanned, halting download" << std::endl;
+                std::cout << "defaultdm: file too big to be scanned, halting download" << std::endl;
 #endif
-				(*toobig) = true;
-				break;
-			}
-		} else {
-			if (d->buffer_length > o.max_content_filter_size) {
-				// if we aren't downloading for virus scanning, and file too large for filtering, give up
+                (*toobig) = true;
+                break;
+            }
+        } else {
+            if (d->buffer_length > o.max_content_filter_size) {
+// if we aren't downloading for virus scanning, and file too large for filtering, give up
 #ifdef DGDEBUG
-				std::cout << "defaultdm: file too big to be filtered, halting download" << std::endl;
+                std::cout << "defaultdm: file too big to be filtered, halting download" << std::endl;
 #endif
-				(*toobig) = true;
-				break;
-			}
-		}
+                (*toobig) = true;
+                break;
+            }
+        }
 
-		if (!swappedtodisk) {
-			if (d->buffer_length >= blocksize) {
-				newsize = d->buffer_length;
-			} else {
-				newsize = blocksize;
-			}
+        if (!swappedtodisk) {
+            if (d->buffer_length >= blocksize) {
+                newsize = d->buffer_length;
+            } else {
+                newsize = blocksize;
+            }
 #ifdef DGDEBUG
-			std::cout << "newsize: " << newsize << std::endl;
+            std::cout << "newsize: " << newsize << std::endl;
 #endif
-			// if not getting everything until connection close, grab only what is left
-			if (!geteverything && (newsize > bytesremaining))
-				newsize = bytesremaining;
-			delete[] block;
-			block = new char[newsize];
-			try {
-				sock->checkForInput(d->timeout);
-			} catch(std::exception & e) {
-				break;
-			}
-			// improved more efficient socket read which uses the buffer better
-			rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
-			// grab a block of input, doubled each time
+            // if not getting everything until connection close, grab only what is left
+            if (!geteverything && (newsize > bytesremaining))
+                newsize = bytesremaining;
+            delete[] block;
+            block = new char[newsize];
+            try {
+                if(!sock->bcheckForInput(d->timeout))
+                    break;
+            } catch (std::exception &e) {
+                break;
+            }
+            // improved more efficient socket read which uses the buffer better
+            rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
+            // grab a block of input, doubled each time
 
-			if (rc <= 0) {
-				break;  // an error occured so end the while()
-				// or none received so pipe is closed
-			}
-			else {
-				bytesremaining -= rc;
-				/*if (d->data != temp)
+            if (rc <= 0) {
+                break; // an error occured so end the while()
+                // or none received so pipe is closed
+            } else {
+                bytesremaining -= rc;
+                /*if (d->data != temp)
 					delete[] temp;*/
-				temp = new char[d->buffer_length + rc + 1];  // replacement store
-				temp[d->buffer_length + rc] = '\0';
-				memcpy(temp, d->data, d->buffer_length);  // copy the current data
-				memcpy(temp + d->buffer_length, block, rc);  // copy the new data
-				delete[]d->data;  // delete the current data block
-				d->data = temp;
-				temp = NULL;
-				d->buffer_length += rc;  // update data size counter
-			}
-		} else {
-			try {
-				sock->checkForInput(d->timeout);
-			}
-			catch(std::exception & e) {
-				break;
-			}
-			rc = d->bufferReadFromSocket(sock, d->data,
-				// if not getting everything until connection close, grab only what is left
-				(!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining : d->buffer_length), d->timeout);
-			if (rc <= 0) {
-				break;
-			}
-			else {
-				bytesremaining -= rc;
-				lseek(d->tempfilefd, 0, SEEK_END);
-				writeEINTR(d->tempfilefd, d->data, rc);
-				d->tempfilesize += rc;
+                temp = new char[d->buffer_length + rc + 1]; // replacement store
+                temp[d->buffer_length + rc] = '\0';
+                memcpy(temp, d->data, d->buffer_length); // copy the current data
+                memcpy(temp + d->buffer_length, block, rc); // copy the new data
+                delete[] d->data; // delete the current data block
+                d->data = temp;
+                temp = NULL;
+                d->buffer_length += rc; // update data size counter
+            }
+        } else {
+            try {
+                if(!sock->bcheckForInput(d->timeout))
+                    break;
+            } catch (std::exception &e) {
+                break;
+            }
+            rc = d->bufferReadFromSocket(sock, d->data,
+                // if not getting everything until connection close, grab only what is left
+                (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining : d->buffer_length), d->timeout);
+            if (rc <= 0) {
+                break;
+            } else {
+                bytesremaining -= rc;
+                lseek(d->tempfilefd, 0, SEEK_END);
+                writeEINTR(d->tempfilefd, d->data, rc);
+                d->tempfilesize += rc;
 #ifdef DGDEBUG
-				std::cout << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
+                std::cout << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
 #endif
-			}
-		}
-	}
+            }
+        }
+    }
 
-	if (!(*toobig) && !swappedtodisk) {	// won't deflate stuff swapped to disk
-		if (d->decompress.contains("deflate")) {
+    if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
+        if (d->decompress.contains("deflate")) {
 #ifdef DGDEBUG
-			std::cout << "zlib format" << std::endl;
+            std::cout << "zlib format" << std::endl;
 #endif
-			d->zlibinflate(false);  // incoming stream was zlib compressed
-		}
-		else if (d->decompress.contains("gzip")) {
+            d->zlibinflate(false); // incoming stream was zlib compressed
+        } else if (d->decompress.contains("gzip")) {
 #ifdef DGDEBUG
-			std::cout << "gzip format" << std::endl;
+            std::cout << "gzip format" << std::endl;
 #endif
-			d->zlibinflate(true);  // incoming stream was gzip compressed
-		}
-	}
+            d->zlibinflate(true); // incoming stream was gzip compressed
+        }
+    }
 #ifdef DGDEBUG
-	std::cout << "Leaving trickle download manager plugin" << std::endl;
+    std::cout << "Leaving trickle download manager plugin" << std::endl;
 #endif
-	delete[] block;
-	/*if (d->data != temp)
+    delete[] block;
+    /*if (d->data != temp)
 		delete[] temp;*/
-	return 0;
+    return 0;
 }

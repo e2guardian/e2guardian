@@ -1,0 +1,9 @@
+# domains which are NOT to have their certificates checked (when in MITM mode)
+#
+# Do not check ssl certificates for sites/domains listed
+#
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+#Don't bother with the https://

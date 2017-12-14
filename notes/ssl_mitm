@@ -1,0 +1,70 @@
+The SSL MITM option allows https sites to be content checked.
+
+The request from the client is intercepted, a spoofed certificate supplied for
+the target site and an encrypted connection made back to the client.
+A separate encrypted connection to the target server is set up.  The resulting
+http dencrypted stream is then filtered as normal.
+
+Sites in the exception lists are treated in the same way as before
+(i.e. NOT unencrypted) so sites dealing with sensistive information that should
+not be intercepted (e.g. bank finance, account logins, etc) and other sites
+deemed 'safe' can be made exempt from being examined.
+
+Advantages are that the user gets a proper block page and full https urls are
+logged, https urls can be whitelisted when site as a whole is banned and content
+can be content checked.
+
+Disavantages are that in order for MITM to be usable a private root CA
+certificate has to be installed on each browser and that more processing power
+is needed on the server in order to encrypt and unencrypt the traffic.
+
+Note that full HTTPS MITM requires a lot more CPU power.
+
+To set up MITM:
+
+   Configure and compile e2guardian with the --enable-sslmitm flag set
+
+   Generate your certicates and keys:-
+
+	Generate a key for the rootCA
+
+		openssl genrsa 4096 > private_root.pem
+
+	Generate the root CA certificate
+
+		openssl req -new -x509 -days 3650 -key private_root.pem \
+			-out my_rootCA.crt
+
+	Create a DER format version of root certificate
+
+		openssl x509 -in my_rootCA.crt -outform DER -out my_rootCA.der
+
+	Generate a key for use with upstream SSL conections
+
+		openssl genrsa 4096 > private_cert.pem
+
+   Copy the my_rootCA.crt and my_rootCA.der to a web server so that your users
+        can download them.
+
+   Create a directory call generatedcerts to store the generated certificates:-
+	This directory must be writable by the e2guardian user
+
+   Assign cert and key paths in e2guardian.conf:-
+
+	cacertificatepath = '/usr/local/etc/e2guardian/my_rootCA.crt'
+	caprivatekeypath = '/usr/local/etc/e2guardian/private_root.pem'
+	certprivatekeypath = '/usr/local/etc/e2guardian/private_cert.pem'
+
+	sslcertificatepath = '/etc/ssl/certs/'
+	# above path is the default on many but not all systems
+
+	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
+
+   Set sslmitm = on in e2guardianfx.conf
+   Set ssllegacylogic = off in e2guardianfx.conf
+
+      If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist
+      will be MITM - This may be useful if you have limited processing power
+      on your system.
+
+   Load my_rootCA certificate on each browser.

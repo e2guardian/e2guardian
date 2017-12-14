@@ -1,0 +1,39 @@
+ICAP - Brief notes
+
+ICAP REQMOD and RESPMOD now enabled
+
+REQMOD service does url checking and any url modification and logs blocked requests.
+
+RESPMOD service does content checking where REQMOD has not identified request 
+as an exception, and logs request.
+
+Possible modes are:-
+
+	REQMOD only
+
+	REQMOD and RESPMOD (recommended)
+
+	RESPMOD only is not supported
+
+REQMOD service communicates user, filtergroup and classification of request via
+X-ICAP-E2G ICAP header
+
+To enable uncomment icapport in e2guardian.conf
+
+Default filter group can be set for ICAP using:
+defaulticapfiltergroup
+
+If user is passed from Squid, the user's filtergroup is now looked up
+in the filtergroupslist.   If no match or no user passed, will check any
+ip-based auth plugin enabled to get the group.
+
+Suggest these lines in squid.conf for testing:-
+
+icap_enable on
+icap_service service_req reqmod_precache bypass=0 icap://127.0.0.1:1344/request
+icap_service service_resp respmod_precache bypass=0 icap://127.0.0.1:1344/response
+adaptation_access service_req allow all
+adaptation_access service_resp allow all
+icap_send_client_ip on
+icap_send_client_username on
+adaptation_masterx_shared_names X-ICAP-E2G

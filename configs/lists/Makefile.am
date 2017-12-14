@@ -1,10 +1,10 @@
-MAINTAINERCLEANFILES = Makefile.in \
-		       weightedphraselist bannedphraselist exceptionphraselist \
-		       bannedsitelist bannedurllist
+DISTCLEANFILES = Makefile.in \
+		bannedphraselist bannedsitelist bannedurllist \
+		exceptionphraselist nocheckcertsitelist weightedphraselist
 
 DGDATADIR = $(DGCONFDIR)/lists
 
-SUBDIRS = phraselists . blacklists authplugins bannedrooms
+SUBDIRS = phraselists . authplugins bannedrooms
 
 if NEED_CSLISTS
 SUBDIRS += contentscanners
@@ -13,34 +13,150 @@ if NEED_DMLISTS
 SUBDIRS += downloadmanagers
 endif
 
-WLISTS = bannedextensionlist bannediplist bannedmimetypelist \
-	 bannedregexpurllist bannedsitelist \
-	 bannedsearchlist bannedsslsitelist bannedurllist \
-	 contentregexplist exceptioniplist exceptionsitelist \
-	 exceptionurllist filtergroupslist greysitelist \
-	 greyurllist pics bannedphraselist weightedphraselist \
-	 exceptionphraselist bannediplist exceptioniplist urlregexplist \
-	 exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
-	 exceptionfilesitelist bannedregexpheaderlist headerregexplist \
-	 exceptionfileurllist logsitelist logurllist logregexpurllist \
-	 addheaderregexplist greysslsitelist \
-	 localbannedsearchlist localbannedsitelist localbannedsslsitelist \
-	 localbannedurllist localexceptionsitelist localexceptionurllist \
-	 localgreysitelist localgreysslsitelist localgreyurllist \
-	 refererexceptionsitelist refererexceptionurllist searchregexplist \
-	 embededreferersitelist embededrefererurllist \
-	 authexceptionsitelist authexceptionurllist \
-	 urlredirectregexplist
+WLISTS = addheaderregexplist \
+authexceptionsiteiplist \
+authexceptionsitelist \
+authexceptionurllist \
+bannedextensionlist \
+bannediplist \
+bannedmimetypelist \
+bannedphraselist \
+bannedregexpheaderlist \
+bannedregexpurllist \
+bannedregexpuseragentlist \
+bannedsearchlist \
+bannedsiteiplist \
+bannedsiteiplistwithbypass \
+bannedsitelist \
+bannedsitelistwithbypass \
+bannedsslsiteiplist \
+bannedsslsitelist \
+bannedurllist \
+bannedurllistwithbypass \
+contentregexplist \
+embededreferersiteiplist \
+embededreferersitelist \
+embededrefererurllist \
+exceptionextensionlist \
+exceptionfilesiteiplist \
+exceptionfilesitelist \
+exceptionfileurllist \
+exceptioniplist \
+exceptionmimetypelist \
+exceptionphraselist \
+exceptionregexpurllist \
+exceptionregexpuseragentlist \
+exceptionsiteiplist \
+exceptionsitelist \
+exceptionurllist \
+filtergroupslist \
+greysiteiplist \
+greysitelist \
+greysslsiteiplist \
+greysslsitelist \
+greyurllist \
+headerregexplist \
+localbannedsearchlist \
+localbannedsiteiplist \
+localbannedsitelist \
+localbannedsslsiteiplist \
+localbannedsslsitelist \
+localbannedurllist \
+localexceptionsiteiplist \
+localexceptionsitelist \
+localexceptionurllist \
+localgreysiteiplist \
+localgreysitelist \
+localgreysslsiteiplist \
+localgreysslsitelist \
+localgreyurllist \
+logregexpurllist \
+logsiteiplist \
+logsitelist \
+logurllist \
+nocheckcertsiteiplist \
+nocheckcertsitelist \
+refererexceptionsiteiplist \
+refererexceptionsitelist \
+refererexceptionurllist \
+searchregexplist \
+sslsiteregexplist \
+urlredirectregexplist \
+urlregexplist \
+weightedphraselist
  
-EXTRA_DIST = bannedextensionlist bannediplist bannedmimetypelist \
-	 bannedregexpurllist bannedsitelist.in bannedurllist.in \
-	 contentregexplist exceptioniplist exceptionsitelist \
-	 exceptionurllist filtergroupslist greysitelist \
-	 greyurllist pics bannedphraselist.in weightedphraselist.in \
-	 exceptionphraselist.in bannediplist exceptioniplist urlregexplist \
-	 exceptionregexpurllist exceptionextensionlist exceptionmimetypelist \
-	 exceptionfilesitelist bannedregexpheaderlist headerregexplist \
-	 exceptionfileurllist logsitelist logurllist logregexpurllist 
+EXTRA_DIST = addheaderregexplist \
+authexceptionsiteiplist \
+authexceptionsitelist \
+authexceptionurllist \
+bannedextensionlist \
+bannediplist \
+bannedmimetypelist \
+bannedphraselist.in \
+bannedregexpheaderlist \
+bannedregexpurllist \
+bannedregexpuseragentlist \
+bannedsearchlist \
+bannedsiteiplist \
+bannedsiteiplistwithbypass \
+bannedsitelist.in \
+bannedsitelistwithbypass.in \
+bannedsslsiteiplist \
+bannedsslsitelist \
+bannedurllist.in \
+bannedurllistwithbypass.in \
+contentregexplist \
+embededreferersiteiplist \
+embededreferersitelist \
+embededrefererurllist \
+exceptionextensionlist \
+exceptionfilesiteiplist \
+exceptionfilesitelist \
+exceptionfileurllist \
+exceptioniplist \
+exceptionmimetypelist \
+exceptionphraselist.in \
+exceptionregexpurllist \
+exceptionregexpuseragentlist \
+exceptionsiteiplist \
+exceptionsitelist \
+exceptionurllist \
+filtergroupslist \
+greysiteiplist \
+greysitelist \
+greysslsiteiplist \
+greysslsitelist \
+greyurllist \
+headerregexplist \
+localbannedsearchlist \
+localbannedsiteiplist \
+localbannedsitelist \
+localbannedsslsiteiplist \
+localbannedsslsitelist \
+localbannedurllist \
+localexceptionsiteiplist \
+localexceptionsitelist \
+localexceptionurllist \
+localgreysiteiplist \
+localgreysitelist \
+localgreysslsiteiplist \
+localgreysslsitelist \
+localgreyurllist \
+logregexpurllist \
+logsiteiplist \
+logsitelist \
+logurllist \
+nocheckcertsiteiplist \
+nocheckcertsitelist \
+refererexceptionsiteiplist \
+refererexceptionsitelist \
+refererexceptionurllist \
+searchregexplist \
+sslsiteregexplist \
+urlredirectregexplist \
+urlregexplist \
+weightedphraselist.in
+
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \

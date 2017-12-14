@@ -1,124 +1,29 @@
+Changed and Added features in e2guardian 4.0.0
 
-Changed/Added features in e2guardian 3.0.1 not found in Dansguardian 2.12.0.3
-
-Words in CAPITALS are the corresponding pre complier directives.
-
-Tuning settings introduced/changed:- 
-----------------------------------
-
-- mapauthtoports conf option added - when off scans all auth plugs on every listening addr/port, when on maps auth plugins to addr/ports, default on
-- Added, nonstandarddelimiter per filtergroupe By frederic Bourgeois
-
-- mapportstoips conf option added - when off listens on every filterports on every IP address,
-- when on maps filterports to filterip's, default on
-
-- maxlogitemlength now defaults to 2000. Unlimited option removed due to potential buffer overflow issues.
+Major internal rewrite to improve code quality, stability and performance
+The main advantage is the engine itself. It is more faster and powerful than before and tuning FD_SETSIZE is not needed anymore 
 
 
-Logic Changes:-
--------------
+Tuning settings introduced/changed in v4.0.0:- 
+--------------------------------------------
 
-Rewrite of main process loop to reduce dependency on select() call which limited the number of child processes.  Use of epoll() on Linux systems makes the engine faster, more efficient and scaleable.
+e2guardian.conf
 
-Note that the logic for handling SSL is changed.  In DG when either blanket block (or SSL blanket block) was active then an SSL site would not be blocked if site name matched either exceptionsitelist or greysitelist.   In e2guardian with blanket block (or SSL blanket block) active an SSL site will only be allowed if it matches exceptionsitelist or greysslsitelist.  This ensures that only trusted sites can be accessed via SSL.  The greysslsitelist is used in order to allow a site to drop through so that it's domain can be mangled via urlregexplist, e.g. To use the Google mechanism for prevention of https Google search, or to allow an SSL site whilst blocking the corresponding http: site.
+- httpworkers added - specifies number of worker threads to start
 
-Maxlogitemlength code moved into ConnectionHandler.cpp so as to prevent 
-very large URLs corrupting log messages and to lower load on inter-process 
-communication. 
+- enablessl added - global enablement of SSL Cert checking and/or MITM
+  If this is off then sslmitm options in e2guardianfn.conf files will be ignored
 
-URL cache - Cache is now only checked (or added to) if URL is less than 2000 bytes and method is GET.
+- authrequiresuserandgroup - If on it a user without group is considered like unauthenfied
 
-Emtpy list set issue fixed - was causes failure of logging and URLcache processes when filtergroup was set to block all.
+Options removed from e2guardian.conf -
 
-Authentication Plug-ins:-
------------------------
+proxyfailureloginterval, urlcachenumber, urlcacheage, scancleancache,
+createlistcachefiles, prefercachedlists, maxchildren, minchildren,
+minsparechildren, preforkchildren, maxsparechildren, maxagechildren,
+gentlechunk, maxips, ipcfilename, urlipcfilename, ipipcfilename,
+mailer, monitorhelper, monitorstart
 
-Port based auth plug-in - filtering group assigned by destination port.  To use this feature  mapauthtoports must be set to 'off'. Complied as standard.
+If present in the e2guardian.conf file removed options are silently ignored.
 
-DNS Authentication – PRT_DNSAUTH - DNS based auth plug-in for use with Protex authentication system. To enable this use configure option --enable-dnsauth
-
-New Lists:-
----------
-
-Total Block List – TOTAL_BLOCK_LIST - Ability to read total block lists from stdin on startup – List cannot be overridden.  To enable this use configure option --enable-totblock
-
-Local Presidence - Local versions of lists added (localsiteexceptionlist, localurlexceptionlist etc). LOCAL_LISTS. Logic flow changed so that all local lists are checked before main lists so that they have presidence over main lists.  
-To enable this use configure option --enable-locallists
-
-Search Word blocking – SEARCHWORDS – Specific search word blocking  - bannedsearchlist, bannedsearchoveridelist, localbannedsearchlist added.  Searchregexplist is used to extract search words from search engine url call.  The existing weighted search word block is also retained, but note that searchregexplist is used instead of searchengineregexplist to determine a search url and extract the search terms. Compliled as standard.
-
-Referer Exceptions – REFEREXCEPT – Exceptions based on URL in refering url. 
-Refererexceptionsitelist and refererexceptionurllist added. Also embededreferersitelist and embededrefererurllist. Compliled as standard. To disable use configure option --enable-refererexception=no.
-
-Add an http header based on url regex – ADDHEADER – addheaderregexplist – needed for YouTube for schools.  Compliled as standard. To disable use configure option --enable-addheader=no.
-
-Regular Expression Redirects – RXREDIRECTS – urlredirectregexplist – allows browser redirection to different site.  Compliled as standard. To disable use configure option --enable-rxredirects=no.
-
-Specific SSL lists added – SSL_EXTRA_LISTS – bannedsslsitelist , greysslsitelist + local versions.  Complied as standard. To disable use configure option --enable-sslextralists=no.
-
-New Log Format:-
---------------
-
-Logging – two new logfileformats have been added which are easier to parse than the standard DG format.
-5 – Protex format type 1 – Tab delimited, squid style format with extra fields for filter block/result codes, reasons, filter group, and system name – used in arrays so that combined logs show originating server.
-6 – Protex format type 2 – Same format as above but system name field is blank – used in stand-alone systems.
-
-Messages file amended:-
----------------------
-
-Amendments to messages file – user and log messages have been made more 
-meaningful for the user and new messages added for the new list types 
-introduced. A version of the messages file with legacy worded messages is 
-provided as messages.alt (UKenglish only).  
-Translations are required into other languages, please submit these 
-to maintainer@e2guardian.org and these will be included in a future release.
-
-
-Other changes:-
--------------
-
-- URLs with # no longer truncated when reading lists
-- Warning message about reporting level by Frederic Bourgeois
-- Added, full banned URL, including parameters, for sslaccesdenied By frederic Bourgeois 
-- Fix Libpcre crash by Russell coker from Debian
-- Fix BSD crash (process forking out of control) By Philip Pearce and Martin Coco
-
-Unofficial DansGuardian release code incorporated into e2guardian:-
------------------------------------------------------------------
-
-June 2013 - DansGuardian 2.12.0.7
-
-- Added, DansGuardian now supports epoll (partial and Linux only), bringing 
-large increases in performance and scalability to Linux System - 
- By Philip Pearce (e2bn.org)
-This feature must be used with --with-filedescriptors=N compile option.
-
-- Fixed security bug, Dansguardian uses -USER- and -REASONGIVEN- that are replaced with what is necessary. In the authentication if we input html code or javascript it will include it on the error page, Thanks to Alfredo Sylva for report. - by frederic Bourgeois
-
-May 2013 - DansGuardian 2.12.0.6
-- Fixed Reportinglevel per filtegroup By frederic Bourgeois
-- Added sslaccessdeniedaddress (fix HTTPS denied blanck page with reporting level 3 - only with firefox -) By frederic Bourgeois
-- Added ssldeniedrewrite (fix HTTPS denied blanck page with reporting level 3, need an HTTPS website - By frederic Bourgeois 
-- Added zero value (optional) for some options, like maxcontentramcachescansize - By frederic Bourgeois
-- Some minor efficiency improvements (remove GCC warning, etc) - By Frederic Bourgeois
-
-April 2013 - DansGuardian 2.12.0.5 - alpha
-- Increase max children to support large networks by Frederic Bourgeois
-This new option is used to define the number of file descriptors for DansGuardian on large system
-Need to recompile DansGuardian with the --with-filedescriptors=N compile option
-configure option --with-filedescriptors=N N=MaxChildren Max
-
-January 2013 - Dansguardian 2.12.0.4 - alpha
-- Set persistent cnx timeout in e2guardian.conf by Frederic Bourgeois 
-- Multiple auth fixed - checked only with one port - (crash fixed before patch #9) - by Frédéric Bourgeois
-- French translation update (accents problem) - by Frédéric Bourgeois 
-- Added allow regex header filtering with greylist - Frédéric Bourgeois 
-- MITM issues null ceriticate end date value (fixed) - by Marcelloc
-- Concat values resulting in /// on cert path (fixed) - by Marcelloc
-- Mitm_magic check code does not work, even if you do not set any mitm key (disabled in code)(ConnectionHandler.cpp) - by Marcelloc
-- Re-include general max_upload_size general option - use max_upload_size general value if not set in filtergrouplist - by Marcelloc
-- Fixed maxuploadsize silently ignored - all posts blocked - (patch #12) by Frederic Bourgeois
-- Applied patch 1 (allow regex filtering with greylist) - by Frederic Bourgeois
-- Fixed minor compilation error - by Frederic Bourgeois
-- Applied patch 13 (CONNECT broken due to attempted persistency) - by Nils Goroll
-
+See notes/NEWIN_v4 for more information on changed logic etc.

@@ -7,7 +7,6 @@
 #ifndef __HPP_HTMLTEMPLATE
 #define __HPP_HTMLTEMPLATE
 
-
 // INCLUDES
 
 #include "String.hpp"
@@ -16,32 +15,36 @@
 #include <deque>
 #include <string>
 
-
 // DECLARATIONS
 
 class HTMLTemplate
 {
-public:
-	// string list for holding the template
-	// public so that it can be accessed directly for display without using
-	// the default set of placeholders
-	std::deque<String> html;
+    public:
+    // string list for holding the template
+    // public so that it can be accessed directly for display without using
+    // the default set of placeholders
+    std::deque<String> html;
 
-	// wipe the loaded template
-	void reset();
+    // wipe the loaded template
+    void reset();
 
-	// load in a template from the given file, looking for placeholder strings (reason, URL, category etc.)
-	// optionally, provide your own set of placeholders
-	bool readTemplateFile(const char *filename, const char *placeholders = NULL);
-	
-	// fill in the template with the given info and send it to the client over the given socket
-	// only useful if you used the default set of placeholders
-	void display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
-		std::string *user, std::string *ip, std::string *host, int filtergroup, String &hashed);
+    // load in a template from the given file, looking for placeholder strings (reason, URL, category etc.)
+    // optionally, provide your own set of placeholders
+    bool readTemplateFile(const char *filename, const char *placeholders = NULL);
+
+    // fill in the template with the given info and send it to the client over the given socket
+    // only useful if you used the default set of placeholders
+    void display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
+                 std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname,
+                 String &hashed);
+
+    void display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
+                    std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname,
+                    String &hashed, String &localip);
 
 private:
-	// add a string to the list
-	void push(String s);
+    // add a string to the list
+    void push(String s);
 };
 
 #endif

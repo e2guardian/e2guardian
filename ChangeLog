@@ -1,43 +1,6 @@
-September 2014 - e2guardian 3.0.4
-- Patch for extend e2guardian to avast2014 protocol
-- Fix issue #bug #29 and Bug #33 temporary bypass broken
-- Fix issue #28 segfault when using bannedregexwithblanketblock and groupmode =2
-- Fix issue with urls ending in '//'
-- Fix Compilation problem with --enable-dnsauth=yes
+About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-June 2014 - e2guardian 3.0.3
-- Fix site truncation when total_block_list in use
-- Error message now given when maxchildren is reached
-- Fix gentle restart -  A '-g' gentle restart does not kill current connections but filter group config is re-read.
-- Fix ugly check about "open room definitions"
-- Information message should be given when e2guardian is reloaded 
+Summary of changes in this release (v4.0.2) can be found in e2guardian.release
+and notes/NEWIN_v4
 
-Mai 2014
-- Release 3.0.2 - It fixes some compile errors reported in v3.0.1
-
-April 2014
-- Release 3.0.1 - see e2guardian.release for details
-
-February 2014
-- Maxlogitemlength code moved into ConnectionHandler.cpp so as to prevent 
-very large URLs corrupting log messages and to lower load on inter-process 
-communication. 
-- URL cache - Cache is now only checked (or added to) if URL is less than 2000 bytes and method is GET.
-- Emtpy list set issue fixed - was causes failure of logging and URLcache processes when filtergroup was set to block all.
-
-November 2013 - e2guardian 1.0.0.1
-- mapportstoips conf option added - when off listens on every filterports on every IP address,
-- when on maps filterports to filterip's, default on
-
-First alpha version with E2BN Protex features added - See e2guardian.release for details.
-
-September 2013 - e2guardian 1.0.0.0
-- URLs with # no longer truncated when reading lists
-- mapauthtoports conf option added - when off scans all auth plugs on every listening addr/port, when on maps auth plugins to addr/ports, default on
-- Warning message about reporting level by Frederic Bourgeois
-- Added, full banned URL, including parameters, for sslaccesdenied By frederic Bourgeois 
-- Added, nonstandarddelimiter per filtergroupe By frederic Bourgeois
-- Fix Libpcre crash by Russell coker from Debian
-- Fix BSD crash (process forking out of control) By Philip Pearce and Martin Coco
-
-For historical changes to DansGuardian see DGChangeLog
+Changes to E2guardian 3.x.x can be found in ChangeLog3.x

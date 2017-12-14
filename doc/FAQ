@@ -70,7 +70,7 @@ A. These lists were abandoned when the "groupmode" parameter was added to the fi
 Q. Looking in Squid's access.log, all entries have the client IP given as the box running DansGuardian (typically 127.0.0.1). How can I log the original client IPs?
 
 A. Turn on the "forwardedfor" option in e2guardian.conf, and get Squid to obey the "X-Forwarded-For" header in incoming requests. For Squid 2.5, you will have to apply the following patch: http://devel.squid-cache.org/follow_xff/follow_xff-2.5.patch
-	This has become a core feature in Squid 2.6-STABLE1 and above. Be wary of also enabling the "usexforwardedfor" option in DG, as it is trivial for clients to spoof headers in the original request.
+	This has become a core feature in Squid 2.6-STABLE1 and above. Be wary of also enabling the "usexforwardedfor" option in DG, as it is trivial for clients to spoof headers in the original request. You can limit client with "xforwardedforfilterip" option.
 
 
 Q. I used to use a "sandwich" configuration (Squid -> DG -> Squid) to implement NTLM support; how do I migrate to DG's native NTLM support?

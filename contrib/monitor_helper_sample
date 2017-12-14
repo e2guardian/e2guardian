@@ -1,0 +1,34 @@
+#!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/X11
+# My E2guardian port = 3128
+# This is just a example script (log access without deny)
+# Remove comment lines will block access !
+check=0
+/sbin/iptables -L | grep E2
+if [ $? = 1 ]
+        then
+        /sbin/iptables -N LOG_DROP
+        /sbin/iptables -A LOG_DROP -j LOG --log-prefix '[E2_IPTABLES_DOWN DROP] : ' --log-level 6
+fi
+
+if [ $1 = stop ]
+        then
+        /sbin/iptables -A INPUT -p tcp --destination-port 3128 -j LOG_DROP
+        /sbin/iptables -A INPUT -p tcp --destination-port 3128 -j DROP
+fi
+
+if [ $1 = start ]
+        then
+        while [ $check = "0" ]
+                do
+                /sbin/iptables -D INPUT -p tcp --destination-port 3128 -j DROP >/dev/null 2>&1
+                /sbin/iptables -D INPUT -p tcp --destination-port 3128 -j LOG_DROP >/dev/null 2>&1
+                /sbin/iptables -D LOG_DROP -j LOG --log-prefix '[E2_IPTABLES_DOWN DROP] : ' --log-level 6 >/dev/null 2>&1
+                # A rule still present ?
+                /sbin/iptables -L | grep 3128 | grep DROP
+                if [ $? = 1 ]
+                        then
+                                check=1
+                fi
+      done
+fi

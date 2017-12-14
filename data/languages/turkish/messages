@@ -1,30 +1,81 @@
 # e2guardian messages file in Turkish
 # Translation by Ozgur Karatas
 # trdocmaster at e2guardian dot org
-
 "1","Erisim Engellendi"
-
+"10","IP limit exceeded.  There is a  "    # needs translation
+"11"," IP limit set."    # needs translation
+"50"," in "    # needs translation
+"51","TRUSTED"    # needs translation
+"52","DENIED"    # needs translation
+"53","INFECTED"    # needs translation
+"54","SCANNED"    # needs translation
+"55","CONTENTMOD"    # needs translation
+"56","URLMOD"    # needs translation
+"57","HEADERMOD"    # needs translation
+"58","HEADERADD"    # needs translation
+"70","SSL SITE"    # needs translation
+"71","IP Limit"    # needs translation
+"72","Content scanning"    # needs translation
 "100","Bu IP adresi ile internete erisim engellenmistir: "
 "101","Bu IP ile internete erisim engellenmistir."
 "102","Bu kullanici adi ile internete erisim engellenmistir.: "
-
+"103","Banned Client IP"    # needs translation
+"104","Banned Location"    # needs translation
+"105","Banned User"    # needs translation
+"121","Only limited access allowed from your location"    # needs translation
+"150","Certificate supplied by server was not valid"    # needs translation
+"151","Could not open ssl connection"     # needs translation
+"152","Failed to get ssl certificate"    # needs translation
+"153","Failed to load ssl private key"    # needs translation
+"154","Failed to negotiate ssl connection to client"    # needs translation
+"155","No SSL certificate supplied by server"    # needs translation
+"156","Server's SSL certificate does not match domain name"    # needs translation
+"157","Unable to create tunnel through local proxy"    # needs translation
+"158","Opening tunnel failed"    # needs translation
+"159","Could not connect to proxy server"    # needs translation
+"160","Failed to nogotiate ssl connection to server"    # needs translation
 "200","Gitmek istediginiz URL hatalidir."
-
+"201","Unable to get response from upstream proxy (timeout)"    # needs translation
+"202","Unable to get response from upstream proxy (error)"    # needs translation
+"203","The site requested is not responding"    # needs translation
+"204"," - Please try again later"    # needs translation
+"205","Upstream proxy is not responding (network error)"    # needs translation
+"206"," - Please try again later"    # needs translation
+"207","The site requested does not exist"    # needs translation
+"208","The site requested does not have an IPv4 address"    # needs translation
+"209","Temporary DNS service failure - please try again"    # needs translation
+"210","DNS service failure - please try again later"    # needs translation
 "300","Yasaklanmis bir ifade iceren sayfaya girmeye calisiyorsunuz: "
 "301","Sistem yoneticisi tarafindan engellenmis bir ifade tespit edildi."
-
 "400","Yasaklanmis kelimeler bulundu: "
 "401","Yasaklanmis kelimeler tespit edildi."
 "402","Engellenmis ifadelerin limiti asildi: "
 "403","Engellenmis kelime limiti asildi."
-
+"450","Banned search term found: "    # needs translation
+"451","Banned search term found."    # needs translation
+"452","Banned combination search term found: "    # needs translation
+"453","Banned combination search term found."    # needs translation
+"454","Weighted search term limit of "    # needs translation
+"455","Weighted search term limit exceeded."    # needs translation
+"456","Exception combination search term found: "    # needs translation
+"457","Exception search term found: "    # needs translation
 "500","Yasaklanmis Site: "
 "501","Yasaklanmis URL: "
 "502","Erisilebilir listesinde bulunmayan bir siteye giremezsiniz."
 "503","Yasaklanmis dzensiz ifade (URL): "
 "504","Yasaklanmis duzensiz ifadeye rastlandi."
 "505","Bu IP adresinin asagidaki siteye girisi engellenmistir."
-
+"506","HTTPS access is only allowed to trusted sites."    # needs translation
+"507","HTTPS access by IP address is not allowed."    # needs translation
+"508","Access not allowed using this browser (or app): "    # needs translation
+"509","Access not allowed using this browser (or app)."    # needs translation
+"520","Blocked HTTPS site: "    # needs translation
+"521","Banned Search Words: "    # needs translation
+"522","Blocked User-Agent: "    # needs translation
+"560","Blocked site (local): "    # needs translation
+"561","Blocked URL (local): "    # needs translation
+"580","Blocked HTTPS site (local): "    # needs translation
+"581","Banned Search Words (local): "    # needs translation
 "600","Ayricalikli IP adresine sahipsiniz."
 "601","Ayricalikli kullanici adina sahipsiniz."
 "602","Ayricalikli bir siteye girdiniz."
@@ -35,20 +86,28 @@
 "607","Bu sitede cookie kesfedildi."
 "608","Ayricalikli URL adresi taraniyor."
 "609","Ayricalikli duzenlenmis url adresi: "
-
+"610","User-Agent pattern match: "    # needs translation
+"620","Referer match: "    # needs translation
+"630","URL match in "    # needs translation
+"631"," location allow list"    # needs translation
+"632","Location overide allow list matched"    # needs translation
+"662","Site (local)."    # needs translation
+"663","URL (local)."    # needs translation
 "700","Internet zerinden dosya gnderimi yasaklanmistir."
 "701","Internet zerinden dosya gnderimi sinirini astiniz."
-
+"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
+"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
 "800","Yasaklanmis MIME Tr: "
-
 "900","Yasaklanmis dosya uzantisi: "
-
 "1000","Bu sitedeki resim siniri asildi."
-
 "1100","Virus ve kotu icerige rastlandi."
 "1101","Site bloklandi. Adware veya spyware tespit edildi."
-
 "1200","Lutfen bekleyiniz, icerik taranarak yukleniyor.."
+"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
+"1202",", then refresh this page to download directly."    # needs translation
+"1203","WARNING: Could not perform content scan!"    # needs translation
 "1210","Yukleme bitti,  taramadan geciriliyor.."
 "1220","Tarama bitti. </p><p>Yuklemek icin tiklayiniz: "
+"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
+"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
 "1230","Dosya uzunlugu gecersizdir."

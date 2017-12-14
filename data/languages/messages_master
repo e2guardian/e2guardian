@@ -1,0 +1,137 @@
+# e2guardian master messages file (in UK English)
+#
+# Insert new message lines in the correct order in this master file
+# Then run ./update_messages to merge the new messages into all language
+#     files. '# needs translation' will be appended to new lines.
+
+# Messages 0-4999 are reserved for standard use.
+# Please use numbers above 5000 for localy defined messages
+
+"1","Access Denied"
+"10","IP limit exceeded.  There is a  "
+"11"," IP limit set."
+
+"50"," in "
+"51","TRUSTED"
+"52","DENIED"
+"53","INFECTED"
+"54","SCANNED"
+"55","CONTENTMOD"
+"56","URLMOD"
+"57","HEADERMOD"
+"58","HEADERADD"
+"70","SSL SITE"
+"71","IP Limit"
+"72","Content scanning"
+
+"100","Your IP address is not allowed to web browse: "
+"101","Your IP address is not allowed to web browse."
+"102","Your username is not allowed to web browse: "
+"103","Banned Client IP"
+"104","Banned Location"
+"105","Banned User"
+"121","Only limited access allowed from your location"
+
+"150","Certificate supplied by server was not valid"
+"151","Could not open ssl connection" 
+"152","Failed to get ssl certificate"
+"153","Failed to load ssl private key"
+"154","Failed to negotiate ssl connection to client"
+"155","No SSL certificate supplied by server"
+"156","Server's SSL certificate does not match domain name"
+"157","Unable to create tunnel through local proxy"
+"158","Opening tunnel failed"
+"159","Could not connect to proxy server"
+"160","Failed to nogotiate ssl connection to server"
+
+"200","The requested URL is malformed."
+"201","Unable to connect to upstream proxy (timeout)"
+"202","Unable to connect to upstream proxy (network error)"
+"203","The site requested is not responding"
+"204"," - Please try again later"
+"205","Upstream proxy is not responding (network error)"
+"206"," - Please try again later"
+"207","The site requested does not exist"
+"208","The site requested does not have an IPv4 address"
+"209","Temporary DNS service failure - please try again"
+"210","DNS service failure - please try again later"
+
+"300","Banned phrase found: "
+"301","Banned phrase found."
+
+"400","Banned combination phrase found: "
+"401","Banned combination phrase found."
+"402","Content Check limit of "
+"403","Blocked by Content Checking."
+
+"450","Banned search term found: "
+"451","Banned search term found."
+"452","Banned combination search term found: "
+"453","Banned combination search term found."
+"454","Weighted search term limit of "
+"455","Weighted search term limit exceeded."
+"456","Exception combination search term found: "
+"457","Exception search term found: "
+
+"500","Blocked site: "
+"501","Blocked URL: "
+"502","Walled Garden is on and the site is not available to you."
+"503","Banned pattern matched URL: "
+"504","Blocked URL."
+"505","Access to sites by IP address is not allowed."
+"506","HTTPS access is only allowed to trusted sites."
+"507","HTTPS access by IP address is not allowed."
+"508","Access not allowed using this browser (or app): "
+"509","Access not allowed using this browser (or app)."
+"520","Blocked HTTPS site: "
+"521","Banned Search Words: "
+"522","Blocked User-Agent: "
+"560","Blocked site (local): "
+"561","Blocked URL (local): "
+"580","Blocked HTTPS site (local): "
+"581","Banned Search Words (local): "
+
+"600","Client IP match."
+"601","Client user match."
+"602","Site match: "
+"603","URL match: "
+"604","Phrase found: "
+"605","Combination phrase found: "
+"606","Bypass URL."
+"607","Bypass cookie."
+"608","Scan bypass URL."
+"609","URL pattern match: "
+"610","User-Agent pattern match: "
+"620","Referer match: "
+"630","URL match in "
+"631"," location allow list"
+"632","Location overide allow list matched"
+
+"662","Site (local): "
+"663","URL (local): "
+
+"700","Web upload is banned."
+"701","Web upload limit exceeded."
+
+"750","Blanket file download is active and this MIME type is not on the white list: "
+"751","Blanket file download is active and this file is not matched by the white lists."
+
+"800","Banned MIME file type: "
+
+"900","Banned file extension: "
+
+"1100","Virus or bad content detected."
+"1101","Advert blocked"
+
+"1200","Please wait - downloading file for scanning..."
+"1201","Warning: file too large to scan. If you suspect that this file is larger than "
+"1202",", then refresh this page to download directly."
+"1203","WARNING: Could not perform content scan!"
+
+"1210","Download Complete. Starting scan..."
+
+"1220","Scan complete.</p><p>Click here to download: "
+"1221","Download complete; file not scanned.</p><p>Click here to download: "
+"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "
+
+"1230","File no longer available"

@@ -1,0 +1,19 @@
+#SSL site modifying Regular Expressions
+#
+# The format is: "extended regular expression"->"replacement straight string"
+# E.g. "shit"->"censored" would replace all occurances of shit in any case.
+# Far more complicated matches are possible.  See other sources for examples
+# of extended regular expressions.
+#
+# Users are pointed at the replaced site transparently.
+# This is used to 'cname' ssl sites and avoids having to adjust DNS
+# and allows option of switching off/on depending on filter group.
+
+# Enforce restricted mode in YouTube
+#
+#"(^https://www.youtube.com)"->"https://restrict.youtube.com"
+#"(^https://m.youtube.com)"->"https://restrict.youtube.com"
+#"(^https://youtubei.googleapis.com)"->"https://restrict.youtube.com"
+#"(^https://youtube.googleapis.com)"->"https://restrict.youtube.com"
+#"(^https://www.youtube-nocookie.com)"->"https://restrict.youtube.com"
+#
