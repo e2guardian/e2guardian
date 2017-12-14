@@ -18,7 +18,7 @@
 # Entry function called by proxy module to check http request
 function(checkrequest)
 if(viruscheckset) checknoscanlists
-if(bypassallowedset) checknobypasslists
+if(bypassallowset) checknobypasslists
 if(exceptionset) return true
 if(fullurlin,searchterms) setsearchterm
 ifnot(greyset) returnif localcheckrequest
@@ -59,7 +59,7 @@ ifnot(blockset) setnolog
 
 function(icap-checkrequest2)
 if(viruscheckset) checknoscanlists
-if(bypassallowedset) checknobypasslists
+if(bypassallowset) checknobypasslists
 if(exceptionset) return true
 if(fullurlin,searchterms) setsearchterm
 ifnot(greyset) returnif localcheckrequest
@@ -205,7 +205,7 @@ if(mimein,exceptionvirus) return unsetviruscheck
 if(extensionin,exceptionvirus) return unsetviruscheck
 
 function(checknobypasslists)
-if(urlin,bannedbypass) return unsetbypassallowed
+if(urlin,bannedbypass) return unsetbypassallow
 
 # ICAP SSL request check
 #  returns true if exception 

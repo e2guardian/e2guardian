@@ -127,8 +127,8 @@ class SBFunction
              "redirectset",
 			 "viruscheckset",
 			 "bypassset",
-			"bypassallowedset",
-			 "infectionbypassallowedset"
+			"bypassallowset",
+			 "infectionbypassallowset"
 			};
 
    String command_map[4] = { "function",
