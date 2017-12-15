@@ -2661,12 +2661,12 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
         std::cerr << thread_id << " -About to check for bypass..." << std::endl;
 #endif
         if (ldl->fg[filtergroup]->bypass_mode != 0)
-            bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
+            checkme.bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
                                                  clientip.c_str(), NULL);
-        if ((bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-            bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
+        if ((checkme.bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
+            checkme.bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
                                                  clientip.c_str(), &checkme.isvirusbypass);
-        if (bypasstimestamp > 0) {
+        if (checkme.bypasstimestamp > 0) {
 #ifdef DGDEBUG
             if (checkme.isvirusbypass)
                 std::cerr << thread_id << " -Infection bypass URL match" << std::endl;
@@ -2674,7 +2674,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
                 std::cerr << thread_id << " -Filter bypass URL match" << std::endl;
 #endif
             header.chopBypass(checkme.logurl, checkme.isvirusbypass);
-            if (bypasstimestamp > 1) { // not expired
+            if (checkme.bypasstimestamp > 1) { // not expired
                 checkme.isbypass = true;
                 checkme.isexception = true;
                 // checkme: need a TR string for virus bypass
@@ -3527,7 +3527,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.isItNaughty = checkme.isBlocked;
     }
 
-    if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
+    if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
 #ifdef DGDEBUG
         std::cout << thread_id << "Setting GBYPASS cookie; bypasstimestamp = " << checkme.bypasstimestamp << __func__ << std::endl;
 #endif
