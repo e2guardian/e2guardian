@@ -989,9 +989,6 @@ void HTTPHeader::checkheader(bool allowpersistent)
         std::cerr << thread_id << "CheckHeader: HTTP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         onepointone = true;
-        // force HTTP/1.0 - we don't support chunked transfer encoding, possibly amongst other things
-        //if (outgoing)
-         //   header.front() = header.front().before(" HTTP/") + " HTTP/1.0\r";
     }
 
     if (outgoing) {        // set request Type
@@ -999,10 +996,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
         if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
         {
 #ifdef DGDEBUG
-            std::cerr << thread_id << "zero contentlength due to POST " << std::endl;
+            std::cerr << thread_id << "zero contentlength on request due to not POST/PUT " << std::endl;
 #endif
             contentlength = 0;
         }
+        if(header.front().after(" ").startsWith("/"))
+            isProxyRequest = false;
+        else
+            isProxyRequest = true;
     } else {                    // set status code
         tp = header.front().after(" ").before(" ");
         tp.removeWhiteSpace();
@@ -1010,7 +1011,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
         {
 #ifdef DGDEBUG
-            std::cerr << thread_id << "zero contentlength due to returncode " << returncode << std::endl;
+            std::cerr << thread_id << "zero contentlength on response due to returncode " << returncode << std::endl;
 #endif
             contentlength = 0;
         }
@@ -1136,7 +1137,6 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
     if (requestType() == "CONNECT") {
         https = true;
         port = 443;
-        isProxyRequest = true;
         if (!answer.startsWith("https://")) {
             answer = "https://" + answer;
         }
@@ -1171,7 +1171,6 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
             if (!answer.after("://").contains("/")) {
                 answer += "/"; // needed later on so correct host is extracted
             }
-            isProxyRequest = true;
             String protocol(answer.before("://"));
             hostname = answer.after("://");
             String url(hostname.after("/"));
@@ -2002,7 +2001,14 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
     }
 
     header.pop_back(); // remove the final blank line of a header
+#ifdef DGDEBUG
     std::cerr << thread_id << "header:size =  " << header.size() << std::endl;
+    if (header.size() > 0)
+    std::cerr << thread_id << "first line =  " << header[0] << std::endl;
+#endif
     checkheader(allowpersistent); // sort out a few bits in the header
+#ifdef DGDEBUG
+    std::cerr << thread_id << "isProxyRequest is " << isProxyRequest << std::endl;
+#endif
     return true;
 }
