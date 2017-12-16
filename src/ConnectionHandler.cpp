@@ -695,6 +695,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     filtergroup = o.default_trans_fg;
                     only_ip_auth = true;
                 }
+#ifdef DGDEBUG
+                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
+#endif
                 if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
                     break;
                 //checkme.filtergroup = filtergroup;
