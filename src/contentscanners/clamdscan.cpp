@@ -200,5 +200,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #ifdef DGDEBUG
     std::cerr << "clamdscan - he say yes (clean)" << std::endl;
 #endif
+    lastmessage = reply;
+    syslog(LOG_ERR, "ClamD result: %s Filename: %s ", reply.toCharArray(),filename);
     return DGCS_CLEAN;
 }
