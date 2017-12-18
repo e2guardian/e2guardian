@@ -590,7 +590,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 // another round...
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -persisting (count " << ++pcount << ")" << std::endl;
-                syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
+//                syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
                 std::cerr << thread_id << " - " << clientip << std::endl;
 #endif
                 header.reset();
@@ -3233,8 +3233,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 // another round...
 #ifdef DGDEBUG
                 std::cerr << thread_id << " ICAP -persisting (count " << ++pcount << ")" << std::endl;
-                syslog(LOG_ERR, "%sServed %d requests on this connection so far - ismitm=%d", thread_id.c_str(),
-                            pcount, ismitm);
+//                syslog(LOG_ERR, "%sServed %d requests on this connection so far - ismitm=%d", thread_id.c_str(),
+//                            pcount, ismitm);
                 std::cerr << thread_id << " - " << clientip << std::endl;
 #endif
                 icaphead.reset();
