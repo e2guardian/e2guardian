@@ -147,6 +147,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
 #ifndef DGDEBUG
+    syslog(LOG_ERR, "clamdudsfile remove file %s", tempfilepath.toCharArray());
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
     return rc;
