@@ -435,6 +435,13 @@ bool OptionContainer::read(std::string& filename, int type)
             delete_downloaded_temp_files = true;
         }
 
+        if (findoptionS("searchsitelistforip"
+                                "") == "off") {
+            search_sitelist_for_ip = false;
+        } else {
+            search_sitelist_for_ip = true;
+        }
+
         url_cache_number = findoptionI("urlcachenumber");
         if (!realitycheck(url_cache_number, 0, 0, "urlcachenumber")) {
             return false;
