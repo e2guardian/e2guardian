@@ -36,12 +36,12 @@ logexceptionhits = 2
 # 2 = CSV-style format
 # 3 = Squid Log File Format
 # 4 = Tab delimited
-# Protex format type 1 – Tab delimited, squid style format with extra fields
-# for filter block/result codes, reasons, filter group, and system name –
+# Protex format type 5 Tab delimited, squid style format with extra fields
+# for filter block/result codes, reasons, filter group, and system name 
 # used in arrays so that combined logs show originating server.
-# Protex format type 2 – Same format as above but system name field is blank
-# – used in stand-alone systems.
 # 5 = Protex format
+# Protex format type 6 Same format as above but system name field is blank
+# used in stand-alone systems.
 # 6 = Protex format with server field blanked
 
 logfileformat = 1
@@ -90,15 +90,7 @@ logfileformat = 1
 # Maximum 3600 (= 1 hour)
 #dstatinterval = 300  # = 5 minutes
 
-# Statistics log file location
-#
-# Defines the stat file directory and filename.
-# Only used in conjunction with maxips > 0
-# Once every 3 minutes, the current number of IPs in the cache, and the most
-# that have been in the cache since the daemon was started, are written to this
-# file. IPs persist in the cache for 7 days.
 # Time format is epoch GMT+0 by default | statshumanreadable change to local zone
-#statlocation = '@DGLOGLOCATION@/stats'    **NOT YET IMPLEMENTED
 #statshumanreadable = off
 
 # Network Settings
@@ -128,14 +120,15 @@ filterports = 8080
 
 #port for transparent https
 #if defined enables tranparent https
-#transparenthttpsport = 8443
+transparenthttpsport = 8443
 
 #port for ICAP
 #if defined enables icap mode 
 #icapport = 1344  
 
-# the ip of the proxy (default is the loopback - i.e. this server)
-proxyip = 127.0.0.1
+# the ip of upstream proxy - optional - if blank e2g will go direct to sites.
+# default is "" i.e. no proxy 
+#proxyip = 127.0.0.1
 
 # the port e2guardian connects to proxy on
 proxyport = 3128
@@ -146,12 +139,6 @@ proxyport = 3128
  # If proxy is remote you may need to increase this to 10 or more.
 # Min 5 - Max 100
 proxytimeout = 5
-
-#Proxy failure log interval
-# The interval between log status entries when proxy is not responding
-# minimum is proxytimeout - maximum 3600 (= 1 hour)
-# default = 600  (= 10 mins)
-#proxyfailureloginterval = 600  **NOT YET IMPLEMENTED
 
 # Proxy header exchange
 # Set timeout between the Proxy and e2guardian 
@@ -252,31 +239,6 @@ showweightedfound = on
 #
 weightedphrasemode = 2
 
-# Positive (clean) result caching for URLs
-# Caches good pages so they don't need to be scanned again.
-# It also works with AV plugins.
-# 0 = off (recommended for ISPs with users with disimilar browsing)
-# 1000 = recommended for most users
-# 5000 = suggested max upper limit
-# If you're using an AV plugin then use at least 5000.
-urlcachenumber = 1000  **NOT YET IMPLEMENTED
-
-#
-# Age before they are stale and should be ignored in seconds
-# 0 = never
-# 900 = recommended = 15 mins
-urlcacheage = 900  **NOT YET IMPLEMENTED
-
-# Cache for content (AV) scan results as 'clean'
-# By default, to save CPU, files scanned and found to be
-# clean are inserted into the clean cache and NOT scanned
-# again for a while.  If you don't like this then choose
-# to disable it.
-# on = cache results; do not re-scan
-# off = do not cache; always re-scan
-# (on|off) default = on.
-scancleancache = on  **NOT YET IMPLEMENTED
-
 # Smart, Raw and Meta/Title phrase content filtering options
 # Smart is where the multiple spaces and HTML are removed before phrase filtering
 # Raw is where the raw HTML including meta tags are phrase filtered
@@ -328,13 +290,12 @@ forcequicksearch = off
 # prevent a user from simply entering the IP for a banned address.
 # It will reduce searching speed somewhat so unless you have a local caching
 # DNS server, leave it off and use the Blanket IP Block option in the
-# bannedsitelist file instead.
+# f1.story file instead.
 reverseaddresslookups = off
 
 # Reverse lookups for banned and exception IP lists.
 # If set to on, e2guardian will look up the forward DNS for the IP
-# of the connecting computer.  This means you can put in hostnames in
-# the exceptioniplist and bannediplist.
+# of the connecting computer.  
 # If a client computer is matched against an IP given in the lists, then the
 # IP will be recorded in any log entries; if forward DNS is successful and a
 # match occurs against a hostname, the hostname will be logged instead.
@@ -436,14 +397,12 @@ trickledelay = 10
 # one is forced to match as the default, regardless of user agent
 # and other matching mechanisms.
 #
-#@FANCYSUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/fancy.conf'
-#@TRICKLESUPPORT@downloadmanager = '@DGCONFDIR@/downloadmanagers/trickle.conf'
+# NOTE - ONLY default downloadmanager is supported in v5
 downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
-# for example to AV scan.  The options are limitless.  Eventually all of
-# e2guardian will be plugin based.  You can have more than one content
+# for example to AV scan.  You can have more than one content
 # scanner. The plugins are run in the order you specify.
 # This is one of the few places you can have multiple options of the same name.
 #
@@ -467,12 +426,10 @@ contentscannertimeout = 60
 # contentscanexceptions = off
 
 # Auth plugins
-# These replace the usernameidmethod* options in previous versions. They
-# handle the extraction of client usernames from various sources, such as
+# 
+# Handle the extraction of client usernames from various sources, such as
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
-# Multiple plugins can be specified, and will be used per port in the order
-# filterports are listed.
 #
 # If you do not use multiple filter groups, you need not specify this option.
 #
@@ -528,19 +485,13 @@ usexforwardedfor = off
 # it on or off
 logconnectionhandlingerrors = on
 
-#sets the number of worker threads to use - NEW for v4.0
-#
-#  note this replaces all min/max etc children settings in previous versions
+#sets the number of worker threads to use 
 #
 # This figure is the maximum number of concurrent connections.
 # If more connections are made, connections will queue until a worker thread is free.
 # On large site you might want to try 5000 (max value 20000)
 httpworkers = 200
 
-# Sets the maximum number client IP addresses allowed to connect at once.
-# Use this to set a hard limit on the number of users allowed to concurrently
-# browse the web. Set to 0 for no limit, and to disable the IP cache process.
-maxips = 0  **NOT YET IMPLEMENTED
 
 # Process options
 # (Change these only if you really know what you are doing).
@@ -580,18 +531,13 @@ loguseragent = off
 #daemonuser = '@DGPROXYUSER@'
 #daemongroup = '@DGPROXYGROUP@'
 
-# Soft restart
-# When on this disables the forced killing off all processes in the process group.
-# This is not to be confused with the -g run time option - they are not related.
-# on|off (defaults to off)
-softrestart = off
 
 # Mail program
 # Path (sendmail-compatible) email program, with options.
 # Not used if usesmtp is disabled (filtergroup specific).
 #@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'   # NOT YET IMPLIMENTED
 
-# Enable SSL support  - NEW for v4.0
+# Enable SSL support  
 # This must be present to enable MITM and/or Cert checking
 # default is off
 enablessl = on
@@ -668,3 +614,13 @@ preauthstoryboard = '@DGCONFDIR@/preauth.story'
 # default is to warn but then ignore missing lists
 # To abort on missing list set to on
 # abortiflistmissing = off  //NOT YET IMPLIMENTED
+
+#Search sitelist for ip sites
+# In v5 a separate set of lists has been introduced for IP sites
+# and normally e2g will no longer check site lists for ip's
+# If you want to keep backward list compatablity then set this to
+# 'on' - but note this incurs an overhead - putting IP in ipsitelists
+# and setting this to off gives the fastest implimentation.
+# default is 'on'
+searchsitelistforip = on
+
