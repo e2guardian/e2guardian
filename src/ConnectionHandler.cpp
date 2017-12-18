@@ -1042,6 +1042,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (checkme.isconnect && checkme.gomitm)
             {
                 std::cerr << "Going MITM ...." << std::endl;
+                if(!ldl->fg[filtergroup]->mitm_check_cert)
+                    checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
                 persistPeer = false;
                 persistProxy = false;
@@ -2275,6 +2277,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                 " upfail " << checkme.upfailure << std::endl;
 #endif
 
+
 #ifdef DGDEBUG
     std::cerr << thread_id << " -Intercepting HTTPS connection" << std::endl;
 #endif
@@ -3075,6 +3078,8 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Going MITM ...." << std::endl;
 #endif
+                if(!ldl->fg[filtergroup]->mitm_check_cert)
+                    checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;
                 persistProxy = false;

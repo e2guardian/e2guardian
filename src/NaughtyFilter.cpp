@@ -85,6 +85,8 @@ void NaughtyFilter::setURL(bool set_ismitm) {
     ishead = request_header->requestType().startsWith("HEAD");
     isconnect = is_ssl;
     ismitm = set_ismitm;
+    if (baseurl == urldomain)
+        issiteonly = true;
     docsize = 0;
 }
 
@@ -111,6 +113,7 @@ void NaughtyFilter::reset()
     filtergroup = 0;
     deep_urls_checked = false;
     has_deep_urls = false;
+    issiteonly = false;
 
     gomitm = false;
     // resets from CH
