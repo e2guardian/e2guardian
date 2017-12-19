@@ -6,25 +6,26 @@
 
 # General:-
 
-# if you do not use local files then overide these as follows:-
-
+# If you do not use local files then uncomment:-
 #function(localcheckrequest)
-#if(true) return false
-
 #function(localsslrequestcheck)
-#if(true) return false
 
-#To disable checks on embedded urls  
+# To disable checks on embedded urls then uncomment:-
 #
 #function(embeddedcheck)
 #if(true) return false
 
+# If you have bypass enabled then comment out next line:-
+function(checknobypasslists)
+
+# If you have av scanning enabled then comment out next 2 lines:-
+function(checknoscanlists)
+function(checknoscantypes)
 
 
 # For ICAP mode:-
 
-# Override icapsquidbump to return true if you are using squid bump 
-#  for https interception.
-#
+# If you are using squid bump for https interception uncomment
+# next 2 lines
 #function(icapsquidbump)
 #if(true) return true
