@@ -3085,6 +3085,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 persistProxy = false;
                 if (!checkme.isItNaughty)
                     break;
+                } else {
+                if (!checkme.upfailure)
+                    checkme.tunnel_rest = true;
                 }
             }
 
