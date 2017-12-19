@@ -482,7 +482,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     docheader.setTimeout(o.exchange_timeout);
 
 
-    int bypasstimestamp = 0;
+    //int bypasstimestamp = 0;
 
 
     // Content scanning plugins to use for request (POST) & response data
@@ -528,7 +528,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         bool isscanbypass = false;
         bool isbypass = false;
         bool isvirusbypass = false;
-        int bypasstimestamp = 0;
+        //int bypasstimestamp = 0;
         bool iscookiebypass = false;
 
         AuthPlugin *auth_plugin = NULL;
@@ -606,7 +606,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 gettimeofday(&thestart, NULL);
                 checkme.thestart = thestart;
 
-                bypasstimestamp = 0;
+                checkme.bypasstimestamp = 0;
 
                 authed = false;
                 isbanneduser = false;
@@ -2652,7 +2652,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
     if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed))
         return false;
 
-    int bypasstimestamp = 0;
+   // int bypasstimestamp = 0;
     if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
