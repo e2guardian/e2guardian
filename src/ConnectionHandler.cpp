@@ -482,7 +482,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     docheader.setTimeout(o.exchange_timeout);
 
 
-    int bypasstimestamp = 0;
+    //int bypasstimestamp = 0;
 
 
     // Content scanning plugins to use for request (POST) & response data
@@ -528,7 +528,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         bool isscanbypass = false;
         bool isbypass = false;
         bool isvirusbypass = false;
-        int bypasstimestamp = 0;
+        //int bypasstimestamp = 0;
         bool iscookiebypass = false;
 
         AuthPlugin *auth_plugin = NULL;
@@ -590,7 +590,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 // another round...
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -persisting (count " << ++pcount << ")" << std::endl;
-                syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
+//                syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
                 std::cerr << thread_id << " - " << clientip << std::endl;
 #endif
                 header.reset();
@@ -606,7 +606,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 gettimeofday(&thestart, NULL);
                 checkme.thestart = thestart;
 
-                bypasstimestamp = 0;
+                checkme.bypasstimestamp = 0;
 
                 authed = false;
                 isbanneduser = false;
@@ -695,6 +695,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     filtergroup = o.default_trans_fg;
                     only_ip_auth = true;
                 }
+#ifdef DGDEBUG
+                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
+#endif
                 if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
                     break;
                 //checkme.filtergroup = filtergroup;
@@ -1039,6 +1042,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (checkme.isconnect && checkme.gomitm)
             {
                 std::cerr << "Going MITM ...." << std::endl;
+                if(!ldl->fg[filtergroup]->mitm_check_cert)
+                    checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
                 persistPeer = false;
                 persistProxy = false;
@@ -2272,6 +2277,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                 " upfail " << checkme.upfailure << std::endl;
 #endif
 
+
 #ifdef DGDEBUG
     std::cerr << thread_id << " -Intercepting HTTPS connection" << std::endl;
 #endif
@@ -2646,7 +2652,7 @@ bool ConnectionHandler::checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOp
     if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed))
         return false;
 
-    int bypasstimestamp = 0;
+   // int bypasstimestamp = 0;
     if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
@@ -3072,11 +3078,16 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Going MITM ...." << std::endl;
 #endif
+                if(!ldl->fg[filtergroup]->mitm_check_cert)
+                    checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;
                 persistProxy = false;
                 if (!checkme.isItNaughty)
                     break;
+                } else {
+                if (!checkme.upfailure)
+                    checkme.tunnel_rest = true;
                 }
             }
 
@@ -3225,8 +3236,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 // another round...
 #ifdef DGDEBUG
                 std::cerr << thread_id << " ICAP -persisting (count " << ++pcount << ")" << std::endl;
-                syslog(LOG_ERR, "%sServed %d requests on this connection so far - ismitm=%d", thread_id.c_str(),
-                            pcount, ismitm);
+//                syslog(LOG_ERR, "%sServed %d requests on this connection so far - ismitm=%d", thread_id.c_str(),
+//                            pcount, ismitm);
                 std::cerr << thread_id << " - " << clientip << std::endl;
 #endif
                 icaphead.reset();

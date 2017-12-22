@@ -492,6 +492,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 } else {
                     t = target;
                 }
+                if (cm.issiteonly && j->type == LIST_TYPE_URL)
+                   continue;
+                if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
+                    continue;
+                if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
+                    continue;
 #ifdef SBDEBUG
                 std::cerr << "checking " << j->name << " type " << j->type << std::endl;
 #endif
@@ -531,6 +537,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     if (u->is_siteonly && j->type == LIST_TYPE_URL)
                         continue;
                     if (!(u->site_is_ip) && j->type == LIST_TYPE_IPSITE)
+                        continue;
+                    if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
                         continue;
 #ifdef SBDEBUG
                     std::cerr << "checking " << j->name << " type " << j->type << "Target " << t << std::endl;

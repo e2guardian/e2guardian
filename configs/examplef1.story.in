@@ -1,16 +1,34 @@
 .Include<@DGCONFDIR@/common.story>
 .Include<@DGCONFDIR@/site.story>
 
-# add any altered functions for this filtergroup here
+# Add any altered functions for this filtergroup here
 # They will overwrite library or site level definitions
 
-# e.g. to create blanket block for http re-define checkblanketblock 
+# To allow unfiltered access to this group 
+# uncomment next 4 lines
+#function(checkrequest)
+#if(true) return setexception
+#function(thttps-checkrequest)
+#if(true) return setexception
 
+# To block all access to this group 
+# uncomment next 4 lines
+#function(checkrequest)
+#if(true,,105) return setblock
+#function(sslexceptioncheck)
+#function(localsslcheckrequest)
+
+# Note: Blanket blocks are checked after exceptions
+# and can be used to make a 'walled garden' filtergroup
+
+# To create blanket block for http 
+# uncomment next line and one condition line.
 #function(checkblanketblock)
 #if(true,,502) return setblock  # = ** total blanket
 #if(siteisip,,505) return setblock  # = *ip ip blanket
 
-# or for ssl (i.e. CONNECT)
+# To create blanket block for SSL 
+# uncomment next line and one condition line.
 #function(sslcheckblanketblock)
 #if(true,,506) return setblock  # = **s total blanket
 #if(siteisip,,507) return setblock  # = **ips ip blanket

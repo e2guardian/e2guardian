@@ -187,6 +187,7 @@ class OptionContainer
     bool scan_clean_cache;
     bool content_scan_exceptions;
     bool delete_downloaded_temp_files;
+    bool search_sitelist_for_ip = false;
     std::string download_dir;
     int initial_trickle_delay;
     int trickle_delay;
@@ -194,8 +195,6 @@ class OptionContainer
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
-    //IPList exception_ip_list;
-    //IPList banned_ip_list;
     LanguageContainer language_list;
     ImageContainer banned_image;
     ImageContainer banned_flash;

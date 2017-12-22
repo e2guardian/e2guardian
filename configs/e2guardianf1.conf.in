@@ -33,8 +33,8 @@ exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
 ipsitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplist'
 urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
-regexpurlboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
-regexpurlboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
+regexpboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
+regexpboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
 
 sitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitelist'
 ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsiteiplist'
@@ -475,13 +475,14 @@ reportinglevel = 3
 # notifaction will be sent.
 @EMAILSUPPORT@threshold = 0
 
-#NOTE to enable SSL MITM or CERT checking
+#NOTE to enable SSL MITM or NON-MITM SSL CERT checking
 # enablessl must be defined as 'yes' in e2guardian.conf
 
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid
 # and signed by a ca in the configured path
-sslcertcheck = off
+# ONLY for connections that are NOT MITM
+#sslcertcheck = off - NOT implimented in V5 yet
 
 #SSL man in the middle
 # Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
@@ -492,7 +493,7 @@ sslmitm = off
 # ignored if  sslmitm is off
 # SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
 # The following option is replaced by storyboard logic
-onlymitmsslgrey = off
+#onlymitmsslgrey = off  - ignored in V5
 
 # Enable MITM site certificate checking
 # ignored if  sslmitm is off
