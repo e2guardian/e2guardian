@@ -329,6 +329,14 @@ infectionbypasserrorsonly = on
 # (on|off) default = off.
 disablecontentscan = off  
 
+# Disable content scanning with error (timeout, AV crash, etc)
+# If you enable this option you will allow object with an unexpected result
+# Content scanning primarily is AV scanning (if enabled) but could include
+# other types.
+# With "on" you can allow INFECTED objects 
+# (on|off) default = off. (default and highly recommended)
+disablecontentscanerror = off
+
 # If 'on' exception sites, urls, users etc will be scanned
 # This is probably not desirable behavour as exceptions are
 # supposed to be trusted and will increase load.

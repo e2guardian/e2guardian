@@ -34,6 +34,7 @@ public:
     int category_threshold;
     bool infection_bypass_errors_only;
     bool disable_content_scan;
+    bool disable_content_scan_error;
     bool content_scan_exceptions;
     int weighted_phrase_mode;
     unsigned int banned_phrase_list;
