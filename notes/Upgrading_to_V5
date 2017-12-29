@@ -1,0 +1,38 @@
+Upgrading to V5 from e2guardian v4
+
+V5 introduces a completely new model for definition and handling of lists, 
+logic flow and support for two new modes - transparent(HTTP & HTTPS) and ICAP.
+
+There are changes to the configuration files, mainly in list definition, 
+but also some other options have been replaced by storyboard options.
+
+The e2guardian.conf is still used for global settings and 
+e2guardianfn.conf for settings specific to group 'n'.  
+
+Both these files contain revised list definitions.  For comptability with
+older versions the same list names and paths are retained, so you do
+not need to alter your list file structure, unless you want to take
+advantage of the new siteiplists.  Details of revised list definition syntax 
+is are in notes/V5_list_definition.pdf
+
+A number of settings have been moved into new Storyboard config files. 
+These are noted in the example e2guardian.conf and e2guardianf1.conf files.
+
+For details on Storyboard sytax see notes/V5_Storyboard.pd
+
+Storyboard config files are:-
+
+common.story - a library of storyboard functions - you will not need 
+to change this file, but you may need to refer to it if you need to 
+make more complex changes to the logic flow.  This provides a logic 
+functionality as near as possible to v4 built-in logic.
+
+pre-auth.story - actions to be taken before user is put into a filter
+group.  You may need to edit this.
+
+site.story - deployment modification of Storyboard library - you may
+need to edit this.
+
+fn.story - one per filtergroup - an examplef1.story is provided - you 
+will need to edit this.
+

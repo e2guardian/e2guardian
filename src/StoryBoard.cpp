@@ -388,6 +388,18 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 target = cm.request_header->userAgent();   // needs spliting before??
                 target2 = "";
                 break;
+            case SB_STATE_EXTENSIONIN:
+                target = cm.response_header->disposition();
+                if (target.length() > 4)
+                     isListCheck = true;
+                target2 = "";
+                break;
+            case SB_STATE_MIMEIN:
+                target = cm.response_header->getContentType();
+                if (target.length() > 4)
+                    isListCheck = true;
+                target2 = "";
+                break;
             case SB_STATE_CONNECT:
                 state_result = cm.isconnect;
                 break;
