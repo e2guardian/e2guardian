@@ -184,6 +184,12 @@ bool FOptionContainer::read(const char *filename) {
             disable_content_scan = false;
         }
 
+        if (findoptionS("disablecontentscanerror") == "on") {
+            disable_content_scan_error = true;
+        } else {
+            disable_content_scan_error = false;
+        }
+
         if (findoptionS("contentscanexceptions") == "on") {
             content_scan_exceptions = true;
         } else {

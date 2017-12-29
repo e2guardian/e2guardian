@@ -624,3 +624,12 @@ preauthstoryboard = '@DGCONFDIR@/preauth.story'
 # default is 'on'
 searchsitelistforip = on
 
+
+# http header checking setings
+#
+# Limit number of http header lines in a request/response
+# (to guard against attacks)
+# Minimum 10 max 2000
+# default 40
+# maxheaderlines = 40
+
