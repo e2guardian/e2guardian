@@ -406,15 +406,17 @@ bool OptionContainer::read(std::string& filename, int type)
                 return false;
             }
 
-            content_scanner_timeout = findoptionI("contentscannertimeout");
-            if (!realitycheck(content_scanner_timeout, 1, 0, "contentscannertimeout")) {
+            content_scanner_timeout_sec = findoptionI("contentscannertimeout");
+            if (!realitycheck(content_scanner_timeout_sec, 1, 0, "contentscannertimeout")) {
                 return false;
             }
 
-            if (content_scanner_timeout > 0)
-                content_scanner_timeout = content_scanner_timeout * 1000;
-            else
+            if (content_scanner_timeout_sec > 0)
+                content_scanner_timeout = content_scanner_timeout_sec * 1000;
+            else {
                 content_scanner_timeout = pcon_timeout;
+                content_scanner_timeout_sec = pcon_timeout_sec;
+            }
 
             if (findoptionS("scancleancache") == "off") {
                 scan_clean_cache = false;

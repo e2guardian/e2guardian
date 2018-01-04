@@ -56,7 +56,7 @@ class DataBuffer
     void setTimeout(int t)
     {
         timeout = t;
-        stimeout = t * 1000;
+        stimeout = t / 1000;
     };
     void setDecompress(String d)
     {
@@ -88,8 +88,8 @@ class DataBuffer
     friend class trickledm;
 #endif
 
-    int timeout;
-    int stimeout;
+    int timeout;  // in msecs
+    int stimeout;   // in secs
     off_t bytesalreadysent;
     bool preservetemp;
 

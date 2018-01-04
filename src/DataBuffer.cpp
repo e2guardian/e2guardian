@@ -37,13 +37,13 @@ extern thread_local std::string thread_id;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false), stimeout(20000), icap(false)
+    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
 {
     data[0] = '\0';
 }
 
 DataBuffer::DataBuffer(const void *indata, off_t length)
-    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
+    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
 {
     memcpy(data, indata, length);
 }
@@ -114,9 +114,6 @@ void DataBuffer::swapbacktocompressed()
 // the buffer gets filled thus reducing memcpy()ing and new()ing
 int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout)
 {
-  //  if (chunked) {
- //       return sock->readChunk(buffer, size, sockettimeout);
- //   } else {
         int pos = 0;
         int rc;
         while (pos < size) {
@@ -131,14 +128,13 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
             pos += rc;
         }
         return size; // full buffer
-   // }
 }
 
 // a much more efficient reader that does not assume the contents of
 // the buffer gets filled thus reducing memcpy()ing and new()ing.
 // in addition to the actual socket timeout, used for each individual read, this version
 // incorporates a "global" timeout within which all reads must complete.
-int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout, int timeout)
+int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout, int stimeout)
 {
 
     int pos = 0;
@@ -161,7 +157,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         }
         pos += rc;
         gettimeofday(&nowadays, NULL);
-        if (nowadays.tv_sec - starttime.tv_sec > timeout) {
+        if (nowadays.tv_sec - starttime.tv_sec > stimeout) {
 #ifdef DGDEBUG
             std::cerr << thread_id << "buffered socket read more than timeout" << std::endl;
 #endif
@@ -254,7 +250,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         return true;
     }
-    if (!(*sock).breadyForOutput(stimeout)) return false; // exceptions on timeout or error
+    if (!(*sock).breadyForOutput(timeout)) return false; // exceptions on timeout or error
 
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks
@@ -293,10 +289,10 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
             // as it's cached to disk the buffer must be reasonably big
             if(chunked) {
-                if (!sock->writeChunk(data, rc, stimeout))
+                if (!sock->writeChunk(data, rc, timeout))
                     return false;
             } else {
-                if (!sock->writeToSocket(data, rc, 0, stimeout)) {
+                if (!sock->writeToSocket(data, rc, 0, timeout)) {
                     return false;
                 }
             }
@@ -331,11 +327,11 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
                 if( block_len > (buffer_length - sent))
                     block_len = (buffer_length - sent);
                 if (chunked) {
-                    if (!sock->writeChunk(data + sent, block_len, stimeout))
+                    if (!sock->writeChunk(data + sent, block_len, timeout))
                         return false;
 
                 } else {
-                    if (!sock->writeToSocket(data + sent, buffer_length - sent, 0, stimeout))
+                    if (!sock->writeToSocket(data + sent, buffer_length - sent, 0, timeout))
                         return false;
                 }
                 sent += block_len;
@@ -347,10 +343,10 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
         } else {
             if(chunked) {
-                if (!sock->writeChunk(data + bytesalreadysent, 0, stimeout))
+                if (!sock->writeChunk(data + bytesalreadysent, 0, timeout))
                     return false;
             } else {
-                if (!sock->writeToSocket("\r\n\r\n", 4, 0, stimeout))
+                if (!sock->writeToSocket("\r\n\r\n", 4, 0, timeout))
                     return false;
             }
         }
