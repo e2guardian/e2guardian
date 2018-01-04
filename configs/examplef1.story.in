@@ -33,3 +33,8 @@
 #if(true,,506) return setblock  # = **s total blanket
 #if(siteisip,,507) return setblock  # = **ips ip blanket
 
+# To limit MITM to sslgreylist
+# replaces onlymitmsslgrey e2guardianf1.conf option
+# uncomment the next 2 lines
+#function(sslcheckmitm)
+#if(true) return sslcheckmitmgreyonly
