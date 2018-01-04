@@ -634,6 +634,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // reset now.
                 docheader.reset();
                 docbody.reset();
+                peerconn.resetChunk();
+                proxysock.resetChunk();
 
             }
 //
@@ -3296,6 +3298,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 // reset now.
                 docbody.reset();
                 docbody.setICAP(true);
+                peerconn.resetChunk();
 
             }
 

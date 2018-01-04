@@ -174,6 +174,7 @@ void Socket::reset() {
     outfds[0].fd = sck;
 
     chunkError = false;
+    chunk_to_read = 0;
 
 #ifdef __SSLMITM
     if (isssl) {
@@ -1085,6 +1086,11 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
 
 #endif //__SSLMITM
 
+void Socket::resetChunk() {
+    chunk_to_read = 0;
+    chunked_trailer = "";
+    ieof = false;
+}
 
 bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::stringstream stm;
@@ -1102,7 +1108,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
 
 bool Socket::writeChunkTrailer( String &trailer) {
     std::string hexs ("0\r\n");
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
     std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
 #endif
     if(writeString(hexs.c_str()) && writeToSocket(trailer.c_str(),trailer.length(),0,timeout) && writeString("\r\n"))
@@ -1111,39 +1117,46 @@ bool Socket::writeChunkTrailer( String &trailer) {
 };
 
 int Socket::readChunk( char *buffin, int maxlen, int timeout){
-    char size[40];
-    ieof = false;
-    int len = getLine(size,38, timeout);
-    if (len < 2)  {   // min valid length is 2 i.e.  "0\r"
-        chunkError = true;
-        return -1;
-    }
-#ifdef NETDEBUG
-    std::cerr << thread_id << "readChunk  size=" << size << std::endl;
-#endif
-    String l = size;
-    l.chop();
-    String t = l.before(";");
-    if (t.length() > 0) {
-        if (l.endsWith("; ieof")) {
-            ieof = true;
+    if (chunk_to_read == 0)     // need to read chunk size
+    {
+        char size[40];
+        ieof = false;
+        int len = getLine(size, 38, timeout);
+        if (len < 2) {   // min valid length is 2 i.e.  "0\r"
+            chunkError = true;
+            return -1;
         }
-        l = t;
-    }
-    int clen = l.hexToInteger();
-#ifdef NETDEBUG
-    std::cerr << thread_id << "readChunk  clen=" << clen << std::endl;
+#ifdef CHUNKDEBUG
+        std::cerr << thread_id << "readChunk  size=" << size << std::endl;
 #endif
-    if (clen > maxlen) {
-        chunkError = true;
-        return -1;
+        String l = size;
+        l.chop();
+        String t = l.before(";");
+        if (t.length() > 0) {
+            if (l.endsWith("; ieof")) {
+                ieof = true;
+            }
+            l = t;
+        }
+        chunk_to_read = l.hexToInteger();
+#ifdef CHUNKDEBUG
+        std::cerr << thread_id << "readChunk  chunk_to_read =" << chunk_to_read << std::endl;
+#endif
     }
-    int read_d = 0;
-   int rc = 0;
+
+    int clen = chunk_to_read;
+    if (clen > maxlen) {
+        clen = maxlen;
+    }
+    int rc = 0;
+#ifdef CHUNKDEBUG
+    std::cerr << thread_id << "readChunk  max_read =" << clen << std::endl;
+#endif
 
     if(clen == 0) {
         chunked_trailer = "";
         char trailer[32000];
+        int len = 3;
         while( len > 2) {
             len = getLine(trailer, 31900, timeout);
             if (len > 2) {
@@ -1154,27 +1167,26 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         return 0;
     }
 
-    while (clen > 0) {
-        rc = readFromSocketn(buffin + read_d, clen, 0, timeout);
-#ifdef NETDEBUG
+    if (clen > 0) {
+        rc = readFromSocketn(buffin, clen, 0, timeout);
+#ifdef CHUNKDEBUG
         std::cerr << thread_id << "readChunk  read " << rc << std::endl;
 #endif
         if (rc < 0) {
             chunkError = true;
             return -1;
         }
-        read_d += rc;
-        clen -= rc;
+        chunk_to_read -= rc;
     }
-    len = readFromSocketn(size, 2, 0, timeout);
-    if (size[0] == '\r' && size[1] == '\n') {
-#ifdef NETDEBUG
-        std::cerr << thread_id << "readChunk  totread " << read_d << std::endl;
-#endif
-        return read_d;
+    if (chunk_to_read > 0)    // there is more to read in this chunk - so do not check for trailing \r\n
+        return rc;
+    char ts[2];
+    int len = readFromSocketn(ts, 2, 0, timeout);
+    if (len == 2 && ts[0] == '\r' && ts[1] == '\n') {
+        return rc;
     } else {
         chunkError = true;
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
         std::cerr << thread_id << "readChunk - tail in error" << std::endl;
 #endif
         return -1;
@@ -1189,7 +1201,7 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
         if (!(csize > -1 && writeChunk(buff,csize,timeout))) {
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
             std::cerr << thread_id << "loopChunk - error" << std::endl;
 #endif
             return -1;
@@ -1197,7 +1209,7 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
         tot_size += csize;
     }
     writeChunkTrailer(chunked_trailer);
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
     std::cerr << thread_id << "loopChunk  tot_size=" << tot_size << std::endl;
 #endif
     return tot_size;
@@ -1212,14 +1224,14 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
         if (!(csize > -1 )) {
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
             std::cerr << thread_id << "drainChunk - error" << std::endl;
 #endif
             return -1;
         }
         tot_size += csize;
     }
-#ifdef NETDEBUG
+#ifdef CHUNKDEBUG
     std::cerr << thread_id << "drainChunk  tot_size=" << tot_size << std::endl;
 #endif
     return tot_size;
