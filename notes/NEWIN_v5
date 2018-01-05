@@ -103,6 +103,21 @@ ANTI-VIRUS PLUGINS
     Anti-virus plugins implimented for proxy, trans and ICAP - but individual
     plug-ins not tested
 
+INCLUDE FILES IN e2guardianf1.conf
+
+    Filtergroup configuration files may now include other files, enabling 
+    a more DRY approach to configuration. So configuration common to several
+    filtergroups can be placed in a file which is included in the filtergroup 
+    config file.  Note that where single options and list defines with the same
+    Syntax is same as list includes  -
+    .include<full_path_to_file>
+
+    Where single options and list defines with the same name are 
+    repeated only the last one read will be actioned.  This differs 
+    from previous versions where the first single option was actioned and any 
+    repeats ignored.  This allows the overwriting of single options and 
+    re-definion of lists in a structured way.
+
 TESTING -  
 ---------
 

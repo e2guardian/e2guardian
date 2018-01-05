@@ -756,7 +756,9 @@ std::string FOptionContainer::findoptionS(const char *option)
     String temp;
     String temp2;
     String o(option);
-    for (int i = 0; i < (signed)conffile.size(); i++) {
+//    for (int i = 0; i < (signed)conffile.size(); i++)
+    for (int i = (signed)conffile.size() - 1; i > -1; i--)   // reverse search so that later entries will overwrite any earlier ones.
+    {
         temp = conffile[i].c_str();
         temp2 = temp.before("=");
         while (temp2.endsWith(" ")) { // get rid of tailing spaces before =
