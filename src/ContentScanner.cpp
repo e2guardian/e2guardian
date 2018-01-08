@@ -145,9 +145,10 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
         syslog(LOG_ERR, "%s", "Error creating/writing temp file for scanMemory.");
         return DGCS_SCANERROR;
     }
+    syslog(LOG_ERR, "FRED running scan file contentscanner: %s", tempfilepath.toCharArray());
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
 #ifndef DGDEBUG
-    syslog(LOG_ERR, "clamdudsfile remove file %s", tempfilepath.toCharArray());
+    syslog(LOG_ERR, "FRED contenscanner clamdudsfile remove file %s", tempfilepath.toCharArray());
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
     return rc;

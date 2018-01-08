@@ -4440,6 +4440,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Running scanFile" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+		    syslog(LOG_ERR, "FRED running scan file contenHandler : %s", docbody->tempfilepath.toCharArray());
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
                         unlink(docbody->tempfilepath.toCharArray());

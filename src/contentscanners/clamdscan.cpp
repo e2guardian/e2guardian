@@ -97,6 +97,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     FOptionContainer* &foc , const char *ip, const char *filename, NaughtyFilter *checkme,
     const String *disposition, const String *mimetype)
 {
+    syslog(LOG_ERR, "FRED scan first step %s %s %s", lastmessage.toCharArray(),filename,user);
     lastmessage = lastvirusname = "";
     // mkstemp seems to only set owner permissions, so our AV daemon won't be
     // able to read the file, unless it's running as the same user as us. that's
@@ -143,12 +144,13 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #ifdef DGDEBUG
         std::cerr << lastmessage.toCharArray() <<std::endl;
 #endif
-            stripedsocks.close();
+        stripedsocks.close();
         return DGCS_SCANERROR;
     }
     char *buff = new char[4096];
     int rc;
     rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
+    syslog(LOG_ERR, "FRED %s %s %s", lastmessage.toCharArray(),filename,user);
     if (rc < 1) {
         delete[] buff;
         lastmessage = "Exception whist reading ClamD socket: ";
@@ -164,9 +166,11 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
+    syslog(LOG_ERR, "FRED1 no socket error %s %s %s", lastmessage.toCharArray(),filename,user);
     String reply(buff);
     delete[] buff;
     reply.removeWhiteSpace();
+    syslog(LOG_ERR, "FRED2 right before scan %s %s %s", lastmessage.toCharArray(),filename,user);
 #ifdef DGDEBUG
     std::cout << "Got from clamdscan: " << reply << std::endl;
 #endif
@@ -201,6 +205,6 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     std::cerr << "clamdscan - he say yes (clean)" << std::endl;
 #endif
     lastmessage = reply;
-    syslog(LOG_ERR, "ClamD result: %s Filename: %s ", reply.toCharArray(),filename);
+    syslog(LOG_ERR, "FRED3 ClamD result: %s Filename: %s ", reply.toCharArray(),filename);
     return DGCS_CLEAN;
 }
