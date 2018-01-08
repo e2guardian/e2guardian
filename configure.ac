@@ -129,6 +129,34 @@ fi], [
   AC_MSG_RESULT(no)
 ])
 
+AC_MSG_CHECKING(for netdebug option)
+AC_ARG_WITH(netdebug,
+[AC_HELP_STRING([--with-netdebug@<:@=off@:>@], [switch on netdebug build mode])],
+[if test "x${withval}" = "xoff" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  netdebug=${withval}
+  AC_DEFINE(NETDEBUG, 1, [Define to enable debug build mode for socket functions])
+fi], [
+  # disable by default
+  AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(for REdebug option)
+AC_ARG_WITH(redebug,
+[AC_HELP_STRING([--with-redebug@<:@=off@:>@], [switch on redebug build mode])],
+[if test "x${withval}" = "xoff" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  redebug=${withval}
+  AC_DEFINE(REDEBUG, 1, [Define to enable debug build mode for regexp functions])
+fi], [
+  # disable by default
+  AC_MSG_RESULT(no)
+])
+
 
 AC_MSG_CHECKING(for proxy user)
 AC_ARG_WITH(proxyuser,
@@ -257,35 +285,6 @@ else
 	fi
 fi
 ]
-
-# ask user if they want a backtrace logged after segfault
-AC_MSG_CHECKING(for backtrace on segfault support)
-AC_ARG_ENABLE(
-segv_backtrace,
-[AC_HELP_STRING([--enable-segv-backtrace@<:@=no@:>@], [Enable logging a backtrace when a segmentation fault occurs])],
-[ if test "x$enableval" = "xno"; then
-AC_MSG_RESULT(no)
-else
-# check for native header & func (no library)
-AC_CHECK_FUNCS(backtrace, [AC_MSG_RESULT(native)], [
-AC_MSG_RESULT(no)
-# native not found, so look for linked
-LIBS="-lexecinfo ${LIBS}"
-AC_CHECK_LIB(execinfo, backtrace, [
-AC_MSG_RESULT(linked)
-], [
-AC_MSG_RESULT(no)
-AC_MSG_ERROR([no native or standard library backtrace function found! (needed by "--enable-segv-backtrace")])
-])
-])
-AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
-# add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
-fi
-],
-[ # disable by default
-AC_MSG_RESULT(no)
-])
 
 # ask user if they want large file support on 32 bit systems
 AC_MSG_CHECKING([for large file support])
