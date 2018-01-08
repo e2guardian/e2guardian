@@ -1,11 +1,13 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 4.1.4
 November
 - Fix bug #288 307 Answer is not CRLF just LF
 - Fix bug #302 Client address is missing with squid format logs
 - Fix random crashes with: Header without size
 - Fix bug #300 restrict log permissions with systemd 
 
+Version 4.1.3
 September
 - Fix segfault with SSLMITM
 - Fix many bugs with BYPASS
@@ -17,7 +19,6 @@ August 2017
 - Fix issue with sslaccessdeniedaddress and reporting level < 3
 
 July 2017
-
 - Fix bug #262 unable to compile with Kavdscan and avastdscan
 - Security update, user with GBYPASS must pass through deny page (reportinglevel !3) 
 - Force log for BYPASS requests
@@ -37,7 +38,6 @@ Many improvements and changes are done at this version
 - Fix segfault when not able to open cert file
 
 May 2017
-
 - Fix segfault "Illegal instruction" on FreeBSD 
 - Fix bug #224 part1 segfault with commandlinescan
 - Fix bug #221 (dnsauth) error:cast from pointer
