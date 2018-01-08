@@ -114,7 +114,7 @@ class SBFunction
 			"connect",
 			 "post",
 			 "get",
-			 "siteip",
+			 "siteisip",
 			 "tls",
 			"exceptionset",
 			"greyset",
