@@ -23,6 +23,7 @@
 // GLOBALS
 
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 
 
@@ -918,6 +919,54 @@ bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *list
 
 bool OptionContainer::readinStdin()
 {
+    if (!std::cin.good()) {
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error reading stdin: " << std::endl;
+        }
+        syslog(LOG_ERR, "Error reading stdin");
+        return false;
+    }
+    std::string linebuffer;
+    String temp ;
+    while (!std::cin.eof()) {
+        getline(std::cin, linebuffer);
+        if (linebuffer.length() < 2)
+            continue; // its jibberish
+
+        temp = linebuffer.c_str();
+        bool site_list = false;
+        bool url_list = false;
+        if (linebuffer[0] == '#') {
+            if (temp.startsWith("#SITELIST="))
+                site_list = true;
+            else if (temp.startsWith("#URLLIST="))
+                url_list = true;
+            else
+                continue;
+            String param = temp.after("=");
+            String nm, fpath;
+            String t = param;
+            t.removeWhiteSpace();
+            t = t + ",";
+            while (t.length() > 0) {
+                if (t.startsWith("name=")) {
+                    nm = t.after("=").before(",");
+                } else if (t.startsWith("path=")) {
+                    fpath = t.after("=").before(",");
+                }
+                t = t.after(",");
+            }
+            if (!fpath.startsWith("memory:")) {
+                // syntax error
+                return false;
+            }
+            if (nm.length() == 0) {
+                // syntax error
+                return false;
+            }
+
+        }
+    }
     String sitelist = "totalblocksitelist";
     String sitess = "#SITELIST";
     if (!readStdin(&total_block_site_list, false, sitelist.c_str(), sitess.c_str())) {

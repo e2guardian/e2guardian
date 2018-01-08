@@ -1704,6 +1704,9 @@ time_t getFileDate(const char *filename)
 
 bool ListContainer::upToDate()
 {
+    if (sourcefile.startsWith("memory:"))
+        return true;
+
     if (getFileDate(sourcefile.toCharArray()) > filedate) {
         return false;
     }
