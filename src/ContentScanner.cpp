@@ -82,7 +82,7 @@ int CSPlugin::makeTempFile(String *filename)
 {
     int tempfilefd;
     String tempfilepath(o.download_dir.c_str());
-    tempfilepath += "/tfXXXXXX";
+    tempfilepath += "/avXXXXXX";
     char *tempfilepatharray = new char[tempfilepath.length() + 1];
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
     //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
@@ -145,10 +145,10 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
         syslog(LOG_ERR, "%s", "Error creating/writing temp file for scanMemory.");
         return DGCS_SCANERROR;
     }
-    syslog(LOG_ERR, "FRED running scan file contentscanner: %s", tempfilepath.toCharArray());
+    syslog(LOG_ERR, "FRED_ %s %s running scan file contentscanner in memory mode: %s", user, ip, tempfilepath.toCharArray());
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
 #ifndef DGDEBUG
-    syslog(LOG_ERR, "FRED contenscanner clamdudsfile remove file %s", tempfilepath.toCharArray());
+    syslog(LOG_ERR, "FRED_ %s %s contenscanner clamdudsfile remove file in memory mode: %s", user, ip, tempfilepath.toCharArray());
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
     return rc;

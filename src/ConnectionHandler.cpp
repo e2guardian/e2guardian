@@ -4440,14 +4440,16 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Running scanFile" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-		    syslog(LOG_ERR, "FRED running scan file contenHandler : %s", docbody->tempfilepath.toCharArray());
+		    syslog(LOG_ERR, "FRED_0 %s %s running scan file contenHandler : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
-                        unlink(docbody->tempfilepath.toCharArray());
+		    	syslog(LOG_ERR, "FRED_1 %s %s remove file contenHandler : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
                         syslog(LOG_ERR, "Delete infected (or unscanned due to error) file straight away: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
+                        unlink(docbody->tempfilepath.toCharArray());
                         // delete infected (or unscanned due to error) file straight away
                     }
                 } else {
+		   syslog(LOG_ERR, "FRED_2 %s %s scan memory nofile contenHandler size body: %d",clientuser->c_str(), clientip->c_str(), docbody->buffer_length);
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Running scanMemory" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -4456,6 +4458,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+	  	syslog(LOG_ERR, "FRED_3 %s %s result scan memory contenhandler : %s result: %d",clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray(), csrc);
                 if (csrc == DGCS_WARNING) {
                     syslog(LOG_ERR, "1 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
@@ -4511,6 +4514,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 k++;
 #endif
             }
+	    syslog(LOG_ERR, "FRED_4 %s %s finished running AV result contenhandler : %s result: %d", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray(), csrc);
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
