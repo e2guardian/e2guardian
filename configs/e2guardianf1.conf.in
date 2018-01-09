@@ -31,7 +31,7 @@ exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 
 #banned lists
 sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
-ipsitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplist'
+ipsitelist = 'name=banned,messageno=510,path=@DGCONFDIR@/lists/bannedsiteiplist'
 urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
 regexpboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
 regexpboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'

@@ -69,6 +69,7 @@
 "507","Aktyvus Blanket SSL IP Block ir šis adresas yra tik IP adresas."
 "508","Uždrausta reguliarioji išraiška (regexp) HTTP antraštėje: ",
 "509","Rasta draudžiama reguliarioji išraiška (regexp) HTTP antraštėje."
+"510","Blocked IP site "    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
 "522","Blocked User-Agent: "    # needs translation

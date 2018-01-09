@@ -77,7 +77,7 @@ class ListContainer
     bool inListEndsWith(const char *string, String &lastcategory);
     bool inListStartsWith(const char *string, String &lastcategory);
 
-    char *findInList(const char *string, String &lastcategory);
+    const char *findInList(const char *string, String &lastcategory);
 
     char *findEndsWith(const char *string, String &lastcategory);
     char *findStartsWith(const char *string, String &lastcategory);

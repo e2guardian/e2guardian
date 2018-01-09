@@ -235,7 +235,7 @@ class OptionContainer
     // public so fc_controlit can reload filter group config files
 //    bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
-    char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
+    const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
     bool readStdin(ListContainer *lc, bool swsort, const char *listname, const char *startstr);

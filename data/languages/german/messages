@@ -69,6 +69,7 @@
 "507","HTTPS-Verbindungen zu IP-Adressen sind nicht erlaubt."
 "508","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet: "
 "509","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet."
+"510","Blocked IP site "    # needs translation
 "520","Geblockte HTTPS-Seite: "
 "521","Geblockte Ausdrücke: "
 "522","Blocked User-Agent: "    # needs translation

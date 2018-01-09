@@ -83,6 +83,7 @@
 "507","HTTPS access by IP address is not allowed."
 "508","Access not allowed using this browser (or app): "
 "509","Access not allowed using this browser (or app)."
+"510","Blocked IP site "
 "520","Blocked HTTPS site: "
 "521","Banned Search Words: "
 "522","Blocked User-Agent: "
@@ -135,3 +136,4 @@
 "1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "
 
 "1230","File no longer available"
+"9999","Dummy so master always has higher number"

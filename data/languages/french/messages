@@ -72,6 +72,7 @@
 "507","Le mode liste blanche SSL d`IPs (SSL IP Blanket Block) est actif et cette addresse est une adresse IP uniquement."
 "508","Expression régulière d`entète HTTP interdite : ",
 "509","Expression régulière d`entète HTTP interdite trouvée."
+"510","Blocked IP site "    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
 "522","Blocked User-Agent: "    # needs translation

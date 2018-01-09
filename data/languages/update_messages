@@ -31,10 +31,16 @@ nmi=${i}
 for t in ${targets}
 do
   (
-    cm=0
+    cm=1
     cmi=${mi[${cm}]}
+    if [ -n "${cmi}" ]
+    then
     for l in `cat ${t}|tr " " "^"`
     do
+	if [ -z "${cmi}" ]
+	then
+	    cmi=9999
+        fi
       	if [ "${l:0:1}" != '"' ]
         then
             echo ${l}|tr "^" " "
@@ -52,6 +58,7 @@ do
     		cmi=${mi[${cm}]}
 	fi
      done
+     fi
      while [ ${cm} -lt ${nmi} ]
      do
 	echo "\"${cmi}\",${ma[${mi[${cm}]}]}"

@@ -354,6 +354,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         std::cerr << thread_id << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
 #endif
     }
+    return true;
 }
 
 // zlib decompression

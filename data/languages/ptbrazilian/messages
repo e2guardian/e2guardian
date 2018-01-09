@@ -71,6 +71,7 @@
 "507","Bloco de IP SSL Restrito está ativado e este endereço é apenas um endereço IP."
 "508","Expressão Regular de Cabeçalho HTTP proibida: ",
 "509","Expressão Regular de Cabeçalho HTTP proibida encontrada."
+"510","Blocked IP site "    # needs translation
 "520","Sítio HTTPS Proibido: "
 "521","Palavras de Busca Proibidas: "
 "522","Blocked User-Agent: "    # needs translation

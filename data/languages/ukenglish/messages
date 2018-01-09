@@ -31,7 +31,7 @@
 "157","Unable to create tunnel through local proxy"
 "158","Opening tunnel failed"
 "159","Could not connect to proxy server"
-"160","Failed to nogotiate ssl connection to server"    # needs translation
+"160","Failed to nogotiate ssl connection to server"
 "200","The requested URL is malformed."
 "201","Unable to get response from upstream proxy (timeout)" 
 "202","Unable to connect to upstream proxy (network error)"
@@ -67,9 +67,10 @@
 "507","HTTPS access by IP address is not allowed."
 "508","Access not allowed using this browser (or app): "
 "509","Access not allowed using this browser (or app)."
+"510","Blocked IP site "
 "520","Blocked HTTPS site: "
 "521","Banned Search Words: "
-"522","Blocked User-Agent: "    # needs translation
+"522","Blocked User-Agent: "
 "560","Blocked site (local): "
 "561","Blocked URL (local): "
 "580","Blocked HTTPS site (local): "
@@ -84,7 +85,7 @@
 "607","Bypass cookie."
 "608","Scan bypass URL."
 "609","URL pattern match: "
-"610","User-Agent pattern match: "    # needs translation
+"610","User-Agent pattern match: "
 "620","Referer match: "
 "630","URL match in "
 "631"," location allow list"
