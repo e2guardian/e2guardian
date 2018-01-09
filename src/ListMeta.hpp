@@ -91,8 +91,8 @@ class ListMeta
 private:
 
     char *inURLList(String &url, unsigned int list,  String &lastcategory);
-    char *inSiteList(String &url, unsigned int list,  String &lastcategory);
-    char *inSearchList(String &words, unsigned int list,String &lastcategory);
+    const char *inSiteList(String &url, unsigned int list,  String &lastcategory);
+    const char *inSearchList(String &words, unsigned int list,String &lastcategory);
     int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
     bool headerRegExpReplace(ListMeta::list_info &listi, std::deque<String> &header, list_result &res );

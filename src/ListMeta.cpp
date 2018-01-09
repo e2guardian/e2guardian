@@ -257,7 +257,8 @@ bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &
 bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
     if (info.name == "") return false;
     int type = info.type;
-    char *match;
+    const char *match;
+   // String match;
     switch (type) {
         case LIST_TYPE_IP:
             match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
@@ -396,9 +397,9 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 }
 
 
-char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory) {
+const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory) {
     String url = urlp;
-    char *i;
+    const char *i;
     while (url.contains(".")) {
         i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
@@ -416,8 +417,8 @@ char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory
     return NULL; // and our survey said "UUHH UURRGHH"
 }
 
-char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory) {
-    char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
+const char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory) {
+    const char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
     if (i != NULL) {
         return i; // exact match
     }

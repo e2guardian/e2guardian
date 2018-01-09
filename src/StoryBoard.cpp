@@ -36,6 +36,8 @@ extern thread_local std::string thread_id;
 
 // DEFINES
 
+//#define SBDEBUG
+
 // Constructor - set default values
 StoryBoard::StoryBoard() {
     fnt_cnt = 0;

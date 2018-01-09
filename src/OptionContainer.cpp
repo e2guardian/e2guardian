@@ -931,7 +931,7 @@ bool OptionContainer::readinStdin()
     return true;
 }
 
-char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
+const char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
 {
     String lastcategory;
     url.removeWhiteSpace(); // just in case of weird browser crap
@@ -940,7 +940,7 @@ char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool 
     if (url.contains("/")) {
         url = url.before("/"); // chop off any path after the domain
     }
-    char *i;
+    const char *i;
     //bool isipurl = isIPHostname(url);
     while (url.contains(".")) {
         i = lc->findInList(url.toCharArray(), lastcategory);

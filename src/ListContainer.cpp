@@ -347,7 +347,6 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
 #ifdef HAVE_PCRE
         matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-    matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     matchCIDR.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$");
     matchRange.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}-\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 #else
@@ -460,8 +459,12 @@ bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkend
         if (filters != 32) {
             temp.toLower(); // tidy up - but don't make regex lists lowercase!
         }
-        if (temp.length() > 0)
-            addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
+        if (temp.length() > 0) {
+            if (is_iplist)
+                addToIPList(temp);
+            else
+                addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
+        }
     }
     return true; // sucessful read
 }
@@ -697,13 +700,14 @@ bool ListContainer::inListStartsWith(const char *string, String &lastcategory)
 }
 
 // find pointer to the part of the data array containing this string
-char *ListContainer::findInList(const char *string, String &lastcategory)
+const char *ListContainer::findInList(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (is_iplist) {
-            if(inIPList(string) ) {
+            if(inIPList(string) != NULL)
+            {
                 lastcategory = category;
-                return (data );      //TODO - should also return string rep of ip range
+                return "";    //TODO return IP/IPblock/IPrange matched
             }
         } else if (items > 0) {
             int r;
@@ -717,7 +721,7 @@ char *ListContainer::findInList(const char *string, String &lastcategory)
                 return (data + list[r]);
             }
         }
-        char *rc;
+        const char *rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
             rc = (*o.lm.l[morelists[i]]).findInList(string, lastcategory);
             if (rc != NULL) {
@@ -1539,6 +1543,12 @@ void ListContainer::addToIPList(String& line)
             r.endaddr = ntohl(addressend.s_addr);
             iprangelist.push_back(r);
         }
+#ifdef DGDEBUG
+        else
+        {
+        std::cerr << thread_id << "Not adding to any IP list" << line << std::endl;
+        }
+#endif
     }
 }
 
@@ -1879,8 +1889,8 @@ String ListContainer::getListCategoryAtD(int index)
 }
 
 
-// search for IP in list of individual IPs, ranges, subnets 
-const char *ListContainer::inIPList(const std::string &ipstr )
+// search for IP in list of individual IPs, ranges, subnets
+const char* ListContainer::inIPList(const std::string &ipstr )
 {
     struct in_addr addr;
     inet_aton(ipstr.c_str(), &addr);
@@ -1888,7 +1898,7 @@ const char *ListContainer::inIPList(const std::string &ipstr )
     // start with individual IPs
     if (std::binary_search(iplist.begin(), iplist.end(), ip)) {
         // only return a hostname if that's what we matched against
-        return ipstr.c_str();
+        return "";
     }
 
     // ranges
@@ -1896,8 +1906,9 @@ const char *ListContainer::inIPList(const std::string &ipstr )
         if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
             String ret = hIPtoChar(i->startaddr);
             ret += "-";
-            ret += hIPtoChar(i->startaddr);
-            return ret.toCharArray();
+            ret += hIPtoChar(i->endaddr);
+//            return ret;
+            return "";
         }
     }
 
@@ -1907,9 +1918,11 @@ const char *ListContainer::inIPList(const std::string &ipstr )
             String ret = hIPtoChar(i->maskedaddr);
             ret += "/";
             ret += hIPtoChar(i->mask);
-            return ret.toCharArray();
+            //return ret;
+            return "";
         }
     }
+    std::cerr << thread_id << "inIPList no match for " << ipstr << std::endl;
 
     return NULL;
 }
