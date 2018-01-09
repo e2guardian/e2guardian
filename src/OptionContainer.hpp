@@ -111,8 +111,6 @@ class OptionContainer
     bool use_group_names_list;
     bool auth_needs_proxy_query;
     bool auth_requires_user_and_group;
-    bool total_block_site_flag;
-    bool total_block_url_flag;
     bool enable_ssl;
 
     bool prefer_cached_lists;
@@ -238,9 +236,9 @@ class OptionContainer
     const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
-    bool readStdin(ListContainer *lc, bool swsort, const char *listname, const char *startstr);
+    //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
-    bool inTotalBlockList(String &url);
+  //  bool inTotalBlockList(String &url);
     bool use_total_block_list;
     std::string per_room_directory_location;
     bool createLists(int load_id);

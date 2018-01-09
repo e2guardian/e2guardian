@@ -495,6 +495,8 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 {
     ++refcount;
     sourcefile = filename;
+    if (sourcefile.startsWithLower("memory:"))
+        return readStdinItemList(startswith, filters);
     sourcestartswith = startswith;
     sourcefilters = filters;
     std::string linebuffer;
@@ -539,14 +541,13 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 }
 
 // for stdin item lists - read item list from stdin
-bool ListContainer::readStdinItemList(bool startswith, int filters, const char *startstr)
+bool ListContainer::readStdinItemList(bool startswith, int filters)
 {
 #ifdef DGDEBUG
     if (filters != 32)
         std::cerr << thread_id << "Converting to lowercase" << std::endl;
 #endif
     int mem_used = 2; // keep 2 bytes spare??
-    bool skip = true;
     sourcestartswith = startswith;
     sourcefilters = filters;
     std::string linebuffer;
@@ -571,19 +572,12 @@ bool ListContainer::readStdinItemList(bool startswith, int filters, const char *
         temp = linebuffer.c_str();
 
         if (linebuffer[0] == '#') {
-            if (skip && temp.startsWith(startstr)) {
-                skip = false;
-                continue;
-            }
             if (temp.startsWith("#ENDLIST")) {
                 break; // end of list
             } else {
                 continue; // it's a comment
             }
         }
-
-        if (skip)
-            continue;
 
         // Strip off comments that don't necessarily start at the beginning of a line
         std::string::size_type commentstart = 1;

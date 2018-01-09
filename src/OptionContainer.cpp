@@ -27,8 +27,8 @@ extern thread_local std::string thread_id;
 
 
 
-ListContainer total_block_site_list;
-ListContainer total_block_url_list;
+//ListContainer total_block_site_list;
+//ListContainer total_block_url_list;
 
 // IMPLEMENTATION
 
@@ -900,9 +900,10 @@ bool OptionContainer::read(std::string& filename, int type)
 // read from stdin, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw
 // listname is used in error messages.
-bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *listname, const char *startstr)
+#ifdef NOTDEF
+bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *listname )
 {
-    bool result = lc->readStdinItemList(sortsw, 1, startstr);
+    bool result = lc->readStdinItemList(sortsw, 1);
     if (!result) {
         if (!is_daemonised) {
             std::cerr << "Error opening " << listname << std::endl;
@@ -916,6 +917,7 @@ bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *list
         lc->doSort(false);
     return true;
 }
+#endif
 
 bool OptionContainer::readinStdin()
 {
@@ -946,6 +948,7 @@ bool OptionContainer::readinStdin()
             String param = temp.after("=");
             String nm, fpath;
             String t = param;
+            bool startswith;
             t.removeWhiteSpace();
             t = t + ",";
             while (t.length() > 0) {
@@ -964,19 +967,21 @@ bool OptionContainer::readinStdin()
                 // syntax error
                 return false;
             }
+            if(site_list)
+                startswith = false;
+            else
+                startswith = true;
 
+            int rc = lm.newItemList(fpath.c_str(),startswith,0, true);
+            if (rc < 0)
+                return false;
+             lm.l[rc]->doSort(url_list);
+            if(site_list)
+                sitelist_dq.push_back(param);
+            else
+                urllist_dq.push_back(param);
         }
     }
-    String sitelist = "totalblocksitelist";
-    String sitess = "#SITELIST";
-    if (!readStdin(&total_block_site_list, false, sitelist.c_str(), sitess.c_str())) {
-        return false;
-    }
-    total_block_site_flag = true;
-    if (!readStdin(&total_block_url_list, true, "totalblockurllist", "#URLLIST")) {
-        return false;
-    }
-    total_block_url_flag = true;
     return true;
 }
 
@@ -1046,7 +1051,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
             std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
             std::cout << "url: " << url << fl << std::endl;
 #endif
-            //syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
+            ///syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                     return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -1060,6 +1065,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
     return NULL;
 }
 
+#ifdef NOTDEF
 bool OptionContainer::inTotalBlockList(String &url)
 {
     String murl = url;
@@ -1072,6 +1078,8 @@ bool OptionContainer::inTotalBlockList(String &url)
     }
     return false;
 }
+#endif
+
 
 #ifdef NOTDEF
 bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort)

@@ -665,7 +665,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 break;
             }
 
-            // do total block list checking here
+            // do total block list checking here - now done in pre-auth story
+#ifdef NOTDEF
             if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
                 if (checkme.isconnect) {
                     writeback_error(checkme, peerconn, 0, 0, "404 Banned Site");
@@ -676,6 +677,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 proxysock.close(); // close connection to proxy
                 break;
             }
+#endif
 
             // don't let the client connection persist if the client doesn't want it to.
             persistOutgoing = header.isPersistent();
@@ -3416,7 +3418,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         return 0;
     }
 
-    // do total block list checking here
+    // do total block list checking here - now done in pre-auth story
+#ifdef NOTDEF
     if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
         res_hdr = "HTTP/1.1 200 OK\n";
         o.banned_image.display_hb(res_hdr, res_body);
@@ -3426,6 +3429,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
         return 0;
     }
+#endif
 
     //
     //

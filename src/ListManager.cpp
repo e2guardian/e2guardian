@@ -132,7 +132,7 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
 }
 
 // load list from stdin
-int ListManager::newStdinItemList(bool startswith, int filters, bool parent, const char *startstr)
+int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
 {
     // find an empty list slot, create a new listcontainer, and load the list
     int free = findNULL();
@@ -146,7 +146,7 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent, con
         free = l.size() - 1;
     }
     (*l[free]).parent = parent;
-    if (!(*l[free]).readStdinItemList(startswith, filters, startstr)) {
+    if (!(*l[free]).readStdinItemList(startswith, filters)) {
         delete l[free];
         l[free] = NULL;
         return -1;
