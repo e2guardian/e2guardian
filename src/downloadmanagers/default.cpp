@@ -227,7 +227,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             } else {
                 bytesremaining -= rc;
                 /*if (d->data != temp)
-					delete[] temp;*/
+		delete[] temp;*/
                 temp = new char[d->buffer_length + rc + 1]; // replacement store
                 temp[d->buffer_length + rc] = '\0';
                 memcpy(temp, d->data, d->buffer_length); // copy the current data

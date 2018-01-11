@@ -111,6 +111,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         return DGCS_SCANERROR;
     };
     String command("SCAN ");
+    syslog(LOG_ERR, "FRED_scan1 %s %s %s",user,lastmessage.toCharArray(),filename);
     if (pathprefix.length()) {
         String fname(filename);
         command += fname.after(pathprefix.toCharArray());
@@ -121,18 +122,21 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #ifdef DGDEBUG
     std::cerr << "clamdscan command:" << command << std::endl;
 #endif
+    syslog(LOG_ERR, "FRED_scan2 %s %s %s",user,lastmessage.toCharArray(),filename);
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to ClamD";
         syslog(LOG_ERR, "Error creating socket for talking to ClamD");
         return DGCS_SCANERROR;
     }
+    syslog(LOG_ERR, "FRED_scan3 %s %s %s",user,lastmessage.toCharArray(),filename);
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to ClamD socket";
         syslog(LOG_ERR, "Error connecting to ClamD socket");
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
+    syslog(LOG_ERR, "FRED_scan4 %s %s %s",user,lastmessage.toCharArray(),filename);
     if( ! stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
             String t = stripedsocks.getErrno();
@@ -147,6 +151,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
+    syslog(LOG_ERR, "FRED_scan5 %s %s %s",user,lastmessage.toCharArray(),filename);
     char *buff = new char[4096];
     int rc;
     rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
@@ -166,9 +171,10 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
-    syslog(LOG_ERR, "FRED1 no socket error %s %s %s", user,lastmessage.toCharArray(),filename,user);
+    syslog(LOG_ERR, "FRED1 no socket error %s %s %s %s", user,lastmessage.toCharArray(),filename,user,buff);
     String reply(buff);
     delete[] buff;
+    syslog(LOG_ERR, "FRED1.1 no socket error del buffer %s %s %s", user,lastmessage.toCharArray(),filename,user);
     reply.removeWhiteSpace();
     syslog(LOG_ERR, "FRED2 right before scan %s %s %s",user,lastmessage.toCharArray(),filename);
 #ifdef DGDEBUG

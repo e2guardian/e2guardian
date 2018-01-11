@@ -1206,6 +1206,8 @@ stat_rec* &dystat)
                     String rtype(header.requestType());
                     tempfilemime = tempfilemime.before("&D=");
                     tempfilename = o.download_dir + "/tf" + tempfilename.before("&M=");
+	            syslog(LOG_ERR, "FRED_REMOVE %s %s remove scan file contenHandler : %s", clientuser.c_str(), clientip.c_str(),tempfilename.c_str());
+
                     try {
                         docsize = sendFile(&peerconn, tempfilename, tempfilemime, tempfiledis, url);
                         header.chopScanBypass(url);
@@ -2392,6 +2394,7 @@ stat_rec* &dystat)
 
                         // If the request is not blocked or storage has not been requested,
                         // delete all the (possibly) pre-emptively stored data parts
+			syslog(LOG_ERR, "FRED_REMOVE %s %s remove scan file contenHandler : %s", clientuser.c_str(), clientip.c_str(), docbody.tempfilepath.toCharArray());
                         if (!o.blocked_content_store.empty() && (!checkme.isItNaughty || !checkme.store)) {
 #ifdef DGDEBUG
                             std::cout << dbgPeerPort << " -Request was not blocked/marked for storage. Deleting data parts:" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -4440,7 +4443,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
                     std::cout << dbgPeerPort << " -Running scanFile" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-		    syslog(LOG_ERR, "FRED_0 %s %s running scan file contenHandler : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
+		    syslog(LOG_ERR, "FRED_0 %s %s running scan file contenHandler in disk : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
 		    	syslog(LOG_ERR, "FRED_1 %s %s remove file contenHandler : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
@@ -4458,8 +4461,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-	  	syslog(LOG_ERR, "FRED_3 %s %s result scan memory contenhandler : %s result: %d",clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray(), csrc);
-                if (csrc == DGCS_WARNING) {
+		if (!isfile){
+	  		syslog(LOG_ERR, "FRED_3 %s %s result scan memory contenhandler : %s result: %d",clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray(), csrc);
+		}else {
+	  		syslog(LOG_ERR, "FRED_3 %s %s result scan in disk contenhandler : %s result: %d",clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray(), csrc);
+		}
+               	if (csrc == DGCS_WARNING) {
                     syslog(LOG_ERR, "1 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
@@ -4519,6 +4526,11 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             std::cout << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         }
+        else if (!responsescanners.empty()) {
+	    syslog(LOG_ERR, "FRED_5 %s %s -content length large so skipping content scanning (virus) filtering : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
+        }
+
+
 #ifdef DGDEBUG
         else if (!responsescanners.empty()) {
             std::cout << dbgPeerPort << " -content length large so skipping content scanning (virus) filtering" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;

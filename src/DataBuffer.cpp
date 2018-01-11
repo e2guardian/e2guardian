@@ -63,6 +63,7 @@ void DataBuffer::reset()
     if (tempfilefd > -1) {
         close(tempfilefd);
         if (!preservetemp) {
+	    syslog(LOG_ERR, "FRED_DATA_RESET %s",tempfilepath.toCharArray());
             unlink(tempfilepath.toCharArray());
         }
         tempfilefd = -1;
@@ -86,6 +87,7 @@ DataBuffer::~DataBuffer()
     if (tempfilefd > -1) {
         close(tempfilefd);
         if (!preservetemp) {
+	    syslog(LOG_ERR, "FRED_DATA1_memory_block %s",tempfilepath.toCharArray());
             unlink(tempfilepath.toCharArray());
         }
         tempfilefd = -1;
@@ -253,8 +255,10 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         off_t sent = bytesalreadysent;
         int rc;
 
-        if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0)
+        if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0){
+	    syslog(LOG_ERR, "FRED_DATA1 %s", tempfilepath.toCharArray());
             return false;
+	}
 //            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
 
         while (sent < tempfilesize) {
@@ -263,6 +267,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             std::cout << "reading temp file rc:" << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             if (rc < 0) {
+	    	syslog(LOG_ERR, "FRED_DATA2 %s", tempfilepath.toCharArray());
 #ifdef DGDEBUG
                 std::cout << "error reading temp file so throwing exception" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -270,6 +275,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
     //            throw std::exception();
             }
             if (rc == 0) {
+	    	syslog(LOG_ERR, "FRED_DATA3 %s", tempfilepath.toCharArray());
 #ifdef DGDEBUG
                std::cout << "got zero bytes reading temp file" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -277,6 +283,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
             // as it's cached to disk the buffer must be reasonably big
             if (!sock->writeToSocket(data, rc, 0, timeout)) {
+		syslog(LOG_ERR, "FRED_DATA3 %s", tempfilepath.toCharArray());
                 return false;
 //                throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
             }
@@ -288,6 +295,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         close(tempfilefd);
         tempfilefd = -1;
         tempfilesize = 0;
+	syslog(LOG_ERR, "FRED_DATA remove file from disk %s", tempfilepath.toCharArray());
         unlink(tempfilepath.toCharArray());
     } else {
 #ifdef DGDEBUG

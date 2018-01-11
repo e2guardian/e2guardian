@@ -82,7 +82,7 @@ int CSPlugin::makeTempFile(String *filename)
 {
     int tempfilefd;
     String tempfilepath(o.download_dir.c_str());
-    tempfilepath += "/avXXXXXX";
+    tempfilepath += "/csXXXXXX";
     char *tempfilepatharray = new char[tempfilepath.length() + 1];
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
     //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
