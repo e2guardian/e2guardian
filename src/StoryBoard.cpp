@@ -483,6 +483,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
+                            if (res.anon_log)
+                                cm.anon_log = true;
                         }
 #ifdef SBDEBUG
                         std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
@@ -524,6 +526,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         cm.log_message_no = res.log_mess_no;
                         cm.lastmatch = res.match;
                         cm.result = res.result;
+                        if (res.anon_log)
+                            cm.anon_log = true;
                     }
 
 #ifdef SBDEBUG
@@ -566,6 +570,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
+                            if (res.anon_log)
+                                cm.anon_log = true;
                         }
 #ifdef SBDEBUG
                         std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
@@ -613,6 +619,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             cm.isReturn = action_return;
             continue;        // nothing to do so continue to next SB line
         }
+
 
         action_return = true;
 

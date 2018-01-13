@@ -1262,7 +1262,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
+        if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !cm.anon_log) {
 #ifdef DGDEBUG
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
@@ -1271,6 +1271,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
                 clienthost = new std::string(names->front().toCharArray());
             delete names;
         }
+
 
 
         // Build up string describing POST data parts, if any
@@ -1304,6 +1305,12 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
+
+        if(cm.anon_log) {
+            who = "";
+            from = "0.0.0.0";
+            *clienthost = "";
+        }
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Building raw log data string... ";

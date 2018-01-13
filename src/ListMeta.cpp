@@ -95,6 +95,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         std::cerr << thread_id << "reading %s" << t.toCharArray() << std::endl;
 #endif
         String nm, fpath;
+        bool anonlog = o.anonymise_logs;
         unsigned int m_no, log_m_no = 0;
         t.removeWhiteSpace();
         t = t + ",";
@@ -107,6 +108,8 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 log_m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("path=")) {
                 fpath = t.after("=").before(",");
+            } else if (t.startsWith("anonlog=")) {
+                anonlog = true;
             }
             t = t.after(",");
         }
@@ -122,6 +125,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         rec.method_type = method_type;
         rec.name = nm;
         rec.mess_no = m_no;
+        rec.anon_log = anonlog;
         if (log_m_no) {
             rec.log_mess_no = log_m_no;
         } else {
@@ -237,6 +241,7 @@ bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &
                 res.match = info.source[rc];
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
         }
@@ -246,6 +251,7 @@ bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &
             if (headerRegExpReplace(info, header, res)) {
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             return false;
@@ -268,6 +274,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -279,6 +286,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -290,6 +298,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -301,6 +310,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -312,6 +322,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -323,6 +334,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -334,6 +346,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             break;
@@ -346,6 +359,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.match = info.source[rc];
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
         }
@@ -358,6 +372,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 res.result = modified;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
                 return true;
             }
             return false;

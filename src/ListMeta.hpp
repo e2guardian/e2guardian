@@ -55,6 +55,7 @@ class ListMeta
         std::deque<unsigned int> reg_list_ref;
         unsigned int mess_no;
         unsigned int log_mess_no;
+        bool anon_log;
     };
 
     struct list_result {
@@ -63,6 +64,7 @@ class ListMeta
         String result;   // to hold any modified Sting
         int mess_no;
         int log_mess_no;
+        bool anon_log;
     };
 
     std::vector<list_info> list_vec;
