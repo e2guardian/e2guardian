@@ -338,7 +338,7 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
     return true;
 }
 
-bool ListContainer::ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
+bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
@@ -495,12 +495,12 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 {
     ++refcount;
     sourcefile = filename;
-    if (sourcefile.startsWithLower("memory:"))
-        return readStdinItemList(startswith, filters);
     sourcestartswith = startswith;
     sourcefilters = filters;
-    std::string linebuffer;
     if(isip) is_iplist = true;
+    if (sourcefile.startsWithLower("memory:"))
+        return readStdinItemList(startswith, filters);
+    std::string linebuffer;
 #ifdef DGDEBUG
     std::cerr << thread_id << filename << std::endl;
 #endif
@@ -541,20 +541,16 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 }
 
 // for stdin item lists - read item list from stdin
-bool ListContainer::readStdinItemList(bool startswith, int filters)
-{
+bool ListContainer::readStdinItemList(bool startswith, int filters) {
 #ifdef DGDEBUG
     if (filters != 32)
         std::cerr << thread_id << "Converting to lowercase" << std::endl;
 #endif
-    int mem_used = 2; // keep 2 bytes spare??
-    sourcestartswith = startswith;
-    sourcefilters = filters;
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
-    size_t len = 0;
+    size_t len = 2046;
     increaseMemoryBy(2048); // Allocate some memory to hold list
     if (!std::cin.good()) {
         if (!is_daemonised) {
@@ -563,66 +559,17 @@ bool ListContainer::readStdinItemList(bool startswith, int filters)
         syslog(LOG_ERR, "Error reading stdin");
         return false;
     }
-    String temp, inc, hostname, url;
-    while (!std::cin.eof()) {
-        getline(std::cin, linebuffer);
-        if (linebuffer.length() < 2)
-            continue; // its jibberish
 
-        temp = linebuffer.c_str();
-
-        if (linebuffer[0] == '#') {
-            if (temp.startsWith("#ENDLIST")) {
-                break; // end of list
-            } else {
-                continue; // it's a comment
-            }
+    if (!ifsreadItemList(&std::cin, len, true, "#ENDLIST", false, startswith, filters)) {
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error reading stdin: " << std::endl;
         }
-
-        // Strip off comments that don't necessarily start at the beginning of a line
-        std::string::size_type commentstart = 1;
-        while ((commentstart = temp.find_first_of('#', commentstart)) != std::string::npos) {
-            if (temp[commentstart - 1] == ' ') {
-                temp = temp.substr(0, commentstart);
-                break;
-            }
-            ++commentstart;
-        }
-
-        temp.removeWhiteSpace(); // tidy up and make it handle CRLF files
-        if (temp.endsWith("/")) {
-            temp.chop(); // tidy up
-        }
-        if (temp.startsWith("ftp://")) {
-            temp = temp.after("ftp://"); // tidy up
-        }
-        if (filters == 1) { // remove port addresses
-            if (temp.before("/").contains(":")) { // quicker than full regexp
-                if (re.match(temp.toCharArray(),Rre)) {
-                    hostname = temp.before(":");
-                    url = temp.after("/");
-                    temp = hostname + "/" + url;
-                }
-            }
-        }
-        if (filters != 32) {
-            temp.toLower(); // tidy up - but don't make regex lists lowercase!
-        }
-        if (temp.length() > 0)
-            mem_used += temp.length() + 1;
-        if (mem_used > data_memory) {
-            increaseMemoryBy(2048);
-        }
-        if (is_iplist)
-            addToIPList(temp);
-        else
-            addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
-    }
-    //if (is_iplist)
-         //std::sort(iplist.begin(), iplist.end());
-    //listfile.close();
-    return true; // sucessful read
+        syslog(LOG_ERR, "Error reading stdin");
+        return false;
+    } else
+        return true;
 }
+
 
 // for item lists - read nested item lists
 bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)

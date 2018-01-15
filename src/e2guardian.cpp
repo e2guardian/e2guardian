@@ -222,6 +222,12 @@ int main(int argc, char *argv[])
 #endif
     }
 
+    if(!o.createLists(0))  {
+        std::cerr << "Error reading filter group conf file(s)." << std::endl;
+        syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+        return 1;
+    }
+
 #ifdef __BENCHMARK
     // run benchmarks instead of starting the daemon
     if (benchmark) {

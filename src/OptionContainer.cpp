@@ -862,11 +862,11 @@ bool OptionContainer::read(std::string& filename, int type)
         } // messages language file
 
 
-        if(!createLists(0))  {
-                std::cerr << "Error reading filter group conf file(s)." << std::endl;
-            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
-            return false;
-        }
+ //       if(!createLists(0))  {
+ //               std::cerr << "Error reading filter group conf file(s)." << std::endl;
+//            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+//            return false;
+//        }
 
 
 #ifdef _SSLMITM
@@ -931,7 +931,9 @@ bool OptionContainer::readinStdin()
     std::string linebuffer;
     String temp ;
     while (!std::cin.eof()) {
+       std::cerr << "wiating for stdin" << std::endl;
         getline(std::cin, linebuffer);
+        std::cerr << "Line in: " << linebuffer << std::endl;
         if (linebuffer.length() < 2)
             continue; // its jibberish
 
@@ -939,13 +941,13 @@ bool OptionContainer::readinStdin()
         bool site_list = false;
         bool url_list = false;
         if (linebuffer[0] == '#') {
-            if (temp.startsWith("#SITELIST="))
+            if (temp.startsWith("#SITELIST:"))
                 site_list = true;
-            else if (temp.startsWith("#URLLIST="))
+            else if (temp.startsWith("#URLLIST:"))
                 url_list = true;
             else
                 continue;
-            String param = temp.after("=");
+            String param = temp.after(":");
             String nm, fpath;
             String t = param;
             bool startswith;
@@ -972,7 +974,7 @@ bool OptionContainer::readinStdin()
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(),startswith,0, true);
+            int rc = lm.newItemList(fpath.c_str(),startswith,1, true);
             if (rc < 0)
                 return false;
              lm.l[rc]->doSort(url_list);

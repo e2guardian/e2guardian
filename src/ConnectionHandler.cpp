@@ -1305,11 +1305,16 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
+        std::string  l_who = who;
+        std::string l_from = from;
+        std::string l_clienthost;
+        if(clienthost != NULL)
+            std::string l_clienthost = *clienthost;
 
         if(cm.anon_log) {
-            who = "";
-            from = "0.0.0.0";
-            *clienthost = "";
+            l_who = "";
+            l_from = "0.0.0.0";
+            l_clienthost = "";
         }
 
 #ifdef DGDEBUG
@@ -1324,8 +1329,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         data += where + cr;
         data += what + cr;
         data += how + cr;
-        data += who + cr;
-        data += from + cr;
+        data += l_who + cr;
+        data += l_from + cr;
         data += String(port) + cr;
         data += String(wasscanned) + cr;
         data += String(wasinfected) + cr;
@@ -1339,7 +1344,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
-        data += (clienthost ? (*clienthost) + cr : cr);
+        data += l_clienthost + cr ;
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else

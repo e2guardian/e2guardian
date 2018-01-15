@@ -69,7 +69,7 @@ class ListContainer
     void reset();
 
     bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true);
-    bool ifsreadItemList(std::ifstream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
+    bool ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
     bool readItemList(const char *filename, bool startswith, int filters, bool isip = false);
     bool readStdinItemList(bool startswith, int filters);
