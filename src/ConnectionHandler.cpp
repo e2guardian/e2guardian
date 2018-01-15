@@ -582,6 +582,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
+                gettimeofday(&thestart, NULL);
+                checkme.thestart = thestart;
 
                 // quick trick for the very first connection :-)
                 if (!ismitm)
@@ -2975,6 +2977,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.connect_site = checkme.urldomain;
             checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.docsize = 0;
+            gettimeofday(&checkme.thestart, NULL);
 
             // do total block list checking here
             //if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {     // not sure if we should do this here!!!!
@@ -3252,6 +3255,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
+                gettimeofday(&thestart, NULL);
+                checkme.thestart = thestart;
             }
 
            {
