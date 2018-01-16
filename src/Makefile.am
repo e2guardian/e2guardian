@@ -42,18 +42,6 @@ endif
 
 DEFAULTDM_SOURCE = downloadmanagers/default.cpp
 
-if ENABLE_FANCYDM
-FANCYDM_SOURCE = downloadmanagers/fancy.cpp
-else
-FANCYDM_SOURCE =
-endif
-
-if ENABLE_TRICKLEDM
-TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
-else
-TRICKLEDM_SOURCE =
-endif
-
 PROXYAUTH_SOURCE = authplugins/proxy.cpp
 IDENTAUTH_SOURCE = authplugins/ident.cpp
 IPAUTH_SOURCE = authplugins/ip.cpp

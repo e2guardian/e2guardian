@@ -684,8 +684,6 @@ configs/lists/exceptionphraselist
 configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
-configs/downloadmanagers/fancy.conf
-configs/downloadmanagers/trickle.conf
 configs/contentscanners/Makefile
 configs/contentscanners/clamdscan.conf
 configs/contentscanners/avastdscan.conf
