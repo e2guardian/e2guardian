@@ -340,6 +340,7 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 
 bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
+    int mem_used = 2;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
@@ -460,10 +461,14 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
             temp.toLower(); // tidy up - but don't make regex lists lowercase!
         }
         if (temp.length() > 0) {
+            mem_used += temp.length() + 1;
             if (is_iplist)
                 addToIPList(temp);
-            else
+            else {
+                if (mem_used > data_memory)
+                    increaseMemoryBy(2048);
                 addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
+            }
         }
     }
     return true; // sucessful read
