@@ -118,6 +118,12 @@ INCLUDE FILES IN e2guardianf1.conf
     repeats ignored.  This allows the overwriting of single options and 
     re-definion of lists in a structured way.
 
+LIST INPUT VIA STDIN
+--------------------
+
+This replaces the totalblocklist in previous versions allowing multiple
+lists to be loaded via stdin.  See notes/lists_via_stdin.
+
 TESTING -  
 ---------
 
@@ -136,8 +142,6 @@ TODO - for this release.
 
 TODO - for next releases.
 -----------------------
-
-    Multiple total blocks list and revised input format.
 
     Transparent HTTP/HTTPS on ports other than 80/443
 

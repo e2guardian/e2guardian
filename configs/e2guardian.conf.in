@@ -324,7 +324,7 @@ maxcontentfiltersize = 256
 
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
-# This is the max size of file that DG will download and cache
+# This is the max size of file that e2g will download and cache
 # in RAM.  After this limit is reached it will cache to disk
 # This value must be less than or equal to maxcontentfilecachescansize.
 # The size is in Kibibytes - eg 10240 = 10Mb

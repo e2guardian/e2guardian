@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
                     std::cout << "  -r reloads lists and group config files by issuing a HUP," << std::endl;
                     std::cout << "     but this does not reset the httpworkers option (amongst others)." << std::endl;
                     std::cout << "  -g  same as -r  (Issues a USR1)" << std::endl;
-                    std::cout << "  -i read total block list from stdin" << std::endl;
+                    std::cout << "  -i read lists from stdin" << std::endl;
 #ifdef __BENCHMARK
                     std::cout << "  --bs benchmark searching filter group 1's bannedsitelist" << std::endl;
                     std::cout << "  --bu benchmark searching filter group 1's bannedurllist" << std::endl;

@@ -498,58 +498,6 @@ AC_SUBST(COMMANDLINESUPPORT)
 AM_CONDITIONAL(NEED_CSLISTS, test "x$cslists" = "xtrue")
 AM_CONDITIONAL(NEED_CSCONFIGS, test "x$csconfigs" = "xtrue")
 
-# asking user if they want fancy downloadmanager support
-AC_MSG_CHECKING(for fancy download manager support)
-AC_ARG_ENABLE(
-fancydm,
-[AC_HELP_STRING([--enable-fancydm@<:@=yes@:>@], [Enable support for the fancy download manager])],
-[ if test "x$enableval" = "xno"; then
-fancydm=false
-FANCYSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-fancydm=true
-dmlists=true
-FANCYSUPPORT=""
-AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
-fi],
-[
-fancydm=true
-dmlists=true
-FANCYSUPPORT=""
-AC_MSG_RESULT(yes)
-AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
-]
-)
-AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
-AC_SUBST(FANCYSUPPORT)
-
-# asking user if they want trickle downloadmanager support
-AC_MSG_CHECKING(for trickle download manager support)
-AC_ARG_ENABLE(
-trickledm,
-[AC_HELP_STRING([--enable-trickledm@<:@=no@:>@], [Enable support for the trickle download manager])],
-[ if test "x$enableval" = "xno"; then
-trickledm=false
-TRICKLESUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-trickledm=true
-dmlists=true
-TRICKLESUPPORT=""
-AC_DEFINE([ENABLE_TRICKLEDM],[],[Define to enable trickle download manager])
-fi],
-[
-trickledm=false
-TRICKLESUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(ENABLE_TRICKLEDM, test "x$trickledm" = "xtrue")
-AC_SUBST(TRICKLESUPPORT)
-
 # install DM lists if necessary
 AM_CONDITIONAL(NEED_DMLISTS, test "x$dmlists" = "xtrue")
 

@@ -1,0 +1,48 @@
+Lists via stdin
+
+This option replaces the totalblocklist feature in previous versions.
+
+It allows lists to be read via stdin on e2guardian start-up.  To activate use 
+the -i option.
+
+List syntax is as normal but with added directives to define lists and indicate
+the end of a list.  Only sitelist and urllist types are currently supported.
+
+To define a site list use the #SITELIST: directive followed by the list 
+definition, then a list of sites, terminated with an #ENDLIST line.
+
+#SITELIST:name=list_name, path=memory:psuedo_path_name [ other_modifiers ]
+
+site1
+site2
+siteN
+
+#ENDLIST
+
+To define a url list use the #URLLIST: directive followed by the list 
+definition, then a list of urls, terminated with an #ENDLIST line.
+
+#SITELIST:name=list_name, path=memory:psuedo_path_name [ other_modifiers ]
+
+url1
+url2
+urlN
+
+#ENDLIST
+
+Where list_name is a label as defined in V5_list_definition, 
+psuedo_path_name is a unique label for this list and
+other_modifiers are any optional parameters of a list definition.
+
+These lists are added to any lists defined in e2guardian.conf and can used in
+pre-auth.story storyboard.
+
+
+
+
+
+
+
+
+
+
