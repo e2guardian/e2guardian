@@ -96,6 +96,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
 #endif
         String nm, fpath;
         bool anonlog = o.anonymise_logs;
+        bool sitewild = true;
         unsigned int m_no, log_m_no = 0;
         t.removeWhiteSpace();
         t = t + ",";
@@ -108,8 +109,10 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 log_m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("path=")) {
                 fpath = t.after("=").before(",");
-            } else if (t.startsWith("anonlog=")) {
+            } else if (t.startsWith("anonlog=true")) {
                 anonlog = true;
+            } else if (t.startsWith("sitewild=false")) {
+                sitewild = false;
             }
             t = t.after(",");
         }
@@ -126,6 +129,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         rec.name = nm;
         rec.mess_no = m_no;
         rec.anon_log = anonlog;
+        rec.site_wild = sitewild;
         if (log_m_no) {
             rec.log_mess_no = log_m_no;
         } else {
@@ -291,7 +295,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_SITE :
-            match = inSiteList(tofind, info.list_ref, res.category);
+            match = inSiteList(tofind, info.list_ref, res.category,info.site_wild);
             if (match == NULL) {
                 return false;
             } else {
@@ -303,7 +307,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_URL:
-            match = inURLList(tofind, info.list_ref, res.category);
+            match = inURLList(tofind, info.list_ref, res.category,info.site_wild);
             if (match == NULL) {
                 return false;
             } else {
@@ -412,18 +416,24 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 }
 
 
-const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory) {
+const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory, bool &site_wild) {
     String url = urlp;
     const char *i;
-    while (url.contains(".")) {
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
+    if (site_wild) {
+        while (url.contains(".")) {
+            i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
+            if (i != NULL) {
+                return
+                        i; // exact match
+            }
+            url = url.after("."); // check for being in higher level domains
         }
-        url = url.after("."); // check for being in higher level domains
     }
-    if (url.length() > 1) { // allows matching of .tld
+    if ((!url.contains(".")) && url.length() > 1) { // allows matching of .tld
         url = "." + url;
+    }
+    if(url.length() > 2)
+    {
         i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
         if (i != NULL) {
             return i; // exact match
@@ -442,7 +452,7 @@ const char *ListMeta::inSearchList(String &words, unsigned int list, String &las
 
 
 // look in given URL list for given URL
-char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
+char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &site_wild) {
     String url = urlp;
     unsigned int fl;
     char *i;
@@ -450,9 +460,9 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "inURLList: " << url << std::endl;
 #endif
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
+//    url.removeWhiteSpace(); // just in case of weird browser crap
+//    url.toLower();
+//    url.removePTP(); // chop off the ht(f)tp(s)://
     if (url.contains("/")) {
         String tpath("/");
         tpath += url.after("/");
@@ -467,25 +477,27 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
 #endif
-    while (url.before("/").contains(".")) {
-        i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
-        if (i != NULL) {
-            foundurl = i;
-            fl = foundurl.length();
+        while (url.before("/").contains(".")) {
+            i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
+            if (i != NULL) {
+                foundurl = i;
+                fl = foundurl.length();
 #ifdef DGDEBUG
-            std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
+                std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
             std::cerr << thread_id << "url: " << url << fl << std::endl;
 #endif
-            if (url.length() > fl) {
-                if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                    return i; // matches /blah/ or /blah/foo but not /blahfoo
+                if (url.length() > fl) {
+                    if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
+                        return i; // matches /blah/ or /blah/foo but not /blahfoo
+                    }
+                } else {
+                    return i; // exact match
                 }
-            } else {
-                return i; // exact match
-            }
+           }
+            if (!site_wild)
+                break;
+            url = url.after("."); // check for being in higher level domains
         }
-        url = url.after("."); // check for being in higher level domains
-    }
     return NULL;
 }
 

@@ -56,6 +56,7 @@ class ListMeta
         unsigned int mess_no;
         unsigned int log_mess_no;
         bool anon_log;
+        bool site_wild;
     };
 
     struct list_result {
@@ -92,8 +93,8 @@ class ListMeta
 
 private:
 
-    char *inURLList(String &url, unsigned int list,  String &lastcategory);
-    const char *inSiteList(String &url, unsigned int list,  String &lastcategory);
+    char *inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
+    const char *inSiteList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
     const char *inSearchList(String &words, unsigned int list,String &lastcategory);
     int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
