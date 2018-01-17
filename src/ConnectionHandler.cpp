@@ -963,8 +963,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //if not naughty now send upstream and get response
             if (checkme.isItNaughty) {
-                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm)
+                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm) {
                     checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                    if (checkme.isdirect) {  // send connection estabilished to client
+                        std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
+                        if (!peerconn.writeString(msg.c_str()))
+                            cleanThrow("Unable to send to client 859", peerconn, proxysock);
+                    }
+                }
             } else {
                 if (!persistProxy) // open upstream connection
                 {
@@ -2978,6 +2984,11 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.docsize = 0;
             gettimeofday(&checkme.thestart, NULL);
+
+            if(checkme.isconnect) {
+            persistPeer = false;
+            persistOutgoing = false;
+            }
 
             // do total block list checking here
             //if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {     // not sure if we should do this here!!!!
