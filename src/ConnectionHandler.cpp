@@ -1,4 +1,3 @@
-// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 // INCLUDES
@@ -2948,7 +2947,9 @@ stat_rec* &dystat)
                             contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &headersent, &pausedtoobig,
                                 &docsize, &checkme, wasclean, filtergroup, responsescanners, &clientuser, &clientip,
                                 &wasinfected, &wasscanned, isbypass, urld, urldomain, &scanerror, contentmodified, &csmessage);
+
                             if (csmessage.length() > 0) {
+                            syslog(LOG_ERR, "FRED_7 %s %s cmessage: %s",clientuser.c_str(), clientip.c_str(),csmessage.c_str());
 #ifdef DGDEBUG
                                 std::cout << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -2977,7 +2978,7 @@ stat_rec* &dystat)
 // If bypass but infected exception is removed, still isvirusbypass for disbled block page
             if (wasinfected && isbypass)
                  isexception = false;
-
+            syslog(LOG_ERR, "FRED_7.1 %s %s",clientuser.c_str(), clientip.c_str());
             if (o.url_cache_number > 0) {
                 // add to cache if: wasn't already there, wasn't naughty, wasn't allowed by bypass/soft block, was text,
                 // was virus scanned and scan_clean_cache is enabled, was a GET request,
@@ -2998,7 +2999,7 @@ stat_rec* &dystat)
             // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
-
+            syslog(LOG_ERR, "FRED_7.2 %s %s",clientuser.c_str(), clientip.c_str());
             if (!authed) {
                 logged = true;
                 String temp;
@@ -3030,7 +3031,7 @@ stat_rec* &dystat)
                           }
                 logged = false;
             }
-
+            syslog(LOG_ERR, "FRED_7.3 %s %s",clientuser.c_str(), clientip.c_str());
             if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
@@ -3047,7 +3048,7 @@ stat_rec* &dystat)
 
                 // if get here in stealth mode
             }
-
+            syslog(LOG_ERR, "FRED_7.4 before databuffer %s %s %s",clientuser.c_str(), clientip.c_str(), docbody.tempfilepath.toCharArray());
             if (!wasrequested) {
                 if(!proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Error sending headers to proxy", peerconn,proxysock);
@@ -3069,6 +3070,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
             std::cout << dbgPeerPort << " -sending header to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
+            syslog(LOG_ERR, "FRED_7.5 before databuffer %s %s %s",clientuser.c_str(), clientip.c_str(),docbody.tempfilepath.toCharArray());
             if(!peerconn.breadyForOutput(o.proxy_timeout))
                 cleanThrow("Error sending headers to client", peerconn,proxysock);
             //peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
@@ -3076,11 +3078,13 @@ stat_rec* &dystat)
             std::cout << dbgPeerPort << "  got past line 2677 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             if (headersent == 1) {
+            	syslog(LOG_ERR, "FRED_7.6 before databuffer %s %s %s",clientuser.c_str(), clientip.c_str(), docbody.tempfilepath.toCharArray());
                 docheader.out(NULL, &peerconn, __DGHEADER_SENDREST); // send rest of header to client
 #ifdef DGDEBUG
                 std::cout << dbgPeerPort << " -sent rest header to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             } else if (headersent == 0) {
+            	syslog(LOG_ERR, "FRED_7.7 before databuffer %s %s %s",clientuser.c_str(), clientip.c_str(),docbody.tempfilepath.toCharArray());
                if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL)) { // send header to client
 #ifdef DGDEBUG
                    std::cout << dbgPeerPort << " -sent all header failed to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -3091,6 +3095,7 @@ stat_rec* &dystat)
                }
             }
 
+            syslog(LOG_ERR, "FRED_7.8 after databuffer header %s %s %s",clientuser.c_str(), clientip.c_str(),docbody.tempfilepath.toCharArray());
             if (waschecked) {
                 if (!docheader.authRequired() && !pausedtoobig) {
                     String rtype(header.requestType());
@@ -3112,6 +3117,7 @@ stat_rec* &dystat)
 
                 // it must be clean if we got here
                 if (docbody.dontsendbody && docbody.tempfilefd > -1) {
+		    syslog(LOG_ERR, "FRED_8 %s %s send partial content: %d",clientuser.c_str(), clientip.c_str(), docbody.buffer_length);
                     // must have been a 'fancy'
                     // download manager so we need to send a special link which
                     // will get recognised and cause DG to send the temp file to
@@ -3154,6 +3160,7 @@ stat_rec* &dystat)
        //             syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
         //            try {docbody.out(&peerconn);} // send doc body to client
        //                  catch (std::exception &e) {
+            	    syslog(LOG_ERR, "FRED_7.9 before databuffer body %s %s %s",clientuser.c_str(), clientip.c_str(),docbody.tempfilepath.toCharArray());
                     if (!docbody.out(&peerconn)) { // send doc body to client
                              //syslog(LOG_INFO, " -problem sending body to client %d", dbgPeerPort);
                              pausedtoobig = false;
@@ -3165,6 +3172,8 @@ stat_rec* &dystat)
                     //syslog(LOG_INFO, " -sent body to client d", dbgPeerPort);
                 //
 #ifdef DGDEBUG
+		syslog(LOG_ERR, "FRED_9 %s %s send partial content: %d",clientuser.c_str(), clientip.c_str(), docbody.buffer_length);
+
                 if (pausedtoobig) {
                     std::cout << dbgPeerPort << " -sent PARTIAL body to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
                 } else {
@@ -3236,6 +3245,7 @@ stat_rec* &dystat)
 
         return 0;
     } catch (std::exception &e) {
+	syslog(LOG_ERR, "FRED_10 %s %s exception",clientuser.c_str(), clientip.c_str());
 #ifdef DGDEBUG
         std::cout << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -4529,13 +4539,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         else if (!responsescanners.empty()) {
 	    syslog(LOG_ERR, "FRED_5 %s %s -content length large so skipping content scanning (virus) filtering : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
         }
-
-
 #ifdef DGDEBUG
         else if (!responsescanners.empty()) {
             std::cout << dbgPeerPort << " -content length large so skipping content scanning (virus) filtering" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         }
 #endif
+    	syslog(LOG_ERR, "FRED_6 %s %s : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text",ldl->fg[filtergroup]) || docheader->isContentType("-",ldl->fg[filtergroup]))) {
 #ifdef DGDEBUG
@@ -4566,6 +4575,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #endif
     }
 
+    syslog(LOG_ERR, "FRED_7 %s %s : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
     // don't do phrase filtering or content replacement on exception/bypass accesses
     if (checkme->isException || isbypass) {
         // don't forget to swap back to compressed!
@@ -4573,6 +4583,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         return;
     }
 
+    syslog(LOG_ERR, "FRED_8 %s %s : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
     if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty && docheader->isContentType("text",ldl->fg[filtergroup])) {
         contentmodified = docbody->contentRegExp(ldl->fg[filtergroup]);
         // content modifying uses global variable
@@ -4589,7 +4600,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     }
     //rc = system("date");
 #endif
-
+    syslog(LOG_ERR, "FRED_9 %s %s : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
     if (contentmodified) { // this would not include infected/cured files
 // if the content was modified then it must have fit in ram so no
 // need to worry about swapped to disk stuff
@@ -4609,6 +4620,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         // the original compressed version (if there) and send
         // that to the browser
     }
+    syslog(LOG_ERR, "FRED_10 %s %s -Returning from content checking : %s", clientuser->c_str(), clientip->c_str(), docbody->tempfilepath.toCharArray());
 #ifdef DGDEBUG
     std::cout << dbgPeerPort << " Returning from content checking"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif

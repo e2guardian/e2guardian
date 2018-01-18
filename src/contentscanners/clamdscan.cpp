@@ -129,13 +129,15 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         syslog(LOG_ERR, "Error creating socket for talking to ClamD");
         return DGCS_SCANERROR;
     }
-    syslog(LOG_ERR, "FRED_scan3 %s %s %s",user,lastmessage.toCharArray(),filename);
+    std::cerr << "FRED_scan3 " << filename << " " << udspath.toCharArray() <<std::endl;
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
+    	std::cerr << "FRED_scan3.1 " << filename << " " << udspath.toCharArray() <<std::endl;
         lastmessage = "Error connecting to ClamD socket";
         syslog(LOG_ERR, "Error connecting to ClamD socket");
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
+    std::cerr << "FRED_scan3.2 " << filename << " " << udspath.toCharArray() <<std::endl;
     syslog(LOG_ERR, "FRED_scan4 %s %s %s",user,lastmessage.toCharArray(),filename);
     if( ! stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
