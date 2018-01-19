@@ -931,9 +931,9 @@ bool OptionContainer::readinStdin()
     std::string linebuffer;
     String temp ;
     while (!std::cin.eof()) {
-       std::cerr << "wiating for stdin" << std::endl;
+    //   std::cerr << "wiating for stdin" << std::endl;
         getline(std::cin, linebuffer);
-        std::cerr << "Line in: " << linebuffer << std::endl;
+    //    std::cerr << "Line in: " << linebuffer << std::endl;
         if (linebuffer.length() < 2)
             continue; // its jibberish
 
