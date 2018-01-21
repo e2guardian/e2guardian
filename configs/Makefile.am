@@ -10,7 +10,7 @@ SUBDIRS += contentscanners
 endif
 
 FLISTS = e2guardian.conf e2guardianf1.conf examplef1.story common.story \
-	site.story
+	site.story preauth.story
 
 EXTRA_DIST = e2guardian.conf.in e2guardianf1.conf.in examplef1.story.in 
 
