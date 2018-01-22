@@ -91,7 +91,7 @@ int CSPlugin::makeTempFile(String *filename)
 #ifdef DGDEBUG
         std::cerr << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << std::endl;
 #endif
-        syslog(LOG_ERR, "%s", "Could not create cs temp file.");
+        syslog(LOG_ERR, "%s", "Could not create cs temp file: %s", strerror(errno));
         tempfilefd = -1;
     } else {
         (*filename) = tempfilepatharray;
@@ -107,9 +107,9 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
 #ifdef DGDEBUG
-        std::cerr << "Error creating temp file in writeMemoryTempFile." << filename << std::endl;
+        std::cerr << "Error creating temp file in writeMemoryTempFile, not enough memory ? : " << filename << std::endl;
 #endif
-        syslog(LOG_ERR, "%s", "Error creating temp file in writeMemoryTempFile: %s", filename);
+        syslog(LOG_ERR, "%s", "Error creating temp file in writeMemoryTempFile, not enough memory ? : %s", filename);
         return DGCS_ERROR;
     }
     errno = 0;
