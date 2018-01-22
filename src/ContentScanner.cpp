@@ -91,7 +91,7 @@ int CSPlugin::makeTempFile(String *filename)
 #ifdef DGDEBUG
         std::cerr << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << std::endl;
 #endif
-        syslog(LOG_ERR, "%s", "Could not create cs temp file: %s", strerror(errno));
+        syslog(LOG_ERR, "%s", "Could not create cs temp file: %s %s", filename, strerror(errno));
         tempfilefd = -1;
     } else {
         (*filename) = tempfilepatharray;
