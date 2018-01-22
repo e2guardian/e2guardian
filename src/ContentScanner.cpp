@@ -107,9 +107,9 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
 #ifdef DGDEBUG
-        std::cerr << "Error creating temp file in writeMemoryTempFile." << std::endl;
+        std::cerr << "Error creating temp file in writeMemoryTempFile." << filename << std::endl;
 #endif
-        syslog(LOG_ERR, "%s", "Error creating temp file in writeMemoryTempFile.");
+        syslog(LOG_ERR, "%s", "Error creating temp file in writeMemoryTempFile: %s", filename);
         return DGCS_ERROR;
     }
     errno = 0;
