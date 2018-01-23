@@ -19,6 +19,7 @@ authexceptionsitelist \
 authexceptionurllist \
 bannedextensionlist \
 bannediplist \
+bannedclientlist \
 bannedmimetypelist \
 bannedphraselist \
 bannedregexpheaderlist \
@@ -42,6 +43,7 @@ exceptionfilesiteiplist \
 exceptionfilesitelist \
 exceptionfileurllist \
 exceptioniplist \
+exceptionclientlist \
 exceptionmimetypelist \
 exceptionphraselist \
 exceptionregexpurllist \
