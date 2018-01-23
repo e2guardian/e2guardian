@@ -213,13 +213,13 @@ filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 # These are now replaced with pre-authstoryboard logic but lists defined here
 #
 # bannediplist is ONLY for banned client IP
-#iplist = 'name=bannedclient,messageno=,path=@DGCONFDIR@/lists/bannediplist'
+#iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=@DGCONFDIR@/lists/bannediplist'
 # Put client dns names in bannedclientlist if required
-#sitelist = 'name=bannedclient,messageno=,path=@DGCONFDIR@/lists/bannedclientlist'
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=@DGCONFDIR@/lists/bannedclientlist'
 # exceptioniplist is ONLY for exception client IP
-#iplist = 'name=exceptionclient,messageno=,path=@DGCONFDIR@/lists/exceptioniplist'
+#iplist = 'name=exceptionclient,messageno=600,path=@DGCONFDIR@/lists/exceptioniplist'
 # Put client dns names in exceptionclientlist if required
-#sitelist = 'name=exceptionclient,messageno=,path=@DGCONFDIR@/lists/exceptionclientlist'
+#sitelist = 'name=exceptionclient,messageno=631,path=@DGCONFDIR@/lists/exceptionclientlist'
 
 #Note: only iplist, sitelist, ipsitelist and urllist can currently be defined for use with pre-authstoryboard.
 
