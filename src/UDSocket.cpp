@@ -102,12 +102,10 @@ int UDSocket::connect(const char *path)
         return -1;
 
 #ifdef DGDEBUG
-    std::cout << "uds connect:" << path << std::endl;
+    std::cerr << "uds connect:" << path << std::endl;
 #endif
     strcpy(my_adr.sun_path, path);
-
     my_adr_length = offsetof(struct sockaddr_un, sun_path) + strlen(path);
-
     return ::connect(sck, (struct sockaddr *)&my_adr, my_adr_length);
 }
 
