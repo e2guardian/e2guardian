@@ -98,6 +98,9 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     const String *disposition, const String *mimetype)
 {
     syslog(LOG_ERR, "FRED scan first step %s %s %s", user,lastmessage.toCharArray(),filename);
+#ifdef DGDEBUG
+    std::cerr << "FRED debug1 :" << lastvirusname << " " << lastmessage << " " << filename << " Getpid: " << getpid() << std::endl;
+#endif
     lastmessage = lastvirusname = "";
     // mkstemp seems to only set owner permissions, so our AV daemon won't be
     // able to read the file, unless it's running as the same user as us. that's
@@ -110,9 +113,13 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         syslog(LOG_ERR, "Could not change file ownership to give ClamD read access: %s", strerror(errno));
         return DGCS_SCANERROR;
     };
+#ifdef DGDEBUG
+    std::cerr << "FRED debug2 :" << lastvirusname << " " << lastmessage << " " << filename << " " << pathprefix.toCharArray() << " length: " << pathprefix.length() << " Getpid: " << getpid() << std::endl;
+#endif
     String command("SCAN ");
     syslog(LOG_ERR, "FRED_scan1 %s %s %s",user,lastmessage.toCharArray(),filename);
     if (pathprefix.length()) {
+    	std::cerr << "FRED debug2.1 :" << lastvirusname << " " << lastmessage << " " << filename << " " << pathprefix.toCharArray() << " length: " << pathprefix.length() << " Getpid: " << getpid() << std::endl;
         String fname(filename);
         command += fname.after(pathprefix.toCharArray());
     } else {
@@ -120,7 +127,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     }
     command += "\r\n";
 #ifdef DGDEBUG
-    std::cerr << "clamdscan command:" << command << std::endl;
+    std::cerr << "clamdscan command:" << command << " Getpid: " << getpid() <<  std::endl;
 #endif
     syslog(LOG_ERR, "FRED_scan2 %s %s %s",user,lastmessage.toCharArray(),filename);
     UDSocket stripedsocks;
@@ -129,17 +136,17 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         syslog(LOG_ERR, "Error creating socket for talking to ClamD");
         return DGCS_SCANERROR;
     }
-    std::cerr << "FRED_scan3 " << filename << " " << udspath.toCharArray() <<std::endl;
+    std::cerr << "FRED_scan3 " << filename << " " << udspath.toCharArray() << " Getpid: " << getpid() << std::endl;
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
-    	std::cerr << "FRED_scan3.1 " << filename << " " << udspath.toCharArray() <<std::endl;
+    	std::cerr << "FRED_scan3.1 " << filename << " " << udspath.toCharArray() << " Getpid: " << getpid() << std::endl;
         lastmessage = "Error connecting to ClamD socket";
         syslog(LOG_ERR, "Error connecting to ClamD socket");
         stripedsocks.close();
         return DGCS_SCANERROR;
     }
-    std::cerr << "FRED_scan3.2 " << filename << " " << udspath.toCharArray() <<std::endl;
+    std::cerr << "FRED_scan3.2 " << filename << " " << udspath.toCharArray() << " Getpid: " << getpid() << std::endl;
     syslog(LOG_ERR, "FRED_scan4 %s %s %s",user,lastmessage.toCharArray(),filename);
-    if( ! stripedsocks.writeString(command.toCharArray()))  {
+    if( !stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
             String t = stripedsocks.getErrno();
             lastmessage += t;
@@ -148,7 +155,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
 #ifdef DGDEBUG
-        std::cerr << lastmessage.toCharArray() <<std::endl;
+        std::cerr << "last message: " << lastmessage.toCharArray() << " Getpid: " << getpid() << std::endl;
 #endif
         stripedsocks.close();
         return DGCS_SCANERROR;
@@ -180,7 +187,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     reply.removeWhiteSpace();
     syslog(LOG_ERR, "FRED2 right before scan %s %s %s",user,lastmessage.toCharArray(),filename);
 #ifdef DGDEBUG
-    std::cout << "Got from clamdscan: " << reply << std::endl;
+    std::cout << "Got from clamdscan: " << reply << " Getpid: " << getpid() << std::endl;
 #endif
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
@@ -192,11 +199,11 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // format is:
 // /foo/path/file: foovirus FOUND
 #ifdef DGDEBUG
-        std::cerr << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
+        std::cerr << "clamdscan INFECTED! with: " << lastvirusname << " Getpid: " << getpid() << std::endl;
 #endif
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
 #ifdef DGDEBUG
-            std::cerr << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
+            std::cerr << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << " Getpid: " << getpid() << std::endl;
 #endif
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
@@ -210,7 +217,8 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
 #ifdef DGDEBUG
-    std::cerr << "clamdscan - he say yes (clean)" << std::endl;
+    std::cerr << "clamdscan - he say yes (clean)" << " Getpid: " << getpid() << std::endl;
+    std::cerr << "FRED clamdscan - he say yes (clean): " << reply << " Getpid: " << getpid() << std::endl;
 #endif
     lastmessage = reply;
     syslog(LOG_ERR, "FRED3 ClamD %s result: %s Filename: %s ", user,reply.toCharArray(),filename);

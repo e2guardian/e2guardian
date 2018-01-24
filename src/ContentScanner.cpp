@@ -89,7 +89,7 @@ int CSPlugin::makeTempFile(String *filename)
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 1) {
 #ifdef DGDEBUG
-        std::cerr << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << std::endl;
+        std::cerr << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", "Could not create cs temp file: %s %s", filename, strerror(errno));
         tempfilefd = -1;
@@ -107,14 +107,14 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
 #ifdef DGDEBUG
-        std::cerr << "Error creating temp file in writeMemoryTempFile, not enough memory ? : " << filename << std::endl;
+        std::cerr << "Error creating temp file in writeMemoryTempFile, not enough memory ? : " << filename << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", "Error creating temp file in writeMemoryTempFile, not enough memory ? : %s", filename);
         return DGCS_ERROR;
     }
     errno = 0;
 #ifdef DGDEBUG
-    std::cout << "About to writeMemoryTempFile " << (*filename) << " size: " << objectsize << std::endl;
+    std::cout << "About to writeMemoryTempFile " << (*filename) << " size: " << objectsize << " Getpid: " << getpid() << std::endl;
 #endif
 
     while (true) {
@@ -140,7 +140,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     String tempfilepath;
     if (writeMemoryTempFile(object, objectsize, &tempfilepath) != DGCS_OK) {
 #ifdef DGDEBUG
-        std::cerr << "Error creating/writing temp file for scanMemory." << std::endl;
+        std::cerr << "Error creating/writing temp file for scanMemory." << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "%s", "Error creating/writing temp file for scanMemory.");
         return DGCS_SCANERROR;
@@ -163,7 +163,7 @@ bool CSPlugin::readStandardLists()
     exceptionvirusurllist.reset();
     if (!exceptionvirusmimetypelist.readItemList(cv["exceptionvirusmimetypelist"].toCharArray(), false, 0)) {
         if (!is_daemonised) {
-            std::cerr << "Error opening exceptionvirusmimetypelist" << std::endl;
+            std::cerr << "Error opening exceptionvirusmimetypelist" << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error opening exceptionvirusmimetypelist");
         return false;
@@ -171,7 +171,7 @@ bool CSPlugin::readStandardLists()
     exceptionvirusmimetypelist.doSort(false);
     if (!exceptionvirusextensionlist.readItemList(cv["exceptionvirusextensionlist"].toCharArray(), false, 0)) {
         if (!is_daemonised) {
-            std::cerr << "Error opening exceptionvirusextensionlist" << std::endl;
+            std::cerr << "Error opening exceptionvirusextensionlist" << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error opening exceptionvirusextensionlist");
         return false;
@@ -179,7 +179,7 @@ bool CSPlugin::readStandardLists()
     exceptionvirusextensionlist.doSort(false);
     if (!exceptionvirussitelist.readItemList(cv["exceptionvirussitelist"].toCharArray(), false, 0)) {
         if (!is_daemonised) {
-            std::cerr << "Error opening exceptionvirussitelist" << std::endl;
+            std::cerr << "Error opening exceptionvirussitelist" << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error opening exceptionvirussitelist");
         return false;
@@ -187,7 +187,7 @@ bool CSPlugin::readStandardLists()
     exceptionvirussitelist.doSort(false);
     if (!exceptionvirusurllist.readItemList(cv["exceptionvirusurllist"].toCharArray(), true, 0)) {
         if (!is_daemonised) {
-            std::cerr << "Error opening exceptionvirusurllist" << std::endl;
+            std::cerr << "Error opening exceptionvirusurllist" << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error opening exceptionvirusurllist");
         return false;
@@ -205,7 +205,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Most content scanners only deal with original, unmodified content
     if (reconstituted) {
 #ifdef DGDEBUG
-        std::cout << "willScanRequest: ignoring reconstituted data" << std::endl;
+        std::cout << "willScanRequest: ignoring reconstituted data" << " Getpid: " << getpid() << std::endl;
 #endif
         return DGCS_NOSCAN;
     }
@@ -216,12 +216,12 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     if (post) {
         if (scanpost) {
 #ifdef DGDEBUG
-            std::cout << "willScanRequest: I'm interested in uploads" << std::endl;
+            std::cout << "willScanRequest: I'm interested in uploads" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NEEDSCAN;
         } else {
 #ifdef DGDEBUG
-            std::cout << "willScanRequest: Not interested in uploads" << std::endl;
+            std::cout << "willScanRequest: Not interested in uploads" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NOSCAN;
         }
@@ -247,7 +247,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
 #ifdef DGDEBUG
-        std::cout << "willScanRequest: ignoring our own webserver" << std::endl;
+        std::cout << "willScanRequest: ignoring our own webserver" << " Getpid: " << getpid() << std::endl;
 #endif
         return DGCS_NOSCAN;
     }
@@ -257,7 +257,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
-            std::cout << "willScanRequest: ignoring exception virus site" << std::endl;
+            std::cout << "willScanRequest: ignoring exception virus site" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NOSCAN; // exact match
         }
@@ -268,7 +268,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
-            std::cout << "willScanRequest: ignoring exception virus site" << std::endl;
+            std::cout << "willScanRequest: ignoring exception virus site" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NOSCAN; // exact match
         }
@@ -288,13 +288,13 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
 #ifdef DGDEBUG
-                    std::cout << "willScanRequest: ignoring exception virus URL" << std::endl;
+                    std::cout << "willScanRequest: ignoring exception virus URL" << " Getpid: " << getpid() << std::endl;
 #endif
                     return DGCS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
 #ifdef DGDEBUG
-                std::cout << "willScanRequest: ignoring exception virus URL" << std::endl;
+                std::cout << "willScanRequest: ignoring exception virus URL" << " Getpid: " << getpid() << std::endl;
 #endif
                 return DGCS_NOSCAN; // exact match
             }
@@ -303,7 +303,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     }
 
 #ifdef DGDEBUG
-    std::cout << "willScanRequest: I'm interested" << std::endl;
+    std::cout << "willScanRequest: I'm interested" << " Getpid: " << getpid() << std::endl;
 #endif
     return DGCS_NEEDSCAN;
 }
@@ -319,7 +319,7 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
     if (mimetype.length() > 2) {
         if (exceptionvirusmimetypelist.findInList(mimetype.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
-            std::cout << "willScanData: ignoring exception MIME type (" << mimetype.c_str() << ")" << std::endl;
+            std::cout << "willScanData: ignoring exception MIME type (" << mimetype.c_str() << ")" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NOSCAN; // match
         }
@@ -330,7 +330,7 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
     if (disposition.length() > 2) {
 // If we have a content-disposition, determine file extension from that
 #ifdef DGDEBUG
-        std::cout << "disposition: " << disposition << std::endl;
+        std::cout << "disposition: " << disposition << " Getpid: " << getpid() << std::endl;
 #endif
         std::string::size_type start = disposition.find("filename=");
         if (start != std::string::npos) {
@@ -351,7 +351,7 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
         }
         extension = "." + extension;
 #ifdef DGDEBUG
-        std::cout << "extension from disposition: " << extension << std::endl;
+        std::cout << "extension from disposition: " << extension << " Getpid: " << getpid() << std::endl;
 #endif
     } else {
         // Otherwise, determine it from the URL
@@ -375,20 +375,20 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
             }
         }
 #ifdef DGDEBUG
-        std::cout << "extension from URL: " << extension << std::endl;
+        std::cout << "extension from URL: " << extension << " Getpid: " << getpid() << std::endl;
 #endif
     }
     if (extension.contains(".")) {
         if (exceptionvirusextensionlist.findEndsWith(extension.toCharArray(), lc) != NULL) {
 #ifdef DGDEBUG
-            std::cout << "willScanData: ignoring exception file extension (" << extension.c_str() << ")" << std::endl;
+            std::cout << "willScanData: ignoring exception file extension (" << extension.c_str() << ")" << " Getpid: " << getpid() << std::endl;
 #endif
             return DGCS_NOSCAN; // match
         }
     }
 
 #ifdef DGDEBUG
-    std::cout << "willScanData: I'm interested" << std::endl;
+    std::cout << "willScanData: I'm interested" << " Getpid: " << getpid() << std::endl;
 #endif
     return DGCS_NEEDSCAN;
 }
@@ -429,7 +429,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
         if (!is_daemonised) {
-            std::cerr << "Unable to load plugin config: " << pluginConfigPath << std::endl;
+            std::cerr << "Unable to load plugin config: " << pluginConfigPath << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "Unable to load plugin config %s", pluginConfigPath);
         return NULL;
@@ -438,7 +438,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {
         if (!is_daemonised) {
-            std::cerr << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
+            std::cerr << "Unable read plugin config plugname variable: " << pluginConfigPath << " Getpid: " << getpid() << std::endl;
         }
         syslog(LOG_ERR, "Unable read plugin config plugname variable %s", pluginConfigPath);
         return NULL;
@@ -447,7 +447,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
 #ifdef DGDEBUG
-        std::cout << "Enabling ClamDscan CS plugin" << std::endl;
+        std::cout << "Enabling ClamDscan CS plugin" << " Getpid: " << getpid() << std::endl;
 #endif
         return clamdcreate(cv);
     }
@@ -456,7 +456,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
 #ifdef DGDEBUG
-        std::cout << "Enabling AvastDscan CS plugin" << std::endl;
+        std::cout << "Enabling AvastDscan CS plugin" << " Getpid: " << getpid() << std::endl;
 #endif
         return avastdcreate(cv);
     }
@@ -465,7 +465,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
 #ifdef DGDEBUG
-        std::cout << "Enabling KAVDscan CS plugin" << std::endl;
+        std::cout << "Enabling KAVDscan CS plugin" << " Getpid: " << getpid() << std::endl;
 #endif
         return kavdcreate(cv);
     }
@@ -474,7 +474,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
 #ifdef DGDEBUG
-        std::cout << "Enabling ICAPscan CS plugin" << std::endl;
+        std::cout << "Enabling ICAPscan CS plugin" << " Getpid: " << getpid() << std::endl;
 #endif
         return icapcreate(cv);
     }
@@ -483,14 +483,14 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
 #ifdef DGDEBUG
-        std::cout << "Enabling command-line CS plugin" << std::endl;
+        std::cout << "Enabling command-line CS plugin" << " Getpid: " << getpid() << std::endl;
 #endif
         return commandlinecreate(cv);
     }
 #endif
 
     if (!is_daemonised) {
-        std::cerr << "Unable to load plugin: " << pluginConfigPath << std::endl;
+        std::cerr << "Unable to load plugin: " << pluginConfigPath << " Getpid: " << getpid() << std::endl;
     }
     syslog(LOG_ERR, "Unable to load plugin %s\n", pluginConfigPath);
     return NULL;

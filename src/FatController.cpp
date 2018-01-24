@@ -1005,7 +1005,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 		    who = "";
 		    from = "0.0.0.0";
 		    clienthost.clear();
-		} else if ((clienthost.length() < 1) || clienthost == "DNSERROR"){
+		} else if ((clienthost.length() > 1) || clienthost != "DNSERROR"){
 			clienthost = from;
 		}
 		
