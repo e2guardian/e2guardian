@@ -63,7 +63,6 @@ void DataBuffer::reset()
     if (tempfilefd > -1) {
         close(tempfilefd);
         if (!preservetemp) {
-	    syslog(LOG_ERR, "FRED_DATA_RESET %s",tempfilepath.toCharArray());
             unlink(tempfilepath.toCharArray());
         }
         tempfilefd = -1;
@@ -87,7 +86,6 @@ DataBuffer::~DataBuffer()
     if (tempfilefd > -1) {
         close(tempfilefd);
         if (!preservetemp) {
-	    syslog(LOG_ERR, "FRED_DATA1_memory_block %s",tempfilepath.toCharArray());
             unlink(tempfilepath.toCharArray());
         }
         tempfilefd = -1;
@@ -239,20 +237,15 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 // send the request body to the client after having been handled by a DM plugin
 bool DataBuffer::out(Socket *sock) //throw(std::exception)
 {
-    syslog(LOG_ERR, "FRED_DATA0 %s", tempfilepath.toCharArray());
     if (dontsendbody) {
-    	syslog(LOG_ERR, "FRED_DATA1 %s", tempfilepath.toCharArray());
 #ifdef DGDEBUG
         std::cout << "dontsendbody true; not sending" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return true;
     }
-   syslog(LOG_ERR, "FRED_DATA2 %s", tempfilepath.toCharArray());
     if (!(*sock).breadyForOutput(timeout)) return false; // exceptions on timeout or error
 
-   syslog(LOG_ERR, "FRED_DATA3 %s", tempfilepath.toCharArray());
     if (tempfilefd > -1) {
-   	syslog(LOG_ERR, "FRED_DATA4 %s", tempfilepath.toCharArray());
 // must have been too big for ram so stream from disk in blocks
 #ifdef DGDEBUG
         std::cout << "Sending " << tempfilesize - bytesalreadysent << " bytes from temp file (" << bytesalreadysent << " already sent)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
@@ -261,7 +254,6 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         int rc;
 
         if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0){
-	    syslog(LOG_ERR, "FRED_DATA5 %s", tempfilepath.toCharArray());
             return false;
 	}
 //            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
@@ -272,7 +264,6 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             std::cout << "reading temp file rc:" << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
             if (rc < 0) {
-	    	syslog(LOG_ERR, "FRED_DATA6 %s", tempfilepath.toCharArray());
 #ifdef DGDEBUG
                 std::cout << "error reading temp file so throwing exception" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -280,7 +271,6 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
     //            throw std::exception();
             }
             if (rc == 0) {
-	    	syslog(LOG_ERR, "FRED_DATA7 %s", tempfilepath.toCharArray());
 #ifdef DGDEBUG
                std::cout << "got zero bytes reading temp file" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -288,7 +278,6 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
             // as it's cached to disk the buffer must be reasonably big
             if (!sock->writeToSocket(data, rc, 0, timeout)) {
-		syslog(LOG_ERR, "FRED_DATA8 %s", tempfilepath.toCharArray());
                 return false;
 //                throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
             }
@@ -297,13 +286,10 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             std::cout << "total sent from temp:" << sent << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         }
-	syslog(LOG_ERR, "FRED_DATA9 %s", tempfilepath.toCharArray());
         close(tempfilefd);
         tempfilefd = -1;
         tempfilesize = 0;
-	syslog(LOG_ERR, "FRED_DATA remove file from disk %s", tempfilepath.toCharArray());
         unlink(tempfilepath.toCharArray());
-	syslog(LOG_ERR, "FRED_DATA file remove from disk");
     } else {
 #ifdef DGDEBUG
         std::cout << "Sending " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length << " in buffer; " << bytesalreadysent << " already sent)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
