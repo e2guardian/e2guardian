@@ -17,6 +17,39 @@ languagedir = '@DGDATADIR@/languages'
 # language to use from languagedir.
 language = 'ukenglish'
 
+#Debug Level
+#Enable debug e2guardian
+#debug one value:
+#Eg
+#	debuglevel = 'ICAP'
+#Enable ICAP debug informations only
+#
+#Eg
+#	debuglevel = 'ALL'
+#Enable ALL debug informations
+#
+#Additive mode:
+#Eg
+#	debuglevel = 'ICAP,NET'
+#Enable ICAP and NET debug informations
+#
+#Soustractive mode:
+#Eg
+#	debuglevel = 'ALL,ICAP'
+#Enable all debug informations but without ICAP debug informations
+#	debuglevel = 'ALL,ICAP,NET,FILTER'
+#Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
+#by default disabled, if this option is required just uncomment the line below
+#works also with e2guardian -N (-N Do not go into the background)
+#Possible value : ICAP
+#for now (02/01/2018)
+#debuglevel = 'ALL'
+
+#Directory for result of debug level (log)
+#Works only if debuglevel is enabled
+#
+#debuglevelfile = '/var/log/e2guardian/debuge2'
+
 # Logging Settings
 #
 # 0 = none  1 = just denied  2 = all text based  3 = all requests

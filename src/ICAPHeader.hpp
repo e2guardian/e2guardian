@@ -15,7 +15,7 @@
 #include "ListMeta.hpp"
 #include "FOptionContainer.hpp"
 #include "HTTPHeader.hpp"
-
+#include "DebugManager.hpp"
 
 // DECLARATIONS
 
@@ -53,6 +53,8 @@ class ICAPHeader
     String ISTag;
     String username;
     String clientip;
+
+    DebugManager * myDebug;
 
     int req_hdr;
     int res_hdr;
