@@ -124,7 +124,7 @@ bool OptionContainer::read(std::string& filename, int type)
                         log_location += "/access.log";
                         log_syslog = false;
                     }
-#ifdef NEWDEBUG_OFF
+#ifndef NEWDEBUG_OFF
 		    if((debuglevel = findoptionS("debuglevel")) != "")
 		    {
 

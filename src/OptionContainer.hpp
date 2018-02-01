@@ -38,7 +38,7 @@ class OptionContainer
     Queue<std::string>* log_Q;
     Queue<LQ_rec> http_worker_Q;
     
-#ifdef NEWDEBUG_OFF
+#ifndef NEWDEBUG_OFF
     std::string debuglevel;
     std::string path_debuglevel;
 #endif 
