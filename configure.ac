@@ -129,6 +129,17 @@ fi], [
   AC_MSG_RESULT(no)
 ])
 
+AC_MSG_CHECKING(for newdebug option)
+AC_ARG_WITH(newdebug,
+[AC_HELP_STRING([--with-newdebug], [switch off debuglevel build mode])],
+[AC_MSG_RESULT(no)],
+[
+  # enable by default
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(NEWDEBUG_OFF, 1, [Define to enable debuglevel build mode])
+])
+
+
 AC_MSG_CHECKING(for netdebug option)
 AC_ARG_WITH(netdebug,
 [AC_HELP_STRING([--with-netdebug@<:@=off@:>@], [switch on netdebug build mode])],
