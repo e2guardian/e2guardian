@@ -423,8 +423,7 @@ const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastca
         while (url.contains(".")) {
             i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
             if (i != NULL) {
-                return
-                        i; // exact match
+                return i; // exact match
             }
             url = url.after("."); // check for being in higher level domains
         }

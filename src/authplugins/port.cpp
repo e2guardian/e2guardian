@@ -125,12 +125,14 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     return DGAUTH_OK;
 }
 
-int portinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
+int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &uglc)
 {
     // check ports
     String s = user;
+    int fg;
     fg = inList(s.toInteger());
     if (fg >= 0) {
+        pfg = fg;
 #ifdef DGDEBUG
         std::cerr << thread_id << "Matched port " << user << " to port list" << std::endl;
 #endif
