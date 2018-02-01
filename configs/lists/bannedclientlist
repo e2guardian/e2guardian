@@ -1,0 +1,6 @@
+# Domain names of client machines to
+# disallow web access to.
+#
+# This is not the the domains of web servers
+# you want to filter.
+

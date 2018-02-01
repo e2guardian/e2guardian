@@ -5,7 +5,7 @@ AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 5.0.0)
+AC_INIT(e2guardian, 5.0.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -124,6 +124,34 @@ else
   AC_MSG_RESULT(yes)
   dgdebug=${withval}
   AC_DEFINE(DGDEBUG, 1, [Define to enable debug build mode])
+fi], [
+  # disable by default
+  AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(for netdebug option)
+AC_ARG_WITH(netdebug,
+[AC_HELP_STRING([--with-netdebug@<:@=off@:>@], [switch on netdebug build mode])],
+[if test "x${withval}" = "xoff" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  netdebug=${withval}
+  AC_DEFINE(NETDEBUG, 1, [Define to enable debug build mode for socket functions])
+fi], [
+  # disable by default
+  AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(for REdebug option)
+AC_ARG_WITH(redebug,
+[AC_HELP_STRING([--with-redebug@<:@=off@:>@], [switch on redebug build mode])],
+[if test "x${withval}" = "xoff" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  redebug=${withval}
+  AC_DEFINE(REDEBUG, 1, [Define to enable debug build mode for regexp functions])
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
@@ -257,35 +285,6 @@ else
 	fi
 fi
 ]
-
-# ask user if they want a backtrace logged after segfault
-AC_MSG_CHECKING(for backtrace on segfault support)
-AC_ARG_ENABLE(
-segv_backtrace,
-[AC_HELP_STRING([--enable-segv-backtrace@<:@=no@:>@], [Enable logging a backtrace when a segmentation fault occurs])],
-[ if test "x$enableval" = "xno"; then
-AC_MSG_RESULT(no)
-else
-# check for native header & func (no library)
-AC_CHECK_FUNCS(backtrace, [AC_MSG_RESULT(native)], [
-AC_MSG_RESULT(no)
-# native not found, so look for linked
-LIBS="-lexecinfo ${LIBS}"
-AC_CHECK_LIB(execinfo, backtrace, [
-AC_MSG_RESULT(linked)
-], [
-AC_MSG_RESULT(no)
-AC_MSG_ERROR([no native or standard library backtrace function found! (needed by "--enable-segv-backtrace")])
-])
-])
-AC_DEFINE([ENABLE_SEGV_BACKTRACE],[],[Define to enable backtrace on segmentation fault])
-# add -rdynamic to compiler flags to force output of symbol tables
-CXXFLAGS="-rdynamic ${CXXFLAGS} -DFD_SETSIZE=65535"
-fi
-],
-[ # disable by default
-AC_MSG_RESULT(no)
-])
 
 # ask user if they want large file support on 32 bit systems
 AC_MSG_CHECKING([for large file support])
@@ -499,58 +498,6 @@ AC_SUBST(COMMANDLINESUPPORT)
 AM_CONDITIONAL(NEED_CSLISTS, test "x$cslists" = "xtrue")
 AM_CONDITIONAL(NEED_CSCONFIGS, test "x$csconfigs" = "xtrue")
 
-# asking user if they want fancy downloadmanager support
-AC_MSG_CHECKING(for fancy download manager support)
-AC_ARG_ENABLE(
-fancydm,
-[AC_HELP_STRING([--enable-fancydm@<:@=yes@:>@], [Enable support for the fancy download manager])],
-[ if test "x$enableval" = "xno"; then
-fancydm=false
-FANCYSUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-fancydm=true
-dmlists=true
-FANCYSUPPORT=""
-AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
-fi],
-[
-fancydm=true
-dmlists=true
-FANCYSUPPORT=""
-AC_MSG_RESULT(yes)
-AC_DEFINE([ENABLE_FANCYDM],[],[Define to enable fancy download manager])
-]
-)
-AM_CONDITIONAL(ENABLE_FANCYDM, test "x$fancydm" = "xtrue")
-AC_SUBST(FANCYSUPPORT)
-
-# asking user if they want trickle downloadmanager support
-AC_MSG_CHECKING(for trickle download manager support)
-AC_ARG_ENABLE(
-trickledm,
-[AC_HELP_STRING([--enable-trickledm@<:@=no@:>@], [Enable support for the trickle download manager])],
-[ if test "x$enableval" = "xno"; then
-trickledm=false
-TRICKLESUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-else
-AC_MSG_RESULT(yes)
-trickledm=true
-dmlists=true
-TRICKLESUPPORT=""
-AC_DEFINE([ENABLE_TRICKLEDM],[],[Define to enable trickle download manager])
-fi],
-[
-trickledm=false
-TRICKLESUPPORT="#!! Not compiled !! "
-AC_MSG_RESULT(no)
-]
-)
-AM_CONDITIONAL(ENABLE_TRICKLEDM, test "x$trickledm" = "xtrue")
-AC_SUBST(TRICKLESUPPORT)
-
 # install DM lists if necessary
 AM_CONDITIONAL(NEED_DMLISTS, test "x$dmlists" = "xtrue")
 
@@ -737,8 +684,6 @@ configs/lists/exceptionphraselist
 configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
-configs/downloadmanagers/fancy.conf
-configs/downloadmanagers/trickle.conf
 configs/contentscanners/Makefile
 configs/contentscanners/clamdscan.conf
 configs/contentscanners/avastdscan.conf

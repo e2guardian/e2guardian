@@ -9,7 +9,8 @@
 # out blocked sites should be
 # put here.
 #
-# Hostnames are allowed here, provided you
+# Hostnames are NOT allowed here, 
+# put these in exceptionclientlist and
 # enable the reverseclientlookups option.
 #
 # This is not the IP of web servers
@@ -24,8 +25,3 @@
 # 10.0.0.1-10.0.0.3
 # 10.0.0.0/24
 #
-# Hostnames can also be used, provided
-# you cater for reverse DNS lookups
-# on your LAN and enable the
-# "reverseclientiplookups" option in
-# e2guardian.conf

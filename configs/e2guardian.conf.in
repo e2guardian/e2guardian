@@ -210,9 +210,18 @@ filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 # authrequiresuserandgroup = off
 
 # Authentication files location
-# These are now replaced with pre-authstoryboard
-#bannediplist = '@DGCONFDIR@/lists/bannediplist'
-#exceptioniplist = '@DGCONFDIR@/lists/exceptioniplist'
+# These are now replaced with pre-authstoryboard logic but lists defined here
+#
+# bannediplist is ONLY for banned client IP
+#iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=@DGCONFDIR@/lists/bannediplist'
+# Put client dns names in bannedclientlist if required
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=@DGCONFDIR@/lists/bannedclientlist'
+# exceptioniplist is ONLY for exception client IP
+#iplist = 'name=exceptionclient,messageno=600,path=@DGCONFDIR@/lists/exceptioniplist'
+# Put client dns names in exceptionclientlist if required
+#sitelist = 'name=exceptionclient,messageno=631,path=@DGCONFDIR@/lists/exceptionclientlist'
+
+#Note: only iplist, sitelist, ipsitelist and urllist can currently be defined for use with pre-authstoryboard.
 
 # Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
@@ -324,7 +333,7 @@ maxcontentfiltersize = 256
 
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
-# This is the max size of file that DG will download and cache
+# This is the max size of file that e2g will download and cache
 # in RAM.  After this limit is reached it will cache to disk
 # This value must be less than or equal to maxcontentfilecachescansize.
 # The size is in Kibibytes - eg 10240 = 10Mb

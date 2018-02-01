@@ -23,11 +23,12 @@
 // GLOBALS
 
 extern bool is_daemonised;
+extern thread_local std::string thread_id;
 
 
 
-ListContainer total_block_site_list;
-ListContainer total_block_url_list;
+//ListContainer total_block_site_list;
+//ListContainer total_block_url_list;
 
 // IMPLEMENTATION
 
@@ -406,15 +407,17 @@ bool OptionContainer::read(std::string& filename, int type)
                 return false;
             }
 
-            content_scanner_timeout = findoptionI("contentscannertimeout");
-            if (!realitycheck(content_scanner_timeout, 1, 0, "contentscannertimeout")) {
+            content_scanner_timeout_sec = findoptionI("contentscannertimeout");
+            if (!realitycheck(content_scanner_timeout_sec, 1, 0, "contentscannertimeout")) {
                 return false;
             }
 
-            if (content_scanner_timeout > 0)
-                content_scanner_timeout = content_scanner_timeout * 1000;
-            else
+            if (content_scanner_timeout_sec > 0)
+                content_scanner_timeout = content_scanner_timeout_sec * 1000;
+            else {
                 content_scanner_timeout = pcon_timeout;
+                content_scanner_timeout_sec = pcon_timeout_sec;
+            }
 
             if (findoptionS("scancleancache") == "off") {
                 scan_clean_cache = false;
@@ -859,11 +862,11 @@ bool OptionContainer::read(std::string& filename, int type)
         } // messages language file
 
 
-        if(!createLists(0))  {
-                std::cerr << "Error reading filter group conf file(s)." << std::endl;
-            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
-            return false;
-        }
+ //       if(!createLists(0))  {
+ //               std::cerr << "Error reading filter group conf file(s)." << std::endl;
+//            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+//            return false;
+//        }
 
 
 #ifdef _SSLMITM
@@ -897,9 +900,10 @@ bool OptionContainer::read(std::string& filename, int type)
 // read from stdin, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw
 // listname is used in error messages.
-bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *listname, const char *startstr)
+#ifdef NOTDEF
+bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *listname )
 {
-    bool result = lc->readStdinItemList(sortsw, 1, startstr);
+    bool result = lc->readStdinItemList(sortsw, 1);
     if (!result) {
         if (!is_daemonised) {
             std::cerr << "Error opening " << listname << std::endl;
@@ -913,23 +917,77 @@ bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *list
         lc->doSort(false);
     return true;
 }
+#endif
 
 bool OptionContainer::readinStdin()
 {
-    String sitelist = "totalblocksitelist";
-    String sitess = "#SITELIST";
-    if (!readStdin(&total_block_site_list, false, sitelist.c_str(), sitess.c_str())) {
+    if (!std::cin.good()) {
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error reading stdin: " << std::endl;
+        }
+        syslog(LOG_ERR, "Error reading stdin");
         return false;
     }
-    total_block_site_flag = true;
-    if (!readStdin(&total_block_url_list, true, "totalblockurllist", "#URLLIST")) {
-        return false;
+    std::string linebuffer;
+    String temp ;
+    while (!std::cin.eof()) {
+    //   std::cerr << "wiating for stdin" << std::endl;
+        getline(std::cin, linebuffer);
+    //    std::cerr << "Line in: " << linebuffer << std::endl;
+        if (linebuffer.length() < 2)
+            continue; // its jibberish
+
+        temp = linebuffer.c_str();
+        bool site_list = false;
+        bool url_list = false;
+        if (linebuffer[0] == '#') {
+            if (temp.startsWith("#SITELIST:"))
+                site_list = true;
+            else if (temp.startsWith("#URLLIST:"))
+                url_list = true;
+            else
+                continue;
+            String param = temp.after(":");
+            String nm, fpath;
+            String t = param;
+            bool startswith;
+            t.removeWhiteSpace();
+            t = t + ",";
+            while (t.length() > 0) {
+                if (t.startsWith("name=")) {
+                    nm = t.after("=").before(",");
+                } else if (t.startsWith("path=")) {
+                    fpath = t.after("=").before(",");
+                }
+                t = t.after(",");
+            }
+            if (!fpath.startsWith("memory:")) {
+                // syntax error
+                return false;
+            }
+            if (nm.length() == 0) {
+                // syntax error
+                return false;
+            }
+            if(site_list)
+                startswith = false;
+            else
+                startswith = true;
+
+            int rc = lm.newItemList(fpath.c_str(),startswith,1, true);
+            if (rc < 0)
+                return false;
+             lm.l[rc]->doSort(url_list);
+            if(site_list)
+                sitelist_dq.push_back(param);
+            else
+                urllist_dq.push_back(param);
+        }
     }
-    total_block_url_flag = true;
     return true;
 }
 
-char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
+const char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
 {
     String lastcategory;
     url.removeWhiteSpace(); // just in case of weird browser crap
@@ -938,7 +996,7 @@ char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool 
     if (url.contains("/")) {
         url = url.before("/"); // chop off any path after the domain
     }
-    char *i;
+    const char *i;
     //bool isipurl = isIPHostname(url);
     while (url.contains(".")) {
         i = lc->findInList(url.toCharArray(), lastcategory);
@@ -995,7 +1053,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
             std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
             std::cout << "url: " << url << fl << std::endl;
 #endif
-            //syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
+            ///syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                     return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -1009,6 +1067,7 @@ char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool s
     return NULL;
 }
 
+#ifdef NOTDEF
 bool OptionContainer::inTotalBlockList(String &url)
 {
     String murl = url;
@@ -1021,6 +1080,8 @@ bool OptionContainer::inTotalBlockList(String &url)
     }
     return false;
 }
+#endif
+
 
 #ifdef NOTDEF
 bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort)

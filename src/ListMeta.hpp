@@ -55,6 +55,8 @@ class ListMeta
         std::deque<unsigned int> reg_list_ref;
         unsigned int mess_no;
         unsigned int log_mess_no;
+        bool anon_log;
+        bool site_wild;
     };
 
     struct list_result {
@@ -63,6 +65,7 @@ class ListMeta
         String result;   // to hold any modified Sting
         int mess_no;
         int log_mess_no;
+        bool anon_log;
     };
 
     std::vector<list_info> list_vec;
@@ -90,9 +93,9 @@ class ListMeta
 
 private:
 
-    char *inURLList(String &url, unsigned int list,  String &lastcategory);
-    char *inSiteList(String &url, unsigned int list,  String &lastcategory);
-    char *inSearchList(String &words, unsigned int list,String &lastcategory);
+    char *inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
+    const char *inSiteList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
+    const char *inSearchList(String &words, unsigned int list,String &lastcategory);
     int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
     bool headerRegExpReplace(ListMeta::list_info &listi, std::deque<String> &header, list_result &res );

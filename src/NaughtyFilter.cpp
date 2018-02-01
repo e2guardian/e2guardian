@@ -92,6 +92,7 @@ void NaughtyFilter::setURL(bool set_ismitm) {
 
 void NaughtyFilter::reset()
 {
+    anon_log = o.anonymise_logs;
     logurl = "";
     isItNaughty = false;
     isException = false;

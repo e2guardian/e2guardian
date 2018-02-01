@@ -87,7 +87,7 @@ class LOptionContainer
     void loadRooms(bool throw_error);
     void deleteRooms();
 
-    char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
+    const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
     String ISTag() {

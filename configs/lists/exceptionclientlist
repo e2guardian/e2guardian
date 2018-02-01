@@ -1,0 +1,16 @@
+# Doamin names of computers from which
+# web access should not be filtered.
+#
+# These would be servers which
+# need unfiltered access for
+# updates.  Also administrator
+# workstations which need to
+# download programs and check
+# out blocked sites should be
+# put here.
+#
+# To work you must 
+# cater for reverse DNS lookups
+# on your LAN and enable the
+# "reverseclientiplookups" option in
+# e2guardian.conf

@@ -1,10 +1,7 @@
 This is the v5 development version (v5.0).  
 
-Note that large sections of the code are being re-written and there are
-significant changes to the configuration files in this releases.
-
-Note: This version is work in progress and instructions 
-may be incomplete.   If in doubt - read the source!
+Note that large sections of the code has been re-written and there are
+significant changes to the configuration files in this release.
 
 The v5 is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the full c++11).  
@@ -91,7 +88,7 @@ REVISED DEBUG STAGE 1
 
     Regular expressions - use REDEBUG instead
 
-    This reduces the volume of inforamtion and makes the debug
+    This reduces the volume of information and makes the debug
     log easier to read.
 
 HTTP/1.1
@@ -103,26 +100,45 @@ ANTI-VIRUS PLUGINS
     Anti-virus plugins implimented for proxy, trans and ICAP - but individual
     plug-ins not tested
 
+INCLUDE FILES IN e2guardianf1.conf
+
+    Filtergroup configuration files may now include other files, enabling 
+    a more DRY approach to configuration. So configuration common to several
+    filtergroups can be placed in a file which is included in the filtergroup 
+    config file.  Note that where single options and list defines with the same
+    Syntax is same as list includes  -
+    .include<full_path_to_file>
+
+    Where single options and list defines with the same name are 
+    repeated only the last one read will be actioned.  This differs 
+    from previous versions where the first single option was actioned and any 
+    repeats ignored.  This allows the overwriting of single options and 
+    re-definion of lists in a structured way.
+
+LIST INPUT VIA STDIN
+--------------------
+
+This replaces the totalblocklist in previous versions allowing multiple
+lists to be loaded via stdin.  See notes/lists_via_stdin.
+
 TESTING -  
 ---------
 
-    This version is at a test stage. 
+    This version is at a pre-release test stage. 
 
     Please test all functions.
 
     Please prefix all bug reports with "V5.0 "
 
 
-TODO - for this release.
------------------------
+TODO - for this release before production.
+-----------------------------------------
 
     Final tidy code.
     Add more notes.
 
 TODO - for next releases.
 -----------------------
-
-    Multiple total blocks list and revised input format.
 
     Transparent HTTP/HTTPS on ports other than 80/443
 
@@ -146,6 +162,6 @@ WISHLIST
 
     Rate-limiting feature 
 
-Philip Pearce 11 December 2017
+Philip Pearce 25 January 2018
 
 

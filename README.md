@@ -5,16 +5,13 @@ This is the v5 development version.  v5.0.
 Note that large sections of the code are being re-written and there are
 significant changes to the configuration files in this release.
 
-Note: This version is work in progress and instructions 
-may be incomplete.   If in doubt - read the source!
-
 Please read notes/NEWIN_v5 before installing.
 
 **For copyright go to: http://e2guardian.org**
 
-e2guardian is a content filtering proxy that can work in conjunction with another
+e2guardian is a content filtering proxy that can work with or without a
 caching proxy such as Squid . More information can be found in the
-e2guardian(8) man page, the "doc" subdirectory of the distribution, and the
+"doc" subdirectory of the distribution, and the
 comments in the configuration and list files themselves.
 
 e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the maintainers fully acknowledge
@@ -43,7 +40,7 @@ Github: https://github.com/e2guardian/e2guardian/issues
 
 ## License
 
-Copyright 2017, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2018, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as

@@ -31,7 +31,7 @@ exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 
 #banned lists
 sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
-ipsitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplist'
+ipsitelist = 'name=banned,messageno=510,path=@DGCONFDIR@/lists/bannedsiteiplist'
 urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
 regexpboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
 regexpboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
@@ -328,6 +328,14 @@ infectionbypasserrorsonly = on
 # other types.
 # (on|off) default = off.
 disablecontentscan = off  
+
+# Disable content scanning with error (timeout, AV crash, etc)
+# If you enable this option you will allow object with an unexpected result
+# Content scanning primarily is AV scanning (if enabled) but could include
+# other types.
+# With "on" you can allow INFECTED objects 
+# (on|off) default = off. (default and highly recommended)
+disablecontentscanerror = off
 
 # If 'on' exception sites, urls, users etc will be scanned
 # This is probably not desirable behavour as exceptions are

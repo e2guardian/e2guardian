@@ -582,6 +582,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
+                gettimeofday(&thestart, NULL);
+                checkme.thestart = thestart;
 
                 // quick trick for the very first connection :-)
                 if (!ismitm)
@@ -634,6 +636,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // reset now.
                 docheader.reset();
                 docbody.reset();
+                peerconn.resetChunk();
+                proxysock.resetChunk();
 
             }
 //
@@ -663,7 +667,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 break;
             }
 
-            // do total block list checking here
+            // do total block list checking here - now done in pre-auth story
+#ifdef NOTDEF
             if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
                 if (checkme.isconnect) {
                     writeback_error(checkme, peerconn, 0, 0, "404 Banned Site");
@@ -674,6 +679,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 proxysock.close(); // close connection to proxy
                 break;
             }
+#endif
 
             // don't let the client connection persist if the client doesn't want it to.
             persistOutgoing = header.isPersistent();
@@ -957,8 +963,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //if not naughty now send upstream and get response
             if (checkme.isItNaughty) {
-                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm)
+                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm) {
                     checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                    if (checkme.isdirect) {  // send connection estabilished to client
+                        std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
+                        if (!peerconn.writeString(msg.c_str()))
+                            cleanThrow("Unable to send to client 859", peerconn, proxysock);
+                    }
+                }
             } else {
                 if (!persistProxy) // open upstream connection
                 {
@@ -1258,7 +1270,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
+        if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !cm.anon_log) {
 #ifdef DGDEBUG
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
@@ -1267,6 +1279,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
                 clienthost = new std::string(names->front().toCharArray());
             delete names;
         }
+
 
 
         // Build up string describing POST data parts, if any
@@ -1300,6 +1313,17 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
+        std::string  l_who = who;
+        std::string l_from = from;
+        std::string l_clienthost;
+        if(clienthost != NULL)
+            std::string l_clienthost = *clienthost;
+
+        if(cm.anon_log) {
+            l_who = "";
+            l_from = "0.0.0.0";
+            l_clienthost = "";
+        }
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Building raw log data string... ";
@@ -1313,8 +1337,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         data += where + cr;
         data += what + cr;
         data += how + cr;
-        data += who + cr;
-        data += from + cr;
+        data += l_who + cr;
+        data += l_from + cr;
         data += String(port) + cr;
         data += String(wasscanned) + cr;
         data += String(wasinfected) + cr;
@@ -1328,7 +1352,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
-        data += (clienthost ? (*clienthost) + cr : cr);
+        data += l_clienthost + cr ;
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
@@ -1918,6 +1942,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 else if (csrc != DGCS_CLEAN) {
                     if (csrc < 0) {
                         syslog(LOG_ERR, "Unknown return code from content scanner: %d", csrc);
+			if (ldl->fg[filtergroup]->disable_content_scan_error) {
+				syslog(LOG_ERR, "disablecontentscanerror is on : bypass actived USER: %s URL: %s ", clientip->c_str(), url.c_str());
+				(*wasscanned) = false;
+                    		(*wasinfected) = false;
+                                break;
+			}
                     } else {
                         syslog(LOG_ERR, "scanFile/Memory returned error: %d", csrc);
                     }
@@ -2953,6 +2983,12 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.connect_site = checkme.urldomain;
             checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
             checkme.docsize = 0;
+            gettimeofday(&checkme.thestart, NULL);
+
+            if(checkme.isconnect) {
+            persistPeer = false;
+            persistOutgoing = false;
+            }
 
             // do total block list checking here
             //if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {     // not sure if we should do this here!!!!
@@ -3230,6 +3266,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
+                gettimeofday(&thestart, NULL);
+                checkme.thestart = thestart;
             }
 
            {
@@ -3290,6 +3328,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 // reset now.
                 docbody.reset();
                 docbody.setICAP(true);
+                peerconn.resetChunk();
 
             }
 
@@ -3407,7 +3446,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         return 0;
     }
 
-    // do total block list checking here
+    // do total block list checking here - now done in pre-auth story
+#ifdef NOTDEF
     if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
         res_hdr = "HTTP/1.1 200 OK\n";
         o.banned_image.display_hb(res_hdr, res_body);
@@ -3417,6 +3457,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
         return 0;
     }
+#endif
 
     //
     //

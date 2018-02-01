@@ -70,6 +70,7 @@
 "507","HTTPS access by IP address is not allowed."    # needs translation
 "508","Access not allowed using this browser (or app): "    # needs translation
 "509","Access not allowed using this browser (or app)."    # needs translation
+"510","Blocked IP site "    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
 "522","Blocked User-Agent: "    # needs translation

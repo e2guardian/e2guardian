@@ -36,6 +36,8 @@ extern thread_local std::string thread_id;
 
 // DEFINES
 
+//#define SBDEBUG
+
 // Constructor - set default values
 StoryBoard::StoryBoard() {
     fnt_cnt = 0;
@@ -388,6 +390,18 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 target = cm.request_header->userAgent();   // needs spliting before??
                 target2 = "";
                 break;
+            case SB_STATE_EXTENSIONIN:
+                target = cm.response_header->disposition();
+                if (target.length() > 4)
+                     isListCheck = true;
+                target2 = "";
+                break;
+            case SB_STATE_MIMEIN:
+                target = cm.response_header->getContentType();
+                if (target.length() > 4)
+                    isListCheck = true;
+                target2 = "";
+                break;
             case SB_STATE_CONNECT:
                 state_result = cm.isconnect;
                 break;
@@ -469,6 +483,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
+                            if (res.anon_log)
+                                cm.anon_log = true;
                         }
 #ifdef SBDEBUG
                         std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
@@ -510,6 +526,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         cm.log_message_no = res.log_mess_no;
                         cm.lastmatch = res.match;
                         cm.result = res.result;
+                        if (res.anon_log)
+                            cm.anon_log = true;
                     }
 
 #ifdef SBDEBUG
@@ -552,6 +570,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
+                            if (res.anon_log)
+                                cm.anon_log = true;
                         }
 #ifdef SBDEBUG
                         std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
@@ -599,6 +619,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             cm.isReturn = action_return;
             continue;        // nothing to do so continue to next SB line
         }
+
 
         action_return = true;
 
