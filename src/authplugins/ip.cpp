@@ -172,14 +172,16 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     return DGAUTH_OK;
 }
 
-int ipinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
+int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 {
     struct in_addr sin;
     inet_aton(user.c_str(), &sin);
     uint32_t addr = ntohl(sin.s_addr);
+    int fg;
     // check straight IPs, subnets, and ranges
     fg = inList(addr);
     if (fg >= 0) {
+        rfg = fg;
 #ifdef DGDEBUG
         std::cerr << thread_id << "Matched IP " << user << " to straight IP list" << std::endl;
 #endif
@@ -187,6 +189,7 @@ int ipinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
     }
     fg = inSubnet(addr);
     if (fg >= 0) {
+        rfg = fg;
 #ifdef DGDEBUG
         std::cerr << thread_id << "Matched IP " << user << " to subnet" << std::endl;
 #endif
@@ -194,6 +197,7 @@ int ipinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
     }
     fg = inRange(addr);
     if (fg >= 0) {
+        rfg = fg;
 #ifdef DGDEBUG
         std::cerr << thread_id << "Matched IP " << user << " to range" << std::endl;
 #endif
