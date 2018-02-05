@@ -242,18 +242,18 @@ exit -1
 	if test "$GCC_VERSION_MINOR" -ge 9; then
 		if test "$GCC_VERSION_PATCH" -ge 3; then
                         echo "Version: $GCC_VERSION"
-                        CXXFLAGS="--std=c++11"
+                        CXXFLAGS="${CXXFLAGS} --std=c++11"
                 fi
         fi
 	echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++1y"
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
 else
         if test "$GCC_VERSION_MAJOR" -ge 5; then
         echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++11"
+        CXXFLAGS="${CXXFLAGS} --std=c++11"
 	else
 	echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++1y"
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
 	fi
 fi
 ]
