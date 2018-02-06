@@ -139,10 +139,10 @@ else
   AC_MSG_RESULT(no)
 # enable by default
   newdebug=${withval}
-  AC_DEFINE(NEWDEBUG_NO, 1, [Define to disable debuglevel build mode])
+  AC_DEFINE(NEWDEBUG_OFF, 1, [Define to disable debuglevel build mode])
 fi], [
   # enable by default
-  AC_DEFINE(NEWDEBUG_ON, 1, [Define to enable debuglevel build mode])
+  AC_DEFINE(NEWDEBUG_OFF, 1, [Define to enable debuglevel build mode])
   AC_MSG_RESULT(yes)
 ])
 
