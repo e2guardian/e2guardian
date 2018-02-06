@@ -14,7 +14,6 @@ DebugManager::DebugManager(std::string debuglevel, std::string path_debuglevel)
 		if(pFile != NULL)
 		{
 			m_e2debug = true;
-			fclose(pFile);
 		}
 		else
 		{
@@ -31,6 +30,7 @@ DebugManager::DebugManager(std::string debuglevel, std::string path_debuglevel)
 
 DebugManager::~DebugManager()
 {
+	fclose(pFile);
 }
 
 void DebugManager::Debug(std::string value, std::string output)
@@ -69,13 +69,11 @@ void DebugManager::Debug(std::string value, std::string output)
 
 		if(result != "")
 		{
-			pFile = fopen(m_path_debuglevel.c_str(),"a");
 			if(pFile != NULL)
 			{
 				std::ostringstream oss (std::ostringstream::out);
 				oss << result << " debug : " << output << std::endl;
 				fputs(oss.str().c_str(),pFile);
-				fclose(pFile);
 			}
 		}
 	}
