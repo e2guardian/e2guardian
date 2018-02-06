@@ -21,7 +21,7 @@
 #include "IPList.hpp"
 #include "Queue.hpp"
 #include "LOptionContainer.hpp"
-
+#include "DebugManager.hpp"
 #include <deque>
 #include <atomic>
 
@@ -41,6 +41,7 @@ class OptionContainer
 #ifndef NEWDEBUG_OFF
     std::string debuglevel;
     std::string path_debuglevel;
+    DebugManager * myDebug;
 #endif 
 
     // all our many, many options

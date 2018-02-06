@@ -133,6 +133,7 @@ bool OptionContainer::read(std::string& filename, int type)
 		    {
 
 		    }
+		    myDebug = new DebugManager(debuglevel, path_debuglevel);
 #endif
                     if ((stat_location = findoptionS("statlocation")) == "") {
                         stat_location = __LOGLOCATION;
