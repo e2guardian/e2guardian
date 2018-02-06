@@ -10,7 +10,7 @@ DebugManager::DebugManager(std::string debuglevel, std::string path_debuglevel)
 	m_path_debuglevel = path_debuglevel;
 	if(m_debuglevel != "" && m_path_debuglevel != "")
 	{
-		pFile = fopen(m_path_debuglevel.c_str(),"w");
+		pFile = fopen(m_path_debuglevel.c_str(),"a");
 		if(pFile != NULL)
 		{
 			m_e2debug = true;
@@ -69,7 +69,7 @@ void DebugManager::Debug(std::string value, std::string output)
 
 		if(result != "")
 		{
-			pFile = fopen(m_path_debuglevel.c_str(),"w");
+			pFile = fopen(m_path_debuglevel.c_str(),"a");
 			if(pFile != NULL)
 			{
 				std::ostringstream oss (std::ostringstream::out);
