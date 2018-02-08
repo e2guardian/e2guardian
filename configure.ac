@@ -689,6 +689,7 @@ data/scripts/e2guardian.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
+configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile
