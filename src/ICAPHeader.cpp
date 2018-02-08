@@ -693,16 +693,24 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 	if(o.myDebug->gete2debug())
 	{
 		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "Returning from header:in Server didnot respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+		oss << thread_id << "Returning from header:in Server did not respond with ICAP length: " << line.length() << " content: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 		o.myDebug->Debug("ICAP",oss.str());
-        	std::cerr << thread_id << "Returning from header:in Server did not respond with ICAP " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        	std::cerr << thread_id << "Returning from header:in Server did not respond with ICAP length: " <<  line.length() << " content: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 	}
 #endif
                     return false;
                 }
             } else {
                 method = line.before(" ");
-                std::cerr << thread_id << "line is " << line << std::endl;
+#ifndef NEWDEBUG_OFF
+        if(o.myDebug->gete2debug())
+        {
+                std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "Returning from header:in Server respond with ICAP length: " << line.length() << " content: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                o.myDebug->Debug("ICAP",oss.str());
+                std::cerr << thread_id << "Returning from header:in Server respond with ICAP length: " <<  line.length() << " content: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        }
+#endif
                 String t = line.after(" ").before(" ");
                 std::cerr << thread_id << "t is " << t << std::endl;
                 if (t.startsWith("icap://")) {
