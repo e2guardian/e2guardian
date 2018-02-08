@@ -1674,7 +1674,9 @@ String HTTPHeader::URLEncode()
 
 String HTTPHeader::stringHeader() {
     String l;
+#ifdef DGDEBUG
     std::cerr << thread_id << "stringHeader started hsize=" << header.size() << std::endl;
+#endif
     if (header.size() > 0) {
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             if (! (*i).startsWith("X-E2G-IgnoreMe")){

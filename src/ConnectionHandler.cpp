@@ -3281,51 +3281,46 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << " ICAP -persisting (count " << ++pcount << ")" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            oss << thread_id << " - " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
+                if(o.myDebug->gete2debug())
+                {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << " ICAP -persisting (count " << ++pcount << ")" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    oss << thread_id << " - " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
 
-            std::cerr << thread_id << " ICAP -persisting (count " << ++pcount << ")" << __LINE__ << " Function: " << __func__ << std::endl;
-            std::cerr << thread_id << " - " << clientip << std::endl;
-        }
+                    std::cerr << thread_id << " ICAP -persisting (count " << ++pcount << ")" << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << thread_id << " - " << clientip << std::endl;
+                }
 #endif
                 icaphead.reset();
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
-
-
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << " -ICAP Persistent connection timed out" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << " -ICAP Persistent connection timed out" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-        }
+                        if(o.myDebug->gete2debug())
+                        {
+                            std::ostringstream oss (std::ostringstream::out);
+                            oss << thread_id << " -ICAP Persistent connection timed out" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            o.myDebug->Debug("ICAP",oss.str());
+                            std::cerr << thread_id << " -ICAP Persistent connection timed out" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        }
 #endif
                         //send error response
-                        String wline = "ICAP/1.0 408 Request timeout\r\n";
-                        wline += "Service: e2guardian 5.0\r\n";
-                        wline += "Encapsulated: null-body=0\r\n";
-                        wline += "\r\n";
-                        peerconn.writeString(wline.toCharArray());
+                            String wline = "ICAP/1.0 408 Request timeout\r\n";
+                            wline += "Service: e2guardian 5.0\r\n";
+                            wline += "Encapsulated: null-body=0\r\n";
+                            wline += "\r\n";
+                            peerconn.writeString(wline.toCharArray());
                     } else {
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << " -ICAP Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-
-            std::cerr << thread_id << " -ICAP Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-        }
+                            if(o.myDebug->gete2debug())
+                            {
+                                std::ostringstream oss (std::ostringstream::out);
+                                oss << thread_id << " -ICAP Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                o.myDebug->Debug("ICAP",oss.str());
+                                std::cerr << thread_id << " -ICAP Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            }
 #endif
-
-
                             // TODO: send error reply if needed
                             break;
                         }
