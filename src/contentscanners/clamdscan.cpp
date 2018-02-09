@@ -121,7 +121,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
       	std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << thread_id << "clamdscan command:" << command  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << thread_id << "clamdscan command:" << command << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << "clamdscan command:" << command << std::endl;
        }
@@ -151,7 +151,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << lastmessage.toCharArray()  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << lastmessage.toCharArray() << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
        }
@@ -174,7 +174,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << lastmessage.toCharArray()  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << lastmessage.toCharArray() << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
        }
@@ -190,7 +190,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "Got from clamdscan: " << reply << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << "Got from clamdscan: " << reply << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << "Got from clamdscan: " << reply << std::endl;
        }
@@ -209,7 +209,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan INFECTED! with: " << lastvirusname  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << "clamdscan INFECTED! with: " << lastvirusname  << std::endl;
        }
@@ -219,7 +219,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
        }
@@ -239,7 +239,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if(o.myDebug->gete2debug())
       {
         std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan - he say yes (clean)" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        oss << thread_id << "clamdscan - he say yes (clean)" << std::endl;
         o.myDebug->Debug("CLAMAV",oss.str());
         std::cerr << thread_id << "clamdscan - he say yes (clean)" << std::endl;
        }

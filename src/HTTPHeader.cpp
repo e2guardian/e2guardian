@@ -977,7 +977,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
 
 #ifdef DGDEBUG
-        std::cerr << thread_id << "Header value from client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "Header value from client: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
 }
