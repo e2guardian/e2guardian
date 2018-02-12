@@ -196,6 +196,9 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
+#ifdef DGDEBUG
+        std::cerr << thread_id << "disable_content_scan " << disable_content_scan << " disablecontentscanerror: " << disable_content_scan_error << " contentscanexceptions: " << content_scan_exceptions << std::endl;
+#endif
 
         String mimes = findoptionS("textmimetypes");
         if (mimes != "") {

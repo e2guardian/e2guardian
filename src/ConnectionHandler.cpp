@@ -3343,17 +3343,43 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 peerconn.resetChunk();
 
             }
-
+#ifndef NEWDEBUG_OFF
+            if(o.myDebug->gete2debug())
+            {
+                std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
+                o.myDebug->Debug("ICAP",oss.str());
+                std::cerr << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
+            }
+#endif
             // Check service option REQMOD, RESMOD, OPTIONS and call appropreate function(s)
             //
             if (icaphead.service_reqmod && icaphead.icap_reqmod_service) {
+#ifndef NEWDEBUG_OFF
+                if(o.myDebug->gete2debug())
+                {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << "Icap reqmod check " << std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
+                    std::cerr << thread_id << "Icap reqmod check " << std::endl;
+                }
+#endif
                 if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0)
                     continue;
                 else
                     break;
 
             } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
-                if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
+#ifndef NEWDEBUG_OFF
+                if(o.myDebug->gete2debug())
+                {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << "Icap resmod check " << std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
+                    std::cerr << thread_id << "Icap resmod check " << std::endl;
+                }
+#endif
+            if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
                     continue;
                 else
                    break;
@@ -3371,6 +3397,15 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
              //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
+#ifndef NEWDEBUG_OFF
+                if(o.myDebug->gete2debug())
+                {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << "respmod service options response : " << wline << std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
+                    std::cerr << thread_id << "respmod service options response : " << wline << std::endl;
+                }
+#endif
             } else if (icaphead.service_options && icaphead.icap_resmod_service) {
                // respond with option response
                 wline = "ICAP/1.0 200 OK\r\n";
@@ -3383,6 +3418,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "Allow: 204\r\n";
              //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
+                peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->gete2debug())
                 {
@@ -3392,7 +3428,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                     std::cerr << thread_id << "respmod service options response : " << wline << std::endl;
                 }
 #endif
-                peerconn.writeString(wline.toCharArray());
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 wline = "ICAP/1.0 405 Method not allowed for service\r\n";
@@ -3426,16 +3461,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 }
 #endif
             }
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
-            }
-#endif
-
         }
     //    } //catch (std::exception & e)
 
@@ -3777,9 +3802,9 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                 std::cerr << thread_id << " ICAP Error: " << wline << std::endl;
         }
 #endif
-
         return 1;
     }
+
 
     checkme.filtergroup = icaphead.icap_com.filtergroup;
     clientuser = icaphead.icap_com.user;
@@ -3806,10 +3831,16 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
     }
 
-#ifdef DGDEBUG
-            std::cerr << thread_id << " -username: " << clientuser << " -filtergroup: " << filtergroup << std::endl;
+
+#ifndef NEWDEBUG_OFF
+    if(o.myDebug->gete2debug())
+    {
+            std::ostringstream oss (std::ostringstream::out);
+            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << checkme.filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
+            o.myDebug->Debug("ICAP",oss.str());
+            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << checkme.filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
+    }
 #endif
-//
 
     checkme.clientip = ip;
 
@@ -3825,11 +3856,23 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     // virus checking candidate?
     // checkme.noviruscheck defaults to true
+#ifndef NEWDEBUG_OFF
+            if(o.myDebug->gete2debug())
+            {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
+                    std::cerr << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
+            }
+#endif
+
+ldl->fg[filtergroup]->content_scan_exceptions = true;
+
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
         && (o.csplugins.size() > 0)            //  and we have scan plugins
         && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
-        && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
+        && !(checkme.isexception || !ldl->fg[filtergroup]->content_scan_exceptions)
         && !checkme.isvirusbypass   // and is not virus bypass
         // and not exception unless scan exceptions enable
         ) {
@@ -3839,20 +3882,27 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
-            if (!(checkme.isexception) || !checkme.noviruscheck) {
+    if (!(checkme.isexception) || !checkme.noviruscheck) {
 // Main checking is done in Storyboard function(s)
-                    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
-#ifdef DGDEBUG
-                    std::cerr << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no "
-                              << checkme.message_no << std::endl;
-#endif
-                    checkme.isItNaughty = checkme.isBlocked;
+            ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
+#ifndef NEWDEBUG_OFF
+            if(o.myDebug->gete2debug())
+            {
+                    std::ostringstream oss (std::ostringstream::out);
+                    oss << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions <<  std::endl;
+                    o.myDebug->Debug("ICAP",oss.str());
+                    std::cerr << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << std::endl;
             }
+#endif
+            checkme.isItNaughty = checkme.isBlocked;
+    }
 
     if(checkme.isexception &&!checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)
         checkme.noviruscheck = true;
+    if (ldl->fg[filtergroup]->content_scan_exceptions && checkme.isexception)
+        checkme.noviruscheck = false;
 
-if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
+    if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
         if (icaphead.allow_204) {
             icaphead.respond(peerconn, "204 No Content");
             if (icaphead.res_body_flag) {
@@ -3865,7 +3915,7 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
                 peerconn.loopChunk(peerconn.getTimeout());   // echos any body
             }
         }
-    done = true;
+        done = true;
     }
 
     // should now only be left with grey which has content body
@@ -3873,32 +3923,33 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
             //- if grey content check
                 // can't do content filtering on HEAD or redirections (no content)
                 // actually, redirections CAN have content
-                if (!done && !checkme.isItNaughty) {
-                    if(!checkme.noviruscheck)
-                    {
-                        for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
-                            int csrc = ((CSPlugin *)(*i))->willScanRequest(checkme.url, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
-                            if (csrc > 0)
-                                responsescanners.push_back((CSPlugin *)(*i));
-                            else if (csrc < 0)
-                                syslog(LOG_ERR, "%swillScanRequest returned error: %d", thread_id.c_str(), csrc);
-                        }
+
+   if (!done && !checkme.isItNaughty) {
+           if(!checkme.noviruscheck)
+                {
+                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                        int csrc = ((CSPlugin *)(*i))->willScanRequest(checkme.url, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
+                        if (csrc > 0)
+                            responsescanners.push_back((CSPlugin *)(*i));
+                        else if (csrc < 0)
+                            syslog(LOG_ERR, "%swillScanRequest returned error: %d", thread_id.c_str(), csrc);
                     }
-                    check_content(checkme, docbody,peerconn, peerconn,responsescanners);
                 }
+                check_content(checkme, docbody,peerconn, peerconn,responsescanners);
+    }
 
             //send response header to client
 
-            if(!checkme.isItNaughty)  {
-                icaphead.respond(peerconn, "200 OK", true);
-                if(checkme.waschecked) {
-                    if (!docbody.out(&peerconn))
-                        checkme.pausedtoobig = false;
-                    if (checkme.pausedtoobig)
-                        checkme.tunnel_rest = true;
-                }
-                if (checkme.tunnel_rest)
-                    peerconn.loopChunk(peerconn.getTimeout());   // echos any body
+    if(!checkme.isItNaughty)  {
+            icaphead.respond(peerconn, "200 OK", true);
+            if(checkme.waschecked) {
+                if (!docbody.out(&peerconn))
+                    checkme.pausedtoobig = false;
+                if (checkme.pausedtoobig)
+                    checkme.tunnel_rest = true;
+            }
+            if (checkme.tunnel_rest)
+                peerconn.loopChunk(peerconn.getTimeout());   // echos any body
                 done = true;
             }
 

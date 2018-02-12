@@ -200,23 +200,13 @@ void ICAPHeader::checkheader(bool allowpersistent)
         {
             String t2 = *i;
             std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "Header value from ICAP client: " << t2 << std::endl;
+            oss << thread_id << "Header value from ICAP client: " << t2 <<  "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
             o.myDebug->Debug("ICAP", oss.str());
+            std::cerr << "Header value from ICAP client: " << t2 <<  "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
         }
 #endif
 
         }
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
-            o.myDebug->Debug("ICAP", oss.str());
-            std::cerr << thread_id << "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
-            o.myDebug->Debug("ICAP", oss.str());
-
-        }
-#endif
     }
 }
 
@@ -433,9 +423,9 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
 	if(o.myDebug->gete2debug())
 	{
 		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "ICAP response starting - RCode " << res_code << "echo is " << echo << std::endl;
+		oss << thread_id << "ICAP response starting - RCode " << res_code << " echo is " << echo << std::endl;
 		o.myDebug->Debug("ICAP",oss.str());
-		std::cerr << thread_id << "ICAP response starting - RCode " << res_code << "echo is " << echo << std::endl;
+		std::cerr << thread_id << "ICAP response starting - RCode " << res_code << " echo is " << echo << std::endl;
 	}
 #endif
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
@@ -813,9 +803,9 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if(o.myDebug->gete2debug())
                    {
                         std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Request method is: " << method << " error?: " << icap_error << std::endl;
+                        oss << thread_id << "Request method is: " << method << " error?: " << icap_error << " url value: " << t << std::endl;
                         o.myDebug->Debug("ICAP",oss.str());
-                        std::cerr << thread_id << "Request method is: " << method << " error?: " << icap_error << std::endl;
+                        std::cerr << thread_id << "Request method is: " << method << " error?: " << icap_error << " url value: " << t << std::endl;
                    }
 #endif
             }
