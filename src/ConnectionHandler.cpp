@@ -3805,10 +3805,8 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         return 1;
     }
 
-
     checkme.filtergroup = icaphead.icap_com.filtergroup;
     clientuser = icaphead.icap_com.user;
-
     if (icaphead.icap_com.EBG == "E") {    // exception
         checkme.isexception = true;
         checkme.message_no = icaphead.icap_com.mess_no;
@@ -3831,14 +3829,13 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
     }
 
-
 #ifndef NEWDEBUG_OFF
     if(o.myDebug->gete2debug())
     {
             std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << checkme.filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
+            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
             o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << checkme.filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
+            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
     }
 #endif
 
@@ -3857,22 +3854,20 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     // virus checking candidate?
     // checkme.noviruscheck defaults to true
 #ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
-            {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
+    if(o.myDebug->gete2debug())
+        {
+                std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
+                o.myDebug->Debug("ICAP",oss.str());
+                std::cerr << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
             }
 #endif
-
-ldl->fg[filtergroup]->content_scan_exceptions = true;
 
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
         && (o.csplugins.size() > 0)            //  and we have scan plugins
         && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
-        && !(checkme.isexception || !ldl->fg[filtergroup]->content_scan_exceptions)
+        && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
         && !checkme.isvirusbypass   // and is not virus bypass
         // and not exception unless scan exceptions enable
         ) {
@@ -3899,6 +3894,7 @@ ldl->fg[filtergroup]->content_scan_exceptions = true;
 
     if(checkme.isexception &&!checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)
         checkme.noviruscheck = true;
+
     if (ldl->fg[filtergroup]->content_scan_exceptions && checkme.isexception)
         checkme.noviruscheck = false;
 
