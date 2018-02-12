@@ -3565,13 +3565,14 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << filtergroup << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << filtergroup << std::endl;
-        }
+    if(o.myDebug->gete2debug())
+    {
+            std::ostringstream oss (std::ostringstream::out);
+            int unrealgroup = filtergroup+1;
+            oss << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
+            o.myDebug->Debug("ICAP",oss.str());
+            std::cerr << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
+    }
 #endif
 
 //
@@ -3805,7 +3806,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         return 1;
     }
 
-    checkme.filtergroup = icaphead.icap_com.filtergroup;
+    filtergroup = icaphead.icap_com.filtergroup;
     clientuser = icaphead.icap_com.user;
     if (icaphead.icap_com.EBG == "E") {    // exception
         checkme.isexception = true;
@@ -3832,10 +3833,11 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 #ifndef NEWDEBUG_OFF
     if(o.myDebug->gete2debug())
     {
+            int unrealfiltergroup = filtergroup + 1;
             std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
+            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << unrealfiltergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
             o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << filtergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
+            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << unrealfiltergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
     }
 #endif
 
