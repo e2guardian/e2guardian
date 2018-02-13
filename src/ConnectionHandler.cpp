@@ -3842,8 +3842,8 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 #endif
 
     checkme.clientip = ip;
-
-            // Look up reverse DNS name of client if needed
+    checkme.filtergroup = filtergroup;
+    // Look up reverse DNS name of client if needed
     if (o.reverse_client_ip_lookups) {
         std::unique_ptr<std::deque<String> > hostnames;
             hostnames.reset(ipToHostname(checkme.clientip.c_str()));
@@ -3966,7 +3966,8 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             }
 
             //Log
-            if (!checkme.isourwebserver) { // don't log requests to the web server
+            if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
+                checkme.whatIsNaughtyLog = "ICAP Response filtering";
                 doLog(clientuser, clientip, checkme);
             }
     if (persistPeer)
