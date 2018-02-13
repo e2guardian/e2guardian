@@ -3967,7 +3967,8 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
             //Log
             if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
-                checkme.whatIsNaughtyLog = "ICAP Response filtering";
+                checkme.whatIsNaughtyLog = "ICAP Response filtering: ";
+                checkme.whatIsNaughtyLog += checkme.whatIsNaughty;
                 doLog(clientuser, clientip, checkme);
             }
     if (persistPeer)
