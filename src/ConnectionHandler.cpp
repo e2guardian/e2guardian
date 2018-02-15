@@ -1999,11 +1999,16 @@ stat_rec* &dystat)
 //
 #endif //__SSLMITM
             // Banned rewrite SSL denied page
-            if ((is_ssl == true) && (checkme.isItNaughty == true) && (ldl->fg[filtergroup]->ssl_denied_rewrite == true)) {
+            if (is_ssl && checkme.isItNaughty && ldl->fg[filtergroup]->ssl_denied_rewrite) {
                 header.DenySSL(ldl->fg[filtergroup]);
                 String rtype(header.requestType());
+                String debug = ldl->fg[filtergroup]->sslaccess_denied_address;
                 doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart, cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
-                checkme.isItNaughty = false;
+                if (url == ldl->fg[filtergroup]->sslaccess_denied_address){
+                    checkme.isItNaughty = false;
+                    syslog(LOG_ERR, "Yep it works ! sslDeny: url %d rewrite: %d ", url.c_str(), debug.c_str());
+                }
+                syslog(LOG_ERR, "Return code from sslDeny: url %d rewrite: %d", url.c_str(), debug.c_str());
             }
 
             if (!checkme.isItNaughty && isconnect) {
