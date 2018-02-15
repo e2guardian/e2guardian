@@ -108,17 +108,17 @@ off_t HTTPHeader::contentLength()
     clcached = true;
     contentlength = -1;
 
-    // code 304 - not modified - no content
-    String temp(header.front().after(" "));
-    if (temp.startsWith("304"))
-        contentlength = 0;
-    else if (pcontentlength != NULL) {
-        temp = pcontentlength->after(":");
-	if (temp.size() < 1){
-    		contentlength = -1;
-	} else {
-        	contentlength = temp.toOffset();
-	}
+    if (header.front().size() > 1 && pcontentlength != NULL) {
+        String temp(header.front().after(" "));
+          // code 304 - not modified - no content
+        if (temp.startsWith("304")) {
+            contentlength = 0;
+        } else {
+            temp = pcontentlength->after(":");
+            contentlength = temp.toOffset();
+        }
+    } else {
+        contentlength = -1;
     }
     return contentlength;
 }
@@ -660,7 +660,6 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
             linemodified = true;
         }
     }
-
     return linemodified;
 }
 
