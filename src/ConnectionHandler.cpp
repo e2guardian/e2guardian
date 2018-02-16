@@ -1311,7 +1311,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
-        std::string  l_who = who;
+        std::string l_who = who;
         std::string l_from = from;
         std::string l_clienthost;
         if(clienthost != NULL)
@@ -2897,41 +2897,46 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #endif
 
        if(checkme.isTLS) {
-        rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
-        if (rc < 1 ) {     // get header from client, allowing persistency
-            if (o.logconerror) {
-                if (peerconn.getFD() > -1) {
+            rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
+            if (rc < 1 ) {     // get header from client, allowing persistency
+                if (o.logconerror) {
+                    if (peerconn.getFD() > -1) {
 
-                    int err = peerconn.getErrno();
-                    int pport = peerconn.getPeerSourcePort();
-                    std::string peerIP = peerconn.getPeerIP();
-                    if(peerconn.isTimedout())
-                    {
-#ifdef DGDEBUG
-                        std::cerr << thread_id << "Connection timed out" << std::endl;
-#endif
-                        }
-                    syslog(LOG_INFO, "%sNo header recd from client at %s - errno: %d", thread_id.c_str(), peerIP.c_str(), err);
-#ifdef DGDEBUG
-                    std::cerr << thread_id << "No header recd from client - errno: " << err << std::endl;
-#endif
-                } else {
-                    syslog(LOG_INFO, "%sClient connection closed early - no TLS header received",
-                            thread_id.c_str() );
+                        int err = peerconn.getErrno();
+                        int pport = peerconn.getPeerSourcePort();
+                        std::string peerIP = peerconn.getPeerIP();
+                        if(peerconn.isTimedout())
+                        {
+    #ifdef DGDEBUG
+                            std::cerr << thread_id << "Connection timed out" << std::endl;
+    #endif
+                            }
+                        syslog(LOG_INFO, "%sNo header recd from client at %s - errno: %d", thread_id.c_str(), peerIP.c_str(), err);
+    #ifdef DGDEBUG
+                        std::cerr << thread_id << "No header recd from client - errno: " << err << std::endl;
+    #endif
+                    } else {
+                        syslog(LOG_INFO, "%sClient connection closed early - no TLS header received",
+                                thread_id.c_str() );
+                    }
                 }
+                firsttime = false;
+                persistPeer = false;
+            } else {
+    #ifdef DGDEBUG
+                std::cerr << thread_id << "bytes peeked " << rc << std::endl;
+    #endif
+    /*            checkme.urldomain = get_TLS_SNI(buff, &rc);
+                if(checkme.urldomain.size() > 0)
+                    checkme.hasSNI = true;
+    */
+                char *ret = get_TLS_SNI(buff, &rc);
+                if (ret != NULL) {
+                    checkme.urldomain = ret;
+                    checkme.hasSNI = true;
+                }
+                ++dystat->reqs;
             }
-            firsttime = false;
-            persistPeer = false;
-        } else {
-#ifdef DGDEBUG
-            std::cerr << thread_id << "bytes peeked " << rc << std::endl;
-#endif
-            checkme.urldomain = get_TLS_SNI(buff, &rc);
-            if(checkme.urldomain.size() > 0)
-                checkme.hasSNI = true;
-
-            ++dystat->reqs;
-        }
         }
         {   // get original IP destination & port
 
@@ -3246,7 +3251,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         // maintain a persistent connection
         while ((firsttime || persistPeer) && !ttg)
         {
-
             ICAPHeader icaphead;
             ldl = o.currentLists();
             icaphead.ISTag = ldl->ISTag();
@@ -3266,8 +3270,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
            {
 // another round...
-
-
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->gete2debug())
                 {
@@ -3341,7 +3343,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 docbody.reset();
                 docbody.setICAP(true);
                 peerconn.resetChunk();
-
             }
 #ifndef NEWDEBUG_OFF
             if(o.myDebug->gete2debug())
@@ -3364,10 +3365,11 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                     std::cerr << thread_id << "Icap reqmod check " << std::endl;
                 }
 #endif
-                if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0)
+                if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0){
                     continue;
-                else
+                }else{
                     break;
+                }
 
             } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
 #ifndef NEWDEBUG_OFF
@@ -3379,11 +3381,10 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                     std::cerr << thread_id << "Icap resmod check " << std::endl;
                 }
 #endif
-            if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
+                if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
                     continue;
                 else
                    break;
-
             } else if (icaphead.service_options && icaphead.icap_reqmod_service) {
                 // respond with option response
                 wline = "ICAP/1.0 200 OK\r\n";
@@ -3467,13 +3468,13 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         if (!ismitm)
         try {
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
-        }
+            if(o.myDebug->gete2debug())
+            {
+                std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
+                o.myDebug->Debug("ICAP",oss.str());
+                std::cerr << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
+            }
 #endif
 
             int fd = peerconn.getFD();
@@ -3549,7 +3550,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " < std::endl;
 #endif
     clientuser = icaphead.username;
-
     int rc = DGAUTH_NOUSER;
     if(clientuser != "") {
         rc = determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
@@ -3632,8 +3632,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 #endif
     }
 
-
-
     //
     // Start of by pass
     if(!checkme.is_ssl) {
@@ -3700,6 +3698,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
             code = "Y";
         else
             code = "E";
+
         icaphead.set_icap_com(clientuser,code, filtergroup, checkme.message_no, checkme.log_message_no,
         checkme.whatIsNaughtyLog);
         if (icaphead.allow_204) {
@@ -3936,41 +3935,40 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                 check_content(checkme, docbody,peerconn, peerconn,responsescanners);
     }
 
-            //send response header to client
-
+    //send response header to client
     if(!checkme.isItNaughty)  {
-            icaphead.respond(peerconn, "200 OK", true);
-            if(checkme.waschecked) {
-                if (!docbody.out(&peerconn))
-                    checkme.pausedtoobig = false;
-                if (checkme.pausedtoobig)
-                    checkme.tunnel_rest = true;
-            }
-            if (checkme.tunnel_rest)
-                peerconn.loopChunk(peerconn.getTimeout());   // echos any body
-                done = true;
-            }
+        icaphead.respond(peerconn, "200 OK", true);
+        if(checkme.waschecked) {
+            if (!docbody.out(&peerconn))
+                checkme.pausedtoobig = false;
+            if (checkme.pausedtoobig)
+                checkme.tunnel_rest = true;
+        }
+        if (checkme.tunnel_rest)
+            peerconn.loopChunk(peerconn.getTimeout());   // echos any body
+            done = true;
+    }
 
 
-            if(checkme.isItNaughty) {
-                if(genDenyAccess(peerconn,res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse, &checkme.url, &checkme, &clientuser, &ip,
-                           filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror))
-                {
-                    icaphead.errorResponse(peerconn, res_hdr, res_body);
-                    if (icaphead.res_body_flag) {
-                        peerconn.drainChunk(peerconn.getTimeout());   // drains any body
-                    }
-                    done = true;
-                }
-                    persistPeer = false;
+    if(checkme.isItNaughty) {
+        if(genDenyAccess(peerconn,res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse, &checkme.url, &checkme, &clientuser, &ip,
+                filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror))
+        {
+            icaphead.errorResponse(peerconn, res_hdr, res_body);
+            if (icaphead.res_body_flag) {
+                peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
+            done = true;
+        }
+            persistPeer = false;
+        }
 
             //Log
-            if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
-                checkme.whatIsNaughtyLog = "ICAP Response filtering: ";
-                checkme.whatIsNaughtyLog += checkme.whatIsNaughty;
-                doLog(clientuser, clientip, checkme);
-            }
+    if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
+        checkme.whatIsNaughtyLog = "ICAP Response filtering: ";
+        checkme.whatIsNaughtyLog += checkme.whatIsNaughty;
+        doLog(clientuser, clientip, checkme);
+    }
     if (persistPeer)
         return 0;
     else
