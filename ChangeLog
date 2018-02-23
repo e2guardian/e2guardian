@@ -2,6 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 Version 4.1.4.1
 January 2018
+- Fix random crashes with Header (update)
 - Fix incorrect timeout in DataBuffer
 - Fix regression with sslaccessdeniedaddress
 
