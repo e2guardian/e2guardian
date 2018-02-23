@@ -133,7 +133,7 @@ class ICAPHeader
     String URLEncode();
 
     ICAPHeader()
-        : port(0), timeout(120000),  dirty(true)
+        : port(0), timeout(120000),  dirty(true), is_response(false)
     {
         reset();
     };

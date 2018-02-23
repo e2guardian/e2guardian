@@ -2888,11 +2888,14 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
-
+        unsigned short toread;
+        if (rc == 5) {
         if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
             checkme.isTLS = true;
 
-        unsigned short toread = ( buff[3] << (8*1) | buff[4]);
+        toread = ( buff[3] << (8*1) | buff[4]);
+        if (toread > 2048) toread = 2048;
+        }
 
 #ifdef DGDEBUG
         std::cerr << thread_id << "hello length is " << toread << " magic is " << buff[0]  << buff[1] << buff[2] << " isTLS is " << checkme.isTLS << std::endl;
@@ -2928,9 +2931,15 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
-            checkme.urldomain = get_TLS_SNI(buff, &rc);
-            if(checkme.urldomain.size() > 0)
-                checkme.hasSNI = true;
+//            checkme.urldomain = get_TLS_SNI(buff, &rc);
+//            if(checkme.urldomain.size() > 0)
+//                checkme.hasSNI = true;
+             char *ret = get_TLS_SNI(buff, &rc);
+             if (ret != NULL) {
+//             checkme.urldomain = ret;
+             checkme.url = ret;
+             checkme.hasSNI = true;
+             }
 
             ++dystat->reqs;
         }
@@ -2948,6 +2957,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #endif
                 ) {
                     syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
+                    return -1;
                 } else {
                 checkme.orig_ip = inet_ntoa(origaddr.sin_addr);
                 checkme.orig_port = ntohs(origaddr.sin_port);
@@ -2955,10 +2965,10 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
          }
 
         if(!checkme.hasSNI) {
-        checkme.urldomain = checkme.orig_ip;
+        checkme.url = checkme.orig_ip;
          }
 #ifdef DGDEBUG
-    std::cerr << thread_id << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.urldomain<<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
+    std::cerr << thread_id << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.url <<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
 #endif
         //
         // End of set-up section
@@ -2974,15 +2984,8 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 
 //
             // do all of this normalisation etc just the once at the start.
-            checkme.url = "https://" + checkme.urldomain;
-            checkme.baseurl = checkme.urldomain;
-            checkme.baseurl.toLower();
-            checkme.logurl = checkme.url;
-            checkme.urld = header.decode(checkme.url);
-            checkme.urldomain.toLower();
-            checkme.connect_site = checkme.urldomain;
-            checkme.isiphost = checkme.isIPHostnameStrip(checkme.urldomain);
-            checkme.docsize = 0;
+            checkme.url = "https://" + checkme.url;
+            checkme.setURL(checkme.url);
             gettimeofday(&checkme.thestart, NULL);
 
             if(checkme.isconnect) {
@@ -3174,28 +3177,39 @@ char *get_TLS_SNI(char *inbytes, int* len)
 {
     unsigned char *bytes = reinterpret_cast<unsigned char*>(inbytes);
     unsigned char *curr;
+    unsigned char *ebytes;
+     ebytes = bytes + *len;
+    if (*len < 44) return NULL;
     unsigned char sidlen = bytes[43];
     curr = bytes + 1 + 43 + sidlen;
+    if (curr > ebytes) return NULL;
     unsigned short cslen = ntohs(*(unsigned short*)curr);
     curr += 2 + cslen;
+    if (curr > ebytes) return NULL;
     unsigned char cmplen = *curr;
     curr += 1 + cmplen;
+    if (curr > ebytes) return NULL;
     unsigned char *maxchar = curr + 2 + ntohs(*(unsigned short*)curr);
     curr += 2;
     unsigned short ext_type = 1;
     unsigned short ext_len;
     while(curr < maxchar && ext_type != 0)
     {
+        if (curr > ebytes) return NULL;
         ext_type = ntohs(*(unsigned short*)curr);
         curr += 2;
+        if (curr > ebytes) return NULL;
         ext_len = ntohs(*(unsigned short*)curr);
         curr += 2;
         if(ext_type == 0)
         {
             curr += 3;
+            if (curr > ebytes) return NULL;
             unsigned short namelen = ntohs(*(unsigned short*)curr);
             curr += 2;
-            *len = namelen;
+            if ((curr + namelen) > ebytes) return NULL;
+            //*len = namelen;
+            *(curr +namelen) = (char)0;
             return (char*)curr;
         }
         else curr += ext_len;

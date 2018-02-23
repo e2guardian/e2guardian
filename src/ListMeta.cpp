@@ -417,6 +417,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 
 
 const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory, bool &site_wild) {
+
     String url = urlp;
     const char *i;
     if (site_wild) {
