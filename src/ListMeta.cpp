@@ -417,14 +417,14 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
 
 
 const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory, bool &site_wild) {
+
     String url = urlp;
     const char *i;
     if (site_wild) {
         while (url.contains(".")) {
             i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
             if (i != NULL) {
-                return
-                        i; // exact match
+                return i; // exact match
             }
             url = url.after("."); // check for being in higher level domains
         }

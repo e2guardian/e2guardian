@@ -90,6 +90,24 @@ void NaughtyFilter::setURL(bool set_ismitm) {
     docsize = 0;
 }
 
+void NaughtyFilter::setURL(String &sni) {
+    // do all of this normalisation etc just the once at the start.
+    url = sni;
+    baseurl = url;
+    baseurl.removeWhiteSpace();
+    baseurl.toLower();
+    baseurl.removePTP();
+    logurl = url;
+    urld = request_header->decode(url);
+    urldomain = url.getHostname();
+    urldomain.toLower();
+    connect_site = urldomain;
+    isiphost = isIPHostnameStrip(urldomain);
+    if (baseurl == urldomain)
+        issiteonly = true;
+    docsize = 0;
+}
+
 void NaughtyFilter::reset()
 {
     anon_log = o.anonymise_logs;
