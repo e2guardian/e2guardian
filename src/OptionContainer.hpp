@@ -21,7 +21,7 @@
 #include "IPList.hpp"
 #include "Queue.hpp"
 #include "LOptionContainer.hpp"
-
+#include "DebugManager.hpp"
 #include <deque>
 #include <atomic>
 
@@ -37,7 +37,12 @@ class OptionContainer
     public:
     Queue<std::string>* log_Q;
     Queue<LQ_rec> http_worker_Q;
-
+    
+#ifndef NEWDEBUG_OFF
+    std::string debuglevel;
+    std::string path_debuglevel;
+    DebugManager * myDebug;
+#endif 
 
     // all our many, many options
     int filter_groups;

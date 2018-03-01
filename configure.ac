@@ -129,6 +129,23 @@ fi], [
   AC_MSG_RESULT(no)
 ])
 
+AC_MSG_CHECKING(for newdebug option)
+AC_ARG_WITH(newdebug,
+[AC_HELP_STRING([--with-newdebug@<:@=off@:>@], [switch off debuglevel build mode])],
+[if test "x${withval}" = "xon" ; then
+  AC_MSG_RESULT(YES)
+  AC_DEFINE(NEWDEBUG_ON, 1, [Define to enable debuglevel build mode])
+else
+  AC_MSG_RESULT(no)
+# enable by default
+  newdebug=${withval}
+  AC_DEFINE(NEWDEBUG_OFF, 1, [Define to disable debuglevel build mode])
+fi], [
+  # enable by default
+  AC_DEFINE(NEWDEBUG_ON, 1, [Define to enable debuglevel build mode])
+  AC_MSG_RESULT(yes)
+])
+
 AC_MSG_CHECKING(for netdebug option)
 AC_ARG_WITH(netdebug,
 [AC_HELP_STRING([--with-netdebug@<:@=off@:>@], [switch on netdebug build mode])],
@@ -672,6 +689,7 @@ data/scripts/e2guardian.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
+configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile

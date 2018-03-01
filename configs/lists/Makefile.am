@@ -27,13 +27,11 @@ bannedregexpurllist \
 bannedregexpuseragentlist \
 bannedsearchlist \
 bannedsiteiplist \
-bannedsiteiplistwithbypass \
 bannedsitelist \
 bannedsitelistwithbypass \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist \
-bannedurllistwithbypass \
 contentregexplist \
 embededreferersiteiplist \
 embededreferersitelist \
@@ -91,7 +89,6 @@ EXTRA_DIST = bannedphraselist.in \
 bannedsitelist.in \
 bannedsitelistwithbypass.in \
 bannedurllist.in \
-bannedurllistwithbypass.in \
 exceptionphraselist.in \
 weightedphraselist.in
 

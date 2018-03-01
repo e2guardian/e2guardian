@@ -124,7 +124,17 @@ bool OptionContainer::read(std::string& filename, int type)
                         log_location += "/access.log";
                         log_syslog = false;
                     }
+#ifndef NEWDEBUG_OFF
+		    if((debuglevel = findoptionS("debuglevel")) != "")
+		    {
 
+		    }
+		    if((path_debuglevel = findoptionS("debuglevelfile")) != "")
+		    {
+
+		    }
+		    myDebug = new DebugManager(debuglevel, path_debuglevel);
+#endif
                     if ((stat_location = findoptionS("statlocation")) == "") {
                         stat_location = __LOGLOCATION;
                         stat_location += "/stats";

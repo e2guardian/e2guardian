@@ -16,7 +16,6 @@
 #include "FOptionContainer.hpp"
 #include "HTTPHeader.hpp"
 
-
 // DECLARATIONS
 
 class ICAPHeader
@@ -53,6 +52,7 @@ class ICAPHeader
     String ISTag;
     String username;
     String clientip;
+
 
     int req_hdr;
     int res_hdr;
