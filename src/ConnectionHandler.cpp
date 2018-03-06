@@ -128,6 +128,8 @@ if (o.logconerror)
         syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
     else if (peersock.isNoOpp())
         syslog(LOG_INFO, "%d %s Client Connection at %s is no-op - errno: %d", peerport, message, peer_ip.c_str(),err);
+    else
+        syslog(LOG_INFO, "%d %s Client Connection at %s problem - errno: %d", peerport, message, peer_ip.c_str(),err);
 
     err = proxysock.getErrno();
     if (proxysock.isTimedout())
@@ -141,7 +143,9 @@ if (o.logconerror)
     else if (proxysock.isNoWrite())
         syslog(LOG_INFO, "%d %s cant write proxy Connection  - errno: %d", peerport, message, err);
     else if (proxysock.isNoOpp())
-        syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
+        syslog(LOG_INFO, "%d %s proxy Connection is no-op - errno: %d", peerport, message, err);
+    else
+        syslog(LOG_INFO, "%d %s proxy Connection problem - errno: %d", peerport, message, err);
 }
     if (proxysock.isNoOpp())
         proxysock.close();
@@ -166,7 +170,9 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
         else if (peersock.isNoWrite())
             syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
         else if (peersock.isNoOpp())
-            syslog(LOG_INFO, "%d %s proxy Connection s no-op - errno: %d", peerport, message, err);
+            syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+        else
+            syslog(LOG_INFO, "%d %s Client Connection at %s problem - errno: %d", peerport, message, peer_ip.c_str(),err);
     }
     throw std::exception();
 }
@@ -968,7 +974,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (checkme.isdirect) {  // send connection estabilished to client
                         std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
                         if (!peerconn.writeString(msg.c_str()))
-                            cleanThrow("Unable to send to client 859", peerconn, proxysock);
+                            cleanThrow("Unable to send to client 859", peerconn);
                     }
                 }
             } else {
@@ -991,7 +997,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
                     std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
                     if (!peerconn.writeString(msg.c_str()))
-                        cleanThrow("Unable to send to client 859", peerconn, proxysock);
+                        cleanThrow("Unable to send to client 859", peerconn);
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
                 {
                     if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
@@ -1106,7 +1112,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //send response header to client
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
                 if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false))
-                    cleanThrow("Unable to send return header to client", peerconn, proxysock);
+                    cleanThrow("Unable to send return header to client", peerconn);
 
                 if ((!checkme.isItNaughty) && checkme.waschecked) {
                     if (!docbody.out(&peerconn))
@@ -1713,10 +1719,6 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 hashed = "2";
             }
 
-//            (*proxysock).close(); // finshed with proxy
-            //if(!(*peerconn).breadyForOutput(o.proxy_timeout))
-                //cleanThrow("Error sending to client 3877", *peerconn,*proxysock);
-            //(*peerconn).readyForOutput(o.proxy_timeout);
             if ((*checkme).whatIsNaughty.length() > 2048) {
                 (*checkme).whatIsNaughty = String((*checkme).whatIsNaughty.c_str()).subString(0, 2048).toCharArray();
             }
@@ -2377,7 +2379,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 //and we can use it for a blockpage if nothing else
             std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
             if (!peerconn.writeString(msg.c_str()))
-                cleanThrow("Unable to send to client 1670", peerconn, proxysock);
+                cleanThrow("Unable to send to client 1670", peerconn);
         }
 
         if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
@@ -3768,7 +3770,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
             char *retchar;
 
-    // virus checking candidate?
+    // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
