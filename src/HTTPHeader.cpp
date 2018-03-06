@@ -1732,20 +1732,16 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             }
 #endif
 
-            if (isdirect) {
+            if (isdirect && !is_response) {
                 //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
                 //	get the request method		//get the relative path					//everything after that in the header
                 //l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.0\r\n";
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
+#ifdef DGDEBUG
+    std::cerr << thread_id << "request headerout (modified for direct):" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
             }
 
-#ifdef DGDEBUG
-            if(is_response)  {
-    std::cerr << thread_id << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    } else {
-    std::cerr << thread_id << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    }
-#endif
             // first reconnect loop - send first line
             while (true) {
                 if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
