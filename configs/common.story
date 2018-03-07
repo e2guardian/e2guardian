@@ -103,8 +103,10 @@ if(searchin,localbanned) return setblock
 #  returns true if matches local exception 
 function(localsslrequestcheck)
 if(sitein, localexception) return setexception
-if(sitein, localbanned) setgomitm
-if(returnset) return sslreplace
+if(sitein, localbanned) true
+ifnot(returnset) return false
+if(true) returnif sslcheckmitm
+if(true) return setblock
 
 # SSL site replace (used instead of dns kulge)
 #  always returns true 
