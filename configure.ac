@@ -698,6 +698,7 @@ configs/lists/contentscanners/Makefile
 configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
+configs/lists/bannedsitelistwithbypass
 configs/lists/exceptionphraselist
 configs/lists/weightedphraselist
 configs/downloadmanagers/Makefile
