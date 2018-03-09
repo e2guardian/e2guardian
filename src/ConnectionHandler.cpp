@@ -369,7 +369,7 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
             hints.ai_canonname = NULL;
             hints.ai_addr = NULL;
             hints.ai_next = NULL;
-            int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
+            int rc = getaddrinfo(cm.connect_site.c_str(), NULL, &hints, &infoptr);
             if (rc )  // problem
             {
 #ifdef DGDEBUG
