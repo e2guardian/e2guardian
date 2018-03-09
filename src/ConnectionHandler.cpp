@@ -2298,8 +2298,7 @@ bool ConnectionHandler::writeback_error( NaughtyFilter &cm, Socket & cl_sock, in
 }
 
 #ifdef __SSLMITM
-bool
-ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn, bool &persistProxy, bool &authed,
+bool ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn, bool &persistProxy, bool &authed,
                           bool &persistent_authed, String &ip, stat_rec *&dystat, std::string &clientip,
                           bool transparent) {
 #ifdef DGDEBUG
@@ -2501,6 +2500,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
     persistProxy = false;
     proxysock.close();
+    return true; // this fixes illegal instruction on BSD but is this the best return for this bool function?
 }
 #endif
 
