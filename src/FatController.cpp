@@ -976,11 +976,16 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 		if (o.log_file_format != 3) {
 		    // "when" not used in format 3, and not if logging timestamps instead
 		    String temp;
-		    time_t tnow; // to hold the result from time()
-		    struct tm *tmnow; // to hold the result from localtime()
-		    time(&tnow); // get the time after the lock so all entries in order
-		    tmnow = localtime(&tnow); // convert to local time (BST, etc)
-		    year = String(tmnow->tm_year + 1900);
+//		    time_t tnow; // to hold the result from time()
+//		    struct tm *tmnow; // to hold the result from localtime()
+		    time_t now = time(NULL);
+		    char date[32];
+		    struct tm * tm = localtime(&now);
+//		    time(&tnow); // get the time after the lock so all entries in order
+//		    tmnow = localtime(&tnow); // convert to local time (BST, etc)
+		    strftime(date, sizeof date, "%y.%m.%d %H:%M:%S", tm);
+		    
+/*		    year = String(tmnow->tm_year + 1900);
 		    month = String(tmnow->tm_mon + 1);
 		    day = String(tmnow->tm_mday);
 		    hour = String(tmnow->tm_hour);
@@ -995,6 +1000,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 		    }
 		    sec = temp;
 		    when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
+*/
+		    when = date;
 		    // append timestamp if desired
 		    if (o.log_timestamp)
 			when += " " + utime;
