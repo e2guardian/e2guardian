@@ -57,7 +57,7 @@
 // GLOBALS
 extern OptionContainer o;
 extern bool is_daemonised;
-extern std::atomic<int> ttg;
+extern std::atomic<bool> ttg;
 //bool reloadconfig = false;
 // If a specific debug line is needed
 //thread_local int thread_id = 0;
