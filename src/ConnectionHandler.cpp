@@ -102,47 +102,13 @@ void addToClean(String &url, const int fg)
 // ConnectionHandler class
 //
 
-
 void ConnectionHandler::cleanThrow(const char *message, Socket &peersock, Socket &proxysock)
 {
 if (o.logconerror)
 {
-   int peerport = peersock.getPeerSourcePort();
+    peerDiag(message,peersock);
+    upstreamDiag(message,proxysock);
 
-    std::string peer_ip = peersock.getPeerIP();
-
-    int err = peersock.getErrno();
-
-    if (peersock.isTimedout())
-        syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip.c_str(), err);
-    else if (peersock.isHup())
-        syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip.c_str(), err);
-     else if (peersock.sockError())
-        syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
-    else if (peersock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
-    else if (peersock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
-    else if (peersock.isNoOpp())
-        syslog(LOG_INFO, "%d %s Client Connection at %s is no-op - errno: %d", peerport, message, peer_ip.c_str(),err);
-    else
-        syslog(LOG_INFO, "%d %s Client Connection at %s problem - errno: %d", peerport, message, peer_ip.c_str(),err);
-
-    err = proxysock.getErrno();
-    if (proxysock.isTimedout())
-        syslog(LOG_INFO, "%d %s proxy timedout - errno: %d", peerport, message, err);
-    else if (proxysock.isHup())
-        syslog(LOG_INFO, "%d %s proxy has disconnected - errno: %d", peerport, message, err);
-    else if (proxysock.sockError())
-        syslog(LOG_INFO, "%d %s proxy socket error - errno: %d", peerport, message, err);
-    else if (proxysock.isNoRead())
-        syslog(LOG_INFO, "%d %s cant read proxy Connection - errno: %d ", peerport, message, err);
-    else if (proxysock.isNoWrite())
-        syslog(LOG_INFO, "%d %s cant write proxy Connection  - errno: %d", peerport, message, err);
-    else if (proxysock.isNoOpp())
-        syslog(LOG_INFO, "%d %s proxy Connection is no-op - errno: %d", peerport, message, err);
-    else
-        syslog(LOG_INFO, "%d %s proxy Connection problem - errno: %d", peerport, message, err);
 }
     if (proxysock.isNoOpp())
         proxysock.close();
@@ -150,6 +116,11 @@ if (o.logconerror)
 }
 
 void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
+    peerDiag(message, peersock);
+    throw std::exception();
+}
+
+void ConnectionHandler::peerDiag(const char *message, Socket &peersock ) {
     if (o.logconerror)
     {
         int peerport = peersock.getPeerSourcePort();
@@ -157,22 +128,47 @@ void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
         int err = peersock.getErrno();
 
         if (peersock.isTimedout())
-            syslog(LOG_INFO, "%d %s Client at %s Connection timedout - errno: %d", peerport, message, peer_ip.c_str(), err);
+            syslog(LOG_INFO, "%s %s Client at %s Connection timedout - errno: %d", thread_id.c_str(), message, peer_ip.c_str(), err);
         else if (peersock.isHup())
-            syslog(LOG_INFO, "%d %s Client at %s has disconnected - errno: %d", peerport, message, peer_ip.c_str(), err);
+            syslog(LOG_INFO, "%s %s Client at %s has disconnected - errno: %d", thread_id.c_str(), message, peer_ip.c_str(), err);
         else if (peersock.sockError())
-            syslog(LOG_INFO, "%d %s Client at %s Connection socket error - errno: %d", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%s %s Client at %s Connection socket error - errno: %d", thread_id.c_str(), message, peer_ip.c_str(),err);
         else if (peersock.isNoRead())
-            syslog(LOG_INFO, "%d %s cant read Client Connection at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%s %s cant read Client Connection at %s - errno: %d ", thread_id.c_str(), message, peer_ip.c_str(),err);
         else if (peersock.isNoWrite())
-            syslog(LOG_INFO, "%d %s cant write Client Connection  at %s - errno: %d ", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%s %s cant write Client Connection  at %s - errno: %d ", thread_id.c_str(), message, peer_ip.c_str(),err);
         else if (peersock.isNoOpp())
-            syslog(LOG_INFO, "%d %s Client Connection is no-op - errno: %d", peerport, message, err);
+            syslog(LOG_INFO, "%s %s Client Connection is no-op - errno: %d", thread_id.c_str(), message, err);
         else
-            syslog(LOG_INFO, "%d %s Client Connection at %s problem - errno: %d", peerport, message, peer_ip.c_str(),err);
+            syslog(LOG_INFO, "%s %s Client Connection at %s problem - errno: %d", thread_id.c_str(), message, peer_ip.c_str(),err);
     }
-    throw std::exception();
 }
+
+void ConnectionHandler::upstreamDiag(const char *message,  Socket &proxysock)
+{
+    if (o.logconerror)
+    {
+
+        int err = proxysock.getErrno();
+        if (proxysock.isTimedout())
+            syslog(LOG_INFO, "%s %s upstream timedout - errno: %d:", thread_id.c_str(), message, err);
+        else if (proxysock.isHup())
+            syslog(LOG_INFO, "%s %s upstream has disconnected - errno: %d", thread_id.c_str(), message, err);
+        else if (proxysock.sockError())
+            syslog(LOG_INFO, "%s %s upstream socket error - errno: %d", thread_id.c_str(), message, err);
+        else if (proxysock.isNoRead())
+            syslog(LOG_INFO, "%s %s cant read upstream Connection - errno: %d ", thread_id.c_str(), message, err);
+        else if (proxysock.isNoWrite())
+            syslog(LOG_INFO, "%s %s cant write upstream Connection  - errno: %d", thread_id.c_str(), message, err);
+        else if (proxysock.isNoOpp())
+            syslog(LOG_INFO, "%s %s upstream Connection is no-op - errno: %d", thread_id.c_str(), message, err);
+        else
+            syslog(LOG_INFO, "%s %s upstream Connection problem - errno: %d", thread_id.c_str(), message, err);
+    }
+    if (proxysock.isNoOpp())
+        proxysock.close();
+}
+
 
 // perform URL encoding on a string
 std::string ConnectionHandler::miniURLEncode(const char *s)
