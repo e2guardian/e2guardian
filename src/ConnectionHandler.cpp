@@ -58,9 +58,6 @@
 extern OptionContainer o;
 extern bool is_daemonised;
 extern std::atomic<bool> ttg;
-//bool reloadconfig = false;
-// If a specific debug line is needed
-//thread_local int thread_id = 0;
 extern thread_local std::string thread_id;
 
 
@@ -362,6 +359,7 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
         } else {
             //dns lookup
             struct addrinfo hints, *infoptr;
+            memset(&hints, 0, sizeof(addrinfo));
             hints.ai_family = AF_INET;
             hints.ai_socktype = SOCK_STREAM;
             hints.ai_flags = 0;
@@ -2501,6 +2499,8 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
     persistProxy = false;
     proxysock.close();
+
+    return true;
 }
 #endif
 
