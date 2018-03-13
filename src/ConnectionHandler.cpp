@@ -102,24 +102,6 @@ void addToClean(String &url, const int fg)
 // ConnectionHandler class
 //
 
-void ConnectionHandler::cleanThrow(const char *message, Socket &peersock, Socket &proxysock)
-{
-if (o.logconerror)
-{
-    peerDiag(message,peersock);
-    upstreamDiag(message,proxysock);
-
-}
-    if (proxysock.isNoOpp())
-        proxysock.close();
-    throw std::exception();
-}
-
-void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
-    peerDiag(message, peersock);
-    throw std::exception();
-}
-
 void ConnectionHandler::peerDiag(const char *message, Socket &peersock ) {
     if (o.logconerror)
     {
@@ -295,11 +277,12 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &u
 #endif
         if (rc < 0) {
 #ifdef DGDEBUG
-            std::cerr << thread_id << " -error reading send file so throwing exception" << std::endl;
+            std::cerr << thread_id << " -error reading send file so aborting" << std::endl;
 #endif
             delete[] buffer;
-//            throw std::exception();
-            cleanThrow("error reading send file", *peerconn);
+//            throw std::exception/();
+            //cleanThrow("error reading send file", *peerconn);
+            return 0;
         }
         if (rc == 0) {
 #ifdef DGDEBUG
@@ -310,13 +293,15 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &u
         if (is_icap) {
             if (!peerconn->writeChunk(buffer,rc,100000)) {
                 delete[] buffer;
-                cleanThrow("Error sending file to client", *peerconn);
+                peerDiag("Error sending file to client", *peerconn);
+                return 0;
             }
         } else {
             // as it's cached to disk the buffer must be reasonably big
             if (!peerconn->writeToSocket(buffer, rc, 0,100000)) {
                 delete[] buffer;
-                cleanThrow("Error sending file to client", *peerconn);
+                peerDiag("Error sending file to client", *peerconn);
+                return 0;
                 // throw std::exception();
             }
         }
@@ -985,9 +970,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
                 if (!checkme.upfailure) {
                     if (!proxysock.breadyForOutput(o.proxy_timeout))
-                        cleanThrow("Unable to write upstream", peerconn, proxysock);
+                    {
+                        upstreamDiag("Unable to write upstream", proxysock);
+                        break;
+                    }
 #ifdef DGDEBUG
-                    std::cerr << thread_id << "  got past line 727 rfo " << std::endl;
+                    std::cerr << thread_id << "  got past line 990 rfo " << std::endl;
 #endif
                 }
                 if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client

@@ -80,8 +80,6 @@ class ConnectionHandler
     String lastcategory;
     std::shared_ptr<LOptionContainer> ldl;
 
-    void cleanThrow(const char *message, Socket &peersock, Socket &proxysock);
-    void cleanThrow(const char *message, Socket &peersock );
     void peerDiag(const char *message, Socket &peersock );
     void upstreamDiag(const char *message, Socket &proxysock );
 
