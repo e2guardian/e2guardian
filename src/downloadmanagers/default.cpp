@@ -202,18 +202,18 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 #ifdef DGDEBUG
             std::cerr << thread_id << "newsize: " << newsize << std::endl;
 #endif
-                if (!sock->bcheckForInput(d->timeout))
-                    break;
+            if (!sock->bcheckForInput(d->timeout))
+                break;
             // improved more efficient socket read which uses the buffer better
             if (d->chunked) {
-                rc = sock->readChunk(block,newsize,d->timeout);
+                rc = sock->readChunk(block, newsize, d->timeout);
             } else {
                 rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
             }
             // grab a block of input, doubled each time
 
             if (rc <= 0) {
-                if(d->chunked)
+                if (d->chunked)
                     d->got_all = true;
                 break; // an error occured so end the while()
                 // or none received so pipe iis closed or chunking has ended
@@ -231,19 +231,19 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 d->buffer_length += rc; // update data size counter
             }
         } else {
-                if (!sock->bcheckForInput(d->timeout))
-                    break;
-            if(d->chunked) {
-                rc = sock->readChunk(d->data, d->buffer_length,d->timeout);
+            if (!sock->bcheckForInput(d->timeout))
+                break;
+            if (d->chunked) {
+                rc = sock->readChunk(d->data, d->buffer_length, d->timeout);
             } else {
-            rc = d->bufferReadFromSocket(sock, d->data,
-                    // if not getting everything until connection close, grab only what is left
-                                         (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining
-                                                                                                : d->buffer_length),
-                                         d->timeout);
+                rc = d->bufferReadFromSocket(sock, d->data,
+                        // if not getting everything until connection close, grab only what is left
+                                             (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining
+                                                                                                    : d->buffer_length),
+                                             d->timeout);
             }
             if (rc <= 0) {
-                if(d->chunked)
+                if (d->chunked)
                     d->got_all = true;
                 break;
             } else {
