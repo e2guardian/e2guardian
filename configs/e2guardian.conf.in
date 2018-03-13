@@ -76,7 +76,7 @@ logexceptionhits = 2
 # used in stand-alone systems.
 # 6 = Protex format with server field blanked
 
-logfileformat = 1
+logfileformat = 6 
 
 # Log a specific value from header
 # low case only
