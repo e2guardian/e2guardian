@@ -805,8 +805,9 @@ bool Socket::breadyForOutput(int timeout)
 
 
 // read a line from the socket, can be told to break on config reloads
-int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated) throw(std::exception)
+int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated)
 {
+try {
     if (!isssl) {
         return BaseSocket::getLine(buff, size, timeout, honour_reloadconfig, chopped, truncated);
     }
@@ -881,6 +882,8 @@ int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig,
     if (truncated)
         *truncated = true;
     return i;
+    } catch (...) {
+    return -1;    }
 }
 
 // write line to socket

@@ -28,6 +28,7 @@
 
 // GLOBALS
 extern bool reloadconfig;
+extern thread_local std::string thread_id;
 
 // DEFINITIONS
 
@@ -365,101 +366,105 @@ bool BaseSocket::breadyForOutput(int timeout) {
 }
 
 // read a line from the socket, can be told to break on config reloads
-int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated) throw(std::exception)
+int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated) //throw(std::exception)
 {
-    // first, return what's left from the previous buffer read, if anything
-    int i = 0;
-    if ((bufflen - buffstart) > 0) {
+    try {
+        // first, return what's left from the previous buffer read, if anything
+        int i = 0;
+        if ((bufflen - buffstart) > 0) {
 #ifdef NETDEBUG
-        std::cout << thread_id  << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
+            std::cout << thread_id  << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
 #endif
 
-        //work out the maximum size we want to read from our internal buffer
-        int tocopy = size - 1;
-        if ((bufflen - buffstart) < tocopy)
-            tocopy = bufflen - buffstart;
+            //work out the maximum size we want to read from our internal buffer
+            int tocopy = size - 1;
+            if ((bufflen - buffstart) < tocopy)
+                tocopy = bufflen - buffstart;
 
-        //copy the data to output buffer (up to 8192 chars in loglines case)
-        char *result = (char *)memccpy(buff, buffer + buffstart, '\n', tocopy);
+            //copy the data to output buffer (up to 8192 chars in loglines case)
+            char *result = (char *) memccpy(buff, buffer + buffstart, '\n', tocopy);
 
-        //if the result was < max size
-        //if the result WAS null this indicates a full buffer copy
-        if (result != NULL) {
-            // indicate that a newline was chopped off, if desired
-            if (chopped)
-                *chopped = true;
+            //if the result was < max size
+            //if the result WAS null this indicates a full buffer copy
+            if (result != NULL) {
+                // indicate that a newline was chopped off, if desired
+                if (chopped)
+                    *chopped = true;
 
-            //make the last char a null
-            *(--result) = '\0';
-            buffstart += (result - buff) + 1;
-            return result - buff;
-        } else {
-            i += tocopy;
-            buffstart += tocopy;
+                //make the last char a null
+                *(--result) = '\0';
+                buffstart += (result - buff) + 1;
+                return result - buff;
+            } else {
+                i += tocopy;
+                buffstart += tocopy;
+            }
         }
-    }
-    while (i < (size - 1)) {
-        buffstart = 0;
-        bufflen = 0;
+        while (i < (size - 1)) {
+            buffstart = 0;
+            bufflen = 0;
 //        try {
-        s_errno = 0;
-        errno = 0;
-        if (bcheckForInput(timeout))
-              bufflen = recv(sck, buffer, 1024, 0);
-  //      } catch (std::exception &e) {
-  //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
-   //     }
+            s_errno = 0;
+            errno = 0;
+            if (bcheckForInput(timeout))
+                bufflen = recv(sck, buffer, 1024, 0);
+            //      } catch (std::exception &e) {
+            //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
+            //     }
 #ifdef NETDEBUG
-        std::cout << thread_id  << "getLine !SSL read into buffer; bufflen: " << bufflen << std::endl;
+            std::cout << thread_id  << "getLine !SSL read into buffer; bufflen: " << bufflen << std::endl;
 #endif
-        //if there was a socket error
-        if (bufflen < 0) {
+            //if there was a socket error
+            if (bufflen < 0) {
 #ifdef NETDEBUG
-        std::cout << thread_id  << "getLine Can't read from socket !SSL: " << std::endl;
+                std::cout << thread_id  << "getLine Can't read from socket !SSL: " << std::endl;
 #endif
-            s_errno = errno;
-            return -1;
+                s_errno = errno;
+                return -1;
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
-        }
-        //if socket closed...
-        if (bufflen == 0) {
-            buff[i] = '\0'; // ...terminate string & return what read
+            }
+            //if socket closed...
+            if (bufflen == 0) {
+                buff[i] = '\0'; // ...terminate string & return what read
 #ifdef NETDEBUG
-        std::cout << thread_id  << "getLine terminate string !SSL: " << i << std::endl;
+                std::cout << thread_id  << "getLine terminate string !SSL: " << i << std::endl;
 #endif
-            if (truncated)
-                *truncated = true;
-            return i;
-        }
-        int tocopy = bufflen;
-        if ((i + bufflen) > (size - 1))
-            tocopy = (size - 1) - i;
-        char *result = (char *)memccpy(buff + i, buffer, '\n', tocopy);
-        if (result != NULL) {
+                if (truncated)
+                    *truncated = true;
+                return i;
+            }
+            int tocopy = bufflen;
+            if ((i + bufflen) > (size - 1))
+                tocopy = (size - 1) - i;
+            char *result = (char *) memccpy(buff + i, buffer, '\n', tocopy);
+            if (result != NULL) {
 #ifdef NETDEBUG
-        std::cout << thread_id  << "getLine result1 !SSL: " << result << i << std::endl;
+                std::cout << thread_id  << "getLine result1 !SSL: " << result << i << std::endl;
 #endif
-            // indicate that a newline was chopped off, if desired
-            if (chopped)
-                *chopped = true;
-            *(--result) = '\0';
-            buffstart += (result - (buff + i)) + 1;
+                // indicate that a newline was chopped off, if desired
+                if (chopped)
+                    *chopped = true;
+                *(--result) = '\0';
+                buffstart += (result - (buff + i)) + 1;
 #ifdef NETDEBUG
-        std::cout << thread_id  << "getLine result2 !SSL: " << result << std::endl;
+                std::cout << thread_id  << "getLine result2 !SSL: " << result << std::endl;
 #endif
-            return i + (result - (buff + i));
+                return i + (result - (buff + i));
+            }
+            i += tocopy;
         }
-        i += tocopy;
-    }
-    // oh dear - buffer end reached before we found a newline
-    buff[i] = '\0';
-    if (truncated)
-        *truncated = true;
+        // oh dear - buffer end reached before we found a newline
+        buff[i] = '\0';
+        if (truncated)
+            *truncated = true;
 #ifdef NETDEBUG
-    	if (truncated)
+        if (truncated)
             std::cout << thread_id  << "Getline(SSL) truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
-    return i;
+        return i;
+    } catch (...) {
+        return -1;
+    }
 }
 
 // write line to socket

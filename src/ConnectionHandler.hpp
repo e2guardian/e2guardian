@@ -80,12 +80,9 @@ class ConnectionHandler
     String lastcategory;
     std::shared_ptr<LOptionContainer> ldl;
 
-    void cleanThrow(const char *message, Socket &peersock, Socket &proxysock);
-    void cleanThrow(const char *message, Socket &peersock );
     void peerDiag(const char *message, Socket &peersock );
     void upstreamDiag(const char *message, Socket &proxysock );
 
-    //void handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, String &user, String &group);
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
 #ifdef __SSLMITM

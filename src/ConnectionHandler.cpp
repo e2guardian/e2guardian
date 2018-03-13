@@ -102,24 +102,6 @@ void addToClean(String &url, const int fg)
 // ConnectionHandler class
 //
 
-void ConnectionHandler::cleanThrow(const char *message, Socket &peersock, Socket &proxysock)
-{
-if (o.logconerror)
-{
-    peerDiag(message,peersock);
-    upstreamDiag(message,proxysock);
-
-}
-    if (proxysock.isNoOpp())
-        proxysock.close();
-    throw std::exception();
-}
-
-void ConnectionHandler::cleanThrow(const char *message, Socket &peersock ) {
-    peerDiag(message, peersock);
-    throw std::exception();
-}
-
 void ConnectionHandler::peerDiag(const char *message, Socket &peersock ) {
     if (o.logconerror)
     {
@@ -295,11 +277,12 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &u
 #endif
         if (rc < 0) {
 #ifdef DGDEBUG
-            std::cerr << thread_id << " -error reading send file so throwing exception" << std::endl;
+            std::cerr << thread_id << " -error reading send file so aborting" << std::endl;
 #endif
             delete[] buffer;
-//            throw std::exception();
-            cleanThrow("error reading send file", *peerconn);
+//            throw std::exception/();
+            //cleanThrow("error reading send file", *peerconn);
+            return 0;
         }
         if (rc == 0) {
 #ifdef DGDEBUG
@@ -310,13 +293,15 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &u
         if (is_icap) {
             if (!peerconn->writeChunk(buffer,rc,100000)) {
                 delete[] buffer;
-                cleanThrow("Error sending file to client", *peerconn);
+                peerDiag("Error sending file to client", *peerconn);
+                return 0;
             }
         } else {
             // as it's cached to disk the buffer must be reasonably big
             if (!peerconn->writeToSocket(buffer, rc, 0,100000)) {
                 delete[] buffer;
-                cleanThrow("Error sending file to client", *peerconn);
+                peerDiag("Error sending file to client", *peerconn);
+                return 0;
                 // throw std::exception();
             }
         }
@@ -967,8 +952,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                     if (checkme.isdirect) {  // send connection estabilished to client
                         std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
-                        if (!peerconn.writeString(msg.c_str()))
-                            cleanThrow("Unable to send to client 859", peerconn);
+                        if (!peerconn.writeString(msg.c_str())) {
+                            peerDiag("Unable to send 200 connection  established to client ", peerconn);
+                            break;
+                        }
                     }
                 }
             } else {
@@ -983,15 +970,21 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
                 if (!checkme.upfailure) {
                     if (!proxysock.breadyForOutput(o.proxy_timeout))
-                        cleanThrow("Unable to write upstream", peerconn, proxysock);
+                    {
+                        upstreamDiag("Unable to write upstream", proxysock);
+                        break;
+                    }
 #ifdef DGDEBUG
-                    std::cerr << thread_id << "  got past line 727 rfo " << std::endl;
+                    std::cerr << thread_id << "  got past line 990 rfo " << std::endl;
 #endif
                 }
                 if (checkme.isdirect && checkme.isconnect) {  // send connection estabilished to client
                     std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
                     if (!peerconn.writeString(msg.c_str()))
-                        cleanThrow("Unable to send to client 859", peerconn);
+                    {
+                        peerDiag("Unable to send 200 connection  established to client ", peerconn);
+                        break;
+                    }
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
                 {
                     if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
@@ -1059,7 +1052,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
                 persistPeer = false;
                 persistProxy = false;
-                if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
+                //if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
                     break;
             }
 #endif
@@ -1106,7 +1099,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //send response header to client
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
                 if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false))
-                    cleanThrow("Unable to send return header to client", peerconn);
+                {
+                    peerDiag("Unable to send return header to client", peerconn);
+                    break;
+                }
 
                 if ((!checkme.isItNaughty) && checkme.waschecked) {
                     if (!docbody.out(&peerconn))
@@ -2371,7 +2367,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 //and we can use it for a blockpage if nothing else
             std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
             if (!peerconn.writeString(msg.c_str()))
-                cleanThrow("Unable to send to client 1670", peerconn);
+            {
+                        peerDiag("Unable to send 200 connection  established to client ", peerconn);
+                        return false;
+            }
         }
 
         if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
@@ -3118,7 +3117,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
                 persistPeer = false;
                 persistProxy = false;
-                if (!checkme.isItNaughty)
+                //if (!checkme.isItNaughty)
                     break;
                 } else {
                 if (!checkme.upfailure)
