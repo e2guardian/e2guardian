@@ -975,10 +975,10 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 
 		if (o.log_file_format != 3) {
 		// "when" not used in format 3, and not if logging timestamps instead
-		  time_t now = time(NULL);
+		   time_t now = time(NULL);
 		   char date[32];
-		  struct tm * tm = localtime(&now);
-		  strftime(date, sizeof date, "%y.%m.%d %H:%M:%S", tm);
+		   struct tm * tm = localtime(&now);
+		   strftime(date, sizeof date, "%y.%m.%d %H:%M:%S", tm);
 		   when = date;
 		   // append timestamp if desired
 		   if (o.log_timestamp)
