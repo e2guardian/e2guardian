@@ -415,7 +415,7 @@ int ICAPHeader::decode1b64(char c)
 // *
 
 // send headers out over the given socket
-bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
+bool ICAPHeader::respond(Socket &sock, String res_code, bool echo,  bool encap)
 {
     bool body_done = false;
 
@@ -489,62 +489,68 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo)
         l += "\r\n";
     }
 
-    // add Encapsulated header logic
-    int offset = 0;
-    String soffset (offset);
-    String sep = " ";
-    l += "Encapsulated:";
-    if (out_req_hdr_flag && (out_req_header.size() > 0)) {
-        l += sep;
-        sep = ", ";
-        l += "req-hdr=";
-        l += soffset;
-        offset += out_req_header.size();
-        soffset = offset;
+    if(encap) {
+        // add Encapsulated header logic
+        int offset = 0;
+        String soffset(offset);
+        String sep = " ";
+        l += "Encapsulated:";
+        if (out_req_hdr_flag && (out_req_header.size() > 0)) {
+            l += sep;
+            sep = ", ";
+            l += "req-hdr=";
+            l += soffset;
+            offset += out_req_header.size();
+            soffset = offset;
+        }
+        if (out_res_hdr_flag && out_res_header.size() > 0) {
+            l += sep;
+            sep = ", ";
+            l += "res-hdr=";
+            l += soffset;
+            offset += out_res_header.size();
+            soffset = offset;
+        }
+        if (out_req_body_flag) {
+            l += sep;
+            l += "req-body=";
+            l += soffset;
+        } else if (out_res_body_flag) {
+            l += sep;
+            l += "res-body=";
+            l += soffset;
+        } else {
+            l += sep;
+            l += "null-body=";
+            l += soffset;
+        }
+        l += "\r\n";
     }
-    if (out_res_hdr_flag && out_res_header.size() > 0) {
-        l += sep;
-        sep = ", ";
-        l += "res-hdr=";
-        l += soffset;
-        offset += out_res_header.size();
-        soffset = offset;
-    }
-    if (out_req_body_flag) {
-    l += sep;
-    l += "req-body=";
-    l += soffset;
-    } else if (out_res_body_flag) {
-        l += sep;
-        l += "res-body=";
-        l += soffset;
-    } else {
-        l += sep;
-        l += "null-body=";
-        l += soffset;
-    }
-    l += "\r\n\r\n";
 
+        l += "\r\n";
+
+    if(encap) {
         // send header to the output stream
         // need exception for bad write
-    if (out_req_hdr_flag ) {
-        String temp = out_req_header.toCharArray();
-        l += temp;
-    }
+        if (out_req_hdr_flag) {
+            String temp = out_req_header.toCharArray();
+            l += temp;
+        }
 
-    if (out_res_hdr_flag ) {
-        String temp = out_res_header.toCharArray();
-        l += temp;
+        if (out_res_hdr_flag) {
+            String temp = out_res_header.toCharArray();
+            l += temp;
+        }
     }
 
 #ifndef NEWDEBUG_OFF
     if(o.myDebug->gete2debug())
-        {
+     {
         	std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << "Icap response header is: " << l <<  std::endl;
                 std::cerr << thread_id << "Icap response header is: " << l << std::endl;
                 o.myDebug->Debug("ICAP", oss.str());
-        }
+     }
 #endif
     if (!sock.writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
         return false;

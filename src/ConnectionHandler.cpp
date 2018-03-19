@@ -3709,7 +3709,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.set_icap_com(clientuser,code, filtergroup, checkme.message_no, checkme.log_message_no,
         checkme.whatIsNaughtyLog);
         if (icaphead.allow_204) {
-            icaphead.respond(peerconn, "204 No Content");
+            icaphead.respond(peerconn, "204 No Content",false,false);
             if (icaphead.req_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
@@ -3746,7 +3746,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     // TODO V5 call POST scanning code New NaughtyFilter function????
 
-    if (checkme.isItNaughty) {
+    if (!done && checkme.isItNaughty) {
         if (genDenyAccess(peerconn, res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse,
                           &checkme.url, &checkme, &clientuser, &clientip,
                           filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
@@ -3908,7 +3908,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
         if (icaphead.allow_204) {
-            icaphead.respond(peerconn, "204 No Content");
+            icaphead.respond(peerconn, "204 No Content",false,false);
             if (icaphead.res_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
@@ -3943,7 +3943,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     //send response header to client
-    if(!checkme.isItNaughty)  {
+    if (!done && !checkme.isItNaughty) {
         icaphead.respond(peerconn, "200 OK", true);
         if(checkme.waschecked) {
             if (!docbody.out(&peerconn))
