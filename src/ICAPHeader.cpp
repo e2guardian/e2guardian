@@ -65,6 +65,8 @@ bool ICAPHeader::setEncapRecs() {
 void ICAPHeader::reset()
 {
     HTTPresponse.setType(__HEADER_RESPONSE);
+    HTTPresponse.icap = true;
+    HTTPrequest.icap = true;
     if (dirty) {
         header.clear();
         encap_recs.clear();

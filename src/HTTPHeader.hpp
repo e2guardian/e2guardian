@@ -34,6 +34,7 @@ class HTTPHeader
     //DataBuffer postdata;
     unsigned int port;
     bool is_response;
+    bool icap;
     String redirect;
     String useragent;
     String contenttype;
