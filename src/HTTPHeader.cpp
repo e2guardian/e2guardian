@@ -86,6 +86,7 @@ void HTTPHeader::reset()
         dirty = false;
 
         isProxyRequest = false;
+        icap = false;
 
         delete postdata;
         postdata = NULL;
@@ -977,7 +978,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
 
 #ifdef DGDEBUG
-        std::cerr << thread_id << "Header value from client: " << (*i) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "Header value from client: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
     }
 }
@@ -1018,18 +1019,20 @@ void HTTPHeader::checkheader(bool allowpersistent)
     }
 
     //work out if we should explicitly close this connection after this request
-    bool connectionclose;
-    if (pproxyconnection != NULL) {
-        if (pproxyconnection->contains("lose")) {
+    bool connectionclose = false;
+    if(!icap) {
+        if (pproxyconnection != NULL) {
+            if (pproxyconnection->contains("lose")) {
 #ifdef DGDEBUG
-            std::cerr << thread_id << "CheckHeader: P-C says close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << thread_id << "CheckHeader: P-C says close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-            connectionclose = true;
+                connectionclose = true;
+            } else {
+                connectionclose = false;
+            }
         } else {
-            connectionclose = false;
+            connectionclose = true;
         }
-    } else {
-        connectionclose = true;
     }
 
     // Do not allow persistent connections on CONNECT requests - the browser thinks it has a tunnel
@@ -1053,15 +1056,17 @@ void HTTPHeader::checkheader(bool allowpersistent)
         allowpersistent = false;
     }
 
-    if (outgoing) {
-        // Even though persistent CONNECT requests usually break things, waspersistent should
-        // reflect the intention of the original request headers, or NTLM breaks.
-        if (isconnect && !connectionclose) {
-            waspersistent = true;
-        }
-    } else {
-        if (!connectionclose && !(pcontentlength == NULL)) {
-            waspersistent = true;
+    if(!icap) {
+        if (outgoing) {
+            // Even though persistent CONNECT requests usually break things, waspersistent should
+            // reflect the intention of the original request headers, or NTLM breaks.
+            if (isconnect && !connectionclose) {
+                waspersistent = true;
+            }
+        } else {
+            if (!connectionclose && !(pcontentlength == NULL)) {
+                waspersistent = true;
+            }
         }
     }
 
@@ -1069,6 +1074,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     std::cerr << thread_id << "CheckHeader flags after normalisation: AP=" << allowpersistent << " WP=" << waspersistent << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
+if(!icap) {
     // force the headers to reflect whether or not persistency is allowed
     // (modify pproxyconnection or add connection close/keep-alive - Client version, of course)
     if (allowpersistent) {
@@ -1092,6 +1098,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
             (*pproxyconnection) = "Connection: close\r";
         }
     }
+}
 
     ispersistent = allowpersistent;
 
@@ -1674,7 +1681,9 @@ String HTTPHeader::URLEncode()
 
 String HTTPHeader::stringHeader() {
     String l;
+#ifdef DGDEBUG
     std::cerr << thread_id << "stringHeader started hsize=" << header.size() << std::endl;
+#endif
     if (header.size() > 0) {
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             if (! (*i).startsWith("X-E2G-IgnoreMe")){

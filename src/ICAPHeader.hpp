@@ -90,6 +90,7 @@ class ICAPHeader
     // network communication funcs
 
     void setTimeout(int t);
+
     bool in(Socket *sock, bool allowpersistent = false );
 
     void setClientIP(String &ip);
@@ -97,7 +98,7 @@ class ICAPHeader
     bool setEncapRecs();
 
     // respond with ICAP and HTTP headers and if given body
-    bool respond(Socket &peersock, String rescode = "200 OK", bool echo = false);
+    bool respond(Socket &peersock, String rescode = "200 OK", bool echo = false, bool encap = true);
 
     bool errorResponse(Socket &peersock, String &reshdr, String & resbody);
 

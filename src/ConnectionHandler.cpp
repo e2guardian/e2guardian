@@ -3344,7 +3344,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
             }
 
-            // Check service option REQMOD, RESMOD, OPTIONS and call appropreate function(s)
+            // Check service option REQMOD, RESMOD, OPTIONS and call appropriate function(s)
             //
             if (icaphead.service_reqmod&& icaphead.icap_reqmod_service) {
                 if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0)
@@ -3617,7 +3617,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         return 0;
     }
 
-// TODO add logicv for 204 response etc.
+// TODO add logic for 204 response etc.
     if (checkme.isexception) {
         std::string code;
         if (checkme.isvirusbypass)
@@ -3629,7 +3629,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         icaphead.set_icap_com(clientuser,code, filtergroup, checkme.message_no, checkme.log_message_no,
         checkme.whatIsNaughtyLog);
         if (icaphead.allow_204) {
-            icaphead.respond(peerconn, "204 No Content");
+            icaphead.respond(peerconn, "204 No Content",false,false);
             if (icaphead.req_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
@@ -3797,7 +3797,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
 if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
         if (icaphead.allow_204) {
-            icaphead.respond(peerconn, "204 No Content");
+            icaphead.respond(peerconn, "204 No Content",false,false);
             if (icaphead.res_body_flag) {
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
@@ -3832,7 +3832,7 @@ if ((checkme.isexception && checkme.noviruscheck)|| !icaphead.res_body_flag) {
 
             //send response header to client
 
-            if(!checkme.isItNaughty)  {
+            if(!done && !checkme.isItNaughty)  {
                 icaphead.respond(peerconn, "200 OK", true);
                 if(checkme.waschecked) {
                     if (!docbody.out(&peerconn))
