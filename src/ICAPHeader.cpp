@@ -417,7 +417,7 @@ int ICAPHeader::decode1b64(char c)
 // *
 
 // send headers out over the given socket
-bool ICAPHeader::respond(Socket &sock, String res_code, bool echo,  bool encap)
+bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 {
     bool body_done = false;
 
@@ -491,7 +491,7 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo,  bool encap)
         l += "\r\n";
     }
 
-    if(encap) {
+    if (encap) {
         // add Encapsulated header logic
         int offset = 0;
         String soffset(offset);
@@ -528,11 +528,10 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo,  bool encap)
         }
         l += "\r\n";
     }
-
         l += "\r\n";
 
     if(encap) {
-        // send header to the output stream
+        // send headers to the output stream
         // need exception for bad write
         if (out_req_hdr_flag) {
             String temp = out_req_header.toCharArray();

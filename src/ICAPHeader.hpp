@@ -90,6 +90,7 @@ class ICAPHeader
     // network communication funcs
 
     void setTimeout(int t);
+
     bool in(Socket *sock, bool allowpersistent = false );
 
     void setClientIP(String &ip);

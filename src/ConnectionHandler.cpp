@@ -323,71 +323,83 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
 {
  if(port == 0)
      port = cm.request_header->port;
-
-    cm.upfailure = false;
-    if (cm.isdirect) {
-        String des_ip;
-        if (cm.isiphost) {
-            des_ip = cm.urldomain;
-            sock.setTimeout(o.proxy_timeout);
-            std::cerr << "Connecting to IPHost " << des_ip << " port " << port << std::endl;
-            int rc = sock.connect(des_ip,port);
-            if (rc < 0) {
-                cm.message_no = 203;
-                cm.upfailure = true;
-            }
-            return rc;
-        } else {
-            //dns lookup
-            struct addrinfo hints, *infoptr;
-            memset(&hints, 0, sizeof(addrinfo));
-            hints.ai_family = AF_INET;
-            hints.ai_socktype = SOCK_STREAM;
-            hints.ai_flags = 0;
-            hints.ai_protocol = 0;
-            hints.ai_canonname = NULL;
-            hints.ai_addr = NULL;
-            hints.ai_next = NULL;
-            int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
-            if (rc )  // problem
-            {
+ int lerr_mess;
+ int retry = -1;
+    while (++retry < o.connect_retries) {
+        lerr_mess = 0;
+        if(retry > 0) {
+            if (o.logconerror)
+                syslog(LOG_INFO, "%s retry %d to connect to %s", thread_id.c_str(), retry, cm.urldomain.c_str());
+            if(!sock.isTimedout())
+                usleep(1000);       // don't hammer upstream
+        }
+        cm.upfailure = false;
+        if (cm.isdirect) {
+            String des_ip;
+            if (cm.isiphost) {
+                des_ip = cm.urldomain;
+                sock.setTimeout(o.connect_timeout);
 #ifdef DGDEBUG
-                std::cerr << thread_id << "connectUpstream: getaddrinfo returned " << rc << " for " << cm.connect_site << " " << gai_strerror(rc) << std::endl;
+                std::cerr << thread_id << "Connecting to IPHost " << des_ip << " port " << port << std::endl;
 #endif
-                switch (rc) {
-                    case EAI_NONAME:
-                        cm.message_no = 207;
-                        break;
-#ifdef EAI_NODATA
-                    case EAI_NODATA:
-                        cm.message_no = 208;
-                        break;
-#endif
-                    case EAI_AGAIN:
-                        cm.message_no = 209;
-                        break;
-                    case EAI_FAIL:
-                        cm.message_no = 210;
-                        break;
-                     default:
-                         cm.message_no = 210;  //TODO this shoudl heave it's own message??
-                        break;
+                int rc = sock.connect(des_ip, port);
+                if (rc < 0) {
+                    lerr_mess = 203;
+                    continue;
                 }
-                cm.upfailure = true;
-                sock.close();
-                return -1;
-            }
-            char t[256];
-            struct addrinfo *p;
-            for (p = infoptr; p != NULL; p = p->ai_next)
-            {
-                getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+                return rc;
+            } else {
+                //dns lookup
+                struct addrinfo hints, *infoptr;
+                memset(&hints, 0, sizeof(addrinfo));
+                hints.ai_family = AF_INET;
+                hints.ai_socktype = SOCK_STREAM;
+                hints.ai_flags = 0;
+                hints.ai_protocol = 0;
+                hints.ai_canonname = NULL;
+                hints.ai_addr = NULL;
+                hints.ai_next = NULL;
+                int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
+                if (rc)  // problem
+                {
 #ifdef DGDEBUG
-                std::cerr << thread_id << "Connecting to IP " << t << " port " << port << std::endl;
+                    std::cerr << thread_id << "connectUpstream: getaddrinfo returned " << rc << " for " << cm.connect_site << " " << gai_strerror(rc) << std::endl;
 #endif
-                int rc = sock.connect(t,port);
-                if (rc == 0){
-                    freeaddrinfo(infoptr);
+                    bool rt = false;
+                    switch (rc) {
+                        case EAI_NONAME:
+                            lerr_mess = 207;
+                            break;
+#ifdef EAI_NODATA
+                        case EAI_NODATA:
+                            lerr_mess = 208;
+                            break;
+#endif
+                        case EAI_AGAIN:
+                            lerr_mess = 209;
+                            rt = true;
+                            break;
+                        case EAI_FAIL:
+                            lerr_mess = 210;
+                            break;
+                        default:
+                            lerr_mess = 210;  //TODO this should have it's own message??
+                            break;
+                    }
+                    sock.close();
+                    if (rt)  continue;
+                    else break;
+                }
+                char t[256];
+                struct addrinfo *p;
+                for (p = infoptr; p != NULL; p = p->ai_next) {
+                    getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+#ifdef DGDEBUG
+                    std::cerr << thread_id << "Connecting to IP " << t << " port " << port << std::endl;
+#endif
+                    int rc = sock.connect(t, port);
+                    if (rc == 0) {
+                        freeaddrinfo(infoptr);
 #ifdef DGDEBUG
                         std::cerr << thread_id << "Got connection upfailure is " << cm.upfailure << std::endl;
 #endif
@@ -395,23 +407,32 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
                     }
                 }
                 freeaddrinfo(infoptr);
-                cm.message_no = 203;
-                cm.upfailure = true;
-                return -1;
+                lerr_mess = 203;
+                continue;
             }
         } else {  //is via proxy
-            sock.setTimeout(1000);   //TODO - add loop and message numbers on error
+            sock.setTimeout(o.proxy_timeout);   //TODO - add loop and message numbers on error
             int rc = sock.connect(o.proxy_ip, o.proxy_port);
-            if (rc < 0)
-            {
-                cm.upfailure = true;
+            if (rc < 0) {
                 if (sock.isTimedout())
-                    cm.message_no = 201;
+                    lerr_mess = 201;
                 else
-                    cm.message_no = 202;
+                    lerr_mess = 202;
+                continue;
             }
-        return rc;
+            return rc;
         }
+    }
+    // only get here if failed
+    cm.upfailure = true;
+    cm.message_no = lerr_mess;
+    cm.whatIsNaughty = "";
+    cm.whatIsNaughtyLog = "";
+    cm.isItNaughty = true;
+    cm.blocktype = 3;
+    cm.isexception = false;
+    cm.isbypass = false;
+    return -1;
     }
 
     // pass data between proxy and client, filtering as we go.
@@ -1680,7 +1701,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         //String fullurl = header->getLogUrl(true);
                         String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
-                        ldl->fg[filtergroup]->getHTMLTemplate()->display_hb(ebody,
+                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                             &fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
                             // grab either the full category list or the thresholded list
                             (checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories),
@@ -3554,7 +3575,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     overide_persist = false;
     filtergroup = o.default_icap_fg;
 #ifdef DGBEBUG
-    std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " < std::endl;
+    std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " << std::endl;
 #endif
     clientuser = icaphead.username;
     int rc = DGAUTH_NOUSER;
@@ -3696,7 +3717,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         return 0;
     }
 
-// TODO add logicv for 204 response etc.
+// TODO add logic for 204 response etc.
     if (checkme.isexception) {
         std::string code;
         if (checkme.isvirusbypass)

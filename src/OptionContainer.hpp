@@ -97,6 +97,9 @@ class OptionContainer
     bool get_orig_ip;
 #endif
     int ll;
+    int connect_timeout;
+    int connect_timeout_sec;
+    int connect_retries;
     int proxy_timeout;
     int proxy_timeout_sec;
     int proxy_failure_log_interval;

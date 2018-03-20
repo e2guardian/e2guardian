@@ -725,6 +725,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
     headermod_word = "*" + headermod_word + "* ";
     std::string headeradd_word = o.language_list.getTranslation(58);
     headeradd_word = "*" + headeradd_word + "* ";
+    std::string neterr_word = o.language_list.getTranslation(59);
+    neterr_word = "*" + neterr_word + "* ";
 
     while (!logger_ttg) { // loop, essentially, for ever
         std::string loglines;
@@ -880,6 +882,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
             }
         }
 
+        bool neterr = false;
+
         // stamp log entries so they stand out/can be searched
         switch (naughtytype) {
             case 1:
@@ -888,11 +892,18 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
             case 2:
                 stype = "-PARAMS";
                 break;
+            case 3:
+                neterr = true;
+                break;
             default:
                 stype.clear();
         }
+
         if (isnaughty) {
-            what = denied_word + stype + "* " + what;
+            if (neterr)
+                what = neterr_word + what;
+            else
+                what = denied_word + stype + "* " + what;
         } else if (isexception && (o.log_exception_hits == 2)) {
             what = exception_word + what;
         }

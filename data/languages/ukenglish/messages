@@ -11,6 +11,7 @@
 "56","URLMOD"
 "57","HEADERMOD"
 "58","HEADERADD"
+"59","NETERROR"
 "70","SSL SITE"
 "71","IP Limit"
 "72","Content scanning"
@@ -109,3 +110,4 @@
 "1221","Download complete; file not scanned.</p><p>Click here to download: "
 "1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "
 "1230","File no longer available"
+"9999","Dummy so master always has higher number"
