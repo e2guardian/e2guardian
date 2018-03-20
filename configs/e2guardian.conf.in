@@ -140,6 +140,19 @@ proxyport = 3128
 # Min 5 - Max 100
 proxytimeout = 5
 
+# Connect timeout 
+# Set tcp timeout between the e2guardian and upstream service (proxy or target host)
+ # This is a connection timeout
+ # For remote sites you may need to increase this to 10 or more.
+# Min 1 - Max 100
+# default 3
+connecttimeout = 5
+
+# Connect retries
+# Set the number of retries to make on connection failure before giving up
+# Min 1 - Max 100
+# default 1
+
 # Proxy header exchange
 # Set timeout between the Proxy and e2guardian 
 # Min 20 - Max 300

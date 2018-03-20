@@ -287,6 +287,22 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
 
+        connect_timeout_sec = findoptionI("connecttimeout");
+        if (connect_timeout_sec == 0)
+            connect_timeout_sec = 3;
+        if (!realitycheck(connect_timeout_sec, 1, 100, "connecttimeout")) {
+            return false;
+        } // check its a reasonable value
+        connect_timeout = connect_timeout_sec * 1000;
+
+        connect_retries = findoptionI("connectretries");
+        if (connect_retries == 0)
+            connect_retries  = 5;
+        if (!realitycheck(connect_retries, 1, 100, "connectretries")) {
+            return false;
+        } // check its a reasonable value
+
+
         proxy_timeout_sec = findoptionI("proxytimeout");
         if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
             return false;
