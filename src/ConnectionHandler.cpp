@@ -1703,7 +1703,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         //String fullurl = header->getLogUrl(true);
                         String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
-                        ldl->fg[filtergroup]->getHTMLTemplate()->display_hb(ebody,
+                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                             &fullurl, (*checkme).whatIsNaughty, (*checkme).whatIsNaughtyLog,
                             // grab either the full category list or the thresholded list
                             (checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories : checkme->whatIsNaughtyCategories),

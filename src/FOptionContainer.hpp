@@ -53,7 +53,7 @@ public:
     bool ssl_mitm;
     bool only_mitm_ssl_grey;
     bool mitm_check_cert;
-    HTMLTemplate html_template;
+
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
     bool notifyav;
@@ -139,12 +139,13 @@ public:
     StoryBoard StoryB;
 
     // get HTML template for this group
-    HTMLTemplate *getHTMLTemplate();
+    HTMLTemplate *getHTMLTemplate(bool upfail);
     std::deque<std::string> text_mime;
 
     private:
     // HTML template - if it overrides the default
     HTMLTemplate *banned_page;
+    HTMLTemplate *neterr_page;
 
     ListMeta LMeta;
 

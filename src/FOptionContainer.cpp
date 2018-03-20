@@ -87,13 +87,15 @@ void FOptionContainer::resetJustListData()
 }
 
 // grab this FG's HTML template
-// TODO must be removed ?
-HTMLTemplate *FOptionContainer::getHTMLTemplate()
+HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
 {
+    if(upfail && neterr_page)
+        return neterr_page;
     if (banned_page)
         return banned_page;
     return &(o.html_template);
 }
+
 
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw,
@@ -428,7 +430,23 @@ bool FOptionContainer::read(const char *filename) {
                     // HTML template file
                 }
             }
+
+            String neterr_template(findoptionS("neterrtemplate"));
+            if (neterr_template != "") {
+                neterr_template = o.languagepath + neterr_template;
+                neterr_page = new HTMLTemplate;
+                if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
+                    if (!is_daemonised) {
+                        std::cerr << thread_id << "Error reading NetErr HTML Template file: " << neterr_template
+                                  << std::endl;
+                    }
+                    syslog(LOG_ERR, "Error reading NetErr HTML Template file: %s", neterr_template.toCharArray());
+                    return false;
+                    // HTML template file
+                }
+            }   // if blank will default to HTML template file
         }
+
         // override ssl default banned page
         sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
         if ((sslaccess_denied_address.length() != 0)) {
