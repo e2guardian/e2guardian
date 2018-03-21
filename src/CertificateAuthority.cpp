@@ -18,7 +18,9 @@
 #include <string>
 #include <iostream>
 
+#include "libcrypto-compat.h"
 #include <openssl/pem.h>
+#include <openssl/evp.h>
 #include <openssl/conf.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
@@ -28,6 +30,7 @@
 
 #include "CertificateAuthority.hpp"
 #include "OptionContainer.hpp"
+
 
 extern OptionContainer o;
 extern thread_local std::string thread_id;
@@ -133,24 +136,34 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     std::cout  << thread_id << "Generating serial no for " << commonname << std::endl;
 #endif
 
-    EVP_MD_CTX mdctx;
+    EVP_MD_CTX *mdctx;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX  mmdctx;
+    mdctx = &mmdctx;
+#else
+    mdctx = EVP_MD_CTX_new();
+#endif
     const EVP_MD *md = EVP_md5();
-    EVP_MD_CTX_init(&mdctx);
+    EVP_MD_CTX_init(mdctx);
 
     bool failed = false;
-    if (!failed && EVP_DigestInit_ex(&mdctx, md, NULL) < 1) {
+    if (!failed && EVP_DigestInit_ex(mdctx, md, NULL) < 1) {
         failed = true;
     }
 
-    if (!failed && EVP_DigestUpdate(&mdctx, sname.c_str(), strlen(sname.c_str())) < 1) {
+    if (!failed && EVP_DigestUpdate(mdctx, sname.c_str(), strlen(sname.c_str())) < 1) {
         failed = true;
     }
 
-    if (!failed && EVP_DigestFinal_ex(&mdctx, (unsigned char *)cnhash, &cnhashlen) < 1) {
+    if (!failed && EVP_DigestFinal_ex(mdctx, (unsigned char *)cnhash, &cnhashlen) < 1) {
         failed = true;
     }
 
-    EVP_MD_CTX_cleanup(&mdctx);
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    EVP_MD_CTX_cleanup(mdctx);
+#else
+    EVP_MD_CTX_free(mdctx);
+#endif
 
     if (failed) {
         return false;
@@ -469,9 +482,13 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
 
 EVP_PKEY *CertificateAuthority::getServerPkey()
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     //openssl is missing a EVP_PKEY_dup function so just up the ref count
     //see http://www.mail-archive.com/openssl-users@openssl.org/msg17614.html
     CRYPTO_add(&_certPrivKey->references, 1, CRYPTO_LOCK_EVP_PKEY);
+#else
+#warning CRYPTO_add missing in OSSLv1.1
+#endif
     return _certPrivKey;
 }
 

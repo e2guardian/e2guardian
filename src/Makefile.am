@@ -74,6 +74,7 @@ e2guardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
 			-D__CONFDIR='"$(DGCONFDIR)"' \
 			$(AM_CPPFLAGS)
 e2guardian_SOURCES = String.cpp String.hpp \
+		       libcrypto-compat.c libcrypto-compat.h \
                        FDTunnel.cpp FDTunnel.hpp \
                        ConnectionHandler.cpp ConnectionHandler.hpp \
                        DataBuffer.cpp DataBuffer.hpp \

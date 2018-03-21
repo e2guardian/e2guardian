@@ -2132,7 +2132,8 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     std::cerr << thread_id << " -checking SSL certificate is valid" << std::endl;
 #endif
 
-    long rc = sslsock->checkCertValid();
+
+    long rc = sslsock->checkCertValid(hostname);
     //check that everything in this certificate is correct appart from the hostname
     if (rc < 0) {
         //no certificate
