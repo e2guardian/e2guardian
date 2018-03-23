@@ -1,5 +1,6 @@
-// http://e2guardian.org/
+/: http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
+
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
@@ -1079,7 +1080,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
 
             //CALL SB checkresponse
-            if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect)) {
+            if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
 #ifdef DGDEBUG
                 std::cerr << thread_id << "After StoryB checkresponse" << checkme.isexception << " mess_no "
