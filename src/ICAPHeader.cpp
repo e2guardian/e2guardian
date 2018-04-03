@@ -435,11 +435,11 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
         if (service_reqmod && !(out_res_hdr_flag || out_req_hdr_flag)) {
             out_req_header = HTTPrequest.stringHeader();
 #ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
+            if(o.myDebug->ICAP)
             {
                 std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
+                o.myDebug->Debug("ICAP","ceci est un test %s",oss.str().c_str());
                 std::cerr << thread_id << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
             }
 #endif
