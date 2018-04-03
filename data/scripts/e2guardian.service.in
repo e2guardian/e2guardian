@@ -1,12 +1,10 @@
 [Unit]
 Description=E2guardian Web filtering
 After=network.target
-TimeoutStartSec=20s
 
 [Service]
 LimitNOFILE=65535
 Type=forking
-DefaultTasksMax=infinity
 IgnoreSIGPIPE=no
 GuessMainPID=no
 ExecStart=@DGBINDIR@/e2guardian
