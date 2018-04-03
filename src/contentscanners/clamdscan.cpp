@@ -118,7 +118,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     }
     command += "\r\n";
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
       	std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << thread_id << "clamdscan command:" << command << std::endl;
@@ -148,7 +148,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << lastmessage.toCharArray() << std::endl;
@@ -171,7 +171,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << lastmessage.toCharArray() << std::endl;
@@ -187,7 +187,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     delete[] buff;
     reply.removeWhiteSpace();
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << "Got from clamdscan: " << reply << std::endl;
@@ -206,7 +206,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // /foo/path/file: foovirus FOUND
 
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
@@ -216,7 +216,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #endif
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
@@ -236,7 +236,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->CLAMAV)
       {
         std::ostringstream oss (std::ostringstream::out);
         oss << thread_id << "clamdscan - he say yes (clean)" << std::endl;

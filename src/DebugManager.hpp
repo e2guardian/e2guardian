@@ -30,6 +30,5 @@ class DebugManager
 		DebugManager(std::string debuglevel, std::string path_debuglevel);
 		~DebugManager();
 		void Debug(std::string value, std::string output,...);
-		bool gete2debug();
 };
 #endif

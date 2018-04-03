@@ -198,9 +198,3 @@ void DebugManager::CheckFlag(bool flag)
 		closelog();
 	}
 }
-
-bool DebugManager::gete2debug()
-{
-	return false;
-}
-

@@ -3299,7 +3299,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
            {
 // another round...
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << " ICAP -persisting (count " << ++pcount << ")" << " Client IP: " << clientip << std::endl;
@@ -3311,7 +3311,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
 #ifndef NEWDEBUG_OFF
-                        if(o.myDebug->gete2debug())
+                        if(o.myDebug->ICAP)
                         {
                             std::ostringstream oss (std::ostringstream::out);
                             oss << thread_id << " -ICAP Persistent connection timed out" << std::endl;
@@ -3328,7 +3328,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                     } else {
 
 #ifndef NEWDEBUG_OFF
-                            if(o.myDebug->gete2debug())
+                            if(o.myDebug->ICAP)
                             {
                                 std::ostringstream oss (std::ostringstream::out);
                                 oss << thread_id << " -ICAP Persistent connection closed" << std::endl;
@@ -3373,7 +3373,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 peerconn.resetChunk();
             }
 #ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
+            if(o.myDebug->ICAP)
             {
                 std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
@@ -3385,7 +3385,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             //
             if (icaphead.service_reqmod && icaphead.icap_reqmod_service) {
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "Icap reqmod check " << std::endl;
@@ -3401,7 +3401,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
             } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "Icap resmod check " << std::endl;
@@ -3427,7 +3427,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "respmod service options response : " << wline << std::endl;
@@ -3449,7 +3449,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "respmod service options response : " << wline << std::endl;
@@ -3465,7 +3465,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "ICAP/1.0 405 Method not allowed for service " << wline << std::endl;
@@ -3481,7 +3481,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
-                if(o.myDebug->gete2debug())
+                if(o.myDebug->ICAP)
                 {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "ICAP/1.0 400 Bad request : " << wline << std::endl;
@@ -3496,7 +3496,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
         if (!ismitm)
         try {
 #ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
+            if(o.myDebug->ICAP)
             {
                 std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
@@ -3517,7 +3517,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             peerconn.close();
         } catch (std::exception &e) {
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
+        if(o.myDebug->ICAP)
         {
             std::ostringstream oss (std::ostringstream::out);
             oss << thread_id << " -ICAP connection handler caught an exception on connection closedown: " << e.what() << std::endl;
@@ -3593,7 +3593,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
 
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->ICAP)
     {
             std::ostringstream oss (std::ostringstream::out);
             int unrealgroup = filtergroup+1;
@@ -3822,7 +3822,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         wline += "\r\n";
         peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->gete2debug())
+        if(o.myDebug->ICAP)
         {
                 std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << " ICAP Error: " << wline << std::endl;
@@ -3858,7 +3858,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->ICAP)
     {
             int unrealfiltergroup = filtergroup + 1;
             std::ostringstream oss (std::ostringstream::out);
@@ -3883,7 +3883,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true
 #ifndef NEWDEBUG_OFF
-    if(o.myDebug->gete2debug())
+    if(o.myDebug->ICAP)
         {
                 std::ostringstream oss (std::ostringstream::out);
                 oss << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
@@ -3910,7 +3910,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 // Main checking is done in Storyboard function(s)
             ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
 #ifndef NEWDEBUG_OFF
-            if(o.myDebug->gete2debug())
+            if(o.myDebug->ICAP)
             {
                     std::ostringstream oss (std::ostringstream::out);
                     oss << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions <<  std::endl;
