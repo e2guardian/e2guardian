@@ -32,6 +32,7 @@ class Socket : public BaseSocket
     Socket(int fd);
     // create socket from pre-existing FD, storing given local & remote IPs
     Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip);
+    ~Socket();
 
     // connect to given IP & port (following default constructor)
     int connect(const std::string &ip, int port);

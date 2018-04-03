@@ -44,6 +44,11 @@ extern bool reloadconfig;
 extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
+//
+// destructor
+Socket::~Socket() {
+    close();
+}
 
 // constructor - create an INET socket & clear address structs
 Socket::Socket() {
