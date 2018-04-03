@@ -411,7 +411,7 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
                 continue;
             }
         } else {  //is via proxy
-            sock.setTimeout(o.proxy_timeout);   //TODO - add loop and message numbers on error
+            sock.setTimeout(o.proxy_timeout);
             int rc = sock.connect(o.proxy_ip, o.proxy_port);
             if (rc < 0) {
                 if (sock.isTimedout())
