@@ -17,7 +17,7 @@ do
   then
     n=`echo ${l}|cut -f1 -d,|tr -d '"'`
     d=`echo ${l}|cut -f2- -d,|tr "^" " "`
-    #echo ${n}  ${d}
+#    echo ${n}  ${d}
     ma[${n}]=${d}
     mi[i]=${n}
     let i=i+1
@@ -30,8 +30,9 @@ nmi=${i}
 
 for t in ${targets}
 do
+  echo "Checking ${t} ..."
   (
-    cm=1
+    cm=0
     cmi=${mi[${cm}]}
     if [ -n "${cmi}" ]
     then
@@ -70,6 +71,7 @@ do
   if diff ${t} ${t}.new >/dev/null
   then
      rm ${t}.new
+	:
   else
      mv ${t} ${t}.sav
      mv ${t}.new ${t}

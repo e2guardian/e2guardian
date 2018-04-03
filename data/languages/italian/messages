@@ -12,6 +12,7 @@
 "56","URLMOD"    # needs translation
 "57","HEADERMOD"    # needs translation
 "58","HEADERADD"    # needs translation
+"59","NETERROR"    # needs translation
 "70","SSL SITE"    # needs translation
 "71","IP Limit"    # needs translation
 "72","Content scanning"    # needs translation
