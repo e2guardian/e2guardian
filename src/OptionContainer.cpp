@@ -673,6 +673,7 @@ bool OptionContainer::read(std::string& filename, int type)
         }
         if (findoptionS("logclienthostnames") == "on") {
             log_client_hostnames = true;
+            reverse_client_ip_lookups = true;
         } else {
             log_client_hostnames = false;
         }
