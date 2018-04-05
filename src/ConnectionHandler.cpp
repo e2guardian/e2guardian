@@ -496,7 +496,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     std::deque<CSPlugin *> responsescanners;
 
     std::string clientip(ip.toCharArray()); // hold the clients ip
-    docheader.setClientIP(ip);
+    header.setClientIP(ip);
 
     if (clienthost) delete clienthost;
 
