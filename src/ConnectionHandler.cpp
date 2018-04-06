@@ -1241,7 +1241,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
     bool istext = cm.is_text;
     struct timeval *thestart = &cm.thestart;
     bool cachehit = false;
-    int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);
+    //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
+    int code = (cm.response_header->returnCode());
     if(isnaughty) code = 403;
     std::string mimetype = cm.mimetype;
     bool wasinfected = cm.wasinfected;
