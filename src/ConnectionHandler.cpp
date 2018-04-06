@@ -469,6 +469,7 @@ int ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port
     return rc;
 }
 
+
 int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock,
                                         stat_rec *&dystat) {
     struct timeval thestart;
@@ -553,12 +554,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         int pport = peerconn.getPeerSourcePort();
                         std::string peerIP = peerconn.getPeerIP();
 
-                        syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
+                        syslog(LOG_INFO, "%s No header recd from client at %s - errno: %d", thread_id.c_str(), peerIP.c_str(), err);
 #ifdef DGDEBUG
-                        std::cerr << "pport" << " No header recd from client - errno: " << err << std::endl;
+                        std::cerr << thread_id << " No header recd from client - errno: " << err << std::endl;
 #endif
                     } else {
-                        syslog(LOG_INFO, "Client connection closed early - no request header received");
+                        syslog(LOG_INFO, "%s Client connection closed early - no request header received", thread_id.c_str());
                     }
             }
             firsttime = false;
@@ -577,7 +578,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //    while ((firsttime || persistPeer) && !reloadconfig)
         {
 #ifdef DGDEBUG
-            std::cerr << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
+            std::cerr << thread_id << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
 #endif
             ldl = o.currentLists();
             NaughtyFilter checkme(header, docheader);
@@ -673,73 +674,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 break;
             }
 
-            // do total block list checking here - now done in pre-auth story
-#ifdef NOTDEF
-            if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
-                if (checkme.isconnect) {
-                    writeback_error(checkme, peerconn, 0, 0, "404 Banned Site");
-                } else { // write blank graphic
-                    peerconn.writeString("HTTP/1.1 200 OK\n");
-                    o.banned_image.display(&peerconn);
-                }
-                proxysock.close(); // close connection to proxy
-                break;
-            }
-#endif
+            // total block list checking  now done in pre-auth story
 
             // don't let the client connection persist if the client doesn't want it to.
             persistOutgoing = header.isPersistent();
-            //
-            //
-            // Start of Authentication Checks
-            //
-            //
-            // don't have credentials for this connection yet? get some!
-            overide_persist = false;
-            if (!persistent_authed) {
-                bool only_ip_auth;
-                if (header.isProxyRequest) {
-                    filtergroup = o.default_fg;
-                    only_ip_auth = false;
-                }
-                else
-                {
-                    filtergroup = o.default_trans_fg;
-                    only_ip_auth = true;
-                }
-#ifdef DGDEBUG
-                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
-#endif
-                if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
-                    break;
-                //checkme.filtergroup = filtergroup;
-            } else {
-#ifdef DGDEBUG
-                std::cerr << thread_id << " -Already got credentials for this connection - not querying auth plugins" << std::endl;
-#endif
-                authed = true;
-            }
-            checkme.filtergroup = filtergroup;
 
-#ifdef DGDEBUG
-            std::cerr << thread_id << " -username: " << clientuser << std::endl;
-            std::cerr << thread_id << " -filtergroup: " << filtergroup << std::endl;
-#endif
-//
-//
-// End of Authentication Checking
-//
-//
-
-#ifdef __SSLMITM
-            //			Set if candidate for MITM
-            //			(Exceptions will not go MITM)
-            checkme.ismitmcandidate = checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
-#endif
 
             //
             //
-            // Now check if user or machine is banned and room-based checking
+            // Now check if  machine is banned and room-based checking
             //
             //
 
@@ -784,8 +727,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                       << checkme.message_no << std::endl;
 #endif
             checkme.isItNaughty = checkme.isBlocked;
-            // is this machine banned?
-            //bool isbannedip = ldl->inBannedIPList(&clientip, clienthost);
             bool isbannedip = checkme.isBlocked;
             bool part_banned;
             if (isbannedip) {
@@ -876,6 +817,56 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 #endif
+
+
+            //
+            //
+            // Start of Authentication Checks
+            //
+            //
+            // don't have credentials for this connection yet? get some!
+            overide_persist = false;
+            if (!persistent_authed) {
+                bool only_ip_auth;
+                if (header.isProxyRequest) {
+                    filtergroup = o.default_fg;
+                    only_ip_auth = false;
+                }
+                else
+                {
+                    filtergroup = o.default_trans_fg;
+                    only_ip_auth = true;
+                }
+#ifdef DGDEBUG
+                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
+#endif
+                if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
+                    break;
+                //checkme.filtergroup = filtergroup;
+            } else {
+#ifdef DGDEBUG
+                std::cerr << thread_id << " -Already got credentials for this connection - not querying auth plugins" << std::endl;
+#endif
+                authed = true;
+            }
+            checkme.filtergroup = filtergroup;
+
+#ifdef DGDEBUG
+            std::cerr << thread_id << " -username: " << clientuser << std::endl;
+            std::cerr << thread_id << " -filtergroup: " << filtergroup << std::endl;
+#endif
+//
+//
+// End of Authentication Checking
+//
+//
+
+#ifdef __SSLMITM
+            //			Set if candidate for MITM
+            //			(Exceptions will not go MITM)
+            checkme.ismitmcandidate = checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
+#endif
+
             //
             // Start of by pass
             //
@@ -1065,7 +1056,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef __SSLMITM
             //if ismitm - GO MITM
             // check ssl_grey is covered in storyboard
-            if (checkme.isconnect && checkme.gomitm)
+            if (!checkme.tunnel_rest && checkme.isconnect && checkme.gomitm)
             {
                 std::cerr << "Going MITM ...." << std::endl;
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
@@ -1222,7 +1213,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 }
 
 
-
 void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter &cm) {
     String rtype = cm.request_header->requestType();
 //    doLog(who, from, cm.logurl,  cm.request_header->port, cm.whatIsNaughtyLog, rtype,
@@ -1251,7 +1241,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
     bool istext = cm.is_text;
     struct timeval *thestart = &cm.thestart;
     bool cachehit = false;
-    int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);
+    //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
+    int code = (cm.response_header->returnCode());
     if(isnaughty) code = 403;
     std::string mimetype = cm.mimetype;
     bool wasinfected = cm.wasinfected;
@@ -3109,8 +3100,10 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             if (!checkme.isItNaughty && !persistProxy) {
                 if (connectUpstream(proxysock, checkme,443) > -1) {
                     if(!checkme.isdirect) {
-                        if (sendProxyConnect(checkme.connect_site,&proxysock, &checkme) != 0)
+                        if (sendProxyConnect(checkme.connect_site,&proxysock, &checkme) != 0) {
                        checkme.upfailure = true;
+                       proxysock.close();
+                       }
                     }
                 } else {
                        checkme.upfailure = true;
