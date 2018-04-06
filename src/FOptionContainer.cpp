@@ -234,6 +234,8 @@ void FOptionContainer::resetJustListData()
     only_mitm_ssl_grey = false;
     ssl_mitm = false;
     enable_ssl_legacy_logic = false;
+    banned_search_overide_list =  false;
+
 //searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
     auth_exception_site_flag = false;
