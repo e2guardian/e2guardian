@@ -24,9 +24,12 @@ class DebugManager
 		bool m_e2debug = false;
 		void LoadParam();
 		void CheckFlag(bool flag);
+		bool Filter (std::string s);
 	public:	
 		bool ICAP = false;
 		bool CLAMAV = false;
+		bool THTTPS = false;
+		bool PROXY = false;
 		DebugManager(std::string debuglevel, std::string path_debuglevel);
 		~DebugManager();
 		void Debug(std::string value, std::string output,...);

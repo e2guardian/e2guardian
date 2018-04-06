@@ -52,7 +52,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 	
 		for(unsigned int i = 0; i < liste.size(); i++)
 		{
-			if(m_debuglevel.find("ALL,") == 0 && m_debuglevel.find("," + liste[i]) == std::string::npos)
+			if(m_debuglevel.find("ALL,") == 0 && (m_debuglevel.find("," + liste[i]) == std::string::npos || !Filter(liste[i])))
 			{
 				result = liste[i];		
 			}
@@ -60,7 +60,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 	                {       
         	         	result = liste[i];       
 	                }
-			else if(m_debuglevel.find("ALL") == std::string::npos && m_debuglevel.find(liste[i]) != std::string::npos)          
+			else if(m_debuglevel.find("ALL") == std::string::npos && (m_debuglevel.find(liste[i]) != std::string::npos || Filter(liste[i])))          
                 	{
 	                    	result = liste[i];
                  	}
@@ -137,7 +137,6 @@ void DebugManager::LoadParam()
 	m_e2debug = true;
 	std::string v = m_debuglevel;
 	std::vector<std::string> liste;
-	std::string result = "";	
 	if(v.find(",") != std::string::npos)
 	{
 		while(v.find(",") != std::string::npos)
@@ -149,17 +148,50 @@ void DebugManager::LoadParam()
 	liste.push_back(v);
 
 	bool checkall = false;
+	bool checkfilter = false;
+
 	bool checkicap = false;
 	bool checkclamav = false;
+	bool checkthttps = false;
+	bool checkproxy = false;
 	for(unsigned int i = 0; i < liste.size(); i++)
 	{
 		if(liste[i].find("ALL") != std::string::npos)
 		{
-			ICAP = true;
-			CLAMAV = true;
+			if(liste[i].find("-") == std::string::npos)
+			{
+				ICAP = true;
+				CLAMAV = true;
+				THTTPS = true;
+				PROXY = true;
+			}
+			else
+			{
+				ICAP = false;
+				CLAMAV = false;
+				THTTPS = false;
+				PROXY = false;
+			}
 			CheckFlag(checkall);
 			checkall = true;	
 		}
+		if(liste[i].find("FILTER") != std::string::npos)
+		{
+			if(liste[i].find("-") == std::string::npos)
+			{
+				ICAP = true;
+				THTTPS = true;
+				PROXY = true;
+			}
+			else
+			{
+				ICAP = false;
+				THTTPS = false;
+				PROXY = false;
+			}
+			CheckFlag(checkfilter);
+			checkfilter = true;
+		}	
 		if(liste[i].find("ICAP") != std::string::npos)
 		{
 			if(liste[i].find("-") == std::string::npos)
@@ -186,6 +218,32 @@ void DebugManager::LoadParam()
 			CheckFlag(checkclamav);
 			checkclamav = true;
 		}
+		if(liste[i].find("THTTPS") != std::string::npos)
+		{
+			if(liste[i].find("-") == std::string::npos)
+			{
+				THTTPS = true;
+			}
+			else
+			{
+				THTTPS = false;
+			}
+			CheckFlag(checkthttps);
+			checkthttps = true;
+		}
+		if(liste[i].find("PROXY") != std::string::npos)
+		{
+			if(liste[i].find("-") == std::string::npos)
+			{
+				PROXY = true;
+			}
+			else
+			{
+				PROXY = false;
+			}
+			CheckFlag(checkproxy);
+			checkproxy = true;
+		}
 	}
 }
 
@@ -196,5 +254,17 @@ void DebugManager::CheckFlag(bool flag)
 		openlog("e2guardian", LOG_PID | LOG_CONS, LOG_USER);
 		syslog(LOG_INFO, "WARNING : Ambigous syntax of debuglevel in e2guardian.conf");
 		closelog();
+	}
+}
+
+bool DebugManager::Filter(std::string s)
+{
+	if(m_debuglevel.find("FILTER") != std::string::npos && (s.find("ICAP") != std::string::npos || s.find("THTTPS") != std::string::npos || s.find("PROXY") != std::string::npos))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
