@@ -1499,7 +1499,7 @@ char *FOptionContainer::inBannedSearchList(String words, String &lc)
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
     if (enable_local_list) {
-        if (inBannedSearchOverideList(words))
+        if (inBannedSearchOverideList(words) && banned_search_overide_flag)
             return NULL;
     }
 #ifdef DGDEBUG
