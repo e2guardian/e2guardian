@@ -51,7 +51,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     std::cout << thread_id << "tunnelling chunked data." << std::endl;
 #endif
         int maxlen = 32000;
-        char buff[maxlen];
+        char buff[32000];
         int timeout = sockfrom.getTimeout();
         int rd = 0;
         int total_rd = 0;
