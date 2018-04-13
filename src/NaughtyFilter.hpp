@@ -102,6 +102,7 @@ class NaughtyFilter
     bool tunnel_2way = false;
     bool is_text = false;
     bool issiteonly = false;
+    int auth_result = 0;
     String search_words;
     String search_terms;
     struct timeval thestart;
