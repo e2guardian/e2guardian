@@ -53,10 +53,6 @@ urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
 regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
 regexpurlboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
 
-#sitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsitelist'
-#ipsitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsiteiplist'
-#urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
-
 sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
 ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
 urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
