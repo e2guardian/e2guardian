@@ -840,8 +840,17 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef DGDEBUG
                 std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
 #endif
-                if (!doAuth(authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth))
-                    break;
+                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header,only_ip_auth,
+                            checkme.isconnect)) {
+                    // TODO: add code to deal with goMITM on redirect
+                    if((checkme.auth_result == DGAUTH_REDIRECT) && checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm)
+                    {
+                        checkme.gomitm = true;
+                        checkme.isdone = true;
+                    } else {
+                        break;
+                    }
+                }
                 //checkme.filtergroup = filtergroup;
             } else {
 #ifdef DGDEBUG
@@ -870,7 +879,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // Start of by pass
             //
-            if(checkByPass(checkme,ldl, header, proxysock, peerconn, clientip)
+            if(!checkme.isdone && checkByPass(checkme,ldl, header, proxysock, peerconn, clientip)
                     && sendScanFile(peerconn,checkme)) {
                 persistProxy = false;
                 break;
@@ -882,7 +891,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // virus checking candidate?
             // checkme.noviruscheck defaults to true
-            if (!(checkme.isconnect || checkme.ishead)    //  can't scan connect or head
+            if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head
                 && !(checkme.isBlocked)  // or already blocked
                 && (o.csplugins.size() > 0)            //  and we have scan plugins
                 && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
@@ -897,7 +906,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // Start of Storyboard checking
             //
 //            if (!(checkme.isBlocked || checkme.isbypass))
-            if (!checkme.isBlocked) {
+            if (!(checkme.isBlocked || checkme.isdone)) {
 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
@@ -908,8 +917,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                           << checkme.message_no << std::endl;
 #endif
                 checkme.isItNaughty = checkme.isBlocked;
-                if (checkme.isdirect) header.setDirect();
             }
+
+            if (checkme.isdirect) header.setDirect();
 
             if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
 #ifdef DGDEBUG
@@ -1215,20 +1225,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
 void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter &cm) {
     String rtype = cm.request_header->requestType();
-//    doLog(who, from, cm.logurl,  cm.request_header->port, cm.whatIsNaughtyLog, rtype,
-//          cm.docsize, &cm.whatIsNaughtyCategories, cm.isItNaughty, cm.blocktype, cm.isexception, cm.is_text, &cm.thestart,
- //         false, (cm.wasrequested ? cm.response_header->returnCode() : 200), cm.mimetype, cm.wasinfected,
-  //        cm.wasscanned, cm.naughtiness, cm.filtergroup, cm.request_header, cm.message_no, cm.contentmodified,
-   //       cm.urlmodified, cm.headermodified,  cm.headeradded);
-//}
-
-// decide whether or not to perform logging, categorise the log entry, and write it.
-//void ConnectionHandler::doLog(std::string &who, std::string &from, String &where, unsigned int &port,
-    //std::string &what, String &how, off_t &size, std::string *cat, bool isnaughty, int naughtytype,
-    //bool isexception, bool istext, struct timeval *thestart, bool cachehit,
-    //int code, std::string &mimetype, bool wasinfected, bool wasscanned, int naughtiness, int filtergroup,
-    ////HTTPHeader *reqheader, int message_no, bool contentmodified, bool urlmodified, bool headermodified, bool headeradded)
-///
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
     std::string what = cm.whatIsNaughtyLog;
@@ -2514,21 +2510,22 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 }
 #endif
 
-bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn,  HTTPHeader & header, bool only_client_ip) {
+bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn,  HTTPHeader & header, bool only_client_ip, bool isconnect_like) {
     Socket nullsock;
-    return doAuth(authed, filtergroup, auth_plugin, peerconn, nullsock, header, only_client_ip);
+    return doAuth(auth_result, authed, filtergroup, auth_plugin, peerconn, nullsock, header, only_client_ip, isconnect_like);
 }
 
-bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header, bool only_client_ip) {
+bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header, bool only_client_ip, bool isconnect_like) {
 
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -Not got persistent credentials for this connection - querying auth plugins" << std::endl;
 #endif
                 bool dobreak = false;
+                rc = 0;
                 if (o.authplugins.size() != 0) {
                     // We have some auth plugins load
                     int authloop = 0;
-                    int rc;
+                    rc = 0;
                     String tmp;
 
                     for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
@@ -2573,13 +2570,19 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
 #ifdef DGDEBUG
                             std::cerr << "Auth plugin told us to redirect client to \"" << clientuser << "\"; not querying remaining plugins" << std::endl;
 #endif
-                            // ident plugin told us to redirect to a login page
-                            String writestring("HTTP/1.1 302 Redirect\r\nLocation: ");
-                            writestring += clientuser;
-                            writestring += "\r\n\r\n";
-                            peerconn.writeString(writestring.toCharArray());   // no action on failure
-                            dobreak = true;
-                            break;
+                            if (isconnect_like)      // it is connect or trans https so cannot send redirect
+                            {
+                                dobreak = true;
+                                break;
+                            } else {
+                                // ident plugin told us to redirect to a login page
+                                String writestring("HTTP/1.1 302 Redirect\r\nLocation: ");
+                                writestring += clientuser;
+                                writestring += "\r\n\r\n";
+                                peerconn.writeString(writestring.toCharArray());   // no action on failure
+                                dobreak = true;
+                                break;
+                            }
                         } else if (rc == DGAUTH_OK_NOPERSIST) {
 #ifdef DGDEBUG
                             std::cerr << "Auth plugin  returned OK but no persist not setting persist auth" << std::endl;
@@ -2622,7 +2625,7 @@ bool ConnectionHandler::doAuth(bool &authed, int &filtergroup,AuthPlugin* auth_p
 #endif
                             if (o.auth_requires_user_and_group)
                                 continue;
-                            //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
+                            //filtergroup = 0; // default now set before call to doAuth
                             authed = true;
                             break;
                         } else if (rc < 0) {
@@ -2998,16 +3001,25 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.setURL(checkme.url);
             gettimeofday(&checkme.thestart, NULL);
 
-            if(checkme.isconnect) {
-            persistPeer = false;
-            persistOutgoing = false;
+
+            // Look up reverse DNS name of client if needed
+            if (o.reverse_client_ip_lookups) {
+                std::unique_ptr<std::deque<String> > hostnames;
+                    hostnames.reset(ipToHostname(clientip.c_str()));
+                    checkme.clienthost = std::string(hostnames->front().toCharArray());
             }
 
-            // do total block list checking here
-            //if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {     // not sure if we should do this here!!!!
-                //proxysock.close(); // close connection to proxy
-                //break;
-            //}
+            filtergroup = o.default_trans_fg;
+
+            //CALL SB pre-authcheck
+            ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
+#ifdef DGDEBUG
+            std::cerr << thread_id << "After StoryA thttps-pre-authcheck" << checkme.isexception << " mess_no "
+                      << checkme.message_no << std::endl;
+#endif
+            checkme.isItNaughty = checkme.isBlocked;
+            bool isbannedip = checkme.isBlocked;
+            bool part_banned;
 
             //
             //
@@ -3016,9 +3028,20 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             //
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
-            filtergroup = o.default_trans_fg;
-                if (!doAuth(authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true) )
-                    break;
+            //filtergroup = o.default_trans_fg;
+            if(!(checkme.isItNaughty || checkme.isexception)) {
+                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true, true))
+                {
+                    // TODO: add code to deal with goMITM on redirect
+                    if((checkme.auth_result == DGAUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
+                    {
+                       checkme.gomitm = true;
+                       checkme.isdone = true;
+                    } else {
+                       break;
+                    }
+                 }
+            }
             checkme.filtergroup = filtergroup;
 
 #ifdef DGDEBUG
@@ -3040,24 +3063,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             isbanneduser = false;
             checkme.clientip = clientip;
 
-            // Look up reverse DNS name of client if needed
-            if (o.reverse_client_ip_lookups) {
-                std::unique_ptr<std::deque<String> > hostnames;
-                    hostnames.reset(ipToHostname(clientip.c_str()));
-                    checkme.clienthost = std::string(hostnames->front().toCharArray());
-            }
 
             checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
 
-            //CALL SB pre-authcheck
-            ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
-#ifdef DGDEBUG
-            std::cerr << thread_id << "After StoryA thttps-pre-authcheck" << checkme.isexception << " mess_no "
-                      << checkme.message_no << std::endl;
-#endif
-            checkme.isItNaughty = checkme.isBlocked;
-            bool isbannedip = checkme.isBlocked;
-            bool part_banned;
 
             // TODO restore this for THTTPS ??
             //if (isbannedip) {
@@ -3089,7 +3097,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             //
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
-            if (!(isbanneduser || isbannedip || checkme.isexception)) {
+            if (!(checkme.isdone || isbanneduser || isbannedip || checkme.isexception)) {
                     ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_THTTPS_REQUEST,checkme);
 #ifdef DGDEBUG
                     std::cerr << thread_id << "After StoryB thttps-checkrequest " << checkme.isexception << " mess_no "
@@ -3504,7 +3512,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
     //if (rc != DGAUTH_OK)
     else {                              // TODO - NEED to allow alternate group checking when no match in filter_groups_list
-            if (!doAuth(authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, true)) {
+            if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, true, true)) {
                 //break;  // TODO Error return????
             }
     }
