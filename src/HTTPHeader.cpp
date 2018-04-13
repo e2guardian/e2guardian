@@ -1244,6 +1244,15 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
     bool https = false;
     if (!mitm)
         mitm = isssl;
+
+#ifdef DGDEBUG
+     std::cerr << thread_id << "HTTPHeader size: " << header.size() << std::endl; 
+#endif
+    String emptyheader = "CONNECT https://www.google.com:443/ HTML/1.0";
+    if (header.size() == 0) {
+    	return emptyheader;
+    }
+	
     String hostname;
     String userpassword;
     String answer(header.front().after(" "));
