@@ -53,20 +53,12 @@ urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
 regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
 regexpurlboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
 
-#sitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsitelist'
-#ipsitelist = 'name=authexception,path=@DGCONFDIR@/lists/authexceptionsiteiplist'
-#urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
-
 sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
 ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
 urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
 sitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersitelist'
 ipsitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersiteiplist'
 urllist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededrefererurllist'
-
-sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
-ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
-urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
 
 #modification lists
 regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
@@ -171,11 +163,11 @@ regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlis
 regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
 
 #Virus checking exceptions - matched urls will not be virus checked
-mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-fileextlist = 'name=exceptionvirus,path=/home/dg/etc/config_i1/e2guardian/lists/contentscanners/exceptionvirusextensionlist'
-sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
-urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
+#mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+#fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/e2guardian/lists/contentscanners/exceptionvirusextensionlist'
+#sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
+#ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
+#urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
 
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
@@ -222,7 +214,7 @@ regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
 searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
-searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
+#searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)
@@ -298,8 +290,8 @@ bypasskey = ''
 
 #  Users will not be able to bypass sites/urls in these lists
 sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelistwithbypass'
-ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplistwithbypass'
-urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/bannedurllistwithbypass'
+#ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplistwithbypass'
+#urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/bannedurllistwithbypass'
 
 # Infection/Scan Error Bypass
 # Similar to the 'bypass' setting, but specifically for bypassing files scanned and found

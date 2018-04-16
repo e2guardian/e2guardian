@@ -1132,6 +1132,13 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
         mitm = isssl;
         isdirect = true;
     }
+
+    if ( header.size() == 0)
+    {
+        String ans;
+        return ans;
+    }
+
     String hostname;
     String userpassword;
     String answer(header.front().after(" "));
@@ -1804,6 +1811,9 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     if (!is_response && o.forwarded_for && !isdirect)  {
         std::string line("X-Forwarded-For: ");
         line.append(s_clientip).append("\r\n");
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Adding Header: " << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
        l += line;
     }
     l += "\r\n";

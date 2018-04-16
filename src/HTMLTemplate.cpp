@@ -148,16 +148,18 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             line = *ip;
         } else if (line == "-HOST-") {
             if (host == NULL) {
-#ifdef DGDEBUG
-                std::cerr << thread_id << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
-#endif
-                std::deque<String> *names = ipToHostname(ip->c_str());
-                if (names->size() > 0) {
-                    *host = names->front();
-                }
-                delete names;
+//#ifdef DGDEBUG
+                //std::cerr << thread_id << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
+//#endif
+                //std::deque<String> *names = ipToHostname(ip->c_str());
+                //if (names->size() > 0) {
+                    //*host = names->front();
+                //}
+                //delete names;
+                line = "";
+            } else {
+                line = *host;
             }
-            line = (host ? *host : "");
         } else if (line == "-FILTERGROUP-") {
             line = grpname;
         } else if (line == "-RAWFILTERGROUP-") {
