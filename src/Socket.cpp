@@ -29,7 +29,7 @@
 #include "openssl/err.h"
 #include "String.hpp"
 #include "CertificateAuthority.hpp"
-#include "libcrypto-compat.h"
+//#include "libcrypto-compat.h"
 #endif
 
 #ifdef __SSLMITM

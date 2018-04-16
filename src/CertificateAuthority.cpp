@@ -18,7 +18,7 @@
 #include <string>
 #include <iostream>
 
-#include "libcrypto-compat.h"
+//#include "libcrypto-compat.h"
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/conf.h>
@@ -487,7 +487,7 @@ EVP_PKEY *CertificateAuthority::getServerPkey()
     //see http://www.mail-archive.com/openssl-users@openssl.org/msg17614.html
     CRYPTO_add(&_certPrivKey->references, 1, CRYPTO_LOCK_EVP_PKEY);
 #else
-#warning CRYPTO_add missing in OSSLv1.1
+    EVP_PKEY_up_ref(_certPrivKey);
 #endif
     return _certPrivKey;
 }
