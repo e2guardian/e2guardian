@@ -3032,7 +3032,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             if(!(checkme.isItNaughty || checkme.isexception)) {
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true, true))
                 {
-                    // TODO: add code to deal with goMITM on redirect
+
                     if((checkme.auth_result == DGAUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
                     {
                        checkme.gomitm = true;
