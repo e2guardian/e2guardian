@@ -1275,13 +1275,15 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !cm.anon_log) {
+        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
 #ifdef DGDEBUG
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
             std::deque<String> *names = ipToHostname(from.c_str());
-            if (names->size() > 0)
+            if (names->size() > 0) {
                 clienthost = new std::string(names->front().toCharArray());
+                cm.clienthost = *clienthost;
+            }
             delete names;
         }
 
@@ -1321,8 +1323,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         std::string  l_who = who;
         std::string l_from = from;
         std::string l_clienthost;
-        if(clienthost != NULL)
-            std::string l_clienthost = *clienthost;
+        l_clienthost = cm.clienthost;
 
         if(cm.anon_log) {
             l_who = "";
@@ -1547,9 +1548,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         eheader += (*clientuser).c_str();
 			eheader += "::FILTERGROUP==";
 			eheader += ldl->fg[filtergroup]->name;
-                        if (clienthost != NULL) {
+                        if (checkme->clienthost != "") {
                             eheader += "::HOST==";
-                            eheader += clienthost->c_str();
+                            eheader += checkme->clienthost.c_str();
                         }
                         eheader += "::CATEGORIES==";
                         eheader += miniURLEncode(cats.c_str()).c_str();
@@ -1563,9 +1564,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         eheader += (*clientuser).c_str();
 			eheader += "&FILTERGROUP=";
 			eheader += ldl->fg[filtergroup]->name;
-                        if (clienthost != NULL) {
+                        if (checkme->clienthost != "") {
                             eheader += "&HOST=";
-                            eheader += clienthost->c_str();
+                            eheader += checkme->clienthost.c_str();
                         }
                         eheader += "&CATEGORIES=";
                         eheader += miniURLEncode(cats.c_str()).c_str();
@@ -1737,9 +1738,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 eheader += (*clientuser).c_str();
 		eheader += "::FILTERGROUP==";
 		eheader += ldl->fg[filtergroup]->name;
-                if (clienthost != NULL) {
+                if (checkme->clienthost != "") {
                     eheader += "::HOST==";
-                    eheader += clienthost->c_str();
+                    eheader += checkme->clienthost.c_str();
                 }
                 eheader += "::CATEGORIES==";
                 eheader += miniURLEncode(cats.c_str()).c_str();
@@ -1765,9 +1766,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 eheader += (*clientuser).c_str();
 		eheader += "&FILTERGROUP=";
 		eheader += ldl->fg[filtergroup]->name;
-                if (clienthost != NULL) {
+                if (checkme->clienthost != "") {
                     eheader += "&HOST=";
-                    eheader += clienthost->c_str();
+                    eheader += checkme->clienthost.c_str();
                 }
                 eheader += "&CATEGORIES=";
                 eheader += miniURLEncode(cats.c_str()).c_str();
