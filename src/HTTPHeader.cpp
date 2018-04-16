@@ -1132,6 +1132,13 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
         mitm = isssl;
         isdirect = true;
     }
+
+    if ( header.size() == 0)
+    {
+        String ans;
+        return ans;
+    }
+
     String hostname;
     String userpassword;
     String answer(header.front().after(" "));
