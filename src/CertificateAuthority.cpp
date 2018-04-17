@@ -18,7 +18,6 @@
 #include <string>
 #include <iostream>
 
-//#include "libcrypto-compat.h"
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/conf.h>
