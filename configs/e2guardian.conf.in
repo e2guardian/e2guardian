@@ -35,9 +35,9 @@ language = 'ukenglish'
 #
 #Soustractive mode:
 #Eg
-#	debuglevel = 'ALL,ICAP'
+#	debuglevel = 'ALL,-ICAP'
 #Enable all debug informations but without ICAP debug informations
-#	debuglevel = 'ALL,ICAP,NET,FILTER'
+#	debuglevel = 'ALL,-ICAP,-NET,-FILTER'
 #Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
 #by default disabled, if this option is required just uncomment the line below
 #works also with e2guardian -N (-N Do not go into the background)
