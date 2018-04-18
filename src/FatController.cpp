@@ -225,6 +225,7 @@ Socket *peersock(NULL); // the socket which will contain the connection
 //String peersockip; // which will contain the connection ip
 
 #ifdef __SSLMITM
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static pthread_mutex_t  *ssl_lock_array;
 
 static void ssl_lock_callback(int mode, int type, char *file, int line)
@@ -262,6 +263,7 @@ static void kill_ssl_locks(void)
 
   OPENSSL_free(ssl_lock_array);
 }
+#endif
 #endif
 
 void monitor_flag_set(bool action)
@@ -1526,7 +1528,10 @@ int fc_controlit()   //
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
     SSL_library_init();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#else
     init_ssl_locks();
+#endif
 #endif
 
     // this has to be done after daemonise to ensure we get the correct PID.
@@ -1760,7 +1765,9 @@ int fc_controlit()   //
     if (o.dstat_log_flag) dystat->close();
 
 #ifdef __SSLMITM
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     kill_ssl_locks();
+#endif
 #endif
 
     delete[] serversockfds;
