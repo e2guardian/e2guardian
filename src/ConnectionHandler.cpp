@@ -4667,7 +4667,7 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     std::cerr << dbgPeerPort << " -checking SSL certificate is valid" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
-    long rc = sslsock->checkCertValid();
+    long rc = sslsock->checkCertValid(hostname);
     //check that everything in this certificate is correct apart from the hostname
     if (rc < 0) {
         //no certificate
