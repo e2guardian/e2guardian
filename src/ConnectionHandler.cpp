@@ -1280,9 +1280,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
             std::deque<String> *names = ipToHostname(from.c_str());
-            if (names->size() > 0)  {
+            if (names->size() > 0) {
                 clienthost = new std::string(names->front().toCharArray());
-                cm.clienthost =  *clienthost;
+                cm.clienthost = *clienthost;
             }
             delete names;
         }
@@ -1321,7 +1321,6 @@ void ConnectionHandler::doLog(std::string &who, std::string &from,NaughtyFilter 
         std::string l_who = who;
         std::string l_from = from;
         std::string l_clienthost;
-      //  if(clienthost != NULL)
         l_clienthost = cm.clienthost;
 
         if(cm.anon_log) {
@@ -2315,6 +2314,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 #endif
     HTTPHeader *header = checkme.request_header;
     HTTPHeader *docheader = checkme.response_header;
+    bool justLog = false;
 
 //Do the connect request - already done
 
@@ -2357,6 +2357,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(151);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         } else if (pkey == NULL) {
             checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to load ssl private key";
@@ -2364,6 +2365,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(153);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         }
 
 //startsslserver on the connection to the client
@@ -2395,6 +2397,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(154);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         }
     }
 
@@ -2485,6 +2488,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
         doLog(clientuser, clientip, checkme);
 
+        if(!justLog)
         denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, badcert);
