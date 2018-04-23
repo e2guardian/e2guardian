@@ -239,6 +239,7 @@ static void ssl_lock_callback(int mode, int type, char *file, int line)
     pthread_mutex_unlock(&(ssl_lock_array[type]));
   }
 }
+
 static void init_ssl_locks(void)
 {
   int i;
@@ -1529,7 +1530,6 @@ int fc_controlit()   //
     OpenSSL_add_all_digests();
     SSL_library_init();
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-#else
     init_ssl_locks();
 #endif
 #endif
