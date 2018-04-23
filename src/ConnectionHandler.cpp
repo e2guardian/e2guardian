@@ -2315,6 +2315,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 #endif
     HTTPHeader *header = checkme.request_header;
     HTTPHeader *docheader = checkme.response_header;
+    bool justLog = false;
 
 //Do the connect request - already done
 
@@ -2357,6 +2358,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(151);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         } else if (pkey == NULL) {
             checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to load ssl private key";
@@ -2364,6 +2366,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(153);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         }
 
 //startsslserver on the connection to the client
@@ -2395,6 +2398,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughty = o.language_list.getTranslation(154);
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
+            justLog = true;
         }
     }
 
@@ -2485,6 +2489,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
         doLog(clientuser, clientip, checkme);
 
+        if(!justLog)
         denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, badcert);
