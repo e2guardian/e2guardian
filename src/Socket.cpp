@@ -933,7 +933,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
     //        }
             s_errno = errno;
             String serr(s_errno);
-            log_ssl_errors("ssl_write failed %s", "");
+            log_ssl_errors("ssl_write failed - error ",serr.c_str());
             return false;
         }
         if (sent == 0) {
