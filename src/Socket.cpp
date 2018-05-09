@@ -932,6 +932,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
     //            continue; // was interupted by signal so restart
     //        }
             s_errno = errno;
+            String serr(s_errno);
             log_ssl_errors("ssl_write failed %s", "");
             return false;
         }

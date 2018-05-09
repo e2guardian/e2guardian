@@ -517,3 +517,9 @@ mitmcheckcert = on
 sitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsitelist'
 ipsitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsiteiplist'
 #
+
+# Auto switch to MITM with upstream connection error or to deliver block page
+# ignored if  sslmitm is off
+# To revert to v4 type behavour switch this off
+# Default is 'on'
+# automitm = on

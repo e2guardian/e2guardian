@@ -36,6 +36,7 @@ public:
     bool disable_content_scan;
     bool disable_content_scan_error;
     bool content_scan_exceptions;
+    bool automitm;
     int weighted_phrase_mode;
     unsigned int banned_phrase_list;
     int group_mode;
