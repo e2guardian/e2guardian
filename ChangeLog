@@ -3,7 +3,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 Version 4.1.5
 
 April 2018
-- Fix bug #268 and bug #344 accept Openssl1.0 & 1.1  
+- Fix bug #268 and bug #344 accept libssl1.0 & 1.1  
 - Fix bug #369 Segfault on some systems 
 
 Mars 2018

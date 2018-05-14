@@ -1,0 +1,16 @@
+[Unit]
+Description=E2guardian Web filtering
+After=network.target
+
+[Service]
+TasksMax=infinity
+LimitNOFILE=65535
+Type=forking
+IgnoreSIGPIPE=no
+GuessMainPID=no
+ExecStart=/usr/sbin/e2guardian
+ExecReload=/usr/sbin/e2guardian -r
+UMask=027
+
+[Install]
+WantedBy=multi-user.target
