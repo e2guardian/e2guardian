@@ -52,6 +52,17 @@ std::deque<String> *ipToHostname(const char *ip)
     return result;
 }
 
+void getClientFromIP(const char *ip, std::string &clienthost)
+{
+    std::unique_ptr<std::deque<String> > hostnames;
+    hostnames.reset(ipToHostname(ip));
+    if(hostnames->empty()) {
+        clienthost = ip;
+    } else {
+        clienthost = std::string(hostnames->front().toCharArray());
+    }
+}
+
 FOptionContainer::~FOptionContainer()
 {
     reset();
@@ -244,6 +255,12 @@ bool FOptionContainer::read(const char *filename) {
                     only_mitm_ssl_grey = true;
                 } else {
                     only_mitm_ssl_grey = false;
+                }
+
+                if (findoptionS("automitm") == "off") {
+                    automitm= false;
+                } else {
+                    automitm= true;
                 }
 
                 if (findoptionS("mitmcheckcert") == "off")
