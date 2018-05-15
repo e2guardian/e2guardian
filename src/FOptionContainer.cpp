@@ -52,6 +52,17 @@ std::deque<String> *ipToHostname(const char *ip)
     return result;
 }
 
+void getClientFromIP(const char *ip, std::string &clienthost)
+{
+    std::unique_ptr<std::deque<String> > hostnames;
+    hostnames.reset(ipToHostname(ip));
+    if(hostnames->empty()) {
+        clienthost = ip;
+    } else {
+        clienthost = std::string(hostnames->front().toCharArray());
+    }
+}
+
 FOptionContainer::~FOptionContainer()
 {
     reset();

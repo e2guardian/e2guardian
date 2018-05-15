@@ -27,6 +27,8 @@
 
 std::deque<String> *ipToHostname(const char *ip);
 
+void getClientFromIP(const char *ip, std::string &clienthost);
+
 class FOptionContainer {
 
 public:
