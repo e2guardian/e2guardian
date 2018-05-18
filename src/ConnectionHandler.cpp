@@ -978,16 +978,23 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             break;
                         }
                     }
+                } else {
+                    checkme.gomitm = false;   // if not automitm
                 }
             } else {
                 if (!persistProxy) // open upstream connection
                 {
-                    if (connectUpstream(proxysock, checkme) < 0) {
+                    if (connectUpstream(proxysock, checkme, header.port) < 0) {
                         if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
                             checkme.upfailure)
+                        {
+
                             checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                         // give error - depending on answer
                         // timeout -etc
+                        } else {
+                            checkme.gomitm = false;   // if not automitm
+                        }
                     }
                 }
                 if (!checkme.upfailure) {
@@ -1010,9 +1017,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
                           && (docheader.in(&proxysock, persistOutgoing)))) {
                         if (proxysock.isTimedout()) {
-                            writeback_error(checkme, peerconn, 203, 204, "504 Gateway Time-out");
+//                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
+                            writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                         } else {
-                            writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                            writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
+                            //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
                         }
                         break;
                     }
@@ -2300,17 +2309,19 @@ bool
 ConnectionHandler::gen_error_mess(Socket &peerconn, NaughtyFilter &cm, String &eheader, String &ebody, int mess_no1,
                                   int mess_no2, std::string mess) {
     cm.message_no = mess_no1;
-    eheader = "HTTP/1.1 " + mess + "\nContent-Type: text/html\r\n";
-    ebody = "<HTML><HEAD><TITLE>e2guardian - ";
-    ebody += mess;
-    ebody += "</TITLE></HEAD><BODY><H1>e2guardian - ";
-    ebody += mess;
-    ebody += "</H1>";
-    if (mess_no1 > 0)
-        ebody += o.language_list.getTranslation(mess_no1);
-    if (mess_no2 > 0)
-        ebody += o.language_list.getTranslation(mess_no2);
-    ebody += "</BODY></HTML>\r\n";
+    eheader = "HTTP/1.1 " + mess + "\nContent-Type: text/html\r\nConnection: Close\r\n";
+    if(mess_no1 > 0) {
+        ebody = "<HTML><HEAD><TITLE>e2guardian - ";
+        ebody += mess;
+        ebody += "</TITLE></HEAD><BODY><H1>e2guardian - ";
+        ebody += mess;
+        ebody += "</H1>";
+        if (mess_no1 > 0)
+            ebody += o.language_list.getTranslation(mess_no1);
+        if (mess_no2 > 0)
+            ebody += o.language_list.getTranslation(mess_no2);
+        ebody += "</BODY></HTML>\r\n";
+    }
     return true;
 }
 
@@ -2319,6 +2330,7 @@ ConnectionHandler::writeback_error(NaughtyFilter &cm, Socket &cl_sock, int mess_
     String eheader, ebody;
     gen_error_mess(cl_sock, cm, eheader, ebody, mess_no1, mess_no2, mess);
     cl_sock.writeString(eheader.c_str());
+    cl_sock.writeString("\r\n");
     cl_sock.writeString(ebody.c_str());
     return true;
 }
