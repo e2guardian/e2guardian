@@ -1023,6 +1023,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                             //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
                         }
+                        persistPeer = false;
+                        persistProxy = false;
                         break;
                     }
                     persistProxy = docheader.isPersistent();
@@ -1059,6 +1061,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (checkme.isconnect) {
                     checkme.tunnel_2way = true;
                     checkme.tunnel_rest = false;
+                    persistPeer = false;
+                    persistProxy = false;
                 } else {
                     if (!checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)
                         checkme.noviruscheck = true;
