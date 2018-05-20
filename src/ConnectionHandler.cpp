@@ -1,4 +1,3 @@
-// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 // INCLUDES
@@ -52,7 +51,7 @@
 // GLOBALS
 extern OptionContainer o;
 extern bool is_daemonised;
-extern std::atomic<int> ttg;
+extern std::atomic<bool> ttg;
 //bool reloadconfig = false;
 // If a specific debug line is needed
 thread_local int dbgPeerPort = 0;
@@ -103,18 +102,18 @@ bool wasClean(HTTPHeader &header, String &url, const int fg)
     myurl[0] = fg + 1;
     myurl += "\n";
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -sending cache search request: " << myurl;
+    std::cerr << dbgPeerPort << " -sending cache search request: " << myurl;
 #endif
         if(!ipcsock.writeString(myurl.c_str()))  {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Exception writing to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Exception writing to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception writing to url cache");
     }
     char reply;
         if(!ipcsock.readFromSocket(&reply, 1, 0, 6000)) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Exception reading from url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Exception reading from url cache" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception reading from url cache");
     }
@@ -136,7 +135,7 @@ void addToClean(String &url, const int fg)
     if (ipcsock.connect(o.urlipc_filename.c_str()) < 0) { // conn to dedicated url cach proc
         syslog(LOG_ERR, "Error connecting via ipc to url cache: %s", strerror(errno));
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Error connecting via ipc to url cache: " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Error connecting via ipc to url cache: " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         return;
     }
@@ -146,8 +145,8 @@ void addToClean(String &url, const int fg)
     myurl += "\n";
     if(!ipcsock.writeString(myurl.c_str())) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Exception adding to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-//        std::cout << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Exception adding to url cache" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+//        std::cerr << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         syslog(LOG_ERR, "Exception adding to url cache");
         //syslog(LOG_ERR, "%s", e.what());
@@ -275,7 +274,7 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     if ((urldomain == hostname) && (!urldomain.endsWith("/"))) {
 	(*url) += "/";
 #ifdef DGDEBUG
-	std::cout << dbgPeerPort << " -we add / to domain bypass = " << res << " domain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+	std::cerr << dbgPeerPort << " -we add / to domain bypass = " << res << " domain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
      	res += url->md5(magic.toCharArray());
     } else {
@@ -283,7 +282,7 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     }
     res += timecode;
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -temporary bypass = " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -temporary bypass = " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     return res;
 }
@@ -298,7 +297,7 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String res(url->md5(data.toCharArray()));
     res += timecode;
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -hashedCookie= " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -hashedCookie= " << res << " url: " << *url << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     return res;
 }
@@ -311,7 +310,7 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
     if (fd < 0) { // file access error
         syslog(LOG_ERR, "Error reading file to send");
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Error reading file to send:" << filename << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Error reading file to send:" << filename << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         String fnf(o.language_list.getTranslation(1230));
         String message("HTTP/1.0 404 " + fnf + "\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>" + fnf + "</TITLE></HEAD><BODY><H1>" + fnf + "</H1></BODY></HTML>\n");
@@ -342,11 +341,11 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
     while (sent < filesize) {
         rc = readEINTR(fd, buffer, 250000);
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -reading send file rc:" << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -reading send file rc:" << rc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         if (rc < 0) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -error reading send file so throwing exception" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -error reading send file so throwing exception" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             delete[] buffer;
 //            throw std::exception();
@@ -354,7 +353,7 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
         }
         if (rc == 0) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -got zero bytes reading send file" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -got zero bytes reading send file" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             break; // should never happen
         }
@@ -366,7 +365,7 @@ off_t ConnectionHandler::sendFile(Socket *peerconn, String &filename, String &fi
         }
         sent += rc;
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -total sent from temp:" << sent << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -total sent from temp:" << sent << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     }
     delete[] buffer;
@@ -486,8 +485,8 @@ stat_rec* &dystat)
     postparts.clear();
 
 #ifdef DGDEBUG // debug stuff surprisingly enough
-    std::cout << dbgPeerPort << " -got peer connection" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    std::cout << dbgPeerPort << "IP client: " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -got peer connection" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+    std::cerr << dbgPeerPort << "IP client: " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     // proxysock now passed to function
     // Socket proxysock;
@@ -536,7 +535,7 @@ stat_rec* &dystat)
 
                    syslog(LOG_INFO, "%d No header recd from client at %s - errno: %d", pport, peerIP.c_str(), err);
 #ifdef DGDEBUG
-            	   std::cout << "pport" << " No header recd from client - errno: " << err << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            	   std::cerr << "pport" << " No header recd from client - errno: " << err << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                } else {
                    syslog(LOG_INFO, "Client connection closed early - no request header received");
@@ -559,7 +558,7 @@ stat_rec* &dystat)
         //    while ((firsttime || persistPeer) && !reloadconfig)
         {
 #ifdef DGDEBUG
-            std::cout << " firsttime =" << firsttime << " ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << " firsttime =" << firsttime << " ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
            // std::shared_ptr<LOptionContainer> ldl = o.currentLists();
             ldl = o.currentLists();
@@ -573,14 +572,14 @@ stat_rec* &dystat)
             } else {
 // another round...
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -persisting (count " << ++pcount << ")" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -persisting (count " << ++pcount << ")" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                 syslog(LOG_ERR, "Served %d requests on this connection so far - ismitm=%d", pcount, ismitm);
-                std::cout << dbgPeerPort << " - " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " - " << clientip << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 header.reset();
                 if(!header.in(&peerconn, true, true)) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Persistent connection closed" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     break;
                 }
@@ -683,7 +682,7 @@ stat_rec* &dystat)
                     }
                     if (rc) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Error connecting to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Error connecting to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         syslog(LOG_ERR, "Proxy not responding after %d trys - ip client: %s destination: %s - %d::%s", o.proxy_timeout_sec, clientip.c_str(), urldomain.c_str(), proxysock.getErrno(),strerror(proxysock.getErrno()));
                         if (proxysock.isTimedout()) {
@@ -707,13 +706,13 @@ stat_rec* &dystat)
                     }
                 } catch (std::exception &e) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -exception while creating proxysock: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -exception while creating proxysock: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 }
             }
 
 #ifdef DGDEBUG
-            std::cout << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << getpid() << "Start URL " << url.c_str() << "is_ssl=" << is_ssl << "ismitm=" << ismitm << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
@@ -768,7 +767,7 @@ stat_rec* &dystat)
             overide_persist = false;
             if (!persistent_authed) {
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Not got persistent credentials for this connection - querying auth plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Not got persistent credentials for this connection - querying auth plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 bool dobreak = false;
                 if (o.authplugins.size() != 0) {
@@ -778,7 +777,7 @@ stat_rec* &dystat)
 
                     for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Querying next auth plugin..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Querying next auth plugin..." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         // try to get the username & parse the return value
                         auth_plugin = (AuthPlugin *)(*i);
@@ -809,12 +808,12 @@ stat_rec* &dystat)
 
                         if (rc == DGAUTH_NOMATCH) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin did not find a match; querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin did not find a match; querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             continue;
                         } else if (rc == DGAUTH_REDIRECT) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin told us to redirect client to \"" << clientuser << "\"; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin told us to redirect client to \"" << clientuser << "\"; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             // ident plugin told us to redirect to a login page
                             String writestring("HTTP/1.0 302 Redirect\r\nLocation: ");
@@ -825,7 +824,7 @@ stat_rec* &dystat)
                             break;
                         } else if (rc == DGAUTH_OK_NOPERSIST) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin  returned OK but no persist not setting persist auth" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin  returned OK but no persist not setting persist auth" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             overide_persist = true;
                         } else if (rc ==  DGAUTH_NOIDENTPART) {
@@ -835,17 +834,17 @@ stat_rec* &dystat)
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cout << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cerr << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                             syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
                             dobreak = true;
                             break;
                         }
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Auth plugin found username " << clientuser << " (" << oldclientuser << "), now determining group" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Auth plugin found username " << clientuser << " (" << oldclientuser << "), now determining group" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if (clientuser == oldclientuser) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Same user as last time, re-using old group no." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Same user as last time, re-using old group no." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             authed = true;
                             filtergroup = oldfg;
@@ -855,18 +854,18 @@ stat_rec* &dystat)
                         rc = auth_plugin->determineGroup(clientuser, filtergroup,ldl->filter_groups_list);
                         if (rc == DGAUTH_OK) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin found username & group; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin found username & group; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             authed = true;
                             break;
                         } else if (rc == DGAUTH_NOMATCH) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin did not find a match; querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin did not find a match; querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             continue;
                         } else if (rc == DGAUTH_NOUSER) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             if (o.auth_requires_user_and_group)
                                 continue;
@@ -878,7 +877,7 @@ stat_rec* &dystat)
                             break;
                         } else if (rc < 0) {
                             if (!is_daemonised)
-                                std::cout << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cerr << "Auth plugin returned error code: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                             syslog(LOG_ERR, "Auth plugin returned error code: %d", rc);
                             dobreak = true;
                             break;
@@ -892,9 +891,9 @@ stat_rec* &dystat)
                     if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
 #ifdef DGDEBUG
                         if (!authed)
-                            std::cout << dbgPeerPort << " -No identity found; using defaults" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -No identity found; using defaults" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         else
-                            std::cout << dbgPeerPort << " -Plugin returned out-of-range filter group number; using defaults" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Plugin returned out-of-range filter group number; using defaults" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         // If none of the auth plugins currently loaded rely on querying the proxy,
                         // such as 'ident' or 'ip', then pretend we're authed. What this flag
@@ -904,17 +903,17 @@ stat_rec* &dystat)
                         authed = !o.auth_needs_proxy_query;
 #ifdef DGDEBUG
                         if (!o.auth_needs_proxy_query)
-                            std::cout << dbgPeerPort << " -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         clientuser = "-";
                         filtergroup = 0; //default group - one day configurable?
                     } else {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Identity found; caching username & group" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Identity found; caching username & group" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if (auth_plugin->is_connection_based && !overide_persist) {
 #ifdef DGDEBUG
-                            std::cout << "Auth plugin is for a connection-based auth method - keeping credentials for entire connection" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << "Auth plugin is for a connection-based auth method - keeping credentials for entire connection" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             persistent_authed = true;
                         }
@@ -924,7 +923,7 @@ stat_rec* &dystat)
                 } else {
 // We don't have any auth plugins loaded
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -No auth plugins loaded; using defaults & feigning persistency" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -No auth plugins loaded; using defaults & feigning persistency" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     authed = true;
                     clientuser = "-";
@@ -934,7 +933,7 @@ stat_rec* &dystat)
             } else {
 // persistent_authed == true
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Already got credentials for this connection - not querying auth plugins" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Already got credentials for this connection - not querying auth plugins" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 authed = true;
             }
@@ -942,9 +941,9 @@ stat_rec* &dystat)
             gmode = ldl->fg[filtergroup]->group_mode;
 
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -username: " << clientuser << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            std::cout << dbgPeerPort << " -filtergroup: " << filtergroup << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-            std::cout << dbgPeerPort << " -groupmode: " << gmode << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -username: " << clientuser << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+            std::cerr << dbgPeerPort << " -filtergroup: " << filtergroup << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+            std::cerr << dbgPeerPort << " -groupmode: " << gmode << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 //
 //
@@ -986,7 +985,7 @@ stat_rec* &dystat)
                         clientip = xforwardip;
                     }
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -using x-forwardedfor:" << clientip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -using x-forwardedfor:" << clientip << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 }
             }
@@ -1006,7 +1005,7 @@ stat_rec* &dystat)
             else {
                 if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &isexception, urld)) {
 #ifdef DGDEBUG
-                    std::cout << " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << isexception << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << isexception << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if (isbannedip) {
                         matchedip = clienthost == NULL;
@@ -1043,7 +1042,7 @@ stat_rec* &dystat)
 // The destination IP before redirection is the same as the IP the
 // client has actually been connected to - they aren't connecting transparently.
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -SO_ORIGINAL_DST and getLocalIP are equal; client not connected transparently" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -SO_ORIGINAL_DST and getLocalIP are equal; client not connected transparently" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 } else {
                     // Look up domain from request URL, and check orig IP against resolved IPs
@@ -1064,7 +1063,7 @@ stat_rec* &dystat)
                     while (current != NULL) {
                         if (orig_dest_ip == inet_ntoa(((sockaddr_in *)(current->ai_addr))->sin_addr)) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << urldomain << " matched to original destination of " << orig_dest_ip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << urldomain << " matched to original destination of " << orig_dest_ip << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             matched = true;
                             break;
@@ -1076,7 +1075,7 @@ stat_rec* &dystat)
 // Host header/URL said one thing, but the original destination IP said another.
 // This is exactly the vulnerability we want to prevent.
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", urldomain.c_str(), orig_dest_ip.c_str());
                             // writestring throws exception on error/timeout
@@ -1098,14 +1097,14 @@ stat_rec* &dystat)
             if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->bypass_mode != 0) && !isexception) {
                 if (header.isScanBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Scan Bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     isscanbypass = true;
                     isbypass = true;
                     exceptionreason = o.language_list.getTranslation(608);
                 } else {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -About to check for bypass..." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if (ldl->fg[filtergroup]->bypass_mode != 0)
                         bypasstimestamp = header.isBypassURL(&logurl, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str(), NULL);
@@ -1115,9 +1114,9 @@ stat_rec* &dystat)
                     if (bypasstimestamp > 0) {
 #ifdef DGDEBUG
                         if (isvirusbypass)
-                            std::cout << dbgPeerPort << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Infection bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         else
-                            std::cout << dbgPeerPort << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Filter bypass URL match" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         int reporting_level = ldl->fg[filtergroup]->reporting_level;
 
@@ -1129,11 +1128,11 @@ stat_rec* &dystat)
                             int accesssizessl = ldl->fg[filtergroup]->sslaccess_denied_address.length();
                             if ((strncmp, getreferer, ldl->fg[filtergroup]->access_denied_address, accesssize) || (strncmp, getreferer, ldl->fg[filtergroup]->sslaccess_denied_address, accesssizessl)){
 #ifdef DGDEBUG
-                                std::cout << " right referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
+                                std::cerr << " right referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << " Getpid: " << getpid() << std::endl;
 #endif
                             } else {
 #ifdef DGDEBUG
-                                std::cout << " wrong referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << std::endl;
+                                std::cerr << " wrong referer ! " << getreferer << " " << ldl->fg[filtergroup]->access_denied_address << " " << ldl->fg[filtergroup]->sslaccess_denied_address << " Getpid: " << getpid() << std::endl;
 #endif
                                 bypasstimestamp = 0;
                             }
@@ -1148,7 +1147,7 @@ stat_rec* &dystat)
                     } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
                         if (header.isBypassCookie(urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Bypass cookie match" << " urldomain " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Bypass cookie match" << " urldomain " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             iscookiebypass = true;
                             isbypass = true;
@@ -1158,13 +1157,13 @@ stat_rec* &dystat)
                     }
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Finished bypass checks." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
 
 #ifdef DGDEBUG
                 if (isbypass) {
-                    std::cout << dbgPeerPort << " -Bypass activated!" << " urldomain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Bypass activated!" << " urldomain: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                 }
 #endif
                 //
@@ -1176,7 +1175,7 @@ stat_rec* &dystat)
 
                 if (((*ldl->fg[filtergroup]).inBannedSiteListwithbypass(url, true, is_ip, is_ssl,lastcategory)) != NULL){
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Bypass disabled!" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     iscookiebypass = false;
                     isexception = false;
@@ -1201,7 +1200,7 @@ stat_rec* &dystat)
                     String tempfilemime(tempfilename.after("&M="));
                     String tempfiledis(header.decode(tempfilemime.after("&D="), true));
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Original filename: " << tempfiledis << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     String rtype(header.requestType());
                     tempfilemime = tempfilemime.before("&D=");
@@ -1291,9 +1290,9 @@ stat_rec* &dystat)
                         if (ldl->fg[filtergroup]->inLocalBannedSiteList(urld,false,false,true,lc) != NULL) {
                             checkme.isGrey = true;
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " - mitmcandidate Site in local bannedsitelist:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " - mitmcandidate Site in local bannedsitelist:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         } else {
-                            std::cout << dbgPeerPort << " - mitmcandidate Site not in local bannedsitelist:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " - mitmcandidate Site not in local bannedsitelist:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         }
                     }
@@ -1360,7 +1359,7 @@ stat_rec* &dystat)
 //
 
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -extracted url:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -extracted url:" << urld << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
             // don't run willScanRequest if content scanning is disabled, or on exceptions if contentscanexceptions is off,
@@ -1383,7 +1382,7 @@ stat_rec* &dystat)
                         syslog(LOG_ERR, "willScanRequest returned error: %d", csrc);
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Content scanners interested in response data: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Content scanners interested in response data: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 // Only query scanners regarding outgoing data if we are actually sending data in the request
@@ -1401,7 +1400,7 @@ stat_rec* &dystat)
                         // Don't bother if it's a single part POST and is above max_content_ramcache_scan_size
                         if (!multipart && header.contentLength() > o.max_content_ramcache_scan_size) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Not running willScanRequest for POST data: single-part POST with content length above size limit" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Not running willScanRequest for POST data: single-part POST with content length above size limit" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         } else {
                             for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
@@ -1413,7 +1412,7 @@ stat_rec* &dystat)
                             }
                         }
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Content scanners interested in request data: " << requestscanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Content scanners interested in request data: " << requestscanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     }
                 }
@@ -1430,7 +1429,7 @@ stat_rec* &dystat)
                 if(!proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Unable to write to proxy",peerconn, proxysock);
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << "  got past line 1257 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << "  got past line 1257 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 if(!( header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
@@ -1463,7 +1462,7 @@ stat_rec* &dystat)
                 persistProxy = docheader.isPersistent();
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                 docheader.dbshowheader(&logurl, clientip.c_str());
 #endif
                 if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
@@ -1513,7 +1512,7 @@ stat_rec* &dystat)
 #ifdef NOOPP
             if ((o.max_ips > 0) && (!gotIPs(clientip))) {
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -no client IP slots left" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -no client IP slots left" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 checkme.isItNaughty = true;
                 //checkme.whatIsNaughty = "IP limit exceeded.  There is a ";
@@ -1534,7 +1533,7 @@ stat_rec* &dystat)
             if (urlredirect) {
                 url = header.redirecturl();
 #ifdef DGDEBUG
-                std::cout << "urlRedirectRegExp told us to redirect client to \"" << url << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << "urlRedirectRegExp told us to redirect client to \"" << url << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 proxysock.close();
                 String writestring("HTTP/1.0 302 Redirect\nLocation: ");
@@ -1597,7 +1596,7 @@ stat_rec* &dystat)
                         if(!proxysock.breadyForOutput(o.proxy_timeout))
                             cleanThrow("Unable to write to proxy 1415",peerconn, proxysock);
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << "  got past line 1391 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << "  got past line 1391 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if(!header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true)) // send proxy the request
                             cleanThrow("Unable to write header to proxy",peerconn, proxysock);
@@ -1606,7 +1605,7 @@ stat_rec* &dystat)
                         persistProxy = docheader.isPersistent();
                         persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL))
                             cleanThrow("Unable to send return header to client",peerconn, proxysock);
@@ -1668,7 +1667,7 @@ stat_rec* &dystat)
             if (isconnect && !isbypass && !isexception) {
                 if (!authed) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -CONNECT: user not authed - getting response to see if it's auth required" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -CONNECT: user not authed - getting response to see if it's auth required" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     // send header to proxy
                     if(!proxysock.breadyForOutput(o.proxy_timeout))
@@ -1677,7 +1676,7 @@ stat_rec* &dystat)
 
                     //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << "  got past line 1465 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << "  got past line 1465 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if(!header.out(NULL, &proxysock, __DGHEADER_SENDALL, true))
                     cleanThrow("Unable to send header to proxy 1524",peerconn, proxysock);
@@ -1690,19 +1689,19 @@ stat_rec* &dystat)
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     wasrequested = true;
 
                     if (docheader.returnCode() != 200) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -CONNECT: user not authed - doing standard filtering on auth required response" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -CONNECT: user not authed - doing standard filtering on auth required response" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         isconnect = false;
                     }
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << "isconnect=" << isconnect << " ismitmcandidate=" << ismitmcandidate << " only_mitm_ssl_grey=" << ldl->fg[filtergroup]->only_mitm_ssl_grey << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << "isconnect=" << isconnect << " ismitmcandidate=" << ismitmcandidate << " only_mitm_ssl_grey=" << ldl->fg[filtergroup]->only_mitm_ssl_grey << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 if (isconnect && ((!ismitmcandidate) || ldl->fg[filtergroup]->only_mitm_ssl_grey)) {
@@ -1710,7 +1709,7 @@ stat_rec* &dystat)
                     persistPeer = false;
                     persistOutgoing = false;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -CONNECT: user is authed/auth not required - attempting pre-emptive ban" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -CONNECT: user is authed/auth not required - attempting pre-emptive ban" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     // if its a connect and we don't do filtering on it now then
                     // it will get tunneled and not filtered.  We can't tunnel later
@@ -1720,7 +1719,7 @@ stat_rec* &dystat)
                     requestChecks(&header, &checkme, &urld, &url, &clientip, &clientuser, filtergroup, isbanneduser, isbannedip, room);
                     message_no = checkme.message_no;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -done checking" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -done checking" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 }
             }
@@ -1731,13 +1730,13 @@ stat_rec* &dystat)
                 ismitmcandidate = false;
             if (!isexception && ismitmcandidate) {
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Intercepting HTTPS connection" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Intercepting HTTPS connection" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 //Do the connect request
                 if (!checkme.isItNaughty && !wasrequested) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Forwarding connect request" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Forwarding connect request" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if(!proxysock.breadyForOutput(o.proxy_timeout))
                         cleanThrow("Unable to send header to proxy 1584",peerconn, proxysock);
@@ -1759,21 +1758,21 @@ stat_rec* &dystat)
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 }
 
                 //take care of connect fails / proxy auth requests
                 if (!checkme.isItNaughty && !(docheader.returnCode() == 200)) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Connect request failed / proxy auth required. Returning data to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Connect request failed / proxy auth required. Returning data to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     //send data to the client and let it deal with it
                     if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, true))
                         cleanThrow("Unable to send response header to client 1606",peerconn, proxysock);
 
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Forwarding body to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Forwarding body to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         fdt.reset(); // make a tunnel object
                         // tunnel from proxy to client
@@ -1831,7 +1830,7 @@ stat_rec* &dystat)
                 //generate the cert
                 if (!checkme.isItNaughty) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Getting ssl certificate for client connection" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Getting ssl certificate for client connection" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                     pkey = o.ca->getServerPkey();
@@ -1843,9 +1842,9 @@ stat_rec* &dystat)
                         &caser);
 #ifdef DGDEBUG
                     if (caser.asn == NULL) {
-                        std::cout << "caser.asn is NULL" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << "caser.asn is NULL" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                     }
-//				std::cout << "serials are: " << (char) *caser.asn << " " < caser.charhex  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+//				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                     //check that the generated cert is not null and fillin checkme if it is
@@ -1869,7 +1868,7 @@ stat_rec* &dystat)
                 //startsslserver on the connection to the client
                 if (!checkme.isItNaughty) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Going SSL on the peer connection" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Going SSL on the peer connection" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     //send a 200 to the client no matter what because they managed to get a connection to us
                     //and we can use it for a blockpage if nothing else
@@ -1894,7 +1893,7 @@ stat_rec* &dystat)
                 bool badcert = false;
                 if (!checkme.isItNaughty) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Going SSL on connection to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Going SSL on connection to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     std::string certpath = std::string(o.ssl_certificate_path);
                     if (proxysock.startSslClient(certpath,urldomain)) {
@@ -1913,7 +1912,7 @@ stat_rec* &dystat)
                 if (!checkme.isItNaughty) {
 
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Checking certificate" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Checking certificate" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     //will fill in checkme of its own accord
                     if (ldl->fg[filtergroup]->mitm_check_cert && !ldl->fg[filtergroup]->inNoCheckCertSiteList(urldomain, false)) {
@@ -1933,12 +1932,12 @@ stat_rec* &dystat)
                     //if we can't write the certificate its not the end of the world but it is slow
                     if (!writecert) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Couldn't save certificate to on disk cache" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Couldn't save certificate to on disk cache" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         syslog(LOG_ERR, "Couldn't save certificate to on disk cache");
                     }
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Handling connections inside ssl tunnel" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Handling connections inside ssl tunnel" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                     if (authed) {
@@ -1947,7 +1946,7 @@ stat_rec* &dystat)
 
                     handleConnection(peerconn, ip, true, proxysock, dystat);
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Handling connections inside ssl tunnel: done" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Handling connections inside ssl tunnel: done" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 }
                 o.ca->free_ca_serial(&caser);
@@ -1965,7 +1964,7 @@ stat_rec* &dystat)
                 //if it was marked as naughty then show a deny page and close the connection
                 if (checkme.isItNaughty) {
 #ifdef DGDEBUG
-                   std::cout << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                   std::cerr << dbgPeerPort << " -SSL Interception failed " << checkme.whatIsNaughty << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                   String rtype(header.requestType());
@@ -1977,12 +1976,12 @@ stat_rec* &dystat)
                        &clientip, filtergroup, ispostblock, headersent, wasinfected, scanerror, badcert);
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Shutting down ssl to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Shutting down ssl to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 proxysock.stopSsl();
 
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Shutting down ssl to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Shutting down ssl to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 peerconn.stopSsl();
@@ -2000,11 +1999,16 @@ stat_rec* &dystat)
 //
 #endif //__SSLMITM
             // Banned rewrite SSL denied page
-            if ((is_ssl == true) && (checkme.isItNaughty == true) && (ldl->fg[filtergroup]->ssl_denied_rewrite == true)) {
+            if (is_ssl && checkme.isItNaughty && ldl->fg[filtergroup]->ssl_denied_rewrite) {
                 header.DenySSL(ldl->fg[filtergroup]);
                 String rtype(header.requestType());
+                String debug = ldl->fg[filtergroup]->sslaccess_denied_address;
                 doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog, rtype, docsize, &checkme.whatIsNaughtyCategories, true, checkme.blocktype, isexception, false, &thestart, cachehit, (wasrequested ? docheader.returnCode() : 200), mimetype, wasinfected, wasscanned, checkme.naughtiness, filtergroup, &header, message_no, false, urlmodified, headermodified, headeradded);
-                checkme.isItNaughty = false;
+                if (url == ldl->fg[filtergroup]->sslaccess_denied_address){
+                    checkme.isItNaughty = false;
+                    syslog(LOG_ERR, "Yep it works ! sslDeny: url %d rewrite: %d ", url.c_str(), debug.c_str());
+                }
+                syslog(LOG_ERR, "Return code from sslDeny: url %d rewrite: %d", url.c_str(), debug.c_str());
             }
 
             if (!checkme.isItNaughty && isconnect) {
@@ -2013,7 +2017,7 @@ stat_rec* &dystat)
                    if(! proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Error sending header to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << "  got past line 1759 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << "  got past line 1759 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     header.out(NULL, &proxysock, __DGHEADER_SENDALL, true); // send proxy the request
                     if (docheader.in(&proxysock))  // test lines to fix X-Forwarded issue
@@ -2024,7 +2028,7 @@ stat_rec* &dystat)
                 if (docheader.returnCode() != 200)
                     continue;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Opening tunnel for CONNECT" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Opening tunnel for CONNECT" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     fdt.reset(); // make a tunnel object
                     // tunnel from client to proxy and back - *true* two-way tunnel
@@ -2073,14 +2077,14 @@ stat_rec* &dystat)
                 max_upload_size = (*ldl->fg[filtergroup]).max_upload_size;
 
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " max upload size general: " << max_upload_size << " filtergroup " << filtergroup << ": " << (*ldl->fg[filtergroup]).max_upload_size << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " max upload size general: " << max_upload_size << " filtergroup " << filtergroup << ": " << (*ldl->fg[filtergroup]).max_upload_size << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 
 #endif
                 if (!isbypass && !isexception
                     && ((max_upload_size >= 0) && (cl > max_upload_size))
                     && multipart) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Detected POST upload violation by Content-Length header - discarding rest of POST data..." << max_upload_size << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Detected POST upload violation by Content-Length header - discarding rest of POST data..." << max_upload_size << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     header.discard(&peerconn);
                     checkme.whatIsNaughty = (*ldl->fg[filtergroup]).max_upload_size == 0 ? o.language_list.getTranslation(700) : o.language_list.getTranslation(701);
@@ -2093,7 +2097,7 @@ stat_rec* &dystat)
                     // POST scanning by content scanning plugins
                     if (multipart) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Filtering multi-part POST data" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Filtering multi-part POST data" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         // multi-part POST, possibly including file upload
                         // retrieve each part in turn and filter it on the fly
@@ -2114,7 +2118,7 @@ stat_rec* &dystat)
                             throw postfilter_exception("Could not determine boundary for multi-part POST");
 
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Boundary: " << boundary << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Boundary: " << boundary << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                         // Grab remaining data, including trailing boundary
@@ -2193,7 +2197,7 @@ stat_rec* &dystat)
                                             if (!foundend)
                                                 throw postfilter_exception("End of POST data part headers not found");
 #ifdef DGDEBUG
-                                            std::cout << dbgPeerPort << " -POST data headers: " << std::string(data, offset) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                            std::cerr << dbgPeerPort << " -POST data headers: " << std::string(data, offset) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                             // Extract pertinent info from part's headers
                                             String mimetype;
@@ -2220,8 +2224,8 @@ stat_rec* &dystat)
                                                 hdr_offset = new_hdr_offset + 2;
                                             } while (hdr_offset < offset);
 #ifdef DGDEBUG
-                                            std::cout << dbgPeerPort << " -POST part MIME type: " << mimetype << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                                            std::cout << dbgPeerPort << " -POST part disposition: " << disposition << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                            std::cerr << dbgPeerPort << " -POST part MIME type: " << mimetype << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+                                            std::cerr << dbgPeerPort << " -POST part disposition: " << disposition << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                             // Put info about the part in the POST parts list, for logging
                                             if (mimetype.empty())
@@ -2254,7 +2258,7 @@ stat_rec* &dystat)
                                             if (!o.blocked_content_store.empty()) {
                                                 postparts.back().storedname = part->store(o.blocked_content_store.c_str());
 #ifdef DGDEBUG
-                                                std::cout << dbgPeerPort << " -Pre-emptively stored POST data part: " << postparts.back().storedname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                                std::cerr << dbgPeerPort << " -Pre-emptively stored POST data part: " << postparts.back().storedname << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                             }
 
@@ -2264,7 +2268,7 @@ stat_rec* &dystat)
                                                     int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                                                         true, false, isexception, isbypass, disposition, mimetype, part->getLength() - offset);
 #ifdef DGDEBUG
-                                                    std::cout << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                                    std::cerr << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                                     if (csrc > 0) {
                                                         csrc = (*i)->scanMemory(&header, NULL, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
@@ -2323,7 +2327,7 @@ stat_rec* &dystat)
                                         // so send the part directly upstream instead
                                         if (part.get() != NULL) {
 #ifdef DGDEBUG
-                                            std::cout << dbgPeerPort << " -POST data part too large, sending upstream" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                            std::cerr << dbgPeerPort << " -POST data part too large, sending upstream" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                             // Send what we've buffered so far, then delete the buffer
                                             part->finalise();
@@ -2360,13 +2364,13 @@ stat_rec* &dystat)
 // We just past the preamble/first boundary
 // Send request headers and first boundary upstream
 #ifdef DGDEBUG
-                                        std::cout << dbgPeerPort << " -Preamble/first boundary passed; sending headers & first boundary upstream" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                        std::cerr << dbgPeerPort << " -Preamble/first boundary passed; sending headers & first boundary upstream" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                         if (!wasrequested && (!checkme.isItNaughty || ldl->fg[filtergroup]->reporting_level == -1)) {
                                             if(!proxysock.breadyForOutput(o.proxy_timeout))
                                             cleanThrow("Error sending headers to proxy", peerconn,proxysock);
 #ifdef DGDEBUG
-                                            std::cout << dbgPeerPort << "  got past line 2098 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                            std::cerr << dbgPeerPort << "  got past line 2098 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                             // sent *without* POST data, so cannot retrieve headers yet
                                             header.out(NULL, &proxysock, __DGHEADER_SENDALL, true);
@@ -2394,19 +2398,19 @@ stat_rec* &dystat)
                         // delete all the (possibly) pre-emptively stored data parts
                         if (!o.blocked_content_store.empty() && (!checkme.isItNaughty || !checkme.store)) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Request was not blocked/marked for storage. Deleting data parts:" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Request was not blocked/marked for storage. Deleting data parts:" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             for (std::list<postinfo>::iterator i = postparts.begin(); i != postparts.end(); ++i) {
                                 if (i->storedname.empty())
                                     continue;
 #ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " -Part " << i->storedname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cerr << dbgPeerPort << " -Part " << i->storedname << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                 unlink(i->storedname.c_str());
                                 i->storedname.clear();
                             }
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -All parts deleted" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -All parts deleted" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         }
 
@@ -2425,7 +2429,7 @@ stat_rec* &dystat)
 // the request headers & POST data by the time we get here), so none
 // of the code below here will do this for us.
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -All parts sent upstream; retrieving response headers" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -All parts sent upstream; retrieving response headers" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             proxysock.bcheckForInput(120000);
                             docheader.in(&proxysock, persistOutgoing);
@@ -2433,13 +2437,13 @@ stat_rec* &dystat)
                             persistPeer = persistOutgoing && docheader.wasPersistent();
 
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                         } else {
 // Was blocked - discard rest of POST data before we show the block page
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -POST data part blocked; discarding remaining POST data" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -POST data part blocked; discarding remaining POST data" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             // Send rest of data upstream anyway if in stealth mode
                             if (ldl->fg[filtergroup]->reporting_level == -1) {
@@ -2456,7 +2460,7 @@ stat_rec* &dystat)
                                     persistProxy = docheader.isPersistent();
                                     persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                                    std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                    std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                 }
                             } else
@@ -2466,7 +2470,7 @@ stat_rec* &dystat)
                     } else // if (mtype == "application/x-www-form-urlencoded")
                     {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Filtering single-part POST data" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Filtering single-part POST data" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         // single-part POST (plain-text form data)
                         // we know the size for the part has already been checked by this point
@@ -2516,13 +2520,13 @@ stat_rec* &dystat)
 
 // Run the result through request scanners which are happy to deal with reconstituted data
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -Form data: " << result.c_str() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -Form data: " << result.c_str() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         for (std::deque<CSPlugin *>::iterator i = requestscanners.begin(); i != requestscanners.end(); ++i) {
                             int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                                 true, true, isexception, isbypass, "", "text/plain", result.length());
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -willScanData returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             if (csrc > 0) {
                                 String mimetype("text/plain");
@@ -2541,7 +2545,7 @@ stat_rec* &dystat)
                                         strncpy(storedname + pfx.length(), "XXXXXX", 6);
                                         storedname[pfx.length() + 6] = '\0';
 #ifdef DGDEBUG
-                                        std::cout << dbgPeerPort << " -Single-part POST: storedname template: " << storedname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                        std::cerr << dbgPeerPort << " -Single-part POST: storedname template: " << storedname << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                         int storefd;
                                         if ((storefd = mkstemp(storedname)) < 0) {
@@ -2550,7 +2554,7 @@ stat_rec* &dystat)
                                             throw std::runtime_error(ss.str().c_str());
                                         }
 #ifdef DGDEBUG
-                                        std::cout << dbgPeerPort << " -Single-part POST: storedname: " << storedname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                        std::cerr << dbgPeerPort << " -Single-part POST: storedname: " << storedname << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                         postparts.back().storedname = storedname;
                                         ssize_t bytes_written = 0;
@@ -2616,7 +2620,7 @@ stat_rec* &dystat)
 #ifdef DGDEBUG
             // Banning POST requests for unauthed users (when auth is enabled) could potentially prevent users from authenticating.
             else if (!authed)
-                std::cout << dbgPeerPort << " -Skipping POST filtering because user is unauthed." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Skipping POST filtering because user is unauthed." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
             if (!checkme.isItNaughty) {
@@ -2627,47 +2631,47 @@ stat_rec* &dystat)
                 // send header to proxy
                 if (!wasrequested) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " before 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " before 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if(!proxysock.breadyForOutput(o.proxy_timeout))
                         cleanThrow("Error sending headers to proxy", peerconn,proxysock);
                     //proxysock.readyForOutput(o.proxy_timeout);
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << "  got past line 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << "  got past line 2352 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true);
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << "  got past line 2350 proxy header out " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                    std::cout << dbgPeerPort << "  exchange_timeout is " << o.exchange_timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << "  got past line 2350 proxy header out " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+                    std::cerr << dbgPeerPort << "  exchange_timeout is " << o.exchange_timeout << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                     // get header from proxy
                     if (proxysock.bcheckForInput(o.exchange_timeout)) {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " before docheader in 2371: "  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " before docheader in 2371: "  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 			if (docheader.in(&proxysock, persistOutgoing)){
                         	persistProxy = docheader.isPersistent();
                         	persistPeer = persistOutgoing && docheader.wasPersistent();
 			} else {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -wrong docheader in: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -wrong docheader in: " << urldomain << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 				break;
 
 			}
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     }  else {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -error/timeout on header in from proxy: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -error/timeout on header in from proxy: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         if (proxysock.isHup())
-                        std::cout << dbgPeerPort << " -proxy hung up " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -proxy hung up " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         if (proxysock.isTimedout())
-                        std::cout << dbgPeerPort << " -proxy timedout" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -proxy timedout" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                         if (proxysock.sockError())
-                        std::cout << dbgPeerPort << " -proxy socket error" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -proxy socket error" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if (proxysock.isTimedout()) {
                             message_no = 200;
@@ -2691,7 +2695,7 @@ stat_rec* &dystat)
                     wasrequested = true; // so we know where we are later
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -got header from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -got header from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
 // TODO: Temporary: we must remove from filtering many harmless HTTP codes
@@ -2699,7 +2703,7 @@ stat_rec* &dystat)
                 if (!(docheader.returnCode() == 200) && !(docheader.returnCode() == 304)) {
 
 #ifdef DGDEBUG
-                    std::cout << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << " -Code header exception: " << urldomain << " code: " << docheader.returnCode() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     isexception = true;
 		    if (o.log_exception_hits == 3){
@@ -2710,13 +2714,13 @@ stat_rec* &dystat)
                 }
 
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -url " << logurl << " isbypass: " << isbypass << " isexception: " << isexception << " iscookiebypass: " << iscookiebypass << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -url " << logurl << " isbypass: " << isbypass << " isexception: " << isexception << " iscookiebypass: " << iscookiebypass << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 // if we're not careful, we can end up accidentally setting the bypass cookie twice.
                 // because of the code flow, this second cookie ends up with timestamp 0, and is always disallowed.
                 if (isbypass && !isvirusbypass && !iscookiebypass && !isexception) {
 #ifdef DGDEBUG
-	    	    std::cout << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << " url: " << logurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+	    	    std::cerr << "Setting GBYPASS cookie; bypasstimestamp = " << bypasstimestamp << " url: " << logurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     String ud(urldomain);
                     if (ud.startsWith("www.")) {
@@ -2737,7 +2741,7 @@ stat_rec* &dystat)
                         persistOutgoing = false;
                         docheader.out(NULL, &peerconn, __DGHEADER_SENDALL);
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " cookie injected  -url " << logurl << " Location 302: " << loc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " cookie injected  -url " << logurl << " Location 302: " << loc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     }
 
@@ -2758,7 +2762,7 @@ stat_rec* &dystat)
                         responsescanners.clear();
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Content-Lenght is: " << cl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Content-Lenght is: " << cl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 // now that we have the proxy's header too, we can make a better informed decision on whether or not to scan.
@@ -2766,7 +2770,7 @@ stat_rec* &dystat)
                 // and exceptionvirusextensionlist less effective, because we didn't have a Content-Disposition header.
                 if (!responsescanners.empty()) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Number of response CS plugins in candidate list: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Number of response CS plugins in candidate list: " << responsescanners.size() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 //send header to plugin here needed
 //also send user and group
@@ -2778,7 +2782,7 @@ stat_rec* &dystat)
                         int csrc = (*i)->willScanData(header.getUrl(), clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(),
                             false, false, isexception, isbypass, docheader.disposition(), docheader.getContentType(), docheader.contentLength());
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -willScanData for plugin " << j << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -willScanData for plugin " << j << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         if (csrc > 0)
                             newplugins.push_back(*i);
@@ -2829,8 +2833,8 @@ stat_rec* &dystat)
                         }
 
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << "Mime type: length: " << mimetype.length() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                        std::cout << dbgPeerPort << "Mimetype -:" << mimetype;
+                        std::cerr << dbgPeerPort << "Mime type: length: " << mimetype.length() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+                        std::cerr << dbgPeerPort << "Mimetype -:" << mimetype;
 #endif
                     }
 
@@ -2847,7 +2851,7 @@ stat_rec* &dystat)
                         if (tempdispos.length() > 1) {
 // dispos filename must take presidense
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Disposition filename:" << tempdispos << ":" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Disposition filename:" << tempdispos << ":" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             // The function expects a url so we have to
                             // generate a pseudo one.
@@ -2930,7 +2934,7 @@ stat_rec* &dystat)
                                 cachehit = true;
                                 responsescanners.clear();
 #ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " -url was clean skipping content and AV checking" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cerr << dbgPeerPort << " -url was clean skipping content and AV checking" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             }
                         }
@@ -2939,21 +2943,22 @@ stat_rec* &dystat)
                         waschecked = true;
                         if (!responsescanners.empty()) {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " -Filtering with expectation of a possible csmessage" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             String csmessage;
                             contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &headersent, &pausedtoobig,
                                 &docsize, &checkme, wasclean, filtergroup, responsescanners, &clientuser, &clientip,
                                 &wasinfected, &wasscanned, isbypass, urld, urldomain, &scanerror, contentmodified, &csmessage);
+
                             if (csmessage.length() > 0) {
 #ifdef DGDEBUG
-                                std::cout << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                                std::cerr << dbgPeerPort << " -csmessage found: " << csmessage << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                                 exceptionreason = csmessage.toCharArray();
                             }
                         } else {
 #ifdef DGDEBUG
-                            std::cout << dbgPeerPort << " Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                            std::cerr << dbgPeerPort << " Calling contentFilter " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                             contentFilter(&docheader, &header, &docbody, &proxysock, &peerconn, &headersent, &pausedtoobig,
                                 &docsize, &checkme, wasclean, filtergroup, responsescanners, &clientuser, &clientip,
@@ -2969,12 +2974,11 @@ stat_rec* &dystat)
                 exceptionreason = checkme.whatIsNaughtyLog;
             }
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " ContentFilter for urldomain: " << urldomain << " isbypass: " << isbypass << " wasinfected: " << wasinfected << " isexception: " << isexception << " wasclean: " << wasclean << " checkme.isItNaughty: " << checkme.isItNaughty << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " ContentFilter for urldomain: " << urldomain << " isbypass: " << isbypass << " wasinfected: " << wasinfected << " isexception: " << isexception << " wasclean: " << wasclean << " checkme.isItNaughty: " << checkme.isItNaughty << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 // If bypass but infected exception is removed, still isvirusbypass for disbled block page
             if (wasinfected && isbypass)
                  isexception = false;
-
             if (o.url_cache_number > 0) {
                 // add to cache if: wasn't already there, wasn't naughty, wasn't allowed by bypass/soft block, was text,
                 // was virus scanned and scan_clean_cache is enabled, was a GET request,
@@ -2995,7 +2999,6 @@ stat_rec* &dystat)
             // then we deny. previously, this che/ipcsockcked the isbypass flag too; now, since bypass requests only undergo the same checking
             // as exceptions, it needn't. and in fact it mustn't, if bypass requests are to be virus scanned/blocked in the same manner as exceptions.
             // make sure we keep track of whether or not logging has been performed, as we may be in stealth mode and don't want to double log.
-
             if (!authed) {
                 logged = true;
                 String temp;
@@ -3027,11 +3030,10 @@ stat_rec* &dystat)
                           }
                 logged = false;
             }
-
             if (checkme.isItNaughty && !isexception) {
                 String rtype(header.requestType());
 #ifdef DGDEBUG
-                std::cout << "Category: " << checkme.whatIsNaughtyCategories << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << "Category: " << checkme.whatIsNaughtyCategories << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 logged = true;
                 doLog(clientuser, clientip, logurl, header.port, checkme.whatIsNaughtyLog,
@@ -3044,13 +3046,12 @@ stat_rec* &dystat)
 
                 // if get here in stealth mode
             }
-
             if (!wasrequested) {
                 if(!proxysock.breadyForOutput(o.proxy_timeout))
                     cleanThrow("Error sending headers to proxy", peerconn,proxysock);
                 //proxysock.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << "  got past line 2659 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << "  got past line 2659 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true); // exceptions on error/timeout
                 proxysock.bcheckForInput(o.exchange_timeout); // exceptions on error/timeout
@@ -3058,32 +3059,32 @@ stat_rec* &dystat)
                 persistProxy = docheader.isPersistent();
                 persistPeer = persistOutgoing && docheader.wasPersistent();
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -persistPeer: " << persistPeer << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             }
 
 //TODO: need to change connection: close if there is plugin involved.
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -sending header to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -sending header to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             if(!peerconn.breadyForOutput(o.proxy_timeout))
                 cleanThrow("Error sending headers to client", peerconn,proxysock);
             //peerconn.readyForOutput(o.proxy_timeout); // exceptions on error/timeout
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << "  got past line 2677 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << "  got past line 2677 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             if (headersent == 1) {
                 docheader.out(NULL, &peerconn, __DGHEADER_SENDREST); // send rest of header to client
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -sent rest header to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -sent rest header to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             } else if (headersent == 0) {
                if(!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL)) { // send header to client
 #ifdef DGDEBUG
-                   std::cout << dbgPeerPort << " -sent all header failed to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                   std::cerr << dbgPeerPort << " -sent all header failed to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                       } else {
-                   std::cout << dbgPeerPort << " -sent all header to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                   std::cout << dbgPeerPort << " -waschecked:" << waschecked << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                   std::cerr << dbgPeerPort << " -sent all header to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
+                   std::cerr << dbgPeerPort << " -waschecked:" << waschecked << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                }
             }
@@ -3104,7 +3105,7 @@ stat_rec* &dystat)
                  //   cleanThrow("Error sending body to client 2784", peerconn,proxysock);
                 //peerconn.readyForOutput(o.proxy_timeout); // check for error/timeout needed
 //#ifdef DGDEBUG
-  //              std::cout << dbgPeerPort << "  got past line 2705 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+  //              std::cerr << dbgPeerPort << "  got past line 2705 rfo " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 //#endif
 
                 // it must be clean if we got here
@@ -3127,7 +3128,7 @@ stat_rec* &dystat)
                     String magic(ip + url + tempfilename + tempfilemime + tempfiledis + secret);
                     String hashed(magic.md5());
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -sending magic link to client: " << ip << " " << url << " " << tempfilename << " " << tempfilemime << " " << tempfiledis << " " << secret << " " << hashed << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -sending magic link to client: " << ip << " " << url << " " << tempfilename << " " << tempfilemime << " " << tempfiledis << " " << secret << " " << hashed << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     String sendurl(url);
                     if (!sendurl.after("://").contains("/")) {
@@ -3146,7 +3147,7 @@ stat_rec* &dystat)
                     persistOutgoing = false;
                 } else {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -sending body to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -sending body to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
        //             syslog(LOG_INFO, " -sending body to client %d", dbgPeerPort);
         //            try {docbody.out(&peerconn);} // send doc body to client
@@ -3163,18 +3164,18 @@ stat_rec* &dystat)
                 //
 #ifdef DGDEBUG
                 if (pausedtoobig) {
-                    std::cout << dbgPeerPort << " -sent PARTIAL body to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -sent PARTIAL body to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                 } else {
-                    std::cout << dbgPeerPort << " -sent body to client" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -sent body to client" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
                 }
 #endif
                 if (pausedtoobig && !docbody.dontsendbody) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -about to start tunnel to send the rest" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -about to start tunnel to send the rest" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     fdt.reset();
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -1tunnel activated" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -1tunnel activated" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     if(!fdt.tunnel(proxysock, peerconn, false, docheader.contentLength() - docsize, true) )
                         persistProxy = false;
@@ -3194,17 +3195,17 @@ stat_rec* &dystat)
                 // was not supposed to be checked
                 fdt.reset();
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -2tunnel activated" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -2tunnel activated" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 if(!fdt.tunnel(proxysock, peerconn, isconnect, docheader.contentLength(), true))
                     persistProxy = false;
                    // cleanThrow("Error in tunnel 1", peerconn,proxysock);
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -2tunnel returned from" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -2tunnel returned from" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 docsize = fdt.throughput;
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -docsize after 2tunnel s " << docsize << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -docsize after 2tunnel s " << docsize << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 String rtype(header.requestType());
                 if (!logged) {
@@ -3223,7 +3224,7 @@ stat_rec* &dystat)
         } // while persistOutgoing
     } catch (postfilter_exception &e) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -connection handler caught a POST filtering exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         if(o.logconerror)
         	syslog(LOG_ERR, "POST filtering exception: %s", e.what());
@@ -3234,7 +3235,7 @@ stat_rec* &dystat)
         return 0;
     } catch (std::exception &e) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -connection handler caught an exception: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         if(o.logconerror)
         	syslog(LOG_ERR, " -connection handler caught an exception %s" , e.what());
@@ -3248,7 +3249,7 @@ stat_rec* &dystat)
     if (!ismitm)
         try {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Attempting graceful connection close" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             //syslog(LOG_INFO, " -Attempting graceful connection close" );
             int fd = peerconn.getFD();
@@ -3264,7 +3265,7 @@ stat_rec* &dystat)
             proxysock.close();
         } catch (std::exception &e) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -connection handler caught an exception on connection closedown: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -connection handler caught an exception on connection closedown: " << e.what() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             // close connection to the client
             peerconn.close();
@@ -3294,9 +3295,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
 #ifdef DGDEBUG
         if (o.ll != 0) {
             if (isexception)
-                std::cout << dbgPeerPort << " -Not logging exceptions" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Not logging exceptions" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else
-                std::cout << dbgPeerPort << " -Not logging 'ADs' blocks" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Not logging 'ADs' blocks" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         }
 #endif
         return;
@@ -3310,11 +3311,11 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         // and we don't have a straight IP match against the banned or exception IP lists.
 	      //
 	      // Checked in Optioncontainer.cpp Fred 12/05/2017
-	
+
 
         if (o.log_client_hostnames && (clienthost == NULL) && !matchedip && !o.anonymise_logs) {
 #ifdef DGDEBUG
-            std::cout << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             std::deque<String> *names = ipToHostname(from.c_str());
             if (names->size() > 0)
@@ -3326,25 +3327,25 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         std::string *newcat = NULL;
         if (!cat || cat->length() == 0) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Checking for log-only categories" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Checking for log-only categories" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             const char *c = ldl->fg[filtergroup]->inLogSiteList(where, lastcategory);
 #ifdef DGDEBUG
             if (c)
-                std::cout << dbgPeerPort << " -Found log-only domain category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Found log-only domain category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             if (!c) {
                 c = ldl->fg[filtergroup]->inLogURLList(where, lastcategory);
 #ifdef DGDEBUG
                 if (c)
-                    std::cout << dbgPeerPort << " -Found log-only URL category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Found log-only URL category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             }
             if (!c) {
                 c = ldl->fg[filtergroup]->inLogRegExpURLList(where);
 #ifdef DGDEBUG
                 if (c)
-                    std::cout << dbgPeerPort << " -Found log-only regexp URL category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Found log-only regexp URL category: " << c << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             }
             if (c) {
@@ -3354,7 +3355,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         }
 #ifdef DGDEBUG
         else
-            std::cout << dbgPeerPort << " -Not looking for log-only category; current cat string is: " << *cat << " (" << cat->length() << ")" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Not looking for log-only category; current cat string is: " << *cat << " (" << cat->length() << ")" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         // Build up string describing POST data parts, if any
@@ -3390,7 +3391,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         };
 
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << where << " -Building raw log data string... ";
+        std::cerr << dbgPeerPort << where << " -Building raw log data string... ";
 #endif
 
         data = String(isexception) + cr;
@@ -3427,7 +3428,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, String &where
         data += String(headeradded) + cr;
 
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -...built" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -...built" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         delete newcat;
@@ -3443,7 +3444,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     bool &isbanneduser, bool &isbannedip, std::string &room)
 {
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -starting request checks" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -starting request checks" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     if (isbannedip) {
@@ -3564,7 +3565,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
         // look for URLs within URLs - ban, for example, images originating from banned sites during a Google image search.
         if ((*ldl->fg[filtergroup]).deep_url_analysis) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -starting deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -starting deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             String deepurl(temp.after("p://"));
             deepurl = header->decode(deepurl, true);
@@ -3574,7 +3575,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                     deepurl.lop();
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -deep analysing: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -deep analysing: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
                 if ((*ldl->fg[filtergroup]).enable_local_list) {
@@ -3583,7 +3584,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                         || ldl->fg[filtergroup]->inLocalExceptionURLList(deepurl,false,false, false, lastcategory)
                         || ldl->fg[filtergroup]->inLocalGreyURLList(deepurl)) {
 #ifdef DGDEBUG
-                        std::cout << "deep site found in exception/grey list; skipping" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << "deep site found in exception/grey list; skipping" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         continue;
                     }
@@ -3595,7 +3596,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                         (*checkme).isItNaughty = true;
                         (*checkme).whatIsNaughtyCategories = lastcategory.toCharArray();
 #ifdef DGDEBUG
-                        std::cout << "deep site: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << "deep site: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     } else if ((i = (*ldl->fg[filtergroup]).inLocalBannedURLList(deepurl, false, false, false, lastcategory)) != NULL) {
                         (*checkme).whatIsNaughty = o.language_list.getTranslation(501);
@@ -3606,7 +3607,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                         (*checkme).isItNaughty = true;
                         (*checkme).whatIsNaughtyCategories = lastcategory.toCharArray();
 #ifdef DGDEBUG
-                        std::cout << "deep url: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << "deep url: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     }
                 }
@@ -3616,7 +3617,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
 
                     {
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -deep site found in exception/grey list; skipping" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -deep site found in exception/grey list; skipping" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                         continue;
                     } else if ((i = (*ldl->fg[filtergroup]).inBannedSiteList(deepurl, false, false, false, lastcategory)) != NULL) {
@@ -3627,7 +3628,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                         (*checkme).isItNaughty = true;
                         (*checkme).whatIsNaughtyCategories = lastcategory.toCharArray();
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -deep site: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -deep site: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     } else if ((i = (*ldl->fg[filtergroup]).inBannedURLList(deepurl, false, false, false, lastcategory)) != NULL) {
                         (*checkme).whatIsNaughty = o.language_list.getTranslation(501);
@@ -3638,13 +3639,13 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
                         (*checkme).isItNaughty = true;
                         (*checkme).whatIsNaughtyCategories = lastcategory.toCharArray();
 #ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -deep url: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                        std::cerr << dbgPeerPort << " -deep url: " << deepurl << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     }
                 }
             }
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -done deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -done deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
             if ((*checkme).isItNaughty) {
@@ -3707,7 +3708,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
     if (is_ssl && !((*checkme).isItNaughty) && (*ldl->fg[filtergroup]).ssl_check_cert && !(*ldl->fg[filtergroup]).ssl_mitm && (*header).port == 443) {
 
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -checking SSL certificate" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -checking SSL certificate" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         Socket ssl_sock;
@@ -3722,13 +3723,13 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
             (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
 #ifdef DGDEBUG
             syslog(LOG_ERR, "error opening socket\n");
-            std::cout << dbgPeerPort << " -couldnt connect to proxy for ssl certificate checks. failed with error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -couldnt connect to proxy for ssl certificate checks. failed with error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             return;
         }
 
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -connected to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -connected to proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         //create tunnel to destination
@@ -3739,7 +3740,7 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
             return;
         }
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -created tunnel through proxy with rc: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -created tunnel through proxy with rc: " << rc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         //start an ssl client
         std::string certpath(o.ssl_certificate_path.c_str());
@@ -3750,14 +3751,14 @@ void ConnectionHandler::requestChecks(HTTPHeader *header, NaughtyFilter *checkme
             (*checkme).whatIsNaughtyCategories = "SSL Site";
 #ifdef DGDEBUG
             syslog(LOG_ERR, "error opening ssl connection\n");
-            std::cout << dbgPeerPort << " -couldnt connect ssl server to check certificate. failed with error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -couldnt connect ssl server to check certificate. failed with error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             return;
         }
         checkCertificate(hostname, &ssl_sock, checkme);
 
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -done checking SSL certificate" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -done checking SSL certificate" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     }
 #endif //__SSLMITM
@@ -3769,7 +3770,7 @@ void ConnectionHandler::requestLocalChecks(HTTPHeader *header, NaughtyFilter *ch
     bool &isbanneduser, bool &isbannedip, std::string &room)
 {
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -starting local checks" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -starting local checks" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     if (isbannedip) {
@@ -3906,14 +3907,14 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
         return true;
     }
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -checking for embed url in " << temp << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -checking for embed url in " << temp << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     if (ldl->fg[filtergroup]->inEmbededRefererLists(temp)) {
 
 // look for referer URLs within URLs
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -starting embedded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -starting embedded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         String deepurl(temp.after("p://"));
         deepurl = header->decode(deepurl, true);
@@ -3925,13 +3926,13 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
 
             if (ldl->fg[filtergroup]->inRefererExceptionLists(deepurl)) {
 #ifdef DGDEBUG
-                std::cout << "deep site found in trusted referer list; " << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << "deep site found in trusted referer list; " << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 return true;
             }
         }
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -done embdeded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -done embdeded referer deep analysis" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     }
     return false;
@@ -3946,7 +3947,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
     int reporting_level = ldl->fg[filtergroup]->reporting_level;
 #ifdef DGDEBUG
 
-    std::cout << dbgPeerPort << " -reporting level is " << reporting_level << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -reporting level is " << reporting_level << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 
 #endif
 
@@ -3964,7 +3965,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             // generate a filter bypass hash
             if (!wasinfected && ((*ldl->fg[filtergroup]).bypass_mode != 0) && !ispostblock) {
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -Enabling filter bypass hash generation" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Enabling filter bypass hash generation" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 filterhash = true;
                 if (ldl->fg[filtergroup]->bypass_mode > 0)
@@ -3975,7 +3976,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                 // only generate if scanerror (if option to only bypass scan errors is enabled)
                 if ((*ldl->fg[filtergroup]).infection_bypass_errors_only ? scanerror : true) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Enabling infection bypass hash generation" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Enabling infection bypass hash generation" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     virushash = true;
                     if (ldl->fg[filtergroup]->infection_bypass_mode > 0)
@@ -4107,13 +4108,13 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                     } else {
                         writestring += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
                     }
-                    writestring += "\nContent-Length: 0\r\n";
-                    writestring += "Cache-control: no-cache\r\n";
-                    writestring += "Connection: close\r\n";
+                    writestring += "\nContent-Length: 0";
+                    writestring += "\nCache-control: no-cache";
+                    writestring += "\nConnection: close";
                     writestring += "\r\n";
                         (*peerconn).writeString(writestring.toCharArray());   // ignore errors
 #ifdef DGDEBUG // debug stuff surprisingly enough
-                    std::cout << dbgPeerPort << " -******* redirecting to: " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -******* redirecting to: " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 } else {
                     // Broken, sadly blank page for user
@@ -4329,7 +4330,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             if(!(*peerconn).writeString(writestring.toCharArray()))
                 cleanThrow("Error sending block screen to client", *peerconn, *proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
-            std::cout << dbgPeerPort << " -******* redirecting to: " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -******* redirecting to: " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         }
 
@@ -4349,7 +4350,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
             if(!(*peerconn).writeString(writestring.toCharArray()))
                 cleanThrow("Error sending to client 3974", *peerconn,*proxysock);
 #ifdef DGDEBUG // debug stuff surprisingly enough
-            std::cout << dbgPeerPort << " -******* displaying : " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -******* displaying : " << writestring << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         }
 
@@ -4385,12 +4386,12 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     bool compressed = docheader->isCompressed();
     if (compressed) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Decompressing as we go....." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Decompressing as we go....." << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         docbody->setDecompress(docheader->contentEncoding());
     }
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << "docheader encoding: " << docheader->contentEncoding() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << "docheader encoding: " << docheader->contentEncoding() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
     (*pausedtoobig) = docbody->in(proxysock, peerconn, header, docheader, !responsescanners.empty(), headersent); // get body from proxy
 // checkme: surely if pausedtoobig is true, we just want to break here?
@@ -4399,9 +4400,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 // in fact, why don't we check the content length (when it's not -1) before even triggering the download managers?
 #ifdef DGDEBUG
     if ((*pausedtoobig)) {
-        std::cout << dbgPeerPort << " -got PARTIAL body from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -got PARTIAL body from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
     } else {
-        std::cout << dbgPeerPort << " -got body from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -got body from proxy" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
     }
 #endif
     off_t dblen;
@@ -4417,7 +4418,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     // if we wanted to honour a hypothetical min_content_scan_size, we'd do it here.
     if (((*docsize) = dblen) == 0) {
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -Not scanning zero-length body" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Not scanning zero-length body" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         // it's not inconceivable that we received zlib or gzip encoded content
         // that is, after decompression, zero length. we need to cater for this.
@@ -4438,28 +4439,30 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 (*wasscanned) = true;
                 if (isfile) {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Running scanFile" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Running scanFile" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
+                        syslog(LOG_ERR, "Delete infected (or unscanned due to error) file straight away: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                         unlink(docbody->tempfilepath.toCharArray());
                         // delete infected (or unscanned due to error) file straight away
                     }
                 } else {
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " -Running scanMemory" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " -Running scanMemory" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     csrc = (*i)->scanMemory(header, docheader, clientuser->c_str(), ldl->fg[filtergroup], clientip->c_str(), docbody->data, docbody->buffer_length, checkme);
                 }
 #ifdef DGDEBUG
-                std::cout << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -AV scan " << k << " returned: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
-                if (csrc == DGCS_WARNING) {
+               	if (csrc == DGCS_WARNING) {
+                    syslog(LOG_ERR, "1 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
                     (*scanerror) = false;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << "scanner warning: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << "scanner warning: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     (*csmessage) = (*i)->getLastMessage();
                 } else if (csrc == DGCS_BLOCKED) {
@@ -4470,7 +4473,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     (*wasinfected) = true;
                     (*scanerror) = false;
 #ifdef DGDEBUG
-                    std::cout << dbgPeerPort << " scanner INFECTED: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                    std::cerr << dbgPeerPort << " scanner INFECTED: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     break;
                 }
@@ -4498,8 +4501,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     checkme->isItNaughty = true;
                     checkme->isException = false;
                     (*scanerror) = true;
+                    syslog(LOG_ERR, "2 - Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either: IP: %s URL: %s File: %s ", clientip->c_str(), url.c_str(), docbody->tempfilepath.toCharArray());
 #ifdef DGDEBUG
-		    std::cout << dbgPeerPort << "scanner ERROR: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+		    std::cerr << dbgPeerPort << "scanner ERROR: " << (*i)->getLastMessage() << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                     break;
                 }
@@ -4507,42 +4511,41 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 k++;
 #endif
             }
-
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -finished running AV result: " << csrc << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         }
 #ifdef DGDEBUG
         else if (!responsescanners.empty()) {
-            std::cout << dbgPeerPort << " -content length large so skipping content scanning (virus) filtering" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -content length large so skipping content scanning (virus) filtering" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         }
 #endif
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text",ldl->fg[filtergroup]) || docheader->isContentType("-",ldl->fg[filtergroup]))) {
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Start content filtering: ";
+            std::cerr << dbgPeerPort << " -Start content filtering: ";
 #endif
             checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
                 ldl->fg[filtergroup], ldl->fg[filtergroup]->banned_phrase_list, ldl->fg[filtergroup]->naughtyness_limit);
 #ifdef DGDEBUG
-            std::cout << dbgPeerPort << " -Done content filtering: ";
+            std::cerr << dbgPeerPort << " -Done content filtering: ";
 #endif
         }
 #ifdef DGDEBUG
         else {
-            std::cout << dbgPeerPort << " -Skipping content filtering: ";
+            std::cerr << dbgPeerPort << " -Skipping content filtering: ";
             if (dblen > o.max_content_filter_size)
-                std::cout << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else if (checkme->isException)
-                std::cout << dbgPeerPort << " -Is flagged as an exception"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Is flagged as an exception"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else if (checkme->isItNaughty)
-                std::cout << dbgPeerPort << " -Is already flagged as naughty (content scanning)"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Is already flagged as naughty (content scanning)"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else if (isbypass)
-                std::cout << dbgPeerPort << " -Is flagged as a bypass"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Is flagged as a bypass"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else if (docheader->authRequired())
-                std::cout << dbgPeerPort << " -Is a set of auth required headers"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Is a set of auth required headers"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
             else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
-                std::cout << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         }
 #endif
     }
@@ -4560,22 +4563,21 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     }
 #ifdef DGDEBUG
     else {
-        std::cout << dbgPeerPort << " -Skipping content modification: "  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Skipping content modification: "  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         if (dblen > o.max_content_filter_size)
-            std::cout << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Content too large"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
-            std::cout << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Not text"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
         else if (checkme->isItNaughty)
-            std::cout << dbgPeerPort << " -Already flagged as naughty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << dbgPeerPort << " -Already flagged as naughty" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
     }
     //rc = system("date");
 #endif
-
     if (contentmodified) { // this would not include infected/cured files
 // if the content was modified then it must have fit in ram so no
 // need to worry about swapped to disk stuff
 #ifdef DGDEBUG
-        std::cout << dbgPeerPort << " -content modification made" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -content modification made" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         if (compressed) {
             docheader->removeEncoding(docbody->buffer_length);
@@ -4591,7 +4593,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         // that to the browser
     }
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " Returning from content checking"  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " Returning from content checking"  << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 }
 
@@ -4619,14 +4621,14 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     connect_request += "\r\n";
 
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -creating tunnel through proxy to " << hostname << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -creating tunnel through proxy to " << hostname << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         if(! (sock->writeString(connect_request.c_str())  &&  header.in(sock, true, true)) )  {
 
 #ifdef DGDEBUG
         syslog(LOG_ERR, "Error creating tunnel through proxy\n");
-        std::cout << dbgPeerPort << " -Error creating tunnel through proxy" << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Error creating tunnel through proxy" << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         //(*checkme).whatIsNaughty = "Unable to create tunnel through local proxy";
         checkme->message_no = 157;
@@ -4649,7 +4651,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
 #ifdef DGDEBUG
         syslog(LOG_ERR, "Tunnel status not 200 ok aborting\n");
-        std::cout << dbgPeerPort << " -Tunnel status was " << header.returnCode() << " expecting 200 ok" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << dbgPeerPort << " -Tunnel status was " << header.returnCode() << " expecting 200 ok" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
         return -1;
@@ -4662,10 +4664,10 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
 {
 
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -checking SSL certificate is valid" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -checking SSL certificate is valid" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
-    long rc = sslsock->checkCertValid();
+    long rc = sslsock->checkCertValid(hostname);
     //check that everything in this certificate is correct apart from the hostname
     if (rc < 0) {
         //no certificate
@@ -4690,7 +4692,7 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
     }
 
 #ifdef DGDEBUG
-    std::cout << dbgPeerPort << " -checking SSL certificate hostname" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << dbgPeerPort << " -checking SSL certificate hostname" << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     //check the common name and altnames of a certificate against hostname
@@ -4727,13 +4729,13 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
 //    }
 
 #ifdef DGDEBUG
-    std::cout << "IPPath is " << ippath << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << "IPPath is " << ippath << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     // change '.' to '-'
     ippath.swapChar('.', '-');
 #ifdef DGDEBUG
-    std::cout << "IPPath is " << ippath << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << "IPPath is " << ippath << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
 
     // get info from DNS
@@ -4747,13 +4749,13 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
     responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
 #ifdef DGDEBUG
-        std::cout << "DNS query returned error " << dns_error(h_errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << "DNS query returned error " << dns_error(h_errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         return false;
     }
     if (ns_initparse(response.buf, responseLen, &handle) < 0) {
 #ifdef DGDEBUG
-        std::cout << "ns_initparse returned error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << "ns_initparse returned error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
         return false;
     }
@@ -4766,13 +4768,13 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
     if (i > 0) {
         if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
 #ifdef DGDEBUG
-            std::cout << "ns_paserr returned error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+            std::cerr << "ns_paserr returned error " << strerror(errno) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
             return false;
         } else {
             if (ns_rr_type(rr) == ns_t_txt) {
 #ifdef DGDEBUG
-                std::cout << "ns_rr_rdlen returned " << ns_rr_rdlen(rr) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << "ns_rr_rdlen returned " << ns_rr_rdlen(rr) << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 u_char *k = (u_char *)ns_rr_rdata(rr);
                 char p[400];
@@ -4782,7 +4784,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user)
                 }
                 p[j] = '\0';
 #ifdef DGDEBUG
-                std::cout << "ns_rr_data returned " << p << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+                std::cerr << "ns_rr_data returned " << p << " Line: " << __LINE__ << " Function: " << __func__ << " Getpid: " << getpid() << std::endl;
 #endif
                 String dnstxt(p);
                 user = dnstxt.before(",");

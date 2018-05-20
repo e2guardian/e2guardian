@@ -171,11 +171,11 @@ void FOptionContainer::resetJustListData()
         o.lm.deRefList(banned_search_list);
     if (search_regexp_flag)
         o.lm.deRefList(search_regexp_list);
+    if (banned_search_overide_flag)
+        o.lm.deRefList(banned_search_overide_list);
     if (enable_local_list) {
         if (local_banned_search_flag)
             o.lm.deRefList(local_banned_search_list);
-        if (banned_search_overide_flag)
-            o.lm.deRefList(banned_search_overide_list);
         if (local_exception_site_flag)
             o.lm.deRefList(local_exception_site_list);
         if (local_exception_url_flag)
@@ -234,6 +234,7 @@ void FOptionContainer::resetJustListData()
     only_mitm_ssl_grey = false;
     ssl_mitm = false;
     enable_ssl_legacy_logic = false;
+
 //searchengine_regexp_flag = false;
 #ifdef PRT_DNSAUTH
     auth_exception_site_flag = false;
@@ -955,6 +956,12 @@ bool FOptionContainer::read(const char *filename)
                 search_regexp_flag = false;
             } // search engine searchwords regular expressions
 
+            if (banned_search_overide_list_location.length() && readFile(banned_search_overide_list_location.c_str(), &banned_search_overide_list, true, true, "bannedsearchoveridelist")) {
+                   banned_search_overide_flag = true;
+            } else {
+                    banned_search_overide_flag = false;
+            } // banned search overide words
+
             // local list
             if (enable_local_list) {
                 if (local_banned_search_list_location.length() && readFile(local_banned_search_list_location.c_str(), &local_banned_search_list, true, true, "localbannedsearchlist")) {
@@ -1498,12 +1505,12 @@ char *FOptionContainer::inBannedSearchList(String words, String &lc)
 #ifdef DGDEBUG
     std::cout << "Checking Banned Search Overide list for " << words << std::endl;
 #endif
-    if (enable_local_list) {
-        if (inBannedSearchOverideList(words))
-            return NULL;
-    }
+
+ if (banned_search_overide_flag && inBannedSearchOverideList(words))
+ 	return NULL;
+	
 #ifdef DGDEBUG
-    std::cout << "Checking Banned Search list for " << words << std::endl;
+    	std::cout << "Checking Banned Search list for " << words << std::endl;
 #endif
     return inSearchList(words, banned_search_list, lc);
 }

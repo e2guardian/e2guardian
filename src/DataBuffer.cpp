@@ -36,13 +36,13 @@ extern OptionContainer o;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20), bytesalreadysent(0), preservetemp(false), stimeout(20000)
+    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false)
 {
     data[0] = '\0';
 }
 
 DataBuffer::DataBuffer(const void *indata, off_t length)
-    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20), bytesalreadysent(0), preservetemp(false)
+    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false)
 {
     memcpy(data, indata, length);
 }
@@ -131,7 +131,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
 // the buffer gets filled thus reducing memcpy()ing and new()ing.
 // in addition to the actual socket timeout, used for each individual read, this version
 // incorporates a "global" timeout within which all reads must complete.
-int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout, int timeout)
+int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout, int stimeout)
 {
 
     int pos = 0;
@@ -150,7 +150,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         }
         pos += rc;
         gettimeofday(&nowadays, NULL);
-        if (nowadays.tv_sec - starttime.tv_sec > timeout) {
+        if (nowadays.tv_sec - starttime.tv_sec > stimeout) {
 #ifdef DGDEBUG
             std::cout << "buffered socket read more than timeout" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -243,7 +243,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         return true;
     }
-    if (!(*sock).breadyForOutput(stimeout)) return false; // exceptions on timeout or error
+    if (!(*sock).breadyForOutput(timeout)) return false; // exceptions on timeout or error
 
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks
@@ -253,8 +253,9 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         off_t sent = bytesalreadysent;
         int rc;
 
-        if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0)
+        if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0){
             return false;
+	}
 //            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
 
         while (sent < tempfilesize) {
@@ -271,12 +272,12 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
             }
             if (rc == 0) {
 #ifdef DGDEBUG
-                std::cout << "got zero bytes reading temp file" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+               std::cout << "got zero bytes reading temp file" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
                 break; // should never happen
             }
             // as it's cached to disk the buffer must be reasonably big
-            if (!sock->writeToSocket(data, rc, 0, stimeout)) {
+            if (!sock->writeToSocket(data, rc, 0, timeout)) {
                 return false;
 //                throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
             }
@@ -295,11 +296,11 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         // it's in RAM, so just send it, no streaming from disk
         if (buffer_length != 0) {
-            if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, stimeout))
+            if (!sock->writeToSocket(data + bytesalreadysent, buffer_length - bytesalreadysent, 0, timeout))
                 return false;
           //      throw std::exception();
         } else {
-            if (!sock->writeToSocket("\r\n\r\n", 4, 0, stimeout))
+            if (!sock->writeToSocket("\r\n\r\n", 4, 0, timeout))
                 return false;
            //     throw std::exception();
         }

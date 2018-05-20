@@ -236,6 +236,7 @@ Socket *peersock(NULL); // the socket which will contain the connection
 String peersockip; // which will contain the connection ip
 
 #ifdef __SSLMITM
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static pthread_mutex_t  *ssl_lock_array;
 
 static void ssl_lock_callback(int mode, int type, char *file, int line)
@@ -273,6 +274,7 @@ static void kill_ssl_locks(void)
 
   OPENSSL_free(ssl_lock_array);
 }
+#endif
 #endif
 
 void monitor_flag_set(bool action)
@@ -974,29 +976,14 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 		}
 
 		if (o.log_file_format != 3) {
-		    // "when" not used in format 3, and not if logging timestamps instead
-		    String temp;
-		    time_t tnow; // to hold the result from time()
-		    struct tm *tmnow; // to hold the result from localtime()
-		    time(&tnow); // get the time after the lock so all entries in order
-		    tmnow = localtime(&tnow); // convert to local time (BST, etc)
-		    year = String(tmnow->tm_year + 1900);
-		    month = String(tmnow->tm_mon + 1);
-		    day = String(tmnow->tm_mday);
-		    hour = String(tmnow->tm_hour);
-		    temp = String(tmnow->tm_min);
-		    if (temp.length() == 1) {
-			temp = "0" + temp;
-		    }
-		    min = temp;
-		    temp = String(tmnow->tm_sec);
-		    if (temp.length() == 1) {
-			temp = "0" + temp;
-		    }
-		    sec = temp;
-		    when = year + "." + month + "." + day + " " + hour + ":" + min + ":" + sec;
-		    // append timestamp if desired
-		    if (o.log_timestamp)
+		// "when" not used in format 3, and not if logging timestamps instead
+		   time_t now = time(NULL);
+		   char date[32];
+		   struct tm * tm = localtime(&now);
+		   strftime(date, sizeof date, "%y.%m.%d %H:%M:%S", tm);
+		   when = date;
+		   // append timestamp if desired
+		   if (o.log_timestamp)
 			when += " " + utime;
 		}
 
@@ -1005,7 +992,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 		    who = "";
 		    from = "0.0.0.0";
 		    clienthost.clear();
-		} else if ((clienthost.length() < 1) || clienthost == "DNSERROR"){
+		} else if ((clienthost == "-") || (clienthost == "DNSERROR")){
 			clienthost = from;
 		}
 		
@@ -1802,7 +1789,9 @@ int fc_controlit()   //
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
     SSL_library_init();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     init_ssl_locks();
+#endif
 #endif
 
     // this has to be done after daemonise to ensure we get the correct PID.
@@ -2116,7 +2105,9 @@ int fc_controlit()   //
     if (o.dstat_log_flag) dystat->close();
 
 #ifdef __SSLMITM
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     kill_ssl_locks();
+#endif
 #endif
 
     delete[] serversockfds;
