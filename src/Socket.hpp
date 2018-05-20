@@ -68,7 +68,7 @@ class Socket : public BaseSocket
     void stopSsl();
 
     //check that everything in this certificate is correct apart from the hostname
-    long checkCertValid();
+    long checkCertValid(String &hostname);
 
     //check the common name and altnames of a certificate against hostname
     int checkCertHostname(const std::string &hostame);

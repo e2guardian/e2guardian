@@ -5,7 +5,7 @@ AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 4.1.4)
+AC_INIT(e2guardian, 4.1.5)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -242,18 +242,18 @@ exit -1
 	if test "$GCC_VERSION_MINOR" -ge 9; then
 		if test "$GCC_VERSION_PATCH" -ge 3; then
                         echo "Version: $GCC_VERSION"
-                        CXXFLAGS="--std=c++11"
+                        CXXFLAGS="${CXXFLAGS} --std=c++11"
                 fi
         fi
 	echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++1y"
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
 else
         if test "$GCC_VERSION_MAJOR" -ge 5; then
         echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++11"
+        CXXFLAGS="${CXXFLAGS} --std=c++11"
 	else
 	echo "Version: $GCC_VERSION "
-        CXXFLAGS="--std=c++1y"
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
 	fi
 fi
 ]
