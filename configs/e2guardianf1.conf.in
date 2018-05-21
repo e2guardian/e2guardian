@@ -110,14 +110,14 @@ searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbanneds
 # (on | off)
 #
 blockdownloads = off
-fileextlist = 'name=exceptionextension,messageno=900,path=@DGCONFDIR@/lists/exceptionextensionlist'
-mimelist = 'name=exceptionmime,messageno=750,path=@DGCONFDIR@/lists/exceptionextensionlist'
+fileextlist = 'name=exceptionextension,path=@DGCONFDIR@/lists/exceptionextensionlist'
+mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionextensionlist'
 #
 # Use the following lists to block specific kinds of file downloads.
 # The two exception lists above can be used to override these.
 #
-fileextlist = 'name=bannedextension,messageno=999,path=@DGCONFDIR@/lists/bannedextensionlist'
-mimelist = 'name=bannedmime,messageno=750,path=@DGCONFDIR@/lists/bannedmimeitypelist'
+fileextlist = 'name=bannedextension,messageno=900,path=@DGCONFDIR@/lists/bannedextensionlist'
+mimelist = 'name=bannedmime,messageno=800,path=@DGCONFDIR@/lists/bannedmimeitypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
