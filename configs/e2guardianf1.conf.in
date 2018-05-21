@@ -100,16 +100,9 @@ searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbanneds
 # The following option is replaced by storyboard logic
 # bannedregexwithblanketblock = off
 #
-# Blanket download blocking
-# If enabled, all files will be blocked, unless they match the
-# exceptionextensionlist or exceptionmimetypelist.
-# These lists do not override virus scanning.
-# Exception lists defined above override all types of filtering, including
-# the blanket download block.
-# Defaults to disabled.
-# (on | off)
-#
-blockdownloads = off
+# The following option is replaced by storyboard logic
+#blockdownloads = off
+
 fileextlist = 'name=exceptionextension,messageno=900,path=@DGCONFDIR@/lists/exceptionextensionlist'
 mimelist = 'name=exceptionmime,messageno=750,path=@DGCONFDIR@/lists/exceptionextensionlist'
 #

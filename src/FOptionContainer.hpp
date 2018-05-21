@@ -69,11 +69,6 @@ public:
     bool byuser;
 #endif
 
-    // File filtering mode - should banned or exception lists be used?
-    // if true, use exception lists & exception file site list; otherwise,
-    // use banned MIME type & extension lists.
-    bool block_downloads;
-
     bool reverse_lookups;
     bool force_quick_search;
     int bypass_mode;
@@ -119,7 +114,7 @@ public:
     bool searchterm_flag;
 
     FOptionContainer()
-            : block_downloads(false), searchterm_flag(false), banned_page(NULL), ssl_mitm(false),
+            :  searchterm_flag(false), banned_page(NULL), ssl_mitm(false),
               only_mitm_ssl_grey(false), ssl_check_cert(false), mitm_check_cert(true),
               banned_phrase_flag(false),
               content_regexp_flag(false),

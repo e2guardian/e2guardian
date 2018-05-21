@@ -87,8 +87,6 @@ void FOptionContainer::resetJustListData()
     content_regexp_flag = false;
     ssl_mitm = false;
 
-    block_downloads = false;
-
     banned_phrase_list_index.clear();
 
     //	conffile.clear();
@@ -524,16 +522,6 @@ bool FOptionContainer::read(const char *filename) {
         std::cerr << thread_id << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
-
-
-
-        if (findoptionS("blockdownloads") == "on") {
-            block_downloads = true;
-        } else {
-            block_downloads = false;
-        }
-
-
         // Support weighted phrase mode per group
         if (findoptionS("weightedphrasemode").length() > 0) {
             weighted_phrase_mode = findoptionI("weightedphrasemode");
@@ -552,11 +540,6 @@ bool FOptionContainer::read(const char *filename) {
         std::cerr << thread_id << "Reading phrase, URL and site lists into memory" << std::endl;
 #endif
 
-        if (!block_downloads) {
-#ifdef DGDEBUG
-            std::cerr << thread_id << "Blanket download block disabled; using standard banned file lists" << std::endl;
-#endif
-        }
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
             if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))

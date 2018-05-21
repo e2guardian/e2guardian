@@ -39,10 +39,12 @@ if(true) setgrey
 function(checkresponse)
 if(viruscheckset) checknoscantypes
 if(urlin,exceptionfile) return true
-if(mimein, exceptionmime) return setexception
+if(mimein, exceptionmime) return true
 if(mimein, bannedmime) return setblock
-if(extensionin, exceptionextension) setexception
-if(extensionin, bannedextension) setblock
+if(extensionin, exceptionextension) return true
+if(extensionin, bannedextension) return setblock
+# Uncomment the next line for blanket download block
+#if(true,,750) return setblock
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
