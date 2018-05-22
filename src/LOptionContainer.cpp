@@ -476,12 +476,12 @@ void LOptionContainer::loadRooms(bool throw_error)
             exit(1);
         }
         if (infile.fail()) {
-            syslog(LOG_ERR, " Unexpected failue on read");
+            syslog(LOG_ERR, " Unexpected failure on read");
             std::cerr << thread_id << " Unexpected failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
         if (infile.bad()) {
-            syslog(LOG_ERR, " Unexpected badbit failue on read");
+            syslog(LOG_ERR, " Unexpected badbit failure on read");
             std::cerr << thread_id << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
             exit(1);
         }
