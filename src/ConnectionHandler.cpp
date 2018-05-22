@@ -2133,7 +2133,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
         //(*checkme).whatIsNaughty = "Opening tunnel failed";
         checkme->message_no = 158;
         (*checkme).whatIsNaughty = o.language_list.getTranslation(158);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + " with errror code " + String(header.returnCode());
+        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + " with error code " + String(header.returnCode());
         (*checkme).isItNaughty = true;
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
 
