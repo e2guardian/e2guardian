@@ -110,7 +110,7 @@ mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionextensionlist'
 # The two exception lists above can be used to override these.
 #
 fileextlist = 'name=bannedextension,messageno=900,path=@DGCONFDIR@/lists/bannedextensionlist'
-mimelist = 'name=bannedmime,messageno=800,path=@DGCONFDIR@/lists/bannedmimeitypelist'
+mimelist = 'name=bannedmime,messageno=800,path=@DGCONFDIR@/lists/bannedmimetypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
