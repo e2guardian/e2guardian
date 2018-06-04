@@ -722,7 +722,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 std::cerr << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
             }
 #endif
-	    syslog(LOG_INFO, "%sheader:size too big: %d, see maxheaderlines", thread_id.c_str(), header.size());
+	    syslog(LOG_INFO, "%s header:size too big: %lu, see maxheaderlines", thread_id.c_str(), header.size());
             ispersistent = false;
             return false;
         }

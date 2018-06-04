@@ -819,9 +819,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
-            bool outgoing = true;
             if (header.front().startsWith("HT")) {
-                outgoing = false;
                 inout = "IN";
             } else {
                 inout = "OUT";
@@ -870,7 +868,7 @@ void HTTPHeader::dbshowheader(bool outgoing)
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
-                syslog(LOG_INFO, "%s:%s: dbshowheader bool - header: %s", tid, inout.c_str(), line2.c_str());
+                syslog(LOG_INFO, "%lu:%s: dbshowheader bool - header: %s", tid, inout.c_str(), line2.c_str());
 #ifdef DGDEBUG
             std::cerr << thread_id  << inout <<": dbshowheader bool: " << line2.c_str() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
@@ -880,7 +878,7 @@ void HTTPHeader::dbshowheader(bool outgoing)
         std::cerr << thread_id << "Client: END-------------------------------" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
     } else {
-            syslog(LOG_INFO, "%s:Call : from HTTPHeader.cpp to dbshowheader but header is empty", tid);
+            syslog(LOG_INFO, "%lu:Call : from HTTPHeader.cpp to dbshowheader but header is empty", tid);
 #ifdef DGDEBUG
             std::cerr << thread_id << "Call : from HTTPHeader.cpp to dbshowheader but header is empty" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
 #endif
@@ -983,14 +981,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
     }
 }
 
+#ifdef DGDEBUG
     //if its http1.1
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
-#ifdef DGDEBUG
         std::cerr << thread_id << "CheckHeader: HTTP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
         onepointone = true;
     }
+#endif
 
     if (outgoing) {        // set request Type
         requesttype = header.front().before(" ");
@@ -1967,7 +1965,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 #ifdef DGDEBUG
             std::cerr << thread_id << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-	    syslog(LOG_INFO, "header:size too big: %d, see maxheaderlines", header.size());
+	    syslog(LOG_INFO, "header:size too big: %lu, see maxheaderlines", header.size());
 	    dbshowheader(false);
             ispersistent = false;
             return false;
