@@ -100,14 +100,14 @@ class Socket : public BaseSocket
     bool readyForOutput();
     bool breadyForOutput(int timeout);
     // blocking check, can break on config reloads
-    void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    void readyForOutput(int timeout, bool honour_reloadconfig = false);
 
     // non-blocking check for input data
     bool checkForInput();
     bool bcheckForInput(int timeout);
 
     // blocking check for data, can be told to break on signal triggered config reloads (-r)
-    void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    void checkForInput(int timeout, bool honour_reloadconfig = false);
 
     // get a line from the socket - can break on config reloads
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) ;
