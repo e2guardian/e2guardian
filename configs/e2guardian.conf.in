@@ -688,7 +688,7 @@ searchsitelistforip = on
 #
 # Limit number of http header lines in a request/response
 # (to guard against attacks)
-# Minimum 10 max 2000
+# Minimum 10 max 250
 # default 40
 # maxheaderlines = 40
 
