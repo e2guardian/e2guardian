@@ -3314,9 +3314,6 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
     //try {
         int rc;
-
-
-        int oldfg = 0;
         bool authed = false;
         bool firsttime = true;
         bool isbanneduser = true;
