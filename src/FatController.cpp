@@ -496,9 +496,8 @@ void handle_connections(int tindex)
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
             ConnectionHandler h;
             // the class that handles the connections
-            String ip;
-            int stat = 0;
-            int rc = 0;
+	    int rc = 0;
+	    String ip;
 #ifdef DGDEBUG
             std::cerr << thread_id << " in  handle connection"  << std::endl;
 #endif
@@ -665,7 +664,6 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "log listener started" << std::endl;
 #endif
-    int rc;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -1621,7 +1619,6 @@ int fc_controlit()   //
     std::cerr << "listen  threads created" << std::endl;
 #endif
 
-    time_t tnow;
     time_t tmaxspare;
 
     time(&tmaxspare);
@@ -1633,9 +1630,6 @@ int fc_controlit()   //
     // consecutivly.
 
     is_starting = true;
-
-
-    int tofind;
 
     if (reloadconfig) {
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");

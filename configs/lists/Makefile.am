@@ -48,6 +48,7 @@ exceptionregexpurllist \
 exceptionregexpuseragentlist \
 exceptionsiteiplist \
 exceptionsitelist \
+exceptionregexpheaderlist \
 exceptionurllist \
 filtergroupslist \
 greysiteiplist \

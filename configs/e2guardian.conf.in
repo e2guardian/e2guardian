@@ -52,7 +52,7 @@ language = 'ukenglish'
 # Logging Settings
 #
 # 0 = none  1 = just denied  2 = all text based  3 = all requests
-loglevel = 2
+loglevel = 3 
 
 # Log Exception Hits
 # Log if an exception (user, ip, URL, phrase) is matched and so
@@ -689,6 +689,6 @@ searchsitelistforip = on
 # Limit number of http header lines in a request/response
 # (to guard against attacks)
 # Minimum 10 max 250
-# default 40
-# maxheaderlines = 40
+# default 50
+# maxheaderlines = 50
 

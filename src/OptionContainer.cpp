@@ -817,8 +817,6 @@ bool OptionContainer::read(std::string& filename, int type)
         if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports) {
             std::deque<Plugin *>::iterator it = authplugins.begin();
             String firstPlugin;
-            bool sslused = false;
-            bool coreused = false;
             while (it != authplugins.end()) {
                 AuthPlugin *tmp = (AuthPlugin *)*it;
                 if (tmp->getPluginName().startsWith("proxy-basic")) {

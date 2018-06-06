@@ -2902,7 +2902,9 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     } else {
         cm.tunnel_rest = true;
     }
+#ifdef DGDEBUG
     std::cerr << thread_id << "End content check isitNaughty is  " << cm.isItNaughty << std::endl;
+#endif
 }
 
 #ifdef __SSLMITM
