@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
             syslog(LOG_ERR, "%s", "Exiting with error");
             return rc; // exit returning the error number
         }
-//        if (is_daemonised)
-//        	return 0; // exit without error
+        if (is_daemonised)
+        	return 0; // exit without error
     }
 }
