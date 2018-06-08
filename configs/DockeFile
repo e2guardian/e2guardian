@@ -1,4 +1,5 @@
-MAINTAINER "numsys@free.fr"
+FROM ubuntu:18.04
+MAINTAINER "numsys - @ - free.fr"
 
 ARG COMMIT
 ARG BUILD_DATE
@@ -19,13 +20,16 @@ libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev \
 && mkdir /etc/e2guardian && cp src/e2guardian /usr/sbin/ && mkdir /var/log/e2guardian \
 && mkdir -p /usr/share/e2guardian/languages && cp -Rf data/languages /usr/share/e2guardian/ && cp data/*.gif /usr/share/e2guardian/ && cp data/*swf /usr/share/e2guardian/ \
 && cp -Rf configs/* /etc/e2guardian/ \
-&& chmod 750 -Rf /etc/e2guardian && chmod 750 -Rf /usr/share/e2guardian \
+&& adduser --no-create-home --system e2guardian \
+&& addgroup --system e2guardian \
+&& chmod 750 -Rf /etc/e2guardian && chmod 750 -Rf /usr/share/e2guardian && chown -Rf e2guardian /etc/e2guardian /usr/share/e2guardian /var/log/e2guardian \
 && find /etc/e2guardian -type f -name .in -delete \
 && find /usr/share/e2guardian -type f -name .in -delete \
-#&& sed -i "s/#daemonuser = 'e2guardian'/daemonuser = 'root'/g" /etc/e2guardian/e2guardian.conf \
-#&& sed -i "s/#daemongroup = 'e2guardian'/daemongroup = 'root'/g" /etc/e2guardian/e2guardian.conf \
-&& sed -i "s/#dockermode = 'off'/dockermode = 'on'/g" /etc/e2guardian/e2guardian.conf \
+# ROOT mode if needed ...
+# && sed -i "s/#daemonuser = 'e2guardian'/daemonuser = 'root'/g" /etc/e2guardian/e2guardian.conf \
+# && sed -i "s/#daemongroup = 'e2guardian'/daemongroup = 'root'/g" /etc/e2guardian/e2guardian.conf \
+&& sed -i "s/#dockermode = off/dockermode = on/g" /etc/e2guardian/e2guardian.conf \
 && apt remove -y --allow-remove-essential --purge curl unzip sed libevent-dev libc6-dev libc-dev g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev libssl-dev \
 && rm -rf /var/lib/apt/lists/* && rm -Rf /tmp/*
 EXPOSE 8080
-CMD /usr/sbin/e2guardian -N
+CMD /usr/sbin/e2guardian
