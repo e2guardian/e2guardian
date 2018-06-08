@@ -128,7 +128,7 @@ logfileformat = 6
 # Container mode
 # the process will not fork into the background AND log is in stdout 
 # Default:
-dockermode = off
+#dockermode = off
 
 # Network Settings
 # 
