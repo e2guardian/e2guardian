@@ -498,6 +498,6 @@ int main(int argc, char *argv[])
             syslog(LOG_ERR, "%s", "Exiting with error");
             return rc; // exit returning the error number
         }
-        return 0; // exit without error
+//        return 0; // exit without error
     }
 }
