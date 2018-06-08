@@ -125,6 +125,11 @@ logfileformat = 6
 # Time format is epoch GMT+0 by default | statshumanreadable change to local zone
 #statshumanreadable = off
 
+# Container mode
+# the process will not fork into the background AND log is in stdout 
+# Default:
+dockermode = off
+
 # Network Settings
 # 
 # the IP that e2guardian listens on.  If left blank e2guardian will
@@ -163,7 +168,7 @@ transparenthttpsport = 8443
 #proxyip = 127.0.0.1
 
 # the port e2guardian connects to proxy on
-proxyport = 3128
+#proxyport = 3128
 
 # Proxy timeout 
 # Set tcp timeout between the Proxy and e2guardian
@@ -585,7 +590,7 @@ loguseragent = off
 # This is the user that e2guardian runs as.  Normally the user/group nobody.
 # Uncomment to use.  Defaults to the user set at compile time.
 # Temp files created during virus scanning are given owner and group read
-# permissions; to use content scanners based on external processes, such as
+
 # clamdscan, the two processes must run with either the same group or user ID.
 #daemonuser = '@DGPROXYUSER@'
 #daemongroup = '@DGPROXYGROUP@'

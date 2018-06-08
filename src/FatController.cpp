@@ -1074,7 +1074,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 #ifdef DGDEBUG
         std::cerr << itemcount << " " << builtline << std::endl;
 #endif
-        std::cerr << itemcount << " " << builtline << std::endl;
+	if (o.e2_front_log)
+		std::cout << builtline << std::endl;
         //    delete ipcpeersock; // close the connection
 
 #ifdef ENABLE_EMAIL
