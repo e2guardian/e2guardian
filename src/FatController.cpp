@@ -431,6 +431,7 @@ bool drop_priv_completely()
 bool daemonise()
 {
 
+    return true;
     if (o.no_daemon) {
         return true;
     }
@@ -459,7 +460,6 @@ bool daemonise()
         if (nullfd != -1) {
             close(nullfd);
         }
-
         // bye-bye
         exit(0);
     }
@@ -1556,9 +1556,7 @@ int fc_controlit()   //
 #ifdef DGDEBUG
     std::cerr << thread_id << "log_listener thread created" << std::endl;
 #endif
-}
-
-
+    }
 
 // I am the main thread here onwards.
 
