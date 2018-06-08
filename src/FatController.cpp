@@ -430,8 +430,6 @@ bool drop_priv_completely()
 // Fork ourselves off into the background
 bool daemonise()
 {
-
-    return true;
     if (o.no_daemon) {
         return true;
     }
