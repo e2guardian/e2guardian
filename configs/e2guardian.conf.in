@@ -126,7 +126,7 @@ logfileformat = 6
 #statshumanreadable = off
 
 # Container mode
-# the process will not fork into the background AND log is in stdout 
+# the process will not fork into the background AND log in stdout 
 # Default:
 #dockermode = off
 
