@@ -1,6 +1,6 @@
 # Storyboard library file
 
-# For ease of upgrade DO CHANGE THIS library file 
+# For ease of upgrade DO NOT CHANGE THIS library file 
 # Make your function changes by overriding functions
 # in the site.story file - for site wide changes
 # and in filtergroup specific story file - see examplef1.story
@@ -29,8 +29,8 @@ ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
-#if(fullurlin, addheader) setaddheader
-#if(searchin,override) return setgrey
+if(fullurlin, addheader) setaddheader
+if(searchin,override) return setgrey
 if(searchin,banned) return setblock
 if(true) setgrey
 
@@ -72,8 +72,8 @@ ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
-#if(fullurlin, addheader) setaddheader
-#if(searchin,override) return setgrey
+if(fullurlin, addheader) setaddheader
+if(searchin,override) return setgrey
 if(searchin,banned) return setblock
 if(true) setgrey
 
@@ -84,9 +84,9 @@ if(true) return checkresponse
 # Checks embeded urls
 #  returns true if blocked, otherwise false
 function(embeddedcheck)
-#if(embeddedin, localexception) return false
-#if(embeddedin, localgrey) return false
-#if(embeddedin, localbanned) return setblock
+if(embeddedin, localexception) return false
+if(embeddedin, localgrey) return false
+if(embeddedin, localbanned) return setblock
 if(embeddedin, exception) return false
 if(embeddedin, grey) return false
 if(embeddedin, banned) return setblock
@@ -95,17 +95,17 @@ if(embeddedin, banned) return setblock
 #  returns true if matches local exception or banned
 function(localcheckrequest)
 if(connect) return localsslrequestcheck
-#ifnot(greyset) returnif localexceptioncheck
-#ifnot(greyset) localgreycheck
-#ifnot(greyset) returnif localbannedcheck
+ifnot(greyset) returnif localexceptioncheck
+ifnot(greyset) localgreycheck
+ifnot(greyset) returnif localbannedcheck
 if(searchin,localbanned) return setblock
 
 
 # Local SSL checks
 #  returns true if matches local exception 
 function(localsslrequestcheck)
-#if(sitein, localexception) return setexception
-#if(sitein, localbanned) true
+if(sitein, localexception) return setexception
+if(sitein, localbanned) true
 ifnot(returnset) return false
 if(true) returnif sslcheckmitm
 if(true) return setblock
@@ -118,32 +118,32 @@ if(true) return true
 
 # Local grey check
 #  returns true on match
-#function(localgreycheck)
-#if(urlin, localgrey) return setgrey
+function(localgreycheck)
+if(urlin, localgrey) return setgrey
 
 # Local banned check
 #  returns true on match
-#function(localbannedcheck)
-#if(urlin, localbanned) return setblock
+function(localbannedcheck)
+if(urlin, localbanned) return setblock
 
 # Local exception check
 #  returns true on match
-#function(localexceptioncheck)
-#if(urlin, localexception) return setexception
+function(localexceptioncheck)
+if(urlin, localexception) return setexception
 
 # Exception check
 #  returns true on match
 function(exceptioncheck)
 if(urlin, exception) return setexception
 if(headerin, exceptionheader) return setexception
-#if(useragentin, exceptionuseragent) return setexception
+if(useragentin, exceptionuseragent) return setexception
 
 # SSL Exception check
 #  returns true on match
 function(sslexceptioncheck)
 if(sitein, exception) return setexception
 if(headerin, exceptionheader) return setexception
-#if(useragentin, exceptionuseragent) return setexception
+if(useragentin, exceptionuseragent) return setexception
 if(true) return false
 
 # Greylist check
@@ -161,8 +161,8 @@ if(headerin, bannedheader) return setblock
 
 # Local SSL list(s) check
 #  returns true on match
-#function(localsslcheckrequest)
-#if(sitein, localexception) return setexception
+function(localsslcheckrequest)
+if(sitein, localexception) return setexception
 #if(sitein, localbanned) return setblock
 
 # Check whether to go MITM
