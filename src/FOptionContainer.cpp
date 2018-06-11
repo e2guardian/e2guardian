@@ -670,30 +670,30 @@ bool FOptionContainer::read(const char *filename) {
         return false;
 
 
-        if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
-            return false;
-        }
+    if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
+        std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
+        return false;
+    }
 
-        if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
-           std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+    if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
+	 std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+         return false;
+    }
+
+    if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
+         std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
+         return false;
+    }
+
+    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
+          std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
+          return false;
+    }
+
+    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+           std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
            return false;
-        }
-
-        if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
-            return false;
-        }
-
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
-            return false;
-        }
-
-            if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-                std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
-                return false;
-            }
+    }
     if (!precompileregexps()) {
         return false;
     } // precompiled reg exps for speed

@@ -90,12 +90,15 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     off_t newsize;
     off_t bytesremaining = docheader->contentLength();
     if (!d->icap) {
+#ifdef DGDEBUG
         std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
+#endif
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
+#ifdef DGDEBUG
     std::cerr << thread_id << "bytes remaining is " << bytesremaining << std::endl;
-
+#endif
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     bool geteverything = false;

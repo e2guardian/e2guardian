@@ -899,8 +899,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     )
                 checkme.noviruscheck = false;   // note this may be reset by Storyboard to enable exceptions
 
-            char *retchar;
-
             //
             // Start of Storyboard checking
             //
@@ -2904,7 +2902,9 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     } else {
         cm.tunnel_rest = true;
     }
+#ifdef DGDEBUG
     std::cerr << thread_id << "End content check isitNaughty is  " << cm.isItNaughty << std::endl;
+#endif
 }
 
 #ifdef __SSLMITM
@@ -3145,8 +3145,6 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 //}
             //}
 
-            char *retchar;
-
             //
             // Start of exception checking
             //
@@ -3316,12 +3314,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
     //try {
         int rc;
-
-
-        int oldfg = 0;
         bool authed = false;
-        bool isbanneduser = false;
         bool firsttime = true;
+        bool isbanneduser = true;
 
         AuthPlugin *auth_plugin = NULL;
 
@@ -3734,7 +3729,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     // End of scan by pass
     //
 
-    char *retchar;
     bool done = false;
 
     //
@@ -3942,7 +3936,6 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     bool part_banned;
-    char *retchar;
 
     // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true
@@ -4036,11 +4029,11 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             if (checkme.pausedtoobig)
                 checkme.tunnel_rest = true;
         }
-        if (checkme.tunnel_rest)
+        if (checkme.tunnel_rest){
             peerconn.loopChunk(peerconn.getTimeout());   // echos any body
             done = true;
+	}
     }
-
 
     if(checkme.isItNaughty) {
         if(genDenyAccess(peerconn,res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse, &checkme.url, &checkme, &clientuser, &ip,

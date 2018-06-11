@@ -146,7 +146,6 @@ int ICAPHeader::returnCode()    // does not apply to ICAP ?  May do if we use fo
 void ICAPHeader::checkheader(bool allowpersistent)
 {
     bool outgoing = true;
-
     if (header.size() > 1) {
     for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) { // check each line in the headers
         // index headers - try to perform the checks in the order the average browser sends the headers.
@@ -419,10 +418,8 @@ int ICAPHeader::decode1b64(char c)
 // send headers out over the given socket
 bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 {
-    bool body_done = false;
-
 #ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAP)
+    if(o.myDebug->ICAP)
 	{
 		std::ostringstream oss (std::ostringstream::out);
 		oss << thread_id << "ICAP response starting - RCode " << res_code << " echo is " << echo << std::endl;
@@ -722,7 +719,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 std::cerr << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
             }
 #endif
-	    syslog(LOG_INFO, "%sheader:size too big: %d, see maxheaderlines", thread_id.c_str(), header.size());
+	    syslog(LOG_INFO, "%s header:size too big: %lu, see maxheaderlines", thread_id.c_str(), header.size());
             ispersistent = false;
             return false;
         }

@@ -430,7 +430,6 @@ bool drop_priv_completely()
 // Fork ourselves off into the background
 bool daemonise()
 {
-
     if (o.no_daemon) {
         return true;
     }
@@ -459,7 +458,6 @@ bool daemonise()
         if (nullfd != -1) {
             close(nullfd);
         }
-
         // bye-bye
         exit(0);
     }
@@ -496,9 +494,8 @@ void handle_connections(int tindex)
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
             ConnectionHandler h;
             // the class that handles the connections
-            String ip;
-            int stat = 0;
-            int rc = 0;
+	    int rc = 0;
+	    String ip;
 #ifdef DGDEBUG
             std::cerr << thread_id << " in  handle connection"  << std::endl;
 #endif
@@ -665,7 +662,6 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "log listener started" << std::endl;
 #endif
-    int rc;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -1078,6 +1074,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 #ifdef DGDEBUG
         std::cerr << itemcount << " " << builtline << std::endl;
 #endif
+	if (o.e2_front_log)
+		std::cout << builtline << std::endl;
         //    delete ipcpeersock; // close the connection
 
 #ifdef ENABLE_EMAIL
@@ -1558,9 +1556,7 @@ int fc_controlit()   //
 #ifdef DGDEBUG
     std::cerr << thread_id << "log_listener thread created" << std::endl;
 #endif
-}
-
-
+    }
 
 // I am the main thread here onwards.
 
@@ -1621,7 +1617,6 @@ int fc_controlit()   //
     std::cerr << "listen  threads created" << std::endl;
 #endif
 
-    time_t tnow;
     time_t tmaxspare;
 
     time(&tmaxspare);
@@ -1633,9 +1628,6 @@ int fc_controlit()   //
     // consecutivly.
 
     is_starting = true;
-
-
-    int tofind;
 
     if (reloadconfig) {
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");

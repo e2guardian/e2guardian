@@ -76,7 +76,6 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     int fnt_id = 0;
     bool overwrite = false;
     bool in_function = false;
-    size_t len = 0;
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
     if (!listfile.good()) {
         if (!is_daemonised) {
