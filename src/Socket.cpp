@@ -134,12 +134,14 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
 
 // find the ip to which the client has connected
 std::string Socket::getLocalIP() {
-    return inet_ntoa(my_adr.sin_addr);
+    char res[INET_ADDRSTRLEN];
+    return inet_ntop(AF_INET,&my_adr.sin_addr, res, sizeof(res));
 }
 
 // find the ip of the client connecting to us
 std::string Socket::getPeerIP() {
-    return inet_ntoa(peer_adr.sin_addr);
+    char res[INET_ADDRSTRLEN];
+    return inet_ntop(AF_INET,&peer_adr.sin_addr, res, sizeof(res));
 }
 
 // find the port of the client connecting to us

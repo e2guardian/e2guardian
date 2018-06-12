@@ -38,15 +38,16 @@ extern thread_local std::string thread_id;
 std::deque<String> *ipToHostname(const char *ip)
 {
     std::deque<String> *result = new std::deque<String>;
-    struct in_addr address, **addrptr;
+    //struct in_addr address, **addrptr;
+    struct in_addr address;
     if (inet_aton(ip, &address)) { // convert to in_addr
         struct hostent *answer;
         answer = gethostbyaddr((char *)&address, sizeof(address), AF_INET);
         if (answer) { // sucess in reverse dns
             result->push_back(String(answer->h_name));
-            for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
-                result->push_back(String(inet_ntoa(**addrptr)));
-            }
+           // for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
+          //      result->push_back(String(inet_ntoa(**addrptr)));
+          // }
         }
     }
     return result;

@@ -770,7 +770,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     break;
                 }
 
-                std::string orig_dest_ip(inet_ntoa(origaddr.sin_addr));
+                char res[INET_ADDRSTRLEN];
+                std::string orig_dest_ip(inet_ntop(AF_INET,&origaddr.sin_addr, res, sizeof(res)));
                 if (orig_dest_ip == peerconn.getLocalIP()) {
 // The destination IP before redirection is the same as the IP the
 // client has actually been connected to - they aren't connecting transparently.
@@ -794,7 +795,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     addrinfo *current = results;
                     bool matched = false;
                     while (current != NULL) {
-                        if (orig_dest_ip == inet_ntoa(((sockaddr_in *)(current->ai_addr))->sin_addr)) {
+                        char res[INET_ADDRSTRLEN];
+                        if (orig_dest_ip == inet_ntop(AF_INET,&((sockaddr_in *)(current->ai_addr))->sin_addr, res, sizeof(res))) {
 #ifdef DGDEBUG
                             std::cerr << thread_id << checkme.urldomain << " matched to original destination of " << orig_dest_ip << std::endl;
 #endif
@@ -3027,8 +3029,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                     syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
                     return -1;
                 } else {
-                checkme.orig_ip = inet_ntoa(origaddr.sin_addr);
-                checkme.orig_port = ntohs(origaddr.sin_port);
+                     char res[INET_ADDRSTRLEN];
+                    checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
+                    checkme.orig_port = ntohs(origaddr.sin_port);
                 }
          }
 

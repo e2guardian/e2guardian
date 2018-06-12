@@ -33,7 +33,7 @@ class HTTPHeader
     std::deque<String> header;
     //DataBuffer postdata;
     unsigned int port;
-    bool is_response;
+    bool is_response = false;
     bool icap;
     String redirect;
     String useragent;
@@ -185,12 +185,14 @@ class HTTPHeader
     String getReferer();
 
     HTTPHeader()
-        : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
+    //    : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
+        : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true)
     {
         reset();
     };
     HTTPHeader(int type)
-            : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
+    //        : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true), is_response(false)
+    : port(0), timeout(120000), contentlength(0), postdata(NULL), dirty(true)
     {
         reset();
         setType(type);
