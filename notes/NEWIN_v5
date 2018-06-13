@@ -1,4 +1,4 @@
-This is the v5 development version (v5.1).  
+This is the v5 stable version (v5.1).  
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in this release.
@@ -102,8 +102,7 @@ HTTP/1.1
 
 ANTI-VIRUS PLUGINS
 
-    Anti-virus plugins implimented for proxy, trans and ICAP - but individual
-    plug-ins may not be tested yet.
+    Anti-virus plugins implimented for proxy, trans and ICAP 
 
 INCLUDE FILES IN e2guardianf1.conf
 
@@ -137,24 +136,24 @@ TESTING -
 
     Please test all functions.
 
-    Please prefix all bug reports with "V5develop: "
+    Please prefix all bug reports with "V5.1: "
 
 
 TODO - for this release before production.
 -----------------------------------------
 
+TODO - for next releases.
+-----------------------
+
+    Amend code so that -Wall compile option gives no warnings.
+
     Make SSL sockets non-blocking so time-out works with MITM
 
     Transparent HTTP/HTTPS on ports other than 80/443
 
-    Reduce unnecessary memory usage on  in DataBuffer
+    Reduce unnecessary memory usage on in DataBuffer
 
-    Final tidy code.
-    Add more notes.
-
-TODO - for next releases.
------------------------
-
+    New % weighting option for phrase lists
 
     POST content filtering
 
@@ -162,6 +161,11 @@ TODO - for next releases.
 
     Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
         no log option)
+
+    Remove duplicate list/storyboard warnings with a DRY system and add no warn
+        option.
+
+    Extend new debug feature to further modules
 
 WISHLIST
 --------

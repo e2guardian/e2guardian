@@ -23,16 +23,21 @@ Note that full HTTPS MITM requires a lot more CPU power.
 To set up MITM:
 
    Configure and compile e2guardian with the --enable-sslmitm flag set
+   
+   Before generating your certs and keys check that your openssl.conf file
+   has the following in the ca section:-
+
+      basicConstraints=critical,CA:TRUE
 
    Generate your certicates and keys:-
 
 	Generate a key for the rootCA
 
-		openssl genrsa 4096 > private_root.pem
+	    openssl genrsa 4096 > private_root.pem
 
 	Generate the root CA certificate
 
-		openssl req -new -x509 -days 3650 -key private_root.pem \
+	    openssl req -new -x509 -days 3650 -sha256 -key private_root.pem \
 			-out my_rootCA.crt
 
 	Create a DER format version of root certificate
@@ -55,16 +60,9 @@ To set up MITM:
 	caprivatekeypath = '/usr/local/etc/e2guardian/private_root.pem'
 	certprivatekeypath = '/usr/local/etc/e2guardian/private_cert.pem'
 
-	sslcertificatepath = '/etc/ssl/certs/'
-	# above path is the default on many but not all systems
-
 	generatedcertpath = '/usr/local/etc/e2guardian/generatedcerts'
 
+   Set enablessl = on in e2guardian.conf
    Set sslmitm = on in e2guardianfx.conf
-   Set ssllegacylogic = off in e2guardianfx.conf
-
-      If option  onlymitmsslgrey = 'on' then only sites in the greysslsitelist
-      will be MITM - This may be useful if you have limited processing power
-      on your system.
 
    Load my_rootCA certificate on each browser.
