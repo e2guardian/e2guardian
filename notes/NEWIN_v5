@@ -166,6 +166,10 @@ TODO - for next releases.
         option.
 
     Extend new debug feature to further modules
+    
+    Adding a 'control' port (something similar to REST API) to pass commands (eg: reload, update lists, etc) and check status
+    
+    Implement a "learning" mode,  test the rules effects without block  
 
 WISHLIST
 --------
