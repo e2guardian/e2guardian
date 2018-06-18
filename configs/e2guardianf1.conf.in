@@ -51,7 +51,7 @@ sitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsitelis
 ipsitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsiteiplist'
 urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
 regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
-regexpurlboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
+regexpboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
 
 sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
 ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
@@ -72,7 +72,7 @@ contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
 # local versions of lists 
 
 #local banned
-#sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
+sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
 #ipsitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsiteiplist'
 #urllist = 'name=localbanned,messageno=561,path=@DGCONFDIR@/lists/localbannedurllist'
 #sitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsitelist'
@@ -80,14 +80,14 @@ contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
 searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbannedsearchlist'
 
 #local grey lists
-#sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
+sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
 #ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
 #urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
 #sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
 #ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
 
 #local exception lists
-#sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
+sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
 #ipsitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsiteiplist'
 #urllist = 'name=localexception,messageno=663,path=@DGCONFDIR@/lists/localexceptionurllist'
 
@@ -207,7 +207,7 @@ regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
 searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
-#searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
+searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)

@@ -14,7 +14,9 @@ SUBDIRS += downloadmanagers
 endif
 
 WLISTS = addheaderregexplist \
+bannedsearchoveridelist \
 authexceptionsiteiplist \
+authexceptioniplist \
 authexceptionsitelist \
 authexceptionurllist \
 bannedextensionlist \
