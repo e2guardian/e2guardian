@@ -29,6 +29,7 @@ ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
+if(fullurlin, addheader) setaddheader
 if(searchin,override) return setgrey
 if(searchin,banned) return setblock
 if(true) setgrey
@@ -71,6 +72,7 @@ ifnot(greyset) returnif bannedcheck
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
+if(fullurlin, addheader) setaddheader
 if(searchin,override) return setgrey
 if(searchin,banned) return setblock
 if(true) setgrey

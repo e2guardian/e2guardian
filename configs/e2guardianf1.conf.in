@@ -2,8 +2,8 @@
 
 # This file is re-read on gentle restart and any changes actioned
 
-# Filter group mode IS NOT LONGER SUPPORTED after 4.x
-# Unauthenticated users are treated as being in the first filter group.
+# Filter group mode IS NOT LONGER SUPPORTED
+# Unauthenticated users are treated as being in the default filter group.
 # groupmode = 1 #DISABLED
 
 # Filter group name
@@ -27,7 +27,8 @@ bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
 
-### NOTE - New format for all other list definition in v5.0 
+### NOTE - New format for all other list definitions in v5.0 
+###        see notes/V5_list_definition for details
 
 #banned lists
 sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
@@ -95,7 +96,6 @@ sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexcept
 # Filetype filtering
 #
 # Allow bannedregexpurllist with grey list mode
-# bannedregexpheaderlist and bannedregexpurllist
 #
 # The following option is replaced by storyboard logic
 # bannedregexwithblanketblock = off
@@ -148,12 +148,11 @@ maxuploadsize = -1
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove cookies or prevent certain user-agents.
-#headerregexplist = '@DGCONFDIR@/lists/headerregexplist'
 regexpreplacelist = 'name=headermods,path=@DGCONFDIR@/lists/headerregexplist'
-##bannedregexpheaderlist = '@DGCONFDIR@/lists/bannedregexpheaderlist'
 regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
-##exceptionregexpheaderlist = '@DGCONFDIR@/lists/exceptionregexpheaderlist'
 regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
+# used for Youtube add cookies etc
+regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
 #mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
