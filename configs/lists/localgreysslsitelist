@@ -1,4 +1,6 @@
 #domains in SSL grey list
 #Don't bother with the www. or the https://
 
-#This 'grey' lists override the 'banned' lists for SSL only.
+#This 'grey' lists overrides the main site 'exception' lists for SSL allowing MITM to be enabled in order to check https full url.
+
+# Use to overcome issue where ssl url is in local blocked url list but is overriden by main site exception list forcing tunnel mode and so url never checked. 

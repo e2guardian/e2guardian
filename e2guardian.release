@@ -1,4 +1,22 @@
+
+Changed and Added features in e2guardian 5.0.0
+----------------------------------------------
+
+Complete change to list handling and logic control.
+
+Many new and changed configuration options and files.
+
+HTTPS transparent proxy, optional upstream proxy and ICAP server modes now supported.
+
+Please see notes/NEWIN_v5 and revised example configuration files for details.
+
+If upgrading from a previous version see also notes/Upgrading_to_V5
+
+
+
+
 Changed and Added features in e2guardian 4.0.0
+----------------------------------------------
 
 Major internal rewrite to improve code quality, stability and performance
 The main advantage is the engine itself. It is more faster and powerful than before and tuning FD_SETSIZE is not needed anymore 

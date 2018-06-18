@@ -84,7 +84,7 @@ searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbanneds
 sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
 #ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
 #urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
-#sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
+sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
 #ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
 
 #local exception lists

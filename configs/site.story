@@ -6,14 +6,16 @@
 
 # General:-
 
-# If you do not use local files then uncomment:-
+# If you do not use local files then uncomment the following lines:-
 #function(localcheckrequest)
 #function(localsslrequestcheck)
+#function(localgreycheck)
+#function(localbannedcheck)
+#function(localexceptioncheck)
+#function(localsslcheckrequest)
 
 # To disable checks on embedded urls then uncomment:-
-#
 #function(embeddedcheck)
-#if(true) return false
 
 # If you have bypass enabled then comment out next line:-
 function(checknobypasslists)

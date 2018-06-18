@@ -13,7 +13,7 @@
 # Simple functions are defined which control the logic flow and the
 # lists that are used.  See notes/Storyboard for details.
 #
-# The entry point in the test v5 for standard filtering is 'checkrequest'
+# The entry point in v5 for standard filtering is 'checkrequest'
 #
 # Entry function called by proxy module to check http request
 function(checkrequest)
@@ -37,14 +37,12 @@ if(true) setgrey
 
 # Entry function called by proxy module to check http response
 function(checkresponse)
+if(exceptionset) return false
 if(viruscheckset) checknoscantypes
-if(urlin,exceptionfile) return true
-if(mimein, exceptionmime) return true
+if(mimein, exceptionmime) return setexception
 if(mimein, bannedmime) return setblock
-if(extensionin, exceptionextension) return true
-if(extensionin, bannedextension) return setblock
-# Uncomment the next line for blanket download block
-#if(true,,750) return setblock
+if(extensionin, exceptionextension) setexception
+if(extensionin, bannedextension) setblock
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
@@ -79,6 +77,7 @@ if(true) setgrey
 
 # Entry function called by ICAP module to check respmod
 function(icap-checkresponse)
+if(viruscheckset) checknoscanlists
 if(true) return checkresponse
 
 # Checks embeded urls
@@ -105,6 +104,7 @@ if(searchin,localbanned) return setblock
 #  returns true if matches local exception 
 function(localsslrequestcheck)
 if(sitein, localexception) return setexception
+if(sitein, localgreyssl) returnif sslcheckmitm
 if(sitein, localbanned) true
 ifnot(returnset) return false
 if(true) returnif sslcheckmitm
