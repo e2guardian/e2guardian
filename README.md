@@ -1,22 +1,25 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the v5 development version.  v5.0.  
+This is the v5 near-production version - v5.1.  
 
-Note that large sections of the code are being re-written and there are
+Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in this release.
+
+Note: Configuration files in this version are not backward compatable
+with v4 configuration files.
 
 Please read notes/NEWIN_v5 before installing.
 
 **For copyright go to: http://e2guardian.org**
 
-e2guardian is a content filtering proxy that can work with or without a
-caching proxy such as Squid . More information can be found in the
-"doc" subdirectory of the distribution, and the
-comments in the configuration and list files themselves.
+e2guardian is a content filtering proxy that can work in 
+explicit and transparent proxy mode or as a ICAP server mode.
+More information can be found in the "notes" subdirectory of the distribution, 
+and the comments in the configuration and list files themselves.
 
-e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the maintainers fully acknowledge
-the work carried out by and the copyright of Daniel Baron and other
-contributors to the Dansguardian project.
+e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the 
+maintainers fully acknowledge the work carried out by and the copyright 
+of Daniel Baron and other contributors to the Dansguardian project.
 
 Read the INSTALL for installation instructions.
 
@@ -25,9 +28,7 @@ Read the INSTALL for installation instructions.
 Github: https://github.com/e2guardian
 
 *	v5develop is used to develop new features
-*	Bugfixes primarily occurs in the version branch (v4.1)
-*	From v4 on, even numbered releases are pre-release
-		odd numbered releases are stable.
+*	Bugfixes primarily occurs in the version branch (v5.1)
 
 ## Bugs and Feature Requests
 
