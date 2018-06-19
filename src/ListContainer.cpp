@@ -1874,8 +1874,10 @@ const char* ListContainer::inIPList(const std::string &ipstr )
             return "";
         }
     }
-    std::cerr << thread_id << "inIPList no match for " << ipstr << std::endl;
 
+#ifdef DGDEBUG
+    std::cerr << thread_id << "inIPList no match for " << ipstr << std::endl;
+#endif
     return NULL;
 }
 
