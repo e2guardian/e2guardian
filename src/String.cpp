@@ -112,6 +112,18 @@ String::String(const long unsigned num)
     *this = data;
     delete[] data;
 }
+
+String::String(const bool flag)
+{
+    if (flag) {
+        char buff[2] = "1";
+        *this = buff;
+    } else {
+        char buff[2] = "0";
+        *this = buff;
+    }
+}
+
 #ifndef OFFT_COLLISION
 // If large file support is not enabled (and possibly even if it is),
 // the type of off_t may be a typedef of a type for which we already
