@@ -813,7 +813,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         std::cerr << thread_id << checkme.urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << std::endl;
 #endif
                         syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", checkme.urldomain.c_str(), orig_dest_ip.c_str());
-                            writeback_error(checkme,peercon,200,0,"400 Bad Request");
+                            writeback_error(checkme, peerconn, 200, 0, "400 Bad Request");
                         break;
                     }
                 }
