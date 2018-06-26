@@ -1,6 +1,11 @@
+This the v5develop branch - developing v5.2
+-------------------------------------------
 
-Changed and Added features in e2guardian 5.0.0
-----------------------------------------------
+See notes/NEWIN_v5 for details of development progress and
+target new features and improvements.
+
+Changed and Added features in e2guardian 5.0 
+--------------------------------------------
 
 Complete change to list handling and logic control.
 

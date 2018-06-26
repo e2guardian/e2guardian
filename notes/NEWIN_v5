@@ -1,9 +1,9 @@
-This is the v5 stable version (v5.1).  
+This is the v5 stable development version (v5.2).  
 
 Note that large sections of the code has been re-written and there are
-significant changes to the configuration files in this release.
+significant changes to the configuration files in v5.
 
-The v5 is written in c++11 and so to compile it you will need gcc v5.4 
+V5 is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the full c++11).  
 Note that the target systems may also need an c++11 library update.
 
@@ -132,28 +132,29 @@ OPENSSL v1.1 SUPPORT
 TESTING -  
 ---------
 
-    This version is at a pre-release stage. 
+    This version is in development.
 
-    Please test all functions.
+    Please prefix all bug reports with "v5develop:"
 
-    Please prefix all bug reports with "V5.1: "
+TODO - for this release before pre-release.
+------------------------------------------
 
-
-TODO - for this release before production.
------------------------------------------
-
-TODO - for next releases.
------------------------
-
-    Amend code so that -Wall compile option gives no warnings.
-
-    Make SSL sockets non-blocking so time-out works with MITM
-
-    Transparent HTTP/HTTPS on ports other than 80/443
+    Amend code so that -Wall compile option gives no warnings (mainly done)
 
     Reduce unnecessary memory usage on in DataBuffer
 
     New % weighting option for phrase lists
+
+    Transparent HTTP/HTTPS on ports other than 80/443
+
+    Make SSL sockets non-blocking so time-out works with MITM
+
+    Implement a "learning" mode,  test the rules effects without block  
+
+    Polish new debug feature
+
+TODO - for later releases.
+-----------------------
 
     POST content filtering
 
@@ -167,12 +168,15 @@ TODO - for next releases.
 
     Extend new debug feature to further modules
     
-    Adding a 'control' port (something similar to REST API) to pass commands (eg: reload, update lists, etc) and check status
     
-    Implement a "learning" mode,  test the rules effects without block  
 
 WISHLIST
 --------
+
+    Adding a 'control' port (something similar to REST API) to pass commands 
+         (eg: reload, update lists, etc) and check status
+
+    Multi-tenancy option.
 
     Re-impliment mailing option.
 
@@ -184,6 +188,8 @@ WISHLIST
 
     HTTP/2 support (v6)
 
-Philip Pearce 18 April 2018
+    IPv6 support (v6)
+
+Philip Pearce 26 June 2018
 
 
