@@ -45,83 +45,82 @@ class OptionContainer
 #endif 
 
     // all our many, many options
-    int filter_groups;
-    int log_exception_hits;
+    int filter_groups = 0;
+    int log_exception_hits = 0;
     bool non_standard_delimiter;
-    int log_file_format;
+    int log_file_format = 0;
     std::string log_header_value;
     std::string ident_header_value;
-    int weighted_phrase_mode; // PIP added in - not sure if still required
-    bool show_weighted_found;
-    bool forwarded_for;
-    bool createlistcachefiles;
-    bool use_custom_banned_image;
+    int weighted_phrase_mode = 0; // PIP added in - not sure if still required
+    bool show_weighted_found = false;
+    bool forwarded_for = false;
+    bool use_custom_banned_image = false;
     std::string custom_banned_image_file;
-    bool use_custom_banned_flash;
+    bool use_custom_banned_flash = false;
     std::string custom_banned_flash_file;
-    bool reverse_lookups;
-    bool reverse_client_ip_lookups;
-    bool log_client_hostnames;
-    bool use_xforwardedfor;
+    bool reverse_lookups = false;
+    bool reverse_client_ip_lookups = false;
+    bool log_client_hostnames = false;
+    bool use_xforwardedfor = false;
     std::deque<String> xforwardedfor_filter_ip;
-    bool logconerror;
-    bool logchildprocs;
-    bool log_ssl_errors;
-    int url_cache_number;
-    int url_cache_age;
-    int phrase_filter_mode;
-    int preserve_case;
-    int max_header_lines;
-    int default_fg;
-    int default_trans_fg;
-    int default_icap_fg;
+    bool logconerror = false;
+    bool logchildprocs = false;
+    bool log_ssl_errors = false;
+    int url_cache_number = 0;
+    int url_cache_age = 0;
+    int phrase_filter_mode = 0;
+    int preserve_case = 0;
+    unsigned int max_header_lines = 0;
+    int default_fg = 0;
+    int default_trans_fg = 0;
+    int default_icap_fg = 0;
 
-    bool hex_decode_content;
-    bool force_quick_search;
-    bool map_auth_to_ports;
-    bool map_ports_to_ips;
-    int filter_port;
-    int proxy_port;
-    bool no_proxy;
-    int transparenthttps_port;
-    int icap_port;
+    bool hex_decode_content = false;
+    bool force_quick_search = false;
+    bool map_auth_to_ports = false;
+    bool map_ports_to_ips = false;
+    int filter_port = 0;
+    int proxy_port = 0;
+    bool no_proxy = false;
+    int transparenthttps_port = 0;
+    int icap_port = 0;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
     std::string proxy_ip;
     std::deque<String> filter_ip;
     std::deque<String> filter_ports;
     std::map<int, String> auth_map;
-    bool abort_on_missing_list;
-    bool SB_trace;
+    bool abort_on_missing_list = false;
+    bool SB_trace = false;
 #ifdef ENABLE_ORIG_IP
-    bool get_orig_ip;
+    bool get_orig_ip = false;
 #endif
-    int ll;
-    int connect_timeout;
-    int connect_timeout_sec;
-    int connect_retries;
-    int proxy_timeout;
-    int proxy_timeout_sec;
-    int proxy_failure_log_interval;
-    int exchange_timeout;
-    int exchange_timeout_sec;
-    int pcon_timeout;
-    int pcon_timeout_sec;
-    int http_workers;
+    int ll = 0;
+    int connect_timeout = 0;
+    int connect_timeout_sec = 0;
+    int connect_retries = 0;
+    int proxy_timeout = 0;
+    int proxy_timeout_sec = 0;
+    int proxy_failure_log_interval = 0;
+    int exchange_timeout = 0;
+    int exchange_timeout_sec = 0;
+    int pcon_timeout = 0;
+    int pcon_timeout_sec = 0;
+    int http_workers = 0;
     std::string daemon_user_name;
     std::string daemon_group_name;
-    int proxy_user;
-    int proxy_group;
-    int root_user;
-    int max_ips;
+    int proxy_user = 0;
+    int proxy_group = 0;
+    int root_user = 0;
+    int max_ips = 0;
     bool recheck_replaced_urls;
-    bool use_filter_groups_list;
-    bool use_group_names_list;
-    bool auth_needs_proxy_query;
-    bool auth_requires_user_and_group;
-    bool enable_ssl;
+    bool use_filter_groups_list = false;
+    bool use_group_names_list = false;
+    bool auth_needs_proxy_query = false;
+    bool auth_requires_user_and_group = false;
+    bool enable_ssl = false;
 
-    bool prefer_cached_lists;
+    bool prefer_cached_lists = false;
     std::string languagepath;
     std::string filter_groups_list_location;
     std::string banned_ip_list_location;
@@ -134,31 +133,31 @@ class OptionContainer
     std::string pid_filename;
     std::string blocked_content_store;
     std::string monitor_helper;
-    bool monitor_helper_flag;
+    bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
-    bool monitor_flag_flag;
+    bool monitor_flag_flag = false;
     std::string dstat_location;
-    bool dstat_log_flag;
-    bool stats_human_readable;
-    int dstat_interval;
-    bool dns_user_logging;
+    bool dstat_log_flag = false;
+    bool stats_human_readable = false;
+    int dstat_interval = 300;
+    bool dns_user_logging = false;
     std::string dns_user_logging_domain;
 
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
 
-    bool no_daemon;
-    bool e2_front_log;
-    bool no_logger;
-    bool log_syslog;
+    bool no_daemon = false;
+    bool e2_front_log = false;
+    bool no_logger = false;
+    bool log_syslog = false;
     std::string name_suffix;
-    unsigned int max_logitem_length;
-    bool anonymise_logs;
-    bool log_ad_blocks;
-    bool log_timestamp;
-    bool log_user_agent;
-    bool soft_restart;
+    unsigned int max_logitem_length = 2000;
+    bool anonymise_logs = false;
+    bool log_ad_blocks = false;
+    bool log_timestamp = false;
+    bool log_user_agent = false;
+    bool soft_restart = false;
 
 #ifdef __SSLMITM
     std::string ssl_certificate_path;
@@ -191,15 +190,15 @@ class OptionContainer
     off_t max_content_filter_size;
     off_t max_content_ramcache_scan_size;
     off_t max_content_filecache_scan_size;
-    bool scan_clean_cache;
-    bool content_scan_exceptions;
-    bool delete_downloaded_temp_files;
+    bool scan_clean_cache = false;
+    bool content_scan_exceptions = false;
+    bool delete_downloaded_temp_files = false;
     bool search_sitelist_for_ip = false;
     std::string download_dir;
-    int initial_trickle_delay;
-    int trickle_delay;
-    int content_scanner_timeout;
-    int content_scanner_timeout_sec;
+    int initial_trickle_delay = 0;
+    int trickle_delay = 0;
+    int content_scanner_timeout = 0;
+    int content_scanner_timeout_sec = 0;
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
@@ -218,7 +217,7 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_end;
 
     ListManager lm;
-    int numfg;
+    int numfg = 0;
 
     // access denied domain (when using the CGI)
     String access_denied_domain;
@@ -248,7 +247,7 @@ class OptionContainer
     //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
   //  bool inTotalBlockList(String &url);
-    bool use_total_block_list;
+    bool use_total_block_list = false;
     std::string per_room_directory_location;
     bool createLists(int load_id);
     std::shared_ptr<LOptionContainer> currentLists();
@@ -262,7 +261,7 @@ class OptionContainer
 
     private:
     std::deque<std::string> conffile;
-    int reporting_level;
+    int reporting_level = 0;
 
 
     bool loadDMPlugins();

@@ -55,12 +55,10 @@ class listent
 
 // constructor - set up defaults
 NaughtyFilter::NaughtyFilter()
-    : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
     ch_isiphost.comp(",*[a-z|A-Z].*");
 }
 NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
-        : isItNaughty(false), isException(false), usedisplaycats(false), blocktype(0), store(false), naughtiness(0),  isGrey(false), isSSLGrey(false), isSearch(false), message_no(0)
 {
     request_header = &request;
     response_header = &response;
@@ -559,7 +557,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
     FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms)
 {
     int weighting = 0;
-    int cat;
+    unsigned int cat;
     RegResult Rre;
     std::string weightedphrase;
     String lastcategory;

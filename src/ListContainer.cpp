@@ -42,8 +42,6 @@ extern thread_local std::string thread_id;
 
 // Constructor - set default values
 ListContainer::ListContainer()
-    : refcount(0), parent(false), filedate(0), used(false), bannedpfiledate(0), exceptionpfiledate(0), weightedpfiledate(0), blanketblock(false), blanket_ip_block(false), blanketsslblock(false), blanketssl_ip_block(false), sourceisexception(false), sourcestartswith(false), sourcefilters(0), data(NULL), current_graphdata_size(0), realgraphdata(NULL), maxchildnodes(0), graphitems(0), data_length(0), data_memory(0), items(0), isSW(false), issorted(false), graphused(false), force_quick_search(false),
-    /*sthour(0), stmin(0), endhour(0), endmin(0),*/ istimelimited(false), is_iplist(false)
 {
 }
 
@@ -340,7 +338,7 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 
 bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
-    int mem_used = 2;
+    unsigned int mem_used = 2;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
@@ -512,7 +510,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 #ifdef DGDEBUG
     std::cerr << thread_id << filename << std::endl;
 #endif
-    struct stat s;
+    //struct stat s;
     filedate = getFileDate(filename);
     size_t len = 0;
     try {
@@ -1182,7 +1180,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 
     off_t sl;
     off_t ppos;
-    off_t currnode;
+    off_t currnode = 0;
     int *graphdata = realgraphdata;
     off_t ml;
     char p;
@@ -1817,7 +1815,7 @@ int ListContainer::getCategoryIndex(String *lcat)
     return l;
 }
 
-String ListContainer::getListCategoryAt(int index, int *catindex)
+String ListContainer::getListCategoryAt(unsigned int index, unsigned int *catindex)
 {
     //category index of -1 indicates uncategorised list
     if ((index >= categoryindex.size()) || (categoryindex[index] < 0)) {
@@ -1831,7 +1829,7 @@ String ListContainer::getListCategoryAt(int index, int *catindex)
     return listcategory[categoryindex[index]];
 }
 
-String ListContainer::getListCategoryAtD(int index)
+String ListContainer::getListCategoryAtD(unsigned int index)
 {
     //category index of -1 indicates uncategorised list
     if ((index < 0) || (index >= listcategory.size())) {

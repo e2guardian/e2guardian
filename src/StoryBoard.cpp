@@ -879,7 +879,8 @@ std::deque<url_rec> StoryBoard::ipToHostname(NaughtyFilter &cm) {
     std::deque<url_rec> result;
     const char *ip = cm.urldomain.c_str();
     String urlp = cm.urld.after("/");
-    struct in_addr address, **addrptr;
+    //struct in_addr address, **addrptr;
+    struct in_addr address;
     if (inet_aton(ip, &address)) { // convert to in_addr
         struct hostent *answer;
         answer = gethostbyaddr((char *) &address, sizeof(address), AF_INET);

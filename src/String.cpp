@@ -600,7 +600,10 @@ String String::sort_search()
 #ifdef DGDEBUG
     int k = 0;
     while (k <= c)
-        std::cerr << thread_id << "Search word " << k << " is " << p[k++] << std::endl;
+        {
+        std::cerr << thread_id << "Search word " << k << " is " << p[k] << std::endl;
+        k++;
+        }
 #endif
 
     // sort
@@ -622,7 +625,10 @@ String String::sort_search()
 #ifdef DGDEBUG
     k = 0;
     while (k <= c)
-        std::cerr << thread_id << "Search word after sort" << k << " is " << p[k++] << std::endl;
+        {
+        std::cerr << thread_id << "Search word after sort" << k << " is " << p[k] << std::endl;
+        k++;
+        }
 #endif
 
     String ret(p[0]);

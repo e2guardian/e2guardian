@@ -37,13 +37,13 @@ extern thread_local std::string thread_id;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), dm_plugin(NULL), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
+    : data(new char[1]), buffer_length(0)
 {
     data[0] = '\0';
 }
 
 DataBuffer::DataBuffer(const void *indata, off_t length)
-    : data(new char[length]), buffer_length(length), compresseddata(NULL), compressed_buffer_length(0), tempfilesize(0), dontsendbody(false), tempfilefd(-1), timeout(20000), stimeout(20), bytesalreadysent(0), preservetemp(false), icap(false)
+    : data(new char[length]), buffer_length(length)
 {
     memcpy(data, indata, length);
 }
@@ -210,17 +210,18 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 
     // match request to download manager so browsers potentially can have a prettier version
     // and software updates, stream clients, etc. can have a compatible version.
-    int rc = 0;
+    //int rc = 0;
 #ifdef DGDEBUG
     int j = 0;
 #endif
+ //   int rc = -1;
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
         if ((i + 1) == o.dmplugins_end) {
 #ifdef DGDEBUG
             std::cerr << thread_id << "Got to final download manager so defaulting to always match." << std::endl;
 #endif
             dm_plugin = (DMPlugin *)(*i);
-            rc = dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
+            dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
             break;
         } else {
             if (((DMPlugin *)(*i))->willHandle(requestheader, docheader)) {
@@ -228,7 +229,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
                 std::cerr << thread_id << "Matching download manager number: " << j << std::endl;
 #endif
                 dm_plugin = (DMPlugin *)(*i);
-                rc = dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
+                dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
                 break;
             }
         }

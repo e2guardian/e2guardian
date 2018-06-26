@@ -55,10 +55,10 @@ class LOptionContainer
     ListMeta LMeta;
     StoryBoard StoryA;
     ListManager lm;
-    FOptionContainer **fg;
+    FOptionContainer **fg = nullptr;
     bool loaded_ok;
     int reload_id;
-    int numfg;
+    int numfg = 0;
     String start_time;
 
     // access denied domain (when using the CGI)
@@ -99,7 +99,7 @@ class LOptionContainer
     std::string per_room_directory_location;
     std::deque<std::string> conffile;
     std::string conffilename;
-    int reporting_level;
+    int reporting_level = 0;
 
     std::string html_template_location;
     std::string group_names_list_location;

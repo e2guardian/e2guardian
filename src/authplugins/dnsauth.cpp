@@ -240,10 +240,10 @@ bool dnsauthinstance::getdnstxt(String &ippath)
         return false;
     }
 
-    int rrnum; /* resource record number */
+    //int rrnum; /* resource record number */
     ns_rr rr; /* expanded resource record */
-    u_char *cp;
-    char ans[MAXDNAME];
+    //u_char *cp;
+    //char ans[MAXDNAME];
 
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
@@ -304,7 +304,7 @@ bool dnsauthinstance::inAuthByPassLists(HTTPHeader &h)
 {
     String url = h.url();
     String urld = h.decode(url);
-    FOptionContainer* foc = o.currentLists()->fg[0];
+    //FOptionContainer* foc = o.currentLists()->fg[0];
     url.removePTP();
     if (url.contains("/")) {
         url = url.before("/");

@@ -101,7 +101,7 @@ void addToClean(String &url, const int fg) {
 
 void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
     if (o.logconerror) {
-        int peerport = peersock.getPeerSourcePort();
+        //int peerport = peersock.getPeerSourcePort();
         std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
 
@@ -321,7 +321,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 {
     if (port == 0)
         port = cm.request_header->port;
-    int lerr_mess;
+    int lerr_mess = 0;
     int retry = -1;
     while (++retry < o.connect_retries) {
         lerr_mess = 0;
@@ -513,7 +513,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
 
     try {
-        int rc;
+        //int rc;
 
 #ifdef DGDEBUG
         int pcount = 0;
@@ -526,14 +526,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         std::string oldclientuser;
         std::string room;
 
-        int oldfg = 0;
+        //int oldfg = 0;
         bool authed = false;
-        bool isbanneduser = false;
-        bool isscanbypass = false;
-        bool isbypass = false;
-        bool isvirusbypass = false;
+        //bool isbanneduser = false;
+        //bool isscanbypass = false;
+        //bool isbypass = false;
+        //bool isvirusbypass = false;
         //int bypasstimestamp = 0;
-        bool iscookiebypass = false;
+        //bool iscookiebypass = false;
 
         AuthPlugin *auth_plugin = NULL;
 
@@ -548,7 +548,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (peerconn.getFD() > -1) {
 
                     int err = peerconn.getErrno();
-                    int pport = peerconn.getPeerSourcePort();
+                    //int pport = peerconn.getPeerSourcePort();
                     std::string peerIP = peerconn.getPeerIP();
 
                     syslog(LOG_INFO, "%s No header recd from client at %s - errno: %d", thread_id.c_str(),
@@ -617,11 +617,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.bypasstimestamp = 0;
 
                 authed = false;
-                isbanneduser = false;
+                //isbanneduser = false;
 // Bypass
-                isbypass = false;
-                isscanbypass = false;
-                isvirusbypass = false;
+                //isbypass = false;
+                //isscanbypass = false;
+                //isvirusbypass = false;
 
                 requestscanners.clear();
                 responsescanners.clear();
@@ -686,7 +686,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
 
             // is this user banned?
-            isbanneduser = false;
+            //isbanneduser = false;
             if (o.use_xforwardedfor) {
                 bool use_xforwardedfor;
                 if (o.xforwardedfor_filter_ip.size() > 0) {
@@ -813,7 +813,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         std::cerr << thread_id << checkme.urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << std::endl;
 #endif
                         syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", checkme.urldomain.c_str(), orig_dest_ip.c_str());
-                            writeback_error(checkme,peercon,200,0,"400 Bad Request");
+                            writeback_error(checkme,peerconn,200,0,"400 Bad Request");
                         break;
                     }
                 }
@@ -1875,7 +1875,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                                       bool *wasscanned, bool isbypass,
                                       String &url, String &domain, bool *scanerror, bool &contentmodified,
                                       String *csmessage) {
-    int rc = 0;
+    //int rc = 0;
 
     //proxysock->bcheckForInput(120000);
     bool compressed = docheader->isCompressed();
@@ -2248,10 +2248,10 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
 #endif
         return false;
     }
-    int rrnum; /* resource record number */
+    //int rrnum; /* resource record number */
     ns_rr rr; /* expanded resource record */
-    u_char *cp;
-    char ans[MAXDNAME];
+    //u_char *cp;
+    //char ans[MAXDNAME];
 
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
@@ -2940,7 +2940,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
         int rc;
 
 
-        int oldfg = 0;
+        //int oldfg = 0;
         bool authed = false;
         bool isbanneduser = false;
         bool firsttime = true;
@@ -2948,17 +2948,17 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
         AuthPlugin *auth_plugin = NULL;
 
         // RFC states that connections are persistent
-        bool persistOutgoing = true;
-        bool persistPeer = true;
+        //bool persistOutgoing = true;
+        //bool persistPeer = true;
         bool persistProxy = false;
-        bool direct = false;
+        //bool direct = false;
 
         char buff[2048];
         rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
-        unsigned short toread;
+        unsigned short toread = 0;
         if (rc == 5) {
         if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
             checkme.isTLS = true;
@@ -2978,7 +2978,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                     if (peerconn.getFD() > -1) {
 
                         int err = peerconn.getErrno();
-                        int pport = peerconn.getPeerSourcePort();
+                        //int pport = peerconn.getPeerSourcePort();
                         std::string peerIP = peerconn.getPeerIP();
                         if(peerconn.isTimedout())
                         {
@@ -2996,7 +2996,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                     }
                 }
             firsttime = false;
-            persistPeer = false;
+            //persistPeer = false;
         } else {
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
@@ -3077,7 +3077,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #endif
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
-            bool part_banned;
+            //bool part_banned;
 
             //
             //
@@ -3197,7 +3197,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
-                persistPeer = false;
+                //persistPeer = false;
                 persistProxy = false;
                 //if (!checkme.isItNaughty)
                     break;
@@ -3218,9 +3218,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             }
 
             if(checkme.isItNaughty) {
-                if(denyAccess(&peerconn,&proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser, &clientip,
-                           filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror))
-                    persistPeer = false;
+                denyAccess(&peerconn,&proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser, &clientip,
+                           filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror);
+                    //persistPeer = false;
             }
 
             //Log
@@ -3316,10 +3316,10 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
     matchedip = false;
 
     //try {
-        int rc;
-        bool authed = false;
+        //int rc;
+        //bool authed = false;
         bool firsttime = true;
-        bool isbanneduser = true;
+        //bool isbanneduser = true;
 
         AuthPlugin *auth_plugin = NULL;
 
@@ -3405,8 +3405,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 gettimeofday(&thestart, NULL);
                 checkme.thestart = thestart;
 
-                authed = false;
-                isbanneduser = false;
+                //authed = false;
+                //isbanneduser = false;
 
                 //requestscanners.clear();
                 //responsescanners.clear();
@@ -3638,8 +3638,9 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     int rc = DGAUTH_NOUSER;
     if (clientuser != "") {
         rc = determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
+        if (rc != DGAUTH_OK)
+        {};
     }
-        //if (rc != DGAUTH_OK)
     else {                              // TODO - NEED to allow alternate group checking when no match in filter_groups_list
         if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, true,
                     true)) {
@@ -3694,7 +3695,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 #endif
     checkme.isItNaughty = checkme.isBlocked;
     bool isbannedip = checkme.isBlocked;
-    bool part_banned;
+    //bool part_banned;
     if (isbannedip) {
         // matchedip = clienthost == NULL;
     } else {
@@ -3862,7 +3863,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead,
                                         DataBuffer &docbody) {
 
-    bool authed = false;
+    //bool authed = false;
     bool persistPeer = true;
     bool done = false;
     String clientip = ip;
@@ -3938,7 +3939,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
             checkme.clienthost = std::string(hostnames->front().toCharArray());
     }
 
-    bool part_banned;
+    //bool part_banned;
 
     // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true

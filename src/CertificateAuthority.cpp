@@ -44,7 +44,7 @@ void log_ssl_errors( const char *mess, const char *site) {
 #endif
         unsigned long e;
         char buff[512];
-        while (e = ERR_get_error()) {
+        while ((e = ERR_get_error())) {
            ERR_error_string(e, &buff[0]);
            syslog(LOG_ERR, "%s%s", thread_id.c_str(), buff );
 #ifdef DGDEBUG
@@ -197,7 +197,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     std::string path(caser->filename);
     std::string dirpath(caser->filepath);
 
-    mode_t old_umask;
+    //mode_t old_umask;
     // make directory path
     int rc = mkpath(dirpath.c_str(), 0700); // only want e2g to have access to these dir
     if (rc != 0) {

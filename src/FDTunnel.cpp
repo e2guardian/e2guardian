@@ -92,7 +92,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         sockfrom.buffstart = 0;
     }
 
-    int maxfd, rc, fdfrom, fdto;
+    int rc, fdfrom, fdto;
 
     fdfrom = sockfrom.getFD();
     fdto = sockto.getFD();

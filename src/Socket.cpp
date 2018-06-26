@@ -64,7 +64,7 @@ Socket::Socket() {
         int f = 1;
 
         if (sck > 0)
-            int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
+            setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
 
         my_port = 0;
         chunkError = false;
@@ -241,7 +241,7 @@ int Socket::bind(int port) {
     int len = sizeof my_adr;
     int i = 1;
 
-    int res = setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+    setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
     my_adr.sin_port = htons(port);
     my_port = port;
@@ -254,7 +254,7 @@ int Socket::bind(const std::string &ip, int port) {
     int len = sizeof my_adr;
     int i = 1;
 
-    int res = setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+    setsockopt(sck, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
 
     my_adr.sin_port = htons(port);
     my_adr.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -1122,7 +1122,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::stringstream stm;
     stm << std::hex << len;
     std::string hexs (stm.str());
-    int lw;
+    //int lw;
     hexs += "\r\n";
 #ifdef NETDEBUG
     std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
@@ -1249,6 +1249,7 @@ int Socket::loopChunk(int timeout)    // reads chunks and sends back until 0 len
         }
         tot_size += csize;
     }
+    return -1;  // should never get here!
 }
 
 

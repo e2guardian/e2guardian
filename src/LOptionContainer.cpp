@@ -33,12 +33,10 @@ extern thread_local std::string thread_id;
 // IMPLEMENTATION
 
 LOptionContainer::LOptionContainer()
-    :  reporting_level(0), fg(NULL), numfg(0)
 {
 }
 
 LOptionContainer::LOptionContainer(int load_id)
-        :   reporting_level(0), fg(NULL), numfg(0)
 {
     char buff[40];
 
@@ -227,7 +225,6 @@ bool LOptionContainer::inExceptionIPList(const std::string *ip, std::string *&ho
 bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::string *&host, bool *block, bool *part_block, bool *isexception, String url)
 {
     String temp;
-    char *ret;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
 #ifdef DGDEBUG

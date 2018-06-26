@@ -79,7 +79,8 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				va_start(ap,output);
 				char * p = new char[output.length()+1]; 
 				strcpy(p,output.c_str());
-				char * v;
+				char buff[2000];
+				char * v = buff;
 				int n;
 				while(*(p+i)!='\0')
 				{

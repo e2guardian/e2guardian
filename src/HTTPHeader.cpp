@@ -805,7 +805,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
     } else {
         reqres = "REQ";
     }
-    std::hash<std::thread::id> htid;
+    //std::hash<std::thread::id> htid;
 //    std::thread::id tid = std::this_thread::get_id();
 //    std::size_t tid = htid(std::this_thread::get_id());
     const char *tid = thread_id.c_str();
@@ -985,7 +985,6 @@ void HTTPHeader::checkheader(bool allowpersistent)
     //if its http1.1
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
-        std::cerr << thread_id << "CheckHeader: HTTP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
         onepointone = true;
     }
 #endif

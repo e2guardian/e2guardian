@@ -97,7 +97,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         String nm, fpath;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
-        unsigned int m_no, log_m_no = 0;
+        unsigned int m_no = 0, log_m_no = 0;
         t.removeWhiteSpace();
         t = t + ",";
         while (t.length() > 0) {
@@ -196,8 +196,9 @@ bool ListMeta::list_exists(String name, int type) {
         return false;
 }
 
-ListMeta::list_info ListMeta::findList(String name, int type) {
+ListMeta::list_info ListMeta::findList(String name, int tp) {
     list_info t;
+    unsigned int type = (unsigned int) tp;
 #ifdef DGDEBUG
     std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
 #endif
@@ -234,7 +235,7 @@ bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &
 // this is only used for checking headers
     if (info.name == "") return false;
     int type = info.type;
-    char *match;
+    //char *match;
     switch (type) {
         case LIST_TYPE_REGEXP_BOOL : {
             int rc = inHeaderRegExp(info, header, res, res.category);
@@ -383,6 +384,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
         }
             break;
     }
+    return false;
 }
 
 // read in the given file, write the list's ID into the given identifier,

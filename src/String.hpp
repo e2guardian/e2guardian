@@ -108,7 +108,7 @@ class String : public std::string
     // search & replace
     void replaceall(const char *what, const char *with);
 
-// return header value (after ':' and any leading whitespace) - assumes header finishes with '\r\
+// return header value (after ':' and any leading whitespace) - assumes header finishes with '\r'
 
     bool headerVal();
 
