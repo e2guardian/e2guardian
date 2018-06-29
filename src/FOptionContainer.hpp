@@ -114,7 +114,7 @@ public:
     bool searchterm_flag;
 
     FOptionContainer()
-            :  searchterm_flag(false), banned_page(NULL), ssl_mitm(false),
+            :  searchterm_flag(false), banned_page(NULL), neterr_page(NULL), ssl_mitm(false),
               only_mitm_ssl_grey(false), ssl_check_cert(false), mitm_check_cert(true),
               banned_phrase_flag(false),
               content_regexp_flag(false),
