@@ -156,6 +156,7 @@ if(urlin, grey) return setgrey
 function(bannedcheck)
 if(true) returnif checkblanketblock
 if(urlin, banned) return setblock
+if(urlin,bannedextension) return setblock
 if(useragentin, banneduseragent) return setblock
 if(headerin, bannedheader) return setblock
 
