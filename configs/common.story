@@ -1,6 +1,6 @@
 # Storyboard library file
 
-# For ease of upgrade DO CHANGE THIS library file 
+# For ease of upgrade DO NOT CHANGE THIS library file 
 # Make your function changes by overriding functions
 # in the site.story file - for site wide changes
 # and in filtergroup specific story file - see examplef1.story
@@ -154,6 +154,7 @@ if(urlin, grey) return setgrey
 function(bannedcheck)
 if(true) returnif checkblanketblock
 if(urlin, banned) return setblock
+if(urlin,bannedextension) return setblock
 if(useragentin, banneduseragent) return setblock
 if(headerin, bannedheader) return setblock
 

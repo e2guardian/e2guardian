@@ -204,7 +204,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_URLIN:
-                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE,
+                                        LIST_TYPE_URL, LIST_TYPE_FILE_EXT, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_SEARCHIN:
                         types = {LIST_TYPE_SEARCH};
@@ -508,7 +509,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 } else {
                     t = target;
                 }
-                if (cm.issiteonly && j->type == LIST_TYPE_URL)
+                if (cm.issiteonly && (j->type == LIST_TYPE_URL || j->type == LIST_TYPE_FILE_EXT))
                    continue;
                 if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
                     continue;
