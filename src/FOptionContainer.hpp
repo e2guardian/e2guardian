@@ -140,7 +140,7 @@ public:
     private:
     // HTML template - if it overrides the default
     HTMLTemplate *banned_page = nullptr;
-    HTMLTemplate *neterr_page;
+    HTMLTemplate *neterr_page = nullptr;
 
     ListMeta LMeta;
 
