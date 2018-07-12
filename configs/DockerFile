@@ -1,8 +1,9 @@
 FROM ubuntu:18.04
 MAINTAINER "numsys - @ - free.fr"
 
-ARG COMMIT
 ARG BUILD_DATE
+ENV VERSION 5.1
+ENV OS ubuntu
 
 LABEL commit.e2guardian=$COMMIT build_date.e2guardian=$BUILD_DATE
 RUN apt update \
@@ -10,8 +11,8 @@ RUN apt update \
 bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base \
 libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils \
 mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch \
-libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev \
-&& cd /tmp && curl -k https://codeload.github.com/e2guardian/e2guardian/zip/v5.1 > e2.zip && unzip e2.zip && cd e2guardian-5.1/ \
+libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl1.1 libssl-dev \
+&& cd /tmp && curl -k https://codeload.github.com/e2guardian/e2guardian/zip/v$VERSION > e2.zip && unzip e2.zip && cd e2guardian-$VERSION/ \
 && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' \
 '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' \
 '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' \
