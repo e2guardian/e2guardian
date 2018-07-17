@@ -127,6 +127,7 @@ logfileformat = 6
 
 # Container mode
 # the process will not fork into the background AND log in stdout 
+# In this mode systemd service is disabled !
 # Default:
 #dockermode = off
 

@@ -471,7 +471,17 @@ bool FOptionContainer::read(const char *filename) {
                     return false;
                     // HTML template file
                 }
-            }   // if blank will default to HTML template file
+            } else {  // if blank will default to HTML template file
+                neterr_template = o.languagepath + "template.html";
+                neterr_page = new HTMLTemplate;
+                if (!(banned_page->readTemplateFile(neterr_template.toCharArray()))) {
+                    if (!is_daemonised) {
+                        std::cerr << thread_id << "Error reading default HTML and NetErr Template file: " << html_template << std::endl;
+                    }
+                    syslog(LOG_ERR, "Error reading default HTML and NetErr Template file: %s", html_template.toCharArray());
+                    return false;
+	        }
+	    }
         }
 
         // override ssl default banned page
