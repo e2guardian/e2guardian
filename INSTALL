@@ -228,14 +228,13 @@ log rotation script.  Alternatively stick with the default
 DEBIAN:
 -------
 
-Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, libevent_pthreads, libevent-dev, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre3-dev, zlib1g-dev, pkg-config, libssl-dev, libssl1.0.0
+Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, libevent_pthreads, libevent-dev, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre3-dev, zlib1g-dev, pkg-config, libssl-dev, libssl1.1 (can be also compiled with libssl1.0)
 Other packages related to E2guardian : adduser, perl, libbz2, libc6, libgcc1, libpcre3, libstdc++, libtommath0, zlib1g
 Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
 Autogen is needed !
 
 Eg:
-./autogen.sh && ./configure '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--enable-trickledm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' 'CXXFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' 'LDFLAGS=-Wl,-z,relro' 'CPPFLAGS=-D_FORTIFY_SOURCE=2' 'CFLAGS=-g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security' '--enable-pcre=yes' '--enable-locallists=yes' && make
-
+./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2' && make
 
 NETBSD:
 -------

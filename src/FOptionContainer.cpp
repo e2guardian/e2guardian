@@ -72,27 +72,35 @@ FOptionContainer::~FOptionContainer()
 void FOptionContainer::reset()
 {
     conffile.clear();
-    delete banned_page;
-    banned_page = NULL;
+    if (neterr_page != nullptr)
+    {
+        delete neterr_page;
+        neterr_page = nullptr;
+    }
+    if (banned_page != nullptr) {
+        delete banned_page;
+        banned_page = nullptr;
+    }
     resetJustListData();
 }
 
-void FOptionContainer::resetJustListData()
-{
-    if (!(group_mode == 1))
-        return;
-    if (banned_phrase_flag)
-        o.lm.deRefList(banned_phrase_list);
+    void FOptionContainer::resetJustListData()
+    {
+        if (!(group_mode == 1))
+            return;
+        if (banned_phrase_flag)
+            o.lm.deRefList(banned_phrase_list);
 
-    banned_phrase_flag = false;
-    content_regexp_flag = false;
-    ssl_mitm = false;
+        banned_phrase_flag = false;
+        content_regexp_flag = false;
+        ssl_mitm = false;
 
-    banned_phrase_list_index.clear();
+        banned_phrase_list_index.clear();
 
-    //	conffile.clear();
+        //	conffile.clear();
 
-    content_regexp_list_comp.clear();
+        content_regexp_list_comp.clear();
+    }
     content_regexp_list_rep.clear();
 }
 
@@ -463,7 +471,17 @@ bool FOptionContainer::read(const char *filename) {
                     return false;
                     // HTML template file
                 }
-            }   // if blank will default to HTML template file
+            } else {  // if blank will default to HTML template file
+                neterr_template = o.languagepath + "template.html";
+                neterr_page = new HTMLTemplate;
+                if (!(banned_page->readTemplateFile(neterr_template.toCharArray()))) {
+                    if (!is_daemonised) {
+                        std::cerr << thread_id << "Error reading default HTML and NetErr Template file: " << html_template << std::endl;
+                    }
+                    syslog(LOG_ERR, "Error reading default HTML and NetErr Template file: %s", html_template.toCharArray());
+                    return false;
+	        }
+	    }
         }
 
         // override ssl default banned page
