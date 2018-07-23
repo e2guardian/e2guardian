@@ -2,6 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 July 2018
 - Bug #410 segfault if "neterrtemplate=" doesn't exist in config
+- Fixes compiler error caused by extra brace (#414)
 
 Summary of changes in this release (v5.1) can be found in e2guardian.release
 and notes/NEWIN_v5
