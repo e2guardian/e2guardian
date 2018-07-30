@@ -132,10 +132,6 @@ OPENSSL v1.1 SUPPORT
 TESTING -  
 ---------
 
-    This version is at a pre-release stage. 
-
-    Please test all functions.
-
     Please prefix all bug reports with "V5.1: "
 
 
@@ -184,6 +180,6 @@ WISHLIST
 
     HTTP/2 support (v6)
 
-Philip Pearce 18 April 2018
+Philip Pearce 17 July 2018
 
 
