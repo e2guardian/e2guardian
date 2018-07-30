@@ -132,12 +132,7 @@ OPENSSL v1.1 SUPPORT
 TESTING -  
 ---------
 
-    This version is in development.
-
-    Please prefix all bug reports with "v5develop:"
-
-TODO - for this release before pre-release.
-------------------------------------------
+    Please prefix all bug reports with "V5.1: "
 
     Amend code so that -Wall compile option gives no warnings (mainly done)
 
@@ -188,8 +183,12 @@ WISHLIST
 
     HTTP/2 support (v6)
 
+<<<<<<< HEAD
     IPv6 support (v6)
 
 Philip Pearce 26 June 2018
+=======
+Philip Pearce 17 July 2018
+>>>>>>> v5.1
 
 
