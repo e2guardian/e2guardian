@@ -981,14 +981,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
     }
 }
 
-#ifdef DGDEBUG
     //if its http1.1
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
+#ifdef DGDEBUG
         std::cerr << thread_id << "CheckHeader: HTTP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         onepointone = true;
     }
-#endif
 
     if (outgoing) {        // set request Type
         requesttype = header.front().before(" ");
@@ -1049,7 +1049,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
               << " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
-    if (connectionclose || (outgoing ? isconnect : (pcontentlength == NULL))) {
+    if (connectionclose || (!onepointone && (outgoing ? isconnect : (pcontentlength == NULL)))) {
         // couldnt have done persistency even if we wanted to
         allowpersistent = false;
     }

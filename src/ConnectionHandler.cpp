@@ -1036,19 +1036,29 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //check response code
                     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
                         int rcode = docheader.returnCode();
-                        if (checkme.isconnect &&
-                            (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
-                        {
-                            checkme.ismitmcandidate = false;  // only applies to connect
-                            checkme.tunnel_rest = true;
-                            checkme.tunnel_2way = false;
-                        } else if (rcode == 407) {   // proxy auth required
+                        if (rcode == 407) {   // proxy auth required
+                            if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false)) {
+                                peerDiag("Unable to send return header to client", peerconn);
+                                break;
+                            }
+                            continue;
                             // tunnel thru - no content
-                            checkme.tunnel_rest = true;
+                            //checkme.tunnel_rest = true;
+                        }
+                        if (checkme.isconnect) {
+                            if (rcode == 200) {
+                                persistProxy = false;
+                                persistPeer = false;
+                            } else {        // some sort of problem or needs proxy auth - pass back to client
+                                checkme.ismitmcandidate = false;  // only applies to connect
+                                checkme.tunnel_rest = true;
+                                checkme.tunnel_2way = false;
+                            }
                         }
 
                         if (docheader.contentLength() == 0)   // no content
                             checkme.tunnel_rest = true;
+
                     }
                 }
 
