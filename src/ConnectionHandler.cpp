@@ -1037,13 +1037,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
                         int rcode = docheader.returnCode();
                         if (rcode == 407) {   // proxy auth required
-                            if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false)) {
-                                peerDiag("Unable to send return header to client", peerconn);
-                                break;
-                            }
-                            continue;
-                            // tunnel thru - no content
-                            //checkme.tunnel_rest = true;
+                            // tunnel thru -  may be content
+                            checkme.tunnel_rest = true;
+                            checkme.tunnel_2way = false;
+                            // treat connect like normal get
+                            checkme.isconnect = false;
+                            checkme.isexception = true;
                         }
                         if (checkme.isconnect) {
                             if (rcode == 200) {
