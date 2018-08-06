@@ -118,6 +118,7 @@ class OptionContainer
     bool use_filter_groups_list;
     bool use_group_names_list;
     bool auth_needs_proxy_query;
+    bool auth_needs_proxy_in_plugin = false;
     bool auth_requires_user_and_group;
     bool enable_ssl;
 

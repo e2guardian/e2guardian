@@ -838,8 +838,24 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     only_ip_auth = true;
                 }
 #ifdef DGDEBUG
-                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
+                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << " needs proxy for auth plugin is " << o.auth_needs_proxy_in_plugin << std::endl;
 #endif
+
+                if (!persistProxy && o.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
+                {
+                    if (connectUpstream(proxysock, checkme, header.port) < 0) {
+                        if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
+                            checkme.upfailure)
+                        {
+                            checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                        } else {
+                            checkme.gomitm = false;   // if not automitm
+                        }
+                    } else {
+                        persistProxy = true;
+                    }
+                }
+
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header,
                             only_ip_auth,
                             checkme.isconnect)) {

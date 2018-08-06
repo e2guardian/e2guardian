@@ -59,6 +59,7 @@ class ntlminstance : public AuthPlugin
         // NTLM proxy auth is designed to be used in this manner and won't re-send credentials.
         is_connection_based = true;
         needs_proxy_query = true;
+        needs_proxy_access_in_plugin = true;
         client_ip_based = false;
         // whether or not to enable the magic "transparent NTLM" (NTLM auth for transparent proxies) mode
         if (definition["transparent"] == "on") {
@@ -238,6 +239,8 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         return DGAUTH_NOMATCH;
     }
 
+    HTTPHeader res_hd(__HEADER_RESPONSE);
+
 #ifdef DGDEBUG
     std::cerr << thread_id << "NTLM - sending step 1" << std::endl;
 #endif
@@ -250,16 +253,16 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #ifdef DGDEBUG
     std::cerr << thread_id << "NTLM - receiving step 2" << std::endl;
 #endif
-    h.in(upstreamcon, true);
-    if (h.authRequired()) {
+    res_hd.in(upstreamcon, true);
+    if (res_hd.authRequired()) {
 #ifdef DGDEBUG
         std::cerr << thread_id << "NTLM - sending step 2" << std::endl;
 #endif
         if (transparent)
             h.makeTransparent(true);
-        h.out(NULL, &peercon, __DGHEADER_SENDALL);
-        if (h.contentLength() != -1){
-            fdt.tunnel(*upstreamcon, peercon, false, h.contentLength(), true);
+        res_hd.out(NULL, &peercon, __DGHEADER_SENDALL);
+        if (res_hd.contentLength() != -1){
+            fdt.tunnel(*upstreamcon, peercon, false, res_hd.contentLength(), true);
         }
 #ifdef DGDEBUG
         std::cerr << thread_id << "NTLM - receiving step 3" << std::endl;
@@ -356,10 +359,10 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
                 // also, the return code matters in ways it hasn't mattered before:
                 // mustn't send a redirect if it is still 407, or we get a redirection loop
-                h.in(upstreamcon, true);
-                if (h.returnCode() == 407) {
-                    h.makeTransparent(false);
-                    h.out(NULL, &peercon, __DGHEADER_SENDALL);
+                res_hd.in(upstreamcon, true);
+                if (res_hd.returnCode() == 407) {
+                    res_hd.makeTransparent(false);
+                    res_hd.out(NULL, &peercon, __DGHEADER_SENDALL);
                     return -10;
                 }
                 url = url.after("=");
