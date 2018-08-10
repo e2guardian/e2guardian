@@ -1,0 +1,45 @@
+# Exception file extension list
+# Use as a filter group's "exceptionvirusextensionlist",
+#
+# Default list:
+# Unblock web pages & graphics
+
+# Text/web document types
+
+.css
+.html
+.shtml
+.htm
+.stm
+.asp
+.php
+.txt
+.rtx
+.xml
+.xsl
+.cgi
+.pl
+
+# Image types
+
+.bmp
+.cod
+.gif
+.ief
+.jpe
+.jpeg
+.jpg
+.jfif
+.tif
+.tiff
+.ras
+.cmx
+.ico
+.pnm
+.pbm
+.pgm
+.ppm
+.rgb
+.xbm
+.xpm
+.xwd
