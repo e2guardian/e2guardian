@@ -151,6 +151,7 @@ void DebugManager::LoadParam()
 	bool checkfilter = false;
 
 	bool checkicap = false;
+	bool checkicapc = false;
 	bool checkclamav = false;
 	bool checkthttps = false;
 	bool checkproxy = false;
@@ -161,6 +162,7 @@ void DebugManager::LoadParam()
 			if(liste[i].find("-") == std::string::npos)
 			{
 				ICAP = true;
+				ICAPC = true;
 				CLAMAV = true;
 				THTTPS = true;
 				PROXY = true;
@@ -168,6 +170,7 @@ void DebugManager::LoadParam()
 			else
 			{
 				ICAP = false;
+				ICAPC = false;
 				CLAMAV = false;
 				THTTPS = false;
 				PROXY = false;
@@ -180,12 +183,14 @@ void DebugManager::LoadParam()
 			if(liste[i].find("-") == std::string::npos)
 			{
 				ICAP = true;
+				ICAPC = true;
 				THTTPS = true;
 				PROXY = true;
 			}
 			else
 			{
 				ICAP = false;
+				ICAPC = false;
 				THTTPS = false;
 				PROXY = false;
 			}
@@ -205,6 +210,20 @@ void DebugManager::LoadParam()
 			CheckFlag(checkicap);
 			checkicap = true;
 		}
+                if(liste[i].find("ICAPC") != std::string::npos)
+                {
+                        if(liste[i].find("-") == std::string::npos)
+                        {
+                                ICAPC = true;
+                        }
+                        else
+                        {
+                                ICAPC = false;
+                        }
+                        CheckFlag(checkicapc);
+                        checkicap = true;
+                }
+
 		if(liste[i].find("CLAMAV") != std::string::npos)
 		{
 			if(liste[i].find("-") == std::string::npos)
