@@ -190,8 +190,9 @@ int icapinstance::init(void *args)
   	    if (line.startsWith("\r")) {
                 break;
             } else if (line.startsWith("Preview:")) {
-                usepreviews = true;
-                previewsize = line.after(": ").toInteger();
+              previewsize = line.after(": ").toInteger();
+	      if (previewsize > 0)
+	      	usepreviews = true;
             } else if (line.startsWith("Server:")) {
                 if (line.contains("AntiVir-WebGate")) {
                     needsBody = true;
@@ -441,6 +442,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             snprintf(objectsizehex, sizeof(objectsizehex), "%x\r\n", filesize - previewsize);
             icapsock.writeString(objectsizehex);
         } catch (std::exception &e) {
+
 #ifndef NEWDEBUG_OFF
         if(o.myDebug->ICAPC)
         {
@@ -471,6 +473,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     try {
         while (sent < filesize) {
             int rc = readEINTR(filefd, data, 256 * 1024);
+
 #ifndef NEWDEBUG_OFF
         if(o.myDebug->ICAPC)
         {
@@ -677,16 +680,16 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
         if (returncode == "204") {
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAPC)
-        {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "ICAP says clean!" << std::endl;
-                o.myDebug->Debug("ICAPC",oss.str());
-                std::cerr << thread_id << "ICAP says clean!" << std::endl;
-        }
+           if(o.myDebug->ICAPC)
+           {
+               	std::ostringstream oss (std::ostringstream::out);
+               	oss << thread_id << "ICAP says clean!" << std::endl;
+               	o.myDebug->Debug("ICAPC",oss.str());
+               	std::cerr << thread_id << "ICAP says clean!" << std::endl;
+           }
 #endif
-	    delete[] data;
-            return DGCS_CLEAN;
+	   delete[] data;
+           return DGCS_CLEAN;
         } else if (returncode == "100") {
 
 #ifndef NEWDEBUG_OFF
@@ -752,6 +755,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 // if it's been modified, assume there's an infection
                 icapsock.getLine(data, 8192, o.content_scanner_timeout);
                 line = data;
+
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->ICAPC)
                 {
@@ -765,8 +769,10 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                           << line << std::endl;
                 }
 #endif
+
 		int respmodReturnCode = line.after(" ").before(" ").toInteger();
                 if (respmodReturnCode != docheader->returnCode()) {
+
 #ifndef NEWDEBUG_OFF
 	            if(o.myDebug->ICAPC)
         	    {
@@ -776,6 +782,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                        	std::cerr << thread_id << "ICAP says infected! (returned header comparison)" << std::endl;
                     }
 #endif
+
 		    delete[] data;
                     lastvirusname = "Unknown";
 
