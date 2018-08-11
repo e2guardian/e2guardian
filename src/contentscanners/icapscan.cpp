@@ -181,9 +181,9 @@ int icapinstance::init(void *args)
 	if(o.myDebug->ICAPC)
         {
             std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP/1.0 OPTIONS response part2: " << line << std::endl;
+            oss << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
             o.myDebug->Debug("ICAPC",oss.str());
-            std::cerr << thread_id << "ICAP/1.0 OPTIONS response part2: " << line << std::endl;
+            std::cerr << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
         }
 #endif
 
@@ -194,6 +194,10 @@ int icapinstance::init(void *args)
                 previewsize = line.after(": ").toInteger();
             } else if (line.startsWith("Server:")) {
                 if (line.contains("AntiVir-WebGate")) {
+                    needsBody = true;
+                }
+            } else if (line.startsWith("Service-ID:")) {
+                if (line.contains("KAVIcap")) {
                     needsBody = true;
                 }
             } else if (line.startsWith("X-Allow-Out:")) {
@@ -740,7 +744,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                     return DGCS_INFECTED;
                 }
             }
-            // AVIRA's Antivir gives us 200 in all cases, so
+            // AVIRA's and KAV Antivir gives us 200 in all cases, so
             // - unfortunately - we must pay attention to the encapsulated
             // header/body.
             if (needsBody) {
@@ -785,17 +789,19 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                         break;
                 }
 // grab body chunk size
+		icapsock.getLine(data, 8192, o.content_scanner_timeout);
+                line = data;
+
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->ICAPC)
                 {
-               	   std::ostringstream oss (std::ostringstream::out);
+                   std::ostringstream oss (std::ostringstream::out);
                    oss << thread_id << "Comparing original body data to modified" << std::endl;
                    o.myDebug->Debug("ICAPC",oss.str());
                    std::cerr << thread_id << "Comparing original body data to modified" << std::endl;
                 }
 #endif
-		icapsock.getLine(data, 8192, o.content_scanner_timeout);
-                line = data;
+
                 int bodysize = line.hexToInteger();
                 // get, say, the first 100 bytes and compare them to what we
                 // originally sent to see if it has been modified
@@ -804,9 +810,17 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                     chunksize = objectsize;
                 icapsock.readFromSocket(data, chunksize, 0, o.content_scanner_timeout);
                 if (memcmp(data, object, chunksize) == 0) {
-#ifdef DGDEBUG
-                    std::cerr << thread_id << "ICAP says clean!" << std::endl;
+
+#ifndef NEWDEBUG_OFF
+                if(o.myDebug->ICAPC)
+                {
+                   std::ostringstream oss (std::ostringstream::out); 
+                   oss << thread_id << "ICAP says clean! (body byte comparison)" << std::endl;
+                   o.myDebug->Debug("ICAPC",oss.str()); 
+                   std::cerr << thread_id << "ICAP says clean! (body byte comparison)" << std::endl;
+                }
 #endif
+
                     delete[] data;
                     return DGCS_CLEAN;
                 } else {
@@ -832,13 +846,13 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 // the file is still infected!
 
 #ifndef NEWDEBUG_OFF
-                    if(o.myDebug->ICAPC)
-                    {
-                        std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "ICAP says infected! (no further tests)" << std::endl;
-                        o.myDebug->Debug("ICAPC",oss.str());
-                        std::cerr << thread_id << "ICAP says infected! (no further tests)" << std::endl;
-                    }
+             if(o.myDebug->ICAPC)
+             {
+              	std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "ICAP says infected! (no further tests)" << std::endl;
+                o.myDebug->Debug("ICAPC",oss.str());
+            	std::cerr << thread_id << "ICAP says infected! (no further tests)" << std::endl;
+            }
 #endif
 
 	    delete[] data;
