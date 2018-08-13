@@ -159,7 +159,7 @@ regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
 #mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-#fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/e2guardian/lists/contentscanners/exceptionvirusextensionlist'
+#fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
 #sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
 #ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
 #urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'

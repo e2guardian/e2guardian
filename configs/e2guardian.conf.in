@@ -41,7 +41,7 @@ language = 'ukenglish'
 #Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
 #by default disabled, if this option is required just uncomment the line below
 #works also with e2guardian -N (-N Do not go into the background)
-#Possible value : ICAP CLAMAV 02/01/2018
+#Possible value : ICAP CLAMAV ICAPC (icap client) 
 #debuglevel = 'ALL'
 
 #Directory for result of debug level (log)
@@ -555,8 +555,7 @@ logconnectionhandlingerrors = on
 # This figure is the maximum number of concurrent connections.
 # If more connections are made, connections will queue until a worker thread is free.
 # On large site you might want to try 5000 (max value 20000)
-httpworkers = 200
-
+httpworkers = 500 
 
 # Process options
 # (Change these only if you really know what you are doing).
