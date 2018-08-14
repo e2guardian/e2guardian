@@ -10,7 +10,3 @@ plugname = 'avastdscan'
 #default is avast4 for compatibility
 avastprotocol = 'avast4'
 
-exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
-exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
