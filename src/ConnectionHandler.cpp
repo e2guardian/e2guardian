@@ -838,8 +838,24 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     only_ip_auth = true;
                 }
 #ifdef DGDEBUG
-                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << std::endl;
+                std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << " needs proxy for auth plugin is " << o.auth_needs_proxy_in_plugin << std::endl;
 #endif
+
+                if (!persistProxy && o.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
+                {
+                    if (connectUpstream(proxysock, checkme, header.port) < 0) {
+                        if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
+                            checkme.upfailure)
+                        {
+                            checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
+                        } else {
+                            checkme.gomitm = false;   // if not automitm
+                        }
+                    } else {
+                        persistProxy = true;
+                    }
+                }
+
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header,
                             only_ip_auth,
                             checkme.isconnect)) {
@@ -1036,19 +1052,28 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     //check response code
                     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
                         int rcode = docheader.returnCode();
-                        if (checkme.isconnect &&
-                            (rcode != 200))  // some sort of problem or needs proxy auth - pass back to client
-                        {
-                            checkme.ismitmcandidate = false;  // only applies to connect
+                        if (rcode == 407) {   // proxy auth required
+                            // tunnel thru -  may be content
                             checkme.tunnel_rest = true;
                             checkme.tunnel_2way = false;
-                        } else if (rcode == 407) {   // proxy auth required
-                            // tunnel thru - no content
-                            checkme.tunnel_rest = true;
+                            // treat connect like normal get
+                            checkme.isconnect = false;
+                            checkme.isexception = true;
+                        }
+                        if (checkme.isconnect) {
+                            if (rcode == 200) {
+                                persistProxy = false;
+                                persistPeer = false;
+                            } else {        // some sort of problem or needs proxy auth - pass back to client
+                                checkme.ismitmcandidate = false;  // only applies to connect
+                                checkme.tunnel_rest = true;
+                                checkme.tunnel_2way = false;
+                            }
                         }
 
                         if (docheader.contentLength() == 0)   // no content
                             checkme.tunnel_rest = true;
+
                     }
                 }
 

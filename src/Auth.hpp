@@ -76,6 +76,7 @@ class AuthPlugin : public Plugin
 
     // does this auth type rely on queries from the parent proxy (e.g. NTLM, basic auth)?
     bool needs_proxy_query;
+    bool needs_proxy_access_in_plugin = false;
     bool client_ip_based;
 
     String getPluginName();

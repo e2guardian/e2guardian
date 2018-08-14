@@ -1372,6 +1372,12 @@ bool OptionContainer::loadAuthPlugins()
             std::cout << "Auth plugin relies on querying parent proxy" << std::endl;
 #endif
         }
+        if (app->needs_proxy_access_in_plugin) {
+            auth_needs_proxy_in_plugin = true;
+#ifdef DGDEBUG
+            std::cout << "Auth plugin relies on querying parent proxy within plugin" << std::endl;
+#endif
+        }
         authplugins.push_back(app);
     }
     // cache reusable iterators

@@ -1,6 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 July 2018
+- Fix ICAP client - tested with f-secure and Kav4proxy -
+- Fix bug #417 urlredirectregexplist doesn't work
+- Fix bug #418 NTLM auth is not working 
 - Fix bug #410 segfault if "neterrtemplate=" doesn't exist in config
 - Fix bug #414 compiler error caused by extra brace
 
