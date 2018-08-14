@@ -11,7 +11,3 @@ plugname = 'kavdscan'
 # form "/downloads/tf*" instead of "/var/kavdchroot/downloads/tf*".
 #pathprefix = '/var/kavdchroot'
 
-exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
-exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'

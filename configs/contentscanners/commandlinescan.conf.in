@@ -1,11 +1,5 @@
 plugname = 'commandlinescan'
 
-# Standard lists of file types & websites not to scan
-exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
-exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
-
 # Program to run & initial arguments - filename for scanning will be appended
 #progname = /path/to/scanner
 

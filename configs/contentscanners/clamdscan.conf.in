@@ -11,7 +11,3 @@ plugname = 'clamdscan'
 # form "/downloads/tf*" instead of "/var/clamdchroot/downloads/tf*".
 #pathprefix = '/var/clamdchroot'
 
-exceptionvirusmimetypelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-exceptionvirusextensionlist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
-exceptionvirussitelist = '@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-exceptionvirusurllist = '@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
