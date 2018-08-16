@@ -128,7 +128,7 @@ bool ListContainer::previousUseItem(const char *filename, bool startswith, int f
 
 // for phrase lists - read in the given file, which may be an exception list
 // inherit category and time limits from parent
-bool ListContainer::readPhraseList(const char *filename, bool isexception, int catindex, int timeindex, bool incref)
+bool ListContainer::readPhraseList(const char *filename, bool isexception, int catindex, int timeindex, bool incref, int nlimit)
 {
     // only increment refcount on first read, not read of included files
     // (includes get amalgamated, unlike item lists)
@@ -177,12 +177,12 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
             if (caseinsensitive)
                 line.toLower();
             if (line.startsWith("<"))
-                readPhraseListHelper(line, isexception, catindex, timeindex);
+                readPhraseListHelper(line, isexception, catindex, timeindex, nlimit);
             // handle included list files
             else if (line.startsWith(".")) {
                 temp = line.after(".include<").before(">");
                 if (temp.length() > 0) {
-                    if (!readPhraseList(temp.toCharArray(), isexception, catindex, timeindex, false)) {
+                    if (!readPhraseList(temp.toCharArray(), isexception, catindex, timeindex, false, nlimit)) {
                         listfile.close();
                         return false;
                     }
@@ -230,10 +230,18 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
 }
 
 // for phrase lists - helper function for readPhraseList
-void ListContainer::readPhraseListHelper(String line, bool isexception, int catindex, int timeindex)
+void ListContainer::readPhraseListHelper(String line, bool isexception, int catindex, int timeindex, int &nlimit)
 {
     // read in weighting value, if there
-    int weighting = line.after("><").before(">").toInteger();
+    //  1st check for % weighting
+   int weighting = line.after("><").before("%>").toInteger();
+   if (weighting != 0)     // it is a %
+   {
+       weighting = (weighting * nlimit) / 100;
+   } else {
+       // check for normal weighting
+       int weighting = line.after("><").before(">").toInteger();
+   }
     // defaults to 0
     int type;
     if (weighting != 0) {

@@ -1,5 +1,8 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+August 2018
+- Add new per cent option of weighted phrase lists
+
 July 2018
 - Fix ICAP client - tested with f-secure and Kav4proxy -
 - Fix bug #417 urlredirectregexplist doesn't work
@@ -7,7 +10,7 @@ July 2018
 - Fix bug #410 segfault if "neterrtemplate=" doesn't exist in config
 - Fix bug #414 compiler error caused by extra brace
 
-Summary of changes in this release (v5.1) can be found in e2guardian.release
+Summary of changes in this release (v5.2) can be found in e2guardian.release
 and notes/NEWIN_v5
 
 Changes to E2guardian 4.x.x can be found in ChangeLog4.x

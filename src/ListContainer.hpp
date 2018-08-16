@@ -54,6 +54,7 @@ class ListContainer
     String bannedpfile;
     String exceptionpfile;
     String weightedpfile;
+    int naughtynesslimit = 0;   // used for phrase lists only
     time_t bannedpfiledate;
     time_t exceptionpfiledate;
     time_t weightedpfiledate;
@@ -68,7 +69,7 @@ class ListContainer
 
     void reset();
 
-    bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true);
+    bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true, int nlimit=0);
     bool ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
     bool readItemList(const char *filename, bool startswith, int filters, bool isip = false);
@@ -167,7 +168,7 @@ class ListContainer
 
     bool readAnotherItemList(const char *filename, bool startswith, int filters);
 
-    void readPhraseListHelper(String line, bool isexception, int catindex, int timeindex);
+    void readPhraseListHelper(String line, bool isexception, int catindex, int timeindex, int &nlimit);
     void readPhraseListHelper2(String phrase, int type, int weighting, int catindex, int timeindex);
     bool addToItemListPhrase(const char *s, size_t len, int type, int weighting, bool combi, int catindex, int timeindex);
     void graphSizeSort(int l, int r, std::deque<size_t> *sizelist);

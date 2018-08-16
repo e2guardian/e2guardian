@@ -1,4 +1,15 @@
-# DANSGUARDIAN weightedphraselist INSTRUCTIONS FOR USE
+# E2GUARDIAN weightedphraselist INSTRUCTIONS FOR USE
+
+# New in v5.2 - per cent feature
+
+# If weighting is a % then that % of the naughtynesslimit is used as the weight
+# e.g.  
+# < slut ><10%>
+# - If naughtynesslimit is 200 will add 20 to the count against the word 'slut'
+#
+# This allows phrases to be used which will have the same effect in all
+# filtergroups
+
 #
 # Examples:
 #

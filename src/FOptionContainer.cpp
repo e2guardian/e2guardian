@@ -566,7 +566,7 @@ bool FOptionContainer::read(const char *filename) {
             if (!o.lm.readbplfile(banned_phrase_list_location.c_str(),
                                   exception_phrase_list_location.c_str(),
                                   weighted_phrase_list_location.c_str(), banned_phrase_list,
-                                  force_quick_search)) {
+                                  force_quick_search, naughtyness_limit)) {
                 return false;
             } // read banned, exception, weighted phrase list
             banned_phrase_flag = true;
@@ -669,7 +669,7 @@ bool FOptionContainer::read(const char *filename) {
                         if (!o.lm.readbplfile(banned_searchterm_list_location.c_str(),
                                               exception_searchterm_list_location.c_str(),
                                               weighted_searchterm_list_location.c_str(), searchterm_list,
-                                              force_quick_search)) {
+                                              force_quick_search, naughtyness_limit)) {
                             return false;
                         }
                         searchterm_flag = true;

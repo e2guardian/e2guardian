@@ -129,6 +129,10 @@ OPENSSL v1.1 SUPPORT
 
     Will now support OpenSSL v1.1 as well as v1.0.2 or above
 
+% OPTION FOR PHRASE LISTS
+
+    New % weighting option for phrase lists
+
 TESTING -  
 ---------
 
@@ -141,8 +145,6 @@ TO DO IN THIS RELEASE
 
     Reduce unnecessary memory usage on in DataBuffer
 
-    New % weighting option for phrase lists
-
     Transparent HTTP/HTTPS on ports other than 80/443
 
     Make SSL sockets non-blocking so time-out works with MITM
@@ -150,6 +152,8 @@ TO DO IN THIS RELEASE
     Implement a "learning" mode,  test the rules effects without block  
 
     Polish new debug feature
+
+    Multi-tenancy mode first stage (may be in later or branched release)
 
 TODO - for later releases.
 -----------------------
@@ -165,8 +169,6 @@ TODO - for later releases.
         option.
 
     Extend new debug feature to further modules
-    
-    
 
 WISHLIST
 --------
@@ -175,6 +177,9 @@ WISHLIST
          (eg: reload, update lists, etc) and check status
 
     Multi-tenancy option.
+
+    Support for authenticaion helpers to allow ntlm, basic etc auth
+         without using squid proxy.
 
     Re-impliment mailing option.
 
@@ -186,12 +191,8 @@ WISHLIST
 
     HTTP/2 support (v6)
 
-<<<<<<< HEAD
     IPv6 support (v6)
 
-Philip Pearce 26 June 2018
-=======
-Philip Pearce 17 July 2018
->>>>>>> v5.1
+Philip Pearce 17 August 2018
 
 

@@ -157,7 +157,7 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
 // create a new phrase list. check dates on top-level list files to see if a reload is necessary.
 // note: unlike above, doesn't automatically call readPhraseList.
 // pass in exception, banned, and weighted phrase lists all at once.
-int ListManager::newPhraseList(const char *exception, const char *banned, const char *weighted)
+int ListManager::newPhraseList(const char *exception, const char *banned, const char *weighted, int nlimit)
 {
     time_t bannedpfiledate = getFileDate(banned);
     time_t exceptionpfiledate = getFileDate(exception);
@@ -166,7 +166,8 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
         if (l[i] == NULL) {
             continue;
         }
-        if ((*l[i]).exceptionpfile == String(exception) && (*l[i]).bannedpfile == String(banned) && (*l[i]).weightedpfile == String(weighted)) {
+        if ((*l[i]).exceptionpfile == String(exception) && (*l[i]).bannedpfile == String(banned) && (*l[i]).weightedpfile == String(weighted)
+                && (*l[i]).naughtynesslimit == nlimit) {
             if (bannedpfiledate <= (*l[i]).bannedpfiledate && exceptionpfiledate <= (*l[i]).exceptionpfiledate && weightedpfiledate <= (*l[i]).weightedpfiledate) {
 // Known limitation - only weighted, exception, banned phrase
 // list checked for changes - not the included files.
@@ -201,10 +202,11 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
     return (unsigned)free;
 }
 
-bool ListManager::readbplfile(const char *banned, const char *exception, const char *weighted, unsigned int &list, bool force_quick_search)
+bool ListManager::readbplfile(const char *banned, const char *exception, const char *weighted, unsigned int &list, bool force_quick_search,
+   int nlimit)
 {
 
-    int res = newPhraseList(exception, banned, weighted);
+    int res = newPhraseList(exception, banned, weighted, nlimit);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening phraselists" << std::endl;
@@ -225,7 +227,7 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
             return false;
         }
 
-        result = (*l[res]).readPhraseList(banned, false, -1, -1, false);
+        result = (*l[res]).readPhraseList(banned, false, -1, -1, false,nlimit);
         if (!result) {
             if (!is_daemonised) {
                 std::cerr << thread_id << "Error opening bannedphraselist" << std::endl;
@@ -233,7 +235,7 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
             syslog(LOG_ERR, "%s", "Error opening bannedphraselist");
             return false;
         }
-        result = (*l[res]).readPhraseList(weighted, false, -1, -1, false);
+        result = (*l[res]).readPhraseList(weighted, false, -1, -1, false,nlimit);
         if (!result) {
             if (!is_daemonised) {
                 std::cerr << thread_id << "Error opening weightedphraselist" << std::endl;
