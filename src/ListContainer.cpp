@@ -240,7 +240,7 @@ void ListContainer::readPhraseListHelper(String line, bool isexception, int cati
        weighting = (weighting * nlimit) / 100;
    } else {
        // check for normal weighting
-       int weighting = line.after("><").before(">").toInteger();
+        weighting = line.after("><").before(">").toInteger();
    }
     // defaults to 0
     int type;
