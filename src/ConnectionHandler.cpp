@@ -322,7 +322,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     if (port == 0)
         port = cm.request_header->port;
     int lerr_mess = 0;
-    int retry = 0;
+    int retry = -1;
     while (++retry < o.connect_retries) {
         if (retry > 0) {
             if (o.logconerror)
