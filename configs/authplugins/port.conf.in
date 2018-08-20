@@ -6,4 +6,4 @@ plugname = 'port'
 
 # portgroups file
 # List file assigning ports to filter groups
-portgroups = '@DGCONFDIR@/lists/portgroups'
+portgroups = '@DGCONFDIR@/lists/authplugins/portgroups'
