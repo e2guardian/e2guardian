@@ -159,7 +159,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     rs.offsets.clear();
     rs.lengths.clear();
     rs.imatched = false;
-    int num_sub_expressions = MAX_SUB_EXPRESSIONS;
+    unsigned int num_sub_expressions = MAX_SUB_EXPRESSIONS;
     if (reg.re_nsub < num_sub_expressions)
         num_sub_expressions = reg.re_nsub;
     regmatch_t *pmatch = new regmatch_t[num_sub_expressions + 1]; // to hold result

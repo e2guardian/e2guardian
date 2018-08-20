@@ -340,7 +340,7 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 
 bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
-    int mem_used = 2;
+    unsigned int mem_used = 2;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
@@ -1182,7 +1182,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 
     off_t sl;
     off_t ppos;
-    off_t currnode;
+    off_t currnode = 0;
     int *graphdata = realgraphdata;
     off_t ml;
     char p;
@@ -1817,7 +1817,7 @@ int ListContainer::getCategoryIndex(String *lcat)
     return l;
 }
 
-String ListContainer::getListCategoryAt(int index, int *catindex)
+String ListContainer::getListCategoryAt(unsigned int index, int *catindex)
 {
     //category index of -1 indicates uncategorised list
     if ((index >= categoryindex.size()) || (categoryindex[index] < 0)) {
@@ -1831,10 +1831,10 @@ String ListContainer::getListCategoryAt(int index, int *catindex)
     return listcategory[categoryindex[index]];
 }
 
-String ListContainer::getListCategoryAtD(int index)
+String ListContainer::getListCategoryAtD(unsigned int index)
 {
     //category index of -1 indicates uncategorised list
-    if ((index < 0) || (index >= listcategory.size())) {
+    if (index >= listcategory.size()) {
         return "";
     }
     return listcategory[index];

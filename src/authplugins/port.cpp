@@ -70,8 +70,8 @@ class portinstance : public AuthPlugin
     std::deque<portstruct> ipportlist;
 
     int readIPMelangeList(const char *filename);
-    int searchList(int a, int s, const int &ip);
-    int inList(const int &ip);
+    int searchList(int a, int s, const unsigned int &ip);
+    int inList(const unsigned int &ip);
 };
 
 // IMPLEMENTATION
@@ -151,7 +151,7 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
 //
 
 // search for port in list & return filter group on success, -1 on failure
-int portinstance::inList(const int &port)
+int portinstance::inList(const unsigned int &port)
 {
     if (ipportlist.size() > 0) {
         return searchList(0, ipportlist.size(), port);
@@ -160,7 +160,7 @@ int portinstance::inList(const int &port)
 }
 
 // binary search list for given port & return filter group, or -1 on failure
-int portinstance::searchList(int a, int s, const int &port)
+int portinstance::searchList(int a, int s, const unsigned int &port)
 {
     if (a > s)
         return -1;

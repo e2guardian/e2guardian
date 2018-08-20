@@ -1961,7 +1961,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > (unsigned)o.max_header_lines) {
 #ifdef DGDEBUG
             std::cerr << thread_id << "header:size too big =  " << header.size() << " Lines: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
