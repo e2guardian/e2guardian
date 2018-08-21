@@ -503,7 +503,8 @@ contentscannertimeout = 60
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
-#authplugin = '@DGCONFDIR@/proxy-header.conf'
+#authplugin = '@DGCONFDIR@/authplugins/proxy-header.conf'
+#authplugin = '@DGCONFDIR@/authplugins/port.conf'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as
