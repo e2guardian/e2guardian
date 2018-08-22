@@ -1,113 +1,132 @@
 # e2guardian messages file in Russian KOI8-R 
-"1"," "
-"10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
-"50"," in "    # needs translation
-"51","TRUSTED"    # needs translation
-"52","DENIED"    # needs translation
-"53","INFECTED"    # needs translation
-"54","SCANNED"    # needs translation
-"55","CONTENTMOD"    # needs translation
-"56","URLMOD"    # needs translation
-"57","HEADERMOD"    # needs translation
-"58","HEADERADD"    # needs translation
-"59","NETERROR"    # needs translation
-"70","SSL SITE"    # needs translation
-"71","IP Limit"    # needs translation
-"72","Content scanning"    # needs translation
-"100","   IP-    web: "
-"101","   IP-    web."
-"102","       web: "
-"103","Banned Client IP"    # needs translation
-"104","Banned Location"    # needs translation
-"105","Banned User"    # needs translation
-"121","Only limited access allowed from your location"    # needs translation
-"150","Certificate supplied by server was not valid"    # needs translation
-"151","Could not open ssl connection"     # needs translation
-"152","Failed to get ssl certificate"    # needs translation
-"153","Failed to load ssl private key"    # needs translation
-"154","Failed to negotiate ssl connection to client"    # needs translation
-"155","No SSL certificate supplied by server"    # needs translation
-"156","Server's SSL certificate does not match domain name"    # needs translation
-"157","Unable to create tunnel through local proxy"    # needs translation
-"158","Opening tunnel failed"    # needs translation
-"159","Could not connect to proxy server"    # needs translation
-"160","Failed to nogotiate ssl connection to server"    # needs translation
-"200"," URL   ."
-"201","Unable to get response from upstream proxy (timeout)"    # needs translation
-"202","Unable to get response from upstream proxy (error)"    # needs translation
-"203","The site requested is not responding"    # needs translation
-"204"," - Please try again later"    # needs translation
-"205","Upstream proxy is not responding (network error)"    # needs translation
-"206"," - Please try again later"    # needs translation
-"207","The site requested does not exist"    # needs translation
-"208","The site requested does not have an IPv4 address"    # needs translation
-"209","Temporary DNS service failure - please try again"    # needs translation
-"210","DNS service failure - please try again later"    # needs translation
-"300","  : "
-"301","  ."
-"400","   : "
-"401","   ."
-"402","Weighted phrase limit of "
-"403","   ."
-"450","Banned search term found: "    # needs translation
-"451","Banned search term found."    # needs translation
-"452","Banned combination search term found: "    # needs translation
-"453","Banned combination search term found."    # needs translation
-"454","Weighted search term limit of "    # needs translation
-"455","Weighted search term limit exceeded."    # needs translation
-"456","Exception combination search term found: "    # needs translation
-"457","Exception search term found: "    # needs translation
-"500"," : "
-"501"," URL: "
-"502","Blanket Block is active and that site is not on the white list."
-"503","URL,   : "
-"504"," URL,   ."
-"505","Blanket IP Block is active and that address is an IP only address."
-"506","HTTPS access is only allowed to trusted sites."    # needs translation
-"507","HTTPS access by IP address is not allowed."    # needs translation
-"508","Access not allowed using this browser (or app): "    # needs translation
-"509","Access not allowed using this browser (or app)."    # needs translation
-"510","Blocked IP site "    # needs translation
-"520","Blocked HTTPS site: "    # needs translation
-"521","Banned Search Words: "    # needs translation
-"522","Blocked User-Agent: "    # needs translation
-"560","Blocked site (local): "    # needs translation
-"561","Blocked URL (local): "    # needs translation
-"580","Blocked HTTPS site (local): "    # needs translation
-"581","Banned Search Words (local): "    # needs translation
-"600","Exception client IP match."
-"601","Exception client user match."
-"602","Exception site match."
-"603","Exception URL match."
-"604","Exception phrase found: "
-"605","Combination exception phrase found: "
-"606","Bypass URL."    # needs translation
-"607","Bypass cookie exception."
-"608","Scan bypass URL exception."
-"609","Exception regular expression URL match: "
-"610","User-Agent pattern match: "    # needs translation
-"620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
-"631"," location allow list"    # needs translation
-"632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
-"700","  ."
-"701","  ."
-"750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
-"751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
-"800"," MIME-: "
-"900","  : "
-"1000","PICS labeling level exceeded on the above site."
-"1100","Virus or bad content detected."
-"1101","Advert blocked"
-"1200","Please wait - downloading to be scanned..."
-"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
-"1202",", then refresh this page to download directly."    # needs translation
-"1203","WARNING: Could not perform content scan!"    # needs translation
-"1210","Download Complete.  Starting scan..."
-"1220","Scan complete.</p><p>Click here to download: "
-"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
-"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
-"1230","File no longer available"
+
+"1","Доступ запрещён"
+"10","IP limit exceeded.  There is a  " # needs translation
+"11"," IP limit set." # needs translation
+
+"50"," в "
+"51","ИСКЛЮЧЕНИЕ"
+"52","ЗАПРЕЩЕН"
+"53","ЗАРАЖЕН"
+"54","ОТСКАНИРОВАН"
+"55","CONTENTMOD"
+"56","URLMOD"
+"57","HEADERMOD"
+"58","HEADERADD"
+"59","NETERROR"
+"70","SSL САЙТ"
+"71","IP Limit"
+"72","Сканирование контента"
+
+"100","Вашему IP адресу запрещен веб-просмотр: "
+"101","Вашему IP адресу запрещен веб-просмотр."
+"102","Пользователю запрещён веб-просмотр: "
+"103","Заблокированный IP клиента"
+"104","Заблокированная локация"
+"105","Заблокированный пользователь"
+"121","С вашей локации разрешен только ограниченный доступ"
+
+"150","Сертификат сервера не является действительным"
+"151","Невозможно открыть SSL соединение" 
+"152","Не удалось получить SSL сертификат"
+"153","Не удалось загрузить приватный ключ сертификата"
+"154","Не удалось согласовать SSL соединение с клиентом"
+"155","Сервер не предоставил SSL сертификат"
+"156","SSL сертификат сервера не совпадает с именем домена"
+"157","Не удалось создать тоннель через локальный прокси"
+"158","Не удалось открыть тоннель"
+"159","Не удалось подключить к прокси серверу"
+"160","Не удалось согласовать SSL соединение с сервером"
+
+"200","Неверный URL"
+"201","Не удалось подключиться к прокси серверу (таймаут)"
+"202","Не удалось подключиться к прокси серверу (ошибка сети)"
+"203","Запрашиваемый сайт не отвечает"
+"204"," - Пожалуйста попробуйте ещё раз"
+"205","Прокси сервер не отвечает (ошибка сети)"
+"206"," - Пожалуйста попробуйте ещё раз позже"
+"207","Запрашиваемый сайт не существует"
+"208","Запрашиваемый сайт не имеет IPv4 адреса"
+"209","Ошибка сервиса DNS - попробуйте снова"
+"210","Ошибка сервиса DNS - попробуйте снова"
+
+"300","Найдена запрещённая фраза: "
+"301","Найдена запрещенная фраза."
+
+"400","Найдена запрещённая комбинация фраз: "
+"401","Найдена запрещённая комбинация фраз."
+"402","Лимит проверки контента "
+"403","Заблокирован системой проверки контента."
+
+"450","Найден запрещённый поисковой запрос: "
+"451","Найден запрещённый поисковой запрос."
+"452","Найдена запрещённая комбинация поисковых фраз: "
+"453","Найдена запрещённая комбинация поисковых фраз."
+"454","Лимит веса поискового запроса "
+"455","Достигнут лимит веса поискового запроса."
+"456","Найден доверенный поисковой запрос: "
+"457","Найден доверенный поисковой запрос: "
+
+"500","Заблокированный сайт: "
+"501","Заблокированная ссылка: "
+"502","Включен режим белого списка. Данный сайт отсутствует в нём."
+"503","Ссылка совпала с запрещённым паттерном : "
+"504","Заблокированная ссылка."
+"505","Доступ по IP запрещён."
+"506","HTTPS доступен только к доверенным адресам."
+"507","HTTPS доступ по IP адресу запрещён."
+"508","Доступ с этого браузера запрещён: "
+"509","Доступ с этого браузера запрещён."
+"510","Заблокированный IP сайт "
+"520","Заблокированный HTTPS сайт: "
+"521","Заблокированная поисковая фраза: "
+"522","Заблокированный User-Agent: "
+"560","Заблокированный сайт (локально): "
+"561","Заблокированная ссылка (локально): "
+"580","Заблокированный HTTPS сайт (локально): "
+"581","Заблокированная поисковая фраза (локально): "
+
+"600","Совпал IP клиента."
+"601","Совпал пользователь."
+"602","Совпал сайт: "
+"603","Совпала ссылка: "
+"604","Найдена фраза: "
+"605","Найдена комбинация фраз: "
+"606","Ссылка на обход."
+"607","Cookie обхода."
+"608","Отсканировать ссылку обхода."
+"609","Совпал паттерн ссылки: "
+"610","Совпал паттерн User-Agent: "
+"620","Referer match Совпал реферер: "
+"630","Совпала ссылка "
+"631"," списка доступа локации"
+"632","Совпадение со списком доступа локации"
+
+"662","Сайт (локально): "
+"663","Ссылка (локально): "
+
+"700","Загрузка заблокирована."
+"701","Достигнут лимит загрузки."
+
+"750","Включен режим белого списка для загрузок и этот MIME type в нем отсутствует: "
+"751","Включен режим белого списка для загрузок и этот MIME type в нем отсутствует."
+
+"800","Заблокированный MIME type: "
+
+"900","Заблокированное расширение файла: "
+
+"1100","Найден плохой, либо вирусный контент."
+"1101","Реклама заблокирована"
+
+"1200","Пожалуйста подождите. Загрузка файла для сканирования..."
+"1201","Внимание: файл слишком большой для сканирования. Если этот файл больше "
+"1202",", обновите страницу для прямого скачивания."
+"1203","ВНИМАНИЕ: Невозможно произвести сканирование контента!"
+
+"1210","Загрузка завершена. Сканирование..."
+
+"1220","Сканирование завершено.</p><p>Нажмите здесь для загрузки: "
+"1221","Загрузка завершена; файл не был отсканирован.</p><p>Нажмите здесь для загрузки: "
+"1222","Файл слишком большой для кэша.</p><p>Нажмите здесь для скачивания без сканирования: "
+
+"1230","Файл недоступен"
