@@ -312,7 +312,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             l = SSWAP(a->user.len);
             b = WSWAP(a->user.offset);
 
-            if ((l > 0) && (b >= 0) && (b + l) <= sizeof(a->payload) && (l <= 254)) {
+            if ((l > 0) && (b + l) <= sizeof(a->payload) && (l <= 254)) {
                 // everything is in range
                 // note offsets are from start of packet - not the start of the payload area
                 memcpy((void *)username, (const void *)&(auth.buf[b]), l);

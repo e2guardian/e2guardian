@@ -709,7 +709,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > (unsigned)o.max_header_lines) {
 #ifndef NEWDEBUG_OFF
             if(o.myDebug->ICAP)
             {

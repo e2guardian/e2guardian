@@ -97,7 +97,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         String nm, fpath;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
-        unsigned int m_no, log_m_no = 0;
+        unsigned int m_no = 0, log_m_no = 0;
         t.removeWhiteSpace();
         t = t + ",";
         while (t.length() > 0) {
@@ -166,13 +166,13 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_REGEXP_BOOL :
-                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.comp, rec.source,
-                                       rec.reg_list_ref)) {
+                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.comp, rec.source, rec.reg_list_ref)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
+		break;
             case LIST_METHOD_REGEXP_REPL :
                 if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.replace,
                                              rec.comp)) {
@@ -202,7 +202,7 @@ ListMeta::list_info ListMeta::findList(String name, int type) {
     std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
 #endif
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
-        if (i->name == name && i->type == type) {
+        if (i->name == name && i->type == (unsigned)type) {
 #ifdef DGDEBUG
             std::cerr << thread_id << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
 #endif

@@ -53,9 +53,6 @@ AuthPlugin *headercreate(ConfigVar &definition)
 // proxy auth header username extraction
 int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
 {
-    if (fname.length() < 0) 
-   	return DGAUTH_NOMATCH;
-
     string = h.getAuthHeader();
     if (string.length() > 0) {
         return DGAUTH_OK;

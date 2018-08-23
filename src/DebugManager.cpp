@@ -79,7 +79,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				va_start(ap,output);
 				char * p = new char[output.length()+1]; 
 				strcpy(p,output.c_str());
-				char * v;
+				char * v =  (char*)"";
 				int n;
 				while(*(p+i)!='\0')
 				{
@@ -102,7 +102,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 
 								for(j=0;j<strlen(v);j++)
 								{
-									oss << v[j];
+									   oss << v[j];
 								}
 							}
 							if(*(p+i)=='s')

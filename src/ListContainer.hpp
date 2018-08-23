@@ -100,8 +100,8 @@ class ListContainer
     bool previousUseItem(const char *filename, bool startswith, int filters);
     bool upToDate();
 
-    String getListCategoryAt(int index, int *catindex = NULL);
-    String getListCategoryAtD(int index);
+    String getListCategoryAt(unsigned int index, int *catindex = NULL);
+    String getListCategoryAtD(unsigned int index);
 
     void graphSearch(std::map<std::string, std::pair<unsigned int, int> > &result, char *doc, off_t len);
 

@@ -811,7 +811,7 @@ bool OptionContainer::read(std::string& filename, int type)
         }
 
         // map port numbers to auth plugin names
-        for (int i = 0; i < authplugins.size(); i++) {
+        for (unsigned int i = 0; i < authplugins.size(); i++) {
             AuthPlugin *tmpPlugin = (AuthPlugin *)authplugins[i];
             String tmpStr = tmpPlugin->getPluginName();
 

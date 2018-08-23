@@ -321,10 +321,9 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 {
     if (port == 0)
         port = cm.request_header->port;
-    int lerr_mess;
+    int lerr_mess = 0;
     int retry = -1;
     while (++retry < o.connect_retries) {
-        lerr_mess = 0;
         if (retry > 0) {
             if (o.logconerror)
                 syslog(LOG_INFO, "%s retry %d to connect to %s", thread_id.c_str(), retry, cm.urldomain.c_str());
@@ -2983,7 +2982,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
-        unsigned short toread;
+        unsigned short toread = 0;
         if (rc == 5) {
         if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
             checkme.isTLS = true;
