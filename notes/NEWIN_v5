@@ -1,4 +1,4 @@
-This is the v5develop development version (v5.2).  
+This is the pre-release version (v5.2).  
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -132,16 +132,17 @@ OPENSSL v1.1 SUPPORT
 % OPTION FOR PHRASE LISTS
 
     New % weighting option for phrase lists
+    
+Amend code so that -Wall compile option gives no warnings 
 
 TESTING -  
 ---------
 
-    Please prefix all bug reports with "V5develop: "
+    Please prefix all bug reports with "v5.2: "
 
-TO DO IN THIS RELEASE
+TO DO IN NEXT RELEASE
 ---------------------
 
-    Amend code so that -Wall compile option gives no warnings (mainly done)
 
     Reduce unnecessary memory usage on in DataBuffer
 
@@ -193,6 +194,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 17 August 2018
+Philip Pearce 25 August 2018
 
 
