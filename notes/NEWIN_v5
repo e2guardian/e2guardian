@@ -1,4 +1,4 @@
-This is the v5develop development version (v5.2).  
+This is the v5develop development version (v5.3).  
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -133,6 +133,8 @@ OPENSSL v1.1 SUPPORT
 
     New % weighting option for phrase lists
 
+Amended code so that -Wall compile option gives no warnings 
+
 TESTING -  
 ---------
 
@@ -140,8 +142,6 @@ TESTING -
 
 TO DO IN THIS RELEASE
 ---------------------
-
-    Amend code so that -Wall compile option gives no warnings (mainly done)
 
     Reduce unnecessary memory usage on in DataBuffer
 
