@@ -1229,7 +1229,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
                                     else
                                         fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->contentsubject.c_str());
 
-                                    fprintf(mail, "%i violation%s ha%s occured within %i seconds.\n",
+                                    fprintf(mail, "%i violation%s ha%s occurred within %i seconds.\n",
                                         curv_tmp,
                                         (curv_tmp == 1) ? "" : "s",
                                         (curv_tmp == 1) ? "s" : "ve",
@@ -1636,7 +1636,7 @@ int fc_controlit()   //
     if (reloadconfig) {
         syslog(LOG_INFO, "Reconfiguring E2guardian: done");
     } else {
-        syslog(LOG_INFO, "Started sucessfully.");
+        syslog(LOG_INFO, "Started successfully.");
         dystat->start();
     }
     reloadconfig = false;

@@ -218,7 +218,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
             if (rc <= 0) {
                 if (d->chunked)
                     d->got_all = true;
-                break; // an error occured so end the while()
+                break; // an error occurred so end the while()
                 // or none received so pipe iis closed or chunking has ended
             } else {
                 bytesremaining -= rc;
