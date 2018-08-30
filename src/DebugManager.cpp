@@ -272,7 +272,7 @@ void DebugManager::CheckFlag(bool flag)
 	if(flag)
 	{
 		openlog("e2guardian", LOG_PID | LOG_CONS, LOG_USER);
-		syslog(LOG_INFO, "WARNING : Ambigous syntax of debuglevel in e2guardian.conf");
+		syslog(LOG_INFO, "WARNING : Ambiguous syntax of debuglevel in e2guardian.conf");
 		closelog();
 	}
 }
