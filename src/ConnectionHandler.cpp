@@ -1103,7 +1103,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // check ssl_grey is covered in storyboard
             if (!checkme.tunnel_rest && checkme.isconnect && checkme.gomitm)
             {
+#ifdef DGDEBUG
                 std::cerr << "Going MITM ...." << std::endl;
+#endif
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
