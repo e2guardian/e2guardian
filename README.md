@@ -28,7 +28,7 @@ Read the INSTALL for installation instructions.
 Github: https://github.com/e2guardian
 
 *	v5develop is used to develop new features
-*	Bugfixes primarily occurs in the version branch (v5.1)
+*	Bugfixes primarily occurs in the version branch 
 
 ## Bugs and Feature Requests
 
