@@ -37,7 +37,7 @@ class kavdinstance : public CSPlugin
     public:
     kavdinstance(ConfigVar &definition)
         : CSPlugin(definition){};
-    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
         const char *ip, const char *filename, NaughtyFilter *checkme,
         const String *disposition, const String *mimetype);
 
@@ -86,7 +86,7 @@ int kavdinstance::init(void *args)
 // there is no capability to scan memory with kavdscan as we pass it
 // a file name to scan.  So we save the memory to disk and pass that.
 // Then delete the temp file.
-int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
     const char *ip, const char *filename, NaughtyFilter *checkme, const String *disposition, const String *mimetype)
 {
     lastvirusname = lastmessage = "";

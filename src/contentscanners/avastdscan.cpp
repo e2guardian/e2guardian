@@ -36,7 +36,7 @@ class avastdinstance : public CSPlugin
 
     // we are not replacing scanTest or scanMemory
     // but for scanFile and the default scanMemory to work, we need a working scanFile implementation
-    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, int filtergroup,
+    int scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user, FOptionContainer* &foc,
         const char *ip, const char *filename, NaughtyFilter *checkme,
         const String *disposition, const String *mimetype);
 
@@ -117,7 +117,7 @@ int avastdinstance::init(void *args)
 // a file name to scan.  So we save the memory to disk and pass that.
 // Then delete the temp file.
 int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, const char *user,
-    int filtergroup, const char *ip, const char *filename, NaughtyFilter *checkme,
+    FOptionContainer* &foc, const char *ip, const char *filename, NaughtyFilter *checkme,
     const String *disposition, const String *mimetype)
 {
     lastmessage = lastvirusname = String();
