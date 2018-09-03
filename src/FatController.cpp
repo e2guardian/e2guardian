@@ -471,7 +471,10 @@ bool daemonise()
 
     setsid(); // become session leader
     //int dummy = chdir("/"); // change working directory
-    chdir("/"); // change working directory
+    if (chdir("/") != 0) {// change working directory
+    	std::cerr << thread_id << " Can't change / directory !"  << std::endl;
+	return false;
+    }
     umask(0); // clear our file mode creation mask
     umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
 
