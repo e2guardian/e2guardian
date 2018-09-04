@@ -1,6 +1,7 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 September 2018
+- Fix bug #432 Block html page gets shown twice
 - Fix bug #436 compilation bug with avast and kavscan
 
 August 2018
