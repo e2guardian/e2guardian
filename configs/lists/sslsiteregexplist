@@ -17,3 +17,7 @@
 #"(^https://youtube.googleapis.com)"->"https://restrict.youtube.com"
 #"(^https://www.youtube-nocookie.com)"->"https://restrict.youtube.com"
 #
+# Enforce restricted mode in Google
+#
+#"https://www\.google\.[a-zA-Z0-9_.]*$)"->"https://forcesafesearch.google.com"
+#"(^https://.*\.gstatic\.com$)"->"https://forcesafesearch.google.com"

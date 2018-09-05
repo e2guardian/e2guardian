@@ -26,7 +26,6 @@ if(connect) return sslrequestcheck
 ifnot(greyset) returnif exceptioncheck
 ifnot(greyset) greycheck
 ifnot(greyset) returnif bannedcheck
-if(fullurlin,redirect) return setredirect
 if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
@@ -112,10 +111,10 @@ if(true) returnif sslcheckmitm
 if(true) return setblock
 
 # SSL site replace (used instead of dns kulge)
-#  always returns true 
+#  returns true on match and successful replacement
 function(sslreplace)
 if(fullurlin,sslreplace) return setconnectsite
-if(true) return true
+if(true) return false
 
 # Local grey check
 #  returns true on match
@@ -198,9 +197,9 @@ if(true) return true
 function(sslrequestcheck)
 if(true) returnif sslexceptioncheck
 if(true) returnif sslcheckmitm
-if(true) returnif sslcheckblanketblock
 if(sitein, banned) return setblock
 if(true) sslreplace
+ifnot(returnset) returnif sslcheckblanketblock
 if(true) setgrey
 
 function(checknoscanlists)
