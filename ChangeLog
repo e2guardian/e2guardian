@@ -1,7 +1,12 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+September 2018
+- Fix bug #432 Block html page gets shown twice
+- Fix bug #436 compilation bug with avast and kavscan
+
 August 2018
 - Add new per cent option of weighted phrase lists
+- Global code review
 
 July 2018
 - Fix ICAP client - tested with f-secure and Kav4proxy -
