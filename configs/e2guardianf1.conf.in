@@ -386,7 +386,7 @@ reportinglevel = 3
 # filter group, overriding the global setting in e2guardian.conf. This is
 # only used in reporting level 3.
 #
-# The default template file path is <languagedir>/<language>/template.h
+# The default template file path is <languagedir>/<language>/template.html
 # e.g. @DGDATADIR@/languages/ukenglish/template.html when using 'ukenglish'
 # language.
 #
@@ -397,8 +397,10 @@ reportinglevel = 3
 #htmltemplate = 'custom.html'
 
 #Template for use to report network issues and sites which are not responding
-# if blank htmltemplate will be used
-#neterrtemplate = 'neterr.html'
+# The default template file path is <languagedir>/<language>/neterr_template.html
+# e.g. @DGDATADIR@/languages/ukenglish/neterr_template.html when using 'ukenglish'
+# language.
+#neterrtemplate = 'custom_neterr_template.html' 
 
 # Non standard delimiter (only used with accessdeniedaddress)
 # To help preserve the full banned URL, including parameters, the variables
