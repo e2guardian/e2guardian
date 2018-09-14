@@ -1895,6 +1895,10 @@ void HTTPHeader::setClientIP(String &ip) {
     s_clientip = ip.toCharArray();
 }
 
+String HTTPHeader::getClientIP() {
+    return s_clientip;
+}
+
 void HTTPHeader::setDirect() {
     isdirect = true;
 }
