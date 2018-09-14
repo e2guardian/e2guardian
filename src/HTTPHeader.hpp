@@ -50,6 +50,7 @@ class HTTPHeader
     bool in(Socket *sock, bool allowpersistent = false );
 
     void setClientIP(String &ip);
+    String getClientIP();
 
     String stringHeader();  // output header as a String (used by ICAP)
 
