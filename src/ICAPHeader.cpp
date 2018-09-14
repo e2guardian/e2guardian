@@ -613,6 +613,7 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
 
 void ICAPHeader::setClientIP(String &ip) {
     clientip = ip;
+    HTTPrequest.setClientIP(ip);
 }
 
 bool ICAPHeader::in(Socket *sock, bool allowpersistent)

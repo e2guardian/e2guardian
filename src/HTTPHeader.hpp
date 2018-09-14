@@ -52,6 +52,7 @@ class HTTPHeader
     void setClientIP(String &ip);
 
     String stringHeader();  // output header as a String (used by ICAP)
+    String getClientIP();
 
     // send headers out over the given socket
     // "reconnect" flag gives permission to reconnect to the socket on write error
