@@ -170,7 +170,10 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
         if (string.length() == 0)
         	string = peercon.getPeerIP();
     } else {
-    	string = peercon.getPeerIP();
+        string = h.getClientIP();
+        // otherwise, grab the IP directly from the client connection
+        if (string.length() == 0)
+    	    string = peercon.getPeerIP();
     }
     return DGAUTH_OK;
 }
