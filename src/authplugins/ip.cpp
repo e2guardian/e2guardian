@@ -163,11 +163,14 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     if (use_xforwardedfor == 1) {
         // grab the X-Forwarded-For IP if available
         string = h.getXForwardedForIP();
+	// or try the client IP from the header
+	if (string.length() == 0)
+		string = h.getClientIP();
         // otherwise, grab the IP directly from the client connection
         if (string.length() == 0)
-            string = peercon.getPeerIP();
+        	string = peercon.getPeerIP();
     } else {
-        string = peercon.getPeerIP();
+    	string = peercon.getPeerIP();
     }
     return DGAUTH_OK;
 }
