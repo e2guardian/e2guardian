@@ -97,11 +97,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 #endif
         line = linebuffer.c_str();
         line.removeWhiteSpace();
-        if (caseinsensitive)
-            line.toLower();
         // handle included list files
         if (line.startsWith(".")) {
-            temp = line.after(".include<").before(">");
+            temp = line.after(".Include<").before(">");
             if (temp.length() > 0) {
                 if (!readFile(temp.toCharArray(), *LMeta, false)) {
                     listfile.close();
@@ -114,6 +112,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             }
         }
         if (line.startsWith("#")) continue;   // ignore comment lines
+        if (caseinsensitive)
+            line.toLower();
         command = line.before("(");
         command.removeWhiteSpace();
         params = line.before(")").after("(");

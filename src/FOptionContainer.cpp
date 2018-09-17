@@ -167,7 +167,7 @@ bool FOptionContainer::readConfFile(const char *filename) {
                 temp.removeWhiteSpace(); // get rid of spaces at end of line
                 // deal with included files
                 if (temp.startsWith(".")) {
-                    temp = temp.after(".include<").before(">");
+                    temp = temp.after(".Include<").before(">");
                     if (temp.length() > 0) {
                         if (!readConfFile(temp.toCharArray())) {
                             conffiles.close();
