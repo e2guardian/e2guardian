@@ -124,6 +124,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				va_end(ap);
 				oss << std::endl;
 				fputs(oss.str().c_str(),pFile);
+				fflush(pFile);
 			}
 		}
 	}
