@@ -956,7 +956,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 	    time_t now = time(NULL);
 	    char date[32];
 	    struct tm * tm = localtime(&now);
-	    strftime(date, sizeof date, "%y.%m.%d %H:%M:%S", tm);
+	    strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
 	    when = date;
 	    // append timestamp if desired
 	    if (o.log_timestamp)
