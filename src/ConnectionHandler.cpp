@@ -3405,7 +3405,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 #endif
                         //send error response
                             wline = "ICAP/1.0 408 Request timeout\r\n";
-                            wline += "Service: e2guardian 5.0\r\n";
+                            wline += "Service: ";
+			    wline += PACKAGE_STRING; 
+			    wline  += "\r\n";
                             wline += "Encapsulated: null-body=0\r\n";
                             wline += "\r\n";
                             peerconn.writeString(wline.toCharArray());
@@ -3501,7 +3503,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 // respond with option response
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: REQMOD\r\n";
-                wline += "Service: e2guardian 5.0\r\n";
+                wline += "Service: ";
+		wline += PACKAGE_STRING; 
+		wline  += "\r\n";
                 wline += "ISTag: \"";
                 wline += ldl->ISTag();
                 wline += "\"\r\n";
@@ -3523,7 +3527,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                // respond with option response
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: RESPMOD\r\n";
-                wline += "Service: e2guardian 5.0\r\n";
+                wline += "Service: ";
+		wline += PACKAGE_STRING; 
+		wline  += "\r\n";
                 wline += "ISTag:";
                 wline += ldl->ISTag();
                 wline += "\r\n";
@@ -3544,7 +3550,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 wline = "ICAP/1.0 405 Method not allowed for service\r\n";
-                wline += "Service: e2guardian 5.0\r\n";
+                wline += "Service: ";
+		wline += PACKAGE_STRING; 
+		wline  += "\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
@@ -3560,9 +3568,9 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
            } else {
                 //send error response
                 wline = "ICAP/1.0 400 Bad request\r\n";
-                wline += "Service: e2guardian 5.0\r\n";
-                wline += "Encapsulated: null-body=0\r\n";
-                wline += "\r\n";
+                wline += "Service: ";
+		wline += PACKAGE_STRING; 
+		wline  += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->ICAP)
@@ -3904,7 +3912,9 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     if (icaphead.icap_com.filtergroup < 0)    //i.e. no X-ICAP-E2G
     {
         String wline = "ICAP/1.0 418 Bad composition - X-ICAP-E2G header not present\r\n";
-        wline += "Service: e2guardian 5.0\r\n";
+        wline += "Service: ";
+	wline += PACKAGE_STRING; 
+	wline  += "\r\n";
         wline += "Encapsulated: null-body=0\r\n";
         wline += "\r\n";
         peerconn.writeString(wline.toCharArray());
