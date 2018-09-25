@@ -172,9 +172,9 @@ bool RegExp::match(const char *text, RegResult &rs)
     if (regexec(&reg, pos, num_sub_expressions + 1, pmatch, 0)) { // run regexdelete[]pmatch;
         delete[] pmatch;
         rs.imatched = false;
-        //        #ifdef DGDEBUG
-        //            std::cerr << thread_id << "no match for:" << searchstring << std::endl;
-        //        #endif
+#ifdef REDEBUG
+            std::cerr << thread_id << "no match for:" << searchstring << std::endl;
+#endif
         return false; // if no match
     }
     size_t matchlen;
