@@ -91,6 +91,9 @@ class ListMeta
 
    bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false);
 
+   bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
+       std::deque<String> &list_rep, std::deque<RegExp> &list_comp);
+
 private:
 
     char *inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
@@ -108,8 +111,6 @@ bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &r
         std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
     bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
         std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
-    bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
-        std::deque<String> &list_rep, std::deque<RegExp> &list_comp);
 
 };
 
