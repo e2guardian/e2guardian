@@ -676,7 +676,12 @@ bool FOptionContainer::read(const char *filename) {
                     }
                 }
             }
-
+	    std::string content_regexp_list_location(findoptionS("contentregexplist"));
+	    unsigned int content_regexp_list;
+            if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
+                return false;
+            } // content replacement regular expressions
+	    content_regexp_flag = true;
 
 #ifdef DGDEBUG
         std::cerr << thread_id << "Lists in memory" << std::endl;
