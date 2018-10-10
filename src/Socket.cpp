@@ -509,8 +509,6 @@ X509_VERIFY_PARAM_free(param);
 int Socket::checkCertHostname(const std::string &_hostname)
 {
     String hostname = _hostname;
-    bool matched = false;
-    bool hasaltname = false;
 
     X509 *peercertificate = SSL_get_peer_certificate(ssl);
     if (peercertificate == NULL) {
@@ -529,6 +527,8 @@ int Socket::checkCertHostname(const std::string &_hostname)
 
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
+    bool matched = false;
+    bool hasaltname = false;
 
     //check the altname extension for additional valid names
     STACK_OF(GENERAL_NAME) *gens = NULL;
