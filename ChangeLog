@@ -1,14 +1,21 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.2.2
+
 September 2018
 - Reenable content regexp option 
 - Allow the ip authplugin to use the X-Client-IP header when using ICAP
 - Fix bug #432 Block html page gets shown twice
 - Fix bug #436 compilation bug with avast and kavscan
+- Fix some lags with debugmanager
+- Allow the ip authplugin to use the X-Client-IP header when using ICAP
+- Update default template page (denied access)
+
+and more ...
 
 August 2018
 - Add new per cent option of weighted phrase lists
-- Global code review
+- Global code review (remove gcc warnings)
 
 July 2018
 - Fix ICAP client - tested with f-secure and Kav4proxy -
