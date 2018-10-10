@@ -1,6 +1,7 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
 September 2018
+- Reenable content regexp option 
 - Allow the ip authplugin to use the X-Client-IP header when using ICAP
 - Fix bug #432 Block html page gets shown twice
 - Fix bug #436 compilation bug with avast and kavscan
