@@ -2253,14 +2253,13 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
 #ifdef DGDEBUG
     std::cerr << "IPPath is " << ippath << std::endl;
 #endif
-
+#ifdef PRT_DNSAUTH
     // get info from DNS
     union {
         HEADER hdr;
         u_char buf[NS_PACKETSZ];
     } response;
     int responseLen;
-#ifdef PRT_DNSAUTH
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
