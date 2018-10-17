@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the v5 near-production version - v5.2.x  
+This is the v5 production version - v5.2.x  
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in this release.
