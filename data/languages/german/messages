@@ -13,7 +13,7 @@
 "56","URL MODIFIZIERT"
 "57","HEADER MODIFIZIERT"
 "58","HEADER HINZUGEFÜGT"
-"59","NETERROR"    # needs translation
+"59","NETZWERKFEHLER"
 "70","SSL SEITE"
 "71","IP-Limit"
 "72","Inhalt überprüfen"
@@ -34,7 +34,7 @@
 "157","Es konnte kein Verbindung zum lokalen Proxy hergestellt werden"
 "158","Verbindungsaufbau fehlgeschlagen"
 "159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
-"160","Failed to nogotiate ssl connection to server"    # needs translation
+"160","Die SSL-Verbindung zum Server konnte nicht hergestellt werden" 
 "200","Die angeforderte URL ist ungültig"
 "201","Antwort vom Upstream-Proxy nicht möglich (Zeitüberschreitung)"
 "202","Antwort vom Upstream-Proxy nicht möglich (Fehler)"
@@ -42,10 +42,10 @@
 "204"," - Bitte versuchen Sie es später noch einmal"
 "205","Upstream-Proxy antwortet nicht (Netzwerkfehler)"
 "206"," - Bitte versuchen Sie es später noch einmal"
-"207","The site requested does not exist"    # needs translation
-"208","The site requested does not have an IPv4 address"    # needs translation
-"209","Temporary DNS service failure - please try again"    # needs translation
-"210","DNS service failure - please try again later"    # needs translation
+"207","Die angeforderte Seite existiert nicht"
+"208","Die angeforderte Seite hat keine IPv4-Adresse"
+"209","Vorübergehender Ausfall des DNS-Dienstes - Bitte versuchen Sie es erneut"
+"210","DNS-Dienstfehler - Bitte versuchen Sie es später noch einmal"
 "300","Verbotener Ausdruck gefunden: "
 "301","Verbotener Ausdruck gefunden"
 "400","Verbotene Kombination von Ausdrücken gefunden: "
@@ -70,10 +70,10 @@
 "507","HTTPS-Verbindungen zu IP-Adressen sind nicht erlaubt."
 "508","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet: "
 "509","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet."
-"510","Blocked IP site "    # needs translation
+"510","Geblockte Seite (IP) "
 "520","Geblockte HTTPS-Seite: "
 "521","Geblockte Ausdrücke: "
-"522","Blocked User-Agent: "    # needs translation
+"522","Geblockter Benutzer-Agent: "
 "560","Geblockte Seite (lokal): "
 "561","Geblockte URL (lokal): "
 "580","Geblockte HTTPS-Seite (lokal): "
@@ -88,7 +88,7 @@
 "607","Umgehungs-Cookie gefunden"
 "608","Überprüfe Umgehungs-URL Ausnahme."
 "609","Ausnahme von regular expression URL gefunden: "
-"610","User-Agent pattern match: "    # needs translation
+"610","Benutzer-Agent Suchmuster-Abgleich: "
 "620","Ursprungsseite gefunden: "
 "630","URL gefunden in "
 "631"," erlaubte Lokations-Liste"
