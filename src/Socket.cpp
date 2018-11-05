@@ -565,14 +565,28 @@ int Socket::checkCertHostname(const std::string &_hostname)
         if (hostname.compare(altname) == 0) {
             matched = true;
             break;
-        } else if (altname.startsWith("*.")) {
+        } else if (altname.contains("*")) {
 #ifdef NETDEBUG
             std::cout << thread_id << "Wildcard certificate is in use" << std::endl;
 #endif
-            altname = altname.after("*"); // need to keep the "."
-            if (hostname.endsWith(altname)) {
-                matched = true;
-                break;
+            String  anend;
+            anend = altname.after("*"); // need to keep the "."
+            if (hostname.endsWith(anend)) {
+                bool part_match = true;
+                String anstart = altname.before("*");
+                String t = hostname.before(anend.c_str());
+                if( anstart.length() > 0) {             // if something before * we must also match this
+                  if( hostname.startsWith(anstart)) {
+                    t = t.after(anstart.c_str());
+                  } else {
+                      part_match = false;    // even though after * matches, no match on before * - so cannot match
+                   }
+                 }
+                 //    t now contains what is matched by the '*"  - this must not contain a '.'
+                 if (part_match && !t.contains(".")) {
+                   matched = true;
+                   break;
+                }
             }
         }
     }
