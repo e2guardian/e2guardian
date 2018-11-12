@@ -3929,7 +3929,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         return 1;
     }
 
-    //filtergroup = icaphead.icap_com.filtergroup;
+    filtergroup = icaphead.icap_com.filtergroup;
     checkme.filtergroup = icaphead.icap_com.filtergroup;
     clientuser = icaphead.icap_com.user;
 
