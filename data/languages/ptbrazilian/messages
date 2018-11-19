@@ -25,6 +25,7 @@
 "103","IP de Cliente Proibido"
 "104","Espaço Bloqueado"
 "105","Usuário Proibido"
+"110","Proxy authentication error"    # needs translation
 "121","Only limited access allowed from your location"    # needs translation
 "150","Certificate supplied by server was not valid"    # needs translation
 "151","Could not open ssl connection"     # needs translation
