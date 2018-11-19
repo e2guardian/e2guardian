@@ -222,7 +222,7 @@ bool LOptionContainer::inExceptionIPList(const std::string *ip, std::string *&ho
 
 // TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
 
-bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::string *&host, bool *block, bool *part_block, bool *isexception, String url)
+bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::string *host, bool *block, bool *part_block, bool *isexception, String url)
 {
     String temp;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
