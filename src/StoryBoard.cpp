@@ -653,9 +653,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isBlocked = true;
                     cm.isGrey = false;
                     cm.isexception = false;
-                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if( cm.message_no == 503)
+                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) ;
+                    else
+                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
-                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     else
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                     cm.whatIsNaughtyCategories = cm.lastcategory;
@@ -852,12 +855,12 @@ bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
 std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter &cm) {
     std::deque<url_rec> temp;
     String durl = urld;
-    while (durl.contains(":")) {
+    while (durl.contains(":") && durl.contains(".")) {
         durl = durl.after(":");
         while (durl.startsWith(":'") || durl.startsWith("/")) {
             durl.lop();
         }
-        if (durl.size() > 0) {
+        if (durl.size() > 3) {
             url_rec t;
             t.baseurl = durl;
             t.baseurl.removePTP();
@@ -870,6 +873,8 @@ std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter &cm) {
             if (cm.isIPHostnameStrip(t.urldomain))
                 t.site_is_ip = true;
             temp.push_back(t);
+        } else {
+            break;
         }
     }
     return temp;
