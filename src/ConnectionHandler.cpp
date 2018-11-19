@@ -732,7 +732,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (isbannedip) {
                 // matchedip = clienthost == NULL;
             } else {
-                if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
+                if (ldl->inRoom(clientip, room, &(checkme.clienthost), &isbannedip, &part_banned, &checkme.isexception,
                                 checkme.urld)) {
 #ifdef DGDEBUG
                     std::cerr << " isbannedip = " << isbannedip << "ispart_banned = " << part_banned << " isexception = " << checkme.isexception << std::endl;
@@ -1745,7 +1745,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                                                                                ? checkme->whatIsNaughtyDisplayCategories
                                                                                                : checkme->whatIsNaughtyCategories),
                                                                                               clientuser, clientip,
-                                                                                              clienthost, filtergroup,
+                                                                                              &(checkme->clienthost), filtergroup,
                                                                                               ldl->fg[filtergroup]->name,
                                                                                               hashed, localip);
                     }
