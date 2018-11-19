@@ -32,6 +32,7 @@ if(headerin,headermods) setmodheader
 if(fullurlin, addheader) setaddheader
 if(searchin,override) return setgrey
 if(searchin,banned) return setblock
+if(fullurlin,redirect) return setredirect
 if(true) setgrey
 
 
