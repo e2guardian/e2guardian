@@ -955,12 +955,13 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         isItNaughty = true;
         // Banned combination phrase found:
         // Banned combination search term found:
-        message_no = searchterms ? 452 : 400;
-        whatIsNaughtyLog = o.language_list.getTranslation(message_no);
+        message_no = searchterms ? 453 : 401;
+        log_message_no = searchterms ? 452 : 400;
+        whatIsNaughtyLog = o.language_list.getTranslation(log_message_no);
         whatIsNaughtyLog += combifound;
         // Banned combination phrase found.
         // Banned combination search term found.
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 453 : 401);
+        whatIsNaughty = o.language_list.getTranslation(message_no );
         whatIsNaughtyCategories = bannedcategory.toCharArray();
         return;
     }
@@ -982,7 +983,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         isItNaughty = true;
         // Weighted phrase limit of
         // Weighted search term limit of
-        message_no = searchterms ? 454 : 401;
+        message_no = searchterms ? 454 : 402;
         whatIsNaughtyLog = o.language_list.getTranslation(message_no);
         whatIsNaughtyLog += String(limit).toCharArray();
         whatIsNaughtyLog += " : ";
