@@ -31,6 +31,7 @@
 "103","Banned Client IP"
 "104","Banned Location"
 "105","Banned User"
+"110","Proxy authentication error"
 "121","Only limited access allowed from your location"
 
 "150","Certificate supplied by server was not valid"

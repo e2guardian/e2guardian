@@ -23,6 +23,7 @@
 "103","Client-IP geblockt"
 "104","Lokation geblockt"
 "105","Benutzer geblockt"
+"110","Proxy authentication error"    # needs translation
 "121","Von Ihrer Lokation aus ist nur ein begrenzter Zugriff möglich"
 "150","Das vom Server ausgelieferte Zertifikat ist ungültig"
 "151","Es konnte keine SSL-Verbindung aufgebaut werden"
