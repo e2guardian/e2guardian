@@ -31,6 +31,7 @@
 "103","Banned Client IP"
 "104","Banned Location"
 "105","Banned User"
+"110","Proxy authentication error"
 "121","Only limited access allowed from your location"
 
 "150","Certificate supplied by server was not valid"
@@ -39,7 +40,7 @@
 "153","Failed to load ssl private key"
 "154","Failed to negotiate ssl connection to client"
 "155","No SSL certificate supplied by server"
-"156","Server's SSL certificate does not match domain name"
+"156","Servers SSL certificate does not match domain name"
 "157","Unable to create tunnel through local proxy"
 "158","Opening tunnel failed"
 "159","Could not connect to proxy server"

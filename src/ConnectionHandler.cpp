@@ -908,8 +908,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // virus checking candidate?
             // checkme.noviruscheck defaults to true
-            if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head
+            if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head or not yet authed
                 && !(checkme.isBlocked)  // or already blocked
+                && authed   // and is authed
                 && (o.csplugins.size() > 0)            //  and we have scan plugins
                 && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
                 && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
@@ -921,7 +922,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // Start of Storyboard checking
             //
 //            if (!(checkme.isBlocked || checkme.isbypass))
-            if (!(checkme.isBlocked || checkme.isdone)) {
+            if (!(checkme.isBlocked || checkme.isdone) && authed) {
 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
@@ -1059,6 +1060,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // treat connect like normal get
                             checkme.isconnect = false;
                             checkme.isexception = true;
+                        } else if (!authed && o.auth_needs_proxy_in_plugin) {
+                            checkme.isItNaughty = true;
+                            checkme.message_no =  110;
                         }
                         if (checkme.isconnect) {
                             if (rcode == 200) {
