@@ -53,6 +53,7 @@ void HTTPHeader::reset()
         issearch = false;
         searchchecked = false;
         clcached = false;
+        expects_100 = false;
 
         mitm = false;
         isdirect = false;
@@ -961,6 +962,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
             chunked = true;
     } else if ( i->startsWithLower("transfer-coding:")) {
         ptransfercoding = &(*i);
+    } else if ( i->startsWithLower("expect: 100-continue")) {
+	    expects_100 = true;
         }
 
 	//Can be placed anywhere ..
@@ -1901,6 +1904,25 @@ String HTTPHeader::getClientIP() {
 
 void HTTPHeader::setDirect() {
     isdirect = true;
+}
+
+bool HTTPHeader::in_handle_100(Socket *sock, bool allowpersistent, bool expect_100) {
+    int max_100s = 4;
+    while( max_100s > 0)
+    {
+        if( in(sock,allowpersistent)) {
+            if (!expect_100 && returncode == 100) // discard 100 continue header and get next header
+            {
+                max_100s--;
+                continue;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+    return false;
 }
 
 bool HTTPHeader::in(Socket *sock, bool allowpersistent)
