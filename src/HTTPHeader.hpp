@@ -48,6 +48,7 @@ class HTTPHeader
 
     void setTimeout(int t);
     bool in(Socket *sock, bool allowpersistent = false );
+    bool in_handle_100(Socket *sock, bool allowpersistent = false, bool expect_100 = false );
 
     void setClientIP(String &ip);
     String getClientIP();
@@ -109,6 +110,7 @@ class HTTPHeader
     String searchterms();
     bool searchchecked;
     bool chunked;
+    bool expects_100 = false;
     String contentEncoding();
     String transferEncoding();
     // grab the contents of Proxy-Authorization header

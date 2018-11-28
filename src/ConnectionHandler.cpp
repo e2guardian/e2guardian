@@ -975,7 +975,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //if  is a search - content check search terms
-            if (checkme.isSearch)
+            if (checkme.isGrey && checkme.isSearch)
                 check_search_terms(checkme);  // will set isItNaughty if needed
 
 
@@ -1032,7 +1032,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
                 {
                     if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
-                          && (docheader.in(&proxysock, persistOutgoing)))) {
+                          && (docheader.in_handle_100(&proxysock, persistOutgoing, header.expects_100)))) {
                         if (proxysock.isTimedout()) {
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
@@ -3858,7 +3858,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     //if  is a search - content check search terms
-    if (!done && checkme.isSearch)
+    if (!done && checkme.isGrey && checkme.isSearch)
         check_search_terms(checkme);  // will set isItNaughty if needed
 
 
