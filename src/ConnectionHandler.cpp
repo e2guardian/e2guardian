@@ -1060,7 +1060,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // treat connect like normal get
                             checkme.isconnect = false;
                             checkme.isexception = true;
-                        } else if (!authed && o.auth_needs_proxy_in_plugin) {
+                        } else if (!authed && o.auth_needs_proxy_in_plugin && !checkme.isexception) {
                             checkme.isItNaughty = true;
                             checkme.message_no =  110;
                         }
