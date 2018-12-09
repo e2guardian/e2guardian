@@ -4,7 +4,7 @@
 # Then run ./update_messages to merge the new messages into all language
 #     files. '# needs translation' will be appended to new lines.
 
-# Messages 0-4999 are reserved for standard use.
+# Messages 1-4999 are reserved for standard use.
 # Please use numbers above 5000 for localy defined messages
 
 "1","Access Denied"

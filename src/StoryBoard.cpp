@@ -637,7 +637,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isGrey = false;
                     cm.isBlocked = false;
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
-                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if (cm.message_no > 0)
+                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    else
+                        cm.whatIsNaughty = cm.lastmatch;
                     if (cm.log_message_no == 0)
                         cm.whatIsNaughtyLog = cm.whatIsNaughty;
                     else
