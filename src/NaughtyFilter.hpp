@@ -119,6 +119,7 @@ class NaughtyFilter
     String logurl;      // url with called protocol
     String urld;          // decoded url
     String urldomain;   // the domain or site part of the url
+    String urldomainport;   // the domain or site part of the url with port number
     String connect_site;   // the site to connect to - normally same as urldomain
     String lastmatch;
     String result;

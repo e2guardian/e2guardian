@@ -541,6 +541,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         bool persistOutgoing = true;
         bool persistPeer = true;
         bool persistProxy = true;
+        String last_domain_port;
+        bool last_isdirect = false;
 
         bool firsttime = true;
         if (!header.in(&peerconn, true)) {     // get header from client, allowing persistency
@@ -617,11 +619,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.bypasstimestamp = 0;
 
                 authed = false;
-                //isbanneduser = false;
-// Bypass
-                //isbypass = false;
-                //isscanbypass = false;
-                //isvirusbypass = false;
 
                 requestscanners.clear();
                 responsescanners.clear();
@@ -630,8 +627,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 urlparams.clear();
                 postparts.clear();
                 checkme.mimetype = "-";
-                //exceptionreason = "";
-                //exceptioncat = "";
                 room = "";    // CHECK THIS - surely room is persistant?????
 
                 // reset docheader & docbody
@@ -677,6 +672,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // don't let the client connection persist if the client doesn't want it to.
             persistOutgoing = header.isPersistent();
+            // now check if in input proxy mode and direct upstream if upstream needs closing
+            if (persistProxy && last_isdirect &&
+            ((last_domain_port != checkme.urldomainport)|| !o.no_proxy)) {
+                proxysock.close();
+                persistProxy = false;
+            }
+            last_domain_port = checkme.urldomainport;
+            last_isdirect = checkme.isdirect;
 
 
             //
@@ -935,7 +938,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.isItNaughty = checkme.isBlocked;
             }
 
-            if (checkme.isdirect) header.setDirect();
+            if (checkme.isdirect) {
+                header.setDirect();
+                last_isdirect = true;
+                if(!o.no_proxy) {    // we are in mixed mode proxy and direct
+                    if(persistProxy) {  // if upstream socket is open close it
+                        proxysock.close();
+                        persistProxy = false;
+                    }
+                }
+            }
 
             if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
 #ifdef DGDEBUG
