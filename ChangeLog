@@ -1,5 +1,19 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+December 2018
+
+- Fix for #485 related to #481 wrong upstream site called in direct mode 
+- Fix bug #481 auth exception being denied 
+- Fix bug #480 Ignore http 100 when no expect: 100-continue 
+- Fix bug #478 check searchterms always being called 
+- Fix bug #476 - only check when potential url is longer than 3 chars and contains'.'
+- Fix bug #464 proxy auth issues
+- Fix bug #475 Client Hostname blank in template 
+- Fix bug #473 ICAP mode: Wrong group in respmod 
+- Fix bug #465 Incorrect wildcard certificate validation 
+
+and more ...
+
 Version 5.2.2
 
 September 2018
