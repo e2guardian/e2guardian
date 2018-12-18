@@ -1,4 +1,4 @@
- e2guardian config file for version @PACKAGE_VERSION@
+# e2guardian config file for version @PACKAGE_VERSION@
 
 #NOTE This file is only read at start-up
 #
