@@ -1,4 +1,4 @@
-# e2guardian config file for version @PACKAGE_VERSION@
+ e2guardian config fi/e for version @PACKAGE_VERSION@
 
 #NOTE This file is only read at start-up
 #
@@ -383,9 +383,11 @@ logclienthostnames = off
 # filtered and get it to just pass it straight through.
 # This setting also applies to content regular expression modification.
 # The value must not be higher than maxcontentramcachescansize
+# Do not set this too low as this will result in pages that contain a
+#  long preamble not being content filtered
 # The size is in Kibibytes - eg 2048 = 2Mb
 # use 0 to set it to maxcontentramcachescansize
-maxcontentfiltersize = 256
+maxcontentfiltersize = 1024
 
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
