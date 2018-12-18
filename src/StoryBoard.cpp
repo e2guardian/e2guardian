@@ -135,7 +135,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             if ((oldf = getFunctID(temp)) > 0) {
                 if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
                     if (!is_daemonised) {
-                        std::cerr << thread_id << "SB: error - reserved word used a function name - " << temp.c_str() << std::endl;
+                        std::cerr << thread_id << "SB: error - reserved word used a function name - " << filename << " word " << temp.c_str() << std::endl;
                     }
                     syslog(LOG_ERR, "%sSB: error - reserved word used a function name - %s", thread_id.c_str(),
                              temp.c_str());
@@ -237,7 +237,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
 #ifdef DGDEBUG
-                                        std::cerr << "SB  list name " << j->list_name << " checking type  " << *k << std::endl;
+                                        std::cerr << "SB  list name " << filename << " list " << j->list_name << " checking type  " << *k << std::endl;
 #endif
                     ListMeta::list_info listi = LMeta->findList(j->list_name, *k);
 #ifdef DGDEBUG
@@ -251,7 +251,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 if (!found) {
                     // warning message
-                    std::cerr << thread_id << "SB warning: Undefined list " << j->list_name << " used at line " << j->file_lineno
+                    std::cerr << thread_id << "SB warning: Undefined list " << filename << " list " << j->list_name << " used at line " << j->file_lineno
                               << " of " << i->file_name << std::endl;
                 } else {
 #ifdef DGDEBUG
@@ -263,7 +263,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             // check action
             if ((j->action_id = getFunctID(j->action_name)) == 0) {
                 // warning message
-                std::cerr << "StoryBoard error: Action not defined " << j->action_name << " at line " << j->file_lineno
+                std::cerr << "StoryBoard error: Action not defined:  " << filename << " action " << j->action_name << " at line " << j->file_lineno
                           << " of " << i->file_name << std::endl;
             }
 #ifdef DGDEBUG
