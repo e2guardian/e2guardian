@@ -275,6 +275,7 @@ embeddedurlweight = 0
 # 300 = enable for 5 minutes
 # 0 = disable ( defaults to 0 )
 # -1 = enable but you require a separate program/CGI to generate a valid link
+# -2 = as -1 but more secure - requires cgikey to be defined
 bypass = 0
 
 # Temporary Denied Page Bypass Secret Key
@@ -283,6 +284,9 @@ bypass = 0
 # 'Mary had a little lamb.' = an example
 # '76b42abc1cd0fdcaf6e943dcbc93b826' = an example
 bypasskey = ''
+
+# magic key for cgi bypass v2 - used to sign communications between e2g and cgi
+#cgikey = 'you must change this text in order to be secure'
 
 #  Users will not be able to bypass sites/urls in these lists
 sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelistwithbypass'
@@ -297,6 +301,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelis
 # 300 = enable for 5 minutes
 # 0 = disable (default)
 # -1 = enable, but require a separate program/CGI to generate a valid link
+# -2 = as -1 but more secure - requires cgikey to be defined
 infectionbypass = 0
 
 # Infection/Scan Error Bypass Secret Key

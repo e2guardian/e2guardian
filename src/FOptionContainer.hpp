@@ -72,12 +72,14 @@ public:
     bool reverse_lookups;
     bool force_quick_search;
     int bypass_mode;
+    bool cgi_bypass_v2 = false;
     int infection_bypass_mode;
 
     std::string name;
     std::string magic;
     std::string imagic;
     std::string cookie_magic;
+    std::string cgi_magic;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier

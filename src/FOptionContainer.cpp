@@ -733,7 +733,7 @@ bool FOptionContainer::read(const char *filename) {
     //
 
     bypass_mode = findoptionI("bypass");
-    if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
+    if (!realitycheck(bypass_mode, -2, 0, "bypass")) {
         return false;
     }
     // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
@@ -757,7 +757,7 @@ bool FOptionContainer::read(const char *filename) {
     }
 
     infection_bypass_mode = findoptionI("infectionbypass");
-    if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
+    if (!realitycheck(infection_bypass_mode, -2, 0, "infectionbypass")) {
         return false;
     }
     if (infection_bypass_mode != 0) {
@@ -779,6 +779,16 @@ bool FOptionContainer::read(const char *filename) {
             std::cerr << thread_id << "Only allowing infection bypass on scan error" << std::endl;
 #endif
             infection_bypass_errors_only = true;
+        }
+    }
+
+    if((infection_bypass_mode == -2)||(bypass_mode == -2)) {
+        cgi_magic = findoptionS("cgikey");
+        if ( cgi_magic.length() < 9 ) {
+            std::cerr << thread_id << "A valid cgikey must be provided with bypass cgi mode 2" << std::endl;
+            return false;
+        } else {
+            cgi_bypass_v2 = true;
         }
     }
             } catch (std::exception &e) {

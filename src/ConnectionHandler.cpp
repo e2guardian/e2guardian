@@ -174,7 +174,8 @@ std::string ConnectionHandler::miniURLEncode(const char *s) {
 }
 
 // create a temporary bypass URL for the banned page
-String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *clientip, bool infectionbypass) {
+String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *clientip,
+                                    bool infectionbypass, std::string *user) {
     // filter/virus bypass hashes last for a certain time only
     //String timecode(time(NULL) + (infectionbypass ? (*ldl->fg[filtergroup]).infection_bypass_mode : (*ldl->fg[filtergroup]).bypass_mode));
     String timecode(time(NULL) + (infectionbypass ? (*ldl->fg[filtergroup]).infection_bypass_mode
@@ -182,7 +183,8 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     // use the standard key in normal bypass mode, and the infection key in infection bypass mode
     String magic(infectionbypass ? ldl->fg[filtergroup]->imagic.c_str() : ldl->fg[filtergroup]->magic.c_str());
     magic += clientip->c_str();
-    magic += timecode;
+    if(ldl->fg[filtergroup]->cgi_bypass_v2)
+        magic += user->c_str();
     String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
     if (!url->after("://").contains("/")) {
         String newurl((*url));
@@ -200,6 +202,7 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String timecode(bypasstimestamp);
     String data(magic);
     data += clientip->c_str();
+    data += clientuser;
     data += timecode;
     String res(url->md5(data.toCharArray()));
     res += timecode;
@@ -210,6 +213,134 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     return res;
 }
 
+
+// is this a temporary filter bypass URL?
+int ConnectionHandler::isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass, std::string &user)
+{
+    if ((url).length() <= 45)
+        return false; // Too short, can't be a bypass
+
+    // check to see if this is a bypass URL, and which type it is
+    bool filterbypass = false;
+    bool virusbypass = false;
+    if ((isvirusbypass == NULL) && ((url).contains("GBYPASS="))) {
+        filterbypass = true;
+    } else if ((isvirusbypass != NULL) && (url).contains("GIBYPASS=")) {
+        virusbypass = true;
+    }
+    if (!(filterbypass || virusbypass))
+        return 0;
+
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    String url_left((url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
+    url_left.chop(); // remove the ? or &
+    String url_right((url).after(filterbypass ? "GBYPASS=" : "GIBYPASS="));
+
+    String url_hash(url_right.subString(0, 32));
+    String url_time(url_right.after(url_hash.toCharArray()));
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    String mymagic(magic);
+    mymagic += clientip;
+    if(ldl->fg[filtergroup]->cgi_bypass_v2)
+        mymagic += user;
+    mymagic += url_time;
+    String hashed(url_left.md5(mymagic.toCharArray()));
+
+    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+        mymagic = hashed;
+        hashed = mymagic.md5(ldl->fg[filtergroup]->cgi_magic.c_str());
+    }
+
+    if (hashed != url_hash) {
+#ifdef DGDEBUG
+        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " hash mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        return 0;
+    }
+
+    time_t timen = time(NULL);
+    time_t timeu = url_time.toLong();
+
+    if (timeu < 1) {
+#ifdef DGDEBUG
+        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        return 1; // bad time value
+    }
+    if (timeu < timen) { // expired key
+#ifdef DGDEBUG
+        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+        return 1; // denotes expired but there
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+    if (virusbypass)
+        (*isvirusbypass) = true;
+    return (int)timeu;
+}
+
+// is this a scan bypass URL? i.e. a "magic" URL for retrieving a previously scanned file
+bool ConnectionHandler::isScanBypassURL(String url, const char *magic, const char *clientip)
+{
+    if ((url).length() <= 45)
+        return false; // Too short, can't be a bypass
+
+    if (!(url).contains("GSBYPASS=")) { // If this is not a bypass url
+        return false;
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL GSBYPASS found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    String url_left((url).before("GSBYPASS="));
+    url_left.chop(); // remove the ? or &
+    String url_right((url).after("GSBYPASS="));
+
+    String url_hash(url_right.subString(0, 32));
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL: " << url_left << ", HASH: " << url_hash << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    // format is:
+    // GSBYPASS=hash(ip+url+tempfilename+mime+disposition+secret)
+    // &N=tempfilename&M=mimetype&D=dispos
+
+    String tempfilename(url_right.after("&N="));
+    String tempfilemime(tempfilename.after("&M="));
+    String tempfiledis(tempfilemime.after("&D="));
+    tempfilemime = tempfilemime.before("&D=");
+    tempfilename = tempfilename.before("&M=");
+
+    String tohash(clientip + url_left + tempfilename + tempfilemime + tempfiledis + magic);
+    String hashed(tohash.md5());
+
+    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+        tohash = hashed;
+        hashed = tohash.md5(ldl->fg[filtergroup]->cgi_magic.c_str());
+    }
+
+#ifdef DGDEBUG
+    std::cerr << thread_id << "checking hash: " << clientip << " " << url_left << " " << tempfilename << " "
+              << " " << tempfilemime << " " << tempfiledis << " " << magic << " " << hashed << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    if (hashed == url_hash) {
+        return true;
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "URL GSBYPASS HASH mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
+
+    return false;
+}
 
 // send a file to the client - used during bypass of blocked downloads
 off_t
@@ -1524,7 +1655,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 std::cerr << thread_id << " -Enabling filter bypass hash generation" << std::endl;
 #endif
                 filterhash = true;
-                if (ldl->fg[filtergroup]->bypass_mode > 0)
+                if (ldl->fg[filtergroup]->bypass_mode > 0 || ldl->fg[filtergroup]->cgi_bypass_v2)
                     dohash = true;
             }
                 // generate an infection bypass hash
@@ -1585,13 +1716,21 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     String hashed;
                     // generate valid hash locally if enabled
                     if (dohash) {
-                        hashed = hashedURL(url, filtergroup, clientip, virushash);
+                        hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
                     }
                         // otherwise, just generate flags showing what to generate
                     else if (filterhash) {
                         hashed = "1";
                     } else if (virushash) {
                         hashed = "2";
+                    }
+
+                    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+                        if (filterhash) {
+                            hashed += "1";
+                        } else if (virushash) {
+                            hashed += "2";
+                        }
                     }
 
                     eheader = "HTTP/1.1 307 Temporary Redirect\r\n";
@@ -1729,13 +1868,21 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         String hashed;
                         // generate valid hash locally if enabled
                         if (dohash) {
-                            hashed = hashedURL(url, filtergroup, clientip, virushash);
+                            hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
                         }
                             // otherwise, just generate flags showing what to generate
                         else if (filterhash) {
                             hashed = "HASH=1";
                         } else if (virushash) {
                             hashed = "HASH=2";
+                        }
+
+                        if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+                            if (filterhash) {
+                                hashed += "&HASH=1";
+                            } else if (virushash) {
+                                hashed += "&HASH=2";
+                            }
                         }
 
                         if (headersent == 0) {
@@ -1778,7 +1925,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             String hashed;
             // generate valid hash locally if enabled
             if (dohash) {
-                hashed = hashedURL(url, filtergroup, clientip, virushash);
+                hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
             }
                 // otherwise, just generate flags showing what to generate
             else if (filterhash) {
@@ -2788,7 +2935,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         return false;
 
     // int bypasstimestamp = 0;
-    if (header.isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+    if (isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
 #endif
@@ -2802,11 +2949,12 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         std::cerr << thread_id << " -About to check for bypass..." << std::endl;
 #endif
         if (ldl->fg[filtergroup]->bypass_mode != 0)
-            checkme.bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
-                                                         clientip.c_str(), NULL);
+            checkme.bypasstimestamp = isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
+                                                         clientip.c_str(), NULL, clientuser);
         if ((checkme.bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-            checkme.bypasstimestamp = header.isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
-                                                         clientip.c_str(), &checkme.isvirusbypass);
+            checkme.bypasstimestamp = isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
+                                                         clientip.c_str(), &checkme.isvirusbypass,
+                                                         clientuser);
         if (checkme.bypasstimestamp > 0) {
 #ifdef DGDEBUG
             if (checkme.isvirusbypass)
@@ -2825,7 +2973,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
             }
         } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
             if (header.isBypassCookie(checkme.urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(),
-                                      clientip.c_str())) {
+                                      clientip.c_str(), clientuser.c_str())) {
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -Bypass cookie match" << std::endl;
 #endif
