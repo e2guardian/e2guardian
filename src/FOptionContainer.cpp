@@ -732,10 +732,24 @@ bool FOptionContainer::read(const char *filename) {
     //
     //
 
-    bypass_mode = findoptionI("bypass");
-    if (!realitycheck(bypass_mode, -2, 0, "bypass")) {
+    cgi_bypass = (findoptionS("cgibypass")== "on" );
+    cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");
+
+    bypass_version = findoptionI("bypassversion");
+    if (!realitycheck(bypass_version, 0, 2, "bypassversion")) {
         return false;
     }
+    if (bypass_version == 0) bypass_version = 1;   //default
+    if (bypass_version == 2) bypass_v2 = true;   //default
+
+    bypass_mode = findoptionI("bypass");
+    if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
+        return false;
+    }
+
+
+    if(bypass_mode == -1) cgi_bypass = true;   // for backward compatibility
+
     // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
     if ((bypass_mode != 0) || (disable_content_scan != 1)) {
         magic = findoptionS("bypasskey");
@@ -757,9 +771,13 @@ bool FOptionContainer::read(const char *filename) {
     }
 
     infection_bypass_mode = findoptionI("infectionbypass");
-    if (!realitycheck(infection_bypass_mode, -2, 0, "infectionbypass")) {
+    if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
         return false;
     }
+
+    if(infection_bypass_mode == -1) cgi_infection_bypass = true;   // for backward compatibility
+
+
     if (infection_bypass_mode != 0) {
         imagic = findoptionS("infectionbypasskey");
         if (imagic.length() < 9) {
@@ -782,14 +800,22 @@ bool FOptionContainer::read(const char *filename) {
         }
     }
 
-    if((infection_bypass_mode == -2)||(bypass_mode == -2)) {
+
+    if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {
         cgi_magic = findoptionS("cgikey");
         if ( cgi_magic.length() < 9 ) {
-            std::cerr << thread_id << "A valid cgikey must be provided with bypass cgi mode 2" << std::endl;
+            std::cerr << thread_id << "A valid cgikey must be provided with bypass cgi version 2" << std::endl;
             return false;
-        } else {
-            cgi_bypass_v2 = true;
+        };
+        cgi_bypass_v2 = true;
+        if(cgi_infection_bypass && infection_bypass_mode < 60) {
+            std::cerr << thread_id << "infectionbypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
+            return false;
+        } else if(bypass_mode < 60) {
+            std::cerr << thread_id << "bypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
+            return false;
         }
+
     }
             } catch (std::exception &e) {
         if (!is_daemonised) {

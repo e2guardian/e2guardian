@@ -183,8 +183,9 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
     // use the standard key in normal bypass mode, and the infection key in infection bypass mode
     String magic(infectionbypass ? ldl->fg[filtergroup]->imagic.c_str() : ldl->fg[filtergroup]->magic.c_str());
     magic += clientip->c_str();
-    if(ldl->fg[filtergroup]->cgi_bypass_v2)
+    if(ldl->fg[filtergroup]->bypass_v2)
         magic += user->c_str();
+    magic += timecode;
     String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
     if (!url->after("://").contains("/")) {
         String newurl((*url));
@@ -202,7 +203,8 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String timecode(bypasstimestamp);
     String data(magic);
     data += clientip->c_str();
-    data += clientuser;
+    if(ldl->fg[filtergroup]->bypass_v2)
+            data += clientuser;
     data += timecode;
     String res(url->md5(data.toCharArray()));
     res += timecode;
@@ -247,7 +249,7 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
 
     String mymagic(magic);
     mymagic += clientip;
-    if(ldl->fg[filtergroup]->cgi_bypass_v2)
+    if(ldl->fg[filtergroup]->bypass_v2)
         mymagic += user;
     mymagic += url_time;
     String hashed(url_left.md5(mymagic.toCharArray()));
@@ -1080,7 +1082,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-            if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
+            if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
 #ifdef DGDEBUG
                 std::cout << thread_id << "Setting GBYPASS cookie; bypasstimestamp = " << checkme.bypasstimestamp << __func__ << std::endl;
 #endif
@@ -1655,7 +1657,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 std::cerr << thread_id << " -Enabling filter bypass hash generation" << std::endl;
 #endif
                 filterhash = true;
-                if (ldl->fg[filtergroup]->bypass_mode > 0 || ldl->fg[filtergroup]->cgi_bypass_v2)
+                if (ldl->fg[filtergroup]->bypass_mode > 0 )
                     dohash = true;
             }
                 // generate an infection bypass hash
@@ -1889,7 +1891,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                             eheader = "HTTP/1.1 200 \r\n";
                         }
                         if (headersent < 2) {
-                            eheader += "Content-type: text/html\n\n";
+                            eheader += "Content-type: text/html\r\n\r\n";
                         }
                         // if the header has been sent then likely displaying the
                         // template will break the download, however as this is
@@ -1971,6 +1973,13 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         eheader += "::HASH==";
                         eheader += hashed.toCharArray();
                     }
+                    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+                        String data = *clientip;
+                        data += *clientuser;
+                        String checkh(url->md5(data.c_str()));
+                        eheader += "::CHECK==";
+                        eheader += checkh.toCharArray();
+                    }
                 }
                 eheader += "::REASON==";
             } else {
@@ -1996,6 +2005,13 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     } else {
                         eheader += "&HASH=";
                         eheader += hashed.toCharArray();
+                    }
+                    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
+                        String data = *clientip;
+                        data += *clientuser;
+                        String checkh(url->md5(data.c_str()));
+                        eheader += "&CHECK=";
+                        eheader += checkh.toCharArray();
                     }
                 }
                 eheader += "&REASON=";

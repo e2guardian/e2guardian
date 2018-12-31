@@ -274,9 +274,18 @@ embeddedurlweight = 0
 # or e2guardian.pl file for your language.
 # 300 = enable for 5 minutes
 # 0 = disable ( defaults to 0 )
-# -1 = enable but you require a separate program/CGI to generate a valid link
-# -2 = as -1 but more secure - requires cgikey to be defined
+# -1 - depreciated - for backward compatability enables cgibypass with bypassversion 1
 bypass = 0
+
+# Bypass version
+# can be 1 or 2
+# Always use v2 unless you have old style cgi hash generation in use
+# Default is 1
+# bypassversion = 2
+
+# cgibypass - Use a separate program/CGI to (in v1 generate) or (in v2 validate) link
+# 'on' or 'off' (default)
+# cgibypass = 'off'
 
 # Temporary Denied Page Bypass Secret Key
 # Rather than generating a random key you can specify one.  It must be more than 8 chars.
@@ -286,6 +295,7 @@ bypass = 0
 bypasskey = ''
 
 # magic key for cgi bypass v2 - used to sign communications between e2g and cgi
+# default is blank
 #cgikey = 'you must change this text in order to be secure'
 
 #  Users will not be able to bypass sites/urls in these lists
@@ -300,9 +310,12 @@ sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelis
 # The option specifies the number of seconds for which the bypass link will be valid.
 # 300 = enable for 5 minutes
 # 0 = disable (default)
-# -1 = enable, but require a separate program/CGI to generate a valid link
-# -2 = as -1 but more secure - requires cgikey to be defined
+# -1 - depreciated - for backward compatability enables cgiinfectionbypass with bypassversion 1
 infectionbypass = 0
+
+# cgiinfectionbypass - Use a separate program/CGI to (v1 generate) or (v2 validate) link
+# 'on' or 'off' (default)
+# cgiinfectionbypass = 'off'
 
 # Infection/Scan Error Bypass Secret Key
 # Same as the 'bypasskey' option, but used for infection bypass mode.
