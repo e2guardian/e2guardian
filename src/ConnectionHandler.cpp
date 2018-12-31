@@ -949,7 +949,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-            if (checkme.isbypass && !(checkme.isexception || checkme.iscookiebypass || checkme.isvirusbypass)) {
+            if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
 #ifdef DGDEBUG
                 std::cout << thread_id << "Setting GBYPASS cookie; bypasstimestamp = " << checkme.bypasstimestamp << __func__ << std::endl;
 #endif
