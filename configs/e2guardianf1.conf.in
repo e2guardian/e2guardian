@@ -106,11 +106,12 @@ sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexcept
 # Phrase filtering additional mime types (by default text/*)
 # textmimetypes = 'application/xhtml+xml,application/xml,application/json,application/javascript,application/x-javascript'
 
-fileextlist = 'name=exceptionextension,path=@DGCONFDIR@/lists/exceptionextensionlist'
-mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionextensionlist'
+# Uncomment the two lines below if want to only allow extentions/mime types in these lists
+# You will also need to uncomment the checkfiletype function in site.story to enable this
+#fileextlist = 'name=exceptionextension,path=@DGCONFDIR@/lists/exceptionextensionlist'
+#mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionmimelist'
 #
 # Use the following lists to block specific kinds of file downloads.
-# The two exception lists above can be used to override these.
 #
 fileextlist = 'name=bannedextension,messageno=900,path=@DGCONFDIR@/lists/bannedextensionlist'
 mimelist = 'name=bannedmime,messageno=800,path=@DGCONFDIR@/lists/bannedmimetypelist'

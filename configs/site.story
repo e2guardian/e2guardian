@@ -24,6 +24,13 @@ function(checknobypasslists)
 function(checknoscanlists)
 function(checknoscantypes)
 
+# If you only want exception extensions/mime filetypes to be allowed
+# then uncomment the following 4 lines
+#function(checkfiletype)
+#if(mimein, exceptionmime) return false
+#if(extensionin, exceptionextension) return false
+#if(true) return setblock
+
 
 # For ICAP mode:-
 
