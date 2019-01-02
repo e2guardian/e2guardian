@@ -576,6 +576,7 @@ void HTTPHeader::setURL(String &url)
     // processing, notably stripping the port part. Caching here will
     // bypass all that.
     //cachedurl = url.toCharArray();
+    cachedurl = "";   // blank cachedurl so that getUrl will re-generate it
 }
 
 // Does a regexp search and replace.
