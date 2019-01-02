@@ -1,5 +1,6 @@
 # e2guardian messages file in Bulgarian
 # by Pavel Constantinov <the_deepblade@hotmail.com>
+"0","Message number absent"    # needs translation
 "1"," "
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

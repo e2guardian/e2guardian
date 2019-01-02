@@ -1,6 +1,7 @@
 # e2guardian berichten in het Nederlands
 # Door S.A. de Heer
 # Updates door Eric Hameleers
+"0","Message number absent"    # needs translation
 "1","Toegang geweigerd"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

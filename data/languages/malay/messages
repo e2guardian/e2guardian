@@ -1,5 +1,6 @@
 # e2guardian 3 messages file in Malay language
 # Edited by Sazarul Izam <izam@oscc.org.my>
+"0","Message number absent"    # needs translation
 "1","Akses Tidak Dibenarkan"
 # Access Denied
 "10","IP limit exceeded.  There is a  "    # needs translation

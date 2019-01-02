@@ -1,5 +1,6 @@
 # e2guardian messages file in Hebrew
 # by Nitzo Tomer <nitzo2001@yahoo.com>
+"0","Message number absent"    # needs translation
 "1"," "
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

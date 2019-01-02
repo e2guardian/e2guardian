@@ -1,6 +1,7 @@
 # e2guardian 3 messages file in German
 #
 # Translated and adapted to Unicode by Peter Vollmar, Klaus Tachtler.
+"0","Message number absent"    # needs translation
 "1","Zugriff verweigert"
 "10","IP-Limit erreicht. Limit bei "
 "11"," IP-Limit wurde gesetzt."

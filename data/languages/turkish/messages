@@ -1,6 +1,7 @@
 # e2guardian messages file in Turkish
 # Translation by Ozgur Karatas
 # trdocmaster at e2guardian dot org
+"0","Message number absent"    # needs translation
 "1","Erisim Engellendi"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

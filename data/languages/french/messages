@@ -4,6 +4,7 @@
 # Improvements by Mathieu Parent (2011)
 #
 # ! Quote "'" changed by backquote "`" to avoid bad interpretation !
+"0","Message number absent"    # needs translation
 "1","Accès interdit"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

@@ -1,6 +1,7 @@
 # e2guardian 3 messages file in russian
 # charset=windows-1251
 # version by Shipitsin Igor <shipitsin@rduorel.ru>
+"0","Message number absent"    # needs translation
 "1"," "
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

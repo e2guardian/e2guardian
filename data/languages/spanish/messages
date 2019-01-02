@@ -1,5 +1,6 @@
 # e2guardian 3 messages file in Spanish
 # Translated by Roberto Quiroga, adapted for Unicode by Peter Vollmar
+"0","Message number absent"    # needs translation
 "1","Acceso Denegado"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

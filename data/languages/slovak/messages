@@ -2,6 +2,7 @@
 # by Dušan Biroščák biroscak@gmail.com
 # corrections Peter Tuhársky tuharsky@misbb.sk
 # charset=utf-8
+"0","Message number absent"    # needs translation
 "1","Prístup bol odopretý
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation

@@ -1,6 +1,7 @@
 # e2guardian messages file 
 # Polish version by Piotr Kapczuk <piotr.kapczuk@hoop.pl>
 # charset=iso-8859-2
+"0","Message number absent"    # needs translation
 "1","Dostp Zabroniony"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation
