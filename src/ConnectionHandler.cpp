@@ -778,7 +778,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // do this normalisation etc just the once at the start.
             checkme.setURL(ismitm);
 
-            //If proxy connction is not persistent..// do this later after checking if direct or via proxy
+            //If proxy connection is not persistent..// do this later after checking if direct or via proxy
 
 #ifdef DGDEBUG
             std::cerr << thread_id << getpid() << "Start URL " << checkme.url.c_str() << "is_ssl=" << checkme.is_ssl << "ismitm=" << ismitm << std::endl;
@@ -1976,6 +1976,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if(ldl->fg[filtergroup]->cgi_bypass_v2) {
                         String data = *clientip;
                         data += *clientuser;
+                        data += ldl->fg[filtergroup]->cgi_magic;
                         String checkh(url->md5(data.c_str()));
                         eheader += "::CHECK==";
                         eheader += checkh.toCharArray();
@@ -2009,6 +2010,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if(ldl->fg[filtergroup]->cgi_bypass_v2) {
                         String data = *clientip;
                         data += *clientuser;
+                        data += ldl->fg[filtergroup]->cgi_magic;
                         String checkh(url->md5(data.c_str()));
                         eheader += "&CHECK=";
                         eheader += checkh.toCharArray();
