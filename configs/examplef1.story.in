@@ -38,3 +38,11 @@
 # uncomment the next 2 lines
 #function(sslcheckmitm)
 #if(true) return sslcheckmitmgreyonly
+
+
+# SNI checking - overrides default action when no SNI or TSL is present on a 
+#    THTTPS connection
+# To allow (tunnell) non-tls and/or non-sni connections uncomment the next 3 lines
+#function(checksni)
+#ifnot(tls,,511) return setexception  # change to setblock to block only non-tls
+#ifnot(hassniset,,512) return setexception

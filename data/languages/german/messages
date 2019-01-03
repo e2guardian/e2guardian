@@ -73,6 +73,8 @@
 "508","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet: "
 "509","Verbindungen mit diesem Browser (oder dieser Anwendungen) sind nicht gestattet."
 "510","Geblockte Seite (IP) "
+"511","Tranparent https connection is not TLS: "    # needs translation
+"512","Tranparent https connection does not have SNI: "    # needs translation
 "520","Geblockte HTTPS-Seite: "
 "521","Geblockte Ausdrücke: "
 "522","Geblockter Benutzer-Agent: "

@@ -87,6 +87,8 @@
 "508","Access not allowed using this browser (or app): "
 "509","Access not allowed using this browser (or app)."
 "510","Blocked IP site "
+"511","Tranparent https connection is not TLS: "
+"512","Tranparent https connection does not have SNI: "
 "520","Blocked HTTPS site: "
 "521","Banned Search Words: "
 "522","Blocked User-Agent: "

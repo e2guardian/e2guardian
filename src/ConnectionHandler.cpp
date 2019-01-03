@@ -3043,12 +3043,8 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #ifdef DGDEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
-//            checkme.urldomain = get_TLS_SNI(buff, &rc);
-//            if(checkme.urldomain.size() > 0)
-//                checkme.hasSNI = true;
              char *ret = get_TLS_SNI(buff, &rc);
              if (ret != NULL) {
-//             checkme.urldomain = ret;
              checkme.url = ret;
              checkme.hasSNI = true;
              }
@@ -3164,7 +3160,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.clientip = clientip;
 
 
-            checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
+            if(checkme.hasSNI) checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
 
 
             // TODO restore this for THTTPS ??
@@ -3223,7 +3219,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 " upfail " << checkme.upfailure << std::endl;
 #endif
 
-            if((checkme.isItNaughty ||checkme.upfailure) && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm)
+            if((checkme.isItNaughty ||checkme.upfailure) && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm && checkme.hasSNI)
                 checkme.gomitm = true;  // allows us to send splash page
 
             if (checkme.isexception && !checkme.upfailure) {
@@ -3259,11 +3255,12 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 checkme.docsize += fdt.throughput;
             }
 
-            if(checkme.isItNaughty) {
-                denyAccess(&peerconn,&proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser, &clientip,
-                           filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror);
+            // it is not possible to send splash page on Thttps without MITM so do not try!
+            //if(checkme.hasSNI && checkme.isItNaughty) {
+           //     denyAccess(&peerconn,&proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser, &clientip,
+            //               filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror);
                     //persistPeer = false;
-            }
+            //}
 
             //Log
             if (!checkme.isourwebserver) { // don't log requests to the web server
