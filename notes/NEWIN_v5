@@ -1,4 +1,4 @@
-This is the pre-release version (v5.2).  
+This is the stable version (v5.2).  
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -133,7 +133,7 @@ OPENSSL v1.1 SUPPORT
 
     New % weighting option for phrase lists
     
-Amend code so that -Wall compile option gives no warnings 
+Code amended so that -Wall compile option gives no warnings 
 
 TESTING -  
 ---------
@@ -143,6 +143,7 @@ TESTING -
 TO DO IN NEXT RELEASE
 ---------------------
 
+    Option for output file for storyboard trace
 
     Reduce unnecessary memory usage on in DataBuffer
 
@@ -194,6 +195,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 25 August 2018
+Philip Pearce 3rd January 2019
 
 
