@@ -195,6 +195,9 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
         res += url->md5(magic.toCharArray());
     }
     res += timecode;
+#ifdef DGDEBUG
+    std::cerr << thread_id << " -generate Bypass hashedurl data " << clientip->c_str() << " " << *url << " " << clientuser << " " << timecode << " result " << res << std::endl;
+#endif
     return res;
 }
 
@@ -206,11 +209,14 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     if(ldl->fg[filtergroup]->bypass_v2)
             data += clientuser;
     data += timecode;
+#ifdef DGDEBUG
+    std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << clientuser << " " << timecode << std::endl;
+#endif
     String res(url->md5(data.toCharArray()));
     res += timecode;
 
 #ifdef DGDEBUG
-    std::cerr << thread_id << " -hashedCookie=" << res << std::endl;
+    std::cerr << thread_id << " -Bypass hashedCookie=" << res << std::endl;
 #endif
     return res;
 }
@@ -1673,7 +1679,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 }
             }
         }
-
+#ifdef DGDEBUG
+                std::cerr << thread_id << " - filter bypass hash generation" << " virushah " << virushash << " dohash " << dohash << " filterhash " << filterhash <<std::endl;
+#endif
 // the user is using the full whack of custom banned images and/or HTML templates
 #ifdef __SSLMITM
         if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || (ldl->fg[filtergroup]->sslaccess_denied_address.length() && ((*header).requestType().startsWith("CONNECT"))))
