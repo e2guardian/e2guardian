@@ -1347,6 +1347,9 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     bool matched = false;
     while (url.contains(".")) {
         String hashed(url.md5(mymagic.toCharArray()));
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Bypass cookie:" << cookiehash << " hashed: " << hashed << " contains " << clientip << " " << user << " " << url << " " << cookietime << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         if (hashed == cookiehash) {
             matched = true;
             break;
