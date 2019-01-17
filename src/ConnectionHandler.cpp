@@ -2051,7 +2051,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             // stealth mode
         else if (reporting_level == -1) {
             (*checkme).isItNaughty = false; // dont block
-            return false;
+            return true;
         }
     } catch (std::exception &e) {
     }
