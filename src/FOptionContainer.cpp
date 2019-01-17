@@ -431,6 +431,13 @@ bool FOptionContainer::read(const char *filename) {
             }
         }
         if (reporting_level == 3) {
+            if (access_denied_domain.length() > 1) {
+             	if (!is_daemonised) {
+                       std::cerr << thread_id << "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
+                return false;
+            }
             // override default banned page
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
