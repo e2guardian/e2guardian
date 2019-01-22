@@ -1074,7 +1074,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                           << checkme.gomitm << " mess_no "
                           << checkme.message_no << std::endl;
 #endif
-                checkme.isItNaughty = checkme.isBlocked;
+		if (ldl->fg[filtergroup]->reporting_level != -1){
+                	checkme.isItNaughty = checkme.isBlocked;
+		} else {
+			checkme.isItNaughty = false; 
+		        checkme.isBlocked = false;
+		}
             }
 
             if (checkme.isdirect) {
@@ -1275,10 +1280,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
 #ifdef DGDEBUG
-                std::cerr << thread_id << "After StoryB checkresponse" << checkme.isexception << " mess_no "
+                std::cerr << thread_id << "After StoryB checkresponse " << checkme.isexception << " mess_no "
                           << checkme.message_no << std::endl;
 #endif
-                checkme.isItNaughty = checkme.isBlocked;
+		if (ldl->fg[filtergroup]->reporting_level != -1){
+                	checkme.isItNaughty = checkme.isBlocked;
+		} else {
+			checkme.isItNaughty = false; 
+		        checkme.isBlocked = false;
+		        checkme.isGrey = true;
+		}
 
                 if (checkme.ishead || (docheader.contentLength() == 0 && !docheader.chunked))
                     checkme.tunnel_rest = true;
@@ -1325,7 +1336,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         checkme.tunnel_rest = true;
                 }
             }
-
 
             //if not grey tunnel response
             if (!checkme.isItNaughty) {
@@ -2051,7 +2061,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             // stealth mode
         else if (reporting_level == -1) {
             (*checkme).isItNaughty = false; // dont block
-            return true;
+            return false;
         }
     } catch (std::exception &e) {
     }
@@ -3375,7 +3385,13 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                     std::cerr << thread_id << "After StoryB thttps-checkrequest " << checkme.isexception << " mess_no "
                               << checkme.message_no << std::endl;
 #endif
-                    checkme.isItNaughty = checkme.isBlocked;
+
+		if (ldl->fg[filtergroup]->reporting_level != -1){
+                	checkme.isItNaughty = checkme.isBlocked;
+		} else {
+			checkme.isItNaughty = false; 
+		        checkme.isBlocked = false;
+		}
             }
 
             //now send upstream and get response
@@ -3971,7 +3987,13 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         std::cerr << thread_id << "After StoryB checkreqmod" << checkme.isexception << " mess_no "
                   << checkme.message_no << " allow_204 : " << icaphead.allow_204 << std::endl;
 #endif
-        checkme.isItNaughty = checkme.isBlocked;
+
+	if (ldl->fg[filtergroup]->reporting_level != -1){
+               	checkme.isItNaughty = checkme.isBlocked;
+	} else {
+		checkme.isItNaughty = false; 
+	        checkme.isBlocked = false;
+	}
     }
 
     if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
@@ -4205,7 +4227,13 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                     std::cerr << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << std::endl;
             }
 #endif
-            checkme.isItNaughty = checkme.isBlocked;
+
+	   if (ldl->fg[filtergroup]->reporting_level != -1){
+               	checkme.isItNaughty = checkme.isBlocked;
+	   } else {
+		checkme.isItNaughty = false; 
+	        checkme.isBlocked = false;
+	   }
     }
 
     if (checkme.isexception && !checkme.noviruscheck && !ldl->fg[filtergroup]->content_scan_exceptions)

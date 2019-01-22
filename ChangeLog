@@ -1,5 +1,10 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+January 2019
+
+- Add stealth mode (reporting without block) to StoryBoard mode
+- Add new secure bypass mode (experimental)
+
 December 2018
 
 - Fix for #485 related to #481 wrong upstream site called in direct mode 
