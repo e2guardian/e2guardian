@@ -134,7 +134,7 @@ int icapinstance::init(void *args)
     icapip = inet_ntoa(*(struct in_addr *)host->h_addr_list[0]);
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAPC)
+    if(o.myDebug->ICAPC)
         {
             std::ostringstream oss (std::ostringstream::out);
             oss << thread_id << "ICAP server is " << icapip << std::endl;
@@ -199,7 +199,6 @@ int icapinstance::init(void *args)
             } else if (line.startsWith("Service: Dr.Web")) {
                     supportsXIF = true;
                 }
-            }
 
 #ifndef NEWDEBUG_OFF
 	if(o.myDebug->ICAPC)
