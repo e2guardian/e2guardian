@@ -1801,19 +1801,16 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 } else {
                     // Broken, sadly blank page for user
                     // See comment above HTTPS
-                    eheader = "HTTP/1.1 403 ";
+		    String hbody = "<html><body>e2guardian </body></html>\r\n";
+    		    eheader = "HTTP/1.1 403 ";
                     eheader += o.language_list.getTranslation(500); // banned site
-                    eheader += "\r\nContent-Type: text/html\r\n";
-                    ebody = "<HTML><HEAD><TITLE>e2guardian - ";
-                    ebody += o.language_list.getTranslation(500); // banned site
-                    ebody += "</TITLE></HEAD><BODY><H1>e2guardian - ";
-                    ebody += o.language_list.getTranslation(500); // banned site
-                    ebody += "</H1>";
-                    ebody += (*url);
-                    ebody += "</BODY></HTML>\r\n";
-                    eheader += "Content-Length: ";
-                    eheader += std::to_string(ebody.size());
-                    eheader += "\r\n\r\n";
+                    eheader += "\r\nServer: e2guardian";
+                    eheader += "\r\nMime-Version: 1.0";
+                    eheader += "\r\nContent-Type: text/html";
+                    eheader += "\r\nContent-Length: ";
+                    eheader += std::to_string(hbody.size());
+                    eheader += "\r\n";
+		    ebody = hbody;
                 }
 
             } else {
