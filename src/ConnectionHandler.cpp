@@ -4021,6 +4021,25 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         if (ud.startsWith("www.")) {
             ud = ud.after("www.");
         }
+#ifdef __SSLMITM
+        if ((*header).requestType().startsWith("CONNECT") && !(peerconn).isSsl())
+#else
+        if ((*header).requestType().startsWith("CONNECT"))
+#endif
+	{
+                // Broken, sadly blank page for user
+                   // See comment above HTTPS
+	   String hbody = "<html><body>e2guardian </body></html>\r\n";
+    	   eheader = "HTTP/1.1 403 ";
+           eheader += o.language_list.getTranslation(500); // banned site
+           eheader += "\r\nServer: e2guardian";
+           eheader += "\r\nMime-Version: 1.0";
+           eheader += "\r\nContent-Type: text/html";
+           eheader += "\r\nContent-Length: ";
+           eheader += std::to_string(hbody.size());
+           eheader += "\r\n";
+	   return true;
+	}
         // redirect user to URL with GBYPASS parameter no longer appended
         String outhead = "HTTP/1.1 302 Redirect\r\n";
         outhead += "Set-Cookie: GBYPASS=";
