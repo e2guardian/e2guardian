@@ -156,7 +156,7 @@ class HTTPHeader
     void removeEncoding(int newlen);
     void setContentLength(int newlen);
 
-    bool DenySSL(FOptionContainer* &foc);
+    //bool DenySSL(FOptionContainer* &foc);
     // make a connection persistent - or not
     void makePersistent(bool persist = true);
     // make the request look as if its coming from the origin server

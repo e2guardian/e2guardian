@@ -1694,11 +1694,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 #endif
 // the user is using the full whack of custom banned images and/or HTML templates
 #ifdef __SSLMITM
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || (ldl->fg[filtergroup]->sslaccess_denied_address.length() && ((*header).requestType().startsWith("CONNECT"))))
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || (*header).requestType().startsWith("CONNECT"))
 #else
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) ||
-            (ldl->fg[filtergroup]->sslaccess_denied_address.length() &&
-             ((*header).requestType().startsWith("CONNECT"))))
+        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || (*header).requestType().startsWith("CONNECT"))
 #endif
         {
             // if reporting_level = 1 or 2 and headersent then we can't
@@ -1727,7 +1725,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // This is a Man in the middle problem with Firefox and IE (can't rewrite a ssl page)
                 // 307 redirection Fix the problem for Firefox - only ? -
                 // TODO: I guess the right thing to do should be a - SSL - DENIED Webpage 307 redirect and direct"
-
+		//
+		// It doesn't works anymaore with recent Fireofx version
+		/*
                 if (ldl->fg[filtergroup]->sslaccess_denied_address.length() != 0) {
                     // grab either the full category list or the thresholded list
                     std::string cats;
@@ -1799,8 +1799,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     eheader += "\r\nCache-control: no-cache";
                     eheader += "\r\nConnection: close\r\n\r\n";
                 } else {
-          //  website without SSLMITM must just block with a blanck page
-	  // This header syntax drop Firefox connection: keep alive, reduce load
+i			*/
+	      		//  website without SSLMITM must just block with a blanck page
+	  		// This header syntax drop Firefox connection: keep alive, reduce load
 		    String hbody = "<html><body>e2guardian </body></html>\r\n";
     		    eheader = "HTTP/1.1 403 ";
                     eheader += o.language_list.getTranslation(500); // banned site
@@ -1811,7 +1812,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     eheader += std::to_string(hbody.size());
                     eheader += "\r\n";
 		    ebody = hbody;
-                }
+             //   }
 
             } else {
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
@@ -1931,8 +1932,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                 }
             }
-        }
-
+	}
             // the user is using the CGI rather than the HTML template - so issue a redirect with parameters filled in on GET string
         else if (reporting_level > 0) {
             // grab either the full category list or the thresholded list

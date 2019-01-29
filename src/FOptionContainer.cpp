@@ -490,35 +490,6 @@ bool FOptionContainer::read(const char *filename) {
 	    } 
         }
 
-        // override ssl default banned page
-        sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
-        if ((sslaccess_denied_address.length() != 0)) {
-            sslaccess_denied_domain = sslaccess_denied_address.c_str();
-            sslaccess_denied_domain = sslaccess_denied_domain.after("://");
-            sslaccess_denied_domain.removeWhiteSpace();
-            if (sslaccess_denied_domain.contains("/")) {
-                sslaccess_denied_domain = sslaccess_denied_domain.before(
-                        "/"); // access_denied_domain now contains the FQ host nom of the
-                // server that serves the accessdenied.html file
-            }
-            if (sslaccess_denied_domain.contains(":")) {
-                sslaccess_denied_domain = sslaccess_denied_domain.before(":"); // chop off the port number if any
-            }
-
-            if (sslaccess_denied_domain.length() < 4) {
-                if (!is_daemonised) {
-                    std::cerr << thread_id << " sslaccessdeniedaddress setting appears to be wrong." << std::endl;
-                }
-                syslog(LOG_ERR, "%s", " sslaccessdeniedaddress setting appears to be wrong.");
-                return false;
-            }
-            if (findoptionS("ssldeniedrewrite") == "on") {
-                ssl_denied_rewrite = true;
-            } else {
-                ssl_denied_rewrite = false;
-            }
-        }
-
         if (findoptionS("nonstandarddelimiter") == "off") {
             non_standard_delimiter = false;
         } else {

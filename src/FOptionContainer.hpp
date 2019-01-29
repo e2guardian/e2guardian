@@ -111,9 +111,7 @@ public:
 
     // access denied address & domain - if they override the defaults
     std::string access_denied_address;
-    std::string sslaccess_denied_address;
     String access_denied_domain;
-    String sslaccess_denied_domain;
     bool ssl_denied_rewrite = false;
     // search term blocking
     unsigned int searchterm_list;

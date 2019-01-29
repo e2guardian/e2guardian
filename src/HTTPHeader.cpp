@@ -687,16 +687,6 @@ bool HTTPHeader::addHeader(String &newheader) {
 }
 
 
-
-bool HTTPHeader::DenySSL(FOptionContainer* &foc)
-{
-    String newUrl(getUrl());
-    newUrl = foc->sslaccess_denied_address;
-    setURL(newUrl);
-    return true;
-}
-
-
 void HTTPHeader::setPostData(const char *data, size_t len)
 {
     delete postdata;
