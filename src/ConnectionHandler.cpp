@@ -1799,8 +1799,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     eheader += "\r\nCache-control: no-cache";
                     eheader += "\r\nConnection: close\r\n\r\n";
                 } else {
-                    // Broken, sadly blank page for user
-                    // See comment above HTTPS
+          //  website without SSLMITM must just block with a blanck page
+	  // This header syntax drop Firefox connection: keep alive, reduce load
 		    String hbody = "<html><body>e2guardian </body></html>\r\n";
     		    eheader = "HTTP/1.1 403 ";
                     eheader += o.language_list.getTranslation(500); // banned site
@@ -1965,8 +1965,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
 		{
-                // Broken, sadly blank page for user
-                   // See comment above HTTPS
+          //  website without SSLMITM must just block with a blanck page
+	  // This header syntax drop Firefox connection: keep alive, reduce load
 		String hbody = "<html><body>e2guardian </body></html>\r\n";
     		eheader = "HTTP/1.1 403 ";
                 eheader += o.language_list.getTranslation(500); // banned site
@@ -1976,6 +1976,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 eheader += "\r\nContent-Length: ";
                 eheader += std::to_string(hbody.size());
                 eheader += "\r\n";
+	        ebody = hbody;
 		return true;
 	    } else {
 	    	eheader = "HTTP/1.1 302 Redirect\r\n";
@@ -4021,27 +4022,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         if (ud.startsWith("www.")) {
             ud = ud.after("www.");
         }
-#ifdef __SSLMITM
-        if ((*header).requestType().startsWith("CONNECT") && !(peerconn).isSsl())
-#else
-        if ((*header).requestType().startsWith("CONNECT"))
-#endif
-	{
-                // Broken, sadly blank page for user
-                   // See comment above HTTPS
-	   String hbody = "<html><body>e2guardian </body></html>\r\n";
-    	   eheader = "HTTP/1.1 403 ";
-           eheader += o.language_list.getTranslation(500); // banned site
-           eheader += "\r\nServer: e2guardian";
-           eheader += "\r\nMime-Version: 1.0";
-           eheader += "\r\nContent-Type: text/html";
-           eheader += "\r\nContent-Length: ";
-           eheader += std::to_string(hbody.size());
-           eheader += "\r\n";
-	   return true;
-	}
-        // redirect user to URL with GBYPASS parameter no longer appended
-        String outhead = "HTTP/1.1 302 Redirect\r\n";
+
+	String outhead = "HTTP/1.1 302 Redirect\r\n";
         outhead += "Set-Cookie: GBYPASS=";
         outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
                                 checkme.bypasstimestamp).toCharArray();
