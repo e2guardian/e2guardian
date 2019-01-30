@@ -72,12 +72,18 @@ public:
     bool reverse_lookups;
     bool force_quick_search;
     int bypass_mode;
+    bool bypass_v2 = false;
+    bool cgi_bypass_v2 = false;
+    int bypass_version = 1;
+    bool cgi_bypass = false;
     int infection_bypass_mode;
+    bool cgi_infection_bypass = false;
 
     std::string name;
     std::string magic;
     std::string imagic;
     std::string cookie_magic;
+    std::string cgi_magic;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -105,9 +111,7 @@ public:
 
     // access denied address & domain - if they override the defaults
     std::string access_denied_address;
-    std::string sslaccess_denied_address;
     String access_denied_domain;
-    String sslaccess_denied_domain;
     bool ssl_denied_rewrite = false;
     // search term blocking
     unsigned int searchterm_list;

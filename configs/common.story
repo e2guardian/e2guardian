@@ -40,10 +40,8 @@ if(true) setgrey
 function(checkresponse)
 if(exceptionset) return false
 if(viruscheckset) checknoscantypes
-if(mimein, exceptionmime) return setexception
-if(mimein, bannedmime) return setblock
-if(extensionin, exceptionextension) setexception
-if(extensionin, bannedextension) setblock
+if(urlin,exceptionfile) return false
+if(true) return checkfiletype
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
@@ -235,4 +233,12 @@ function(sslcheckblanketblock)
 #  override in site.story to return true if bump is being deployed on squid
 function(icapsquidbump)
 
+# File type blocking
+#  returns true if blocking
+# Default uses banned lists and allows all others
+# Overide in site.story or fn.story if only types in exception file type lists 
+# are to be allowed
+function(checkfiletype)
+if(mimein, bannedmime) return setblock
+if(extensionin, bannedextension) return setblock
 

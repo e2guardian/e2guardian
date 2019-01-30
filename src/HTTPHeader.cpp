@@ -576,6 +576,7 @@ void HTTPHeader::setURL(String &url)
     // processing, notably stripping the port part. Caching here will
     // bypass all that.
     //cachedurl = url.toCharArray();
+    cachedurl = "";   // blank cachedurl so that getUrl will re-generate it
 }
 
 // Does a regexp search and replace.
@@ -683,16 +684,6 @@ bool HTTPHeader::addHeader(String &newheader) {
         return true;
         }
     return false;
-}
-
-
-
-bool HTTPHeader::DenySSL(FOptionContainer* &foc)
-{
-    String newUrl(getUrl());
-    newUrl = foc->sslaccess_denied_address;
-    setURL(newUrl);
-    return true;
 }
 
 
@@ -1328,7 +1319,7 @@ void HTTPHeader::setCookie(const char *cookie, const char *domain, const char *v
 }
 
 // is this a temporary filter bypass cookie?
-bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clientip)
+bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clientip, const char *user)
 {
     String cookie(getCookie("GBYPASS"));
     if (!cookie.length()) {
@@ -1341,10 +1332,14 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     String cookietime(cookie.after(cookiehash.toCharArray()));
     String mymagic(magic);
     mymagic += clientip;
+    mymagic += user;
     mymagic += cookietime;
     bool matched = false;
     while (url.contains(".")) {
         String hashed(url.md5(mymagic.toCharArray()));
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Bypass cookie:" << cookiehash << " hashed: " << hashed << " contains " << clientip << " " << user << " " << url << " " << cookietime << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+#endif
         if (hashed == cookiehash) {
             matched = true;
             break;
@@ -1366,123 +1361,6 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
         return false;
     }
     return true;
-}
-
-
-// is this a temporary filter bypass URL?
-int HTTPHeader::isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass)
-{
-    if ((url).length() <= 45)
-        return false; // Too short, can't be a bypass
-
-    // check to see if this is a bypass URL, and which type it is
-    bool filterbypass = false;
-    bool virusbypass = false;
-    if ((isvirusbypass == NULL) && ((url).contains("GBYPASS="))) {
-        filterbypass = true;
-    } else if ((isvirusbypass != NULL) && (url).contains("GIBYPASS=")) {
-        virusbypass = true;
-    }
-    if (!(filterbypass || virusbypass))
-        return 0;
-
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    String url_left((url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
-    url_left.chop(); // remove the ? or &
-    String url_right((url).after(filterbypass ? "GBYPASS=" : "GIBYPASS="));
-
-    String url_hash(url_right.subString(0, 32));
-    String url_time(url_right.after(url_hash.toCharArray()));
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL: " << url_left << ", HASH: " << url_hash << ", TIME: " << url_time << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    String mymagic(magic);
-    mymagic += clientip;
-    mymagic += url_time;
-    String hashed(url_left.md5(mymagic.toCharArray()));
-
-    if (hashed != url_hash) {
-#ifdef DGDEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " hash mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return 0;
-    }
-
-    time_t timen = time(NULL);
-    time_t timeu = url_time.toLong();
-
-    if (timeu < 1) {
-#ifdef DGDEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return 1; // bad time value
-    }
-    if (timeu < timen) { // expired key
-#ifdef DGDEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-        return 1; // denotes expired but there
-    }
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-    if (virusbypass)
-        (*isvirusbypass) = true;
-    return (int)timeu;
-}
-
-// is this a scan bypass URL? i.e. a "magic" URL for retrieving a previously scanned file
-bool HTTPHeader::isScanBypassURL(String url, const char *magic, const char *clientip)
-{
-    if ((url).length() <= 45)
-        return false; // Too short, can't be a bypass
-
-    if (!(url).contains("GSBYPASS=")) { // If this is not a bypass url
-        return false;
-    }
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL GSBYPASS found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    String url_left((url).before("GSBYPASS="));
-    url_left.chop(); // remove the ? or &
-    String url_right((url).after("GSBYPASS="));
-
-    String url_hash(url_right.subString(0, 32));
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL: " << url_left << ", HASH: " << url_hash << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    // format is:
-    // GSBYPASS=hash(ip+url+tempfilename+mime+disposition+secret)
-    // &N=tempfilename&M=mimetype&D=dispos
-
-    String tempfilename(url_right.after("&N="));
-    String tempfilemime(tempfilename.after("&M="));
-    String tempfiledis(tempfilemime.after("&D="));
-    tempfilemime = tempfilemime.before("&D=");
-    tempfilename = tempfilename.before("&M=");
-
-    String tohash(clientip + url_left + tempfilename + tempfilemime + tempfiledis + magic);
-    String hashed(tohash.md5());
-
-#ifdef DGDEBUG
-    std::cerr << thread_id << "checking hash: " << clientip << " " << url_left << " " << tempfilename << " "
-              << " " << tempfilemime << " " << tempfiledis << " " << magic << " " << hashed << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    if (hashed == url_hash) {
-        return true;
-    }
-#ifdef DGDEBUG
-    std::cerr << thread_id << "URL GSBYPASS HASH mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-
-    return false;
 }
 
 String HTTPHeader::getReferer()

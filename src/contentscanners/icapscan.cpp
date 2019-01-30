@@ -134,7 +134,7 @@ int icapinstance::init(void *args)
     icapip = inet_ntoa(*(struct in_addr *)host->h_addr_list[0]);
 
 #ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAPC)
+    if(o.myDebug->ICAPC)
         {
             std::ostringstream oss (std::ostringstream::out);
             oss << thread_id << "ICAP server is " << icapip << std::endl;
@@ -177,16 +177,6 @@ int icapinstance::init(void *args)
         while (icapsock.getLine(buff, 8192, o.content_scanner_timeout) > 0) {
             line = buff;
 
-#ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAPC)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
-            o.myDebug->Debug("ICAPC",oss.str());
-            std::cerr << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
-        }
-#endif
-
   	    if (line.startsWith("\r")) {
                 break;
             } else if (line.startsWith("Preview:")) {
@@ -205,7 +195,20 @@ int icapinstance::init(void *args)
                 if (line.contains("X-Infection-Found")) {
                     supportsXIF = true;
                 }
-            }
+	    // Dr web bug ICAP response header without suportXIF 
+            } else if (line.startsWith("Service: Dr.Web")) {
+                    supportsXIF = true;
+                }
+
+#ifndef NEWDEBUG_OFF
+	if(o.myDebug->ICAPC)
+        {
+            std::ostringstream oss (std::ostringstream::out);
+            oss << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
+            o.myDebug->Debug("ICAPC",oss.str());
+            std::cerr << thread_id << "ICAP/1.0 OPTIONS response part: " << line << std::endl;
+        }
+#endif
         }
         icapsock.close();
     } catch (std::exception &e) {

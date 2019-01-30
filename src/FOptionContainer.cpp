@@ -431,6 +431,13 @@ bool FOptionContainer::read(const char *filename) {
             }
         }
         if (reporting_level == 3) {
+            if (access_denied_domain.length() > 1) {
+             	if (!is_daemonised) {
+                       std::cerr << thread_id << "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
+                return false;
+            }
             // override default banned page
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
@@ -481,35 +488,6 @@ bool FOptionContainer::read(const char *filename) {
                     return false;
 	        }
 	    } 
-        }
-
-        // override ssl default banned page
-        sslaccess_denied_address = findoptionS("sslaccessdeniedaddress");
-        if ((sslaccess_denied_address.length() != 0)) {
-            sslaccess_denied_domain = sslaccess_denied_address.c_str();
-            sslaccess_denied_domain = sslaccess_denied_domain.after("://");
-            sslaccess_denied_domain.removeWhiteSpace();
-            if (sslaccess_denied_domain.contains("/")) {
-                sslaccess_denied_domain = sslaccess_denied_domain.before(
-                        "/"); // access_denied_domain now contains the FQ host nom of the
-                // server that serves the accessdenied.html file
-            }
-            if (sslaccess_denied_domain.contains(":")) {
-                sslaccess_denied_domain = sslaccess_denied_domain.before(":"); // chop off the port number if any
-            }
-
-            if (sslaccess_denied_domain.length() < 4) {
-                if (!is_daemonised) {
-                    std::cerr << thread_id << " sslaccessdeniedaddress setting appears to be wrong." << std::endl;
-                }
-                syslog(LOG_ERR, "%s", " sslaccessdeniedaddress setting appears to be wrong.");
-                return false;
-            }
-            if (findoptionS("ssldeniedrewrite") == "on") {
-                ssl_denied_rewrite = true;
-            } else {
-                ssl_denied_rewrite = false;
-            }
         }
 
         if (findoptionS("nonstandarddelimiter") == "off") {
@@ -732,10 +710,24 @@ bool FOptionContainer::read(const char *filename) {
     //
     //
 
+    cgi_bypass = (findoptionS("cgibypass")== "on" );
+    cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");
+
+    bypass_version = findoptionI("bypassversion");
+    if (!realitycheck(bypass_version, 0, 2, "bypassversion")) {
+        return false;
+    }
+    if (bypass_version == 0) bypass_version = 1;   //default
+    if (bypass_version == 2) bypass_v2 = true;   //default
+
     bypass_mode = findoptionI("bypass");
     if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
         return false;
     }
+
+
+    if(bypass_mode == -1) cgi_bypass = true;   // for backward compatibility
+
     // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
     if ((bypass_mode != 0) || (disable_content_scan != 1)) {
         magic = findoptionS("bypasskey");
@@ -760,6 +752,10 @@ bool FOptionContainer::read(const char *filename) {
     if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
         return false;
     }
+
+    if(infection_bypass_mode == -1) cgi_infection_bypass = true;   // for backward compatibility
+
+
     if (infection_bypass_mode != 0) {
         imagic = findoptionS("infectionbypasskey");
         if (imagic.length() < 9) {
@@ -780,6 +776,24 @@ bool FOptionContainer::read(const char *filename) {
 #endif
             infection_bypass_errors_only = true;
         }
+    }
+
+
+    if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {
+        cgi_magic = findoptionS("cgikey");
+        if ( cgi_magic.length() < 9 ) {
+            std::cerr << thread_id << "A valid cgikey must be provided with bypass cgi version 2" << std::endl;
+            return false;
+        };
+        cgi_bypass_v2 = true;
+        if(cgi_infection_bypass && infection_bypass_mode < 60) {
+            std::cerr << thread_id << "infectionbypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
+            return false;
+        } else if(bypass_mode < 60) {
+            std::cerr << thread_id << "bypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
+            return false;
+        }
+
     }
             } catch (std::exception &e) {
         if (!is_daemonised) {

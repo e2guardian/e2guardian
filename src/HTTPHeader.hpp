@@ -157,7 +157,7 @@ class HTTPHeader
     void removeEncoding(int newlen);
     void setContentLength(int newlen);
 
-    bool DenySSL(FOptionContainer* &foc);
+    //bool DenySSL(FOptionContainer* &foc);
     // make a connection persistent - or not
     void makePersistent(bool persist = true);
     // make the request look as if its coming from the origin server
@@ -171,11 +171,7 @@ class HTTPHeader
 
     // Bypass URL & Cookie funcs
 
-    // is this a temporary filter bypass URL?
-    int isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass);
-    // is this a scan bypass URL? (download previously scanned file)
-    bool isScanBypassURL(String url, const char *magic, const char *clientip);
-    bool isBypassCookie(String url, const char *magic, const char *clientip);
+    bool isBypassCookie(String url, const char *magic, const char *clientip, const char *user);
     void chopBypass(String url, bool infectionbypass);
     void chopScanBypass(String url);
     // add cookie to outgoing headers with given name & value

@@ -222,7 +222,6 @@ class OptionContainer
 
     // access denied domain (when using the CGI)
     String access_denied_domain;
-    String sslaccess_denied_domain;
 
     bool loadCSPlugins();
     bool loadAuthPlugins();
