@@ -1,5 +1,6 @@
 # e2guardian messages file in Bulgarian
 # by Pavel Constantinov <the_deepblade@hotmail.com>
+"0","Message number absent"    # needs translation
 "1"," "
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation
@@ -71,6 +72,8 @@
 "508","Access not allowed using this browser (or app): "    # needs translation
 "509","Access not allowed using this browser (or app)."    # needs translation
 "510","Blocked IP site "    # needs translation
+"511","Tranparent https connection is not TLS: "    # needs translation
+"512","Tranparent https connection does not have SNI: "    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
 "522","Blocked User-Agent: "    # needs translation

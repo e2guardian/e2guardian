@@ -133,17 +133,23 @@ OPENSSL v1.1 SUPPORT
 
     New % weighting option for phrase lists
     
-Amend code so that -Wall compile option gives no warnings 
+Code amended so that -Wall compile option gives no warnings 
 
 Amended code so that -Wall compile option gives no warnings 
+
+BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
+
+Requests without SNI and those not TLS no longer tried for MITM.
 
 TESTING -  
 ---------
 
-    Please prefix all bug reports with "v5.2: "
+    Please prefix all bug reports with "v5.3: "
 
 TO DO IN NEXT RELEASE
 ---------------------
+
+    Option for output file for storyboard trace
 
     Reduce unnecessary memory usage on in DataBuffer
 
@@ -195,6 +201,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 25 August 2018
+Philip Pearce 3rd January 2019
 
 

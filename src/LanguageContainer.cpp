@@ -50,11 +50,7 @@ std::string LanguageContainer::getTranslation(const unsigned int index)
         String m(index);
         t +=  m;
         t += " MISSING ";
-    std::cerr << "response is " << t << std::endl;
-//    return (char*) t.toCharArray();
     return (std::string) t;
-
-    //return " MISSING TRANSLATION KEY ";
 }
 
 // open a language file, containing message names (keys) and translated messages (values)
@@ -81,7 +77,7 @@ bool LanguageContainer::readLanguageList(const char *filename)
         line = linebuffer.c_str();
         k = line.after("\"").before("\",\"").toInteger();
         v = line.after("\",\"").before("\"");
-        if (k > 0 && v.length() > 0) {
+        if (k >= 0 && v.length() > 0) {
             keys.push_back(k);
             values.push_back(v);
         }

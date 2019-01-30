@@ -1,6 +1,7 @@
 # e2guardian 3 messages file
 # Lithuanian version by Nerijus Baliūnas and Mantas Kriaučiūnas
 # charset=utf-8
+"0","Message number absent"    # needs translation
 "1","Tinklalapis uždraustas"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation
@@ -72,6 +73,8 @@
 "508","Uždrausta reguliarioji išraiška (regexp) HTTP antraštėje: ",
 "509","Rasta draudžiama reguliarioji išraiška (regexp) HTTP antraštėje."
 "510","Blocked IP site "    # needs translation
+"511","Tranparent https connection is not TLS: "    # needs translation
+"512","Tranparent https connection does not have SNI: "    # needs translation
 "520","Blocked HTTPS site: "    # needs translation
 "521","Banned Search Words: "    # needs translation
 "522","Blocked User-Agent: "    # needs translation

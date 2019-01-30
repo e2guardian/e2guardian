@@ -47,7 +47,7 @@ if(true) return checkfiletype
 function(thttps-checkrequest)
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
-if(fullurlin, change) setmodurl
+ifnot(hassniset) checksni
 
 # Entry function called by ICAP module to check reqmod
 function(icap-checkrequest)
@@ -242,3 +242,9 @@ function(checkfiletype)
 if(mimein, bannedmime) return setblock
 if(extensionin, bannedextension) return setblock
 
+# SNI checking - determines default action when no SNI or TSL is present on a 
+#    THTTPS connection
+# Default blocks all requests with TLS or SNI absent that are not ip site exceptions
+function(checksni)
+ifnot(tls,,511) return setblock
+ifnot(hassniset,,512) return setblock

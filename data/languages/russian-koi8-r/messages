@@ -1,4 +1,5 @@
 # e2guardian messages file in Russian KOI8-R 
+"0","Message number absent"    # needs translation
 "1","Доступ запрещён"
 "10","IP limit exceeded.  There is a  " # needs translation
 "11"," IP limit set." # needs translation
@@ -70,6 +71,8 @@
 "508","Доступ с этого браузера запрещён: "
 "509","Доступ с этого браузера запрещён."
 "510","Заблокированный IP сайт "
+"511","Tranparent https connection is not TLS: "    # needs translation
+"512","Tranparent https connection does not have SNI: "    # needs translation
 "520","Заблокированный HTTPS сайт: "
 "521","Заблокированная поисковая фраза: "
 "522","Заблокированный User-Agent: "
