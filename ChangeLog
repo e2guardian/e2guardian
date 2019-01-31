@@ -6,6 +6,10 @@ January 2019
 - Update ICAP client (tested with drweb AV)
 - Add stealth mode (reporting without block) to StoryBoard mode
 - Add new secure bypass mode (experimental)
+- Better handling for non-tls and non-sni calls on transparent https
+- Fix bug #490 modified URL not shown in log 
+- Fix bug #489 - exception file ext/mime type not working correctly 
+- Fix bug #486 - bypass cookie not being set in proxy mode 
 
 December 2018
 
