@@ -278,6 +278,9 @@ embeddedurlweight = 0
 # -1 - depreciated - for backward compatability enables cgibypass with bypassversion 1
 bypass = 0
 
+# Byapss version 2 is experimental, provide a secure cgi communication (see notes/cgi_bypass documentation)
+# 
+
 # Bypass version
 # can be 1 or 2
 # Always use v2 unless you have old style cgi hash generation in use
