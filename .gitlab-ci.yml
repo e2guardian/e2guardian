@@ -51,8 +51,9 @@ Create Debian Package:
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
-    - mv e2"$OS"_package.deb gitpackages/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
-    - cd gitpackages
+    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
+    - mv e2"$OS"_package.deb gitpackages/develop/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_REF_NAME}
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
@@ -105,8 +106,10 @@ Create Ubuntu Package:
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ "$(VFULL)"/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
-    - mv e2"$OS"_package.deb gitpackages/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
-    - cd gitpackages
+    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
+    - mv e2"$OS"_package.deb gitpackages/develop/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_REF_NAME}
+    - git add *.deb
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
