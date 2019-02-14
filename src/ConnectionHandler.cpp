@@ -1709,111 +1709,19 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
             {
-                // if it's a CONNECT then headersent can't be set
-                // so we don't need to worry about it
-
-                // if preemptive banning is not in place then a redirect
-                // is not guaranteed to ban the site so we have to write
-                // an access denied page.  Unfortunately IE does not
-                // work with access denied pages on SSL more than a few
-                // hundred bytes so we have to use a crap boring one
-                // instead.  Nothing can be done about it - blame
-                // mickysoft.
-                //
-                // FredB 2013
-                // Wrong Microsoft is right, no data will be accepted without hand shake
-                // This is a Man in the middle problem with Firefox and IE (can't rewrite a ssl page)
-                // 307 redirection Fix the problem for Firefox - only ? -
-                // TODO: I guess the right thing to do should be a - SSL - DENIED Webpage 307 redirect and direct"
-		//
-		// It doesn't works anymaore with recent Fireofx version
-		/*
-                if (ldl->fg[filtergroup]->sslaccess_denied_address.length() != 0) {
-                    // grab either the full category list or the thresholded list
-                    std::string cats;
-                    cats = checkme->usedisplaycats ? checkme->whatIsNaughtyDisplayCategories
-                                                   : checkme->whatIsNaughtyCategories;
-                    String hashed;
-                    // generate valid hash locally if enabled
-                    if (dohash) {
-                        hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
-                    }
-                        // otherwise, just generate flags showing what to generate
-                    else if (filterhash) {
-                        hashed = "1";
-                    } else if (virushash) {
-                        hashed = "2";
-                    }
-
-                    if(ldl->fg[filtergroup]->cgi_bypass_v2) {
-                        if (filterhash) {
-                            hashed += "1";
-                        } else if (virushash) {
-                            hashed += "2";
-                        }
-                    }
-
-                    eheader = "HTTP/1.1 307 Temporary Redirect\r\n";
-                    eheader += "Location: ";
-                    eheader += ldl->fg[filtergroup]->sslaccess_denied_address; // banned site for ssl
-                    if (ldl->fg[filtergroup]->non_standard_delimiter) {
-                        eheader += "?DENIEDURL==";
-                        eheader += miniURLEncode((*url).toCharArray()).c_str();
-                        eheader += "::IP==";
-                        eheader += (*clientip).c_str();
-                        eheader += "::USER==";
-                        eheader += (*clientuser).c_str();
-                        eheader += "::FILTERGROUP==";
-                        eheader += ldl->fg[filtergroup]->name;
-                        if (checkme->clienthost != "") {
-                            eheader += "::HOST==";
-                            eheader += checkme->clienthost.c_str();
-                        }
-                        eheader += "::CATEGORIES==";
-                        eheader += miniURLEncode(cats.c_str()).c_str();
-                        eheader += "::REASON==";
-                    } else {
-                        eheader += "?DENIEDURL=";
-                        eheader += miniURLEncode((*url).toCharArray()).c_str();
-                        eheader += "&IP=";
-                        eheader += (*clientip).c_str();
-                        eheader += "&USER=";
-                        eheader += (*clientuser).c_str();
-                        eheader += "&FILTERGROUP=";
-                        eheader += ldl->fg[filtergroup]->name;
-                        if (checkme->clienthost != "") {
-                            eheader += "&HOST=";
-                            eheader += checkme->clienthost.c_str();
-                        }
-                        eheader += "&CATEGORIES=";
-                        eheader += miniURLEncode(cats.c_str()).c_str();
-                        eheader += "&REASON=";
-                    }
-
-                    if (reporting_level == 1) {
-                        eheader += miniURLEncode((*checkme).whatIsNaughty.c_str()).c_str();
-                    } else {
-                        eheader += miniURLEncode((*checkme).whatIsNaughtyLog.c_str()).c_str();
-                    }
-                    eheader += "\r\nContent-Length: 0";
-                    eheader += "\r\nCache-control: no-cache";
-                    eheader += "\r\nConnection: close\r\n\r\n";
-                } else {
-i			*/
-	      		//  website without SSLMITM must just block with a blanck page
-	  		// This header syntax drop Firefox connection: keep alive, reduce load
-		    String hbody = "<html><body>e2guardian </body></html>\r\n";
-    		    eheader = "HTTP/1.1 403 ";
-                    eheader += o.language_list.getTranslation(500); // banned site
-                    eheader += "\r\nServer: e2guardian";
-                    eheader += "\r\nMime-Version: 1.0";
-                    eheader += "\r\nContent-Type: text/html";
-                    eheader += "\r\nContent-Length: ";
-                    eheader += std::to_string(hbody.size());
-                    eheader += "\r\n";
-		    ebody = hbody;
-             //   }
-
+		 // Block ssl website    
+                 // https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
+	         String hbody = "<html><body>e2guardian </body></html>\r\n";
+    	         eheader = "HTTP/1.1 403 ";
+                 eheader += o.language_list.getTranslation(500); // banned site
+                 eheader += "\r\nServer: e2guardian";
+                 eheader += "\r\nMime-Version: 1.0";
+                 eheader += "\r\nContent-Type: text/html";
+                 eheader += "\r\nConnection: close";
+                 eheader += "\r\nContent-Length: ";
+                 eheader += std::to_string(hbody.size());
+		 ebody = hbody;
+                 eheader += "\r\n";
             } else {
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
@@ -1965,19 +1873,21 @@ i			*/
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
 		{
-          //  website without SSLMITM must just block with a blanck page
-	  // This header syntax drop Firefox connection: keep alive, reduce load
-		String hbody = "<html><body>e2guardian </body></html>\r\n";
-    		eheader = "HTTP/1.1 403 ";
-                eheader += o.language_list.getTranslation(500); // banned site
-                eheader += "\r\nServer: e2guardian";
-                eheader += "\r\nMime-Version: 1.0";
-                eheader += "\r\nContent-Type: text/html";
-                eheader += "\r\nContent-Length: ";
-                eheader += std::to_string(hbody.size());
-                eheader += "\r\n";
-	        ebody = hbody;
-		return true;
+		 // Block ssl website    
+                 // https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
+	         String hbody = "<html><body>e2guardian </body></html>\r\n";
+    	         eheader = "HTTP/1.1 403 ";
+                 eheader += o.language_list.getTranslation(500); // banned site
+                 eheader += "\r\nServer: e2guardian";
+                 eheader += "\r\nMime-Version: 1.0";
+                 eheader += "\r\nContent-Type: text/html";
+                 eheader += "\r\nConnection: close";
+                 eheader += "\r\nContent-Length: ";
+                 eheader += std::to_string(hbody.size());
+		 ebody = hbody;
+                 eheader += "\r\n";
+            } else {
+                // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
 	    } else {
 	    	eheader = "HTTP/1.1 302 Redirect\r\n";
             	eheader += "Location: ";
