@@ -1886,7 +1886,6 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                  eheader += std::to_string(hbody.size());
 		 ebody = hbody;
                  eheader += "\r\n";
-            } else {
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
 	    } else {
 	    	eheader = "HTTP/1.1 302 Redirect\r\n";
