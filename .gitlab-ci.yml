@@ -101,9 +101,8 @@ Create Ubuntu Package:
     - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
-    - SIZE=`stat -c %s ${PACKDST}/data` &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ "$SIZE"/g" ${PACKDST}/control/control
-    - ${PACKDST}/data/usr/sbin/e2guardian -v
-    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ "$(VFULL)"/g" ${PACKDST}/control/control 
+    - SIZE=`stat -c %s ${PACKDST}/data` &&  echo $SIZE &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
