@@ -4289,5 +4289,3 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer 
     }
     return DGAUTH_NOUSER;
 }
-
-
