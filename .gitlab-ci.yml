@@ -7,6 +7,7 @@ stages:
 Package Docker Image Debian:
   stage: build:debian
   artifacts:
+   expire_in: 1 hour
    name: build-debian
    paths:
     - /builds   
@@ -52,17 +53,19 @@ Create Debian Package:
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_V$FULL_$(date +%Y%m%d).deb
     - cd gitpackages/${CI_COMMIT_REF_NAME}
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package" 
     - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
-    
+    - rm -r *.deb
+
 Package Docker Image Ubuntu:
   stage: build:ubuntu
   artifacts:
+   expire_in: 1 hour
    name: build-ubuntu
    paths:
     - /builds   
@@ -106,11 +109,11 @@ Create Ubuntu Package:
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_$FULL_$(date +%Y%m%d).deb
     - cd gitpackages/${CI_COMMIT_REF_NAME}
-    - git add *.deb
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package" 
     - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
+    - rm -r *.deb
