@@ -292,11 +292,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     ERR_clear_error();
     ctx = SSL_CTX_new(SSLv23_client_method());
     if (ctx == NULL) {
-//needed to get the errors when creating ctx
-//ERR_print_errors_fp(stderr);
-//printerr(strerror(errno));
 #ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
 #endif
         log_ssl_errors("Error ssl context is null for %s", hostname.c_str());
@@ -373,17 +369,16 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
     SSL_set_connect_state(ssl);
 
-    //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK);
+    //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK); // blocking mode used currently
     SSL_set_fd(ssl, this->getFD());
     SSL_set_tlsext_host_name(ssl, hostname.c_str());
 
     //make io non blocking as select wont tell us if we can do a read without blocking
-    //BIO_set_nbio(SSL_get_rbio(ssl),1l);
-    //BIO_set_nbio(SSL_get_wbio(ssl),1l);
+    //BIO_set_nbio(SSL_get_rbio(ssl),1l);  // blocking mode used currently
+    //BIO_set_nbio(SSL_get_wbio(ssl),1l); // blocking mode used currently
     ERR_clear_error();
     int rc = SSL_connect(ssl);
     if (rc < 0) {
-        //ERR_print_errors_fp(stderr);
         log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
 #ifdef NETDEBUG
         std::cout << thread_id << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
@@ -430,7 +425,7 @@ void Socket::stopSsl()
                 std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECIEVED_SHUTDOWN IS SET" << std::endl;
+                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
             }
             std::cout << thread_id << "calling 1st ssl shutdown" << std::endl;
 #endif
@@ -441,13 +436,11 @@ void Socket::stopSsl()
                     std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
                 }
                 if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                    std::cout << thread_id << "SSL_RECIEVED_SHUTDOWN IS SET" << std::endl;
+                    std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
                 }
                 std::cout << thread_id << "Discarding extra data from client" << std::endl;
 #endif
 
-                //SSL_set_quiet_shutdown(ssl,1);
-                //SSL_shutdown(ssl);
                 shutdown(SSL_get_fd(ssl), SHUT_WR);
                 char junk[1024];
                 readFromSocket(junk, sizeof(junk), 0, 5);
@@ -462,7 +455,7 @@ void Socket::stopSsl()
                 std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECIEVED_SHUTDOWN IS SET" << std::endl;
+                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
             }
             std::cout << thread_id << "calling ssl shutdown" << std::endl;
 #endif
@@ -629,7 +622,6 @@ int Socket::checkCertHostname(const std::string &_hostname)
         String commonname = std::string((char *)nameutf8, len);
 
         OPENSSL_free(nameutf8);
-        //ASN1_STRING_free(asn1name);
 
         //force to lower case as domain names are not case sensetive
         commonname.toLower();

@@ -251,17 +251,12 @@ bool FOptionContainer::read(const char *filename) {
         } else {
             ssl_check_cert = false;
         }
-#endif //__SSLCERT
+#endif //__SSLMITM
 
 #ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
             if(o.enable_ssl) {
                 ssl_mitm = true;
-                if (findoptionS("onlymitmsslgrey") == "on") {
-                    only_mitm_ssl_grey = true;
-                } else {
-                    only_mitm_ssl_grey = false;
-                }
 
                 if (findoptionS("automitm") == "off") {
                     automitm= false;

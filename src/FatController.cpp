@@ -265,7 +265,7 @@ static void kill_ssl_locks(void)
   OPENSSL_free(ssl_lock_array);
 }
 #endif
-#endif
+#endif   //end __SSLMITM
 
 void monitor_flag_set(bool action)
 {
@@ -1537,7 +1537,7 @@ int fc_controlit()   //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     init_ssl_locks();
 #endif
-#endif
+#endif  // end __SSLMITM
 
     // this has to be done after daemonise to ensure we get the correct PID.
     rc = sysv_writepidfile(pidfilefd); // also closes the fd

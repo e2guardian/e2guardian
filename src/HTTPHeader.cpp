@@ -1214,13 +1214,6 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
 //		answer.chop();
 //	}
 
-//make sure ssl stuff is logged as https
-#ifdef __SSLMITM
-//	if(isssl){
-//		answer = "https://" + answer.after("://");
-//	}
-#endif
-
 #ifdef DGDEBUG
     std::cerr << thread_id << "from header url:" << answer << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
@@ -1621,14 +1614,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             //if a socket is ssl we want to send relative paths not absolute urls
             //also HTTP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
             if (sock->isSsl() && !sock->isSslServer()) {
-            setDirect();
+                setDirect();
             }
 #endif
 
             if (isdirect && !is_response) {
-                //GET http://support.digitalbrain.com/themes/client_default/linerepeat.gif HTTP/1.0
-                //	get the request method		//get the relative path					//everything after that in the header
-                //l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.0\r\n";
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
 #ifdef DGDEBUG
     std::cerr << thread_id << "request headerout (modified for direct):" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;

@@ -126,16 +126,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         //FD_CLR(fdto, &inset);
 
 #ifdef __SSLMITM
-        //<TODO> This if is a nasty hack for ssl man in the middle
-        //FD_SET sets the fd to a readable state then data is read
-        //from the server until the server runs out of data then it
-        //gets gets dumped out to the client.
-        //This will break if the server is ever expecting data from
-        //the client.
-        //There isnt and SSL_select function, SSL_pending only reports
-        //whats waiting in the current record, and nbio doesnt seem to
-        //work if you use BIO_setfd (like we have to) so no ideas how
-        //to actually fix this other than rewrite dg
+        // TODO: Post v5.3 change socket logic to non-blocking so that poll can be used in MITM
+        // after read/write - PP
      if (sockfrom.isSsl()) {
       twayfds[0].revents = POLLIN;
       twayfds[1].revents = 0;
@@ -156,7 +148,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 #endif
                   }
 
-            //if (FD_ISSET(fdfrom, &inset))  // fdfrom is ready to be read from
             if (twayfds[0].revents & (POLLIN | POLLHUP))
             {
                 if (targetthroughput > -1)
@@ -183,7 +174,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                         break; // an error occurred or timed out so end while()
                     }
 
-                    //if (FD_ISSET(fdto, &outset))  // fdto ready to write to
                      if (tooutfds[0].revents & POLLOUT)
                         {
                             if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
@@ -199,7 +189,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     }
                 }
             }
-            //if (FD_ISSET(fdto, &inset))  // fdto is ready to be read from
             if ( twayfds[1].revents & (POLLIN | POLLHUP))
             {
                 if (!twoway) {
@@ -208,8 +197,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     // (just TCP cruft, which is of no interest to us here), tunnels only
     // need to be one way. As soon as the client tries to send data, break
     // the tunnel, as it will be a new request, possibly to an entirely
-    // different webserver. This is important for proper filtering when
-    // persistent connection support gets implemented. PRA 2005-11-14
+    // different webserver. PRA 2005-11-14
 #ifdef DGDEBUG
                     std::cout <<thread_id << "fdto is sending data; closing tunnel. (This must be a persistent connection.)" << std::endl;
 #endif
@@ -225,19 +213,11 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     done = true; // none received so pipe is closed so flag it
                     break;
                 } else { // some data read
-                //    outset = fdSet; // take a copy to work with
-                 //   FD_CLR(fdto, &outset); // remove fdto from the set
-                    // as we are only interested in writing to fdfrom
-
-       //             t = timeout; // take a copy to work with
-
-                   // if (selectEINTR(fdfrom + 1, NULL, &outset, NULL, &t) < 1)
                     if (poll (fromoutfds,1, timeout ) < 1)
                     {
                         break; // an error occurred or timed out so end while()
                     }
 
-                    //if (FD_ISSET(fdfrom, &outset))  // fdfrom ready to write to
                         if (fromoutfds[0].revents & POLLOUT)
                         {
                         if (!sockfrom.writeToSocket(buff, rc, 0, 0, false)) { // write data
@@ -256,6 +236,5 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         else
             std::cout <<thread_id << "Tunnel closed." << std::endl;
 #endif
-        //return (targetthroughput > -1) ? (throughput <= targetthroughput) : true;
         return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;
     }

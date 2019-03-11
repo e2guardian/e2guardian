@@ -269,7 +269,6 @@ bool OptionContainer::read(std::string& filename, int type)
         if (set_cipher_list == "")
             set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
-//        if (ca_certificate_path != "" )
         if (ret) {
             	ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
@@ -894,12 +893,6 @@ bool OptionContainer::read(std::string& filename, int type)
         } // messages language file
 
 
- //       if(!createLists(0))  {
- //               std::cerr << "Error reading filter group conf file(s)." << std::endl;
-//            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
-//            return false;
-//        }
-
 
 #ifdef _SSLMITM
         if (enable_ssl) {
@@ -929,27 +922,6 @@ bool OptionContainer::read(std::string& filename, int type)
     return true;
 }
 
-// read from stdin, write the list's ID into the given identifier,
-// sort using startsWith or endsWith depending on sortsw
-// listname is used in error messages.
-#ifdef NOTDEF
-bool OptionContainer::readStdin(ListContainer *lc, bool sortsw, const char *listname )
-{
-    bool result = lc->readStdinItemList(sortsw, 1);
-    if (!result) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
-        return false;
-    }
-    if (sortsw)
-        lc->doSort(true);
-    else
-        lc->doSort(false);
-    return true;
-}
-#endif
 
 bool OptionContainer::readinStdin()
 {

@@ -197,7 +197,6 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     std::string path(caser->filename);
     std::string dirpath(caser->filepath);
 
-    //mode_t old_umask;
     // make directory path
     int rc = mkpath(dirpath.c_str(), 0700); // only want e2g to have access to these dir
     if (rc != 0) {
@@ -275,13 +274,6 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
         fclose(fp);
         return false;
     }
-    // Symlinks no longer used
-    //if(symlink((_certPath + filename).c_str(),
-    //(_certLinks + filename).c_str()) < 0){
-    //syslog(LOG_ERR,"couldnt create link to certificate");
-    //fclose(fp);
-    //exit(1);
-    //}
 
     //unlock the file
     fl.l_type = F_UNLCK;

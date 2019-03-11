@@ -54,7 +54,6 @@ public:
 
     //SSL Man in the middle
     bool ssl_mitm = false;
-    bool only_mitm_ssl_grey = false;
     bool mitm_check_cert = true;
 
 #ifdef ENABLE_EMAIL
