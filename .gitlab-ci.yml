@@ -1,0 +1,115 @@
+stages:
+- build:debian
+- create-debian-package
+- build:ubuntu
+- create-ubuntu-package
+
+Package Docker Image Debian:
+  stage: build:debian
+  artifacts:
+   expire_in: 1 hour
+   name: build-debian
+   paths:
+    - /builds   
+  image: amd64/debian:stable
+  variables:
+    OS: "debian" 
+  script:
+    - apt update
+    - apt-get -y upgrade
+    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
+      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
+      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
+      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
+    - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - make 
+    - rm -rf .git
+
+Create Debian Package:
+  stage: create-debian-package
+  image: amd64/debian:stable
+  variables:
+    PACKPATH: "/builds/fredbcode/e2guardian"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2debian_package"
+    OS: "debian"
+  script:
+    - cd /builds/fredbcode/e2guardian 
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates lsb-release util-linux binutils
+    - git clone https://github.com/fredbcode/scripts
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
+    - mkdir -p  ${PACKPATH}/share/e2guardian/languages
+    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    - find ${PACKDST}/ -type f -name "Makefil*" -delete
+    - find ${PACKDST}/ -type f -name "*.in" -delete
+    - SIZE=`stat -c %s ${PACKDST}/data` &&  echo $SIZE &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
+    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_V"$VFULL"_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_REF_NAME}
+    - git add *.deb
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package" 
+    - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
+    - rm -rf *
+
+Package Docker Image Ubuntu:
+  stage: build:ubuntu
+  artifacts:
+   expire_in: 1 hour
+   name: build-ubuntu
+   paths:
+    - /builds   
+  image: amd64/ubuntu:18.04
+  script:
+    - apt update
+    - apt-get -y upgrade
+    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
+      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
+      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
+      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
+    - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - make 
+    - rm -rf .git 
+
+Create Ubuntu Package:
+  stage: create-ubuntu-package
+  image: amd64/ubuntu:18.04
+  variables:
+    PACKPATH: "/builds/fredbcode/e2guardian"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    OS: "ubuntu"
+  script:
+    - cd /builds/fredbcode/e2guardian 
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates lsb-release util-linux binutils
+    - git clone https://github.com/fredbcode/scripts
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
+    - mkdir -p  ${PACKPATH}/share/e2guardian/languages
+    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    - find ${PACKDST}/ -type f -name "Makefil*" -delete
+    - find ${PACKDST}/ -type f -name "*.in" -delete
+    - SIZE=`stat -c %s ${PACKDST}/data` &&  echo $SIZE &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
+    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_V"$VFULL"_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_REF_NAME}
+    - git add *.deb
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package" 
+    - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
+    - rm -rf *
