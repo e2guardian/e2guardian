@@ -290,7 +290,12 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     }
 
     ERR_clear_error();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     ctx = SSL_CTX_new(SSLv23_client_method());
+#else
+    ctx = SSL_CTX_new(TLS_client_method());
+#endif
+
     if (ctx == NULL) {
 #ifdef NETDEBUG
         std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
@@ -681,7 +686,12 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     ssl = NULL;
 
     //setup the ssl server ctx
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     ctx = SSL_CTX_new(SSLv23_server_method());
+#else
+    ctx = SSL_CTX_new(TLS_server_method());
+#endif
+
     if (ctx == NULL) {
 #ifdef NETDEBUG
         //syslog(LOG_ERR, "error creating ssl context\n");
