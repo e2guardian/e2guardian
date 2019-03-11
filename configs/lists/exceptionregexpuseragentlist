@@ -4,6 +4,7 @@
 # (assuming the user-agent is not being spoofed by the client)
 #
 # Usefull for allowing 'apps' to work
+# E.g. 'Kindle' would make kindle app an exception 
 
 #listcategory: "user-agent"
 

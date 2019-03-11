@@ -4,4 +4,9 @@
 # (assuming the user-agent is not being spoofed by the client)
 #
 #listcategory: "user-agent"
+#
+# This is useful for blocking apps
+# e.g. to block Kindle app
+#kindle
+#Kindle
 

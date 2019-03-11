@@ -387,7 +387,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
             case SB_STATE_USERAGENTIN:
                 isListCheck = true;
-                target = cm.request_header->userAgent();   // needs spliting before??
+                targetful = cm.request_header->userAgent();   // needs spliting before??target = "";
                 target2 = "";
                 break;
             case SB_STATE_EXTENSIONIN:
