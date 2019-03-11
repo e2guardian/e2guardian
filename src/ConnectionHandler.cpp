@@ -1710,20 +1710,16 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
             {
-		 // Block ssl website    
-                 // https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
-	         String hbody = "<html><body>e2guardian </body></html>\r\n";
-    	         eheader = "HTTP/1.1 403 ";
-                 eheader += o.language_list.getTranslation(500); // banned site
-                 eheader += "\r\nServer: e2guardian";
-                 eheader += "\r\nMime-Version: 1.0";
-                 eheader += "\r\nContent-Type: text/html";
-                 eheader += "\r\nConnection: close";
-                 eheader += "\r\nContent-Length: ";
-                 eheader += std::to_string(hbody.size());
-		 ebody = hbody;
-                 eheader += "\r\n";
-            } else {
+        // Block ssl website    
+        // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
+	// Connections still opened after a refresh 
+	// 403 requests made ICAP error with high load
+		eheader = "HTTP/1.1 302 Redirect";
+		eheader += "\r\nLocation: http://internal.test.e2guardian.org";
+		eheader += "\r\nServer: e2guardian";
+		eheader += "\r\nConnection: close";
+		eheader += "\r\n\r\n";
+	    } else {
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
                 bool replaceflash = false;
@@ -1874,19 +1870,15 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
 		{
-		 // Block ssl website    
-                 // https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
-	         String hbody = "<html><body>e2guardian </body></html>\r\n";
-    	         eheader = "HTTP/1.1 403 ";
-                 eheader += o.language_list.getTranslation(500); // banned site
-                 eheader += "\r\nServer: e2guardian";
-                 eheader += "\r\nMime-Version: 1.0";
-                 eheader += "\r\nContent-Type: text/html";
-                 eheader += "\r\nConnection: close";
-                 eheader += "\r\nContent-Length: ";
-                 eheader += std::to_string(hbody.size());
-		 ebody = hbody;
-                 eheader += "\r\n";
+        // Block ssl website    
+        // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
+	// Connections still opened after a refresh 
+	// 403 requests made ICAP error with high load
+		eheader = "HTTP/1.1 302 Redirect";
+		eheader += "\r\nLocation: http://internal.test.e2guardian.org";
+		eheader += "\r\nServer: e2guardian";
+		eheader += "\r\nConnection: close";
+		eheader += "\r\n\r\n";
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
 	    } else {
 	    	eheader = "HTTP/1.1 302 Redirect\r\n";
