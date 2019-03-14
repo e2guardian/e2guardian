@@ -1,5 +1,4 @@
 FROM ubuntu:18.04
-MAINTAINER "numsys - @ - free.fr"
 
 ARG BUILD_DATE
 ENV VERSION 5.1

@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the v5 production version - v5.3.x 
+This is the v5 production version - v5.3.2 
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in this release.
@@ -33,6 +33,9 @@ Github: https://github.com/e2guardian
 ## Bugs and Feature Requests
 
 Github: https://github.com/e2guardian/e2guardian/issues
+
+Codacy Badge:
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/92742338bce249c6a52739d0343dabfa)](https://www.codacy.com/app/numsys/e2guardian?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=e2guardian/e2guardian&amp;utm_campaign=Badge_Grade)
 
 ## Community
 

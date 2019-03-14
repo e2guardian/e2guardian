@@ -125,11 +125,10 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				oss << std::endl;
 				fputs(oss.str().c_str(),pFile);
 				fflush(pFile);
+				free(p);
 			}
 		}
-	}
-	else
-	{
+	} else {
 			std::cerr << "error value of the debug level, please check your /etc/e2guardian/e2guardian.conf file !" << std::endl;
 	}
 }
