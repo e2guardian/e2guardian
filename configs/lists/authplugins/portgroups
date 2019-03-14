@@ -4,5 +4,5 @@
 # Note that ports MUST be entered in ascending order
 #
 # Examples:
-#8080 = filter0
-#8081 = filter1
+#8080 = filter1
+#8081 = filter2
