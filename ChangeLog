@@ -1,5 +1,15 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.3.2
+
+March 2019
+
+- SSLMITM source code clean-up - no logic or call changes
+- Fix bug #514 - useragentin
+- Fix ICAP error (with SSL denied) introduced in 5.3.1
+
+Version 5.3.1
+
 January 2019
 
 - Fix bug with Firefox and SSL denied web sites (connection still opened, massive performance issue)
