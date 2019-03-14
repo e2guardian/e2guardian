@@ -125,7 +125,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				oss << std::endl;
 				fputs(oss.str().c_str(),pFile);
 				fflush(pFile);
-				delete p;
+				free(p);
 			}
 		}
 	} else {
