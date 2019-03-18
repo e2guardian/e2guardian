@@ -124,6 +124,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 #ifdef DGDEBUG
     	std::cerr << thread_id << "Displaying TEMPLATE: " <<  line.c_str() << std::endl;
 #endif
+	// Take care SSLMITM negotiation error
 	if (line.length() < 1){
     		ebody += "\n";
 		syslog(LOG_ERR, "Corrupted TEMPLATE returns: %s", url->c_str());
