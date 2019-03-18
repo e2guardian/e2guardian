@@ -116,7 +116,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 	//
         newline = false;
         line = html[i];
-	syslog(LOG_ERR, "fred line value %s", line.c_str(), sz);
+	syslog(LOG_ERR, "fred line value %s %d", line.c_str(), sz);
 	if (line.length() < 1){
                 line = "";
 		syslog(LOG_ERR, "fred boum !");
@@ -205,8 +205,11 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             ebody += "\n";
         }
     }
-    ebody += html[sz].toCharArray();
-    ebody += "\n";
+    if (sz < 1){
+    	syslog(LOG_ERR, "fred isz is empty? %s %d", line.c_str(), sz);
+    	ebody += html[sz].toCharArray();
+    	ebody += "\n";
+    }
 }
 
 // fill in placeholders with the given information and send the resulting page to the client
