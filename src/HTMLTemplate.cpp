@@ -61,7 +61,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         if (!is_daemonised) {
             std::cerr << thread_id << "error reading: " << filename << std::endl;
         }
-        syslog(LOG_ERR, "%s", "error reading HTML template file.");
+        syslog(LOG_ERR,"error reading HTML template file: %s", filename);
         return false;
     }
     while (!templatefile.eof()) {
@@ -126,7 +126,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 #endif
 	if (line.length() < 1){
     		ebody += "\n";
-		syslog(LOG_ERR, "Corrupted TEMPLATE returns");
+		syslog(LOG_ERR, "Corrupted TEMPLATE returns: %s", url->c_str());
 		break;
 	}
         // look for placeholders (split onto their own line by readTemplateFile) and replace them
