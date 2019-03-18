@@ -89,7 +89,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         }
     }
     if (html.size() < 0) {
-	syslog(LOG_ERR, "Unable to parse template file: %s", line.c_str());
+	syslog(LOG_ERR, "Unable to parse template file: %s", filename);
         return false;
     }
 
