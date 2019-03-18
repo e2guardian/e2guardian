@@ -121,10 +121,13 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 	//
         newline = false;
         line = html[i];
-	syslog(LOG_ERR, "fred line value %s %d", line.c_str(), sz);
+#ifdef DGDEBUG
+    	std::cerr << thread_id << "Displaying TEMPLATE: " <<  line.c_str() << std::endl;
+#endif
 	if (line.length() < 1){
-                line = "";
-		syslog(LOG_ERR, "fred boum !");
+    		ebody += "\n";
+		syslog(LOG_ERR, "Corrupted TEMPLATE returns");
+		break;
 	}
         // look for placeholders (split onto their own line by readTemplateFile) and replace them
         if (line == "-URL-") {
@@ -209,10 +212,6 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         if (newline) {
             ebody += "\n";
         }
-    }
-    if (sz < 1){
-    	syslog(LOG_ERR, "fred sz is empty? %s %d", line.c_str(), sz);
-    } else {
 	ebody += html[sz].toCharArray();
     	ebody += "\n";
     }
