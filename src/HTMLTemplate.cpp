@@ -88,6 +88,11 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
             push(line);
         }
     }
+    if (html.size() < 0) {
+	syslog(LOG_ERR, "Unable to parse template file: %s", line.c_str());
+        return false;
+    }
+
     templatefile.close();
     return true;
 }
@@ -206,8 +211,9 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         }
     }
     if (sz < 1){
-    	syslog(LOG_ERR, "fred isz is empty? %s %d", line.c_str(), sz);
-    	ebody += html[sz].toCharArray();
+    	syslog(LOG_ERR, "fred sz is empty? %s %d", line.c_str(), sz);
+    } else {
+	ebody += html[sz].toCharArray();
     	ebody += "\n";
     }
 }
