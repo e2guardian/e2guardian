@@ -48,6 +48,7 @@
 "208","The site requested does not have an IPv4 address"    # needs translation
 "209","Temporary DNS service failure - please try again"    # needs translation
 "210","DNS service failure - please try again later"    # needs translation
+"212","Loop request blocked"    # needs translation
 "300","Znaleziono zakazan fraz: "
 "301","Znaleziono zakazan fraz."
 "400","Znaleziono zakazan kombinacj fraz: "

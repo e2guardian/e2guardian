@@ -48,6 +48,7 @@
 "208","Die angeforderte Seite hat keine IPv4-Adresse"
 "209","Vorübergehender Ausfall des DNS-Dienstes - Bitte versuchen Sie es erneut"
 "210","DNS-Dienstfehler - Bitte versuchen Sie es später noch einmal"
+"212","Loop request blocked"    # needs translation
 "300","Verbotener Ausdruck gefunden: "
 "301","Verbotener Ausdruck gefunden"
 "400","Verbotene Kombination von Ausdrücken gefunden: "

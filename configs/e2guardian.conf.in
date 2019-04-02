@@ -142,6 +142,16 @@ logfileformat = 6
 # it has a different port.
 filterip =
 
+# loop prevention
+#
+# For loop prevention purposes list all IPs e2g can be reached on
+# Include all e2g host server IPs and any VIP used when when in an array.
+# Specify each IP on an individual checkip line.
+#
+# Defaults: Not set - no loop prevention 
+#         
+checkip = 127.0.0.1
+
 # the ports that e2guardian listens to.  Specify one line per filterip
 # line.  If both mapportstoips and mapauthtoports are set to 'on'
 # you can specify different authentication mechanisms per port but
@@ -154,7 +164,7 @@ filterports = 8080
 # number of filterip
 # If disabled will listen on all filterports on all filterips.
 # on (default) | off
-#mapportstoips = off
+mapportstoips = off
 
 #port for transparent https
 #if defined enables tranparent https
