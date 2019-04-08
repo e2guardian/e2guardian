@@ -2549,6 +2549,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
+            X509_free(cert);
         }
 
 //startsslserver on the connection to the client
@@ -2566,6 +2567,8 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!peerconn.writeString(msg.c_str()))
             {
                         peerDiag("Unable to send 200 connection  established to client ", peerconn);
+                        if(cert != nullptr)
+                            X509_free(cert);
                         return false;
             }
         }
@@ -2581,6 +2584,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
+            if(cert != nullptr) X509_free(cert);
         }
     }
 
@@ -2685,7 +2689,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     peerconn.stopSsl();
 
 //tidy up key and cert
-    X509_free(cert);
+    if(cert != nullptr) X509_free(cert);
     EVP_PKEY_free(pkey);
 
     persistProxy = false;
@@ -2695,8 +2699,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 }
 #endif
 
-bool
-ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
+bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
                           HTTPHeader &header, bool only_client_ip, bool isconnect_like) {
     Socket nullsock;
     return doAuth(auth_result, authed, filtergroup, auth_plugin, peerconn, nullsock, header, only_client_ip,
