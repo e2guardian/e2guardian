@@ -556,6 +556,23 @@ bool OptionContainer::read(std::string& filename, int type)
             syslog(LOG_ERR, "%s", "Can not listen on more than 127 IPs");
             return false;
         }
+        // multiple check IP support - used for loop checking
+        check_ip = findoptionM("checkip");
+        if (check_ip.size() > 127) {
+            if (!is_daemonised) {
+                std::cerr << "Can not check on more than 127 IPs" << std::endl;
+            }
+            syslog(LOG_ERR, "%s", "Can not check on more than 127 IPs");
+            return false;
+        }
+        //if (check_ip.size() == 0) {   // set defaults
+            //if (filter_ip.size() > 0) {
+            //    check_ip = filter_ip;
+            //} else {
+            //    String t = "127.0.0.1";
+            //    check_ip.push_back(t);
+            //}
+        //}
         filter_ports = findoptionM("filterports");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
             if (!is_daemonised) {
