@@ -1306,9 +1306,12 @@ void accept_connections(int index) // thread to listen on a single listening soc
         thread_id += ": ";
         while ((errorcount < 30) && !ttg) {
             Socket *peersock = serversockets[index]->accept();
-            if (ttg) break;
             int err = serversockets[index]->getErrno();
             if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
+            	if (ttg) {
+			delete peersock;
+			break;
+		}
 #ifdef DGDEBUG
                 std::cerr << thread_id << "got connection from accept" << std::endl;
 #endif
@@ -1322,6 +1325,10 @@ void accept_connections(int index) // thread to listen on a single listening soc
                 std::cerr << thread_id << "pushed connection to http_worker_Q" << std::endl;
 #endif
             } else {
+            	if (ttg) {
+			if (peersock != nullptr) delete peersock;
+			break;
+		}
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Error on accept: errorcount " << errorcount << " errno: " << err << std::endl;
 #endif

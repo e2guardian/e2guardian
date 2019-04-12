@@ -46,6 +46,7 @@
 "208","The site requested does not have an IPv4 address"    # needs translation
 "209","Temporary DNS service failure - please try again"    # needs translation
 "210","DNS service failure - please try again later"    # needs translation
+"212","Loop request blocked"    # needs translation
 "300","Tiltott kifejezs: "
 "301","Tiltott kifejezs."
 "400","Tiltott sszettel kifejezs: "

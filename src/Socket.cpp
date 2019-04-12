@@ -506,6 +506,7 @@ X509_VERIFY_PARAM_free(param);
 //check the common name and altnames of a certificate against hostname
 int Socket::checkCertHostname(const std::string &_hostname)
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     String hostname = _hostname;
 
     X509 *peercertificate = SSL_get_peer_certificate(ssl);
@@ -524,7 +525,6 @@ int Socket::checkCertHostname(const std::string &_hostname)
 #endif
 
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
     bool matched = false;
     bool hasaltname = false;
 

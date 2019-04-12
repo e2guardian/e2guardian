@@ -130,19 +130,19 @@ class Socket : public BaseSocket
 
     private:
 #ifdef __SSLMITM
-    SSL *ssl;
-    SSL_CTX *ctx;
-    bool isssl;
-    bool issslserver;
+    SSL *ssl = nullptr;
+    SSL_CTX *ctx = nullptr;
+    bool isssl = false;
+    bool issslserver = false;
 #else
-    bool isssl;
+    bool isssl = false;
 #endif //__SSLMITM
 
     // local & remote addresses
     struct sockaddr_in my_adr;
     struct sockaddr_in peer_adr;
     int my_port;
-    bool ieof;
+    bool ieof = false;
 };
 
 #endif

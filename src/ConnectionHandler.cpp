@@ -460,8 +460,20 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 {
     if (port == 0)
         port = cm.request_header->port;
+    String sport(port);
     int lerr_mess = 0;
     int retry = -1;
+    bool may_be_loop = false;
+    for (auto it = o.filter_ports.begin(); it != o.filter_ports.end(); it++) {
+        if (*it == sport) {
+            may_be_loop = true;
+            break;
+        }
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "May_be_loop = " << may_be_loop << " "  << " port " << port << std::endl;
+#endif
+
     while (++retry < o.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
@@ -475,6 +487,21 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             String des_ip;
             if (cm.isiphost) {
                 des_ip = cm.urldomain;
+                if (may_be_loop) {  // check check_ip list
+                    bool do_break = false;
+                    if (o.check_ip.size() > 0) {
+                        for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                            if (*it == des_ip) {
+                                do_break = true;
+                                lerr_mess = 212;
+                                break;
+                            }
+                        }
+                    }
+                    if (do_break) break;
+                    may_be_loop = false;
+                }
+
                 sock.setTimeout(o.connect_timeout);
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Connecting to IPHost " << des_ip << " port " << port << std::endl;
@@ -531,6 +558,20 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                 struct addrinfo *p;
                 for (p = infoptr; p != NULL; p = p->ai_next) {
                     getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+                    if (may_be_loop) {  // check check_ip list
+                        bool do_break = false;
+                        if (o.check_ip.size() > 0) {
+                            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                                if (*it == t) {
+                                    do_break = true;
+                                    lerr_mess = 212;
+                                    break;
+                                }
+                            }
+                        }
+                        if (do_break) break;
+                        may_be_loop = false;
+                    }
 #ifdef DGDEBUG
                     std::cerr << thread_id << "Connecting to IP " << t << " port " << port << std::endl;
 #endif
@@ -544,6 +585,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     }
                 }
                 freeaddrinfo(infoptr);
+                if (may_be_loop) break;
                 lerr_mess = 203;
                 continue;
             }
@@ -560,6 +602,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             return rc;
         }
     }
+
     // only get here if failed
     cm.upfailure = true;
     cm.message_no = lerr_mess;
@@ -2549,6 +2592,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
+            X509_free(cert);
         }
 
 //startsslserver on the connection to the client
@@ -2566,6 +2610,8 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!peerconn.writeString(msg.c_str()))
             {
                         peerDiag("Unable to send 200 connection  established to client ", peerconn);
+                        if(cert != nullptr)
+                            X509_free(cert);
                         return false;
             }
         }
@@ -2581,6 +2627,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
+            if(cert != nullptr) X509_free(cert);
         }
     }
 
@@ -2685,7 +2732,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     peerconn.stopSsl();
 
 //tidy up key and cert
-    X509_free(cert);
+    if(cert != nullptr) X509_free(cert);
     EVP_PKEY_free(pkey);
 
     persistProxy = false;
@@ -2695,8 +2742,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 }
 #endif
 
-bool
-ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
+bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
                           HTTPHeader &header, bool only_client_ip, bool isconnect_like) {
     Socket nullsock;
     return doAuth(auth_result, authed, filtergroup, auth_plugin, peerconn, nullsock, header, only_client_ip,

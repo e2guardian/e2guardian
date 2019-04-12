@@ -1854,12 +1854,13 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     inet_aton(ipstr.c_str(), &addr);
     uint32_t ip = ntohl(addr.s_addr);
     // start with individual IPs
-    if (std::binary_search(iplist.begin(), iplist.end(), ip)) {
+    if ((iplist.size() > 0) && std::binary_search(iplist.begin(), iplist.end(), ip)) {
         // only return a hostname if that's what we matched against
         return "";
     }
 
     // ranges
+    if (iprangelist.size() > 0) {
     for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
         if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
             String ret = hIPtoChar(i->startaddr);
@@ -1869,8 +1870,10 @@ const char* ListContainer::inIPList(const std::string &ipstr )
             return "";
         }
     }
+    }
 
     // subnets
+    if (ipsubnetlist.size() > 0) {
     for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
         if (i->maskedaddr == (ip & i->mask)) {
             String ret = hIPtoChar(i->maskedaddr);
@@ -1879,6 +1882,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
             //return ret;
             return "";
         }
+    }
     }
 
 #ifdef DGDEBUG
