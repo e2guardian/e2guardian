@@ -61,7 +61,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         if (!is_daemonised) {
             std::cerr << thread_id << "error reading: " << filename << std::endl;
         }
-        syslog(LOG_ERR, "%s", "error reading HTML template file.");
+        syslog(LOG_ERR,"error reading HTML template file: %s", filename);
         return false;
     }
     while (!templatefile.eof()) {
@@ -88,6 +88,11 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
             push(line);
         }
     }
+    if (html.size() < 0) {
+	syslog(LOG_ERR, "Unable to parse template file: %s", filename);
+        return false;
+    }
+
     templatefile.close();
     return true;
 }
@@ -113,8 +118,18 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     bool safe = false;
     for (unsigned int i = 0; i < sz; i++) {
         // preserve newlines from original file
+	//
         newline = false;
         line = html[i];
+#ifdef DGDEBUG
+    	std::cerr << thread_id << "Displaying TEMPLATE: " <<  line.c_str() << std::endl;
+#endif
+	// Take care SSLMITM negotiation error
+	if (line.length() < 1){
+    		ebody += "\n";
+		syslog(LOG_ERR, "Corrupted TEMPLATE returns: %s", url->c_str());
+		break;
+	}
         // look for placeholders (split onto their own line by readTemplateFile) and replace them
         if (line == "-URL-") {
             if (!safe) {
@@ -198,9 +213,9 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         if (newline) {
             ebody += "\n";
         }
+	ebody += html[sz].toCharArray();
+    	ebody += "\n";
     }
-    ebody += html[sz].toCharArray();
-    ebody += "\n";
 }
 
 // fill in placeholders with the given information and send the resulting page to the client
