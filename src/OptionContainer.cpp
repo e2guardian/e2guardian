@@ -219,6 +219,18 @@ bool OptionContainer::read(std::string& filename, int type)
 
        if(enable_ssl) {
         bool ret = true;
+	if (findoptionS("useopensslconf") == "on") {
+		use_openssl_conf = true;
+		openssl_conf_path = findoptionS("opensslconffile");
+		if (openssl_conf_path == "") {
+			have_openssl_conf = false;
+		} else {
+			have_openssl_conf = true;
+		}
+	} else {
+		use_openssl_conf = false;
+	};
+
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
 		   if (!is_daemonised){

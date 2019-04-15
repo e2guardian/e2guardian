@@ -171,7 +171,10 @@ class OptionContainer
     std::string cert_private_key_path;
     std::string generated_cert_path;
     std::string generated_link_path;
+    std::string openssl_conf_path;
     CertificateAuthority *ca;
+    bool use_openssl_conf = false;
+    bool have_openssl_conf = false;
 #endif
     std::string set_cipher_list;
 

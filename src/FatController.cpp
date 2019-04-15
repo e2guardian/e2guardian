@@ -43,6 +43,7 @@
 #ifdef __SSLMITM
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/conf.h>
 #endif //__SSLMITM
 
 #include "FatController.hpp"
@@ -1540,6 +1541,19 @@ int fc_controlit()   //
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
+    if (o.use_openssl_conf) {
+    	if(o.have_openssl_conf) {
+		if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr,0) != 1) {
+		syslog(LOG_ERR, "Error reading openssl config file %s", o.openssl_conf_path.c_str());
+		return false;
+		}
+	} else {
+		if (CONF_modules_load_file(nullptr, nullptr,0) != 1) {
+		syslog(LOG_ERR, "Error reading default openssl config files");
+		return false;
+		}
+	}
+    }
     SSL_library_init();
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     init_ssl_locks();

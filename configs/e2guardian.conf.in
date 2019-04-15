@@ -661,6 +661,20 @@ enablessl = off
 #genratedcertend =
 # generatedcertstart =
 
+#Use openssl configuration file
+# switch this on if you want e2g to read in openssl configuration
+# This is useful if you want to use a hardware acceleration engine.
+# default is off
+#useopensslconf = off
+#
+
+#Alternate openssl configuration file
+# only used if useopensslconf = on
+# default is to use standard openssl configuration file
+# only use this if an alternate openssl configuration file is used for e2g
+# opensslconffile = '/home/e2/openssl.conf'
+
+
 # monitor helper path 
 # If defined this script/binary will be called with start or stop appended as follows:-
 # Note change in V4!!! - No longer detects cache failure
