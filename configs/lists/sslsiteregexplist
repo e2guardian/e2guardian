@@ -9,6 +9,12 @@
 # This is used to 'cname' ssl sites and avoids having to adjust DNS
 # and allows option of switching off/on depending on filter group.
 
+# This list applies to the site only (not full URL) for 
+#   HTTPS sites (regardless of SSL MITM configuration).
+
+# Do not use patterns with full urls in this list as they can never
+#   match the site name.
+
 # Enforce restricted mode in YouTube
 #
 #"(^https://www.youtube.com)"->"https://restrict.youtube.com"
@@ -19,5 +25,5 @@
 #
 # Enforce restricted mode in Google
 #
-#"https://www\.google\.[a-zA-Z0-9_.]*$)"->"https://forcesafesearch.google.com"
+#"(^https://www\.google\.[a-zA-Z0-9_.]*$)"->"https://forcesafesearch.google.com"
 #"(^https://.*\.gstatic\.com$)"->"https://forcesafesearch.google.com"

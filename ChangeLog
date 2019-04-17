@@ -1,5 +1,9 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+March 2019
+
+- Fix segfault bug #509 
+
 Version 5.3.2
 
 March 2019
