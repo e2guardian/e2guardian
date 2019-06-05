@@ -1,7 +1,27 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+
+Version 5.3.3
+
+May 2019
+
+- Fix segfault when corrupt SNI presented
+
+April 2019
+
+- Fix bug #532 - reverse IP lookup give random chars in log and segfaults
+- Update comments in list files - as per issue #530
+- Add support for reading openssl config files - new optional 
+  e2guardian.conf params useopensslconf and opensslconffile
+- Fix bug #527 - memory leaking when complied with openssl v1.1
+- Loop detect code added - enhancement #523 - 
+  Note that to activate loop detect 'checkip' lines need to be added to 
+  e2guardian.conf, one for each ip the e2guardian system is listening on, 
+  including loopback and any VIP used.
+
 March 2019
 
+- Fix #512
 - Fix segfault bug #509 
 
 Version 5.3.2
