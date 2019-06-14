@@ -87,6 +87,7 @@ searchregexplist \
 sslsiteregexplist \
 urlredirectregexplist \
 urlregexplist \
+ipnobypass \
 weightedphraselist
  
 EXTRA_DIST = bannedphraselist.in \
@@ -94,7 +95,6 @@ bannedsitelist.in \
 bannedurllist.in \
 exceptionphraselist.in \
 domainsnobypass.in \
-ipnobypass.in \
 urlnobypass.in \
 weightedphraselist.in
 
