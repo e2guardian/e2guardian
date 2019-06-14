@@ -699,7 +699,6 @@ configs/lists/bannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
 configs/lists/domainsnobypass
-configs/lists/ipnobypass
 configs/lists/urlnobypass
 configs/lists/exceptionphraselist
 configs/lists/weightedphraselist
