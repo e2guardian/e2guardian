@@ -1236,8 +1236,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                         } else {
+			   if(!ismitm) {
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                             //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+			   }
                         }
                         persistPeer = false;
                         persistProxy = false;
