@@ -1,0 +1,13 @@
+# User are not allowed to bypass IP sites in this list
+
+#
+# This is not the IP of web servers
+# you want to filter.
+
+# Single IPs, ranges and subnets can be used,
+# e.g.
+# 192.168.0.1
+# 10.0.0.1-10.0.0.3
+# 10.0.0.0/24
+#
+

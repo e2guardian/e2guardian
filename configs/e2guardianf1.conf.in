@@ -303,9 +303,9 @@ bypasskey = ''
 #cgikey = 'you must change this text in order to be secure'
 
 #  Users will not be able to bypass sites/urls in these lists
-sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsitelistwithbypass'
-#ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/bannedsiteiplistwithbypass'
-#urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/bannedurllistwithbypass'
+sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/domainsnobypass'
+#ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/ipnobypass'
+#urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/urlnobypass'
 
 # Infection/Scan Error Bypass
 # Similar to the 'bypass' setting, but specifically for bypassing files scanned and found
