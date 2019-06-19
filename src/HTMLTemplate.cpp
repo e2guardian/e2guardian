@@ -213,9 +213,9 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         if (newline) {
             ebody += "\n";
         }
-	ebody += html[sz].toCharArray();
-    	ebody += "\n";
     }
+    ebody += html[sz].toCharArray();
+    ebody += "\n";
 }
 
 // fill in placeholders with the given information and send the resulting page to the client
