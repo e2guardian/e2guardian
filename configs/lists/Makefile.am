@@ -31,7 +31,6 @@ bannedsearchlist \
 bannedsiteiplist \
 exceptionvirussiteiplist \
 bannedsitelist \
-bannedsitelistwithbypass \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist \
@@ -88,15 +87,16 @@ searchregexplist \
 sslsiteregexplist \
 urlredirectregexplist \
 urlregexplist \
+ipnobypass \
 weightedphraselist
  
 EXTRA_DIST = bannedphraselist.in \
 bannedsitelist.in \
-bannedsitelistwithbypass.in \
 bannedurllist.in \
 exceptionphraselist.in \
+domainsnobypass.in \
+urlnobypass.in \
 weightedphraselist.in
-
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \

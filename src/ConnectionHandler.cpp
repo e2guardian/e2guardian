@@ -1236,8 +1236,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                         } else {
+			   if(!ismitm) {
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                             //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+			   }
                         }
                         persistPeer = false;
                         persistProxy = false;
@@ -3245,9 +3247,10 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 
             // Look up reverse DNS name of client if needed
             if (o.reverse_client_ip_lookups) {
-                std::unique_ptr<std::deque<String> > hostnames;
-                    hostnames.reset(ipToHostname(clientip.c_str()));
-                    checkme.clienthost = std::string(hostnames->front().toCharArray());
+                getClientFromIP(clientip.c_str(), checkme.clienthost);
+                //std::unique_ptr<std::deque<String> > hostnames;
+                //    hostnames.reset(ipToHostname(clientip.c_str()));
+                 //   checkme.clienthost = std::string(hostnames->front().toCharArray());
             }
 
             filtergroup = o.default_trans_fg;
@@ -4133,9 +4136,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
     // Look up reverse DNS name of client if needed
     if (o.reverse_client_ip_lookups) {
-        std::unique_ptr<std::deque<String> > hostnames;
-            hostnames.reset(ipToHostname(checkme.clientip.c_str()));
-            checkme.clienthost = std::string(hostnames->front().toCharArray());
+        getClientFromIP(clientip.c_str(), checkme.clienthost);
     }
 
     //bool part_banned;

@@ -370,7 +370,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         std::cout  << thread_id << "NAME_add_entry_by_txt on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("NAME_add_entry_by_txt on cert failed for %s", commonname);
-        X509_NAME_free(name);
+    //    X509_NAME_free(name);
         X509_free(newCert);
         return NULL;
     }
@@ -393,7 +393,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         std::cout  << thread_id << "set_issuer_name on cert failed for " << commonname << std::endl;
 #endif
         log_ssl_errors("set_issuer_name on cert failed for %s", commonname);
-        X509_NAME_free(subjectName);
+     //   X509_NAME_free(subjectName);
         X509_free(newCert);
         return NULL;
     }

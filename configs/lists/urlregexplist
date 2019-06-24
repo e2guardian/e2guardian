@@ -1,5 +1,8 @@
 #URL modifying Regular Expressions
 #
+#This list applies to the full URL for HTTP sites, and if configured 
+#for SSL MITM, also HTTPS urls.
+#
 # The format is: "extended regular expression"->"replacement straight string"
 # E.g. "shit"->"censored" would replace all occurances of shit in any case.
 # Far more complicated matches are possible.  See other sources for examples

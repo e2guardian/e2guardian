@@ -1,0 +1,51 @@
+# User are not allowed to bypass url sites in this list
+
+#Don't bother with the www. or the http://
+
+#NOTE: Sites using just IP should be put into bannedsiteiplistwithbypass
+
+#You can have multiple .Includes.
+
+# WARNING: Old style Blanket blocks in this file will be silently ignored
+
+#To include additional files in this list use this example:
+#.Include<@DGCONFDIR@/anotherbannedurllist>
+
+#You can have multiple .Includes.
+
+#listcategory: "Banned URLs"
+
+#List other URLs to block:
+
+# members.home.net/uporn
+
+# The squidGuard advert domain/URL lists are now included by default.
+# To work with advanced ad blocking & the logadblocks option, advert
+# phrase/site/URL lists should have the string "ADs" in their listcategory.
+#.Include<@DGCONFDIR@/lists/blacklists/ads/urls>
+
+#Remove the # from the following and edit as needed to use a stock
+#squidGuard/urlblacklist blacklists collection.
+#.Include<@DGCONFDIR@/lists/blacklists/adult/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/aggressive/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/audio-video/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/chat/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/drugs/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/entertainment/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/frencheducation/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/gambling/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/government/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/hacking/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/jobsearch/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/kidstimewasting/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/mail/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/news/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/porn/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/proxy/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/publicite/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/redirector/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/violence/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/virusinfected/urls>
+#.Include<@DGCONFDIR@/lists/blacklists/warez/urls>
+# You will need to edit to add and remove categories you want
+
