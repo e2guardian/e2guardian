@@ -621,14 +621,15 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
 }
 
 // is this URL in the given regexp URL list?
-int ListMeta::inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
+int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
                               unsigned int list, String &lastcategory) {
 #ifdef REDEBUG
-    std::cerr << thread_id << "inRegExpURLList: " << url << std::endl;
+    std::cerr << thread_id << "inRegExpURLList: " << urlin << std::endl;
 #endif
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
         RegResult Rre;
+        String url = urlin;
         url.removeWhiteSpace(); // just in case of weird browser crap
         url.toLower();
 
