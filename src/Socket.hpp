@@ -83,6 +83,9 @@ class Socket : public BaseSocket
     //shuts down the current ssl connection
     void stopSsl();
 
+    //cleans up ssl
+    void cleanSsl();
+
     //check that everything in this certificate is correct appart from the hostname
     long checkCertValid(String &hostname);
 

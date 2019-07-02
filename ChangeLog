@@ -2,6 +2,10 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 Version 5.3.3
 
+July 2019
+
+- Memory not released when startSslServer returns error #542
+
 June 2019
 
 - IE10/11 on Win7 reports 408/9 error on some sites #538

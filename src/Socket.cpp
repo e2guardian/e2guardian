@@ -469,16 +469,23 @@ void Socket::stopSsl()
             std::cout << thread_id << "done" << std::endl;
 #endif
         }
+    }
 
+    cleanSsl();
+
+}
+
+void Socket::cleanSsl() {  // called when failure in ssl set up functions and from stopSsl
+    if (ssl != nullptr) {
         SSL_free(ssl);
-        ssl = NULL;
+        ssl = nullptr;
     }
-
-    issslserver = false;
-    if (ctx != NULL) {
+    if (ctx != nullptr ) {
         SSL_CTX_free(ctx);
-        ctx = NULL;
+        ctx = nullptr;
     }
+    issslserver = false;
+    isssl = false;
 }
 
 //check that everything in this certificate is correct appart from the hostname
@@ -683,7 +690,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     }
 
     // set ssl to NULL
-    ssl = NULL;
+    ssl = nullptr;
 
     //setup the ssl server ctx
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -702,6 +709,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the timeout to match firefox
     if (SSL_CTX_set_timeout(ctx, 130l) < 1) {
+        cleanSsl();
         return -1;
     }
 
@@ -711,6 +719,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << thread_id << "Error using certificate" << std::endl;
 #endif
+        cleanSsl();
         return -1;
     }
 
@@ -723,6 +732,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         //syslog(LOG_ERR, "error creating ssl context\n");
         std::cout << thread_id << "Error using private key" << std::endl;
 #endif
+        cleanSsl();
         return -1;
     }
 
@@ -739,7 +749,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         std::cout << thread_id << "Error setting ssl fd connection" << std::endl;
 #endif
         log_ssl_errors("ssl_set_fd failed to client %s", "");
-        stopSsl();
+        cleanSsl();
         return -1;
     };
 
@@ -752,7 +762,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         std::cout << thread_id << "Error accepting ssl connection" << std::endl;
 #endif
         log_ssl_errors("ssl_accept failed to client %s", "");
-        stopSsl();
+        cleanSsl();
         return -1;
     }
 
@@ -763,7 +773,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         std::cout << thread_id << "Error doing ssl handshake" << std::endl;
 #endif
         log_ssl_errors("ssl_handshake failed to client %s", "");
-        stopSsl();
+        cleanSsl();
         return -1;
     }
     isssl = true;
