@@ -164,6 +164,11 @@ unsigned long int Socket::getPeerSourceAddr() {
 
 // close connection & wipe address structs
 void Socket::reset() {
+#ifdef __SSLMITM
+    if (isssl) {
+        stopSsl();
+    }
+#endif //__SSLMITM
     this->baseReset();
 
     sck = socket(AF_INET, SOCK_STREAM, 0);
@@ -183,11 +188,6 @@ void Socket::reset() {
     chunkError = false;
     chunk_to_read = 0;
 
-#ifdef __SSLMITM
-    if (isssl) {
-        stopSsl();
-    }
-#endif //__SSLMITM
 }
 
 // connect to given IP & port (following default constructor)
@@ -476,13 +476,13 @@ void Socket::stopSsl()
 }
 
 void Socket::cleanSsl() {  // called when failure in ssl set up functions and from stopSsl
-    if (ssl != nullptr) {
+    if (ssl != NULL) {
         SSL_free(ssl);
-        ssl = nullptr;
+        ssl = NULL;
     }
-    if (ctx != nullptr ) {
+    if (ctx != NULL ) {
         SSL_CTX_free(ctx);
-        ctx = nullptr;
+        ctx = NULL;
     }
     issslserver = false;
     isssl = false;
@@ -690,7 +690,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     }
 
     // set ssl to NULL
-    ssl = nullptr;
+    ssl = NULL;
 
     //setup the ssl server ctx
 #if OPENSSL_VERSION_NUMBER < 0x10100000L

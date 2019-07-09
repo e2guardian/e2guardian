@@ -133,8 +133,8 @@ class Socket : public BaseSocket
 
     private:
 #ifdef __SSLMITM
-    SSL *ssl = nullptr;
-    SSL_CTX *ctx = nullptr;
+    SSL *ssl = NULL;
+    SSL_CTX *ctx = NULL;
     bool isssl = false;
     bool issslserver = false;
 #else
