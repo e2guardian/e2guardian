@@ -36,6 +36,7 @@ class OptionContainer
 {
     public:
     Queue<std::string>* log_Q;
+    Queue<std::string>* RQlog_Q;
     Queue<LQ_rec> http_worker_Q;
     
 #ifndef NEWDEBUG_OFF
@@ -128,6 +129,8 @@ class OptionContainer
     std::string banned_ip_list_location;
     std::string exception_ip_list_location;
     std::string log_location;
+    std::string RQlog_location;
+    bool log_requests = false;
     std::string stat_location;
     std::string ipc_filename;
     std::string urlipc_filename;

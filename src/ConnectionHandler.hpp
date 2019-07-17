@@ -106,6 +106,7 @@ class ConnectionHandler
    //     bool headeradded = false);
 
     void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
+    void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);
 
 #ifdef __SSLMITM
     bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);

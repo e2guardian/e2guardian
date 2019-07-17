@@ -827,6 +827,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // do this normalisation etc just the once at the start.
             checkme.setURL(ismitm);
 
+            if(o.log_requests) {
+                std::string fnt = "PROXY";
+                if(ismitm)
+                    fnt = "MITM";
+                doRQLog(clientuser, clientip, checkme, fnt);
+            }
+
             //If proxy connection is not persistent..// do this later after checking if direct or via proxy
 
 #ifdef DGDEBUG
@@ -1475,7 +1482,11 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     String rtype = cm.request_header->requestType();
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
-    std::string what = cm.whatIsNaughtyLog;
+    std::string what;
+    if(o.log_requests) {
+        what = thread_id;
+    }
+    what += cm.whatIsNaughtyLog;
     String how = rtype;
     off_t size = cm.docsize;
     std::string *cat = &cm.whatIsNaughtyCategories;
@@ -1627,6 +1638,114 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     }
 }
 
+void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
+    String rtype = cm.request_header->requestType();
+    String where = cm.logurl;
+    unsigned int port = cm.request_header->port;
+    std::string what = thread_id;
+    what += funct;
+    if (cm.isTLS)
+        what += "_TLS";
+    if (cm.hasSNI)
+        what += "_SNI";
+    if (cm.ismitm)
+        what += "_MITM";
+    String how = rtype;
+    off_t size = cm.docsize;
+    std::string *cat = &cm.whatIsNaughtyCategories;
+    bool isnaughty = cm.isItNaughty;
+    int naughtytype = cm.blocktype;
+    bool isexception = cm.isexception;
+    bool istext = cm.is_text;
+    struct timeval *thestart = &cm.thestart;
+    bool cachehit = false;
+    int code = 0;
+    std::string mimetype = cm.mimetype;
+    bool wasinfected = cm.wasinfected;
+    bool wasscanned = cm.wasscanned;
+    int naughtiness = cm.naughtiness;
+    int filtergroup = cm.filtergroup;
+    HTTPHeader *reqheader = cm.request_header;
+    int message_no = cm.message_no;
+    bool contentmodified = cm.contentmodified;
+    bool urlmodified = cm.urlmodified;
+    bool headermodified = cm.headermodified;
+    bool headeradded = cm.headeradded;
+
+    std::string data, cr("\n");
+
+//    if ((isexception && (o.log_exception_hits == 2))
+//        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) 
+    if(true) {
+
+        // Item length limit put back to avoid log listener
+        // overload with very long urls Philip Pearce Jan 2014
+        if ((cat != NULL) && (cat->length() > o.max_logitem_length))
+            cat->resize(o.max_logitem_length);
+        if (what.length() > o.max_logitem_length)
+            what.resize(o.max_logitem_length);
+        if (where.length() > o.max_logitem_length)
+            where.limitLength(o.max_logitem_length);
+        if (o.dns_user_logging && !is_real_user) {
+            String user;
+            if (getdnstxt(from, user)) {
+                who = who + ":" + user;
+            };
+            is_real_user = true;    // avoid looping on persistent connections
+        };
+        std::string l_who = who;
+        std::string l_from = from;
+        std::string l_clienthost;
+        l_clienthost = cm.clienthost;
+
+
+#ifdef DGDEBUG
+        std::cerr << thread_id << " -Building raw log data string... ";
+#endif
+
+        data = String(isexception) + cr;
+        data += (cat ? (*cat) + cr : cr);
+        data += String(isnaughty) + cr;
+        data += String(naughtytype) + cr;
+        data += String(naughtiness) + cr;
+        data += where + cr;
+        data += what + cr;
+        data += how + cr;
+        data += l_who + cr;
+        data += l_from + cr;
+        data += String(port) + cr;
+        data += String(wasscanned) + cr;
+        data += String(wasinfected) + cr;
+        data += String(contentmodified) + cr;
+        data += String(urlmodified) + cr;
+        data += String(headermodified) + cr;
+        data += String(size) + cr;
+        data += String(filtergroup) + cr;
+        data += String(code) + cr;
+        data += String(cachehit) + cr;
+        data += String(mimetype) + cr;
+        data += String((*thestart).tv_sec) + cr;
+        data += String((*thestart).tv_usec) + cr;
+        data += l_clienthost + cr;
+        if (o.log_user_agent)
+            data += (reqheader ? reqheader->userAgent() + cr : cr);
+        else
+            data += cr;
+        data += urlparams + cr;
+        data += cr;
+        data += String(message_no) + cr;
+        data += String(headeradded) + cr;
+
+#ifdef DGDEBUG
+        std::cerr << thread_id << " -...built" << std::endl;
+#endif
+
+        //delete newcat;
+// push on log queue
+        o.RQlog_Q->push(data);
+        // connect to dedicated logging proc
+    }
+}
 
 
 // TODO - V5
@@ -2595,6 +2714,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
             X509_free(cert);
+            cert = NULL;
         }
 
 //startsslserver on the connection to the client
@@ -2612,8 +2732,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!peerconn.writeString(msg.c_str()))
             {
                         peerDiag("Unable to send 200 connection  established to client ", peerconn);
-                        if(cert != nullptr)
+                        if(cert != NULL) {
                             X509_free(cert);
+                            cert = NULL;
+                        }
                         return false;
             }
         }
@@ -2629,7 +2751,11 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
-            if(cert != nullptr) X509_free(cert);
+            if(cert != NULL) {
+                X509_free(cert);
+                cert = NULL;
+            }
+
         }
     }
 
@@ -2734,8 +2860,14 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     peerconn.stopSsl();
 
 //tidy up key and cert
-    if(cert != nullptr) X509_free(cert);
-    EVP_PKEY_free(pkey);
+    if(cert != NULL) {
+        X509_free(cert);
+        cert = NULL;
+    }
+    if(pkey != NULL) {
+        EVP_PKEY_free(pkey);
+        pkey = NULL;
+    }
 
     persistProxy = false;
     proxysock.close();
@@ -3254,6 +3386,11 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             }
 
             filtergroup = o.default_trans_fg;
+
+            if(o.log_requests) {
+                std::string fnt = "THTTPS";
+                doRQLog(clientuser, clientip, checkme, fnt);
+            }
 
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
@@ -3829,6 +3966,12 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " << std::endl;
 #endif
     clientuser = icaphead.username;
+
+    if(o.log_requests) {
+        std::string fnt = "REQMOD";
+        doRQLog(clientuser, clientip, checkme, fnt);
+    }
+
     int rc = DGAUTH_NOUSER;
     if (clientuser != "") {
         rc = determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
@@ -4134,6 +4277,10 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     checkme.clientip = ip;
     checkme.filtergroup = filtergroup;
+    if(o.log_requests) {
+        std::string fnt = "RESPMOD";
+        doRQLog(clientuser, clientip, checkme, fnt);
+    }
     // Look up reverse DNS name of client if needed
     if (o.reverse_client_ip_lookups) {
         getClientFromIP(clientip.c_str(), checkme.clienthost);

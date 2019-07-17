@@ -316,7 +316,7 @@ extern "C" {
 }
 
 // logging & URL cache processes
-void log_listener(std::string log_location, bool logconerror, bool logsyslog);
+void log_listener(std::string log_location, bool logconerror, bool logsyslog, Queue<std::string>* log_Q);
 
 // fork off into background
 bool daemonise();
@@ -664,7 +664,7 @@ void wait_for_proxy()
 // *
 // *
 
-void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
+void log_listener(std::string log_location, bool logconerror, bool logsyslog, Queue<std::string> *log_Q) {
     thread_id = "log: ";
     try {
 #ifdef DGDEBUG
@@ -737,7 +737,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog) {
 
     while (!logger_ttg) { // loop, essentially, for ever
         std::string loglines;
-        loglines.append(o.log_Q->pop());  // get logdata from queue
+        loglines.append(log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
 #ifdef DGDEBUG
         std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
@@ -1579,11 +1579,20 @@ int fc_controlit()   //
     // Threads are created for logger, a separate thread for each listening port
     // and an array of worker threads to deal with the work.
     if (!o.no_logger) {
-        std::thread log_thread(log_listener, o.log_location, o.logconerror, o.log_syslog);
+        std::thread log_thread(log_listener, o.log_location, o.logconerror, o.log_syslog,o.log_Q);
         log_thread.detach();
 #ifdef DGDEBUG
     std::cerr << thread_id << "log_listener thread created" << std::endl;
 #endif
+    }
+
+    if(o.log_requests) {
+        std::thread RQlog_thread(log_listener, o.RQlog_location, o.logconerror, false,o.RQlog_Q);
+        RQlog_thread.detach();
+#ifdef DGDEBUG
+        std::cerr << thread_id << "RQlog_listener thread created" << std::endl;
+#endif
+
     }
 
 // I am the main thread here onwards.
@@ -1771,6 +1780,9 @@ int fc_controlit()   //
     logger_ttg = true;
     std::string nullstr("");
     o.log_Q->push(nullstr);
+    if (o.log_requests) {
+        o.RQlog_Q->push(nullstr);
+    }
 
     if (o.logconerror) {
         syslog(LOG_INFO,"%sstopping any remaining connections", thread_id.c_str());
