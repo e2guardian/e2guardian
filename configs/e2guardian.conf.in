@@ -107,6 +107,11 @@ logfileformat = 6
 # Defines the log directory and filename.
 #loglocation = '@DGLOGLOCATION@/access.log'
 
+# Defines optional request log path
+# This is for useful for debug purposes to log all requests before processing or setting filter group
+# See notes/LogRequests for details
+#rqloglocation = '@DGLOGLOCATION@/request.log'
+
 # Dymamic statistics log file location
 #
 # Defines the dstats file directory and filename.
