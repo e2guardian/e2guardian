@@ -29,6 +29,7 @@ bannedregexpurllist \
 bannedregexpuseragentlist \
 bannedsearchlist \
 bannedsiteiplist \
+browserregexplist \
 exceptionvirussiteiplist \
 bannedsitelist \
 bannedsslsiteiplist \
@@ -80,6 +81,8 @@ logsitelist \
 logurllist \
 nocheckcertsiteiplist \
 nocheckcertsitelist \
+nomitmsitelist \
+nomitmsiteiplist \
 refererexceptionsiteiplist \
 refererexceptionsitelist \
 refererexceptionurllist \
