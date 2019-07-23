@@ -1082,10 +1082,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef __SSLMITM
             //			Set if candidate for MITM
             //			(Exceptions will not go MITM)
-            checkme.ismitmcandidate = checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
+            checkme.ismitmcandidate = checkme.isconnect && (!checkme.nomitm) && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
             if (checkme.ismitmcandidate ) {
-                checkme.nomitm = false;
-                checkme.automitm = ldl->fg[filtergroup]->automitm;
+                if(!ldl->fg[filtergroup]->automitm) checkme.automitm = false;
             } else {
                 checkme.nomitm = true;
                 checkme.automitm = false;

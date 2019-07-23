@@ -241,7 +241,6 @@ bannedsitelist \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist \
-browserregexplist \
 contentregexplist \
 embededreferersiteiplist \
 embededreferersitelist \
@@ -288,8 +287,6 @@ logsitelist \
 logurllist \
 nocheckcertsiteiplist \
 nocheckcertsitelist \
-nomitmsiteiplist \
-nomitmsitelist \
 refererexceptionsiteiplist \
 refererexceptionsitelist \
 refererexceptionurllist \
@@ -298,6 +295,8 @@ sslsiteregexplist \
 urlredirectregexplist \
 urlregexplist \
 ipnobypass \
+domainsnobypass \
+urlnobypass \
 weightedphraselist
 
 EXTRA_DIST = bannedphraselist.in \
