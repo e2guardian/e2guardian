@@ -5,5 +5,5 @@
 
 #Only put IP sites which cannot be MITM in this list
 #This applies to sites which are only used by apps
-#Sites not using http(s)
+#Sites not using http(s) but connecting via https or CONNECT
 
