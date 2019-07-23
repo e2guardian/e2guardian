@@ -292,7 +292,12 @@ iplist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptioni
 sitelist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptionsitelist'
 urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
 
-#Note: only iplist, sitelist, ipsitelist and urllist can currently be defined for use with pre-authstoryboard.
+sitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsitelist'
+ipsitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsiteiplist'
+regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserreqexplist'
+
+#Note: only iplist, sitelist, ipsitelist, urllist and regexpboollist can 
+#  currently be defined for use with pre-authstoryboard.
 
 # Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges

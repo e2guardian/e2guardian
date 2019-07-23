@@ -1,0 +1,9 @@
+#IP in nomitmsiteiplist 
+
+#This list is to stop any attempt to mitm these sites,
+# including trying to MITM to client to deliver an error message
+
+#Only put IP sites which cannot be MITM in this list
+#This applies to sites which are only used by apps
+#Sites not using http(s)
+

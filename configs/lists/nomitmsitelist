@@ -1,0 +1,15 @@
+#domains in nomitmsitelist 
+#Don't bother with the www. or the http://
+
+#This list is to stop any attempt to mitm these sites,
+# including trying to MITM to client to deliver an error message
+
+#Only put sites which cannot be MITM in this list
+#This applies to sites which are only used by apps
+#Sites not using http(s)
+#The bannedsitelist is for blocking ALL of a site
+
+#NOTE: Sites using just IP should be put into nomitmsiteiplist
+
+reports.crashlytics.com   # google app crash tool
+

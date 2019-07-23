@@ -56,6 +56,8 @@ class NaughtyFilter
     RegResult Rch_isiphost;
 
     bool gomitm = false;
+    bool nomitm = false;
+    bool automitm = false;
     bool deep_urls_checked = false;
     bool has_deep_urls = false;
     std::deque<url_rec> deep_urls;

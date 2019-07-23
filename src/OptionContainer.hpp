@@ -192,6 +192,7 @@ class OptionContainer
     std::deque<String> sitelist_dq;
     std::deque<String> ipsitelist_dq;
     std::deque<String> urllist_dq;
+    std::deque<String> regexpboollist_dq;
 
     std::string daemon_user;
     std::string daemon_group;

@@ -89,9 +89,12 @@
 #define SB_FUNC_SETCONNECTSITE 5019
 #define SB_FUNC_UNSETBYPASSALLOW 5020
 #define SB_FUNC_UNSETINFECTIONBYPASSALLOW 5021
+#define  SB_FUNC_SETNOMITM	5022
+#define  SB_FUNC_SETAUTOMITM	5023
+#define  SB_FUNC_UNSETAUTOMITM	5024
 
 
-#define SB_FUNC_MAP_SIZE  21
+#define SB_FUNC_MAP_SIZE  24
 
 
 // DECLARATIONS
@@ -158,7 +161,10 @@ class SBFunction
 			 "unsetbypass",
 			 "setconnectsite",
 			 "unsetbypassallow",
-			 "unsetinfectionbypassallow"
+			 "unsetinfectionbypassallow",
+			 "setnomitm",
+			 "setautomitm",
+			 "unsetautomitm"
     };
 
   public:

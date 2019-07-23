@@ -723,11 +723,22 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
                     break;
                 case SB_FUNC_SETGOMITM:
-                    if(cm.ismitmcandidate) {
+                    if(cm.ismitmcandidate && !cm.nomitm) {
                         cm.gomitm = true;
                     } else {
                         action_return = false;
                     }
+                    break;
+                case SB_FUNC_SETNOMITM:
+                    cm.nomitm = true;
+                    cm.gomitm = false;
+                    cm.automitm = false;
+                    break;
+                case SB_FUNC_SETAUTOMITM:
+                    if(!cm.nomitm) cm.automitm = true;
+                    break;
+                case SB_FUNC_UNSETAUTOMITM:
+                    cm.automitm = false;
                     break;
                 case SB_FUNC_SETADDHEADER:
                     cm.headeradded = true;

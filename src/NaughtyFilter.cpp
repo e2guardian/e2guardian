@@ -138,6 +138,8 @@ void NaughtyFilter::reset()
     issiteonly = false;
 
     gomitm = false;
+    nomitm = false;
+    automitm = false;
     // resets from CH
     waschecked = false; // flags
     wasrequested = false;

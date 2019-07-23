@@ -77,6 +77,14 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
+    {
+#ifdef DGDEBUG
+        std::cerr << thread_id << "regexpboollist deque is size " << o.regexpboollist_dq.size() << std::endl;
+#endif
+        if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
+            loaded_ok = false;
+    }
+
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
         std::cerr << thread_id << "Storyboard not loaded OK" << std::endl;
         loaded_ok = false;

@@ -1083,6 +1083,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //			Set if candidate for MITM
             //			(Exceptions will not go MITM)
             checkme.ismitmcandidate = checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
+            if (checkme.ismitmcandidate ) {
+                checkme.nomitm = false;
+                checkme.automitm = ldl->fg[filtergroup]->automitm;
+            } else {
+                checkme.nomitm = true;
+                checkme.automitm = false;
+            }
 #endif
 
             //
@@ -1192,7 +1199,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //if not naughty now send upstream and get response
             if (checkme.isItNaughty) {
-                if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm) {
+                if (checkme.isconnect && checkme.automitm) {
                     checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                     if (checkme.isdirect) {  // send connection estabilished to client
                         std::string msg = "HTTP/1.1 200 Connection established\r\n\r\n";
@@ -1208,7 +1215,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     if (connectUpstream(proxysock, checkme, header.port) < 0) {
-                        if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
+                        if (checkme.isconnect && checkme.automitm &&
                             checkme.upfailure)
                         {
 
@@ -3374,6 +3381,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             // do all of this normalisation etc just the once at the start.
             checkme.url = "https://" + checkme.url;
             checkme.setURL(checkme.url);
+            checkme.nomitm = false;
             gettimeofday(&checkme.thestart, NULL);
 
 
@@ -3414,7 +3422,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 
                     if((checkme.auth_result == DGAUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
                     {
-                       checkme.gomitm = true;
+                       if(!checkme.nomitm)checkme.gomitm = true;
                        checkme.isdone = true;
                     } else {
                        break;
@@ -3422,6 +3430,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                  }
             }
             checkme.filtergroup = filtergroup;
+            if(!checkme.nomitm) checkme.nomitm = !ldl->fg[filtergroup]->ssl_mitm;
 
 #ifdef DGDEBUG
             std::cerr << thread_id << " -username: " << clientuser << " -filtergroup: " << filtergroup << std::endl;
@@ -3443,7 +3452,10 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             checkme.clientip = clientip;
 
 
-            if(checkme.hasSNI) checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
+            if(checkme.hasSNI & !checkme.nomitm ) checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;
+            if(checkme.ismitmcandidate) {
+                checkme.automitm = ldl->fg[filtergroup]->automitm;
+            }
 
 
             // TODO restore this for THTTPS ??
@@ -3508,7 +3520,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 " upfail " << checkme.upfailure << std::endl;
 #endif
 
-            if((checkme.isItNaughty ||checkme.upfailure) && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm && checkme.hasSNI)
+            if((checkme.isItNaughty ||checkme.upfailure) && checkme.automitm && checkme.hasSNI)
                 checkme.gomitm = true;  // allows us to send splash page
 
             if (checkme.isexception && !checkme.upfailure) {
@@ -3516,7 +3528,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
              } else {
 
             //if ismitm - GO MITM
-                if (checkme.gomitm)
+                if (checkme.gomitm && !checkme.nomitm)
                 {
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Going MITM ...." << std::endl;

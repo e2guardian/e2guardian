@@ -901,6 +901,7 @@ bool OptionContainer::read(std::string& filename, int type)
         sitelist_dq = findoptionM("sitelist");
         ipsitelist_dq = findoptionM("ipsitelist");
         urllist_dq = findoptionM("urllist");
+        regexpboollist_dq = findoptionM("regexpboollist");
 
         if (filter_groups_list_location.length() == 0) {
             use_filter_groups_list = false;
