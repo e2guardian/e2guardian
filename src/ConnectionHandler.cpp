@@ -828,9 +828,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.setURL(ismitm);
 
             if(o.log_requests) {
-                std::string fnt = "PROXY";
+                std::string fnt;
                 if(ismitm)
                     fnt = "MITM";
+                else if(header.isProxyRequest) {
+                    fnt = "PROXY";
+                } else fnt = "TRANS";
                 doRQLog(clientuser, clientip, checkme, fnt);
             }
 
@@ -1051,7 +1054,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header,
                             only_ip_auth,
                             checkme.isconnect)) {
-                    // TODO: add code to deal with goMITM on redirect
                     if ((checkme.auth_result == DGAUTH_REDIRECT) && checkme.isconnect &&
                         ldl->fg[filtergroup]->ssl_mitm) {
                         checkme.gomitm = true;

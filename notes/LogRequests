@@ -17,7 +17,10 @@ The following information is provided in the 'what' field:-
 thread_id - allows thread to be followed and also cross-matched to syslog and 
 access.log
 
-PROXY, THTTPS, MITM, REQMOD or RESPMOD showing the source of the request
+TRANS, PROXY, THTTPS, MITM, REQMOD or RESPMOD showing the source of the 
+request
+
+	TRANS - transparent http
 
 	PROXY - requests via the normal proxy port(s) (8080 etc) - includes 
 		transparent http
@@ -25,7 +28,7 @@ PROXY, THTTPS, MITM, REQMOD or RESPMOD showing the source of the request
 	THTTPS - requests via tranparent https port + flags for presence of TLS 
 		and SNI
 
-	MITM - requests from within a MITM session
+	MITM - requests from within a MITM session (can be via PROXY or THTTPS)
 
 	REQMOD - requests to ICAP REQMOD service
 
