@@ -309,7 +309,14 @@ regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserreqexplist'
 # If enabled then the phrases found that made up the total which excedes
 # the naughtyness limit will be logged and, if the reporting level is
 # high enough, reported. on | off
+# default is off
 showweightedfound = on
+
+# Show all weighted phrases found
+# If enabled then the phrases found that made up the total will be logged and, if the reporting level is
+# high enough, reported. on | off
+# default is off
+showallweightedfound = off
 
 # Weighted phrase mode
 # There are 3 possible modes of operation:

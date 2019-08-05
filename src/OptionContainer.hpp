@@ -54,6 +54,7 @@ class OptionContainer
     std::string ident_header_value;
     int weighted_phrase_mode = 0; // PIP added in - not sure if still required
     bool show_weighted_found = false;
+    bool show_all_weighted_found = false;   // logs weighted less than limit
     bool forwarded_for = false;
     bool use_custom_banned_image = false;
     std::string custom_banned_image_file;

@@ -680,6 +680,12 @@ bool OptionContainer::read(std::string& filename, int type)
         } else {
             show_weighted_found = false;
         }
+        if (findoptionS("showallweightedfound") == "on") {
+            show_all_weighted_found = true;
+            show_weighted_found = true;
+        } else {
+            show_all_weighted_found = false;
+        }
         reporting_level = findoptionI("reportinglevel");
         if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
             return false;

@@ -986,12 +986,20 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         return;
     }
 
+    bool log_it = o.show_all_weighted_found;
+    auto mno = searchterms ? 454 : 402;
+
     if (weighting > limit) {
+        log_it = true;
         isItNaughty = true;
+        message_no = mno;
+        whatIsNaughty = o.language_list.getTranslation(searchterms ? 455 : 403);
+    }
+
+    if(log_it) {
         // Weighted phrase limit of
         // Weighted search term limit of
-        message_no = searchterms ? 454 : 402;
-        whatIsNaughtyLog = o.language_list.getTranslation(message_no);
+        whatIsNaughtyLog = o.language_list.getTranslation(mno);
         whatIsNaughtyLog += String(limit).toCharArray();
         whatIsNaughtyLog += " : ";
         whatIsNaughtyLog += String(weighting).toCharArray();
@@ -1002,7 +1010,6 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         }
         // Weighted phrase limit exceeded.
         // Weighted search term limit exceeded.
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 455 : 403);
         // Generate category list, sorted with highest scoring first.
         bool nonempty = false;
         bool belowthreshold = false;
@@ -1039,8 +1046,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
             }
         }
         whatIsNaughtyCategories = categories.toCharArray();
-        return;
     }
+        return;
     // whatIsNaughty is what is displayed in the browser
     // whatIsNaughtyLog is what is logged in the log file if at all
 }
