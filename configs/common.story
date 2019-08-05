@@ -45,6 +45,7 @@ if(true) return checkfiletype
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
+if(true) thttps_automitm
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
 ifnot(hassniset) checksni
@@ -248,3 +249,9 @@ if(extensionin, bannedextension) return setblock
 function(checksni)
 ifnot(tls,,511) return setblock
 ifnot(hassniset,,512) return setblock
+
+# automitm on transparent https
+#   default enables on transparent https - to allow block/status pages to browsers
+#   override this is fn.story if this causes problems with apps
+function(thttps_automitm)
+if(true) setautomitm
