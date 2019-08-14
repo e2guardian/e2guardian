@@ -551,11 +551,19 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         {
-        std::deque<String> dq = findoptionM("iplist");
+            std::deque<String> dq = findoptionM("iplist");
 #ifdef DGDEBUG
             std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
+        }
+
+        {
+        std::deque<String> dq = findoptionM("timelist");
+#ifdef DGDEBUG
+            std::cerr << thread_id << "timelist deque is size " << dq.size() << std::endl;
+#endif
+            if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
         }
 
         {

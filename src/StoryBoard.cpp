@@ -233,6 +233,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     case SB_STATE_USERAGENTIN:
                         types = {LIST_TYPE_REGEXP_BOOL};
                         break;
+                    case SB_STATE_TIMEIN:
+                        types = {LIST_TYPE_TIME};
+                        break;
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
@@ -384,6 +387,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 isListCheck = true;
                 target = cm.clientip;
                 target2 = cm.clienthost;
+                break;
+            case SB_STATE_TIMEIN:
+                isListCheck = true;
                 break;
             case SB_STATE_USERAGENTIN:
                 isListCheck = true;

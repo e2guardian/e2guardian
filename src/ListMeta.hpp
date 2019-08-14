@@ -15,6 +15,7 @@
 #include <string>
 #include "String.hpp"
 #include "RegExp.hpp"
+#include "ListContainer.hpp"
 
 #define LIST_TYPE_IP                                            1
 #define LIST_TYPE_SITE                                       2
@@ -28,6 +29,7 @@
 #define LIST_TYPE_PHRASE_EXCEPTION       10
 #define LIST_TYPE_MIME                                       11
 #define LIST_TYPE_FILE_EXT                               12
+#define LIST_TYPE_TIME                                  13
 
 #define LIST_METHOD_READF_SWS                             1
 #define LIST_METHOD_READF_EWS                             2
@@ -35,6 +37,7 @@
 #define LIST_METHOD_REGEXP_REPL                        4
 #define LIST_METHOD_PHRASES                                   5
 #define LIST_METHOD_IP                                                  6
+#define LIST_METHOD_TIME                                                7
 
 // DECLARATIONS
 
@@ -89,7 +92,7 @@ class ListMeta
 
 
 
-   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false);
+   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false, bool istime = false);
 
    bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
        std::deque<String> &list_rep, std::deque<RegExp> &list_comp);

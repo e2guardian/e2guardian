@@ -47,6 +47,7 @@ class ListContainer
     public:
     std::vector<int> combilist;
     bool is_iplist = false;
+    bool is_timelist = false;
     int refcount = 0;
     bool parent = false;
     time_t filedate;
@@ -72,7 +73,7 @@ class ListContainer
     bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true, int nlimit=0);
     bool ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
-    bool readItemList(const char *filename, bool startswith, int filters, bool isip = false);
+    bool readItemList(const char *filename, bool startswith, int filters, bool isip = false, bool istime = false);
     bool readStdinItemList(bool startswith, int filters);
     bool inList(const char *string, String &lastcategory);
     bool inListEndsWith(const char *string, String &lastcategory);
@@ -106,7 +107,10 @@ class ListContainer
 
     void graphSearch(std::map<std::string, std::pair<unsigned int, int> > &result, char *doc, off_t len);
 
-    bool isNow(int index = -1);
+
+    bool isNow(int index = -1);   // used for normal and phrase lists
+    bool isNowInTimelist();                 // used for timelists
+    bool isNow(TimeLimit &tl);
     bool checkTimeAt(unsigned int index);
     bool checkTimeAtD(int index);
 
@@ -166,6 +170,9 @@ class ListContainer
     std::list<ipl_rangestruct> iprangelist;
     std::list<ipl_subnetstruct> ipsubnetlist;
 
+    //timelists
+    std::vector<TimeLimit> timelist;
+
     bool readAnotherItemList(const char *filename, bool startswith, int filters);
 
     void readPhraseListHelper(String line, bool isexception, int catindex, int timeindex, int &nlimit);
@@ -179,6 +186,7 @@ class ListContainer
     bool readProcessedItemList(const char *filename, bool startswith, int filters);
     void addToItemList(const char *s, size_t len);
     void addToIPList(String &line);
+    void addToTimeList(String &line);
     int greaterThanEWF(const char *a, const char *b); // full match
     int greaterThanEW(const char *a, const char *b); // partial ends with
     int greaterThanSWF(const char *a, const char *b); // full match
@@ -187,6 +195,7 @@ class ListContainer
     void increaseMemoryBy(size_t bytes);
     //categorised & time-limited lists support
     bool readTimeTag(String *tag, TimeLimit &tl);
+    bool readTimeBand(String &tag, TimeLimit &tl);
     int getCategoryIndex(String *lcat);
     const char *inIPList(const std::string &ipstr );
     const char *hIPtoChar(uint32_t ip);

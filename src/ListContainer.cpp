@@ -448,28 +448,32 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
             }
             continue;
         }
-        if (temp.endsWith("/")) {
-            temp.chop(); // tidy up
-        }
-        if (temp.startsWith("ftp://")) {
-            temp = temp.after("ftp://"); // tidy up
-        }
-        if (filters == 1) { // remove port addresses
-            if (temp.before("/").contains(":")) { // quicker than full regexp
-                if (re.match(temp.toCharArray(),Rre)) {
-                    hostname = temp.before(":");
-                    url = temp.after("/");
-                    temp = hostname + "/" + url;
+        if(!(is_iplist || is_timelist)) {
+            if (temp.endsWith("/")) {
+                temp.chop(); // tidy up
+            }
+            if (temp.startsWith("ftp://")) {
+                temp = temp.after("ftp://"); // tidy up
+            }
+            if (filters == 1) { // remove port addresses
+                if (temp.before("/").contains(":")) { // quicker than full regexp
+                    if (re.match(temp.toCharArray(), Rre)) {
+                        hostname = temp.before(":");
+                        url = temp.after("/");
+                        temp = hostname + "/" + url;
+                    }
                 }
             }
-        }
-        if (filters != 32) {
-            temp.toLower(); // tidy up - but don't make regex lists lowercase!
+            if (filters != 32) {
+                temp.toLower(); // tidy up - but don't make regex lists lowercase!
+            }
         }
         if (temp.length() > 0) {
             mem_used += temp.length() + 1;
             if (is_iplist)
                 addToIPList(temp);
+            else if(is_timelist)
+                addToTimeList(temp);
             else {
                 if (mem_used > data_memory)
                     increaseMemoryBy(2048);
@@ -502,7 +506,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstrin
 }
 
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip)
+bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip, bool istime)
 {
     ++refcount;
     sourcefile = filename;
@@ -511,6 +515,9 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 
     if(isip) is_iplist = true;
     else is_iplist = false;
+
+    if(istime) is_timelist = true;
+    else is_timelist = false;
 
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
@@ -1445,6 +1452,12 @@ void ListContainer::addToItemList(const char *s, size_t len)
     items++;
 }
 
+void ListContainer::addToTimeList(String &line) {
+    TimeLimit tl;
+    if(readTimeBand(line,tl))
+        timelist.push_back(tl);
+}
+
 void ListContainer::addToIPList(String& line)
 {
     RegResult Rre;
@@ -1684,13 +1697,17 @@ bool ListContainer::upToDate()
     return true;
 }
 
-bool ListContainer::readTimeTag(String *tag, TimeLimit &tl)
-{
+bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "Found a time tag" << std::endl;
 #endif
-    unsigned int tsthour, tstmin, tendhour, tendmin;
     String temp((*tag).after("#time: "));
+    return readTimeBand(temp, tl);
+}
+
+bool ListContainer::readTimeBand(String &tag, TimeLimit &tl) {
+    String temp(tag);
+    unsigned int tsthour, tstmin, tendhour, tendmin;
     tsthour = temp.before(" ").toInteger();
     temp = temp.after(" ");
     tstmin = temp.before(" ").toInteger();
@@ -1741,15 +1758,14 @@ bool ListContainer::readTimeTag(String *tag, TimeLimit &tl)
     tl.endhour = tendhour;
     tl.endmin = tendmin;
     tl.days = tdays;
-    tl.timetag = (*tag);
+    tl.timetag = tag;
     return true;
 }
 
 // Returns true if the current time is within the limits specified on this list.
 // For phrases, the time limit list index must be passed in -
 // included lists don't have their own ListContainer, so time limits are stored differently.
-bool ListContainer::isNow(int index)
-{
+bool ListContainer::isNow(int index) {
     if (!istimelimited) {
         return true;
     }
@@ -1757,6 +1773,21 @@ bool ListContainer::isNow(int index)
     if (index > -1) {
         tl = timelimits[index];
     }
+    return isNow(tl);
+}
+
+// Used for timelists only - returns true if current time is in list
+bool ListContainer::isNowInTimelist() {
+    if (timelist.size() > 0) {
+        for (unsigned int i = 0; i < timelist.size(); i++) {
+            if (isNow(timelist[i]))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool ListContainer::isNow(TimeLimit &tl) {
     time_t tnow; // to hold the result from time()
     struct tm *tmnow; // to hold the result from localtime()
     unsigned int hour, min, wday;

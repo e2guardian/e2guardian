@@ -37,23 +37,6 @@ extern thread_local std::string thread_id;
 // Constructor - set default values
 SBFunction::SBFunction()
 {
-#ifdef NOT_DEF
-    bi_funct_map = {
-            "setexception",
-            "setgrey",
-            "setblock",
-            "setmodurl",
-            "setdone",
-            "true",
-            "false",
-            "setgomitm",
-            "setlogcategory",
-            "setaddheader",
-            "setredirect",
-            "setnocheckcert",
-            "setsearchterm"
-    };
-#endif
 }
 
 // delete the memory block when the class is destryed

@@ -29,6 +29,7 @@ bannedregexpurllist \
 bannedregexpuseragentlist \
 bannedsearchlist \
 bannedsiteiplist \
+bannedtimelist \
 browserregexplist \
 exceptionvirussiteiplist \
 bannedsitelist \

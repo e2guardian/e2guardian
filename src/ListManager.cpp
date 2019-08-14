@@ -94,7 +94,7 @@ void ListManager::refList(size_t i)
 }
 
 // load the given list, or increase refcount on list if it's already been loaded.
-int ListManager::newItemList(const char *filename, bool startswith, int filters, bool parent, bool isip)
+int ListManager::newItemList(const char *filename, bool startswith, int filters, bool parent, bool isip, bool istime)
 {
     for (size_t i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
@@ -117,13 +117,13 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
         l[free] = new ListContainer;
     } else {
 #ifdef DGDEBUG
-        std::cerr << thread_id << "pushing back for new list" << std::endl;
+        std::cerr << thread_id << "pushing back for new list" << std::endl;/::rerad
 #endif
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
     (*l[free]).parent = parent;
-    if (!(*l[free]).readItemList(filename, startswith, filters, isip)) {
+    if (!(*l[free]).readItemList(filename, startswith, filters, isip, istime)) {
         delete l[free];
         l[free] = NULL;
         return -1;

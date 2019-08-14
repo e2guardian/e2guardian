@@ -1,0 +1,12 @@
+#timebands when internet blocked
+
+#You can have multiple .Includes.
+
+# Tiime banding syntax:
+# <start hour> <start minute> <end hour> <end minute> <days>
+# Example:
+# 22 0 24 0 01234
+# 0  0 07 0 01234
+
+# Uncomment the lines above to block access from
+# 0am to 5am and 10pm to 12pm, Monday to Friday.

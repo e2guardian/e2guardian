@@ -46,6 +46,7 @@ if(true) return checkfiletype
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
 if(true) thttps_automitm
+if(true) returnif checktimesallowed
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
 ifnot(hassniset) checksni
@@ -94,6 +95,8 @@ if(embeddedin, banned) return setblock
 #  returns true if matches local exception or banned
 function(localcheckrequest)
 if(connect) return localsslrequestcheck
+if(true) checktimesblocked
+if(returnset) return setblock
 ifnot(greyset) returnif localexceptioncheck
 ifnot(greyset) localgreycheck
 ifnot(greyset) returnif localbannedcheck
@@ -103,6 +106,7 @@ if(searchin,localbanned) return setblock
 # Local SSL checks
 #  returns true if matches local exception 
 function(localsslrequestcheck)
+if(true) returnif sslchecktimesblocked
 if(sitein, localexception) return setexception
 if(sitein, localgreyssl) returnif sslcheckmitm
 if(sitein, localbanned) true
@@ -115,6 +119,12 @@ if(true) return setblock
 function(sslreplace)
 if(fullurlin,sslreplace) return setconnectsite
 if(true) return false
+
+function(sslchecktimesblocked)
+if(true) checktimesblocked
+ifnot(returnset) return false
+if(true) returnif sslcheckmitm
+if(true) return setblock
 
 # Local grey check
 #  returns true on match
@@ -255,3 +265,11 @@ ifnot(hassniset,,512) return setblock
 #   override this is fn.story if this causes problems with apps
 function(thttps_automitm)
 if(true) setautomitm
+
+# Timed global block
+#  returns true if to block
+#  Placeholder function - overide in fn.story
+function(checktimesblock)
+
+
+

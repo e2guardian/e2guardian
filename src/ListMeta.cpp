@@ -83,6 +83,9 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         case LIST_TYPE_MIME:
             method_type = LIST_METHOD_READF_SWS;
             break;
+        case LIST_TYPE_TIME:
+            method_type = LIST_METHOD_TIME;
+            break;
             // PhraseList types to be added
     }
     bool errors = false;
@@ -143,6 +146,14 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         switch (method_type) {
             case LIST_METHOD_IP:
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
+                    list_vec.push_back(rec);
+                } else {
+                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    errors = true;
+                };
+                break;
+            case LIST_METHOD_TIME:
+                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -283,6 +294,15 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 return true;
             }
             break;
+        case LIST_TYPE_TIME:
+            if (o.lm.l[info.list_ref]->isNowInTimelist()) {
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
+                return true;
+            }
+            return false;
+            break;
         case LIST_TYPE_IPSITE:
             match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
             if (match == NULL) {
@@ -390,7 +410,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip) {
+bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
@@ -398,7 +418,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true, isip);
+    int res = o.lm.newItemList(filename, sortsw, 1, true, isip, istime);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;
@@ -408,10 +428,12 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
     }
     (*whichlist) = (unsigned) res;
     if (!(*o.lm.l[(*whichlist)]).used) {
-        if (sortsw)
+        if(!istime) {
+          if (sortsw)
             (*o.lm.l[(*whichlist)]).doSort(true);
-        else
+          else
             (*o.lm.l[(*whichlist)]).doSort(false);
+        }
         (*o.lm.l[(*whichlist)]).used = true;
     }
     return true;

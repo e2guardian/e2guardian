@@ -40,6 +40,12 @@ regexpboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bann
 sitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitelist'
 ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsiteiplist'
 
+
+# NEW in v5.4 bannedtimelist - times when no access is allowed
+# To activate a storyboard change is required - see examplef1.story
+timelist = 'name=bannedtimes,messageno=122,path=@DGCONFDIR@/lists/bannedtimelist'
+
+
 #grey (i.e. content check) lists
 sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'
 ipsitelist = 'name=grey,path=@DGCONFDIR@/lists/greysiteiplist'
