@@ -36,6 +36,7 @@ bannedsitelist \
 bannedsslsiteiplist \
 bannedsslsitelist \
 bannedurllist \
+blankettimelist \
 contentregexplist \
 embededreferersiteiplist \
 embededreferersitelist \

@@ -45,6 +45,10 @@ ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitei
 # To activate a storyboard change is required - see examplef1.story
 timelist = 'name=bannedtimes,messageno=122,path=@DGCONFDIR@/lists/bannedtimelist'
 
+# NEW in v5.4 blankettimelist - times when blanket block is applied
+# To activate a storyboard change is required - see examplef1.story
+timelist = 'name=blankettimes,messageno=122,path=@DGCONFDIR@/lists/blankettimelist'
+
 
 #grey (i.e. content check) lists
 sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'

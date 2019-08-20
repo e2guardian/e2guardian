@@ -1,0 +1,15 @@
+#timebands when blanket block is applied
+# (only exception sites will be allowed)
+# To enable this list edit e2guardianfn.conf and filter group i
+# storyboard fn.story - see examplef1.story
+
+#You can have multiple .Includes.
+
+# Tiime banding syntax:
+# <start hour> <start minute> <end hour> <end minute> <days>
+# Example:
+# 22 0 24 0 01234
+# 0  0 07 0 01234
+
+# Uncomment the lines above to blanket block from
+# 0am to 5am and 10pm to 12pm, Monday to Friday.
