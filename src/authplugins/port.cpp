@@ -61,7 +61,7 @@ class portinstance : public AuthPlugin
     }
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
-    int determineGroup(std::string &user, int &fg, ListContainer &uglc);
+    //int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
     int quit();
@@ -101,13 +101,17 @@ int portinstance::quit()
 // plugin init - read in ip melange list
 int portinstance::init(void *args)
 {
-    String fname(cv["portgroups"]);
-    if (fname.length() > 0) {
-        return readIPMelangeList(fname.toCharArray());
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_PORT;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        return 0;
     } else {
         if (!is_daemonised)
-            std::cerr << thread_id << "No portgroups file defined in port auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No portgroups file defined in port auth plugin config");
+            std::cerr << thread_id << "No story_function defined in port auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in port auth plugin config");
         return -1;
     }
 }
@@ -125,6 +129,7 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     return DGAUTH_OK;
 }
 
+#ifdef NODEF
 int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &uglc)
 {
     // check ports
@@ -143,7 +148,10 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
 #endif
     return DGAUTH_NOMATCH;
 }
+#endif
 
+
+#ifdef NODEF
 //
 //
 // Port list functions (port match)
@@ -259,3 +267,4 @@ int portinstance::readIPMelangeList(const char *filename)
     // return either warning or success
     return warn ? 1 : 0;
 }
+#endif

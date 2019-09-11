@@ -85,6 +85,22 @@ LOptionContainer::LOptionContainer(int load_id)
             loaded_ok = false;
     }
 
+    {
+#ifdef DGDEBUG
+        std::cerr << thread_id << "maplist deque is size " << o.maplist_dq.size() << std::endl;
+#endif
+        if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
+            loaded_ok = false;
+    }
+
+    {
+#ifdef DGDEBUG
+        std::cerr << thread_id << "ipmaplist deque is size " << o.ipmaplist_dq.size() << std::endl;
+#endif
+        if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
+            loaded_ok = false;
+    }
+
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
         std::cerr << thread_id << "Storyboard not loaded OK" << std::endl;
         loaded_ok = false;
@@ -111,6 +127,17 @@ LOptionContainer::LOptionContainer(int load_id)
             loaded_ok = false;
         }
     }
+
+    if (loaded_ok && o.auth_entry_dq.size() > 0)  {
+            for (std::deque<struct OptionContainer::auth_entry>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
+                if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
+                    std::cerr << thread_id << "Required auth storyboard entry function" << i->entry_function.c_str()
+                              << " is missing from pre_auth.stoary" << std::endl;
+                    loaded_ok = false;
+                }
+            }
+    }
+
 
     if(loaded_ok && ! readFilterGroupConf())  {
         loaded_ok = false;

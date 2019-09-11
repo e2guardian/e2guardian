@@ -1,9 +1,0 @@
-# IP-Port-based auth plugin
-#
-# Maps IP Ports to filter groups.
-
-plugname = 'port'
-
-# portgroups file
-# List file assigning ports to filter groups
-portgroups = '@DGCONFDIR@/lists/authplugins/portgroups'

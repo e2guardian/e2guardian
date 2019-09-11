@@ -16,8 +16,8 @@ FLISTS += dnsauth.conf
 endif
 
 
-EXTRA_DIST = proxy-basic.conf ident.conf ip.conf.in proxy-ntlm.conf \
-	     proxy-digest.conf port.conf.in dnsauth.conf
+EXTRA_DIST = proxy-basic.conf ident.conf ip.conf proxy-ntlm.conf \
+	     proxy-digest.conf port.conf dnsauth.conf
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \

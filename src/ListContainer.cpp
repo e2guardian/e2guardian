@@ -40,6 +40,7 @@ extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
+
 // Constructor - set default values
 ListContainer::ListContainer()
 {
@@ -372,23 +373,9 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
     String temp, inc, hostname, url;
     //char linebuffer[2048];
     char linebuffer[20000];    // increased to allow checking of line length
-    // NOTE: should check for errors instead but input->fail() always seems to
-    // be true after first failure and input->clear() does not appear to work
-    //  - for future investigation
 
-   // bool skip = false;
     while (!input->eof()) {
         input->getline(linebuffer, sizeof(linebuffer));
-     //   if (input->fail()) {
-     //       skip = true;
-      //      syslog(LOG_ERR, "Line input failure" );
-       //     input->clear();
-        //    break;
-        //}
-        //if (skip) {
-          //  skip = false;
-           // continue;
-        //}
         temp = linebuffer;
         if (temp.length() < 2)
             continue; // its jibberish
@@ -472,9 +459,11 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
             mem_used += temp.length() + 1;
             if (is_iplist)
                 addToIPList(temp);
-            else if(is_timelist)
+            else if (is_timelist)
                 addToTimeList(temp);
-            else {
+            else if (is_map) {
+                addToDataMap(temp);
+            } else {
                 if (mem_used > data_memory)
                     increaseMemoryBy(2048);
                 addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
@@ -506,7 +495,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstrin
 }
 
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip, bool istime)
+bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip, bool istime, bool ismap)
 {
     ++refcount;
     sourcefile = filename;
@@ -518,6 +507,9 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 
     if(istime) is_timelist = true;
     else is_timelist = false;
+
+    if(ismap) is_map = true;
+    else is_map = false;
 
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
@@ -596,7 +588,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
 bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)
 {
 
-    int result = o.lm.newItemList(filename, startswith, filters, false, is_iplist);
+    int result = o.lm.newItemList(filename, startswith, filters, false, is_iplist, is_timelist, is_map);
     if (result < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening file: " << filename << std::endl;
@@ -666,11 +658,22 @@ const char *ListContainer::findInList(const char *string, String &lastcategory)
 {
     if (isNow()) {
         if (is_iplist) {
-            if(inIPList(string) != NULL)
+            if(is_map) {
+                std::string sstring = string;
+                String rcs = getIPMapData(sstring);
+                if (rcs != "")
+                    return rcs.toCharArray();
+            } else if(inIPList(string) != NULL)
             {
                 lastcategory = category;
                 return "";    //TODO return IP/IPblock/IPrange matched
             }
+        } else if (is_map) {
+            String sstring;
+            sstring = string;
+            String rcs = getMapData(sstring);
+            if (rcs != "")
+                return rcs.c_str();
         } else if (items > 0) {
             int r;
             if (isSW) {
@@ -847,9 +850,18 @@ void ListContainer::doSort(const bool startsWith)
     for (size_t i = 0; i < morelists.size(); i++)
         (*o.lm.l[morelists[i]]).doSort(startsWith);
     if (is_iplist) {
-        std::sort(iplist.begin(), iplist.end());
+        if (is_map)
+            std::sort(ipmaplist.begin(), ipmaplist.end());
+        else
+            std::sort(iplist.begin(), iplist.end());
+
         return;
     }
+    if (is_map) {     // deal with datamaplist
+        std::sort(datamaplist.begin(), datamaplist.end());
+        return;
+    }
+
     if (items < 2 || issorted)
         return;
     if (startsWith) {
@@ -1460,6 +1472,8 @@ void ListContainer::addToTimeList(String &line) {
 
 void ListContainer::addToIPList(String& line)
 {
+    if(is_map) return addToIPMap(line);
+
     RegResult Rre;
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
@@ -1519,6 +1533,219 @@ void ListContainer::addToIPList(String& line)
 #endif
     }
 }
+
+void ListContainer::addToDataMap(String& line) {
+    String key, value;
+
+    // split into key & value
+    if (line.contains("=")) {
+        key = line.before("=");
+        key.removeWhiteSpace();
+        value = line.after("=");
+        value.removeWhiteSpace();
+        if (value.startsWith("filter"))
+            value = value.after("filter");
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
+        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile);
+        //warn = true;
+        return;
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "key: " << key << std::endl;
+        std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
+#endif
+    datamap d(key,value);
+    datamaplist.push_back(d);
+}
+
+void ListContainer::addToIPMap(String& line)
+{
+    RegResult Rre;
+    String key, value;
+
+    // split into key & value
+    if (line.contains("=")) {
+        key = line.before("=");
+        key.removeWhiteSpace();
+        value = line.after("=");
+        value.removeWhiteSpace();
+        if (value.startsWith("filter"))
+            value = value.after("filter");
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
+        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile );
+        //warn = true;
+        return;
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "key: " << key << std::endl;
+        std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
+#endif
+    if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
+        if (!is_daemonised)
+            std::cerr << thread_id << "Filter group out of range; entry " << line << " in " << sourcefile << std::endl;
+        syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), sourcefile);
+        //warn = true;
+        return;
+    }
+
+    // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
+    if (matchIP.match(key.toCharArray(),Rre)) {
+        struct in_addr address;
+        if (inet_aton(key.toCharArray(), &address)) {
+            ipmaplist.push_back(ipmap(ntohl(address.s_addr), value));
+        }
+    } else if (matchSubnet.match(key.toCharArray(),Rre)) {
+        struct in_addr address;
+        struct in_addr addressmask;
+        String subnet(key.before("/"));
+        String mask(key.after("/"));
+        if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
+            subnetstruct s;
+            int addr = ntohl(address.s_addr);
+            s.mask = ntohl(addressmask.s_addr);
+            // pre-mask the address for quick comparison
+            s.maskedaddr = addr & s.mask;
+            s.group = value;
+            ipmapsubnetlist.push_back(s);
+        }
+    } else if (matchCIDR.match(key.toCharArray(),Rre)) {
+        struct in_addr address;
+        struct in_addr addressmask;
+        String subnet(key.before("/"));
+        String cidr(key.after("/"));
+        int m = cidr.toInteger();
+        int host_part = 32 - m;
+        if (host_part > -1) {
+            String mask = (0xFFFFFFFF << host_part);
+            if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
+                subnetstruct s;
+                uint32_t addr = ntohl(address.s_addr);
+                s.mask = ntohl(addressmask.s_addr);
+                // pre-mask the address for quick comparison
+                s.maskedaddr = addr & s.mask;
+                s.group = value;
+                ipmapsubnetlist.push_back(s);
+            }
+        }
+    } else if (matchRange.match(key.toCharArray(),Rre)) {
+        struct in_addr addressstart;
+        struct in_addr addressend;
+        String start(key.before("-"));
+        String end(key.after("-"));
+        if (inet_aton(start.toCharArray(), &addressstart) && inet_aton(end.toCharArray(), &addressend)) {
+            rangestruct r;
+            r.startaddr = ntohl(addressstart.s_addr);
+            r.endaddr = ntohl(addressend.s_addr);
+            r.group = value;
+            ipmaprangelist.push_back(r);
+        }
+    }
+        // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
+    else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "Entry " << line << " in " << sourcefile << " was not recognised as an IP address, subnet or range" << std::endl;
+        syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), sourcefile);
+        //warn = true;
+    }
+}
+
+// binary search list for given IP & return filter group, or -1 on failure
+String ListContainer::searchIPMap(int a, int s, const uint32_t &ip)
+{
+    if (a > s)
+        return "";
+    int m = (a + s) / 2;
+    if (ipmaplist[m].addr == ip)
+        return ipmaplist[m].group;
+    if (ipmaplist[m].addr < ip)
+        return searchIPMap(m + 1, s, ip);
+    if (a == s)
+        return "";
+    return searchIPMap(a, m - 1, ip);
+}
+
+// search subnet list for given IP & return filter group or -1
+String ListContainer::inSubnetMap(const uint32_t &ip)
+{
+    for (std::list<subnetstruct>::const_iterator i = ipmapsubnetlist.begin(); i != ipmapsubnetlist.end(); ++i) {
+        if (i->maskedaddr == (ip & i->mask)) {
+            return i->group;
+        }
+    }
+    return "";
+}
+
+// search range list for a range containing given IP & return filter group or -1
+String ListContainer::inIPRangeMap(const uint32_t &ip)
+{
+    for (std::list<rangestruct>::const_iterator i = ipmaprangelist.begin(); i != ipmaprangelist.end(); ++i) {
+        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+            return i->group;
+        }
+    }
+    return "";
+}
+
+String ListContainer::inIPMap(const uint32_t &ip)
+{
+    if (ipmaplist.size() > 0) {
+        return searchIPMap(0, ipmaplist.size(), ip);
+    }
+    return "";
+}
+
+String ListContainer::getMapData(String &key) {
+    for(std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i ) {
+        if(i->key == key)
+            return i->group;
+    }
+    return "";
+}
+
+String ListContainer::getIPMapData(std::string &ip)
+{
+    struct in_addr sin;
+    inet_aton(ip.c_str(), &sin);
+    uint32_t addr = ntohl(sin.s_addr);
+    String fgs;
+    String rfg;
+    int fg;
+    // check straight IPs, subnets, and ranges
+    fgs = inIPMap(addr);
+    if (fgs != "") {
+        rfg = fgs;
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Matched IP " << ip << " to straight IP list" << std::endl;
+#endif
+        return rfg;
+    }
+    fgs = inSubnetMap(addr);
+    if (fgs != "") {
+        rfg = fgs;
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Matched IP " << ip << " to subnet" << std::endl;
+#endif
+        return rfg;
+    }
+    fgs = inIPRangeMap(addr);
+    if (fgs != "") {
+        rfg = fgs;
+#ifdef DGDEBUG
+        std::cerr << thread_id << "Matched IP " << ip << " to range" << std::endl;
+#endif
+        return rfg;
+    }
+#ifdef DGDEBUG
+    std::cerr << thread_id << "Matched IP " << ip << " to nothing" << std::endl;
+#endif
+    return "";
+}
+
+
 
 int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p)
 {

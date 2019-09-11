@@ -123,6 +123,8 @@ class NaughtyFilter
     String urldomain;   // the domain or site part of the url
     String urldomainport;   // the domain or site part of the url with port number
     String connect_site;   // the site to connect to - normally same as urldomain
+    String user;    // result of auth plug-in id - may be network log-in name or client IP or port
+    String realuser; // real or authed user name
     String lastmatch;
     String result;
 

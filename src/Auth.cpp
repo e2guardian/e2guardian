@@ -64,7 +64,7 @@ String AuthPlugin::getPluginName()
 
 // determine what filter group the given username is in
 // return -1 when user not found
-int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
+int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm)
 {
     if (user.length() < 1 || user == "-") {
         return DGAUTH_NOMATCH;
@@ -73,39 +73,24 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, ListContainer & uglc)
     String lastcategory;
     u.toLower(); // since the filtergroupslist is read in in lowercase, we should do this.
     user = u.toCharArray(); // also pass back to ConnectionHandler, so appears lowercase in logs
-    String ue(u);
-    ue += "=";
+  //  String ue(u);
+  //  ue += "=";
 
     //char *i = ldl->filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
-    char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
+ //   char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
+     cm.user = user;
+     if (!story.runFunctEntry(story_entry,cm)) {
+#ifdef DGDEBUG
+             std::cerr << "User not in filter groups list for: " << pluginName.c_str() << std::endl;
+#endif
+             return DGAUTH_NOGROUP;
+      }
 
-    if (i == NULL) {
 #ifdef DGDEBUG
-        std::cerr << "User not in filter groups list: " << ue << std::endl;
+    std::cerr << "Group found for: " << user.c_str() << " in " << pluginName.c_str() << std::endl;
 #endif
-        return DGAUTH_NOUSER;
-    }
-#ifdef DGDEBUG
-    std::cerr << "User found: " << i << std::endl;
-#endif
-    ue = i;
-    if (ue.before("=") == u) {
-        ue = ue.after("=filter");
-        int l = ue.length();
-        if (l < 1 || l > 2) {
-            return DGAUTH_NOUSER;
-        }
-        int t;
-        t = ue.toInteger();
-        if (t > o.numfg) {
-            return DGAUTH_NOUSER;
-        }
-        if (t > 0) {
-            fg = --t;
-            return DGAUTH_OK;
-        }
-    }
-    return DGAUTH_NOUSER;
+     fg = cm.filtergroup;
+     return DGAUTH_OK;
 }
 
 // take in a configuration file, find the AuthPlugin class associated with the plugname variable, and return an instance

@@ -255,7 +255,9 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 # to filter group 1.  You must have some sort of authentication to be able to map users
 # to a group.
 filtergroups = 1
-filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
+
+#filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
+maplist = 'name=defaultusermap, path=@DGCONFDIR@/lists/filtergroupslist'
 
 # default filtergroup for standard (explicit) mode
 # optional defaults to 1
@@ -296,7 +298,7 @@ sitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsitelist'
 ipsitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsiteiplist'
 regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserreqexplist'
 
-#Note: only iplist, sitelist, ipsitelist, urllist and regexpboollist can 
+#Note: only iplist, sitelist, ipsitelist, urllist, maplist and ipmaplist and regexpboollist can
 #  currently be defined for use with pre-authstoryboard.
 
 # Per-Room definition directory
@@ -525,15 +527,25 @@ contentscannertimeout = 60
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
 #
+# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
+
 # If you do not use multiple filter groups, you need not specify this option.
 #
 #authplugin = '@DGCONFDIR@/authplugins/proxy-basic.conf'
+
 #authplugin = '@DGCONFDIR@/authplugins/proxy-digest.conf'
+
 #@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
+
 #authplugin = '@DGCONFDIR@/authplugins/ident.conf'
+
 #authplugin = '@DGCONFDIR@/authplugins/ip.conf'
+#ipmaplist = 'name=ipmap, path=@DGCONFDIR@/lists/authplugins/ipgroups'
+
 #authplugin = '@DGCONFDIR@/authplugins/proxy-header.conf'
+
 #authplugin = '@DGCONFDIR@/authplugins/port.conf'
+#maplist = 'name=portmap, path=@DGCONFDIR@/lists/authplugins/portgroups'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as

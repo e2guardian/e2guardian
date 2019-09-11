@@ -43,7 +43,12 @@ class OptionContainer
     std::string debuglevel;
     std::string path_debuglevel;
     DebugManager * myDebug;
-#endif 
+#endif
+
+    struct auth_entry {
+        int entry_id = 0;
+        String entry_function;
+    };
 
     // all our many, many options
     int filter_groups = 0;
@@ -194,6 +199,10 @@ class OptionContainer
     std::deque<String> ipsitelist_dq;
     std::deque<String> urllist_dq;
     std::deque<String> regexpboollist_dq;
+    std::deque<String> maplist_dq;
+    std::deque<String> ipmaplist_dq;
+
+    std::deque<auth_entry> auth_entry_dq;
 
     std::string daemon_user;
     std::string daemon_group;

@@ -38,32 +38,33 @@
 #define SB_STATE_CLIENTIN	 10
 #define SB_STATE_USERAGENTIN	 11
 #define SB_STATE_TIMEIN			 12
+#define SB_STATE_USERIN			 13
 
-#define SB_STATE_TOPIN      13   // all below this require a valid list
+#define SB_STATE_TOPIN      14   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	13
-#define SB_STATE_POST			14
-#define SB_STATE_GET				15
-#define SB_STATE_SITEISIP       16
-#define SB_STATE_TLS				17
+#define SB_STATE_CONNECT	14
+#define SB_STATE_POST			15
+#define SB_STATE_GET				16
+#define SB_STATE_SITEISIP       17
+#define SB_STATE_TLS				18
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	18
-#define SB_STATE_GREYSET	19
-#define SB_STATE_BLOCKSET	20
-#define SB_STATE_MITMSET        21
-#define SB_STATE_DONESET       22
-#define SB_STATE_RETURNSET       23
-#define SB_STATE_TRUE				24
-#define SB_STATE_HASSNI			25
-#define SB_STATE_REDIRECTSET 26
-#define SB_STATE_VIRUSCHECKSET 27
-#define SB_STATE_BYPASSSET  28
-#define SB_STATE_BYPASSALLOWEDSET  29
-#define SB_STATE_INFECTIONBYPASSALLOWEDSET  30
+#define SB_STATE_EXCEPTIONSET	19
+#define SB_STATE_GREYSET	20
+#define SB_STATE_BLOCKSET	21
+#define SB_STATE_MITMSET        22
+#define SB_STATE_DONESET       23
+#define SB_STATE_RETURNSET       24
+#define SB_STATE_TRUE				25
+#define SB_STATE_HASSNI			26
+#define SB_STATE_REDIRECTSET 27
+#define SB_STATE_VIRUSCHECKSET 28
+#define SB_STATE_BYPASSSET  29
+#define SB_STATE_BYPASSALLOWEDSET  30
+#define SB_STATE_INFECTIONBYPASSALLOWEDSET  31
 
-#define SB_STATE_MAP_SIZE  30
+#define SB_STATE_MAP_SIZE  31
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -93,9 +94,10 @@
 #define  SB_FUNC_SETNOMITM	5022
 #define  SB_FUNC_SETAUTOMITM	5023
 #define  SB_FUNC_UNSETAUTOMITM	5024
+#define  SB_FUNC_SETGROUP	5025
 
 
-#define SB_FUNC_MAP_SIZE  24
+#define SB_FUNC_MAP_SIZE  25
 
 
 // DECLARATIONS
@@ -116,6 +118,7 @@ class SBFunction
 			 "clientin",
 			 "useragentin",
 			 "timein",
+			 "userin",
 			"connect",
 			 "post",
 			 "get",
@@ -166,7 +169,8 @@ class SBFunction
 			 "unsetinfectionbypassallow",
 			 "setnomitm",
 			 "setautomitm",
-			 "unsetautomitm"
+			 "unsetautomitm",
+			 "setgroup"
     };
 
   public:

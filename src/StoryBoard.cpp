@@ -222,7 +222,10 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         types = {LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_CLIENTIN:
-                        types = {LIST_TYPE_IP, LIST_TYPE_SITE};
+                        types = {LIST_TYPE_IP, LIST_TYPE_SITE };
+                        break;
+                    case SB_STATE_USERIN:
+                        types = {LIST_TYPE_IPMAP, LIST_TYPE_MAP};
                         break;
                     case SB_STATE_EXTENSIONIN:
                         types = {LIST_TYPE_FILE_EXT};
@@ -388,6 +391,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 target = cm.clientip;
                 target2 = cm.clienthost;
                 break;
+            case SB_STATE_USERIN:
+                isListCheck = true;
+                target = cm.user;
+                target2 = cm.clienthost;
             case SB_STATE_TIMEIN:
                 isListCheck = true;
                 break;
@@ -772,6 +779,16 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETNOLOG:
                     cm.nolog = true;
+                    break;
+                case SB_FUNC_SETGROUP:
+                    action_return = false;
+                    if (cm.result.size() > 0) {
+                        int g = cm.result.toInteger();
+                        if (g > 0 && g <= o.numfg) {
+                            cm.filtergroup = --g;
+                            action_return = true;
+                        }
+                    };
                     break;
                 case SB_FUNC_UNSETVIRUSCHECK:
                     cm.noviruscheck = true;

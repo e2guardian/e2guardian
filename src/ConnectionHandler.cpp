@@ -1051,7 +1051,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
 
-                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header,
+                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header, checkme,
                             only_ip_auth,
                             checkme.isconnect)) {
                     if ((checkme.auth_result == DGAUTH_REDIRECT) && checkme.isconnect &&
@@ -2885,14 +2885,13 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 #endif
 
 bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
-                          HTTPHeader &header, bool only_client_ip, bool isconnect_like) {
+                          HTTPHeader &header, NaughtyFilter &cm, bool only_client_ip, bool isconnect_like) {
     Socket nullsock;
-    return doAuth(auth_result, authed, filtergroup, auth_plugin, peerconn, nullsock, header, only_client_ip,
-                  isconnect_like);
+    return doAuth(auth_result, authed, filtergroup, auth_plugin, peerconn, nullsock, header, cm, only_client_ip, isconnect_like);
 }
 
 bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
-                               Socket &proxysock, HTTPHeader &header, bool only_client_ip, bool isconnect_like) {
+                               Socket &proxysock, HTTPHeader &header, NaughtyFilter &cm, bool only_client_ip, bool isconnect_like) {
 
 #ifdef DGDEBUG
     std::cerr << thread_id << " -Not got persistent credentials for this connection - querying auth plugins" << std::endl;
@@ -2984,7 +2983,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 break;
             }
             // try to get the filter group & parse the return value
-            rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
+            rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->StoryA, cm);
             if (rc == DGAUTH_OK) {
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Auth plugin found username & group; not querying remaining plugins" << std::endl;
@@ -3418,7 +3417,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             // don't have credentials for this connection yet? get some!
             overide_persist = false;
             if(!(checkme.isItNaughty || checkme.isexception)) {
-                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, true, true))
+                if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, checkme, true, true))
                 {
 
                     if((checkme.auth_result == DGAUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
@@ -3987,12 +3986,12 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     int rc = DGAUTH_NOUSER;
     if (clientuser != "") {
-        rc = determineGroup(clientuser, filtergroup, ldl->filter_groups_list);
+        rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
         if (rc != DGAUTH_OK)
         {};
     }
-    else {                              // TODO - NEED to allow alternate group checking when no match in filter_groups_list
-        if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, true,
+    else {
+        if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, checkme, true,
                     true)) {
             //break;  // TODO Error return????
         }
@@ -4432,48 +4431,22 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
 // determine what filter group the given username is in
 // return -1 when user not found
-int ConnectionHandler::determineGroup(std::string &user, int &fg, ListContainer &uglc) {
+int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &story, NaughtyFilter &cm, int story_entry) {
     if (user.length() < 1 || user == "-") {
         return DGAUTH_NOMATCH;
     }
-    String u(user);
-    String lastcategory;
-    u.toLower(); // since the filtergroupslist is read in in lowercase, we should do this.
-    user = u.toCharArray(); // also pass back to ConnectionHandler, so appears lowercase in logs
-    String ue(u);
-    ue += "=";
-
-    //char *i = ldl->filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
-    char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
-
-    if (i == NULL) {
+    cm.user = user;
+    if (!story.runFunctEntry(story_entry, cm)) {
 #ifdef DGDEBUG
-        std::cerr << thread_id << "User not in filter groups list: " << ue << std::endl;
+        std::cerr << "User not in filter groups list for: icap " << std::endl;
 #endif
-        return DGAUTH_NOUSER;
+        return DGAUTH_NOGROUP;
     }
+
 #ifdef DGDEBUG
-    std::cerr << thread_id << "User found in filter group list: " << i << std::endl;
+    std::cerr << "Group found for: " << user.c_str() << " in icap " << std::endl;
 #endif
-    ue = i;
-    if (ue.before("=") == u) {
-        ue = ue.after("=filter");
-        int l = ue.length();
-        if (l < 1 || l > 2) {
-            return DGAUTH_NOUSER;
-        }
-        int t;
-        t = ue.toInteger();
-        if (t > o.numfg) {
-            return DGAUTH_NOUSER;
-        }
-        if (t > 0) {
-            fg = --t;
-#ifdef DGDEBUG
-            std::cerr << thread_id << "determineGroup gives fg:  " << fg << std::endl;
-#endif
-            return DGAUTH_OK;
-        }
-    }
-    return DGAUTH_NOUSER;
+    fg = cm.filtergroup;
+    return DGAUTH_OK;
 }
+

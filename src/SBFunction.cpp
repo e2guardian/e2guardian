@@ -94,7 +94,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     state.removeWhiteSpace();
     rec.state = getStateID(state);
     if (rec.state == 0) {
-        std::cout << thread_id << "StoryBoard error: Invalid state" << state << "at line " << line_no << " of " << file_name << std::endl;
+        std::cout << thread_id << "StoryBoard error: Invalid state " << state << " at line " << line_no << " of " << file_name << std::endl;
         return false;
     }
 

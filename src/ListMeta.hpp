@@ -30,6 +30,8 @@
 #define LIST_TYPE_MIME                                       11
 #define LIST_TYPE_FILE_EXT                               12
 #define LIST_TYPE_TIME                                  13
+#define LIST_TYPE_MAP                                   14
+#define LIST_TYPE_IPMAP                                   15
 
 #define LIST_METHOD_READF_SWS                             1
 #define LIST_METHOD_READF_EWS                             2
@@ -38,6 +40,8 @@
 #define LIST_METHOD_PHRASES                                   5
 #define LIST_METHOD_IP                                                  6
 #define LIST_METHOD_TIME                                                7
+#define LIST_METHOD_MAP                                                8
+#define LIST_METHOD_IPMAP                                                9
 
 // DECLARATIONS
 
@@ -92,7 +96,8 @@ class ListMeta
 
 
 
-   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false, bool istime = false);
+   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false, bool istime = false,
+           bool is_map = false);
 
    bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
        std::deque<String> &list_rep, std::deque<RegExp> &list_comp);

@@ -23,9 +23,22 @@
 
 //#ifndef __HPP_SB
 
+// Entry point codes for pre-auth.story
 #define  ENT_STORYA_PRE_AUTH    1
 #define  ENT_STORYA_PRE_AUTH_THTTPS    2
 #define  ENT_STORYA_PRE_AUTH_ICAP       3
+
+// auth plugin entry point codes
+#define  ENT_STORYA_AUTH_IP         11
+#define  ENT_STORYA_AUTH_PORT         12
+#define  ENT_STORYA_AUTH_BASIC_PROXY         13
+#define  ENT_STORYA_AUTH_IDENT         14
+#define  ENT_STORYA_AUTH_HEADER         15
+#define  ENT_STORYA_AUTH_NTLM_PROXY         16
+#define  ENT_STORYA_AUTH_DIGEST_PROXY         17
+#define  ENT_STORYA_AUTH_ICAP   18
+
+// Entry point codes for storyfn.story
 #define  ENT_STORYB_PROXY_REQUEST    1
 #define  ENT_STORYB_PROXY_RESPONSE  2
 #define  ENT_STORYB_THTTPS_REQUEST    3
@@ -40,9 +53,7 @@ class NaughtyFilter;
 class StoryBoard
 {
  private:
-    //unsigned int entry1 = 0;
-    //unsigned int entry2 = 0;
-    unsigned int entrys[10];
+    unsigned int entrys[20];
   public:
     int items;
 

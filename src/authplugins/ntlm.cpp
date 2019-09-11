@@ -22,6 +22,7 @@
 
 extern OptionContainer o;
 extern thread_local std::string thread_id;
+extern bool is_daemonised;
 
 // NTLM username grabbing needs to be independent of endianness
 
@@ -384,7 +385,19 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
 int ntlminstance::init(void *args)
 {
-    return 0;
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_NTLM_PROXY;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        return 0;
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No story_function defined in ntlm proxy auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in ntlm proxy auth plugin config");
+        return -1;
+    }
 }
 
 

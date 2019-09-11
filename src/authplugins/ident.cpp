@@ -18,6 +18,7 @@
 
 extern OptionContainer o;
 extern thread_local std::string thread_id;
+extern bool is_daemonised;
 
 // DECLARATIONS
 
@@ -30,6 +31,7 @@ class identinstance : public AuthPlugin
         client_ip_based = true;    // not sure if this is correct!!
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int init(void *args);
 };
 
 // IMPLEMENTATION
@@ -133,4 +135,21 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
+}
+
+int identinstance::init(void *args)
+{
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_IDENT;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        return 0;
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No story_function defined in ident auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in ident auth plugin config");
+        return -1;
+    }
 }

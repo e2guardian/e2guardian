@@ -1,9 +1,10 @@
-# Filter Groups List file for DansGuardian
+# Filter Groups List file for e2guardian
 #
-# Format is <user>=filter<1-9> where 1-9 are the groups
+# Format is <user>=<1-99> where 1-99 are the groups
+# Legacy format is also recognised: <user>=filter<1-99> where 1-99 are the groups
 #
 # Eg:
-# daniel=filter2
+# daniel=2
 #
 # This file is only of use if you have more than 1 filter group
 #

@@ -149,10 +149,11 @@ class ConnectionHandler
     bool writeback_error( NaughtyFilter &cm, Socket & cl_sock, int mess_no1, int mess_no2, std::string mess);
     bool gen_error_mess( Socket &peerconn, NaughtyFilter &cm, String &eheader, String &ebody, int mess_no1, int mess_no2, std::string mess);
 
-    bool doAuth(int &auth_result, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock, HTTPHeader & header,
-        bool only_client_ip = false, bool isconnect_like = false);
+    bool doAuth(int &auth_result, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, Socket &proxysock,
+                HTTPHeader & header, NaughtyFilter &cm, bool only_client_ip = false, bool isconnect_like = false);
 
-    bool doAuth(int &auth_result, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn, HTTPHeader & header, bool only_client_ip = false, bool isconnect_like = false);
+    bool doAuth(int &auth_result, bool &authed, int &filtergroup,AuthPlugin* auth_plugin, Socket & peerconn,
+                HTTPHeader & header, NaughtyFilter &cm, bool only_client_ip = false, bool isconnect_like = false);
 
     bool checkByPass( NaughtyFilter &checkme, std::shared_ptr<LOptionContainer> & ldl, HTTPHeader &header, Socket & proxysock,
     Socket &peerconn, std::string &clientip );
@@ -168,7 +169,7 @@ class ConnectionHandler
 
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
 
-    int determineGroup(std::string &user, int &fg, ListContainer & uglc);
+    int determineGroup(std::string &user, int &fg, StoryBoard & uglc, NaughtyFilter &checkme, int story_entry);
     int connectUpstream(Socket &sock, NaughtyFilter &cm,int port);
 };
 

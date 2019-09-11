@@ -28,20 +28,21 @@ extern thread_local std::string thread_id;
 // DECLARATIONS
 
 // structs linking subnets and IP ranges to filter groups
-struct subnetstruct {
-    uint32_t maskedaddr;
-    uint32_t mask;
-    int group;
-};
+//struct subnetstruct
+// uint32_t maskedaddr;
+    //uint32_t mask;
+    //int group;
+//};
 
-struct rangestruct {
-    uint32_t startaddr;
-    uint32_t endaddr;
-    int group;
-};
+//struct rangestruct {
+//    uint32_t startaddr;
+//    uint32_t endaddr;
+//    int group;
+//};
 
 // class for linking IPs to filter groups, complete with comparison operators
 // allowing standard C++ sort to work
+#ifdef NODEF
 class ip
 {
     public:
@@ -65,6 +66,7 @@ class ip
         return a == addr;
     };
 };
+#endif
 
 // class name is relevant!
 class ipinstance : public AuthPlugin
@@ -81,13 +83,13 @@ class ipinstance : public AuthPlugin
     };
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
-    int determineGroup(std::string &user, int &fg, ListContainer &uglc);
+    //int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
     int quit();
 
     private:
-    std::vector<ip> iplist;
+    //std::vector<ip> iplist;
     std::list<subnetstruct> ipsubnetlist;
     std::list<rangestruct> iprangelist;
 
@@ -118,22 +120,26 @@ AuthPlugin *ipcreate(ConfigVar &definition)
 // plugin quit - clear IP, subnet & range lists
 int ipinstance::quit()
 {
-    iplist.clear();
-    ipsubnetlist.clear();
-    iprangelist.clear();
+    //iplist.clear();
+    //ipsubnetlist.clear();
+    //iprangelist.clear();
     return 0;
 }
 
 // plugin init - read in ip melange list
 int ipinstance::init(void *args)
 {
-    String fname(cv["ipgroups"]);
-    if (fname.length() > 0) {
-        return readIPMelangeList(fname.toCharArray());
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_IP;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        return 0;
     } else {
         if (!is_daemonised)
-            std::cerr << thread_id << "No ipgroups file defined in IP auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No ipgroups file defined in IP auth plugin config");
+            std::cerr << thread_id << "No story_function defined in IP auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in IP auth plugin config");
         return -1;
     }
 }
@@ -178,6 +184,7 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     return DGAUTH_OK;
 }
 
+#ifdef NODEF
 int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 {
     struct in_addr sin;
@@ -185,7 +192,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
     uint32_t addr = ntohl(sin.s_addr);
     int fg;
     // check straight IPs, subnets, and ranges
-    fg = inList(addr);
+//    fg = inList(addr);
     if (fg >= 0) {
         rfg = fg;
 #ifdef DGDEBUG
@@ -193,7 +200,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 #endif
         return DGAUTH_OK;
     }
-    fg = inSubnet(addr);
+//    fg = inSubnet(addr);
     if (fg >= 0) {
         rfg = fg;
 #ifdef DGDEBUG
@@ -201,7 +208,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 #endif
         return DGAUTH_OK;
     }
-    fg = inRange(addr);
+//    fg = inRange(addr);
     if (fg >= 0) {
         rfg = fg;
 #ifdef DGDEBUG
@@ -215,6 +222,9 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
     return DGAUTH_NOMATCH;
 }
 
+#endif
+
+#ifdef NODEF
 //
 //
 // IP list functions (straight match, range match, subnet match)
@@ -266,7 +276,9 @@ int ipinstance::inRange(const uint32_t &ip)
     }
     return -1;
 }
+#endif // NODEF
 
+#ifdef NODEF
 // read in a list linking IPs, subnets & IP ranges to filter groups
 // return 0 for success, -1 for failure, 1 for warning
 int ipinstance::readIPMelangeList(const char *filename)
@@ -424,3 +436,4 @@ int ipinstance::readIPMelangeList(const char *filename)
     // return either warning or success
     return warn ? 1 : 0;
 }
+#endif // NODEF

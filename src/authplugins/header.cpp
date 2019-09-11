@@ -21,6 +21,7 @@ HTTPHeader *reqheader;
 // GLOBALS
 
 extern OptionContainer o;
+extern bool is_daemonised;
 extern thread_local std::string thread_id;
 String fname = "";
 
@@ -37,6 +38,7 @@ class headerinstance : public AuthPlugin
         client_ip_based = false;
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int init(void *args);
 };
 
 // IMPLEMENTATION
@@ -61,4 +63,21 @@ int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
+}
+
+int headerinstance::init(void *args)
+{
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_HEADER;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        return 0;
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No story_function defined in header auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in header auth plugin config");
+        return -1;
+    }
 }

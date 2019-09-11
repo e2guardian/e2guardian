@@ -86,6 +86,12 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         case LIST_TYPE_TIME:
             method_type = LIST_METHOD_TIME;
             break;
+        case LIST_TYPE_MAP:
+            method_type = LIST_METHOD_MAP;
+            break;
+        case LIST_TYPE_IPMAP:
+            method_type = LIST_METHOD_IPMAP;
+            break;
             // PhraseList types to be added
     }
     bool errors = false;
@@ -95,7 +101,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         String t;
         t = list[i];
 #ifdef DGDEBUG
-        std::cerr << thread_id << "reading %s" << t.toCharArray() << std::endl;
+        std::cerr << thread_id << "reading " << t.toCharArray() << std::endl;
 #endif
         String nm, fpath;
         bool anonlog = o.anonymise_logs;
@@ -118,6 +124,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 sitewild = false;
             }
             t = t.after(",");
+            t.removeWhiteSpace();
         }
         if (list_exists(nm, type)) {
             syslog(LOG_INFO, "List name %s of this type already defined - ignoring %s", nm.toCharArray(),
@@ -146,6 +153,22 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         switch (method_type) {
             case LIST_METHOD_IP:
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
+                    list_vec.push_back(rec);
+                } else {
+                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    errors = true;
+                };
+                break;
+            case LIST_METHOD_IPMAP:
+                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true, false, true)) {
+                    list_vec.push_back(rec);
+                } else {
+                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    errors = true;
+                };
+                break;
+            case LIST_METHOD_MAP:
+                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, false, true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -294,6 +317,19 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
                 return true;
             }
             break;
+        case LIST_TYPE_IPMAP:
+        case LIST_TYPE_MAP:
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
+            if (match == NULL) {
+                return false;
+            } else {
+                res.result = match;
+                res.mess_no = info.mess_no;
+                res.log_mess_no = info.log_mess_no;
+                res.anon_log = info.anon_log;
+                return true;
+            }
+            break;
         case LIST_TYPE_TIME:
             if (o.lm.l[info.list_ref]->isNowInTimelist()) {
                 res.mess_no = info.mess_no;
@@ -410,7 +446,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime) {
+bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
@@ -418,7 +454,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true, isip, istime);
+    int res = o.lm.newItemList(filename, sortsw, 1, true, isip, istime, ismap);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;

@@ -615,6 +615,13 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // check its a reasonable value
 
+        if(icap_port > 0) {   // add non-plugin auth for ICAP
+            auth_entry sen;
+            sen.entry_function = "auth_icap";
+            sen.entry_id = ENT_STORYA_AUTH_ICAP;
+            auth_entry_dq.push_back(sen);
+        }
+
         icap_reqmod_url = findoptionS("icapreqmodurl");
         if (icap_reqmod_url == "")
             icap_reqmod_url = "request";
@@ -908,6 +915,8 @@ bool OptionContainer::read(std::string& filename, int type)
         ipsitelist_dq = findoptionM("ipsitelist");
         urllist_dq = findoptionM("urllist");
         regexpboollist_dq = findoptionM("regexpboollist");
+        maplist_dq = findoptionM("maplist");
+        ipmaplist_dq = findoptionM("ipmaplist");
 
         if (filter_groups_list_location.length() == 0) {
             use_filter_groups_list = false;

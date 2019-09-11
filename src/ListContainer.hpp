@@ -39,6 +39,65 @@ struct ipl_rangestruct {
 }
 #endif
 
+// class for linking IPs to filter groups, complete with comparison operators
+// allowing standard C++ sort to work
+class ipmap
+{
+public:
+    ipmap(uint32_t a, String g)
+    {
+        addr = a;
+        group = g;
+    };
+    uint32_t addr;
+    String group;
+    int operator<(const ipmap &a) const
+    {
+        return addr < a.addr;
+    };
+    int operator<(const uint32_t &a) const
+    {
+        return addr < a;
+    };
+    int operator==(const uint32_t &a) const
+    {
+        return a == addr;
+    };
+};
+
+class datamap
+{
+public:
+    datamap(String &k, String &g){
+        key = k;
+        group = g;
+    };
+    String key;
+    String group;
+    int operator<(const datamap &a) const
+    {
+        return key.compare(a.key);
+    };
+    int operator==(const String &a) const
+    {
+        if( key.compare(a) == 0) return 1;
+        return 0;
+    };
+};
+
+// structs linking subnets and IP ranges to filter groups
+struct subnetstruct {
+    uint32_t maskedaddr;
+    uint32_t mask;
+    String group;
+};
+
+struct rangestruct {
+    uint32_t startaddr;
+    uint32_t endaddr;
+    String group;
+};
+
 time_t getFileDate(const char *filename);
 size_t getFileLength(const char *filename);
 
@@ -48,6 +107,7 @@ class ListContainer
     std::vector<int> combilist;
     bool is_iplist = false;
     bool is_timelist = false;
+    bool is_map = false;
     int refcount = 0;
     bool parent = false;
     time_t filedate;
@@ -73,7 +133,7 @@ class ListContainer
     bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true, int nlimit=0);
     bool ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
     bool ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
-    bool readItemList(const char *filename, bool startswith, int filters, bool isip = false, bool istime = false);
+    bool readItemList(const char *filename, bool startswith, int filters, bool isip = false, bool istime = false, bool ismap = false);
     bool readStdinItemList(bool startswith, int filters);
     bool inList(const char *string, String &lastcategory);
     bool inListEndsWith(const char *string, String &lastcategory);
@@ -84,6 +144,9 @@ class ListContainer
     char *findEndsWith(const char *string, String &lastcategory);
     char *findStartsWith(const char *string, String &lastcategory);
     char *findStartsWithPartial(const char *string, String &lastcategory);
+    String searchIPMap(int a, int s, const uint32_t &ip);
+    String inSubnetMap(const uint32_t &ip);
+    String inIPRangeMap(const uint32_t &ip);
 
     int getListLength()
     {
@@ -169,6 +232,11 @@ class ListContainer
     std::vector<uint32_t> iplist;
     std::list<ipl_rangestruct> iprangelist;
     std::list<ipl_subnetstruct> ipsubnetlist;
+    std::vector<ipmap> ipmaplist;
+    std::list<rangestruct> ipmaprangelist;
+    std::list<subnetstruct> ipmapsubnetlist;
+    //std::list<datamap> datamaplist;
+    std::deque<datamap> datamaplist;
 
     //timelists
     std::vector<TimeLimit> timelist;
@@ -186,6 +254,8 @@ class ListContainer
     bool readProcessedItemList(const char *filename, bool startswith, int filters);
     void addToItemList(const char *s, size_t len);
     void addToIPList(String &line);
+    void addToIPMap(String &line);
+    void addToDataMap(String &line);
     void addToTimeList(String &line);
     int greaterThanEWF(const char *a, const char *b); // full match
     int greaterThanEW(const char *a, const char *b); // partial ends with
@@ -198,7 +268,10 @@ class ListContainer
     bool readTimeBand(String &tag, TimeLimit &tl);
     int getCategoryIndex(String *lcat);
     const char *inIPList(const std::string &ipstr );
+    String getIPMapData(std::string &ip);
     const char *hIPtoChar(uint32_t ip);
+    String inIPMap(const uint32_t &ip);
+    String getMapData(String &key);
 };
 
 #endif

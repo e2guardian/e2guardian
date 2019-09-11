@@ -14,6 +14,7 @@
 #include "ConfigVar.hpp"
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
+#include "LOptionContainer.hpp"
 
 // DEFINES
 
@@ -25,6 +26,9 @@
 
 // auth info found, but no such user in filtergroupslist (stop querying plugins - use this code with caution!)
 #define DGAUTH_NOUSER 3
+
+// auth info found, but no such user in group for this plugin  stop querying plugins - use this code with caution!)
+#define DGAUTH_NOGROUP 3
 
 // redirect the user to a login page
 #define DGAUTH_REDIRECT 4
@@ -69,7 +73,7 @@ class AuthPlugin : public Plugin
     // NOMATCH - did not find a group for this user (query remaining plugins)
     // NOUSER - did not find a group for this user (do not query remaining plugins)
     // any < 0 - error
-    virtual int determineGroup(std::string &user, int &fg,ListContainer &uglc);
+    virtual int determineGroup(std::string &user, int &fg,StoryBoard &story,NaughtyFilter &cm);
 
     // is this a connection-based auth type, i.e. assume all subsequent requests on the pconn are from the same user?
     bool is_connection_based;
@@ -78,6 +82,8 @@ class AuthPlugin : public Plugin
     bool needs_proxy_query;
     bool needs_proxy_access_in_plugin = false;
     bool client_ip_based;
+
+    int story_entry = 0;
 
     String getPluginName();
     virtual bool isTransparent()

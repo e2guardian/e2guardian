@@ -38,6 +38,7 @@ struct room_item {
     bool part_block;
 };
 
+
 class LOptionContainer
 {
     public:
