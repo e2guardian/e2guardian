@@ -1,0 +1,25 @@
+Revised Phaselists
+
+These updated phrase lists are held in language directorys.
+
+Protex has updated the ukenglish lists and this is a snapshot of the work 
+doen by Protex staff on these lists.  The updated lists give a much reduced 
+rate of false positives than the old phrases lists.
+
+Languages other than English - I have populated these with what information I 
+have, but a number of languages have very sparse lists, and urgently need 
+revison by native speakers.
+
+If you have better lists then please contribute them so that the lists 
+can be more complete.
+
+In v5.3. both the old and new phrase lists are in the distribution and the
+sample list files point at the old phraselists.   To use the new lists 
+you will need to amend the master phraselists manually to point at the 
+new path.
+
+Whan v5.4 is released the new phraselist will be the default.
+
+Philip Pearce  11th September 2019
+
+
