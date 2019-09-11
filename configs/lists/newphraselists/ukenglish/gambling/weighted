@@ -1,0 +1,32 @@
+#listcategory: "Gambling"
+
+#
+# Phraselists to block gambling sites
+#
+
+#< bet ><30>   #Removed due to overblock - esp. on Lithuanian sites.
+< betting ><30>
+< blackjack ><30>
+< casino ><30>
+< casinon ><30>
+< casinos ><30>
+< gamblers ><30>
+< gambling ><30>
+< jackpot ><20>
+< jackpott ><20>
+< kasino ><30>
+< kasinon ><30>
+< lotteri ><30>
+< lotterier ><30>
+< lotteries ><20>
+< lottery ><30>
+< lotto ><30>
+< prispott ><20>
+< roulette ><30>
+< snake eyes ><20>
+< snakeeyes ><20>
+< sports book ><10>
+< sportsbook ><10>
+< totalisator ><30>
+< wagering ><10>
+< bet >,<poker><40>
