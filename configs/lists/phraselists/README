@@ -13,12 +13,9 @@ revison by native speakers.
 If you have better lists then please contribute them so that the lists 
 can be more complete.
 
-In v5.3. both the old and new phrase lists are in the distribution and the
-sample list files point at the old phraselists.   To use the new lists 
-you will need to amend the master phraselists manually to point at the 
-new path.
-
 Whan v5.4 is released the new phraselist will be the default.
+
+The old phraselists are also distributed in the ../oldphraselists directory
 
 Philip Pearce  11th September 2019
 
