@@ -30,7 +30,8 @@ if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
 if(fullurlin, addheader) setaddheader
-if(searchin,override) return setgrey
+if(searchin,override) setgrey
+if(returnset) return setdone
 if(searchin,banned) return setblock
 if(fullurlin,redirect) return setredirect
 if(true) setgrey

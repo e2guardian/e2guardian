@@ -849,6 +849,7 @@ bool StoryBoard::setEntry(unsigned int index, String fname) {
 };
 
 bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
+    cm.isdone = false;   // only has logical scope for a single call
     if (entrys[index] > 0)
         return runFunct(entrys[index], cm);
     else
