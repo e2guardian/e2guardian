@@ -67,6 +67,7 @@ To set up MITM:
 
    Load my_rootCA certificate on each browser.
 
-   Set both http proxy and https proxy to the same port defined in the option
-   filterports, if you use e2guardian as direct proxy. transparenthttpsport
-   is only for transparent proxying.
+   If you want to use e2guardian as direct proxy, you will have to configure your
+   browsers to use the port defined in filterports for http and https connections.
+   Don't use the port from the option transparenthttpsport. That is not suited for
+   direct proxying.
