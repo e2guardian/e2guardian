@@ -38,20 +38,20 @@
 
 # The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
 
-.Include<@DGCONFDIR@/lists/phraselists/safelabel/banned>
-#.Include<@DGCONFDIR@/lists/phraselists/rta/banned_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/safelabel/banned>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/rta/banned>
 
 # The following banned phraselists are included in the default DG distribution.
 
-.Include<@DGCONFDIR@/lists/phraselists/pornography/banned>
-##.Include<@DGCONFDIR@/lists/phraselists/pornography/banned_portuguese>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/pornography/banned>
+##.Include<@DGCONFDIR@/lists/phraselists/portuguese/pornography/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/illegaldrugs/banned>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/illegaldrugs/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/gambling/banned>
-##.Include<@DGCONFDIR@/lists/phraselists/gambling/banned_portuguese>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/gambling/banned>
+##.Include<@DGCONFDIR@/lists/phraselists/portuguese/gambling/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/googlesearches/banned>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/googlesearches/banned>
 
 
 
