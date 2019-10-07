@@ -1189,8 +1189,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //if  is a search - content check search terms
-            if (checkme.isGrey && checkme.isSearch)
-                check_search_terms(checkme);  // will set isItNaughty if needed
+            if (!checkme.isdone) {
+                if (checkme.isGrey && checkme.isSearch)
+                    check_search_terms(checkme);
+            }  // will set isItNaughty if needed
 
 
             // TODO V5 call POST scanning code New NaughtyFilter function????
@@ -4175,7 +4177,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     //if  is a search - content check search terms
-    if (!done && checkme.isGrey && checkme.isSearch)
+    if (!done && !checkme.isdone && checkme.isGrey && checkme.isSearch)
         check_search_terms(checkme);  // will set isItNaughty if needed
 
 

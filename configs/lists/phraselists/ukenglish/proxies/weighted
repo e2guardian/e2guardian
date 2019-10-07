@@ -1,0 +1,86 @@
+
+#listcategory: "Proxy"
+
+<anonymous web proxy><100>
+<unblock bebo><100>
+<php proxy><100>
+<Bebo Proxy><100>
+<Facebook Proxy><100>
+<Unblock Myspace><100>
+<Unblock Friendster><100>
+<Dailymotion Unblocker><100>
+<circumventor><110>
+<parental controls>,<hide IP>,<free vpn><100>
+
+#A javascript style proxy
+<hl[include_form]><25>
+<hl[remove_scripts]><25>
+<hl[accept_cookies]><25>
+<hl[show_images]><25>
+<hl[show_referer]><25>
+<hl[rotate13]><25>
+<hl[base64_encode]><25>
+<hl[strip_meta]><25>
+<hl[strip_title]><25>
+<hl[session_cookies]><25>
+<Includes a mini URL-form on every HTML page><20>
+<Remove client-side scripting><20>
+<Accept HTTP cookies><20>
+<Show referring website in HTTP headers><20>
+<Use rotate13 encoding on the URL><20>
+<Use base64 encoding on the URL><20>
+<Strip meta HTML tags><20>
+
+#GLYPE PROXY
+<cpv_partnerid><25>
+<cpv_height><25>
+<cpv_width><25>
+<cpv_freq><25>
+<cpv_aid><25>
+<cpv_default><25>
+
+#another source of GLYPE powered proxies
+<pub-5346206038990400><320>
+<UA-15471343-><200>
+<unbanner Network>,<UA-7540624-37><200>
+
+#PHProxy or Poxy
+<phproxy>,<post><150>
+<phproxy><100>
+<include form>,<remove scripts>,<accept cookies>,<show images>,<show referer><100>
+
+#Fly Proxy - google apps
+<Powered by Fly-Proxy><150>
+<More FlyProxy Sites><150>
+
+#CGIPROXY
+<start browsing through this cgi-based proxy by entering a url below><200>
+<enjoy unrestricted and uncensored browsing with our service><200>
+<cgi>,<prox>,<nph><60>
+<nph-proxy><100>
+<nph-pro><100>
+<hide referrer information><30>
+<show url entry form><30>
+<remove all cookies><30>
+
+#CECID
+<cecid><100>
+<censorship circumvention device><100>
+<remove banned words completely><60>
+<filter banned words><60>
+<please enter url to access><100>
+
+#General Proxy Lists
+< anonymous >,< transparent >,< prox><70>
+<keep your identity hidden><70>
+<anonymous proxy><70>
+<anonymous surfing><80>
+<anonymous internet><80>
+<high anonymity><50>
+< proxy><10>
+< proxies><50>
+<public prox><50>
+<proxy list><60>
+<this is a page for bypassing internet censorship><200>
+<bypass internet censorship><200>
+<bypassing internet censorship><200>

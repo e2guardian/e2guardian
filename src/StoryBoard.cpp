@@ -883,6 +883,7 @@ bool StoryBoard::setEntry(unsigned int index, String fname) {
 };
 
 bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
+    cm.isdone = false;   // only has logical scope for a single call
     if (entrys[index] > 0)
         return runFunct(entrys[index], cm);
     else
@@ -892,12 +893,14 @@ bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
 std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter &cm) {
     std::deque<url_rec> temp;
     String durl = urld;
-    while (durl.contains(":") && durl.contains(".")) {
+    while (durl.contains(":")) {
         durl = durl.after(":");
+        if (!durl.contains("."))
+            break;
         while (durl.startsWith(":'") || durl.startsWith("/")) {
             durl.lop();
         }
-        if (durl.size() > 3) {
+        if (durl.size() > 5) {
             url_rec t;
             t.baseurl = durl;
             t.baseurl.removePTP();
