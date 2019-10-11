@@ -88,6 +88,7 @@ nomitmsiteiplist \
 refererexceptionsiteiplist \
 refererexceptionsitelist \
 refererexceptionurllist \
+responseheaderregexplist \
 searchregexplist \
 sslsiteregexplist \
 urlredirectregexplist \

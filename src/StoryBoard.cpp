@@ -221,8 +221,11 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     case SB_STATE_HEADERIN:
                         types = {LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL};
                         break;
+                    case SB_STATE_RESHEADERIN:
+                        types = {LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL};
+                        break;
                     case SB_STATE_CLIENTIN:
-                        types = {LIST_TYPE_IP, LIST_TYPE_SITE };
+                        types = {LIST_TYPE_IP, LIST_TYPE_SITE, LIST_TYPE_IPMAP };
                         break;
                     case SB_STATE_USERIN:
                         types = {LIST_TYPE_IPMAP, LIST_TYPE_MAP};
@@ -238,6 +241,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         break;
                     case SB_STATE_TIMEIN:
                         types = {LIST_TYPE_TIME};
+                        break;
+                    case SB_STATE_LISTEN_PORTIN:
+                        types = {LIST_TYPE_MAP};
                         break;
                 }
                 bool found = false;
@@ -329,6 +335,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         bool isListCheck = false;
         bool isMultiListCheck = false;
         bool isHeaderCheck = false;
+        HTTPHeader *targetheader = nullptr;
         bool state_result = false;
         String target;
         String target2;
@@ -385,6 +392,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
             case SB_STATE_HEADERIN:
                 isHeaderCheck = true;
+                targetheader = cm.request_header;
+                break;
+            case SB_STATE_RESHEADERIN:
+                isHeaderCheck = true;
+                targetheader = cm.response_header;
                 break;
             case SB_STATE_CLIENTIN:
                 isListCheck = true;
@@ -395,6 +407,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 isListCheck = true;
                 target = cm.user;
                 target2 = cm.clienthost;
+                break;
+            case SB_STATE_LISTEN_PORTIN:
+                isListCheck = true;
+                target = cm.listen_port;
+                break;
             case SB_STATE_TIMEIN:
                 isListCheck = true;
                 break;
@@ -478,8 +495,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 #endif
 
         if (isHeaderCheck) {
-            for (std::deque<String>::iterator u = cm.request_header->header.begin();
-                 u != cm.request_header->header.end(); u++) {
+            for (std::deque<String>::iterator u = targetheader->header.begin();
+                 u != targetheader->header.end(); u++) {
                // String t = *u;
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {

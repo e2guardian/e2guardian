@@ -40,6 +40,7 @@ if(true) setgrey
 # Entry function called by proxy module to check http response
 function(checkresponse)
 if(exceptionset) return false
+if(responseheaderin,reponseheadermods) setmodheader
 if(viruscheckset) checknoscantypes
 if(urlin,exceptionfile) return false
 if(true) return checkfiletype

@@ -765,6 +765,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
             ldl = o.currentLists();
             NaughtyFilter checkme(header, docheader);
+            checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
             docbody.setTimeout(o.exchange_timeout);
             FDTunnel fdt;
@@ -3250,6 +3251,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
 
     NaughtyFilter checkme(header, docheader);
+    checkme.listen_port = peerconn.getPort();
     checkme.reset();
 
 
@@ -3678,6 +3680,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             icaphead.ISTag = ldl->ISTag();
 
             NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse);
+            checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
             docbody.setTimeout(o.exchange_timeout);
             docbody.setICAP(true);

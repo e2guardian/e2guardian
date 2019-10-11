@@ -38,6 +38,9 @@ class NaughtyFilter
     String orig_ip;     // used in transparent https mode
     int orig_port = 0;     // used in transparent https mode
 
+    int listen_port = 0;    // listening port
+
+
     // return true or false?
     bool isReturn = false;
 

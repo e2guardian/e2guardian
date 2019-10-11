@@ -154,7 +154,7 @@ maxuploadsize = -1
 #urllist = 'name=log,path=@DGCONFDIR@/lists/logurllist'
 #regexpboollist = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
 
-# Outgoing HTTP header rules:
+# Outgoing HTTP request header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
 # request headers.  Format for headerregexplist is one modification rule per
 # line, similar to content/URL modifications.  Format for
@@ -168,6 +168,15 @@ regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlis
 regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
 # used for Youtube add cookies etc
 regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
+
+# Response HTTP header rules:
+# Optional lists for modification or removal of HTTP response headers.  
+# Format for reponseheaderregexplist is one rule per line, similar to 
+# content/URL modifications.  
+# Headers are matched/replaced on a line-by-line basis, not as a contiguous
+# block.
+# Use for example, to remove protocol upgarde requests.
+regexpreplacelist = 'name=reponseheadermods,path=@DGCONFDIR@/lists/responseheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
 #mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'

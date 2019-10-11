@@ -711,8 +711,6 @@ configs/contentscanners/icapscan.conf
 configs/contentscanners/kavdscan.conf
 configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
-configs/authplugins/ip.conf
-configs/authplugins/port.conf
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
 src/Makefile
