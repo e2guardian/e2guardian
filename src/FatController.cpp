@@ -1712,19 +1712,20 @@ int fc_controlit()   //
         timeout.it_value.tv_sec = 5;
         timeout.it_value.tv_nsec = (long) 0;
         timer_settime(timerid ,0 , &timeout, NULL);
-        rc = sigwait(&signal_set, NULL);
+        int rsig;
+        rc = sigwait(&signal_set, &rsig);
         if (rc < 0) {
             if (errno != EAGAIN) {
                 syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
             }
         } else {
-            if (rc == SIGUSR1)
+            if (rsig == SIGUSR1)
                 gentlereload = true;
-            if (rc == SIGTERM)
+            if (rsig == SIGTERM)
                 ttg = true;
-            if (rc == SIGHUP)
+            if (rsig == SIGHUP)
                 gentlereload = true;
-            if (rc != SIGALRM) {
+            if (rsig != SIGALRM) {
                 // unset alarm
                 timeout.it_value.tv_sec = 0;
                 timer_settime(timerid,0,&timeout, NULL);
@@ -1733,7 +1734,7 @@ int fc_controlit()   //
                 std::cerr << "signal:" << rc << std::endl;
 #endif
                 if (o.logconerror) {
-                    syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+                    syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rsig);
                 }
             }
         }
