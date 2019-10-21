@@ -1604,7 +1604,12 @@ int fc_controlit()   //
 
     sigset_t signal_set;
     //pthread_t signal_thread_id;
-    struct timespec timeout;
+    // set up timer for main loo
+    timer_t timerid;
+    timer_create(CLOCK_REALTIME,NULL, &timerid);
+    struct itimerspec timeout;
+    timeout.it_interval.tv_sec = 0;
+    timeout.it_interval.tv_nsec = (long) 0;
     int stat;
     sigemptyset(&signal_set);
     //sigfillset(&signal_set);
@@ -1612,6 +1617,7 @@ int fc_controlit()   //
     sigaddset(&signal_set, SIGPIPE);
     sigaddset(&signal_set, SIGTERM);
     sigaddset(&signal_set, SIGUSR1);
+    sigaddset(&signal_set, SIGALRM);
     stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
     if (stat != 0) {
         syslog(LOG_ERR, "%sError setting sigmask", thread_id.c_str());
@@ -1703,9 +1709,10 @@ int fc_controlit()   //
             gentlereload = false;
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
         }
-        timeout.tv_sec = 5;
-        timeout.tv_nsec = (long) 0;
-        rc = sigtimedwait(&signal_set, NULL, &timeout);
+        timeout.it_value.tv_sec = 5;
+        timeout.it_value.tv_nsec = (long) 0;
+        timer_settime(timerid ,0 , &timeout, NULL);
+        rc = sigwait(&signal_set, NULL);
         if (rc < 0) {
             if (errno != EAGAIN) {
                 syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
@@ -1717,11 +1724,17 @@ int fc_controlit()   //
                 ttg = true;
             if (rc == SIGHUP)
                 gentlereload = true;
+            if (rc != SIGALRM) {
+                // unset alarm
+                timeout.it_value.tv_sec = 0;
+                timer_settime(timerid,0,&timeout, NULL);
+
 #ifdef DGDEBUG
-            std::cerr << "signal:" << rc << std::endl;
+                std::cerr << "signal:" << rc << std::endl;
 #endif
-            if (o.logconerror) {
-                syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+                if (o.logconerror) {
+                    syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+                }
             }
         }
         int q_size = o.http_worker_Q.size();
