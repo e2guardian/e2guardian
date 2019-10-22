@@ -1306,7 +1306,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     checkme.tunnel_rest = false;
                 }
             }
-            if (checkme.isexception && !checkme.upfailure) {
+            if ((checkme.isexception || checkme.logcategory) && !checkme.upfailure) {
                 if (checkme.isconnect) {
                     checkme.tunnel_2way = true;
                     checkme.tunnel_rest = false;
@@ -1341,7 +1341,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #endif
 
             //CALL SB checkresponse
-            if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && !checkme.tunnel_rest) {
+            if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && (!checkme.logcategory) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
 #ifdef DGDEBUG
                 std::cerr << thread_id << "After StoryB checkresponse " << checkme.isexception << " mess_no "
@@ -4137,12 +4137,14 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
 // TODO add logic for 204 response etc.
-    if (checkme.isexception) {
+    if (checkme.isexception || checkme.logcategory) {
         std::string code;
         if (checkme.isvirusbypass)
             code = "V";
         else if (checkme.isbypass)
             code = "Y";
+        else if (checkme.logcategory)
+            code = "L";
         else
             code = "E";
 
@@ -4214,7 +4216,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
     }
     //Log
-    if (!(checkme.isourwebserver || checkme.nolog)) { // don't log requests to the web server
+    if (checkme.logcategory || !(checkme.isourwebserver || checkme.nolog)) { // don't log requests to the web server
         doLog(clientuser, clientip, checkme);
     }
     return 0;
@@ -4276,6 +4278,12 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.isvirusbypass = true;
         checkme.isbypass = true;
         checkme.isexception = true;
+        checkme.message_no = icaphead.icap_com.mess_no;
+        checkme.log_message_no = icaphead.icap_com.log_mess_no;
+        checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
+    } else if (icaphead.icap_com.EBG == "L") {   // only log - do not block
+        checkme.isexception = true;
+        checkme.logcategory = true;
         checkme.message_no = icaphead.icap_com.mess_no;
         checkme.log_message_no = icaphead.icap_com.log_mess_no;
         checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
