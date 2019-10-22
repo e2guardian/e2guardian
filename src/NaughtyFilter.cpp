@@ -297,7 +297,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 for (i = 0; i < hexdecodedlen; i++) {
                     c = hexdecoded[i];
                     //				if (c == 13 || c == 9 || c == 10) {
-                    if (c < 46 || c == 58 || c == 59 || c == 63 || (c > 90 && c < 97)) {
+                    if (c < '/' || c == ':' || c == ';' || c == '=' || c == '?' || c == '@' || (c > 90 && c < 97)) {
                         c = 32; // convert all whitespace and most punctuation marks to a space
                     }
                     bodylc[i] = c;
@@ -306,7 +306,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 for (i = 0; i < hexdecodedlen; i++) {
                     c = hexdecoded[i];
                     //				if (c == 13 || c == 9 || c == 10) {
-                    if (c < 46 || (c > 57 && c < 65) || (c > 90 && c < 97)) {
+                    if (c < '/' || (c > '9' && c < 'A') || (c > 'Z' && c < 'a')) {
                         c = 32; // convert all whitespace and most punctuation marks to a space
                     }
                     bodylc[i] = c;
@@ -325,7 +325,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                         c += 32; // 224 + c - 192
                     } else {
                         //if (c == 13 || c == 9 || c == 10) {
-                        if (c < 46 || c == 58 || c == 59 || c == 63 || (c > 90 && c < 97)) {
+                        if (c < '/' || c == ':' || c == ';' || c == '=' || c == '?' || c == '@' || (c > 90 && c < 97)) {
                             c = 32; // convert all whitespace and most punctuation marks to a space
                         }
                     }
@@ -340,7 +340,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                         c += 32; // 224 + c - 192
                     } else {
                         //if (c == 13 || c == 9 || c == 10) {
-                        if (c < 46 || (c > 57 && c < 65) || (c > 90 && c < 97)) {
+                        if (c < '/' || (c > '9' && c < 'A') || (c > 'Z' && c < 'a')) {
                             c = 32; // convert all whitespace and most punctuation marks to a space
                         }
                     }
@@ -439,11 +439,11 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 if (addit) {
                     // if we're in "record" mode (i.e. inside a title/metatag), strip certain characters out
                     // of the data (to sanitise metatags & aid filtering of titles)
-                    if (c == ',' || c == '=' || c == '"' || c == '\''
-                        || c == '(' || c == ')' || c == '.') {
-                        // replace with a space
-                        c = 32;
-                    }
+                    //if (c == ',' || c == '=' || c == '"' || c == '\''
+                    //    || c == '(' || c == ')' || c == '.') {
+                    //    // replace with a space
+                    //    c = 32;
+                    //}
                     // don't bother duplicating spaces
                     if ((c != 32) || (c == 32 && (bodymeta[j - 1] != 32))) {
                         bodymeta[j++] = c; // copy it to the filtered copy
