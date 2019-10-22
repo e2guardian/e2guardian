@@ -295,6 +295,8 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
         return;
     }
 
+    phrase.removePunctuation();
+
     if (phrase.length() > 127) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Phrase length too long, truncating: " << phrase << std::endl;

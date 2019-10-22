@@ -420,6 +420,28 @@ void String::removeWhiteSpace()
     *this = this->substr(start, (end - start) + 1);
 }
 
+void String::removePunctuation() {
+    std::string temp;
+    bool lastspace = false;
+    unsigned char t;
+    unsigned int l = this->length();
+    for (unsigned int i = 0; i < l; i++) {
+        t = (*this)[i];
+        if (t < '/' || t == ':' || t == ';' || t == '=' || t == '?' || t == '@' || (t > 90 && t < 97)) {
+            t = 32; // convert all whitespace and most punctuation marks to a space
+        }
+        if (t == 32) {
+            if (lastspace) continue;
+            lastspace = true;
+        } else {
+            lastspace = false;
+        }
+            temp += t;
+            continue;
+    }
+    *this = temp;
+}
+
 // remove protocol specifier
 void String::removePTP()
 {

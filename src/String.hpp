@@ -117,6 +117,8 @@ class String : public std::string
     void lop();
     // remove leading & trailing whitespace
     void removeWhiteSpace();
+    // remove punctuation
+    void removePunctuation();
     // remove protocol prefix (e.g. http://)
     void removePTP();
     // get hostname from string as url
