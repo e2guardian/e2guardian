@@ -803,6 +803,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         int g = cm.result.toInteger();
                         if (g > 0 && g <= o.numfg) {
                             cm.filtergroup = --g;
+                            cm.authrec->group_source = i->list_name;
                             action_return = true;
                         }
                     };

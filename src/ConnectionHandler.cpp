@@ -1,4 +1,3 @@
-//: http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 // INCLUDES
@@ -65,7 +64,6 @@ extern thread_local std::string thread_id;
 
 ConnectionHandler::ConnectionHandler()
         : clienthost(NULL) {
-    //ch_isiphost.comp(",*[a-z|A-Z].*");
 
     // initialise SBauth structure
     SBauth.filter_group = 0;
@@ -629,16 +627,19 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
 
     switch (lc_type) {
         case CT_PROXY:
+            SBauth.is_proxy = true;
             rc = handleConnection(peerconn, ip, false, proxysock, dystat);
             break;
 
 #ifdef __SSLMITM
         case  CT_THTTPS:
+            SBauth.is_transparent = true;
             rc = handleTHTTPSConnection(peerconn, ip, proxysock, dystat);
             break;
 #endif
 
         case CT_ICAP:
+            SBauth.is_icap = true;
             rc = handleICAPConnection(peerconn, ip, proxysock, dystat);
             break;
 
@@ -764,7 +765,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             std::cerr << thread_id << " firsttime =" << firsttime << "ismitm =" << ismitm << " clientuser =" << clientuser << " group = " << filtergroup << std::endl;
 #endif
             ldl = o.currentLists();
-            NaughtyFilter checkme(header, docheader);
+            NaughtyFilter checkme(header, docheader, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
             docbody.setTimeout(o.exchange_timeout);
@@ -1028,11 +1029,14 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 bool only_ip_auth;
                 if (header.isProxyRequest) {
                     filtergroup = o.default_fg;
+                    SBauth.is_proxy = true;
                     only_ip_auth = false;
                 } else {
                     filtergroup = o.default_trans_fg;
+                    SBauth.is_transparent = true;
                     only_ip_auth = true;
                 }
+                SBauth.group_source = "def";
 #ifdef DGDEBUG
                 std::cerr << thread_id << "isProxyRequest is " << header.isProxyRequest << " only_ip_auth is " << only_ip_auth << " needs proxy for auth plugin is " << o.auth_needs_proxy_in_plugin << std::endl;
 #endif
@@ -1587,6 +1591,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             String user;
             if (getdnstxt(from, user)) {
                 who = who + ":" + user;
+                SBauth.user_name = user;
+                SBauth.user_source = "dnslog";
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
@@ -1600,6 +1606,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             l_from = "0.0.0.0";
             l_clienthost = "";
         }
+
+        // populate flags field
+        String flags = cm.getFlags();
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Building raw log data string... ";
@@ -1629,6 +1638,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
         data += l_clienthost + cr;
+
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
@@ -1637,6 +1647,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += postdata.str().c_str() + cr;
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
+        data += flags + cr;
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -...built" << std::endl;
@@ -1997,6 +2008,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         //String fullurl = header->getLogUrl(true);
                         String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
+                        String flags = checkme->getFlags();
                         ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
@@ -2008,7 +2020,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                                                                               clientuser, clientip,
                                                                                               &(checkme->clienthost), filtergroup,
                                                                                               ldl->fg[filtergroup]->name,
-                                                                                              hashed, localip);
+                                                                                              hashed, localip, flags );
                     }
                 }
             }
@@ -2932,12 +2944,12 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 }
 
                 if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
-                    rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user);
+                    rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
                 } else {
                     rc = DGAUTH_NOMATCH;
                 }
             } else {
-                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user);
+                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
             }
 
             if (rc == DGAUTH_NOMATCH) {
@@ -3679,7 +3691,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             ldl = o.currentLists();
             icaphead.ISTag = ldl->ISTag();
 
-            NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse);
+            NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
             docbody.setTimeout(o.exchange_timeout);
@@ -3780,7 +3792,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 std::cerr << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
             }
 #endif
-            // Check service option REQMOD, RESMOD, OPTIONS and call appropreate function(s)
+            // Check service option REQMOD, RESMOD, OPTIONS and call apropreate function(s)
             //
             if (icaphead.service_reqmod && icaphead.icap_reqmod_service) {
 #ifndef NEWDEBUG_OFF
@@ -3958,18 +3970,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         return 0;
     }
 
-    // do total block list checking here - now done in pre-auth story
-#ifdef NOTDEF
-    if (o.use_total_block_list && o.inTotalBlockList(checkme.urld)) {
-        res_hdr = "HTTP/1.1 200 OK\n";
-        o.banned_image.display_hb(res_hdr, res_body);
-        icaphead.errorResponse(peerconn, res_hdr, res_body);
-        if (icaphead.req_body_flag) {
-            peerconn.drainChunk(peerconn.getTimeout());   // drains body
-        }
-        return 0;
-    }
-#endif
 
     //
     //
@@ -3978,8 +3978,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
-    filtergroup = o.default_icap_fg;
-#ifdef DGBEBUG
+#ifdef DGDEBUG
     std::cerr << thread_id << "filtergroup set to ICAP default " << filtergroup << " " << std::endl;
 #endif
     clientuser = icaphead.username;
@@ -3991,6 +3990,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     int rc = DGAUTH_NOUSER;
     if (clientuser != "") {
+        SBauth.user_name = clientuser;
+        SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
         if (rc != DGAUTH_OK)
         {};

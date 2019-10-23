@@ -684,7 +684,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
     std::string cr("\n");
 
     std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
-    std::string stype, postdata;
+    std::string stype, postdata, flags;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
     long tv_sec = 0, tv_usec = 0;
@@ -704,9 +704,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
         }
     }
 
-    // Get server name - only needed for format 5
+    // Get server name - only needed for formats 5 & 7
     String server("");
-    if (o.log_file_format == 5) {
+    if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
         char sysname[256];
         int r;
         r = gethostname(sysname, 256);
@@ -853,6 +853,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                     break;
                 case 28:
                     headeradded = atoi(logline.c_str());
+                    break;
+                case 29:
+                    flags = s;
                     error = false;
                     break;
             }
@@ -1044,6 +1047,8 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                 break;
             case 5:
             case 6:
+            case 7:
+            case 8:
             default:
                 std::string duration;
                 long durationsecs, durationusecs;
@@ -1073,6 +1078,10 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                             + cat + "\t"
                             + ldl->fg[filtergroup]->name + "\t"
                             + stringgroup;
+        }
+        if (o.log_file_format > 6) {
+            builtline += "\t";
+            builtline += flags;
         }
 
         if (!logsyslog)

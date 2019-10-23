@@ -66,6 +66,14 @@ NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response)
     reset();
 }
 
+NaughtyFilter::NaughtyFilter(HTTPHeader &request, HTTPHeader &response, auth_rec &authrecin)
+{
+    request_header = &request;
+    response_header = &response;
+    authrec = &authrecin;
+    ch_isiphost.comp(",*[a-z|A-Z].*");
+    reset();
+}
 void NaughtyFilter::setURL(bool set_ismitm) {
     // do all of this normalisation etc just the once at the start.
     url = request_header->getUrl(false, false);
@@ -1062,4 +1070,31 @@ bool NaughtyFilter::isIPHostnameStrip(String url)
     else
         return true;
 //    return ldl->fg[0]->isIPHostname(url);
+}
+
+String NaughtyFilter::getFlags() {
+    String flags = listen_port;
+    flags += ":";
+    if (!(authrec == nullptr)) {
+        if (authrec->is_transparent)
+            flags = "T";
+        else if (authrec->is_icap)
+            flags += "I";
+        else
+            flags += "P";
+
+        if (ismitm)
+            flags += "M";
+        else if (isconnect)
+            flags += "S";
+        else if (!authrec->is_icap)
+            flags += "H";
+
+        flags += ":";
+
+        flags += authrec->user_source;
+        flags += ":";
+        flags += authrec->group_source;
+    }
+    return flags;
 }

@@ -51,7 +51,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     RegExp re;
     // compile regexp for matching supported placeholders
     // allow optional custom placeholder string
-    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-");
+    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-");
     RegResult Rre;
     unsigned int offset;
     String result;
@@ -107,7 +107,7 @@ void makeURLSafe(String &url)
 }
 
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
-                           std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip) {
+                           std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip, String &extflags) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "Displaying TEMPLATE" << std::endl;
 #endif
@@ -163,14 +163,6 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             line = *ip;
         } else if (line == "-HOST-") {
             if (host == NULL) {
-//#ifdef DGDEBUG
-                //std::cerr << thread_id << "-HOST- placeholder encountered but hostname currently unknown; lookup forced." << std::endl;
-//#endif
-                //std::deque<String> *names = ipToHostname(ip->c_str());
-                //if (names->size() > 0) {
-                    //*host = names->front();
-                //}
-                //delete names;
                 line = "";
             } else {
                 line = *host;
@@ -199,6 +191,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             } else {
                 line = "";
             }
+        } else if (line == "-EXTFLAGS-") {
+	        line = extflags;
         } else {
             // if this line wasn't a placeholder, and neither is the
             // next line, then output a newline, thus preserving line breaks
@@ -218,6 +212,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     ebody += "\n";
 }
 
+#ifdef NOTDEF
 // fill in placeholders with the given information and send the resulting page to the client
 // only useful if you used the default set of placeholders
     void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
@@ -229,3 +224,4 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
                                user, ip, host, filtergroup, grpname, hashed, localip);
     s->writeString(ebody.toCharArray());
 }
+#endif

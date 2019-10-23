@@ -64,7 +64,7 @@ String AuthPlugin::getPluginName()
 
 // determine what filter group the given username is in
 // return -1 when user not found
-int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm)
+int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm )
 {
     if (user.length() < 1 || user == "-") {
         return DGAUTH_NOMATCH;
