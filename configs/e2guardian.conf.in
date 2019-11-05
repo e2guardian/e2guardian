@@ -75,6 +75,9 @@ logexceptionhits = 2
 # Protex format type 6 Same format as above but system name field is blank
 # used in stand-alone systems.
 # 6 = Protex format with server field blanked
+##NEWIN V5.4
+# 7 = Same as 5, but with EXTFLAGS added
+# 8 = Same as 6, but with EXTFLAGS added
 
 logfileformat = 6 
 
@@ -157,7 +160,8 @@ filterip =
 #         
 checkip = 127.0.0.1
 
-# the ports that e2guardian listens to.  Specify one line per filterip
+# The ports that e2guardian listens to for proxy traffic.
+# Specify one line per filterip
 # line.  If both mapportstoips and mapauthtoports are set to 'on'
 # you can specify different authentication mechanisms per port but
 # only if the mechanisms can co-exist (e.g. basic/proxy auth can't)
@@ -173,6 +177,8 @@ mapportstoips = off
 
 #port for transparent https
 #if defined enables tranparent https
+#NOTE: To make work firewall will need to redirect tcp port 443 on routed 
+# packets to this port
 transparenthttpsport = 8443
 
 #port for ICAP
@@ -224,7 +230,7 @@ pcontimeout = 55
 # setups and check it against the domain pulled from the HTTP headers.
 #
 # Be aware that when visiting sites which use a certain type of round-robin
-# DNS for load balancing, DG may mark requests as invalid unless DG gets
+# DNS for load balancing, E2G may mark requests as invalid unless E2G gets
 # exactly the same answers to its DNS requests as clients.  The chances of
 # this happening can be increased if all clients and servers on the same LAN
 # make use of a local, caching DNS server instead of using upstream DNS
@@ -232,6 +238,7 @@ pcontimeout = 55
 #
 # See http://www.kb.cert.org/vuls/id/435052
 # on (default) | off
+# NOTE: Only works on Linux platforms
 @ORIGIPSUPPORT@originalip = off
 
 # Banned image replacement
@@ -256,14 +263,15 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 # to a group.
 filtergroups = 1
 
+##NEWIN V5.4 - filtergrouplist replaced with maplist
 #filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
 maplist = 'name=defaultusermap, path=@DGCONFDIR@/lists/filtergroupslist'
 
-# default filtergroup for standard (explicit) mode
+# default filtergroup for standard (explicit proxy) mode
 # optional defaults to 1
 #defaultfiltergroup = 1;
 
-# default filtergroup for transparent proxy mode
+# default filtergroup for transparent proxy mode (http and thttps)
 # optional defaults to 1
 #defaulttransparentfiltergroup = 1;
 
@@ -273,7 +281,7 @@ maplist = 'name=defaultusermap, path=@DGCONFDIR@/lists/filtergroupslist'
 
 # If on it a user without group is considered like unauthenfied
 # E2guardian tries the next plugin
-# If off the user is connected with group1
+# If off the user is connected with defaultgroup
 # Defaults to off
 # authrequiresuserandgroup = off
 
@@ -527,6 +535,7 @@ contentscannertimeout = 60
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
 #
+##NEWIN V5.4
 # Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
 
 # If you do not use multiple filter groups, you need not specify this option.

@@ -13,6 +13,7 @@
 #include "HTTPHeader.hpp"
 //#include "FOptionContainer.hpp"
 #include "UrlRec.hpp"
+#include "Auth.hpp"
 
 class FOptionContainer;
 
@@ -39,6 +40,8 @@ class NaughtyFilter
     int orig_port = 0;     // used in transparent https mode
 
     int listen_port = 0;    // listening port
+
+    struct auth_rec *authrec = nullptr;
 
 
     // return true or false?
@@ -164,6 +167,7 @@ class NaughtyFilter
 
     NaughtyFilter();
     NaughtyFilter(HTTPHeader &request, HTTPHeader &response);
+    NaughtyFilter(HTTPHeader &request, HTTPHeader &response, auth_rec &authrecin);
     void reset();
 
     void setURL(bool set_ismitm = false);
@@ -171,6 +175,8 @@ class NaughtyFilter
 
     void checkme(const char *rawbody, off_t rawbodylen, const String *url, const String *domain,
         FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms = false);
+
+    String getFlags();
 
     // highest positive (or lowest negative) weighting out of
     // both phrase filtering passes (smart/raw)

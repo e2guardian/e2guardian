@@ -82,7 +82,7 @@ class ipinstance : public AuthPlugin
         client_ip_based = true;
     };
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec);
     //int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
@@ -147,7 +147,7 @@ int ipinstance::init(void *args)
 // IP-based filter group determination
 // never actually return NOUSER from this, because we don't actually look in the filtergroupslist.
 // NOUSER stops ConnectionHandler from querying subsequent plugins.
-int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
+int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec)
 {
     // we don't get usernames out of this plugin, just a filter group
     // for now, use the IP as the username
@@ -181,6 +181,8 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
         if (string.length() == 0)
     	    string = peercon.getPeerIP();
     }
+    authrec.user_name = string;
+    authrec.user_source = "ip";;
     return DGAUTH_OK;
 }
 

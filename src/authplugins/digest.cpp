@@ -31,7 +31,7 @@ class digestinstance : public AuthPlugin
         needs_proxy_query = true;
         client_ip_based = false;
     };
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec);
     int init(void *args);
 };
 
@@ -47,7 +47,7 @@ AuthPlugin *digestcreate(ConfigVar &definition)
 // end of Class factory
 
 // proxy auth header username extraction
-int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
+int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec)
 {
     // don't match for non-digest auth types
     String t = h.getAuthType();
@@ -61,6 +61,8 @@ int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
         temp = temp.after("username=\"");
         temp = temp.before("\"");
         string = temp;
+        authrec.user_name = string;
+        authrec.user_source = "digest";
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;

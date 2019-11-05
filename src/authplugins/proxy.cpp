@@ -27,7 +27,7 @@ class proxyinstance : public AuthPlugin
         needs_proxy_query = true;
         client_ip_based = false;
     };
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec);
 };
 
 // IMPLEMENTATION
@@ -42,7 +42,7 @@ AuthPlugin *proxycreate(ConfigVar &definition)
 // end of Class factory
 
 // proxy auth header username extraction
-int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
+int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec)
 {
     // don't match for non-basic auth types
     String t(h.getAuthType());
@@ -53,6 +53,8 @@ int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     string = h.getAuthData();
     if (string.length() > 0) {
         string.resize(string.find_first_of(':'));
+        authrec.user_name = string;
+        authrec.user_source = "proxy";;
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;

@@ -32,15 +32,17 @@ class HTMLTemplate
     // optionally, provide your own set of placeholders
     bool readTemplateFile(const char *filename, const char *placeholders = NULL);
 
+#ifdef NOTDEF
     // fill in the template with the given info and send it to the client over the given socket
     // only useful if you used the default set of placeholders
     void display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
                  std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname,
                  String &hashed);
+#endif
 
     void display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                     std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname,
-                    String &hashed, String &localip);
+                    String &hashed, String &localip, String &extflags);
 
 private:
     // add a string to the list

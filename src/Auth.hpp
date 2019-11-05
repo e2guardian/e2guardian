@@ -41,11 +41,16 @@
 
 // any < 0 return code signifies error
 
-// auth_rec structure for use by storyboarding
+// auth_rec structure for use by storyboarding/extended logging
 struct auth_rec {
     String user_name;
     bool is_authed;
     int filter_group;
+    bool is_proxy = false;
+    bool is_transparent = false;
+    bool is_icap = false;
+    String user_source;
+    String group_source;
 };
 
 // DECLARATIONS
@@ -64,7 +69,7 @@ class AuthPlugin : public Plugin
     // REDIRECT - redirect user to URL in string
     // NOMATCH - did not find the necessary info in the request (query remaining plugins)
     // any < 0 - error
-    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user) = 0;
+    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec) = 0;
 
     // determine what filter group the given username is in
     // queries the standard filtergroupslist

@@ -83,7 +83,7 @@ class ntlminstance : public AuthPlugin
             transparent = false;
     };
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec);
 
     int init(void *args);
     int quit();
@@ -155,7 +155,7 @@ AuthPlugin *ntlmcreate(ConfigVar &definition)
 // end of Class factory
 
 // ntlm auth header username extraction - also lets connection persist long enough to complete NTLM negotiation
-int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user)
+int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec)
 {
     FDTunnel fdt;
     Socket *upstreamcon;
@@ -344,6 +344,8 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
                     string = username;
                 }
+		    authrec.user_name = string;
+		    authrec.user_source = "ntlm";
 // Ugly but needed with NTLM ...
                 if (!transparent){
                     if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){

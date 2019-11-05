@@ -1853,6 +1853,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
         // (if disabled, just output '1' or '2' to show that the CGI should generate a filter/virus bypass hash;
         // otherwise, real hashes get put into substitution variables/appended to the ban CGI redirect URL)
         bool dohash = false;
+        String flags = checkme->getFlags();
         if (reporting_level > 0) {
             // generate a filter bypass hash
             if (!wasinfected && (checkme->isbypassallowed) && !ispostblock) {
@@ -1886,6 +1887,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
         if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || (*header).requestType().startsWith("CONNECT"))
 #endif
         {
+
             // if reporting_level = 1 or 2 and headersent then we can't
             // send a redirect so we have to display the template instead
 
@@ -2008,7 +2010,6 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         //String fullurl = header->getLogUrl(true);
                         String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
-                        String flags = checkme->getFlags();
                         ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
@@ -2107,6 +2108,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         eheader += checkh.toCharArray();
                     }
                 }
+                eheader += "::EXTFLAGS==";
+                eheader += flags.toCharArray();
                 eheader += "::REASON==";
             } else {
                 eheader += "?DENIEDURL=";
@@ -2141,6 +2144,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         eheader += checkh.toCharArray();
                     }
                 }
+                eheader += "&EXTFLAGS=";
+                eheader += flags.toCharArray();
                 eheader += "&REASON=";
             }
             if (reporting_level == 1) {
