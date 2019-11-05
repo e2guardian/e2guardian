@@ -1610,7 +1610,7 @@ int fc_controlit()   //
     sigaddset(&signal_set, SIGUSR1);
 
 #ifdef __OpenBSD__
-    OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
+    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
     // set up timer for main loop
     struct itimerval timeout;
     timeout.it_interval.tv_sec = 0;
