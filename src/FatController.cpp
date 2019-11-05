@@ -1603,24 +1603,26 @@ int fc_controlit()   //
 
 
     sigset_t signal_set;
-    //pthread_t signal_thread_id;
-    // set up timer for main loo
-    //timer_t timerid;
-    //timer_create(CLOCK_REALTIME,NULL, &timerid);
-    //struct itimerspec timeout;
-    //timeout.it_interval.tv_sec = 0;
-    //timeout.it_interval.tv_nsec = (long) 0;
-    struct itimerval timeout;
-    timeout.it_interval.tv_sec = 0;
-    timeout.it_interval.tv_usec = (suseconds_t) 0;
-    int stat;
     sigemptyset(&signal_set);
-    //sigfillset(&signal_set);
     sigaddset(&signal_set, SIGHUP);
     sigaddset(&signal_set, SIGPIPE);
     sigaddset(&signal_set, SIGTERM);
     sigaddset(&signal_set, SIGUSR1);
+
+#ifdef __OpenBSD__
+    OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
+    // set up timer for main loop
+    struct itimerval timeout;
+    timeout.it_interval.tv_sec = 0;
+    timeout.it_interval.tv_usec = (suseconds_t) 0;
+    timeout.it_value.tv_usec = (suseconds_t) 0;
     sigaddset(&signal_set, SIGALRM);
+#else
+    struct timespec timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = (long) 0;
+#endif
+    int stat;
     stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
     if (stat != 0) {
         syslog(LOG_ERR, "%sError setting sigmask", thread_id.c_str());
@@ -1712,9 +1714,9 @@ int fc_controlit()   //
             gentlereload = false;
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
         }
+#ifdef __OpenBSD__
+    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
         timeout.it_value.tv_sec = 5;
-        //timeout.it_value.tv_nsec = (long) 0;
-        //timer_settime(timerid ,0 , &timeout, NULL);
         setitimer(ITIMER_REAL, &timeout, NULL);
         int rsig;
         rc = sigwait(&signal_set, &rsig);
@@ -1743,6 +1745,30 @@ int fc_controlit()   //
                 }
             }
         }
+#else
+	// other posix compliant platforms
+        timeout.tv_sec = 5;
+        rc = sigtimedwait(&signal_set, NULL, &timeout);
+        if (rc < 0) {
+            if (errno != EAGAIN) {
+                syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
+            }
+        } else {
+            if (rc == SIGUSR1)
+                gentlereload = true;
+            if (rc == SIGTERM)
+                ttg = true;
+            if (rc == SIGHUP)
+                gentlereload = true;
+#ifdef DGDEBUG
+            std::cerr << "signal:" << rc << std::endl;
+#endif
+            if (o.logconerror) {
+                syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+            }
+        }
+#endif   // end __OpenBSD__ else
+
         int q_size = o.http_worker_Q.size();
 #ifdef DGDEBUG
         std::cerr << thread_id << "busychildren:" << dystat->busychildren << " worker Q size:" << q_size << std::endl;
