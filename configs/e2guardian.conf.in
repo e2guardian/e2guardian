@@ -122,8 +122,7 @@ logfileformat = 6
 # Q sizes and other useful information is written to this file.
 # Format is similar to sar.  See notes/dstats_format for more details.
 # Default is not to write stats.
-#dstatlocation = '@DGLOGLOCATION@/dstats.log'
-
+dstatlocation = '@DGLOGLOCATION@/dstats.log'
 # Interval in seconds between stats output
 # Default 300 (= 5 mins)
 # Minimum 10 
