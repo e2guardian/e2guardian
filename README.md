@@ -1,12 +1,12 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the v5 production version - v5.3.3 
+This is the v5 pre-release version - v5.4.0 
 
-Note that large sections of the code has been re-written and there are
-significant changes to the configuration files in this release.
+Note that there are significant changes to the configuration files in this 
+release.
 
-Note: Configuration files in this version are not backward compatable
-with v4 configuration files.
+Note: Some configuration files in this version are not backward compatable
+with v4 or v5.3 configuration files.
 
 Please read notes/NEWIN_v5 before installing.
 
@@ -16,10 +16,6 @@ e2guardian is a content filtering proxy that can work in
 explicit and transparent proxy mode or as a ICAP server mode.
 More information can be found in the "notes" subdirectory of the distribution, 
 and the comments in the configuration and list files themselves.
-
-e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the 
-maintainers fully acknowledge the work carried out by and the copyright 
-of Daniel Baron and other contributors to the Dansguardian project.
 
 Read the INSTALL for installation instructions.
 
@@ -44,7 +40,7 @@ Codacy Badge:
 
 ## License
 
-Copyright 2018, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2019, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
