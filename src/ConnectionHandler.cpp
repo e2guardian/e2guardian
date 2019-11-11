@@ -2186,7 +2186,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
                                    int filtergroup,
                                    bool ispostblock, int headersent, bool wasinfected, bool scanerror, bool forceshow) {
     String eheader, ebody;
-    if (genDenyAccess(*peerconn, eheader, ebody, header, docheader, url, checkme, clientuser, clientip, filtergroup,
+    if (genDenyAccess(*peerconn, eheader, ebody, header, docheader, &(checkme->logurl), checkme, clientuser, clientip, filtergroup,
                       ispostblock, headersent, wasinfected, scanerror, forceshow)) {
         peerconn->writeString(eheader.toCharArray());
         if (ebody.length() > 0)
@@ -4196,7 +4196,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     if (!done && checkme.isItNaughty) {
         if (genDenyAccess(peerconn, res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse,
-                          &checkme.url, &checkme, &clientuser, &clientip,
+                          &checkme.logurl, &checkme, &clientuser, &clientip,
                           filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                           checkme.scanerror)) {
             icaphead.errorResponse(peerconn, res_hdr, res_body);
@@ -4424,7 +4424,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     if(checkme.isItNaughty) {
-        if(genDenyAccess(peerconn,res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse, &checkme.url, &checkme, &clientuser, &ip,
+        if(genDenyAccess(peerconn,res_hdr, res_body, &icaphead.HTTPrequest, &icaphead.HTTPresponse, &checkme.logurl, &checkme, &clientuser, &ip,
                 filtergroup, checkme.ispostblock,checkme.headersent, checkme.wasinfected, checkme.scanerror))
         {
             icaphead.errorResponse(peerconn, res_hdr, res_body);
