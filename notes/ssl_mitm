@@ -66,3 +66,7 @@ To set up MITM:
    Set sslmitm = on in e2guardianfx.conf
 
    Load my_rootCA certificate on each browser.
+
+   On the browser Set both http proxy and https proxy to the same port 
+   defined in the option filterports, if you use e2guardian as direct proxy. 
+   The transparenthttpsport is only for transparent https proxying.
