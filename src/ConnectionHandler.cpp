@@ -3014,13 +3014,17 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Auth plugin did not find a match; querying remaining plugins" << std::endl;
 #endif
+                clientuser = "";
                 continue;
-            } else if (rc == DGAUTH_NOUSER) {
+            } else if (rc == DGAUTH_NOGROUP) {
+                if (o.auth_requires_user_and_group || !is_real_user) {
+                    clientuser = "";
+                    SBauth.user_source = "";
+                    continue;
+                }
 #ifdef DGDEBUG
                 std::cerr << thread_id << "Auth plugin found username \"" << clientuser << "\" but no associated group; not querying remaining plugins" << std::endl;
 #endif
-                if (o.auth_requires_user_and_group)
-                    continue;
                 //filtergroup = 0; // default now set before call to doAuth
                 authed = true;
                 break;

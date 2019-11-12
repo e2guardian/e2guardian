@@ -1,7 +1,4 @@
-// IP (range, port) auth plugin
-
-//Please refer to http://dansguardian.org/?page=copyright2
-//for the license for this code.
+// listening PORT auth plugin
 
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -107,6 +104,7 @@ int portinstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_PORT;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)
@@ -127,7 +125,7 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     string = s;
     authrec.user_name = string;
     authrec.user_source = "port";
-
+    is_real_user = false;
     return DGAUTH_OK;
 }
 

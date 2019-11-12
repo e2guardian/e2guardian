@@ -49,6 +49,7 @@ AuthPlugin::AuthPlugin(ConfigVar &definition)
 
 int AuthPlugin::init(void *args)
 {
+    read_def_fg();
     return 0;
 }
 
@@ -80,6 +81,12 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
  //   char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
      cm.user = user;
      if (!story.runFunctEntry(story_entry,cm)) {
+         int t = get_default(!cm.request_header->isProxyRequest);
+         if (t > 0) {
+             fg = --t;
+             cm.authrec->group_source = "pdef";
+             return DGAUTH_OK;
+         }
 #ifdef DGDEBUG
              std::cerr << "User not in filter groups list for: " << pluginName.c_str() << std::endl;
 #endif
@@ -181,4 +188,34 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     }
     syslog(LOG_ERR, "%sUnable to load plugin %s", thread_id.c_str(), pluginConfigPath);
     return NULL;
+}
+
+int AuthPlugin::get_default(bool is_transparent) {
+    if (is_transparent && tran_default_fg > 0) {
+       // syslog(LOG_ERR, "%spa default set as %d", thread_id.c_str(), tran_default_fg);
+        return tran_default_fg;
+    }
+    else if (default_fg > 0) {
+        //syslog(LOG_ERR, "%spa default set as %d", thread_id.c_str(), default_fg);
+        return default_fg;
+    }
+    return 0;
+}
+
+void AuthPlugin::read_def_fg() {
+   // syslog(LOG_ERR, "%sloading def_fg plugin ....", thread_id.c_str());
+    String t = cv["defaultfiltergroup"];
+    //syslog(LOG_ERR, "%sdef_fg string is %s", thread_id.c_str(), t.c_str());
+    int i = t.toInteger();
+    //syslog(LOG_ERR, "%sdef_fg int is %d", thread_id.c_str(), i);
+    if(i > 0 && i <= o.filter_groups) {
+        default_fg = i;
+        //syslog(LOG_ERR, "%sdeffg loaded as %d", thread_id.c_str(), default_fg);
+    }
+    t = cv["defaulttransparentfiltergroup"];
+    i = t.toInteger();
+    if(i > 0 && i <= o.filter_groups) {
+        tran_default_fg = i;
+        //syslog(LOG_ERR, "%strandeffg loaded as %d", thread_id.c_str(), tran_default_fg);
+    }
 }

@@ -133,7 +133,8 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     if (temp.length() > 0) {
         string = temp.toCharArray();
         authrec.user_name = string;
-        authrec.user_source = "ident";;
+        authrec.user_source = "ident";
+	is_real_user = true;
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
@@ -147,6 +148,7 @@ int identinstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_IDENT;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)

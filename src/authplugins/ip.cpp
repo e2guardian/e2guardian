@@ -135,6 +135,7 @@ int ipinstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_IP;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)
@@ -183,6 +184,7 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     }
     authrec.user_name = string;
     authrec.user_source = "ip";;
+    is_real_user = false;
     return DGAUTH_OK;
 }
 

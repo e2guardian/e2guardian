@@ -62,6 +62,7 @@ int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
     if (string.length() > 0) {
         authrec.user_name = string;
         authrec.user_source = "header";
+	is_real_user = false;
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
@@ -75,6 +76,7 @@ int headerinstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_HEADER;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)

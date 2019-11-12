@@ -63,6 +63,7 @@ int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
         string = temp;
         authrec.user_name = string;
         authrec.user_source = "digest";
+	is_real_user = true;
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
@@ -76,6 +77,7 @@ int digestinstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_DIGEST_PROXY;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)

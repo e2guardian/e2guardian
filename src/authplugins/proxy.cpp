@@ -10,9 +10,12 @@
 #endif
 
 #include "../Auth.hpp"
+#include "../OptionContainer.hpp"
 
 #include <syslog.h>
 
+extern bool is_daemonised;
+extern OptionContainer o;
 extern thread_local std::string thread_id;
 
 // DECLARATIONS
@@ -28,6 +31,7 @@ class proxyinstance : public AuthPlugin
         client_ip_based = false;
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec);
+    int init(void *args);
 };
 
 // IMPLEMENTATION
@@ -54,8 +58,28 @@ int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     if (string.length() > 0) {
         string.resize(string.find_first_of(':'));
         authrec.user_name = string;
-        authrec.user_source = "proxy";;
+        authrec.user_source = "proxy";
+	is_real_user = true;
         return DGAUTH_OK;
     }
     return DGAUTH_NOMATCH;
 }
+
+int proxyinstance::init(void *args)
+{
+    OptionContainer::auth_entry sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYA_AUTH_BASIC_PROXY;
+        story_entry = sen.entry_id;
+        o.auth_entry_dq.push_back(sen);
+        read_def_fg();
+        return 0;
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No story_function defined in proxy auth plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in proxy auth plugin config");
+        return -1;
+    }
+}
+

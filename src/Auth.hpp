@@ -83,6 +83,13 @@ class AuthPlugin : public Plugin
     // is this a connection-based auth type, i.e. assume all subsequent requests on the pconn are from the same user?
     bool is_connection_based;
 
+
+    int default_fg = 0;
+    int tran_default_fg = 0;
+    int get_default(bool is_transparent);
+
+    void read_def_fg();
+
     // does this auth type rely on queries from the parent proxy (e.g. NTLM, basic auth)?
     bool needs_proxy_query;
     bool needs_proxy_access_in_plugin = false;

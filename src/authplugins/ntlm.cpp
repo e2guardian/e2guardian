@@ -346,6 +346,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 }
 		    authrec.user_name = string;
 		    authrec.user_source = "ntlm";
+		    is_real_user = true;
 // Ugly but needed with NTLM ...
                 if (!transparent){
                     if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
@@ -393,6 +394,7 @@ int ntlminstance::init(void *args)
         sen.entry_id = ENT_STORYA_AUTH_NTLM_PROXY;
         story_entry = sen.entry_id;
         o.auth_entry_dq.push_back(sen);
+	read_def_fg();
         return 0;
     } else {
         if (!is_daemonised)

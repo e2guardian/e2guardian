@@ -1,7 +1,5 @@
-// IP (range, subnet) auth plugin
+// DNS auth plugin
 
-//Please refer to http://dansguardian.org/?page=copyright2
-//for the license for this code.
 
 //  This program is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
