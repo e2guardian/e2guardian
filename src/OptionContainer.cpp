@@ -667,6 +667,11 @@ bool OptionContainer::read(std::string& filename, int type)
         } else {
             log_user_agent = false;
         }
+        if (findoptionS("usedashforblank") == "off") {
+            use_dash_for_blanks = false;
+        } else {
+            use_dash_for_blanks = true;
+        }
 
         logid_1.assign(findoptionS("logid1"));
         if (logid_1.empty())

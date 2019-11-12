@@ -81,7 +81,7 @@ class OptionContainer
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
-
+    bool use_dash_for_blanks = true;
     bool hex_decode_content = false;
     bool force_quick_search = false;
     bool map_auth_to_ports = false;

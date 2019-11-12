@@ -636,6 +636,12 @@ logadblocks = off
 # on|off (defaults to off)
 loguseragent = off
 
+# use dash ('-') instead of blank fields in log
+# This is essential for space delimited log formats, and makes all log types easier to read
+# But can be turned off if this causes a problem with log analysis
+# on|off (defaults to on)
+usedashforblank = on
+
 # Daemon runas user and group
 # This is the user that e2guardian runs as.  Normally the user/group nobody.
 # Uncomment to use.  Defaults to the user set at compile time.

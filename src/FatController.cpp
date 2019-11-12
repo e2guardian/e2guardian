@@ -734,6 +734,13 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
     headeradd_word = "*" + headeradd_word + "* ";
     std::string neterr_word = o.language_list.getTranslation(59);
     neterr_word = "*" + neterr_word + "* ";
+    std::string blank_str;
+
+    if(o.use_dash_for_blanks)
+        blank_str = "-";
+    else
+        blank_str = "";
+
 
     while (!logger_ttg) { // loop, essentially, for ever
         std::string loglines;
@@ -760,12 +767,16 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
         while (std::getline(iss, logline)) {
             // Loop around reading in data, because we might have huge URLs
             std::string s;
-            if (logline == "") {
+
+            if (o.use_dash_for_blanks && logline == "") {
                 s = "-";
+            } else if (!o.use_dash_for_blanks && logline == "-") {
+                s = "";
             } else {
                 s = logline;
             }
-            switch (itemcount) {
+
+        switch (itemcount) {
                 case 0:
                     isexception = atoi(logline.c_str());
                     break;
@@ -972,7 +983,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
 		    who = "";
 		    from = "0.0.0.0";
 		    clienthost.clear();
-		} else if ((clienthost == "-") || (clienthost == "DNSERROR")){
+		} else if ((clienthost == blank_str) || (clienthost == "DNSERROR")){
 			clienthost = from;
 		}
 		
@@ -1068,10 +1079,10 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                             + stringcode + "\t"
                             + ssize + "\t"
                             + mimetype + "\t"
-                            + (o.log_user_agent ? useragent : "-") + "\t"
-                            + "-\t" // squid result code
+                            + (o.log_user_agent ? useragent : blank_str) + "\t"
+                            + blank_str + "\t" // squid result code
                             + duration + "\t"
-                            + "-\t" // squid peer code
+                            + blank_str + "\t" // squid peer code
                             + message_no + "\t" // dg message no
                             + what + "\t"
                             + sweight + "\t"
@@ -1123,9 +1134,9 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                             fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->avsubject.c_str());
                             fprintf(mail, "A virus was detected by e2guardian.\n\n");
                             fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
-                            if (who != "-")
+                            if (who != blank_str)
                                 fprintf(mail, "%-10s%s\n", "User:", who.c_str());
-                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
+                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str));
                             fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
                             // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
                             String swhat(what);
@@ -1178,11 +1189,11 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                 sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
                 vbody += vbody_temp;
 
-                if ((!byuser) && (who != "-")) {
+                if ((!byuser) && (who != blank_str)) {
                     sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
                     vbody += vbody_temp;
                 }
-                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : "-"));
+                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str));
                 vbody += vbody_temp;
                 sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
                 vbody += vbody_temp;
