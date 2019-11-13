@@ -1,41 +1,70 @@
-DISTCLEANFILES = Makefile.in
+DISTCLEANFILES = Makefile.in 
 
 DGDATADIR = $(DGCONFDIR)/lists/phraselists
+
+MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanese malay norwegian polish portuguese russian-1251 russian-koi8-r spanish swedish ukenglish 
+
+
+#WLISTS = README
+ 
+
+#install-data-local: 
+#	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+#		for l in $(WLISTS) ; do \
+#		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
+#		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+#	done
+
+
+#uninstall-local:
+#	for l in $(WLISTS) ; do \
+#		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+#	done
+
 PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
-		googlesearches gore illegaldrugs intolerance legaldrugs \
-		malware news nudism peer2peer personals pornography \
-		proxies sport violence warezhacking weapons webmail \
-		forums rta conspiracy domainsforsale idtheft safelabel \
-		travel upstreamfilter secretsocieties translation music
+		gore illegaldrugs intolerance \
+		nudism personals pornography \
+		proxies violence warezhacking weapons 
+		
 
 install-data-local: 
+	for lang in $(MYSUBDIRS); do \
 	for l in $(PHRASELISTS); do \
-		$(mkinstalldirs) $(DESTDIR)$(DGDATADIR)/$$l && \
-		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception* $(srcdir)/$$l/banned*; do \
+		if test -d $(srcdir)/$$lang/$$l ; then \
+		$(mkinstalldirs) $(DESTDIR)$(DGDATADIR)/$$lang/$$l && \
+		for f in $(srcdir)/$$lang/$$l/weighted* $(srcdir)/$$lang/$$l/exception* $(srcdir)/$$lang/$$l/banned*; do \
 		   if test -f $$f ; then \
-			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l"; \
-			$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l; \
+			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$lang/$$l"; \
+			$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$lang/$$l; \
 	           fi \
 		done \
-	done
+		fi \
+	done \
+	done 
 
 uninstall-local:
+	for lang in $(MYSUBDIRS); do \
 	for l in $(PHRASELISTS); do \
-		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception*; do \
-	        	rm -f $(DESTDIR)$(DGDATADIR)/$$l/`basename $$f`; \
+		for f in $(srcdir)/$$lang/$$l/weighted* $(srcdir)/$$lang/$$l/exception*; do \
+	        	rm -f $(DESTDIR)$(DGDATADIR)/$$lang/$$l/`basename $$f`; \
 		done \
+	done \
 	done
 
 dist-hook:
+	for lang in $(MYSUBDIRS); do \
 	for phrase in $(PHRASELISTS); do \
 	  if test "$$phrase" = .; then :; else \
-	    test -d $(distdir)/$$phrase \
-	    || mkdir $(distdir)/$$phrase \
+	    test -d $(distdir)/$$lang/$$phrase \
+	    || mkdir $(distdir)/$$lang/$$phrase \
 	    || exit 1; \
-	    for f in $(srcdir)/$$phrase/weighted* $(srcdir)/$$phrase/banned* $(srcdir)/$$phrase/exception*; do \
+	    for f in $(srcdir)/$$lang/$$phrase/weighted* $(srcdir)/$$lang/$$phrase/banned* $(srcdir)/$$lang/$$phrase/exception*; do \
 	      if test -f $$f ; then \
-	        cp -p $$f $(distdir)/$$phrase ;\
+	        cp -p $$f $(distdir)/$$lang/$$phrase ;\
 	      fi; \
 	    done; \
 	  fi; \
+	done \
 	done		
+
+
