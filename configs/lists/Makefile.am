@@ -4,7 +4,7 @@ DISTCLEANFILES = Makefile.in \
 
 DGDATADIR = $(DGCONFDIR)/lists
 
-SUBDIRS = phraselists . authplugins bannedrooms
+SUBDIRS = newphraselists phraselists . authplugins bannedrooms
 
 if NEED_CSLISTS
 SUBDIRS += contentscanners
@@ -24,6 +24,7 @@ bannediplist \
 bannedclientlist \
 bannedmimetypelist \
 bannedphraselist \
+newbannedphraselist \
 bannedregexpheaderlist \
 bannedregexpurllist \
 bannedregexpuseragentlist \
@@ -47,6 +48,7 @@ exceptioniplist \
 exceptionclientlist \
 exceptionmimetypelist \
 exceptionphraselist \
+newexceptionphraselist \
 exceptionregexpurllist \
 exceptionregexpuseragentlist \
 exceptionsiteiplist \
@@ -90,15 +92,19 @@ urlregexplist \
 ipnobypass \
 domainsnobypass \
 urlnobypass \
-weightedphraselist
+weightedphraselist \
+newweightedphraselist
  
 EXTRA_DIST = bannedphraselist.in \
+newbannedphraselist.in \
 bannedsitelist.in \
 bannedurllist.in \
 exceptionphraselist.in \
+newexceptionphraselist.in \
 domainsnobypass.in \
 urlnobypass.in \
-weightedphraselist.in
+weightedphraselist.in \
+newweightedphraselist.in
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
