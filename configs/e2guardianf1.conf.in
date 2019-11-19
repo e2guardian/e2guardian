@@ -26,6 +26,11 @@ storyboard = '@DGCONFDIR@/examplef1.story'
 bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
 weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
 exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
+## To use oldphraselists comment out last 3 lines and
+## uncomment the follwing 3 lines
+#bannedphraselist = '@DGCONFDIR@/lists/oldbannedphraselist'
+#weightedphraselist = '@DGCONFDIR@/lists/oldweightedphraselist'
+#exceptionphraselist = '@DGCONFDIR@/lists/oldexceptionphraselist'
 
 ### NOTE - New format for all other list definitions in v5.0 
 ###        see notes/V5_list_definition for details

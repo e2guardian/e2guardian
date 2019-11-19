@@ -1,0 +1,142 @@
+# E2GUARDIAN weightedphraselist INSTRUCTIONS FOR USE
+
+# New in v5.2 - per cent feature
+
+# If weighting is a % then that % of the naughtynesslimit is used as the weight
+# e.g.  
+# < slut ><10%>
+# - If naughtynesslimit is 200 will add 20 to the count against the word 'slut'
+#
+# This allows phrases to be used which will have the same effect in all
+# filtergroups
+
+#
+# Examples:
+#
+# <slut><10>			
+# - Adds 10 to the count against the string 'slut'.   ie. sluts, slut!, abslutxyz.
+#
+# < slut ><10>
+# - Adds 10 to the count against the word 'slut'.   ie. Sally is a slut that smells.
+#
+# <slut>,<horny><50>
+# - Adds 50 to the count when the strings 'slut' and 'horny' are found on the same page.
+#
+# <breast>,<medical><-30>
+# - Subtracts 30 from the count when 'breast' and 'medical' are on the one page.
+#
+# <education><-25>
+# - Subtracts 25 from the count when 'education' is on the page.
+#
+# See the bannedphraselist for more examples.
+#
+# Extra weighted-list files to include
+# .Include<@DGCONFDIR@/lists/oldphraselists/weightedphraselist.topic>
+#
+# Help by contributing customised lists and/or new keyword lists. 
+# Email: pornmastergeneral@e2guardian.org or phrasemaster@e2guardian.org
+#
+# NOTE: New lists are commented out as ALPHA or BETA depending on how much the 
+# lists have been tested.
+# ALPHA - Brand new and/or incomplete - little testing has been done
+# BETA - Relatively new - tested in several locations
+#
+
+#listcategory: "Weighted Phrases"
+
+#To enable several non-PICS self-labelling and self-rating systems.  
+#Enabled as a bannedsitelist by default.  Disable there before enabling as a phraselist.
+##.Include<@DGCONFDIR@/lists/oldphraselists/safelabel/weighted>
+
+#Good Phrases (to allow medical, education, news and other good sites)
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_news>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_danish>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_dutch>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_malay>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_polish>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_portuguese>
+.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/weighted_general_swedish>
+
+#Pornography
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted>
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_chinese> #ALPHA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_danish> #ALPHA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_dutch> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_french>
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_german>
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_italian>
+#.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_japanese> #ALPHA# #Disabled due to overblocking#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_malay> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_norwegian> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_polish>
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_portuguese>
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_russian> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_russian_utf8> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_spanish> #ALPHA#
+.Include<@DGCONFDIR@/lists/oldphraselists/pornography/weighted_swedish>
+.Include<@DGCONFDIR@/lists/oldphraselists/nudism/weighted>
+
+#Bad Words - swearing
+.Include<@DGCONFDIR@/lists/oldphraselists/badwords/weighted_dutch> 
+.Include<@DGCONFDIR@/lists/oldphraselists/badwords/weighted_french>
+.Include<@DGCONFDIR@/lists/oldphraselists/badwords/weighted_german> #ALPHA#
+.Include<@DGCONFDIR@/lists/oldphraselists/badwords/weighted_portuguese> #ALPHA#
+.Include<@DGCONFDIR@/lists/oldphraselists/badwords/weighted_spanish> #ALPHA#
+
+#Drugs
+#.Include<@DGCONFDIR@/lists/oldphraselists/drugadvocacy/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/illegaldrugs/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/illegaldrugs/weighted_portuguese>
+#.Include<@DGCONFDIR@/lists/oldphraselists/legaldrugs/weighted>
+
+#Violence and intolerance
+#.Include<@DGCONFDIR@/lists/oldphraselists/intolerance/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/intolerance/weighted_portuguese>
+#.Include<@DGCONFDIR@/lists/oldphraselists/gore/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/gore/weighted_portuguese>
+#.Include<@DGCONFDIR@/lists/oldphraselists/violence/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/violence/weighted_portuguese>
+#.Include<@DGCONFDIR@/lists/oldphraselists/weapons/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/weapons/weighted_portuguese>
+
+#Chat
+#.Include<@DGCONFDIR@/lists/oldphraselists/chat/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/chat/weighted_italian>
+
+#Webmail
+#.Include<@DGCONFDIR@/lists/oldphraselists/webmail/weighted>
+#Note that if you enable the webmail weighted list you should also disable 
+#the "exception_email" list in the exceptionphraselist file.
+
+#Forums
+#.Include<@DGCONFDIR@/lists/oldphraselists/forums/weighted> #BETA#
+
+#Gambling
+#.Include<@DGCONFDIR@/lists/oldphraselists/gambling/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/gambling/weighted_portuguese>
+
+#Productivity
+#.Include<@DGCONFDIR@/lists/oldphraselists/games/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/oldphraselists/news/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/oldphraselists/personals/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/personals/weighted_portuguese>
+#.Include<@DGCONFDIR@/lists/oldphraselists/sport/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/oldphraselists/travel/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/music/weighted>
+
+#System Management and Security
+#.Include<@DGCONFDIR@/lists/oldphraselists/domainsforsale/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/idtheft/weighted>
+.Include<@DGCONFDIR@/lists/oldphraselists/malware/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/oldphraselists/proxies/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/translation/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/upstreamfilter/weighted>
+.Include<@DGCONFDIR@/lists/oldphraselists/warezhacking/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/peer2peer/weighted>
+
+#Miscellaneous	
+#.Include<@DGCONFDIR@/lists/oldphraselists/conspiracy/weighted>
+#.Include<@DGCONFDIR@/lists/oldphraselists/secretsocieties/weighted>
+
+
