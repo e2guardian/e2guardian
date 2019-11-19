@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in
 
-DGDATADIR = $(DGCONFDIR)/lists/phraselists
+DGDATADIR = $(DGCONFDIR)/lists/oldphraselists
 PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
 		googlesearches gore illegaldrugs intolerance legaldrugs \
 		malware news nudism peer2peer personals pornography \
