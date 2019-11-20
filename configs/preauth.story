@@ -4,7 +4,7 @@ if(clientin,exceptionclient) return setexception
 if(urlin,authexception) setexception
 # allow authexceptions to go direct to avoid being blocked by any auth on squid
 if(returnset) setgodirect
-ifnot(connect) return
+ifnot(connect) return true
 if(sitein,nomitm) return setnomitm
 ifnot(useragentin,browser) unsetautomitm
 
