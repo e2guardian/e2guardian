@@ -1674,7 +1674,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         what += "_MITM";
     String how = rtype;
     off_t size = cm.docsize;
-    std::string *cat = &cm.whatIsNaughtyCategories;
+    std::string *cat = nullptr;  //&cm.whatIsNaughtyCategories;
     bool isnaughty = cm.isItNaughty;
     int naughtytype = cm.blocktype;
     bool isexception = cm.isexception;
@@ -1683,16 +1683,16 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
     bool cachehit = false;
     int code = 0;
     std::string mimetype = cm.mimetype;
-    bool wasinfected = cm.wasinfected;
-    bool wasscanned = cm.wasscanned;
-    int naughtiness = cm.naughtiness;
+    bool wasinfected = false;  //cm.wasinfected;
+    bool wasscanned = false;  //cm.wasscanned;
+    int naughtiness = 0;  //cm.naughtiness;
     int filtergroup = cm.filtergroup;
     HTTPHeader *reqheader = cm.request_header;
     int message_no = cm.message_no;
-    bool contentmodified = cm.contentmodified;
-    bool urlmodified = cm.urlmodified;
-    bool headermodified = cm.headermodified;
-    bool headeradded = cm.headeradded;
+    bool contentmodified = false; //cm.contentmodified;
+    bool urlmodified = false; //cm.urlmodified;
+    bool headermodified = false; //cm.headermodified;
+    bool headeradded = false; //cm.headeradded;
 
     std::string data, cr("\n");
 
@@ -1702,8 +1702,6 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if ((cat != NULL) && (cat->length() > o.max_logitem_length))
-            cat->resize(o.max_logitem_length);
         if (what.length() > o.max_logitem_length)
             what.resize(o.max_logitem_length);
         if (where.length() > o.max_logitem_length)
@@ -1719,6 +1717,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         std::string l_from = from;
         std::string l_clienthost;
         l_clienthost = cm.clienthost;
+        String flags = cm.getFlags();
 
 
 #ifdef DGDEBUG
@@ -1757,6 +1756,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += cr;
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
+        data += flags + cr;
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -...built" << std::endl;

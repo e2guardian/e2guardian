@@ -316,7 +316,7 @@ extern "C" {
 }
 
 // logging & URL cache processes
-void log_listener(std::string log_location, bool logconerror, bool logsyslog, Queue<std::string>* log_Q);
+void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue<std::string>* log_Q);
 
 // fork off into background
 bool daemonise();
@@ -664,7 +664,7 @@ void wait_for_proxy()
 // *
 // *
 
-void log_listener(std::string log_location, bool logconerror, bool logsyslog, Queue<std::string> *log_Q) {
+void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue<std::string> *log_Q) {
     thread_id = "log: ";
     try {
 #ifdef DGDEBUG
@@ -747,7 +747,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
         loglines.append(log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
 #ifdef DGDEBUG
-        std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
+            std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
 #endif
 
         // Formatting code migration from ConnectionHandler
@@ -761,7 +761,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
         //const char *delim = "\n";
         std::istringstream iss(loglines);
         std::string logline;
-        std::shared_ptr <LOptionContainer> ldl;
+        std::shared_ptr<LOptionContainer> ldl;
         ldl = o.currentLists();
 
         while (std::getline(iss, logline)) {
@@ -776,7 +776,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                 s = logline;
             }
 
-        switch (itemcount) {
+            switch (itemcount) {
                 case 0:
                     isexception = atoi(logline.c_str());
                     break;
@@ -830,7 +830,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                     break;
                 case 17:
                     filtergroup = atoi(logline.c_str());
-                    if (filtergroup < 0 || filtergroup > o.numfg ) filtergroup = 0;
+                    if (filtergroup < 0 || filtergroup > o.numfg) filtergroup = 0;
                     break;
                 case 18:
                     code = atoi(logline.c_str());
@@ -966,42 +966,46 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
             utime = String((int) theend.tv_sec) + utime;
         }
 
-	if (o.log_file_format != 3) {
-	    // "when" not used in format 3, and not if logging timestamps instead
-	    time_t now = time(NULL);
-	    char date[32];
-	    struct tm * tm = localtime(&now);
-	    strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
-	    when = date;
-	    // append timestamp if desired
-	    if (o.log_timestamp)
-		when += " " + utime;
-	}
+        if (o.log_file_format != 3) {
+            // "when" not used in format 3, and not if logging timestamps instead
+            time_t now = time(NULL);
+            char date[32];
+            struct tm *tm = localtime(&now);
+            strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
+            when = date;
+            // append timestamp if desired
+            if (o.log_timestamp)
+                when += " " + utime;
+        }
 
-		// blank out IP, hostname and username if desired
-		if (o.anonymise_logs) {
-		    who = "";
-		    from = "0.0.0.0";
-		    clienthost.clear();
-		} else if ((clienthost == blank_str) || (clienthost == "DNSERROR")){
-			clienthost = from;
-		}
-		
-		String groupname;
-		String stringcode(code);
-		String stringgroup(filtergroup + 1);
+        // blank out IP, hostname and username if desired
+        if (o.anonymise_logs) {
+            who = "";
+            from = "0.0.0.0";
+            clienthost.clear();
+        } else if ((clienthost == blank_str) || (clienthost == "DNSERROR")) {
+            clienthost = from;
+        }
 
-		if ( stringcode == "407" ){
-			groupname = "negociate_identification";
-		}else{
-			groupname = ldl->fg[filtergroup]->name;
-	}
+        String groupname;
+        String stringcode(code);
+        String stringgroup(filtergroup + 1);
+
+        if (is_RQlog) {
+            groupname = "";
+        } else {
+            if (stringcode == "407") {
+                groupname = "negotiate_identification";
+            } else {
+                groupname = ldl->fg[filtergroup]->name;
+            }
+        }
 
         switch (o.log_file_format) {
             case 4:
                 builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                             + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
-                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + ldl->fg[filtergroup]->name
+                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
                             #ifdef SG_LOGFORMAT
                             + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
                     + params + "\t" + o.logid_2 + "\t" + postdata;
@@ -1046,14 +1050,14 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                             + how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat + "\",\"" + stringgroup +
                             "\",\""
                             + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
-                            ldl->fg[filtergroup]->name + "\",\""
+                            groupname + "\",\""
                             + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
                             postdata + "\"";
                 break;
             case 1:
                 builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                             + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
-                            + stringcode + " " + mimetype + " " + clienthost + " " + ldl->fg[filtergroup]->name + " "
+                            + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
                             + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
                 break;
             case 5:
@@ -1087,7 +1091,7 @@ void log_listener(std::string log_location, bool logconerror, bool logsyslog, Qu
                             + what + "\t"
                             + sweight + "\t"
                             + cat + "\t"
-                            + ldl->fg[filtergroup]->name + "\t"
+                            + groupname + "\t"
                             + stringgroup;
         }
         if (o.log_file_format > 6) {
@@ -1599,7 +1603,7 @@ int fc_controlit()   //
     // Threads are created for logger, a separate thread for each listening port
     // and an array of worker threads to deal with the work.
     if (!o.no_logger) {
-        std::thread log_thread(log_listener, o.log_location, o.logconerror, o.log_syslog,o.log_Q);
+        std::thread log_thread(log_listener, o.log_location, false, o.log_syslog,o.log_Q);
         log_thread.detach();
 #ifdef DGDEBUG
     std::cerr << thread_id << "log_listener thread created" << std::endl;
@@ -1607,7 +1611,7 @@ int fc_controlit()   //
     }
 
     if(o.log_requests) {
-        std::thread RQlog_thread(log_listener, o.RQlog_location, o.logconerror, false,o.RQlog_Q);
+        std::thread RQlog_thread(log_listener, o.RQlog_location, true, false,o.RQlog_Q);
         RQlog_thread.detach();
 #ifdef DGDEBUG
         std::cerr << thread_id << "RQlog_listener thread created" << std::endl;
