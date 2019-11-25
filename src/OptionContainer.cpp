@@ -56,8 +56,6 @@ void OptionContainer::reset()
     //banned_ip_list.reset();
     language_list.reset();
     conffile.clear();
-    if (use_filter_groups_list)
-        filter_groups_list.reset();
     filter_ip.clear();
     filter_ports.clear();
     auth_map.clear();
@@ -910,9 +908,8 @@ bool OptionContainer::read(std::string& filename, int type)
         //    filter_groups = 1;
         numfg = filter_groups;
 
-        filter_groups_list_location = findoptionS("filtergroupslist");
-        banned_ip_list_location = findoptionS("bannediplist");
-        exception_ip_list_location = findoptionS("exceptioniplist");
+        //filter_groups_list_location = findoptionS("filtergroupslist");
+   //     banned_ip_list_location = findoptionS("bannediplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
         iplist_dq = findoptionM("iplist");
@@ -923,16 +920,8 @@ bool OptionContainer::read(std::string& filename, int type)
         maplist_dq = findoptionM("maplist");
         ipmaplist_dq = findoptionM("ipmaplist");
 
-        if (filter_groups_list_location.length() == 0) {
-            use_filter_groups_list = false;
-#ifdef DGDEBUG
-            std::cout << "Not using filtergroupslist" << std::endl;
-#endif
-        } else {
-            use_filter_groups_list = true;
             if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
                 auth_requires_user_and_group = true;
-        }
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
@@ -1047,121 +1036,6 @@ bool OptionContainer::readinStdin()
     }
     return true;
 }
-
-const char *OptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
-{
-    String lastcategory;
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        url = url.before("/"); // chop off any path after the domain
-    }
-    const char *i;
-    //bool isipurl = isIPHostname(url);
-    while (url.contains(".")) {
-        i = lc->findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    if (url.length() > 1) { // allows matching of .tld
-        url = "." + url;
-        i = lc->findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            return i; // exact match
-        }
-    }
-    return NULL; // and our survey said "UUHH UURRGHH"
-}
-
-// look in given URL list for given URL
-char *OptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool ssl)
-{
-    unsigned int fl;
-    char *i;
-    String lastcategory;
-    String foundurl;
-#ifdef DGDEBUG
-    std::cout << "inURLList: " << url << std::endl;
-#endif
-    //syslog(LOG_ERR, "inURLList url %s", url.c_str());
-    url.removeWhiteSpace(); // just in case of weird browser crap
-    url.toLower();
-    url.removePTP(); // chop off the ht(f)tp(s)://
-    if (url.contains("/")) {
-        String tpath("/");
-        tpath += url.after("/");
-        url = url.before("/");
-        tpath.hexDecode();
-        tpath.realPath();
-        url += tpath; // will resolve ../ and %2e2e/ and // etc
-    }
-    if (url.endsWith("/")) {
-        url.chop(); // chop off trailing / if any
-    }
-#ifdef DGDEBUG
-    std::cout << "inURLList (processed): " << url << std::endl;
-#endif
-    //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
-    while (url.before("/").contains(".")) {
-        i = lc->findStartsWith(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            foundurl = i;
-            fl = foundurl.length();
-#ifdef DGDEBUG
-            std::cout << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cout << "url: " << url << fl << std::endl;
-#endif
-            ///syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
-            if (url.length() > fl) {
-                if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                    return i; // matches /blah/ or /blah/foo but not /blahfoo
-                }
-            } else {
-                return i; // exact match
-            }
-        }
-        url = url.after("."); // check for being in higher level domains
-    }
-    return NULL;
-}
-
-#ifdef NOTDEF
-bool OptionContainer::inTotalBlockList(String &url)
-{
-    String murl = url;
-    if (inSiteList(murl, &total_block_site_list, false, false)) {
-        return true;
-    }
-    murl = url;
-    if (inURLList(murl, &total_block_url_list, false, false)) {
-        return true;
-    }
-    return false;
-}
-#endif
-
-
-#ifdef NOTDEF
-bool OptionContainer::doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort)
-{
-    bool result = lc->readItemList(filename, false, 0);
-    if (!result) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening " << fname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", fname);
-        return false;
-    }
-    if (swsort)
-        lc->doSort(true);
-    else
-        lc->doSort(false);
-    return true;
-}
-#endif
 
 
 long int OptionContainer::findoptionI(const char *option)

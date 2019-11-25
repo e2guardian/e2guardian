@@ -257,8 +257,9 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 # filtergroups sets the number of filter groups. A filter group is a set of content
 # filtering options you can apply to a group of users.  The value must be 1 or more.
 # e2guardian will automatically look for e2guardianfN.conf where N is the filter
-# group.  To assign users to groups use the filtergroupslist option.  All users default
-# to filter group 1.  You must have some sort of authentication to be able to map users
+# group.  To assign users to groups use a mapping function in preauth.story.
+# By default use filtergroupslist.
+# You must have some sort of authentication to be able to map users
 # to a group.
 filtergroups = 1
 

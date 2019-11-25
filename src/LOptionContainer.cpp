@@ -121,12 +121,12 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
-    if (loaded_ok && o.use_filter_groups_list)  {
-        if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
-            std::cerr << thread_id << "Failed to read filtergroupslist" << std::endl;
-            loaded_ok = false;
-        }
-    }
+ //   if (loaded_ok && o.use_filter_groups_list)  {
+ //       if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
+ //           std::cerr << thread_id << "Failed to read filtergroupslist" << std::endl;
+ //           loaded_ok = false;
+ //       }
+ //   }
 
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::auth_entry>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
@@ -318,8 +318,6 @@ void LOptionContainer::reset()
     deleteFilterGroups();
     deleteRooms();
     conffile.clear();
-    if (o.use_filter_groups_list)
-        filter_groups_list.reset();
     --o.LC_cnt;
 }
 
@@ -718,7 +716,8 @@ bool LOptionContainer::readFilterGroupConf()
         }
     }
     for (int i = 1; i <= o.filter_groups; i++) {
-        file = prefix + String(i);
+        file = prefix;
+        file += String(i);
         file += ".conf";
         if (o.use_group_names_list) {
             std::ostringstream groupnum;

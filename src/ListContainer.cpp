@@ -1550,7 +1550,7 @@ void ListContainer::addToDataMap(String& line) {
     } else {
         if (!is_daemonised)
             std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile);
+        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str());
         //warn = true;
         return;
     }
@@ -1578,7 +1578,7 @@ void ListContainer::addToIPMap(String& line)
     } else {
         if (!is_daemonised)
             std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile );
+        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str() );
         //warn = true;
         return;
     }
@@ -1589,7 +1589,7 @@ void ListContainer::addToIPMap(String& line)
     if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
         if (!is_daemonised)
             std::cerr << thread_id << "Filter group out of range; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), sourcefile);
+        syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), sourcefile.c_str());
         //warn = true;
         return;
     }
@@ -1650,7 +1650,7 @@ void ListContainer::addToIPMap(String& line)
     else {
         if (!is_daemonised)
             std::cerr << thread_id << "Entry " << line << " in " << sourcefile << " was not recognised as an IP address, subnet or range" << std::endl;
-        syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), sourcefile);
+        syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), sourcefile.c_str());
         //warn = true;
     }
 }
@@ -1715,7 +1715,6 @@ String ListContainer::getIPMapData(std::string &ip)
     uint32_t addr = ntohl(sin.s_addr);
     String fgs;
     String rfg;
-    int fg;
     // check straight IPs, subnets, and ranges
     fgs = inIPMap(addr);
     if (fgs != "") {

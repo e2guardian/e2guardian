@@ -158,7 +158,6 @@ int main(int argc, char *argv[])
                     break;
                 case 'i':
                     total_block_list = true;
-                    o.use_total_block_list = total_block_list;
                     break;
                 case 'h':
                     std::cout << "Usage: " << argv[0] << " [{-c ConfigFileName|-v|-P|-h|-N|-q|-s|-r|-g|-i}]" << std::endl;

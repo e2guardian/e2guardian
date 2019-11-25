@@ -122,7 +122,6 @@ class OptionContainer
     int root_user = 0;
     int max_ips = 0;
     bool recheck_replaced_urls;
-    bool use_filter_groups_list = false;
     bool use_group_names_list = false;
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
@@ -132,8 +131,8 @@ class OptionContainer
     bool prefer_cached_lists = false;
     std::string languagepath;
     std::string filter_groups_list_location;
-    std::string banned_ip_list_location;
-    std::string exception_ip_list_location;
+    //std::string banned_ip_list_location;
+    //std::string exception_ip_list_location;
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
@@ -253,19 +252,13 @@ class OptionContainer
     ~OptionContainer();
     bool read(std::string& filename, int type);
     void reset();
-  //  bool inExceptionIPList(const std::string *ip, std::string *&host);
-  //  bool inBannedIPList(const std::string *ip, std::string *&host);
-    //bool readFilterGroupConf();
-    // public so fc_controlit can reload filter group config files
-//    bool doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort);
 
-    const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
-    char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
+    //const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
+    //char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
     //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
   //  bool inTotalBlockList(String &url);
-    bool use_total_block_list = false;
     std::string per_room_directory_location;
     bool createLists(int load_id);
     std::shared_ptr<LOptionContainer> currentLists();

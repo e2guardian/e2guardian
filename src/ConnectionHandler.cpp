@@ -1678,7 +1678,6 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
     bool isnaughty = cm.isItNaughty;
     int naughtytype = cm.blocktype;
     bool isexception = cm.isexception;
-    bool istext = cm.is_text;
     struct timeval *thestart = &cm.thestart;
     bool cachehit = false;
     int code = 0;
