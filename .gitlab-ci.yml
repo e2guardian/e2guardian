@@ -15,7 +15,7 @@ Package Docker Image Debian:
     - /builds   
   image: amd64/debian:stable
   variables:
-    OS: "debian" 
+    OS: "debian"
   script:
     - apt update
     - apt-get -y upgrade
@@ -50,10 +50,11 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` &&  echo $SIZE &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_V"$VFULL"_$(date +%Y%m%d).deb
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VESRION"_V"$VFULL"_$(date +%Y%m%d).deb
     - cd gitpackages/${CI_COMMIT_REF_NAME}
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
