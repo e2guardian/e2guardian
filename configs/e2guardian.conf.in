@@ -573,6 +573,10 @@ logconnectionhandlingerrors = on
 # This figure is the maximum number of concurrent connections.
 # If more connections are made, connections will queue until a worker thread is free.
 # On large site you might want to try 5000 (max value 20000)
+# 500 is the default suitable for home or samll office use on 64-bit systems
+# On 32-bit systems reduce this to 300 to avoid exceeding the <4GB
+# virtual memory limit and on Linux decrease the thread stack size from
+# 10MB to 2MB (ulimit -s 2048)
 httpworkers = 500 
 
 # Process options
