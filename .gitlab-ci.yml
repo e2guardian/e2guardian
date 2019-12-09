@@ -109,7 +109,7 @@ Create Ubuntu Package:
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_V"$VFULL"_V"$VFULL"_$(date +%Y%m%d).deb
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
     - cd gitpackages/${CI_COMMIT_REF_NAME}
     - git add *.deb
     - git config --global user.name "${GITLAB_USER_NAME}"
