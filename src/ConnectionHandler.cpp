@@ -1648,6 +1648,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
         data += flags + cr;
+        data += cm.search_terms;
+        data += cr;
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -...built" << std::endl;
@@ -1756,6 +1758,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
         data += flags + cr;
+        data += cr;
 
 #ifdef DGDEBUG
         std::cerr << thread_id << " -...built" << std::endl;

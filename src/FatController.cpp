@@ -665,7 +665,10 @@ void wait_for_proxy()
 // *
 
 void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue<std::string> *log_Q) {
-    thread_id = "log: ";
+    if (is_RQlog)
+        thread_id = "RQlog: ";
+    else
+        thread_id = "log: ";
     try {
 #ifdef DGDEBUG
     std::cerr << thread_id << "log listener started" << std::endl;
@@ -684,7 +687,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     std::string cr("\n");
 
     std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
-    std::string stype, postdata, flags;
+    std::string stype, postdata, flags, searchterms;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
     long tv_sec = 0, tv_usec = 0;
@@ -867,6 +870,9 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                     break;
                 case 29:
                     flags = s;
+                    break;
+                case 30:
+                    searchterms = s;
                     error = false;
                     break;
             }
@@ -965,6 +971,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             utime = "." + utime;
             utime = String((int) theend.tv_sec) + utime;
         }
+
 
         if (o.log_file_format != 3) {
             // "when" not used in format 3, and not if logging timestamps instead
@@ -1075,10 +1082,17 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 
                 builtline = utime + "\t"
                             + server + "\t"
-                            + who + "\t"
-                            + from + "\t"
-                            + clienthost + "\t"
-                            + where + "\t"
+                            + who + "\t";
+                if (o.log_client_host_and_ip) {
+                    builtline += from + "\t";
+                    builtline += clienthost + "\t";
+                } else {
+                    if (clienthost.length() > 2)
+                        builtline += clienthost + "\t";
+                    else
+                        builtline += from + "\t";
+                }
+                builtline += where + "\t"
                             + how + "\t"
                             + stringcode + "\t"
                             + ssize + "\t"
@@ -1095,6 +1109,8 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                             + stringgroup;
         }
         if (o.log_file_format > 6) {
+            builtline += "\t";
+            builtline += searchterms;
             builtline += "\t";
             builtline += flags;
         }

@@ -73,6 +73,7 @@ class OptionContainer
     bool logconerror = false;
     bool logchildprocs = false;
     bool log_ssl_errors = false;
+    bool log_client_host_and_ip = false;
     int url_cache_number = 0;
     int url_cache_age = 0;
     int phrase_filter_mode = 0;

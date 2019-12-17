@@ -670,6 +670,11 @@ bool OptionContainer::read(std::string& filename, int type)
         } else {
             use_dash_for_blanks = true;
         }
+        if (findoptionS("logclientnameandip") == "off") {
+            log_client_host_and_ip = false;
+        } else {
+            log_client_host_and_ip = true;
+        }
 
         logid_1.assign(findoptionS("logid1"));
         if (logid_1.empty())
