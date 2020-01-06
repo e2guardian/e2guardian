@@ -20,7 +20,6 @@ Package Docker Image Debian:
   variables:
     OS: "debian"
   script:
-    - rm -rf /builds/*
     - apt update
     - apt-get -y upgrade
     - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
