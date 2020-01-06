@@ -15,7 +15,7 @@ Package Docker Image Debian:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian   
   image: amd64/debian:stable
   variables:
     OS: "debian"
@@ -37,7 +37,7 @@ Create Debian Package:
    expire_in: 10 minutes
    name: build 
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian/scripts/debian_package
   image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
