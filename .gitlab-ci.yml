@@ -32,10 +32,12 @@ Package Docker Image Debian:
 
 Create Debian Package:
   stage: create-debian-package
-  image: amd64/debian:stable
   artifacts:
    expire_in: 1 hour
    name: debian-package
+   paths:
+    - /builds   
+  image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2debian_package"
@@ -107,6 +109,11 @@ Package Docker Image Ubuntu:
 Create Ubuntu Package:
   stage: create-ubuntu-package
   image: amd64/ubuntu:stable
+  artifacts:
+   expire_in: 1 hour
+   name: build-ubuntu
+   paths:
+    - /builds   
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
