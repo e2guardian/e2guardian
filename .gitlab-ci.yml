@@ -142,7 +142,7 @@ Test and publish Ubuntu:
   image: amd64/ubuntu:18.04
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
     CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
