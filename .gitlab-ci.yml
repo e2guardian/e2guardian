@@ -74,7 +74,7 @@ Test and publish Debian:
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf 
-    - mkdir --parents "${cert_dir}generatedcerts"
+    - mkdir --parents ${cert_dir}generatedcerts
     - openssl genrsa 4096 > "${cert_dir}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${cert_dir}ca.key" -out "${cert_dir}ca.pem" && openssl genrsa 4096 > "${cert_dir}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
     - e2guardian -N && https_proxy=http://localhost:8080 && curl -k https://google.com
@@ -152,7 +152,7 @@ Test and publish Ubuntu:
     - VFULL=`${PACKDST}/e2debian_package/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2`
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf 
-    - mkdir --parents "${cert_dir}generatedcerts"
+    - mkdir --parents ${cert_dir}generatedcerts
     - openssl genrsa 4096 > "${cert_dir}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${cert_dir}ca.key" -out "${cert_dir}ca.pem" && openssl genrsa 4096 > "${cert_dir}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
     - e2guardian -N && https_proxy=http://localhost:8080 && curl -k https://google.com
