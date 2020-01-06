@@ -30,7 +30,7 @@ if(fullurlin, change) setmodurl
 if(true) returnif embeddedcheck
 if(headerin,headermods) setmodheader
 if(fullurlin, addheader) setaddheader
-if(searchin,override) setgrey
+if(searchin,override) setexception
 if(returnset) return setdone
 if(searchin,banned) return setblock
 if(fullurlin,redirect) return setredirect
@@ -135,8 +135,11 @@ if(urlin, localexception) return setexception
 #  returns true on match
 function(exceptioncheck)
 if(urlin, exception) return setexception
+if(refererin,refererexception) return setexception
 if(headerin, exceptionheader) return setexception
 if(useragentin, exceptionuseragent) return setexception
+ifnot(urlin,embededreferer) return false
+if(embeddedin,refererexception) return setexception
 
 # SSL Exception check
 #  returns true on match
