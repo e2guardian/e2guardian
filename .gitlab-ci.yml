@@ -57,7 +57,6 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
@@ -72,7 +71,7 @@ Test and publish Debian:
   script:
     - apt update
     - apt install -y openssl
-    - ls -la /builds/* 
+    - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && dpkg -i e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf 
     - mkdir --parents "${cert_dir}generatedcerts"
@@ -95,7 +94,7 @@ Package Docker Image Ubuntu:
    expire_in: 15 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian   
   image: amd64/ubuntu:stable
   script:
     - apt update
@@ -116,7 +115,7 @@ Create Ubuntu Package:
    expire_in: 15 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian/scripts/debian_package
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
@@ -135,7 +134,6 @@ Create Ubuntu Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
@@ -150,7 +148,7 @@ Test and publish Ubuntu:
   script:
     - apt update
     - apt install -y openssl
-    - ls -la /builds/* 
+    - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && dpkg -i e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf 
     - mkdir --parents "${cert_dir}generatedcerts"
