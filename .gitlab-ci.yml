@@ -63,8 +63,8 @@ Test and publish Debian:
   image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
-    CERT-DIR: "/home/e2/e2install/"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2debian_package"
+    CERT_DIR: "/home/e2/e2install/"
     OS: "debian"
   script:
     - cd gitpackages/${CI_COMMIT_REF_NAME} && dpkg -i e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
@@ -134,7 +134,7 @@ Test and publish Ubuntu:
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
-    CERT-DIR: "/home/e2/e2install/"
+    CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
     - cd gitpackages/${CI_COMMIT_REF_NAME} && dpkg -i e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb   
