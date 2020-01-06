@@ -58,7 +58,7 @@ Create Debian Package:
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
     - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
 
-Test and publish:
+Test and publish Debian:
   stage: TestDebian
   image: amd64/debian:stable
   variables:
@@ -128,7 +128,7 @@ Create Ubuntu Package:
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
     - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
 
-Test and publish:
+Test and publish Ubuntu:
   stage: TestUbuntu 
   image: amd64/ubuntu:stable
   variables:
