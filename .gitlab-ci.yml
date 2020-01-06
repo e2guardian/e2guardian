@@ -77,7 +77,8 @@ Test and publish Debian:
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
-    - e2guardian -N && https_proxy=http://localhost:8080 && curl -k https://google.com
+    - e2guardian -N 
+    - https_proxy=http://localhost:8080 && curl -k https://google.com
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME} 
     - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
@@ -95,7 +96,7 @@ Package Docker Image Ubuntu:
    name: build
    paths:
     - /builds/fredbcode/e2guardian   
-  image: amd64/ubuntu:stable
+  image: amd64/ubuntu:18.04
   script:
     - apt update
     - apt-get -y upgrade
@@ -110,7 +111,7 @@ Package Docker Image Ubuntu:
 
 Create Ubuntu Package:
   stage: create-ubuntu-package
-  image: amd64/ubuntu:stable
+  image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 15 minutes
    name: build
@@ -139,7 +140,7 @@ Create Ubuntu Package:
 
 Test and publish Ubuntu:
   stage: TestUbuntu 
-  image: amd64/ubuntu:stable
+  image: amd64/ubuntu:18.04
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
@@ -155,7 +156,8 @@ Test and publish Ubuntu:
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
-    - e2guardian -N && https_proxy=http://localhost:8080 && curl -k https://google.com
+    - e2guardian -N 
+    - https_proxy=http://localhost:8080 && curl -k https://google.com
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_REF_NAME} 
     - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
