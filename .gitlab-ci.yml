@@ -1,9 +1,10 @@
 stages:
 - build:debian
 - create-debian-package
+- TestDebian
 - build:ubuntu
 - create-ubuntu-package
-- Test
+- TestUbuntu
 #- build:raspbian
 #- create-raspbian-package
 
@@ -58,7 +59,7 @@ Create Debian Package:
     - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
 
 Test and publish:
-  stage: Test
+  stage: TestDebian
   image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
@@ -129,7 +130,7 @@ Create Ubuntu Package:
     - cd gitpackages/${CI_COMMIT_REF_NAME}
 
 Test and publish:
-  stage: Test 
+  stage: TestUbuntu 
   image: amd64/ubuntu:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
