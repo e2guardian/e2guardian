@@ -201,7 +201,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     int rc = mkpath(dirpath.c_str(), 0700); // only want e2g to have access to these dir
     if (rc != 0) {
         syslog(LOG_ERR, "%serror creating certificate sub-directory: %s",  thread_id.c_str(),dirpath.c_str());
-        exit(1);
+        return false; 
     }
 
     //open file
