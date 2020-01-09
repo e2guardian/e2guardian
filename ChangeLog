@@ -5,7 +5,7 @@ version 5.3.4
 - Fix #565 segfault when no write permission on generated certs directory 
 - Fix #493 referexception not working
 - Fix bug #549 - Url in CGI and bypass wrong in MITM 
-- bug fix sigwait code
+- Bug fix sigwait code
 - Fix #554 Override Search Terms not overriding weighted search term check
 
 and more ...
