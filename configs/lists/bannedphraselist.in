@@ -36,12 +36,10 @@
 
 #listcategory: "Banned Phrases"
 
-# The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
 
-.Include<@DGCONFDIR@/lists/phraselists/ukenglish/safelabel/banned>
 #.Include<@DGCONFDIR@/lists/phraselists/portuguese/rta/banned>
 
-# The following banned phraselists are included in the default DG distribution.
+# The following banned phraselists are included in the default e2g distribution.
 
 .Include<@DGCONFDIR@/lists/phraselists/ukenglish/pornography/banned>
 ##.Include<@DGCONFDIR@/lists/phraselists/portuguese/pornography/banned>
