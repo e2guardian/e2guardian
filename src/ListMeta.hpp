@@ -32,6 +32,8 @@
 #define LIST_TYPE_TIME                                  13
 #define LIST_TYPE_MAP                                   14
 #define LIST_TYPE_IPMAP                                   15
+#define LIST_TYPE_ERROR                                   16
+#define LIST_TYPE_TOP                                   17
 
 #define LIST_METHOD_READF_SWS                             1
 #define LIST_METHOD_READF_EWS                             2
@@ -64,6 +66,7 @@ class ListMeta
         unsigned int log_mess_no;
         bool anon_log;
         bool site_wild;
+        bool used = false;
     };
 
     struct list_result {
@@ -77,6 +80,27 @@ class ListMeta
 
     std::vector<list_info> list_vec;
 
+    String list_type(int type);
+
+    String type_map[LIST_TYPE_TOP] = { "",
+            "iplist",
+            "sitelist",
+            "ipsitelist",
+            "urllist",
+            "searchlist",
+            "regexpboollist",
+            "regexpreplacelist",
+            "phrasebannedlist",
+            "phraseweightedlist",
+            "phraseexceptionlist",
+            "mimelist",
+            "fileextlist",
+            "timelist",
+            "maplist",
+            "ipmaplist",
+            "unknown list"
+    };
+
     ListMeta();
     ~ListMeta();
 
@@ -85,6 +109,7 @@ class ListMeta
     bool load_type(int type, std::deque<String> &list);
 
     struct list_info findList(String name, int type);
+    struct list_info *findListPtr(String name, int type);
 
     unsigned int findListId(String name, int type);
 

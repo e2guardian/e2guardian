@@ -249,17 +249,24 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
 #ifdef DGDEBUG
-                                        std::cerr << "SB  list name " << filename << " list " << j->list_name << " checking type  " << *k << std::endl;
+                    std::cerr << "SB  list name " << filename << " list " << j->list_name << " checking type  " << *k << std::endl;
 #endif
-                    ListMeta::list_info listi = LMeta->findList(j->list_name, *k);
+                    ListMeta::list_info *listiptr = LMeta->findListPtr(j->list_name, *k);
+                    ListMeta::list_info listi;
+                    if (listiptr) {
+                        listi = *listiptr;
 #ifdef DGDEBUG
                     std::cerr << "list reference " << listi.list_ref << " '" << listi.name << "' found for "
                               << j->list_name << std::endl;
 #endif
                     if (listi.name.length()) {
+//                        std::cerr << "used is set " << "" << listi.list_ref << " '" << listi.name << ":"
+//                                << *k << std::endl;
+                        listiptr->used = true;
                         j->list_id_dq.push_back(listi);
                         found = true;
                     }
+                }
                 }
                 if (!found) {
                     // warning message
@@ -286,7 +293,15 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 }
 // check for required functions
 
-return true;
+
+    for (std::vector<ListMeta::list_info>::iterator j = LMeta->list_vec.begin(); j != LMeta->list_vec.end(); j++) {
+        if (!j->used) {
+            std::cerr << thread_id << "SB warning: Defined list " << LMeta->list_type(j->type) << ":" << j->name << " is not referenced in the storyboard " << filename << std::endl;
+        }
+        //    std::cerr << thread_id << "Defined list " << j->name << ":" << j->type << " " << j->used << " " << filename << std::endl;
+    }
+
+    return true;
 }
 
 unsigned int StoryBoard::getFunctID(String &fname) {

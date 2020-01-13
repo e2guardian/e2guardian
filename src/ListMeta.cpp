@@ -44,6 +44,12 @@ ListMeta::~ListMeta() {
     reset();
 }
 
+String ListMeta::list_type(int type) {
+    if (type > LIST_TYPE_ERROR || type < 0)
+        type = LIST_TYPE_ERROR;
+    return type_map[type];
+}
+
 //  clear & reset all values
 void ListMeta::reset() {
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
@@ -207,6 +213,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
+                break;
             case LIST_METHOD_REGEXP_REPL :
                 if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.replace,
                                              rec.comp)) {
@@ -232,6 +239,17 @@ bool ListMeta::list_exists(String name, int type) {
 
 ListMeta::list_info ListMeta::findList(String name, int tp) {
     list_info t;
+    list_info *tptr;
+    tptr = findListPtr(name, tp);
+    if (tptr) {
+        t = *tptr;
+    } else
+        t.list_ref = 0;
+    return t;
+}
+
+ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
+    list_info *t = nullptr;
     unsigned int type = (unsigned int) tp;
 #ifdef DGDEBUG
     std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
@@ -241,7 +259,7 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 #ifdef DGDEBUG
             std::cerr << thread_id << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
 #endif
-            t = *i;
+            t = &(*i);
             return t;
         }
         // std::cerr << thread_id << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
@@ -249,7 +267,6 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 #ifdef DGDEBUG
     std::cerr << thread_id << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
 #endif
-    t.list_ref = 0;
     return t;
 }
 
