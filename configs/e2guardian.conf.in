@@ -298,7 +298,7 @@ iplist = 'name=exceptionclient,messageno=600,path=@DGCONFDIR@/lists/exceptionipl
 #sitelist = 'name=exceptionclient,messageno=631,path=@DGCONFDIR@/lists/exceptionclientlist'
 
 # authexception lists are for exception sites/urls allowed before authentication# to allow for machines to update without user authentication
-iplist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptioniplist'
+ipsitelist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptioniplist'
 sitelist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptionsitelist'
 urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
 
