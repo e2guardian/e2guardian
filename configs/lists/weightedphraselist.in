@@ -31,7 +31,7 @@
 # See the bannedphraselist for more examples.
 #
 # Extra weighted-list files to include
-# .Include<@DGCONFIG@/lists/phraselists/ukenglish/weightedphraselist.topic>
+# .Include<@DGCONFDIR@/lists/phraselists/ukenglish/weightedphraselist.topic>
 #
 # Help by contributing customised lists and/or new keyword lists. 
 # Email: maintianer@e2guardian.org
@@ -46,97 +46,97 @@
 
 #To enable several non-PICS self-labelling and self-rating systems.  
 #Enabled as a bannedsitelist by default.  Disable there before enabling as a phraselist.
-##.Include<@DGCONFIG@/lists/phraselists/ukenglish/safelabel/weighted>
+##.Include<@DGCONFDIR@/lists/phraselists/ukenglish/safelabel/weighted>
 
 #Good Phrases (to allow medical, education, news and other good sites)
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/goodphrases/weighted_news>
-.Include<@DGCONFIG@/lists/phraselists/danish/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/dutch/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/malay/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/polish/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/portuguese/goodphrases/weighted>
-.Include<@DGCONFIG@/lists/phraselists/swedish/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/goodphrases/weighted_news>
+.Include<@DGCONFDIR@/lists/phraselists/danish/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/dutch/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/malay/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/polish/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/portuguese/goodphrases/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/swedish/goodphrases/weighted>
 
 #Pornography
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/chinese/pornography/weighted> #ALPHA#
-.Include<@DGCONFIG@/lists/phraselists/danish/pornography/weighted> #ALPHA#
-.Include<@DGCONFIG@/lists/phraselists/dutch/pornography/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/french/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/german/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/italian/pornography/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/japanese/pornography/weighted> #ALPHA# #Disabled due to overblocking#
-.Include<@DGCONFIG@/lists/phraselists/malay/pornography/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/norwegion/pornography/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/polish/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/portuguese/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/russian/pornography/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/russian_utf8/pornography/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/spanish/pornography/weighted> #ALPHA#
-.Include<@DGCONFIG@/lists/phraselists/swedish/pornography/weighted>
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/nudism/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/chinese/pornography/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/danish/pornography/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/dutch/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/french/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/german/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/italian/pornography/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/japanese/pornography/weighted> #ALPHA# #Disabled due to overblocking#
+.Include<@DGCONFDIR@/lists/phraselists/malay/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/norwegion/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/polish/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/portuguese/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/russian/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/russian_utf8/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/spanish/pornography/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/swedish/pornography/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/nudism/weighted>
 
 #Bad Words - swearing
-.Include<@DGCONFIG@/lists/phraselists/dutch/badwords/weighted> 
-.Include<@DGCONFIG@/lists/phraselists/french/badwords/weighted>
-.Include<@DGCONFIG@/lists/phraselists/german/badwords/weighted> #ALPHA#
-.Include<@DGCONFIG@/lists/phraselists/portuguese/badwords/weighted> #ALPHA#
-.Include<@DGCONFIG@/lists/phraselists/spanish/badwords/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/dutch/badwords/weighted> 
+.Include<@DGCONFDIR@/lists/phraselists/french/badwords/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/german/badwords/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/portuguese/badwords/weighted> #ALPHA#
+.Include<@DGCONFDIR@/lists/phraselists/spanish/badwords/weighted> #ALPHA#
 
 #Drugs
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/drugadvocacy/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/illegaldrugs/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/illegaldrugs/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/legaldrugs/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/drugadvocacy/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/illegaldrugs/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/illegaldrugs/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/legaldrugs/weighted>
 
 #Violence and intolerance
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/intolerance/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/intolerance/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/gore/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/gore/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/violence/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/violence/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/weapons/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/weapons/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/intolerance/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/intolerance/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/gore/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/gore/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/violence/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/violence/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/weapons/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/weapons/weighted>
 
 #Chat
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/chat/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/italian/chat/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/chat/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/italian/chat/weighted>
 
 #Webmail
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/webmail/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/webmail/weighted>
 #Note that if you enable the webmail weighted list you should also disable 
 #the "exception_email" list in the exceptionphraselist file.
 
 #Forums
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/forums/weighted> #BETA#
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/forums/weighted> #BETA#
 
 #Gambling
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/gambling/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/gambling/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/gambling/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/gambling/weighted>
 
 #Productivity
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/games/weighted> #ALPHA#
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/news/weighted> #ALPHA#
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/personals/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/portuguese/personals/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/sport/weighted> #ALPHA#
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/travel/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/music/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/games/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/news/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/personals/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/portuguese/personals/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/sport/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/travel/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/music/weighted>
 
 #System Management and Security
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/domainsforsale/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/idtheft/weighted>
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/malware/weighted> #BETA#
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/proxies/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/translation/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/upstreamfilter/weighted>
-.Include<@DGCONFIG@/lists/phraselists/ukenglish/warezhacking/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/peer2peer/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/domainsforsale/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/idtheft/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/malware/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/proxies/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/translation/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/upstreamfilter/weighted>
+.Include<@DGCONFDIR@/lists/phraselists/ukenglish/warezhacking/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/peer2peer/weighted>
 
 #Miscellaneous	
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/conspiracy/weighted>
-#.Include<@DGCONFIG@/lists/phraselists/ukenglish/secretsocieties/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/conspiracy/weighted>
+#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/secretsocieties/weighted>
 
 
