@@ -60,7 +60,8 @@
 
 #Pornography
 .Include<@DGCONFDIR@/lists/phraselists/ukenglish/pornography/weighted>
-.Include<@DGCONFDIR@/lists/phraselists/chinese/pornography/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/phraselists/chinesebig5/pornography/weighted> #ALPHA#
+#.Include<@DGCONFDIR@/lists/phraselists/chinesegb2312/pornography/weighted> #ALPHA#
 .Include<@DGCONFDIR@/lists/phraselists/danish/pornography/weighted> #ALPHA#
 .Include<@DGCONFDIR@/lists/phraselists/dutch/pornography/weighted> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/french/pornography/weighted>
