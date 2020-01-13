@@ -69,7 +69,7 @@
 .Include<@DGCONFDIR@/lists/phraselists/italian/pornography/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/japanese/pornography/weighted> #ALPHA# #Disabled due to overblocking#
 .Include<@DGCONFDIR@/lists/phraselists/malay/pornography/weighted> #BETA#
-.Include<@DGCONFDIR@/lists/phraselists/norwegion/pornography/weighted> #BETA#
+.Include<@DGCONFDIR@/lists/phraselists/norwegian/pornography/weighted> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/polish/pornography/weighted>
 .Include<@DGCONFDIR@/lists/phraselists/portuguese/pornography/weighted>
 .Include<@DGCONFDIR@/lists/phraselists/russian/pornography/weighted> #BETA#
