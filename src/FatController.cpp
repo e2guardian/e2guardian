@@ -1156,7 +1156,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                             fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
                             if (who != blank_str)
                                 fprintf(mail, "%-10s%s\n", "User:", who.c_str());
-                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str));
+                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
                             fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
                             // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
                             String swhat(what);
@@ -1213,7 +1213,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                     sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
                     vbody += vbody_temp;
                 }
-                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str));
+                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
                 vbody += vbody_temp;
                 sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
                 vbody += vbody_temp;
