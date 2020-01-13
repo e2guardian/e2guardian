@@ -173,6 +173,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
                     errors = true;
                 };
+                break;
             case LIST_METHOD_REGEXP_REPL :
                 if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.replace,
                                              rec.comp)) {
