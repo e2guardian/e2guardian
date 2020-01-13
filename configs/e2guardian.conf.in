@@ -304,7 +304,7 @@ urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexception
 
 sitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsitelist'
 ipsitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsiteiplist'
-regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserreqexplist'
+regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserregexplist'
 
 #Note: only iplist, sitelist, ipsitelist, urllist, maplist and ipmaplist and regexpboollist can
 #  currently be defined for use with pre-authstoryboard.
