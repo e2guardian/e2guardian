@@ -150,7 +150,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
         }
         syslog(LOG_ERR, "Error reading file (does it exist?) %s: %s", filename, e.what());
         o.config_error = true;
-        return true;
+        return false;
     }
     if (len < 2) {
         return true; // its blank - perhaps due to webmin editing
@@ -165,12 +165,14 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
         }
         syslog(LOG_ERR, "Error opening file (does it exist?): %s", filename);
         o.config_error = true;
-        return true;
+        return false;
     }
     lcat = "";
     bool caseinsensitive = true;
+    int line_no = 0;
     while (!listfile.eof()) { // keep going until end of file
         getline(listfile, linebuffer); // grab a line
+        line_no++;
         if (linebuffer.length() != 0) { // sanity checking
             line = linebuffer.c_str();
             line.removeWhiteSpace();
@@ -186,8 +188,10 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 temp = line.after(".include<").before(">");
                 if (temp.length() > 0) {
                     if (!readPhraseList(temp.toCharArray(), isexception, catindex, timeindex, false, nlimit)) {
-                        listfile.close();
-                        return false;
+                        std::cerr << "  at line " << line_no << " of " << filename << std::endl;
+                        continue;
+//                        listfile.close();
+//                        return false;
                     }
                 }
             }

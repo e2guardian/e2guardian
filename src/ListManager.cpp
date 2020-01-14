@@ -205,14 +205,15 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
 bool ListManager::readbplfile(const char *banned, const char *exception, const char *weighted, unsigned int &list, bool force_quick_search,
    int nlimit)
 {
-
+    bool return_error = false;
     int res = newPhraseList(exception, banned, weighted, nlimit);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening phraselists" << std::endl;
         }
         syslog(LOG_ERR, "%s", "Error opening phraselists");
-        return false;
+        return_error = true;
+//        return false;
     }
     if (!(*l[res]).used) {
 #ifdef DGDEBUG
@@ -224,7 +225,8 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
                 std::cerr << thread_id << "Error opening exceptionphraselist" << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error opening exceptionphraselist");
-            return false;
+            return_error = true;
+//        return false;
         }
 
         result = (*l[res]).readPhraseList(banned, false, -1, -1, false,nlimit);
@@ -233,7 +235,8 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
                 std::cerr << thread_id << "Error opening bannedphraselist" << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error opening bannedphraselist");
-            return false;
+            return_error = true;
+//        return false;
         }
         result = (*l[res]).readPhraseList(weighted, false, -1, -1, false,nlimit);
         if (!result) {
@@ -241,8 +244,12 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
                 std::cerr << thread_id << "Error opening weightedphraselist" << std::endl;
             }
             syslog(LOG_ERR, "%s", "Error opening weightedphraselist");
-            return false;
+            return_error = true;
+            //return false;
         }
+
+        if (return_error) return false;
+
         if (!(*l[res]).makeGraph(force_quick_search))
             return false;
 
