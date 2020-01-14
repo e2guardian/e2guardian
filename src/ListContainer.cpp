@@ -149,7 +149,8 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
             std::cerr << thread_id << "Error reading file (does it exist?) " << filename << ": " << e.what() << std::endl;
         }
         syslog(LOG_ERR, "Error reading file (does it exist?) %s: %s", filename, e.what());
-        return false;
+        o.config_error = true;
+        return true;
     }
     if (len < 2) {
         return true; // its blank - perhaps due to webmin editing
@@ -163,7 +164,8 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
             std::cerr << thread_id << "Error opening file (does it exist?): " << filename << std::endl;
         }
         syslog(LOG_ERR, "Error opening file (does it exist?): %s", filename);
-        return false;
+        o.config_error = true;
+        return true;
     }
     lcat = "";
     bool caseinsensitive = true;

@@ -139,7 +139,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
 
-    if(loaded_ok && ! readFilterGroupConf())  {
+    if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;
         if (!is_daemonised)
             std::cerr << thread_id << "Error in reading filter group files" << std::endl;
