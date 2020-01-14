@@ -282,7 +282,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             // check action
             if ((j->action_id = getFunctID(j->action_name)) == 0) {
                 // warning message
-                std::cerr << "StoryBoard error: Action not defined: " << filename << " action " << j->action_name << " at line " << j->file_lineno
+                std::cerr << "StoryBoard error: Action " <<  j->action_name << " not defined: " << filename << " at line " << j->file_lineno
                           << " of " << i->file_name << std::endl;
             }
 #ifdef DGDEBUG
