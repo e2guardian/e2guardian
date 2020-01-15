@@ -48,7 +48,7 @@ if(true) return checkfiletype
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
 if(true) thttps_automitm
-if(true) returnif checktimesallowed
+if(true) returnif checktimesblocked
 if(true) returnif localsslrequestcheck
 if(true) returnif sslrequestcheck
 ifnot(hassniset) checksni
@@ -274,7 +274,7 @@ if(true) setautomitm
 # Timed global block
 #  returns true if to block
 #  Placeholder function - overide in fn.story
-function(checktimesblock)
+function(checktimesblocked)
 
 
 

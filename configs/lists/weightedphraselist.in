@@ -129,7 +129,6 @@
 #System Management and Security
 #.Include<@DGCONFDIR@/lists/phraselists/ukenglish/domainsforsale/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/ukenglish/idtheft/weighted>
-.Include<@DGCONFDIR@/lists/phraselists/ukenglish/malware/weighted> #BETA#
 .Include<@DGCONFDIR@/lists/phraselists/ukenglish/proxies/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/ukenglish/translation/weighted>
 #.Include<@DGCONFDIR@/lists/phraselists/ukenglish/upstreamfilter/weighted>
