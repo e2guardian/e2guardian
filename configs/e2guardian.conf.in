@@ -402,7 +402,7 @@ logclienthostnames = off
 #  long preamble not being content filtered
 # The size is in Kibibytes - eg 2048 = 2Mb
 # use 0 to set it to maxcontentramcachescansize
-maxcontentfiltersize = 1024
+maxcontentfiltersize = 2048
 
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
