@@ -1,5 +1,56 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.4.1
+
+August 2019 to January 2020
+
+Fixes
+ - Fix #469 - remove punctuation from within phraselists when read in
+ - Fix #493 - refererexception not working
+ - Fix #549 - wrong url in CGI block and bypass
+ - Fix #555 - improved embeded url detection
+ - Fix #565 - segfault when no write permission on generated certs directory
+
+New features
+ - Auth list files moved into storyboard system - fixes #458
+ - Improve auth plugin logic - add plugin default group options
+ - On single list reading failure do not abort but check rest of config
+ - Tidy up request log output
+ - New usedashforblank option for logs
+ - Extended logs added (type 7 & 8) and -EXTFLAGS- added to block page params
+ - Add searchterms field to log types 7,8 - new logclientnameandip config flag
+ - Make consistant punctuation removal in NaughtyFilter
+ - Time based list and storyboard functions added - #529
+ - SB: Add timed blanket block
+ - SB: Add support for log-only function (logcategory flag)
+ - SB: Response HTTP header modification added & listenportin state added
+ - SB: Add #568 feature - give warning when defined list is not used
+
+Config changes
+ - Remove safelabel from bannedphraselist - does not appears to have been adopted on web
+ - Revised Phraselists added - #264 refers
+ - Phraselist tree now has language as top level
+ - Switch dstats on by default in config
+ - Update httpworkers comments re 32-bit systems
+ - All auth config files have changed - check sample configs
+ - Revised/new flags in e2guardian.conf
+
+version 5.3.4
+
+January 2020
+
+- Increase example maxcontentcachesize to make filtering youtube work
+- Fix #565 segfault when no write permission on generated certs directory 
+- Fix #493 referexception not working
+- Fix #549 - Url in CGI and bypass wrong in MITM 
+- Bug fix sigwait code for OpenBSD
+- Amend example bannedregexpulrlist
+- Fix #554 Override Search Terms not overriding weighted search term check
+- Add request log option for diagnostics - see notes/LogRequests
+
+and more ...
+
+
 Version 5.3.3
 
 July 2019

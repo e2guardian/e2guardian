@@ -3,7 +3,7 @@ Authentication plugins
 
 See the "Plugins" document for a more general overview of plugin implementation.
 
-An "authentication plugin" in DansGuardian encapsulates the functionality necessary for identifying users and assigning them to groups. To perform user identification, authentication plugins are given access to both the client and server (parent proxy) connections and the HTTP request headers from the client; a number of meaningful return values allow multiple authentications to be loaded at once, and queried in order. When an authentication plugin successfully identifies a user, the returned string is passed back to the plugin to allow it to determine their filter group number.
+An "authentication plugin" in e2Guardian encapsulates the functionality necessary for identifying users and assigning them to groups. To perform user identification, authentication plugins are given access to both the client and server (parent proxy) connections and the HTTP request headers from the client; a number of meaningful return values allow multiple authentications to be loaded at once, and queried in order. When an authentication plugin successfully identifies a user, the returned string is passed back to the plugin to allow it to determine their filter group number.
 
 
 The AuthPlugin base class
@@ -45,4 +45,4 @@ A commonly requested feature in DansGuardian is LDAP integration for retrieving 
 
 
 --
-Phil A. philip.allison/smoothwall.net
+Phil A. philip.allison/smoothwall.net 

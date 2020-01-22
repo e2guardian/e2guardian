@@ -76,10 +76,11 @@ logexceptionhits = 2
 # used in stand-alone systems.
 # 6 = Protex format with server field blanked
 ##NEWIN V5.4
-# 7 = Same as 5, but with EXTFLAGS added
-# 8 = Same as 6, but with EXTFLAGS added
+# 7 = Same as 5, but with searchterms and EXTFLAGS added
+#     See notes/New_log_fileds_in_log_format7-8.pdf for details
+# 8 = Same as 7, but with server field blanked
 
-logfileformat = 6 
+logfileformat = 8 
 
 # Log a specific value from header
 # low case only

@@ -1,4 +1,4 @@
-e2guardian  v4  dstats.log columns  - Note the format differs from v3.x
+e2guardian  v4/v5  dstats.log columns  - Note the format differs from v3.x
 
 1. Time  - in unix format
 
@@ -24,14 +24,14 @@ e2guardian  v4  dstats.log columns  - Note the format differs from v3.x
    Only an indication as requests made over https tunnels (i.e. non-MITM) cannot
    be counted, so each https tunnel is counted as one request.
 
-7. reqs/s - average requests per sec over period since last stats line.
+9. reqs/s - average requests per sec over period since last stats line.
 
-8. maxfd - Indication of maximum number file descriptor in use
+10. maxfd - Indication of the maximum number file descriptor used.
 
-9. LCcnt - Number of List Option Containers in use. A new List Option Container
+11. LCcnt - Number of List Option Containers in use. A new List Option Container
    is created at start up and on gentle restart.  Old containers are deleted
    once all connections still using it have finished.  Normally figure will be 
    one, but may rise after a gentle restart(s) and should return to one after a 
    period of time.  
 
-Philip Pearce 25th Jan 2017
+Philip Pearce 25th Jan 2017 (revised 21st January 2020)
