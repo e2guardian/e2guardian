@@ -7,6 +7,24 @@
 
 "^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)\&.*"->"\1"
 "^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*).*"->"\1"
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*\?q=([^&]*)"->"\1"
+"^http://[0-9a-z]+\.google\.[a-z]+[-/%.0-9a-z]*/.*\&q=([^&]*)"->"\1"
+
+"^http://www\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
+"^http://www\.qwant\.com/.*\&q=([^&]*).*"->"\1"
+"^http://www\.qwant\.com/.*\?q=([^&]*)"->"\1"
+"^http://www\.qwant\.com/.*\&q=([^&]*)"->"\1"
+"^http://api\.qwant\.com/.*\?q=([^&]*)\&.*"->"\1"
+"^http://api\.qwant\.com/.*\&q=([^&]*).*"->"\1"
+"^http://api\.qwant\.com/.*\?q=([^&]*)"->"\1"
+"^http://api\.qwant\.com/.*\&q=([^&]*)"->"\1"
+
+"^http://duckduckgo.com/\?q=([^&]*)\&.*"->"\1"
+"^http://duckduckgo.com/.*\&q=([^&]*).*"->"\1"
+"^http://duckduckgo.com/\?q=([^&]*)"->"\1"
+"^http://duckduckgo.com/.*\&q=([^&]*)"->"\1"
+
+"^http://[0-9a-z]+\.youtube\.[a-z]+[-/%.0-9a-z]*\?search_query=([^&]*).*"->"\1"
 
 "^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*\?p=([^&]*).*"->"\1"
 "^http://[0-9a-z]+\.yahoo\.[a-z]+[-/%.0-9a-z]*/search[^?]*.*\&p=([^&]*).*"->"\1"
