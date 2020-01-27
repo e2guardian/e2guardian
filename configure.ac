@@ -5,7 +5,7 @@ AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 5.3.3)
+AC_INIT(e2guardian, 5.3.4)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -693,15 +693,19 @@ configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
 configs/lists/phraselists/Makefile
+configs/lists/newphraselists/Makefile
 configs/lists/bannedrooms/Makefile
 configs/lists/contentscanners/Makefile
 configs/lists/bannedphraselist
+configs/lists/newbannedphraselist
 configs/lists/bannedurllist
 configs/lists/bannedsitelist
 configs/lists/domainsnobypass
 configs/lists/urlnobypass
 configs/lists/exceptionphraselist
+configs/lists/newexceptionphraselist
 configs/lists/weightedphraselist
+configs/lists/newweightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/contentscanners/Makefile

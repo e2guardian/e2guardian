@@ -1,0 +1,40 @@
+This is a new feature (in v5.3.4 onwards) which can help in trouble shooting
+
+It would not normally be turned on on production systems, except when 
+diagnosing any sudden-death symptoms.
+
+Enable by defining rqloglocation in e2guardian.conf
+
+This log will be in the same format as access.log.  It shows all requests
+before any processing is performed.
+
+The filtergroup should be ignored as it will normally show the default group 
+as the record is wriiten to the log before any authentication plug-ins are 
+actioned.
+
+The following information is provided in the 'what' field:-
+
+thread_id - allows thread to be followed and also cross-matched to syslog and 
+access.log
+
+TRANS, PROXY, THTTPS, MITM, REQMOD or RESPMOD showing the source of the 
+request
+
+	TRANS - transparent http
+
+	PROXY - requests via the normal proxy port(s) (8080 etc) - includes 
+		transparent http
+
+	THTTPS - requests via tranparent https port + flags for presence of TLS 
+		and SNI
+
+	MITM - requests from within a MITM session (can be via PROXY or THTTPS)
+
+	REQMOD - requests to ICAP REQMOD service
+
+	RESPMOD - requests to ICAP RESPMOD service
+
+WARNING - this option also modifies the access.log!
+
+With this option active the thread_id is also added to the front of the 'what' 
+field in the access.log to allow cross-checking between the logs.

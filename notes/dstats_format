@@ -1,4 +1,4 @@
-e2guardian  v4  dstats.log columns  - Note the format differs from v3.x
+e2guardian  v4/v5  dstats.log columns  - Note the format differs from v3.x
 
 1. Time  - in unix format
 
@@ -34,4 +34,4 @@ e2guardian  v4  dstats.log columns  - Note the format differs from v3.x
    one, but may rise after a gentle restart(s) and should return to one after a 
    period of time.  
 
-Philip Pearce 25th Jan 2017
+Philip Pearce 25th Jan 2017 (revised 21st January 2020)

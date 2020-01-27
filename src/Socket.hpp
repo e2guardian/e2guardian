@@ -83,6 +83,9 @@ class Socket : public BaseSocket
     //shuts down the current ssl connection
     void stopSsl();
 
+    //cleans up ssl
+    void cleanSsl();
+
     //check that everything in this certificate is correct appart from the hostname
     long checkCertValid(String &hostname);
 
@@ -130,8 +133,8 @@ class Socket : public BaseSocket
 
     private:
 #ifdef __SSLMITM
-    SSL *ssl = nullptr;
-    SSL_CTX *ctx = nullptr;
+    SSL *ssl = NULL;
+    SSL_CTX *ctx = NULL;
     bool isssl = false;
     bool issslserver = false;
 #else

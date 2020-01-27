@@ -35,6 +35,7 @@ extern thread_local std::string thread_id;
 OptionContainer::OptionContainer()
 {
     log_Q = new Queue<std::string>;
+    RQlog_Q = new Queue<std::string>;
    // http_worker_Q = new Queue<LQ_rec>;
 }
 
@@ -134,6 +135,12 @@ bool OptionContainer::read(std::string& filename, int type)
 		    }
 		    myDebug = new DebugManager(debuglevel, path_debuglevel);
 #endif
+                    if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+                        log_requests = false;
+                    } else {
+                        log_requests = true;
+                    }
+
                     if ((stat_location = findoptionS("statlocation")) == "") {
                         stat_location = __LOGLOCATION;
                         stat_location += "/stats";

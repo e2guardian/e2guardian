@@ -467,14 +467,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (isHeaderCheck) {
             for (std::deque<String>::iterator u = cm.request_header->header.begin();
                  u != cm.request_header->header.end(); u++) {
-                String t = *u;
+               // String t = *u;
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {
                     ListMeta::list_result res;
 #ifdef SBDEBUG
                     std::cerr << "checking " << j->name << " type " << j->type << std::endl;
 #endif
-                    if (LMeta->inList(*j, t, res)) {  //found
+                    if (LMeta->inList(*j, *u, res)) {  //found
                         state_result = true;
                         if (i->isif) {
                             cm.lastcategory = res.category;
@@ -483,6 +483,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
+                            if(j->type == LIST_TYPE_REGEXP_REP) {
+                                *u = res.result;
+                            }
                             if (res.anon_log)
                                 cm.anon_log = true;
                         }
@@ -846,6 +849,7 @@ bool StoryBoard::setEntry(unsigned int index, String fname) {
 };
 
 bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
+    cm.isdone = false;   // only has logical scope for a single call
     if (entrys[index] > 0)
         return runFunct(entrys[index], cm);
     else
