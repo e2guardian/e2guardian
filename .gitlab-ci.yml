@@ -82,13 +82,13 @@ Test and publish Debian:
     - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://google.com
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
-    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME} 
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
-    - cd gitpackages/${CI_COMMIT_REF_NAME}
+    - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_BRANCH}
     - git add e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
-    - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package"
+    - git commit -m "Commit "$OS" ${CI_COMMIT_BRANCH} Package"
     - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
    
 Package Docker Image Ubuntu:
@@ -161,13 +161,13 @@ Test and publish Ubuntu:
     - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://google.com
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
-    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME} 
-    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
-    - cd gitpackages/${CI_COMMIT_REF_NAME}
+    - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
+    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
+    - cd gitpackages/${CI_COMMIT_BRANCH}
     - git add e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
-    - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package"
+    - git commit -m "Commit "$OS" ${CI_COMMIT_BRANCH} Package"
     - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
    
      
@@ -234,15 +234,15 @@ Test and publish Ubuntu:
 #    - find ${PACKDST}/ -type f -name "Makefil*" -delete
 #    - find ${PACKDST}/ -type f -name "*.in" -delete
 #    - SIZE=`stat -c %s ${PACKDST}/data` &&  echo $SIZE &&  sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-#    - sed -i "s/Version:.*$/Version:\ ${CI_COMMIT_REF_NAME}/g" ${PACKDST}/control/control 
+#    - sed -i "s/Version:.*$/Version:\ ${CI_COMMIT_BRANCH}/g" ${PACKDST}/control/control 
 #    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
 #    - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
-#    - mkdir -p gitpackages/${CI_COMMIT_REF_NAME}
-#    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_REF_NAME}/e2"$OS"_${CI_COMMIT_REF_NAME}_$(date +%Y%m%d).deb
-#    - cd gitpackages/${CI_COMMIT_REF_NAME}
+#    - mkdir -p gitpackages/${CI_COMMIT_BRANCH}
+#    - mv e2"$OS"_package.deb gitpackages/${CI_COMMIT_BRANCH}/e2"$OS"_${CI_COMMIT_BRANCH}_$(date +%Y%m%d).deb
+#    - cd gitpackages/${CI_COMMIT_BRANCH}
 #    - git add *.deb
 #    - git config --global user.name "${GITLAB_USER_NAME}"
 #    - git config --global user.email "${GITLAB_USER_EMAIL}"
-#    - git commit -m "Commit "$OS" ${CI_COMMIT_REF_NAME} Package" 
+#    - git commit -m "Commit "$OS" ${CI_COMMIT_BRANCH} Package" 
 #    - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
 #    - rm -rf *
