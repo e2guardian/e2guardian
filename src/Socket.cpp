@@ -304,6 +304,12 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         return -1;
     }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3|SSL_OP_NO_TLSv1);
+#else
+    SSL_CTX_set_min_proto_version(ctx, TLS1_1_VERSION);
+#endif
+
     //set the timeout for the ssl session
     if (SSL_CTX_set_timeout(ctx, 130l) < 1) {
             SSL_CTX_free(ctx);
@@ -706,6 +712,12 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 #endif
         return -1;
     }
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv3|SSL_OP_NO_TLSv1);
+#else
+    SSL_CTX_set_min_proto_version(ctx, TLS1_1_VERSION);
+#endif
 
     //set the timeout to match firefox
     if (SSL_CTX_set_timeout(ctx, 130l) < 1) {
