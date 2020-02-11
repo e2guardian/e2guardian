@@ -34,20 +34,6 @@
 #endif
 
 // GLOBALS
-#ifndef FD_SETSIZE
-#define FD_SETSIZE 1024
-#endif
-
-/*
-#ifdef DANS_MAXFD
-#undef FD_SETSIZE
-#define FD_SETSIZE DANS_MAXFD
-#endif
-*/
-
-#ifndef DANS_MAXFD
-#define DANS_MAXFD FD_SETSIZE
-#endif
 
 OptionContainer o;
 thread_local std::string thread_id;

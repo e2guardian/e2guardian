@@ -102,7 +102,7 @@ class OptionContainer
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;
     bool SB_trace = false;
-#ifdef ENABLE_ORIG_IP
+#ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
     int ll = 0;

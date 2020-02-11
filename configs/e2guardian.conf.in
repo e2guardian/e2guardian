@@ -226,19 +226,13 @@ proxyexchange = 61
 # Min 5 - Max 300
 pcontimeout = 55
 
+# NOTE: The following option is removed in v5.4 - if left and enabled would give too many
+# false positives.
 # Whether to retrieve the original destination IP in transparent proxy
 # setups and check it against the domain pulled from the HTTP headers.
 #
-# Be aware that when visiting sites which use a certain type of round-robin
-# DNS for load balancing, E2G may mark requests as invalid unless E2G gets
-# exactly the same answers to its DNS requests as clients.  The chances of
-# this happening can be increased if all clients and servers on the same LAN
-# make use of a local, caching DNS server instead of using upstream DNS
-# directly.
-#
 # See http://www.kb.cert.org/vuls/id/435052
-# on (default) | off
-# NOTE: Only works on Linux platforms
+# NOTE: Only worked on Linux platforms
 @ORIGIPSUPPORT@originalip = off
 
 # Banned image replacement

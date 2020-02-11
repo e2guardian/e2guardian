@@ -628,7 +628,7 @@ bool OptionContainer::read(std::string& filename, int type)
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-#ifdef ENABLE_ORIG_IP
+#ifdef NOTDEF
         if (findoptionS("originalip") == "on") {
             get_orig_ip = true;
         } else {
