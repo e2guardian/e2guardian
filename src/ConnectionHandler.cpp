@@ -839,6 +839,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 doRQLog(clientuser, clientip, checkme, fnt);
             }
 
+            if(!header.isProxyRequest)  // is transparent http proxy
+                get_original_ip_port(peerconn,checkme);
+
             //If proxy connection is not persistent..// do this later after checking if direct or via proxy
 
 #ifdef DGDEBUG
@@ -949,7 +952,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 
-#ifdef ENABLE_ORIG_IP
+//#ifdef ENABLE_ORIG_IP
+#ifdef NOTDEF
             // if working in transparent mode and grabbing of original IP addresses is
             // enabled, does the original IP address match one of those that the host
             // we are going to resolves to?
@@ -3365,26 +3369,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             ++dystat->reqs;
         }
         }
-        {   // get original IP destination & port
 
-                sockaddr_in origaddr;
-                socklen_t origaddrlen(sizeof(sockaddr_in));
-                if (
-#ifdef SOL_IP       // linux
-#define SO_ORIGINAL_DST 80
-                        getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) < 0
-#else                       // BSD
-                        getsockname(peerconn.getFD(), (struct sockaddr *)&origaddr, &origaddrlen) < 0
-#endif
-                ) {
-                    syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
-                    return -1;
-                } else {
-                     char res[INET_ADDRSTRLEN];
-                    checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
-                    checkme.orig_port = ntohs(origaddr.sin_port);
-                }
-         }
+        if(!get_original_ip_port(peerconn,checkme))
+            return -1;
 
         if(!checkme.hasSNI) {
         checkme.url = checkme.orig_ip;
@@ -3658,6 +3645,32 @@ char *get_TLS_SNI(char *inbytes, int* len)
 }
 
 #endif
+
+bool ConnectionHandler::get_original_ip_port(Socket &peerconn, NaughtyFilter &checkme)
+{   // get original IP destination & port
+#ifdef SOL_IP       // linux
+#define SO_ORIGINAL_DST 80
+    sockaddr_in origaddr;
+    socklen_t origaddrlen(sizeof(sockaddr_in));
+    if (
+getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) < 0
+            ) {
+        syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
+        return false;
+    } else {
+        char res[INET_ADDRSTRLEN];
+        checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
+        checkme.orig_port = ntohs(origaddr.sin_port);
+        return true;
+    }
+#else   // TODO: BSD code needs adding - depends on firewall being used
+        // assign checkme.orig_ip and checkme.orig_port and return true
+        // or return false on error
+
+        // return false until BSD code added
+        return false;
+#endif
+}
 
 
 int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec *&dystat) {

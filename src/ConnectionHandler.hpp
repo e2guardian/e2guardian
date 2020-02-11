@@ -92,6 +92,7 @@ class ConnectionHandler
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
     int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, DataBuffer &docbody) ;
 
+    bool get_original_ip_port(Socket &peerconn, NaughtyFilter &checkme);
     bool getdnstxt(std::string &clientip, String &user);
 
     String dns_error(int herror);
