@@ -80,7 +80,9 @@ Test and publish Debian:
     - chown --recursive e2guardian:e2guardian /home/e2
     - echo "https://qwant.com" >> /etc/e2guardian/lists/bannedsitelist
     - e2guardian -N &
-    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k -o /tmp/test https://www.google.com && curl -k https://qwant.com | grep e2guardian 
+    - sleep 5 && export https_proxy=http://localhost:8080 
+    - curl -k -o /tmp/test https://www.google.com 
+    - curl -k https://qwant.com 
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
