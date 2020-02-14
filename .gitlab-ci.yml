@@ -93,7 +93,12 @@ Test and publish Debian:
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git commit -m "Commit "$OS" ${CI_COMMIT_BRANCH} Package"
     - git push https://${YOUR_USERNAME}:${PERSONAL_ACCESS_TOKEN}@gitlab.com/fredbcode/e2guardian.git HEAD:packages
-   
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ssh-add <(echo "$PRIVATE_KEY")
+    - scp -r . ubuntu@nostromo.traceroot.fr:/var/www/html   
 Package Docker Image Ubuntu:
   stage: build:ubuntu
   artifacts:
