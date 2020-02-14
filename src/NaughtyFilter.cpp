@@ -182,6 +182,9 @@ void NaughtyFilter::reset()
     //            isbanneduser = false;
     mimetype = "-";
     docsize = 0; // to store the size of the returned document for logging
+    orig_ip = "";
+    orig_port = 0;
+    got_orig_ip = false;
 
 }
 

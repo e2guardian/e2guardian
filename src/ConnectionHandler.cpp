@@ -483,8 +483,12 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
         cm.upfailure = false;
         if (cm.isdirect) {
             String des_ip;
-            if (cm.isiphost) {
+            if (cm.isiphost)
                 des_ip = cm.urldomain;
+            if(o.use_original_ip_port && cm.got_orig_ip)
+                des_ip = cm.orig_ip;
+
+            if(des_ip.length() > 0) {
                 if (may_be_loop) {  // check check_ip list
                     bool do_break = false;
                     if (o.check_ip.size() > 0) {
@@ -502,7 +506,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 
                 sock.setTimeout(o.connect_timeout);
 #ifdef DGDEBUG
-                std::cerr << thread_id << "Connecting to IPHost " << des_ip << " port " << port << std::endl;
+                std::cerr << thread_id << "Connecting to IP " << des_ip << " port " << port << std::endl;
 #endif
                 int rc = sock.connect(des_ip, port);
                 if (rc < 0) {
@@ -571,7 +575,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                         may_be_loop = false;
                     }
 #ifdef DGDEBUG
-                    std::cerr << thread_id << "Connecting to IP " << t << " port " << port << std::endl;
+                    std::cerr << thread_id << "Connecting to IP " << t << " port " <<
+                    port << " after dns lookup" << std::endl;
 #endif
                     int rc = sock.connect(t, port);
                     if (rc == 0) {
@@ -952,76 +957,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 
-//#ifdef ENABLE_ORIG_IP
-#ifdef NOTDEF
-            // if working in transparent mode and grabbing of original IP addresses is
-            // enabled, does the original IP address match one of those that the host
-            // we are going to resolves to?
-            // Resolves http://www.kb.cert.org/vuls/id/435052
-            if (o.get_orig_ip) {
-                // XXX This will currently only work on Linux/Netfilter.
-                sockaddr_in origaddr;
-                socklen_t origaddrlen(sizeof(sockaddr_in));
-                // Note: we assume that for non-redirected connections, this getsockopt call will
-                // return the proxy server's IP, and not -1.  Hence, comparing the result with
-                // the return value of Socket::getLocalIP() should tell us that the client didn't
-                // connect transparently, and we can assume they aren't vulnerable.
-                if (getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen) < 0) {
-                    syslog(LOG_ERR, "Failed to get client's original destination IP: %s", strerror(errno));
-                    break;
-                }
-
-                char res[INET_ADDRSTRLEN];
-                std::string orig_dest_ip(inet_ntop(AF_INET,&origaddr.sin_addr, res, sizeof(res)));
-                if (orig_dest_ip == peerconn.getLocalIP()) {
-// The destination IP before redirection is the same as the IP the
-// client has actually been connected to - they aren't connecting transparently.
-#ifdef DGDEBUG
-                    std::cerr << thread_id << " -SO_ORIGINAL_DST and getLocalIP are equal; client not connected transparently" << std::endl;
-#endif
-                } else {
-                    // Look up domain from request URL, and check orig IP against resolved IPs
-                    addrinfo hints;
-                    memset(&hints, 0, sizeof(hints));
-                    hints.ai_family = AF_INET;
-                    hints.ai_socktype = SOCK_STREAM;
-                    hints.ai_protocol = IPPROTO_TCP;
-                    addrinfo *results;
-                    int result = getaddrinfo(checkme.urldomain.c_str(), NULL, &hints, &results);
-                    if (result) {
-                        freeaddrinfo(results);
-                        syslog(LOG_ERR, "Cannot resolve hostname for host header checks: %s", gai_strerror(errno));
-                        break;
-                    }
-                    addrinfo *current = results;
-                    bool matched = false;
-                    while (current != NULL) {
-                        char res[INET_ADDRSTRLEN];
-                        if (orig_dest_ip == inet_ntop(AF_INET,&((sockaddr_in *)(current->ai_addr))->sin_addr, res, sizeof(res))) {
-#ifdef DGDEBUG
-                            std::cerr << thread_id << checkme.urldomain << " matched to original destination of " << orig_dest_ip << std::endl;
-#endif
-                            matched = true;
-                            break;
-                        }
-                        current = current->ai_next;
-                    }
-                    freeaddrinfo(results);
-                    if (!matched) {
-// Host header/URL said one thing, but the original destination IP said another.
-// This is exactly the vulnerability we want to prevent.
-#ifdef DGDEBUG
-                        std::cerr << thread_id << checkme.urldomain << " DID NOT MATCH original destination of " << orig_dest_ip << std::endl;
-#endif
-                        syslog(LOG_ERR, "Destination host of %s did not match the original destination IP of %s", checkme.urldomain.c_str(), orig_dest_ip.c_str());
-                            writeback_error(checkme, peerconn, 200, 0, "400 Bad Request");
-                        break;
-                    }
-                }
-            }
-#endif
-
-
             //
             //
             // Start of Authentication Checks
@@ -1226,13 +1161,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             } else {
                 if (!persistProxy) // open upstream connection
                 {
-                    if (connectUpstream(proxysock, checkme, header.port) < 0) {
+                    int out_port = header.port;
+                    if (o.use_original_ip_port && checkme.got_orig_ip &&
+                        !header.isProxyRequest)
+                        out_port = checkme.orig_port;
+                    if (connectUpstream(proxysock, checkme, out_port) < 0) {
                         if (checkme.isconnect && checkme.automitm &&
                             checkme.upfailure)
                         {
-
                             checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
-                        // give error - depending on answer
+                        // to give error - depending on answer
                         // timeout -etc
                         } else {
                             checkme.gomitm = false;   // if not automitm
@@ -3370,12 +3308,14 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
         }
         }
 
-        if(!get_original_ip_port(peerconn,checkme))
-            return -1;
+        get_original_ip_port(peerconn,checkme);
 
         if(!checkme.hasSNI) {
-        checkme.url = checkme.orig_ip;
-         }
+            if(checkme.got_orig_ip) checkme.url = checkme.orig_ip;
+            else // no SNI and no orig_ip - so can't do anything sensible
+            return -1;
+        }
+
 #ifdef DGDEBUG
     std::cerr << thread_id << "hasSNI = " << checkme.hasSNI << " SNI is " << checkme.url <<  " Orig IP " << checkme.orig_ip << " Orig port " << checkme.orig_port << std::endl;
 #endif
@@ -3389,7 +3329,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             //docbody.setTimeout(o.exchange_timeout);
             FDTunnel fdt;
 
-                firsttime = false;
+            firsttime = false;
 
 //
             // do all of this normalisation etc just the once at the start.
@@ -3402,9 +3342,6 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             // Look up reverse DNS name of client if needed
             if (o.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
-                //std::unique_ptr<std::deque<String> > hostnames;
-                //    hostnames.reset(ipToHostname(clientip.c_str()));
-                 //   checkme.clienthost = std::string(hostnames->front().toCharArray());
             }
 
             filtergroup = o.default_trans_fg;
@@ -3507,17 +3444,23 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                               << checkme.message_no << std::endl;
 #endif
 
-		if (ldl->fg[filtergroup]->reporting_level != -1){
+		        if (ldl->fg[filtergroup]->reporting_level != -1){
                 	checkme.isItNaughty = checkme.isBlocked;
-		} else {
-			checkme.isItNaughty = false; 
-		        checkme.isBlocked = false;
-		}
+		        } else {
+			        checkme.isItNaughty = false;
+		            checkme.isBlocked = false;
+		        }
             }
 
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
-                if (connectUpstream(proxysock, checkme,443) > -1) {
+                int out_port;
+                if(checkme.got_orig_ip && o.use_original_ip_port)
+                    out_port = checkme.orig_port;
+                else
+                    out_port = 443;
+
+                if (connectUpstream(proxysock, checkme,out_port) > -1) {
                     if(!checkme.isdirect) {
                         if (sendProxyConnect(checkme.connect_site,&proxysock, &checkme) != 0) {
                        checkme.upfailure = true;

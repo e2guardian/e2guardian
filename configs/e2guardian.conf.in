@@ -226,6 +226,16 @@ proxyexchange = 61
 # Min 5 - Max 300
 pcontimeout = 55
 
+# This option only applies when request is transparent (http or https), 
+# when no upstream proxy is used, and where it is possible to detect 
+# the original destination ip & port
+# When enabled the upstream request will be directed at the original ip and port# and no DNS lookup will be performed.
+# This solves the 'snapchat' issue and also should increase speed of connection.
+# Currently this only works on linux systems.  BSD developers, PLEASE HELP fix
+# this for BSD, pfsense etc!
+# default = off
+useoriginalip = on
+
 # NOTE: The following option is removed in v5.4 - if left and enabled would give too many
 # false positives.
 # Whether to retrieve the original destination IP in transparent proxy

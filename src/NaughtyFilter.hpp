@@ -36,8 +36,9 @@ class NaughtyFilter
     bool isBlocked = false;
     bool hasSNI = false;     // used in transparent https mode
     bool isTLS = false;     // used in transparent https mode
-    String orig_ip;     // used in transparent https mode
-    int orig_port = 0;     // used in transparent https mode
+    String orig_ip;     // used in transparent mode
+    int orig_port = 0;     // used in transparent mode
+    bool got_orig_ip = false;     // used in transparent mode
 
     int listen_port = 0;    // listening port
 

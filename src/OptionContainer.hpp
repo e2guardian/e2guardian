@@ -129,6 +129,7 @@ class OptionContainer
     bool auth_requires_user_and_group = false;
     bool enable_ssl = false;
     bool auth_needs_proxy_in_plugin = false;
+    bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
     bool prefer_cached_lists = false;
     std::string languagepath;

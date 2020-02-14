@@ -628,14 +628,12 @@ bool OptionContainer::read(std::string& filename, int type)
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-#ifdef NOTDEF
-        if (findoptionS("originalip") == "on") {
-            get_orig_ip = true;
+        if (findoptionS("useoriginalip") == "on") {
+            use_original_ip_port = true;
         } else {
-            get_orig_ip = false;
+            use_original_ip_port  = false;
         }
 
-#endif
 
         ll = findoptionI("loglevel");
         if (!realitycheck(ll, 0, 3, "loglevel")) {
