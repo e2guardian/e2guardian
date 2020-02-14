@@ -97,7 +97,7 @@ Test and publish Debian:
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-    - ssh-add <(echo "$PRIVATE_KEY")
+    - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -r . ubuntu@nostromo.traceroot.fr:/var/www/html   
 Package Docker Image Ubuntu:
   stage: build:ubuntu
