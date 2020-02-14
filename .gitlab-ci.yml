@@ -75,12 +75,12 @@ Test and publish Debian:
     - VFULL=`${PACKDST}/e2debian_package/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2`
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
-    - echo "https://www.qwant.fr" >> /etc/e2guardian/lists/bannedsitelist
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
-    - e2guardian -N & 
-    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k -o /tmp/test https://www.google.com && curl -k https://www.qwant.fr | grep e2guardian 
+    - echo "https://qwant.com" >> /etc/e2guardian/lists/bannedsitelist
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k -o /tmp/test https://www.google.com && curl -k https://qwant.com | grep e2guardian 
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
