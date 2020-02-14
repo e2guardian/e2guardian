@@ -82,7 +82,7 @@ Test and publish Debian:
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 
     - curl -k -o /tmp/test https://www.google.com 
-    - curl -k https://www.qwant.com 
+    - curl -k https://www.qwant.com | grep -i e2guardian 
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
@@ -160,8 +160,11 @@ Test and publish Ubuntu:
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
-    - e2guardian -N & 
-    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://google.com
+    - echo "qwant.com" >> /etc/e2guardian/lists/bannedsitelist
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 
+    - curl -k -o /tmp/test https://www.google.com 
+    - curl -k https://www.qwant.com | grep -i e2guardian 
     - unset https_proxy
     - git clone -b packages --single-branch https://gitlab.com/fredbcode/e2guardian.git gitpackages
     - mkdir -p gitpackages/${CI_COMMIT_BRANCH} 
