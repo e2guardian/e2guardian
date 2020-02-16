@@ -96,7 +96,7 @@ Test and publish Debian:
 Package Docker Image Ubuntu:
   stage: build:ubuntu
   artifacts:
-   expire_in: 15 minutes
+   expire_in: 10 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian   
@@ -117,7 +117,7 @@ Create Ubuntu Package:
   stage: create-ubuntu-package
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 15 minutes
+   expire_in: 10 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian/scripts/debian_package
@@ -127,7 +127,6 @@ Create Ubuntu Package:
     OS: "ubuntu"
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
-    - ls -la ${PACKPATH} && ls -la ${PACKDST}/data/usr/sbin/e2guardian
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
