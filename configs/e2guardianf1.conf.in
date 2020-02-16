@@ -184,6 +184,7 @@ regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
 regexpreplacelist = 'name=reponseheadermods,path=@DGCONFDIR@/lists/responseheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
+#Note that you also need to amend site.story in order for this to work.
 #mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
 #fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
 #sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
