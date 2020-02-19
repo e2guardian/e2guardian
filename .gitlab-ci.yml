@@ -176,47 +176,47 @@ Test and publish Ubuntu:
      
 # TODO: CONFIGURE configure --host=arm works only on real machine ?
 # 
-#Package Docker Image Raspbian:
-#  stage: build:raspbian
-#  artifacts:
-#   expire_in: 1 hour
-#   name: build-raspbian
-#   paths:
-#    - /builds   
-#  image: amd64/debian:stable
-#  variables:
-#    OS: "rasbian" 
-#  script:
-#    - echo "deb-src http://deb.debian.org/debian stretch main" >> /etc/apt/sources.list 
-#    - echo "deb-src http://deb.debian.org/debian-security/ stretch/updates main" >> /etc/apt/sources.list 
-#    - echo "deb-src http://deb.debian.org/debian stretch-updates main" >> /etc/apt/sources.list 
-#    - apt update
-#    - apt-get -y upgrade
-#    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
-#      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
-#      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
-#      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
-#      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
-#    - dpkg --add-architecture armhf
-#    - apt-get update
-#    - apt-get install -y build-essential crossbuild-essential-armhf
-#    - apt-get build-dep -y -aarmhf e2guardian
-#    - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
-#    - export ARCH=arm
-#    - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
-#    - export CC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
-#    - export NM=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-nm
-#    - export LD=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ld
-#    - export CXX=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-g++
-#    - export RANLIB=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ranlib
-#    - export AR=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ar
-#    - cd /builds/fredbcode/e2guardian 
-#    - ./autogen.sh 
-#    - export
-#    - ./configure --host=arm --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes
-#    - make ARCH=arm CROSS_COMPIL=arm-linux-gnueabi-
-#    - rm -rf .git
-#
+Package Docker Image Raspbian:
+  stage: build:raspbian
+  artifacts:
+   expire_in: 1 hour
+   name: build-raspbian
+   paths:
+    - /builds   
+  image: amd64/debian:stable
+  variables:
+    OS: "raspbian" 
+  script:
+    - echo "deb-src http://deb.debian.org/debian stretch main" >> /etc/apt/sources.list 
+    - echo "deb-src http://deb.debian.org/debian-security/ stretch/updates main" >> /etc/apt/sources.list 
+    - echo "deb-src http://deb.debian.org/debian stretch-updates main" >> /etc/apt/sources.list 
+    - apt update
+    - apt-get -y upgrade
+    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
+      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
+      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
+      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+    - dpkg --add-architecture armhf
+    - apt-get update
+    - apt-get install -y build-essential crossbuild-essential-armhf
+    - apt-get build-dep -y -aarmhf e2guardian
+    - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
+    - export ARCH=arm
+    - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
+    - export CC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
+    - export NM=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-nm
+    - export LD=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ld
+    - export CXX=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-g++
+    - export RANLIB=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ranlib
+    - export AR=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ar
+    - cd /builds/fredbcode/e2guardian 
+    - ./autogen.sh 
+    - export
+    - ./configure --host=arm --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes
+    - make ARCH=arm CROSS_COMPIL=arm-linux-gnueabi-
+    - rm -rf .git
+
 ##Create Raspbian Package:
 #  stage: create-raspbian-package
 #  image: amd64/debian:stable
@@ -228,7 +228,7 @@ Test and publish Ubuntu:
 #    - cd /builds/fredbcode/e2guardian
 #    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates lsb-release util-linux binutils
 #    - git clone https://github.com/fredbcode/scripts
-#    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+#    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
 #    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
 #    - mkdir -p  ${PACKPATH}/share/e2guardian/languages
 #    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
