@@ -46,7 +46,7 @@ Create Debian Package:
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - git clone https://github.com/fredbcode/scripts
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
@@ -127,7 +127,7 @@ Create Ubuntu Package:
     OS: "ubuntu"
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
