@@ -215,8 +215,8 @@ Package Docker Image Raspbian:
     - cd /builds/fredbcode/e2guardian 
     - ./autogen.sh 
     - ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes
-    - make ARCH=arm CROSS_COMPIL=arm-linux-gnueabi-
-    - rm -rf .git
+    - make ARCH=arm CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
+    - file src/e2guardian
 
 ##Create Raspbian Package:
 #  stage: create-raspbian-package
