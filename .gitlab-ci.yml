@@ -21,6 +21,7 @@ Package Docker Image Raspbian:
   variables:
     OS: "raspbian" 
   script:
+    - echo "deb-src http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list
     - apt update
     - apt-get -y upgrade
     - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
