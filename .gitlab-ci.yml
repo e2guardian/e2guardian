@@ -32,14 +32,7 @@ Package Docker Image Raspbian:
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
     - export ARCH=arm
     - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
-    - export CC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
-    - export GCC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
-    - export CPP=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
-    - export NM=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-nm
-    - export LD=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ld
-    - export CXX=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-g++
-    - export RANLIB=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ranlib
-    - export AR=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ar
+    - cd /tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin && ln -s arm-linux-gnueabihf-c++ c++ && ln -s arm-linux-gnueabihf-cc cc && ln -s arm-linux-gnueabihf-cpp cpp && ln -s arm-linux-gnueabihf-g++ g++ && ln -s arm-linux-gnueabihf-gcc gcc
     - cd /builds/fredbcode/e2guardian 
     - ./autogen.sh 
     - ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes
