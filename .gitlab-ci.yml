@@ -21,16 +21,10 @@ Package Docker Image Raspbian:
   variables:
     OS: "raspbian" 
   script:
-    - echo "deb-src http://deb.debian.org/debian stretch main" >> /etc/apt/sources.list 
-    - echo "deb-src http://deb.debian.org/debian-security/ stretch/updates main" >> /etc/apt/sources.list 
-    - echo "deb-src http://deb.debian.org/debian stretch-updates main" >> /etc/apt/sources.list 
     - apt update
     - apt-get -y upgrade
     - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
-      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
-      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
-      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
-      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar bsdutils dh-autoreconf dpatch
     - dpkg --add-architecture armhf
     - apt-get update
     - apt-get install -y build-essential crossbuild-essential-armhf
@@ -40,6 +34,7 @@ Package Docker Image Raspbian:
     - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
     - export CC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
     - export GCC=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
+    - export CPP=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-gcc
     - export NM=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-nm
     - export LD=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-ld
     - export CXX=/tmp/tools/arm-bcm2708/arm-bcm2708hardfp-linux-gnueabi/bin/arm-bcm2708hardfp-linux-gnueabi-g++
