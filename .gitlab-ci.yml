@@ -1,10 +1,10 @@
 stages:
-        #- build:debian
-        #- create-debian-package
-        #- TestDebian
-        #- build:ubuntu
-        #- create-ubuntu-package
-        #- TestUbuntu
+- build:debian
+- create-debian-package
+- TestDebian
+- build:ubuntu
+- create-ubuntu-package
+- TestUbuntu
   ## Works in progress ...
 - build:raspbian
 #- create-raspbian-package
