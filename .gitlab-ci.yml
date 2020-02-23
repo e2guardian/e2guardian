@@ -198,8 +198,8 @@ Package Docker Image Raspbian:
     - dpkg --add-architecture armhf
     - apt-get update
     - apt-get install -y build-essential crossbuild-essential-armhf
-    - apt-get build-dep -y -aarmhf e2guardian
-    - apt-get install -y zlib1g-dev:aarmhf libclamav-dev:aarmhf libpcre3-dev:aarmhf libssl-dev:aarmhf 
+    - apt-get build-dep -y -a armhf e2guardian
+    - apt-get install -y zlib1g-dev:armhf libclamav-dev:armhf libpcre3-dev:armhf libssl-dev:armhf 
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
     - export ARCH=arm
     - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
