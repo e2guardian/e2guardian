@@ -203,13 +203,12 @@ Package Docker Image Raspbian:
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
     - export ARCH=arm
     - export CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
-    - cd /tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin && ln -s arm-linux-gnueabihf-c++ c++ && ln -s arm-linux-gnueabihf-cc cc && ln -s arm-linux-gnueabihf-cpp cpp && ln -s arm-linux-gnueabihf-g++ g++ && ln -s arm-linux-gnueabihf-gcc gcc
     - PATH=/tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin:${PATH}
     - export PATH
     - cd /builds/fredbcode/e2guardian 
     - ./autogen.sh 
     - ./configure --host=arm --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes CROSS_COMPIL=arm-linux-gnueabi-
-    - make ARCH=arm CROSS_COMPILE=arm-bcm2708hardfp-linux-gnueabi-
+    - make ARCH=arm-bcm2708hardfp-linux-gnueabi-
     - file src/e2guardian
 
 ##Create Raspbian Package:
