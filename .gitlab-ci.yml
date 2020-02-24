@@ -184,9 +184,9 @@ Package Docker Image Raspbian:
   stage: build:raspbian
   #  artifacts:
   # expire_in: 1 hour
-  name: build-raspbian
-   paths:
-    - /builds   
+  #name: build-raspbian
+  # paths:
+  #  - /builds   
   image: amd64/debian:stable
   variables:
     OS: "raspbian" 
