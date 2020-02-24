@@ -201,14 +201,14 @@ Package Docker Image Raspbian:
     - apt-get build-dep -y -a armhf e2guardian
     - apt-get install -y zlib1g-dev:armhf libclamav-dev:armhf libpcre3-dev:armhf libssl-dev:armhf 
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
-    - export ARCH=arm-linux-gnueabihf-
-    - export CROSS_COMPILE=arm-linux-gnueabihf-
+    - export ARCH=arm-linux-gnueabihf
+    - export CROSS_COMPILE=arm-linux-gnueabihf
     - PATH=/tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin:${PATH}
     - export PATH
     - cd /builds/fredbcode/e2guardian 
     - ./autogen.sh 
-    - ./configure --host=arm-linux-gnueabihf- --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes CROSS_COMPIL=arm-linux-gnueabi-
-    - make ARCH=arm-linux-gnueabihf-
+    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes CROSS_COMPIL=arm-linux-gnueabi
+    - make ARCH=arm-linux-gnueabihf
     - file src/e2guardian
 
 ##Create Raspbian Package:
