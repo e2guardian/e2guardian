@@ -201,7 +201,7 @@ Package Docker Image Raspbian:
     - apt-get build-dep -y -a armhf e2guardian
     - apt-get install -y zlib1g-dev:armhf libclamav-dev:armhf libpcre3-dev:armhf libssl-dev:armhf 
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
-    - ls -la /usr/lib/arm-linux-gnueabihf && /usr/include/arm-linux-gnueabihf
+    - ls -la /usr/lib/arm-linux-gnueabihf && ls -la /usr/include/arm-linux-gnueabihf
     - PKG_CONFIG_SYSTEM_LIBRARY_PATH=/usr/lib/arm-linux-gnueabihf
     - PKG_CONFIG_SYSTEM_INCLUDE_PATH=/usr/include/arm-linux-gnueabihf
     - exec pkgconf "$@"      
