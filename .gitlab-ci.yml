@@ -197,7 +197,7 @@ Package Docker Image Raspbian:
     - apt install --no-install-recommends --no-install-suggests -y libpcre3-dev libssl-dev zlib1g-dev curl unzip base-files automake base-passwd pkg-config libssl1.1 bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils dh-autoreconf dpatch
     - dpkg --add-architecture armhf
     - apt-get update
-    - apt-get install -y build-essential crossbuild-essential-armhf pkg-config-arm-linux-gnueabihf
+    - apt-get install -y build-essential crossbuild-essential-armhf 
     - apt-get build-dep -y -a armhf e2guardian
     - apt-get install -y zlib1g-dev:armhf libclamav-dev:armhf libpcre3-dev:armhf libssl-dev:armhf 
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
