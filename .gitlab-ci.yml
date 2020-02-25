@@ -197,17 +197,20 @@ Package Docker Image Raspbian:
     - apt install --no-install-recommends --no-install-suggests -y libpcre3-dev libssl-dev zlib1g-dev curl unzip base-files automake base-passwd pkg-config libssl1.1 bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils dh-autoreconf dpatch
     - dpkg --add-architecture armhf
     - apt-get update
-    - apt-get install -y build-essential crossbuild-essential-armhf
+    - apt-get install -y build-essential crossbuild-essential-armhf pkg-config-arm-linux-gnueabihf
     - apt-get build-dep -y -a armhf e2guardian
     - apt-get install -y zlib1g-dev:armhf libclamav-dev:armhf libpcre3-dev:armhf libssl-dev:armhf 
     - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools
+    - PKG_CONFIG_SYSTEM_LIBRARY_PATH=/usr/arm-linux-gnueabihf/lib 
+    - PKG_CONFIG_SYSTEM_INCLUDE_PATH=/usr/arm-linux-gnueabihf/include
+    - exec pkgconf "$@"      
     - export ARCH=arm-linux-gnueabihf
     - export CROSS_COMPILE=arm-linux-gnueabihf
     - PATH=/tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin:${PATH}
     - export PATH
     - cd /builds/fredbcode/e2guardian 
     - ./autogen.sh 
-    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes CROSS_COMPIL=arm-linux-gnueabihf
+    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
     - make ARCH=arm-linux-gnueabihf
     - file src/e2guardian
 
