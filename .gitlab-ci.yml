@@ -194,7 +194,7 @@ Package Docker Image Raspbian:
     - echo "deb-src http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list
     - apt update
     - apt-get -y upgrade
-    - apt install --no-install-recommends --no-install-suggests -y libpcre3-dev libssl-dev zlib1g-dev curl unzip base-files automake base-passwd pkg-config libssl1.1 bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils dh-autoreconf dpatch
+    - apt install --no-install-recommends --no-install-suggests -y libpcre3-dev libssl-dev zlib1g-dev pkgconf curl unzip base-files automake base-passwd pkg-config libssl1.1 bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils dh-autoreconf dpatch
     - dpkg --add-architecture armhf
     - apt-get update
     - apt-get install -y build-essential crossbuild-essential-armhf 
