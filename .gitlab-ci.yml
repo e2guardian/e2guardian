@@ -19,7 +19,7 @@ Package Docker Image Raspbian:
   script:
    - apt update 
    - apt-get -y upgrade 
-   - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils 
+   - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils lsb-release 
    - echo "deb-src http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list 
    - dpkg --add-architecture armhf 
    - apt-get update 
