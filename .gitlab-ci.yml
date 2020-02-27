@@ -58,11 +58,12 @@ Create Raspbian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - rm -rf .git
-    - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
+    - ls *
+    - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -r ${CI_COMMIT_BRANCH} www-data@nostromo.traceroot.fr:/var/www/html
+    - rm -rf .git
