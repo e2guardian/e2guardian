@@ -43,7 +43,7 @@ Create Raspbian Package:
     OS: "raspbian"
   script:
     - apt update
-    - apt install -y curl git lsb-release 
+    - apt install -y curl git lsb-release binutils
     - VERSION=`lsb_release -cs`
     - git clone https://github.com/fredbcode/scripts
     - mkdir -p ${PACKDST}/data/usr/sbin
