@@ -58,7 +58,7 @@ Create Raspbian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - ls *
+    - mkdir ${CI_COMMIT_BRANCH} 
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
