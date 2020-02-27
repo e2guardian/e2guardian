@@ -183,8 +183,8 @@ Test and publish Ubuntu:
 Package Docker Image Raspbian:
   stage: build:raspbian
   artifacts:
-  expire_in: 1 hour
-  name: build-raspbian
+   expire_in: 10 minutes
+   name: build
    paths:
     - /builds   
   image: amd64/debian:stable
