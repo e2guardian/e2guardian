@@ -26,14 +26,13 @@ Package Docker Image Raspbian:
    - apt-get install -y build-essential crossbuild-essential-armhf 
    - apt-get build-dep -y -a armhf e2guardian 
    - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools 
-     #   - PATH=/tmp/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin:${PATH}
    - cd /builds/fredbcode/e2guardian   
-   - rm -f compile config.guess config.sub missing depcomp
    - ./autogen.sh
    - export 
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian 
+   - rm -rf .git
 
 Create Raspbian Package:
   stage: create-raspbian-package
