@@ -42,6 +42,8 @@ Create Raspbian Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
     OS: "raspbian"
   script:
+    - apt update
+    - apt install -y curl git lsb-release 
     - VERSION=`lsb_release -cs`
     - git clone https://github.com/fredbcode/scripts
     - mkdir -p ${PACKDST}/data/usr/sbin
