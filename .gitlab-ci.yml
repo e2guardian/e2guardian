@@ -199,7 +199,6 @@ Package Docker Image Raspbian:
    - apt-get update 
    - apt-get install -y build-essential crossbuild-essential-armhf 
    - apt-get build-dep -y -a armhf e2guardian 
-   - git clone https://github.com/raspberrypi/tools.git --depth 1 /tmp/tools 
    - cd /builds/fredbcode/e2guardian   
    - ./autogen.sh
    - export 
