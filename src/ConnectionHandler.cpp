@@ -2764,7 +2764,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             std::cerr << thread_id << " -Checking certificate" << std::endl;
 #endif
 //will fill in checkme of its own accord
-            if (!checkme.nocheckcert) {
+            if !(checkme.nocheckcert && checkme.message_no == 160) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
                 badcert = checkme.isItNaughty;
             }
