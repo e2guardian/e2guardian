@@ -39,11 +39,10 @@ class NaughtyFilter
     String orig_ip;     // used in transparent mode
     int orig_port = 0;     // used in transparent mode
     bool got_orig_ip = false;     // used in transparent mode
-
+    // bad certificat
+    bool badcert = false;
     int listen_port = 0;    // listening port
-
     struct auth_rec *authrec = nullptr;
-
 
     // return true or false?
     bool isReturn = false;

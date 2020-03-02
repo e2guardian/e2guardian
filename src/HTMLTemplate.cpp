@@ -215,7 +215,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 #ifdef NOTDEF
 // fill in placeholders with the given information and send the resulting page to the client
 // only useful if you used the default set of placeholders
-    void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
+void HTMLTemplate::display(Socket *s, String *url, std::string &reason, std::string &logreason, std::string &categories,
                                std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed)
 {
     String ebody;

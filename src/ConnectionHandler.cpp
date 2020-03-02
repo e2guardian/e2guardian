@@ -1952,9 +1952,13 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         // buffer method is used and we want the download to be
                         // broken we don't mind too much
                         //String fullurl = header->getLogUrl(true);
-                        String fullurl = checkme->logurl;
+			//
+			// DISPLAYING TEMPLATE
+
+			String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
-                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
+                        if (!(*checkme).badcert)
+				ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
                                                                                               (*checkme).whatIsNaughtyLog,
@@ -2731,8 +2735,6 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
     }
 
-    bool badcert = false;
-
     if (proxysock.isOpen()) {
 // tsslclient connected to the proxy and check the certificate of the server
 #ifdef DGDEBUG
@@ -2764,9 +2766,9 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             std::cerr << thread_id << " -Checking certificate" << std::endl;
 #endif
 //will fill in checkme of its own accord
-            if ((!checkme.nocheckcert) && !(checkme.message_no == 160)) {
+            if (!checkme.nocheckcert) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
-                badcert = checkme.isItNaughty;
+                checkme.badcert = checkme.isItNaughty;
             }
         }
     }
@@ -2818,7 +2820,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         if(!justLog)
         denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
-                   checkme.scanerror, badcert);
+                   checkme.scanerror, checkme.badcert);
     }
 #ifdef DGDEBUG
     std::cerr << thread_id << " -Shutting down ssl to proxy" << std::endl;
