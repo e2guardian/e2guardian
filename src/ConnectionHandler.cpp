@@ -2813,11 +2813,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         std::cerr << thread_id << " -SSL Interception failed " << checkme.whatIsNaughty << " nf " << checkme.isItNaughty <<
                 " upfail " << checkme.upfailure << std::endl;
 #endif
-
         doLog(clientuser, clientip, checkme);
 
         if(!justLog)
-        denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
+        	denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, checkme.badcert);
     }
