@@ -485,7 +485,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             String des_ip;
             if (cm.isiphost)
                 des_ip = cm.urldomain;
-            if(o.use_original_ip_port && cm.got_orig_ip)
+            if(o.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
                 des_ip = cm.orig_ip;
 
             if(des_ip.length() > 0) {
