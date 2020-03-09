@@ -1957,8 +1957,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 
 			String fullurl = checkme->logurl;
                         String localip = peerconn.getLocalIP();
-                        if (!(*checkme).badcert)
-				ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
+			ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
                                                                                               (*checkme).whatIsNaughtyLog,
@@ -2761,7 +2760,6 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 #endif
 
         if (!checkme.isItNaughty) {
-
 #ifdef DGDEBUG
             std::cerr << thread_id << " -Checking certificate" << std::endl;
 #endif
@@ -2769,6 +2767,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!checkme.nocheckcert) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
                 checkme.badcert = checkme.isItNaughty;
+		justLog = true;
             }
         }
     }
@@ -2814,11 +2813,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         std::cerr << thread_id << " -SSL Interception failed " << checkme.whatIsNaughty << " nf " << checkme.isItNaughty <<
                 " upfail " << checkme.upfailure << std::endl;
 #endif
-
         doLog(clientuser, clientip, checkme);
 
         if(!justLog)
-        denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
+        	denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, checkme.badcert);
     }
