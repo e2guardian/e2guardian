@@ -14,7 +14,7 @@
 case "$1" in
 start)
         if [ -f @DGBINDIR@/e2guardian ] &&
-           [ -f @DGCONFDIR@/e2guardian.conf ]; then
+           [ -f @E2CONFDIR@/e2guardian.conf ]; then
                 @DGBINDIR@/e2guardian
                 echo "E2Guardian started."
         fi

@@ -37,19 +37,19 @@
 #listcategory: "Banned Phrases"
 
 
-#.Include<@DGCONFDIR@/lists/phraselists/portuguese/rta/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/rta/banned>
 
 # The following banned phraselists are included in the default e2g distribution.
 
-.Include<@DGCONFDIR@/lists/phraselists/ukenglish/pornography/banned>
-##.Include<@DGCONFDIR@/lists/phraselists/portuguese/pornography/banned>
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/pornography/banned>
+##.Include<@E2CONFDIR@/lists/phraselists/portuguese/pornography/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/illegaldrugs/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/illegaldrugs/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/gambling/banned>
-##.Include<@DGCONFDIR@/lists/phraselists/portuguese/gambling/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gambling/banned>
+##.Include<@E2CONFDIR@/lists/phraselists/portuguese/gambling/banned>
 
-#.Include<@DGCONFDIR@/lists/phraselists/ukenglish/googlesearches/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/googlesearches/banned>
 
 
 

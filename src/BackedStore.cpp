@@ -47,7 +47,7 @@ BackedStore::~BackedStore()
 
     if (fd >= 0) {
 #ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: closing & deleting temp file " << filename << " BADGERS!" << std::endl;
+        std::cerr << thread_id << "BackedStore: closing & deleting temp file " << filename << " BAE2ERS!" << std::endl;
 #endif
         int rc = 0;
         do {

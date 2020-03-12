@@ -2,7 +2,7 @@ DISTCLEANFILES = Makefile.in \
 		       clamdscan.conf icapscan.conf \
 		       kavdscan.conf commandlinescan.conf
 
-DGDATADIR = $(DGCONFDIR)/contentscanners
+E2DATADIR = $(E2CONFDIR)/contentscanners
 
 SUBDIRS = .
 
@@ -33,14 +33,14 @@ EXTRA_DIST = clamdscan.conf.in avastdscan.conf.in icapscan.conf.in \
              kavdscan.conf.in commandlinescan.conf.in
 
 install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
+		$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l; \
 	done
 
 
 uninstall-local:
 	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+		rm -f $(DESTDIR)$(E2DATADIR)/$$l ; \
 	done

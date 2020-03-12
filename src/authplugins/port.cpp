@@ -126,7 +126,7 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     authrec.user_name = string;
     authrec.user_source = "port";
     is_real_user = false;
-    return DGAUTH_OK;
+    return E2AUTH_OK;
 }
 
 #ifdef NODEF
@@ -141,12 +141,12 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
 #ifdef E2DEBUG
         std::cerr << thread_id << "Matched port " << user << " to port list" << std::endl;
 #endif
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
 #ifdef E2DEBUG
     std::cerr << thread_id << "Matched port " << user << " to nothing" << std::endl;
 #endif
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 #endif
 

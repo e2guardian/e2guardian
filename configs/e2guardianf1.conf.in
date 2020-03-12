@@ -14,98 +14,98 @@
 groupname = 'no_name_group'
 
 # Much logic has moved to storyboard files
-storyboard = '@DGCONFDIR@/examplef1.story'
+storyboard = '@E2CONFDIR@/examplef1.story'
 
-# Enable legacy (DG) ssl logic
+# Enable legacy (E2) ssl logic
 # 
 # The following option is replaced by storyboard logic
 # ssllegacylogic = off
 
 # Content filtering files location
 
-bannedphraselist = '@DGCONFDIR@/lists/bannedphraselist'
-weightedphraselist = '@DGCONFDIR@/lists/weightedphraselist'
-exceptionphraselist = '@DGCONFDIR@/lists/exceptionphraselist'
+bannedphraselist = '@E2CONFDIR@/lists/bannedphraselist'
+weightedphraselist = '@E2CONFDIR@/lists/weightedphraselist'
+exceptionphraselist = '@E2CONFDIR@/lists/exceptionphraselist'
 ## To use oldphraselists comment out last 3 lines and
 ## uncomment the follwing 3 lines
-#bannedphraselist = '@DGCONFDIR@/lists/oldbannedphraselist'
-#weightedphraselist = '@DGCONFDIR@/lists/oldweightedphraselist'
-#exceptionphraselist = '@DGCONFDIR@/lists/oldexceptionphraselist'
+#bannedphraselist = '@E2CONFDIR@/lists/oldbannedphraselist'
+#weightedphraselist = '@E2CONFDIR@/lists/oldweightedphraselist'
+#exceptionphraselist = '@E2CONFDIR@/lists/oldexceptionphraselist'
 
 ### NOTE - New format for all other list definitions in v5.0 
 ###        see notes/V5_list_definition for details
 
 #banned lists
-sitelist = 'name=banned,messageno=500,path=@DGCONFDIR@/lists/bannedsitelist'
-ipsitelist = 'name=banned,messageno=510,path=@DGCONFDIR@/lists/bannedsiteiplist'
-urllist = 'name=banned,messageno=501,path=@DGCONFDIR@/lists/bannedurllist'
-regexpboollist = 'name=banned,messageno=503,path=@DGCONFDIR@/lists/bannedregexpurllist'
-regexpboollist = 'name=banneduseragent,messageno=522,path=@DGCONFDIR@/lists/bannedregexpuseragentlist'
+sitelist = 'name=banned,messageno=500,path=@E2CONFDIR@/lists/bannedsitelist'
+ipsitelist = 'name=banned,messageno=510,path=@E2CONFDIR@/lists/bannedsiteiplist'
+urllist = 'name=banned,messageno=501,path=@E2CONFDIR@/lists/bannedurllist'
+regexpboollist = 'name=banned,messageno=503,path=@E2CONFDIR@/lists/bannedregexpurllist'
+regexpboollist = 'name=banneduseragent,messageno=522,path=@E2CONFDIR@/lists/bannedregexpuseragentlist'
 
-sitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsitelist'
-ipsitelist = 'name=bannedssl,messageno=520,path=@DGCONFDIR@/lists/bannedsslsiteiplist'
+sitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsitelist'
+ipsitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsiteiplist'
 
 
 # NEW in v5.4 bannedtimelist - times when no access is allowed
 # To activate a storyboard change is required - see examplef1.story
-timelist = 'name=bannedtimes,messageno=122,path=@DGCONFDIR@/lists/bannedtimelist'
+timelist = 'name=bannedtimes,messageno=122,path=@E2CONFDIR@/lists/bannedtimelist'
 
 # NEW in v5.4 blankettimelist - times when blanket block is applied
 # To activate a storyboard change is required - see examplef1.story
-timelist = 'name=blankettimes,messageno=122,path=@DGCONFDIR@/lists/blankettimelist'
+timelist = 'name=blankettimes,messageno=122,path=@E2CONFDIR@/lists/blankettimelist'
 
 
 #grey (i.e. content check) lists
-sitelist = 'name=grey,path=@DGCONFDIR@/lists/greysitelist'
-ipsitelist = 'name=grey,path=@DGCONFDIR@/lists/greysiteiplist'
-urllist = 'name=grey,path=@DGCONFDIR@/lists/greyurllist'
-sitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsitelist'
-ipsitelist = 'name=greyssl,path=@DGCONFDIR@/lists/greysslsiteiplist'
+sitelist = 'name=grey,path=@E2CONFDIR@/lists/greysitelist'
+ipsitelist = 'name=grey,path=@E2CONFDIR@/lists/greysiteiplist'
+urllist = 'name=grey,path=@E2CONFDIR@/lists/greyurllist'
+sitelist = 'name=greyssl,path=@E2CONFDIR@/lists/greysslsitelist'
+ipsitelist = 'name=greyssl,path=@E2CONFDIR@/lists/greysslsiteiplist'
 
 #exception lists
-sitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsitelist'
-ipsitelist = 'name=exception,messageno=602,path=@DGCONFDIR@/lists/exceptionsiteiplist'
-urllist = 'name=exception,messageno=603,path=@DGCONFDIR@/lists/exceptionurllist'
-regexpboollist = 'name=exception,messageno=609,path=@DGCONFDIR@/lists/exceptionregexpurllist'
-regexpboollist = 'name=exceptionuseragent,messageno=610,path=@DGCONFDIR@/lists/exceptionregexpuseragentlist'
+sitelist = 'name=exception,messageno=602,path=@E2CONFDIR@/lists/exceptionsitelist'
+ipsitelist = 'name=exception,messageno=602,path=@E2CONFDIR@/lists/exceptionsiteiplist'
+urllist = 'name=exception,messageno=603,path=@E2CONFDIR@/lists/exceptionurllist'
+regexpboollist = 'name=exception,messageno=609,path=@E2CONFDIR@/lists/exceptionregexpurllist'
+regexpboollist = 'name=exceptionuseragent,messageno=610,path=@E2CONFDIR@/lists/exceptionregexpuseragentlist'
 
-sitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsitelist'
-ipsitelist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionsiteiplist'
-urllist = 'name=refererexception,messageno=620,path=@DGCONFDIR@/lists/refererexceptionurllist'
-sitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersitelist'
-ipsitelist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededreferersiteiplist'
-urllist = 'name=embededreferer,path=@DGCONFDIR@/lists/embededrefererurllist'
+sitelist = 'name=refererexception,messageno=620,path=@E2CONFDIR@/lists/refererexceptionsitelist'
+ipsitelist = 'name=refererexception,messageno=620,path=@E2CONFDIR@/lists/refererexceptionsiteiplist'
+urllist = 'name=refererexception,messageno=620,path=@E2CONFDIR@/lists/refererexceptionurllist'
+sitelist = 'name=embededreferer,path=@E2CONFDIR@/lists/embededreferersitelist'
+ipsitelist = 'name=embededreferer,path=@E2CONFDIR@/lists/embededreferersiteiplist'
+urllist = 'name=embededreferer,path=@E2CONFDIR@/lists/embededrefererurllist'
 
 #modification lists
-regexpreplacelist = 'name=change,path=@DGCONFDIR@/lists/urlregexplist'
-regexpreplacelist = 'name=sslreplace,path=@DGCONFDIR@/lists/sslsiteregexplist'
+regexpreplacelist = 'name=change,path=@E2CONFDIR@/lists/urlregexplist'
+regexpreplacelist = 'name=sslreplace,path=@E2CONFDIR@/lists/sslsiteregexplist'
 
 #redirection lists
-regexpreplacelist = 'name=redirect,path=@DGCONFDIR@/lists/urlredirectregexplist'
+regexpreplacelist = 'name=redirect,path=@E2CONFDIR@/lists/urlredirectregexplist'
 
-contentregexplist = '@DGCONFDIR@/lists/contentregexplist'
+contentregexplist = '@E2CONFDIR@/lists/contentregexplist'
 
 # local versions of lists 
 
 #local banned
-sitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsitelist'
-#ipsitelist = 'name=localbanned,messageno=560,path=@DGCONFDIR@/lists/localbannedsiteiplist'
-#urllist = 'name=localbanned,messageno=561,path=@DGCONFDIR@/lists/localbannedurllist'
-#sitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsitelist'
-#ipsitelist = 'name=localbannedssl,messageno=580,path=@DGCONFDIR@/lists/localbannedsslsiteiplist'
-searchlist = 'name=localbanned,messageno=581,path=@DGCONFDIR@/lists/localbannedsearchlist'
+sitelist = 'name=localbanned,messageno=560,path=@E2CONFDIR@/lists/localbannedsitelist'
+#ipsitelist = 'name=localbanned,messageno=560,path=@E2CONFDIR@/lists/localbannedsiteiplist'
+#urllist = 'name=localbanned,messageno=561,path=@E2CONFDIR@/lists/localbannedurllist'
+#sitelist = 'name=localbannedssl,messageno=580,path=@E2CONFDIR@/lists/localbannedsslsitelist'
+#ipsitelist = 'name=localbannedssl,messageno=580,path=@E2CONFDIR@/lists/localbannedsslsiteiplist'
+searchlist = 'name=localbanned,messageno=581,path=@E2CONFDIR@/lists/localbannedsearchlist'
 
 #local grey lists
-sitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysitelist'
-#ipsitelist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreysiteiplist'
-#urllist = 'name=localgrey,path=@DGCONFDIR@/lists/localgreyurllist'
-sitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsitelist'
-#ipsitelist = 'name=localgreyssl,path=@DGCONFDIR@/lists/localgreysslsiteiplist'
+sitelist = 'name=localgrey,path=@E2CONFDIR@/lists/localgreysitelist'
+#ipsitelist = 'name=localgrey,path=@E2CONFDIR@/lists/localgreysiteiplist'
+#urllist = 'name=localgrey,path=@E2CONFDIR@/lists/localgreyurllist'
+sitelist = 'name=localgreyssl,path=@E2CONFDIR@/lists/localgreysslsitelist'
+#ipsitelist = 'name=localgreyssl,path=@E2CONFDIR@/lists/localgreysslsiteiplist'
 
 #local exception lists
-sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsitelist'
-#ipsitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexceptionsiteiplist'
-#urllist = 'name=localexception,messageno=663,path=@DGCONFDIR@/lists/localexceptionurllist'
+sitelist = 'name=localexception,messageno=662,path=@E2CONFDIR@/lists/localexceptionsitelist'
+#ipsitelist = 'name=localexception,messageno=662,path=@E2CONFDIR@/lists/localexceptionsiteiplist'
+#urllist = 'name=localexception,messageno=663,path=@E2CONFDIR@/lists/localexceptionurllist'
 
 
 # Filetype filtering
@@ -123,20 +123,20 @@ sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexcept
 
 # Uncomment the two lines below if want to only allow extentions/mime types in these lists
 # You will also need to uncomment the checkfiletype function in site.story to enable this
-#fileextlist = 'name=exceptionextension,path=@DGCONFDIR@/lists/exceptionextensionlist'
-#mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionmimelist'
+#fileextlist = 'name=exceptionextension,path=@E2CONFDIR@/lists/exceptionextensionlist'
+#mimelist = 'name=exceptionmime,path=@E2CONFDIR@/lists/exceptionmimelist'
 #
 # Use the following lists to block specific kinds of file downloads.
 #
-fileextlist = 'name=bannedextension,messageno=900,path=@DGCONFDIR@/lists/bannedextensionlist'
-mimelist = 'name=bannedmime,messageno=800,path=@DGCONFDIR@/lists/bannedmimetypelist'
+fileextlist = 'name=bannedextension,messageno=900,path=@E2CONFDIR@/lists/bannedextensionlist'
+mimelist = 'name=bannedmime,messageno=800,path=@E2CONFDIR@/lists/bannedmimetypelist'
 #
 # In either file filtering mode, the following list can be used to override
 # MIME type & extension blocks for particular domains & URLs (trusted download sites).
 #
-sitelist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfilesitelist'
-ipsitelist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfilesiteiplist'
-urllist = 'name=exceptionfile,path=@DGCONFDIR@/lists/exceptionfileurllist'
+sitelist = 'name=exceptionfile,path=@E2CONFDIR@/lists/exceptionfilesitelist'
+ipsitelist = 'name=exceptionfile,path=@E2CONFDIR@/lists/exceptionfilesiteiplist'
+urllist = 'name=exceptionfile,path=@E2CONFDIR@/lists/exceptionfileurllist'
 
 # POST protection (web upload and forms)
 # does not block forms without any file upload, i.e. this is just for
@@ -154,10 +154,10 @@ maxuploadsize = -1
 # Supply categorised lists here and the category string shall be logged against
 # matching requests, but matching these lists does not perform any filtering
 # action.
-#sitelist = 'name=log,path=@DGCONFDIR@/lists/logsitelist'
-#ipsitelist = 'name=log,path=@DGCONFDIR@/lists/logsiteiplist'
-#urllist = 'name=log,path=@DGCONFDIR@/lists/logurllist'
-#regexpboollist = 'name=log,path=@DGCONFDIR@/lists/logregexpurllist'
+#sitelist = 'name=log,path=@E2CONFDIR@/lists/logsitelist'
+#ipsitelist = 'name=log,path=@E2CONFDIR@/lists/logsiteiplist'
+#urllist = 'name=log,path=@E2CONFDIR@/lists/logurllist'
+#regexpboollist = 'name=log,path=@E2CONFDIR@/lists/logregexpurllist'
 
 # Outgoing HTTP request header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
@@ -168,11 +168,11 @@ maxuploadsize = -1
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove cookies or prevent certain user-agents.
-regexpreplacelist = 'name=headermods,path=@DGCONFDIR@/lists/headerregexplist'
-regexpboollist = 'name=bannedheader,path=@DGCONFDIR@/lists/bannedregexpheaderlist'
-regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexpheaderlist'
+regexpreplacelist = 'name=headermods,path=@E2CONFDIR@/lists/headerregexplist'
+regexpboollist = 'name=bannedheader,path=@E2CONFDIR@/lists/bannedregexpheaderlist'
+regexpboollist = 'name=exceptionheader,path=@E2CONFDIR@/lists/exceptionregexpheaderlist'
 # used for Youtube add cookies etc
-regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
+regexpreplacelist = 'name=addheader,path=@E2CONFDIR@/lists/addheaderregexplist'
 
 # Response HTTP header rules:
 # Optional lists for modification or removal of HTTP response headers.  
@@ -181,15 +181,15 @@ regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove protocol upgarde requests.
-regexpreplacelist = 'name=reponseheadermods,path=@DGCONFDIR@/lists/responseheaderregexplist'
+regexpreplacelist = 'name=reponseheadermods,path=@E2CONFDIR@/lists/responseheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
 #Note that you also need to amend site.story in order for this to work.
-#mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
-#fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
-#sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'
-#ipsitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
-#urllist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusurllist'
+#mimelist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
+#fileextlist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
+#sitelist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirussitelist'
+#ipsitelist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
+#urllist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirusurllist'
 
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
@@ -232,11 +232,11 @@ naughtynesslimit = 50
 # List of regular expressions for matching search engine URLs.  It is assumed
 # that the search terms themselves will be contained in the 
 # of output of each expression.
-regexpreplacelist = 'name=searchterms,path=@DGCONFDIR@/lists/searchregexplist'
+regexpreplacelist = 'name=searchterms,path=@E2CONFDIR@/lists/searchregexplist'
 #
 # Banned Search Term list(s) for option 1
-searchlist = 'name=banned,path=@DGCONFDIR@/lists/bannedsearchlist'
-searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
+searchlist = 'name=banned,path=@E2CONFDIR@/lists/bannedsearchlist'
+searchlist = 'name=override,path=@E2CONFDIR@/lists/bannedsearchoveridelist'
 
 
 # Search term limit (for Option 2)
@@ -259,9 +259,9 @@ searchlist = 'name=override,path=@DGCONFDIR@/lists/bannedsearchoveridelist'
 # Please note that all or none of the below should be uncommented, not a
 # mixture.
 # NOTE: these are phrase lists and still use the old style defines
-#bannedsearchtermlist = '@DGCONFDIR@/lists/bannedsearchtermlist'
-#weightedsearchtermlist = '@DGCONFDIR@/lists/weightedsearchtermlist'
-#exceptionsearchtermlist = '@DGCONFDIR@/lists/exceptionsearchtermlist'
+#bannedsearchtermlist = '@E2CONFDIR@/lists/bannedsearchtermlist'
+#weightedsearchtermlist = '@E2CONFDIR@/lists/weightedsearchtermlist'
+#exceptionsearchtermlist = '@E2CONFDIR@/lists/exceptionsearchtermlist'
 
 # Category display threshold
 # This option only applies to pages blocked by weighted phrase filtering.
@@ -328,9 +328,9 @@ bypasskey = ''
 #cgikey = 'you must change this text in order to be secure'
 
 #  Users will not be able to bypass sites/urls in these lists
-sitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/domainsnobypass'
-#ipsitelist = 'name=bannedbypass,messageno=500,path=@DGCONFDIR@/lists/ipnobypass'
-#urllist = 'name=bannedbypass,messageno=501,path=@DGCONFDIR@/lists/urlnobypass'
+sitelist = 'name=bannedbypass,messageno=500,path=@E2CONFDIR@/lists/domainsnobypass'
+#ipsitelist = 'name=bannedbypass,messageno=500,path=@E2CONFDIR@/lists/ipnobypass'
+#urllist = 'name=bannedbypass,messageno=501,path=@E2CONFDIR@/lists/urlnobypass'
 
 # Infection/Scan Error Bypass
 # Similar to the 'bypass' setting, but specifically for bypassing files scanned and found
@@ -381,7 +381,7 @@ contentscanexceptions = off
 
 # Auth plugins
 # Enable Deep URL Analysis
-# When enabled, DG looks for URLs within URLs, checking against the bannedsitelist and
+# When enabled, E2 looks for URLs within URLs, checking against the bannedsitelist and
 # bannedurllist. This can be used, for example, to block images originating from banned
 # sites from appearing in Google Images search results, as the original URLs are
 # embedded in the thumbnail GET requests.
@@ -420,18 +420,18 @@ reportinglevel = 3
 # only used in reporting level 3.
 #
 # The default template file path is <languagedir>/<language>/template.html
-# e.g. @DGDATADIR@/languages/ukenglish/template.html when using 'ukenglish'
+# e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
 # language.
 #
 # This option generates a file path of the form:
 # <languagedir>/<language>/<htmltemplate>
-# e.g. @DGDATADIR@/languages/ukenglish/custom.html
+# e.g. @E2DATADIR@/languages/ukenglish/custom.html
 #
 #htmltemplate = 'custom.html'
 
 #Template for use to report network issues and sites which are not responding
 # The default template file path is <languagedir>/<language>/neterr_template.html
-# e.g. @DGDATADIR@/languages/ukenglish/neterr_template.html when using 'ukenglish'
+# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using 'ukenglish'
 # language.
 #neterrtemplate = 'custom_neterr_template.html' 
 
@@ -540,9 +540,9 @@ mitmcheckcert = on
 # or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
 # Use with caution!
 # Ignored if mitmcheckcert is 'off'
-#nocheckcertsitelist = '@DGCONFDIR@/lists/nocheckcertsitelist'
-sitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsitelist'
-ipsitelist = 'name=nocheckcert,path=@DGCONFDIR@/lists/nocheckcertsiteiplist'
+#nocheckcertsitelist = '@E2CONFDIR@/lists/nocheckcertsitelist'
+sitelist = 'name=nocheckcert,path=@E2CONFDIR@/lists/nocheckcertsitelist'
+ipsitelist = 'name=nocheckcert,path=@E2CONFDIR@/lists/nocheckcertsiteiplist'
 #
 
 # Auto switch to MITM with upstream connection error or to deliver block page

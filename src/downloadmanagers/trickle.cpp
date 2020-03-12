@@ -135,7 +135,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 #ifdef E2DEBUG
                     std::cout << "sending header first" << std::endl;
 #endif
-                    docheader->out(NULL, peersock, __DGHEADER_SENDALL);
+                    docheader->out(NULL, peersock, __E2HEADER_SENDALL);
                     (*headersent) = 2;
                 }
                 if (!swappedtodisk) {

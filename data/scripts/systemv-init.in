@@ -9,7 +9,7 @@
 #              extensions and PICS labelling.
 # processname: e2guardian
 # pidfile: @DGPIDDIR@/e2guardian.pid
-# config: @DGCONFDIR@/e2guardian.conf
+# config: @E2CONFDIR@/e2guardian.conf
 
 ### BEGIN INIT INFO
 # Provides:     e2guardian
@@ -56,7 +56,7 @@ function wait_for_pid()
 case "$1" in
 start)
         if [ -f @DGBINDIR@/e2guardian ] &&
-           [ -f @DGCONFDIR@/e2guardian.conf ]; then
+           [ -f @E2CONFDIR@/e2guardian.conf ]; then
                 echo -n "Starting e2guardian: "
                 if @DGBINDIR@/e2guardian 2> /dev/null; then
                         echo -e "\\033[60G\c"

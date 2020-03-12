@@ -68,7 +68,7 @@ String AuthPlugin::getPluginName()
 int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm )
 {
     if (user.length() < 1 || user == "-") {
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     }
     String u(user);
     String lastcategory;
@@ -85,19 +85,19 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
          if (t > 0) {
              fg = --t;
              cm.authrec->group_source = "pdef";
-             return DGAUTH_OK;
+             return E2AUTH_OK;
          }
 #ifdef E2DEBUG
              std::cerr << "User not in filter groups list for: " << pluginName.c_str() << std::endl;
 #endif
-             return DGAUTH_NOGROUP;
+             return E2AUTH_NOGROUP;
       }
 
 #ifdef E2DEBUG
     std::cerr << "Group found for: " << user.c_str() << " in " << pluginName.c_str() << std::endl;
 #endif
      fg = cm.filtergroup;
-     return DGAUTH_OK;
+     return E2AUTH_OK;
 }
 
 // take in a configuration file, find the AuthPlugin class associated with the plugname variable, and return an instance

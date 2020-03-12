@@ -69,7 +69,7 @@ CSPlugin *avastdcreate(ConfigVar &definition)
 int avastdinstance::init(void *args)
 {
     int rc;
-    if ((rc = CSPlugin::init(args)) != DGCS_OK)
+    if ((rc = CSPlugin::init(args)) != E2CS_OK)
         return rc;
 
     // read in AvastD UNIX domain socket path
@@ -78,7 +78,7 @@ int avastdinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error reading avastdudsfile option." << udspath << std::endl;
         syslog(LOG_ERR, "Error reading avastdudsfile option.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
     }
@@ -99,7 +99,7 @@ int avastdinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error reading avastprotocol option." << std::endl;
         syslog(LOG_ERR, "Error reading avastprotocol option.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
 #ifdef E2DEBUG
     std::cerr << thread_id << "avastd configuration: avastprotocol = " << avastprotocol << std::endl;
@@ -109,7 +109,7 @@ int avastdinstance::init(void *args)
         scanreturncode = "200 ";
     } else
         scanreturncode = "210 ";
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // no need to replace the inheritied scanMemory() which just calls scanFile()
@@ -130,19 +130,19 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
     if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
         lastmessage = "Error giving AvastD read access to temp file";
         syslog(LOG_ERR, "Could not change file ownership to give AvastD read access: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     };
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to AvastD";
         syslog(LOG_ERR, "Error creating socket for talking to AvastD");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to AvastD socket";
         syslog(LOG_ERR, "Error connecting to AvastD socket");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     char buffer[4096];
@@ -163,7 +163,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
             String ebuffer(encode(buffer));
             lastmessage += ebuffer;
             syslog(LOG_ERR, "Unexpected reply during AvastD handshake: %s", ebuffer.toCharArray());
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         }
         // Syntax:
         // SCAN FileName (with some escaping)
@@ -190,7 +190,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
             String ebuffer(encode(buffer));
             lastmessage += ebuffer;
             syslog(LOG_ERR, "Unexpected reply to scan command: %s", ebuffer.toCharArray());
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         }
 
         // Scan response format:
@@ -217,7 +217,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
             if (buffer[rc - 1] != '\r') {
                 lastmessage = "Error whilst reading AvastD socket: can't fit line in buffer.";
                 syslog(LOG_ERR, "Error whilst reading AvastD socket: can't fit line in buffer.");
-                return DGCS_SCANERROR;
+                return E2CS_SCANERROR;
             }
 
             // We're looking for this kind of string: ^[^\t]*\t\[.\](\t.*)?\r$
@@ -233,7 +233,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                     String ebuffer(encode(buffer));
                     lastmessage += ebuffer;
                     syslog(LOG_ERR, "Unexpected reply in scan results: %s", ebuffer.toCharArray());
-                    return DGCS_SCANERROR;
+                    return E2CS_SCANERROR;
                 }
                 *result = '\0';
                 result += 5;
@@ -276,7 +276,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         lastmessage = "Exception whilst reading AvastD socket: ";
         lastmessage += e.what();
         syslog(LOG_ERR, "Exception whilst reading AvastD socket: %s", e.what());
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 #ifdef E2DEBUG
     std::cerr << thread_id << "avastd final result: infected: " << infected << "\twarning: " << warning << "\tlastvirusname: " << lastvirusname << "\ttruncated: " << truncated << std::endl;
@@ -286,14 +286,14 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
     if (rc == 0 || truncated || (avastprotocol.compare("avast4") == 0 && buffer[0] != '\r')) {
         lastmessage = "Error whilst reading AvastD socket: truncated data.";
         syslog(LOG_ERR, "Error whilst reading AvastD socket: truncated data.");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     if (infected || (warning && archivewarn)) {
         blockFile(NULL, NULL, checkme);
-        return DGCS_INFECTED;
+        return E2CS_INFECTED;
     }
-    return DGCS_CLEAN;
+    return E2CS_CLEAN;
 }
 
 String avastdinstance::encode(const String &Str)

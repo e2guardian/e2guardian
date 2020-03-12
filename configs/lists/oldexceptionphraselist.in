@@ -14,5 +14,5 @@
 #
 # See the bannedphraselist for more examples.
 
-.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/exception>
-#.Include<@DGCONFDIR@/lists/oldphraselists/goodphrases/exception_email>
+.Include<@E2CONFDIR@/lists/oldphraselists/goodphrases/exception>
+#.Include<@E2CONFDIR@/lists/oldphraselists/goodphrases/exception_email>

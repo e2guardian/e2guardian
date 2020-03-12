@@ -95,7 +95,7 @@ CSPlugin *commandlinecreate(ConfigVar &definition)
 int commandlineinstance::init(void *args)
 {
     int rc;
-    if ((rc = CSPlugin::init(args)) != DGCS_OK)
+    if ((rc = CSPlugin::init(args)) != E2CS_OK)
         return rc;
 
     // read in program name
@@ -104,7 +104,7 @@ int commandlineinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Command-line scanner: No program specified" << std::endl;
         syslog(LOG_ERR, "Command-line scanner: No program specified");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
 
     // split into an argument array
@@ -148,7 +148,7 @@ int commandlineinstance::init(void *args)
             if (!is_daemonised)
                 std::cerr << thread_id << "Command-line scanner: Could not compile regular expression for extracting virus names" << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Could not compile regular expression for extracting virus names");
-            return DGCS_ERROR;
+            return E2CS_ERROR;
         }
         String ssubmatch(cv["submatch"]);
         if (ssubmatch.length())
@@ -203,7 +203,7 @@ int commandlineinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp." << std::endl;
         syslog(LOG_ERR, "Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
 
     // Copy return code lists out into static arrays
@@ -229,11 +229,11 @@ int commandlineinstance::init(void *args)
             if (!is_daemonised)
                 std::cerr << thread_id << "Command-line scanner: Default result value not understood" << std::endl;
             syslog(LOG_ERR, "Command-line scanner: Default result value not understood");
-            return DGCS_WARNING;
+            return E2CS_WARNING;
         }
     }
 
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // no need to replace the inheritied scanMemory() which just calls scanFile()
@@ -250,12 +250,12 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstdout) == -1) {
         lastmessage = "Cannot create sockets for communicating with scanner";
         syslog(LOG_ERR, "Cannot open socket pair for command-line scanner's stdout: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstderr) == -1) {
         lastmessage = "Cannot create sockets for communicating with scanner";
         syslog(LOG_ERR, "Cannot open socket pair for command-line scanner's stderr: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     int f = fork();
     if (f == 0) {
@@ -277,7 +277,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     } else if (f == -1) {
         lastmessage = "Cannot launch scanner";
         syslog(LOG_ERR, "Cannot fork to launch command-line scanner (command \"%s %s\"): %s", progname.toCharArray(), filename, strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     // close write ends of sockets
@@ -314,7 +314,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     if (waitpid(f, &returncode, 0) == -1) {
         lastmessage = "Cannot get scanner return code";
         syslog(LOG_ERR, "Cannot get command-line scanner return code: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
 #ifdef E2DEBUG
@@ -327,7 +327,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     if (returncode == 255) {
         lastmessage = "Cannot get scanner return code";
         syslog(LOG_ERR, "Cannot get command-line scanner return code: scanner exec failed");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     lastvirusname = "Unknown";
@@ -337,14 +337,14 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
         if (virusregexpres.matched()) {
             lastvirusname = virusregexpres.result(submatch);
             blockFile(NULL, NULL, checkme);
-            return DGCS_INFECTED;
+            return E2CS_INFECTED;
         }
     }
 
     if (cleancodes) {
         for (int i = 0; i < numcleancodes; i++) {
             if (returncode == cleancodes[i])
-                return DGCS_CLEAN;
+                return E2CS_CLEAN;
         }
     }
 
@@ -352,19 +352,19 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
         for (int i = 0; i < numinfectedcodes; i++) {
             if (returncode == infectedcodes[i]) {
                 blockFile(NULL, NULL, checkme);
-                return DGCS_INFECTED;
+                return E2CS_INFECTED;
             }
         }
     }
 
     if (defaultresult == 1)
-        return DGCS_CLEAN;
+        return E2CS_CLEAN;
     else if (defaultresult == 0) {
         blockFile(NULL, NULL, checkme);
-        return DGCS_INFECTED;
+        return E2CS_INFECTED;
     }
 
     if (returncode != 0)
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     return 0;
 }

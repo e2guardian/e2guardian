@@ -1,7 +1,7 @@
 DISTCLEANFILES = Makefile.in \
 		       default.conf 
 
-DGDATADIR = $(DGCONFDIR)/downloadmanagers
+E2DATADIR = $(E2CONFDIR)/downloadmanagers
 
 SUBDIRS = .
 
@@ -12,14 +12,14 @@ FLISTS = default.conf
 EXTRA_DIST = default.conf.in 
 
 install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
+		$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l; \
 	done
 
 
 uninstall-local:
 	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+		rm -f $(DESTDIR)$(E2DATADIR)/$$l ; \
 	done

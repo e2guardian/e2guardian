@@ -52,7 +52,7 @@ int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     String t(h.getAuthType());
     t.toLower();
     if (t != "basic")
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     // extract username
     string = h.getAuthData();
     if (string.length() > 0) {
@@ -60,9 +60,9 @@ int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
         authrec.user_name = string;
         authrec.user_source = "proxy";
 	is_real_user = true;
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 
 int proxyinstance::init(void *args)

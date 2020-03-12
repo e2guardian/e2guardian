@@ -25,8 +25,8 @@
 
 // DEFINES
 
-#define ICAP_CONTINUE DGCS_MAX + 1
-#define ICAP_NODATA DGCS_MAX + 2
+#define ICAP_CONTINUE E2CS_MAX + 1
+#define ICAP_NODATA E2CS_MAX + 2
 
 // GLOBALS
 
@@ -92,7 +92,7 @@ int icapinstance::willScanRequest(const String &url, const char *user, FOptionCo
     bool post, bool reconstituted, bool exception, bool bypass)
 {
     if (post || reconstituted)
-        return DGCS_NOSCAN;
+        return E2CS_NOSCAN;
     else {
         return CSPlugin::willScanRequest(url, user, foc, ip,
             post, reconstituted, exception, bypass);
@@ -104,7 +104,7 @@ int icapinstance::init(void *args)
 {
     // always include these lists
     if (!readStandardLists()) {
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
 
     icapurl = cv["icapurl"]; // format: icap://icapserver:1344/avscan
@@ -112,7 +112,7 @@ int icapinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error reading icapurl option." << std::endl;
         syslog(LOG_ERR, "Error reading icapurl option.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
         // it would be far better to do a test connection
     }
     icaphost = icapurl.after("//");
@@ -129,7 +129,7 @@ int icapinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error resolving icap host address." << std::endl;
         syslog(LOG_ERR, "Error resolving icap host address.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
     icapip = inet_ntoa(*(struct in_addr *)host->h_addr_list[0]);
 
@@ -171,7 +171,7 @@ int icapinstance::init(void *args)
             if (!is_daemonised)
                 std::cerr << thread_id << "ICAP response not 200 OK" << std::endl;
             syslog(LOG_ERR, "ICAP response not 200 OK");
-            return DGCS_WARNING;
+            return E2CS_WARNING;
             //throw std::runtime_error("Response not 200 OK");
         }
         while (icapsock.getLine(buff, 8192, o.content_scanner_timeout) > 0) {
@@ -215,7 +215,7 @@ int icapinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "ICAP server did not respond to OPTIONS request: " << e.what() << std::endl;
         syslog(LOG_ERR, "ICAP server did not respond to OPTIONS request: %s", e.what());
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
 
 #ifndef NEWDEBUG_OFF
@@ -235,7 +235,7 @@ int icapinstance::init(void *args)
         }
 #endif
 
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // send memory buffer to ICAP server for scanning
@@ -249,7 +249,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
     if (not doHeaders(icapsock, requestheader, docheader, objectsize)) {
         icapsock.close();
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
 #ifndef NEWDEBUG_OFF
@@ -304,7 +304,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             icapsock.close();
             lastmessage = "Exception sending message preview to ICAP";
             syslog(LOG_ERR, "Exception sending message preview to ICAP: %s", e.what());
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         }
     }
     try {
@@ -353,7 +353,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
         icapsock.close();
         lastmessage = "Exception sending memory file to ICAP";
         syslog(LOG_ERR, "Exception sending memory file to ICAP: %s", e.what());
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     return doScan(icapsock, docheader, object, objectsize, checkme);
@@ -380,7 +380,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
 
 	lastmessage = "Error opening file to send to ICAP";
         syslog(LOG_ERR, "Error opening file to send to ICAP: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     lseek(filefd, 0, SEEK_SET);
     unsigned int filesize = lseek(filefd, 0, SEEK_END);
@@ -389,7 +389,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     if (not doHeaders(icapsock, requestheader, docheader, filesize)) {
         icapsock.close();
         close(filefd);
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
 
     lseek(filefd, 0, SEEK_SET);
@@ -466,7 +466,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
                 if (rc != ICAP_NODATA)
                     return rc;
             }
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         }
     }
 
@@ -566,7 +566,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             if (rc != ICAP_NODATA)
                 return rc;
         }
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     close(filefd);
     delete[] data;
@@ -692,7 +692,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
            }
 #endif
 	   delete[] data;
-           return DGCS_CLEAN;
+           return E2CS_CLEAN;
         } else if (returncode == "100") {
 
 #ifndef NEWDEBUG_OFF
@@ -747,7 +747,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                     delete[] data;
 
                     blockFile(NULL, NULL, checkme);
-                    return DGCS_INFECTED;
+                    return E2CS_INFECTED;
                 }
             }
             // AVIRA's and KAV Antivir gives us 200 in all cases, so
@@ -790,7 +790,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                     lastvirusname = "Unknown";
 
                     blockFile(NULL, NULL, checkme);
-                    return DGCS_INFECTED;
+                    return E2CS_INFECTED;
                 }
                 // ok - headers were identical, so look at encapsulated body
                 // discard the rest of the encapsulated headers
@@ -832,7 +832,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 #endif
 
                     delete[] data;
-                    return DGCS_CLEAN;
+                    return E2CS_CLEAN;
                 } else {
 
 #ifndef NEWDEBUG_OFF
@@ -849,7 +849,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                     lastvirusname = "Unknown";
 
                     blockFile(NULL, NULL, checkme);
-                    return DGCS_INFECTED;
+                    return E2CS_INFECTED;
                 }
             }
 // even if we don't find an X-Infection-Found header,
@@ -869,7 +869,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             lastvirusname = "Unknown";
 
             blockFile(NULL, NULL, checkme);
-            return DGCS_INFECTED;
+            return E2CS_INFECTED;
         } else if (returncode == "404") {
 
 #ifndef NEWDEBUG_OFF
@@ -885,7 +885,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 	    lastmessage = "ICAP reports no such service";
             syslog(LOG_ERR, "ICAP reports no such service; check your server URL");
             delete[] data;
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         } else {
 
 #ifndef NEWDEBUG_OFF
@@ -901,7 +901,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 	    lastmessage = "ICAP returned unrecognised response code.";
             syslog(LOG_ERR, "ICAP returned unrecognised response code: %s", returncode.toCharArray());
             delete[] data;
-            return DGCS_SCANERROR;
+            return E2CS_SCANERROR;
         }
         delete[] data;
     } catch (std::exception &e) {
@@ -920,9 +920,9 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
         lastmessage = "Exception getting reply from ICAP.";
         syslog(LOG_ERR, "Exception getting reply from ICAP: %s", e.what());
         delete[] data;
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     // it is generally NOT a good idea, when using virus scanning,
     // to continue as if nothing went wrong by default!
-    return DGCS_SCANERROR;
+    return E2CS_SCANERROR;
 }

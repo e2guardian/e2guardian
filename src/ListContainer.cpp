@@ -422,7 +422,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
         // Amended by Philip Pearce - included in e2g first release 2013:
         std::string::size_type commentstart = 1;
         while ((commentstart = temp.find_first_of('#', commentstart)) != std::string::npos) {
-            // Don't treat "(?#...)" as a DG comment - it's a regex comment
+            // Don't treat "(?#...)" as a E2 comment - it's a regex comment
             // if (temp[commentstart - 1] != '?')
             // Changed to only treat ' #' as an embeded comment
             if (temp[commentstart - 1] == ' ') {

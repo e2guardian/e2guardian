@@ -68,7 +68,7 @@ CSPlugin *clamdcreate(ConfigVar &definition)
 int clamdinstance::init(void *args)
 {
     int rc;
-    if ((rc = CSPlugin::init(args)) != DGCS_OK)
+    if ((rc = CSPlugin::init(args)) != E2CS_OK)
         return rc;
 
     // read in ClamD UNIX domain socket path
@@ -77,7 +77,7 @@ int clamdinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error reading clamdudsfile option." << std::endl;
         syslog(LOG_ERR, "Error reading clamdudsfile option.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
     }
@@ -87,7 +87,7 @@ int clamdinstance::init(void *args)
 
     archivewarn = cv["archivewarn"] == "on";
 
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // no need to replace the inheritied scanMemory() which just calls scanFile()
@@ -107,7 +107,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if (chmod(filename, S_IRGRP | S_IRUSR ) != 0) {
         lastmessage = "Error giving ClamD read access to temp file";
         syslog(LOG_ERR, "Could not change file ownership to give ClamD read access: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     };
     String command("SCAN ");
     if (pathprefix.length()) {
@@ -131,13 +131,13 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to ClamD";
         syslog(LOG_ERR, "Error creating socket for talking to ClamD");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to ClamD socket";
         syslog(LOG_ERR, "Error connecting to ClamD socket");
         stripedsocks.close();
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     if( ! stripedsocks.writeString(command.toCharArray()))  {
         lastmessage = "Exception whilst writing to ClamD socket: ";
@@ -157,7 +157,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
        }
 #endif
         stripedsocks.close();
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     char *buff = new char[4096];
     int rc;
@@ -181,7 +181,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #endif
         syslog(LOG_ERR, "%s", lastmessage.toCharArray());
         stripedsocks.close();
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     String reply(buff);
     delete[] buff;
@@ -199,7 +199,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     if (reply.endsWith("ERROR")) {
         lastmessage = reply;
         syslog(LOG_ERR, "ClamD error: %s", reply.toCharArray());
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     } else if (reply.endsWith("FOUND")) {
         lastvirusname = reply.after(": ").before(" FOUND");
 // format is:
@@ -226,11 +226,11 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 #endif
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
-            return DGCS_WARNING;
+            return E2CS_WARNING;
         }
 
         blockFile(NULL, NULL, checkme);
-        return DGCS_INFECTED;
+        return E2CS_INFECTED;
     }
 // must be clean
 // Note: we should really check what the output of a "clean" message actually looks like,
@@ -244,5 +244,5 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         std::cerr << thread_id << "clamdscan - he say yes (clean)" << std::endl;
        }
 #endif
-    return DGCS_CLEAN;
+    return E2CS_CLEAN;
 }

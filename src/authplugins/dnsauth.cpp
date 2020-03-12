@@ -185,7 +185,7 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
         is_real_user = true;
         authrec.user_name = string;
         authrec.user_source = "dnsa";
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     } else {
         // redirect code
         if (redirect_to_auth) { // used to force log-in
@@ -195,13 +195,13 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
                 string = "::auth::";
                 userst.user = string;
                 userst.group = 0;
-                return DGAUTH_OK_NOPERSIST;
+                return E2AUTH_OK_NOPERSIST;
             } else {
                 string = authurl + "=" + h.URLEncode();
-                return DGAUTH_REDIRECT;
+                return E2AUTH_REDIRECT;
             }
         } else {
-            return DGAUTH_NOMATCH; // used for log-in on demand
+            return E2AUTH_NOMATCH; // used for log-in on demand
             // needs dnsauth plug-in to be first
         }
     }
@@ -213,7 +213,7 @@ int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &u
 #ifdef E2DEBUG
     std::cerr << thread_id << "Matched user" << user << " to group " << fg << " in cached DNS record" << std::endl;
 #endif
-    return DGAUTH_OK;
+    return E2AUTH_OK;
 }
 
 bool dnsauthinstance::getdnstxt(String &ippath)

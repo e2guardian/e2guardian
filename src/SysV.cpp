@@ -42,7 +42,7 @@ pid_t getpid(std::string pidfile)
 {
     pid_t p = getpidfromfile(pidfile);
     if (p > 1) {
-        if (confirmname(p)) { // is that pid really DG and running?
+        if (confirmname(p)) { // is that pid really E2 and running?
             return p; // it is so return it
         }
     }
@@ -160,7 +160,7 @@ int sysv_usr1(std::string pidfile)
     return 1;
 }
 
-// show PID of running DG process
+// show PID of running E2 process
 int sysv_showpid(std::string pidfile)
 {
     pid_t p = getpid(pidfile);

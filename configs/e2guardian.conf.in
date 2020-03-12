@@ -12,7 +12,7 @@
 # and easier to customise the access denied page.
 # The language file is used no matter what setting however.
 #
-languagedir = '@DGDATADIR@/languages'
+languagedir = '@E2DATADIR@/languages'
 
 # language to use from languagedir.
 language = 'ukenglish'
@@ -109,12 +109,12 @@ logfileformat = 8
 # Log file location
 # 
 # Defines the log directory and filename.
-#loglocation = '@DGLOGLOCATION@/access.log'
+#loglocation = '@E2LOGLOCATION@/access.log'
 
 # Defines optional request log path
 # This is for useful for debug purposes to log all requests before processing or setting filter group
 # See notes/LogRequests for details
-#rqloglocation = '@DGLOGLOCATION@/request.log'
+#rqloglocation = '@E2LOGLOCATION@/request.log'
 
 # Dymamic statistics log file location
 #
@@ -123,7 +123,7 @@ logfileformat = 8
 # Q sizes and other useful information is written to this file.
 # Format is similar to sar.  See notes/dstats_format for more details.
 # Default is not to write stats.
-dstatlocation = '@DGLOGLOCATION@/dstats.log'
+dstatlocation = '@E2LOGLOCATION@/dstats.log'
 # Interval in seconds between stats output
 # Default 300 (= 5 mins)
 # Minimum 10 
@@ -252,11 +252,11 @@ useoriginalip = on
 # icons from banned domains.
 # on (default) | off
 usecustombannedimage = on
-custombannedimagefile = '@DGDATADIR@/transparent1x1.gif'
+custombannedimagefile = '@E2DATADIR@/transparent1x1.gif'
 
 #Banned flash replacement
 usecustombannedflash = on
-custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
+custombannedflashfile = '@E2DATADIR@/blockedflash.swf'
 
 # Filter groups options
 # filtergroups sets the number of filter groups. A filter group is a set of content
@@ -269,8 +269,8 @@ custombannedflashfile = '@DGDATADIR@/blockedflash.swf'
 filtergroups = 1
 
 ##NEWIN V5.4 - filtergrouplist replaced with maplist
-#filtergroupslist = '@DGCONFDIR@/lists/filtergroupslist'
-maplist = 'name=defaultusermap, path=@DGCONFDIR@/lists/filtergroupslist'
+#filtergroupslist = '@E2CONFDIR@/lists/filtergroupslist'
+maplist = 'name=defaultusermap, path=@E2CONFDIR@/lists/filtergroupslist'
 
 # default filtergroup for standard (explicit proxy) mode
 # optional defaults to 1
@@ -288,28 +288,28 @@ maplist = 'name=defaultusermap, path=@DGCONFDIR@/lists/filtergroupslist'
 # E2guardian tries the next plugin
 # If off the user is connected with defaultgroup
 # Defaults to off
-# authrequiresuserandgroup = off
+# authrequiresuserande2group = off
 
 # Authentication files location
 # These are now replaced with pre-authstoryboard logic but lists defined here
 #
 # bannediplist is ONLY for banned client IP
-iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=@DGCONFDIR@/lists/bannediplist'
+iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=@E2CONFDIR@/lists/bannediplist'
 # Put client dns names in bannedclientlist if required
-#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=@DGCONFDIR@/lists/bannedclientlist'
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=@E2CONFDIR@/lists/bannedclientlist'
 # exceptioniplist is ONLY for exception client IP
-iplist = 'name=exceptionclient,messageno=600,path=@DGCONFDIR@/lists/exceptioniplist'
+iplist = 'name=exceptionclient,messageno=600,path=@E2CONFDIR@/lists/exceptioniplist'
 # Put client dns names in exceptionclientlist if required
-#sitelist = 'name=exceptionclient,messageno=631,path=@DGCONFDIR@/lists/exceptionclientlist'
+#sitelist = 'name=exceptionclient,messageno=631,path=@E2CONFDIR@/lists/exceptionclientlist'
 
 # authexception lists are for exception sites/urls allowed before authentication# to allow for machines to update without user authentication
-ipsitelist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptioniplist'
-sitelist = 'name=authexception,messageno=602,path=@DGCONFDIR@/lists/authexceptionsitelist'
-urllist = 'name=authexception,messageno=603,path=@DGCONFDIR@/lists/authexceptionurllist'
+ipsitelist = 'name=authexception,messageno=602,path=@E2CONFDIR@/lists/authexceptioniplist'
+sitelist = 'name=authexception,messageno=602,path=@E2CONFDIR@/lists/authexceptionsitelist'
+urllist = 'name=authexception,messageno=603,path=@E2CONFDIR@/lists/authexceptionurllist'
 
-sitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsitelist'
-ipsitelist = 'name=nomitm,path=@DGCONFDIR@/lists/nomitmsiteiplist'
-regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserregexplist'
+sitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsitelist'
+ipsitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsiteiplist'
+regexpboollist = 'name=browser,path=@E2CONFDIR@/lists/browserregexplist'
 
 #Note: only iplist, sitelist, ipsitelist, urllist, maplist and ipmaplist and regexpboollist can
 #  currently be defined for use with pre-authstoryboard.
@@ -318,7 +318,7 @@ regexpboollist = 'name=browser,path=@DGCONFDIR@/lists/browserregexplist'
 # A directory containing text files containing the room's name followed by IPs or ranges
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
-# perroomdirectory = '@DGCONFDIR@/lists/rooms/'
+# perroomdirectory = '@E2CONFDIR@/lists/rooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -443,14 +443,14 @@ maxcontentramcachescansize = 2000
 
 # Max content file cache scan size
 # This is only used if you use a content scanner plugin such as AV
-# This is the max size file that DG will download
+# This is the max size file that E2 will download
 # so that it can be scanned or virus checked.
 # This value must be greater or equal to maxcontentramcachescansize.
 # The size is in Kibibytes - eg 10240 = 10Mb
 maxcontentfilecachescansize = 20000
 
 # File cache dir
-# Where DG will download files to be scanned if too large for the
+# Where E2 will download files to be scanned if too large for the
 # RAM cache.
 filecachedir = '/tmp'
 
@@ -507,7 +507,7 @@ trickledelay = 10
 # and other matching mechanisms.
 #
 # NOTE - ONLY default downloadmanager is supported in v5
-downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
+downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
@@ -518,11 +518,11 @@ downloadmanager = '@DGCONFDIR@/downloadmanagers/default.conf'
 # Some of the scanner(s) require 3rd party software and libraries eg clamav.
 # See the individual plugin conf file for more options (if any).
 #
-#@CLAMDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/clamdscan.conf'
-#@AVASTDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/avastdscan.conf'
-#@KAVDSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/kavdscan.conf'
-#@ICAPSUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/icapscan.conf'
-#@COMMANDLINESUPPORT@contentscanner = '@DGCONFDIR@/contentscanners/commandlinescan.conf'
+#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
+#@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
+#@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
 
 # Content scanner timeout
 # Some of the content scanners support using a timeout value to stop
@@ -545,21 +545,21 @@ contentscannertimeout = 60
 
 # If you do not use multiple filter groups, you need not specify this option.
 #
-#authplugin = '@DGCONFDIR@/authplugins/proxy-basic.conf'
+#authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
 
-#authplugin = '@DGCONFDIR@/authplugins/proxy-digest.conf'
+#authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
 
-#@NTLMSUPPORT@authplugin = '@DGCONFDIR@/authplugins/proxy-ntlm.conf'
+#@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
 
-#authplugin = '@DGCONFDIR@/authplugins/ident.conf'
+#authplugin = '@E2CONFDIR@/authplugins/ident.conf'
 
-#authplugin = '@DGCONFDIR@/authplugins/ip.conf'
-#ipmaplist = 'name=ipmap, path=@DGCONFDIR@/lists/authplugins/ipgroups'
+#authplugin = '@E2CONFDIR@/authplugins/ip.conf'
+#ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
 
-#authplugin = '@DGCONFDIR@/authplugins/proxy-header.conf'
+#authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
 
-#authplugin = '@DGCONFDIR@/authplugins/port.conf'
-#maplist = 'name=portmap, path=@DGCONFDIR@/lists/authplugins/portgroups'
+#authplugin = '@E2CONFDIR@/authplugins/port.conf'
+#maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as
@@ -625,7 +625,7 @@ httpworkers = 500
 # PID filename
 # 
 # Defines process id directory and filename.
-#pidfilename = '@DGPIDDIR@/e2guardian.pid'
+#pidfilename = '@E2PIDDIR@/e2guardian.pid'
 
 # Disable daemoning
 # If enabled the process will not fork into the background.
@@ -665,8 +665,8 @@ usedashforblank = on
 # Temp files created during virus scanning are given owner and group read
 
 # clamdscan, the two processes must run with either the same group or user ID.
-#daemonuser = '@DGPROXYUSER@'
-#daemongroup = '@DGPROXYGROUP@'
+#daemonuser = '@E2PROXYUSER@'
+#daemongroup = '@E2PROXYGROUP@'
 
 
 # Mail program
@@ -704,7 +704,7 @@ enablessl = off
 
 #Generated cert path
 #The location where generated certificates will be saved for future use.
-#(must be writable by the dg user)
+#(must be writable by the e2 user)
 # default is blank - required if ssl_mitm is enabled.
 #generatedcertpath = '/home/e2/e2install/generatedcerts/'
 
@@ -753,7 +753,7 @@ enablessl = off
 # monitorflagprefix = '/home/e2g/run/e2g_flag_'
 
 # Much logic has moved to storyboard files
-preauthstoryboard = '@DGCONFDIR@/preauth.story'
+preauthstoryboard = '@E2CONFDIR@/preauth.story'
 
 # Storyboard tracing
 # Warning - produces verbose output - do not use in production

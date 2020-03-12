@@ -23,15 +23,15 @@ The CSPlugin base class provides the following methods:
 
 - quit(): Called just before destruction. Interpretation of return values is the same as for init(). Default implementation just returns 0.
 
-- scanTest(): Called to ask a plugin whether or not it would like to scan a particular object. This happens after the HTTP response headers have been retrieved, but before any of the actual content. The request headers, response headers, and the client's username, IP and filter group number are passed in. Return DGCS_NOSCAN if the plugin does not wish to scan the content, and DGCS_NEEDSCAN if it does. Any return code < 0 signifies error. Default implementation checks the exceptionvirusmimetypelist, exceptionvirusextensionlist, exceptionvirussitelist and exceptionvirusurllist, returning DGCS_NOSCAN if it any of these is matched.
+- scanTest(): Called to ask a plugin whether or not it would like to scan a particular object. This happens after the HTTP response headers have been retrieved, but before any of the actual content. The request headers, response headers, and the client's username, IP and filter group number are passed in. Return E2CS_NOSCAN if the plugin does not wish to scan the content, and E2CS_NEEDSCAN if it does. Any return code < 0 signifies error. Default implementation checks the exceptionvirusmimetypelist, exceptionvirusextensionlist, exceptionvirussitelist and exceptionvirusurllist, returning E2CS_NOSCAN if it any of these is matched.
 
-- scanFile(): Called to get a plugin to scan a temporary file containing some downloaded content. The request headers, response headers, user details (username, filter group and IP) and filename are passed in. The plugin is free to process the file in any way it sees fit, provided that the file is treated as read-only. Return values are: DGCS_CLEAN for clean files, DGCS_INFECTED for infected/otherwise undesirable files, and DGCS_SCANERROR or any other value less than 0 for error. This function is pure virtual in the base class, so it MUST be implemented by plugins.
+- scanFile(): Called to get a plugin to scan a temporary file containing some downloaded content. The request headers, response headers, user details (username, filter group and IP) and filename are passed in. The plugin is free to process the file in any way it sees fit, provided that the file is treated as read-only. Return values are: E2CS_CLEAN for clean files, E2CS_INFECTED for infected/otherwise undesirable files, and E2CS_SCANERROR or any other value less than 0 for error. This function is pure virtual in the base class, so it MUST be implemented by plugins.
 
 - scanMemory(): Called to get a plugin to scan an in-memory buffer containing some downloaded content. Parameters are similar to scanFile(), except the filename is replaced with a pointer to the buffer (type "const char*") and the buffer length. Return values are the same as for scanFile(). Default implementation writes the buffer to disk (using writeMemoryTempFile()), calls scanFile() on the resulting file, then deletes the file and returns the return value of scanFile().
 
-- getLastVirusName(): After scanFile() or scanMemory() has returned DGCS_INFECTED, this function may be called to retrieve the virus name (or other reason for denial), for display and logging purposes. The default implementation simply returns the value of the "lastvirusname" data member.
+- getLastVirusName(): After scanFile() or scanMemory() has returned E2CS_INFECTED, this function may be called to retrieve the virus name (or other reason for denial), for display and logging purposes. The default implementation simply returns the value of the "lastvirusname" data member.
 
-- getLastMessage(): After scanFile() or scanMemory() has returned DGCS_SCANERROR or less than 0, this function may be called to retrieve the error message, for display and logging purposes. The default implementation simply returns the value of the "lastmessage" data member.
+- getLastMessage(): After scanFile() or scanMemory() has returned E2CS_SCANERROR or less than 0, this function may be called to retrieve the error message, for display and logging purposes. The default implementation simply returns the value of the "lastmessage" data member.
 
 Protected methods:
 
@@ -39,7 +39,7 @@ Protected methods:
 
 - makeTempFile(): Creates a temporary file in filecachedir. Returns -1 on failure, or on success, returns an open file descriptor and puts the file's name in the passed-in String object.
 
-- writeMemoryTempFile(): Writes data from the given buffer into a temporary file. On success, returns DGCS_OK and fills in the given String object with the filename; returns DGCS_ERROR on failure. Uses makeTempFile() internally.
+- writeMemoryTempFile(): Writes data from the given buffer into a temporary file. On success, returns E2CS_OK and fills in the given String object with the filename; returns E2CS_ERROR on failure. Uses makeTempFile() internally.
 
 
 Considerations

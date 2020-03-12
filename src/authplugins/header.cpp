@@ -56,16 +56,16 @@ AuthPlugin *headercreate(ConfigVar &definition)
 int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec)
 {
     if (fname.length() < 0) 
-   	return DGAUTH_NOMATCH;
+   	return E2AUTH_NOMATCH;
 
     string = h.getAuthHeader();
     if (string.length() > 0) {
         authrec.user_name = string;
         authrec.user_source = "header";
 	is_real_user = false;
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 
 int headerinstance::init(void *args)

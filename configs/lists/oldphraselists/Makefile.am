@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in
 
-DGDATADIR = $(DGCONFDIR)/lists/oldphraselists
+E2DATADIR = $(E2CONFDIR)/lists/oldphraselists
 PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
 		googlesearches gore illegaldrugs intolerance legaldrugs \
 		malware news nudism peer2peer personals pornography \
@@ -10,11 +10,11 @@ PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
 
 install-data-local: 
 	for l in $(PHRASELISTS); do \
-		$(mkinstalldirs) $(DESTDIR)$(DGDATADIR)/$$l && \
+		$(mkinstalldirs) $(DESTDIR)$(E2DATADIR)/$$l && \
 		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception* $(srcdir)/$$l/banned*; do \
 		   if test -f $$f ; then \
-			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l"; \
-			$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$l; \
+			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(E2DATADIR)/$$l"; \
+			$(INSTALL_DATA) $$f $(DESTDIR)$(E2DATADIR)/$$l; \
 	           fi \
 		done \
 	done
@@ -22,7 +22,7 @@ install-data-local:
 uninstall-local:
 	for l in $(PHRASELISTS); do \
 		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception*; do \
-	        	rm -f $(DESTDIR)$(DGDATADIR)/$$l/`basename $$f`; \
+	        	rm -f $(DESTDIR)$(E2DATADIR)/$$l/`basename $$f`; \
 		done \
 	done
 

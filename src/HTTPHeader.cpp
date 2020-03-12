@@ -375,7 +375,7 @@ void HTTPHeader::makePersistent(bool persist)
     if (persist) {
         // Only make persistent if it originally was, but now isn't.
         // The intention isn't to change browser behaviour, just to
-        // un-do any connection downgrading which DG may have performed
+        // un-do any connection downgrading which E2 may have performed
         // earlier.
         if (waspersistent && !ispersistent) {
             if (pproxyconnection != NULL) {
@@ -1029,7 +1029,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
 
     // Do not allow persistent connections on CONNECT requests - the browser thinks it has a tunnel
     // directly to the external server, not a connection to the proxy, so it won't be re-used in the
-    // manner expected by DG and will result in waiting for time-outs.  Bug identified by Jason Deasi.
+    // manner expected by E2 and will result in waiting for time-outs.  Bug identified by Jason Deasi.
     bool isconnect = false;
     if (outgoing && header.front()[0] == 'C') {
 #ifdef E2DEBUG
@@ -1598,7 +1598,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 {
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
 
-    if (sendflag == __DGHEADER_SENDALL || sendflag == __DGHEADER_SENDFIRSTLINE) {
+    if (sendflag == __E2HEADER_SENDALL || sendflag == __E2HEADER_SENDFIRSTLINE) {
         if (header.size() > 0) {
             l = header.front() + "\n";
 
@@ -1654,7 +1654,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 break;
             }
         }
-        if (sendflag == __DGHEADER_SENDFIRSTLINE) {
+        if (sendflag == __E2HEADER_SENDFIRSTLINE) {
             return true;
         }
     }

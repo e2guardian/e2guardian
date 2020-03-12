@@ -614,7 +614,7 @@ bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, un
     return compileRegExMatchFile(listref, list_comp, list_source, list_ref);
 }
 
-// NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUDGE
+// NOTE TO SELF - MOVE TO LISTCONTAINER TO SOLVE FUE2E
 // compile regexp url list
 bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
                                      std::deque<String> &list_source, std::deque<unsigned int> &list_ref) {

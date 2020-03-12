@@ -18,7 +18,7 @@
 // along with the UNIX domain sockets for the old logger & url cache
 int sysv_kill(std::string pidfile, bool dounlink = true);
 
-// show PID of running DG process
+// show PID of running E2 process
 int sysv_showpid(std::string pidfile);
 // check that the process in the pidfile is running
 bool sysv_amirunning(std::string pidfile);

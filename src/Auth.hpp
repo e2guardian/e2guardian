@@ -19,25 +19,25 @@
 // DEFINES
 
 // success
-#define DGAUTH_OK 0
+#define E2AUTH_OK 0
 
 // auth info required for this method not found (continue querying other plugins)
-#define DGAUTH_NOMATCH 2
+#define E2AUTH_NOMATCH 2
 
 // auth info found, but no such user in filtergroupslist (stop querying plugins - use this code with caution!)
-#define DGAUTH_NOUSER 3
+#define E2AUTH_NOUSER 3
 
 // auth info found, but no such user in group for this plugin  stop querying plugins - use this code with caution!)
-#define DGAUTH_NOGROUP 3
+#define E2AUTH_NOGROUP 3
 
 // redirect the user to a login page
-#define DGAUTH_REDIRECT 4
+#define E2AUTH_REDIRECT 4
 
 // allow access to http[s] based auth system, but with no persitance
-#define DGAUTH_OK_NOPERSIST 9
+#define E2AUTH_OK_NOPERSIST 9
 
 // auth plugin found a partial or incomplet answer (Eg NTLM): just break ident loop for this request  
-#define DGAUTH_NOIDENTPART 5
+#define E2AUTH_NOIDENTPART 5
 
 // any < 0 return code signifies error
 

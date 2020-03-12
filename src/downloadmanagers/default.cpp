@@ -140,12 +140,12 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                     std::cerr << thread_id << "sending first line of header first" << std::endl;
 #endif
                     if (!d->icap) {
-                        docheader->out(NULL, peersock, __DGHEADER_SENDFIRSTLINE);
+                        docheader->out(NULL, peersock, __E2HEADER_SENDFIRSTLINE);
                         (*headersent) = 1;
                     }
                 }
 #ifdef E2DEBUG
-                std::cerr << thread_id << "trickle delay - sending X-DGKeepAlive: on" << std::endl;
+                std::cerr << thread_id << "trickle delay - sending X-E2KeepAlive: on" << std::endl;
 #endif
                 if (!d->icap)
                     peersock->writeString("X-E2GKeepAlive: on\r\n");

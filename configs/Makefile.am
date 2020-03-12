@@ -16,14 +16,14 @@ EXTRA_DIST = e2guardian.conf.in e2guardianf1.conf.in examplef1.story.in
 
 
 install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGCONFDIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2CONFDIR) && \
 	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGCONFDIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGCONFDIR)/$$l; \
+		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2CONFDIR)/$$l"; \
+		$(INSTALL_DATA) $$l $(DESTDIR)$(E2CONFDIR)/$$l; \
 	done
 
 uninstall-local:
 	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGCONFDIR)/$$l ; \
+		rm -f $(DESTDIR)$(E2CONFDIR)/$$l ; \
 	done
 

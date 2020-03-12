@@ -1,5 +1,5 @@
-.Include<@DGCONFDIR@/common.story>
-.Include<@DGCONFDIR@/site.story>
+.Include<@E2CONFDIR@/common.story>
+.Include<@E2CONFDIR@/site.story>
 
 # Add any altered functions for this filtergroup here
 # They will overwrite library or site level definitions

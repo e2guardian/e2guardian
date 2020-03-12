@@ -38,20 +38,20 @@
 
 # The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
 
-.Include<@DGCONFDIR@/lists/oldphraselists/safelabel/banned>
-#.Include<@DGCONFDIR@/lists/oldphraselists/rta/banned_portuguese>
+.Include<@E2CONFDIR@/lists/oldphraselists/safelabel/banned>
+#.Include<@E2CONFDIR@/lists/oldphraselists/rta/banned_portuguese>
 
 # The following banned oldphraselists are included in the default DG distribution.
 
-.Include<@DGCONFDIR@/lists/oldphraselists/pornography/banned>
-##.Include<@DGCONFDIR@/lists/oldphraselists/pornography/banned_portuguese>
+.Include<@E2CONFDIR@/lists/oldphraselists/pornography/banned>
+##.Include<@E2CONFDIR@/lists/oldphraselists/pornography/banned_portuguese>
 
-#.Include<@DGCONFDIR@/lists/oldphraselists/illegaldrugs/banned>
+#.Include<@E2CONFDIR@/lists/oldphraselists/illegaldrugs/banned>
 
-#.Include<@DGCONFDIR@/lists/oldphraselists/gambling/banned>
-##.Include<@DGCONFDIR@/lists/oldphraselists/gambling/banned_portuguese>
+#.Include<@E2CONFDIR@/lists/oldphraselists/gambling/banned>
+##.Include<@E2CONFDIR@/lists/oldphraselists/gambling/banned_portuguese>
 
-#.Include<@DGCONFDIR@/lists/oldphraselists/googlesearches/banned>
+#.Include<@E2CONFDIR@/lists/oldphraselists/googlesearches/banned>
 
 
 

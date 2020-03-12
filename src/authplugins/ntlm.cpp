@@ -194,13 +194,13 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             domain = domain.before("/");
         domain = "http://" + domain + "/";
         h.setURL(domain);
-        h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
+        h.out(&peercon, upstreamcon, __E2HEADER_SENDALL);
         // grab the auth required response and make it look like it's from the origin server
         h.in(upstreamcon, true);
         h.makeTransparent(true);
         h.makePersistent();
         // send it to the client
-        h.out(NULL, &peercon, __DGHEADER_SENDALL);
+        h.out(NULL, &peercon, __E2HEADER_SENDALL);
         if (h.contentLength() != -1)
             fdt.tunnel(*upstreamcon, peercon, false, h.contentLength(), true);
         if (h.isPersistent()) {
@@ -209,7 +209,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             h.makeTransparent(false);
             at = h.getAuthType();
         } else {
-            return DGAUTH_NOMATCH;
+            return E2AUTH_NOMATCH;
         }
     } else if (transparent && url.contains("?sgtransntlmdest=")) {
         // send a variant on the original request (has to be something Squid will route to the outside
@@ -237,7 +237,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
             h.makePersistent();
         }
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     }
 
     HTTPHeader res_hd(__HEADER_RESPONSE);
@@ -249,7 +249,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     if (!h.isPersistent()) {
     	h.makePersistent();
     }
-    h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
+    h.out(&peercon, upstreamcon, __E2HEADER_SENDALL);
 
 #ifdef E2DEBUG
     std::cerr << thread_id << "NTLM - receiving step 2" << std::endl;
@@ -261,7 +261,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 #endif
         if (transparent)
             h.makeTransparent(true);
-        res_hd.out(NULL, &peercon, __DGHEADER_SENDALL);
+        res_hd.out(NULL, &peercon, __E2HEADER_SENDALL);
         if (res_hd.contentLength() != -1){
             fdt.tunnel(*upstreamcon, peercon, false, res_hd.contentLength(), true);
         }
@@ -271,7 +271,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         // Buggy with IE and Chrome: todo needs more investigations !
         h.in(&peercon, true);
         if (h.header.size() == 0) {
-            return DGAUTH_NOIDENTPART;
+            return E2AUTH_NOIDENTPART;
         }
         if (transparent) {
             h.makeTransparent(false);
@@ -356,25 +356,25 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                             h.addXForwardedFor(clientip); // add squid-like entry
                         }
                     }
-                    return DGAUTH_OK;
+                    return E2AUTH_OK;
                 }
                 // if in transparent mode, send a redirect to the client's original requested URL,
                 // having sent the final headers to the NTLM-only Squid to do with what it will
-                h.out(&peercon, upstreamcon, __DGHEADER_SENDALL);
+                h.out(&peercon, upstreamcon, __E2HEADER_SENDALL);
                 // also, the return code matters in ways it hasn't mattered before:
                 // mustn't send a redirect if it is still 407, or we get a redirection loop
                 res_hd.in(upstreamcon, true);
                 if (res_hd.returnCode() == 407) {
                     res_hd.makeTransparent(false);
-                    res_hd.out(NULL, &peercon, __DGHEADER_SENDALL);
+                    res_hd.out(NULL, &peercon, __E2HEADER_SENDALL);
                     return -10;
                 }
                 url = url.after("=");
                 string = url.toCharArray();
-                return DGAUTH_REDIRECT;
+                return E2AUTH_REDIRECT;
             }
         }
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     } else {
 #ifdef E2DEBUG
         std::cerr << thread_id << "NTLM - step 2 was not part of an auth handshake!" << std::endl;

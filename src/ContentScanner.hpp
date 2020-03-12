@@ -20,20 +20,20 @@
 #include <stdexcept>
 
 // DEFINES
-#define DGCS_OK 0
-#define DGCS_ERROR -1
-#define DGCS_WARNING 3
+#define E2CS_OK 0
+#define E2CS_ERROR -1
+#define E2CS_WARNING 3
 
-#define DGCS_NOSCAN 0
-#define DGCS_NEEDSCAN 1
-#define DGCS_TESTERROR -1
+#define E2CS_NOSCAN 0
+#define E2CS_NEEDSCAN 1
+#define E2CS_TESTERROR -1
 
-#define DGCS_CLEAN 0
-#define DGCS_SCANERROR -1
-#define DGCS_INFECTED 1
-//#define DGCS_CURED 2  // not used
-#define DGCS_BLOCKED 4
-#define DGCS_MAX 5 // use values above this for custom return codes
+#define E2CS_CLEAN 0
+#define E2CS_SCANERROR -1
+#define E2CS_INFECTED 1
+//#define E2CS_CURED 2  // not used
+#define E2CS_BLOCKED 4
+#define E2CS_MAX 5 // use values above this for custom return codes
 
 // DECLARATIONS
 
@@ -95,7 +95,7 @@ class CSPlugin : public Plugin
     virtual int init(void *args);
     virtual int quit()
     {
-        return DGCS_OK;
+        return E2CS_OK;
     };
 
     private:

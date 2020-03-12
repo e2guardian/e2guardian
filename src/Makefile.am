@@ -3,7 +3,7 @@ DISTCLEANFILES = Makefile.in
 
 # A MASSIVE thank you to Lawrence Manning for pointing out the
 # -export-dynamic option was needed to solve a long problem
-# which stopped DG2.9 from actually running ever.
+# which stopped E22.9 from actually running ever.
 # Daniel Barron Fri 18th March 2005
 
 # Unfortunately, since it was never made to work on anything
@@ -66,12 +66,12 @@ sbin_PROGRAMS = e2guardian
 
 e2guardian_CXXFLAGS = $(PCRE_CFLAGS) $(AM_CXXFLAGS)
 e2guardian_LDADD = $(PCRE_LIBS) $(AM_LIBS)
-e2guardian_CPPFLAGS = -D__CONFFILE='"$(DGCONFFILE)"' \
-			-D__LOGLOCATION='"$(DGLOGLOCATION)/"' \
-			-D__PIDDIR='"$(DGPIDDIR)"' \
-			-D__PROXYUSER='"$(DGPROXYUSER)"' \
-			-D__PROXYGROUP='"$(DGPROXYGROUP)"' \
-			-D__CONFDIR='"$(DGCONFDIR)"' \
+e2guardian_CPPFLAGS = -D__CONFFILE='"$(E2CONFFILE)"' \
+			-D__LOGLOCATION='"$(E2LOGLOCATION)/"' \
+			-D__PIDDIR='"$(E2PIDDIR)"' \
+			-D__PROXYUSER='"$(E2PROXYUSER)"' \
+			-D__PROXYGROUP='"$(E2PROXYGROUP)"' \
+			-D__CONFDIR='"$(E2CONFDIR)"' \
 			$(AM_CPPFLAGS)
 e2guardian_SOURCES = String.cpp String.hpp \
                        FDTunnel.cpp FDTunnel.hpp \

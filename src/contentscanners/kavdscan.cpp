@@ -63,7 +63,7 @@ CSPlugin *kavdcreate(ConfigVar &definition)
 int kavdinstance::init(void *args)
 {
     int rc;
-    if ((rc = CSPlugin::init(args)) != DGCS_OK)
+    if ((rc = CSPlugin::init(args)) != E2CS_OK)
         return rc;
 
     udspath = cv["kavdudsfile"];
@@ -71,7 +71,7 @@ int kavdinstance::init(void *args)
         if (!is_daemonised)
             std::cerr << thread_id << "Error reading kavdudsfile option." << std::endl;
         syslog(LOG_ERR, "%s", "Error reading kavdudsfile option.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
     }
@@ -79,7 +79,7 @@ int kavdinstance::init(void *args)
     // read in path prefix
     pathprefix = cv["pathprefix"];
 
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // no need to replace the inheritied scanMemory() which just calls scanFile()
@@ -98,7 +98,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     // chmod can error with EINTR, ignore this?
     if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
         syslog(LOG_ERR, "Could not change file ownership to give kavd read access: %s", strerror(errno));
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     };
     String command("SCAN bPQRSTUW ");
     if (pathprefix.length()) {
@@ -114,12 +114,12 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         syslog(LOG_ERR, "%s", "Error creating socket for talking to kavdscan");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         syslog(LOG_ERR, "%s", "Error connecting to kavdscan socket");
         stripedsocks.close();
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     char *buff = new char[4096];
     memset(buff, 0, 4096);
@@ -133,7 +133,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         delete[] buff;
         stripedsocks.close();
         syslog(LOG_ERR, "%s", "kavdscan did not return ok");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     try {
         stripedsocks.writeString(command.toCharArray());
@@ -141,7 +141,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         delete[] buff;
         stripedsocks.close();
         syslog(LOG_ERR, "%s", "unable to write to kavdscan");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     try {
         rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
@@ -149,7 +149,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         delete[] buff;
         stripedsocks.close();
         syslog(LOG_ERR, "%s", "Error reading kavdscan socket");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     String reply(buff);
 #ifdef E2DEBUG
@@ -161,7 +161,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
 #endif
         delete[] buff;
         stripedsocks.close();
-        return DGCS_CLEAN;
+        return E2CS_CLEAN;
     }
     if (reply.startsWith("322")) { // infected
         // patch to handle multiple virii in kavd response
@@ -175,7 +175,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
                 delete[] buff;
                 stripedsocks.close();
                 syslog(LOG_ERR, "%s", "Error reading kavdscan socket");
-                return DGCS_SCANERROR;
+                return E2CS_SCANERROR;
             }
             reply = buff;
 #ifdef E2DEBUG
@@ -188,11 +188,11 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
 
         // format: 322 nastyvirus blah
         blockFile(NULL, NULL, checkme);
-        return DGCS_INFECTED;
+        return E2CS_INFECTED;
     }
     delete[] buff;
     stripedsocks.close();
     // must be an error then
     lastmessage = reply;
-    return DGCS_SCANERROR;
+    return E2CS_SCANERROR;
 }

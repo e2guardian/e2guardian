@@ -88,7 +88,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 #ifdef E2DEBUG
         std::cerr << thread_id << "Error connecting to obtain ident from: " << clientip << std::endl;
 #endif
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     }
 #ifdef E2DEBUG
     std::cerr << thread_id << "Connected to:" << clientip << std::endl;
@@ -135,9 +135,9 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
         authrec.user_name = string;
         authrec.user_source = "ident";
 	is_real_user = true;
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 
 int identinstance::init(void *args)

@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in
 
-DGDATADIR = $(DGCONFDIR)/authplugins
+E2DATADIR = $(E2CONFDIR)/authplugins
 
 SUBDIRS = .
 
@@ -20,14 +20,14 @@ EXTRA_DIST = proxy-basic.conf ident.conf ip.conf proxy-ntlm.conf \
 	     proxy-digest.conf port.conf dnsauth.conf
 
 install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 	for l in $(FLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
+		$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l; \
 	done
 
 
 uninstall-local:
 	for l in $(FLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+		rm -f $(DESTDIR)$(E2DATADIR)/$$l ; \
 	done

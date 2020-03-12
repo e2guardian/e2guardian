@@ -4,7 +4,7 @@ DISTCLEANFILES = Makefile.in \
 		oldbannedphraselist \
 		oldexceptionphraselist oldweightedphraselist
 
-DGDATADIR = $(DGCONFDIR)/lists
+E2DATADIR = $(E2CONFDIR)/lists
 
 SUBDIRS = oldphraselists phraselists . authplugins bannedrooms
 
@@ -115,14 +115,14 @@ weightedphraselist.in \
 oldweightedphraselist.in
 
 install-data-local: 
-	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 		for l in $(WLISTS) ; do \
-		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
+		$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l; \
 	done
 
 
 uninstall-local:
 	for l in $(WLISTS) ; do \
-		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+		rm -f $(DESTDIR)$(E2DATADIR)/$$l ; \
 	done

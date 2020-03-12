@@ -185,7 +185,7 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     authrec.user_name = string;
     authrec.user_source = "ip";;
     is_real_user = false;
-    return DGAUTH_OK;
+    return E2AUTH_OK;
 }
 
 #ifdef NODEF
@@ -202,7 +202,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 #ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to straight IP list" << std::endl;
 #endif
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
 //    fg = inSubnet(addr);
     if (fg >= 0) {
@@ -210,7 +210,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 #ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to subnet" << std::endl;
 #endif
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
 //    fg = inRange(addr);
     if (fg >= 0) {
@@ -218,12 +218,12 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 #ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to range" << std::endl;
 #endif
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
 #ifdef E2DEBUG
     std::cerr << thread_id << "Matched IP " << user << " to nothing" << std::endl;
 #endif
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 
 #endif

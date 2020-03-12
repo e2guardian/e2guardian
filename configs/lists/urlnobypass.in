@@ -9,7 +9,7 @@
 # WARNING: Old style Blanket blocks in this file will be silently ignored
 
 #To include additional files in this list use this example:
-#.Include<@DGCONFDIR@/anotherbannedurllist>
+#.Include<@E2CONFDIR@/anotherbannedurllist>
 
 #You can have multiple .Includes.
 
@@ -22,30 +22,30 @@
 # The squidGuard advert domain/URL lists are now included by default.
 # To work with advanced ad blocking & the logadblocks option, advert
 # phrase/site/URL lists should have the string "ADs" in their listcategory.
-#.Include<@DGCONFDIR@/lists/blacklists/ads/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/ads/urls>
 
 #Remove the # from the following and edit as needed to use a stock
 #squidGuard/urlblacklist blacklists collection.
-#.Include<@DGCONFDIR@/lists/blacklists/adult/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/aggressive/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/audio-video/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/chat/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/drugs/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/entertainment/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/frencheducation/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/gambling/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/government/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/hacking/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/jobsearch/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/kidstimewasting/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/mail/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/news/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/porn/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/proxy/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/publicite/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/redirector/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/violence/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/virusinfected/urls>
-#.Include<@DGCONFDIR@/lists/blacklists/warez/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/adult/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/aggressive/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/audio-video/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/chat/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/drugs/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/entertainment/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/frencheducation/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/gambling/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/government/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/hacking/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/jobsearch/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/kidstimewasting/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/mail/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/news/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/porn/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/proxy/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/publicite/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/redirector/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/violence/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/virusinfected/urls>
+#.Include<@E2CONFDIR@/lists/blacklists/warez/urls>
 # You will need to edit to add and remove categories you want
 

@@ -53,7 +53,7 @@ int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
     String t = h.getAuthType();
     t.toLower();
     if (t != "digest")
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     // extract username
     string = h.getRawAuthData();
     if (string.length() > 0) {
@@ -64,9 +64,9 @@ int digestinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, s
         authrec.user_name = string;
         authrec.user_source = "digest";
 	is_real_user = true;
-        return DGAUTH_OK;
+        return E2AUTH_OK;
     }
-    return DGAUTH_NOMATCH;
+    return E2AUTH_NOMATCH;
 }
 
 int digestinstance::init(void *args)

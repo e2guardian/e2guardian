@@ -923,7 +923,7 @@ bool OptionContainer::read(std::string& filename, int type)
         maplist_dq = findoptionM("maplist");
         ipmaplist_dq = findoptionM("ipmaplist");
 
-            if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
+            if ((findoptionS("authrequiresuserande2roup") == "on") && (authplugins.size() > 1))
                 auth_requires_user_and_group = true;
 
         if (group_names_list_location.length() == 0) {

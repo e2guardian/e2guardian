@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in 
 
-DGDATADIR = $(DGCONFDIR)/lists/phraselists
+E2DATADIR = $(E2CONFDIR)/lists/phraselists
 
 MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanese malay norwegian polish portuguese russian-1251 russian-koi8-r spanish swedish ukenglish 
 
@@ -9,16 +9,16 @@ MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanes
  
 
 #install-data-local: 
-#	$(mkinstalldirs) $(DESTDIR)$(DGDATADIR) && \
+#	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 #		for l in $(WLISTS) ; do \
-#		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l"; \
-#		$(INSTALL_DATA) $$l $(DESTDIR)$(DGDATADIR)/$$l; \
+#		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
+#		$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l; \
 #	done
 
 
 #uninstall-local:
 #	for l in $(WLISTS) ; do \
-#		rm -f $(DESTDIR)$(DGDATADIR)/$$l ; \
+#		rm -f $(DESTDIR)$(E2DATADIR)/$$l ; \
 #	done
 
 PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
@@ -31,11 +31,11 @@ install-data-local:
 	for lang in $(MYSUBDIRS); do \
 	for l in $(PHRASELISTS); do \
 		if test -d $(srcdir)/$$lang/$$l ; then \
-		$(mkinstalldirs) $(DESTDIR)$(DGDATADIR)/$$lang/$$l && \
+		$(mkinstalldirs) $(DESTDIR)$(E2DATADIR)/$$lang/$$l && \
 		for f in $(srcdir)/$$lang/$$l/weighted* $(srcdir)/$$lang/$$l/exception* $(srcdir)/$$lang/$$l/banned*; do \
 		   if test -f $$f ; then \
-			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$lang/$$l"; \
-			$(INSTALL_DATA) $$f $(DESTDIR)$(DGDATADIR)/$$lang/$$l; \
+			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(E2DATADIR)/$$lang/$$l"; \
+			$(INSTALL_DATA) $$f $(DESTDIR)$(E2DATADIR)/$$lang/$$l; \
 	           fi \
 		done \
 		fi \
@@ -46,7 +46,7 @@ uninstall-local:
 	for lang in $(MYSUBDIRS); do \
 	for l in $(PHRASELISTS); do \
 		for f in $(srcdir)/$$lang/$$l/weighted* $(srcdir)/$$lang/$$l/exception*; do \
-	        	rm -f $(DESTDIR)$(DGDATADIR)/$$lang/$$l/`basename $$f`; \
+	        	rm -f $(DESTDIR)$(E2DATADIR)/$$lang/$$l/`basename $$f`; \
 		done \
 	done \
 	done

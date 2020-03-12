@@ -998,7 +998,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header, checkme,
                             only_ip_auth,
                             checkme.isconnect)) {
-                    if ((checkme.auth_result == DGAUTH_REDIRECT) && checkme.isconnect &&
+                    if ((checkme.auth_result == E2AUTH_REDIRECT) && checkme.isconnect &&
                         ldl->fg[filtergroup]->ssl_mitm) {
                         checkme.gomitm = true;
                         checkme.isdone = true;
@@ -1194,7 +1194,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
                 {
-                    if (!(header.out(&peerconn, &proxysock, __DGHEADER_SENDALL, true) // send proxy the request
+                    if (!(header.out(&peerconn, &proxysock, __E2HEADER_SENDALL, true) // send proxy the request
                           && (docheader.in_handle_100(&proxysock, persistOutgoing, header.expects_100)))) {
                         if (proxysock.isTimedout()) {
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
@@ -1334,7 +1334,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //send response header to client
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
-                if (!docheader.out(NULL, &peerconn, __DGHEADER_SENDALL, false)) {
+                if (!docheader.out(NULL, &peerconn, __E2HEADER_SENDALL, false)) {
                     peerDiag("Unable to send return header to client", peerconn);
                     break;
                 }
@@ -2226,7 +2226,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #endif
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup],
                                           clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
-                    if ((csrc != DGCS_CLEAN) && (csrc != DGCS_WARNING)) {
+                    if ((csrc != E2CS_CLEAN) && (csrc != E2CS_WARNING)) {
                         unlink(docbody->tempfilepath.toCharArray());
                         // delete infected (or unscanned due to error) file straight away
                     }
@@ -2240,7 +2240,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef E2DEBUG
                 std::cerr << thread_id << " -AV scan " << k << " returned: " << csrc << std::endl;
 #endif
-                if (csrc == DGCS_WARNING) {
+                if (csrc == E2CS_WARNING) {
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
                     (*scanerror) = false;
@@ -2248,17 +2248,17 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     std::cerr << thread_id << (*i)->getLastMessage() << std::endl;
 #endif
                     (*csmessage) = (*i)->getLastMessage();
-                } else if (csrc == DGCS_BLOCKED) {
+                } else if (csrc == E2CS_BLOCKED) {
                     (*wasscanned) = true;
                     (*scanerror) = false;
                     break;
-                } else if (csrc == DGCS_INFECTED) {
+                } else if (csrc == E2CS_INFECTED) {
                     (*wasinfected) = true;
                     (*scanerror) = false;
                     break;
                 }
                     //if its not clean / we errored then treat it as infected
-                else if (csrc != DGCS_CLEAN) {
+                else if (csrc != E2CS_CLEAN) {
                     if (csrc < 0) {
                         syslog(LOG_ERR, "Unknown return code from content scanner: %d", csrc);
                         if (ldl->fg[filtergroup]->disable_content_scan_error) {
@@ -2895,18 +2895,18 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
                     rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
                 } else {
-                    rc = DGAUTH_NOMATCH;
+                    rc = E2AUTH_NOMATCH;
                 }
             } else {
                 rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
             }
 
-            if (rc == DGAUTH_NOMATCH) {
+            if (rc == E2AUTH_NOMATCH) {
 #ifdef E2DEBUG
                 std::cerr << "Auth plugin did not find a match; querying remaining plugins" << std::endl;
 #endif
                 continue;
-            } else if (rc == DGAUTH_REDIRECT) {
+            } else if (rc == E2AUTH_REDIRECT) {
 #ifdef E2DEBUG
                 std::cerr << "Auth plugin told us to redirect client to \"" << clientuser << "\"; not querying remaining plugins" << std::endl;
 #endif
@@ -2923,7 +2923,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     dobreak = true;
                     break;
                 }
-            } else if (rc == DGAUTH_OK_NOPERSIST) {
+            } else if (rc == E2AUTH_OK_NOPERSIST) {
 #ifdef E2DEBUG
                 std::cerr << "Auth plugin  returned OK but no persist not setting persist auth" << std::endl;
 #endif
@@ -2948,19 +2948,19 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             }
             // try to get the filter group & parse the return value
             rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->StoryA, cm);
-            if (rc == DGAUTH_OK) {
+            if (rc == E2AUTH_OK) {
 #ifdef E2DEBUG
                 std::cerr << thread_id << "Auth plugin found username & group; not querying remaining plugins" << std::endl;
 #endif
                 authed = true;
                 break;
-            } else if (rc == DGAUTH_NOMATCH) {
+            } else if (rc == E2AUTH_NOMATCH) {
 #ifdef E2DEBUG
                 std::cerr << thread_id << "Auth plugin did not find a match; querying remaining plugins" << std::endl;
 #endif
                 clientuser = "";
                 continue;
-            } else if (rc == DGAUTH_NOGROUP) {
+            } else if (rc == E2AUTH_NOGROUP) {
                 if (o.auth_requires_user_and_group || !is_real_user) {
                     clientuser = "";
                     SBauth.user_source = "";
@@ -3371,7 +3371,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin,  peerconn, proxysock,  header, checkme, true, true))
                 {
 
-                    if((checkme.auth_result == DGAUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
+                    if((checkme.auth_result == E2AUTH_REDIRECT) && ldl->fg[filtergroup]->ssl_mitm)
                     {
                        if(!checkme.nomitm)checkme.gomitm = true;
                        checkme.isdone = true;
@@ -3955,12 +3955,12 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         doRQLog(clientuser, clientip, checkme, fnt);
     }
 
-    int rc = DGAUTH_NOUSER;
+    int rc = E2AUTH_NOUSER;
     if (clientuser != "") {
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
-        if (rc != DGAUTH_OK)
+        if (rc != E2AUTH_OK)
         {};
     }
     else {
@@ -4414,20 +4414,20 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 // return -1 when user not found
 int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &story, NaughtyFilter &cm, int story_entry) {
     if (user.length() < 1 || user == "-") {
-        return DGAUTH_NOMATCH;
+        return E2AUTH_NOMATCH;
     }
     cm.user = user;
     if (!story.runFunctEntry(story_entry, cm)) {
 #ifdef E2DEBUG
         std::cerr << "User not in filter groups list for: icap " << std::endl;
 #endif
-        return DGAUTH_NOGROUP;
+        return E2AUTH_NOGROUP;
     }
 
 #ifdef E2DEBUG
     std::cerr << "Group found for: " << user.c_str() << " in icap " << std::endl;
 #endif
     fg = cm.filtergroup;
-    return DGAUTH_OK;
+    return E2AUTH_OK;
 }
 

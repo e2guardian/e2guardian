@@ -73,9 +73,9 @@ int CSPlugin::init(void *args)
         scanpost = false;
 
     if (!readStandardLists()) { //always
-        return DGCS_ERROR; //include
+        return E2CS_ERROR; //include
     } // these
-    return DGCS_OK;
+    return E2CS_OK;
 }
 
 // make a temporary file for storing data which is to be scanned
@@ -113,7 +113,7 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
         std::cerr << thread_id << "Error creating temp file in writeMemoryTempFile." << std::endl;
 #endif
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating temp file in writeMemoryTempFile.");
-        return DGCS_ERROR;
+        return E2CS_ERROR;
     }
     errno = 0;
 #ifdef E2DEBUG
@@ -129,7 +129,7 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
         break; // end the while
     }
     close(tempfd); // finished writing so close file
-    return DGCS_OK; // all ok
+    return E2CS_OK; // all ok
 }
 
 // default implementation of scanMemory, which defers to scanFile.
@@ -141,12 +141,12 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     // a file name to scan.  So we save the memory to disk and pass that.
     // Then delete the temp file.
     String tempfilepath;
-    if (writeMemoryTempFile(object, objectsize, &tempfilepath) != DGCS_OK) {
+    if (writeMemoryTempFile(object, objectsize, &tempfilepath) != E2CS_OK) {
 #ifdef E2DEBUG
         std::cerr << thread_id << "Error creating/writing temp file for scanMemory." << std::endl;
 #endif
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating/writing temp file for scanMemory.");
-        return DGCS_SCANERROR;
+        return E2CS_SCANERROR;
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
 #ifndef E2DEBUG
@@ -212,7 +212,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
         std::cerr << thread_id << "willScanRequest: ignoring reconstituted data" << std::endl;
 #endif
-        return DGCS_NOSCAN;
+        return E2CS_NOSCAN;
     }
 
     // Deal with POST file uploads conditionally, but subject only to the "scanpost"
@@ -223,12 +223,12 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: I'm interested in uploads" << std::endl;
 #endif
-            return DGCS_NEEDSCAN;
+            return E2CS_NEEDSCAN;
         } else {
 #ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: Not interested in uploads" << std::endl;
 #endif
-            return DGCS_NOSCAN;
+            return E2CS_NOSCAN;
         }
     }
 
@@ -236,7 +236,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
    // all list checkng is now done in Storyboard request
     // and filetype checking in Storyboard response
     //
-    return DGCS_NEEDSCAN;
+    return E2CS_NEEDSCAN;
 
 #ifdef NOTDEF
     String urld(HTTPHeader::decode(url));
@@ -261,7 +261,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
         std::cerr << thread_id << "willScanRequest: ignoring our own webserver" << std::endl;
 #endif
-        return DGCS_NOSCAN;
+        return E2CS_NOSCAN;
     }
 
     // exceptionvirussitelist
@@ -271,7 +271,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
-            return DGCS_NOSCAN; // exact match
+            return E2CS_NOSCAN; // exact match
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
@@ -282,7 +282,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
-            return DGCS_NOSCAN; // exact match
+            return E2CS_NOSCAN; // exact match
         }
     }
 
@@ -302,13 +302,13 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
                     std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
 #endif
-                    return DGCS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
+                    return E2CS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
 #ifdef E2DEBUG
                 std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
 #endif
-                return DGCS_NOSCAN; // exact match
+                return E2CS_NOSCAN; // exact match
             }
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
@@ -317,7 +317,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 #ifdef E2DEBUG
     std::cerr << thread_id << "willScanRequest: I'm interested" << std::endl;
 #endif
-    return DGCS_NEEDSCAN;
+    return E2CS_NEEDSCAN;
 #endif
 }
 
@@ -327,7 +327,7 @@ int CSPlugin::willScanData(const String &url, const char *user, FOptionContainer
     bool reconstituted, bool exception, bool bypass, const String &disposition, const String &mimetype,
     off_t size) {
     // this function is no longer required as mime/extension exceptions are now handled by Storyboard response
-    return DGCS_NEEDSCAN; // match
+    return E2CS_NEEDSCAN; // match
 }
 
 
