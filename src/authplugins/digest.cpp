@@ -7,7 +7,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../Auth.hpp"

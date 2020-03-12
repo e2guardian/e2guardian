@@ -17,7 +17,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../Auth.hpp"
@@ -138,12 +138,12 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
     fg = inList(s.toInteger());
     if (fg >= 0) {
         pfg = fg;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched port " << user << " to port list" << std::endl;
 #endif
         return DGAUTH_OK;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Matched port " << user << " to nothing" << std::endl;
 #endif
     return DGAUTH_NOMATCH;
@@ -224,7 +224,7 @@ int portinstance::readIPMelangeList(const char *filename)
             warn = true;
             continue;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "key: " << key << std::endl;
         std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
 #endif
@@ -251,11 +251,11 @@ int portinstance::readIPMelangeList(const char *filename)
         }
     }
     input.close();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "starting sort" << std::endl;
 #endif
 //	std::sort(ipportlist.begin(), ipportlist.end());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "sort complete" << std::endl;
     std::cerr << thread_id << "port list dump:" << std::endl;
     std::deque<portstruct>::iterator i = ipportlist.begin();

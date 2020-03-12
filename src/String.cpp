@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "String.hpp"
 #include "md5.hpp"
@@ -619,7 +619,7 @@ String String::sort_search()
         if ( j < ln) ind[j++] = 0;
         i++;
     };
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     int k = 0;
     while (k <= c)
         {
@@ -644,7 +644,7 @@ String String::sort_search()
             j++;
         };
     };
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     k = 0;
     while (k <= c)
         {
@@ -661,7 +661,7 @@ String String::sort_search()
         else
            ret = ret + "+" + p[j++];
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Search words after sort are "  << ret.c_str() << std::endl;
 #endif
    // delete [] temp;

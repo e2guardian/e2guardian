@@ -194,7 +194,7 @@ class ListContainer
     int *realgraphdata = nullptr;
     int current_graphdata_size = 0;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     bool prolificroot = false;
     int secondmaxchildnodes = 0;
 #endif

@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include <syslog.h>
@@ -106,7 +106,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         // parse line
         String t;
         t = list[i];
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "reading " << t.toCharArray() << std::endl;
 #endif
         String nm, fpath;
@@ -151,7 +151,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         } else {
             rec.log_mess_no = m_no;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
                   << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl;
 #endif
@@ -251,12 +251,12 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
     list_info *t = nullptr;
     unsigned int type = (unsigned int) tp;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
 #endif
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
 #endif
             t = &(*i);
@@ -264,7 +264,7 @@ ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
         }
         // std::cerr << thread_id << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
 #endif
     return t;
@@ -534,7 +534,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     unsigned int fl;
     char *i;
     String foundurl;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "inURLList: " << url << std::endl;
 #endif
 //    url.removeWhiteSpace(); // just in case of weird browser crap
@@ -551,7 +551,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     if (url.endsWith("/")) {
         url.chop(); // chop off trailing / if any
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
 #endif
         while (url.before("/").contains(".")) {
@@ -559,7 +559,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
             if (i != NULL) {
                 foundurl = i;
                 fl = foundurl.length();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
             std::cerr << thread_id << "url: " << url << fl << std::endl;
 #endif

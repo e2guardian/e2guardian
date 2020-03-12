@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "String.hpp"
 #include "OptionContainer.hpp"
@@ -193,14 +193,14 @@ void NaughtyFilter::reset()
 void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String *url,
     const String *domain, FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     if (searchterms)
         std::cerr << thread_id << "Content flagged as search terms - disabling hex decoding, META/TITLE extraction & HTML removal" << std::endl;
 #endif
 
 
     if (foc->weighted_phrase_mode == 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Weighted phrase mode 0 - not going any further." << std::endl;
 #endif
         return;
@@ -217,7 +217,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     // and the case alteration should modify case post-decoding
     // Search terms are already hex decoded, as they need to be to strip URL decoding
     if (!searchterms && o.hex_decode_content) { // Mod suggested by AFN Tue 8th April 2003
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Hex decoding is enabled" << std::endl;
 #endif
         char *hexdecoded_buf = new char[rawbodylen + 128 + 1];
@@ -267,7 +267,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     if (o.preserve_case == 2) {
 // scanning twice *is* desired
 // first time round the loop, don't preserve case (non-exotic encodings)
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Filtering with/without case preservation is enabled" << std::endl;
 #endif
         preserve_case = false;
@@ -292,12 +292,12 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         do_raw = true;
 
     for (int loop = 0; loop < (o.preserve_case == 2 ? 2 : 1); loop++) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Preserve case: " << preserve_case << std::endl;
 #endif
 
         off_t i, j;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         if (searchterms || do_raw)
             std::cerr << thread_id << "Raw content needed" << std::endl;
 #endif
@@ -324,7 +324,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 }
             }
         } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Not preserving case of raw content" << std::endl;
 #endif
             if (do_nohtml || o.phrase_filter_mode == 3) {
@@ -363,7 +363,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         // filter meta tags & title only
         // based on idea from Nicolas Peyrussie
         if (!searchterms && (o.phrase_filter_mode == 3)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Filtering META/title" << std::endl;
 #endif
             bool addit = false; // flag if we should copy this char to filtered version
@@ -372,13 +372,13 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 
             // find </head> or <body> as end of search range
             char *endhead = strstr(bodylc, "</head");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             if (endhead != NULL)
                 std::cerr << thread_id << "Found '</head', limiting search range" << std::endl;
 #endif
             if (endhead == NULL) {
                 endhead = strstr(bodylc, "<body");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 if (endhead != NULL)
                     std::cerr << thread_id << "Found '<body', limiting search range" << std::endl;
 #endif
@@ -387,13 +387,13 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             // if case preserved, also look for uppercase versions
             if (preserve_case and (endhead == NULL)) {
                 endhead = strstr(bodylc, "</HEAD");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 if (endhead != NULL)
                     std::cerr << thread_id << "Found '</HEAD', limiting search range" << std::endl;
 #endif
                 if (endhead == NULL) {
                     endhead = strstr(bodylc, "<BODY");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     if (endhead != NULL)
                         std::cerr << thread_id << "Found '<BODY', limiting search range" << std::endl;
 #endif
@@ -415,7 +415,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 // are we at the start of a tag?
                 if ((!addit) && (c == '<')) {
                     if ((strncmp(bodylc + i + 1, "meta", 4) == 0) or (preserve_case and (strncmp(bodylc + i + 1, "META", 4) == 0))) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << thread_id << "Found META" << std::endl;
 #endif
                         // start adding data to the check buffer
@@ -427,7 +427,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                     }
                     // are we at the start of a title tag?
                     else if ((strncmp(bodylc + i + 1, "title", 5) == 0) or (preserve_case and (strncmp(bodylc + i + 1, "TITLE", 5) == 0))) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << thread_id << "Found TITLE" << std::endl;
 #endif
                         // start adding data to the check buffer
@@ -463,13 +463,13 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             }
             if (needcheck) {
                 bodymeta[j++] = '\0';
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << bodymeta << std::endl;
 #endif
                 bodymetalen = j;
                 checkphrase(bodymeta, bodymetalen, NULL, NULL, foc, phraselist, limit, searchterms);
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             else
                 std::cerr << thread_id << "Nothing to filter" << std::endl;
 #endif
@@ -486,7 +486,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         if (do_nohtml) {
 // if we fell through to here, use the one that's been hex decoded AND stripped
 // Strip HTML
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "\"Smart\" filtering is enabled" << std::endl;
 #endif
             // we need this extra byte *
@@ -516,7 +516,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                     bodynohtml[j++] = c; // copy it to the filtered copy
                 }
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Checking smart content" << std::endl;
 #endif
             checkphrase(bodynohtml, j - 1, NULL, NULL, foc, phraselist, limit, searchterms);
@@ -536,7 +536,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 delete[] hexdecoded;
             return; // only doing nohtml mode filtering
         } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Checking raw content" << std::endl;
 #endif
 
@@ -620,14 +620,14 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         // check for absolute URLs
         if (absurl_re.match(file, Rre)) {
 // each match generates 2 results (because of the brackets in the regex), we're only interested in the first
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Found " << Rre.numberOfMatches() / 2 << " absolute URLs:" << std::endl;
 #endif
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 // chop off quotes
                 u = Rre.result(i);
                 u = u.subString(1, u.length() - 2);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << u << std::endl;
 #endif
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
@@ -674,7 +674,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 currurl += "/";
 
 // each match generates 2 results (because of the brackets in the regex), we're only interested in the first
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Found " << Rre.numberOfMatches() / 2 << " relative URLs:" << std::endl;
 #endif
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
@@ -685,7 +685,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 if (u.contains("://"))
                     continue;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << u << std::endl;
 #endif
                 // remove src/href & quotes
@@ -698,7 +698,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                     u = (*domain) + u;
                 else
                     u = currurl + u;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "absolute form: " << u << std::endl;
 #endif
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
@@ -734,7 +734,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         if (catinited) {
             weighting = ourcat->second.weight;
             weightedphrase += "]";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << weightedphrase << std::endl;
             std::cerr << thread_id << "score from embedded URLs: " << ourcat->second.weight << std::endl;
 #endif
@@ -780,7 +780,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 time = *(++combicurrent);
                 if (not(o.lm.l[phraselist]->checkTimeAtD(time))) {
 // nope - so don't take any notice of it
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     combicurrent++;
                     cat = (*++combicurrent);
                     std::cerr << thread_id << "Ignoring combi phrase based on time limits: " << combisofar << "; "
@@ -831,7 +831,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                     } else {
                         weightedphrase += combisofar;
                     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << "found combi weighted phrase (" << foc->weighted_phrase_mode << "): "
                               << combisofar << " x" << lowest_occurrences << " (per phrase: "
                               << weight << ", calculated: "
@@ -888,7 +888,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
     while (foundcurrent != foundend) {
         // check time for current phrase
         if (not o.lm.l[phraselist]->checkTimeAt(foundcurrent->second.first)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Ignoring phrase based on time limits: "
                       << foundcurrent->first << ", "
                       << o.lm.l[phraselist]->getListCategoryAt(foundcurrent->second.first) << std::endl;
@@ -933,7 +933,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 
                 weightedphrase += foundcurrent->first;
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << "found weighted phrase (" << foc->weighted_phrase_mode << "): "
                       << foundcurrent->first << " x" << foundcurrent->second.second << " (per phrase: "
                       << o.lm.l[phraselist]->getWeightAt(foundcurrent->second.first)
@@ -954,7 +954,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         foundcurrent++;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "WEIGHTING: " << weighting << std::endl;
 #endif
 
@@ -963,7 +963,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         naughtiness = weighting;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "NAUGHTINESS: " << naughtiness << std::endl;
 #endif
 

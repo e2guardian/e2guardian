@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "LOptionContainer.hpp"
 #include "OptionContainer.hpp"
@@ -46,7 +46,7 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "iplist deque is size " << o.iplist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
@@ -54,7 +54,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
@@ -62,7 +62,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
@@ -70,7 +70,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "urllist deque is size " << o.urllist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
@@ -78,7 +78,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "regexpboollist deque is size " << o.regexpboollist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
@@ -86,7 +86,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "maplist deque is size " << o.maplist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
@@ -94,7 +94,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "ipmaplist deque is size " << o.ipmaplist_dq.size() << std::endl;
 #endif
         if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
@@ -187,7 +187,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     char *i;
     String lastcategory;
     String foundurl;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "inURLList: " << url << std::endl;
 #endif
     //syslog(LOG_ERR, "inURLList url %s", url.c_str());
@@ -205,7 +205,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     if (url.endsWith("/")) {
         url.chop(); // chop off trailing / if any
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
 #endif
     //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
@@ -214,7 +214,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
             std::cerr << thread_id << "url: " << url << fl << std::endl;
 #endif
@@ -262,7 +262,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
     String temp;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << " IP is in room: " << i->name << std::endl;
 #endif
             temp = url;
@@ -270,7 +270,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             if (i->sitelist) {
                 lc = i->sitelist;
                 if (inSiteList(temp, lc, false, false)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << " room site exception found: " << std::endl;
 #endif
                     *isexception = true;
@@ -280,7 +280,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             }
             temp = url;
             if (i->urllist && inURLList(temp, i->urllist, false, false)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << " room url exception found: " << std::endl;
 #endif
                 *isexception = true;
@@ -291,12 +291,12 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 *block = true;
                 *part_block = i->part_block;
                 room = i->name;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << " room blanket block active: " << std::endl;
 #endif
                 return true;
             } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << " room - no url/site exception or block found: " << std::endl;
 #endif
                 return false;
@@ -325,7 +325,7 @@ void LOptionContainer::deleteFilterGroups()
 {
     for (int i = 0; i < numfg; i++) {
         if (fg[i] != NULL) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "In deleteFilterGroups loop" << std::endl;
 #endif
             delete fg[i]; // delete extra FOptionContainer objects
@@ -482,7 +482,7 @@ void LOptionContainer::loadRooms(bool throw_error)
             continue;
         std::string filename(per_room_directory_location);
         filename.append(f->d_name);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << " Room file found : " << filename.c_str() << std::endl;
 #endif
         std::ifstream infile(filename.c_str(), std::ios::in);
@@ -491,12 +491,12 @@ void LOptionContainer::loadRooms(bool throw_error)
             std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
             exit(1);
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << " Opened room file : " << filename.c_str() << std::endl;
 #endif
 
         std::string roomname;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << " Reading room file : " << filename.c_str() << std::endl;
 #endif
         getline(infile, roomname);
@@ -520,7 +520,7 @@ void LOptionContainer::loadRooms(bool throw_error)
             std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
             exit(1);
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << " Room name is: " << roomname.c_str() << std::endl;
 #endif
         roomname = roomname.substr(1);
@@ -729,7 +729,7 @@ bool LOptionContainer::readFilterGroupConf()
                 syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
                 return false;
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Group name: " << groupname << std::endl;
 #endif
         }
@@ -746,7 +746,7 @@ bool LOptionContainer::readFilterGroupConf()
 
 bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "adding filter group: " << numfg << " " << filename << std::endl;
 #endif
 
@@ -762,7 +762,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     fg = temp;
     fg[numfg] = new FOptionContainer;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "added filter group: " << numfg << " " << filename << std::endl;
 #endif
 
@@ -777,12 +777,12 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     // pass in the reporting level - can be overridden
     (*fg[numfg]).reporting_level = reporting_level;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "passed variables to filter group: " << numfg << " " << filename << std::endl;
 #endif
 
     bool rc = (*fg[numfg]).read(filename);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "read filter group: " << numfg << " " << filename << " return is " << rc << std::endl;
 #endif
 

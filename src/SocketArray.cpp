@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "SocketArray.hpp"
 #include "Queue.hpp"
@@ -50,7 +50,7 @@ int SocketArray::bindSingle(int port)
     if (socknum < 1) {
         return -1;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "bindSingle binding port" << port << std::endl;
 #endif
     lc_types.push_back(CT_PROXY);
@@ -62,7 +62,7 @@ int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
     if (socknum <= index) {
         return -1;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "bindSingle binding port" << port  << " with type " << type << std::endl;
 #endif
     lc_types.push_back(type);
@@ -77,7 +77,7 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
         return -1;
     }
     for (unsigned int i = 0; i < ports.size(); i++) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "bindSingleM binding port" << ports[i] << std::endl;
 #endif
         if (drawer[i].bind(ports[i].toInteger())) {
@@ -99,7 +99,7 @@ int *SocketArray::getFDAll()
 {
     int *fds = new int[socknum];
     for (unsigned int i = 0; i < socknum; i++) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Socket " << i << " fd:" << drawer[i].getFD() << std::endl;
 #endif
         fds[i] = drawer[i].getFD();
@@ -130,7 +130,7 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     }
     //for (unsigned int i = 0; i < socknum; i++) {
     for (unsigned int i = 0; i < ips.size(); i++) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Binding server socket[" << ports[i] << " " << ips[i] << " " << i << "])" << std::endl;
 #endif
         if (drawer[i].bind(ips[i].toCharArray(), ports[i].toInteger())) {

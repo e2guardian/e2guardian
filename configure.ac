@@ -115,14 +115,14 @@ AC_CANONICAL_BUILD
 AC_MSG_RESULT($build_os)
 
 AC_MSG_CHECKING(for debug option)
-AC_ARG_WITH(dgdebug,
-[AC_HELP_STRING([--with-dgdebug@<:@=off@:>@], [switch on debug build mode])],
+AC_ARG_WITH(e2debug,
+[AC_HELP_STRING([--with-e2debug@<:@=off@:>@], [switch on debug build mode])],
 [if test "x${withval}" = "xoff" ; then
   AC_MSG_RESULT(no)
 else
   AC_MSG_RESULT(yes)
-  dgdebug=${withval}
-  AC_DEFINE(DGDEBUG, 1, [Define to enable debug build mode])
+  e2debug=${withval}
+  AC_DEFINE(E2DEBUG, 1, [Define to enable debug build mode])
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
@@ -188,7 +188,7 @@ fi], [
   AC_MSG_RESULT(no)
   proxyuser=nobody
 ])
-AC_SUBST(DGPROXYUSER, "$proxyuser")
+AC_SUBST(E2PROXYUSER, "$proxyuser")
 
 AC_MSG_CHECKING(for proxy group)
 AC_ARG_WITH(proxygroup,
@@ -204,7 +204,7 @@ fi], [
   AC_MSG_RESULT(no)
   proxygroup=nobody
 ])
-AC_SUBST(DGPROXYGROUP, "$proxygroup")
+AC_SUBST(E2PROXYGROUP, "$proxygroup")
 
 AC_MSG_CHECKING(for piddir)
 AC_ARG_WITH(piddir,
@@ -220,8 +220,8 @@ fi], [
   AC_MSG_RESULT(no)
   piddir="${localstatedir}/run"
 ])
-AC_FINALIZE_VAR(DGPIDDIR,"$piddir")
-AC_SUBST(DGPIDDIR)
+AC_FINALIZE_VAR(E2PIDDIR,"$piddir")
+AC_SUBST(E2PIDDIR)
 
 
 AC_MSG_CHECKING(for logdir)
@@ -238,8 +238,8 @@ fi], [
   AC_MSG_RESULT(no)
   logdir="${localstatedir}/log/${PACKAGE_NAME}"
 ])
-AC_FINALIZE_VAR(DGLOGLOCATION,"$logdir")
-AC_SUBST(DGLOGLOCATION)
+AC_FINALIZE_VAR(E2LOGLOCATION,"$logdir")
+AC_SUBST(E2LOGLOCATION)
 
 PKG_PROG_PKG_CONFIG
 
@@ -627,29 +627,29 @@ AC_MSG_RESULT(no)
 ])
 AC_SUBST(EMAILSUPPORT)
 
-AC_DEFINE_UNQUOTED([DG_CONFIGURE_OPTIONS], ["$ac_configure_args"], [Record configure-time options])
+AC_DEFINE_UNQUOTED([E2_CONFIGURE_OPTIONS], ["$ac_configure_args"], [Record configure-time options])
 
 libdir="${libdir}/${PACKAGE_NAME}"
 
 AC_ARG_WITH(sysconfsubdir,
 [AC_HELP_STRING([--with-sysconfsubdir@<:@=e2guardian@:>@], [subdirectory under sysconfdir in which to place config files])],
 [if test "x$withval" != "x"; then
-dgsysconfdir="${sysconfdir}/${withval}"
+e2sysconfdir="${sysconfdir}/${withval}"
 else
-dgsysconfdir="${sysconfdir}"
+e2sysconfdir="${sysconfdir}"
 fi],
-[dgsysconfdir="${sysconfdir}/${PACKAGE_NAME}"])
+[e2sysconfdir="${sysconfdir}/${PACKAGE_NAME}"])
 
-AC_FINALIZE_VAR(DGLIBDIR,"${libdir}")
-AC_SUBST(DGLIBDIR)
-AC_FINALIZE_VAR(DGBINDIR,"${sbindir}")
-AC_SUBST(DGBINDIR)
-AC_FINALIZE_VAR(DGCONFDIR,"${dgsysconfdir}")
-AC_SUBST(DGCONFDIR)
-AC_FINALIZE_VAR(DGDATADIR,"${datadir}/${PACKAGE_NAME}")
-AC_SUBST(DGDATADIR)
-AC_FINALIZE_VAR(DGCONFFILE,"${dgsysconfdir}/${PACKAGE_NAME}.conf")
-AC_SUBST(DGCONFFILE)
+AC_FINALIZE_VAR(E2LIBDIR,"${libdir}")
+AC_SUBST(E2LIBDIR)
+AC_FINALIZE_VAR(E2BINDIR,"${sbindir}")
+AC_SUBST(E2BINDIR)
+AC_FINALIZE_VAR(E2CONFDIR,"${e2sysconfdir}")
+AC_SUBST(E2CONFDIR)
+AC_FINALIZE_VAR(E2DATADIR,"${datadir}/${PACKAGE_NAME}")
+AC_SUBST(E2DATADIR)
+AC_FINALIZE_VAR(E2CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf")
+AC_SUBST(E2CONFFILE)
 
 AC_CONFIG_FILES([Makefile
 data/Makefile

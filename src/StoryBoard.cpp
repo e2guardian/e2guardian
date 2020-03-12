@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include <syslog.h>
@@ -61,7 +61,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         syslog(LOG_ERR, "Storyboard file %s is not defined", filename);
         return false;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Reading storyboard file " << filename << std::endl;
 #endif
 
@@ -92,7 +92,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         if (linebuffer.length() == 0) { // sanity checking
             continue;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Readline " << linebuffer << std::endl;
 #endif
         line = linebuffer.c_str();
@@ -175,7 +175,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         else
             funct_vec.push_back(curr_function);
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "SB read file finished function vect size is " << funct_vec.size() << "is_top " << is_top << std::endl;
 #endif
 
@@ -183,14 +183,14 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 
     // only do the 2nd pass once all file(s) have been read
     // in top file now do second pass to record action functions ids in command lines and add list_ids
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "SB Start 2nd pass checking" << std::endl;
 #endif
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
             // check condition
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id
                         << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
                         << " listname " << j->list_name << " function " << i->name << " id " << i->fn_id << std::endl;
@@ -248,14 +248,14 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << "SB  list name " << filename << " list " << j->list_name << " checking type  " << *k << std::endl;
 #endif
                     ListMeta::list_info *listiptr = LMeta->findListPtr(j->list_name, *k);
                     ListMeta::list_info listi;
                     if (listiptr) {
                         listi = *listiptr;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << "list reference " << listi.list_ref << " '" << listi.name << "' found for "
                               << j->list_name << std::endl;
 #endif
@@ -273,7 +273,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     std::cerr << thread_id << "SB warning: Undefined list " << filename << " list " << j->list_name << " used at line " << j->file_lineno
                               << " of " << i->file_name << std::endl;
                 } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << j->list_name << " matches " << j->list_id_dq.size() << " types" << std::endl;
 #endif
                 }
@@ -285,7 +285,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 std::cerr << "StoryBoard error: Action " <<  j->action_name << " not defined: " << filename << " at line " << j->file_lineno
                           << " of " << i->file_name << std::endl;
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Line " << j->file_lineno << " state is " << j->state << " actionid " << j->action_id
         << " listname " << j->list_name << std::endl;
 #endif
@@ -339,7 +339,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         ot += ln;
         ot += " of ";
         ot += F->file_name;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << ot << std::endl;
 #else
         syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -656,7 +656,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 ot += "true ";
             }
             else ot += "false ";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << ot << std::endl;
 #else
             syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -728,7 +728,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         String ot = thread_id;
                         ot += "SB: URL modified to ";
                         ot += cm.url;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << ot << std::endl;
 #else
                         syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -743,7 +743,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         String ot = thread_id;
                         ot += "SB: connect site changed to ";
                         ot += cm.connect_site;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << ot << std::endl;
 #else
                         syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -859,7 +859,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     ot += " true";
                     //   ot +=
                 } else ot += " false ";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << ot << std::endl;
 #else
                 syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -872,7 +872,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     String ot = thread_id;
                     ot += "SB:resuming: ";
                     ot += F->name;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << ot << std::endl;
 #else
                     syslog(LOG_INFO, "%s", ot.toCharArray());
@@ -897,7 +897,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 ot += "true";
             else
                 ot += "false";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << ot << std::endl;
 #else
             syslog(LOG_INFO, "%s", ot.toCharArray());

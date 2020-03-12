@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "DownloadManager.hpp"
 #include "ConfigVar.hpp"
@@ -60,13 +60,13 @@ int DMPlugin::init(void *args)
         // compile regex for matching supported user agents
         String r(cv["useragentregexp"]);
         if (r.length() > 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "useragent regexp: " << r << std::endl;
 #endif
             ua_match.comp(r.toCharArray());
         } else {
 // no useragent regex? then default to .*
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "no useragent regular expression; defaulting to .*" << std::endl;
 #endif
             alwaysmatchua = true;
@@ -74,7 +74,7 @@ int DMPlugin::init(void *args)
         if (!readStandardLists())
             return -1;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     else
         std::cerr << thread_id << "Fallback DM plugin; no matching options loaded" << std::endl;
 #endif
@@ -105,7 +105,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     bool matchedmime = false;
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
 #endif
         String lc;
@@ -147,7 +147,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
                 }
             }
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "extension: " << extension << std::endl;
 #endif
         // check the extension list
@@ -222,7 +222,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
     }
 
     if (plugname == "default") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling default DM plugin" << std::endl;
 #endif
         return defaultdmcreate(cv);
@@ -230,7 +230,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_FANCYDM
     if (plugname == "fancy") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling fancy DM plugin" << std::endl;
 #endif
         return fancydmcreate(cv);
@@ -239,7 +239,7 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_TRICKLEDM
     if (plugname == "trickle") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling trickle DM plugin" << std::endl;
 #endif
         return trickledmcreate(cv);

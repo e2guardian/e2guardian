@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include <syslog.h>
 #include <algorithm>
@@ -66,7 +66,7 @@ void ListContainer::reset()
     // ref should already be zero)
     if (refcount > 0) {
         --refcount;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
 //        std::cerr << thread_id << "de-reffing " << sourcefile << " due to manual list reset, refcount: " << refcount << std::endl;
 #endif
         for (size_t i = 0; i < morelists.size(); ++i)
@@ -204,7 +204,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 // if it is already in our category list, and adding it to the list (also
                 // returning index) if it is not.
                 catindex = getCategoryIndex(&lcat);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "List category: " << lcat << std::endl;
                 std::cerr << thread_id << "Category list index: " << catindex << std::endl;
 #endif
@@ -212,7 +212,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
             // phrase lists can also be marked as not to be case-converted,
             // to aid support for exotic character encodings
             else if (line.startsWith("#noconvert")) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "List flagged as not to be case-converted" << std::endl;
 #endif
                 caseinsensitive = false;
@@ -225,7 +225,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 }
                 timelimits.push_back(tl);
                 timeindex = timelimits.size() - 1;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "Found time limit on phrase list. Now have " << timelimits.size() << " limits on this list (including parents)." << std::endl;
 #endif
                 continue;
@@ -373,7 +373,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
 #endif
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     if (filters != 32)
         std::cerr << thread_id << "Converting to lowercase" << std::endl;
 #endif
@@ -402,7 +402,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
                 continue;
             } else if (temp.startsWith("#listcategory:")) {
                 category = temp.after("\"").before("\"");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "found item list category: " << category << std::endl;
 #endif
                 continue;
@@ -522,7 +522,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
     std::string linebuffer;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << filename << std::endl;
 #endif
     //struct stat s;
@@ -563,7 +563,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
 
 // for stdin item lists - read item list from stdin
 bool ListContainer::readStdinItemList(bool startswith, int filters) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     if (filters != 32)
         std::cerr << thread_id << "Converting to lowercase" << std::endl;
 #endif
@@ -937,7 +937,7 @@ bool ListContainer::makeGraph(bool fqs)
     std::string lasts;
     graphused = true;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Bytes needed for phrase tree in worst-case scenario: " << (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET))
               << ", starting off with allocation of " << (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) << std::endl;
     prolificroot = false;
@@ -963,7 +963,7 @@ bool ListContainer::makeGraph(bool fqs)
         graphAdd(String(data + list[sizelist[i]], lengthlist[sizelist[i]]), 0, sizelist[i]);
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Bytes actually needed for phrase tree: " << (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) << std::endl;
     std::cerr << thread_id << "Most prolific node has " << maxchildnodes << " children" << std::endl;
     std::cerr << thread_id << "It " << (prolificroot ? "is" : "is not") << " the root node" << std::endl;
@@ -1203,7 +1203,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
     }
 
     if (force_quick_search || graphitems == 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Map (quicksearch) start" << std::endl;
         for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
             std::cerr << thread_id << "Map: " << i->first << " " << i->second.second << std::endl;
@@ -1257,7 +1257,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
                         } else {
                             existingitem->second.second++;
                         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << thread_id << "Found this phrase: " << phrase << std::endl;
 #endif
                     }
@@ -1295,7 +1295,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
             }
         }
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Map start" << std::endl;
     for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
         std::cerr << thread_id << "Map: " << i->first << " " << i->second.second << std::endl;
@@ -1398,11 +1398,11 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         }
         if ((numlinks + 1) > maxchildnodes) {
             maxchildnodes = numlinks + 1;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             prolificroot = (inx == 0);
 #endif
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         else if ((numlinks + 1) > secondmaxchildnodes)
             secondmaxchildnodes = numlinks + 1;
 #endif
@@ -1422,11 +1422,11 @@ void ListContainer::graphAdd(String s, const int inx, int item)
             }
             if ((numlinks + 1) > maxchildnodes) {
                 maxchildnodes = numlinks + 1;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 prolificroot = (inx == 0);
 #endif
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             else if ((numlinks + 1) > secondmaxchildnodes)
                 secondmaxchildnodes = numlinks + 1;
 #endif
@@ -1533,7 +1533,7 @@ void ListContainer::addToIPList(String& line)
             r.endaddr = ntohl(addressend.s_addr);
             iprangelist.push_back(r);
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         else
         {
         std::cerr << thread_id << "Not adding to any IP list" << line << std::endl;
@@ -1560,7 +1560,7 @@ void ListContainer::addToDataMap(String& line) {
         //warn = true;
         return;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "key: " << key << std::endl;
         std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
 #endif
@@ -1588,7 +1588,7 @@ void ListContainer::addToIPMap(String& line)
         //warn = true;
         return;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "key: " << key << std::endl;
         std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
 #endif
@@ -1725,7 +1725,7 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inIPMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << ip << " to straight IP list" << std::endl;
 #endif
         return rfg;
@@ -1733,7 +1733,7 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inSubnetMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << ip << " to subnet" << std::endl;
 #endif
         return rfg;
@@ -1741,12 +1741,12 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inIPRangeMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << ip << " to range" << std::endl;
 #endif
         return rfg;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Matched IP " << ip << " to nothing" << std::endl;
 #endif
     return "";
@@ -1874,7 +1874,7 @@ time_t getFileDate(const char *filename)
     int rc = stat(filename, &status);
     if (rc != 0) {
         if (errno == ENOENT) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
 #endif
             syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
@@ -1882,7 +1882,7 @@ time_t getFileDate(const char *filename)
         }
         // If there are permission problems, just reload the file (CN)
         if (errno == EACCES) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Cannot stat file m_time for " << filename << ". stat() returned errno EACCES." << std::endl;
 #endif
             syslog(LOG_ERR, "Error reading %s. Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: %s", filename, strerror(errno));
@@ -1932,7 +1932,7 @@ bool ListContainer::upToDate()
 }
 
 bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Found a time tag" << std::endl;
 #endif
     String temp((*tag).after("#time: "));
@@ -2062,7 +2062,7 @@ bool ListContainer::isNow(TimeLimit &tl) {
             return false;
         }
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "time match " << tl.sthour << ":" << tl.stmin << "-" << tl.endhour << ":" << tl.endmin << " " << hour << ":" << min << " " << sourcefile << std::endl;
 #endif
     return true;
@@ -2072,7 +2072,7 @@ int ListContainer::getCategoryIndex(String *lcat)
 {
     // where in the category list is our category? if nowhere, add it.
     if ((*lcat).length() < 2) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "blank entry index" << std::endl;
 #endif
         return 0; // blank entry index
@@ -2150,7 +2150,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     }
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "inIPList no match for " << ipstr << std::endl;
 #endif
     return NULL;

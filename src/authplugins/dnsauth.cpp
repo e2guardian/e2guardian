@@ -18,7 +18,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../Auth.hpp"
@@ -143,7 +143,7 @@ int dnsauthinstance::init(void *args)
         return -1;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "basedomain is " << basedomain << std::endl;
     std::cerr << thread_id << "authurl is " << authurl << std::endl;
 #endif
@@ -171,13 +171,13 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
         ippath = p1;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "IPPath is " << ippath << std::endl;
 #endif
 
     // change '.' to '-'
     ippath.swapChar('.', '-');
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "IPPath is " << ippath << std::endl;
 #endif
     if (getdnstxt(ippath)) {
@@ -210,7 +210,7 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
 int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
 {
     fg = userst.group;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Matched user" << user << " to group " << fg << " in cached DNS record" << std::endl;
 #endif
     return DGAUTH_OK;
@@ -228,13 +228,13 @@ bool dnsauthinstance::getdnstxt(String &ippath)
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), basedomain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "DNS query returned error " << dns_error(h_errno) << std::endl;
 #endif
         return false;
     }
     if (ns_initparse(response.buf, responseLen, &handle) < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "ns_initparse returned error " << strerror(errno) << std::endl;
 #endif
         return false;
@@ -248,13 +248,13 @@ bool dnsauthinstance::getdnstxt(String &ippath)
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
         if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "ns_paserr returned error " << strerror(errno) << std::endl;
 #endif
             return false;
         } else {
             if (ns_rr_type(rr) == ns_t_txt) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "ns_rr_rdlen returned " << ns_rr_rdlen(rr) << std::endl;
 #endif
                 u_char *k = (u_char *)ns_rr_rdata(rr);
@@ -264,7 +264,7 @@ bool dnsauthinstance::getdnstxt(String &ippath)
                     p[j++] = k[j1];
                 }
                 p[j] = '\0';
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "ns_rr_data returned " << p << std::endl;
 #endif
                 String dnstxt(p);

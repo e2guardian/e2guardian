@@ -6,7 +6,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "ListManager.hpp"
 
@@ -47,7 +47,7 @@ int ListManager::findNULL()
 {
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "found free list:" << i << std::endl;
 #endif
             return (signed)i;
@@ -62,7 +62,7 @@ void ListManager::garbageCollect()
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] != NULL) {
             if ((*l[i]).refcount < 1) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "deleting zero ref list: " << i << " " << l[i]->refcount << std::endl;
 #endif
                 delete l[i];
@@ -76,7 +76,7 @@ void ListManager::deRefList(size_t i)
 {
     if (l[i] == NULL) return;
     l[i]->refcount--;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     //std::cerr << thread_id << "de-referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
 #endif
     for (size_t j = 0; j < l[i]->morelists.size(); ++j)
@@ -86,7 +86,7 @@ void ListManager::deRefList(size_t i)
 void ListManager::refList(size_t i)
 {
     l[i]->refcount++;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
 #endif
     for (size_t j = 0; j < l[i]->morelists.size(); ++j)
@@ -103,7 +103,7 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
         if ((*l[i]).previousUseItem(filename, startswith, filters)) {
             // this upToDate check also checks all .Included files
             if ((*l[i]).upToDate()) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "Using previous item: " << i << " " << filename << std::endl;
 #endif
                 refList(i);
@@ -116,7 +116,7 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "pushing back for new list" << std::endl;
 #endif
         l.push_back(new ListContainer);
@@ -139,7 +139,7 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "pushing back for new list" << std::endl;
 #endif
         l.push_back(new ListContainer);
@@ -176,7 +176,7 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
 //so when phrases read in in list container it needs to store
 //all the file names and if a single one has changed needs a
 //complete regenerate
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "Using previous phrase: " << exception << " - " << banned << " - " << weighted << std::endl;
 #endif
                 refList(i);
@@ -216,7 +216,7 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
 //        return false;
     }
     if (!(*l[res]).used) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Reading new phrase lists" << std::endl;
 #endif
         bool result = (*l[res]).readPhraseList(exception, true);

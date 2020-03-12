@@ -8,7 +8,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "DynamicIPList.hpp"
 
@@ -18,7 +18,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string>
-#ifdef DGDEBUG
+#ifdef E2DEBUG
 #include <iostream>
 #endif
 
@@ -81,7 +81,7 @@ void DynamicIPList::purgeOldEntries()
 // 0 to size if found
 int DynamicIPList::posInList(unsigned long int ip)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "****** ip cache table ******" << std::endl;
     std::cerr << thread_id << "items: " << items << std::endl;
     int d;

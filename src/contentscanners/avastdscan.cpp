@@ -6,7 +6,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../String.hpp"
@@ -84,14 +84,14 @@ int avastdinstance::init(void *args)
     }
 
     archivewarn = cv["archivewarn"] == "on";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "avastd configuration: archivewarn = " << archivewarn << std::endl;
 #endif
     avastprotocol = cv["avastprotocol"];
     if (avastprotocol.length() < 3) {
         avastprotocol = "avast4";
         syslog(LOG_ERR, "avasd configuration missing avastprotocol: use avast4");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "avastd configuration: set default paramater = " << avastprotocol << std::endl;
 #endif
     }
@@ -101,7 +101,7 @@ int avastdinstance::init(void *args)
         syslog(LOG_ERR, "Error reading avastprotocol option.");
         return DGCS_ERROR;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "avastd configuration: avastprotocol = " << avastprotocol << std::endl;
 #endif
     // set some parameter by avastd protocol version
@@ -155,7 +155,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         // After connecting, the daemon sends the following welcome message:
         // 220 Welcome to avast! Virus scanning daemon x.x (VPS yy-yy dd.mm.yyyy)
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
         if (strncmp(buffer, "220 ", 4) != 0) {
@@ -170,7 +170,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         String command("SCAN ");
         command += encode(filename);
         command += "\r\n";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "avastd command: " << encode(command) << std::endl;
 #endif
         stripedsocks.writeString(command.toCharArray());
@@ -182,7 +182,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         //         200 OK
 
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
         if (strncmp(buffer, scanreturncode.toCharArray(), 4) != 0) {
@@ -209,7 +209,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
              rc > 0 && !truncated && buffer[0] != '\r';
 
              rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, false, NULL, &truncated)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif
             // If a line can't fit in our buffer, we're probably dealing with a zip bomb or
@@ -223,7 +223,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
             // We're looking for this kind of string: ^[^\t]*\t\[.\](\t.*)?\r$
             char *result = strchr(buffer, '\t');
             if (strncmp(buffer, "200 ", 4) == 0 && avastprotocol.compare("avast2014") == 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "ignore 200 SCAN OK and exit loop" << std::endl;
 #endif
                 break;
@@ -240,14 +240,14 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                 switch (result[-3]) {
                 case '+':
 // Clean!
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tclean!" << std::endl;
 #endif
                     break;
 
                 case 'L':
 // Infected!
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tinfected with " << result << std::endl;
 #endif
                     if (!lastvirusname.empty())
@@ -261,7 +261,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
                 default:
 // Can't interpret result.
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << "avastd result: " << encode(buffer) << "\tcan't analyze (" << result << ")" << std::endl;
 #endif
                     if (!lastvirusname.empty())
@@ -278,7 +278,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         syslog(LOG_ERR, "Exception whilst reading AvastD socket: %s", e.what());
         return DGCS_SCANERROR;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "avastd final result: infected: " << infected << "\twarning: " << warning << "\tlastvirusname: " << lastvirusname << "\ttruncated: " << truncated << std::endl;
 #endif
 
@@ -319,7 +319,7 @@ String avastdinstance::encode(const String &Str)
             *(p++) = '\\';
             *(p++) = '\\';
             break;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         case '\0':
             // This shouldn't happen.
             std::cerr << thread_id << "Warning: '\\0' found in filename." << std::endl;

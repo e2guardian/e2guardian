@@ -8,7 +8,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "FOptionContainer.hpp"
 #include "OptionContainer.hpp"
@@ -190,7 +190,7 @@ bool FOptionContainer::read(const char *filename) {
         if(!readConfFile(filename))
             return false;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Read conf into memory: " << filename << std::endl;
 #endif
 
@@ -213,7 +213,7 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "disable_content_scan " << disable_content_scan << " disablecontentscanerror: " << disable_content_scan_error << " contentscanexceptions: " << content_scan_exceptions << std::endl;
 #endif
 
@@ -227,7 +227,7 @@ bool FOptionContainer::read(const char *filename) {
             }
             text_mime.push_back(mimes.substr(0, comma));
             mimes = mimes.substr(comma + 1);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             int size = (int) text_mime.size();
         int i;
         for (i = 0; i < size; i++) {
@@ -393,7 +393,7 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
 #endif
         // override default access denied address
@@ -496,18 +496,18 @@ bool FOptionContainer::read(const char *filename) {
 	    } else {
 		name = "no_name_group";
 	    }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Group name: " << name << std::endl;
 #endif
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Embedded URL Weight: " << embedded_url_weight << std::endl;
 #endif
 
         category_threshold = findoptionI("categorydisplaythreshold");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Category display threshold: " << category_threshold << std::endl;
 #endif
 
@@ -523,7 +523,7 @@ bool FOptionContainer::read(const char *filename) {
 
         std::string storyboard_location(findoptionS("storyboard"));
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Read settings into memory" << std::endl;
         std::cerr << thread_id << "Reading phrase, URL and site lists into memory" << std::endl;
 #endif
@@ -544,7 +544,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "ipsitelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
@@ -552,7 +552,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("iplist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
@@ -560,7 +560,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
         std::deque<String> dq = findoptionM("timelist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "timelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
@@ -568,7 +568,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
         std::deque<String> dq = findoptionM("sitelist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "sitelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
@@ -576,7 +576,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
         std::deque<String> dq = findoptionM("urllist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "urllist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
@@ -584,7 +584,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("searchlist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "searchlist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
@@ -592,7 +592,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "fileextlist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
@@ -600,7 +600,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("mimelist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "mimelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
@@ -608,7 +608,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "regexpboollist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
@@ -616,7 +616,7 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "regexpreplacelist deque is size " << dq.size() << std::endl;
 #endif
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
@@ -667,7 +667,7 @@ bool FOptionContainer::read(const char *filename) {
 			content_regexp_flag = false;
 	}
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Lists in memory" << std::endl;
 #endif
 
@@ -739,7 +739,7 @@ bool FOptionContainer::read(const char *filename) {
             }
             magic = s;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Setting magic key to '" << magic << "'" << std::endl;
 #endif
         // Create the Bypass Cookie magic key
@@ -766,13 +766,13 @@ bool FOptionContainer::read(const char *filename) {
             }
             imagic = s;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Setting imagic key to '" << imagic << "'" << std::endl;
 #endif
         if (findoptionS("infectionbypasserrorsonly") == "off") {
             infection_bypass_errors_only = false;
         } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Only allowing infection bypass on scan error" << std::endl;
 #endif
             infection_bypass_errors_only = true;

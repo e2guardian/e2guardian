@@ -11,7 +11,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../DownloadManager.hpp"
@@ -49,7 +49,7 @@ class trickledm : public DMPlugin
 
 DMPlugin *trickledmcreate(ConfigVar &definition)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cout << "Creating trickle DM" << std::endl;
 #endif
     return new trickledm(definition);
@@ -84,7 +84,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 //                                or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cout << "Inside trickle download manager plugin" << std::endl;
 #endif
 
@@ -120,7 +120,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cout << "blocksize: " << blocksize << std::endl;
 #endif
 
@@ -132,7 +132,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 themdays.tv_sec = nowadays.tv_sec;
                 doneinitialdelay = true;
                 if ((*headersent) < 1) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cout << "sending header first" << std::endl;
 #endif
                     docheader->out(NULL, peersock, __DGHEADER_SENDALL);
@@ -141,12 +141,12 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 if (!swappedtodisk) {
                     // leave a kilobyte "barrier" so the whole file does not get sent before scanning
                     if ((d->buffer_length > 1024) && (d->bytesalreadysent < (d->buffer_length - 1024))) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cout << "trickle delay - sending a byte from the memory buffer" << std::endl;
 #endif
                         peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
                     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     else
                         std::cout << "trickle delay - no unsent bytes remaining! (memory)" << std::endl;
 #endif
@@ -156,7 +156,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                     if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t)-1) {
                         ssize_t bytes_written; //new just remove GCC warning
                         lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cout << "trickle delay - sending a byte from the file" << std::endl;
 #endif
                         char byte;
@@ -164,7 +164,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                         peersock->writeToSocket(&byte, 1, 0, d->timeout);
                         d->bytesalreadysent++;
                     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     else
                         std::cout << "trickle delay - no unsent bytes remaining! (file)" << std::endl;
 #endif
@@ -176,12 +176,12 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
             if (!swappedtodisk) {
                 // if not swapped to disk and file is too large for RAM, then swap to disk
                 if (d->buffer_length > o.max_content_ramcache_scan_size) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cout << "swapping to disk" << std::endl;
 #endif
                     d->tempfilefd = d->getTempFileFD();
                     if (d->tempfilefd < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                         std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
 #endif
                         syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
@@ -194,7 +194,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 }
             } else if (d->tempfilesize > o.max_content_filecache_scan_size) {
 // if swapped to disk and file too large for that too, then give up
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cout << "defaultdm: file too big to be scanned, halting download" << std::endl;
 #endif
                 (*toobig) = true;
@@ -203,7 +203,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
         } else {
             if (d->buffer_length > o.max_content_filter_size) {
 // if we aren't downloading for virus scanning, and file too large for filtering, give up
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cout << "defaultdm: file too big to be filtered, halting download" << std::endl;
 #endif
                 (*toobig) = true;
@@ -217,7 +217,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
             } else {
                 newsize = blocksize;
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "newsize: " << newsize << std::endl;
 #endif
             // if not getting everything until connection close, grab only what is left
@@ -268,7 +268,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 lseek(d->tempfilefd, 0, SEEK_END);
                 writeEINTR(d->tempfilefd, d->data, rc);
                 d->tempfilesize += rc;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cout << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
 #endif
             }
@@ -277,18 +277,18 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 
     if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "zlib format" << std::endl;
 #endif
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "gzip format" << std::endl;
 #endif
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cout << "Leaving trickle download manager plugin" << std::endl;
 #endif
     delete[] block;

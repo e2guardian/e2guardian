@@ -16,7 +16,7 @@ class DynamicIPList
     DynamicIPList(int maxitems, int maxitemage);
     ~DynamicIPList();
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     int getListSize()
     {
         return size;

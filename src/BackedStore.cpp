@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include <cstddef>
@@ -27,7 +27,7 @@
 
 #include "BackedStore.hpp"
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
 #include <iostream>
 #endif
 
@@ -46,19 +46,19 @@ BackedStore::~BackedStore()
         munmap(map, length);
 
     if (fd >= 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "BackedStore: closing & deleting temp file " << filename << " BADGERS!" << std::endl;
 #endif
         int rc = 0;
         do {
             rc = close(fd);
         } while (rc < 0 && errno == EINTR);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         if (rc < 0)
             std::cerr << thread_id << "BackedStore: cannot close temp file fd: " << strerror(errno) << std::endl;
 #endif
         rc = unlink(filename);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         if (rc < 0)
             std::cerr << thread_id << "BackedStore: cannot delete temp file: " << strerror(errno) << std::endl;
 #endif
@@ -69,7 +69,7 @@ BackedStore::~BackedStore()
 bool BackedStore::append(const char *data, size_t len)
 {
     if (fd < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "BackedStore: appending to RAM" << std::endl;
 #endif
         // Temp file not yet opened - try to write to RAM
@@ -78,13 +78,13 @@ bool BackedStore::append(const char *data, size_t len)
             if (rambuf.size() + len > disksize) {
 // Would also exceed disk threshold
 // - give up
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "BackedStore: data would exceed both RAM and disk thresholds" << std::endl;
 #endif
                 return false;
             }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "BackedStore: data would exceed RAM threshold; dumping RAM to disk" << std::endl;
 #endif
 
@@ -93,7 +93,7 @@ bool BackedStore::append(const char *data, size_t len)
             // data to the file as well
             std::string filename_str = tempdir + "/__dgbsXXXXXX";
             filename = const_cast<char *>(filename_str.c_str());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "BackedStore: filename template: " << filename << std::endl;
 #endif
             //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
@@ -104,7 +104,7 @@ bool BackedStore::append(const char *data, size_t len)
                 free(filename);
                 throw std::runtime_error(ss.str().c_str());
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "BackedStore: filename: " << filename << std::endl;
 #endif
             free(filename);
@@ -128,14 +128,14 @@ bool BackedStore::append(const char *data, size_t len)
     }
 
     if (fd >= 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "BackedStore: appending to disk" << std::endl;
 #endif
         // Temp file opened - try to write to disk
         if (map != MAP_FAILED)
             throw std::runtime_error("BackedStore could not append to temp file: store already finalised");
         if (len + length > disksize) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "BackedStore: data would exceed disk threshold" << std::endl;
 #endif
             return false;
@@ -155,7 +155,7 @@ bool BackedStore::append(const char *data, size_t len)
         length += len;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "BackedStore: finished appending" << std::endl;
 #endif
 
@@ -188,12 +188,12 @@ void BackedStore::finalise()
 const char *BackedStore::getData() const
 {
     if (fd < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "BackedStore: returning pointer to RAM" << std::endl;
 #endif
         return &(rambuf.front());
     } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "BackedStore: returning pointer to mmap-ed file" << std::endl;
 #endif
         if (map == MAP_FAILED)
@@ -217,7 +217,7 @@ std::string BackedStore::store(const char *prefix)
         storedname << '-' << tv.tv_sec << tv.tv_usec << std::flush;
 
         char *name = strrchr(filename, '/');
-#ifdef DGDEBUG
+#ifdef E2DEBUG
 //        std::cerr << thread_id << "BackedStore: creating hard link: " << (char)storedname << std::endl;
 #endif
         std::string storedname_str(storedname.str());
@@ -242,7 +242,7 @@ std::string BackedStore::store(const char *prefix)
     timedprefix << prefix << '-' << time(NULL) << '-' << std::flush;
     std::string storedname_str(timedprefix.str() + "XXXXXX");
     char *storedname = const_cast<char *>(storedname_str.c_str());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "BackedStore: storedname template: " << storedname << std::endl;
 #endif
     int storefd;
@@ -252,7 +252,7 @@ std::string BackedStore::store(const char *prefix)
         ss << thread_id << "BackedStore could not create stored file: " << strerror(errno);
         throw std::runtime_error(ss.str().c_str());
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "BackedStore: storedname: " << storedname << std::endl;
 #endif
 

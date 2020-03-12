@@ -167,7 +167,7 @@ Optional Packages:
 			  do not use PACKAGE (same as --with-PACKAGE=no)
   --with-zlib[=NONE]
                           non-standard search path for zlib library
-  --with-dgdebug[=off]
+  --with-e2debug[=off]
                           switch on debug build mode
   --with-proxyuser[=nobody]
                           name of proxy user

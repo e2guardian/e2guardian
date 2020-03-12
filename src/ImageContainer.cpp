@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "ImageContainer.hpp"
 
@@ -48,7 +48,7 @@ void ImageContainer::reset()
 //void ImageContainer::display(Socket *s)
 bool ImageContainer::display(Socket *s)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Displaying custom image file" << std::endl;
     std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
 #endif
@@ -111,7 +111,7 @@ bool ImageContainer::read(const char *filename)
         return false;
     }
     imagefile.close();
-    //    #ifdef DGDEBUG
+    //    #ifdef E2DEBUG
     //      for (long int i = 0; i < imagelength; i++)
     //          printf("Image byte content: %x\n", image[i]);
     //    #endif

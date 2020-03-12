@@ -8,7 +8,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../String.hpp"
@@ -108,7 +108,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         command += filename;
     }
     command += "\r\n";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "kavdscan command:" << command << std::endl;
 #endif
     UDSocket stripedsocks;
@@ -152,11 +152,11 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         return DGCS_SCANERROR;
     }
     String reply(buff);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
 #endif
     if (reply[0] == '2') { // clean
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "kavdscan - clean" << std::endl;
 #endif
         delete[] buff;
@@ -178,7 +178,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
                 return DGCS_SCANERROR;
             }
             reply = buff;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
 #endif
         }

@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "LOptionContainer.hpp"
 #include "OptionContainer.hpp"
@@ -928,7 +928,7 @@ bool OptionContainer::read(std::string& filename, int type)
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "Not using groupnameslist" << std::endl;
 #endif
         } else {
@@ -1151,7 +1151,7 @@ bool OptionContainer::loadDMPlugins()
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cout << "loading download manager config: " << config << std::endl;
 #endif
         DMPlugin *dmpp = dm_plugin_load(config.toCharArray());
@@ -1195,7 +1195,7 @@ bool OptionContainer::loadCSPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
 // worth adding some input checking on config
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cout << "loading content scanner config: " << config << std::endl;
 #endif
         CSPlugin *cspp = cs_plugin_load(config.toCharArray());
@@ -1206,7 +1206,7 @@ bool OptionContainer::loadCSPlugins()
             syslog(LOG_ERR, "cs_plugin_load() returned NULL pointer with config file: %s", config.toCharArray());
             return false;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cout << "Content scanner plugin is good, calling init..." << std::endl;
 #endif
         int rc = cspp->init(NULL);
@@ -1244,7 +1244,7 @@ bool OptionContainer::loadAuthPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
 // worth adding some input checking on config
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cout << "loading auth plugin config: " << config << std::endl;
 #endif
         AuthPlugin *app = auth_plugin_load(config.toCharArray());
@@ -1255,7 +1255,7 @@ bool OptionContainer::loadAuthPlugins()
             syslog(LOG_ERR, "auth_plugin_load() returned NULL pointer with config file: %s", config.toCharArray());
             return false;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cout << "Auth plugin is good, calling init..." << std::endl;
 #endif
         int rc = app->init(NULL);
@@ -1274,13 +1274,13 @@ bool OptionContainer::loadAuthPlugins()
 
         if (app->needs_proxy_query) {
             auth_needs_proxy_query = true;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "Auth plugin relies on querying parent proxy" << std::endl;
 #endif
         }
         if (app->needs_proxy_access_in_plugin) {
             auth_needs_proxy_in_plugin = true;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "Auth plugin relies on querying parent proxy within plugin" << std::endl;
 #endif
         }

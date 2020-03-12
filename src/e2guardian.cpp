@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "FatController.hpp"
 #include "SysV.hpp"
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
     openlog(prog_name.c_str(), LOG_PID | LOG_CONS, LOG_USER);
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cout << "Running in debug mode..." << std::endl;
 #endif
 
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
                               << std::endl
-                              << "Built with: " << DG_CONFIGURE_OPTIONS << std::endl;
+                              << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
                     return 0;
                 case 'N':
                     nodaemon = true;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
         syslog(LOG_ERR, "%s", "Error on reading total_block_list");
         std::cerr << "Error on reading total_block_list" << std::endl;
 //		return 1;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << "Total block lists read OK from stdin." << std::endl;
 
 #endif
@@ -431,25 +431,25 @@ int main(int argc, char *argv[])
 #endif
             if (rc == -1) {
                 syslog(LOG_ERR, "%s", "Unable to seteuid() to read conf files.");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << "Unable to seteuid() to read conf files." << std::endl;
 #endif
                 return 1;
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "About to re-read conf file." << std::endl;
 #endif
             o.reset();
             if (!o.read(configfile, 2)) {
                 syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << "Error re-parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;
 #endif
                 return 1;
                 // OptionContainer class had an error reading the conf or
                 // other files so exit with error
             }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cout << "conf file read." << std::endl;
 #endif
 
@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 
             if (rc == -1) {
                 syslog(LOG_ERR, "%s", "Unable to re-seteuid()");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << "Unable to re-seteuid()" << std::endl;
 #endif
                 return 1; // seteuid failed for some reason so exit with error

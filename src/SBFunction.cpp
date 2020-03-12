@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include <syslog.h>
 #include <algorithm>
@@ -76,7 +76,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     }
     rec.file_lineno = line_no;
     // process params
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "CLine " << params << " Action " << action << std::endl;
 #endif
     String state;
@@ -84,7 +84,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "CLine state is " << state << std::endl;
 #endif
         temp = params.after(",");
@@ -108,7 +108,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "CLine list is " << temp2 << std::endl;
 #endif
      }
@@ -122,7 +122,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "CLine mno is " << temp2 << std::endl;
 #endif
     }
@@ -136,7 +136,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "CLine logmno is " << temp2 << std::endl;
 #endif
     }
@@ -151,7 +151,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         temp2.removeWhiteSpace();
         if (temp2 == "optional")
             rec.optional = true;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "CLine optional is true" << std::endl;
 #endif
     }

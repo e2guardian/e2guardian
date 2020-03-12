@@ -6,7 +6,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../Auth.hpp"
@@ -199,7 +199,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inList(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to straight IP list" << std::endl;
 #endif
         return DGAUTH_OK;
@@ -207,7 +207,7 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inSubnet(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to subnet" << std::endl;
 #endif
         return DGAUTH_OK;
@@ -215,12 +215,12 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inRange(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Matched IP " << user << " to range" << std::endl;
 #endif
         return DGAUTH_OK;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Matched IP " << user << " to nothing" << std::endl;
 #endif
     return DGAUTH_NOMATCH;
@@ -340,7 +340,7 @@ int ipinstance::readIPMelangeList(const char *filename)
             warn = true;
             continue;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "key: " << key << std::endl;
         std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
 #endif
@@ -412,11 +412,11 @@ int ipinstance::readIPMelangeList(const char *filename)
         }
     }
     input.close();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "starting sort" << std::endl;
 #endif
     std::sort(iplist.begin(), iplist.end());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "sort complete" << std::endl;
     std::cerr << thread_id << "ip list dump:" << std::endl;
     std::vector<ip>::const_iterator i = iplist.begin();

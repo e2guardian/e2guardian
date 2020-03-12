@@ -8,7 +8,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "Auth.hpp"
 #include "OptionContainer.hpp"
@@ -87,13 +87,13 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
              cm.authrec->group_source = "pdef";
              return DGAUTH_OK;
          }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
              std::cerr << "User not in filter groups list for: " << pluginName.c_str() << std::endl;
 #endif
              return DGAUTH_NOGROUP;
       }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << "Group found for: " << user.c_str() << " in " << pluginName.c_str() << std::endl;
 #endif
      fg = cm.filtergroup;
@@ -123,42 +123,42 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     }
 
     if (plugname == "proxy-basic") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling proxy-basic auth plugin" << std::endl;
 #endif
         return proxycreate(cv);
     }
 
     if (plugname == "proxy-digest") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling proxy-digest auth plugin" << std::endl;
 #endif
         return digestcreate(cv);
     }
 
     if (plugname == "ident") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling ident server auth plugin" << std::endl;
 #endif
         return identcreate(cv);
     }
 
     if (plugname == "ip") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling IP-based auth plugin" << std::endl;
 #endif
         return ipcreate(cv);
     }
 
     if (plugname == "port") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling port-based auth plugin" << std::endl;
 #endif
         return portcreate(cv);
     }
 
     if (plugname == "proxy-header") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling proxy-header auth plugin" << std::endl;
 #endif
         return headercreate(cv);
@@ -166,7 +166,7 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling DNS-based auth plugin" << std::endl;
 #endif
         return dnsauthcreate(cv);
@@ -175,7 +175,7 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_NTLM
     if (plugname == "proxy-ntlm") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling proxy-NTLM auth plugin" << std::endl;
 #endif
         return ntlmcreate(cv);

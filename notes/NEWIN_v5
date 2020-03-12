@@ -81,7 +81,7 @@ READABLE THREAD_ID FOR LOGS & DEBUG
 
 REVISED DEBUG STAGE 1
 
-    The following low level debugs are no longer enabled by DGDEBUG:
+    The following low level debugs are no longer enabled by E2DEBUG:
 
     Network sockets - use NETDEBUG instead
 

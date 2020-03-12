@@ -8,7 +8,7 @@
 #include <string>
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include <deque>
 #include "String.hpp"
@@ -91,7 +91,7 @@ int CSPlugin::makeTempFile(String *filename)
     //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 1) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << std::endl;
 #endif
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Could not create cs temp file.");
@@ -109,14 +109,14 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
 {
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Error creating temp file in writeMemoryTempFile." << std::endl;
 #endif
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating temp file in writeMemoryTempFile.");
         return DGCS_ERROR;
     }
     errno = 0;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "About to writeMemoryTempFile " << (*filename) << " size: " << objectsize << std::endl;
 #endif
 
@@ -142,14 +142,14 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     // Then delete the temp file.
     String tempfilepath;
     if (writeMemoryTempFile(object, objectsize, &tempfilepath) != DGCS_OK) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Error creating/writing temp file for scanMemory." << std::endl;
 #endif
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating/writing temp file for scanMemory.");
         return DGCS_SCANERROR;
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
-#ifndef DGDEBUG
+#ifndef E2DEBUG
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
     return rc;
@@ -209,7 +209,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 {
     // Most content scanners only deal with original, unmodified content
     if (reconstituted) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "willScanRequest: ignoring reconstituted data" << std::endl;
 #endif
         return DGCS_NOSCAN;
@@ -220,12 +220,12 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // implications as downlaoding them.
     if (post) {
         if (scanpost) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: I'm interested in uploads" << std::endl;
 #endif
             return DGCS_NEEDSCAN;
         } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: Not interested in uploads" << std::endl;
 #endif
             return DGCS_NOSCAN;
@@ -258,7 +258,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Don't scan the web server which hosts the access denied page
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "willScanRequest: ignoring our own webserver" << std::endl;
 #endif
         return DGCS_NOSCAN;
@@ -268,7 +268,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     tempurl = domain;
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
             return DGCS_NOSCAN; // exact match
@@ -279,7 +279,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         // allows matching of .tld
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
 #endif
             return DGCS_NOSCAN; // exact match
@@ -299,13 +299,13 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
             if (tempurl.length() > fl) {
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                     std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
 #endif
                     return DGCS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
 #endif
                 return DGCS_NOSCAN; // exact match
@@ -314,7 +314,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "willScanRequest: I'm interested" << std::endl;
 #endif
     return DGCS_NEEDSCAN;
@@ -384,7 +384,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling ClamDscan CS plugin" << std::endl;
 #endif
         return clamdcreate(cv);
@@ -393,7 +393,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling AvastDscan CS plugin" << std::endl;
 #endif
         return avastdcreate(cv);
@@ -402,7 +402,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling KAVDscan CS plugin" << std::endl;
 #endif
         return kavdcreate(cv);
@@ -411,7 +411,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling ICAPscan CS plugin" << std::endl;
 #endif
         return icapcreate(cv);
@@ -420,7 +420,7 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Enabling command-line CS plugin" << std::endl;
 #endif
         return commandlinecreate(cv);

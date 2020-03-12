@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "OptionContainer.hpp"
 #include "DynamicURLList.hpp"
@@ -60,13 +60,13 @@ void DynamicURLList::flush()
 int DynamicURLList::posInList(const char *url)
 {
     if (items == 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "url list cache is empty" << std::endl;
 #endif
         // if the list is empty, indicate that the entry should go in pos 0
         return -1;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "url list cache: performing search..." << std::endl;
 #endif
     return search(0, items - 1, url);
@@ -82,7 +82,7 @@ int DynamicURLList::search(int a, int s, const char *url)
     // look up the url pointed to by this entry in the index
     char *i = index[m] * 1000 + urls;
 
-    /*#ifdef DGDEBUG
+    /*#ifdef E2DEBUG
 	std::cerr << thread_id << "url list cache: comparing " << i << " to " << url << std::endl;
 #endif*/
 
@@ -164,13 +164,13 @@ bool DynamicURLList::setListSize(unsigned int s, unsigned int t)
 // see if the given URL is in the list
 bool DynamicURLList::inURLList(const char *url, const int fg)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "url cache search request: " << fg << " " << url << std::endl;
 #endif
     if (items == 0) {
         return false;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "****** url cache table ******" << std::endl;
     std::cerr << thread_id << "items: " << items << std::endl;
     for (int i = 0; i < items; i++) {
@@ -191,7 +191,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         pos = posInList(url);
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "pos: " << pos << std::endl;
 #endif
 
@@ -204,7 +204,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
     if (pos > -1) {
         unsigned long int timenow = time(NULL);
         if ((timenow - urlreftime[index[pos]]) > timeout) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "found but url ttl exceeded: " << (timenow - urlreftime[index[pos]]) << std::endl;
 #endif
             return false;
@@ -214,7 +214,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         lookfor += (char)fg;
         lookfor += (char)o.filter_groups + 1;
         if (groups[index[pos]].find_first_of(lookfor) == std::string::npos) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "found but url not flagged clean for this group: " << fg << " (is clean for: ";
             for (unsigned int j = 0; j < groups[index[pos]].length(); j++) {
                 std::cerr << thread_id << (unsigned int)(groups[index[pos]][j]) << " ";
@@ -232,7 +232,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
 // also, maintain the lists' sorting, to allow binary search to be performed
 void DynamicURLList::addEntry(const char *url, const int fg)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "url cache add request: " << fg << " " << url << std::endl;
     std::cerr << thread_id << "itemsbeforeadd: " << items << std::endl;
 #endif
@@ -256,7 +256,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
         if (resized) {
             delete[] u;
         }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Entry found at pos: " << pos << std::endl;
 #endif
         urlreftime[index[pos]] = time(NULL); // reset refresh counter
@@ -267,14 +267,14 @@ void DynamicURLList::addEntry(const char *url, const int fg)
 
     pos = 0 - pos - 1; // now contains the insertion point
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "insertion pos: " << pos << std::endl;
     std::cerr << thread_id << "size: " << size << std::endl;
 #endif
 
     // the list isn't full, so simply push new entry onto the back
     if (items < size) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "items<size: " << items << "<" << size << std::endl;
 #endif
         char *urlref;

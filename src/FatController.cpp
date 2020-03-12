@@ -4,7 +4,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include <sstream>
@@ -344,20 +344,20 @@ extern "C" { // The kernel knows nothing of objects so
 //void sig_hup(int signo)
 //{
     //reloadconfig = true;
-//#ifdef DGDEBUG
+//#ifdef E2DEBUG
     //std::cerr << "HUP received." << std::endl;
 //#endif
 //}
 //void sig_usr1(int signo)
 //{
     //gentlereload = true;
-//#ifdef DGDEBUG
+//#ifdef E2DEBUG
     //std::cerr << "USR1 received." << std::endl;
 //#endif
 //}
 //void sig_childterm(int signo)
 //{
-//#ifdef DGDEBUG
+//#ifdef E2DEBUG
     //std::cerr << "TERM received." << std::endl;
 //#endif
     //_exit(0);
@@ -367,7 +367,7 @@ extern "C" { // The kernel knows nothing of objects so
 #ifdef ENABLE_SEGV_BACKTRACE
 void sig_segv(int signo, siginfo_t *info, void *secret)
 {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << "SEGV received." << std::endl;
 #endif
     // Extract "real" info about first stack frame
@@ -416,7 +416,7 @@ bool drop_priv_completely()
     int rc = seteuid(o.root_user); // need to be root again to drop properly
     if (rc == -1) {
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid(suid)");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << strerror(errno) << std::endl;
 #endif
         return false; // setuid failed for some reason so exit with error
@@ -435,7 +435,7 @@ bool daemonise()
     if (o.no_daemon) {
         return true;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     return true; // if debug mode is enabled we don't want to detach
 #endif
 
@@ -502,18 +502,18 @@ void handle_connections(int tindex)
             // the class that handles the connections
 	    //int rc = 0;
 	    String ip;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << " in  handle connection"  << std::endl;
 #endif
 //            std::thread::id this_id = std::this_thread::get_id();
             //reloadconfig = false;
             while (!ttg) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << " waiting connection on http_worker_Q "  << std::endl;
 #endif
                 LQ_rec rec = o.http_worker_Q.pop();
                 Socket *peersock = rec.sock;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << " popped connection from http_worker_Q"  << std::endl;
 #endif
                 if (ttg) break;
@@ -527,7 +527,7 @@ void handle_connections(int tindex)
                 ++dystat->busychildren;
                 ++dystat->conx;
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
                 std::cerr << thread_id << "handle_peer returned: " << rc << std::endl;
 #else
@@ -619,7 +619,7 @@ void wait_for_proxy()
             return;
         }
     } catch (std::exception &e) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << " -exception while creating proxysock: " << e.what() << std::endl;
 #endif
     }
@@ -670,7 +670,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     else
         thread_id = "log: ";
     try {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "log listener started" << std::endl;
 #endif
 
@@ -699,7 +699,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         logfile = new std::ofstream(log_location.c_str(), std::ios::app);
         if (logfile->fail()) {
             syslog(LOG_ERR, "%sError opening/creating log file.", thread_id.c_str());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "Error opening/creating log file: " << log_location << std::endl;
 #endif
             delete logfile;
@@ -749,7 +749,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         std::string loglines;
         loglines.append(log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
 #endif
 
@@ -1119,7 +1119,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             *logfile << builtline << std::endl; // append the line
         else
             syslog(LOG_INFO, "%s", builtline.c_str());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << itemcount << " " << builtline << std::endl;
 #endif
 	if (o.e2_front_log)
@@ -1304,7 +1304,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 
         continue; // go back to listening
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     if( !logger_ttg)
         std::cerr << thread_id << "log_listener exiting with error" << std::endl;
 #endif
@@ -1353,7 +1353,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
 			delete peersock;
 			break;
 		}
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "got connection from accept" << std::endl;
 #endif
                 if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
@@ -1362,7 +1362,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
                 rec.sock = peersock;
                 rec.ct_type = ct_type;
                 o.http_worker_Q.push(rec);
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "pushed connection to http_worker_Q" << std::endl;
 #endif
             } else {
@@ -1370,7 +1370,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
 			if (peersock != nullptr) delete peersock;
 			break;
 		}
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << thread_id << "Error on accept: errorcount " << errorcount << " errno: " << err << std::endl;
 #endif
                 syslog(LOG_ERR, "%sError %d on accept: errorcount %d", thread_id.c_str(), err, errorcount);
@@ -1446,7 +1446,7 @@ int fc_controlit()   //
 /*bool needdrop = false;
 
 	if (o.filter_port < 1024) */
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "seteuiding for low port binding/pidfile creation" << std::endl;
 #endif
 //needdrop = true;
@@ -1457,7 +1457,7 @@ int fc_controlit()   //
 #endif
     if (rc == -1) {
         syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid() to bind filter port.");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Unable to seteuid() to bind filter port." << std::endl;
 #endif
         delete[] serversockfds;
@@ -1546,7 +1546,7 @@ int fc_controlit()   //
 #endif
     if (rc == -1) {
         syslog(LOG_ERR, "%sUnable to re-seteuid()", thread_id.c_str());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Unable to re-seteuid()" << std::endl;
 #endif
         close(pidfilefd);
@@ -1621,7 +1621,7 @@ int fc_controlit()   //
     if (!o.no_logger) {
         std::thread log_thread(log_listener, o.log_location, false, o.log_syslog,o.log_Q);
         log_thread.detach();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "log_listener thread created" << std::endl;
 #endif
     }
@@ -1629,7 +1629,7 @@ int fc_controlit()   //
     if(o.log_requests) {
         std::thread RQlog_thread(log_listener, o.RQlog_location, true, false,o.RQlog_Q);
         RQlog_thread.detach();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "RQlog_listener thread created" << std::endl;
 #endif
 
@@ -1637,7 +1637,7 @@ int fc_controlit()   //
 
 // I am the main thread here onwards.
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Master thread created threads" << std::endl;
 #endif
 
@@ -1669,7 +1669,7 @@ int fc_controlit()   //
         return 1;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "sig handlers done" << std::endl;
 #endif
 
@@ -1687,7 +1687,7 @@ int fc_controlit()   //
     for (auto &i : http_wt) {
         i.detach();
    }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "http_worker threads created" << std::endl;
 #endif
 
@@ -1701,7 +1701,7 @@ int fc_controlit()   //
     for (auto &i : listen_threads) {
         i.detach();
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << "listen  threads created" << std::endl;
 #endif
 
@@ -1742,7 +1742,7 @@ int fc_controlit()   //
         // OR, its timetogo - got a sigterm
         // OR, we need to exit to reread config
         if (gentlereload) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << thread_id << "gentle reload activated" << std::endl;
 #endif
             syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload starting", thread_id.c_str());
@@ -1777,7 +1777,7 @@ int fc_controlit()   //
                 //timer_settime(timerid,0,&timeout, NULL);
                 setitimer(ITIMER_REAL, &timeout, NULL);
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
                 std::cerr << "signal:" << rc << std::endl;
 #endif
                 if (o.logconerror) {
@@ -1800,7 +1800,7 @@ int fc_controlit()   //
                 ttg = true;
             if (rc == SIGHUP)
                 gentlereload = true;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
             std::cerr << "signal:" << rc << std::endl;
 #endif
             if (o.logconerror) {
@@ -1810,7 +1810,7 @@ int fc_controlit()   //
 #endif   // end __OpenBSD__ else
 
         int q_size = o.http_worker_Q.size();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "busychildren:" << dystat->busychildren << " worker Q size:" << q_size << std::endl;
 #endif
         if( o.dstat_log_flag) {

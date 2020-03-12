@@ -6,7 +6,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../Auth.hpp"
@@ -77,7 +77,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     int clientport = peercon.getPeerSourcePort();
     int serverport = peercon.getPort();
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Connecting to: " << clientip << std::endl;
     std::cerr << thread_id << "to ask about: " << clientport << std::endl;
 #endif
@@ -85,12 +85,12 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Error connecting to obtain ident from: " << clientip << std::endl;
 #endif
         return DGAUTH_NOMATCH;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Connected to:" << clientip << std::endl;
 #endif
     std::string request;
@@ -98,17 +98,17 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     request += ", ";
     request += String(serverport).toCharArray();
     request += "\r\n";
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "About to send:" << request << std::endl;
 #endif
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Error writing to ident connection to: " << clientip << std::endl;
 #endif
         iq.close(); // close conection to client
         return -1;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "wrote ident request to:" << clientip << std::endl;
 #endif
     char buff[8192];
@@ -119,7 +119,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     String temp;
     temp = buff; // convert to String
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "got ident reply: " << temp << " from: " << clientip << std::endl;
 #endif
     iq.close(); // close conection to client

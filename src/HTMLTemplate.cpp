@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "HTMLTemplate.hpp"
 #include "RegExp.hpp"
@@ -108,7 +108,7 @@ void makeURLSafe(String &url)
 
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                            std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip, String &extflags) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Displaying TEMPLATE" << std::endl;
 #endif
     String line;
@@ -121,7 +121,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 	//
         newline = false;
         line = html[i];
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     	std::cerr << thread_id << "Displaying TEMPLATE: " <<  line.c_str() << std::endl;
 #endif
 	// Take care SSLMITM negotiation error

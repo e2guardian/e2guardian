@@ -6,7 +6,7 @@
 
 // INCLUDES
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 
 #include "../String.hpp"
@@ -132,7 +132,7 @@ int commandlineinstance::init(void *args)
     }
     progname = cv["progname"];
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Program and arguments: ";
     for (int i = 0; i < numarguments; i++) {
         std::cerr << thread_id << arguments[i] << " ";
@@ -164,12 +164,12 @@ int commandlineinstance::init(void *args)
     tempcodes[sinfectedcodes.length()] = '\0';
     strncpy(tempcodes, sinfectedcodes.c_str(), sinfectedcodes.length());
     result = strtok(tempcodes, ",");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Infected file return codes: ";
 #endif
     while (result) {
         tempinfectedcodes.push_back(atoi(result));
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << tempinfectedcodes.back() << " ";
 #endif
         result = strtok(NULL, ",");
@@ -179,19 +179,19 @@ int commandlineinstance::init(void *args)
     tempcodes[scleancodes.length()] = '\0';
     strncpy(tempcodes, scleancodes.c_str(), scleancodes.length());
     result = strtok(tempcodes, ",");
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << std::endl
               << "Clean file return codes: ";
 #endif
     while (result) {
         tempcleancodes.push_back(atoi(result));
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << tempcleancodes.back() << " ";
 #endif
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << std::endl;
 #endif
 
@@ -259,7 +259,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     }
     int f = fork();
     if (f == 0) {
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "Running: " << progname.toCharArray() << " " << filename << std::endl;
 #endif
         // close read ends of sockets
@@ -288,7 +288,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     std::string result;
     FILE *readme = fdopen(scannerstdout[0], "r");
     while (fgets(buff, 8192, readme) != NULL) {
-#ifndef DGDEBUG
+#ifndef E2DEBUG
         if (usevirusregexp)
 #endif
             result += buff;
@@ -296,7 +296,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     fclose(readme);
     readme = fdopen(scannerstderr[0], "r");
     while (fgets(buff, 8192, readme) != NULL) {
-#ifndef DGDEBUG
+#ifndef E2DEBUG
         if (usevirusregexp)
 #endif
             result += buff;
@@ -317,7 +317,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
         return DGCS_SCANERROR;
     }
 
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Scanner result" << std::endl
               << "--------------" << std::endl
               << result << std::endl

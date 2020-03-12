@@ -7,7 +7,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "RegExp.hpp"
 #include <cstring>
@@ -120,16 +120,16 @@ bool RegExp::comp(const char *exp)
         regfree(&reg);
         wascompiled = false;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "Compiling " << exp << std::endl;
 #endif
 #ifdef HAVE_PCRE
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "...with PCRE " << std::endl;
 #endif
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED | REG_DOTALL) != 0) { // compile regex
 #else
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "...without PCRE " << std::endl;
 #endif
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED) != 0) {

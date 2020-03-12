@@ -5,7 +5,7 @@
 // INCLUDES
 
 #ifdef HAVE_CONFIG_H
-#include "dgconfig.h"
+#include "e2config.h"
 #endif
 #include "OptionContainer.hpp"
 #include "FOptionContainer.hpp"
@@ -132,7 +132,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         // ignore blank lines
         if (strlen(buffer) < 7)
             continue;
-#ifdef DGDEBUG
+#ifdef E2DEBUG
         std::cerr << thread_id << "line: " << line << std::endl;
 #endif
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
@@ -192,12 +192,12 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
             hostlist.push_back(line);
         }
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "starting sort" << std::endl;
 #endif
     std::sort(iplist.begin(), iplist.end());
     std::sort(hostlist.begin(), hostlist.end());
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "sort complete" << std::endl;
     std::cerr << thread_id << "ip list dump:" << std::endl;
     std::vector<uint32_t>::iterator i = iplist.begin();
@@ -239,7 +239,7 @@ bool IPList::readIPMelangeList(const char *filename)
         syslog(LOG_ERR, "%s%s%s", thread_id.c_str(), "Error reading file (does it exist?): ", filename);
         return false;
     }
-#ifdef DGDEBUG
+#ifdef E2DEBUG
     std::cerr << thread_id << "reading: " << filename << std::endl;
 #endif
     if (ifsreadIPMelangeList(&input, false, NULL)) {
