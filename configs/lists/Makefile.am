@@ -1,6 +1,6 @@
 DISTCLEANFILES = Makefile.in \
 		bannedphraselist bannedsitelist bannedurllist \
-		exceptionphraselist nocheckcertsitelist weightedphraselist \
+		exceptionphraselist weightedphraselist \
 		oldbannedphraselist \
 		oldexceptionphraselist oldweightedphraselist
 
