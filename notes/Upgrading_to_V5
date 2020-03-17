@@ -1,4 +1,4 @@
-Upgrading to V5 from e2guardian v4 - draft needs input
+Upgrading to V5 from e2guardian v4 
 
 V5 introduces a completely new model for definition and handling of lists, 
 logic flow and support for two new modes - transparent(HTTP & HTTPS) and ICAP.

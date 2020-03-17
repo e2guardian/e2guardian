@@ -1,4 +1,4 @@
-This is the v5.3.1 stable version
+This is the v5.4.1 near-stable version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -38,7 +38,8 @@ details.
 TRANSPARENT HTTPS
 
     Detects SNI and flags whether traffic is TLS.  
-    Currently limited to port 443 traffic.
+    Currently limited to port 443 traffic on BSD.
+    On Linux multiple ports can be redirected.
 
 ICAP SERVER
 
@@ -127,7 +128,9 @@ lists to be loaded via stdin.  See notes/lists_via_stdin.
 
 OPENSSL v1.1 SUPPORT
 
-    Will now support OpenSSL v1.1 as well as v1.0.2 or above
+    Supports OpenSSL v1.1 as well as v1.0.2 or above
+    Note: Support for pre v1.1 OpenSSL versions is depreciated and will 
+          be withdrawn in v5.5.
 
 % OPTION FOR PHRASE LISTS
 
@@ -140,35 +143,33 @@ Amended code so that -Wall compile option gives no warnings
 BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 
 Requests without SNI and those not TLS no longer tried for MITM.
+New option to use original ip & port (currently Linux only)
 
 TESTING -  
 ---------
 
-    Please prefix all bug reports with "v5.3: "
+    Please prefix all bug reports with "v5.4: "
 
 TO DO IN NEXT RELEASE
 ---------------------
 
-    Option for output file for storyboard trace
-
     Reduce unnecessary memory usage on in DataBuffer
 
-    Transparent HTTP/HTTPS on ports other than 80/443
+    Make sockets non-blocking so time-out works with MITM
 
-    Make SSL sockets non-blocking so time-out works with MITM
+    Create 'output-filter' plug-in system for content modification
 
-    Implement a "learning" mode,  test the rules effects without block  
+    POST content filtering
 
-    Polish new debug feature
-
-    Multi-tenancy mode first stage (may be in later or branched release)
 
 TODO - for later releases.
 -----------------------
 
-    POST content filtering
+    Option for output file for storyboard trace
 
     Re-look at MITM certificate generation.
+    
+    Implement a "learning" mode,  test the rules effects without block  
 
     Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
         no log option)
@@ -176,7 +177,10 @@ TODO - for later releases.
     Remove duplicate list/storyboard warnings with a DRY system and add no warn
         option.
 
+    Polish new debug feature
+
     Extend new debug feature to further modules
+
 
 WISHLIST
 --------
@@ -201,6 +205,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 3rd January 2019
+Philip Pearce 17th March 2020
 
 
