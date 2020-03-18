@@ -1,0 +1,38 @@
+Upgrading to V5.4 from e2guardian v5.3
+
+If you are upgrading from v4 please read notes/Upgrading_to_V5 first.
+
+There are changes to both the configuration files, mainly in the definition
+of auth plugins, 
+
+Both the e2guardian.conf and e2guardianf1.conf contain some new list definitions.  
+
+Some new list types are introduced. Including maplist, ipmaplist and mapport all
+of which are used to map users/ip/ports to filter groups
+Details of the new list types definition are in notes/V5_list_definition.pdf. 
+
+A number of settings have been moved into new Storyboard config files. 
+These are noted in the example e2guardian.conf and e2guardianf1.conf files.
+
+For details on Storyboard syntax see notes/V5_Storyboard.pdf
+
+
+UPGRADE PROCEDURE
+
+Before upgrading make a backup of all your existing configuration & lists. You will
+may need to refer to these after the install.
+
+Install E2guardian V5.4 in a clean area.
+
+****** Edit to here ******
+
+Edit e2guardian.conf to your requirements. If you are going to use 
+transparent mode set the default group for transparent mode.  
+Leave proxy_ip commented out unless you need to use an upstream proxy.
+
+Edit each e2guardianfn.conf to your requirements.
+
+Using examplef1.story as a template create a fn.story for each filtergroup, 
+actioning any blanket block required.
+
+If you want to use tranparent https mode redirect port 443 to 8443.

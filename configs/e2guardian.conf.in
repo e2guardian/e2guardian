@@ -288,7 +288,7 @@ maplist = 'name=defaultusermap, path=@E2CONFDIR@/lists/filtergroupslist'
 # E2guardian tries the next plugin
 # If off the user is connected with defaultgroup
 # Defaults to off
-# authrequiresuserande2group = off
+# authrequiresuserandgroup = off
 
 # Authentication files location
 # These are now replaced with pre-authstoryboard logic but lists defined here
@@ -429,7 +429,7 @@ logclienthostnames = off
 #  long preamble not being content filtered
 # The size is in Kibibytes - eg 2048 = 2Mb
 # use 0 to set it to maxcontentramcachescansize
-maxcontentfiltersize = 2000
+maxcontentfiltersize = 2048
 
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
