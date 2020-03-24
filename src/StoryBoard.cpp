@@ -119,6 +119,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         params = line.before(")").after("(");
         params.removeWhiteSpace();
         action = line.after(")");
+        if (action.contains("#"))
+            action = action.before("#");  // remove trailing comments
         action.removeWhiteSpace();
         if (command == "function") {
             if (in_function) {    // already in another function definition & so assume end of previous function
