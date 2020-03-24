@@ -42,7 +42,7 @@ Codacy Badge:
 
 ## Wiki
 
-*	Helpiful information can be found in the [Wiki](https://github.com/e2guardian/e2guardian/wiki).
+*	Helpful information can be found in the [Wiki](https://github.com/e2guardian/e2guardian/wiki).
 
 ## License
 
