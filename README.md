@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the v5 pre-release version - v5.4.0 
+This is the pre-release version - v5.4.1 
 
 Note that there are significant changes to the configuration files in this 
 release.
@@ -9,6 +9,8 @@ Note: Some configuration files in this version are not backward compatable
 with v4 or v5.3 configuration files.
 
 Please read notes/NEWIN_v5 before installing.
+
+If upgrading from an earlier version please read notes/Upgrading_to_V5.4
 
 **For copyright go to: http://e2guardian.org**
 
@@ -38,9 +40,13 @@ Codacy Badge:
 *	 Join the [Community
     Forum](https://groups.google.com/forum/#!forum/e2guardian).
 
+## Wiki
+
+*	Helpiful information can be found in the [Wiki](https://github.com/e2guardian/e2guardian/wiki).
+
 ## License
 
-Copyright 2019, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2020, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
