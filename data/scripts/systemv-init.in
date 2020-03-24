@@ -8,7 +8,7 @@
 #              banned phrases, MIME types, filename \
 #              extensions and PICS labelling.
 # processname: e2guardian
-# pidfile: @DGPIDDIR@/e2guardian.pid
+# pidfile: @E2PIDDIR@/e2guardian.pid
 # config: @E2CONFDIR@/e2guardian.conf
 
 ### BEGIN INIT INFO
@@ -55,10 +55,10 @@ function wait_for_pid()
 
 case "$1" in
 start)
-        if [ -f @DGBINDIR@/e2guardian ] &&
+        if [ -f @E2BINDIR@/e2guardian ] &&
            [ -f @E2CONFDIR@/e2guardian.conf ]; then
                 echo -n "Starting e2guardian: "
-                if @DGBINDIR@/e2guardian 2> /dev/null; then
+                if @E2BINDIR@/e2guardian 2> /dev/null; then
                         echo -e "\\033[60G\c"
                         echo -e "[ \\033[1;32m\c"
                         echo -e "OK\c"
@@ -77,10 +77,10 @@ start)
 stop)
         echo -n "Shutting down e2guardian: "
         WAITPID=0
-        if [ -f @DGPIDDIR@/e2guardian.pid ] ; then
-            WAITPID=`cat @DGPIDDIR@/e2guardian.pid`
+        if [ -f @E2PIDDIR@/e2guardian.pid ] ; then
+            WAITPID=`cat @E2PIDDIR@/e2guardian.pid`
         fi
-        if @DGBINDIR@/e2guardian -q 2> /dev/null; then
+        if @E2BINDIR@/e2guardian -q 2> /dev/null; then
                 if wait_for_pid $WAITPID ; then
                     echo -e "\\033[60G\c"
                     echo -e "[ \\033[1;32m\c"
@@ -94,7 +94,7 @@ stop)
                     echo -e "\\033[0;39m\c"
                     echo " ]"
                 fi
-                /bin/rm -f @DGPIDDIR@/e2guardian.pid
+                /bin/rm -f @E2PIDDIR@/e2guardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 [ -d /var/lock/subsys ] && /bin/rm -f /var/lock/subsys/e2guardian
         else
@@ -110,8 +110,8 @@ restart)
         $0 start
         ;;
 status)
-        if [ -f @DGBINDIR@/e2guardian ]; then
-                @DGBINDIR@/e2guardian -s
+        if [ -f @E2BINDIR@/e2guardian ]; then
+                @E2BINDIR@/e2guardian -s
         fi
         ;;
         

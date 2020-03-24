@@ -14,10 +14,10 @@
 
 case "$1" in
 start)
-        [ -x @DGBINDIR@/e2guardian ] && @DGBINDIR@/e2guardian > /dev/null && echo -e ' e2guardian\c'
+        [ -x @E2BINDIR@/e2guardian ] && @E2BINDIR@/e2guardian > /dev/null && echo -e ' e2guardian\c'
         ;;
 stop)
-        @DGBINDIR@/e2guardian -q
+        @E2BINDIR@/e2guardian -q
         [ -r /tmp/.dguardianipc ] && echo -e ' e2guardian\c'
         rm -f /tmp/.dguardianipc
         ;;

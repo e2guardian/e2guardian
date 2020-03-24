@@ -1,4 +1,4 @@
-@DGLOGLOCATION@/access.log {
+@E2LOGLOCATION@/access.log {
 	rotate 5
 	daily
 	prerotate
