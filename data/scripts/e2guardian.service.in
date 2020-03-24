@@ -8,8 +8,8 @@ LimitNOFILE=65535
 Type=forking
 IgnoreSIGPIPE=no
 GuessMainPID=no
-ExecStart=@DGBINDIR@/e2guardian
-ExecReload=@DGBINDIR@/e2guardian -r
+ExecStart=@E2BINDIR@/e2guardian
+ExecReload=@E2BINDIR@/e2guardian -r
 UMask=027
 
 [Install]

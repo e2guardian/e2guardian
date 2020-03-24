@@ -10,8 +10,8 @@ EXTRA_DIST = $(FLISTS)
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(DATATOPDIR) && \
-	$(mkinstalldirs) $(DESTDIR)$(DGLOGLOCATION) && \
-	$(mkinstalldirs) $(DESTDIR)$(DGPIDDIR) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2LOGLOCATION) && \
+	$(mkinstalldirs) $(DESTDIR)$(E2PIDDIR) && \
 	for l in $(FLISTS) ; do \
 		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(DATATOPDIR)/$$l"; \
 		$(INSTALL_DATA) $$l $(DESTDIR)$(DATATOPDIR)/$$l; \

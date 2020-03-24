@@ -2,11 +2,11 @@
 # E2Guardian logrotation script for version @PACKAGE_VERSION@
 
 
-LOG_DIR=@DGLOGLOCATION@
+LOG_DIR=@E2LOGLOCATION@
 NUM_LOGS=4
 LOG=$LOG_DIR/access.log
 
-@DGBINDIR@/e2guardian -q
+@E2BINDIR@/e2guardian -q
 
 # Keep a maximum of $NUM_LOGS logs around.
 if [ -f $LOG.$NUM_LOGS ]; then rm -f $LOG.$NUM_LOGS; fi
@@ -23,4 +23,4 @@ fi
 
 sleep 5
 
-@DGBINDIR@/e2guardian
+@E2BINDIR@/e2guardian

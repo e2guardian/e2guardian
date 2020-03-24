@@ -13,16 +13,16 @@
 
 case "$1" in
 start)
-        if [ -f @DGBINDIR@/e2guardian ] &&
+        if [ -f @E2BINDIR@/e2guardian ] &&
            [ -f @E2CONFDIR@/e2guardian.conf ]; then
-                @DGBINDIR@/e2guardian
+                @E2BINDIR@/e2guardian
                 echo "E2Guardian started."
         fi
         ;;
 stop)
-        if [ -f @DGPIDDIR@/e2guardian.pid ]; then
-                @DGBINDIR@/e2guardian -q
-                /bin/rm -f @DGPIDDIR@/e2guardian.pid
+        if [ -f @E2PIDDIR@/e2guardian.pid ]; then
+                @E2BINDIR@/e2guardian -q
+                /bin/rm -f @E2PIDDIR@/e2guardian.pid
                 /bin/rm -f /tmp/.dguardianipc
                 echo "E2Guardian stopped."
         fi
@@ -33,8 +33,8 @@ restart)
         $0 start
         ;;
 status)
-        if [ -f @DGBINDIR@/e2guardian ]; then
-                @DGBINDIR@/e2guardian -s
+        if [ -f @E2BINDIR@/e2guardian ]; then
+                @E2BINDIR@/e2guardian -s
         fi
         ;;
 *)
