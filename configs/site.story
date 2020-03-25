@@ -17,9 +17,6 @@
 # To disable checks on embedded urls then uncomment:-
 #function(embeddedcheck)
 
-# If you have bypass enabled then comment out next line:-
-function(checknobypasslists)
-
 # If you have av scanning enabled then comment out next 2 lines:-
 function(checknoscanlists)
 function(checknoscantypes)

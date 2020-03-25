@@ -2,7 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.4.1
 
-August 2019 to January 2020
+August 2019 to March 2020
 
 Fixes
  - Fix #469 - remove punctuation from within phraselists when read in
@@ -10,10 +10,12 @@ Fixes
  - Fix #549 - wrong url in CGI block and bypass
  - Fix #555 - improved embeded url detection
  - Fix #565 - segfault when no write permission on generated certs directory
+ - Fix #585 - Bypass not working with mitm https 
+ - Fix #590 - Storyboard parsing failing with trailing comments
 
 New features
  - Auth list files moved into storyboard system - fixes #458
- - Improve auth plugin logic - add plugin default group options
+ - Improve auth plugin logic - add per-plugin default group options
  - On single list reading failure do not abort but check rest of config
  - Tidy up request log output
  - New usedashforblank option for logs
@@ -25,6 +27,8 @@ New features
  - SB: Add support for log-only function (logcategory flag)
  - SB: Response HTTP header modification added & listenportin state added
  - SB: Add #568 feature - give warning when defined list is not used
+ - New useoriginalip option - solves issues with some apps who use non-stqndard SNI.
+ - nomitm lists added for sites which refuse to be mitm.
 
 Config changes
  - Remove safelabel from bannedphraselist - does not appears to have been adopted on web
@@ -34,6 +38,10 @@ Config changes
  - Update httpworkers comments re 32-bit systems
  - All auth config files have changed - check sample configs
  - Revised/new flags in e2guardian.conf
+
+Definitions/Variables
+ - DG replaced by E2 in all directive and configure variables 
+   e.g. DGDEBUG is now E2DEBUG etc.
 
 version 5.3.4
 
