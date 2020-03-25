@@ -19,8 +19,9 @@
 #function(localsslcheckrequest)
 
 # To block all access to this group at certain times
-# define times in bannedtimelist
-# uncomment next 2 lines
+# define times in bannedtimelist,
+# uncomment the list definition for 'bannedtimes' in e2guardianfn.conf,
+# and uncomment the next 2 lines 
 #function(checktimesblocked)
 #if(timein,bannedtimes) return true
 
@@ -32,6 +33,10 @@
 #function(checkblanketblock)
 #if(true,,502) return setblock  # = ** total blanket
 #if(siteisip,,505) return setblock  # = *ip ip blanket
+# To use timed blanket block 
+# define times in blankettimelist,
+# uncomment the list definition for 'blankettimes' in e2guardianfn.conf,
+# and uncomment the next line 
 #if(timein,blankettimes) return setblock
 
 # To create blanket block for SSL 

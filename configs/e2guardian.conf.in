@@ -554,12 +554,12 @@ contentscannertimeout = 60
 #authplugin = '@E2CONFDIR@/authplugins/ident.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/ip.conf'
-#ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
+ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
 
 #authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/port.conf'
-#maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
+maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as

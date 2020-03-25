@@ -42,17 +42,18 @@ urllist = 'name=banned,messageno=501,path=@E2CONFDIR@/lists/bannedurllist'
 regexpboollist = 'name=banned,messageno=503,path=@E2CONFDIR@/lists/bannedregexpurllist'
 regexpboollist = 'name=banneduseragent,messageno=522,path=@E2CONFDIR@/lists/bannedregexpuseragentlist'
 
-sitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsitelist'
-ipsitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsiteiplist'
+# 'bannedssl' lists are not currently used
+#sitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsitelist'
+#ipsitelist = 'name=bannedssl,messageno=520,path=@E2CONFDIR@/lists/bannedsslsiteiplist'
 
 
 # NEW in v5.4 bannedtimelist - times when no access is allowed
 # To activate a storyboard change is required - see examplef1.story
-timelist = 'name=bannedtimes,messageno=122,path=@E2CONFDIR@/lists/bannedtimelist'
+#timelist = 'name=bannedtimes,messageno=122,path=@E2CONFDIR@/lists/bannedtimelist'
 
 # NEW in v5.4 blankettimelist - times when blanket block is applied
 # To activate a storyboard change is required - see examplef1.story
-timelist = 'name=blankettimes,messageno=122,path=@E2CONFDIR@/lists/blankettimelist'
+#timelist = 'name=blankettimes,messageno=122,path=@E2CONFDIR@/lists/blankettimelist'
 
 
 #grey (i.e. content check) lists
