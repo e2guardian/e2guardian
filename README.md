@@ -5,7 +5,7 @@ This is the pre-release version - v5.4.1
 Note that there are significant changes to the configuration files in this 
 release.
 
-Note: Some configuration files in this version are not backward compatable
+Note: Some configuration files in this version are not backward compatible
 with v4 or v5.3 configuration files.
 
 Please read notes/NEWIN_v5 before installing.
