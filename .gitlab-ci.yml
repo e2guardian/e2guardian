@@ -225,7 +225,7 @@ Create Raspbian Package:
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
     - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
     - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    - cp ${PACKPATH}/data/scripts/e2guardianrasp.service ${PACKDST}/data/lib/systemd/system/e2guardian.service.in
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
