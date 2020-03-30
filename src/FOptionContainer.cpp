@@ -156,7 +156,7 @@ bool FOptionContainer::readConfFile(const char *filename) {
     }
     while (!conffiles.eof()) {
         getline(conffiles, linebuffer);
-        if (!conffiles.eof() && linebuffer.length() != 0) {
+        if (!conffiles.fail() && linebuffer.length() != 0) {
             if (linebuffer[0] != '#') { // i.e. not commented out
                 temp = (char *) linebuffer.c_str();
                 if (temp.contains("#")) {
