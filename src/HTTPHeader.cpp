@@ -1610,13 +1610,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     }
 #endif
 
-#ifdef __SSLMITM
             //if a socket is ssl we want to send relative paths not absolute urls
             //also HTTP responses dont want to be processed (if we are writing to an ssl client socket then we are doing a request)
             if (sock->isSsl() && !sock->isSslServer()) {
                 setDirect();
             }
-#endif
 
             if (isdirect && !is_response) {
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";

@@ -125,14 +125,12 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
         //FD_CLR(fdto, &inset);
 
-#ifdef __SSLMITM
         // TODO: Post v5.3 change socket logic to non-blocking so that poll can be used in MITM
         // after read/write - PP
      if (sockfrom.isSsl()) {
       twayfds[0].revents = POLLIN;
       twayfds[1].revents = 0;
   } else
-#endif
         {
             int rc = poll(twayfds, 2, timeout);
             if (rc < 1) {

@@ -2,7 +2,6 @@
 #include "e2config.h"
 #endif
 
-#ifdef __SSLMITM
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -546,4 +545,3 @@ bool CertificateAuthority::addExtension(X509 *cert, int nid, char *value)
     return (result > 0) ? true : false;
 }
 
-#endif //__SSLMITM

@@ -19,9 +19,7 @@
 #include <arpa/nameser.h>
 #include <resolv.h>
 
-#ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
-#endif //__SSLMITM
 
 #include <syslog.h>
 #include <cerrno>
@@ -47,11 +45,9 @@
 #include <linux/netfilter_ipv4.h>
 #endif
 
-#ifdef __SSLMITM
 #include "openssl/ssl.h"
 #include "openssl/x509v3.h"
 #include "String.hpp"
-#endif
 
 // GLOBALS
 extern OptionContainer o;
@@ -636,12 +632,10 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
             rc = handleConnection(peerconn, ip, false, proxysock, dystat);
             break;
 
-#ifdef __SSLMITM
         case  CT_THTTPS:
             SBauth.is_transparent = true;
             rc = handleTHTTPSConnection(peerconn, ip, proxysock, dystat);
             break;
-#endif
 
         case CT_ICAP:
             SBauth.is_icap = true;
@@ -1025,7 +1019,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 //
 //
 
-#ifdef __SSLMITM
             //			Set if candidate for MITM
             //			(Exceptions will not go MITM)
             checkme.ismitmcandidate = checkme.isconnect && (!checkme.nomitm) && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
@@ -1035,7 +1028,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.nomitm = true;
                 checkme.automitm = false;
             }
-#endif
 
             //
             // Start of by pass
@@ -1269,7 +1261,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-#ifdef __SSLMITM
             //if ismitm - GO MITM
             // ssl_grey is covered in storyboard
             if (!checkme.tunnel_rest && checkme.isconnect && checkme.gomitm)
@@ -1285,7 +1276,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 //if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
                     break;
             }
-#endif
 
             //CALL SB checkresponse
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && (!checkme.logcategory) && !checkme.tunnel_rest) {
@@ -1826,22 +1816,14 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 std::cerr << thread_id << " - filter bypass hash generation" << " virushah " << virushash << " dohash " << dohash << " filterhash " << filterhash <<std::endl;
 #endif
 // the user is using the full whack of custom banned images and/or HTML templates
-#ifdef __SSLMITM
         if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || (*header).requestType().startsWith("CONNECT"))
-#else
-        if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || (*header).requestType().startsWith("CONNECT"))
-#endif
         {
 
             // if reporting_level = 1 or 2 and headersent then we can't
             // send a redirect so we have to display the template instead
 
 
-#ifdef __SSLMITM
             if ((*header).requestType().startsWith("CONNECT") && !(peerconn).isSsl())
-#else
-            if ((*header).requestType().startsWith("CONNECT"))
-#endif
             {
         // Block ssl website    
         // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
@@ -2000,11 +1982,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                                                                                     2048).toCharArray();
             }
 
-#ifdef __SSLMITM
             if ((*header).requestType().startsWith("CONNECT") && !(peerconn).isSsl())
-#else
-            if ((*header).requestType().startsWith("CONNECT"))
-#endif
 		{
         // Block ssl website    
         // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
@@ -2434,7 +2412,6 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     return 0;
 }
 
-#ifdef __SSLMITM
 void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, NaughtyFilter *checkme)
 {
 
@@ -2483,7 +2460,6 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
         return;
     }
 }
-#endif //__SSLMITM
 
 
 bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
@@ -2623,7 +2599,6 @@ ConnectionHandler::writeback_error(NaughtyFilter &cm, Socket &cl_sock, int mess_
     return true;
 }
 
-#ifdef __SSLMITM
 bool
 ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn, bool &persistProxy, bool &authed,
                           bool &persistent_authed, String &ip, stat_rec *&dystat, std::string &clientip,
@@ -2847,7 +2822,6 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
     return true;
 }
-#endif
 
 bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
                           HTTPHeader &header, NaughtyFilter &cm, bool only_client_ip, bool isconnect_like) {
@@ -3210,7 +3184,6 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
 #endif
 }
 
-#ifdef __SSLMITM
 int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
@@ -3592,7 +3565,6 @@ char *get_TLS_SNI(char *inbytes, int* len)
     return NULL; //SNI was not present
 }
 
-#endif
 
 bool ConnectionHandler::get_original_ip_port(Socket &peerconn, NaughtyFilter &checkme)
 {   // get original IP destination & port

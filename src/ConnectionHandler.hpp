@@ -85,9 +85,7 @@ class ConnectionHandler
 
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
 
-#ifdef __SSLMITM
     int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
-#endif
     int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
     int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, DataBuffer &docbody) ;
@@ -109,9 +107,7 @@ class ConnectionHandler
     void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
     void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);
 
-#ifdef __SSLMITM
     bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
-#endif
 
 
     // perform URL encoding on a string
@@ -163,10 +159,8 @@ class ConnectionHandler
     void check_search_terms(NaughtyFilter &cm);
     void check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
                                           std::deque<CSPlugin *> &responsescanners);
-#ifdef __SSLMITM
     //ssl certificat checking
     void checkCertificate(String &hostname, Socket *sslSock, NaughtyFilter *checkme);
-#endif //__SSLMITM
 
     int sendProxyConnect(String &hostname, Socket *sock, NaughtyFilter *checkme);
 

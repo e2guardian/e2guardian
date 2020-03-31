@@ -25,9 +25,7 @@
 #include <deque>
 #include <atomic>
 
-#ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
-#endif
 
 
 // DECLARATIONS
@@ -172,11 +170,8 @@ class OptionContainer
     bool log_user_agent = false;
     bool soft_restart = false;
 
-#ifdef __SSLMITM
     std::string ssl_certificate_path;
-#endif
 
-#ifdef __SSLMITM
     std::string ca_certificate_path;
     std::string ca_private_key_path;
     std::string cert_private_key_path;
@@ -186,7 +181,6 @@ class OptionContainer
     CertificateAuthority *ca;
     bool use_openssl_conf = false;
     bool have_openssl_conf = false;
-#endif
     std::string set_cipher_list;
 
 #ifdef ENABLE_EMAIL

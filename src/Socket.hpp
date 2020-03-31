@@ -14,10 +14,8 @@
 #include <sstream>
 #include <iomanip>
 
-#ifdef __SSLMITM
 #include "openssl/ssl.h"
 #include "String.hpp"
-#endif
 
 // DECLARATIONS
 
@@ -71,7 +69,6 @@ class Socket : public BaseSocket
 
     bool chunkError;
 
-#ifdef __SSLMITM
     //use this socket as an ssl server
     int startSslClient(const std::string &certPath, String hostname);
 
@@ -93,9 +90,7 @@ class Socket : public BaseSocket
     int checkCertHostname(const std::string &hostame);
 
     void close();
-#endif //__SSLMITM
 
-#ifdef __SSLMITM
     //use this socket as an ssl server
     int startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher);
 
@@ -128,18 +123,13 @@ class Socket : public BaseSocket
     // write to socket, throwing std::exception on error - can be told to break on -r
   //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
     void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false);
-#endif //__SSLMITM
     bool getIeof();
 
     private:
-#ifdef __SSLMITM
     SSL *ssl = NULL;
     SSL_CTX *ctx = NULL;
     bool isssl = false;
     bool issslserver = false;
-#else
-    bool isssl = false;
-#endif //__SSLMITM
 
     // local & remote addresses
     struct sockaddr_in my_adr;

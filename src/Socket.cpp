@@ -22,23 +22,19 @@
 #include <unistd.h>
 #include <netinet/tcp.h>
 
-#ifdef __SSLMITM
 #include "openssl/x509v3.h"
 #include "openssl/asn1.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 #include "String.hpp"
 #include "CertificateAuthority.hpp"
-#endif
 
-#ifdef __SSLMITM
 extern bool reloadconfig;
 
 #ifndef X509_V_FLAG_TRUSTED_FIRST
 #warning "openssl X509_V_FLAG_TRUSTED_FIRST not available, certificate chain creation will be unreliable and will fail on some sites"
 #warning "To fix install a later version of openssl"
 #define X509_V_FLAG_TRUSTED_FIRST 0
-#endif
 #endif
 
 extern thread_local std::string thread_id;
@@ -69,14 +65,10 @@ Socket::Socket() {
         my_port = 0;
         chunkError = false;
 
-#ifdef __SSLMITM
         ssl = NULL;
         ctx = NULL;
         isssl = false;
         issslserver = false;
-#else
-        isssl = false;
-#endif
     }
 }
 
@@ -95,14 +87,10 @@ Socket::Socket(int fd)
     my_port = 0;
     chunkError = false;
 
-#ifdef __SSLMITM
     ssl = NULL;
     ctx = NULL;
     isssl = false;
     issslserver = false;
-#else
-    isssl = false;
-#endif
 }
 
 // create socket from pre-existing FD, storing local & remote IPs
@@ -122,14 +110,10 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
     my_port = 0;
     chunkError = false;
 
-#ifdef __SSLMITM
     ssl = NULL;
     ctx = NULL;
     isssl = false;
     issslserver = false;
-#else
-    isssl = false;
-#endif
 }
 
 // find the ip to which the client has connected
@@ -164,11 +148,9 @@ unsigned long int Socket::getPeerSourceAddr() {
 
 // close connection & wipe address structs
 void Socket::reset() {
-#ifdef __SSLMITM
     if (isssl) {
         stopSsl();
     }
-#endif //__SSLMITM
     this->baseReset();
 
     sck = socket(AF_INET, SOCK_STREAM, 0);
@@ -281,7 +263,6 @@ Socket *Socket::accept() {
    }
 }
 
-#ifdef __SSLMITM
 //use this socket as an ssl client
 int Socket::startSslClient(const std::string &certificate_path, String hostname)
 {
@@ -519,9 +500,7 @@ void Socket::close()
     }
     BaseSocket::close();
 }
-#endif //__SSLMITM
 
-#ifdef __SSLMITM
 //use this socket as an ssl server
 int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_list)
 {
@@ -973,7 +952,6 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
       return len;
 }
 
-#endif //__SSLMITM
 
 void Socket::resetChunk() {
     chunk_to_read = 0;

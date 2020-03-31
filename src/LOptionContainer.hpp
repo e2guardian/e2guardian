@@ -23,9 +23,7 @@
 
 #include <deque>
 
-#ifdef __SSLMITM
 #include "CertificateAuthority.hpp"
-#endif
 
 
 // DECLARATIONS

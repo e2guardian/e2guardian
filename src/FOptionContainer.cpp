@@ -237,7 +237,6 @@ bool FOptionContainer::read(const char *filename) {
         }
 
 
-#ifdef __SSLMITM
         if (findoptionS("sslcheckcert") == "on") {
             if(o.enable_ssl) {
                 ssl_check_cert = true;
@@ -249,9 +248,7 @@ bool FOptionContainer::read(const char *filename) {
         } else {
             ssl_check_cert = false;
         }
-#endif //__SSLMITM
 
-#ifdef __SSLMITM
         if (findoptionS("sslmitm") == "on") {
             if(o.enable_ssl) {
                 ssl_mitm = true;
@@ -276,7 +273,6 @@ bool FOptionContainer::read(const char *filename) {
         } else {
             ssl_mitm = false;
         }
-#endif //__SSLMITM
 
 #ifdef ENABLE_EMAIL
         // Email notification patch by J. Gauthier

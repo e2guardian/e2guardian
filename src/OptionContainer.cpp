@@ -75,6 +75,7 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
 
 bool OptionContainer::read(std::string& filename, int type)
 {
+    time_t gen_cert_start, gen_cert_end;
 	conffilename = filename;
 
 	// all sorts of exceptions could occur reading conf files
@@ -208,14 +209,11 @@ bool OptionContainer::read(std::string& filename, int type)
 			soft_restart = false;
 		}
 
-#ifdef __SSLMITM
         ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
         if (ssl_certificate_path == "/") {
             ssl_certificate_path = ""; // "" will enable default openssl certs
         }
-#endif
 
-#ifdef __SSLMITM
         if (findoptionS("enablessl") == "on") {
                enable_ssl  = true;
             } else {
@@ -272,7 +270,6 @@ bool OptionContainer::read(std::string& filename, int type)
              ret = false;
         }
 
-        time_t gen_cert_start, gen_cert_end;
         time_t def_start = 1417872951; // 6th Dec 2014
         time_t ten_years = 315532800;
         gen_cert_start = findoptionI("generatedcertstart");
@@ -287,17 +284,18 @@ bool OptionContainer::read(std::string& filename, int type)
             set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
         if (ret) {
+#ifdef NODEF
             	ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
                 gen_cert_start, gen_cert_end);
+#endif
         } else {
                 return false;
             }
         }
 
-#endif
 
 #ifdef ENABLE_EMAIL
         // Email notification patch by J. Gauthier
@@ -943,7 +941,6 @@ bool OptionContainer::read(std::string& filename, int type)
 
 
 
-#ifdef _SSLMITM
         if (enable_ssl) {
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
@@ -959,7 +956,6 @@ bool OptionContainer::read(std::string& filename, int type)
                 return false;
             }
         }
-#endif
 
     } catch (std::exception &e) {
         if (!is_daemonised) {

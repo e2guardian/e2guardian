@@ -40,11 +40,9 @@
 //#include <ucontext.h>
 //#endif
 
-#ifdef __SSLMITM
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
-#endif //__SSLMITM
 
 #include "FatController.hpp"
 #include "ConnectionHandler.hpp"
@@ -1534,7 +1532,6 @@ int fc_controlit()   //
         return 1;
     }
 
-#ifdef __SSLMITM
     //init open ssl
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -1553,7 +1550,6 @@ int fc_controlit()   //
 	}
     }
     SSL_library_init();
-#endif  // end __SSLMITM
 
     // this has to be done after daemonise to ensure we get the correct PID.
     rc = sysv_writepidfile(pidfilefd); // also closes the fd

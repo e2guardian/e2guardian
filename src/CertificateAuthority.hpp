@@ -1,6 +1,5 @@
 #ifndef __HPP_CERTIFICATEAUTHORITY
 #define __HPP_CERTIFICATEAUTHORITY
-#ifdef __SSLMITM
 
 struct ca_serial {
     ASN1_INTEGER *asn;
@@ -44,6 +43,5 @@ class CertificateAuthority
     bool free_ca_serial(struct ca_serial *cs);
 };
 
-#endif //__SSLMITM
 
 #endif //__HPP_CERTIFICATEAUTHORITY
