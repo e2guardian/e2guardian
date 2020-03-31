@@ -566,7 +566,6 @@ else
 	SSLMITMSUPPORT=""
 	LIBS="${LIBS} -lssl -lcrypto"
 	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
-	AC_DEFINE([__SSLCERT],[],[Define to enable SSL CERT ])
 	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.0.1])
 fi],
 [
@@ -576,7 +575,6 @@ fi],
 ]
 )
 AM_CONDITIONAL(__SSLMITM, test "x$sslmitm" = "xtrue")
-AM_CONDITIONAL(__SSLCERT, test "x$sslmitm" = "xtrue")
 AC_SUBST(SSLMITMSUPPORT)
 
 # asking user if they want DNS auth support
