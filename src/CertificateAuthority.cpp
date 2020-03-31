@@ -137,11 +137,9 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
 
     EVP_MD_CTX *mdctx;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_MD_CTX  mmdctx;
-    mdctx = &mmdctx;
-#else
-    mdctx = EVP_MD_CTX_new();
+#error "openssl version 1.1 or greater is required"
 #endif
+    mdctx = EVP_MD_CTX_new();
     const EVP_MD *md = EVP_md5();
     EVP_MD_CTX_init(mdctx);
 
@@ -158,11 +156,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
         failed = true;
     }
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    EVP_MD_CTX_cleanup(mdctx);
-#else
     EVP_MD_CTX_free(mdctx);
-#endif
 
     if (failed) {
         return false;
@@ -473,13 +467,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
 
 EVP_PKEY *CertificateAuthority::getServerPkey()
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    //openssl is missing a EVP_PKEY_dup function so just up the ref count
-    //see http://www.mail-archive.com/openssl-users@openssl.org/msg17614.html
-    CRYPTO_add(&_certPrivKey->references, 1, CRYPTO_LOCK_EVP_PKEY);
-#else
     EVP_PKEY_up_ref(_certPrivKey);
-#endif
     return _certPrivKey;
 }
 

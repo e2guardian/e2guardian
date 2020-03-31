@@ -225,48 +225,6 @@ Socket *peersock(NULL); // the socket which will contain the connection
 
 //String peersockip; // which will contain the connection ip
 
-#ifdef __SSLMITM
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-static pthread_mutex_t  *ssl_lock_array;
-
-static void ssl_lock_callback(int mode, int type, char *file, int line)
-{
-  (void)file;
-  (void)line;
-  if (mode & CRYPTO_LOCK) {
-    pthread_mutex_lock(&(ssl_lock_array[type]));
-  }
-  else {
-    pthread_mutex_unlock(&(ssl_lock_array[type]));
-  }
-}
-
-static void init_ssl_locks(void)
-{
-  int i;
-
-  ssl_lock_array=(pthread_mutex_t *)OPENSSL_malloc(CRYPTO_num_locks() *
-                                        sizeof(pthread_mutex_t));
-  for (i=0; i<CRYPTO_num_locks(); i++) {
-    pthread_mutex_init(&(ssl_lock_array[i]),NULL);
-  }
-
-  //CRYPTO_set_id_callback((unsigned long (*)())thread_id);
-  CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))ssl_lock_callback);
-}
-
-static void kill_ssl_locks(void)
-{
-  int i;
-
-  CRYPTO_set_locking_callback(NULL);
-  for (i=0; i<CRYPTO_num_locks(); i++)
-    pthread_mutex_destroy(&(ssl_lock_array[i]));
-
-  OPENSSL_free(ssl_lock_array);
-}
-#endif
-#endif   //end __SSLMITM
 
 void monitor_flag_set(bool action)
 {
@@ -1595,9 +1553,6 @@ int fc_controlit()   //
 	}
     }
     SSL_library_init();
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    init_ssl_locks();
-#endif
 #endif  // end __SSLMITM
 
     // this has to be done after daemonise to ensure we get the correct PID.
@@ -1880,12 +1835,6 @@ int fc_controlit()   //
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     if (o.dstat_log_flag) dystat->close();
-
-#ifdef __SSLMITM
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-    kill_ssl_locks();
-#endif
-#endif
 
     delete[] serversockfds;
 
