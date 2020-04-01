@@ -303,7 +303,24 @@ bool OptionContainer::read(std::string& filename, int type)
         // Email notification patch by J. Gauthier
         mailer = findoptionS("mailer");
 #endif
+ 
+        monitor_helper = findoptionS("monitorhelper");
+        if (monitor_helper == "") {
+            monitor_helper_flag = false;
+        } else {
+            monitor_helper_flag = true;
+	}
 
+	server_name = findoptionS("servername");
+        if (server_name == "") {
+        	char sysname[256];
+		int r;
+		r = gethostname(sysname, 256);
+		if (r == 0) {
+	   		server_name = sysname;
+		}
+	} 
+			
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
             max_header_lines = 40;

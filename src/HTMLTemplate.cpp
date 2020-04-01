@@ -51,7 +51,10 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     RegExp re;
     // compile regexp for matching supported placeholders
     // allow optional custom placeholder string
-    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-");
+    String servername("");
+    servername = o.server_name;
+    servername = server.before(".");
+    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-");
     RegResult Rre;
     unsigned int offset;
     String result;
@@ -155,6 +158,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             line = safereason;
         } else if (line == "-REASONLOGGED-") {
             line = logreason;
+        } else if (line == "-SERVERNAME-") {
+            line = servername;
         } else if (line == "-USER-") {
             String safeuser(*user);
             makeURLSafe(safeuser);
