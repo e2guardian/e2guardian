@@ -711,7 +711,6 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     // Get server name - only needed for formats 5 & 7
     if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
     	server = o.server_name;
-	server = server.before(".");
     }
 
     std::string exception_word = o.language_list.getTranslation(51);

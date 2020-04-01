@@ -118,7 +118,6 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     bool safe = false;
     String servername("");
     servername = o.server_name;
-    servername = servername.before(".");
     for (unsigned int i = 0; i < sz; i++) {
         // preserve newlines from original file
 	//

@@ -320,7 +320,7 @@ bool OptionContainer::read(std::string& filename, int type)
 	   		server_name = sysname;
 		}
 	} 
-			
+		
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
             max_header_lines = 40;
