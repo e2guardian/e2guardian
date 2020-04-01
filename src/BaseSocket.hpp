@@ -28,16 +28,15 @@ class BaseSocket
     // make a socket a listening server socket
     int listen(int queue);
 
-    // grab socket's FD, e.g. for passing to selectEINTR
+    // grab socket's FD,
     // use sparingly, and DO NOT do manual data transfer with it
     int getFD();
 
     // close socket
     void close();
 
-    // set socket-wide timeout (is this actually used? all methods accept their own individual timeouts)
+    // set socket-wide timeout
     void setTimeout(int t);
-    // get timeout (is this actually used?)
     int getTimeout();
     int getErrno();
 
@@ -58,8 +57,6 @@ class BaseSocket
     // non-blocking check for input data
     bool checkForInput();
     bool bcheckForInput(int timeout);
-    //void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
-   // void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
     // non-blocking check for writable socket
     bool readyForOutput();
     // blocking check, can break on config reloads
@@ -75,9 +72,9 @@ class BaseSocket
     // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // read from socket, returning number of bytes read
-    int readFromSocketn(char *buff, int len, unsigned int flags, int timeout);
+    int readFromSocket(char *buff, int len, unsigned int flags, int timeout);
     // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
-    int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
+    //int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
 
     protected:
     // socket-wide timeout
@@ -92,7 +89,6 @@ class BaseSocket
     bool sockerr;
     bool timedout;
     // internal buffer
-    //char buffer[1024];
     char buffer[4096];
     int buffstart;
     int bufflen;

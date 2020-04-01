@@ -146,7 +146,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         if (chunked) {
             rc = sock->readChunk(&buffer[pos], size - pos,sockettimeout );
         } else {
-            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, false);
+            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
         }
         if (rc < 1) {
             // none recieved or an error

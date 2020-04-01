@@ -368,7 +368,7 @@ bool BaseSocket::breadyForOutput(int timeout) {
 }
 
 // read a line from the socket, can be told to break on config reloads
-int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated) //throw(std::exception)
+int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated)
 {
     try {
         // first, return what's left from the previous buffer read, if anything
@@ -405,14 +405,10 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         while (i < (size - 1)) {
             buffstart = 0;
             bufflen = 0;
-//        try {
             s_errno = 0;
             errno = 0;
             if (bcheckForInput(timeout))
                 bufflen = recv(sck, buffer, 1024, 0);
-            //      } catch (std::exception &e) {
-            //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
-            //     }
 #ifdef NETDEBUG
             std::cout << thread_id  << "getLine !SSL read into buffer; bufflen: " << bufflen << std::endl;
 #endif
@@ -423,7 +419,6 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
 #endif
                 s_errno = errno;
                 return -1;
-//            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
             }
             //if socket closed...
             if (bufflen == 0) {
@@ -509,7 +504,7 @@ bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, in
 }
 
 // read a specified expected amount and return what actually read
-int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout)
+int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int timeout)
 {
     int cnt, rc;
     cnt = len;
@@ -531,12 +526,6 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
     }
 
     while (cnt > 0) {
-//        try {
-//            checkForInput(timeout); // throws exception on error or timeout
-//        } catch (std::exception &e) {
-//            return -1;
-//        }
-//        if (isNoRead())  return -1;
         if (!bcheckForInput(timeout))  return -1;
         s_errno = 0;
         errno = 0;
@@ -557,6 +546,7 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
     return len;
 }
 
+#ifdef NOTDEF
 // read what's available and return error status - can be told not to do an initial checkForInput, and to break on reloads
 int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
 {
@@ -584,11 +574,6 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     int rc = 0;
 
     if (check_first) {
-    //    try {
-    //        checkForInput(timeout, honour_reloadconfig);
-    //    } catch (std::exception &e) {
-    //        return -1;
-    //    }
         if (! bcheckForInput(timeout))
             return -1;
     }
@@ -609,3 +594,4 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     }
     return rc + tocopy;
 }
+#endif

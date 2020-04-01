@@ -3229,7 +3229,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
         //bool direct = false;
 
         char buff[2048];
-        rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
+        rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000);
 #ifdef E2DEBUG
             std::cerr << thread_id << "bytes peeked " << rc << std::endl;
 #endif
@@ -3247,7 +3247,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
 #endif
 
        if(checkme.isTLS) {
-            rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000, false);
+            rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000);
             if (rc < 1 ) {     // get header from client, allowing persistency
                 if (o.logconerror) {
                     if (peerconn.getFD() > -1) {

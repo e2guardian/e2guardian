@@ -1752,7 +1752,7 @@ void HTTPHeader::discard(Socket *sock, off_t cl)
         cl = contentLength();
     int rc;
     while (cl > 0) {
-        rc = sock->readFromSocket(header, ((cl > 4096) ? 4096 : cl), 0, timeout, false);
+        rc = sock->readFromSocket(header, ((cl > 4096) ? 4096 : cl), 0, timeout);
         if (rc > 0)
             cl -= rc;
         else

@@ -111,11 +111,11 @@ class Socket : public BaseSocket
     // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // read from socket, returning number of bytes read
-    int readFromSocketn(char *buff, int len, unsigned int flags, int timeout);
+
+    int readFromSocket(char *buff, int len, unsigned int flags, int timeout);
     // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
-    int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
-    // write to socket, throwing std::exception on error - can be told to break on -r
-  //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
+    //int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);\
+
     bool getIeof();
 
     private:

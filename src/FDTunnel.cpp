@@ -152,9 +152,9 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     // we have a target throughput - only read in the exact amount of data we've been told to
                     // plus 2 bytes to "solve" an IE post bug with multipart/form-data forms:
                     // adds an extra CRLF on certain requests, that it doesn't count in reported content-length
-                    rc = sockfrom.readFromSocket(buff, (((int)sizeof(buff) < ((targetthroughput - throughput) /*+2*/)) ? sizeof(buff) : (targetthroughput - throughput) /* + 2*/), 0, 0, false);
+                    rc = sockfrom.readFromSocket(buff, (((int)sizeof(buff) < ((targetthroughput - throughput) /*+2*/)) ? sizeof(buff) : (targetthroughput - throughput) /* + 2*/), 0, 0);
                 else
-                    rc = sockfrom.readFromSocket(buff, sizeof(buff), 0, 0, false);
+                    rc = sockfrom.readFromSocket(buff, sizeof(buff), 0, 0);
 
                 // read as much as is available
                 if (rc < 0) {
@@ -203,7 +203,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 }
 
                 // read as much as is available
-                rc = sockto.readFromSocket(buff, sizeof(buff), 0, 0, false);
+                rc = sockto.readFromSocket(buff, sizeof(buff), 0, 0);
 
                 if (rc < 0) {
                     break; // an error occurred so end the while()

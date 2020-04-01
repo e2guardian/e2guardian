@@ -799,9 +799,9 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
 }
 
 // read a specified expected amount and return what actually read
-int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout)
-{
-    return readFromSocket(buff, len, flags, timeout, true, false);
+//int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout)
+//{
+ //   return readFromSocket(buff, len, flags, timeout, true, false);
 
 
 #ifdef NODEF
@@ -857,15 +857,14 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
     }
     return len;
 #endif
-}
-
+//}
 // read what's available and return error status - can be told not to do an initial checkForInput, and to break on reloads
-int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
+int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout )
 {
     if (len == 0)  // nothing to read
          return 0;
     if (!isssl) {
-        return BaseSocket::readFromSocket(buff, len, flags, timeout, check_first, honour_reloadconfig);
+        return BaseSocket::readFromSocket(buff, len, flags, timeout);
     }
 
     // first, return what's left from the previous buffer read, if anything
@@ -1029,7 +1028,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
     }
 
     if (clen > 0) {
-        rc = readFromSocketn(buffin, clen, 0, timeout);
+        rc = readFromSocket(buffin, clen, 0, timeout);
 #ifdef CHUNKDEBUG
         std::cerr << thread_id << "readChunk  read " << rc << std::endl;
 #endif
@@ -1042,7 +1041,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
     if (chunk_to_read > 0)    // there is more to read in this chunk - so do not check for trailing \r\n
         return rc;
     char ts[2];
-    int len = readFromSocketn(ts, 2, 0, timeout);
+    int len = readFromSocket(ts, 2, 0, timeout);
     if (len == 2 && ts[0] == '\r' && ts[1] == '\n') {
         return rc;
     } else {
