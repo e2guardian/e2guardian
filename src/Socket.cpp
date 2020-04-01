@@ -647,7 +647,7 @@ bool Socket::bcheckForInput(int timeout)
     return true;
 }
 
-
+#ifdef NOTDEF
 bool Socket::readyForOutput()
 {
     //if (!isssl) {
@@ -658,14 +658,8 @@ bool Socket::readyForOutput()
 
     //return true;
 }
+#endif
 
-bool Socket::breadyForOutput(int timeout)
-{
-    //if (!isssl) {
-        return BaseSocket::breadyForOutput(timeout);
-    //}
-    //return true;
-}
 
 
 // read a line from the socket, can be told to break on config reloads

@@ -94,18 +94,12 @@ class Socket : public BaseSocket
     //use this socket as an ssl server
     int startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher);
 
-    // non-blocking check for writable socket
-    bool readyForOutput();
-    bool breadyForOutput(int timeout);
     // blocking check, can break on config reloads
     void readyForOutput(int timeout, bool honour_reloadconfig = false);
 
     // non-blocking check for input data
     bool checkForInput();
     bool bcheckForInput(int timeout);
-
-    // blocking check for data, can be told to break on signal triggered config reloads (-r)
-    void checkForInput(int timeout, bool honour_reloadconfig = false);
 
     // get a line from the socket - can break on config reloads
     int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) ;
@@ -122,7 +116,6 @@ class Socket : public BaseSocket
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
     // write to socket, throwing std::exception on error - can be told to break on -r
   //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
-    void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false);
     bool getIeof();
 
     private:

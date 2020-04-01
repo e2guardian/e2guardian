@@ -216,6 +216,7 @@ bool BaseSocket::isNoWrite()
     return ( sockerr || ishup || (sck < 0));
 }
 
+#ifdef NODEF
 // blocking check to see if there is data waiting on socket
 bool BaseSocket::bcheckSForInput(int timeout)
 {
@@ -246,6 +247,7 @@ bool BaseSocket::bcheckSForInput(int timeout)
     sockerr = true;
     return false;   // must be POLLERR or POLLNVAL
 }
+#endif
 
 // blocking check to see if there is data waiting on socket
 bool BaseSocket::bcheckForInput(int timeout)
@@ -474,14 +476,6 @@ bool BaseSocket::writeString(const char *line) //throw(std::exception)
     return writeToSocket(line, l, 0, timeout);
 }
 
-// write data to socket - throws exception on failure, can be told to break on config reloads
-//void BaseSocket::writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig) throw(std::exception)
-void BaseSocket::writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig)
-{
-    if (!writeToSocket(buff, len, flags, timeout, honour_reloadconfig)) {
-        throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-    }
-}
 
 // write data to socket - can be told not to do an initial readyForOutput, and to break on config reloads
 bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)

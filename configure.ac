@@ -566,7 +566,7 @@ else
 	SSLMITMSUPPORT=""
 	LIBS="${LIBS} -lssl -lcrypto"
 	AC_DEFINE([__SSLMITM],[],[Define to enable SSL MITM ])
-	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.1.0])
+	PKG_CHECK_MODULES([OPENSSL],[ openssl >= 1.0.1])
 fi],
 [
 	AC_MSG_RESULT(no)

@@ -18,7 +18,6 @@
 #include <arpa/inet.h>
 #include <poll.h>
 
-int selectEINTR(int numfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout, bool honour_reloadconfig = false);
 
 class BaseSocket
 {
@@ -58,8 +57,6 @@ class BaseSocket
 
     // non-blocking check for input data
     bool checkForInput();
-    // blocking check for data, can be told to break on signal triggered config reloads (-r)
-    bool bcheckSForInput(int timeout);
     bool bcheckForInput(int timeout);
     //void checkForInput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
    // void checkForInput(int timeout, bool honour_reloadconfig ) throw(std::exception);
@@ -81,9 +78,6 @@ class BaseSocket
     int readFromSocketn(char *buff, int len, unsigned int flags, int timeout);
     // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
-    // write to socket, throwing std::exception on error - can be told to break on -r
-  //  void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false) throw(std::exception);
-    void writeToSockete(const char *buff, int len, unsigned int flags, int timeout, bool honour_reloadconfig = false);
 
     protected:
     // socket-wide timeout
