@@ -53,7 +53,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     // allow optional custom placeholder string
     String servername("");
     servername = o.server_name;
-    servername = server.before(".");
+    servername = servername.before(".");
     re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-");
     RegResult Rre;
     unsigned int offset;
