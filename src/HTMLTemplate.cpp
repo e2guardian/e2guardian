@@ -51,9 +51,6 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     RegExp re;
     // compile regexp for matching supported placeholders
     // allow optional custom placeholder string
-    String servername("");
-    servername = o.server_name;
-    servername = servername.before(".");
     re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-");
     RegResult Rre;
     unsigned int offset;
@@ -119,6 +116,9 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     unsigned int sz = html.size() - 1; // the last line can have no thingy. erm... carriage return?
     String safeurl(*url); // Take a copy of the URL so we can encode it to stop XSS
     bool safe = false;
+    String servername("");
+    servername = o.server_name;
+    servername = servername.before(".");
     for (unsigned int i = 0; i < sz; i++) {
         // preserve newlines from original file
 	//
