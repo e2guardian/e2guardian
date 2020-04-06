@@ -160,6 +160,15 @@ maxuploadsize = -1
 #urllist = 'name=log,path=@E2CONFDIR@/lists/logurllist'
 #regexpboollist = 'name=log,path=@E2CONFDIR@/lists/logregexpurllist'
 
+# Do not log sites/urls/ext
+# Useful to prevent requests not made by user directly being logged
+# Makes logs more readable
+#sitelist = 'name=nolog,path=@E2CONFDIR@/lists/nologsitelist'
+#ipsitelist = 'name=nolog,path=@E2CONFDIR@/lists/nologsiteiplist'
+#urllist = 'name=nolog,path=@E2CONFDIR@/lists/nologurllist'
+#regexpboollist = 'name=nolog,path=@E2CONFDIR@/lists/nologregexpurllist'
+#fileextlist = 'name=nolog,path=@E2CONFDIR@/lists/nologextensionlist'
+
 # Outgoing HTTP request header rules:
 # Optional lists for blocking based on, and modification of, outgoing HTTP
 # request headers.  Format for headerregexplist is one modification rule per
@@ -234,6 +243,11 @@ naughtynesslimit = 50
 # that the search terms themselves will be contained in the 
 # of output of each expression.
 regexpreplacelist = 'name=searchterms,path=@E2CONFDIR@/lists/searchregexplist'
+
+# search terms exception (overide) list
+# Used to prevent urls such os completetion suggestion requests from being detected
+# as search requests
+regexpboollist = 'name=searchtermexceptions, path=@E2CONFDIR@/lists/searchexceptionregexplist'
 #
 # Banned Search Term list(s) for option 1
 searchlist = 'name=banned,path=@E2CONFDIR@/lists/bannedsearchlist'

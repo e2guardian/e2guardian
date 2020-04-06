@@ -28,6 +28,11 @@ function(checknoscantypes)
 #if(extensionin, exceptionextension) return false
 #if(true) return setblock
 
+# To override the nolog lists temporarily
+# then uncomment the following two lines
+#function(checklogging)
+#if(true) return true
+
 
 # For ICAP mode:-
 

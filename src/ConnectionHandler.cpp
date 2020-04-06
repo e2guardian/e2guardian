@@ -1431,6 +1431,10 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
     std::string what;
+
+    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
+    if(cm.nolog) return;
+
     if(o.log_requests) {
         what = thread_id;
     }

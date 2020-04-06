@@ -44,6 +44,8 @@
 #define  ENT_STORYB_THTTPS_REQUEST    3
 #define  ENT_STORYB_ICAP_REQMOD 4
 #define  ENT_STORYB_ICAP_RESMOD 5
+#define  ENT_STORYB_LOG_CHECK 6
+
 
 
 class NaughtyFilter;

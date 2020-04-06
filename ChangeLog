@@ -2,7 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.4.1
 
-August 2019 to March 2020
+August 2019 to April 2020
 
 Fixes
  - Fix #469 - remove punctuation from within phraselists when read in
@@ -14,6 +14,7 @@ Fixes
  - Fix #590 - Storyboard parsing failing with trailing comments
 
 New features
+ - Add Server Name to Block Page #560
  - Auth list files moved into storyboard system - fixes #458
  - Improve auth plugin logic - add per-plugin default group options
  - On single list reading failure do not abort but check rest of config
@@ -29,6 +30,10 @@ New features
  - SB: Add #568 feature - give warning when defined list is not used
  - New useoriginalip option - solves issues with some apps who use non-stqndard SNI.
  - nomitm lists added for sites which refuse to be mitm.
+ - nolog lists added and actioned via new SB entry point - for clearer logs
+ - searchexception list added to override searchregexplist - so search complete
+   calls are not treated as a user search and give misleading denies on logs
+ 
 
 Config changes
  - Remove safelabel from bannedphraselist - does not appears to have been adopted on web

@@ -19,8 +19,9 @@
 function(checkrequest)
 if(viruscheckset) checknoscanlists
 if(bypassallowset) checknobypasslists
-if(exceptionset) return true
-if(fullurlin,searchterms) setsearchterm
+if(exceptionset) return true 
+#if(fullurlin,searchterms) setsearchterm
+if(true) is_search_term
 ifnot(greyset) returnif localcheckrequest
 if(connect) return sslrequestcheck
 ifnot(greyset) returnif exceptioncheck
@@ -65,7 +66,8 @@ function(icap-checkrequest2)
 if(viruscheckset) checknoscanlists
 if(bypassallowset) checknobypasslists
 if(exceptionset) return true
-if(fullurlin,searchterms) setsearchterm
+#if(fullurlin,searchterms) setsearchterm
+if(true) is_search_term
 ifnot(greyset) returnif localcheckrequest
 ifnot(greyset) returnif exceptioncheck
 ifnot(greyset) greycheck
@@ -276,5 +278,15 @@ if(true) setautomitm
 #  Placeholder function - overide in fn.story
 function(checktimesblocked)
 
+# Entry function to check if to log
+# returns true if log entry is to be made
+# This can be overriden in site.story (or fn.story) to log all for testing.
+function(checklogging)
+if(urlin,nolog) setnolog
+if(returnset) return false
+if(true) return true
 
-
+function(is_search_term)
+if(urlin,searchtermexceptions) return false
+if(fullurlin,searchterms) setsearchterm
+if(returnset) return true
