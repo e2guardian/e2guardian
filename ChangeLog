@@ -2,7 +2,7 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.4.1
 
-August 2019 to March 2020
+August 2019 to April 2020
 
 Fixes
  - Fix #469 - remove punctuation from within phraselists when read in
@@ -29,6 +29,10 @@ New features
  - SB: Add #568 feature - give warning when defined list is not used
  - New useoriginalip option - solves issues with some apps who use non-stqndard SNI.
  - nomitm lists added for sites which refuse to be mitm.
+ - nolog lists added and actioned via new SB entry point - for clearer logs
+ - searchexception list added to override searchregexplist - so search complete
+   calls are not treated as a user search and give misleading denies on logs
+ 
 
 Config changes
  - Remove safelabel from bannedphraselist - does not appears to have been adopted on web

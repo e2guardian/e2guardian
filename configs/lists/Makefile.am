@@ -85,6 +85,11 @@ logregexpurllist \
 logsiteiplist \
 logsitelist \
 logurllist \
+nologregexpurllist \
+nologsiteiplist \
+nologsitelist \
+nologurllist \
+nologextensionlist \
 nocheckcertsiteiplist \
 nocheckcertsitelist \
 nomitmsitelist \
@@ -94,6 +99,7 @@ refererexceptionsitelist \
 refererexceptionurllist \
 responseheaderregexplist \
 searchregexplist \
+searchoverrideregexplist \
 sslsiteregexplist \
 urlredirectregexplist \
 urlregexplist \

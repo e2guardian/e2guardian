@@ -1,0 +1,4 @@
+# No Log regular expression URL list
+#
+# This acts as a list of URL regexes which, if matched, will 
+# not be logged

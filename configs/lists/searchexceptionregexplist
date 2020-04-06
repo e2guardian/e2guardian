@@ -1,0 +1,11 @@
+# This defines urls which will be not search term checked
+# Overrides searchregexplist
+#
+# The format is: "extended regular expression"
+# 
+
+#"^http://[0-9a-z]+\.google\.[a-z]+[-%.0-9a-z]*/complete"
+"^http://www.google.com/complete"
+"^http://www.google.co.uk/complete"
+
+

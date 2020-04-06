@@ -687,6 +687,11 @@ bool FOptionContainer::read(const char *filename) {
          return false;
     }
 
+    if(!StoryB.setEntry(ENT_STORYB_LOG_CHECK,"checklogging")) {
+            std::cerr << thread_id << "Required storyboard entry function 'checklogging' is missing" << std::endl;
+            return false;
+    }
+
     if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
          std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
          return false;

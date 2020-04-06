@@ -1,0 +1,31 @@
+# No Log file extension list
+
+# requests with extensions in this list will not be logged
+
+# Text/web document types
+
+.css
+
+# Image types
+
+#.bmp
+#.cod
+#.gif
+#.ief
+#.jpe
+#.jpeg
+#.jpg
+#.jfif
+#.tif
+#.tiff
+#.ras
+#.cmx
+#.ico
+#.pnm
+#.pbm
+#.pgm
+#.ppm
+#.rgb
+#.xbm
+#.xpm
+#.xwd
