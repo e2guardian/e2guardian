@@ -17,6 +17,8 @@ languagedir = '@E2DATADIR@/languages'
 # language to use from languagedir.
 language = 'ukenglish'
 
+# servername = 'my_name"
+
 #Debug Level
 #Enable debug e2guardian
 #debug one value:

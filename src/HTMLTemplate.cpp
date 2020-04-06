@@ -51,7 +51,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     RegExp re;
     // compile regexp for matching supported placeholders
     // allow optional custom placeholder string
-    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-");
+    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-");
     RegResult Rre;
     unsigned int offset;
     String result;
@@ -116,6 +116,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     unsigned int sz = html.size() - 1; // the last line can have no thingy. erm... carriage return?
     String safeurl(*url); // Take a copy of the URL so we can encode it to stop XSS
     bool safe = false;
+    String servername("");
+    servername = o.server_name;
     for (unsigned int i = 0; i < sz; i++) {
         // preserve newlines from original file
 	//
@@ -155,6 +157,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             line = safereason;
         } else if (line == "-REASONLOGGED-") {
             line = logreason;
+        } else if (line == "-SERVERNAME-") {
+            line = servername;
         } else if (line == "-USER-") {
             String safeuser(*user);
             makeURLSafe(safeuser);

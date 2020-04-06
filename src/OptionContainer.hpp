@@ -93,6 +93,7 @@ class OptionContainer
     bool no_proxy = false;
     int transparenthttps_port = 0;
     int icap_port = 0;
+    std::string server_name;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
     std::string proxy_ip;

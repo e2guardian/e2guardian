@@ -14,6 +14,7 @@ Fixes
  - Fix #590 - Storyboard parsing failing with trailing comments
 
 New features
+ - Add Server Name to Block Page #560
  - Auth list files moved into storyboard system - fixes #458
  - Improve auth plugin logic - add per-plugin default group options
  - On single list reading failure do not abort but check rest of config
