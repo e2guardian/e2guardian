@@ -1174,7 +1174,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         // to give error - depending on answer
                         // timeout -etc
                         } else {
-                            checkme.gomitm = false;   // if not automitm
+                       //     checkme.gomitm = false;   // if not automitm
                         }
                     }
                 }
