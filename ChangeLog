@@ -12,6 +12,7 @@ Fixes
  - Fix #565 - segfault when no write permission on generated certs directory
  - Fix #585 - Bypass not working with mitm https 
  - Fix #590 - Storyboard parsing failing with trailing comments
+ - Fix #595 - MITM - block page not delivered when connection to site fails
 
 New features
  - Add Server Name to Block Page #560
