@@ -988,7 +988,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         {
                             checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
                         } else {
-                            checkme.gomitm = false;   // if not automitm
+                            //checkme.gomitm = false;   // if not automitm
                         }
                     } else {
                         persistProxy = true;
