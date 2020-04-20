@@ -96,7 +96,7 @@ DataBuffer::~DataBuffer()
     }
 }
 
-// swap back to a compressed version of the data, if one exits
+// swap back to a compressed version of the data, if one exists
 // also delete uncompressed version
 // if body was decompressed but not modified, this can save bandwidth
 void DataBuffer::swapbacktocompressed()
@@ -146,7 +146,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         if (chunked) {
             rc = sock->readChunk(&buffer[pos], size - pos,sockettimeout );
         } else {
-            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
+            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, true);
         }
         if (rc < 1) {
             // none recieved or an error
@@ -251,7 +251,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         return true;
     }
-    if (!(*sock).breadyForOutput(timeout)) return false; // exceptions on timeout or error
+    if (!(*sock).readyForOutput(timeout)) return false; // exceptions on timeout or error
 
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks

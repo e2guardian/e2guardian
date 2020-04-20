@@ -366,12 +366,12 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 newsize = expectedsize - bytesgot;
             delete[] block;
             block = new char[newsize];
-            try {
-                if(!sock->bcheckForInput(d->timeout))
-                    break;
-            } catch (std::exception &e) {
-                break;
-            }
+            //try {
+                //if(!sock->bcheckForInput(d->timeout))
+                    //break;
+            //} catch (std::exception &e) {
+                //break;
+            //}
             // improved more efficient socket read which uses the buffer better
             rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout, o.trickle_delay);
             // grab a block of input, doubled each time
@@ -392,12 +392,6 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 d->buffer_length += rc; // update data size counter
             }
         } else {
-            try {
-                if(!sock->bcheckForInput(d->timeout))
-                    break;
-            } catch (std::exception &e) {
-                break;
-            }
             rc = d->bufferReadFromSocket(sock, d->data,
                 // if not getting everything until connection close, grab only what is left
                 (!geteverything && ((expectedsize - bytesgot) < d->buffer_length) ? (expectedsize - bytesgot) : d->buffer_length), d->timeout);

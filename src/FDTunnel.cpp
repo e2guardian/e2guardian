@@ -1,10 +1,10 @@
 // For all support, instructions and copyright go to:
 
-// http://e2guardian.org/ll
+// http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
 
 // This class is a generic multiplexing tunnel
-// that uses blocking select() to be as efficient as possible.  It tunnels
+// that uses blocking poll() to be as efficient as possible.  It tunnels
 // between the two supplied FDs.
 
 // INCLUDES
@@ -51,18 +51,21 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     std::cout << thread_id << "tunnelling chunked data." << std::endl;
 #endif
         int maxlen = 32000;
-        char buff[32000];
+        char sfbuff[32000];
         int timeout = sockfrom.getTimeout();
         int rd = 0;
         int total_rd = 0;
-        while ( (rd = sockfrom.readChunk(buff,maxlen,timeout)) > 0) {
-            sockto.writeChunk(buff, rd, timeout);
+        while ( (rd = sockfrom.readChunk(sfbuff,maxlen,timeout)) > 0) {
+            sockto.writeChunk(sfbuff, rd, timeout);
             total_rd += rd;
         }
         sockto.writeChunkTrailer(sockfrom.chunked_trailer);
         throughput = total_rd;
         return true;
     }
+
+    throughput = 0;
+
     if (targetthroughput == 0) {
 #ifdef E2DEBUG
         std::cout << thread_id << "No data expected, tunnelling aborted." << std::endl;
@@ -76,158 +79,249 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     else
         std::cout <<thread_id << "Tunnelling with content length " << targetthroughput << std::endl;
 #endif
-    if ((sockfrom.bufflen - sockfrom.buffstart) > 0) {
-#ifdef E2DEBUG
-        std::cout <<thread_id << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
-#endif
-        if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120000, false))
-            return false;
-           // throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-#ifdef E2DEBUG
-        std::cout <<thread_id << "Data in fdfrom's buffer; sent " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
-#endif
 
-        throughput += sockfrom.bufflen - sockfrom.buffstart;
-        sockfrom.bufflen = 0;
-        sockfrom.buffstart = 0;
-    }
+    if(twoway)
+        ignore = false;
 
     int rc, fdfrom, fdto;
 
     fdfrom = sockfrom.getFD();
     fdto = sockto.getFD();
-    fromoutfds[0].fd = fdfrom;
-    fromoutfds[0].events = POLLOUT;
-    tooutfds[0].fd = fdto;
-    tooutfds[0].events = POLLOUT;
     twayfds[0].fd = fdfrom;
-    twayfds[0].events = POLLIN;
-    twayfds[1].events = POLLIN;
-    if (ignore && !twoway) {
-        twayfds[1].fd = -1;
-        twayfds[1].revents = 0;
-    }
-    else
+    twayfds[0].events = 0;
+    twayfds[1].events = 0;
+    twayfds[0].revents = 0;  // simplifies 1st loop logic
+    twayfds[1].revents = 0;
+    //if (ignore && !twoway) {  // this porb will not work with non-block https
+     //   twayfds[1].fd = -1;
+      //  twayfds[1].revents = 0;
+    //}
+    //else
         twayfds[1].fd = fdto;
 
-    char buff[32768]; // buffer for the input
+    char sfbuff[32768]; // buffer for the input
+    char stbuff[32768]; // buffer for the return
+
     int timeout = 120000;    // should be made setable in conf files
+
+    int sfbuff_cnt = 0;
+    int stbuff_cnt = 0;
+
+    bool st_isSsl = sockto.isSsl();
+
+    bool sf_read_wait = false;
+    bool st_read_wait = false;
+    bool sf_write_wait = false;
+    bool st_write_wait = false;
+
+    short int sf_read_wait_flags = 0;
+    short int st_read_wait_flags = 0;
+    short int sf_write_wait_flags = 0;
+    short int st_write_wait_flags = 0;
 
     bool done = false; // so we get past the first while
 
+    // v5.5 changed socket logic to non-blocking so that poll is used in MITM
+    // after read/write - PP
     while (!done && (targetthroughput > -1 ? throughput < targetthroughput : true)) {
-        done = true; // if we don't make a sucessful read and write this
+        done = true; // if we don't make a successful read and write this
         // flag will stay true and so the while() will exit
 #ifdef E2DEBUG
         std::cout <<thread_id << "Start of tunnel loop: throughput:" << throughput
             << " target:"  << targetthroughput  << std::endl;
 #endif
 
-        //FD_CLR(fdto, &inset);
-
-        // TODO: Post v5.3 change socket logic to non-blocking so that poll can be used in MITM
-        // after read/write - PP
-     if (sockfrom.isSsl()) {
-      twayfds[0].revents = POLLIN;
-      twayfds[1].revents = 0;
-  } else
+        // 1st Try 'from' socket for input if not waiting for write on socket
+        //
+        if ((sfbuff_cnt == 0) && !sf_write_wait) {
+            std::cout <<thread_id << "tunnel got past 131: " << std::endl;
+            if  ((!sf_read_wait) || (twayfds[0].revents & sf_read_wait_flags))
+                std::cout <<thread_id << "tunnel got past 133: " << std::endl;
         {
-            int rc = poll(twayfds, 2, timeout);
-            if (rc < 1) {
-#ifdef E2DEBUG
-                std::cout <<thread_id << "tunnel tw poll returned error or timeout::" << rc
-                  << std::endl;
-#endif
-                break; // an error occurred or it timed out so end while()
-            }
-#ifdef E2DEBUG
-            std::cout <<thread_id << "tunnel tw poll returned ok:" << rc
-                  << std::endl;
-#endif
-                  }
+            if (targetthroughput > -1)
+                // we have a target throughput - only read in the exact amount of data we've been told to
+                sfbuff_cnt = sockfrom.readFromSocket(sfbuff, (((int)sizeof(sfbuff) < ((targetthroughput - throughput) )) ? sizeof(sfbuff) : (targetthroughput - throughput) ), 0, 0, true);
+            else
+                sfbuff_cnt = sockfrom.readFromSocket(sfbuff, sizeof(sfbuff), 0, 0, true);
 
-            if (twayfds[0].revents & (POLLIN | POLLHUP))
-            {
-                if (targetthroughput > -1)
-                    // we have a target throughput - only read in the exact amount of data we've been told to
-                    // plus 2 bytes to "solve" an IE post bug with multipart/form-data forms:
-                    // adds an extra CRLF on certain requests, that it doesn't count in reported content-length
-                    rc = sockfrom.readFromSocket(buff, (((int)sizeof(buff) < ((targetthroughput - throughput) /*+2*/)) ? sizeof(buff) : (targetthroughput - throughput) /* + 2*/), 0, 0);
-                else
-                    rc = sockfrom.readFromSocket(buff, sizeof(buff), 0, 0);
-
-                // read as much as is available
-                if (rc < 0) {
+            if (sfbuff_cnt < 0) {
+                sfbuff_cnt = 0;
+                if (sockfrom.isTimedout()) { //do data yet
+                sf_read_wait = true;
+                sf_read_wait_flags = sockfrom.get_wait_flag(false);
+                done = false;
+                } else if(sockfrom.sockError()) {
                     break; // an error occurred so end the while()
-                } else if (!rc) {
-                    done = true; // none received so pipe is closed so flag it
-                } else { // some data read
+                }
+            } else if (sfbuff_cnt == 0) {
+                done = true; // none received so pipe is closed so flag it
+                        break;
+            } else { // some data read
 #ifdef E2DEBUG
-                    std::cout <<thread_id << "tunnel got data from sockfrom: " << rc << " bytes"
-                        << std::endl;
+            std::cout <<thread_id << "tunnel got data from sockfrom: " << sfbuff_cnt << " bytes"
+                    << std::endl;
 #endif
-                    throughput += rc; // increment our counter used to log
-                    if (poll (tooutfds,1, timeout ) < 1)
-                     {
-                        break; // an error occurred or timed out so end while()
-                    }
+            throughput += sfbuff_cnt; // increment our counter used to log
+            sf_read_wait = false;
+                done = false;
+        }
+        }
+    }
 
-                     if (tooutfds[0].revents & POLLOUT)
-                        {
-                            if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
-                            break; // was an error writing
-                            }
-#ifdef E2DEBUG
-                         std::cout <<thread_id << "tunnel wrote data out: " << rc << " bytes"
-                        << std::endl;
-#endif
-                        done = false; // flag to say data still to be handled
-                    } else {
-                        break; // should never get here
+        // 2nd try 'to' socket for input
+        //  IF twoway get input from 'to' socket if no write waiting on socket
+        //  else if ignore not set if any pending input in buffer stop tunneling
+
+        if (twoway) {
+            if ((stbuff_cnt == 0 && !st_write_wait) && (!st_read_wait || (twayfds[1].revents & st_read_wait_flags))) {
+
+                stbuff_cnt = sockto.readFromSocket(stbuff, sizeof(stbuff), 0, 0, true);
+                std::cout <<thread_id << "tunnel got return rom sockto:read " << stbuff_cnt << " bytes"
+                          << std::endl;
+
+                if (stbuff_cnt < 0) {
+                    stbuff_cnt = 0;
+                    if (sockto.isTimedout()) { //do data yet
+                        st_read_wait = true;
+                        st_read_wait_flags = sockto.get_wait_flag(false);
+                        done = false;
+                    } else if(sockto.sockError()) {
+                        break; // an error occurred so end the while()
                     }
+                } else if (stbuff_cnt == 0) {
+                    done = true; // none received so pipe is closed so flag it
+                            break;
+                } else { // some data read
+                    #ifdef E2DEBUG
+                    std::cout <<thread_id << "tunnel got data from sockto: " << stbuff_cnt << " bytes"
+                                                                                              << std::endl;
+                    #endif
+                    throughput += stbuff_cnt;
+                    st_read_wait = false;
+                    done = false;
                 }
             }
-            if ( twayfds[1].revents & (POLLIN | POLLHUP))
-            {
-                if (!twoway) {
-    // since HTTP works on a simple request/response basis, with no explicit
-    // communications from the client until the response has been completed
-    // (just TCP cruft, which is of no interest to us here), tunnels only
-    // need to be one way. As soon as the client tries to send data, break
-    // the tunnel, as it will be a new request, possibly to an entirely
-    // different webserver. PRA 2005-11-14
-#ifdef E2DEBUG
-                    std::cout <<thread_id << "fdto is sending data; closing tunnel. (This must be a persistent connection.)" << std::endl;
-#endif
-                    break;
-                }
+        } else {  // !twoway = one way
+            if(!ignore) {
+                if (st_isSsl) {
+                    if (SSL_pending(sockto.ssl) > 0)
+                        break;
+                } else
+                {   // not ssl
+                    if(twayfds[1].revents & POLLIN)  // can't use this for ssl as POLLIN may be for a write
+                        break;
 
-                // read as much as is available
-                rc = sockto.readFromSocket(buff, sizeof(buff), 0, 0);
-
-                if (rc < 0) {
-                    break; // an error occurred so end the while()
-                } else if (!rc) {
-                    done = true; // none received so pipe is closed so flag it
-                    break;
-                } else { // some data read
-                    if (poll (fromoutfds,1, timeout ) < 1)
-                    {
-                        break; // an error occurred or timed out so end while()
-                    }
-
-                        if (fromoutfds[0].revents & POLLOUT)
-                        {
-                        if (!sockfrom.writeToSocket(buff, rc, 0, 0, false)) { // write data
-                            break; // was an error writing
-                        }
-                        done = false; // flag to say data still to be handled
-                    } else {
-                        break; // should never get here
-                    }
                 }
             }
         }
+
+        // 3rd try and write to 'to' socket if any data in buffer
+
+        if ((sfbuff_cnt > 0) && (!st_write_wait || (twayfds[1].revents & st_write_wait_flags))) {
+
+            if(!sockto.writeToSocket(sfbuff, sfbuff_cnt, 0, 0)){
+                if (sockto.isTimedout()) { //do data yet
+                    st_write_wait = true;
+                    st_write_wait_flags = sockto.get_wait_flag(true);
+                    done = false;
+                } else if(sockto.sockError()) {
+                    break; // an error occurred so end the while()
+                }
+            } else { // data written
+#ifdef E2DEBUG
+                std::cout <<thread_id << "tunnel wrote data out: " << sfbuff_cnt << " bytes"
+                        << std::endl;
+#endif
+                st_write_wait = false;
+                sfbuff_cnt = 0;
+                done = false;
+            }
+        }
+
+        // 4th try and write to 'from' socket if any data in buffer
+
+        if ((stbuff_cnt > 0) && (!sf_write_wait || (twayfds[0].revents & sf_write_wait_flags))) {
+
+            if(!sockfrom.writeToSocket(stbuff, stbuff_cnt, 0, 0)){
+                if (sockfrom.isTimedout()) { //do data yet
+                    sf_write_wait = true;
+                    sf_write_wait_flags = sockfrom.get_wait_flag(true);
+                    done = false;
+                } else if(sockfrom.sockError()) {
+                    break; // an error occurred so end the while()
+                }
+            } else { // data written
+#ifdef E2DEBUG
+                std::cout <<thread_id << "tunnel wrote data out: " << stbuff_cnt << " bytes"
+                        << std::endl;
+#endif
+                sf_write_wait = false;
+                stbuff_cnt = 0;
+                done = false;
+            }
+        }
+
+        // 4th Break if either socket is hung up - has to be done after read as data can be pending when hung up
+
+        if((twayfds[0].revents & POLLHUP) || (twayfds[1].revents & POLLHUP)) {
+            break;
+        }
+
+        std::cout <<thread_id << " sf_ww is " << sf_write_wait << " st_ww is "  << st_write_wait << " sf_rw is " << sf_read_wait <<
+                 " st_rw is "  << st_read_wait
+                  << std::endl;
+         std::cout <<thread_id << " sf_ww_f is " << sf_write_wait_flags << " st_ww_f is "  << st_write_wait_flags << " sf_rw_f is " << sf_read_wait_flags <<
+                  " st_rw_f is "  << st_read_wait_flags
+                  << std::endl;
+
+    // 5th set up and do poll
+
+    twayfds[0].events = 0;
+    if(sf_write_wait)
+        twayfds[0].events = sf_write_wait_flags;
+    else if (sf_read_wait)
+        twayfds[0].events = sf_read_wait_flags;
+//    else
+//        twayfds[0].events = POLLIN; // set for read to avoid deadlock
+
+    twayfds[1].events = 0;
+    if(st_write_wait)
+        twayfds[1].events = st_write_wait_flags;
+    else if (st_read_wait)
+        twayfds[1].events = st_read_wait_flags;
+//    else
+//        twayfds[1].events = POLLIN; // set for read to avoid deadlock
+
+    if (!(twayfds[0].events | twayfds[1].events))  // no pol to do
+        continue;
+
+    if(twayfds[0].events == 0)
+        twayfds[0].events = POLLIN; // set for read to avoid deadlock
+
+    if(!ignore && (twayfds[1].events == 0))
+        twayfds[1].events = POLLIN; // set for read to avoid deadlock
+
+    int rc = poll(twayfds, 2, timeout);
+    if (rc < 1) {
+#ifdef E2DEBUG
+        std::cout <<thread_id << "tunnel tw poll returned error or timeout::" << rc
+          << std::endl;
+#endif
+        break; // an error occurred or it timed out so end while()
+    }
+
+#ifdef E2DEBUG
+            std::cout <<thread_id << "tunnel tw poll returned ok:" << rc
+                  << std::endl;
+            std::cout <<thread_id << "tunnel tw poll returned revents:" << twayfds[0].revents << " " << twayfds[1].revents
+                  << std::endl;
+#endif
+        if((twayfds[0].revents & POLLERR) || (twayfds[1].revents & POLLERR)) {
+            break;
+        }
+    done = false;
+    }
+
 #ifdef E2DEBUG
         if ((throughput >= targetthroughput) && (targetthroughput > -1))
             std::cout <<thread_id << "All expected data tunnelled. (expected " << targetthroughput << "; tunnelled " << throughput << ")" << std::endl;

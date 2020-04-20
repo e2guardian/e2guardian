@@ -17,7 +17,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include "openssl/ssl.h"
 
+#define SCK_READ_BUFF_SIZE 4096
 
 class BaseSocket
 {
@@ -55,26 +57,22 @@ class BaseSocket
     virtual BaseSocket *accept() = 0;
 
     // non-blocking check for input data
-    bool checkForInput();
-    bool bcheckForInput(int timeout);
+    bool checkForInput(int timeout = 0);
     // non-blocking check for writable socket
-    bool readyForOutput();
-    // blocking check, can break on config reloads
-    bool breadyForOutput(int timeout);
-    //void readyForOutput(int timeout, bool honour_reloadconfig = false) throw(std::exception);
-    //void readyForOutput(int timeout, bool honour_reloadconfig ) throw(std::exception);
+    //bool readyForOutput();
+    // blocking check
+    bool readyForOutput(int timeout);
 
     // get a line from the socket - can break on config reloads
-    int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL);
+    int getLine(char *buff, int size, int timeout, bool *chopped = NULL, bool *truncated = NULL);
 
     // write buffer to string - throws std::exception on error
     bool writeString(const char *line); //throw(std::exception);
-    // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
-    bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
+    // write buffer to string
+    bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout);
     // read from socket, returning number of bytes read
-    int readFromSocket(char *buff, int len, unsigned int flags, int timeout);
-    // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
-    //int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
+    int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part = false);
+    short int get_wait_flag(bool write_flag);
 
     protected:
     // socket-wide timeout
@@ -89,7 +87,7 @@ class BaseSocket
     bool sockerr;
     bool timedout;
     // internal buffer
-    char buffer[4096];
+    char buffer[SCK_READ_BUFF_SIZE];
     int buffstart;
     int bufflen;
     struct pollfd infds[1];

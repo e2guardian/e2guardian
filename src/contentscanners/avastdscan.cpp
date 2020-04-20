@@ -205,10 +205,10 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         // Following these lines there is a blank line which signals the end of data
         // transter from the daemon side.
 
-        for (rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, false, NULL, &truncated);
+        for (rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, NULL, &truncated);
              rc > 0 && !truncated && buffer[0] != '\r';
 
-             rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, false, NULL, &truncated)) {
+             rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, NULL, &truncated)) {
 #ifdef E2DEBUG
             std::cerr << thread_id << "Got from avastd: " << encode(buffer) << std::endl;
 #endif

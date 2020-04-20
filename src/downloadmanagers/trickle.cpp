@@ -225,12 +225,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 newsize = bytesremaining;
             delete[] block;
             block = new char[newsize];
-            try {
-                if(!sock->bcheckForInput(d->timeout))
-                    break;
-            } catch (std::exception &e) {
-                break;
-            }
+
             // improved more efficient socket read which uses the buffer better
             rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
             // grab a block of input, doubled each time
@@ -252,12 +247,6 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 d->buffer_length += rc; // update data size counter
             }
         } else {
-            try {
-                if(!sock->bcheckForInput(d->timeout))
-                    break;
-            } catch (std::exception &e) {
-                break;
-            }
             rc = d->bufferReadFromSocket(sock, d->data,
                 // if not getting everything until connection close, grab only what is left
                 (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining : d->buffer_length), d->timeout);

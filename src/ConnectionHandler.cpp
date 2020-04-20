@@ -1171,7 +1171,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
                 if (!checkme.upfailure) {
-                    if (!proxysock.breadyForOutput(o.proxy_timeout)) {
+                    if (!proxysock.readyForOutput(o.proxy_timeout)) {
                         upstreamDiag("Unable to write upstream", proxysock);
                         break;
                     }
@@ -2125,7 +2125,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
     // we blocked the request, so flush the client connection & close the proxy connection.
     if ((*checkme).isItNaughty) {
-        (*peerconn).breadyForOutput(o.proxy_timeout); //as best a flush as I can
+        (*peerconn).readyForOutput(o.proxy_timeout); //as best a flush as I can
         (*proxysock).close(); // close connection to proxy
         // we said no to the request, so return true, indicating exit the connhandler
         return true;

@@ -666,7 +666,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             }
 #endif
 
-            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL, &truncated);
+            rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);
 #ifndef NEWDEBUG_OFF
             if(o.myDebug->ICAP)
             {
@@ -691,7 +691,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 return false;
             }
         } else {
-            rc = sock->getLine(buff, 32768, timeout, firsttime ? honour_reloadconfig : false, NULL,
+            rc = sock->getLine(buff, 32768, timeout, NULL,
                                &truncated);   // timeout reduced to 100ms for lines after first
             if (rc == 0) return false;
             if (rc < 0 || truncated) {

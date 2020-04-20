@@ -66,6 +66,7 @@ class Socket : public BaseSocket
     int loopChunk(int timeout);
     int drainChunk(int timeout);
     void resetChunk();
+    short int get_wait_flag(bool write_flag);
 
     bool chunkError;
 
@@ -95,26 +96,25 @@ class Socket : public BaseSocket
     int startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher);
 
     // blocking check, can break on config reloads
-    void readyForOutput(int timeout, bool honour_reloadconfig = false);
+    //void readyForOutput(int timeout, bool honour_reloadconfig = false);
 
     // non-blocking check for input data
     bool checkForInput();
-    bool bcheckForInput(int timeout);
+    //bool bcheckForInput(int timeout);
+    bool ssl_poll_wait(int eno, int timeout);
 
     // get a line from the socket - can break on config reloads
-    int getLine(char *buff, int size, int timeout, bool honour_reloadconfig = false, bool *chopped = NULL, bool *truncated = NULL) ;
+    int getLine(char *buff, int size, int timeout, bool *chopped = NULL, bool *truncated = NULL) ;
 
     // write buffer to string
     bool writeString(const char *line);
     bool writeString(std::string line);
 
-    // write buffer to string - can be told not to do an initial readyForOutput, and told to break on -r
-    bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);
+    // write buffer to string
+    bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout);
     // read from socket, returning number of bytes read
 
-    int readFromSocket(char *buff, int len, unsigned int flags, int timeout);
-    // read from socket, returning error status - can be told to skip initial checkForInput, and to break on -r
-    //int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool check_first = true, bool honour_reloadconfig = false);\
+    int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part = false);
 
     bool getIeof();
 

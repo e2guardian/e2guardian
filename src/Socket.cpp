@@ -46,7 +46,7 @@ Socket::~Socket() {
     close();
 }
 
-// constructor - create an INET socket & clear address structs
+// constructor - create an INET socket & clear address structures
 Socket::Socket() {
     sck = socket(AF_INET, SOCK_STREAM, 0);
     if (sck < 0) {
@@ -73,7 +73,7 @@ Socket::Socket() {
 }
 
 // create socket from pre-existing FD (address structs will be invalid!)
-Socket::Socket(int fd)
+Socket::Socket(int fd)    //not used!!!!
         : BaseSocket(fd) {
     memset(&my_adr, 0, sizeof my_adr);
     memset(&peer_adr, 0, sizeof peer_adr);
@@ -114,6 +114,7 @@ Socket::Socket(int newfd, struct sockaddr_in myip, struct sockaddr_in peerip)
     ctx = NULL;
     isssl = false;
     issslserver = false;
+    fcntl(sck, F_SETFL, O_NONBLOCK);
 }
 
 // find the ip to which the client has connected
@@ -185,7 +186,6 @@ int Socket::connect(const std::string &ip, int port) {
     peer_adr.sin_port = htons(port);
     inet_aton(ip.c_str(), &peer_adr.sin_addr);
     my_port = port;
-    // make non-blocking for connect only so that we can timeout connect
     fcntl(sck, F_SETFL, O_NONBLOCK);
     s_errno = 0;
     errno = 0;
@@ -200,7 +200,7 @@ int Socket::connect(const std::string &ip, int port) {
         } else if (rc < 0) {
             s_errno = errno;
             ret = -1;
-        } else {  // ret == 1
+        } else {
             int so_error;
             socklen_t len = sizeof so_error;
             getsockopt(sck, SOL_SOCKET, SO_ERROR, &so_error, &len);
@@ -213,7 +213,6 @@ int Socket::connect(const std::string &ip, int port) {
             }
         }
     }
-    fcntl(sck, F_SETFL, 0);  // make blocking again
     if (ret < 0) close();
     return ret;
 }
@@ -250,7 +249,6 @@ Socket *Socket::accept() {
     peer_adr_length = sizeof(struct sockaddr_in);
     s_errno = 0;
     errno = 0;
-//    int newfd = this->baseAccept((struct sockaddr *)&peer_adr, &peer_adr_length);
     int newfd = ::accept(sck, (struct sockaddr *) &peer_adr, &peer_adr_length);
 
     if (newfd > 0) {
@@ -300,7 +298,6 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
             std::cout << thread_id << "couldnt load certificates" << std::endl;
 #endif
             log_ssl_errors("couldnt load certificates from %s", certificate_path.c_str());
-            //tidy up
             SSL_CTX_free(ctx);
             ctx = NULL;
             return -2;
@@ -311,7 +308,6 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         std::cout << thread_id << "couldnt load certificates" << std::endl;
 #endif
             log_ssl_errors("couldnt load default certificates for %s", hostname.c_str());
-        //tidy up
         SSL_CTX_free(ctx);
         ctx = NULL;
         return -2;
@@ -322,7 +318,6 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     X509_VERIFY_PARAM *x509_param = X509_VERIFY_PARAM_new();
     if (!x509_param) {
         log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
-        //X509_VERIFY_PARAM_free(x509_param);
             SSL_CTX_free(ctx);
             ctx = NULL;
         return -2;
@@ -346,38 +341,46 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         return -2;
     }
 
-    X509_VERIFY_PARAM_free(x509_param);     // try not freeing this as SSL_CTX_free seems to be ring to free it
+    //X509_VERIFY_PARAM_free(x509_param);     // try not freeing this as SSL_CTX_free seems to be ring to free it
 
     //hand socket over to ssl lib
     ERR_clear_error();
     ssl = SSL_new(ctx);
     SSL_set_options(ssl, SSL_OP_ALL);
-    SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
     SSL_set_connect_state(ssl);
 
-    //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK); // blocking mode used currently
     SSL_set_fd(ssl, this->getFD());
     SSL_set_tlsext_host_name(ssl, hostname.c_str());
 
-    //make io non blocking as select wont tell us if we can do a read without blocking
-    //BIO_set_nbio(SSL_get_rbio(ssl),1l);  // blocking mode used currently
-    //BIO_set_nbio(SSL_get_wbio(ssl),1l); // blocking mode used currently
-    ERR_clear_error();
-    int rc = SSL_connect(ssl);
-    if (rc < 0) {
-        log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
-#ifdef NETDEBUG
-        std::cout << thread_id << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
-#endif
-        // tidy up
-        SSL_free(ssl);
-        ssl = NULL;
-        SSL_CTX_free(ctx);
-        ctx = NULL;
-        return -3;
-    }
+    int rc = 0;
+    while (rc != 1) {
+        ERR_clear_error();
+        rc = SSL_connect(ssl);
+        std::cout << thread_id << "ssl_connect returned " << rc << std::endl;
 
-    //should be safer to do this last as nothing will ever try to use a ssl socket that isnt fully setup
+        if (rc != 1) {
+            s_errno = SSL_get_error(ssl,rc);
+            std::cout << thread_id << "ssl_connect s_error is " << s_errno << std::endl;
+            switch (s_errno) {
+                case SSL_ERROR_WANT_READ:
+                case SSL_ERROR_WANT_WRITE:
+                    if (ssl_poll_wait(s_errno, timeout)) continue;
+                    timedout = true;
+                default:
+                    log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
+#ifdef NETDEBUG
+                    std::cout << thread_id << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
+#endif
+                    // tidy up
+                    SSL_free(ssl);
+                    ssl = NULL;
+                    SSL_CTX_free(ctx);
+                    ctx = NULL;
+                    return -3;
+            }
+        }
+        }
+
     isssl = true;
     issslserver = false;
     return 0;
@@ -556,7 +559,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     ERR_clear_error();
     ssl = SSL_new(ctx);
     SSL_set_options(ssl, SSL_OP_ALL);
-    SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
+   // SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
     SSL_set_accept_state(ssl);
 
     ERR_clear_error();
@@ -569,17 +572,29 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         return -1;
     };
 
-    //make io non blocking as select wont tell us if we can do a read without blocking
-
-    ERR_clear_error();
-    if (SSL_accept(ssl) < 0) {
+    int rc = 0;
+    while (rc != 1) {
+        ERR_clear_error();
+        rc = SSL_accept(ssl);
+        std::cout << thread_id << "accepting returns " << rc << std::endl;
+        if (rc != 1) {
+                s_errno = SSL_get_error(ssl,rc);
+                switch (s_errno) {
+                    case SSL_ERROR_WANT_READ:
+                        case SSL_ERROR_WANT_WRITE:
+                        if (ssl_poll_wait(s_errno, timeout)) continue;
+                        timedout = true;
+                        return -1;
+                    default:
 #ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error accepting ssl connection" << std::endl;
+                        //syslog(LOG_ERR, "error creating ssl context\n");
+                        std::cout << thread_id << "Error accepting ssl connection error is " << s_errno << std::endl;
 #endif
-        log_ssl_errors("ssl_accept failed to client %s", "");
-        cleanSsl();
-        return -1;
+                        log_ssl_errors("ssl_accept failed to client %s", "");
+                        cleanSsl();
+                        return -1;
+                }
+        }
     }
 
     ERR_clear_error();
@@ -592,15 +607,12 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         cleanSsl();
         return -1;
     }
+    SSL_clear_mode(ssl, SSL_MODE_AUTO_RETRY);
     isssl = true;
     issslserver = true;
     return 0;
 }
 
-//modify all of these to use SSL_write(ssl,buf,len) and SSL_read(ssl,buf,buflen)
-
-//have to replace checkforinput as the ssl session will constantly generate traffic even if theres no real data
-// non-blocking check to see if there is data waiting on socket
 bool Socket::checkForInput()
 {
     if (!isssl) {
@@ -616,13 +628,6 @@ bool Socket::checkForInput()
         return true;
     }
 
-    if (!BaseSocket::checkForInput())
-        return false;
-
-    //see if we can do an ssl read of 1 byte
-//    char buf[1];
-
-    //int rc = SSL_peek(ssl, buf, 1);
     int rc = SSL_pending(ssl);
 
     if (rc < 1) {
@@ -639,43 +644,18 @@ bool Socket::checkForInput()
     return true;
 }
 
-bool Socket::bcheckForInput(int timeout)
-{
-    if (!isssl) {
-        return BaseSocket::bcheckForInput(timeout);
-    }
-    return true;
-}
 
-#ifdef NOTDEF
-bool Socket::readyForOutput()
-{
-    //if (!isssl) {
-        return BaseSocket::readyForOutput();
-    //}
-
-    //cant do this on a blocking ssl socket as far as i can work out
-
-    //return true;
-}
-#endif
-
-
-
-// read a line from the socket, can be told to break on config reloads
-int Socket::getLine(char *buff, int size, int timeout, bool honour_reloadconfig, bool *chopped, bool *truncated)
+// read a line from the socket
+int Socket::getLine(char *buff, int size, int timeout, bool *chopped, bool *truncated)
 {
 try {
     if (!isssl) {
-        return BaseSocket::getLine(buff, size, timeout, honour_reloadconfig, chopped, truncated);
+        return BaseSocket::getLine(buff, size, timeout, chopped, truncated);
     }
 
     // first, return what's left from the previous buffer read, if anything
     int i = 0;
     if ((bufflen - buffstart) > 0) {
-        /*#ifdef NETDEBUG
-        std::cout << thread_id << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif*/
         int tocopy = size - 1;
         if ((bufflen - buffstart) < tocopy)
             tocopy = bufflen - buffstart;
@@ -695,31 +675,34 @@ try {
     while (i < (size - 1)) {
         buffstart = 0;
         bufflen = 0;
- //       try {
- //            checkForInput(timeout, honour_reloadconfig);
- //       } catch (std::exception &e) {
-//            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
- //       }
-//        if( bcheckSForInput(timeout))
-            bufflen = SSL_read(ssl, buffer, 4096);
+        bufflen = SSL_read(ssl, buffer, SCK_READ_BUFF_SIZE);
 #ifdef NETDEBUG
-//std::cout << thread_id << "read into buffer; bufflen: " << bufflen <<std::endl;
+std::cout << thread_id << "read into buffer; bufflen: " << bufflen <<std::endl;
 #endif
-        if (bufflen < 0) {
-  //          if (errno == EINTR ) {
-   //             continue;
-    //        }
-            std::cout << thread_id << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
-            log_ssl_errors("ssl_read failed %s", "");
-            return -1;
-//            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
-        }
-        //if socket closed...
-        if (bufflen == 0) {
-            buff[i] = '\0'; // ...terminate string & return what read
-            if (truncated)
-                *truncated = true;
-            return i;
+        if (bufflen < 1) {
+            s_errno = SSL_get_error(ssl,bufflen);
+            std::cout << thread_id << "read into buffer; s_errno: " << s_errno <<std::endl;
+
+            switch (s_errno) {
+                case SSL_ERROR_WANT_READ:
+                    case SSL_ERROR_WANT_WRITE:
+                    if (ssl_poll_wait(s_errno, timeout)) continue;
+                    timedout = true;
+                    return -1;
+                case SSL_ERROR_ZERO_RETURN:  // eof
+                    ishup = true;
+                    buff[i] = '\0'; // ...terminate string & return what read
+                    if (truncated)
+                        *truncated = true;
+                    return i;
+                default:
+                    log_ssl_errors("ssl_read failed %s", "");
+#ifdef NETDEBUG
+                std::cout << thread_id << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
+#endif
+                    ishup = true;
+                    return -1;
+            }
         }
         int tocopy = bufflen;
         if ((i + bufflen) > (size - 1))
@@ -745,7 +728,7 @@ try {
 }
 
 // write line to socket
-bool Socket::writeString(const char *line) //throw(std::exception)
+bool Socket::writeString(const char *line)
 {
     int l = strlen(line);
     return writeToSocket(line, l, 0, timeout);
@@ -758,113 +741,53 @@ bool Socket::writeString(std::string line)
     return writeToSocket(line.c_str(), l, 0, timeout);
 }
 
-// write data to socket - can be told not to do an initial readyForOutput, and to break on config reloads
-bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout, bool check_first, bool honour_reloadconfig)
+// write data to socket
+bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout)
 {
     if (len == 0)   // nothing to write
         return true;
     if (!isssl) {
-        return BaseSocket::writeToSocket(buff, len, flags, timeout, check_first, honour_reloadconfig);
+        return BaseSocket::writeToSocket(buff, len, flags, timeout);
     }
 
     int actuallysent = 0;
     int sent;
     while (actuallysent < len) {
-       if (check_first) {
-    //        try {
-                if(!breadyForOutput(timeout))
-                   return false;
-     //       } catch (std::exception &e) {
-      //          return false;
-       //     }
-        }
         ERR_clear_error();
         sent = SSL_write(ssl, buff + actuallysent, len - actuallysent);
-        if (sent < 0) {
-    //        if (errno == EINTR ) {
-    //            continue; // was interupted by signal so restart
-    //        }
-            s_errno = errno;
-            String serr(s_errno);
-            log_ssl_errors("ssl_write failed - error ",serr.c_str());
-            return false;
-        }
-        if (sent == 0) {
-            ishup = true;
-            return false; // other end is closed
+        if (sent < 1) {
+            s_errno = SSL_get_error(ssl,sent);
+            switch (s_errno) {
+                case SSL_ERROR_WANT_READ:
+                    case SSL_ERROR_WANT_WRITE:
+                    if (ssl_poll_wait(s_errno, timeout)) continue;
+                    timedout = true;
+                    return -1;
+                case SSL_ERROR_ZERO_RETURN:  // eof
+                    ishup = true;
+                    return false;
+                default:
+                    String serr(s_errno);
+                    log_ssl_errors("ssl_write failed - error ",serr.c_str());
+#ifdef NETDEBUG
+                    std::cout << thread_id << "ssl_write failed" << s_errno << " failed to write" << std::endl;
+#endif
+                    ishup = true;
+                    return false;
+            }
+
         }
         actuallysent += sent;
     }
     return true;
 }
 
-// read a specified expected amount and return what actually read
-//int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout)
-//{
- //   return readFromSocket(buff, len, flags, timeout, true, false);
-
-
-#ifdef NODEF
-    if (!isssl) {
-        return BaseSocket::readFromSocketn(buff, len, flags, timeout);
-    }
-
-    int cnt, rc;
-    cnt = len;
-
-    // first, return what's left from the previous buffer read, if anything
-    if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Socket::readFromSocketn: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
-        int tocopy = len;
-        if ((bufflen - buffstart) < len)
-            tocopy = bufflen - buffstart;
-        memcpy(buff, buffer + buffstart, tocopy);
-        cnt -= tocopy;
-        buffstart += tocopy;
-        buff += tocopy;
-        if (cnt == 0)
-            return len;
-    }
-
-    while (cnt > 0) {
-    //    try {
-            //bcheckSForInput(timeout);        //  this may be wrong - why is data not being read into socket buffer????
-    //    } catch (std::exception &e) {
-     //       return -1;
-     //   }
-        ERR_clear_error();
-        rc = SSL_read(ssl, buff, cnt);
-#ifdef NETDEBUG
-        std::cout << thread_id << "ssl read said: " << rc << std::endl;
-#endif
-
-        if (rc < 0) {
-       //     if (errno == EINTR) {
-         //       continue;
-           // }
-            log_ssl_errors("ssl_read failed %s", "");
-           s_errno = errno;
-            return -1;
-        }
-        if (rc == 0) { // eof
-             ishup = true;
-            return len - cnt;
-        }
-        buff += rc;
-        cnt -= rc;
-    }
-    return len;
-#endif
-//}
-// read what's available and return error status - can be told not to do an initial checkForInput, and to break on reloads
-int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout )
+int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part )
 {
     if (len == 0)  // nothing to read
          return 0;
     if (!isssl) {
-        return BaseSocket::readFromSocket(buff, len, flags, timeout);
+        return BaseSocket::readFromSocket(buff, len, flags, timeout, ret_part);
     }
 
     // first, return what's left from the previous buffer read, if anything
@@ -881,39 +804,40 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout 
         cnt -= tocopy;
         buffstart += tocopy;
         buff += tocopy;
+        if(ret_part) return tocopy;
         if (cnt == 0)
             return len;
     }
 
     int rc;
     while (cnt > 0) {
-    //if (check_first) {
-          //if(!bcheckSForInput(timeout))
-            //return -1;
-   //}
-//    while (true)
         bool inbuffer;
         ERR_clear_error();
-        if(true) {   //   was if (cnt > 4095)
-            inbuffer = false;
-           rc = SSL_read(ssl, buff, cnt);        //  data larger than SSL buffer so ok to read directly into output buffer
-        } else {
-            inbuffer = true;
-           rc = SSL_read(ssl, buffer, 4096);   // read into socket buffer to flush SSL buffer
-        }
 
-        if (rc < 0) {
-            s_errno = errno;
-            log_ssl_errors("ssl_read failed %s", "");
+        inbuffer = false;
+        rc = SSL_read(ssl, buff, cnt);
+
+        if (rc < 1) {
+            s_errno = SSL_get_error(ssl,rc);
+            switch (s_errno) {
+                case SSL_ERROR_WANT_READ:
+                   case SSL_ERROR_WANT_WRITE:
+                    if (ssl_poll_wait(s_errno, timeout)) continue;
+                    timedout = true;
+                    return -1;
+                case SSL_ERROR_ZERO_RETURN:  // eof
+                    ishup = true;
+                    return len - cnt;
+                default:
+                    log_ssl_errors("ssl_read failed %s", "");
 #ifdef NETDEBUG
-        std::cout << thread_id << "ssl_read failed" << s_errno << " failed to read " << cnt << " bytes" << std::endl;
+                    std::cout << thread_id << "ssl_read failed" << s_errno << " failed to read " << cnt << " bytes" << std::endl;
 #endif
-            rc = 0;
+                    ishup = true;
+                    return len - cnt;
+            }
+
         }
-        if (rc == 0) { // eof
-             ishup = true;
-             return len - cnt;
-             }
 
         if (inbuffer) {
 #ifdef NETDEBUG
@@ -937,11 +861,10 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout 
          } else {
         buff += rc;
         cnt -= rc;
+        if(ret_part) return len - cnt;
          }
- //       break;
     }
 
-//    return rc + tocopy;
       return len;
 }
 
@@ -1110,4 +1033,74 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
 
 bool Socket::getIeof() {
     return ieof;
+}
+
+
+bool Socket::ssl_poll_wait(int serr, int timeout) {
+    if(timeout == 0) {
+        timedout = true;
+        return false;
+    }
+    int rc;
+    s_errno = 0;
+    if (serr == SSL_ERROR_WANT_READ) {
+        if (isNoRead())
+            return false;
+        errno = 0;
+        rc = poll(infds, 1, timeout);
+        if (rc == 0) {
+            timedout = true;
+            return false;   //timeout
+        }
+        timedout = false;
+        if (rc < 0) {
+            s_errno = errno;
+            sockerr = true;
+            return false;
+        }
+        if (infds[0].revents & POLLHUP) {
+            ishup = true;
+        }
+        if ((infds[0].revents & (POLLHUP | POLLIN))) {
+            return true;
+        }
+        sockerr = true;
+        return false;   // must be POLLERR or POLLNVAL
+    } else { //must be SSL_ERROR_WANT_WRITE
+        if (isNoWrite())
+            return false;
+        errno = 0;
+        rc = poll(outfds, 1, timeout);
+        if (rc == 0) {
+            timedout = true;
+            return false;   //timeout
+        }
+        timedout = false;
+        if (rc < 0) {
+            s_errno = errno;
+            sockerr = true;
+            return false;
+        }
+        if (infds[0].revents & POLLHUP) {
+            ishup = true;
+        }
+        if ((infds[0].revents & (POLLHUP | POLLOUT))) {
+            return true;
+        }
+    }
+}
+
+short int Socket::get_wait_flag(bool write_flag) {
+    if (!isssl)
+        return BaseSocket::get_wait_flag(write_flag);
+    if(timedout) {
+        if (s_errno == SSL_ERROR_WANT_READ) {
+            timedout = false;
+            return POLLIN;
+        } else if (s_errno == SSL_ERROR_WANT_WRITE) {
+            timedout = false;
+            return POLLOUT;
+        }
+    }
+    return 0;
 }
