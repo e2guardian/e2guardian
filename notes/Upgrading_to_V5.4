@@ -113,6 +113,13 @@ Add response header list defines if required
 # Use for example, to remove protocol upgrade requests.
 regexpreplacelist = 'name=reponseheadermods,path=@E2CONFDIR@/lists/responseheaderregexplist'
 
+Add searchexceptionregexplist define
+
+# search terms exception (overide) list
+# Used to prevent urls such os completetion suggestion requests from being detected
+# as search requests
+regexpboollist = 'name=searchtermexceptions, path=@E2CONFDIR@/lists/searchexceptionregexplist'
+
 Storyboards
 -----------
 
@@ -143,12 +150,18 @@ oldexceptionphraselist
 bannedtimelist
 blankettimelist
 responseheaderregexplist
+nologurllist
+nologsitelist
+nologregexpurllist
+nologextensionlist
+searchexceptionregexplist
 
 Note that phrase list paths have changed so that they are organised by language.
 
 First run
 ---------
 
-On the initial test run look at the standard output of e2guardian.  This will show any missing lists as well as those which are never used by the storyboarding.
+On the initial test run look at the standard output of e2guardian.  This will show any missing lists as well as those
+which are never used by the storyboarding.
 
-
+Revised 27 April 2020
