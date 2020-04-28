@@ -1,5 +1,11 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.4.2
+
+April 2020
+
+ - Fix #520 - by-pass cookie generation and check does not match
+
 version 5.4.1
 
 August 2019 to April 2020
