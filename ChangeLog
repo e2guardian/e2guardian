@@ -1,5 +1,17 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.3.5
+
+February 2020 to April 2020
+
+- Fix #585 - based on bmuel suggestions on by-pass
+- Fix #590 - Storyboard line not being passed when trailing comment present
+- Fix #592 - last line of config file(s) not being read
+- Fix #520 - bypass cookie generation and checks do not match
+
+- Add note re amending site.story for virus exceptions #577
+- Update configure.ac for raspbery pi
+
 version 5.3.4
 
 January 2020
