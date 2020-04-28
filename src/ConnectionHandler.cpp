@@ -204,8 +204,8 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String timecode(bypasstimestamp);
     String data(magic);
     data += clientip->c_str();
-    if(ldl->fg[filtergroup]->bypass_v2)
-            data += clientuser;
+    //if(ldl->fg[filtergroup]->bypass_v2)
+    data += clientuser;
     data += timecode;
 #ifdef E2DEBUG
     std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << clientuser << " " << timecode << std::endl;
