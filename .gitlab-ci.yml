@@ -94,7 +94,7 @@ Test and publish Debian:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.traceroot.fr:/datas/e2/html
+    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html
    
 Package Docker Image Ubuntu:
   stage: build:ubuntu
@@ -176,7 +176,7 @@ Test and publish Ubuntu:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.traceroot.fr:/datas/e2/html 
+    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html 
      
 # TODO: CONFIGURE configure --host=arm works only on real machine ?
 # 
@@ -237,5 +237,5 @@ Create Raspbian Package:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.traceroot.fr:/datas/e2/html
+    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html
     - rm -rf .git
