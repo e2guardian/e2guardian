@@ -5,11 +5,9 @@ stages:
 - build:ubuntu
 - create-ubuntu-package
 - TestUbuntu
-  ## Works in progress ...
 - build:raspbian
 - create-raspbian-package
 #
-# 
 
 Package Docker Image Debian:
   stage: build:debian
