@@ -73,6 +73,7 @@ Test and publish Debian:
     CERT_DIR: "/home/e2/e2install/"
     OS: "debian"
   script:
+    - ls -la /builds/fredbcode/e2guardian/ && cat /builds/fredbcode/e2guardian/variables
     - source /builds/fredbcode/e2guardian/variables
     - echo $VFULL
     - apt update
