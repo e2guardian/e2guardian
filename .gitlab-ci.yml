@@ -131,7 +131,7 @@ Create Ubuntu Package:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds
+    - /builds/fredbcode/e2guardian  
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
@@ -222,6 +222,11 @@ Package Docker Image Raspbian:
 Create Raspbian Package:
   stage: create-raspbian-package
   image: amd64/debian:stable
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian   
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
