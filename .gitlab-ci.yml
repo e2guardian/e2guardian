@@ -12,7 +12,7 @@ stages:
 Package Docker Image Debian:
   stage: build:debian
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian  
@@ -34,7 +34,7 @@ Package Docker Image Debian:
 Create Debian Package:
   stage: create-debian-package
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build 
    paths:
     - /builds/fredbcode/e2guardian
@@ -47,8 +47,8 @@ Create Debian Package:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - git clone https://github.com/fredbcode/scripts
     - mkdir -p ${PACKDST}/data/usr/sbin
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
     - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
@@ -66,7 +66,7 @@ Test and publish Debian:
   stage: TestDebian
   image: amd64/debian:stable
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian 
@@ -106,7 +106,7 @@ Package Docker Image Ubuntu:
   stage: build:ubuntu
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian  
@@ -128,7 +128,7 @@ Create Ubuntu Package:
   stage: create-ubuntu-package
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian  
@@ -141,7 +141,7 @@ Create Ubuntu Package:
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
@@ -151,7 +151,7 @@ Test and publish Ubuntu:
   stage: TestUbuntu 
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian
@@ -192,7 +192,7 @@ Test and publish Ubuntu:
 Package Docker Image Raspbian:
   stage: build:raspbian
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian   
@@ -222,7 +222,7 @@ Create Raspbian Package:
   stage: create-raspbian-package
   image: amd64/debian:stable
   artifacts:
-   expire_in: 30 minutes
+   expire_in: 20 minutes
    name: build
    paths:
     - /builds/fredbcode/e2guardian   
