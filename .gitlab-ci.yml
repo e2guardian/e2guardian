@@ -100,6 +100,7 @@ Test and publish Debian:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
+    - find / -name ".git" -exec rm -r "{}" +
    
 Package Docker Image Ubuntu:
   stage: build:ubuntu
@@ -121,7 +122,7 @@ Package Docker Image Ubuntu:
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
     - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make 
-    - rm -rf .git
+    - find / -name ".git" -exec rm -r "{}" +
 
 Create Ubuntu Package:
   stage: create-ubuntu-package
@@ -145,6 +146,7 @@ Create Ubuntu Package:
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
+    - find / -name ".git" -exec rm -r "{}" +
 
 Test and publish Ubuntu:
   stage: TestUbuntu 
@@ -185,6 +187,7 @@ Test and publish Ubuntu:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
+    - find / -name ".git" -exec rm -r "{}" +
      
 # 
 Package Docker Image Raspbian:
@@ -214,7 +217,7 @@ Package Docker Image Raspbian:
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
-   - rm -rf .git
+   - find / -name ".git" -exec rm -r "{}" +
 
 Create Raspbian Package:
   stage: create-raspbian-package
@@ -239,4 +242,4 @@ Create Raspbian Package:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - rm -rf .git
+    - find / -name ".git" -exec rm -r "{}" +
