@@ -120,7 +120,7 @@ Package Docker Image Ubuntu:
 
 Create Ubuntu Package:
   stage: create-ubuntu-package
-  image: amd64/ubuntu:18.04
+  #image: amd64/ubuntu:18.04
   #  artifacts:
   # expire_in: 10 minutes
   # name: build
@@ -133,6 +133,7 @@ Create Ubuntu Package:
   script:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
+    - ls -la /builds
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
       #    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
@@ -143,7 +144,7 @@ Create Ubuntu Package:
 
 Test and publish Ubuntu:
   stage: TestUbuntu 
-  image: amd64/ubuntu:18.04
+  #image: amd64/ubuntu:18.04
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
