@@ -46,7 +46,7 @@ Create Debian Package:
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - git clone https://github.com/fredbcode/scripts
-    - mkdir -p ${PACKDST}/data/usr/sbin
+    - ${PACKPATH}/src/e2guardian --version
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
