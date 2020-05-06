@@ -47,7 +47,7 @@ Create Debian Package:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - git clone https://github.com/fredbcode/scripts
     - mkdir -p ${PACKDST}/data/usr/sbin
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
@@ -141,7 +141,7 @@ Create Ubuntu Package:
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
@@ -157,7 +157,7 @@ Test and publish Ubuntu:
     - /builds/fredbcode/e2guardian
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
     CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
