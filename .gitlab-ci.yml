@@ -60,7 +60,7 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - echo "export $VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo "export VFULL=$VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
