@@ -61,6 +61,7 @@ Create Debian Package:
     - echo "export VFULL=$VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf scripts/.git
+    - rm -rf .git
 
 Test and publish Debian:
   stage: TestDebian
@@ -141,7 +142,6 @@ Create Ubuntu Package:
     - ls -la $PACKPATH
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-      #    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
@@ -231,7 +231,6 @@ Create Raspbian Package:
     - apt install -y curl git lsb-release binutils
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
