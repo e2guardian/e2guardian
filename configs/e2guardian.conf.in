@@ -542,8 +542,6 @@ contentscannertimeout = 60
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
 #
-##NEWIN V5.4
-# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
 
 # If you do not use multiple filter groups, you need not specify this option.
 #
@@ -556,11 +554,17 @@ contentscannertimeout = 60
 #authplugin = '@E2CONFDIR@/authplugins/ident.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/ip.conf'
-ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
 
 #authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/port.conf'
+
+##NEWIN V5.4
+# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
+
+# for ip_auth 
+ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
+# for port auth
 maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
 
 # Map auth to ports
