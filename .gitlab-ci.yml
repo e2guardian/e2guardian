@@ -60,7 +60,7 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - echo "export $VFULL" >> /builds/fredbcode/e2guardian/debian_package/variables
+    - echo "export $VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
@@ -73,7 +73,7 @@ Test and publish Debian:
     CERT_DIR: "/home/e2/e2install/"
     OS: "debian"
   script:
-    - source /builds/fredbcode/e2guardian/debian_packages/variables
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
@@ -108,7 +108,7 @@ Package Docker Image Ubuntu:
     - /builds/fredbcode/e2guardian   
   image: amd64/ubuntu:18.04
   script:
-    - source /builds/fredbcode/e2guardian/debian_packages/variables
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt-get -y upgrade
@@ -134,7 +134,7 @@ Create Ubuntu Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
   script:
-    - source /builds/fredbcode/e2guardian/debian_packages/variables
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - mkdir -p ${PACKDST}/data/usr/sbin
@@ -162,7 +162,7 @@ Test and publish Ubuntu:
     CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
-    - source /builds/fredbcode/e2guardian/debian_packages/variables
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
@@ -200,7 +200,7 @@ Package Docker Image Raspbian:
   variables:
     OS: "raspbian" 
   script:
-   - source /builds/fredbcode/e2guardian/variables
+   - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
    - echo $VFULL
    - apt update 
    - apt-get -y upgrade 
@@ -226,7 +226,7 @@ Create Raspbian Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
     OS: "raspbian"
   script:
-    - source /builds/fredbcode/e2guardian/variables
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y curl git lsb-release binutils
