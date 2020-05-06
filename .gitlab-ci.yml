@@ -15,7 +15,7 @@ Package Docker Image Debian:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian  
   image: amd64/debian:stable
   variables:
     OS: "debian"
@@ -37,7 +37,7 @@ Create Debian Package:
    expire_in: 10 minutes
    name: build 
    paths:
-    - /builds
+    - /builds/fredbcode/e2guardian
   image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
@@ -60,16 +60,16 @@ Create Debian Package:
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - echo "export VFULL=$VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - rm -rf .git
+    - rm -rf scripts/.git
 
 Test and publish Debian:
   stage: TestDebian
   image: amd64/debian:stable
   artifacts:
    expire_in: 10 minutes
-   name: build 
+   name: build
    paths:
-    - /builds
+    - /builds/fredbcode/e2guardian 
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
@@ -107,7 +107,7 @@ Package Docker Image Ubuntu:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian  
   image: amd64/ubuntu:18.04
   script:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
@@ -154,7 +154,7 @@ Test and publish Ubuntu:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds
+    - /builds/fredbcode/e2guardian
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
@@ -194,7 +194,7 @@ Package Docker Image Raspbian:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds   
+    - /builds/fredbcode/e2guardian   
   image: amd64/debian:stable
   variables:
     OS: "raspbian" 
@@ -220,11 +220,6 @@ Package Docker Image Raspbian:
 Create Raspbian Package:
   stage: create-raspbian-package
   image: amd64/debian:stable
-  artifacts:
-   expire_in: 10 minutes
-   name: build
-   paths:
-    - /builds   
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
