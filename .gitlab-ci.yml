@@ -15,7 +15,7 @@ Package Docker Image Debian:
    expire_in: 10 minutes
    name: build
    paths:
-    - /builds/fredbcode/e2guardian   
+    - /builds   
   image: amd64/debian:stable
   variables:
     OS: "debian"
@@ -33,11 +33,11 @@ Package Docker Image Debian:
 
 Create Debian Package:
   stage: create-debian-package
-  #  artifacts:
-  # expire_in: 10 minutes
-  # name: build 
-  # paths:
-  #  - /builds/fredbcode/e2guardian/scripts/debian_package
+  artifacts:
+   expire_in: 10 minutes
+   name: build 
+   paths:
+    - /builds
   image: amd64/debian:stable
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
@@ -65,6 +65,11 @@ Create Debian Package:
 Test and publish Debian:
   stage: TestDebian
   image: amd64/debian:stable
+  artifacts:
+   expire_in: 10 minutes
+   name: build 
+   paths:
+    - /builds
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
@@ -98,11 +103,11 @@ Test and publish Debian:
    
 Package Docker Image Ubuntu:
   stage: build:ubuntu
-  #  artifacts:
-  # expire_in: 10 minutes
-  # name: build
-  # paths:
-  #  - /builds/fredbcode/e2guardian   
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds   
   image: amd64/ubuntu:18.04
   script:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
@@ -120,12 +125,12 @@ Package Docker Image Ubuntu:
 
 Create Ubuntu Package:
   stage: create-ubuntu-package
-  #image: amd64/ubuntu:18.04
-  #  artifacts:
-  # expire_in: 10 minutes
-  # name: build
-  #paths:
-  #  - /builds/fredbcode/e2guardian/scripts/debian_package
+  image: amd64/ubuntu:18.04
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
@@ -144,7 +149,12 @@ Create Ubuntu Package:
 
 Test and publish Ubuntu:
   stage: TestUbuntu 
-  #image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:18.04
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
@@ -180,11 +190,11 @@ Test and publish Ubuntu:
 # 
 Package Docker Image Raspbian:
   stage: build:raspbian
-  #  artifacts:
-  # expire_in: 10 minutes
-  # name: build
-  # paths:
-  #  - /builds   
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds   
   image: amd64/debian:stable
   variables:
     OS: "raspbian" 
@@ -210,6 +220,11 @@ Package Docker Image Raspbian:
 Create Raspbian Package:
   stage: create-raspbian-package
   image: amd64/debian:stable
+  artifacts:
+   expire_in: 10 minutes
+   name: build
+   paths:
+    - /builds   
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
