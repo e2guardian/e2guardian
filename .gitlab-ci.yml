@@ -10,8 +10,6 @@ stages:
 - create-raspbian-package
 #
 # 
-variables:
-  VFULL: setempty
 
 Package Docker Image Debian:
   stage: build:debian
@@ -62,6 +60,7 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - export VFULL="$(echo "$VFULL")"` >> variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
@@ -74,6 +73,7 @@ Test and publish Debian:
     CERT_DIR: "/home/e2/e2install/"
     OS: "debian"
   script:
+    - source variables
     - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
@@ -97,7 +97,7 @@ Test and publish Debian:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
+    - scp -p 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
    
 Package Docker Image Ubuntu:
   stage: build:ubuntu
@@ -108,6 +108,8 @@ Package Docker Image Ubuntu:
     - /builds/fredbcode/e2guardian   
   image: amd64/ubuntu:18.04
   script:
+    - source variables
+    - echo $VFULL
     - apt update
     - apt-get -y upgrade
     - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
@@ -132,6 +134,7 @@ Create Ubuntu Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
   script:
+    - source variables
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - mkdir -p ${PACKDST}/data/usr/sbin
@@ -159,6 +162,7 @@ Test and publish Ubuntu:
     CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
+    - source variables
     - echo $VFULL
     - apt update
     - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
@@ -182,7 +186,7 @@ Test and publish Ubuntu:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
+    - scp -p 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
      
 # 
 Package Docker Image Raspbian:
@@ -196,6 +200,7 @@ Package Docker Image Raspbian:
   variables:
     OS: "raspbian" 
   script:
+   - source variables
    - echo $VFULL
    - apt update 
    - apt-get -y upgrade 
@@ -221,6 +226,7 @@ Create Raspbian Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
     OS: "raspbian"
   script:
+    - source variables
     - echo $VFULL
     - apt update
     - apt install -y curl git lsb-release binutils
@@ -245,5 +251,5 @@ Create Raspbian Package:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
+    - scp -p 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
     - rm -rf .git
