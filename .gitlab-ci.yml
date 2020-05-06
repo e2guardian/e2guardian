@@ -46,9 +46,10 @@ Create Debian Package:
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - git clone https://github.com/fredbcode/scripts
+    - rm -r ${PACKDST}/data/etc/e2guardian/*
     - mkdir -p ${PACKDST}/data/usr/sbin
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
+    - cp -Rf ${PACKPATH}/configs/* ${PACKDST}/data/etc/e2guardian/
     - mkdir -p ${PACKPATH}/share/e2guardian/languages
     - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
     - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
@@ -135,16 +136,6 @@ Create Ubuntu Package:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
-    - mkdir -p ${PACKDST}/data/usr/sbin
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
-    - mkdir -p ${PACKPATH}/share/e2guardian/languages
-    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
-    - find ${PACKDST}/ -type f -name "Makefil*" -delete
-    - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
       #    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
@@ -229,20 +220,9 @@ Create Raspbian Package:
     - apt update
     - apt install -y curl git lsb-release binutils
     - VERSION=`lsb_release -cs`
-    - mkdir -p ${PACKDST}/data/usr/sbin
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian/
-    - mkdir -p ${PACKPATH}/share/e2guardian/languages
-    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/scripts/e2guardianrasp.service ${PACKDST}/data/lib/systemd/system/e2guardian.service.in
-    - find ${PACKDST}/ -type f -name "Makefil*" -delete
-    - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - mkdir ${CI_COMMIT_BRANCH} 
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
