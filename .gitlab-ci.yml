@@ -10,6 +10,8 @@ stages:
 - create-raspbian-package
 #
 # 
+variables:
+  VFULL: setempty
 
 Package Docker Image Debian:
   stage: build:debian
@@ -72,10 +74,11 @@ Test and publish Debian:
     CERT_DIR: "/home/e2/e2install/"
     OS: "debian"
   script:
+    - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
     - VERSION=`lsb_release -cs`
-    - VFULL=`${PACKDST}/e2debian_package/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2`
+      #    - VFULL=`${PACKDST}/e2debian_package/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2`
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
@@ -94,7 +97,7 @@ Test and publish Debian:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html
+    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
    
 Package Docker Image Ubuntu:
   stage: build:ubuntu
@@ -129,6 +132,7 @@ Create Ubuntu Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
   script:
+    - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - mkdir -p ${PACKDST}/data/usr/sbin
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
@@ -141,7 +145,8 @@ Create Ubuntu Package:
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+      #    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
 
@@ -154,6 +159,7 @@ Test and publish Ubuntu:
     CERT_DIR: "/home/e2/e2install/"
     OS: "ubuntu"
   script:
+    - echo $VFULL
     - apt update
     - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
     - VERSION=`lsb_release -cs`
@@ -176,9 +182,8 @@ Test and publish Ubuntu:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html 
+    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
      
-# TODO: CONFIGURE configure --host=arm works only on real machine ?
 # 
 Package Docker Image Raspbian:
   stage: build:raspbian
@@ -191,6 +196,7 @@ Package Docker Image Raspbian:
   variables:
     OS: "raspbian" 
   script:
+   - echo $VFULL
    - apt update 
    - apt-get -y upgrade 
    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils lsb-release 
@@ -215,6 +221,7 @@ Create Raspbian Package:
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
     OS: "raspbian"
   script:
+    - echo $VFULL
     - apt update
     - apt install -y curl git lsb-release binutils
     - VERSION=`lsb_release -cs`
@@ -229,6 +236,7 @@ Create Raspbian Package:
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - mkdir ${CI_COMMIT_BRANCH} 
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_"${CI_COMMIT_BRANCH}"_$(date +%Y%m%d).deb
@@ -237,5 +245,5 @@ Create Raspbian Package:
     - eval $(ssh-agent -s)
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
-    - scp -r ${CI_COMMIT_BRANCH} www-data@e2guardian.numsys.eu:/datas/e2/html
+    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
     - rm -rf .git
