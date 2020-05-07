@@ -146,7 +146,7 @@ Create Ubuntu Package:
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - ls -la ${PACKDST} && ls -la ${PACKPATH} && ls -la /builds/fredbcode/e2guardian
-    - find / -name *.deb
+    - find / -name ".deb"
     - rm -rf .git
     - find / -name ".git" -exec rm -r "{}" +
 
