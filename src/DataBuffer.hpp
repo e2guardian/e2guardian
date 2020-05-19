@@ -10,8 +10,13 @@
 #include <string.h>
 #include "Socket.hpp"
 #include "String.hpp"
-#include "FDFuncs.hpp"
 #include "FOptionContainer.hpp"
+//#include "LOptionContainer.hpp"
+#include "StoryBoard.hpp"
+
+#define DB_TOBIG 1
+#define DB_TOBIG_SCAN 2
+#define DB_TOBIG_FILTER 4
 
 class DMPlugin;
 
@@ -19,6 +24,7 @@ class DataBuffer
 {
     public:
     char *data;
+    off_t data_length;
     off_t buffer_length;
     char *compresseddata= nullptr;
     off_t compressed_buffer_length = 0;
@@ -30,6 +36,9 @@ class DataBuffer
     bool got_all = false;   // used with chunked it all read-in
     int tempfilefd = -1;
 
+ //   std::shared_ptr<LOptionContainer> ldl;
+         FOptionContainer *fgc;
+
     // the download manager we used during the last "in"
     DMPlugin *dm_plugin;
 
@@ -37,21 +46,24 @@ class DataBuffer
     DataBuffer(const void *indata, off_t length);
     ~DataBuffer();
 
+    bool increase_buffer(int extra);
+    void set_current_config (FOptionContainer *newfgc);
+
     int length()
     {
-        return buffer_length;
+        return data_length;
     };
 
     void copyToMemory(char *location)
     {
-        memcpy(location, data, buffer_length);
+        memcpy(location, data, data_length);
     };
 
     // read body in from proxy
     // gives true if it pauses due to too much data
-    bool in(Socket *sock, Socket *peersock, class HTTPHeader *requestheader, class HTTPHeader *docheader, bool runav, int *headersent);
+    bool in(Socket *sock, Socket *peersock, class HTTPHeader *requestheader, class HTTPHeader *docheader, bool runav, int *headersent, StoryBoard &story, NaughtyFilter *cm);
     // send body to client
-    bool out(Socket *sock); //throw(std::exception);
+    bool out(Socket *sock);
 
     void setTimeout(int t)
     {
@@ -81,21 +93,23 @@ class DataBuffer
     // DM plugins do horrible things to our innards - this is acceptable pending a proper cleanup
     friend class DMPlugin;
     friend class dminstance;
-#ifdef ENABLE_FANCYDM
     friend class fancydm;
-#endif
-#ifdef ENABLE_TRICKLEDM
     friend class trickledm;
-#endif
 
     int timeout = 20000;  // in msecs
     int stimeout = 20;   // in secs
     off_t bytesalreadysent = 0;
+    off_t bytes_toget = 0;
+    bool geteverything = false;
+    bool swappedtodisk = false;
+    bool doneinitialdelay = false;
     bool preservetemp = false;
 
     String decompress;
 
     void zlibinflate(bool header);
+
+    int readInFromSocket(Socket *sock, int size, bool wantall, int &result);
 
     // buffered socket reads - one with an extra "global" timeout within which all individual reads must complete
     int bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout);

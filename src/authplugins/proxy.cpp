@@ -67,7 +67,7 @@ int proxyinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 
 int proxyinstance::init(void *args)
 {
-    OptionContainer::auth_entry sen;
+    OptionContainer::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYA_AUTH_BASIC_PROXY;

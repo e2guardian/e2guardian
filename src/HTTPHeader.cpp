@@ -1234,6 +1234,57 @@ String HTTPHeader::url()
 // * Bypass URL/Cookie funcs
 // *
 // *
+// create a temporary bypass URL for the banned page
+String HTTPHeader::hashedURL(String *url,  std::string *clientip,
+                                    bool infectionbypass, std::string *user, FOptionContainer &fdl, bool fakecgi) {
+    // filter/virus bypass hashes last for a certain time only
+    String timecode(time(NULL) + (infectionbypass ? fdl.infection_bypass_mode
+                                                  : fdl.bypass_mode));
+    // use the standard key in normal bypass mode, and the infection key in infection bypass mode
+    String magic(infectionbypass ? fdl.imagic.c_str() : fdl.magic.c_str());
+    magic += clientip->c_str();
+    if(fdl.bypass_v2)
+        magic += user->c_str();
+    magic += timecode;
+    String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
+    String hash;
+    if (!url->after("://").contains("/")) {
+        String newurl((*url));
+        newurl += "/";
+        hash = newurl.md5(magic.toCharArray());
+    } else {
+        hash = url->md5(magic.toCharArray());
+    }
+    if (fakecgi && fdl.cgi_bypass)     //used for oversized files in fancy download manager
+        hash = hash.md5(fdl.cgi_magic.c_str());
+    res += hash;
+    res += timecode;
+#ifdef E2DEBUG
+    std::cerr << thread_id << " -generate Bypass hashedurl data " << clientip->c_str() << " " << *url << " " << user << " " << timecode << " result " << res << std::endl;
+#endif
+    return res;
+}
+
+// create temporary bypass cookie
+String HTTPHeader::hashedCookie(String *url, const char *magic, std::string *clientip, int bypasstimestamp, std::string user) {
+    String timecode(bypasstimestamp);
+    String data(magic);
+    data += clientip->c_str();
+    //   if(ldl->fg[filtergroup]->bypass_v2)
+    data += user;
+    data += timecode;
+#ifdef E2DEBUG
+    std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << user << " " << timecode << std::endl;
+#endif
+    String res(url->md5(data.toCharArray()));
+    res += timecode;
+
+#ifdef E2DEBUG
+    std::cerr << thread_id << " -Bypass hashedCookie=" << res << std::endl;
+#endif
+    return res;
+}
+
 
 // chop the GBYPASS or GIBYPASS variable out of a bypass URL
 // This function ASSUMES that you really know what you are doing

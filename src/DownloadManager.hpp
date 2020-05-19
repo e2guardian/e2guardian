@@ -14,8 +14,9 @@
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
-#include "Plugin.hpp"
+#include "FOptionContainer.hpp"
 #include "DataBuffer.hpp"
+#include "Plugin.hpp"
 
 #include <stdexcept>
 
@@ -43,7 +44,7 @@ class DMPlugin : public Plugin
     };
 
     // will this download manager handle this request?
-    virtual bool willHandle(HTTPHeader *requestheader, HTTPHeader *docheader);
+   // virtual bool willHandle(HTTPHeader *requestheader, HTTPHeader *docheader);
 
     // download the body for the given request
     virtual int in(DataBuffer *d, Socket *sock, Socket *peersock,
@@ -52,6 +53,8 @@ class DMPlugin : public Plugin
 
     // send a download link to the client (the actual link, and the clean "display" version of the link)
     virtual bool sendLink(Socket &peersock, String &linkurl, String &prettyurl);
+
+    int story_entry;
 
     private:
     // regular expression for matching supported user agents
@@ -65,14 +68,15 @@ class DMPlugin : public Plugin
     ConfigVar cv;
 
     // standard lists
-    ListContainer mimetypelist;
-    ListContainer extensionlist;
+    //ListContainer mimetypelist;
+    //ListContainer extensionlist;
     // .. and their enable flags
-    bool mimelistenabled;
-    bool extensionlistenabled;
+    //bool mimelistenabled;
+    //bool extensionlistenabled;
+
 
     // read managedmimetypelist and managedextensionlist
-    bool readStandardLists();
+    //bool readStandardLists();
 };
 
 // create an instance of the plugin given in the configuration file

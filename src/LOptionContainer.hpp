@@ -7,8 +7,8 @@
 
 // INCLUDES
 
-#include "DownloadManager.hpp"
 #include "ContentScanner.hpp"
+#include "DownloadManager.hpp"
 #include "String.hpp"
 #include "HTMLTemplate.hpp"
 #include "ListContainer.hpp"

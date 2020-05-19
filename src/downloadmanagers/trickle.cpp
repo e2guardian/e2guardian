@@ -26,6 +26,8 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
+extern bool is_daemonised;
 
 // DECLARATIONS
 
@@ -36,11 +38,8 @@ class trickledm : public DMPlugin
         : DMPlugin(definition){};
     int in(DataBuffer *d, Socket *sock, Socket *peersock, HTTPHeader *requestheader,
         HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig);
+    int init(void *args);
 
-    // default plugin is as basic as you can get - no initialisation, and uses the default
-    // set of matching mechanisms. uncomment and implement these to override default behaviour.
-    //int init(void* args);
-    //bool willHandle(HTTPHeader *requestheader, HTTPHeader *docheader);
 };
 
 // IMPLEMENTATION
@@ -69,6 +68,25 @@ DMPlugin *trickledmcreate(ConfigVar &definition)
 //	return 0;
 //}
 
+int trickledm::init(void *args)
+{
+    DMPlugin::init(args);
+
+    OptionContainer::SB_entry_map sen;
+    sen.entry_function = cv["story_function"];
+    if (sen.entry_function.length() > 0) {
+        sen.entry_id = ENT_STORYB_DM_TRICKLE;
+        story_entry = sen.entry_id;
+        o.dm_entry_dq.push_back(sen);
+        return 0;
+    } else {
+        if (!is_daemonised)
+            std::cerr << thread_id << "No story_function defined in trickle DM plugin config" << std::endl;
+        syslog(LOG_ERR, "No story_function defined in trickle DM plugin config");
+        return -1;
+    }
+}
+
 // download body for this request
 int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader *requestheader,
     class HTTPHeader *docheader, bool wantall, int *headersent, bool *toobig)
@@ -93,21 +111,26 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 
     int rc = 0;
     d->bytesalreadysent = 0;
-    off_t newsize;
-    off_t bytesremaining = docheader->contentLength();
+    d->bytes_toget = docheader->contentLength();
 
+    if (!d->icap) {
+#ifdef E2DEBUG
+        std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
+#endif
+        d->chunked = docheader->transferEncoding().contains("chunked");
+    }
+
+#ifdef E2DEBUG
+    std::cerr << thread_id << "bytes remaining is " << d->bytes_toget << std::endl;
+#endif
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
-    bool geteverything = false;
-    if ((bytesremaining < 0) && !(docheader->isPersistent()))
-        geteverything = true;
+    d->geteverything = false;
+    if ((d->bytes_toget  < 0) || (d->chunked))
+        d->geteverything = true;
 
-    char *block = NULL; // buffer for storing a grabbed block from the
-    // imput stream
-    char *temp = NULL;
-
-    bool swappedtodisk = false;
-    bool doneinitialdelay = false;
+    d->swappedtodisk = false;
+    d->doneinitialdelay = false;
 
     struct timeval themdays;
     struct timeval nowadays;
@@ -124,147 +147,65 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     std::cout << "blocksize: " << blocksize << std::endl;
 #endif
 
-    while ((bytesremaining > 0) || geteverything) {
+    while ((d->bytes_toget > 0) || d->geteverything) {
         // send keep-alive bytes here
         if (o.trickle_delay > 0) {
-            gettimeofday(&nowadays, NULL);
-            if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay : nowadays.tv_sec > o.initial_trickle_delay) {
-                themdays.tv_sec = nowadays.tv_sec;
-                doneinitialdelay = true;
-                if ((*headersent) < 1) {
+            themdays.tv_sec = nowadays.tv_sec;
+            d->doneinitialdelay = true;
+            if ((*headersent) < 1) {
 #ifdef E2DEBUG
-                    std::cout << "sending header first" << std::endl;
+                std::cout << "sending header first" << std::endl;
 #endif
-                    docheader->out(NULL, peersock, __E2HEADER_SENDALL);
-                    (*headersent) = 2;
+                docheader->out(NULL, peersock, __E2HEADER_SENDALL);
+                (*headersent) = 2;
+            }
+            if (!d->swappedtodisk) {
+                // leave a kilobyte "barrier" so the whole file does not get sent before scanning
+                if ((d->data_length > 1024) && (d->bytesalreadysent < (d->data_length - 1024))) {
+#ifdef E2DEBUG
+                    std::cout << "trickle delay - sending a byte from the memory buffer" << std::endl;
+#endif
+                    peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
                 }
-                if (!swappedtodisk) {
-                    // leave a kilobyte "barrier" so the whole file does not get sent before scanning
-                    if ((d->buffer_length > 1024) && (d->bytesalreadysent < (d->buffer_length - 1024))) {
 #ifdef E2DEBUG
-                        std::cout << "trickle delay - sending a byte from the memory buffer" << std::endl;
+                else
+                    std::cout << "trickle delay - no unsent bytes remaining! (memory)" << std::endl;
 #endif
-                        peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
-                    }
+            } else {
+                // check the file is at least one kilobyte ahead of our send pointer, so
+                // the whole file does not get sent before scanning
+                if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t) -1) {
+                    ssize_t bytes_written; //new just remove GCC warning
+                    lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
 #ifdef E2DEBUG
-                    else
-                        std::cout << "trickle delay - no unsent bytes remaining! (memory)" << std::endl;
+                    std::cout << "trickle delay - sending a byte from the file" << std::endl;
 #endif
-                } else {
-                    // check the file is at least one kilobyte ahead of our send pointer, so
-                    // the whole file does not get sent before scanning
-                    if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t)-1) {
-                        ssize_t bytes_written; //new just remove GCC warning
-                        lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
-#ifdef E2DEBUG
-                        std::cout << "trickle delay - sending a byte from the file" << std::endl;
-#endif
-                        char byte;
-                        bytes_written = read(d->tempfilefd, &byte, 1);
-                        peersock->writeToSocket(&byte, 1, 0, d->timeout);
-                        d->bytesalreadysent++;
-                    }
-#ifdef E2DEBUG
-                    else
-                        std::cout << "trickle delay - no unsent bytes remaining! (file)" << std::endl;
-#endif
+                    char byte;
+                    bytes_written = read(d->tempfilefd, &byte, 1);
+                    peersock->writeToSocket(&byte, 1, 0, d->timeout);
+                    d->bytesalreadysent++;
                 }
+#ifdef E2DEBUG
+                else
+                    std::cout << "trickle delay - no unsent bytes remaining! (file)" << std::endl;
+#endif
             }
         }
 
-        if (wantall) {
-            if (!swappedtodisk) {
-                // if not swapped to disk and file is too large for RAM, then swap to disk
-                if (d->buffer_length > o.max_content_ramcache_scan_size) {
-#ifdef E2DEBUG
-                    std::cout << "swapping to disk" << std::endl;
-#endif
-                    d->tempfilefd = d->getTempFileFD();
-                    if (d->tempfilefd < 0) {
-#ifdef E2DEBUG
-                        std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
-#endif
-                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
-                        (*toobig) = true;
-                        break;
-                    }
-                    writeEINTR(d->tempfilefd, d->data, d->buffer_length);
-                    swappedtodisk = true;
-                    d->tempfilesize = d->buffer_length;
-                }
-            } else if (d->tempfilesize > o.max_content_filecache_scan_size) {
-// if swapped to disk and file too large for that too, then give up
-#ifdef E2DEBUG
-                std::cout << "defaultdm: file too big to be scanned, halting download" << std::endl;
-#endif
-                (*toobig) = true;
-                break;
-            }
-        } else {
-            if (d->buffer_length > o.max_content_filter_size) {
-// if we aren't downloading for virus scanning, and file too large for filtering, give up
-#ifdef E2DEBUG
-                std::cout << "defaultdm: file too big to be filtered, halting download" << std::endl;
-#endif
-                (*toobig) = true;
-                break;
-            }
-        }
+        int read_res;
+        int rc;
+        int bsize = blocksize;
+        if ((!d->geteverything) && (d->bytes_toget < bsize))
+            bsize = d->bytes_toget;
+        std::cerr << thread_id << "bsize is " << bsize << std::endl;
 
-        if (!swappedtodisk) {
-            if (d->buffer_length >= blocksize) {
-                newsize = d->buffer_length;
-            } else {
-                newsize = blocksize;
-            }
-#ifdef E2DEBUG
-            std::cout << "newsize: " << newsize << std::endl;
-#endif
-            // if not getting everything until connection close, grab only what is left
-            if (!geteverything && (newsize > bytesremaining))
-                newsize = bytesremaining;
-            delete[] block;
-            block = new char[newsize];
-
-            // improved more efficient socket read which uses the buffer better
-            rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
-            // grab a block of input, doubled each time
-
-            if (rc <= 0) {
-                break; // an error occurred so end the while()
-                // or none received so pipe is closed
-            } else {
-                bytesremaining -= rc;
-                /*if (d->data != temp)
-					delete[] temp;*/
-                temp = new char[d->buffer_length + rc + 1]; // replacement store
-                temp[d->buffer_length + rc] = '\0';
-                memcpy(temp, d->data, d->buffer_length); // copy the current data
-                memcpy(temp + d->buffer_length, block, rc); // copy the new data
-                delete[] d->data; // delete the current data block
-                d->data = temp;
-                temp = NULL;
-                d->buffer_length += rc; // update data size counter
-            }
-        } else {
-            rc = d->bufferReadFromSocket(sock, d->data,
-                // if not getting everything until connection close, grab only what is left
-                (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining : d->buffer_length), d->timeout);
-            if (rc <= 0) {
-                break;
-            } else {
-                bytesremaining -= rc;
-                lseek(d->tempfilefd, 0, SEEK_END);
-                writeEINTR(d->tempfilefd, d->data, rc);
-                d->tempfilesize += rc;
-#ifdef E2DEBUG
-                std::cout << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
-#endif
-            }
-        }
+        rc = d->readInFromSocket(sock, bsize, wantall, read_res);
+        if (read_res & DB_TOBIG)
+            *toobig = true;
+        if (rc <= 0) break;
     }
 
-    if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
+    if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
 #ifdef E2DEBUG
             std::cout << "zlib format" << std::endl;
@@ -280,8 +221,5 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 #ifdef E2DEBUG
     std::cout << "Leaving trickle download manager plugin" << std::endl;
 #endif
-    delete[] block;
-    /*if (d->data != temp)
-		delete[] temp;*/
     return 0;
 }

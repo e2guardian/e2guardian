@@ -508,7 +508,8 @@ trickledelay = 10
 # one is forced to match as the default, regardless of user agent
 # and other matching mechanisms.
 #
-# NOTE - ONLY default downloadmanager is supported in v5
+#downloadmanager = '@E2CONFDIR@/downloadmanagers/fancy.conf'
+#downloadmanager = '@E2CONFDIR@/downloadmanagers/trickle.conf'
 downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 
 # Content Scanners (Also known as AV scanners)
@@ -542,8 +543,6 @@ contentscannertimeout = 60
 # Proxy-Authorisation headers and ident servers, enabling requests to be
 # handled according to the settings of the user's filter group.
 #
-##NEWIN V5.4
-# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
 
 # If you do not use multiple filter groups, you need not specify this option.
 #
@@ -556,11 +555,16 @@ contentscannertimeout = 60
 #authplugin = '@E2CONFDIR@/authplugins/ident.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/ip.conf'
-ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
 
 #authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/port.conf'
+
+##NEWIN V5.4
+# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
+# list for ip_auth
+ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
+# list for port_auth
 maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
 
 # Map auth to ports

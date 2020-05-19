@@ -129,7 +129,7 @@ LOptionContainer::LOptionContainer(int load_id)
  //   }
 
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
-            for (std::deque<struct OptionContainer::auth_entry>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
+            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
                     std::cerr << thread_id << "Required auth storyboard entry function" << i->entry_function.c_str()
                               << " is missing from pre_auth.stoary" << std::endl;
@@ -137,7 +137,6 @@ LOptionContainer::LOptionContainer(int load_id)
                 }
             }
     }
-
 
     if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;

@@ -46,7 +46,12 @@
 #define  ENT_STORYB_ICAP_RESMOD 5
 #define  ENT_STORYB_LOG_CHECK 6
 
+// download manager plugin entry point codes
+#define  ENT_STORYB_DM_TRICKLE  11
+#define  ENT_STORYB_DM_FANCY    12
 
+
+#define  ENT_STORY_MAX_SIZE 20
 
 class NaughtyFilter;
 
@@ -55,7 +60,7 @@ class NaughtyFilter;
 class StoryBoard
 {
  private:
-    unsigned int entrys[20];
+    unsigned int entrys[ENT_STORY_MAX_SIZE];
   public:
     int items;
 

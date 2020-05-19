@@ -14,7 +14,6 @@
 #include "BackedStore.hpp"
 #include "Queue.hpp"
 #include "ImageContainer.hpp"
-#include "FDFuncs.hpp"
 #include <signal.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
@@ -171,7 +170,6 @@ std::string ConnectionHandler::miniURLEncode(const char *s) {
 String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *clientip,
                                     bool infectionbypass, std::string *user) {
     // filter/virus bypass hashes last for a certain time only
-    //String timecode(time(NULL) + (infectionbypass ? (*ldl->fg[filtergroup]).infection_bypass_mode : (*ldl->fg[filtergroup]).bypass_mode));
     String timecode(time(NULL) + (infectionbypass ? (*ldl->fg[filtergroup]).infection_bypass_mode
                                                   : (*ldl->fg[filtergroup]).bypass_mode));
     // use the standard key in normal bypass mode, and the infection key in infection bypass mode
@@ -200,8 +198,8 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String timecode(bypasstimestamp);
     String data(magic);
     data += clientip->c_str();
-    if(ldl->fg[filtergroup]->bypass_v2)
-            data += clientuser;
+ //   if(ldl->fg[filtergroup]->bypass_v2)
+    data += clientuser;
     data += timecode;
 #ifdef E2DEBUG
     std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << clientuser << " " << timecode << std::endl;
@@ -401,7 +399,7 @@ ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bo
     //char *buffer = new char[250000];
     char *buffer = new char[64000];
     while (sent < filesize) {
-        rc = readEINTR(fd, buffer, 64000);
+        rc = read(fd, buffer, 64000);
 #ifdef E2DEBUG
         std::cerr << thread_id << " -reading send file rc:" << rc << std::endl;
 #endif
@@ -1013,7 +1011,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             std::cerr << thread_id << " -username: " << clientuser << std::endl;
             std::cerr << thread_id << " -filtergroup: " << filtergroup << std::endl;
 #endif
-//
+
+            docbody.set_current_config(ldl->fg[filtergroup]);
 //
 // End of Authentication Checking
 //
@@ -1098,8 +1097,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // redirect user to URL with GBYPASS parameter no longer appended
                 String outhead = "HTTP/1.1 302 Redirect\r\n";
                 outhead += "Set-Cookie: GBYPASS=";
-                outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
-                                        checkme.bypasstimestamp).toCharArray();
+                outhead += header.hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
+                                        checkme.bypasstimestamp, clientuser).toCharArray();
+               // outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
+                //                        checkme.bypasstimestamp).toCharArray();
                 outhead += "; path=/; domain=.";
                 outhead += ud;
                 outhead += "\r\n";
@@ -1910,7 +1911,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                         String hashed;
                         // generate valid hash locally if enabled
                         if (dohash) {
-                            hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
+                            hashed = header->hashedURL(url, clientip, virushash, clientuser, *ldl->fg[filtergroup]);
                         }
                             // otherwise, just generate flags showing what to generate
                         else if (filterhash) {
@@ -1969,7 +1970,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             String hashed;
             // generate valid hash locally if enabled
             if (dohash) {
-                hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
+                hashed = header->hashedURL(url, clientip, virushash, clientuser, *ldl->fg[filtergroup]);
+                //hashed = hashedURL(url, filtergroup, clientip, virushash, clientuser);
             }
                 // otherwise, just generate flags showing what to generate
             else if (filterhash) {
@@ -2158,7 +2160,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     std::cerr << thread_id << " -about to get body from proxy" << std::endl;
 #endif
     (*pausedtoobig) = docbody->in(proxysock, peerconn, header, docheader, !responsescanners.empty(),
-                                  headersent); // get body from proxy
+                                  headersent, ldl->fg[filtergroup]->StoryB, checkme ); // get body from proxy
 // checkme: surely if pausedtoobig is true, we just want to break here?
 // the content is larger than max_content_filecache_scan_size if it was downloaded for scanning,
 // and larger than max_content_filter_size if not.
@@ -2176,7 +2178,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         dblen = docbody->tempfilesize;
         isfile = true;
     } else {
-        dblen = docbody->buffer_length;
+        dblen = docbody->data_length;
     }
     // don't scan zero-length buffers (waste of AV resources, especially with external scanners (ICAP)).
     // these were encountered browsing opengroup.org, caused by a stats script. (PRA 21/09/2005)
@@ -2218,7 +2220,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     std::cerr << thread_id << " -Running scanMemory" << std::endl;
 #endif
                     csrc = (*i)->scanMemory(header, docheader, clientuser->c_str(), ldl->fg[filtergroup],
-                                            clientip->c_str(), docbody->data, docbody->buffer_length, checkme);
+                                            clientip->c_str(), docbody->data, docbody->data_length, checkme);
                 }
 #ifdef E2DEBUG
                 std::cerr << thread_id << " -AV scan " << k << " returned: " << csrc << std::endl;
@@ -2289,7 +2291,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 #ifdef E2DEBUG
             std::cerr << thread_id << " -Start content filtering: ";
 #endif
-            checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
+            checkme->checkme(docbody->data, docbody->data_length, &url, &domain,
                              ldl->fg[filtergroup], ldl->fg[filtergroup]->banned_phrase_list,
                              ldl->fg[filtergroup]->naughtyness_limit);
 #ifdef E2DEBUG
@@ -2349,11 +2351,11 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         std::cerr << thread_id << " -content modification made" << std::endl;
 #endif
         if (compressed) {
-            docheader->removeEncoding(docbody->buffer_length);
+            docheader->removeEncoding(docbody->data_length);
             // need to modify header to mark as not compressed
             // it also modifies Content-Length as well
         } else {
-            docheader->setContentLength(docbody->buffer_length);
+            docheader->setContentLength(docbody->data_length);
         }
     } else {
         docbody->swapbacktocompressed();
@@ -4070,8 +4072,10 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
 	String outhead = "HTTP/1.1 302 Redirect\r\n";
         outhead += "Set-Cookie: GBYPASS=";
-        outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
-                                checkme.bypasstimestamp).toCharArray();
+        outhead += icaphead.HTTPrequest.hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
+                                checkme.bypasstimestamp, clientuser).toCharArray();
+      //  outhead += hashedCookie(&ud, ldl->fg[filtergroup]->cookie_magic.c_str(), &clientip,
+       //                         checkme.bypasstimestamp).toCharArray();
         outhead += "; path=/; domain=.";
         outhead += ud;
         outhead += "\r\n";
@@ -4209,6 +4213,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     filtergroup = icaphead.icap_com.filtergroup;
     checkme.filtergroup = icaphead.icap_com.filtergroup;
     clientuser = icaphead.icap_com.user;
+    docbody.set_current_config(ldl->fg[filtergroup]);
 
     if (icaphead.icap_com.EBG == "E") {    // exception
         checkme.isexception = true;

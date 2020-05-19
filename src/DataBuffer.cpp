@@ -37,13 +37,13 @@ extern thread_local std::string thread_id;
 // IMPLEMENTATION
 
 DataBuffer::DataBuffer()
-    : data(new char[1]), buffer_length(0)
+    : data(new char[1]), data_length(0)
 {
     data[0] = '\0';
 }
 
-DataBuffer::DataBuffer(const void *indata, off_t length)
-    : data(new char[length]), buffer_length(length)
+DataBuffer::DataBuffer(const void *indata, off_t length)     //not used! PIP
+    : data(new char[length]), data_length(length)
 {
     memcpy(data, indata, length);
 }
@@ -56,8 +56,9 @@ void DataBuffer::reset()
     data = new char[1];
     data[0] = '\0';
 
-    compresseddata = NULL;
 
+    compresseddata = nullptr;
+    data_length = 0;
     buffer_length = 0;
     compressed_buffer_length = 0;
 
@@ -82,9 +83,9 @@ void DataBuffer::reset()
 DataBuffer::~DataBuffer()
 {
     delete[] data;
-    if (compresseddata != NULL) {
+    if (compresseddata != nullptr) {
         delete[] compresseddata;
-        compresseddata = NULL;
+        compresseddata = nullptr;
     }
     if (tempfilefd > -1) {
         close(tempfilefd);
@@ -96,18 +97,146 @@ DataBuffer::~DataBuffer()
     }
 }
 
+void DataBuffer::set_current_config (FOptionContainer *newfgc) {
+    fgc = newfgc;
+}
+
+//}
 // swap back to a compressed version of the data, if one exists
 // also delete uncompressed version
 // if body was decompressed but not modified, this can save bandwidth
 void DataBuffer::swapbacktocompressed()
 {
-    if (compresseddata != NULL && compressed_buffer_length > 0) {
+    if (compresseddata != nullptr && compressed_buffer_length > 0) {
         delete[] data;
-        buffer_length = compressed_buffer_length;
+        data_length = compressed_buffer_length;
         data = compresseddata;
-        compresseddata = NULL;
+        compresseddata = nullptr;
         compressed_buffer_length = 0;
     }
+}
+
+int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &result) {
+
+    int rc;
+
+    if (size < 1) {
+
+        std::cerr << thread_id << "read request is negative" << std::endl;
+        return -1;
+    }
+
+    if (wantall) {
+            if (!swappedtodisk) {
+                // if not swapped to disk and file is too large for RAM, then swap to disk
+                if (data_length > o.max_content_ramcache_scan_size) {
+#ifdef E2DEBUG
+                    std::cerr << thread_id << "swapping to disk" << std::endl;
+#endif
+                    tempfilefd = getTempFileFD();
+                    if (tempfilefd < 0) {
+#ifdef E2DEBUG
+                        std::cerr << thread_id << "error buffering to disk so skipping disk buffering" << std::endl;
+#endif
+                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
+                        result = DB_TOBIG;
+                        return -1;
+                    }
+                    write(tempfilefd, data, data_length);
+                    swappedtodisk = true;
+                    tempfilesize = data_length;
+                }
+            } else if (tempfilesize > o.max_content_filecache_scan_size) {
+// if swapped to disk and file too large for that too, then give up
+#ifdef E2DEBUG
+                std::cerr << thread_id << "defaultdm: file too big to be scanned, halting download" << std::endl;
+#endif
+                result = DB_TOBIG | DB_TOBIG_SCAN;
+                return -1;
+            }
+        } else {
+            if (data_length > o.max_content_filter_size) {
+// if we aren't downloading for virus scanning, and file too large for filtering, give up
+#ifdef E2DEBUG
+                std::cerr << "defaultdm: file too big to be filtered, halting download" << std::endl;
+#endif
+                result = DB_TOBIG | DB_TOBIG_FILTER;
+                return -1;
+            }
+        }
+
+        if (!swappedtodisk) {
+        if (size > (buffer_length - data_length)) {
+            if(!increase_buffer(size - (buffer_length - data_length))) {
+                size = (buffer_length - data_length);
+            }
+        }
+            if (chunked) {
+                rc = sock->readChunk((data + data_length), size, timeout);
+            } else {
+                rc = bufferReadFromSocket(sock, (data + data_length), size, timeout);
+            }
+
+            if (rc <= 0) {
+                if (chunked)
+                    got_all = true;
+                return -1;
+                // an error occurred so end the while()
+                // or none received so pipe iis closed or chunking has ended
+            } else {
+                bytes_toget -= rc;
+                data_length += rc;
+                data[data_length] = '\0';
+            }
+        } else {
+            if (chunked) {
+                rc = sock->readChunk(data, buffer_length, timeout);
+            } else {
+                rc = bufferReadFromSocket(sock, data,
+                        // if not getting everything until connection close, grab only what is left
+                                             (!geteverything && (bytes_toget  < buffer_length) ? bytes_toget
+                                                                                                    : buffer_length),
+                                             timeout);
+            }
+            if (rc <= 0) {
+                if (chunked)
+                    got_all = true;
+                result = 0;
+                return 0;
+            } else {
+                bytes_toget  -= rc;
+                write(tempfilefd, data, rc);
+                tempfilesize += rc;
+#ifdef E2DEBUG
+                std::cerr << thread_id << "written to disk:" << rc << " total:" << tempfilesize << std::endl;
+#endif
+            }
+        }
+        result = 0;
+        return rc;
+}
+
+bool DataBuffer::increase_buffer(int extra) {
+    int more = 65536;
+    if (extra > more)
+        more = extra;
+    if ((buffer_length + more) > o.max_content_filter_size) {
+        more = o.max_content_filter_size - buffer_length;
+    }
+    if (more > 0) {
+        char *temp = new char[buffer_length + more + 1]; // replacement store
+        temp[buffer_length + more] = '\0';
+        memcpy(temp, data, data_length); // copy the current data
+        delete[] data; // delete the current data block
+        data = temp;
+        temp = nullptr;
+        buffer_length += more; // update data size counter
+#ifdef E2DEBUG
+        std::cerr << thread_id << "data buffer extended by " << more << " to " << buffer_length << std::endl;
+#endif
+        return true;
+    }
+    return false;
 }
 
 // a much more efficient reader that does not assume the contents of
@@ -117,7 +246,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         int pos = 0;
         int rc;
         while (pos < size) {
-            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout);
+            rc = sock->readFromSocket(&buffer[pos], size - pos, 0, sockettimeout, true);
             if (rc < 1) {
                 // none recieved or an error
                 if (pos > 0) {
@@ -177,7 +306,6 @@ int DataBuffer::getTempFileFD()
     tempfilepath += "/tfXXXXXX";
     char *tempfilepatharray = new char[tempfilepath.length() + 1];
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
-    //	umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 0) {
 #ifdef E2DEBUG
@@ -194,7 +322,7 @@ int DataBuffer::getTempFileFD()
 }
 
 // check the client's user agent, see if we have a DM plugin compatible with it, and use it to download the body of the given request
-bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, HTTPHeader *docheader, bool runav, int *headersent)
+bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, HTTPHeader *docheader, bool runav, int *headersent,StoryBoard &story, NaughtyFilter *cm)
 {
     //Socket *sock = where to read from
     //Socket *peersock = browser to send stuff to for keeping it alive
@@ -205,17 +333,18 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
     //				  or to mark that the header has already been sent
 
     // so we know if we only partially downloaded from
-    // squid so later, if allowed, we can send the rest
+    // upstream so later, if allowed, we can send the rest
     bool toobig = false;
 
     // match request to download manager so browsers potentially can have a prettier version
     // and software updates, stream clients, etc. can have a compatible version.
-    //int rc = 0;
 #ifdef E2DEBUG
     int j = 0;
 #endif
- //   int rc = -1;
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
+#ifdef E2DEBUG
+        ++j;
+#endif
         if ((i + 1) == o.dmplugins_end) {
 #ifdef E2DEBUG
             std::cerr << thread_id << "Got to final download manager so defaulting to always match." << std::endl;
@@ -224,11 +353,11 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
             dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
             break;
         } else {
-            if (((DMPlugin *)(*i))->willHandle(requestheader, docheader)) {
+            dm_plugin = (DMPlugin *)(*i);
+            if (story.runFunctEntry(dm_plugin->story_entry, *cm)) {
 #ifdef E2DEBUG
                 std::cerr << thread_id << "Matching download manager number: " << j << std::endl;
 #endif
-                dm_plugin = (DMPlugin *)(*i);
                 dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
                 break;
             }
@@ -237,13 +366,11 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
         j++;
 #endif
     }
-    // we should check rc and log on error/warn
-    // note for later - Tue 16th November 2004
     return toobig;
 }
 
 // send the request body to the client after having been handled by a DM plugin
-bool DataBuffer::out(Socket *sock) //throw(std::exception)
+bool DataBuffer::out(Socket *sock)
 {
     if (dontsendbody) {
 #ifdef E2DEBUG
@@ -251,7 +378,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 #endif
         return true;
     }
-    if (!(*sock).readyForOutput(timeout)) return false; // exceptions on timeout or error
+  //  if (!(*sock).readyForOutput(timeout)) return false; // exceptions on timeout or error
 
     if (tempfilefd > -1) {
 // must have been too big for ram so stream from disk in blocks
@@ -263,24 +390,22 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 
         if (lseek(tempfilefd, bytesalreadysent, SEEK_SET) < 0)
             return false;
-//            throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
          int block_len;
         if(chunked)
             block_len = 4048;
         else
-            block_len = buffer_length;
+            block_len = data_length;
 
         while (sent < tempfilesize) {
-            rc = readEINTR(tempfilefd, data, block_len);
+            rc = read(tempfilefd, data, block_len);
 #ifdef E2DEBUG
             std::cerr << thread_id << "reading temp file rc:" << rc << std::endl;
 #endif
             if (rc < 0) {
 #ifdef E2DEBUG
-                std::cerr << thread_id << "error reading temp file so throwing exception" << std::endl;
+                std::cerr << thread_id << "error reading temp file " << std::endl;
 #endif
                 return false;
-    //            throw std::exception();
             }
             if (rc == 0) {
 #ifdef E2DEBUG
@@ -321,18 +446,18 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
         if(chunked)
             block_len = 4048;
         else
-            block_len = buffer_length;
+            block_len = data_length;
 
-        if (buffer_length != 0) {
-            while (sent < buffer_length) {
-                if( block_len > (buffer_length - sent))
-                    block_len = (buffer_length - sent);
+        if (data_length != 0) {
+            while (sent < data_length) {
+                if( block_len > (data_length - sent))
+                    block_len = (data_length - sent);
                 if (chunked) {
                     if (!sock->writeChunk(data + sent, block_len, timeout))
                         return false;
 
                 } else {
-                    if (!sock->writeToSocket(data + sent, buffer_length - sent, 0, timeout))
+                    if (!sock->writeToSocket(data + sent, data_length - sent, 0, timeout))
                         return false;
                 }
                 sent += block_len;
@@ -361,7 +486,7 @@ bool DataBuffer::out(Socket *sock) //throw(std::exception)
 // zlib decompression
 void DataBuffer::zlibinflate(bool header)
 {
-    if (buffer_length < 12) {
+    if (data_length < 12) {
         return; // it can't possibly be zlib'd
     }
 #ifdef E2DEBUG
@@ -380,7 +505,7 @@ void DataBuffer::zlibinflate(bool header)
     }
 #endif
 
-    int newsize = buffer_length * 5; // good estimate of deflated HTML
+    int newsize = data_length * 5; // good estimate of deflated HTML
 
     char *block = new char[newsize];
     block[0] = '\0';
@@ -395,7 +520,7 @@ void DataBuffer::zlibinflate(bool header)
     d_stream.zfree = (free_func)0;
     d_stream.opaque = (voidpf)0;
     d_stream.next_in = (Bytef *)data;
-    d_stream.avail_in = buffer_length;
+    d_stream.avail_in = data_length;
     d_stream.next_out = (Bytef *)block;
     d_stream.avail_out = newsize;
 
@@ -470,8 +595,8 @@ void DataBuffer::zlibinflate(bool header)
     }
 
     compresseddata = data;
-    compressed_buffer_length = buffer_length;
-    buffer_length = bytesgot;
+    compressed_buffer_length = data_length;
+    data_length = bytesgot;
 #ifdef E2DEBUG
     std::cerr << thread_id << "decompressed size: " << buffer_length << std::endl;
 #endif
@@ -563,8 +688,8 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
             }
 
             // now we know eventual size of content-replaced block, allocate memory for it
-            newblock = new char[buffer_length + sizediff + 1];
-            newblock[buffer_length + sizediff] = '\0';
+            newblock = new char[data_length + sizediff + 1];
+            newblock[data_length + sizediff] = '\0';
             srcoff = 0;
             dstpos = newblock;
             matches = m;
@@ -589,12 +714,12 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
                 delete newrep;
                 matchqueue.pop();
             }
-            if (srcoff < buffer_length) {
-                memcpy(dstpos, data + srcoff, buffer_length - srcoff);
+            if (srcoff < data_length) {
+                memcpy(dstpos, data + srcoff, data_length - srcoff);
             }
             delete[] data;
             data = newblock;
-            buffer_length = buffer_length + sizediff;
+            data_length = data_length + sizediff;
             contentmodified = true;
         }
     }

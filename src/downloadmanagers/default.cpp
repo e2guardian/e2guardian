@@ -87,8 +87,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 
     int rc = 0;
     d->got_all = false;
-    off_t newsize;
-    off_t bytesremaining = docheader->contentLength();
+    d->bytes_toget = docheader->contentLength();
     if (!d->icap) {
 #ifdef E2DEBUG
         std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
@@ -97,20 +96,16 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     }
 
 #ifdef E2DEBUG
-    std::cerr << thread_id << "bytes remaining is " << bytesremaining << std::endl;
+    std::cerr << thread_id << "bytes remaining is " << d->bytes_toget << std::endl;
 #endif
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
-    bool geteverything = false;
-    if ((bytesremaining < 0) || (d->chunked))
-        geteverything = true;
+    d->geteverything = false;
+    if ((d->bytes_toget  < 0) || (d->chunked))
+        d->geteverything = true;
 
-    char *block = NULL; // buffer for storing a grabbed block from the
-    // imput stream
-    char *temp = NULL;
-
-    bool swappedtodisk = false;
-    bool doneinitialdelay = false;
+    d->swappedtodisk = false;
+    d->doneinitialdelay = false;
 
     struct timeval themdays;
     struct timeval nowadays;
@@ -127,14 +122,14 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     std::cerr << thread_id << "blocksize: " << blocksize << std::endl;
 #endif
 
-    while ((bytesremaining > 0) || geteverything) {
+    while ((d->bytes_toget  > 0) || d->geteverything) {
         // send x-header keep-alive here
         if (o.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
-            if (doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay :
+            if (d->doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay :
                 nowadays.tv_sec - themdays.tv_sec > o.initial_trickle_delay) {
                 themdays.tv_sec = nowadays.tv_sec;
-                doneinitialdelay = true;
+                d->doneinitialdelay = true;
                 if ((*headersent) < 1) {
 #ifdef E2DEBUG
                     std::cerr << thread_id << "sending first line of header first" << std::endl;
@@ -151,117 +146,20 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                     peersock->writeString("X-E2GKeepAlive: on\r\n");
             }
         }
+        int read_res;
+        int rc;
+        int bsize = blocksize;
+        if((!d->geteverything) && (d->bytes_toget < bsize))
+            bsize = d->bytes_toget;
+        std::cerr << thread_id << "bsize is " << bsize << std::endl;
 
-        if (wantall) {
-            if (!swappedtodisk) {
-                // if not swapped to disk and file is too large for RAM, then swap to disk
-                if (d->buffer_length > o.max_content_ramcache_scan_size) {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "swapping to disk" << std::endl;
-#endif
-                    d->tempfilefd = d->getTempFileFD();
-                    if (d->tempfilefd < 0) {
-#ifdef E2DEBUG
-                        std::cerr << thread_id << "error buffering to disk so skipping disk buffering" << std::endl;
-#endif
-                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
-                        (*toobig) = true;
-                        break;
-                    }
-                    writeEINTR(d->tempfilefd, d->data, d->buffer_length);
-                    swappedtodisk = true;
-                    d->tempfilesize = d->buffer_length;
-                }
-            } else if (d->tempfilesize > o.max_content_filecache_scan_size) {
-// if swapped to disk and file too large for that too, then give up
-#ifdef E2DEBUG
-                std::cerr << thread_id << "defaultdm: file too big to be scanned, halting download" << std::endl;
-#endif
-                (*toobig) = true;
-                break;
-            }
-        } else {
-            if (d->buffer_length > o.max_content_filter_size) {
-// if we aren't downloading for virus scanning, and file too large for filtering, give up
-#ifdef E2DEBUG
-                std::cerr << "defaultdm: file too big to be filtered, halting download" << std::endl;
-#endif
-                (*toobig) = true;
-                break;
-            }
-        }
-
-        if (!swappedtodisk) {
-            if (d->buffer_length >= blocksize) {
-                newsize = d->buffer_length;
-            } else {
-                newsize = blocksize;
-            }
-            // if not getting everything until connection close, grab only what is left
-            if (!geteverything && (newsize > bytesremaining))
-                newsize = bytesremaining;
-            delete[] block;
-            block = new char[newsize];
-#ifdef E2DEBUG
-            std::cerr << thread_id << "newsize: " << newsize << std::endl;
-#endif
-         //   if (!sock->bcheckForInput(d->timeout))
-         //       break;
-            // improved more efficient socket read which uses the buffer better
-            if (d->chunked) {
-                rc = sock->readChunk(block, newsize, d->timeout);
-            } else {
-                rc = d->bufferReadFromSocket(sock, block, newsize, d->timeout);
-            }
-            // grab a block of input, doubled each time
-
-            if (rc <= 0) {
-                if (d->chunked)
-                    d->got_all = true;
-                break; // an error occurred so end the while()
-                // or none received so pipe iis closed or chunking has ended
-            } else {
-                bytesremaining -= rc;
-                /*if (d->data != temp)
-					delete[] temp;*/
-                temp = new char[d->buffer_length + rc + 1]; // replacement store
-                temp[d->buffer_length + rc] = '\0';
-                memcpy(temp, d->data, d->buffer_length); // copy the current data
-                memcpy(temp + d->buffer_length, block, rc); // copy the new data
-                delete[] d->data; // delete the current data block
-                d->data = temp;
-                temp = NULL;
-                d->buffer_length += rc; // update data size counter
-            }
-        } else {
-     //       if (!sock->bcheckForInput(d->timeout))
-     //           break;
-            if (d->chunked) {
-                rc = sock->readChunk(d->data, d->buffer_length, d->timeout);
-            } else {
-                rc = d->bufferReadFromSocket(sock, d->data,
-                        // if not getting everything until connection close, grab only what is left
-                                             (!geteverything && (bytesremaining < d->buffer_length) ? bytesremaining
-                                                                                                    : d->buffer_length),
-                                             d->timeout);
-            }
-            if (rc <= 0) {
-                if (d->chunked)
-                    d->got_all = true;
-                break;
-            } else {
-                bytesremaining -= rc;
-                lseek(d->tempfilefd, 0, SEEK_END); // not really needed
-                writeEINTR(d->tempfilefd, d->data, rc);
-                d->tempfilesize += rc;
-#ifdef E2DEBUG
-                std::cerr << thread_id << "written to disk:" << rc << " total:" << d->tempfilesize << std::endl;
-#endif
-            }
-        }
+        rc = d->readInFromSocket(sock,bsize,wantall, read_res);
+        if(read_res & DB_TOBIG)
+            *toobig = true;
+        if (rc <= 0) break;
     }
 
-    if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
+    if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
 #ifdef E2DEBUG
             std::cerr << thread_id << "zlib format" << std::endl;
@@ -278,8 +176,6 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 #ifdef E2DEBUG
     std::cerr << thread_id << "Leaving default download manager plugin" << std::endl;
 #endif
-    delete[] block;
-    /*if (d->data != temp)
-		delete[] temp;*/
+  //  delete[] block;
     return 0;
 }

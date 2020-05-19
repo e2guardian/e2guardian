@@ -1017,7 +1017,7 @@ int Socket::drainChunk(int timeout)    // reads chunks until 0 len chunk or time
     int csize = 1;
     while (csize > 0) {
         csize = readChunk(buff,32000, timeout);
-        if (!(csize > -1 )) {
+        if (csize < 0) {
 #ifdef CHUNKDEBUG
             std::cerr << thread_id << "drainChunk - error" << std::endl;
 #endif

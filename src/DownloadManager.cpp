@@ -32,13 +32,9 @@ extern dmcreate_t defaultdmcreate;
 
 // find the class factory functions for any DM plugins we've been configured to build
 
-#ifdef ENABLE_FANCYDM
 extern dmcreate_t fancydmcreate;
-#endif
 
-#ifdef ENABLE_TRICKLEDM
 extern dmcreate_t trickledmcreate;
-#endif
 
 // IMPLEMENTATION
 
@@ -48,7 +44,7 @@ extern dmcreate_t trickledmcreate;
 
 // constructor
 DMPlugin::DMPlugin(ConfigVar &definition)
-    : alwaysmatchua(false), cv(definition), mimelistenabled(false), extensionlistenabled(false)
+    : alwaysmatchua(false), cv(definition)
 {
 }
 
@@ -56,28 +52,28 @@ DMPlugin::DMPlugin(ConfigVar &definition)
 int DMPlugin::init(void *args)
 {
     bool lastplugin = *((bool *)args);
-    if (!lastplugin) {
+//    if (!lastplugin) {
         // compile regex for matching supported user agents
-        String r(cv["useragentregexp"]);
-        if (r.length() > 0) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "useragent regexp: " << r << std::endl;
-#endif
-            ua_match.comp(r.toCharArray());
-        } else {
+ //       String r(cv["useragentregexp"]);
+  //      if (r.length() > 0) {
+//#ifdef E2DEBUG
+   //         std::cerr << thread_id << "useragent regexp: " << r << std::endl;
+//#endif
+    //        ua_match.comp(r.toCharArray());
+     //   } else {
 // no useragent regex? then default to .*
-#ifdef E2DEBUG
-            std::cerr << thread_id << "no useragent regular expression; defaulting to .*" << std::endl;
-#endif
-            alwaysmatchua = true;
-        }
-        if (!readStandardLists())
-            return -1;
-    }
-#ifdef E2DEBUG
-    else
+//#ifdef E2DEBUG
+      //      std::cerr << thread_id << "no useragent regular expression; defaulting to .*" << std::endl;
+//#endif
+       //     alwaysmatchua = true;
+//        }
+        //if (!readStandardLists())
+         //   return -1;
+    //}
+//#ifdef E2DEBUG
+    //else
         std::cerr << thread_id << "Fallback DM plugin; no matching options loaded" << std::endl;
-#endif
+//#endif
     return 0;
 }
 
@@ -89,7 +85,7 @@ bool DMPlugin::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
     message += "<a href=\"" + linkurl + "\">" + prettyurl + "</a></p></body></html>\n";
     return peersock.writeString(message.toCharArray());
 }
-
+#ifdef NOTDEF
 // default method for deciding whether we will handle a request
 bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 {
@@ -158,7 +154,9 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
 
     return true;
 }
+#endif
 
+#ifdef NOTDEF
 // read in all the lists of various things we wish to handle
 bool DMPlugin::readStandardLists()
 {
@@ -197,6 +195,7 @@ bool DMPlugin::readStandardLists()
 
     return true;
 }
+#endif
 
 // take in a DM plugin configuration file, find the DMPlugin descendent matching the value of plugname, and store its class factory funcs for later use
 DMPlugin *dm_plugin_load(const char *pluginConfigPath)
@@ -228,23 +227,19 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
         return defaultdmcreate(cv);
     }
 
-#ifdef ENABLE_FANCYDM
     if (plugname == "fancy") {
 #ifdef E2DEBUG
         std::cerr << thread_id << "Enabling fancy DM plugin" << std::endl;
 #endif
         return fancydmcreate(cv);
     }
-#endif
 
-#ifdef ENABLE_TRICKLEDM
     if (plugname == "trickle") {
 #ifdef E2DEBUG
         std::cerr << thread_id << "Enabling trickle DM plugin" << std::endl;
 #endif
         return trickledmcreate(cv);
     }
-#endif
 
     if (!is_daemonised) {
         std::cerr << thread_id << "Unable to load plugin: " << plugname << std::endl;

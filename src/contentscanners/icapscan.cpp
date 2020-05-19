@@ -411,7 +411,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     if (usepreviews && (filesize > previewsize)) {
         try {
             while (sent < previewsize) {
-                int rc = readEINTR(filefd, data, previewsize);
+                int rc = read(filefd, data, previewsize);
                 if (rc < 0) {
                     throw std::runtime_error("could not read from file");
                 }
@@ -475,7 +475,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
 
     try {
         while (sent < filesize) {
-            int rc = readEINTR(filefd, data, 256 * 1024);
+            int rc = read(filefd, data, 256 * 1024);
 
 #ifndef NEWDEBUG_OFF
         if(o.myDebug->ICAPC)

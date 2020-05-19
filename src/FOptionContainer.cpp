@@ -43,11 +43,8 @@ std::deque<String> *ipToHostname(const char *ip)
     if (inet_aton(ip, &address)) { // convert to in_addr
         struct hostent *answer;
         answer = gethostbyaddr((char *)&address, sizeof(address), AF_INET);
-        if (answer) { // sucess in reverse dns
+        if (answer) { // success in reverse dns
             result->push_back(String(answer->h_name));
-           // for (addrptr = (struct in_addr **)answer->h_addr_list; *addrptr; addrptr++) {
-          //      result->push_back(String(inet_ntoa(**addrptr)));
-          // }
         }
     }
     return result;
@@ -702,6 +699,16 @@ bool FOptionContainer::read(const char *filename) {
            std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
            return false;
     }
+
+    if (o.dm_entry_dq.size() > 0)  {
+            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
+                if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
+                    std::cerr << thread_id << "Required DM storyboard entry function" << i->entry_function.c_str()
+                              << " is missing from pre_auth.stoary" << std::endl;
+                }
+            }
+        }
+    
     if (!precompileregexps()) {
         return false;
     } // precompiled reg exps for speed

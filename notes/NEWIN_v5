@@ -1,4 +1,4 @@
-This is the v5.4.1 near-stable version
+This is the v5.5.0 development version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -148,14 +148,18 @@ New option to use original ip & port (currently Linux only)
 TESTING -  
 ---------
 
-    Please prefix all bug reports with "v5.4: "
+    Please prefix all bug reports with "v5.5: "
 
-TO DO IN NEXT RELEASE
+TO DO IN THIS RELEASE
 ---------------------
 
-    Reduce unnecessary memory usage on in DataBuffer
+    Make sockets non-blocking so time-out works with MITM - complete
 
-    Make sockets non-blocking so time-out works with MITM
+    Reduce unnecessary memory usage on in DataBuffer & DMplugins - complete
+
+    Integrate DMplugins with storyboards for plugin match.
+
+    Re-implement fancy download manager
 
     Create 'output-filter' plug-in system for content modification
 

@@ -629,7 +629,7 @@ bool OptionContainer::read(std::string& filename, int type)
         } // check its a reasonable value
 
         if(icap_port > 0) {   // add non-plugin auth for ICAP
-            auth_entry sen;
+            SB_entry_map sen;
             sen.entry_function = "auth_icap";
             sen.entry_id = ENT_STORYA_AUTH_ICAP;
             auth_entry_dq.push_back(sen);

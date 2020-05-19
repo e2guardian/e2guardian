@@ -43,7 +43,7 @@ class OptionContainer
     DebugManager * myDebug;
 #endif
 
-    struct auth_entry {
+    struct SB_entry_map {
         int entry_id = 0;
         String entry_function;
     };
@@ -199,7 +199,8 @@ class OptionContainer
     std::deque<String> maplist_dq;
     std::deque<String> ipmaplist_dq;
 
-    std::deque<auth_entry> auth_entry_dq;
+    std::deque<SB_entry_map> auth_entry_dq;
+    std::deque<SB_entry_map> dm_entry_dq;
 
     std::string daemon_user;
     std::string daemon_group;

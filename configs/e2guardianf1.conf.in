@@ -201,6 +201,21 @@ regexpreplacelist = 'name=reponseheadermods,path=@E2CONFDIR@/lists/responseheade
 #ipsitelist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirussiteiplist'
 #urllist = 'name=exceptionvirus,path=@E2CONFDIR@/lists/contentscanners/exceptionvirusurllist'
 
+#Download manager activation lists
+#used with DM plug-ins story_function to determine if a download manager will be
+#   invoked
+
+#For trickle DM
+regexpboollist = 'name=trickleuseragent,path=@E2CONFDIR@/lists/downloadmanagers/trickleregexpuseragentlist'
+#mimelist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/tricklemimetypelist'
+#fileextlist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/trickleexttypelist'
+
+#For fancy DM
+regexpboollist = 'name=fancyuseragent,path=@E2CONFDIR@/lists/downloadmanagers/fancyregexpuseragentlist'
+#mimelist = 'name=fancyallow,path=@E2CONFDIR@/lists/downloadmanagers/fancymimetypelist'
+#fileextlist = 'name=fancyallow,path=@E2CONFDIR@/lists/downloadmanagers/fancyexttypelist'
+
+
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in
@@ -318,7 +333,7 @@ embeddedurlweight = 0
 # -1 - depreciated - for backward compatability enables cgibypass with bypassversion 1
 bypass = 0
 
-# Byapss version 2 is experimental, provide a secure cgi communication (see notes/cgi_bypass documentation)
+# Bypass version 2 provides a secure cgi communication (see notes/cgi_bypass documentation)
 # 
 
 # Bypass version
@@ -394,7 +409,6 @@ disablecontentscanerror = off
 # (on|off) default = off
 contentscanexceptions = off
 
-# Auth plugins
 # Enable Deep URL Analysis
 # When enabled, E2 looks for URLs within URLs, checking against the bannedsitelist and
 # bannedurllist. This can be used, for example, to block images originating from banned
@@ -528,12 +542,6 @@ reportinglevel = 3
 #NOTE to enable SSL MITM or NON-MITM SSL CERT checking
 # enablessl must be defined as 'yes' in e2guardian.conf
 
-#SSL certificate checking
-# Check that ssl certificates for servers on https connections are valid
-# and signed by a ca in the configured path
-# ONLY for connections that are NOT MITM
-#sslcertcheck = off - NOT implimented in V5 yet
-
 #SSL man in the middle
 # Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
 # using a different private key. Used to filter ssl sites
@@ -561,7 +569,7 @@ ipsitelist = 'name=nocheckcert,path=@E2CONFDIR@/lists/nocheckcertsiteiplist'
 #
 
 # Auto switch to MITM with upstream connection error or to deliver block page
-# ignored if  sslmitm is off
+# ignored if sslmitm is off
 # To revert to v4 type behavour switch this off
 # Default is 'on'
 # automitm = on

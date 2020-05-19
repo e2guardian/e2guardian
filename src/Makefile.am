@@ -41,6 +41,8 @@ COMMANDLINE_SOURCE =
 endif
 
 DEFAULTDM_SOURCE = downloadmanagers/default.cpp
+FANCYDM_SOURCE = downloadmanagers/fancy.cpp
+TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
 
 PROXYAUTH_SOURCE = authplugins/proxy.cpp
 IDENTAUTH_SOURCE = authplugins/ident.cpp
@@ -82,7 +84,6 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        NaughtyFilter.cpp NaughtyFilter.hpp \
 		       BackedStore.cpp BackedStore.hpp\
                        RegExp.cpp RegExp.hpp \
-		       FDFuncs.cpp FDFuncs.hpp \
 		       BaseSocket.cpp BaseSocket.hpp \
                        Socket.cpp Socket.hpp \
                        FatController.cpp FatController.hpp \

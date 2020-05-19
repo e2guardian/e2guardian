@@ -209,6 +209,12 @@ class HTTPHeader
             is_response = false;
     };
 
+    // generate bypass hashed url
+    String hashedURL(String *url,  std::string *clientip,
+                     bool infectionbypass, std::string *user, FOptionContainer &fdl, bool fakecgi = false);
+    // generate bypass hashed cookie
+    String hashedCookie(String *url, const char *magic, std::string *clientip, int bypasstimestamp, std::string user);
+
        private:
         // timeout for socket operations
         int timeout;
@@ -275,6 +281,7 @@ class HTTPHeader
 
     // grab cookies from headers
     String getCookie(const char *cookie);
+
 };
 
 #endif

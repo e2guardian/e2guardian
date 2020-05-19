@@ -290,3 +290,20 @@ function(is_search_term)
 if(urlin,searchtermexceptions) return false
 if(fullurlin,searchterms) setsearchterm
 if(returnset) return true
+
+# Default entry functions for download managers
+# Returns false is no match
+# or true for match to attivate download manager
+
+#trickleDM
+function(use_trickle_dm)
+ifnot(useragentin,trickleuseragent) return false
+if(mimein,trickleallow) return true
+if(extensionin,trickleallow) return true
+
+#fancyDM
+function(use_fancy_dm)
+ifnot(useragentin,fancyuseragent) return false
+if(mimein,fancyallow) return true
+if(extensionin,fancyallow) return true
+

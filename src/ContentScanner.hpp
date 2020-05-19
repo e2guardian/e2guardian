@@ -15,7 +15,6 @@
 #include "Socket.hpp"
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
-#include "FDFuncs.hpp"
 #include "Plugin.hpp"
 #include <stdexcept>
 
