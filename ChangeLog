@@ -2,8 +2,9 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.4.2
 
-April 2020
+April/May 2020
 
+ - Fix #602 - log timestamp records time log written
  - Fix #520 - by-pass cookie generation and check does not match
 
 version 5.4.1

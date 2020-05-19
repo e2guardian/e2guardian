@@ -690,7 +690,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     std::string stype, postdata, flags, searchterms;
     int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
     int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
-    long tv_sec = 0, tv_usec = 0;
+    long tv_sec = 0, tv_usec = 0, endtv_sec = 0, endtv_usec = 0;
     int contentmodified = 0, urlmodified = 0, headermodified = 0;
     int headeradded = 0;
 
@@ -845,27 +845,33 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                     tv_usec = atol(logline.c_str());
                     break;
                 case 23:
-                    clienthost = s;
+                    endtv_sec = atol(logline.c_str());
                     break;
                 case 24:
-                    useragent = s;
+                    endtv_usec = atol(logline.c_str());
                     break;
                 case 25:
-                    params = s;
+                    clienthost = s;
                     break;
                 case 26:
-                    postdata = s;
+                    useragent = s;
                     break;
                 case 27:
-                    message_no = s;
+                    params = s;
                     break;
                 case 28:
-                    headeradded = atoi(logline.c_str());
+                    postdata = s;
                     break;
                 case 29:
-                    flags = s;
+                    message_no = s;
                     break;
                 case 30:
+                    headeradded = atoi(logline.c_str());
+                    break;
+                case 31:
+                    flags = s;
+                    break;
+                case 32:
                     searchterms = s;
                     error = false;
                     break;
@@ -948,13 +954,11 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         }
 
         std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
-        struct timeval theend;
 
         // create a string representation of UNIX timestamp if desired
         if (o.log_timestamp || (o.log_file_format == 3)
             || (o.log_file_format > 4)) {
-            gettimeofday(&theend, NULL);
-            String temp((int) (theend.tv_usec / 1000));
+            String temp((int) (endtv_usec / 1000));
             while (temp.length() < 3) {
                 temp = "0" + temp;
             }
@@ -963,13 +967,14 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             }
             utime = temp;
             utime = "." + utime;
-            utime = String((int) theend.tv_sec) + utime;
+            utime = String((int) endtv_sec) + utime;
         }
 
 
-        if (o.log_file_format != 3) {
-            // "when" not used in format 3, and not if logging timestamps instead
-            time_t now = time(NULL);
+        if ((o.log_file_format <= 2) || (o.log_file_format == 4)) {
+            // "when" not used in format 3, and not if logging timestamps instead in formats 5-8
+            //time_t now = time(NULL);
+            time_t now = endtv_sec;
             char date[32];
             struct tm *tm = localtime(&now);
             strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
@@ -1018,8 +1023,8 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                 // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
                 std::string duration, hier, hitmiss;
                 long durationsecs, durationusecs;
-                durationsecs = (theend.tv_sec - tv_sec);
-                durationusecs = theend.tv_usec - tv_usec;
+                durationsecs = (endtv_sec - tv_sec);
+                durationusecs = endtv_usec - tv_usec;
                 durationusecs = (durationusecs / 1000) + durationsecs * 1000;
                 String temp((int) durationusecs);
                 while (temp.length() < 6) {
@@ -1068,8 +1073,8 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             default:
                 std::string duration;
                 long durationsecs, durationusecs;
-                durationsecs = (theend.tv_sec - tv_sec);
-                durationusecs = theend.tv_usec - tv_usec;
+                durationsecs = (endtv_sec - tv_sec);
+                durationusecs = endtv_usec - tv_usec;
                 durationusecs = (durationusecs / 1000) + durationsecs * 1000;
                 String temp((int) durationusecs);
                 duration = temp;

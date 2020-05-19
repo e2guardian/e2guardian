@@ -1437,6 +1437,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
 
 void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm) {
+    struct timeval theend;
+    gettimeofday(&theend, NULL);
     String rtype = cm.request_header->requestType();
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
@@ -1584,6 +1586,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
+        data += String((theend).tv_sec) + cr;
+        data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
 
         if (o.log_user_agent)
