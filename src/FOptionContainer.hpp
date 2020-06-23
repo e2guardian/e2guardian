@@ -73,10 +73,11 @@ public:
     int bypass_mode;
     bool bypass_v2 = false;
     bool cgi_bypass_v2 = false;
-    int bypass_version = 1;
+    int bypass_version = 2;
     bool cgi_bypass = false;
     int infection_bypass_mode;
     bool cgi_infection_bypass = false;
+    bool scan_bypass = false;
 
     std::string name;
     std::string magic;

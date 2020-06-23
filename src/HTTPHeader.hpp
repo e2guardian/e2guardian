@@ -171,8 +171,9 @@ class HTTPHeader
     // Bypass URL & Cookie funcs
 
     bool isBypassCookie(String url, const char *magic, const char *clientip, const char *user);
-    void chopBypass(String url, bool infectionbypass);
-    void chopScanBypass(String url);
+    //void chopBypass(String url, bool infectionbypass);
+    void chopBypass(String url,std::string bp_type);
+    //void chopScanBypass(String url);
     // add cookie to outgoing headers with given name & value
     void setCookie(const char *cookie, const char *domain, const char *value);
     bool isProxyRequest;

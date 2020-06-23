@@ -75,7 +75,7 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
 
 bool OptionContainer::read(std::string& filename, int type)
 {
-    time_t gen_cert_start, gen_cert_end;
+    time_t gen_cert_start = 0, gen_cert_end = 0;
 	conffilename = filename;
 
 	// all sorts of exceptions could occur reading conf files

@@ -1953,37 +1953,37 @@ bool ListContainer::readTimeBand(String &tag, TimeLimit &tl) {
     tdays.removeWhiteSpace();
     if (tsthour > 23) {
         if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Start Hour over bounds." << std::endl;
+            std::cerr << thread_id << "Time Tag Start Hour over bounds:" << tag << std::endl;
         }
-        syslog(LOG_ERR, "%s", "Time Tag Start Hour over bounds.");
+        syslog(LOG_ERR, "%s %s", "Time Tag Start Hour over bounds. ", tag.c_str());
         return false;
     }
     if (tendhour > 23) {
         if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag End Hour over bounds." << std::endl;
+            std::cerr << thread_id << "Time Tag End Hour over bounds:" << tag << std::endl;
         }
-        syslog(LOG_ERR, "%s", "Time Tag End Hour over bounds.");
+        syslog(LOG_ERR, "%s %s", "Time Tag End Hour over bounds.", tag.c_str());
         return false;
     }
     if (tstmin > 59) {
         if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Start Min over bounds." << std::endl;
+            std::cerr << thread_id << "Time Tag Start Min over bounds:" << tag << std::endl;
         }
-        syslog(LOG_ERR, "%s", "Time Tag Start Min over bounds.");
+        syslog(LOG_ERR, "%s %s", "Time Tag Start Min over bounds.", tag.c_str());
         return false;
     }
     if (tendmin > 59) {
         if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag End Min over bounds." << std::endl;
+            std::cerr << thread_id << "Time Tag End Min over bounds:" << tag << std::endl;
         }
-        syslog(LOG_ERR, "%s", "Time Tag End Min over bounds.");
+        syslog(LOG_ERR, "%s %s", "Time Tag End Min over bounds.", tag.c_str());
         return false;
     }
     if (tdays.length() > 7) {
         if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Days over bounds." << std::endl;
+            std::cerr << thread_id << "Time Tag Days over bounds:" << tag << std::endl;
         }
-        syslog(LOG_ERR, "%s", "Time Tag Days over bounds.");
+        syslog(LOG_ERR, "%s %s", "Time Tag Days over bounds.", tag.c_str());
         return false;
     }
     istimelimited = true;

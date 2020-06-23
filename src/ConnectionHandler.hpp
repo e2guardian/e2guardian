@@ -128,7 +128,7 @@ class ConnectionHandler
     // create temporary ban bypass URLs/cookies
     String hashedURL(String *url, int filtergroup, std::string *clientip, bool infectionbypass, std::string *user);
     // is this a temporary filter bypass URL?
-    int isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass, std::string &user);
+    int isBypassURL(String url, const char *magic, const char *clientip, std::string btype, std::string &user);
     // is this a scan bypass URL? (download previously scanned file)
     bool isScanBypassURL(String url, const char *magic, const char *clientip);
     String hashedCookie(String *url, const char *magic, std::string *clientip, int bypasstimestamp);

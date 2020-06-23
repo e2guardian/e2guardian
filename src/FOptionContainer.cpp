@@ -726,7 +726,7 @@ bool FOptionContainer::read(const char *filename) {
     if (!realitycheck(bypass_version, 0, 2, "bypassversion")) {
         return false;
     }
-    if (bypass_version == 0) bypass_version = 1;   //default
+    if (bypass_version == 0) bypass_version = 2;   //default
     if (bypass_version == 2) bypass_v2 = true;   //default
 
     bypass_mode = findoptionI("bypass");
@@ -786,6 +786,12 @@ bool FOptionContainer::read(const char *filename) {
             infection_bypass_errors_only = true;
         }
     }
+
+        if (findoptionS("scanbypass") == "on") {
+            scan_bypass = true;
+        } else {
+            scan_bypass = false;
+        }
 
 
     if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {

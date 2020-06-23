@@ -653,7 +653,6 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         // get a line of header from the stream
         bool truncated = false;
         int rc;
-        bool honour_reloadconfig = false;  // TEMPORARY FIX!!!!
         if (firsttime) {
 
 #ifndef NEWDEBUG_OFF

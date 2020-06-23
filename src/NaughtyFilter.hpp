@@ -83,6 +83,8 @@ class NaughtyFilter
     bool isscanbypass = false;
     bool isbypassallowed = false;
     bool isinfectionbypassallowed = false;
+    bool isscanbypassallowed = false;
+    bool istoobigbypassallowed = false;
     bool ispostblock = false;
     bool pausedtoobig = false;
     bool wasinfected = false;

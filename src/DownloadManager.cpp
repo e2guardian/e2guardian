@@ -51,7 +51,7 @@ DMPlugin::DMPlugin(ConfigVar &definition)
 // default initialisation procedure
 int DMPlugin::init(void *args)
 {
-    bool lastplugin = *((bool *)args);
+   // bool lastplugin = *((bool *)args);
 //    if (!lastplugin) {
         // compile regex for matching supported user agents
  //       String r(cv["useragentregexp"]);

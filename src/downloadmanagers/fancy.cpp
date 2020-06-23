@@ -161,9 +161,9 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     std::cout << thread_id << "Inside fancy download manager plugin" << std::endl;
 #endif
 
-    int rc = 0;
+    //int rc = 0;
 
-    off_t newsize;
+    //off_t newsize;
     off_t expectedsize = docheader->contentLength();
     d->bytes_toget = expectedsize;
     off_t bytessec = 0;

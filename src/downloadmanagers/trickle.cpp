@@ -109,7 +109,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     //  To access settings for the plugin use the following example:
     //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
 
-    int rc = 0;
+    //int rc = 0;
     d->bytesalreadysent = 0;
     d->bytes_toget = docheader->contentLength();
 
@@ -175,13 +175,13 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 // check the file is at least one kilobyte ahead of our send pointer, so
                 // the whole file does not get sent before scanning
                 if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t) -1) {
-                    ssize_t bytes_written; //new just remove GCC warning
+               //    ssize_t bytes_written; //new just remove GCC warning
                     lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
 #ifdef E2DEBUG
                     std::cout << "trickle delay - sending a byte from the file" << std::endl;
 #endif
                     char byte;
-                    bytes_written = read(d->tempfilefd, &byte, 1);
+                 //   bytes_written = read(d->tempfilefd, &byte, 1);
                     peersock->writeToSocket(&byte, 1, 0, d->timeout);
                     d->bytesalreadysent++;
                 }

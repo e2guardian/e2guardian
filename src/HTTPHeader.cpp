@@ -1247,6 +1247,8 @@ String HTTPHeader::hashedURL(String *url,  std::string *clientip,
         magic += user->c_str();
     magic += timecode;
     String res(infectionbypass ? "GIBYPASS=" : "GBYPASS=");
+    if (fakecgi) // it is an oversized file bypass
+        res = "GOSBYPASS=";
     String hash;
     if (!url->after("://").contains("/")) {
         String newurl((*url));
@@ -1290,33 +1292,61 @@ String HTTPHeader::hashedCookie(String *url, const char *magic, std::string *cli
 // This function ASSUMES that you really know what you are doing
 // Do NOT run this function unless you know that the URL contains a valid bypass code
 // Ernest W Lessenger
-void HTTPHeader::chopBypass(String url, bool infectionbypass)
-{
-    if (url.contains(infectionbypass ? "GIBYPASS=" : "GBYPASS=")) {
-        if (url.contains(infectionbypass ? "?GIBYPASS=" : "?GBYPASS=")) {
-            String bypass(url.after(infectionbypass ? "?GIBYPASS=" : "?GBYPASS="));
-            header.front() = header.front().before(infectionbypass ? "?GIBYPASS=" : "?GBYPASS=") + header.front().after(bypass.toCharArray());
-        } else {
-            String bypass(url.after(infectionbypass ? "&GIBYPASS=" : "&GBYPASS="));
-            header.front() = header.front().before(infectionbypass ? "&GIBYPASS=" : "&GBYPASS=") + header.front().after(bypass.toCharArray());
-        }
-    }
-    cachedurl = "";
-}
+//void HTTPHeader::chopBypass(String url, bool infectionbypass)
+//{
+// chopBypass(url, infectionbypass ? "GIBYPASS=" : "GBYPASS=");
+
+ //if (url.contains(infectionbypass ? "GIBYPASS=" : "GBYPASS=")) {
+        //if (url.contains(infectionbypass ? "?GIBYPASS=" : "?GBYPASS=")) {
+            //String bypass(url.after(infectionbypass ? "?GIBYPASS=" : "?GBYPASS="));
+            ////header.front() = header.front().before(infectionbypass ? "?GIBYPASS=" : "?GBYPASS=") + header.front().after(bypass.toCharArray());
+        //} else {
+            //String bypass(url.after(infectionbypass ? "&GIBYPASS=" : "&GBYPASS="));
+            //header.front() = header.front().before(infectionbypass ? "&GIBYPASS=" : "&GBYPASS=") + header.front().after(bypass.toCharArray());
+        //}
+    //}
+    //cachedurl = "";
+//}
 
 // same for scan bypass
-void HTTPHeader::chopScanBypass(String url)
+//void HTTPHeader::chopScanBypass(String url)
+//{
+//    chopBypass(url,"GSBYPASS=");
+//    if (url.contains("GSBYPASS=")) {
+//        if (url.contains("?GSBYPASS=")) {
+//            String bypass(url.after("?GSBYPASS="));
+//            header.front() = header.front().before("?GSBYPASS=") + header.front().after(bypass.toCharArray());
+//        } else {
+//            String bypass(url.after("&GSBYPASS="));
+//            header.front() = header.front().before("&GSBYPASS=") + header.front().after(bypass.toCharArray());
+//        }
+//    }
+//    cachedurl = "";
+//}
+
+// New generic chopBypass - allows new types to be added
+void HTTPHeader::chopBypass(String url,std::string btype)  // Note: type must include = , e.g. GBYPASS=
 {
-    if (url.contains("GSBYPASS=")) {
-        if (url.contains("?GSBYPASS=")) {
-            String bypass(url.after("?GSBYPASS="));
-            header.front() = header.front().before("?GSBYPASS=") + header.front().after(bypass.toCharArray());
+    if (url.contains(reinterpret_cast<const char *>(btype.c_str()))) {
+        std::string qtype("?");
+        qtype += btype;   // = ?GIBYPASS=  or ?GBYPASS= etc
+        if (url.contains(reinterpret_cast<const char *>(qtype.c_str()))) {
+            String bypass(url.after(qtype.c_str()));
+            String after(header.front().after(bypass.toCharArray()));
+            header.front() = header.front().before(qtype.c_str());
+            header.front() += after;
         } else {
-            String bypass(url.after("&GSBYPASS="));
-            header.front() = header.front().before("&GSBYPASS=") + header.front().after(bypass.toCharArray());
+            std::string qtype("&");
+            qtype += btype;   // = &GIBYPASS=  or &GBYPASS= etc
+            if (url.contains(reinterpret_cast<const char *>(qtype.c_str()))) {
+                String bypass(url.after(qtype.c_str()));
+                String after(header.front().after(bypass.toCharArray()));
+                header.front() = header.front().before(qtype.c_str());
+                header.front() += after;
+            }
         }
+        cachedurl = "";
     }
-    cachedurl = "";
 }
 
 
@@ -1871,7 +1901,6 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
     // during receipt of a request in progress.
         bool truncated = false;
         int rc;
-        bool honour_reloadconfig = false;  // TEMPORARY FIX!!!!
         if (firsttime) {
 #ifdef E2DEBUG
             std::cerr << thread_id << "header:in before getLine - timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;

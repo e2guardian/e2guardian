@@ -215,30 +215,22 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
 
 
 // is this a temporary filter bypass URL?
-int ConnectionHandler::isBypassURL(String url, const char *magic, const char *clientip, bool *isvirusbypass, std::string &user)
+int ConnectionHandler::isBypassURL(String url, const char *magic, const char *clientip, std::string btype, std::string &user)
 {
-    if ((url).length() <= 45)
-        return false; // Too short, can't be a bypass
+    //if ((url).length() <= 45)
+    //    return 0; // Too short, can't be a bypass
 
-    // check to see if this is a bypass URL, and which type it is
-    bool filterbypass = false;
-    bool virusbypass = false;
-    if ((isvirusbypass == NULL) && ((url).contains("GBYPASS="))) {
-        filterbypass = true;
-    } else if ((isvirusbypass != NULL) && (url).contains("GIBYPASS=")) {
-        virusbypass = true;
-    }
-    if (!(filterbypass || virusbypass))
+    // check to see if this is a bypass URL of the btype type
+    if(!(url).contains(btype.c_str()))
         return 0;
 
 #ifdef E2DEBUG
-    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << thread_id << "URL " << btype << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
 
-    String url_left((url).before(filterbypass ? "GBYPASS=" : "GIBYPASS="));
+    String url_left((url).before(btype.c_str()));
     url_left.chop(); // remove the ? or &
-    String url_right((url).after(filterbypass ? "GBYPASS=" : "GIBYPASS="));
-
+    String url_right((url).after(btype.c_str()));
     String url_hash(url_right.subString(0, 32));
     String url_time(url_right.after(url_hash.toCharArray()));
 #ifdef E2DEBUG
@@ -259,7 +251,7 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
 
     if (hashed != url_hash) {
 #ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " hash mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "URL " << btype << " hash mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 0;
     }
@@ -269,29 +261,27 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
 
     if (timeu < 1) {
 #ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "URL " << btype << " bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // bad time value
     }
     if (timeu < timen) { // expired key
 #ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+        std::cerr << thread_id << "URL " << btype << " expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
         return 1; // denotes expired but there
     }
 #ifdef E2DEBUG
-    std::cerr << thread_id << "URL " << (filterbypass ? "GBYPASS" : "GIBYPASS") << " not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
+    std::cerr << thread_id << "URL " << btype << " not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
 #endif
-    if (virusbypass)
-        (*isvirusbypass) = true;
     return (int)timeu;
 }
 
 // is this a scan bypass URL? i.e. a "magic" URL for retrieving a previously scanned file
 bool ConnectionHandler::isScanBypassURL(String url, const char *magic, const char *clientip)
 {
-    if ((url).length() <= 45)
-        return false; // Too short, can't be a bypass
+   // if ((url).length() <= 45)
+   //     return false; // Too short, can't be a bypass
 
     if (!(url).contains("GSBYPASS=")) { // If this is not a bypass url
         return false;
@@ -1332,10 +1322,56 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
                 if ((!checkme.isItNaughty) && checkme.waschecked) {
-                    if (!docbody.out(&peerconn))
-                        checkme.pausedtoobig = false;
-                    if (checkme.pausedtoobig)
-                        checkme.tunnel_rest = true;
+                    if (docbody.dontsendbody && docbody.tempfilefd > -1) {
+//#ifdef NOTDEF
+                        // must have been a 'fancy'
+                        // download manager so we need to send a special link which
+                        // will get recognised and cause DG to send the temp file to
+                        // the browser.  The link will be the original URL with some
+                        // magic appended to it like the bypass system.
+
+                        // format is:
+                        // GSBYPASS=hash(ip+url+tempfilename+mime+disposition+secret)
+                        // &N=tempfilename&M=mimetype&D=dispos
+
+                        String ip(clientip);
+                        String tempfilename(docbody.tempfilepath.after("/tf"));
+                        String tempfilemime(docheader.getContentType());
+                        String tempfiledis(miniURLEncode(docheader.disposition().toCharArray()).c_str());
+                        String secret(ldl->fg[filtergroup]->magic.c_str());
+                        String magic(ip + checkme.url + tempfilename + tempfilemime + tempfiledis + secret);
+                        String hashed(magic.md5());
+#ifdef DGDEBUG
+                        std::cout << dbgPeerPort << " -sending magic link to client: " << ip << " " << url << " " << tempfilename << " " << tempfilemime << " " << tempfiledis << " " << secret << " " << hashed << std::endl;
+#endif
+                        String sendurl(checkme.url);
+                        if (!sendurl.after("://").contains("/")) {
+                            sendurl += "/";
+                        }
+                        if (sendurl.contains("?")) {
+                            sendurl += "&GSBYPASS=";
+                        } else {
+                            sendurl += "?GSBYPASS=";
+                        }
+                        sendurl += hashed;
+                        sendurl += "&N=";
+                        sendurl += tempfilename;
+                        sendurl += "&M=";
+                        sendurl += tempfilemime;
+                        sendurl += "&D=";
+                        sendurl += tempfiledis;
+                        docbody.dm_plugin->sendLink(peerconn, sendurl, checkme.url);
+
+                        // can't persist after this - DM plugins don't generally send a Content-Length.
+                        //TODO: need to change connection: close if there is plugin involved.
+                        persistOutgoing = false;
+//#endif
+                    } else {
+                        if (!docbody.out(&peerconn))
+                            checkme.pausedtoobig = false;
+                        if (checkme.pausedtoobig)
+                            checkme.tunnel_rest = true;
+                    }
                 }
             }
 
@@ -3022,47 +3058,92 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
     //first check if bypass allowed and set isbypassallowed
     checkme.isbypassallowed = (ldl->fg[filtergroup]->bypass_mode != 0);
     checkme.isinfectionbypassallowed = (ldl->fg[filtergroup]->infection_bypass_mode != 0);
-    if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed))
-        return false;
+    checkme.isscanbypassallowed = (ldl->fg[filtergroup]->scan_bypass);
+//    if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed || checkme.isscanbypassallowed))
+//        return false;
 
-    // int bypasstimestamp = 0;
-    if (isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+    if ((checkme.url).contains("BYPASS=") && ((checkme.url).length() > 45))  // may be url by-pass
+    {
+        // int bypasstimestamp = 0;
+        if (checkme.isscanbypassallowed &&
+            isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
 #ifdef E2DEBUG
-        std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
+            std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
 #endif
-        checkme.isscanbypass = true;
-        checkme.isbypass = true;
-        checkme.message_no = 608;
-        checkme.log_message_no = 608;
-        checkme.exceptionreason = o.language_list.getTranslation(608);
-    } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
+            checkme.isscanbypass = true;
+            checkme.isbypass = true;
+            checkme.message_no = 608;
+            checkme.log_message_no = 608;
+            checkme.exceptionreason = o.language_list.getTranslation(608);
+            //we need to decode the URL and send the temp file with the
+            //correct header to the client then delete the temp file
+            checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
+            checkme.tempfilemime = (checkme.tempfilename.after("&M="));
+            checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
+#ifdef E2DEBUG
+            std::cerr << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
+#endif
+            String rtype(header.requestType());
+            checkme.tempfilemime = checkme.tempfilemime.before("&D=");
+            checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
+            return true;
+        }
 #ifdef E2DEBUG
         std::cerr << thread_id << " -About to check for bypass..." << std::endl;
 #endif
-        if (ldl->fg[filtergroup]->bypass_mode != 0)
+        if (checkme.isscanbypass) {
             checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
-                                                         clientip.c_str(), NULL, clientuser);
-        if ((checkme.bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->imagic.c_str(),
-                                                         clientip.c_str(), &checkme.isvirusbypass,
-                                                         clientuser);
-        if (checkme.bypasstimestamp > 0) {
+                                                  clientip.c_str(), "GBYPASS=", clientuser);
+            if (checkme.bypasstimestamp > 0) {
+                header.chopBypass(checkme.logurl, "GBYPASS=");
+                if (checkme.bypasstimestamp > 1) {
+                    checkme.exceptionreason = o.language_list.getTranslation(606);
+                    checkme.message_no = 606;
+                }
 #ifdef E2DEBUG
-            if (checkme.isvirusbypass)
-                std::cerr << thread_id << " -Infection bypass URL match" << std::endl;
-            else
                 std::cerr << thread_id << " -Filter bypass URL match" << std::endl;
 #endif
-            header.chopBypass(checkme.logurl, checkme.isvirusbypass);
+            }
+        }
+
+        if ((checkme.bypasstimestamp == 0) && (checkme.isinfectionbypassallowed)) {
+            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->imagic.c_str(),
+                                                  clientip.c_str(), "GIBYPASS=", clientuser);
+            if (checkme.bypasstimestamp > 0) {
+                header.chopBypass(checkme.logurl, "GIBYPASS=");
+                if (checkme.bypasstimestamp > 1) {
+                    checkme.exceptionreason = o.language_list.getTranslation(608);
+                    checkme.message_no = 608;
+                }
+#ifdef E2DEBUG
+                std::cerr << thread_id << " -Infection bypass URL match" << std::endl;
+#endif
+            }
+        }
+
+        if ((checkme.bypasstimestamp == 0) && (checkme.istoobigbypassallowed)) {
+            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
+                                                  clientip.c_str(), "GOSBYPASS=", clientuser);
+            if (checkme.bypasstimestamp > 0) {
+                header.chopBypass(checkme.logurl, "GOSBYPASS=");
+                if (checkme.bypasstimestamp > 1) {
+                    checkme.exceptionreason = o.language_list.getTranslation(608);
+                    checkme.message_no = 608;
+                }
+#ifdef E2DEBUG
+                std::cerr << thread_id << " -Too big to scan bypass URL match" << std::endl;
+#endif
+            }
+        }
+    }
+
+        if (checkme.bypasstimestamp > 0) {
             if (checkme.bypasstimestamp > 1) { // not expired
                 checkme.isbypass = true;
                 checkme.isexception = true;
-                // checkme: need a TR string for virus bypass
-                checkme.exceptionreason = o.language_list.getTranslation(606);
-                checkme.message_no = 606;
-                checkme.log_message_no = 606;
+               checkme.log_message_no = checkme.message_no;
             }
-        } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
+        } else if (checkme.isbypassallowed) {  // no bypass in url so check for by pass cookie
             String ud(checkme.urldomain);
             if (ud.startsWith("www.")) {
                 ud = ud.after("www.");
@@ -3081,7 +3162,6 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
 #ifdef E2DEBUG
         std::cerr << thread_id << " -Finished bypass checks." << std::endl;
 #endif
-    }
 
 #ifdef E2DEBUG
     if (checkme.isbypass) {
@@ -3091,30 +3171,13 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
     //
 // End of bypass
 //
-// Start of scan by pass
-//
-
-    if (checkme.isscanbypass) {
-//we need to decode the URL and send the temp file with the
-        //correct header to the client then delete the temp file
-        checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
-        checkme.tempfilemime = (checkme.tempfilename.after("&M="));
-        checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
-#ifdef E2DEBUG
-        std::cerr << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
-#endif
-        String rtype(header.requestType());
-        checkme.tempfilemime = checkme.tempfilemime.before("&D=");
-        checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
-        return true;
-    }
-    return false;
+    return false;    // checkme.isbypass should be checked for success - only returns true if is a scanned by-pass
 }
 
 bool ConnectionHandler::sendScanFile(Socket &peerconn, NaughtyFilter &checkme, bool is_icap, ICAPHeader *icaphead) {
     try {
         checkme.docsize = sendFile(&peerconn, checkme, checkme.url, is_icap, icaphead);
-        checkme.request_header->chopScanBypass(checkme.url);
+        checkme.request_header->chopBypass(checkme.url,"GSBYPASS=");
         checkme.logurl = checkme.request_header->getLogUrl();
 
         doLog(clientuser, checkme.clientip, checkme);

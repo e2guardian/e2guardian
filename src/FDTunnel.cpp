@@ -83,7 +83,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     if(twoway)
         ignore = false;
 
-    int rc, fdfrom, fdto;
+    int fdfrom, fdto;
 
     fdfrom = sockfrom.getFD();
     fdto = sockto.getFD();

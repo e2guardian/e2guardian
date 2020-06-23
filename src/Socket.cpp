@@ -1088,6 +1088,7 @@ bool Socket::ssl_poll_wait(int serr, int timeout) {
             return true;
         }
     }
+    return false;
 }
 
 short int Socket::get_wait_flag(bool write_flag) {
