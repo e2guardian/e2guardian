@@ -125,7 +125,7 @@ sitelist = 'name=localexception,messageno=662,path=@E2CONFDIR@/lists/localexcept
 # Uncomment the two lines below if want to only allow extentions/mime types in these lists
 # You will also need to uncomment the checkfiletype function in site.story to enable this
 #fileextlist = 'name=exceptionextension,path=@E2CONFDIR@/lists/exceptionextensionlist'
-#mimelist = 'name=exceptionmime,path=@E2CONFDIR@/lists/exceptionmimelist'
+#mimelist = 'name=exceptionmime,path=@E2CONFDIR@/lists/exceptionmimetypelist'
 #
 # Use the following lists to block specific kinds of file downloads.
 #
