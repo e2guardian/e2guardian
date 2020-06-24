@@ -10,6 +10,7 @@
 #include "FatController.hpp"
 #include "SysV.hpp"
 #include "Queue.hpp"
+#include "Logger.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -23,6 +24,7 @@
 #include <fstream>
 #include <fcntl.h>
 #include <locale.h>
+#include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/times.h>
@@ -38,6 +40,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 
+Logger* __logger;
 bool is_daemonised;
 
 // regexp used during URL decoding by HTTPHeader
