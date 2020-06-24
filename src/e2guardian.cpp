@@ -63,17 +63,18 @@ void read_config(std::string& configfile, int type);
 //void read_config(const char *configfile, int type)
 void read_config(std::string& configfile, int type)
 {
+    using namespace std::string_literals;
+
+    logger_trace("Read configfile: "s + configfile);
     int rc = open(configfile.c_str(), 0, O_RDONLY);
     if (rc < 0) {
-        syslog(LOG_ERR, "Error opening %s", configfile.c_str());
-        std::cerr << "Error opening " << configfile.c_str() << std::endl;
+        logger_error("Error opening "s + configfile);
         exit(1); // could not open conf file for reading, exit with error
     }
     close(rc);
 
     if (!o.read(configfile, type)) {
-        syslog(LOG_ERR, "%s", "Error parsing the e2guardian.conf file or other e2guardian configuration files");
-        std::cerr << "Error parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;
+        logger_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
         exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
     }
 }
@@ -81,6 +82,8 @@ void read_config(std::string& configfile, int type)
 // program entry point
 int main(int argc, char *argv[])
 {
+    using namespace std::string_literals;
+
     is_daemonised = false;
     bool nodaemon = false;
     bool needreset = false;
@@ -90,16 +93,18 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int rc;
 
-    openlog(prog_name.c_str(), LOG_PID | LOG_CONS, LOG_USER);
+    __logger = new Logger("e2guardian");
+    __logger->enable_log = true;
+    __logger->enable_debug = true;
 
-#ifdef E2DEBUG
-    std::cout << "Running in debug mode..." << std::endl;
-#endif
+    logger_log("Start " + prog_name );
+    logger_debug("Running in debug_mode...");
 
 #ifdef __BENCHMARK
     char benchmark = '\0';
 #endif
 
+    // parse Options
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             for (unsigned int j = 1; j < strlen(argv[i]); j++) {
@@ -195,24 +200,17 @@ int main(int argc, char *argv[])
     read_config(configfile, 2);
 
     if ( ! o.name_suffix.empty() ) {
-      prog_name += o.name_suffix;
-      closelog();
-      openlog(prog_name.c_str(), LOG_PID | LOG_CONS, LOG_USER);
+        __logger->setName(prog_name + o.name_suffix);
     }
 
     if (total_block_list && !o.readinStdin()) {
-        syslog(LOG_ERR, "%s", "Error on reading total_block_list");
-        std::cerr << "Error on reading total_block_list" << std::endl;
+        logger_error("Error on reading total_block_list");
 //		return 1;
-#ifdef E2DEBUG
-        std::cerr << "Total block lists read OK from stdin." << std::endl;
-
-#endif
+        logger_debug("Total block lists read OK from stdin.");
     }
 
     if(!o.createLists(0))  {
-        std::cerr << "Error reading filter group conf file(s)." << std::endl;
-        syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+        logger_error("Error reading filter group conf file(s).");
         return 1;
     }
 
@@ -304,8 +302,7 @@ int main(int argc, char *argv[])
 #endif
 
     if (sysv_amirunning(o.pid_filename)) {
-        syslog(LOG_ERR, "%s", "I seem to be running already!");
-        std::cerr << "I seem to be running already!" << std::endl;
+        logger_error("I seem to be running already!");
         return 1; // can't have two copies running!!
     }
 
@@ -322,7 +319,7 @@ int main(int argc, char *argv[])
 
     struct rlimit rlim;
     if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        syslog(LOG_ERR, "getrlimit call returned %d error", errno);
+        logger_error( "getrlimit call returned error: " + errno);
         return 1;
     }
     int max_maxchildren;
@@ -357,10 +354,8 @@ int main(int argc, char *argv[])
     if ((sg = getgrnam(o.daemon_group_name.c_str())) != 0) {
         o.proxy_group = sg->gr_gid;
     } else {
-        syslog(LOG_ERR, "Unable to getgrnam(): %s", strerror(errno));
-        syslog(LOG_ERR, "Check the group that e2guardian runs as (%s)", o.daemon_group_name.c_str());
-        std::cerr << "Unable to getgrnam(): " << strerror(errno) << std::endl;
-        std::cerr << "Check the group that e2guardian runs as (" << o.daemon_group_name.c_str() << ")" << std::endl;
+        logger_error( "Unable to getgrnam(): "s + strerror(errno));
+        logger_error("Check the group that e2guardian runs as (" + o.daemon_group_name + ")");
         return 1;
     }
 
@@ -433,28 +428,18 @@ int main(int argc, char *argv[])
             rc = seteuid(rootuid);
 #endif
             if (rc == -1) {
-                syslog(LOG_ERR, "%s", "Unable to seteuid() to read conf files.");
-#ifdef E2DEBUG
-                std::cerr << "Unable to seteuid() to read conf files." << std::endl;
-#endif
+                logger_error("Unable to seteuid() to read conf files.");
                 return 1;
             }
-#ifdef E2DEBUG
-            std::cout << "About to re-read conf file." << std::endl;
-#endif
+            logger_trace("About to re-read conf file.");
             o.reset();
             if (!o.read(configfile, 2)) {
-                syslog(LOG_ERR, "%s", "Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
-#ifdef E2DEBUG
-                std::cerr << "Error re-parsing the e2guardian.conf file or other e2guardian configuration files" << std::endl;
-#endif
-                return 1;
                 // OptionContainer class had an error reading the conf or
                 // other files so exit with error
+                logger_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
+                return 1;
             }
-#ifdef E2DEBUG
-            std::cout << "conf file read." << std::endl;
-#endif
+            logger_trace("conf file read.");
 
             if (nodaemon) {
                 o.no_daemon = 1;
