@@ -282,23 +282,14 @@ exit -1
 #exit -1
 #])
 
-[if test "$GCC_VERSION_MAJOR" -eq 4; then
-	if test "$GCC_VERSION_MINOR" -ge 9; then
-		if test "$GCC_VERSION_PATCH" -ge 3; then
-                        echo "Version: $GCC_VERSION"
-                        CXXFLAGS="${CXXFLAGS} --std=c++11"
-                fi
-        fi
-	echo "Version: $GCC_VERSION "
-        CXXFLAGS="${CXXFLAGS} --std=c++1y"
+[      
+echo "GCC Version: $GCC_VERSION"
+
+if test "$GCC_VERSION_MAJOR" -ge 6; then
+  CXXFLAGS="${CXXFLAGS} --std=c++14"
 else
-        if test "$GCC_VERSION_MAJOR" -ge 5; then
-        echo "Version: $GCC_VERSION "
-        CXXFLAGS="${CXXFLAGS} --std=c++11"
-	else
-	echo "Version: $GCC_VERSION "
-        CXXFLAGS="${CXXFLAGS} --std=c++1y"
-	fi
+  echo "Require gcc version 6.x at least!"
+  exit -1
 fi
 ]
 
