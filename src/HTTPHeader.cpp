@@ -11,6 +11,7 @@
 #include "Socket.hpp"
 #include "OptionContainer.hpp"
 #include "FDTunnel.hpp"
+#include "Logger.hpp"
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -214,36 +215,29 @@ String HTTPHeader::getMIMEBoundary()
 // does the given content type string match our headers?
 bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
 {
-#ifdef E2DEBUG
-             std::cerr << thread_id << "mime type: " << getContentType() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-// Do standard check first!
-   if (getContentType().startsWith(t))
-	return true;
+    logger_debug("mime type: "s + getContentType());
 
-// Only check text_mime types if ContentType request is 'text'
-   if (t == "text") {
+    // Do standard check first!
+    if (getContentType().startsWith(t))
+	    return true;
+
+    // Only check text_mime types if ContentType request is 'text'
+    if (t == "text") {
         String mime = getContentType();
         std::deque<std::string> text_mime =  foc->text_mime;
         int size = (int) text_mime.size();
         int i;
         for (i = 0; i < size; i++) {
             if (mime.startsWith(text_mime[i])) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "mimes match : " << text_mime[i] << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+                logger_debug( "mimes match : "s + text_mime[i]);
                 return true;
-           }
-#ifdef E2DEBUG
-	   else {
-                std::cerr << thread_id << "mimes check : " << text_mime[i] << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-	   }
-#endif
+            }
+	        else {
+                logger_debug("mimes check : "s + text_mime[i]);
+	        }
         }
    }
-#ifdef E2DEBUG
-             std::cerr << thread_id << "mimes result : " << "false" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+   logger_debug("mimes result : false !");
    return false;
 }
 
@@ -314,9 +308,7 @@ bool HTTPHeader::isCompressed()
             // should not be here, but not must not
             return false;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "is compressed" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug( "is compressed!");
         return true; // i.e. encoded with something other than clear
     }
     return false;
@@ -403,9 +395,7 @@ void HTTPHeader::makePersistent(bool persist)
 // make the request look like it's come from/to the origin server
 void HTTPHeader::makeTransparent(bool incoming)
 {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Making headers transparent" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_trace("");
     if (incoming) {
         // remove references to the proxy before sending to browser
         if (pproxyconnection != NULL) {
@@ -537,40 +527,29 @@ void HTTPHeader::setURL(String &url)
         hostname = hostname.before(":"); // chop off the port bit
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "setURL: header.front() changed from: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("setURL: header.front() changed from: "s + header.front());
     if (https && header.front().startsWith("CONNECT"))
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
-    else
+    else 
         header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
-#ifdef E2DEBUG
-    std::cerr << thread_id << " to: " << header.front() << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    
+    logger_debug(" to: "s + header.front());    
 
     if (phost != NULL) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "setURL: header[] line changed from: " << (*phost) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("setURL: header[] line changed from: "s  + (*phost));
         (*phost) = String("Host: ") + hostname;
         if (port != (https ? 443 : 80)) {
             (*phost) += ":";
             (*phost) += String(port);
         }
         (*phost) += "\r";
-#ifdef E2DEBUG
-        std::cerr << thread_id << " to " << (*phost) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug(" to " + (*phost));
     }
     if (pport != NULL) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "setURL: header[] line changed from: " << (*pport) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("setURL: header[] line changed from: "s + (*pport));
         (*pport) = String("Port: ") + String(port) + "\r";
-#ifdef E2DEBUG
-        std::cerr << thread_id << " to " << (*pport) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug(" to "s + (*pport));
     }
     // Don't just cache the URL we're sent - getUrl() performs some other
     // processing, notably stripping the port part. Caching here will
@@ -674,15 +653,13 @@ String HTTPHeader::redirecturl()
 
 bool HTTPHeader::addHeader(String &newheader) {
     if (newheader.size() > 0) {
-    isheaderadded = true;
-    addheaderchecked = true;
-    std::string line(newheader + "\r");
-    header.push_back(String(line.c_str()));
-#ifdef E2DEBUG
-    std::cerr << thread_id << "addheader = " << newheader << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        isheaderadded = true;
+        addheaderchecked = true;
+        std::string line(newheader + "\r");
+        header.push_back(String(line.c_str()));
+        logger_debug("addheader = "s + newheader);
         return true;
-        }
+    }
     return false;
 }
 
@@ -708,9 +685,7 @@ bool HTTPHeader::malformedURL(const String &url)
     if (host.contains("/"))
         host = host.before("/");
     if (host.length() < 2) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "host len too small" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("host len too small!");
         return true;
     }
     if (host.contains(":"))
@@ -718,9 +693,7 @@ bool HTTPHeader::malformedURL(const String &url)
     // endsWith . check removed as this format is used by Apple Configurator Updates
     //	if (host.contains("..") || host.endsWith(".")) {
     if (host.contains("..")) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "double dots in domain name" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("double dots in domain name!");
         return true;
     }
     int i, len;
@@ -738,20 +711,17 @@ bool HTTPHeader::malformedURL(const String &url)
             containsletter = true;
         if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z')
             && !(c >= '0' && c <= '9') && c != '.' && c != '-' && c != '_') {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "bad char in hostname" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
-            return true;
             // only allowed letters, digits, hiphen, dots
+            logger_debug("bad char in hostname!");
+            return true;
         }
     }
     // no IP obfuscation going on
     if (containsletter)
         return false;
-#ifdef E2DEBUG
     else
-        std::cerr << thread_id << "Checking for IP obfuscation in " << host << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("Checking for IP obfuscation in "s + host);
+
     // Check no IP obfuscation is going on
     // This includes IPs encoded as a single decimal number,
     // fully or partly hex encoded, and octal encoded
@@ -969,18 +939,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pheaderident = &(*i);
         }
 
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Header value from client: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("Header value from client: " + *i);
     }
 }
 
     //if its http1.1
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CheckHeader: HTTP/1.1 detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("CheckHeader: HTTP/1.1 detected");
         onepointone = true;
     }
 
@@ -988,9 +954,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         requesttype = header.front().before(" ");
         if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
         {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "zero contentlength on request due to not POST/PUT " << std::endl;
-#endif
+            logger_debug("zero contentlength on request due to not POST/PUT ");
             contentlength = 0;
         }
         if(header.front().after(" ").startsWith("/"))
@@ -1003,9 +967,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         returncode = tp.toInteger();
         if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
         {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "zero contentlength on response due to returncode " << returncode << std::endl;
-#endif
+            logger_debug("zero contentlength on response due to returncode " + String(returncode) );
             contentlength = 0;
         }
     }
@@ -1015,9 +977,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     if(!icap) {
         if (pproxyconnection != NULL) {
             if (pproxyconnection->contains("lose")) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "CheckHeader: P-C says close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+                logger_debug("CheckHeader: P-C says close");
                 connectionclose = true;
             } else {
                 connectionclose = false;
@@ -1032,16 +992,16 @@ void HTTPHeader::checkheader(bool allowpersistent)
     // manner expected by E2 and will result in waiting for time-outs.  Bug identified by Jason Deasi.
     bool isconnect = false;
     if (outgoing && header.front()[0] == 'C') {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CheckHeader: CONNECT request detected" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("CheckHeader: CONNECT request detected");
         isconnect = true;
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "CheckHeader flags before normalisation: AP=" << allowpersistent << " PPC=" << (pproxyconnection != NULL)
-              << " 1.1=" << onepointone << " connectionclose=" << connectionclose << " CL=" << (pcontentlength != NULL) << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("CheckHeader flags before normalisation: "s +
+                    " AP=" + String(allowpersistent) +
+                    " PPC=" + String(pproxyconnection != NULL) +
+                    " 1.1=" + String(onepointone) +
+                    " connectionclose=" + String(connectionclose) +
+                    " CL=" + String(pcontentlength != NULL) );
 
     if (connectionclose || (!onepointone && (outgoing ? isconnect : (pcontentlength == NULL)))) {
         // couldnt have done persistency even if we wanted to
@@ -1062,18 +1022,17 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "CheckHeader flags after normalisation: AP=" << allowpersistent << " WP=" << waspersistent << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("CheckHeader flags after normalisation: "s +
+                    " AP=" + String(allowpersistent) +
+                    " WP=" + String(waspersistent) );
+
 
 if(!icap) {
     // force the headers to reflect whether or not persistency is allowed
     // (modify pproxyconnection or add connection close/keep-alive - Client version, of course)
     if (allowpersistent) {
         if (pproxyconnection == NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "CheckHeader: Adding our own Proxy-Connection: Keep-Alive" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+            logger_debug("CheckHeader: Adding our own Proxy-Connection: Keep-Alive");
             header.push_back("Connection: keep-alive\r");
             pproxyconnection = &(header.back());
         } else {
@@ -1081,9 +1040,7 @@ if(!icap) {
         }
     } else {
         if (pproxyconnection == NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "CheckHeader: Adding our own Proxy-Connection: Close" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+            logger_debug("CheckHeader: Adding our own Proxy-Connection: Close");
             header.push_back("Connection: close\r");
             pproxyconnection = &(header.back());
         } else {
@@ -1366,9 +1323,7 @@ String HTTPHeader::getReferer()
         }
     }
     line.removeWhiteSpace();
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Found Referer URL:" << line << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("Found Referer URL:"s + line);
     return line;
 }
 
@@ -1385,17 +1340,13 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
     if (s.length() < 3) {
         return s;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "decoding url" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_trace("decoding url");
     RegResult Rre;
     if (!urldecode_re.match(s.c_str(),Rre)) {
         return s;
     } // exit if not found
-#ifdef E2DEBUG
 
-    std::cerr << thread_id << "removing %XX" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_trace("removing %XX");
     int match;
     int offset;
     int pos = 0;
@@ -1410,9 +1361,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         n = Rre.result(match).c_str();
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
-#ifdef E2DEBUG
-        std::cerr << thread_id << "encoded: " << Rre.result(match) << " decoded: " << hexToChar(n) << " string so far: " << result << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("encoded: "s + Rre.result(match) + " decoded: " + hexToChar(n) + " string so far: " + result);
         pos = offset + 3;
     }
     if (size > pos) {
@@ -1602,13 +1551,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         if (header.size() > 0) {
             l = header.front() + "\n";
 
-#ifdef E2DEBUG
             if(is_response)  {
-    std::cerr << thread_id << "response headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    } else {
-    std::cerr << thread_id << "request headerout:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-    }
-#endif
+                logger_debug("response headerout:" + l);
+            } else {
+                logger_debug("request headerout:" + l);
+            }
 
 #ifdef __SSLMITM
             //if a socket is ssl we want to send relative paths not absolute urls
@@ -1620,9 +1567,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
             if (isdirect && !is_response) {
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
-#ifdef E2DEBUG
-    std::cerr << thread_id << "request headerout (modified for direct):" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+                logger_debug("request headerout (modified for direct):" + l);
             }
 
             // first reconnect loop - send first line
@@ -1630,27 +1575,21 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 if (!sock->writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
                     // reconnect & try again if we've been told to
                     if (reconnect && !isdirect) {
-// don't try more than once
-#ifdef E2DEBUG
-                        std::cerr << thread_id << "Proxy connection broken (1); trying to re-establish..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                        syslog(LOG_ERR, "Proxy connection broken (1); trying to re-establish...");
-#endif
+                        // don't try more than once
+                        logger_error( "Proxy connection broken (1); trying to re-establish...");
                         reconnect = false;
                         sock->reset();
                         int rc = sock->connect(o.proxy_ip, o.proxy_port);
                         if (rc)
                             return false;
-//                            throw std::exception();
+                            // throw std::exception();
                         continue;
                     }
                     // throw std::exception();
                     return false;
                 }
                 // if we got here, we succeeded, so break the reconnect loop
-#ifdef E2DEBUG
-                std::cerr << thread_id << "headertoclient:" << l << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-                std::cerr << thread_id << "timeout:" << timeout << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+                logger_debug("headertoclient: " + l.substr(0, l.length()-1) + " timeout:" + String(timeout));
                 break;
             }
         }
