@@ -99,13 +99,13 @@ void Logger::setDockerMode(){
 void Logger::info(const std::string thread_id, const std::string func, const int line, const std::string what)
 {
   std::string  message=Helper::build_message("",thread_id, func, line, what);
-  sendMessage(_LOG_INFO, message);
+  sendMessage(LOG_INFO, message);
 };
 
 void Logger::error(const std::string thread_id, const std::string func, const int line, const std::string what)
 {
   std::string  message=Helper::build_message("err", thread_id, func, line, what);
-  sendMessage(_LOG_ERR, message);
+  sendMessage(LOG_ERR, message);
 };
 
 void Logger::debug(const std::string thread_id, const std::string func, const int line, const std::string what)
@@ -113,7 +113,7 @@ void Logger::debug(const std::string thread_id, const std::string func, const in
 #ifdef E2DEBUG
   std::string  message=Helper::build_message("debug", thread_id, func, line, what);
   if (enable_debug)
-    sendMessage(_LOG_DEBUG, message);
+    sendMessage(LOG_DEBUG, message);
 #endif
 }
 
@@ -122,7 +122,7 @@ void Logger::trace(const std::string thread_id, const std::string func, const in
 #ifdef E2DEBUG
   std::string  message=Helper::build_message("trace", thread_id, func, line, what);
   if (enable_debug)
-    sendMessage(_LOG_DEBUG, message);
+    sendMessage(LOG_DEBUG, message);
 #endif
 }
 
@@ -130,7 +130,7 @@ void Logger::story(const std::string thread_id, const std::string what="")
 {
   if (enable_story) {
     std::string  message=Helper::build_message("story", thread_id, "", 0, what);
-    sendMessage(_LOG_INFO, message);
+    sendMessage(LOG_INFO, message);
   }
 }
 
