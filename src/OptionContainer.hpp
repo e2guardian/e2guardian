@@ -162,7 +162,6 @@ class OptionContainer
     std::string logid_2;
 
     bool no_daemon = false;
-    bool e2_front_log = false;
     bool no_logger = false;
     bool log_syslog = false;
     std::string name_suffix;
