@@ -9,14 +9,14 @@
 #include "e2config.h"
 #endif
 #include "ListManager.hpp"
+#include "Logger.hpp"
 
-#include <syslog.h>
 #include <ctime>
+#include <cstring>
 #include <sys/stat.h>
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern thread_local std::string thread_id;
 
 
@@ -47,9 +47,8 @@ int ListManager::findNULL()
 {
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "found free list:" << i << std::endl;
-#endif
+            logger_debug("found free list:"s + std::to_string(i));
+            // std::cerr << thread_id << "found free list:" << i << std::endl;
             return (signed)i;
         }
     }
@@ -62,9 +61,7 @@ void ListManager::garbageCollect()
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] != NULL) {
             if ((*l[i]).refcount < 1) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "deleting zero ref list: " << i << " " << l[i]->refcount << std::endl;
-#endif
+                logger_debug("deleting zero ref list: " + String(i) + " " + String(l[i]->refcount) );
                 delete l[i];
                 l[i] = NULL;
             }
@@ -76,9 +73,6 @@ void ListManager::deRefList(size_t i)
 {
     if (l[i] == NULL) return;
     l[i]->refcount--;
-#ifdef E2DEBUG
-    //std::cerr << thread_id << "de-referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
-#endif
     for (size_t j = 0; j < l[i]->morelists.size(); ++j)
         deRefList(l[i]->morelists[j]);
 }
@@ -86,9 +80,10 @@ void ListManager::deRefList(size_t i)
 void ListManager::refList(size_t i)
 {
     l[i]->refcount++;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "referencing list ref: " << i << ", refcount: " << l[i]->refcount << " (" << l[i]->sourcefile << ")" << std::endl;
-#endif
+    logger_debug("referencing list ref: " + String(i) +
+                 ", refcount: " + String(l[i]->refcount) +
+                 " (" + l[i]->sourcefile + ")" );
+
     for (size_t j = 0; j < l[i]->morelists.size(); ++j)
         refList(l[i]->morelists[j]);
 }
@@ -103,9 +98,7 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
         if ((*l[i]).previousUseItem(filename, startswith, filters)) {
             // this upToDate check also checks all .Included files
             if ((*l[i]).upToDate()) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "Using previous item: " << i << " " << filename << std::endl;
-#endif
+                logger_debug("Using previous item: " + String(i) + " " + filename);
                 refList(i);
                 return i;
             }
@@ -116,9 +109,7 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "pushing back for new list" << std::endl;
-#endif
+        logger_debug("pushing back for new list");
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
@@ -139,9 +130,7 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "pushing back for new list" << std::endl;
-#endif
+        logger_debug("pushing back for new list");
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
@@ -159,6 +148,13 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
 // pass in exception, banned, and weighted phrase lists all at once.
 int ListManager::newPhraseList(const char *exception, const char *banned, const char *weighted, int nlimit)
 {
+    if ( !strlen(exception) )
+        { logger_error("missing exception phrase file "); return -1; }
+    if ( !strlen(banned) )
+        { logger_error("missing banned phrase file "); return -1; }
+    if ( !strlen(weighted) )
+        { logger_error("missing weighted phrase file "); return -1; }
+
     time_t bannedpfiledate = getFileDate(banned);
     time_t exceptionpfiledate = getFileDate(exception);
     time_t weightedpfiledate = getFileDate(weighted);
@@ -176,9 +172,7 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
 //so when phrases read in in list container it needs to store
 //all the file names and if a single one has changed needs a
 //complete regenerate
-#ifdef E2DEBUG
-                std::cerr << thread_id << "Using previous phrase: " << exception << " - " << banned << " - " << weighted << std::endl;
-#endif
+                logger_debug("Using previous phrase: "s + exception + " - " + banned + " - " + weighted);
                 refList(i);
                 return i;
             }
@@ -208,42 +202,28 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
     bool return_error = false;
     int res = newPhraseList(exception, banned, weighted, nlimit);
     if (res < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening phraselists" << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error opening phraselists");
+        logger_error("Error opening phraselists");
         return_error = true;
 //        return false;
     }
     if (!(*l[res]).used) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Reading new phrase lists" << std::endl;
-#endif
+        logger_debug("Reading new phrase lists");
         bool result = (*l[res]).readPhraseList(exception, true);
         if (!result) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening exceptionphraselist" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error opening exceptionphraselist");
+            logger_error("Error opening exceptionphraselist");
             return_error = true;
 //        return false;
         }
 
         result = (*l[res]).readPhraseList(banned, false, -1, -1, false,nlimit);
         if (!result) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening bannedphraselist" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error opening bannedphraselist");
+            logger_error("Error opening bannedphraselist");
             return_error = true;
 //        return false;
         }
         result = (*l[res]).readPhraseList(weighted, false, -1, -1, false,nlimit);
         if (!result) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening weightedphraselist" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error opening weightedphraselist");
+            logger_error("Error opening weightedphraselist");
             return_error = true;
             //return false;
         }
