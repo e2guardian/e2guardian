@@ -5,3 +5,10 @@
 Makefile
 autom4te.cache
 README.md
+
+
+.vscode/
+**/Makefile.in
+**/.dirstamp
+
+e2guardian.code-workspace
