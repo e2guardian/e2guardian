@@ -12,11 +12,11 @@
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <syslog.h>
 #include <dirent.h>
 #include <cstdlib>
 #include <unistd.h> // checkme: remove?
@@ -25,7 +25,6 @@
 
 extern bool is_daemonised;
 extern thread_local std::string thread_id;
-
 
 
 //ListContainer total_block_site_list;
@@ -217,11 +216,17 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         blocked_content_store = findoptionS("blockedcontentstore");
 
-        if (findoptionS("nodaemon") == "on") {
-            no_daemon = true;
-        } else {
-            no_daemon = false;
-        }
+		if (findoptionS("nodaemon") == "on") {
+			no_daemon = true;
+		} else {
+			no_daemon = false;
+		}
+		
+		if (findoptionS("dockermode") == "on") {
+			no_daemon = true;
+		} else {
+			no_daemon = false;
+		}
 
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
@@ -254,7 +259,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             enable_ssl = false;
         }
 
-       if(enable_ssl) {
+    if(enable_ssl) {
         bool ret = true;
     if (findoptionS("useopensslconf") == "on") {
         use_openssl_conf = true;
@@ -270,39 +275,27 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
-           if (!is_daemonised){
-                    std::cerr << "cacertificatepath is required when ssl is enabled" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
-                ret = false;
-            }
+            logger_error("cacertificatepath is required when ssl is enabled");
+            ret = false;
+        }
 
         ca_private_key_path = findoptionS("caprivatekeypath");
         if (ca_private_key_path == "") {
-           if (!is_daemonised){
-                    std::cerr << "caprivatekeypath is required when ssl is enabled" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
-                ret = false;
-            }
+            logger_error("caprivatekeypath is required when ssl is enabled");
+            ret = false;
+        }
 
         cert_private_key_path = findoptionS("certprivatekeypath");
         if (cert_private_key_path == "") {
-           if (!is_daemonised){
-                    std::cerr << "certprivatekeypath is required when ssl is enabled" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
-                ret = false;
-            }
+            logger_error("certprivatekeypath is required when ssl is enabled");
+            ret = false;
+        }
 
         generated_cert_path = findoptionS("generatedcertpath") + "/";
         if (generated_cert_path == "/") {
-           if (!is_daemonised){
-                    std::cerr << "generatedcertpath is required when ssl is enabled" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
-                ret = false;
-            }
+            logger_error("generatedcertpath is required when ssl is enabled");
+            ret = false;
+        }
 
             time_t def_start = 1417872951; // 6th Dec 2014
             time_t ten_years = 315532800;
@@ -327,8 +320,8 @@ bool OptionContainer::read(std::string &filename, int type) {
 #endif
             } else {
                 return false;
-            }
         }
+    }
 
 
 #ifdef ENABLE_EMAIL
@@ -852,7 +845,9 @@ bool OptionContainer::read(std::string &filename, int type) {
             abort_on_missing_list = false;
         }
 
-        if (findoptionS("storyboardtrace") == "on") {
+        if (findoptionS("storyboardtrace") == "on")
+        {
+            logger_debug("Enable Storyboard tracing !!");
             SB_trace = true;
         } else {
             SB_trace = false;
