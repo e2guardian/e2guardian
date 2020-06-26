@@ -13,6 +13,7 @@
 #include "FOptionContainer.hpp"
 #include "OptionContainer.hpp"
 #include "ListMeta.hpp"
+#include "Logger.hpp"
 
 #include <cstdlib>
 #include <syslog.h>
@@ -117,19 +118,14 @@ HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
 // listname is used in error messages.
 bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, bool sortsw, bool cache, const char *listname)
 {
+    logger_trace(filename);
     if (strlen(filename) < 3) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
-        }
-        syslog(LOG_ERR, "Required Listname %s is not defined", listname);
+        logger_error("Required Listname "s + listname + " is not defined");
         return false;
     }
     int res = o.lm.newItemList(filename, sortsw, 1, true);
     if (res < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
+        logger_error("Error opening "s + listname);
         return false;
     }
     (*whichlist) = (unsigned)res;
@@ -144,14 +140,13 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
 }
 
 bool FOptionContainer::readConfFile(const char *filename) {
+    logger_trace(filename);    
     std::string linebuffer;
     String temp; // for tempory conversion and storage
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
+
     if (!conffiles.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading %s", filename);
+        logger_error("Error reading: "s + filename);
         return false;
     }
     while (!conffiles.eof()) {
@@ -187,13 +182,11 @@ bool FOptionContainer::read(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage
-        if(!readConfFile(filename))
+        if(!readConfFile(filename)) {
+            logger_error("Error reading: "s + filename);
             return false;
-
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Read conf into memory: " << filename << std::endl;
-#endif
-
+        }
+        logger_trace("Read conf into memory: "s + filename);
 
         if (findoptionS("disablecontentscan") == "on") {
             disable_content_scan = true;
@@ -213,9 +206,9 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
-#ifdef E2DEBUG
-        std::cerr << thread_id << "disable_content_scan " << disable_content_scan << " disablecontentscanerror: " << disable_content_scan_error << " contentscanexceptions: " << content_scan_exceptions << std::endl;
-#endif
+        logger_debug("disable_content_scan: "s + String(disable_content_scan) +
+                    " disablecontentscanerror: " + String(disable_content_scan_error) +
+                    " contentscanexceptions: " + String(content_scan_exceptions) );
 
         String mimes = findoptionS("textmimetypes");
         if (mimes != "") {
@@ -229,9 +222,9 @@ bool FOptionContainer::read(const char *filename) {
             mimes = mimes.substr(comma + 1);
 #ifdef E2DEBUG
             int size = (int) text_mime.size();
-        int i;
-        for (i = 0; i < size; i++) {
-                  std::cerr << thread_id << "mimes filtering : " << text_mime[i] << std::endl;
+            int i;
+            for (i = 0; i < size; i++) {
+                logger_debug("mimes filtering : " + text_mime[i]);
             }
 #endif
         }
@@ -242,9 +235,8 @@ bool FOptionContainer::read(const char *filename) {
             if(o.enable_ssl) {
                 ssl_check_cert = true;
                 } else {
-                syslog(LOG_ERR, "Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
-                std::cerr << thread_id << "Warning: sslcheckcert requires ssl to be enabled in e2guardian.conf " << std::endl;
-                ssl_check_cert = false;
+                    logger_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                    ssl_check_cert = false;
                 }
         } else {
             ssl_check_cert = false;
@@ -375,27 +367,21 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         if (reporting_level == 0) {
-            std::cerr << thread_id << "Reporting_level is : " << reporting_level << " file " << filename << std::endl;
-            syslog(LOG_ERR, "Reporting_level is : %d file %s", reporting_level, filename);
+            logger_error("Reporting_level is : "s + String(reporting_level) + " file " + filename);
         }
 
         long temp_max_upload_size;
         temp_max_upload_size = findoptionI("maxuploadsize");
-
         if ((realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) && (temp_max_upload_size != 0)) {
             max_upload_size = temp_max_upload_size;
             if (temp_max_upload_size > 0)
                 max_upload_size *= 1024;
         } else {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Invalid maxuploadsize: " << temp_max_upload_size << std::endl;
-            syslog(LOG_ERR, "Invalid maxuploadsize: %ld", temp_max_upload_size);
+            logger_error( "Invalid maxuploadsize: "s + String(temp_max_upload_size) );
             return false;
         }
+        logger_debug("maxuploadsize: " + String(temp_max_upload_size) );
 
-#ifdef E2DEBUG
-        std::cerr << thread_id << "(" << filtergroup << ") Max upload size in e2guardian group file: " << temp_max_upload_size << std::endl;
-#endif
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
             String temp_ada, temp_add;
@@ -416,19 +402,13 @@ bool FOptionContainer::read(const char *filename) {
             } else {
                 access_denied_domain = "localhost"; // No initialized value
                 if (access_denied_domain.length() < 4) {
-                    if (!is_daemonised) {
-                        std::cerr << thread_id << "Warning accessdeniedaddress setting appears to be wrong." << std::endl;
-                    }
-                    syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong.");
+                    logger_error("Warning accessdeniedaddress setting appears to be wrong.");
                 }
             }
         }
         if (reporting_level == 3) {
             if (access_denied_domain.length() > 1) {
-             	if (!is_daemonised) {
-                       std::cerr << thread_id << "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
+                logger_error("Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
                 return false;
             }
             // override default banned page
@@ -437,23 +417,15 @@ bool FOptionContainer::read(const char *filename) {
                 html_template = o.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    if (!is_daemonised) {
-                        std::cerr << thread_id << "Error reading HTML Template file: " << html_template << std::endl;
-                    }
-                    syslog(LOG_ERR, "Error reading HTML Template file: %s", html_template.toCharArray());
+                    logger_error("Error reading HTML Template file: "s + html_template);
                     return false;
-                    // HTML template file
                 }
             } else {
                 html_template = o.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    if (!is_daemonised) {
-                        std::cerr << thread_id << "Error reading default HTML Template file: " << html_template << std::endl;
-                    }
-                    syslog(LOG_ERR, "Error reading default HTML Template file: %s", html_template.toCharArray());
+                    logger_error("Error reading default HTML Template file: "s + html_template);
                     return false;
-                    // HTML template file
                 }
             }
 
@@ -491,25 +463,19 @@ bool FOptionContainer::read(const char *filename) {
 
         // grab group name (if not using external group names file)
         if (!o.use_group_names_list) {
-	    if (findoptionS("groupname").length() > 0) {
+	        if (findoptionS("groupname").length() > 0) {
             	name = findoptionS("groupname");
-	    } else {
-		name = "no_name_group";
-	    }
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Group name: " << name << std::endl;
-#endif
+	        } else {
+		        name = "no_name_group";
+	        }
+            logger_debug("Group name: "s + name);
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Embedded URL Weight: " << embedded_url_weight << std::endl;
-#endif
+        logger_debug("Embedded URL Weight: "s + std::to_string(embedded_url_weight));
 
         category_threshold = findoptionI("categorydisplaythreshold");
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Category display threshold: " << category_threshold << std::endl;
-#endif
+        logger_debug("Category display threshold: "s + std::to_string(category_threshold));
 
         // Support weighted phrase mode per group
         if (findoptionS("weightedphrasemode").length() > 0) {
@@ -523,11 +489,9 @@ bool FOptionContainer::read(const char *filename) {
 
         std::string storyboard_location(findoptionS("storyboard"));
 
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Read settings into memory" << std::endl;
-        std::cerr << thread_id << "Reading phrase, URL and site lists into memory" << std::endl;
-#endif
+        logger_trace("Read settings into memory");
 
+        logger_trace("Reading phrase, URL and site lists into memory");
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
             if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
@@ -544,81 +508,61 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "ipsitelist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("ipsitelist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("iplist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("iplist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
 
         {
-        std::deque<String> dq = findoptionM("timelist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "timelist deque is size " << dq.size() << std::endl;
-#endif
+            std::deque<String> dq = findoptionM("timelist");
+            logger_debug("timelist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
         }
 
         {
-        std::deque<String> dq = findoptionM("sitelist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "sitelist deque is size " << dq.size() << std::endl;
-#endif
+            std::deque<String> dq = findoptionM("sitelist");
+            logger_debug("sitelist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
 
         {
-        std::deque<String> dq = findoptionM("urllist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "urllist deque is size " << dq.size() << std::endl;
-#endif
+            std::deque<String> dq = findoptionM("urllist");
+            logger_debug("urllist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("searchlist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "searchlist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("searchlist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "fileextlist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("fileextlist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("mimelist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "mimelist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("mimelist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "regexpboollist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("regexpboollist deque is size "s + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
-#ifdef E2DEBUG
-            std::cerr << thread_id << "regexpreplacelist deque is size " << dq.size() << std::endl;
-#endif
+            logger_debug("regexpreplacelist deque is size " + String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 
@@ -667,12 +611,9 @@ bool FOptionContainer::read(const char *filename) {
 			content_regexp_flag = false;
 	}
 
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Lists in memory" << std::endl;
-#endif
+    logger_trace("Lists in memory");
 
-
-
+    logger_trace("Read Storyboard");
     if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
         return false;
 
