@@ -9,12 +9,12 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
-#include <syslog.h>
 #include <algorithm>
 #include "ListContainer.hpp"
 #include "SBFunction.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
+#include "Logger.hpp"
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
@@ -71,22 +71,19 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         rec.action_id = SB_COM_IFNOT;
         rec.isif = false;
     } else {
-        std::cout << thread_id << "StoryBoard error: Invalid command " << command << "at line " << line_no << " of " << file_name << std::endl;
+        logger_error("StoryBoard error: Invalid command "s + command + "at line " + String(line_no) + " of " + file_name);
         return false;
     }
     rec.file_lineno = line_no;
     // process params
-#ifdef E2DEBUG
-    std::cerr << thread_id << "CLine " << params << " Action " << action << std::endl;
-#endif
+    logger_debug("CLine " + params + " Action " + action);
+
     String state;
     String temp;
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CLine state is " << state << std::endl;
-#endif
+        logger_debug("CLine state is " + state);
         temp = params.after(",");
     } else {
         state = params;
@@ -94,7 +91,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     state.removeWhiteSpace();
     rec.state = getStateID(state);
     if (rec.state == 0) {
-        std::cout << thread_id << "StoryBoard error: Invalid state " << state << " at line " << line_no << " of " << file_name << std::endl;
+        logger_error("StoryBoard error: Invalid state "s + state + " at line " + String(line_no) + " of " + file_name);
         return false;
     }
 
@@ -108,10 +105,8 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
-#ifdef E2DEBUG
-            std::cerr << thread_id << "CLine list is " << temp2 << std::endl;
-#endif
-     }
+        logger_debug("CLine list is " + temp2);
+    }
     if ( temp.length() ) {
         if (temp.contains(",")) {
             temp2 = temp.before(",");
@@ -122,9 +117,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CLine mno is " << temp2 << std::endl;
-#endif
+        logger_debug("CLine mess_no is " + temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -136,9 +129,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CLine logmno is " << temp2 << std::endl;
-#endif
+        logger_debug("CLine log_mess_no is " + temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -151,9 +142,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         temp2.removeWhiteSpace();
         if (temp2 == "optional")
             rec.optional = true;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "CLine optional is true" << std::endl;
-#endif
+        logger_debug("CLine optional is true");
     }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 
@@ -164,8 +153,8 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         rec.return_after_action = true;
         action = action.after("return ");
     } else if (action.startsWith("returnif ")) {
-                rec.return_after_action_is_true = true;
-                action = action.after("returnif ");
+        rec.return_after_action_is_true = true;
+        action = action.after("returnif ");
     };
 
     action.removeWhiteSpace();
@@ -188,11 +177,8 @@ unsigned int SBFunction::getStateID(String & state) {
 
 unsigned int SBFunction::getBIFunctID(String &action)  {    // get built-in function id
     unsigned int i = 0;
-  //  std::cerr << thread_id << "getBIFuctID looking for " << action << " in map_size " << bi_funct_map.size() << std::endl;
     while (i < SB_FUNC_MAP_SIZE) {
-  //      std::cerr << thread_id << "getBIFuctID checking index " << i << " " << bi_funct_map.at(i) << std::endl;
         if ( action == bi_funct_map.at(i)) {
-    //        std::cerr << thread_id << "getBIFuctID l;ooking for " << action << std::endl;
             return ++i + SB_BI_FUNC_BASE;
         }
         ++i;
@@ -203,7 +189,8 @@ unsigned int SBFunction::getBIFunctID(String &action)  {    // get built-in func
 String SBFunction::getState(unsigned int id) {     // get condition statement from state_id
     if (--id < SB_STATE_MAP_SIZE)
         return state_map[id];
-    return "";
+    else
+        return String(id);
 };
 
 String SBFunction::getBIFunct(unsigned int &id) {    // get built-in function (action) from funct_id
@@ -212,7 +199,8 @@ String SBFunction::getBIFunct(unsigned int &id) {    // get built-in function (a
         if (i < SB_FUNC_MAP_SIZE)
             return bi_funct_map[i];
     }
-    return "";
+    else
+        return String(id);
 };
 
 String SBFunction::getName() {
