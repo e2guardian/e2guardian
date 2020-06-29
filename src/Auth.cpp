@@ -13,15 +13,13 @@
 #include "Auth.hpp"
 #include "OptionContainer.hpp"
 #include "LOptionContainer.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
-#include <syslog.h>
 
 // GLOBALS
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-extern bool is_daemonised;
 
 extern authcreate_t proxycreate;
 extern authcreate_t digestcreate;
@@ -79,25 +77,21 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
 
     //char *i = ldl->filter_groups_list.findStartsWithPartial(ue.toCharArray(), lastcategory);
  //   char *i = uglc.findStartsWithPartial(ue.toCharArray(), lastcategory);
-     cm.user = user;
-     if (!story.runFunctEntry(story_entry,cm)) {
-         int t = get_default(!cm.request_header->isProxyRequest);
-         if (t > 0) {
-             fg = --t;
-             cm.authrec->group_source = "pdef";
-             return E2AUTH_OK;
-         }
-#ifdef E2DEBUG
-             std::cerr << "User not in filter groups list for: " << pluginName.c_str() << std::endl;
-#endif
-             return E2AUTH_NOGROUP;
+    cm.user = user;
+    if (!story.runFunctEntry(story_entry,cm)) {
+        int t = get_default(!cm.request_header->isProxyRequest);
+        if (t > 0) {
+            fg = --t;
+            cm.authrec->group_source = "pdef";
+            return E2AUTH_OK;
+        }
+        logger_debug("User not in filter groups list for: " + pluginName);
+        return E2AUTH_NOGROUP;
       }
 
-#ifdef E2DEBUG
-    std::cerr << "Group found for: " << user.c_str() << " in " << pluginName.c_str() << std::endl;
-#endif
-     fg = cm.filtergroup;
-     return E2AUTH_OK;
+    logger_debug("Group found for: " + user + " in " + pluginName);
+    fg = cm.filtergroup;
+    return E2AUTH_OK;
 }
 
 // take in a configuration file, find the AuthPlugin class associated with the plugname variable, and return an instance
@@ -106,87 +100,61 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable to load plugin config: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "%sUnable to load plugin config %s", thread_id.c_str(), pluginConfigPath);
+        logger_error("Unable to load plugin config: "s + pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
-    if (plugname.length() < 1) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "%sUnable read plugin config plugname variable %s", thread_id.c_str(), pluginConfigPath);
+    if (plugname.length() < 1) {        
+        logger_error("Unable read plugin config plugname variable: "s + pluginConfigPath);
         return NULL;
     }
 
     if (plugname == "proxy-basic") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling proxy-basic auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling proxy-basic auth plugin");
         return proxycreate(cv);
     }
 
     if (plugname == "proxy-digest") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling proxy-digest auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling proxy-digest auth plugin");
         return digestcreate(cv);
     }
 
     if (plugname == "ident") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling ident server auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling ident server auth plugin");
         return identcreate(cv);
     }
 
     if (plugname == "ip") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling IP-based auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling IP-based auth plugin");
         return ipcreate(cv);
     }
 
     if (plugname == "port") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling port-based auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling port-based auth plugin");
         return portcreate(cv);
     }
 
     if (plugname == "proxy-header") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling proxy-header auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling proxy-header auth plugin");
         return headercreate(cv);
     }
 
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling DNS-based auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling DNS-based auth plugin");
         return dnsauthcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_NTLM
     if (plugname == "proxy-ntlm") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling proxy-NTLM auth plugin" << std::endl;
-#endif
+        logger_debug("Enabling proxy-NTLM auth plugin");
         return ntlmcreate(cv);
     }
 #endif
 
-
-    if (!is_daemonised) {
-        std::cerr << thread_id << "Unable to load plugin: " << pluginConfigPath << std::endl;
-    }
-    syslog(LOG_ERR, "%sUnable to load plugin %s", thread_id.c_str(), pluginConfigPath);
+    logger_error("Unable to load plugin: "s + pluginConfigPath);
     return NULL;
 }
 
@@ -203,19 +171,14 @@ int AuthPlugin::get_default(bool is_transparent) {
 }
 
 void AuthPlugin::read_def_fg() {
-   // syslog(LOG_ERR, "%sloading def_fg plugin ....", thread_id.c_str());
     String t = cv["defaultfiltergroup"];
-    //syslog(LOG_ERR, "%sdef_fg string is %s", thread_id.c_str(), t.c_str());
     int i = t.toInteger();
-    //syslog(LOG_ERR, "%sdef_fg int is %d", thread_id.c_str(), i);
     if(i > 0 && i <= o.filter_groups) {
         default_fg = i;
-        //syslog(LOG_ERR, "%sdeffg loaded as %d", thread_id.c_str(), default_fg);
     }
     t = cv["defaulttransparentfiltergroup"];
     i = t.toInteger();
     if(i > 0 && i <= o.filter_groups) {
         tran_default_fg = i;
-        //syslog(LOG_ERR, "%strandeffg loaded as %d", thread_id.c_str(), tran_default_fg);
     }
 }
