@@ -8,8 +8,8 @@
 #include "e2config.h"
 #endif
 #include "ImageContainer.hpp"
+#include "Logger.hpp"
 
-#include <syslog.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -19,8 +19,6 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -48,10 +46,7 @@ void ImageContainer::reset()
 //void ImageContainer::display(Socket *s)
 bool ImageContainer::display(Socket *s)
 {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Displaying custom image file" << std::endl;
-    std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
-#endif
+    logger_debug("Displaying custom image file mimetype: " + mimetype);
     s->writeString("Content-type: ");
     s->writeString(mimetype.toCharArray());
     s->writeString("\n\n");
@@ -99,21 +94,13 @@ bool ImageContainer::read(const char *filename)
         image = new char[imagelength + 1];
         imagefile.read(image, imagelength);
         if (!imagefile.good()) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Error reading custom image file: " << filename << std::endl;
-            syslog(LOG_ERR, "%s", "Error reading custom image file.");
+            logger_error("Error reading custom image file: "s + filename);
             return false;
         }
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Error reading custom image file: " << filename << std::endl;
-        syslog(LOG_ERR, "%s", "Error reading custom image file.");
+        logger_error("Error reading custom image file: "s + filename);
         return false;
     }
     imagefile.close();
-    //    #ifdef E2DEBUG
-    //      for (long int i = 0; i < imagelength; i++)
-    //          printf("Image byte content: %x\n", image[i]);
-    //    #endif
     return true;
 }
