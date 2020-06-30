@@ -40,7 +40,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 
-Logger* __logger;
+// Logger* __logger;
 bool is_daemonised;
 
 // regexp used during URL decoding by HTTPHeader
@@ -63,12 +63,10 @@ void read_config(std::string& configfile, int type);
 //void read_config(const char *configfile, int type)
 void read_config(std::string& configfile, int type)
 {
-    using namespace std::string_literals;
-
-    logger_trace("Read configfile: "s + configfile);
+    logger_trace("Read configfile: ", configfile);
     int rc = open(configfile.c_str(), 0, O_RDONLY);
     if (rc < 0) {
-        logger_error("Error opening "s + configfile);
+        logger_error("Error opening ", configfile);
         exit(1); // could not open conf file for reading, exit with error
     }
     close(rc);
@@ -82,8 +80,6 @@ void read_config(std::string& configfile, int type)
 // program entry point
 int main(int argc, char *argv[])
 {
-    using namespace std::string_literals;
-
     is_daemonised = false;
     bool nodaemon = false;
     bool needreset = false;
@@ -94,10 +90,11 @@ int main(int argc, char *argv[])
     int rc;
 
     __logger = new Logger("e2guardian");
-    __logger->enable_log = true;
-    __logger->enable_debug = true;
+#if E2DEBUG
+    __logger->enable(LoggerSource::debug);
+#endif    
 
-    logger_log("Start " + prog_name );
+    logger_info("Start ", prog_name );
     logger_debug("Running in debug_mode...");
 
 #ifdef __BENCHMARK
@@ -200,7 +197,7 @@ int main(int argc, char *argv[])
     read_config(configfile, 2);
 
     if ( ! o.name_suffix.empty() ) {
-        __logger->setName(prog_name + o.name_suffix);
+        __logger->setSyslogName(prog_name + o.name_suffix);
     }
 
     if (total_block_list && !o.readinStdin()) {
@@ -319,7 +316,7 @@ int main(int argc, char *argv[])
 
     struct rlimit rlim;
     if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        logger_error( "getrlimit call returned error: " + errno);
+        logger_error( "getrlimit call returned error: ", errno);
         return 1;
     }
     int max_maxchildren;
@@ -354,8 +351,8 @@ int main(int argc, char *argv[])
     if ((sg = getgrnam(o.daemon_group_name.c_str())) != 0) {
         o.proxy_group = sg->gr_gid;
     } else {
-        logger_error( "Unable to getgrnam(): "s + strerror(errno));
-        logger_error("Check the group that e2guardian runs as (" + o.daemon_group_name + ")");
+        logger_error( "Unable to getgrnam(): ", strerror(errno));
+        logger_error("Check the group that e2guardian runs as (", o.daemon_group_name, ")");
         return 1;
     }
 
@@ -365,8 +362,7 @@ int main(int argc, char *argv[])
         rc = setgid(o.proxy_group); // change to rights of proxy user group
         // i.e. low - for security
         if (rc == -1) {
-            syslog(LOG_ERR, "%s", "Unable to setgid()");
-            std::cerr << "Unable to setgid()" << std::endl;
+            logger_error("Unable to setgid()");
             return 1; // setgid failed for some reason so exit with error
         }
 #ifdef HAVE_SETREUID
@@ -376,8 +372,7 @@ int main(int argc, char *argv[])
 // (yes it negates but no choice)
 #endif
         if (rc == -1) {
-            syslog(LOG_ERR, "Unable to seteuid()");
-            std::cerr << "Unable to seteuid()" << std::endl;
+            logger_error("Unable to seteuid()");
             return 1; // seteuid failed for some reason so exit with error
         }
     } else {
@@ -411,6 +406,7 @@ int main(int argc, char *argv[])
     // this is no longer a class, but the comment has been retained for historical reasons. PRA 03-10-2005
     //FatController f;  // Thomas The Tank Engine
 
+    logger_trace("Starting Main loop");
     while (true) {
         rc = fc_controlit();
         // its a little messy, but I wanted to split
@@ -455,23 +451,17 @@ int main(int argc, char *argv[])
 #endif
 
             if (rc == -1) {
-                syslog(LOG_ERR, "%s", "Unable to re-seteuid()");
-#ifdef E2DEBUG
-                std::cerr << "Unable to re-seteuid()" << std::endl;
-#endif
+                logger_error("Unable to re-seteuid()");
                 return 1; // seteuid failed for some reason so exit with error
             }
             continue;
         }
 
-        if (rc > 0) {
-            if (!is_daemonised) {
-                std::cerr << "Exiting with error" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Exiting with error");
-            return rc; // exit returning the error number
-        }
         if (is_daemonised)
         	return 0; // exit without error
+        if (rc > 0) {
+            logger_error("Exiting with error");
+            return rc; // exit returning the error number
+        }
     }
 }

@@ -56,6 +56,7 @@
 #include "SysV.hpp"
 #include "Queue.hpp"
 #include "OptionContainer.hpp"
+#include "Logger.hpp"
 
 #ifdef VALGRD
   extern "C"
@@ -415,10 +416,7 @@ bool drop_priv_completely()
 
     int rc = seteuid(o.root_user); // need to be root again to drop properly
     if (rc == -1) {
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid(suid)");
-#ifdef E2DEBUG
-        std::cerr << thread_id << strerror(errno) << std::endl;
-#endif
+        logger_error("Unable to seteuid(suid)");
         return false; // setuid failed for some reason so exit with error
     }
     rc = setuid(o.proxy_user);
@@ -473,8 +471,8 @@ bool daemonise()
     setsid(); // become session leader
     //int dummy = chdir("/"); // change working directory
     if (chdir("/") != 0) {// change working directory
-	std::cerr << thread_id << " Can't change / directory !"  << std::endl;
-	return false;
+	    std::cerr << thread_id << " Can't change / directory !"  << std::endl;
+	    return false;
     }
     umask(0); // clear our file mode creation mask
     umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
@@ -493,53 +491,38 @@ bool daemonise()
 // handle any connections received by this thread
 void handle_connections(int tindex)
 {
-    thread_id = "hw";
-    thread_id += std::to_string(tindex);
-    thread_id += ": ";
+    thread_id = "hw" + std::to_string(tindex);
     try {
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
-            ConnectionHandler h;
-            // the class that handles the connections
-	    //int rc = 0;
-	    String ip;
-#ifdef E2DEBUG
-            std::cerr << thread_id << " in  handle connection"  << std::endl;
-#endif
-//            std::thread::id this_id = std::this_thread::get_id();
-            //reloadconfig = false;
+            ConnectionHandler h;    // the class that handles the connections
+	        String ip;
+
             while (!ttg) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << " waiting connection on http_worker_Q "  << std::endl;
-#endif
+                logger_debug(" waiting connection on http_worker_Q ");
                 LQ_rec rec = o.http_worker_Q.pop();
                 Socket *peersock = rec.sock;
-#ifdef E2DEBUG
-                std::cerr << thread_id << " popped connection from http_worker_Q"  << std::endl;
-#endif
+                logger_debug(" popped connection from http_worker_Q");
                 if (ttg) break;
 
                 String peersockip = peersock->getPeerIP();
                 if (peersock->getFD() < 0 || peersockip.length() < 7) {
 //            if (o.logconerror)
-                    syslog(LOG_INFO, "%sError accepting. (Ignorable)", thread_id.c_str());
+                    logger_info("Error accepting. (Ignorable)");
                     continue;
                 }
                 ++dystat->busychildren;
                 ++dystat->conx;
 
-#ifdef E2DEBUG
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
-                std::cerr << thread_id << "handle_peer returned: " << rc << std::endl;
-#else
-                h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
-#endif
+                logger_debug("handle_peer returned: ", String(rc));
+
                 --dystat->busychildren;
                 delete peersock;
                 break;
             };
         };
     } catch (...) {
-        syslog(LOG_ERR,"%sworker thread caught unexpected exception - exiting", thread_id.c_str());
+        logger_error("worker thread caught unexpected exception - exiting");
     }
 }
 
@@ -670,9 +653,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     else
         thread_id = "log: ";
     try {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "log listener started" << std::endl;
-#endif
+        logger_trace("log listener started");
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -698,10 +679,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     if (!logsyslog) {
         logfile = new std::ofstream(log_location.c_str(), std::ios::app);
         if (logfile->fail()) {
-            syslog(LOG_ERR, "%sError opening/creating log file.", thread_id.c_str());
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Error opening/creating log file: " << log_location << std::endl;
-#endif
+            logger_error("Error opening/creating log file.");
             delete logfile;
             return; // return with error
         }
@@ -1114,6 +1092,8 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             builtline += flags;
         }
 
+        logger_info(builtline);
+/*        
         if (!logsyslog)
             *logfile << builtline << std::endl; // append the line
         else
@@ -1124,6 +1104,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 	if (o.e2_front_log)
 		std::cout << builtline << std::endl;
         //    delete ipcpeersock; // close the connection
+*/
 
 #ifdef ENABLE_EMAIL
         // do the notification work here, but fork for speed
@@ -1327,7 +1308,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
     try {
         unsigned int ct_type = serversockets.getType(index);
         int errorcount = 0;
-        thread_id = "listen";
+        thread_id = "listen_";
         thread_id += std::to_string(index);
         thread_id += "_";
         switch(ct_type) {
@@ -1349,41 +1330,38 @@ void accept_connections(int index) // thread to listen on a single listening soc
             int err = serversockets[index]->getErrno();
             if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
             	if (ttg) {
-			delete peersock;
-			break;
-		}
-#ifdef E2DEBUG
-                std::cerr << thread_id << "got connection from accept" << std::endl;
-#endif
+			        delete peersock;
+			        break;
+		        }
+                logger_debug("got connection from accept");
+
                 if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
                 errorcount = 0;
                 LQ_rec rec;
                 rec.sock = peersock;
                 rec.ct_type = ct_type;
                 o.http_worker_Q.push(rec);
-#ifdef E2DEBUG
-                std::cerr << thread_id << "pushed connection to http_worker_Q" << std::endl;
-#endif
+
+                logger_debug("pushed connection to http_worker_Q");
             } else {
             	if (ttg) {
-			if (peersock != nullptr) delete peersock;
-			break;
-		}
-#ifdef E2DEBUG
-                std::cerr << thread_id << "Error on accept: errorcount " << errorcount << " errno: " << err << std::endl;
-#endif
-                syslog(LOG_ERR, "%sError %d on accept: errorcount %d", thread_id.c_str(), err, errorcount);
+			        if (peersock != nullptr) delete peersock;
+			        break;
+		        }
+                logger_error("Error on accept: errorcount ", String(errorcount), " errno: ", String(err));
+
                 ++errorcount;
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         };
-        if (!ttg) syslog(LOG_ERR, "%sError count on accept exceeds 30", thread_id.c_str());
+        if (!ttg) 
+            logger_error("Error count on accept exceeds 30");
         serversockets[index]->close();
     } catch (...) {
-       syslog(LOG_ERR,"%slistener thread caught unexpected exception exiting", thread_id.c_str());
+       logger_error("listener thread caught unexpected exception exiting");
     }
     if (o.logconerror) {
-        syslog(LOG_INFO, "%slistener thread exiting", thread_id.c_str());
+        logger_info("listener thread exiting");
     }
 }
 
@@ -1432,10 +1410,7 @@ int fc_controlit()   //
     for (int i = 0; i < serversocketcount; i++) {
         // if the socket fd is not +ve then the socket creation failed
         if (serversockfds[i] < 0) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error creating server socket " << i << std::endl;
-            }
-            syslog(LOG_ERR, "%sError creating server socket %d", thread_id.c_str(), i);
+            logger_error("Error creating server socket ", String(i));
             delete[] serversockfds;
             return 1;
         }
@@ -1466,8 +1441,7 @@ int fc_controlit()   //
     // we have to open/create as root before drop privs
     int pidfilefd = sysv_openpidfile(o.pid_filename);
     if (pidfilefd < 0) {
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating/opening pid file.");
-        std::cerr << thread_id << "Error creating/opening pid file:" << o.pid_filename << std::endl;
+        logger_error("Error creating/opening pid file.");
         delete[] serversockfds;
         return 1;
     }
@@ -1477,11 +1451,7 @@ int fc_controlit()   //
     // XXX AAAARGH!
     if (o.filter_ip[0].length() > 6) {
         if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error binding server socket (is something else running on the filter port and ip?"
-                          << std::endl;
-            }
-            syslog(LOG_ERR, "%sError binding server socket (is something else running on the filter port and ip?", thread_id.c_str());
+            logger_error("Error binding server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
@@ -1490,21 +1460,14 @@ int fc_controlit()   //
         // listen/bind to a port (or ports) on any interface
         if (o.map_ports_to_ips) {
             if (serversockets.bindSingle(o.filter_port)) {
-                if (!is_daemonised) {
-                    std::cerr << thread_id << "Error binding server socket: [" << o.filter_port << "] (" << strerror(errno) << ")"
-                              << std::endl;
-                }
-                syslog(LOG_ERR, "%sError binding server socket: [%d] (%s)", thread_id.c_str(), o.filter_port, strerror(errno));
+                logger_error("Error binding server socket: [", o.filter_port, "] (", strerror(errno), ")" );
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
             }
         } else {
             if (serversockets.bindSingleM(o.filter_ports)) {
-                if (!is_daemonised) {
-                    std::cerr << thread_id << "Error binding server sockets: (" << strerror(errno) << ")" << std::endl;
-                }
-                syslog(LOG_ERR, "%sError binding server sockets  (%s)", thread_id.c_str(), strerror(errno));
+                logger_error("Error binding server sockets: (", strerror(errno), ")" );
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
@@ -1514,10 +1477,7 @@ int fc_controlit()   //
 
     if (o.transparenthttps_port > 0) {
         if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error binding server thttps socket: (" << strerror(errno) << ")" << std::endl;
-            }
-            syslog(LOG_ERR, "%sError binding server thttps socket  (%s)", thread_id.c_str(), strerror(errno));
+            logger_error("Error binding server thttps socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
@@ -1526,10 +1486,7 @@ int fc_controlit()   //
 
     if (o.icap_port > 0) {
         if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error binding server icap socket: (" << strerror(errno) << ")" << std::endl;
-            }
-            syslog(LOG_ERR, "%sError binding server icap socket  (%s)", thread_id.c_str(), strerror(errno));
+            logger_error("Error binding server icap socket: (", strerror(errno), ")" );
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
@@ -1544,10 +1501,7 @@ int fc_controlit()   //
     rc = seteuid(o.proxy_user); // become low priv again
 #endif
     if (rc == -1) {
-        syslog(LOG_ERR, "%sUnable to re-seteuid()", thread_id.c_str());
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Unable to re-seteuid()" << std::endl;
-#endif
+        logger_error("%sUnable to re-seteuid()");
         close(pidfilefd);
         delete[] serversockfds;
         return 1; // seteuid failed for some reason so exit with error
@@ -1555,10 +1509,7 @@ int fc_controlit()   //
 
     if (serversockets.listenAll(256)) { // set it to listen mode with a kernel
         // queue of 256 backlog connections
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error listening to server socket" << std::endl;
-        }
-        syslog(LOG_ERR, "%sError listening to server socket", thread_id.c_str());
+        logger_error("Error listening to server socket");
         close(pidfilefd);
         delete[] serversockfds;
         return 1;
@@ -1566,10 +1517,7 @@ int fc_controlit()   //
 
     if (!daemonise()) {
         // detached daemon
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error daemonising" << std::endl;
-        }
-        syslog(LOG_ERR, "%sError daemonising", thread_id.c_str());
+        logger_error("Error daemonising");
         close(pidfilefd);
         delete[] serversockfds;
         return 1;
@@ -1582,16 +1530,16 @@ int fc_controlit()   //
     OpenSSL_add_all_digests();
     if (o.use_openssl_conf) {
     	if(o.have_openssl_conf) {
-		if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr,0) != 1) {
-		syslog(LOG_ERR, "Error reading openssl config file %s", o.openssl_conf_path.c_str());
-		return false;
-		}
-	} else {
-		if (CONF_modules_load_file(nullptr, nullptr,0) != 1) {
-		syslog(LOG_ERR, "Error reading default openssl config files");
-		return false;
-		}
-	}
+            if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr,0) != 1) {
+                logger_error("Error reading openssl config file ", o.openssl_conf_path.c_str());
+                return false;
+            }
+    	} else {
+            if (CONF_modules_load_file(nullptr, nullptr,0) != 1) {
+                logger_error("Error reading default openssl config files");
+                return false;
+            }
+    	}
     }
     SSL_library_init();
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -1602,7 +1550,7 @@ int fc_controlit()   //
     // this has to be done after daemonise to ensure we get the correct PID.
     rc = sysv_writepidfile(pidfilefd); // also closes the fd
     if (rc != 0) {
-        syslog(LOG_ERR, "%sError writing to the e2guardian.pid file: %s", thread_id.c_str(), strerror(errno));
+        logger_error("Error writing to the e2guardian.pid file: ", strerror(errno));
         delete[] serversockfds;
         return false;
     }
@@ -1620,26 +1568,17 @@ int fc_controlit()   //
     if (!o.no_logger) {
         std::thread log_thread(log_listener, o.log_location, false, o.log_syslog,o.log_Q);
         log_thread.detach();
-#ifdef E2DEBUG
-    std::cerr << thread_id << "log_listener thread created" << std::endl;
-#endif
+        logger_trace("log_listener thread created");
     }
 
     if(o.log_requests) {
         std::thread RQlog_thread(log_listener, o.RQlog_location, true, false,o.RQlog_Q);
         RQlog_thread.detach();
-#ifdef E2DEBUG
-        std::cerr << thread_id << "RQlog_listener thread created" << std::endl;
-#endif
-
+        logger_trace("RQlog_listener thread created");
     }
 
-// I am the main thread here onwards.
-
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Master thread created threads" << std::endl;
-#endif
-
+    // I am the main thread here onwards.
+    logger_trace("Master thread created threads");
 
     sigset_t signal_set;
     sigemptyset(&signal_set);
@@ -1664,16 +1603,13 @@ int fc_controlit()   //
     int stat;
     stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
     if (stat != 0) {
-        syslog(LOG_ERR, "%sError setting sigmask", thread_id.c_str());
+        logger_error("Error setting sigmask");
         return 1;
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "sig handlers done" << std::endl;
-#endif
+    logger_trace("sig handlers done");
 
     dystat->busychildren = 0; // to keep count of our children
-    //
 
     // worker thread generation
     std::vector <std::thread> http_wt;
@@ -1686,12 +1622,10 @@ int fc_controlit()   //
     for (auto &i : http_wt) {
         i.detach();
    }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "http_worker threads created" << std::endl;
-#endif
+
+   logger_trace("http_worker threads created");
 
     //   set listener threads going
-
     std::vector <std::thread> listen_threads;
     listen_threads.reserve(serversocketcount);
     for (int i = 0; i < serversocketcount; i++) {
@@ -1700,9 +1634,8 @@ int fc_controlit()   //
     for (auto &i : listen_threads) {
         i.detach();
     }
-#ifdef E2DEBUG
-    std::cerr << "listen  threads created" << std::endl;
-#endif
+
+    logger_trace("listen  threads created");
 
     time_t tmaxspare;
 
@@ -1717,9 +1650,9 @@ int fc_controlit()   //
     is_starting = true;
 
     if (reloadconfig) {
-        syslog(LOG_INFO, "Reconfiguring E2guardian: done");
+        logger_info("Reconfiguring E2guardian: done");
     } else {
-        syslog(LOG_INFO, "Started successfully.");
+        logger_info("Started successfully.");
         dystat->start();
     }
     reloadconfig = false;
@@ -1741,14 +1674,13 @@ int fc_controlit()   //
         // OR, its timetogo - got a sigterm
         // OR, we need to exit to reread config
         if (gentlereload) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "gentle reload activated" << std::endl;
-#endif
-            syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload starting", thread_id.c_str());
+            logger_trace("gentle reload activated");
+
+            logger_info("Reconfiguring E2guardian: gentle reload starting");
             if (o.createLists(++reload_cnt))
-                syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload completed", thread_id.c_str());
+                logger_info("Reconfiguring E2guardian: gentle reload completed");
             else
-                syslog(LOG_INFO, "%sReconfiguring E2guardian: gentle reload failed", thread_id.c_str());
+                logger_info("%sReconfiguring E2guardian: gentle reload failed");
 
             gentlereload = false;
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
@@ -1761,7 +1693,7 @@ int fc_controlit()   //
         rc = sigwait(&signal_set, &rsig);
         if (rc < 0) {
             if (errno != EAGAIN) {
-                syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
+                logger_info("Unexpected error from sigtimedwait(): ", String(errno), " ", strerror(errno));
             }
         } else {
             if (rsig == SIGUSR1)
@@ -1776,11 +1708,9 @@ int fc_controlit()   //
                 //timer_settime(timerid,0,&timeout, NULL);
                 setitimer(ITIMER_REAL, &timeout, NULL);
 
-#ifdef E2DEBUG
-                std::cerr << "signal:" << rc << std::endl;
-#endif
+                logger_debug("signal:", String(rc);
                 if (o.logconerror) {
-                    syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rsig);
+                    logger_info("sigtimedwait() signal recd:", String(rsig) );
                 }
             }
         }
@@ -1790,7 +1720,7 @@ int fc_controlit()   //
         rc = sigtimedwait(&signal_set, NULL, &timeout);
         if (rc < 0) {
             if (errno != EAGAIN) {
-                syslog(LOG_INFO, "%sUnexpected error from sigtimedwait() %d %s", thread_id.c_str(), errno, strerror(errno));
+                logger_info("Unexpected error from sigtimedwait():", String(errno), " ", strerror(errno));
             }
         } else {
             if (rc == SIGUSR1)
@@ -1799,30 +1729,25 @@ int fc_controlit()   //
                 ttg = true;
             if (rc == SIGHUP)
                 gentlereload = true;
-#ifdef E2DEBUG
-            std::cerr << "signal:" << rc << std::endl;
-#endif
+
+            logger_debug("signal: ", String(rc));
             if (o.logconerror) {
-                syslog(LOG_INFO, "%ssigtimedwait() signal %d recd:", thread_id.c_str(), rc);
+                logger_info("ssigtimedwait() signal recd:", String(rc));
             }
         }
 #endif   // end __OpenBSD__ else
 
         int q_size = o.http_worker_Q.size();
-#ifdef E2DEBUG
-        std::cerr << thread_id << "busychildren:" << dystat->busychildren << " worker Q size:" << q_size << std::endl;
-#endif
+        logger_debug("busychildren:", String(dystat->busychildren),
+                    " worker Q size:", String(q_size) );
         if( o.dstat_log_flag) {
             if (q_size > 10) {
-                syslog(LOG_INFO,
-                       "%sWarning: all %d http_worker threads are busy and %d connections are waiting in the queue.",
-                       thread_id.c_str(), o.http_workers, q_size);
+                logger_info("Warning: all ", String(o.http_workers), " http_worker threads are busy and ", String(q_size), " connections are waiting in the queue.");
             }
         } else {
             int busy_child = dystat->busychildren;
             if (busy_child > (o.http_workers - 10))
-                syslog(LOG_INFO, "%sWarning system is full : max httpworkers: %d Used: %d", thread_id.c_str(),
-                       o.http_workers, busy_child);
+                logger_info("Warning system is full : max httpworkers: ", String(o.http_workers), " Used: ", String(busy_child));
         }
 
         //      if (is_starting)
@@ -1840,7 +1765,7 @@ int fc_controlit()   //
     sigfillset(&signal_set);
     pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
 
-    syslog(LOG_INFO,"%sStopping", thread_id.c_str());
+    logger_info("Stopping");
 
     if (o.monitor_flag_flag)
        monitor_flag_set(false);
@@ -1848,7 +1773,7 @@ int fc_controlit()   //
         tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     if (o.logconerror) {
-        syslog(LOG_INFO,"%ssending null socket to http_workers to stop them", thread_id.c_str());
+        logger_info("sending null socket to http_workers to stop them");
     }
     Socket* NS = NULL;
     LQ_rec rec;
@@ -1869,11 +1794,11 @@ int fc_controlit()   //
     }
 
     if (o.logconerror) {
-        syslog(LOG_INFO,"%sstopping any remaining connections", thread_id.c_str());
+        logger_info("stopping any remaining connections");
     }
     serversockets.self_connect();   // stop accepting connections
     if (o.logconerror) {
-        syslog(LOG_INFO,"%sconnections stopped", thread_id.c_str());
+        logger_info("connections stopped");
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
@@ -1889,7 +1814,7 @@ int fc_controlit()   //
     delete[] serversockfds;
 
     if (o.logconerror) {
-        syslog(LOG_INFO, "%s%s",  thread_id.c_str(), "Main thread exiting.");
+        logger_info("Main thread exiting.");
     }
     return 0;
 }

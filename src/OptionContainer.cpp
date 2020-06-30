@@ -82,7 +82,7 @@ bool OptionContainer::read(std::string& filename, int type)
 		String temp;  // for tempory conversion and storage
 		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
-            logger_error("error reading:"s + filename );
+            logger_error("error reading:", filename );
 			return false;
 		}
 		while (!conffiles.eof()) {
@@ -803,8 +803,9 @@ bool OptionContainer::read(std::string& filename, int type)
 
         if (findoptionS("storyboardtrace") == "on")
         {
-            logger_debug("Enable Storyboard tracing !!");
+            logger_info("Enable Storyboard tracing !!");
             SB_trace = true;
+            __logger->enable(LoggerSource::story);
         } else {
             SB_trace = false;
         }

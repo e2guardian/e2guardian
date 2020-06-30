@@ -215,7 +215,7 @@ String HTTPHeader::getMIMEBoundary()
 // does the given content type string match our headers?
 bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
 {
-    logger_debug("mime type: "s + getContentType());
+    logger_debug("mime type: ", getContentType());
 
     // Do standard check first!
     if (getContentType().startsWith(t))
@@ -229,11 +229,11 @@ bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
         int i;
         for (i = 0; i < size; i++) {
             if (mime.startsWith(text_mime[i])) {
-                logger_debug( "mimes match : "s + text_mime[i]);
+                logger_debug( "mimes match : ", text_mime[i]);
                 return true;
             }
 	        else {
-                logger_debug("mimes check : "s + text_mime[i]);
+                logger_debug("mimes check : ", text_mime[i]);
 	        }
         }
    }
@@ -527,29 +527,29 @@ void HTTPHeader::setURL(String &url)
         hostname = hostname.before(":"); // chop off the port bit
     }
 
-    logger_debug("setURL: header.front() changed from: "s + header.front());
+    logger_debug("setURL: header.front() changed from: ", header.front());
     if (https && header.front().startsWith("CONNECT"))
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
     else 
         header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
     
-    logger_debug(" to: "s + header.front());    
+    logger_debug(" to: ", header.front());    
 
     if (phost != NULL) {
-        logger_debug("setURL: header[] line changed from: "s  + (*phost));
+        logger_debug("setURL: header[] line changed from: ", (*phost));
         (*phost) = String("Host: ") + hostname;
         if (port != (https ? 443 : 80)) {
             (*phost) += ":";
             (*phost) += String(port);
         }
         (*phost) += "\r";
-        logger_debug(" to " + (*phost));
+        logger_debug(" to ", (*phost));
     }
     if (pport != NULL) {
-        logger_debug("setURL: header[] line changed from: "s + (*pport));
+        logger_debug("setURL: header[] line changed from: ", (*pport));
         (*pport) = String("Port: ") + String(port) + "\r";
-        logger_debug(" to "s + (*pport));
+        logger_debug(" to ", (*pport));
     }
     // Don't just cache the URL we're sent - getUrl() performs some other
     // processing, notably stripping the port part. Caching here will
@@ -657,7 +657,7 @@ bool HTTPHeader::addHeader(String &newheader) {
         addheaderchecked = true;
         std::string line(newheader + "\r");
         header.push_back(String(line.c_str()));
-        logger_debug("addheader = "s + newheader);
+        logger_debug("addheader = ", newheader);
         return true;
     }
     return false;
@@ -720,7 +720,7 @@ bool HTTPHeader::malformedURL(const String &url)
     if (containsletter)
         return false;
     else
-        logger_debug("Checking for IP obfuscation in "s + host);
+        logger_debug("Checking for IP obfuscation in ", host);
 
     // Check no IP obfuscation is going on
     // This includes IPs encoded as a single decimal number,
@@ -939,7 +939,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pheaderident = &(*i);
         }
 
-        logger_debug("Header value from client: " + *i);
+        logger_debug("Header value from client: ", *i);
     }
 }
 
@@ -967,7 +967,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         returncode = tp.toInteger();
         if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
         {
-            logger_debug("zero contentlength on response due to returncode " + String(returncode) );
+            logger_debug("zero contentlength on response due to returncode ", String(returncode) );
             contentlength = 0;
         }
     }
@@ -996,7 +996,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         isconnect = true;
     }
 
-    logger_debug("CheckHeader flags before normalisation: "s +
+    logger_debug("CheckHeader flags before normalisation: "+
                     " AP=" + String(allowpersistent) +
                     " PPC=" + String(pproxyconnection != NULL) +
                     " 1.1=" + String(onepointone) +
@@ -1022,7 +1022,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
     }
 
-    logger_debug("CheckHeader flags after normalisation: "s +
+    logger_debug("CheckHeader flags after normalisation: "+
                     " AP=" + String(allowpersistent) +
                     " WP=" + String(waspersistent) );
 
@@ -1323,7 +1323,7 @@ String HTTPHeader::getReferer()
         }
     }
     line.removeWhiteSpace();
-    logger_debug("Found Referer URL:"s + line);
+    logger_debug("Found Referer URL:", line);
     return line;
 }
 
@@ -1361,7 +1361,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         n = Rre.result(match).c_str();
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
-        logger_debug("encoded: "s + Rre.result(match) + " decoded: " + hexToChar(n) + " string so far: " + result);
+        logger_debug("encoded: ", Rre.result(match), " decoded: ", hexToChar(n), " string so far: ", result);
         pos = offset + 3;
     }
     if (size > pos) {
@@ -1552,9 +1552,9 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
             if(is_response)  {
-                logger_debug("response headerout:" + l);
+                logger_debug("response headerout:", l);
             } else {
-                logger_debug("request headerout:" + l);
+                logger_debug("request headerout:", l);
             }
 
 #ifdef __SSLMITM
@@ -1567,7 +1567,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
             if (isdirect && !is_response) {
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
-                logger_debug("request headerout (modified for direct):" + l);
+                logger_debug("request headerout (modified for direct):", l);
             }
 
             // first reconnect loop - send first line
@@ -1589,7 +1589,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                     return false;
                 }
                 // if we got here, we succeeded, so break the reconnect loop
-                logger_debug("headertoclient: " + l.substr(0, l.length()-1) + " timeout:" + String(timeout));
+                logger_debug("headertoclient: ", l.substr(0, l.length()-1), " timeout:", String(timeout));
                 break;
             }
         }

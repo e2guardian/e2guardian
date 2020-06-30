@@ -71,19 +71,19 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         rec.action_id = SB_COM_IFNOT;
         rec.isif = false;
     } else {
-        logger_error("StoryBoard error: Invalid command "s + command + "at line " + String(line_no) + " of " + file_name);
+        logger_error("StoryBoard error: Invalid command ", command, "at line ", String(line_no), " of ", file_name);
         return false;
     }
     rec.file_lineno = line_no;
     // process params
-    logger_debug("CLine " + params + " Action " + action);
+    logger_debug("CLine ", params, " Action ", action);
 
     String state;
     String temp;
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
-        logger_debug("CLine state is " + state);
+        logger_debug("CLine state is ", state);
         temp = params.after(",");
     } else {
         state = params;
@@ -91,7 +91,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     state.removeWhiteSpace();
     rec.state = getStateID(state);
     if (rec.state == 0) {
-        logger_error("StoryBoard error: Invalid state "s + state + " at line " + String(line_no) + " of " + file_name);
+        logger_error("StoryBoard error: Invalid state ", state, " at line ", String(line_no), " of ", file_name);
         return false;
     }
 
@@ -105,7 +105,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
-        logger_debug("CLine list is " + temp2);
+        logger_debug("CLine list is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -117,7 +117,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
-        logger_debug("CLine mess_no is " + temp2);
+        logger_debug("CLine mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -129,7 +129,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
-        logger_debug("CLine log_mess_no is " + temp2);
+        logger_debug("CLine log_mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {

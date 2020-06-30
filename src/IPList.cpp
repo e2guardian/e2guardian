@@ -9,6 +9,7 @@
 #endif
 #include "OptionContainer.hpp"
 #include "FOptionContainer.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -19,13 +20,10 @@
 #include <memory>
 #include <list>
 #include <vector>
-#include <syslog.h>
 
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // INPLEMENTATION
 
@@ -192,35 +190,33 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
             hostlist.push_back(line);
         }
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "starting sort" << std::endl;
-#endif
+    logger_trace("starting sort");
     std::sort(iplist.begin(), iplist.end());
     std::sort(hostlist.begin(), hostlist.end());
-#ifdef E2DEBUG
-    std::cerr << thread_id << "sort complete" << std::endl;
-    std::cerr << thread_id << "ip list dump:" << std::endl;
+    logger_trace("sort complete");
+#ifdef E2DEBUG    
+    logger_debug("ip list dump:");
     std::vector<uint32_t>::iterator i = iplist.begin();
     while (i != iplist.end()) {
-        std::cerr << thread_id << "IP: " << *i << std::endl;
+        logger_debug("IP: ", String(*i));
         ++i;
     }
-    std::cerr << thread_id << "subnet list dump:" << std::endl;
+    logger_debug("subnet list dump:");
     std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        std::cerr << thread_id << "Masked IP: " << j->maskedaddr << " Mask: " << j->mask << std::endl;
+        logger_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
         ++j;
     }
-    std::cerr << thread_id << "range list dump:" << std::endl;
+    logger_debug("range list dump:");
     std::list<ipl_rangestruct>::iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        std::cerr << thread_id << "Start IP: " << k->startaddr << " End IP: " << k->endaddr << std::endl;
+        logger_debug("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
         ++k;
     }
-    std::cerr << thread_id << "host list dump:" << std::endl;
+    logger_debug("host list dump:");
     std::vector<String>::iterator l = hostlist.begin();
     while (l != hostlist.end()) {
-        std::cerr << thread_id << "Hostname: " << *l << std::endl;
+        logger_debug("Hostname: ", *l );
         ++l;
     }
 #endif
@@ -233,15 +229,10 @@ bool IPList::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file (does it exist?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s%s", thread_id.c_str(), "Error reading file (does it exist?): ", filename);
+        logger_error("Error reading file (does it exist?): ", filename);
         return false;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "reading: " << filename << std::endl;
-#endif
+    logger_debug("reading: ", filename);
     if (ifsreadIPMelangeList(&input, false, NULL)) {
         input.close();
         return true;
