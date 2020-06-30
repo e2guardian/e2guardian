@@ -276,6 +276,7 @@ class OptionContainer
 
     private:
     std::deque<std::string> conffile;
+    bool readConfFile(const char *filename);
     int reporting_level = 0;
 
 
