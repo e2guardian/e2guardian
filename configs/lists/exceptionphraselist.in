@@ -14,4 +14,6 @@
 #
 # See the bannedphraselist for more examples.
 
+# Use this sparingly as can easily make exceptions of unsuitable urls
+
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/goodphrases/exception_email>
