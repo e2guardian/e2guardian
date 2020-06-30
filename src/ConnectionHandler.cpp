@@ -1040,11 +1040,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
                 logger_trace("Check StoryB checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_REQUEST, checkme);
-                logger_debug("After StoryB checkrequest"+
-                    " isexception " + String(checkme.isexception ) +
-                    " isblocked " + String(checkme.isBlocked ) +
-                    " gomitm " + String(checkme.gomitm) +
-                    " mess_no " + String(checkme.message_no)
+                logger_debug("After StoryB checkrequest",
+                    " isexception ", String(checkme.isexception ),
+                    " isblocked ", String(checkme.isBlocked ),
+                    " gomitm ", String(checkme.gomitm),
+                    " mess_no ", String(checkme.message_no)
                  );
 
 		if (ldl->fg[filtergroup]->reporting_level != -1){
@@ -1257,10 +1257,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //CALL SB checkresponse
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && (!checkme.logcategory) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
-                logger_debug("After StoryB checkresponse "+
-                    " IsException " + String(checkme.isexception) +
-                    " IsBlocked " + String(checkme.isBlocked) +
-                    " mess_no " + String(checkme.message_no) );
+                logger_debug("After StoryB checkresponse ",
+                    " IsException ", String(checkme.isexception),
+                    " IsBlocked ", String(checkme.isBlocked),
+                    " mess_no ", String(checkme.message_no) );
 
 		if (ldl->fg[filtergroup]->reporting_level != -1){
             checkme.isItNaughty = checkme.isBlocked;
@@ -1383,9 +1383,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 
-            logger_debug(" -Forwarding body to client :"+ 
-                " Upfailure is "+ String(checkme.upfailure) +
-                " isItNaughty is "+ String(checkme.isItNaughty));
+            logger_debug(" -Forwarding body to client :",
+                " Upfailure is ", String(checkme.upfailure),
+                " isItNaughty is ", String(checkme.isItNaughty));
 
             if (checkme.upfailure || checkme.isItNaughty) {
                 if (denyAccess(&peerconn, &proxysock, &header, &docheader, &checkme.url, &checkme, &clientuser,
@@ -3482,9 +3482,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             if (!(checkme.isdone || isbanneduser || isbannedip || checkme.isexception)) {
                 logger_trace("Check StoryB thttps-checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_THTTPS_REQUEST,checkme);
-                logger_trace("After StoryB thttps-checkrequest"+
-                            " isException: " + String(checkme.isexception) +
-                            " mess_no " + String(checkme.message_no));
+                logger_trace("After StoryB thttps-checkrequest",
+                            " isException: ", String(checkme.isexception),
+                            " mess_no ", String(checkme.message_no));
 
 		        if (ldl->fg[filtergroup]->reporting_level != -1){
                 	checkme.isItNaughty = checkme.isBlocked;
