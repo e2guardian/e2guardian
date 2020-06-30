@@ -117,12 +117,12 @@ bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsi
 {
     logger_trace(filename);
     if (strlen(filename) < 3) {
-        logger_error("Required Listname "s + listname + " is not defined");
+        logger_error("Required Listname ", listname, " is not defined");
         return false;
     }
     int res = o.lm.newItemList(filename, list_pwd, sortsw, 1, true);
     if (res < 0) {
-        logger_error("Error opening "s + listname);
+        logger_error("Error opening ", listname);
         return false;
     }
     (*whichlist) = (unsigned)res;
@@ -144,7 +144,7 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
 
     if (!conffiles.good()) {
-        logger_error("Error reading: "s + filename);
+        logger_error("Error reading: ", filename);
         return false;
     }
     String base_dir(filename);
@@ -214,7 +214,7 @@ bool FOptionContainer::read(const char *filename) {
             logger_error("Error reading: "s + filename);
             return false;
         }
-        logger_trace("Read conf into memory: "s + filename);
+        logger_trace("Read conf into memory: ", filename);
 
         if (findoptionS("disablecontentscan") == "on") {
             disable_content_scan = true;
@@ -234,9 +234,9 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
-        logger_debug("disable_content_scan: "s + String(disable_content_scan) +
-                    " disablecontentscanerror: " + String(disable_content_scan_error) +
-                    " contentscanexceptions: " + String(content_scan_exceptions) );
+        logger_debug("disable_content_scan: ", String(disable_content_scan),
+                    " disablecontentscanerror: ", String(disable_content_scan_error),
+                    " contentscanexceptions: ", String(content_scan_exceptions) );
 
         String mimes = findoptionS("textmimetypes");
         if (mimes != "") {
@@ -252,7 +252,7 @@ bool FOptionContainer::read(const char *filename) {
             int size = (int) text_mime.size();
             int i;
             for (i = 0; i < size; i++) {
-                logger_debug("mimes filtering : " + text_mime[i]);
+                logger_debug("mimes filtering : ", text_mime[i]);
             }
 #endif
         }
@@ -391,7 +391,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         if (reporting_level == 0) {
-            logger_error("Reporting_level is : "s + String(reporting_level) + " file " + filename);
+            logger_error("Reporting_level is : ", String(reporting_level), " file ", filename);
         }
 
         long temp_max_upload_size;
@@ -401,10 +401,10 @@ bool FOptionContainer::read(const char *filename) {
             if (temp_max_upload_size > 0)
                 max_upload_size *= 1024;
         } else {
-            logger_error( "Invalid maxuploadsize: "s + String(temp_max_upload_size) );
+            logger_error( "Invalid maxuploadsize: ", String(temp_max_upload_size) );
             return false;
         }
-        logger_debug("maxuploadsize: " + String(temp_max_upload_size) );
+        logger_debug("maxuploadsize: ", String(temp_max_upload_size) );
 
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -441,14 +441,14 @@ bool FOptionContainer::read(const char *filename) {
                 html_template = o.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    logger_error("Error reading HTML Template file: "s + html_template);
+                    logger_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
                 html_template = o.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    logger_error("Error reading default HTML Template file: "s + html_template);
+                    logger_error("Error reading default HTML Template file: ", html_template);
                     return false;
                 }
             }
@@ -492,14 +492,14 @@ bool FOptionContainer::read(const char *filename) {
 	        } else {
 		        name = "no_name_group";
 	        }
-            logger_debug("Group name: "s + name);
+            logger_debug("Group name: ", name);
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
-        logger_debug("Embedded URL Weight: "s + std::to_string(embedded_url_weight));
+        logger_debug("Embedded URL Weight: ", std::to_string(embedded_url_weight));
 
         category_threshold = findoptionI("categorydisplaythreshold");
-        logger_debug("Category display threshold: "s + std::to_string(category_threshold));
+        logger_debug("Category display threshold: ", std::to_string(category_threshold));
 
         // Support weighted phrase mode per group
         if (findoptionS("weightedphrasemode").length() > 0) {
@@ -532,61 +532,61 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            logger_debug("ipsitelist deque is size "s + String(dq.size()) );
+            logger_debug("ipsitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("iplist");
-            logger_debug("iplist deque is size "s + String(dq.size()) );
+            logger_debug("iplist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("timelist");
-            logger_debug("timelist deque is size "s + String(dq.size()) );
+            logger_debug("timelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            logger_debug("sitelist deque is size "s + String(dq.size()) );
+            logger_debug("sitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            logger_debug("urllist deque is size "s + String(dq.size()) );
+            logger_debug("urllist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("searchlist");
-            logger_debug("searchlist deque is size "s + String(dq.size()) );
+            logger_debug("searchlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
-            logger_debug("fileextlist deque is size "s + String(dq.size()) );
+            logger_debug("fileextlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("mimelist");
-            logger_debug("mimelist deque is size "s + String(dq.size()) );
+            logger_debug("mimelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
-            logger_debug("regexpboollist deque is size "s + String(dq.size()) );
+            logger_debug("regexpboollist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
-            logger_debug("regexpreplacelist deque is size " + String(dq.size()) );
+            logger_debug("regexpreplacelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 

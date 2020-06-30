@@ -847,8 +847,9 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (findoptionS("storyboardtrace") == "on")
         {
-            logger_debug("Enable Storyboard tracing !!");
+            logger_info("Enable Storyboard tracing !!");
             SB_trace = true;
+            __logger->enable(LoggerSource::story);
         } else {
             SB_trace = false;
         }

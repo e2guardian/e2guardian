@@ -85,11 +85,11 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
             cm.authrec->group_source = "pdef";
             return E2AUTH_OK;
         }
-        logger_debug("User not in filter groups list for: " + pluginName);
+        logger_debug("User not in filter groups list for: ", pluginName);
         return E2AUTH_NOGROUP;
       }
 
-    logger_debug("Group found for: " + user + " in " + pluginName);
+    logger_debug("Group found for: ", user, " in ", pluginName);
     fg = cm.filtergroup;
     return E2AUTH_OK;
 }
@@ -100,13 +100,13 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        logger_error("Unable to load plugin config: "s + pluginConfigPath);
+        logger_error("Unable to load plugin config: ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {        
-        logger_error("Unable read plugin config plugname variable: "s + pluginConfigPath);
+        logger_error("Unable read plugin config plugname variable: ", pluginConfigPath);
         return NULL;
     }
 
@@ -154,7 +154,7 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     }
 #endif
 
-    logger_error("Unable to load plugin: "s + pluginConfigPath);
+    logger_error("Unable to load plugin: ", pluginConfigPath);
     return NULL;
 }
 

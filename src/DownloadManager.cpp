@@ -14,19 +14,17 @@
 #include "OptionContainer.hpp"
 #include "ConnectionHandler.hpp"
 #include "RegExp.hpp"
+#include "Logger.hpp"
 
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <syslog.h>
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 extern dmcreate_t defaultdmcreate;
 
@@ -101,16 +99,17 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     bool matchedmime = false;
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
-#ifdef E2DEBUG
-        std::cerr << thread_id << "mimetype: " << mimetype << std::endl;
-#endif
+        logger_debug("mimetype: ", mimetype);
         String lc;
         if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
             if (!extensionlistenabled)
                 return false;
         } else
-            matchedmime = true;
+            matchedmime = true;    
+    } else {
+        logger_debug("NO mimelistenabled!");
     }
+
 
     if (extensionlistenabled && !matchedmime) {
         // determine the extension
@@ -143,14 +142,15 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
                 }
             }
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "extension: " << extension << std::endl;
-#endif
+        logger_debug("extension: ", extension);
         // check the extension list
         String lc;
         if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray(), lc) == NULL))
             return matchedmime;
+    } else {
+        logger_debug("NO extensionlistenabled!");
     }
+
 
     return true;
 }
@@ -166,10 +166,7 @@ bool DMPlugin::readStandardLists()
     String filename(cv["managedmimetypelist"]);
     if (filename.length() > 0) {
         if (!mimetypelist.readItemList(filename.toCharArray(),"", false, 0)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening managedmimetypelist" << std::endl;
-            }
-            syslog(LOG_ERR, "Error opening managedmimetypelist");
+            logger_error("Error opening managedmimetypelist");
             return false;
         }
         mimetypelist.doSort(false);
@@ -181,10 +178,7 @@ bool DMPlugin::readStandardLists()
     filename = cv["managedextensionlist"];
     if (filename.length() > 0) {
         if (!extensionlist.readItemList(filename.toCharArray(), "", false, 0)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening managedextensionlist" << std::endl;
-            }
-            syslog(LOG_ERR, "Error opening managedextensionlist");
+            logger_error("Error opening managedextensionlist");
             return false;
         }
         extensionlist.doSort(false);
@@ -203,47 +197,32 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable to load plugin config: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "Unable to load plugin config %s", pluginConfigPath);
+        logger_error("Unable to load plugin config: ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
 
     if (plugname.length() < 1) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "Unable read plugin config plugname variable %s", pluginConfigPath);
+        logger_error("Unable read plugin config plugname variable: ", pluginConfigPath);
         return NULL;
     }
 
     if (plugname == "default") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling default DM plugin" << std::endl;
-#endif
+        logger_debug("Enabling default DM plugin");
         return defaultdmcreate(cv);
     }
 
     if (plugname == "fancy") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling fancy DM plugin" << std::endl;
-#endif
+        logger_debug("Enabling fancy DM plugin");
         return fancydmcreate(cv);
     }
 
     if (plugname == "trickle") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling trickle DM plugin" << std::endl;
-#endif
+        logger_debug("Enabling trickle DM plugin");
         return trickledmcreate(cv);
     }
 
-    if (!is_daemonised) {
-        std::cerr << thread_id << "Unable to load plugin: " << plugname << std::endl;
-    }
-    syslog(LOG_ERR, "Unable to load plugin %s", plugname.toCharArray());
+    logger_error("Unable to load plugin: ", plugname);
     return NULL;
 }

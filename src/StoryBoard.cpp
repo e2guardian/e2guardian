@@ -55,10 +55,10 @@ void StoryBoard::reset() {
 
 bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     if (strlen(filename) < 3) {
-        logger_error("Storyboard file"s + filename + " is not defined");
+        logger_error("Storyboard file", filename, " is not defined");
         return false;
     }
-    logger_trace("Reading storyboard file "s + filename);
+    logger_trace("Reading storyboard file ", filename);
 
     LMeta = &LM;
     std::string linebuffer; // a string line buffer ;)
@@ -73,7 +73,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     bool in_function = false;
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
     if (!listfile.good()) {
-        logger_error("Error opening Storyboard file (does it exist?): "s + filename);
+        logger_error("Error opening Storyboard file (does it exist?): ", filename);
         return false;
     }
 
@@ -89,7 +89,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             continue;
         }
 
-        logger_debug("Readline " + linebuffer);
+        logger_debug("Readline ", linebuffer);
 
         line = linebuffer.c_str();
         line.removeWhiteSpace();
@@ -135,8 +135,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             int oldf = 0;
             if ((oldf = getFunctID(temp)) > 0) {
                 if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
-                    logger_error("SB: error - reserved word used a function name - "s + filename +
-                                " word " + temp );
+                    logger_error("SB: error - reserved word used a function name - ", filename,
+                                " word ", temp );
                     return false;
                 } else {
                     fnt_id = oldf;
@@ -174,9 +174,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             funct_vec.push_back(curr_function);
     }
 
-    logger_debug("Read storyboard file "s + filename + " finished. "s +
-            " function vect size is " + String(funct_vec.size()) +
-            " is_top " + String(is_top) );
+    logger_debug("Read storyboard file ", filename, " finished. ",
+            " function vect size is ", String(funct_vec.size()),
+            " is_top ", String(is_top) );
 
     if (!is_top) return true;
 
@@ -186,12 +186,12 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
-            logger_debug("Line "s + String(j->file_lineno) +
-                        " state is " + String(j->state) +
-                        " actionid " + String(j->action_id) +
-                        " listname " + j->list_name +
-                        " function " + i->name +
-                        " id " + String(i->fn_id) );
+            logger_debug("Line ", String(j->file_lineno),
+                        " state is ", String(j->state),
+                        " actionid ", String(j->action_id),
+                        " listname ", j->list_name,
+                        " function ", i->name,
+                        " id ", String(i->fn_id) );
 
             // check condition
             if (j->state < SB_STATE_TOPIN) {   // is an *in condition and requires a list
@@ -250,8 +250,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     ListMeta::list_info listi;
                     if (listiptr) {
                         listi = *listiptr;
-                        logger_debug("SB list reference "s + String(listi.list_ref) +
-                                    " '" + listi.name + "' found for " + j->list_name);
+                        logger_debug("SB list reference ", String(listi.list_ref),
+                                    " '", listi.name, "' found for ", j->list_name);
 
                         if (listi.name.length()) {
 //                        std::cerr << "used is set " << "" << listi.list_ref << " '" << listi.name << ":"
@@ -264,27 +264,27 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 if (!found) {
                     // warning message
-                    logger_error("SB warning: Undefined list "s + filename + 
-                                " list " + j->list_name +
-                                " used at line " + String(j->file_lineno) +
-                                " of " + i->file_name);
+                    logger_error("SB warning: Undefined list ", filename, 
+                                " list ", j->list_name,
+                                " used at line ", String(j->file_lineno),
+                                " of ", i->file_name);
                 } else {
-                    logger_debug("SB "s + j->list_name + " matches " + String(j->list_id_dq.size()) + " types");
+                    logger_debug("SB ", j->list_name, " matches ", String(j->list_id_dq.size()), " types");
                 }
 
             }
             // check action
             if ((j->action_id = getFunctID(j->action_name)) == 0) {
                 // warning message
-                logger_error("StoryBoard error: Action " + j->action_name +
-                            " not defined: " + filename +
-                            " at line " + String(j->file_lineno) +
-                            " of " + i->file_name);
+                logger_error("StoryBoard error: Action ", j->action_name,
+                            " not defined: ", filename,
+                            " at line ", String(j->file_lineno),
+                            " of ", i->file_name);
             }
-            logger_debug("Line " + String(j->file_lineno) +
-                        " state is " + String(j->state) +
-                        " actionid " + String(j->action_id) +
-                        " listname " + j->list_name);
+            logger_debug("Line ", String(j->file_lineno),
+                        " state is ", String(j->state),
+                        " actionid ", String(j->action_id),
+                        " listname ", j->list_name);
     }
 }
 // check for required functions
@@ -327,9 +327,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     bool action_return = false;
 
     if(o.SB_trace) {
-        logger_story("SB:Entering "s + F->getName() + 
-                    " line: " + String(F->file_lineno) +
-                    " of " +F->file_name );
+        logger_story("SB:Entering ", F->getName(),
+                    " line: ", String(F->file_lineno),
+                    " of ", F->file_name );
     }
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
@@ -489,14 +489,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
         }
 
-        logger_debug("SB-Test  "s +
-                    " state: " + F->getState(i->state) +
-                    " target: " + target +
-                    " target2: " + target2 +
-                    " list_check: " + String(isListCheck) +
-                    " targetfull: " + targetful +
-                    " isSearch: " + String(cm.isSearch) +
-                    " state_result: " + String(state_result));
+        logger_debug("SB-Test  ",
+                    " state: ", F->getState(i->state),
+                    " target: ", target,
+                    " target2: ", target2,
+                    " list_check: ", String(isListCheck),
+                    " targetfull: ", targetful,
+                    " isSearch: ", String(cm.isSearch),
+                    " state_result: ", String(state_result));
 
         if (isHeaderCheck) {
             logger_trace("HeaderCheck");
@@ -536,11 +536,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             }
         }
         if (isListCheck) {
-            logger_trace("ListCheck:" + i->list_name );
+            logger_trace("ListCheck:", i->list_name );
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
                 ListMeta::list_result res;
                 String t;
-                logger_debug("Check "s + j->name);
+                logger_debug("Check ", j->name);
                 if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
                     t = target2;
                 } else if (j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP) {
@@ -555,7 +555,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
                     continue;
 
-                logger_debug("checking "s + j->name + " type " + String(j->type));
+                logger_debug("checking ", j->name, " type ", String(j->type));
 
                 if (LMeta->inList(*j, t, res)) {  //found
                     state_result = true;
@@ -627,20 +627,20 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (!i->isif) {
             state_result = !state_result;
         }
-        logger_debug("SB-Result"s +
-                    " state: " + F->getState(i->state) +
-                    " target: " + target +
-                    " target2: " + target2 +
-                    " list_check: " + String(isListCheck) +
-                    " targetfull: " + targetful +
-                    " isSearch: " + String(cm.isSearch) +
-                    " state_result: " + String(state_result));
+        logger_debug("SB-Result",
+                    " state: ", F->getState(i->state),
+                    " target: ", target,
+                    " target2: ", target2,
+                    " list_check: ", String(isListCheck),
+                    " targetfull: ", targetful,
+                    " isSearch: ", String(cm.isSearch),
+                    " state_result: ", String(state_result));
 
         if(o.SB_trace) {
-            logger_story("SB-Result: "s + String(i->file_lineno) +
-                        ( i->isif ? " if(" : " ifnot(" ) +
-                        F->getState(i->state) + "," +            
-                        i->list_name + ") is " +
+            logger_story("SB-Result: ", String(i->file_lineno),
+                        ( i->isif ? " if(" : " ifnot(" ),
+                        F->getState(i->state), ",",        
+                        i->list_name, ") is ",
                         (state_result ? "true" : "false" ) );
         }
         if (!state_result) {
@@ -655,12 +655,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (i->mess_no > 0) cm.message_no = i->mess_no;
         if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
 
-        logger_debug("ACTION "s +
-                    " lc: " + cm.lastcategory +  
-                    " mess_no: " + String(cm.message_no) +
-                    " log_mess: " + String(cm.log_message_no) +
-                    " match: " + cm.whatIsNaughty +
-                    " action_id: " + F->getBIFunct(i->action_id) );
+        logger_debug("ACTION ",
+                    " lc: ", cm.lastcategory,
+                    " mess_no: ", String(cm.message_no),
+                    " log_mess: ", String(cm.log_message_no),
+                    " match: ", cm.whatIsNaughty,
+                    " action_id: ", F->getBIFunct(i->action_id) );
 
         if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
             switch (i->action_id) {
@@ -709,7 +709,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.urldomain.toLower();
                     cm.connect_site = cm.urldomain;
                     if (o.SB_trace) {
-                        logger_story("SB: URL modified to " + cm.url);
+                        logger_story("SB: URL modified to ", cm.url);
                     }
                     break;
                 case SB_FUNC_SETCONNECTSITE:
@@ -717,7 +717,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.logurl = cm.result;
                     cm.connect_site = cm.result.getHostname();
                     if (o.SB_trace) {
-                        logger_story("SB: connect site changed to " + cm.connect_site);
+                        logger_story("SB: connect site changed to ", cm.connect_site);
                     }
                     break;
                 case SB_FUNC_SETLOGCAT:
@@ -821,16 +821,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     break;
             }
-            if (o.SB_trace) {
-                logger_story("SB-ACTION:"s + F->getBIFunct(i->action_id) + " " + (action_return? "true" : "false" ));
-            }
+            logger_story("SB-ACTION:", F->getBIFunct(i->action_id), " ", (action_return? "true" : "false" ));
         } else {      // is SB defined function
 
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id, cm);
-                if(o.SB_trace) {
-                    logger_story("SB:resuming: "s + F->name);
-                }
+                logger_story("SB:resuming: ", F->name);
             }
 
         }
@@ -841,10 +837,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             break;
     }
 
-    if(o.SB_trace) {
-        logger_story( "SB:Leaving "s + F->getName() + 
-                    " returned " + (action_return ? "true" : "false"));
-    }
+    logger_story( "SB:Leaving ", F->getName(), 
+                    " returned ", (action_return ? "true" : "false"));
 
     return action_return;
 }
