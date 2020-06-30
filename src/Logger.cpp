@@ -17,8 +17,6 @@
 #include <syslog.h>
 #include "Logger.hpp"
 
-using namespace std;
-
 // -------------------------------------------------------------
 // --- Constructor
 // -------------------------------------------------------------
@@ -27,7 +25,11 @@ Logger::Logger() {
 };
 Logger::Logger(const char* logname)
 {
-  setName(logname);
+  setSyslogName(logname);
+  setLogOutput(LoggerSource::info, LoggerDestination::stdout);
+  setLogOutput(LoggerSource::error, LoggerDestination::stderr);
+
+  setLogOutput(LoggerSource::debugger, LoggerDestination::stdout);
 }
 
 Logger::~Logger() {
@@ -41,8 +43,7 @@ Logger::~Logger() {
 struct Logger::Helper
 {
   static std::string build_message(
-      const std::string prepend,
-      const std::string thread_id, 
+      const std::string prepend,      
       const std::string func, 
       const int line, 
       const std::string what)
@@ -50,11 +51,13 @@ struct Logger::Helper
     std::stringstream message;
     if (prepend != "") message << "[" << prepend << "] ";
     if (thread_id != "") message << "(" << thread_id << ") ";
+#ifdef E2DEBUG
     if (func != "") {
-      message << func;
+      message << "in " << func;
       if (line > 0)
         message << ":" << line << " ";
     };
+#endif
     message << what;
     return message.str();
   }
@@ -62,7 +65,7 @@ struct Logger::Helper
   static void sendToLogfile(const std::string filename, const std::string message){
     if (filename=="")
       return;
-    ofstream logfile;
+    std::ofstream logfile;
     logfile.open(filename);
     logfile << message;
     logfile.close();
@@ -74,21 +77,36 @@ struct Logger::Helper
 // -------------------------------------------------------------
 
 // string Logger::getName(){ return _logname; };
-void  Logger::setName(const string logname){
+void  Logger::setSyslogName(const std::string logname){
   _logname = logname;
   closelog();
   openlog(logname.c_str(), LOG_PID | LOG_CONS, LOG_USER);
 };
 
-void  Logger::setLogFile(const string filename){
-  _filename = filename;
-  enable_filelog = true;
+void Logger::enable(const LoggerSource source){
+  _enabled[static_cast<int>(source)] = true;
+};
+void Logger::disable(const LoggerSource source){
+  _enabled[static_cast<int>(source)] = false;
+};
+bool Logger::isEnabled(const LoggerSource source){
+  return _enabled[static_cast<int>(source)];
+};
+
+void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename){
+  _destination[static_cast<int>(source)] = destination;
+  _filename[static_cast<int>(source)] = filename;
+  if (destination == LoggerDestination::none)
+    disable(source);
+  else
+    enable(source);  
 }  
 
 void Logger::setDockerMode(){
-  enable_conlog = true;
-  enable_syslog = false;
-  _dockermode = true;
+  // docker stdout/stderr are not in sync
+  // so for debugging send it to stderr (unbuffered)
+  setLogOutput(LoggerSource::info, LoggerDestination::stderr);
+  setLogOutput(LoggerSource::error, LoggerDestination::stderr);
 }
 
 
@@ -96,69 +114,45 @@ void Logger::setDockerMode(){
 // --- Public Functions
 // -------------------------------------------------------------
 
-void Logger::info(const std::string thread_id, const std::string func, const int line, const std::string what)
+void Logger::log(const LoggerSource source, const std::string func, const int line, const std::string message )
 {
-  std::string  message=Helper::build_message("",thread_id, func, line, what);
-  sendMessage(LOG_INFO, message);
+  std::string  msg=Helper::build_message("", func, line, message);
+  sendMessage(source, msg);
 };
-
-void Logger::error(const std::string thread_id, const std::string func, const int line, const std::string what)
-{
-  std::string  message=Helper::build_message("err", thread_id, func, line, what);
-  sendMessage(LOG_ERR, message);
-};
-
-void Logger::debug(const std::string thread_id, const std::string func, const int line, const std::string what)
-{
-#ifdef E2DEBUG
-  std::string  message=Helper::build_message("debug", thread_id, func, line, what);
-  if (enable_debug)
-    sendMessage(LOG_DEBUG, message);
-#endif
-}
-
-void Logger::trace(const std::string thread_id, const std::string func, const int line, const std::string what="")
-{
-#ifdef E2DEBUG
-  std::string  message=Helper::build_message("trace", thread_id, func, line, what);
-  if (enable_debug)
-    sendMessage(LOG_DEBUG, message);
-#endif
-}
-
-void Logger::story(const std::string thread_id, const std::string what="")
-{
-  if (enable_story) {
-    std::string  message=Helper::build_message("story", thread_id, "", 0, what);
-    sendMessage(LOG_INFO, message);
-  }
-}
 
 
 // -------------------------------------------------------------
 // --- Private Functions
 // -------------------------------------------------------------
 
-void Logger::sendMessage(int loglevel, const std::string message){
-    if (enable_conlog)
-      if (loglevel > LOG_ERR) {
-        std::cout << message << std::endl;
-      }
-      else if (_dockermode && enable_debug) {
-        // docker stdout/stderr are not in sync
-        // so for debugging send it to std:cout
-        std::cout << message << std::endl;
-      }
-      else {
-        std::cerr << message << std::endl;
-      };
+void Logger::sendMessage(const LoggerSource source, const std::string message){
+  LoggerDestination destination = _destination[static_cast<int>(source)];
+  int loglevel;
 
-    if (enable_syslog)
+  switch (destination) {
+    case LoggerDestination::none: 
+      break;
+    case LoggerDestination::stdout:
+      std::cout << message << std::endl;
+      break;
+    case LoggerDestination::stderr:
+      std::cerr << message << std::endl;
+      break;
+    case LoggerDestination::syslog:
+      if (source == LoggerSource::error)
+        loglevel = LOG_ERR;
+      else if (source >= LoggerSource::debugger )
+        loglevel = LOG_DEBUG;
+      else
+        loglevel = LOG_INFO;
       syslog(loglevel, "%s", message.c_str());
-
-    if (enable_filelog)
-      Helper::sendToLogfile(_filename, message);
+      break;
+    case LoggerDestination::file:
+      Helper::sendToLogfile(_filename[static_cast<int>(source)], message);
+      break;
   }
+
+}
 
 // -------------------------------------------------------------
 // --- Global Logger
