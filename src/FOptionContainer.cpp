@@ -16,22 +16,16 @@
 #include "Logger.hpp"
 
 #include <cstdlib>
-#include <syslog.h>
 #include <iostream>
 #include <fstream>
 #include <netdb.h> // for gethostby
 #include <netinet/in.h> // for address structures
 #include <arpa/inet.h> // for inet_aton()
 #include <sys/socket.h>
-//#include <unistd.h>  // remove
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-
-///ListMeta LMeta;
 
 // IMPLEMENTATION
 
@@ -310,9 +304,7 @@ bool FOptionContainer::read(const char *filename) {
 
         if (findoptionS("notifyav") == "on") {
             if (!use_smtp) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "notifyav cannot be on while usesmtp is off." << std::endl;
-                syslog(LOG_ERR, "notifyav cannot be on while usesmtp is off.");
+                logger_error("notifyav cannot be on while usesmtp is off.");
                 return false;
             }
             notifyav = true;
@@ -322,9 +314,7 @@ bool FOptionContainer::read(const char *filename) {
 
         if (findoptionS("notifycontent") == "on") {
             if (!use_smtp) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "notifycontent cannot be on while usesmtp is off." << std::endl;
-                syslog(LOG_ERR, "notifycontent cannot be on while usesmtp is off.");
+                logger_error("notifycontent cannot be on while usesmtp is off.");
                 return false;
             }
             notifycontent = true;
@@ -341,9 +331,7 @@ bool FOptionContainer::read(const char *filename) {
         avadmin = findoptionS("avadmin");
         if (avadmin.length() == 0) {
             if (notifyav == 1) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "avadmin cannot be blank while notifyav is on." << std::endl;
-                syslog(LOG_ERR, "avadmin cannot be blank while notifyav is on.");
+                logger_error("avadmin cannot be blank while notifyav is on.");
                 return false;
             }
         }
@@ -351,9 +339,7 @@ bool FOptionContainer::read(const char *filename) {
         contentadmin = findoptionS("contentadmin");
         if (contentadmin.length() == 0) {
             if (use_smtp) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "contentadmin cannot be blank while usesmtp is on." << std::endl;
-                syslog(LOG_ERR, "contentadmin cannot be blank while usesmtp is on.");
+                logger_error("contentadmin cannot be blank while usesmtp is on.");
                 return false;
             }
         }
@@ -361,25 +347,19 @@ bool FOptionContainer::read(const char *filename) {
         mailfrom = findoptionS("mailfrom");
         if (mailfrom.length() == 0) {
             if (use_smtp) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "mailfrom cannot be blank while usesmtp is on." << std::endl;
-                syslog(LOG_ERR, "mailfrom cannot be blank while usesmtp is on.");
+                logger_error("mailfrom cannot be blank while usesmtp is on.");
                 return false;
             }
         }
         avsubject = findoptionS("avsubject");
         if (avsubject.length() == 0 && notifyav == 1 && use_smtp == 1) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "avsubject cannot be blank while notifyav is on." << std::endl;
-            syslog(LOG_ERR, "avsubject cannot be blank while notifyav is on.");
+            logger_error("avsubject cannot be blank while notifyav is on.");
             return false;
         }
 
         contentsubject = findoptionS("contentsubject");
         if (contentsubject.length() == 0 && use_smtp) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "contentsubject cannot be blank while usesmtp is on." << std::endl;
-            syslog(LOG_ERR, "contentsubject cannot be blank while usesmtp is on.");
+            logger_error("contentsubject cannot be blank while usesmtp is on.");
             return false;
         }
 
@@ -458,11 +438,7 @@ bool FOptionContainer::read(const char *filename) {
                 neterr_template = o.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
-                    if (!is_daemonised) {
-                        std::cerr << thread_id << "Error reading NetErr HTML Template file: " << neterr_template
-                                  << std::endl;
-                    }
-                    syslog(LOG_ERR, "Error reading NetErr HTML Template file: %s", neterr_template.toCharArray());
+                    logger_error("Error reading NetErr HTML Template file: ", neterr_template);
                     return false;
                     // HTML template file
                 }
@@ -470,10 +446,7 @@ bool FOptionContainer::read(const char *filename) {
                 neterr_template = o.languagepath + "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
-                    if (!is_daemonised) {
-                        std::cerr << thread_id << "Error reading default HTML and NetErr Template file: " << html_template << std::endl;
-                    }
-                    syslog(LOG_ERR, "Error reading default HTML and NetErr Template file: %s", html_template.toCharArray());
+                    logger_error("Error reading default HTML and NetErr Template file: ", html_template);
                     return false;
 	        }
 	    } 
@@ -595,77 +568,85 @@ bool FOptionContainer::read(const char *filename) {
         auth_exception_url_flag = true;
 #endif
 
-            if (weighted_phrase_mode > 0) {
-                searchterm_limit = findoptionI("searchtermlimit");
-                if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
-                    return false;
-                }
+        if (weighted_phrase_mode > 0) {
+            searchterm_limit = findoptionI("searchtermlimit");
+            if (!realitycheck(searchterm_limit, 0, 0, "searchtermlimit")) {
+                return false;
+            }
 
-                // Optionally override the normal phrase lists for search term blocking.
-                // We need all three lists to build a phrase tree, so fail if we encounter
-                // anything other than all three enabled/disabled simultaneously.
-                if (searchterm_limit > 0) {
-                    std::string exception_searchterm_list_location(findoptionS("exceptionsearchtermlist"));
-                    std::string weighted_searchterm_list_location(findoptionS("weightedsearchtermlist"));
-                    std::string banned_searchterm_list_location(findoptionS("bannedsearchtermlist"));
-                    if (!(exception_searchterm_list_location.length() == 0 &&
-                          weighted_searchterm_list_location.length() == 0 &&
-                          banned_searchterm_list_location.length() == 0)) {
-                        // At least one is enabled - try to load all three.
-                        if (!o.lm.readbplfile(banned_searchterm_list_location.c_str(),
-                                              exception_searchterm_list_location.c_str(),
-                                              weighted_searchterm_list_location.c_str(), searchterm_list,
-                                              force_quick_search, naughtyness_limit)) {
-                            return false;
-                        }
-                        searchterm_flag = true;
+            // Optionally override the normal phrase lists for search term blocking.
+            // We need all three lists to build a phrase tree, so fail if we encounter
+            // anything other than all three enabled/disabled simultaneously.
+            if (searchterm_limit > 0) {
+                std::string exception_searchterm_list_location(findoptionS("exceptionsearchtermlist"));
+                std::string weighted_searchterm_list_location(findoptionS("weightedsearchtermlist"));
+                std::string banned_searchterm_list_location(findoptionS("bannedsearchtermlist"));
+                if (!(exception_searchterm_list_location.length() == 0 &&
+                        weighted_searchterm_list_location.length() == 0 &&
+                        banned_searchterm_list_location.length() == 0)) {
+                    // At least one is enabled - try to load all three.
+                    if (!o.lm.readbplfile(banned_searchterm_list_location.c_str(),
+                                            exception_searchterm_list_location.c_str(),
+                                            weighted_searchterm_list_location.c_str(), searchterm_list,
+                                            force_quick_search, naughtyness_limit)) {
+                        return false;
                     }
+                    searchterm_flag = true;
                 }
             }
+        }
 	    
-	std::string content_regexp_list_location(findoptionS("contentregexplist"));
-	if (content_regexp_list_location.length() > 1) {
-		unsigned int content_regexp_list;
-		if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), list_pwd.toCharArray(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
-             		return false;
-		} else {
-			content_regexp_flag = true;
-		} 
-	} else {
-			content_regexp_flag = false;
-	}
+        std::string content_regexp_list_location(findoptionS("contentregexplist"));
+        if (content_regexp_list_location.length() > 1) {
+            unsigned int content_regexp_list;
+            if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
+                        return false;
+            } else {
+                content_regexp_flag = true;
+            } 
+        } else {
+                content_regexp_flag = false;
+        }
 
-    logger_trace("Lists in memory");
+        logger_trace("Lists in memory");
 
-    logger_trace("Read Storyboard");
-    if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
-        return false;
-
-
-    if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
-        std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
-        return false;
-    }
-
-    if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
-	 std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
-         return false;
-    }
-
-    if(!StoryB.setEntry(ENT_STORYB_LOG_CHECK,"checklogging")) {
-            std::cerr << thread_id << "Required storyboard entry function 'checklogging' is missing" << std::endl;
+        logger_trace("Read Storyboard");
+        if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
             return false;
-    }
 
-    if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
-         std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
-         return false;
-    }
 
-    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
-          std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
-          return false;
-    }
+        if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
+            std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
+            return false;
+        }
+
+        if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
+        std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+            return false;
+        }
+
+        if(!StoryB.setEntry(ENT_STORYB_LOG_CHECK,"checklogging")) {
+                std::cerr << thread_id << "Required storyboard entry function 'checklogging' is missing" << std::endl;
+                return false;
+        }
+
+        if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
+            std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
+            return false;
+        }
+
+        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
+            std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
+            return false;
+        }
+
+        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+            std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
+            return false;
+        }
+        if (!precompileregexps()) {
+            return false;
+        } // precompiled reg exps for speed
 
     if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
            std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
@@ -685,14 +666,15 @@ bool FOptionContainer::read(const char *filename) {
         return false;
     } // precompiled reg exps for speed
 
-    //
-    //
-    // Bypass/infection bypass modes
-    //
-    //
+        cgi_bypass = (findoptionS("cgibypass")== "on" );
+        cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");
 
-    cgi_bypass = (findoptionS("cgibypass")== "on" );
-    cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");
+        bypass_version = findoptionI("bypassversion");
+        if (!realitycheck(bypass_version, 0, 2, "bypassversion")) {
+            return false;
+        }
+        if (bypass_version == 0) bypass_version = 1;   //default
+        if (bypass_version == 2) bypass_v2 = true;   //default
 
     bypass_version = findoptionI("bypassversion");
     if (!realitycheck(bypass_version, 0, 2, "bypassversion")) {
@@ -701,63 +683,54 @@ bool FOptionContainer::read(const char *filename) {
     if (bypass_version == 0) bypass_version = 2;   //default
     if (bypass_version == 2) bypass_v2 = true;   //default
 
-    bypass_mode = findoptionI("bypass");
-    if (!realitycheck(bypass_mode, -1, 0, "bypass")) {
-        return false;
-    }
 
+        if(bypass_mode == -1) cgi_bypass = true;   // for backward compatibility
 
-    if(bypass_mode == -1) cgi_bypass = true;   // for backward compatibility
-
-    // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
-    if ((bypass_mode != 0) || (disable_content_scan != 1)) {
-        magic = findoptionS("bypasskey");
-        if (magic.length() < 9) {
-            std::string s(16u, ' ');
-            for (int i = 0; i < 16; i++) {
-                s[i] = (rand() % 26) + 'A';
+        // we use the "magic" key here both for filter bypass *and* for filter bypass after virus scan (fancy DM).
+        if ((bypass_mode != 0) || (disable_content_scan != 1)) {
+            magic = findoptionS("bypasskey");
+            if (magic.length() < 9) {
+                std::string s(16u, ' ');
+                for (int i = 0; i < 16; i++) {
+                    s[i] = (rand() % 26) + 'A';
+                }
+                magic = s;
             }
-            magic = s;
-        }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Setting magic key to '" << magic << "'" << std::endl;
-#endif
-        // Create the Bypass Cookie magic key
-        cookie_magic = std::string(16u, ' ');
-        for (int i = 0; i < 16; i++) {
-            cookie_magic[i] = (rand() % 26) + 'A';
-        }
-    }
+            logger_debug("Setting magic key to '", magic, "'");
 
-    infection_bypass_mode = findoptionI("infectionbypass");
-    if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
-        return false;
-    }
-
-    if(infection_bypass_mode == -1) cgi_infection_bypass = true;   // for backward compatibility
-
-
-    if (infection_bypass_mode != 0) {
-        imagic = findoptionS("infectionbypasskey");
-        if (imagic.length() < 9) {
-            std::string s(16u, ' ');
+            // Create the Bypass Cookie magic key
+            cookie_magic = std::string(16u, ' ');
             for (int i = 0; i < 16; i++) {
-                s[i] = (rand() % 26) + 'A';
+                cookie_magic[i] = (rand() % 26) + 'A';
             }
-            imagic = s;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Setting imagic key to '" << imagic << "'" << std::endl;
-#endif
-        if (findoptionS("infectionbypasserrorsonly") == "off") {
-            infection_bypass_errors_only = false;
-        } else {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Only allowing infection bypass on scan error" << std::endl;
-#endif
-            infection_bypass_errors_only = true;
+
+        infection_bypass_mode = findoptionI("infectionbypass");
+        if (!realitycheck(infection_bypass_mode, -1, 0, "infectionbypass")) {
+            return false;
         }
-    }
+
+        if(infection_bypass_mode == -1) cgi_infection_bypass = true;   // for backward compatibility
+
+
+        if (infection_bypass_mode != 0) {
+            imagic = findoptionS("infectionbypasskey");
+            if (imagic.length() < 9) {
+                std::string s(16u, ' ');
+                for (int i = 0; i < 16; i++) {
+                    s[i] = (rand() % 26) + 'A';
+                }
+                imagic = s;
+            }
+            logger_debug("Setting imagic key to '", imagic, "'");
+
+            if (findoptionS("infectionbypasserrorsonly") == "off") {
+                infection_bypass_errors_only = false;
+            } else {
+                logger_debug("Only allowing infection bypass on scan error");
+                infection_bypass_errors_only = true;
+            }
+        }
 
         if (findoptionS("scanbypass") == "on") {
             scan_bypass = true;
@@ -765,28 +738,26 @@ bool FOptionContainer::read(const char *filename) {
             scan_bypass = false;
         }
 
+        if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {
+            cgi_magic = findoptionS("cgikey");
+            if ( cgi_magic.length() < 9 ) {
+                logger_error("A valid cgikey must be provided with bypass cgi version 2");
+                return false;
+            };
+            cgi_bypass_v2 = true;
+            if(cgi_infection_bypass && infection_bypass_mode < 60) {
+                logger_error("infectionbypassmode must be greater than 60 with bypass cgi version 2");
+                return false;
+            } else if(bypass_mode < 60) {
+                logger_error("bypassmode must be greater than 60 with bypass cgi version 2");
+                return false;
+            }
 
-    if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {
-        cgi_magic = findoptionS("cgikey");
-        if ( cgi_magic.length() < 9 ) {
-            std::cerr << thread_id << "A valid cgikey must be provided with bypass cgi version 2" << std::endl;
-            return false;
-        };
-        cgi_bypass_v2 = true;
-        if(cgi_infection_bypass && infection_bypass_mode < 60) {
-            std::cerr << thread_id << "infectionbypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
-            return false;
-        } else if(bypass_mode < 60) {
-            std::cerr << thread_id << "bypassmode must be greater than 60 with bypass cgi version 2" << std::endl;
-            return false;
         }
-
-    }
-            } catch (std::exception &e) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << e.what() << std::endl; // when called the daemon has not
-            // detached so we can do this
-        }
+    
+    } catch (std::exception &e) {
+        logger_error(e.what()); // when called the daemon has not
+        // detached so we can do this
         return false;
     }
     return true;
@@ -876,15 +847,7 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
     // realitycheck checks a String for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        if (!is_daemonised) {
-            // when called we have not detached from
-            // the console so we can write back an
-            // error
-
-            std::cerr << thread_id << "Config problem; check allowed values for " << emessage << std::endl;
-        }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
-
+        logger_error("Config problem; check allowed values for ", emessage);
         return false;
     }
     return true;
@@ -893,10 +856,7 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
 bool FOptionContainer::precompileregexps()
 {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error compiling RegExp isiphost." << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error compiling RegExp isiphost.");
+        logger_error("Error compiling RegExp isiphost.");
         return false;
     }
 
