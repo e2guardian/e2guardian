@@ -13,6 +13,7 @@
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
 #include "Logger.hpp"
+#include "LoggerConfigurator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -69,6 +70,7 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
     list.clear();
 }
 
+    LoggerConfigurator loggerConf(&__logger);
 bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
@@ -849,7 +851,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         {
             logger_info("Enable Storyboard tracing !!");
             SB_trace = true;
-            __logger->enable(LoggerSource::story);
+            __logger.enable(LoggerSource::story);
         } else {
             SB_trace = false;
         }
