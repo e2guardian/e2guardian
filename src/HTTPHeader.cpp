@@ -996,12 +996,12 @@ void HTTPHeader::checkheader(bool allowpersistent)
         isconnect = true;
     }
 
-    logger_debug("CheckHeader flags before normalisation: "+
-                    " AP=" + String(allowpersistent) +
-                    " PPC=" + String(pproxyconnection != NULL) +
-                    " 1.1=" + String(onepointone) +
-                    " connectionclose=" + String(connectionclose) +
-                    " CL=" + String(pcontentlength != NULL) );
+    logger_debug("CheckHeader flags before normalisation: ",
+                    " AP=", String(allowpersistent),
+                    " PPC=", String(pproxyconnection != NULL),
+                    " 1.1=", String(onepointone),
+                    " connectionclose=", String(connectionclose),
+                    " CL=", String(pcontentlength != NULL) );
 
     if (connectionclose || (!onepointone && (outgoing ? isconnect : (pcontentlength == NULL)))) {
         // couldnt have done persistency even if we wanted to
@@ -1022,9 +1022,9 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
     }
 
-    logger_debug("CheckHeader flags after normalisation: "+
-                    " AP=" + String(allowpersistent) +
-                    " WP=" + String(waspersistent) );
+    logger_debug("CheckHeader flags after normalisation: ",
+                    " AP=", String(allowpersistent),
+                    " WP=", String(waspersistent) );
 
 
 if(!icap) {
