@@ -282,17 +282,26 @@ exit -1
 #exit -1
 #])
 
-[      
-echo "GCC Version: $GCC_VERSION"
-
-if test "$GCC_VERSION_MAJOR" -ge 6; then
-  CXXFLAGS="${CXXFLAGS} --std=c++14"
+[if test "$GCC_VERSION_MAJOR" -eq 4; then
+	if test "$GCC_VERSION_MINOR" -ge 9; then
+		if test "$GCC_VERSION_PATCH" -ge 3; then
+                        echo "Version: $GCC_VERSION"
+                        CXXFLAGS="${CXXFLAGS} --std=c++11"
+                fi
+        fi
+	echo "Version: $GCC_VERSION "
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
 else
-  echo "Require gcc version 6.x at least!"
-  exit -1
+        if test "$GCC_VERSION_MAJOR" -ge 5; then
+        echo "Version: $GCC_VERSION "
+        CXXFLAGS="${CXXFLAGS} --std=c++11"
+	else
+	echo "Version: $GCC_VERSION "
+        CXXFLAGS="${CXXFLAGS} --std=c++1y"
+	fi
 fi
 ]
-
+  
 # ask user if they want large file support on 32 bit systems
 AC_MSG_CHECKING([for large file support])
 AC_ARG_ENABLE(
