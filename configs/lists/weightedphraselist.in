@@ -30,16 +30,8 @@
 #
 # See the bannedphraselist for more examples.
 #
-# Extra weighted-list files to include
-# .Include<@E2CONFDIR@/lists/phraselists/ukenglish/weightedphraselist.topic>
-#
 # Help by contributing customised lists and/or new keyword lists. 
 # Email: maintianer@e2guardian.org
-#
-# NOTE: New lists are commented out as ALPHA or BETA depending on how much the 
-# lists have been tested.
-# ALPHA - Brand new and/or incomplete - little testing has been done
-# BETA - Relatively new - tested in several locations
 #
 
 #listcategory: "Weighted Phrases"
@@ -51,92 +43,75 @@
 #Good Phrases (to allow medical, education, news and other good sites)
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/goodphrases/weighted>
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/goodphrases/weighted_news>
-.Include<@E2CONFDIR@/lists/phraselists/danish/goodphrases/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/dutch/goodphrases/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/malay/goodphrases/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/polish/goodphrases/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/portuguese/goodphrases/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/swedish/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/danish/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/dutch/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/malay/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/polish/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/goodphrases/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/swedish/goodphrases/weighted>
 
 #Pornography
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/pornography/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/chinesebig5/pornography/weighted> #ALPHA#
 #.Include<@E2CONFDIR@/lists/phraselists/chinesegb2312/pornography/weighted> #ALPHA#
-.Include<@E2CONFDIR@/lists/phraselists/danish/pornography/weighted> #ALPHA#
-.Include<@E2CONFDIR@/lists/phraselists/dutch/pornography/weighted> #BETA#
-.Include<@E2CONFDIR@/lists/phraselists/french/pornography/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/german/pornography/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/italian/pornography/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/japanese/pornography/weighted> #ALPHA# #Disabled due to overblocking#
-.Include<@E2CONFDIR@/lists/phraselists/malay/pornography/weighted> #BETA#
-.Include<@E2CONFDIR@/lists/phraselists/norwegian/pornography/weighted> #BETA#
-.Include<@E2CONFDIR@/lists/phraselists/polish/pornography/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/portuguese/pornography/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/russian-1251/pornography/weighted> #BETA#
+#.Include<@E2CONFDIR@/lists/phraselists/danish/pornography/weighted> #ALPHA#
+#.Include<@E2CONFDIR@/lists/phraselists/dutch/pornography/weighted> #BETA#
+#.Include<@E2CONFDIR@/lists/phraselists/french/pornography/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/german/pornography/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/italian/pornography/weighted>
+##.Include<@E2CONFDIR@/lists/phraselists/japanese/pornography/weighted> #ALPHA# #Disabled due to overblocking#
+#.Include<@E2CONFDIR@/lists/phraselists/malay/pornography/weighted> #BETA#
+#.Include<@E2CONFDIR@/lists/phraselists/norwegian/pornography/weighted> #BETA#
+#.Include<@E2CONFDIR@/lists/phraselists/polish/pornography/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/pornography/weighted>
+##.Include<@E2CONFDIR@/lists/phraselists/russian-1251/pornography/weighted> #BETA#
 #.Include<@E2CONFDIR@/lists/phraselists/russian-koi8-r/pornography/weighted> #BETA#
-.Include<@E2CONFDIR@/lists/phraselists/spanish/pornography/weighted> #ALPHA#
-.Include<@E2CONFDIR@/lists/phraselists/swedish/pornography/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/ukenglish/nudism/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/spanish/pornography/weighted> #ALPHA#
+#.Include<@E2CONFDIR@/lists/phraselists/swedish/pornography/weighted>
+
+#Nudism
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/nudism/weighted>
 
 #Bad Words - swearing
-.Include<@E2CONFDIR@/lists/phraselists/dutch/badwords/weighted> 
-.Include<@E2CONFDIR@/lists/phraselists/french/badwords/weighted>
-.Include<@E2CONFDIR@/lists/phraselists/german/badwords/weighted> #ALPHA#
-.Include<@E2CONFDIR@/lists/phraselists/portuguese/badwords/weighted> #ALPHA#
-.Include<@E2CONFDIR@/lists/phraselists/spanish/badwords/weighted> #ALPHA#
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/badwords/weighted> 
+#.Include<@E2CONFDIR@/lists/phraselists/dutch/badwords/weighted> 
+#.Include<@E2CONFDIR@/lists/phraselists/french/badwords/weighted>
+#.Include<@E2CONFDIR@/lists/phraselists/german/badwords/weighted> #ALPHA#
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/badwords/weighted> #ALPHA#
+#.Include<@E2CONFDIR@/lists/phraselists/spanish/badwords/weighted> #ALPHA#
 
 #Drugs
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/drugadvocacy/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/illegaldrugs/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/illegaldrugs/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/legaldrugs/weighted>
 
 #Violence and intolerance
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/intolerance/weighted>
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/intolerance/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/intolerance/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gore/weighted>
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gore/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/gore/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/violence/weighted>
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/violence/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/violence/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/weapons/weighted>
+.Include<@E2CONFDIR@/lists/phraselists/ukenglish/weapons/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/weapons/weighted>
 
 #Chat
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/chat/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/italian/chat/weighted>
 
-#Webmail
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/webmail/weighted>
-#Note that if you enable the webmail weighted list you should also disable 
-#the "exception_email" list in the exceptionphraselist file.
-
-#Forums
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/forums/weighted> #BETA#
 
 #Gambling
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gambling/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/gambling/weighted>
 
 #Productivity
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/games/weighted> #ALPHA#
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/news/weighted> #ALPHA#
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/games/weighted> 
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/personals/weighted>
 #.Include<@E2CONFDIR@/lists/phraselists/portuguese/personals/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/sport/weighted> #ALPHA#
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/travel/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/music/weighted>
 
 #System Management and Security
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/domainsforsale/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/idtheft/weighted>
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/proxies/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/translation/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/upstreamfilter/weighted>
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/warezhacking/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/peer2peer/weighted>
 
-#Miscellaneous	
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/conspiracy/weighted>
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/secretsocieties/weighted>
 
 

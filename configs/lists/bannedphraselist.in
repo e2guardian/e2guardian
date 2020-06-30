@@ -20,36 +20,28 @@
 # <test>,<secondtest> will match if both words are found in the page
 # A combination of the above can also be used eg < test>,<secondtest>
 #
-#
-# Extra phrase-list files to include
-# .Include</etc/e2guardian/testphrase>
-#
-#
 # All phrases need to be within < and > to work, othewise they will be
 # ignored.
 
-# MORE EXAMPLE LISTS CAN BE DOWNLOADED FROM DANSGUARDIAN.ORG
+# Note: Use these sparingly - banned phrases tend to overblock
 
-# Phrase Exceptions are no longer listed in this file, they are now
-# listed in the exceptionphraselist file.
-#
 
 #listcategory: "Banned Phrases"
 
 
-#.Include<@E2CONFDIR@/lists/phraselists/portuguese/rta/banned>
-
 # The following banned phraselists are included in the default e2g distribution.
 
 .Include<@E2CONFDIR@/lists/phraselists/ukenglish/pornography/banned>
-##.Include<@E2CONFDIR@/lists/phraselists/portuguese/pornography/banned>
-
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/illegaldrugs/banned>
 
 #.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gambling/banned>
-##.Include<@E2CONFDIR@/lists/phraselists/portuguese/gambling/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/badwords/banned>
 
-#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/googlesearches/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/gambling/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/intolerance/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/personals/banned>
+
+#.Include<@E2CONFDIR@/lists/phraselists/ukenglish/gambling/banned>
+#.Include<@E2CONFDIR@/lists/phraselists/portuguese/gambling/banned>
 
 
 
