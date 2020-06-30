@@ -10,7 +10,21 @@
 #ifndef __HPP_LOGGING
 #define __HPP_LOGGING
 
-using namespace std::string_literals;
+#include <sstream>
+
+// only C++14 : using namespace std::string_literals;
+
+enum class LoggerSource {
+  // used in production:
+  info, error, config, story, icap, icapc, clamav, thhtps,
+  // only usable when compiled with E2DEBUG:
+  debugger, trace, netdebug, sbdebug, chunkdebug,
+  __MAX_VALUE
+};
+
+enum class LoggerDestination {
+  none, stdout, stderr, syslog, file
+};
 
 class Logger
 {
@@ -19,39 +33,83 @@ class Logger
   Logger(const char* logname);
   ~Logger();  // destructor
 
-  bool enable_conlog;
-  bool enable_syslog;
-  bool enable_filelog;
 
-  bool enable_debug;
-  bool enable_trace;
-  bool enable_story;
+  void setSyslogName(const std::string logname);
 
-  void setName(const std::string logname); // for syslog
-  void setLogFile(const std::string filename);
+  // enable/disable Logging Sources
+  void enable(const LoggerSource source);
+  void disable(const LoggerSource source);
+  bool isEnabled(const LoggerSource source);
+
+  void setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename="");
+
   void setDockerMode();
 
-  void info(const std::string thread_id, const std::string func, const int line, const std::string what);
-  void error(const std::string thread_id, const std::string func, const int line, const std::string what);
-  void debug(const std::string thread_id, const std::string func, const int line, const std::string what);
-  void trace(const std::string thread_id, const std::string func, const int line, const std::string what);
-  void story(const std::string thread_id, const std::string what);
+  void log(const LoggerSource source, const std::string func, const int line, const std::string message );
+
+
+  template<typename T>  void cat_vars(std::stringstream &mess, T e) {
+      mess << e;
+  }
+  template<typename T, typename... Args>  void cat_vars(std::stringstream &mess, T e, Args... args) {
+      mess << e;
+      cat_vars(mess, args...);
+  }
+  template<typename... Args> std::string cat_all_vars(Args... args) {
+      std::stringstream mess;
+      cat_vars(mess, args...);
+      return mess.str();
+  }
+  template<typename... Args>  void vlog(const LoggerSource source, const std::string func, const int line, Args... args) {
+      log(source, func, line, cat_all_vars(args...));
+  };
 
   private:
-  bool _dockermode;
   std::string _logname;
-  std::string _filename;
+
+  bool _enabled[static_cast<int>(LoggerSource::__MAX_VALUE)];
+  LoggerDestination _destination[static_cast<int>(LoggerSource::__MAX_VALUE)];
+  std::string _filename[static_cast<int>(LoggerSource::__MAX_VALUE)];
+
   struct Helper;
 
-  void sendMessage(int loglevel, const std::string message);
+  void sendMessage(const LoggerSource source, const std::string message);
 };
+
+extern thread_local std::string thread_id;
 
 extern Logger* __logger;
 
-#define logger_info(...)  __logger->info(thread_id, __func__, __LINE__, __VA_ARGS__)
-#define logger_error(...) __logger->error(thread_id, __func__, __LINE__, __VA_ARGS__)
-#define logger_debug(...) __logger->debug(thread_id, __func__, __LINE__, __VA_ARGS__)
-#define logger_trace(...) __logger->trace(thread_id, __func__, __LINE__, __VA_ARGS__)
-#define logger_story(...) __logger->story(thread_id,  __VA_ARGS__)
+#define logger_info(...)  \
+  if (__logger->isEnabled(LoggerSource::info)) \
+     __logger->vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
+#define logger_error(...) \
+  if (__logger->isEnabled(LoggerSource::error)) \
+     __logger->vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
+#define logger_config(...) \
+  if (__logger->isEnabled(LoggerSource::config)) \
+     __logger->vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
+#define logger_story(...) \
+  if (__logger->isEnabled(LoggerSource::story)) \
+    __logger->vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
+
+
+#ifdef E2DEBUG
+  #define logger_debug(...) \
+    if (__logger->isEnabled(LoggerSource::debug)) \
+      __logger->vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
+  #define logger_trace(...) \
+    if (__logger->isEnabled(LoggerSource::trace)) \
+     __logger->vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
+  #define logger_netdebug(...) \
+    if (__logger->isEnabled(LoggerSource::netdebug)) \
+     __logger->vlog(LoggerSource::netdebug,  __func__, __LINE__, __VA_ARGS__)
+
+#else
+  #define logger_debug(...)
+  #define logger_trace(...)
+  #define logger_netdebug(...)
+#endif
+
 
 #endif
