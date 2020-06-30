@@ -18,21 +18,20 @@ enum class LoggerSource {
   // used in production:
   info, error, config, story, icap, icapc, clamav, thhtps,
   // only usable when compiled with E2DEBUG:
-  debugger, trace, netdebug, sbdebug, chunkdebug,
+  debug, trace, netdebug, sbdebug, chunkdebug,
   __MAX_VALUE
 };
 
 enum class LoggerDestination {
-  none, stdout, stderr, syslog, file
+  none, stdout, stderr, syslog, file,
+  __MAX_VALUE
 };
 
 class Logger
 {
   public:
   Logger();   // constructor
-  Logger(const char* logname);
   ~Logger();  // destructor
-
 
   void setSyslogName(const std::string logname);
 
@@ -47,7 +46,17 @@ class Logger
 
   void log(const LoggerSource source, const std::string func, const int line, const std::string message );
 
+  // Conversion Enum <-> string
+  static const std::string SOURCES[static_cast<int>(LoggerSource::__MAX_VALUE)];
+  static const std::string DESTINATIONS[static_cast<int>(LoggerDestination::__MAX_VALUE)];
 
+  static LoggerSource string2source(std::string source);
+  static LoggerDestination string2dest(std::string destination);
+
+  static std::string source2string(LoggerSource source);
+  static std::string dest2string(LoggerDestination dest);
+
+  // Variable Args
   template<typename T>  void cat_vars(std::stringstream &mess, T e) {
       mess << e;
   }
@@ -78,32 +87,32 @@ class Logger
 
 extern thread_local std::string thread_id;
 
-extern Logger* __logger;
+extern Logger __logger;
 
 #define logger_info(...)  \
-  if (__logger->isEnabled(LoggerSource::info)) \
-     __logger->vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
+  if (__logger.isEnabled(LoggerSource::info)) \
+     __logger.vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
 #define logger_error(...) \
-  if (__logger->isEnabled(LoggerSource::error)) \
-     __logger->vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
+  if (__logger.isEnabled(LoggerSource::error)) \
+     __logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
 #define logger_config(...) \
-  if (__logger->isEnabled(LoggerSource::config)) \
-     __logger->vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
+  if (__logger.isEnabled(LoggerSource::config)) \
+     __logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
 #define logger_story(...) \
-  if (__logger->isEnabled(LoggerSource::story)) \
-    __logger->vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
+  if (__logger.isEnabled(LoggerSource::story)) \
+    __logger.vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
 
 
 #ifdef E2DEBUG
   #define logger_debug(...) \
-    if (__logger->isEnabled(LoggerSource::debug)) \
-      __logger->vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
+    if (__logger.isEnabled(LoggerSource::debug)) \
+      __logger.vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
   #define logger_trace(...) \
-    if (__logger->isEnabled(LoggerSource::trace)) \
-     __logger->vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
+    if (__logger.isEnabled(LoggerSource::trace)) \
+     __logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
   #define logger_netdebug(...) \
-    if (__logger->isEnabled(LoggerSource::netdebug)) \
-     __logger->vlog(LoggerSource::netdebug,  __func__, __LINE__, __VA_ARGS__)
+    if (__logger.isEnabled(LoggerSource::netdebug)) \
+     __logger.vlog(LoggerSource::netdebug,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define logger_debug(...)

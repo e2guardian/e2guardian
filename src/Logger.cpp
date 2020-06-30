@@ -21,20 +21,20 @@
 // --- Constructor
 // -------------------------------------------------------------
 Logger::Logger() {
-  Logger("Logger");
-};
-Logger::Logger(const char* logname)
-{
-  setSyslogName(logname);
+  setSyslogName("Logger");
   setLogOutput(LoggerSource::info, LoggerDestination::stdout);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
 
-  setLogOutput(LoggerSource::debugger, LoggerDestination::stdout);
+  setLogOutput(LoggerSource::debug, LoggerDestination::stdout);
 }
 
 Logger::~Logger() {
   closelog();
 }
+
+const std::string Logger::SOURCES[] = {"info", "error", "config", "story", "icap", "icapc", "clamav", "thhtps", \
+                                      "debug", "trace", "netdebug", "sbdebug", "chunkdebug"};
+const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
 
 // -------------------------------------------------------------
 // --- Helper
@@ -53,7 +53,7 @@ struct Logger::Helper
     if (thread_id != "") message << "(" << thread_id << ") ";
 #ifdef E2DEBUG
     if (func != "") {
-      message << "in " << func;
+      message << " " << func;
       if (line > 0)
         message << ":" << line << " ";
     };
@@ -71,6 +71,33 @@ struct Logger::Helper
     logfile.close();
   }
 };
+
+// -------------------------------------------------------------
+// --- static Functions
+// -------------------------------------------------------------
+
+LoggerSource Logger::string2source(std::string source){
+  for( int i=0; i < static_cast<int>(LoggerSource::__MAX_VALUE); i++)
+  {
+    if (Logger::SOURCES[i] == source) return static_cast<LoggerSource>(i);
+  }
+  return LoggerSource::info;
+}
+LoggerDestination Logger::string2dest(std::string destination){
+  for( int i=0; i < static_cast<int>(LoggerDestination::__MAX_VALUE); i++)
+  {
+    if (Logger::DESTINATIONS[i] == destination) return static_cast<LoggerDestination>(i);
+  }
+  return LoggerDestination::none;
+}
+
+std::string Logger::source2string(LoggerSource source){
+  return Logger::SOURCES[static_cast<int>(source)];
+}
+std::string Logger::dest2string(LoggerDestination dest){
+  return Logger::DESTINATIONS[static_cast<int>(dest)];
+}
+
 
 // -------------------------------------------------------------
 // --- Properties
@@ -104,9 +131,10 @@ void Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
 
 void Logger::setDockerMode(){
   // docker stdout/stderr are not in sync
-  // so for debugging send it to stderr (unbuffered)
+  // so for debugging send everything to stderr (unbuffered)
   setLogOutput(LoggerSource::info, LoggerDestination::stderr);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
+  setLogOutput(LoggerSource::debug, LoggerDestination::stderr);
 }
 
 
@@ -116,7 +144,10 @@ void Logger::setDockerMode(){
 
 void Logger::log(const LoggerSource source, const std::string func, const int line, const std::string message )
 {
-  std::string  msg=Helper::build_message("", func, line, message);
+  std::string prepend;
+  if (source > LoggerSource::error)
+    prepend=source2string(source);
+  std::string  msg=Helper::build_message(prepend, func, line, message);
   sendMessage(source, msg);
 };
 
@@ -141,7 +172,7 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
     case LoggerDestination::syslog:
       if (source == LoggerSource::error)
         loglevel = LOG_ERR;
-      else if (source >= LoggerSource::debugger )
+      else if (source >= LoggerSource::debug)
         loglevel = LOG_DEBUG;
       else
         loglevel = LOG_INFO;
@@ -158,4 +189,4 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
 // --- Global Logger
 // -------------------------------------------------------------
 
-Logger* __logger;
+Logger __logger;
