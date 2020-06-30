@@ -12,6 +12,7 @@
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
 #include "Logger.hpp"
+#include "LoggerConfigurator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -74,6 +75,8 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
 
 bool OptionContainer::read(std::string& filename, int type)
 {
+    LoggerConfigurator loggerConf(&__logger);
+
 	conffilename = filename;
 
 	// all sorts of exceptions could occur reading conf files
@@ -94,6 +97,10 @@ bool OptionContainer::read(std::string& filename, int type)
 						temp = temp.before("#");
 					}
 					temp.removeWhiteSpace();  // get rid of spaces at end of line
+
+                    if (temp.find(LoggerConfigurator::PREFIX) == 0)
+                        loggerConf.configure(temp);
+
 					linebuffer = temp.toCharArray();
 					conffile.push_back(linebuffer);  // stick option in deque
 				}
@@ -805,7 +812,7 @@ bool OptionContainer::read(std::string& filename, int type)
         {
             logger_info("Enable Storyboard tracing !!");
             SB_trace = true;
-            __logger->enable(LoggerSource::story);
+            __logger.enable(LoggerSource::story);
         } else {
             SB_trace = false;
         }

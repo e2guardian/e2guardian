@@ -11,6 +11,7 @@
 #include "SysV.hpp"
 #include "Queue.hpp"
 #include "Logger.hpp"
+#include "LoggerConfigurator.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -40,7 +41,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 
-// Logger* __logger;
+LoggerConfigurator loggerConfig(&__logger);
 bool is_daemonised;
 
 // regexp used during URL decoding by HTTPHeader
@@ -89,9 +90,9 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int rc;
 
-    __logger = new Logger("e2guardian");
+    __logger.setSyslogName("e2guardian");
 #if E2DEBUG
-    __logger->enable(LoggerSource::debug);
+    __logger.enable(LoggerSource::debug);
 #endif    
 
     logger_info("Start ", prog_name );
@@ -150,6 +151,12 @@ int main(int argc, char *argv[])
                 case 'i':
                     total_block_list = true;
                     break;
+                case 'l':
+                    if ((i + 1) < argc) {
+                        loggerConfig.configure(argv[i+1]);
+                    };
+                    break;
+
                 case 'h':
                     std::cout << "Usage: " << argv[0] << " [{-c ConfigFileName|-v|-P|-h|-N|-q|-s|-r|-g|-i}]" << std::endl;
                     std::cout << "  -v gives the version number and build options." << std::endl;
@@ -197,7 +204,7 @@ int main(int argc, char *argv[])
     read_config(configfile, 2);
 
     if ( ! o.name_suffix.empty() ) {
-        __logger->setSyslogName(prog_name + o.name_suffix);
+        __logger.setSyslogName(prog_name + o.name_suffix);
     }
 
     if (total_block_list && !o.readinStdin()) {
