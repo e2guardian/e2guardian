@@ -10,11 +10,11 @@
 #include "LanguageContainer.hpp"
 #include "RegExp.hpp"
 #include "String.hpp"
+#include "Logger.hpp"
 
 #include <cstdlib>
 #include <cstdio>
 #include <unistd.h>
-#include <syslog.h>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -23,7 +23,6 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
 
 // IMPLEMENTATION
 
@@ -62,11 +61,7 @@ bool LanguageContainer::readLanguageList(const char *filename)
     unsigned int k;
     std::ifstream languagefile(filename, std::ios::in); // open the file for reading
     if (!languagefile.good()) {
-        if (!is_daemonised) {
-            std::cerr << "Error opening messages file (does it exist?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error opening messages file (does it exist?): ");
-        syslog(LOG_ERR, "%s", filename);
+        logger_error("Error opening messages file (does it exist?): ", filename);
         return false;
     }
     while (!languagefile.eof()) { // keep going until end of file
