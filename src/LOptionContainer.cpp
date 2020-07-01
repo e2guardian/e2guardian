@@ -356,25 +356,25 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 //        std::string language_list_location(languagepath + "messages");
         {
             std::deque<String> dq = findoptionM("iplist");
-            std::cerr << thread_id << "iplist deque is size " << dq.size() << std::endl;
+            logger_debug("iplist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IP, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            std::cerr << thread_id << "sitelist deque is size " << dq.size() << std::endl;
+            logger_debug("sitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_SITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            std::cerr << thread_id << "ipsitelist deque is size " << dq.size() << std::endl;
+            logger_debug("ipsitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IPSITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            std::cerr << thread_id << "urllist deque is size " << dq.size() << std::endl;
+            logger_debug("urllist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_URL, dq);
         }
 
@@ -382,23 +382,17 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             return false;
 
         if (!StoryA.setEntry1("pre-authcheck")) {
-            std::cerr << thread_id << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'pre-authcheck' is missing");
             return false;
         }
 
         if (!readFilterGroupConf()) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error reading filter group conf file(s)." << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error reading filter group conf file(s).");
+            logger_error("Error reading filter group conf file(s).");
             return false;
         }
 
     } catch (std::exception &e) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << e.what() << std::endl; // when called the daemon has not
-            // detached so we can do this
-        }
+        logger_error(e.what());
         return false;
     }
     return true;
@@ -618,14 +612,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        if (!is_daemonised) {
-            // when called we have not detached from
-            // the console so we can write back an
-            // error
-
-            std::cerr << thread_id << "Config problem; check allowed values for " << emessage << std::endl;
-        }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
+        logger_error("Config problem; check allowed values for ", emessage);
         return false;
     }
     return true;

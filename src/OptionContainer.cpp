@@ -15,21 +15,14 @@
 #include "Logger.hpp"
 #include "LoggerConfigurator.hpp"
 
-#include <iostream>
+//#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <dirent.h>
 #include <cstdlib>
-#include <unistd.h> // checkme: remove?
 
 // GLOBALS
 
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
-
-
-//ListContainer total_block_site_list;
-//ListContainer total_block_url_list;
 
 // IMPLEMENTATION
 
@@ -407,12 +400,9 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         http_workers = findoptionI("httpworkers");
         if (http_workers == 0) {
-            http_workers = 100;
-            if (!is_daemonised) {
-                std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
-            }
-            syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
-        }
+		    http_workers = 100;
+            logger_error("http_workers settings cannot be zero: value set to 100");
+	    }
         if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
             return false;
         } // check its a reasonable value
@@ -466,9 +456,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 		if ((weighted_phrase_mode != 0)) {
 			max_content_filter_size = max_content_ramcache_scan_size;
 			if (max_content_filter_size == 0) {
-				if (!is_daemonised)
-					std::cerr << "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)" << std::endl;
-				syslog(LOG_ERR, "%s", "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)");
+				logger_error("maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)");
 				return false;
 			}
 		}
@@ -477,18 +465,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (contentscanning) {
 
             if (max_content_filter_size > max_content_ramcache_scan_size) {
-                if (!is_daemonised) {
-                    std::cerr << "maxcontentfiltersize can not be greater than maxcontentramcachescansize" << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "maxcontentfiltersize can not be greater than maxcontentramcachescansize");
+                logger_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
                 return false;
             }
             if (max_content_ramcache_scan_size > max_content_filecache_scan_size) {
-                if (!is_daemonised) {
-                    std::cerr << "maxcontentramcachescansize can not be greater than maxcontentfilecachescansize"
-                              << std::endl;
-                }
-                syslog(LOG_ERR, "%s", "maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
+                logger_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
                 return false;
             }
 
@@ -542,12 +523,12 @@ bool OptionContainer::read(std::string &filename, int type) {
         url_cache_number = findoptionI("urlcachenumber");
         if (!realitycheck(url_cache_number, 0, 0, "urlcachenumber")) {
             return false;
-        } // check its a reasonable value
+        }
 
         url_cache_age = findoptionI("urlcacheage");
         if (!realitycheck(url_cache_age, 0, 0, "urlcacheage")) {
             return false;
-        } // check its a reasonable value
+        }
 
         phrase_filter_mode = findoptionI("phrasefiltermode");
         if (!realitycheck(phrase_filter_mode, 0, 3, "phrasefiltermode")) {
@@ -612,19 +593,13 @@ bool OptionContainer::read(std::string &filename, int type) {
         // multiple listen IP support
         filter_ip = findoptionM("filterip");
         if (filter_ip.size() > 127) {
-            if (!is_daemonised) {
-                std::cerr << "Can not listen on more than 127 IPs" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Can not listen on more than 127 IPs");
+            logger_error("Can not listen on more than 127 IPs");
             return false;
         }
         // multiple check IP support - used for loop checking
         check_ip = findoptionM("checkip");
         if (check_ip.size() > 127) {
-            if (!is_daemonised) {
-                std::cerr << "Can not check on more than 127 IPs" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Can not check on more than 127 IPs");
+            logger_error("Can not check on more than 127 IPs");
             return false;
         }
         //if (check_ip.size() == 0) {   // set defaults
@@ -637,27 +612,23 @@ bool OptionContainer::read(std::string &filename, int type) {
         //}
         filter_ports = findoptionM("filterports");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
-            if (!is_daemonised) {
-                std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips ("
-                          << filter_ip.size() << ")" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "filterports must match number of filterips");
+            logger_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(), ")");
             return false;
         }
         filter_port = filter_ports[0].toInteger();
         if (!realitycheck(filter_port, 1, 65535, "filterport[0]")) {
             return false;
-        } // check its a reasonable value
+        }
 
         transparenthttps_port = findoptionI("transparenthttpsport");
         if (!realitycheck(filter_port, 0, 65535, "transparenthttpsport")) {
             return false;
-        } // check its a reasonable value
+        }
 
         icap_port = findoptionI("icapport");
         if (!realitycheck(filter_port, 0, 65535, "icapport")) {
             return false;
-        } // check its a reasonable value
+        }
 
         if (icap_port > 0) {   // add non-plugin auth for ICAP
             SB_entry_map sen;
@@ -867,17 +838,12 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
         if (filter_groups < 1) {
-            if (!is_daemonised) {
-                std::cerr << "filtergroups too small" << std::endl;
-            }
+            logger_error("filtergroups too small");
             return false;
         }
 
         if (!loadDMPlugins()) {
-            if (!is_daemonised) {
-                std::cerr << "Error loading DM plugins" << std::endl;
-            }
-            syslog(LOG_ERR, "Error loading DM plugins");
+            logger_error("Error loading DM plugins");
             return false;
         }
 
@@ -887,19 +853,13 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (contentscanning) {
             if (!loadCSPlugins()) {
-                if (!is_daemonised) {
-                    std::cerr << "Error loading CS plugins" << std::endl;
-                }
-                syslog(LOG_ERR, "Error loading CS plugins");
+                logger_error("Error loading CS plugins");
                 return false;
             }
         }
 
         if (!loadAuthPlugins()) {
-            if (!is_daemonised) {
-                std::cerr << "Error loading auth plugins" << std::endl;
-            }
-            syslog(LOG_ERR, "Error loading auth plugins");
+            logger_error("Error loading auth plugins");
             return false;
         }
 
@@ -907,7 +867,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     authmaptoport mode
         if (map_auth_to_ports && (filter_ports.size() > 1)
             && (filter_ports.size() != authplugins.size())) {
-            std::cerr << "In mapauthtoports mode you need to setup one port per auth plugin" << std::endl;
+            logger_error("In mapauthtoports mode you need to setup one port per auth plugin");
             return false;
         }
 
@@ -929,24 +889,18 @@ bool OptionContainer::read(std::string &filename, int type) {
             while (it != authplugins.end()) {
                 AuthPlugin *tmp = (AuthPlugin *) *it;
                 if (tmp->getPluginName().startsWith("proxy-basic")) {
-                    if (!is_daemonised)
-                        std::cerr << "Proxy auth is not possible with multiple ports" << std::endl;
-                    syslog(LOG_ERR, "Proxy auth is not possible with multiple ports");
+                    logger_error("Proxy auth is not possible with multiple ports");
                     return false;
                 }
                 if (tmp->getPluginName().startsWith("proxy-ntlm") && (tmp->isTransparent() == false)) {
-                    if (!is_daemonised)
-                        std::cerr << "Non-transparent NTLM is not possible with multiple ports" << std::endl;
-                    syslog(LOG_ERR, "Non-transparent NTLM is not possible with multiple ports");
+                    logger_error("Non-transparent NTLM is not possible with multiple ports");
                     return false;
                 }
                 if (it == authplugins.begin())
                     firstPlugin = tmp->getPluginName();
                 else {
                     if ((firstPlugin == tmp->getPluginName()) and (!tmp->getPluginName().startsWith("ssl-core"))) {
-                        if (!is_daemonised)
-                            std::cerr << "Auth plugins can not be the same" << std::endl;
-                        syslog(LOG_ERR, "Auth plugins can not be the same");
+                        logger_error("Auth plugins can not be the same");
                         return false;
                     }
                 }
@@ -976,9 +930,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
-#ifdef E2DEBUG
-            std::cout << "Not using groupnameslist" << std::endl;
-#endif
+            logger_debug("Not using groupnameslist");
         } else {
             use_group_names_list = true;
         }
@@ -998,22 +950,13 @@ bool OptionContainer::read(std::string &filename, int type) {
                                               generated_cert_path.c_str(),
                                               gen_cert_start, gen_cert_end);
             } else {
-                if (!is_daemonised) {
-                    std::cerr
-                            << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM."
-                            << std::endl;
-                }
-                syslog(LOG_ERR, "%s",
-                       "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+                logger_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
                 return false;
             }
         }
 
     } catch (std::exception &e) {
-        if (!is_daemonised) {
-            std::cerr << e.what() << std::endl; // when called the daemon has not
-            // detached so we can do this
-        }
+        logger_error(e.what());
         return false;
     }
     return true;
@@ -1022,10 +965,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
 bool OptionContainer::readinStdin() {
     if (!std::cin.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading stdin: " << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading stdin");
+        logger_error("Error reading stdin");
         return false;
     }
     std::string linebuffer;
@@ -1166,14 +1106,7 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        if (!is_daemonised) {
-            // when called we have not detached from
-            // the console so we can write back an
-            // error
-
-            std::cerr << "Config problem; check allowed values for " << emessage << std::endl;
-        }
-        syslog(LOG_ERR, "Config problem; check allowed values for %s", emessage);
+        logger_error("Config problem; check allowed values for ", emessage);
         return false;
     }
     return true;
@@ -1184,39 +1117,25 @@ bool OptionContainer::loadDMPlugins() {
     std::deque<String> dq = findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
-        if (!is_daemonised) {
-            std::cerr << "There must be at least one download manager option" << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "There must be at least one download manager option");
+        logger_error("There must be at least one download manager option");
         return false;
     }
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-#ifdef E2DEBUG
-        std::cout << "loading download manager config: " << config << std::endl;
-#endif
+        logger_debug("loading download manager config: ", config);
         DMPlugin *dmpp = dm_plugin_load(config.toCharArray());
         if (dmpp == NULL) {
-            if (!is_daemonised) {
-                std::cerr << "dm_plugin_load() returned NULL pointer with config file: " << config << std::endl;
-            }
-            syslog(LOG_ERR, "dm_plugin_load() returned NULL pointer with config file: %s", config.toCharArray());
+            logger_error("dm_plugin_load() returned NULL pointer with config file: %s", config);
             return false;
         }
         bool lastplugin = (i == (numplugins - 1));
         int rc = dmpp->init(&lastplugin);
         if (rc < 0) {
-            if (!is_daemonised) {
-                std::cerr << "Download manager plugin init returned error value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Download manager plugin init returned error value: %d", rc);
+            logger_error("Download manager plugin init returned error value: ", rc);
             return false;
         } else if (rc > 0) {
-            if (!is_daemonised) {
-                std::cerr << "Download manager plugin init returned warning value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Download manager plugin init returned warning value: %d", rc);
+            logger_error("Download manager plugin init returned warning value: ", rc);
         }
         dmplugins.push_back(dmpp);
     }
@@ -1235,33 +1154,20 @@ bool OptionContainer::loadCSPlugins() {
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-// worth adding some input checking on config
-#ifdef E2DEBUG
-        std::cout << "loading content scanner config: " << config << std::endl;
-#endif
+        // worth adding some input checking on config
+        logger_debug("loading content scanner config: ", config);
         CSPlugin *cspp = cs_plugin_load(config.toCharArray());
         if (cspp == NULL) {
-            if (!is_daemonised) {
-                std::cerr << "cs_plugin_load() returned NULL pointer with config file: " << config << std::endl;
-            }
-            syslog(LOG_ERR, "cs_plugin_load() returned NULL pointer with config file: %s", config.toCharArray());
+            logger_error("cs_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-#ifdef E2DEBUG
-        std::cout << "Content scanner plugin is good, calling init..." << std::endl;
-#endif
+        logger_debug("Content scanner plugin is good, calling init...");
         int rc = cspp->init(NULL);
         if (rc < 0) {
-            if (!is_daemonised) {
-                std::cerr << "Content scanner plugin init returned error value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Content scanner plugin init returned error value: %d", rc);
+            logger_error("Content scanner plugin init returned error value: ", rc);
             return false;
         } else if (rc > 0) {
-            if (!is_daemonised) {
-                std::cerr << "Content scanner plugin init returned warning value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Content scanner plugin init returned warning value: %d", rc);
+            logger_error("Content scanner plugin init returned warning value: ", rc);
         }
         csplugins.push_back(cspp);
     }
@@ -1283,46 +1189,29 @@ bool OptionContainer::loadAuthPlugins() {
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-// worth adding some input checking on config
-#ifdef E2DEBUG
-        std::cout << "loading auth plugin config: " << config << std::endl;
-#endif
+        // worth adding some input checking on config
+        logger_debug("loading auth plugin config: ", config);
         AuthPlugin *app = auth_plugin_load(config.toCharArray());
         if (app == NULL) {
-            if (!is_daemonised) {
-                std::cerr << "auth_plugin_load() returned NULL pointer with config file: " << config << std::endl;
-            }
-            syslog(LOG_ERR, "auth_plugin_load() returned NULL pointer with config file: %s", config.toCharArray());
+            logger_error("auth_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-#ifdef E2DEBUG
-        std::cout << "Auth plugin is good, calling init..." << std::endl;
-#endif
+        logger_debug("Auth plugin is good, calling init...");
         int rc = app->init(NULL);
         if (rc < 0) {
-            if (!is_daemonised) {
-                std::cerr << "Auth plugin init returned error value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Auth plugin init returned error value: %d", rc);
+            logger_error("Auth plugin init returned error value:", rc);
             return false;
         } else if (rc > 0) {
-            if (!is_daemonised) {
-                std::cerr << "Auth plugin init returned warning value: " << rc << std::endl;
-            }
-            syslog(LOG_ERR, "Auth plugin init returned warning value: %d", rc);
+            logger_error("Auth plugin init returned warning value: ", rc);
         }
 
         if (app->needs_proxy_query) {
             auth_needs_proxy_query = true;
-#ifdef E2DEBUG
-            std::cout << "Auth plugin relies on querying parent proxy" << std::endl;
-#endif
+            logger_debug("Auth plugin relies on querying parent proxy");
         }
         if (app->needs_proxy_access_in_plugin) {
             auth_needs_proxy_in_plugin = true;
-#ifdef E2DEBUG
-            std::cout << "Auth plugin relies on querying parent proxy within plugin" << std::endl;
-#endif
+            logger_debug("Auth plugin relies on querying parent proxy within plugin");
         }
         authplugins.push_back(app);
     }
