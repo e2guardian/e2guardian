@@ -23,8 +23,8 @@
 #include "../Auth.hpp"
 #include "../RegExp.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
-#include <syslog.h>
 #include <algorithm>
 #include <unistd.h>
 #include <iostream>
@@ -32,9 +32,7 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -107,9 +105,7 @@ int portinstance::init(void *args)
 	read_def_fg();
         return 0;
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in port auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in port auth plugin config");
+        logger_error("No story_function defined in port auth plugin config");
         return -1;
     }
 }

@@ -12,17 +12,15 @@
 #include "../Auth.hpp"
 #include "../FDTunnel.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
 #include <stddef.h>
-#include <syslog.h>
 #include <iconv.h>
 
 // DEFINES
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-extern bool is_daemonised;
 
 // NTLM username grabbing needs to be independent of endianness
 
@@ -64,9 +62,7 @@ class ntlminstance : public AuthPlugin
         client_ip_based = false;
         // whether or not to enable the magic "transparent NTLM" (NTLM auth for transparent proxies) mode
         if (definition["transparent"] == "on") {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Transparent NTLM Enabled" << std::endl;
-#endif
+            logger_debug("Transparent NTLM Enabled");
             transparent = true;
             transparent_ip = definition["transparent_ip"].toCharArray();
             transparent_port = definition["transparent_port"].toInteger();
@@ -175,9 +171,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 // First dance with NTLM - initial auth negociation -
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
-#ifdef E2DEBUG
-        std::cerr << thread_id << "NTLM - forging initial auth required from origin server" << std::endl;
-#endif
+        logger_debug("NTLM - forging initial auth required from origin server");
 
         if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
             if (o.forwarded_for) {
@@ -222,19 +216,17 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     }
 
 #ifdef E2DEBUG
-    std::cerr << thread_id << "NTLM - header - " << std::endl;
+    logger_debug("NTLM - header - ");
     for (unsigned int i = 0; i < h.header.size(); i++)
-    	std::cerr << thread_id << h.header[i] << std::endl;
+    	logger_debug(h.header[i]);
 #endif
 
     if (at != "NTLM") {
         // if no auth currently underway, then...
         if (at.length() == 0) {
-// allow the initial request through so the client will get the proxy's initial auth required response.
-// advertise persistent connections so that parent proxy will agree to advertise NTLM support.
-#ifdef E2DEBUG
-            std::cerr << thread_id << "No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM" << std::endl;
-#endif
+            // allow the initial request through so the client will get the proxy's initial auth required response.
+            // advertise persistent connections so that parent proxy will agree to advertise NTLM support.
+            logger_debug("No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM");
             h.makePersistent();
         }
         return E2AUTH_NOMATCH;
@@ -242,32 +234,24 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
     HTTPHeader res_hd(__HEADER_RESPONSE);
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "NTLM - sending step 1" << std::endl;
-#endif
-
+    logger_debug("NTLM - sending step 1");
     if (!h.isPersistent()) {
     	h.makePersistent();
     }
     h.out(&peercon, upstreamcon, __E2HEADER_SENDALL);
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "NTLM - receiving step 2" << std::endl;
-#endif
+    logger_debug("NTLM - receiving step 2");
     res_hd.in(upstreamcon, true);
     if (res_hd.authRequired()) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "NTLM - sending step 2" << std::endl;
-#endif
+        logger_debug("NTLM - sending step 2");
         if (transparent)
             h.makeTransparent(true);
         res_hd.out(NULL, &peercon, __E2HEADER_SENDALL);
         if (res_hd.contentLength() != -1){
             fdt.tunnel(*upstreamcon, peercon, false, res_hd.contentLength(), true);
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "NTLM - receiving step 3" << std::endl;
-#endif
+
+        logger_debug("NTLM - receiving step 3");
         // Buggy with IE and Chrome: todo needs more investigations !
         h.in(&peercon, true);
         if (h.header.size() == 0) {
@@ -281,9 +265,8 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             domain = "http://" + domain + "/";
             h.setURL(domain);
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "NTLM - decoding type 3 message" << std::endl;
-#endif
+
+        logger_debug("NTLM - decoding type 3 message");
         std::string message(h.getAuthData());
         ntlm_authenticate auth;
         ntlm_auth *a = &(auth.a);
@@ -298,9 +281,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::string clientip;
             clientip = peercon.getPeerIP();
 #ifdef E2DEBUG
-            std::cerr << thread_id << "NTLM - Invalid message of length " << message.length() << ", message was: " << message << "IP: " << clientip << " header size " << h.header.size() << std::endl;
+            logger_debug("NTLM - Invalid message of length ", message.length(), ", message was: ", message, "IP: ", clientip, " header size ", h.header.size() );
             for (unsigned int i = 0; i < h.header.size(); i++)
-                std::cerr << thread_id << h.header[i] << std::endl;
+                logger_debug(h.header[i]);
 #endif
               return -3;
         }
@@ -323,10 +306,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                 if (f & WSWAP(0x0001)) {
                     iconv_t ic = iconv_open("UTF-8", "UTF-16LE");
                     if (ic == (iconv_t)-1) {
-                        syslog(LOG_ERR, "NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: %s", strerror(errno));
-#ifdef E2DEBUG
-                        std::cerr << thread_id << "NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: " << strerror(errno) << std::endl;
-#endif
+                        logger_error("NTLM - Cannot initialise conversion from UTF-16LE to UTF-8: ", strerror(errno));
                         iconv_close(ic);
                         return -2;
                     }
@@ -334,14 +314,10 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     local_iconv_adaptor(iconv, ic, &inptr, &l, &outptr, &l2);
                     iconv_close(ic);
                     username2[256 - l2] = '\0';
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "NTLM - got username (converted from UTF-16LE) " << username2 << std::endl;
-#endif
+                    logger_debug("NTLM - got username (converted from UTF-16LE) ", username2);
                     string = username2;
                 } else {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "NTLM - got username " << username << std::endl;
-#endif
+                    logger_debug("NTLM - got username ", username);
                     string = username;
                 }
 		    authrec.user_name = string;
@@ -377,11 +353,11 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         return E2AUTH_NOMATCH;
     } else {
 #ifdef E2DEBUG
-        std::cerr << thread_id << "NTLM - step 2 was not part of an auth handshake!" << std::endl;
+        logger_debug("NTLM - step 2 was not part of an auth handshake!");
         for (unsigned int i = 0; i < h.header.size(); i++)
-            std::cerr << thread_id << h.header[i] << std::endl;
+            logger_debug(h.header[i]);
 #endif
-        syslog(LOG_ERR, "NTLM - step 2 was not part of an auth handshake! (%s)", h.header[0].toCharArray());
+        logger_error("NTLM - step 2 was not part of an auth handshake! (", h.header[0], ")");
         return -1;
     }
 }
@@ -397,9 +373,7 @@ int ntlminstance::init(void *args)
 	read_def_fg();
         return 0;
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in ntlm proxy auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in ntlm proxy auth plugin config");
+        logger_error("No story_function defined in ntlm proxy auth plugin config");
         return -1;
     }
 }

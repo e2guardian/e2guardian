@@ -7,13 +7,11 @@
 // INCLUDES
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
-#include "../OptionContainer.hpp" 
 #endif
 
 #include "../Auth.hpp"
-
 #include "../OptionContainer.hpp" 
-#include <syslog.h>
+#include "../Logger.hpp"
 
 // DECLARATIONS
 HTTPHeader *reqheader;
@@ -21,8 +19,6 @@ HTTPHeader *reqheader;
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 String fname = "";
 
 // class name is relevant!
@@ -33,7 +29,7 @@ class headerinstance : public AuthPlugin
         : AuthPlugin(definition)
     {
     	String fname(cv["header"]);
-	o.ident_header_value = fname;
+	    o.ident_header_value = fname;
         needs_proxy_query = true;
         client_ip_based = false;
     };
@@ -79,9 +75,7 @@ int headerinstance::init(void *args)
 	read_def_fg();
         return 0;
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in header auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in header auth plugin config");
+        logger_error("No story_function defined in header auth plugin config");
         return -1;
     }
 }

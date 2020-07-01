@@ -11,14 +11,12 @@
 
 #include "../Auth.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
-#include <syslog.h>
 
 // GLOBALS
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-extern bool is_daemonised;
 
 // DECLARATIONS
 
@@ -77,40 +75,29 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     int clientport = peercon.getPeerSourcePort();
     int serverport = peercon.getPort();
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Connecting to: " << clientip << std::endl;
-    std::cerr << thread_id << "to ask about: " << clientport << std::endl;
-#endif
+    logger_debug("Connecting to: ", clientip, "to ask about: ", clientport);
     Socket iq;
     iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Error connecting to obtain ident from: " << clientip << std::endl;
-#endif
+        logger_debug("Error connecting to obtain ident from: ", clientip);
         return E2AUTH_NOMATCH;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Connected to:" << clientip << std::endl;
-#endif
+    logger_debug("Connected to:", clientip);
     std::string request;
     request = String(clientport).toCharArray();
     request += ", ";
     request += String(serverport).toCharArray();
     request += "\r\n";
-#ifdef E2DEBUG
-    std::cerr << thread_id << "About to send:" << request << std::endl;
-#endif
+
+    logger_debug("About to send:", request);
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Error writing to ident connection to: " << clientip << std::endl;
-#endif
+        logger_debug("Error writing to ident connection to: ", clientip);
         iq.close(); // close conection to client
         return -1;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "wrote ident request to:" << clientip << std::endl;
-#endif
+    logger_debug("wrote ident request to:", clientip);
+
     char buff[8192];
     try {
         iq.getLine(buff, 8192, 5000);
@@ -119,9 +106,8 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     String temp;
     temp = buff; // convert to String
-#ifdef E2DEBUG
-    std::cerr << thread_id << "got ident reply: " << temp << " from: " << clientip << std::endl;
-#endif
+    logger_debug("got ident reply: ", temp, " from: ", clientip);
+
     iq.close(); // close conection to client
     temp = temp.after(":");
     if (!temp.before(":").contains("USERID")) {
@@ -151,9 +137,7 @@ int identinstance::init(void *args)
 	read_def_fg();
         return 0;
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in ident auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in ident auth plugin config");
+        logger_error("No story_function defined in ident auth plugin config");
         return -1;
     }
 }
