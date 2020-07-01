@@ -10,12 +10,13 @@
 #include "e2config.h"
 #endif
 
-#include <syslog.h>
-#include <algorithm>
 #include "ListContainer.hpp"
 #include "ListMeta.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
+#include "Logger.hpp"
+
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
@@ -29,9 +30,7 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DEFINES
 
@@ -106,9 +105,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         // parse line
         String t;
         t = list[i];
-#ifdef E2DEBUG
-        std::cerr << thread_id << "reading " << t.toCharArray() << std::endl;
-#endif
+        logger_debug("reading ", t);
         String nm, fpath;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
@@ -133,8 +130,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             t.removeWhiteSpace();
         }
         if (list_exists(nm, type)) {
-            syslog(LOG_INFO, "List name %s of this type already defined - ignoring %s", nm.toCharArray(),
-                   t.toCharArray());
+            logger_info("List name '", nm, "' of this type already defined - ignoring", t);
             errors = true;
             continue;
         }
@@ -151,17 +147,15 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         } else {
             rec.log_mess_no = m_no;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "name = " << nm.toCharArray() << " m_no=" << (int) m_no << "log_m_no="
-                  << rec.log_mess_no << " path=" << fpath.toCharArray() << std::endl;
-#endif
+
+        logger_debug("List name = ", nm, " m_no=", m_no, " log_m_no=", rec.log_mess_no, " path=", fpath);
 
         switch (method_type) {
             case LIST_METHOD_IP:
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -169,7 +163,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true, false, true)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -177,7 +171,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, false, true)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -185,7 +179,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, true)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -193,7 +187,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray())) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -201,7 +195,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 if (readFile(fpath.toCharArray(), &rec.list_ref, true, nm.toCharArray())) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -210,7 +204,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                                        rec.reg_list_ref)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -219,7 +213,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                                              rec.comp)) {
                     list_vec.push_back(rec);
                 } else {
-                    syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
+                    logger_error("Unable to read ", fpath);
                     errors = true;
                 };
                 break;
@@ -251,22 +245,16 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
     list_info *t = nullptr;
     unsigned int type = (unsigned int) tp;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Looking for " << name << " type " << type << " in listmeta" << std::endl;
-#endif
+    logger_debug("Looking for ", name, " type ", type, " in listmeta");
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Found " << i->name << " type " << i->type << " in listmeta" << std::endl;
-#endif
+            logger_debug("Found ", i->name, " type ", i->type, " in listmeta");
             t = &(*i);
             return t;
         }
         // std::cerr << thread_id << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Not Found " << name << " type " << type << " in listmeta" << std::endl;
-#endif
+    logger_debug("Not Found ", name, " type ", type, " in listmeta");
     return t;
 }
 
@@ -465,18 +453,12 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // listname is used in error messages.
 bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
     if (strlen(filename) < 3) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
-        }
-        syslog(LOG_ERR, "Required Listname %s is not defined", listname);
+        logger_error("Required Listname ", listname, " is not defined");
         return false;
     }
     int res = o.lm.newItemList(filename, sortsw, 1, true, isip, istime, ismap);
     if (res < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
+        logger_error("Error opening ", listname );
         return false;
     }
     (*whichlist) = (unsigned) res;
@@ -534,9 +516,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     unsigned int fl;
     char *i;
     String foundurl;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "inURLList: " << url << std::endl;
-#endif
+    logger_debug("inURLList: ", url);
 //    url.removeWhiteSpace(); // just in case of weird browser crap
 //    url.toLower();
 //    url.removePTP(); // chop off the ht(f)tp(s)://
@@ -551,18 +531,16 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     if (url.endsWith("/")) {
         url.chop(); // chop off trailing / if any
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
-#endif
+
+    logger_debug("inURLList (processed): ", url);
+
         while (url.before("/").contains(".")) {
             i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
             if (i != NULL) {
                 foundurl = i;
                 fl = foundurl.length();
-#ifdef E2DEBUG
-                std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cerr << thread_id << "url: " << url << fl << std::endl;
-#endif
+                logger_debug("foundurl: ", foundurl, foundurl.length());
+                logger_debug("url: ", url, fl);
                 if (url.length() > fl) {
                     if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                         return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -588,10 +566,7 @@ bool ListMeta::isIPHostname(String url) {
 
 bool ListMeta::precompileregexps() {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error compiling RegExp isiphost." << std::endl;
-        }
-        syslog(LOG_ERR, "%s", "Error compiling RegExp isiphost.");
+        logger_error("Error compiling RegExp isiphost.");
         return false;
     }
 
@@ -604,10 +579,7 @@ bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, un
                                   std::deque<unsigned int> &list_ref) {
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
+        logger_error("Error opening ", listname);
         return false;
     }
     listref = (unsigned) result;
@@ -631,11 +603,7 @@ bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list
         source = (*o.lm.l[list]).getItemAtInt(i).c_str();
         rv = r.comp(source.toCharArray());
         if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error compiling regexp:" << source << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp:");
-            syslog(LOG_ERR, "%s", source.toCharArray());
+            logger_error("Error compiling regexp:", source);
             return false;
         }
         list_comp.push_back(r);
@@ -651,10 +619,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
                                         std::deque<String> &list_rep, std::deque<RegExp> &list_comp) {
     int result = o.lm.newItemList(filename, true, 32, true);
     if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening " << listname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", listname);
+        logger_error("Error opening ", listname);
         return false;
     }
     listid = (unsigned) result;
@@ -682,11 +647,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
         }
         rv = r.comp(regexp.toCharArray());
         if (rv == false) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error compiling regexp: " << (*o.lm.l[listid]).getItemAtInt(i) << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error compiling regexp: ");
-            syslog(LOG_ERR, "%s", (*o.lm.l[listid]).getItemAtInt(i).c_str());
+            logger_error("Error compiling regexp: ", (*o.lm.l[listid]).getItemAtInt(i) );
             return false;
         }
         list_comp.push_back(r);
