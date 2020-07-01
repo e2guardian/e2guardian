@@ -123,7 +123,7 @@ public:
 
     ~FOptionContainer();
     bool read(const char *filename);
-    bool readConfFile(const char *filename);
+    bool readConfFile(const char *filename, String &list_pwd);
     void reset();
     void resetJustListData();
 
@@ -161,7 +161,7 @@ public:
     std::deque<std::string> conffile;
 
     bool precompileregexps();
-    bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, bool cache, const char *listname);
+    bool readFile(const char *filename, const char *list_pwd, unsigned int *whichlist, bool sortsw, bool cache, const char *listname);
     bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
         std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
     bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,

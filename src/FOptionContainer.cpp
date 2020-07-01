@@ -112,7 +112,7 @@ HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw,
 // listname is used in error messages.
-bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, bool sortsw, bool cache, const char *listname)
+bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsigned int *whichlist, bool sortsw, bool cache, const char *listname)
 {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
@@ -121,7 +121,7 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true);
+    int res = o.lm.newItemList(filename, list_pwd, sortsw, 1, true);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;
@@ -140,8 +140,9 @@ bool FOptionContainer::readFile(const char *filename, unsigned int *whichlist, b
     return true;
 }
 
-bool FOptionContainer::readConfFile(const char *filename) {
+bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
+    String now_pwd(list_pwd);
     String temp; // for tempory conversion and storage
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
     if (!conffiles.good()) {
@@ -160,16 +161,40 @@ bool FOptionContainer::readConfFile(const char *filename) {
                     temp = temp.before("#");
                 }
                 temp.removeWhiteSpace(); // get rid of spaces at end of line
+                // check for PWD and add replace with now_pwd
+                while (temp.contains("__PWD__")) {
+                    String temp2 = temp.before("__PWD__");
+                    temp2 += now_pwd;
+                    temp2 += temp.after("__PWD__");
+                    temp = temp2;
+                    //std::cerr << "pwd inserted " << temp;
+                }
+
                 // deal with included files
                 if (temp.startsWith(".")) {
-                    temp = temp.after(".Include<").before(">");
-                    if (temp.length() > 0) {
-                        if (!readConfFile(temp.toCharArray())) {
+                    String temp2 = temp.after(".Include<").before(">");
+                    if (temp2.length() > 0) {
+                        if (!readConfFile(temp2.toCharArray(), now_pwd)) {
                             conffiles.close();
                             return false;
                         }
+                        continue;
                     }
+                    temp2 = temp.after(".Pwd<").before(">");
+                    if (temp2.length() > 0) {
+                        now_pwd = temp2;
+                        if(!now_pwd.endsWith("/"))
+                            now_pwd += "/";
+                      //  std::cerr << "pwd set to " << now_pwd;
+                    }
+
                     continue;
+                }
+                // append ,pwd=pwd  if line contains a file path - so that pwd can be passed to list file handler so that it can
+                // honour __PWD__ in Included listfiles
+                if (temp.contains("path=") && !temp.contains("pwd=")) {
+                    temp += ",pwd=";
+                    temp += now_pwd;
                 }
                 linebuffer = temp.toCharArray();
                 conffile.push_back(linebuffer); // stick option in deque
@@ -184,7 +209,8 @@ bool FOptionContainer::read(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage
-        if(!readConfFile(filename))
+        String list_pwd;
+        if(!readConfFile(filename, list_pwd))
             return false;
 
 #ifdef E2DEBUG
@@ -651,7 +677,7 @@ bool FOptionContainer::read(const char *filename) {
 	std::string content_regexp_list_location(findoptionS("contentregexplist"));
 	if (content_regexp_list_location.length() > 1) {
 		unsigned int content_regexp_list;
-		if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
+		if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), list_pwd.toCharArray(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
              		return false;
 		} else {
 			content_regexp_flag = true;
@@ -883,15 +909,16 @@ std::deque<String> FOptionContainer::findoptionM(const char *option)
             while (temp.startsWith(" ")) { // get rid of heading spaces
                 temp.lop();
             }
-            if (temp.startsWith("'")) { // inverted commas
-                temp.lop();
-            }
+//            if (temp.startsWith("'")) { // inverted commas
+//                temp.lop();
+//            }
+            temp.removeMultiChar('\'');
             while (temp.endsWith(" ")) { // get rid of tailing spaces
                 temp.chop();
             }
-            if (temp.endsWith("'")) { // inverted commas
-                temp.chop();
-            }
+  //          if (temp.endsWith("'")) { // inverted commas
+  //              temp.chop();
+   //         }
             results.push_back(temp);
         }
     }

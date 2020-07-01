@@ -353,7 +353,8 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
     return true;
 }
 
-bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
+//bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
+bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
     unsigned int mem_used = 2;
     RegExp re;
@@ -437,7 +438,13 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
             if (do_includes) {
                 inc = temp.after(".Include<"); // to include
                 inc = inc.before(">");
-                if (!readAnotherItemList(inc.toCharArray(), startswith, filters)) { // read it
+                if (inc.contains("__PWD__")) {
+                    String inc2 = inc.before("__PWD__");
+                    inc2 += list_pwd;
+                    inc2 += inc.after("__PWD__");
+                    inc = inc2;
+                }
+                if (!readAnotherItemList(inc.toCharArray(), list_pwd, startswith, filters)) { // read it
                     return false;
                 }
             }
@@ -481,7 +488,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
     return true; // sucessful read
 }
 
-bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
+bool ListContainer::ifsReadSortItemList(std::ifstream *input, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
 {
     size_t len = 0;
     try {
@@ -494,7 +501,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstrin
         return false;
     }
     bool ret;
-    ret = ifsreadItemList(input, len, checkendstring, endstring, do_includes, startswith, filters);
+    ret = ifsreadItemList(input, list_pwd, len, checkendstring, endstring, do_includes, startswith, filters);
     if (ret) {
         doSort(startswith);
         return true;
@@ -503,7 +510,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, bool checkendstrin
 }
 
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, bool startswith, int filters, bool isip, bool istime, bool ismap)
+bool ListContainer::readItemList(const char *filename, const char *list_pwd, bool startswith, int filters, bool isip, bool istime, bool ismap)
 {
     ++refcount;
     sourcefile = filename;
@@ -549,7 +556,7 @@ bool ListContainer::readItemList(const char *filename, bool startswith, int filt
         syslog(LOG_ERR, "Error opening file: %s", filename);
         return false;
     }
-    if (!ifsreadItemList(&listfile, len, false, NULL, true, startswith, filters)) {
+    if (!ifsreadItemList(&listfile, list_pwd, len, false, NULL, true, startswith, filters)) {
         listfile.close();
         if (!is_daemonised) {
             std::cerr << thread_id << "Error reading: " << filename << std::endl;
@@ -581,7 +588,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
         return false;
     }
 
-    if (!ifsreadItemList(&std::cin, len, true, "#ENDLIST", false, startswith, filters)) {
+    if (!ifsreadItemList(&std::cin, "",  len, true, "#ENDLIST", false, startswith, filters)) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error reading stdin: " << std::endl;
         }
@@ -593,10 +600,9 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
 
 
 // for item lists - read nested item lists
-bool ListContainer::readAnotherItemList(const char *filename, bool startswith, int filters)
+bool ListContainer::readAnotherItemList(const char *filename, const char *list_pwd, bool startswith, int filters)
 {
-
-    int result = o.lm.newItemList(filename, startswith, filters, false, is_iplist, is_timelist, is_map);
+    int result = o.lm.newItemList(filename, list_pwd, startswith, filters, false, is_iplist, is_timelist, is_map);
     if (result < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening file: " << filename << std::endl;

@@ -109,12 +109,13 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
 #ifdef E2DEBUG
         std::cerr << thread_id << "reading " << t.toCharArray() << std::endl;
 #endif
-        String nm, fpath;
+        String nm, fpath, pwd;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
         unsigned int m_no = 0, log_m_no = 0;
         t.removeWhiteSpace();
-        t = t + ",";
+        t.removeChar('\'');
+        t += ",";
         while (t.length() > 0) {
             if (t.startsWith("name=")) {
                 nm = t.after("=").before(",");
@@ -124,6 +125,8 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 log_m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("path=")) {
                 fpath = t.after("=").before(",");
+            } else if (t.startsWith("pwd=")) {
+                pwd = t.after("=").before(",");
             } else if (t.startsWith("anonlog=true")) {
                 anonlog = true;
             } else if (t.startsWith("sitewild=false")) {
@@ -143,6 +146,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         rec.type = type;
         rec.method_type = method_type;
         rec.name = nm;
+        rec.pwd = pwd;
         rec.mess_no = m_no;
         rec.anon_log = anonlog;
         rec.site_wild = sitewild;
@@ -158,7 +162,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
 
         switch (method_type) {
             case LIST_METHOD_IP:
-                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
+                if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -166,7 +170,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_IPMAP:
-                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true, false, true)) {
+                if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, false, nm.toCharArray(), true, false, true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -174,7 +178,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_MAP:
-                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, false, true)) {
+                if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, false, true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -182,7 +186,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_TIME:
-                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray(), false, true)) {
+                if (readFile(fpath.toCharArray(),  pwd.toCharArray(),&rec.list_ref, false, nm.toCharArray(), false, true)) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -190,7 +194,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_READF_EWS :
-                if (readFile(fpath.toCharArray(), &rec.list_ref, false, nm.toCharArray())) {
+                if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, false, nm.toCharArray())) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -198,7 +202,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_READF_SWS :
-                if (readFile(fpath.toCharArray(), &rec.list_ref, true, nm.toCharArray())) {
+                if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, true, nm.toCharArray())) {
                     list_vec.push_back(rec);
                 } else {
                     syslog(LOG_ERR, "Unable to read %s", fpath.toCharArray());
@@ -206,7 +210,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_REGEXP_BOOL :
-                if (readRegExMatchFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.comp, rec.source,
+                if (readRegExMatchFile(fpath.toCharArray(), pwd.toCharArray(), nm.toCharArray(), rec.list_ref, rec.comp, rec.source,
                                        rec.reg_list_ref)) {
                     list_vec.push_back(rec);
                 } else {
@@ -215,7 +219,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 };
                 break;
             case LIST_METHOD_REGEXP_REPL :
-                if (readRegExReplacementFile(fpath.toCharArray(), nm.toCharArray(), rec.list_ref, rec.replace,
+                if (readRegExReplacementFile(fpath.toCharArray(),  pwd.toCharArray(),nm.toCharArray(), rec.list_ref, rec.replace,
                                              rec.comp)) {
                     list_vec.push_back(rec);
                 } else {
@@ -463,7 +467,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // read in the given file, write the list's ID into the given identifier,
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
-bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
+bool ListMeta::readFile(const char *filename, const char *pwd, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
     if (strlen(filename) < 3) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Required Listname " << listname << " is not defined" << std::endl;
@@ -471,7 +475,7 @@ bool ListMeta::readFile(const char *filename, unsigned int *whichlist, bool sort
         syslog(LOG_ERR, "Required Listname %s is not defined", listname);
         return false;
     }
-    int res = o.lm.newItemList(filename, sortsw, 1, true, isip, istime, ismap);
+    int res = o.lm.newItemList(filename, pwd, sortsw, 1, true, isip, istime, ismap);
     if (res < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;
@@ -599,10 +603,10 @@ bool ListMeta::precompileregexps() {
 }
 
 // read regexp url list
-bool ListMeta::readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
+bool ListMeta::readRegExMatchFile(const char *filename,const char *list_pwd, const char *listname, unsigned int &listref,
                                   std::deque<RegExp> &list_comp, std::deque<String> &list_source,
                                   std::deque<unsigned int> &list_ref) {
-    int result = o.lm.newItemList(filename, true, 32, true);
+    int result = o.lm.newItemList(filename, list_pwd, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;
@@ -647,9 +651,9 @@ bool ListMeta::compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list
 }
 
 // content and URL regular expression replacement files
-bool ListMeta::readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
+bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_pwd, const char *listname, unsigned int &listid,
                                         std::deque<String> &list_rep, std::deque<RegExp> &list_comp) {
-    int result = o.lm.newItemList(filename, true, 32, true);
+    int result = o.lm.newItemList(filename,list_pwd, true, 32, true);
     if (result < 0) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error opening " << listname << std::endl;

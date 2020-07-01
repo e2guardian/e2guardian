@@ -1033,7 +1033,7 @@ bool OptionContainer::readinStdin() {
             String t = param;
             bool startswith;
             t.removeWhiteSpace();
-            t = t + ",";
+            t += ",";
             while (t.length() > 0) {
                 if (t.startsWith("name=")) {
                     nm = t.after("=").before(",");
@@ -1055,7 +1055,7 @@ bool OptionContainer::readinStdin() {
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(), startswith, 1, true);
+            int rc = lm.newItemList(fpath.c_str(),"", startswith, 1, true);
             if (rc < 0)
                 return false;
             lm.l[rc]->doSort(url_list);

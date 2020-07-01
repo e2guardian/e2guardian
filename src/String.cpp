@@ -268,6 +268,22 @@ void String::swapChar(char old, char newc)
     delete [] c;
 }
 
+void String::removeChar(char old)
+{
+    unsigned int l = this->length();
+    char *c = new char[l + 1];
+    unsigned int j = 0;
+    const char *d = this->c_str();
+    for (unsigned int i = 0; i < l; i++) {
+        if (d[i] != old) {
+            c[j++] = d[i];
+        }
+    }
+    c[j] = 0;
+    *this = String(c);
+    delete [] c;
+}
+
 // decode %xx to individual characters (checkme: i'm sure this is duplicated elsewhere...)
 void String::hexDecode()
 {

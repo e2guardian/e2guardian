@@ -94,7 +94,7 @@ void ListManager::refList(size_t i)
 }
 
 // load the given list, or increase refcount on list if it's already been loaded.
-int ListManager::newItemList(const char *filename, bool startswith, int filters, bool parent, bool isip, bool istime, bool ismap)
+int ListManager::newItemList(const char *filename, const char *pwd, bool startswith, int filters, bool parent, bool isip, bool istime, bool ismap)
 {
     for (size_t i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
@@ -123,7 +123,7 @@ int ListManager::newItemList(const char *filename, bool startswith, int filters,
         free = l.size() - 1;
     }
     (*l[free]).parent = parent;
-    if (!(*l[free]).readItemList(filename, startswith, filters, isip, istime, ismap)) {
+    if (!(*l[free]).readItemList(filename, pwd,  startswith, filters, isip, istime, ismap)) {
         delete l[free];
         l[free] = NULL;
         return -1;
