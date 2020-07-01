@@ -9,9 +9,9 @@
 #endif
 #include "OptionContainer.hpp"
 #include "DynamicURLList.hpp"
+#include "Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <algorithm>
 #include <ctime>
 #include <sys/stat.h>
@@ -20,8 +20,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -60,15 +58,11 @@ void DynamicURLList::flush()
 int DynamicURLList::posInList(const char *url)
 {
     if (items == 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "url list cache is empty" << std::endl;
-#endif
+        logger_debug("url list cache is empty");
         // if the list is empty, indicate that the entry should go in pos 0
         return -1;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "url list cache: performing search..." << std::endl;
-#endif
+    logger_error("url list cache: performing search...");
     return search(0, items - 1, url);
 }
 
@@ -84,7 +78,7 @@ int DynamicURLList::search(int a, int s, const char *url)
 
     /*#ifdef E2DEBUG
 	std::cerr << thread_id << "url list cache: comparing " << i << " to " << url << std::endl;
-#endif*/
+    #endif*/
 
     int alen = strlen(i);
     int blen = strlen(url);
@@ -164,23 +158,23 @@ bool DynamicURLList::setListSize(unsigned int s, unsigned int t)
 // see if the given URL is in the list
 bool DynamicURLList::inURLList(const char *url, const int fg)
 {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "url cache search request: " << fg << " " << url << std::endl;
-#endif
+    logger_debug("url cache search request: ", fg, " ", url);
     if (items == 0) {
         return false;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "****** url cache table ******" << std::endl;
-    std::cerr << thread_id << "items: " << items << std::endl;
+//#ifdef E2DEBUG
+    logger_debug("****** url cache table ******");
+    logger_debug("items: ", items);
     for (int i = 0; i < items; i++) {
+        std::stringstream ss;
         for (unsigned int j = 0; j < groups[index[i]].length(); j++) {
-            std::cerr << thread_id << (unsigned int)(groups[index[i]][j]) << " ";
+            ss << (unsigned int)(groups[index[i]][j]) << " ";
         }
-        std::cerr << thread_id << (char *)(index[i] * 1000 + urls) << std::endl;
+        ss << (char *)(index[i] * 1000 + urls);
+        logger_debug(ss.str());
     }
-    std::cerr << thread_id << "****** url cache table ******" << std::endl;
-#endif
+    logger_debug("****** url cache table ******");
+//#endif
 
     // truncate URL if necessary, as we have a length limit on our buffers
     int pos;
@@ -191,9 +185,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         pos = posInList(url);
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "pos: " << pos << std::endl;
-#endif
+    logger_debug("pos: ", pos);
 
     // if we have found an entry, also check to see that it hasn't gone inactive.
     // todo: could we speed things up a little by simply refreshing the timer on the
@@ -204,9 +196,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
     if (pos > -1) {
         unsigned long int timenow = time(NULL);
         if ((timenow - urlreftime[index[pos]]) > timeout) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "found but url ttl exceeded: " << (timenow - urlreftime[index[pos]]) << std::endl;
-#endif
+            logger_debug("found but url ttl exceeded: ", (timenow - urlreftime[index[pos]]));
             return false;
         }
         // o.filter_groups + 1 is a special case, meaning clean for all groups
@@ -215,11 +205,11 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         lookfor += (char)o.filter_groups + 1;
         if (groups[index[pos]].find_first_of(lookfor) == std::string::npos) {
 #ifdef E2DEBUG
-            std::cerr << thread_id << "found but url not flagged clean for this group: " << fg << " (is clean for: ";
+            std::stringstream ss;
             for (unsigned int j = 0; j < groups[index[pos]].length(); j++) {
-                std::cerr << thread_id << (unsigned int)(groups[index[pos]][j]) << " ";
+                ss << (unsigned int)(groups[index[pos]][j]) << " ";
             }
-            std::cerr << thread_id << ")" << std::endl;
+            logger_debug("found but url not flagged clean for this group: ", fg, " (is clean for: ", ss.str(),  ")" );
 #endif
             return false;
         }
@@ -232,10 +222,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
 // also, maintain the lists' sorting, to allow binary search to be performed
 void DynamicURLList::addEntry(const char *url, const int fg)
 {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "url cache add request: " << fg << " " << url << std::endl;
-    std::cerr << thread_id << "itemsbeforeadd: " << items << std::endl;
-#endif
+    logger_debug("url cache add request: ", fg, " ", url, " itemsbeforeadd: ", items);
     int len = strlen(url);
     bool resized = false;
     char *u;
@@ -256,9 +243,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
         if (resized) {
             delete[] u;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Entry found at pos: " << pos << std::endl;
-#endif
+        logger_debug("Entry found at pos: ", pos);
         urlreftime[index[pos]] = time(NULL); // reset refresh counter
         if (groups[index[pos]].find((char)fg, 0) == std::string::npos)
             groups[index[pos]] += (char)fg; // flag it as clean for this filter group
@@ -267,16 +252,11 @@ void DynamicURLList::addEntry(const char *url, const int fg)
 
     pos = 0 - pos - 1; // now contains the insertion point
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "insertion pos: " << pos << std::endl;
-    std::cerr << thread_id << "size: " << size << std::endl;
-#endif
+    logger_debug("insertion pos: ", pos, " size: ", size);
 
     // the list isn't full, so simply push new entry onto the back
     if (items < size) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "items<size: " << items << "<" << size << std::endl;
-#endif
+        logger_debug("items<size: ", items, "<", size);
         char *urlref;
         urlref = items * 1000 + urls;
         memcpy(urlref, u, len);
