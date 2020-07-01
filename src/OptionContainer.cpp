@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+
 #include "LOptionContainer.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
@@ -32,21 +33,18 @@ extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
-OptionContainer::OptionContainer()
-{
+OptionContainer::OptionContainer() {
     log_Q = new Queue<std::string>;
     RQlog_Q = new Queue<std::string>;
-   // http_worker_Q = new Queue<LQ_rec>;
+    // http_worker_Q = new Queue<LQ_rec>;
 }
 
 
-OptionContainer::~OptionContainer()
-{
+OptionContainer::~OptionContainer() {
     reset();
 }
 
-void OptionContainer::reset()
-{
+void OptionContainer::reset() {
     //deleteFilterGroups();
     deletePlugins(dmplugins);
     deletePlugins(csplugins);
@@ -62,8 +60,7 @@ void OptionContainer::reset()
 }
 
 
-void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
-{
+void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
     for (std::deque<Plugin *>::iterator i = list.begin(); i != list.end(); i++) {
         if ((*i) != NULL) {
             (*i)->quit();
@@ -73,141 +70,157 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
     list.clear();
 }
 
-bool OptionContainer::read(std::string& filename, int type)
-{
-    time_t gen_cert_start = 0, gen_cert_end = 0;
-	conffilename = filename;
-
-	// all sorts of exceptions could occur reading conf files
-	try {
-		std::string linebuffer;
-		String temp;  // for tempory conversion and storage
-		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
-		if (!conffiles.good()) {
-			if (!is_daemonised) {
-				std::cerr << "error reading: " << filename.c_str() << std::endl;
-			}
-			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
-			return false;
-		}
-		while (!conffiles.eof()) {
-			getline(conffiles, linebuffer);
-			if (!conffiles.eof() && linebuffer.length() != 0) {
-				if (linebuffer[0] != '#') {	// i.e. not commented out
-					temp = (char *) linebuffer.c_str();
-					if (temp.contains("#")) {
-						temp = temp.before("#");
-					}
-					temp.removeWhiteSpace();  // get rid of spaces at end of line
-					linebuffer = temp.toCharArray();
-					conffile.push_back(linebuffer);  // stick option in deque
-				}
-			}
-		}
-		conffiles.close();
-
-                if (type == 0 || type == 2) {
-
-                    if ((pid_filename = findoptionS("pidfilename")) == "") {
-                        pid_filename = __PIDDIR;
-                        pid_filename += "/e2guardian.pid";
-                    }
-
-                    if (findoptionS("logsyslog") == "on") {
-                        log_syslog = true;
-                        if ((name_suffix = findoptionS("namesuffix")) == "") {
-                            name_suffix = "";
-                        }
-                    } else 	if ((log_location = findoptionS("loglocation")) == "") {
-                        log_location = __LOGLOCATION;
-                        log_location += "/access.log";
-                        log_syslog = false;
-                    }
-#ifndef NEWDEBUG_OFF
-		    if((debuglevel = findoptionS("debuglevel")) != "")
-		    {
-
-		    }
-		    if((path_debuglevel = findoptionS("debuglevelfile")) != "")
-		    {
-
-		    }
-		    myDebug = new DebugManager(debuglevel, path_debuglevel);
-#endif
-                    if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-                        log_requests = false;
-                    } else {
-                        log_requests = true;
-                    }
-
-                    if ((stat_location = findoptionS("statlocation")) == "") {
-                        stat_location = __LOGLOCATION;
-                        stat_location += "/stats";
-                    }
-
-                    if ((dstat_location = findoptionS("dstatlocation")) == "") {
-                        dstat_log_flag = false;
-                    } else {
-                        dstat_log_flag = true;
-                        dstat_interval = findoptionI("dstatinterval");
-                        if ( dstat_interval  == 0) {
-                            dstat_interval = 300; // 5 mins
-                        }
-                    }
-
-                    if (findoptionS("statshumanreadable") == "on") {
-                        stats_human_readable = true;
-                    } else {
-                        stats_human_readable = false;
-                    }
-
-                    if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-                        dns_user_logging = false;
-                    } else {
-                        dns_user_logging = true;
-                    }
-
-                    log_header_value = findoptionS("logheadervalue");
-                    if (type == 0) {
-                        return true;
-                    }
+bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
+    std::string linebuffer;
+    String temp; // for tempory conversion and storage
+    String now_pwd(list_pwd);
+    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
+    if (!conffiles.good()) {
+        if (!is_daemonised) {
+            std::cerr << thread_id << "Error reading: " << filename << std::endl;
+        }
+        syslog(LOG_ERR, "Error reading %s", filename);
+        return false;
+    }
+    while (!conffiles.eof()) {
+        getline(conffiles, linebuffer);
+        if (!conffiles.fail() && linebuffer.length() != 0) {
+            if (linebuffer[0] != '#') { // i.e. not commented out
+                temp = (char *) linebuffer.c_str();
+                if (temp.contains("#")) {
+                    temp = temp.before("#");
                 }
+                temp.removeWhiteSpace(); // get rid of spaces at end of line
+                // deal with included files
+                if (temp.startsWith(".")) {
+                    temp = temp.after(".Include<").before(">");
+                    if (temp.length() > 0) {
+                        if (!readConfFile(temp.toCharArray(), now_pwd)) {
+                            conffiles.close();
+                            return false;
+                        }
+                    }
+                    continue;
+                }
+                linebuffer = temp.toCharArray();
+                conffile.push_back(linebuffer); // stick option in deque
+            }
+        }
+    }
+    conffiles.close();
+    return true;
+}
 
-		if ((daemon_user_name = findoptionS("daemonuser")) == "") {
-			daemon_user_name = __PROXYUSER;
-		}
+bool OptionContainer::read(std::string &filename, int type) {
+    time_t gen_cert_start = 0, gen_cert_end = 0;
+    conffilename = filename;
 
-		if ((daemon_group_name = findoptionS("daemongroup")) == "") {
-			daemon_group_name = __PROXYGROUP;
-		}
+    // all sorts of exceptions could occur reading conf files
+    try {
+        String list_pwd;
+        if (!readConfFile(filename.c_str(), list_pwd))
+            return false;
 
-		blocked_content_store = findoptionS("blockedcontentstore");
+        if (type == 0 || type == 2) {
 
-		if (findoptionS("nodaemon") == "on") {
-			no_daemon = true;
-		} else {
-			no_daemon = false;
-		}
-		
-		if (findoptionS("dockermode") == "on") {
-			no_daemon = true;
-			e2_front_log = true;
-		} else {
-			no_daemon = false;
-			e2_front_log = false;
-		}
+            if ((pid_filename = findoptionS("pidfilename")) == "") {
+                pid_filename = __PIDDIR;
+                pid_filename += "/e2guardian.pid";
+            }
 
-		if (findoptionS("nologger") == "on") {
-			no_logger = true;
-		} else {
-			no_logger = false;
-		}
+            if (findoptionS("logsyslog") == "on") {
+                log_syslog = true;
+                if ((name_suffix = findoptionS("namesuffix")) == "") {
+                    name_suffix = "";
+                }
+            } else if ((log_location = findoptionS("loglocation")) == "") {
+                log_location = __LOGLOCATION;
+                log_location += "/access.log";
+                log_syslog = false;
+            }
+#ifndef NEWDEBUG_OFF
+            if ((debuglevel = findoptionS("debuglevel")) != "") {
 
-		if (findoptionS("softrestart") == "on") {
-			soft_restart = true;
-		} else {
-			soft_restart = false;
-		}
+            }
+            if ((path_debuglevel = findoptionS("debuglevelfile")) != "") {
+
+            }
+            myDebug = new DebugManager(debuglevel, path_debuglevel);
+#endif
+            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+                log_requests = false;
+            } else {
+                log_requests = true;
+            }
+
+            if ((stat_location = findoptionS("statlocation")) == "") {
+                stat_location = __LOGLOCATION;
+                stat_location += "/stats";
+            }
+
+            if ((dstat_location = findoptionS("dstatlocation")) == "") {
+                dstat_log_flag = false;
+            } else {
+                dstat_log_flag = true;
+                dstat_interval = findoptionI("dstatinterval");
+                if (dstat_interval == 0) {
+                    dstat_interval = 300; // 5 mins
+                }
+            }
+
+            if (findoptionS("statshumanreadable") == "on") {
+                stats_human_readable = true;
+            } else {
+                stats_human_readable = false;
+            }
+
+            if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
+                dns_user_logging = false;
+            } else {
+                dns_user_logging = true;
+            }
+
+            log_header_value = findoptionS("logheadervalue");
+            if (type == 0) {
+                return true;
+            }
+        }
+
+        if ((daemon_user_name = findoptionS("daemonuser")) == "") {
+            daemon_user_name = __PROXYUSER;
+        }
+
+        if ((daemon_group_name = findoptionS("daemongroup")) == "") {
+            daemon_group_name = __PROXYGROUP;
+        }
+
+        blocked_content_store = findoptionS("blockedcontentstore");
+
+        if (findoptionS("nodaemon") == "on") {
+            no_daemon = true;
+        } else {
+            no_daemon = false;
+        }
+
+        if (findoptionS("dockermode") == "on") {
+            no_daemon = true;
+            e2_front_log = true;
+        } else {
+            no_daemon = false;
+            e2_front_log = false;
+        }
+
+        if (findoptionS("nologger") == "on") {
+            no_logger = true;
+        } else {
+            no_logger = false;
+        }
+
+        if (findoptionS("softrestart") == "on") {
+            soft_restart = true;
+        } else {
+            soft_restart = false;
+        }
 
         ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
         if (ssl_certificate_path == "/") {
@@ -215,83 +228,83 @@ bool OptionContainer::read(std::string& filename, int type)
         }
 
         if (findoptionS("enablessl") == "on") {
-               enable_ssl  = true;
+            enable_ssl = true;
+        } else {
+            enable_ssl = false;
+        }
+
+        if (enable_ssl) {
+            bool ret = true;
+            if (findoptionS("useopensslconf") == "on") {
+                use_openssl_conf = true;
+                openssl_conf_path = findoptionS("opensslconffile");
+                if (openssl_conf_path == "") {
+                    have_openssl_conf = false;
+                } else {
+                    have_openssl_conf = true;
+                }
             } else {
-                enable_ssl = false;
-            }
+                use_openssl_conf = false;
+            };
 
-       if(enable_ssl) {
-        bool ret = true;
-	if (findoptionS("useopensslconf") == "on") {
-		use_openssl_conf = true;
-		openssl_conf_path = findoptionS("opensslconffile");
-		if (openssl_conf_path == "") {
-			have_openssl_conf = false;
-		} else {
-			have_openssl_conf = true;
-		}
-	} else {
-		use_openssl_conf = false;
-	};
-
-        ca_certificate_path = findoptionS("cacertificatepath");
-        if (ca_certificate_path == "") {
-		   if (!is_daemonised){
+            ca_certificate_path = findoptionS("cacertificatepath");
+            if (ca_certificate_path == "") {
+                if (!is_daemonised) {
                     std::cerr << "cacertificatepath is required when ssl is enabled" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
+                ret = false;
             }
-            syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
-             ret = false;
-        }
 
-        ca_private_key_path = findoptionS("caprivatekeypath");
-        if (ca_private_key_path == "") {
-		   if (!is_daemonised){
+            ca_private_key_path = findoptionS("caprivatekeypath");
+            if (ca_private_key_path == "") {
+                if (!is_daemonised) {
                     std::cerr << "caprivatekeypath is required when ssl is enabled" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
+                ret = false;
             }
-            syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
-             ret = false;
-        }
 
-        cert_private_key_path = findoptionS("certprivatekeypath");
-        if (cert_private_key_path == "") {
-		   if (!is_daemonised){
+            cert_private_key_path = findoptionS("certprivatekeypath");
+            if (cert_private_key_path == "") {
+                if (!is_daemonised) {
                     std::cerr << "certprivatekeypath is required when ssl is enabled" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
+                ret = false;
             }
-            syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
-             ret = false;
-        }
 
-        generated_cert_path = findoptionS("generatedcertpath") + "/";
-        if (generated_cert_path == "/") {
-		   if (!is_daemonised){
+            generated_cert_path = findoptionS("generatedcertpath") + "/";
+            if (generated_cert_path == "/") {
+                if (!is_daemonised) {
                     std::cerr << "generatedcertpath is required when ssl is enabled" << std::endl;
+                }
+                syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
+                ret = false;
             }
-            syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
-             ret = false;
-        }
 
-        time_t def_start = 1417872951; // 6th Dec 2014
-        time_t ten_years = 315532800;
-        gen_cert_start = findoptionI("generatedcertstart");
-        if (gen_cert_start < def_start)
-            gen_cert_start = def_start;
-        gen_cert_end = findoptionI("generatedcertend");
-        if (gen_cert_end < gen_cert_start)
-            gen_cert_end = gen_cert_start + ten_years;
+            time_t def_start = 1417872951; // 6th Dec 2014
+            time_t ten_years = 315532800;
+            gen_cert_start = findoptionI("generatedcertstart");
+            if (gen_cert_start < def_start)
+                gen_cert_start = def_start;
+            gen_cert_end = findoptionI("generatedcertend");
+            if (gen_cert_end < gen_cert_start)
+                gen_cert_end = gen_cert_start + ten_years;
 
-        set_cipher_list = findoptionS("setcipherlist");
-        if (set_cipher_list == "")
-            set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
+            set_cipher_list = findoptionS("setcipherlist");
+            if (set_cipher_list == "")
+                set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
-        if (ret) {
+            if (ret) {
 #ifdef NODEF
-            	ca = new CertificateAuthority(ca_certificate_path.c_str(),
+                ca = new CertificateAuthority(ca_certificate_path.c_str(),
                 ca_private_key_path.c_str(),
                 cert_private_key_path.c_str(),
                 generated_cert_path.c_str(),
                 gen_cert_start, gen_cert_end);
 #endif
-        } else {
+            } else {
                 return false;
             }
         }
@@ -301,24 +314,24 @@ bool OptionContainer::read(std::string& filename, int type)
         // Email notification patch by J. Gauthier
         mailer = findoptionS("mailer");
 #endif
- 
+
         monitor_helper = findoptionS("monitorhelper");
         if (monitor_helper == "") {
             monitor_helper_flag = false;
         } else {
             monitor_helper_flag = true;
-	}
+        }
 
-	server_name = findoptionS("servername");
+        server_name = findoptionS("servername");
         if (server_name == "") {
-        	char sysname[256];
-		int r;
-		r = gethostname(sysname, 256);
-		if (r == 0) {
-	   		server_name = sysname;
-		}
-	} 
-		
+            char sysname[256];
+            int r;
+            r = gethostname(sysname, 256);
+            if (r == 0) {
+                server_name = sysname;
+            }
+        }
+
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
             max_header_lines = 40;
@@ -345,7 +358,7 @@ bool OptionContainer::read(std::string& filename, int type)
 
         connect_retries = findoptionI("connectretries");
         if (connect_retries == 0)
-            connect_retries  = 5;
+            connect_retries = 5;
         if (!realitycheck(connect_retries, 1, 100, "connectretries")) {
             return false;
         } // check its a reasonable value
@@ -374,18 +387,18 @@ bool OptionContainer::read(std::string& filename, int type)
         if (!realitycheck(exchange_timeout_sec, 5, 300, "proxyexchange")) {
             return false;
         }
-        exchange_timeout = exchange_timeout_sec  * 1000;
+        exchange_timeout = exchange_timeout_sec * 1000;
 
-        http_workers= findoptionI("httpworkers");
+        http_workers = findoptionI("httpworkers");
         if (http_workers == 0) {
-		http_workers = 100;
-		if (!is_daemonised){
-               		std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
-		}
-                syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
-	}
+            http_workers = 100;
+            if (!is_daemonised) {
+                std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
+            }
+            syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
+        }
         if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
-        return false;
+            return false;
         } // check its a reasonable value
 
         monitor_helper = findoptionS("monitorhelper");
@@ -456,7 +469,8 @@ bool OptionContainer::read(std::string& filename, int type)
             }
             if (max_content_ramcache_scan_size > max_content_filecache_scan_size) {
                 if (!is_daemonised) {
-                    std::cerr << "maxcontentramcachescansize can not be greater than maxcontentfilecachescansize" << std::endl;
+                    std::cerr << "maxcontentramcachescansize can not be greater than maxcontentfilecachescansize"
+                              << std::endl;
                 }
                 syslog(LOG_ERR, "%s", "maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
                 return false;
@@ -503,7 +517,7 @@ bool OptionContainer::read(std::string& filename, int type)
         }
 
         if (findoptionS("searchsitelistforip"
-                                "") == "off") {
+                        "") == "off") {
             search_sitelist_for_ip = false;
         } else {
             search_sitelist_for_ip = true;
@@ -598,17 +612,18 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         }
         //if (check_ip.size() == 0) {   // set defaults
-            //if (filter_ip.size() > 0) {
-            //    check_ip = filter_ip;
-            //} else {
-            //    String t = "127.0.0.1";
-            //    check_ip.push_back(t);
-            //}
+        //if (filter_ip.size() > 0) {
+        //    check_ip = filter_ip;
+        //} else {
+        //    String t = "127.0.0.1";
+        //    check_ip.push_back(t);
+        //}
         //}
         filter_ports = findoptionM("filterports");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
             if (!is_daemonised) {
-                std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips (" << filter_ip.size() << ")" << std::endl;
+                std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips ("
+                          << filter_ip.size() << ")" << std::endl;
             }
             syslog(LOG_ERR, "%s", "filterports must match number of filterips");
             return false;
@@ -628,7 +643,7 @@ bool OptionContainer::read(std::string& filename, int type)
             return false;
         } // check its a reasonable value
 
-        if(icap_port > 0) {   // add non-plugin auth for ICAP
+        if (icap_port > 0) {   // add non-plugin auth for ICAP
             SB_entry_map sen;
             sen.entry_function = "auth_icap";
             sen.entry_id = ENT_STORYA_AUTH_ICAP;
@@ -646,7 +661,7 @@ bool OptionContainer::read(std::string& filename, int type)
         if (findoptionS("useoriginalip") == "on") {
             use_original_ip_port = true;
         } else {
-            use_original_ip_port  = false;
+            use_original_ip_port = false;
         }
 
 
@@ -784,7 +799,7 @@ bool OptionContainer::read(std::string& filename, int type)
         if (default_fg > 0) {
             if (default_fg <= filter_groups) {
                 default_fg--;
-            } else  {
+            } else {
                 syslog(LOG_ERR, "defaultfiltergroup out of range");
                 return false;
             }
@@ -794,7 +809,7 @@ bool OptionContainer::read(std::string& filename, int type)
         if (default_trans_fg > 0) {
             if (default_trans_fg <= filter_groups) {
                 default_trans_fg--;
-            } else  {
+            } else {
                 syslog(LOG_ERR, "defaulttransparentfiltergroup out of range");
                 return false;
             }
@@ -804,21 +819,19 @@ bool OptionContainer::read(std::string& filename, int type)
         if (default_icap_fg > 0) {
             if (default_icap_fg <= filter_groups) {
                 default_icap_fg--;
-            } else  {
+            } else {
                 syslog(LOG_ERR, "defaulticapfiltergroup out of range");
                 return false;
             }
         }
 
-        if (findoptionS("abortiflistmissing") == "on")
-        {
+        if (findoptionS("abortiflistmissing") == "on") {
             abort_on_missing_list = true;
         } else {
             abort_on_missing_list = false;
         }
 
-        if (findoptionS("storyboardtrace") == "on")
-        {
+        if (findoptionS("storyboardtrace") == "on") {
             SB_trace = true;
         } else {
             SB_trace = false;
@@ -826,7 +839,8 @@ bool OptionContainer::read(std::string& filename, int type)
 
         storyboard_location = findoptionS("preauthstoryboard");
 
-        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") || ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
+        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") ||
+            ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
             //loadRooms(true);
         }
 
@@ -880,7 +894,7 @@ bool OptionContainer::read(std::string& filename, int type)
 
         // map port numbers to auth plugin names
         for (unsigned int i = 0; i < authplugins.size(); i++) {
-            AuthPlugin *tmpPlugin = (AuthPlugin *)authplugins[i];
+            AuthPlugin *tmpPlugin = (AuthPlugin *) authplugins[i];
             String tmpStr = tmpPlugin->getPluginName();
 
             if ((!map_auth_to_ports) || filter_ports.size() == 1)
@@ -894,7 +908,7 @@ bool OptionContainer::read(std::string& filename, int type)
             std::deque<Plugin *>::iterator it = authplugins.begin();
             String firstPlugin;
             while (it != authplugins.end()) {
-                AuthPlugin *tmp = (AuthPlugin *)*it;
+                AuthPlugin *tmp = (AuthPlugin *) *it;
                 if (tmp->getPluginName().startsWith("proxy-basic")) {
                     if (!is_daemonised)
                         std::cerr << "Proxy auth is not possible with multiple ports" << std::endl;
@@ -927,7 +941,7 @@ bool OptionContainer::read(std::string& filename, int type)
         numfg = filter_groups;
 
         //filter_groups_list_location = findoptionS("filtergroupslist");
-   //     banned_ip_list_location = findoptionS("bannediplist");
+        //     banned_ip_list_location = findoptionS("bannediplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
         iplist_dq = findoptionM("iplist");
@@ -938,8 +952,8 @@ bool OptionContainer::read(std::string& filename, int type)
         maplist_dq = findoptionM("maplist");
         ipmaplist_dq = findoptionM("ipmaplist");
 
-            if ((findoptionS("authrequiresuserande2roup") == "on") && (authplugins.size() > 1))
-                auth_requires_user_and_group = true;
+        if ((findoptionS("authrequiresuserande2roup") == "on") && (authplugins.size() > 1))
+            auth_requires_user_and_group = true;
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
@@ -951,7 +965,6 @@ bool OptionContainer::read(std::string& filename, int type)
         }
 
 
-
         if (!language_list.readLanguageList(language_list_location.c_str())) {
             return false;
         } // messages language file
@@ -961,15 +974,18 @@ bool OptionContainer::read(std::string& filename, int type)
         if (enable_ssl) {
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
-                    ca_private_key_path.c_str(),
-                    cert_private_key_path.c_str(),
-                    generated_cert_path.c_str(),
-                    gen_cert_start, gen_cert_end);
+                                              ca_private_key_path.c_str(),
+                                              cert_private_key_path.c_str(),
+                                              generated_cert_path.c_str(),
+                                              gen_cert_start, gen_cert_end);
             } else {
                 if (!is_daemonised) {
-                    std::cerr << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM." << std::endl;
+                    std::cerr
+                            << "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM."
+                            << std::endl;
                 }
-                syslog(LOG_ERR, "%s", "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+                syslog(LOG_ERR, "%s",
+                       "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
                 return false;
             }
         }
@@ -985,8 +1001,7 @@ bool OptionContainer::read(std::string& filename, int type)
 }
 
 
-bool OptionContainer::readinStdin()
-{
+bool OptionContainer::readinStdin() {
     if (!std::cin.good()) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error reading stdin: " << std::endl;
@@ -995,11 +1010,11 @@ bool OptionContainer::readinStdin()
         return false;
     }
     std::string linebuffer;
-    String temp ;
+    String temp;
     while (!std::cin.eof()) {
-    //   std::cerr << "wiating for stdin" << std::endl;
+        //   std::cerr << "wiating for stdin" << std::endl;
         getline(std::cin, linebuffer);
-    //    std::cerr << "Line in: " << linebuffer << std::endl;
+        //    std::cerr << "Line in: " << linebuffer << std::endl;
         if (linebuffer.length() < 2)
             continue; // its jibberish
 
@@ -1035,16 +1050,16 @@ bool OptionContainer::readinStdin()
                 // syntax error
                 return false;
             }
-            if(site_list)
+            if (site_list)
                 startswith = false;
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(),startswith,1, true);
+            int rc = lm.newItemList(fpath.c_str(), startswith, 1, true);
             if (rc < 0)
                 return false;
-             lm.l[rc]->doSort(url_list);
-            if(site_list)
+            lm.l[rc]->doSort(url_list);
+            if (site_list)
                 sitelist_dq.push_back(param);
             else
                 urllist_dq.push_back(param);
@@ -1054,14 +1069,12 @@ bool OptionContainer::readinStdin()
 }
 
 
-long int OptionContainer::findoptionI(const char *option)
-{
+long int OptionContainer::findoptionI(const char *option) {
     long int res = String(findoptionS(option).c_str()).toLong();
     return res;
 }
 
-std::string OptionContainer::findoptionS(const char *option)
-{
+std::string OptionContainer::findoptionS(const char *option) {
     // findoptionS returns a found option stored in the deque
     String temp;
     String temp2;
@@ -1095,8 +1108,7 @@ std::string OptionContainer::findoptionS(const char *option)
     return "";
 }
 
-std::deque<String> OptionContainer::findoptionM(const char *option)
-{
+std::deque<String> OptionContainer::findoptionM(const char *option) {
     // findoptionS returns all the matching options
     String temp;
     String temp2;
@@ -1131,8 +1143,7 @@ std::deque<String> OptionContainer::findoptionM(const char *option)
     return results;
 }
 
-bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage)
-{
+bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage) {
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
@@ -1150,8 +1161,7 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
 }
 
 
-bool OptionContainer::loadDMPlugins()
-{
+bool OptionContainer::loadDMPlugins() {
     std::deque<String> dq = findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
@@ -1197,8 +1207,7 @@ bool OptionContainer::loadDMPlugins()
     return true;
 }
 
-bool OptionContainer::loadCSPlugins()
-{
+bool OptionContainer::loadCSPlugins() {
     std::deque<String> dq = findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
@@ -1243,8 +1252,7 @@ bool OptionContainer::loadCSPlugins()
     return true;
 }
 
-bool OptionContainer::loadAuthPlugins()
-{
+bool OptionContainer::loadAuthPlugins() {
     // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
     auth_needs_proxy_query = false;
 
@@ -1306,8 +1314,8 @@ bool OptionContainer::loadAuthPlugins()
 }
 
 
-bool OptionContainer::createLists(int load_id)  {
-    std::shared_ptr<LOptionContainer> temp (new LOptionContainer(load_id));
+bool OptionContainer::createLists(int load_id) {
+    std::shared_ptr<LOptionContainer> temp(new LOptionContainer(load_id));
     if (temp->loaded_ok) {
         current_LOC = temp;
         return true;
@@ -1316,6 +1324,6 @@ bool OptionContainer::createLists(int load_id)  {
 }
 
 
-std::shared_ptr<LOptionContainer> OptionContainer::currentLists()  {
+std::shared_ptr<LOptionContainer> OptionContainer::currentLists() {
     return current_LOC;
 }

@@ -250,6 +250,7 @@ class OptionContainer
     OptionContainer();
     ~OptionContainer();
     bool read(std::string& filename, int type);
+    bool readConfFile(const char *filename, String &list_pwd);
     void reset();
 
     //const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
