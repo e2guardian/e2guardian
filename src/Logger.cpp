@@ -22,10 +22,12 @@
 // -------------------------------------------------------------
 Logger::Logger() {
   setSyslogName("Logger");
-  setLogOutput(LoggerSource::info, LoggerDestination::stdout);
+
+  setLogOutput(LoggerSource::info,  LoggerDestination::stdout);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
 
   setLogOutput(LoggerSource::debug, LoggerDestination::stdout);
+  setLogOutput(LoggerSource::trace, LoggerDestination::stdout);
 }
 
 Logger::~Logger() {
@@ -33,7 +35,7 @@ Logger::~Logger() {
 }
 
 const std::string Logger::SOURCES[] = {"info", "error", "config", "story", "icap", "icapc", "clamav", "thhtps", \
-                                      "debug", "trace", "netdebug", "sbdebug", "chunkdebug"};
+                                      "debug", "trace", "debugnet", "debugsb", "debugchunk", "debugregexp"};
 const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
 
 // -------------------------------------------------------------
@@ -135,6 +137,7 @@ void Logger::setDockerMode(){
   setLogOutput(LoggerSource::info, LoggerDestination::stderr);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
   setLogOutput(LoggerSource::debug, LoggerDestination::stderr);
+  setLogOutput(LoggerSource::trace, LoggerDestination::stderr);
 }
 
 

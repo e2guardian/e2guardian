@@ -18,7 +18,7 @@ enum class LoggerSource {
   // used in production:
   info, error, config, story, icap, icapc, clamav, thhtps,
   // only usable when compiled with E2DEBUG:
-  debug, trace, netdebug, sbdebug, chunkdebug,
+  debug, trace, debugnet, debugsb, debugchunk, debugregexp,
   __MAX_VALUE
 };
 
@@ -110,9 +110,12 @@ extern Logger __logger;
   #define logger_trace(...) \
     if (__logger.isEnabled(LoggerSource::trace)) \
      __logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
-  #define logger_netdebug(...) \
-    if (__logger.isEnabled(LoggerSource::netdebug)) \
-     __logger.vlog(LoggerSource::netdebug,  __func__, __LINE__, __VA_ARGS__)
+  #define logger_debugnet(...) \
+    if (__logger.isEnabled(LoggerSource::debugnet)) \
+     __logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
+  #define logger_debugregexp(...) \
+    if (__logger.isEnabled(LoggerSource::debugregexp)) \
+     __logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define logger_debug(...)
