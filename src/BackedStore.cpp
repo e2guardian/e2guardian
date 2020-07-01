@@ -26,12 +26,8 @@
 #include <sys/time.h>
 
 #include "BackedStore.hpp"
+#include "Logger.hpp"
 
-#ifdef E2DEBUG
-#include <iostream>
-#endif
-
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -46,22 +42,16 @@ BackedStore::~BackedStore()
         munmap(map, length);
 
     if (fd >= 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: closing & deleting temp file " << filename << " BAE2ERS!" << std::endl;
-#endif
+        logger_debug("BackedStore: closing & deleting temp file ", filename, " BAE2ERS!");
         int rc = 0;
         do {
             rc = close(fd);
         } while (rc < 0 && errno == EINTR);
-#ifdef E2DEBUG
         if (rc < 0)
-            std::cerr << thread_id << "BackedStore: cannot close temp file fd: " << strerror(errno) << std::endl;
-#endif
+            logger_debug("BackedStore: cannot close temp file fd: ", strerror(errno));
         rc = unlink(filename);
-#ifdef E2DEBUG
         if (rc < 0)
-            std::cerr << thread_id << "BackedStore: cannot delete temp file: " << strerror(errno) << std::endl;
-#endif
+            logger_debug("BackedStore: cannot delete temp file: ", strerror(errno));
         free(filename);
     }
 }
@@ -69,33 +59,25 @@ BackedStore::~BackedStore()
 bool BackedStore::append(const char *data, size_t len)
 {
     if (fd < 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: appending to RAM" << std::endl;
-#endif
+        logger_debug("BackedStore: appending to RAM");
         // Temp file not yet opened - try to write to RAM
         if (rambuf.size() + len > ramsize) {
             // Would exceed RAM threshold
             if (rambuf.size() + len > disksize) {
-// Would also exceed disk threshold
-// - give up
-#ifdef E2DEBUG
-                std::cerr << thread_id << "BackedStore: data would exceed both RAM and disk thresholds" << std::endl;
-#endif
+                // Would also exceed disk threshold
+                // - give up
+                logger_debug("BackedStore: data would exceed both RAM and disk thresholds");
                 return false;
             }
 
-#ifdef E2DEBUG
-            std::cerr << thread_id << "BackedStore: data would exceed RAM threshold; dumping RAM to disk" << std::endl;
-#endif
+            logger_debug("BackedStore: data would exceed RAM threshold; dumping RAM to disk");
 
             // Open temp file, dump current data in there,
             // leave code below this if{} to write current
             // data to the file as well
             std::string filename_str = tempdir + "/__dgbsXXXXXX";
             filename = const_cast<char *>(filename_str.c_str());
-#ifdef E2DEBUG
-            std::cerr << thread_id << "BackedStore: filename template: " << filename << std::endl;
-#endif
+            logger_debug("BackedStore: filename template: ", filename);
             //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
             umask(0007); // only allow access to e2g user and group
             if ((fd = mkstemp(filename)) < 0) {
@@ -104,9 +86,8 @@ bool BackedStore::append(const char *data, size_t len)
                 free(filename);
                 throw std::runtime_error(ss.str().c_str());
             }
-#ifdef E2DEBUG
-            std::cerr << thread_id << "BackedStore: filename: " << filename << std::endl;
-#endif
+
+            logger_debug("BackedStore: filename: ", filename);
             free(filename);
 
             size_t bytes_written = 0;
@@ -128,16 +109,12 @@ bool BackedStore::append(const char *data, size_t len)
     }
 
     if (fd >= 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: appending to disk" << std::endl;
-#endif
+        logger_debug("BackedStore: appending to disk");
         // Temp file opened - try to write to disk
         if (map != MAP_FAILED)
             throw std::runtime_error("BackedStore could not append to temp file: store already finalised");
         if (len + length > disksize) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "BackedStore: data would exceed disk threshold" << std::endl;
-#endif
+            logger_debug("BackedStore: data would exceed disk threshold");
             return false;
         }
         size_t bytes_written = 0;
@@ -155,9 +132,7 @@ bool BackedStore::append(const char *data, size_t len)
         length += len;
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "BackedStore: finished appending" << std::endl;
-#endif
+    logger_debug("BackedStore: finished appending");
 
     return true;
 }
@@ -188,14 +163,10 @@ void BackedStore::finalise()
 const char *BackedStore::getData() const
 {
     if (fd < 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: returning pointer to RAM" << std::endl;
-#endif
+        logger_debug("BackedStore: returning pointer to RAM");
         return &(rambuf.front());
     } else {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "BackedStore: returning pointer to mmap-ed file" << std::endl;
-#endif
+        logger_debug("BackedStore: returning pointer to mmap-ed file");
         if (map == MAP_FAILED)
             throw std::runtime_error("BackedStore could not return data pointer: store not finalised");
         return (const char *)map;
@@ -217,9 +188,7 @@ std::string BackedStore::store(const char *prefix)
         storedname << '-' << tv.tv_sec << tv.tv_usec << std::flush;
 
         char *name = strrchr(filename, '/');
-#ifdef E2DEBUG
-//        std::cerr << thread_id << "BackedStore: creating hard link: " << (char)storedname << std::endl;
-#endif
+//        logger_debug("BackedStore: creating hard link: " << (char)storedname );
         std::string storedname_str(storedname.str());
         int rc = link(name, storedname_str.c_str());
         if (rc >= 0)
@@ -242,9 +211,7 @@ std::string BackedStore::store(const char *prefix)
     timedprefix << prefix << '-' << time(NULL) << '-' << std::flush;
     std::string storedname_str(timedprefix.str() + "XXXXXX");
     char *storedname = const_cast<char *>(storedname_str.c_str());
-#ifdef E2DEBUG
-    std::cerr << thread_id << "BackedStore: storedname template: " << storedname << std::endl;
-#endif
+    logger_debug("BackedStore: storedname template: ", storedname);
     int storefd;
     umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if ((storefd = mkstemp(storedname)) < 0) {
@@ -252,9 +219,7 @@ std::string BackedStore::store(const char *prefix)
         ss << thread_id << "BackedStore could not create stored file: " << strerror(errno);
         throw std::runtime_error(ss.str().c_str());
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "BackedStore: storedname: " << storedname << std::endl;
-#endif
+    logger_debug("BackedStore: storedname: ", storedname);
 
     // Dump the RAM buffer/mmap-ed file contents to disk in the new location
     if (fd >= 0 && map == MAP_FAILED)
