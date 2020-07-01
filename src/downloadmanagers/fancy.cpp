@@ -11,9 +11,9 @@
 #include "../OptionContainer.hpp"
 #include "../HTMLTemplate.hpp"
 #include "../ConnectionHandler.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,8 +24,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-extern bool is_daemonised;
 
 // DECLARATIONS
 
@@ -70,9 +68,7 @@ class fancydm : public DMPlugin
 
 DMPlugin *fancydmcreate(ConfigVar &definition)
 {
-#ifdef E2DEBUG
-    std::cout << "Creating fancy DM" << std::endl;
-#endif
+    logger_trace("Creating fancy DM");
     return new fancydm(definition);
 }
 
@@ -101,9 +97,8 @@ int fancydm::init(void *args)
     upperlimit = cv["maxdownloadsize"].toOffset() * 1024;
     if (upperlimit <= o.max_content_filecache_scan_size)
         upperlimit = 0;
-#ifdef E2DEBUG
-    std::cout << "Upper download limit: " << upperlimit << std::endl;
-#endif
+
+    logger_debug("Upper download limit: ", upperlimit);
 
     String fname(cv["template"]);
     if (fname.length() > 0) {
@@ -112,9 +107,7 @@ int fancydm::init(void *args)
         return progresspage.readTemplateFile(fname.toCharArray(), "-FILENAME-|-FILESIZE-|-SERVERIP-") ? 0 : -1;
     } else {
         // eek! there's no template option in our config.
-        if (!is_daemonised)
-            std::cerr << "Template not specified for fancy download manager" << std::endl;
-        syslog(LOG_ERR, "Template not specified for fancy download manager");
+        logger_error("Template not specified for fancy download manager");
         return -2;
     }
 }
@@ -157,9 +150,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 //                  or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-#ifdef E2DEBUG
-    std::cout << thread_id << "Inside fancy download manager plugin" << std::endl;
-#endif
+    logger_trace("Inside fancy download manager plugin");
 
     //int rc = 0;
 
@@ -238,9 +229,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 bytessec = bytesgot / timeelapsed;
                 themdays.tv_sec = nowadays.tv_sec;
                 if ((*headersent) < 1) {
-#ifdef E2DEBUG
-                    std::cout << "sending header for text status" << std::endl;
-#endif
+                    logger_debug("sending header for text status");
                     message = "HTTP/1.0 200 OK\nContent-Type: text/html\n\n";
                     // Output initial template
                     std::deque<String>::iterator i = progresspage.html.begin();
@@ -272,9 +261,8 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                     peersock->writeString(message.toCharArray());
                     (*headersent) = 2;
                 }
-#ifdef E2DEBUG
-                std::cout << "trickle delay - sending progress..." << std::endl;
-#endif
+
+                logger_debug("trickle delay - sending progress...");
                 message = "Downloading status: ";
                 // Output a call to template's JavaScript progressupdate function
                 jsmessage = "<script language='javascript'>\n<!--\nprogressupdate(" + String(bytesgot) + "," +
@@ -363,21 +351,16 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     if (initialsent) {
 
-        if (!d->swappedtodisk) { // if we sent textual content then we can't
-// stream the file to the user so we must save to disk for them
-// to download by clicking on the magic link
-// You can get to this point by having a large ram cache, or
-// slow internet connection with small initial trickle delay.
-// This should be rare.
-#ifdef E2DEBUG
-            std::cout << "swapping to disk" << std::endl;
-#endif
+        if (!swappedtodisk) { // if we sent textual content then we can't
+            // stream the file to the user so we must save to disk for them
+            // to download by clicking on the magic link
+            // You can get to this point by having a large ram cache, or
+            // slow internet connection with small initial trickle delay.
+            // This should be rare.
+            logger_debug("swapping to disk");
             d->tempfilefd = d->getTempFileFD();
             if (d->tempfilefd < 0) {
-#ifdef E2DEBUG
-                std::cerr << "error buffering complete to disk so skipping disk buffering" << std::endl;
-#endif
-                syslog(LOG_ERR, "error buffering complete to disk so skipping disk buffering");
+                logger_error("error buffering complete to disk so skipping disk buffering");
             } else {
                 write(d->tempfilefd, d->data, d->buffer_length);
                 d->swappedtodisk = true;
@@ -404,14 +387,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-#ifdef E2DEBUG
-            std::cout << "zlib format" << std::endl;
-#endif
+            logger_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-#ifdef E2DEBUG
-            std::cout << "gzip format" << std::endl;
-#endif
+            logger_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }

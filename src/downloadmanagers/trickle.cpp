@@ -16,9 +16,9 @@
 
 #include "../DownloadManager.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -48,9 +48,7 @@ class trickledm : public DMPlugin
 
 DMPlugin *trickledmcreate(ConfigVar &definition)
 {
-#ifdef E2DEBUG
-    std::cout << "Creating trickle DM" << std::endl;
-#endif
+    logger_trace("Creating trickle DM");
     return new trickledm(definition);
 }
 
@@ -102,9 +100,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 //                                or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-#ifdef E2DEBUG
-    std::cout << "Inside trickle download manager plugin" << std::endl;
-#endif
+    logger_trace("Inside trickle download manager plugin");
 
     //  To access settings for the plugin use the following example:
     //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
@@ -143,9 +139,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-#ifdef E2DEBUG
-    std::cout << "blocksize: " << blocksize << std::endl;
-#endif
+    logger_debug("blocksize: ",  blocksize);
 
     while ((d->bytes_toget > 0) || d->geteverything) {
         // send keep-alive bytes here
@@ -207,14 +201,10 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-#ifdef E2DEBUG
-            std::cout << "zlib format" << std::endl;
-#endif
+            logger_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-#ifdef E2DEBUG
-            std::cout << "gzip format" << std::endl;
-#endif
+            logger_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }

@@ -11,9 +11,9 @@
 
 #include "../DownloadManager.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -21,7 +21,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -44,9 +43,7 @@ public:
 // class factory code *MUST* be included in every plugin
 
 DMPlugin *defaultdmcreate(ConfigVar &definition) {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Creating default DM" << std::endl;
-#endif
+    logger_trace("Creating default DM");
     return new dminstance(definition);
 }
 
@@ -78,9 +75,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 //                                or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Inside default download manager plugin  icap=" << d->icap << std::endl;
-#endif
+    logger_trace("Inside default download manager plugin  icap=", d->icap);
 
     //  To access settings for the plugin use the following example:
     //      std::cerr << "cvtest:" << cv["dummy"] << std::endl;
@@ -89,15 +84,12 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     d->got_all = false;
     d->bytes_toget = docheader->contentLength();
     if (!d->icap) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
-#endif
+        logger_debug("tranencodeing is ", docheader->transferEncoding());
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "bytes remaining is " << d->bytes_toget << std::endl;
-#endif
+    logger_debug("bytes remaining is ", bytesremaining);
+
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     d->geteverything = false;
@@ -118,9 +110,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "blocksize: " << blocksize << std::endl;
-#endif
+    logger_debug("blocksize: ", blocksize);
 
     while ((d->bytes_toget  > 0) || d->geteverything) {
         // send x-header keep-alive here
@@ -131,17 +121,13 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 themdays.tv_sec = nowadays.tv_sec;
                 d->doneinitialdelay = true;
                 if ((*headersent) < 1) {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "sending first line of header first" << std::endl;
-#endif
+                    logger_debug("sending first line of header first");
                     if (!d->icap) {
                         docheader->out(NULL, peersock, __E2HEADER_SENDFIRSTLINE);
                         (*headersent) = 1;
                     }
                 }
-#ifdef E2DEBUG
-                std::cerr << thread_id << "trickle delay - sending X-E2KeepAlive: on" << std::endl;
-#endif
+                logger_debug("trickle delay - sending X-E2KeepAlive: on");
                 if (!d->icap)
                     peersock->writeString("X-E2GKeepAlive: on\r\n");
             }
@@ -161,21 +147,14 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "zlib format" << std::endl;
-#endif
+            logger_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "gzip format" << std::endl;
-#endif
+            logger_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
     d->bytesalreadysent = 0;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Leaving default download manager plugin" << std::endl;
-#endif
-  //  delete[] block;
+    logger_trace("Leaving default download manager plugin");
     return 0;
 }
