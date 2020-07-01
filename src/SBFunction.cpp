@@ -9,12 +9,13 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
-#include <algorithm>
 #include "ListContainer.hpp"
 #include "SBFunction.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
 #include "Logger.hpp"
+
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
@@ -28,9 +29,7 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DEFINES
 
@@ -76,14 +75,14 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     }
     rec.file_lineno = line_no;
     // process params
-    logger_debug("CLine ", params, " Action ", action);
+    logger_debugsb("CLine ", params, " Action ", action);
 
     String state;
     String temp;
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
-        logger_debug("CLine state is ", state);
+        logger_debugsb("CLine state is ", state);
         temp = params.after(",");
     } else {
         state = params;
@@ -105,7 +104,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
-        logger_debug("CLine list is ", temp2);
+        logger_debugsb("CLine list is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -117,7 +116,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
-        logger_debug("CLine mess_no is ", temp2);
+        logger_debugsb("CLine mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -129,7 +128,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
-        logger_debug("CLine log_mess_no is ", temp2);
+        logger_debugsb("CLine log_mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -142,7 +141,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         temp2.removeWhiteSpace();
         if (temp2 == "optional")
             rec.optional = true;
-        logger_debug("CLine optional is true");
+        logger_debugsb("CLine optional is true");
     }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 
