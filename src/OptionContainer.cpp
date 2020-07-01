@@ -96,7 +96,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                 if (temp.startsWith(".")) {
                     temp = temp.after(".Include<").before(">");
                     if (temp.length() > 0) {
-                        if (!readConfFile(temp.toCharArray(),now_pwd)) {
+                        if (!readConfFile(temp.toCharArray(), now_pwd)) {
                             conffiles.close();
                             return false;
                         }
@@ -1057,7 +1057,7 @@ bool OptionContainer::readinStdin() {
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(),"", startswith, 1, true);
+            int rc = lm.newItemList(fpath.c_str(), "", startswith, 1, true);
             if (rc < 0)
                 return false;
             lm.l[rc]->doSort(url_list);
