@@ -9,11 +9,12 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
-#include <syslog.h>
-#include <algorithm>
 #include "ListContainer.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
+#include "Logger.hpp"
+
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <ctime>
@@ -26,9 +27,7 @@
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DEFINES
 
@@ -145,10 +144,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file (does it exist?) " << filename << ": " << e.what() << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file (does it exist?) %s: %s", filename, e.what());
+        logger_error("Error reading file (does it exist?) ", filename, ": ", e.what());
         o.config_error = true;
         return false;
     }
@@ -160,10 +156,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
     if (!listfile.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening file (does it exist?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening file (does it exist?): %s", filename);
+        logger_error("Error opening file (does it exist?): ", filename);
         o.config_error = true;
         return false;
     }
@@ -188,7 +181,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 temp = line.after(".include<").before(">");
                 if (temp.length() > 0) {
                     if (!readPhraseList(temp.toCharArray(), isexception, catindex, timeindex, false, nlimit)) {
-                        std::cerr << "  at line " << line_no << " of " << filename << std::endl;
+                        logger_error("  at line ", line_no, " of ", filename);
                         continue;
 //                        listfile.close();
 //                        return false;
@@ -204,17 +197,12 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 // if it is already in our category list, and adding it to the list (also
                 // returning index) if it is not.
                 catindex = getCategoryIndex(&lcat);
-#ifdef E2DEBUG
-                std::cerr << thread_id << "List category: " << lcat << std::endl;
-                std::cerr << thread_id << "Category list index: " << catindex << std::endl;
-#endif
+                logger_debug("List category: ", lcat, "Category list index: ", catindex);
             }
             // phrase lists can also be marked as not to be case-converted,
             // to aid support for exotic character encodings
             else if (line.startsWith("#noconvert")) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "List flagged as not to be case-converted" << std::endl;
-#endif
+                logger_debug("List flagged as not to be case-converted");
                 caseinsensitive = false;
             }
             // Read in time tags; set timeindex to the ID of the new tag
@@ -225,9 +213,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 }
                 timelimits.push_back(tl);
                 timeindex = timelimits.size() - 1;
-#ifdef E2DEBUG
-                std::cerr << thread_id << "Found time limit on phrase list. Now have " << timelimits.size() << " limits on this list (including parents)." << std::endl;
-#endif
+                logger_debug("Found time limit on phrase list. Now have ", timelimits.size(), " limits on this list (including parents).");
                 continue;
             }
         }
@@ -304,10 +290,7 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
     phrase.removePunctuation();
 
     if (phrase.length() > 127) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Phrase length too long, truncating: " << phrase << std::endl;
-        }
-        syslog(LOG_ERR, "Phrase length too long, truncating: %s", phrase.toCharArray());
+        logger_error("Phrase length too long, truncating: ", phrase);
         phrase = phrase.subString(0, 127);
     }
 
@@ -317,10 +300,7 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
 
     if (type < 10) {
         if (!addToItemListPhrase(phrase.toCharArray(), phrase.length(), type, weighting, false, catindex, timeindex)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Duplicate phrase, dropping: " << phrase << std::endl;
-            }
-            syslog(LOG_ERR, "Duplicate phrase, dropping: %s", phrase.toCharArray());
+            logger_error("Duplicate phrase, dropping: ", phrase );
         }
         return;
     }
@@ -390,7 +370,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
             continue; // its jibberish
         if (temp.length() > 2048) {
             temp.limitLength(100);
-            syslog(LOG_ERR, "Line too long in list file - ignored %s....", temp.toCharArray() );
+            logger_error("Line too long in list file - ignored ", temp );
             continue;
         }
 
@@ -403,9 +383,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
                 continue;
             } else if (temp.startsWith("#listcategory:")) {
                 category = temp.after("\"").before("\"");
-#ifdef E2DEBUG
-                std::cerr << thread_id << "found item list category: " << category << std::endl;
-#endif
+                logger_debug("found item list category: ", category);
                 continue;
             } else if (checkendstring && temp.startsWith(endstring)) {
                 break;
@@ -495,10 +473,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, co
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file " << filename << ": " << e.what() << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
+        logger_error("Error reading file ", filename, ": ", e.what());
         return false;
     }
     bool ret;
@@ -530,19 +505,15 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
     std::string linebuffer;
-#ifdef E2DEBUG
-    std::cerr << thread_id << filename << std::endl;
-#endif
+    logger_debug(filename);
+
     //struct stat s;
     filedate = getFileDate(filename);
     size_t len = 0;
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file " << filename << ": " << e.what() << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file %s: %s", filename, e.what());
+        logger_error("Error reading file ", filename, ": ", e.what());
         return false;
     }
     if (len < 2) {
@@ -551,20 +522,14 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     }
     std::ifstream listfile(filename, std::ios::in);
     if (!listfile.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening file: %s", filename);
+        logger_error("Error opening: ", filename);
         return false;
     }
     String base_dir(filename);
     base_dir.baseDir();
     if (!ifsreadItemList(&listfile, base_dir, list_pwd, len, false, NULL, true, startswith, filters)) {
         listfile.close();
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading file: %s", filename);
+        logger_error("Error reading: ", filename);
         return false;
     }
     listfile.close();
@@ -573,10 +538,8 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
 
 // for stdin item lists - read item list from stdin
 bool ListContainer::readStdinItemList(bool startswith, int filters) {
-#ifdef E2DEBUG
     if (filters != 32)
-        std::cerr << thread_id << "Converting to lowercase" << std::endl;
-#endif
+        logger_debug("Converting to lowercase");
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
@@ -584,18 +547,12 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
     size_t len = 2046;
     increaseMemoryBy(2048); // Allocate some memory to hold list
     if (!std::cin.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading stdin: " << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading stdin");
+        logger_error("Error reading stdin: ");
         return false;
     }
 
     if (!ifsreadItemList(&std::cin, "", "",  len, true, "#ENDLIST", false, startswith, filters)) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading stdin: " << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading stdin");
+        logger_error("Error reading stdin: ");
         return false;
     } else
         return true;
@@ -607,10 +564,7 @@ bool ListContainer::readAnotherItemList(const char *filename, const char *list_p
 {
     int result = o.lm.newItemList(filename, list_pwd, startswith, filters, false, is_iplist, is_timelist, is_map);
     if (result < 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening file: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening file: %s", filename);
+        logger_error("Error opening file: ", filename);
         return false;
     }
     morelists.push_back((unsigned)result);
@@ -947,8 +901,8 @@ bool ListContainer::makeGraph(bool fqs)
     graphused = true;
 
 #ifdef E2DEBUG
-    std::cerr << thread_id << "Bytes needed for phrase tree in worst-case scenario: " << (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET))
-              << ", starting off with allocation of " << (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) << std::endl;
+    logger_debug("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
+                 ", starting off with allocation of ", (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) );
     prolificroot = false;
     secondmaxchildnodes = 0;
 #endif
@@ -957,7 +911,7 @@ bool ListContainer::makeGraph(bool fqs)
     current_graphdata_size = (GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET;
     realgraphdata = (int *)calloc(current_graphdata_size, sizeof(int));
     if (realgraphdata == NULL) {
-        syslog(LOG_ERR, "Cannot allocate memory for phrase tree: %s", strerror(errno));
+        logger_error("Cannot allocate memory for phrase tree: ", strerror(errno));
         return false;
     }
     graphitems++;
@@ -973,15 +927,15 @@ bool ListContainer::makeGraph(bool fqs)
     }
 
 #ifdef E2DEBUG
-    std::cerr << thread_id << "Bytes actually needed for phrase tree: " << (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) << std::endl;
-    std::cerr << thread_id << "Most prolific node has " << maxchildnodes << " children" << std::endl;
-    std::cerr << thread_id << "It " << (prolificroot ? "is" : "is not") << " the root node" << std::endl;
-    std::cerr << thread_id << "Second most prolific node has " << secondmaxchildnodes << " children" << std::endl;
+    logger_debug("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
+    logger_debug("Most prolific node has ", maxchildnodes, " children");
+    logger_debug("It ", (prolificroot ? "is" : "is not"), " the root node");
+    logger_debug("Second most prolific node has ", secondmaxchildnodes, " children");
 #endif
 
     realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
     if (realgraphdata == NULL) {
-        syslog(LOG_ERR, "Cannot reallocate memory for phrase tree: %s", strerror(errno));
+        logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
         return false;
     }
 
@@ -1213,11 +1167,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 
     if (force_quick_search || graphitems == 0) {
 #ifdef E2DEBUG
-        std::cerr << thread_id << "Map (quicksearch) start" << std::endl;
+        logger_debug("Map (quicksearch) start");
         for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-            std::cerr << thread_id << "Map: " << i->first << " " << i->second.second << std::endl;
+            logger_debug("Map: ", i->first, " ", i->second.second);
         }
-        std::cerr << thread_id << "Map (quicksearch) end" << std::endl;
+        logger_debug("Map (quicksearch) end");
 #endif
         return;
     }
@@ -1266,9 +1220,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
                         } else {
                             existingitem->second.second++;
                         }
-#ifdef E2DEBUG
-                        std::cerr << thread_id << "Found this phrase: " << phrase << std::endl;
-#endif
+                        logger_debug("Found this phrase: ", phrase);
                     }
                     // grab this node's number of children
                     sl = graphdata[ppos + 2];
@@ -1305,11 +1257,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
         }
     }
 #ifdef E2DEBUG
-    std::cerr << thread_id << "Map start" << std::endl;
+    logger_debug("Map start");
     for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-        std::cerr << thread_id << "Map: " << i->first << " " << i->second.second << std::endl;
+        logger_debug("Map: ", i->first, " ", i->second.second);
     }
-    std::cerr << thread_id << "Map end" << std::endl;
+    logger_debug("Map end");
 #endif
 }
 
@@ -1387,7 +1339,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
             int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
             realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
             if (realgraphdata == NULL) {
-                syslog(LOG_ERR, "Cannot reallocate memory for phrase tree: %s", strerror(errno));
+                logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                 exit(1);
             }
             memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
@@ -1400,9 +1352,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         }
         numlinks = graphdata[inx * GRAPHENTRYSIZE + 2];
         if ((inx == 0) ? ((numlinks + 1) > MAXROOTLINKS) : ((numlinks + 1) > MAXLINKS)) {
-            syslog(LOG_ERR, "Cannot load phraselists from this many languages/encodings simultaneously. (more than %d links from this node! [1])", (inx == 0) ? MAXROOTLINKS : MAXLINKS);
-            if (!is_daemonised)
-                std::cerr << thread_id << "Cannot load phraselists from this many languages/encodings simultaneously. (more than " << ((inx == 0) ? MAXROOTLINKS : MAXLINKS) << " links from this node! [1])" << std::endl;
+            logger_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [1])");
             exit(1);
         }
         if ((numlinks + 1) > maxchildnodes) {
@@ -1424,9 +1374,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         while (s.length() > 0) {
             numlinks = graphdata2[i * GRAPHENTRYSIZE + 2];
             if ((inx == 0) ? ((numlinks + 1) > MAXROOTLINKS) : ((numlinks + 1) > MAXLINKS)) {
-                syslog(LOG_ERR, "Cannot load phraselists from this many languages/encodings simultaneously. (more than %d links from this node! [2])", (inx == 0) ? MAXROOTLINKS : MAXLINKS);
-                if (!is_daemonised)
-                    std::cerr << thread_id << "Cannot load phraselists from this many languages/encodings simultaneously. (more than " << ((inx == 0) ? MAXROOTLINKS : MAXLINKS) << " links from this node! [2])" << std::endl;
+                logger_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [2])" );
                 exit(1);
             }
             if ((numlinks + 1) > maxchildnodes) {
@@ -1448,7 +1396,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
                 int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
                 realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
                 if (realgraphdata == NULL) {
-                    syslog(LOG_ERR, "Cannot reallocate memory for phrase tree: %s", strerror(errno));
+                    logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                     exit(1);
                 }
                 memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
@@ -1542,12 +1490,10 @@ void ListContainer::addToIPList(String& line)
             r.endaddr = ntohl(addressend.s_addr);
             iprangelist.push_back(r);
         }
-#ifdef E2DEBUG
         else
         {
-        std::cerr << thread_id << "Not adding to any IP list" << line << std::endl;
+            logger_debug("Not adding to any IP list:", line);
         }
-#endif
     }
 }
 
@@ -1563,16 +1509,13 @@ void ListContainer::addToDataMap(String& line) {
         if (value.startsWith("filter"))
             value = value.after("filter");
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str());
+        logger_error("No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str());
         //warn = true;
         return;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "key: " << key << std::endl;
-        std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
-#endif
+
+    logger_debug("key: ", key, " value: ", value);
+
     datamap d(key,value);
     datamaplist.push_back(d);
 }
@@ -1591,20 +1534,14 @@ void ListContainer::addToIPMap(String& line)
         if (value.startsWith("filter"))
             value = value.after("filter");
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No filter group given; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str() );
+        logger_error("No filter group given; entry %s in %s", line, sourcefile );
         //warn = true;
         return;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "key: " << key << std::endl;
-        std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
-#endif
+    logger_debug("key: ", key, " value: ", value);
+
     if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Filter group out of range; entry " << line << " in " << sourcefile << std::endl;
-        syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), sourcefile.c_str());
+        logger_error("Filter group out of range; entry %s in %s", line, sourcefile);
         //warn = true;
         return;
     }
@@ -1663,9 +1600,7 @@ void ListContainer::addToIPMap(String& line)
     }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
     else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Entry " << line << " in " << sourcefile << " was not recognised as an IP address, subnet or range" << std::endl;
-        syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), sourcefile.c_str());
+        logger_error( "Entry ", line, " in ", sourcefile, " was not recognised as an IP address, subnet or range");
         //warn = true;
     }
 }
@@ -1734,30 +1669,22 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inIPMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << ip << " to straight IP list" << std::endl;
-#endif
+        logger_debug("Matched IP ", ip, " to straight IP list");
         return rfg;
     }
     fgs = inSubnetMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << ip << " to subnet" << std::endl;
-#endif
+        logger_debug("Matched IP ", ip, " to subnet");
         return rfg;
     }
     fgs = inIPRangeMap(addr);
     if (fgs != "") {
         rfg = fgs;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << ip << " to range" << std::endl;
-#endif
+        logger_debug("Matched IP ", ip, " to range");
         return rfg;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Matched IP " << ip << " to nothing" << std::endl;
-#endif
+    logger_debug("Matched IP ", ip, " to nothing");
     return "";
 }
 
@@ -1883,25 +1810,16 @@ time_t getFileDate(const char *filename)
     int rc = stat(filename, &status);
     if (rc != 0) {
         if (errno == ENOENT) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Cannot stat file m_time for " << filename << ". stat() returned errno ENOENT." << std::endl;
-#endif
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions. They should be 640 and 750: %s", filename, strerror(errno));
+            logger_error("Error reading ",filename, ". Check directory and file permissions. They should be 640 and 750: ", strerror(errno));
             return 0;
         }
         // If there are permission problems, just reload the file (CN)
         if (errno == EACCES) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Cannot stat file m_time for " << filename << ". stat() returned errno EACCES." << std::endl;
-#endif
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: %s", filename, strerror(errno));
+            logger_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: ", strerror(errno));
             return 0;
         }
         else {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error reading " << filename << "Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: " << strerror(errno) << std::endl;
-            }
-            syslog(LOG_ERR, "Error reading %s. Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: %s", filename, strerror(errno));
+            logger_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: ", strerror(errno));
             return 0;
             //return sysv_kill(o.pid_filename);
         }
@@ -1941,9 +1859,7 @@ bool ListContainer::upToDate()
 }
 
 bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Found a time tag" << std::endl;
-#endif
+    logger_debug("Found a time tag");
     String temp((*tag).after("#time: "));
     return readTimeBand(temp, tl);
 }
@@ -1961,38 +1877,23 @@ bool ListContainer::readTimeBand(String &tag, TimeLimit &tl) {
     String tdays(temp.after(" "));
     tdays.removeWhiteSpace();
     if (tsthour > 23) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Start Hour over bounds:" << tag << std::endl;
-        }
-        syslog(LOG_ERR, "%s %s", "Time Tag Start Hour over bounds. ", tag.c_str());
+        logger_error("Time Tag Start Hour over bounds.");
         return false;
     }
     if (tendhour > 23) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag End Hour over bounds:" << tag << std::endl;
-        }
-        syslog(LOG_ERR, "%s %s", "Time Tag End Hour over bounds.", tag.c_str());
+        logger_error("Time Tag End Hour over bounds.");
         return false;
     }
     if (tstmin > 59) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Start Min over bounds:" << tag << std::endl;
-        }
-        syslog(LOG_ERR, "%s %s", "Time Tag Start Min over bounds.", tag.c_str());
+        logger_error("Time Tag Start Min over bounds.");
         return false;
     }
     if (tendmin > 59) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag End Min over bounds:" << tag << std::endl;
-        }
-        syslog(LOG_ERR, "%s %s", "Time Tag End Min over bounds.", tag.c_str());
+        logger_error("Time Tag End Min over bounds.");
         return false;
     }
     if (tdays.length() > 7) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Time Tag Days over bounds:" << tag << std::endl;
-        }
-        syslog(LOG_ERR, "%s %s", "Time Tag Days over bounds.", tag.c_str());
+        logger_error("Time Tag Days over bounds.");
         return false;
     }
     istimelimited = true;
@@ -2127,6 +2028,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     struct in_addr addr;
     inet_aton(ipstr.c_str(), &addr);
     uint32_t ip = ntohl(addr.s_addr);
+
     // start with individual IPs
     if ((iplist.size() > 0) && std::binary_search(iplist.begin(), iplist.end(), ip)) {
         // only return a hostname if that's what we matched against
@@ -2159,9 +2061,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     }
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "inIPList no match for " << ipstr << std::endl;
-#endif
+    logger_debug("inIPList ", category, " no match for ", ipstr);
     return NULL;
 }
 

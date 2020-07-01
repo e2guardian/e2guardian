@@ -109,7 +109,6 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-        logger_debug("pushing back for new list");
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
@@ -130,7 +129,6 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
     if (free > -1) {
         l[free] = new ListContainer;
     } else {
-        logger_debug("pushing back for new list");
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
@@ -207,7 +205,8 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
 //        return false;
     }
     if (!(*l[res]).used) {
-        logger_debug("Reading new phrase lists");
+        logger_debug("Reading new phraselists");
+
         bool result = (*l[res]).readPhraseList(exception, true);
         if (!result) {
             logger_error("Error opening exceptionphraselist");
