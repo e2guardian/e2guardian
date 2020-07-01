@@ -13,20 +13,17 @@
 #include "RegExp.hpp"
 #include "String.hpp"
 #include "OptionContainer.hpp"
+#include "Logger.hpp"
 
 #include <cstdlib>
 #include <cstdio>
 #include <unistd.h>
-#include <syslog.h>
-//#include <istream>
 #include <iostream>
 #include <fstream>
 
 // GLOBALS
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -58,10 +55,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     String line;
     std::ifstream templatefile(filename, std::ios::in); // e2guardian.conf
     if (!templatefile.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "error reading: " << filename << std::endl;
-        }
-        syslog(LOG_ERR,"error reading HTML template file: %s", filename);
+        logger_error("error reading HTML template file: ", filename);
         return false;
     }
     while (!templatefile.eof()) {
@@ -89,7 +83,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         }
     }
     if (html.size() < 0) {
-	syslog(LOG_ERR, "Unable to parse template file: %s", filename);
+	    logger_error("Unable to parse template file: ", filename);
         return false;
     }
 
@@ -108,9 +102,8 @@ void makeURLSafe(String &url)
 
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                            std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip, String &extflags) {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Displaying TEMPLATE" << std::endl;
-#endif
+    logger_debug("Displaying TEMPLATE");
+
     String line;
     bool newline;
     unsigned int sz = html.size() - 1; // the last line can have no thingy. erm... carriage return?
@@ -119,19 +112,18 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     String servername("");
     servername = o.server_name;
     for (unsigned int i = 0; i < sz; i++) {
-        // preserve newlines from original file
-	//
+        // preserve newlines from original file	    
         newline = false;
         line = html[i];
-#ifdef E2DEBUG
-    	std::cerr << thread_id << "Displaying TEMPLATE: " <<  line.c_str() << std::endl;
-#endif
-	// Take care SSLMITM negotiation error
-	if (line.length() < 1){
-    		ebody += "\n";
-		syslog(LOG_ERR, "Corrupted TEMPLATE returns: %s", url->c_str());
-		break;
-	}
+    	logger_debug("Displaying TEMPLATE: ", line);
+
+        // Take care SSLMITM negotiation error
+        if (line.length() < 1){
+            ebody += "\n";
+            logger_error("Corrupted TEMPLATE returns: ", url->c_str());
+            break;
+        }
+
         // look for placeholders (split onto their own line by readTemplateFile) and replace them
         if (line == "-URL-") {
             if (!safe) {

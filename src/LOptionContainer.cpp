@@ -11,24 +11,18 @@
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
 #include "ConfigVar.hpp"
+#include "Logger.hpp"
 
-#include <cstdio>
-#include <iostream>
+//#include <cstdio>
+//#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <syslog.h>
 #include <dirent.h>
 #include <cstdlib>
-#include <unistd.h> // checkme: remove?
 
 // GLOBALS
 
-extern bool is_daemonised;
-
 extern OptionContainer o;
-extern thread_local std::string thread_id;
-
-
 
 // IMPLEMENTATION
 
@@ -46,84 +40,70 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "iplist deque is size " << o.iplist_dq.size() << std::endl;
-#endif
+        logger_debug("iplist deque is size ", o.iplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
             loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "sitelist deque is size " << o.sitelist_dq.size() << std::endl;
-#endif
+        logger_debug("sitelist deque is size ", o.sitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
-        loaded_ok = false;
+            loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "ipsitelist deque is size " << o.ipsitelist_dq.size() << std::endl;
-#endif
+        logger_debug("ipsitelist deque is size ", o.ipsitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
-        loaded_ok = false;
+            loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "urllist deque is size " << o.urllist_dq.size() << std::endl;
-#endif
+        logger_debug("urllist deque is size ", o.urllist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
-        loaded_ok = false;
+            loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "regexpboollist deque is size " << o.regexpboollist_dq.size() << std::endl;
-#endif
+        logger_error("regexpboollist deque is size ", o.regexpboollist_dq.size());;
         if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
             loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "maplist deque is size " << o.maplist_dq.size() << std::endl;
-#endif
+        logger_debug("maplist deque is size ", o.maplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
             loaded_ok = false;
     }
 
     {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "ipmaplist deque is size " << o.ipmaplist_dq.size() << std::endl;
-#endif
+        logger_debug("ipmaplist deque is size ", o.ipmaplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
             loaded_ok = false;
     }
 
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
-        std::cerr << thread_id << "Storyboard not loaded OK" << std::endl;
+        logger_error("Storyboard not loaded OK");
         loaded_ok = false;
     }
 
     if (loaded_ok && !StoryA.setEntry(ENT_STORYA_PRE_AUTH,"pre-authcheck")) {
-        std::cerr << thread_id << "Required storyboard entry function 'pre-authcheck' is missing" << std::endl;
+        logger_error("Required storyboard entry function 'pre-authcheck' is missing");
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
-        std::cerr << thread_id << "Required storyboard entry function 'thttps-pre-authcheck' is missing" << std::endl;
+        logger_error("Required storyboard entry function 'thttps-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
-        std::cerr << thread_id << "Required storyboard entry function 'icap-pre-authcheck' is missing" << std::endl;
+        logger_error("Required storyboard entry function 'icap-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
  //   if (loaded_ok && o.use_filter_groups_list)  {
  //       if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
- //           std::cerr << thread_id << "Failed to read filtergroupslist" << std::endl;
+ //           logger_error("Failed to read filtergroupslist");
  //           loaded_ok = false;
  //       }
  //   }
@@ -131,8 +111,8 @@ LOptionContainer::LOptionContainer(int load_id)
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::auth_entry>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
-                    std::cerr << thread_id << "Required auth storyboard entry function" << i->entry_function.c_str()
-                              << " is missing from pre_auth.stoary" << std::endl;
+                    logger_error("Required auth storyboard entry function", i->entry_function,
+                                " is missing from pre_auth.stoary");
                     loaded_ok = false;
                 }
             }
@@ -141,10 +121,7 @@ LOptionContainer::LOptionContainer(int load_id)
 
     if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;
-        if (!is_daemonised)
-            std::cerr << thread_id << "Error in reading filter group files" << std::endl;
-        else
-            syslog(LOG_INFO, "Error in reading filter group files");
+        logger_error("Error in reading filter group files");
     }
     reload_id = load_id;
     ++o.LC_cnt;
@@ -187,10 +164,8 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     char *i;
     String lastcategory;
     String foundurl;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "inURLList: " << url << std::endl;
-#endif
-    //syslog(LOG_ERR, "inURLList url %s", url.c_str());
+
+    logger_trace("inURLList");
     url.removeWhiteSpace(); // just in case of weird browser crap
     url.toLower();
     url.removePTP(); // chop off the ht(f)tp(s)://
@@ -205,20 +180,15 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     if (url.endsWith("/")) {
         url.chop(); // chop off trailing / if any
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "inURLList (processed): " << url << std::endl;
-#endif
-    //  syslog(LOG_ERR, "inURLList (processed) url %s", url.c_str());
+
+    logger_debug("inURLList (processed): ", url);
     while (url.before("/").contains(".")) {
         i = lc->findStartsWith(url.toCharArray(), lastcategory);
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();
-#ifdef E2DEBUG
-            std::cerr << thread_id << "foundurl: " << foundurl << foundurl.length() << std::endl;
-            std::cerr << thread_id << "url: " << url << fl << std::endl;
-#endif
-            //syslog(LOG_ERR, "inURLList foundurl  %s", foundurl.c_str());
+            logger_debug("foundurl: ", foundurl, ":", foundurl.length());
+            logger_debug("url: ", url, ":", fl);
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                     return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -237,10 +207,7 @@ bool LOptionContainer::doReadItemList(const char *filename, ListContainer *lc, c
 {
     bool result = lc->readItemList(filename, false, 0);
     if (!result) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening " << fname << std::endl;
-        }
-        syslog(LOG_ERR, "Error opening %s", fname);
+        logger_error("Error opening ", fname);
         return false;
     }
     if (swsort)
@@ -262,17 +229,13 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
     String temp;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << " IP is in room: " << i->name << std::endl;
-#endif
+            logger_debug(" IP is in room: ", i->name);
             temp = url;
             ListContainer *lc;
             if (i->sitelist) {
                 lc = i->sitelist;
                 if (inSiteList(temp, lc, false, false)) {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << " room site exception found: " << std::endl;
-#endif
+                    logger_debug(" room site exception found: ");
                     *isexception = true;
                     room = i->name;
                     return true;
@@ -280,9 +243,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             }
             temp = url;
             if (i->urllist && inURLList(temp, i->urllist, false, false)) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << " room url exception found: " << std::endl;
-#endif
+                logger_debug(" room url exception found: ");
                 *isexception = true;
                 room = i->name;
                 return true;
@@ -291,14 +252,10 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 *block = true;
                 *part_block = i->part_block;
                 room = i->name;
-#ifdef E2DEBUG
-                std::cerr << thread_id << " room blanket block active: " << std::endl;
-#endif
+                logger_debug(" room blanket block active: ");
                 return true;
             } else {
-#ifdef E2DEBUG
-                std::cerr << thread_id << " room - no url/site exception or block found: " << std::endl;
-#endif
+                logger_debug(" room - no url/site exception or block found: ");
                 return false;
             }
         }
@@ -325,9 +282,7 @@ void LOptionContainer::deleteFilterGroups()
 {
     for (int i = 0; i < numfg; i++) {
         if (fg[i] != NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "In deleteFilterGroups loop" << std::endl;
-#endif
+            logger_debug("In deleteFilterGroups loop");
             delete fg[i]; // delete extra FOptionContainer objects
             fg[i] = NULL;
         }
@@ -359,10 +314,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 		String temp;  // for tempory conversion and storage
 		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
-			if (!is_daemonised) {
-				std::cerr << thread_id << "error reading: " << filename.c_str() << std::endl;
-			}
-			syslog(LOG_ERR, "%s", "error reading e2guardian.conf");
+			logger_error("error reading e2guardian.conf");
 			return false;
 		}
 		while (!conffiles.eof()) {
@@ -468,8 +420,7 @@ void LOptionContainer::loadRooms(bool throw_error)
     DIR *d = opendir(per_room_directory_location.c_str());
     if (d == NULL) {
         if (throw_error) {
-            syslog(LOG_ERR, "Could not open room definitions directory: %s", strerror(errno));
-            std::cerr << thread_id << "Could not open room definitions directory" << std::endl;
+            logger_error("Could not open room definitions directory: ", strerror(errno));
             exit(1);
         } else {
             return;
@@ -482,47 +433,35 @@ void LOptionContainer::loadRooms(bool throw_error)
             continue;
         std::string filename(per_room_directory_location);
         filename.append(f->d_name);
-#ifdef E2DEBUG
-        std::cerr << thread_id << " Room file found : " << filename.c_str() << std::endl;
-#endif
+        logger_debug("Room file found : ", filename);
         std::ifstream infile(filename.c_str(), std::ios::in);
         if (!infile.good()) {
-            syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
+            logger_error(" Could not open file room definitions ");
             exit(1);
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << " Opened room file : " << filename.c_str() << std::endl;
-#endif
+        logger_debug("Opened room file : ", filename);
 
         std::string roomname;
-#ifdef E2DEBUG
-        std::cerr << thread_id << " Reading room file : " << filename.c_str() << std::endl;
-#endif
+        logger_debug(" Reading room file : ", filename);
         getline(infile, roomname);
         if (infile.eof()) {
-            syslog(LOG_ERR, " Unexpected EOF ");
-            std::cerr << thread_id << " Unexpected EOF: " << filename.c_str() << std::endl;
+            logger_error(" Unexpected EOF ", filename);
             exit(1);
         }
         if (infile.fail()) {
-            syslog(LOG_ERR, " Unexpected failure on read");
-            std::cerr << thread_id << " Unexpected failure on read: " << filename.c_str() << std::endl;
+            logger_error(" Unexpected failure on read: ", filename);;
             exit(1);
         }
         if (infile.bad()) {
-            syslog(LOG_ERR, " Unexpected badbit failure on read");
-            std::cerr << thread_id << " Unexpected badbit failure on read: " << filename.c_str() << std::endl;
+            logger_error(" Unexpected badbit failure on read: ", filename);
             exit(1);
         }
         if (!infile.good()) {
-            syslog(LOG_ERR, " Could not open file room definitions ");
-            std::cerr << thread_id << " Could not open file room definitions: " << filename.c_str() << std::endl;
+            logger_error(" Could not open file room definitions: ", filename);
             exit(1);
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << " Room name is: " << roomname.c_str() << std::endl;
-#endif
+        logger_debug(" Room name is: ", roomname);
+
         roomname = roomname.substr(1);
         room_item this_room;
         this_room.name = roomname;
@@ -570,11 +509,7 @@ void LOptionContainer::loadRooms(bool throw_error)
         rooms.push_back(this_room);
         infile.close();
         if (roomname.size() <= 2) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Could not read room from definitions file \"" << filename << '"' << std::endl;
-            }
-            syslog(LOG_ERR, "Could not read room from definitions file \"%s\"",
-                filename.c_str());
+            logger_error( "Could not read room from definitions file \"", filename, '"');
             exit(1);
         }
         roomname = roomname.substr(1); // remove leading '#'
@@ -582,7 +517,7 @@ void LOptionContainer::loadRooms(bool throw_error)
 
     if (closedir(d) != 0) {
         if (errno != EINTR) {
-            syslog(LOG_ERR, "Could not close room definitions directory: %s", strerror(errno));
+            logger_error("Could not close room definitions directory: ", strerror(errno));
             exit(1);
         }
     }
@@ -706,12 +641,12 @@ bool LOptionContainer::readFilterGroupConf()
     ConfigVar groupnamesfile;
     String groupname;
     bool need_html = false;
+
+    logger_trace("");
     if (o.use_group_names_list) {
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Error opening group names file: " << group_names_list_location << std::endl;
-            syslog(LOG_ERR, "Error opening group names file: %s", group_names_list_location.c_str());
+            logger_error("Error opening group names file: ", group_names_list_location);
             return false;
         }
     }
@@ -724,20 +659,13 @@ bool LOptionContainer::readFilterGroupConf()
             groupnum << i;
             groupname = groupnamesfile[groupnum.str().c_str()];
             if (groupname.length() == 0) {
-                if (!is_daemonised)
-                    std::cerr << thread_id << "Group names file too short: " << group_names_list_location << std::endl;
-                syslog(LOG_ERR, "Group names file too short: %s", group_names_list_location.c_str());
+                logger_error("Group names file too short: ", group_names_list_location);
                 return false;
             }
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Group name: " << groupname << std::endl;
-#endif
+            logger_debug("Group name: ", groupname);
         }
         if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error opening filter group config: " << file << std::endl;
-            }
-            syslog(LOG_ERR, "Error opening filter group config: %s", file.toCharArray());
+            logger_error("Error opening filter group config: ", file);
             return false;
         }
     }
@@ -746,9 +674,7 @@ bool LOptionContainer::readFilterGroupConf()
 
 bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html)
 {
-#ifdef E2DEBUG
-    std::cerr << thread_id << "adding filter group: " << numfg << " " << filename << std::endl;
-#endif
+    logger_debug("adding filter group: ", numfg, " ", filename);
 
     // array of pointers to FOptionContainer
     typedef FOptionContainer *PFOptionContainer;
@@ -762,9 +688,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     fg = temp;
     fg[numfg] = new FOptionContainer;
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "added filter group: " << numfg << " " << filename << std::endl;
-#endif
+    logger_debug("added filter group: ", numfg, " ", filename);
 
     // pass all the vars from OptionContainer needed
     (*fg[numfg]).weighted_phrase_mode = o.weighted_phrase_mode;
@@ -777,14 +701,10 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     // pass in the reporting level - can be overridden
     (*fg[numfg]).reporting_level = reporting_level;
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "passed variables to filter group: " << numfg << " " << filename << std::endl;
-#endif
+    logger_debug("passed variables to filter group: ", numfg, " ", filename);
 
     bool rc = (*fg[numfg]).read(filename);
-#ifdef E2DEBUG
-    std::cerr << thread_id << "read filter group: " << numfg << " " << filename << " return is " << rc << std::endl;
-#endif
+    logger_debug("read filter group: ", numfg, " ", filename, " return is ", rc);
 
     numfg++;
 
