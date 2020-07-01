@@ -11,9 +11,9 @@
 #include "../OptionContainer.hpp"
 #include "../HTMLTemplate.hpp"
 #include "../ConnectionHandler.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -24,7 +24,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
 
 // DECLARATIONS
 
@@ -69,9 +68,7 @@ class fancydm : public DMPlugin
 
 DMPlugin *fancydmcreate(ConfigVar &definition)
 {
-#ifdef E2DEBUG
-    std::cout << "Creating fancy DM" << std::endl;
-#endif
+    logger_trace("Creating fancy DM");
     return new fancydm(definition);
 }
 
@@ -87,9 +84,8 @@ int fancydm::init(void *args)
     upperlimit = cv["maxdownloadsize"].toOffset() * 1024;
     if (upperlimit <= o.max_content_filecache_scan_size)
         upperlimit = 0;
-#ifdef E2DEBUG
-    std::cout << "Upper download limit: " << upperlimit << std::endl;
-#endif
+
+    logger_debug("Upper download limit: ", upperlimit);
 
     String fname(cv["template"]);
     if (fname.length() > 0) {
@@ -98,9 +94,7 @@ int fancydm::init(void *args)
         return progresspage.readTemplateFile(fname.toCharArray(), "-FILENAME-|-FILESIZE-|-SERVERIP-") ? 0 : -1;
     } else {
         // eek! there's no template option in our config.
-        if (!is_daemonised)
-            std::cerr << "Template not specified for fancy download manager" << std::endl;
-        syslog(LOG_ERR, "Template not specified for fancy download manager");
+        logger_error("Template not specified for fancy download manager");
         return -2;
     }
 }
@@ -143,9 +137,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 //                  or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-#ifdef E2DEBUG
-    std::cout << "Inside fancy download manager plugin" << std::endl;
-#endif
+    logger_trace("Inside fancy download manager plugin");
 
     int rc;
 
@@ -216,9 +208,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 bytessec = bytesgot / timeelapsed;
                 themdays.tv_sec = nowadays.tv_sec;
                 if ((*headersent) < 1) {
-#ifdef E2DEBUG
-                    std::cout << "sending header for text status" << std::endl;
-#endif
+                    logger_debug("sending header for text status");
                     message = "HTTP/1.0 200 OK\nContent-Type: text/html\n\n";
                     // Output initial template
                     std::deque<String>::iterator i = progresspage.html.begin();
@@ -250,9 +240,8 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                     peersock->writeString(message.toCharArray());
                     (*headersent) = 2;
                 }
-#ifdef E2DEBUG
-                std::cout << "trickle delay - sending progress..." << std::endl;
-#endif
+
+                logger_debug("trickle delay - sending progress...");
                 message = "Downloading status: ";
                 // Output a call to template's JavaScript progressupdate function
                 jsmessage = "<script language='javascript'>\n<!--\nprogressupdate(" + String(bytesgot) + "," + String(bytessec) + ");\n//-->\n</script>";
@@ -277,15 +266,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             if (!swappedtodisk) {
                 // if not swapped to disk and file is too large for RAM, then swap to disk
                 if (bytesgot > o.max_content_ramcache_scan_size) {
-#ifdef E2DEBUG
-                    std::cout << "swapping to disk" << std::endl;
-#endif
+                    logger_debug("swapping to disk");
                     d->tempfilefd = d->getTempFileFD();
                     if (d->tempfilefd < 0) {
-#ifdef E2DEBUG
-                        std::cerr << "error buffering to disk so skipping disk buffering" << std::endl;
-#endif
-                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
+                        logger_error("error buffering to disk so skipping disk buffering");
                         (*toobig) = true;
                         break;
                     }
@@ -316,26 +300,20 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                         // add URL to clean cache (for all groups)
                         String url(requestheader->getUrl());
                         addToClean(url, o.filter_groups + 1);
-#ifdef E2DEBUG
-                        std::cout << "fancydm: file too big to be scanned, entering second stage of download" << std::endl;
-#endif
+                        logger_debug("fancydm: file too big to be scanned, entering second stage of download");
                     }
 
                     // too large to even download, let alone scan
                     if (bytesgot > upperlimit) {
-#ifdef E2DEBUG
-                        std::cout << "fancydm: file too big to be downloaded, halting second stage of download" << std::endl;
-#endif
+                        logger_debug("fancydm: file too big to be downloaded, halting second stage of download");
                         toobig_unscanned = false;
                         toobig_notdownloaded = true;
                         break;
                     }
                 } else {
-// multi-stage download disabled, or we know content length
-// if swapped to disk and file too large for that too, then give up
-#ifdef E2DEBUG
-                    std::cout << "fancydm: file too big to be scanned, halting download" << std::endl;
-#endif
+                    // multi-stage download disabled, or we know content length
+                    // if swapped to disk and file too large for that too, then give up
+                    logger_debug("fancydm: file too big to be scanned, halting download");
                     toobig_unscanned = false;
                     toobig_notdownloaded = true;
                     break;
@@ -343,10 +321,8 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             }
         } else {
             if (bytesgot > o.max_content_filter_size) {
-// if we aren't downloading for virus scanning, and file too large for filtering, give up
-#ifdef E2DEBUG
-                std::cout << "fancydm: file too big to be filtered, halting download" << std::endl;
-#endif
+                // if we aren't downloading for virus scanning, and file too large for filtering, give up
+                logger_debug("fancydm: file too big to be filtered, halting download");
                 (*toobig) = true;
                 break;
             }
@@ -358,9 +334,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             } else {
                 newsize = blocksize;
             }
-#ifdef E2DEBUG
-            std::cout << "newsize: " << newsize << std::endl;
-#endif
+            logger_debug("newsize: ", newsize);
             // if not getting everything until connection close, grab only what is left
             if (!geteverything && (newsize > (expectedsize - bytesgot)))
                 newsize = expectedsize - bytesgot;
@@ -407,9 +381,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 lseek(d->tempfilefd, 0, SEEK_END); // not really needed
                 writeEINTR(d->tempfilefd, d->data, rc);
                 d->tempfilesize += rc;
-#ifdef E2DEBUG
-                std::cout << "written to disk: " << rc << " total: " << d->tempfilesize << std::endl;
-#endif
+                logger_debug("written to disk: ", rc, " total: ", d->tempfilesize);
             }
         }
         if (d->tempfilesize > 0) {
@@ -422,20 +394,15 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     if (initialsent) {
 
         if (!swappedtodisk) { // if we sent textual content then we can't
-// stream the file to the user so we must save to disk for them
-// to download by clicking on the magic link
-// You can get to this point by having a large ram cache, or
-// slow internet connection with small initial trickle delay.
-// This should be rare.
-#ifdef E2DEBUG
-            std::cout << "swapping to disk" << std::endl;
-#endif
+            // stream the file to the user so we must save to disk for them
+            // to download by clicking on the magic link
+            // You can get to this point by having a large ram cache, or
+            // slow internet connection with small initial trickle delay.
+            // This should be rare.
+            logger_debug("swapping to disk");
             d->tempfilefd = d->getTempFileFD();
             if (d->tempfilefd < 0) {
-#ifdef E2DEBUG
-                std::cerr << "error buffering complete to disk so skipping disk buffering" << std::endl;
-#endif
-                syslog(LOG_ERR, "error buffering complete to disk so skipping disk buffering");
+                logger_error("error buffering complete to disk so skipping disk buffering");
             } else {
                 writeEINTR(d->tempfilefd, d->data, d->buffer_length);
                 swappedtodisk = true;
@@ -461,14 +428,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     if (!(*toobig) && !swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-#ifdef E2DEBUG
-            std::cout << "zlib format" << std::endl;
-#endif
+            logger_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-#ifdef E2DEBUG
-            std::cout << "gzip format" << std::endl;
-#endif
+            logger_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
