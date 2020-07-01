@@ -109,18 +109,23 @@ extern Logger __logger;
       __logger.vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
   #define logger_trace(...) \
     if (__logger.isEnabled(LoggerSource::trace)) \
-     __logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
+      __logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
   #define logger_debugnet(...) \
     if (__logger.isEnabled(LoggerSource::debugnet)) \
-     __logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
+      __logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
   #define logger_debugregexp(...) \
     if (__logger.isEnabled(LoggerSource::debugregexp)) \
-     __logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
+      __logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
+  #define logger_debugsb(...) \
+    if (__logger.isEnabled(LoggerSource::debugsb)) \
+      __logger.vlog(LoggerSource::debugsb,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define logger_debug(...)
   #define logger_trace(...)
-  #define logger_netdebug(...)
+  #define logger_debugnet(...)
+  #define logger_debugregexp(...)
+  #define logger_debugsb(...)
 #endif
 
 
