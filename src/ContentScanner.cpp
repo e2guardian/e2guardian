@@ -10,27 +10,25 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
-#include <deque>
 #include "String.hpp"
 #include "HTTPHeader.hpp"
 #include "NaughtyFilter.hpp"
 #include "ContentScanner.hpp"
 #include "ConfigVar.hpp"
 #include "OptionContainer.hpp"
+#include "Logger.hpp"
 
 #include <cstdlib>
+#include <deque>
 #include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <syslog.h>
 #include <cerrno>
 
 // GLOBALS
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // find the class factory functions for the CS plugins we've been configured to build
 
@@ -91,10 +89,7 @@ int CSPlugin::makeTempFile(String *filename)
     //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 1) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "error creating cs temp " << tempfilepath << ": " << strerror(errno) << std::endl;
-#endif
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Could not create cs temp file.");
+        logger_error("Could not create temp file for contentscanner.");
         tempfilefd = -1;
     } else {
         (*filename) = tempfilepatharray;
@@ -109,16 +104,11 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
 {
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Error creating temp file in writeMemoryTempFile." << std::endl;
-#endif
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating temp file in writeMemoryTempFile.");
+        logger_error("Error creating temp file in writeMemoryTempFile.");
         return E2CS_ERROR;
     }
     errno = 0;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "About to writeMemoryTempFile " << (*filename) << " size: " << objectsize << std::endl;
-#endif
+    logger_debug("About to writeMemoryTempFile ", (*filename), " size: ", objectsize);
 
     while (true) {
         if (write(tempfd, object, objectsize) < 0) {
@@ -142,10 +132,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     // Then delete the temp file.
     String tempfilepath;
     if (writeMemoryTempFile(object, objectsize, &tempfilepath) != E2CS_OK) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Error creating/writing temp file for scanMemory." << std::endl;
-#endif
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error creating/writing temp file for scanMemory.");
+        logger_error("Error creating/writing temp file for scanMemory.");
         return E2CS_SCANERROR;
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
@@ -166,34 +153,22 @@ bool CSPlugin::readStandardLists()      // this is now done in Storyboard
     exceptionvirussitelist.reset();
     exceptionvirusurllist.reset();
     if (!exceptionvirusmimetypelist.readItemList(cv["exceptionvirusmimetypelist"].toCharArray(), false, 0)) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening exceptionvirusmimetypelist" << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error opening exceptionvirusmimetypelist");
+        logger_error("Error opening exceptionvirusmimetypelist");
         return false;
     }
     exceptionvirusmimetypelist.doSort(false);
     if (!exceptionvirusextensionlist.readItemList(cv["exceptionvirusextensionlist"].toCharArray(), false, 0)) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening exceptionvirusextensionlist" << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error opening exceptionvirusextensionlist");
+        logger_error("Error opening exceptionvirusextensionlist");
         return false;
     }
     exceptionvirusextensionlist.doSort(false);
     if (!exceptionvirussitelist.readItemList(cv["exceptionvirussitelist"].toCharArray(), false, 0)) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening exceptionvirussitelist" << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error opening exceptionvirussitelist");
+        logger_error("Error opening exceptionvirussitelist");
         return false;
     }
     exceptionvirussitelist.doSort(false);
     if (!exceptionvirusurllist.readItemList(cv["exceptionvirusurllist"].toCharArray(), true, 0)) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error opening exceptionvirusurllist" << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Error opening exceptionvirusurllist");
+        logger_error("Error opening exceptionvirusurllist");
         return false;
     }
     exceptionvirusurllist.doSort(true);
@@ -209,9 +184,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 {
     // Most content scanners only deal with original, unmodified content
     if (reconstituted) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "willScanRequest: ignoring reconstituted data" << std::endl;
-#endif
+        logger_debug("willScanRequest: ignoring reconstituted data");
         return E2CS_NOSCAN;
     }
 
@@ -220,14 +193,10 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // implications as downlaoding them.
     if (post) {
         if (scanpost) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "willScanRequest: I'm interested in uploads" << std::endl;
-#endif
+            logger_debug("willScanRequest: I'm interested in uploads");
             return E2CS_NEEDSCAN;
         } else {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "willScanRequest: Not interested in uploads" << std::endl;
-#endif
+            logger_debug("willScanRequest: Not interested in uploads");
             return E2CS_NOSCAN;
         }
     }
@@ -258,9 +227,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Don't scan the web server which hosts the access denied page
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "willScanRequest: ignoring our own webserver" << std::endl;
-#endif
+        logger_debug("willScanRequest: ignoring our own webserver");
         return E2CS_NOSCAN;
     }
 
@@ -268,9 +235,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     tempurl = domain;
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
-#endif
+            logger_debug("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
@@ -279,9 +244,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         // allows matching of .tld
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "willScanRequest: ignoring exception virus site" << std::endl;
-#endif
+            logger_debug("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
     }
@@ -299,24 +262,18 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
             if (tempurl.length() > fl) {
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
-#endif
+                    logger_debug("willScanRequest: ignoring exception virus URL");
                     return E2CS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "willScanRequest: ignoring exception virus URL" << std::endl;
-#endif
+                logger_debug("willScanRequest: ignoring exception virus URL");
                 return E2CS_NOSCAN; // exact match
             }
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "willScanRequest: I'm interested" << std::endl;
-#endif
+    logger_debug("willScanRequest: I'm interested");
     return E2CS_NEEDSCAN;
 #endif
 }
@@ -366,70 +323,51 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable to load plugin config: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "%sUnable to load plugin config %s",thread_id.c_str(),  pluginConfigPath);
+        logger_error("Unable to load plugin config ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Unable read plugin config plugname variable: " << pluginConfigPath << std::endl;
-        }
-        syslog(LOG_ERR, "%sUnable read plugin config plugname variable %s",thread_id.c_str(),  pluginConfigPath);
+        logger_error("Unable read plugin config plugname variable %s",pluginConfigPath);
         return NULL;
     }
 
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling ClamDscan CS plugin" << std::endl;
-#endif
+        logger_debug("Enabling ClamDscan CS plugin");
         return clamdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling AvastDscan CS plugin" << std::endl;
-#endif
+        logger_debug("Enabling AvastDscan CS plugin");
         return avastdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling KAVDscan CS plugin" << std::endl;
-#endif
+        logger_debug("Enabling KAVDscan CS plugin");
         return kavdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling ICAPscan CS plugin" << std::endl;
-#endif
+        logger_debug("Enabling ICAPscan CS plugin");
         return icapcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Enabling command-line CS plugin" << std::endl;
-#endif
+        logger_debug("Enabling command-line CS plugin");
         return commandlinecreate(cv);
     }
 #endif
 
-    if (!is_daemonised) {
-        std::cerr << thread_id << "Unable to load plugin: " << pluginConfigPath << std::endl;
-    }
-    syslog(LOG_ERR, "%sUnable to load plugin %s\n", thread_id.c_str(), pluginConfigPath);
+    logger_error("Unable to load plugin ", pluginConfigPath);
     return NULL;
 }
