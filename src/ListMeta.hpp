@@ -55,6 +55,7 @@ class ListMeta
 
     struct list_info {
         String name;
+        String pwd;
         unsigned int type;
         unsigned int method_type;
         unsigned int list_ref;
@@ -121,10 +122,10 @@ class ListMeta
 
 
 
-   bool readFile(const char *filename, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false, bool istime = false,
+   bool readFile(const char *filename, const char *pwd, unsigned int *whichlist, bool sortsw, const char *listname,bool isip = false, bool istime = false,
            bool is_map = false);
 
-   bool readRegExReplacementFile(const char *filename, const char *listname, unsigned int &listid,
+   bool readRegExReplacementFile(const char *filename, const char *pwd, const char *listname, unsigned int &listid,
        std::deque<String> &list_rep, std::deque<RegExp> &list_comp);
 
 private:
@@ -140,7 +141,7 @@ bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &r
     char *testBlanketBlock(unsigned int list, bool ip, bool ssl, String &lastcategory);
     RegExp isiphost;
     bool precompileregexps();
-    bool readRegExMatchFile(const char *filename, const char *listname, unsigned int &listref,
+    bool readRegExMatchFile(const char *filename, const char *pwd, const char *listname, unsigned int &listref,
         std::deque<RegExp> &list_comp, std::deque<String> &list_source, std::deque<unsigned int> &list_ref);
     bool compileRegExMatchFile(unsigned int list, std::deque<RegExp> &list_comp,
         std::deque<String> &list_source, std::deque<unsigned int> &list_ref);

@@ -167,7 +167,7 @@ bool DMPlugin::readStandardLists()
 
     String filename(cv["managedmimetypelist"]);
     if (filename.length() > 0) {
-        if (!mimetypelist.readItemList(filename.toCharArray(), false, 0)) {
+        if (!mimetypelist.readItemList(filename.toCharArray(),"", false, 0)) {
             if (!is_daemonised) {
                 std::cerr << thread_id << "Error opening managedmimetypelist" << std::endl;
             }
@@ -182,7 +182,7 @@ bool DMPlugin::readStandardLists()
 
     filename = cv["managedextensionlist"];
     if (filename.length() > 0) {
-        if (!extensionlist.readItemList(filename.toCharArray(), false, 0)) {
+        if (!extensionlist.readItemList(filename.toCharArray(), "", false, 0)) {
             if (!is_daemonised) {
                 std::cerr << thread_id << "Error opening managedextensionlist" << std::endl;
             }

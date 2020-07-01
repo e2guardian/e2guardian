@@ -125,6 +125,8 @@ class String : public std::string
     String getHostname();
     // truncate to given length
     int limitLength(unsigned int l);
+    // remove all occurrences of char from String
+    void removeChar(char c);
     // remove repeated occurrences of this character
     void removeMultiChar(unsigned char c);
     // clean up slashes, trailing dots, etc. in file paths

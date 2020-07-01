@@ -29,7 +29,7 @@ class ListManager
 
     // create a new item list. re-uses existing lists if a reload is not necessary.
     // calls readItemList.
-    int newItemList(const char *filename, bool startswith, int filters, bool parent, bool isip =false, bool istime = false, bool ismap = false);
+    int newItemList(const char *filename, const char *list_pwd, bool startswith, int filters, bool parent, bool isip =false, bool istime = false, bool ismap = false);
     int newStdinItemList(bool startswith, int filters, bool parent );
     // create a new phrase list. re-uses existing lists, but cannot check nested lists (known limitation).
     // does not call readPhraseList. (checkme: why?)

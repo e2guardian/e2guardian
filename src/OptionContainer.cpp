@@ -71,9 +71,10 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
 }
 
 
-bool OptionContainer::readConfFile(const char *filename) {
+bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
+    String now_pwd(list_pwd);
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
     if (!conffiles.good()) {
         if (!is_daemonised) {
@@ -95,7 +96,7 @@ bool OptionContainer::readConfFile(const char *filename) {
                 if (temp.startsWith(".")) {
                     temp = temp.after(".Include<").before(">");
                     if (temp.length() > 0) {
-                        if (!readConfFile(temp.toCharArray())) {
+                        if (!readConfFile(temp.toCharArray(),now_pwd)) {
                             conffiles.close();
                             return false;
                         }
@@ -116,8 +117,8 @@ bool OptionContainer::read(std::string &filename, int type) {
 
     // all sorts of exceptions could occur reading conf files
     try {
-
-        if (!readConfFile(filename.c_str()))
+        String list_pwd;
+        if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
         if (type == 0 || type == 2) {
@@ -1034,7 +1035,7 @@ bool OptionContainer::readinStdin() {
             String t = param;
             bool startswith;
             t.removeWhiteSpace();
-            t = t + ",";
+            t += ",";
             while (t.length() > 0) {
                 if (t.startsWith("name=")) {
                     nm = t.after("=").before(",");
@@ -1056,7 +1057,7 @@ bool OptionContainer::readinStdin() {
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(), startswith, 1, true);
+            int rc = lm.newItemList(fpath.c_str(),"", startswith, 1, true);
             if (rc < 0)
                 return false;
             lm.l[rc]->doSort(url_list);
