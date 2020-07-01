@@ -10,10 +10,11 @@
 #include "e2config.h"
 #endif
 #include "RegExp.hpp"
+#include "Logger.hpp"
+
 #include <cstring>
 #include <iostream>
 
-extern thread_local std::string thread_id;
 
 RegResult::RegResult()
     : imatched(false)
@@ -120,18 +121,12 @@ bool RegExp::comp(const char *exp)
         regfree(&reg);
         wascompiled = false;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Compiling " << exp << std::endl;
-#endif
+    logger_debugregexp("Compiling ", exp);
 #ifdef HAVE_PCRE
-#ifdef E2DEBUG
-    std::cerr << thread_id << "...with PCRE " << std::endl;
-#endif
+    logger_debugregexp("...with PCRE ");
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED | REG_DOTALL) != 0) { // compile regex
 #else
-#ifdef E2DEBUG
-    std::cerr << thread_id << "...without PCRE " << std::endl;
-#endif
+    logger_debugregexp("...without PCRE ");
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED) != 0) {
 #endif
         regfree(&reg);
@@ -172,9 +167,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     if (regexec(&reg, pos, num_sub_expressions + 1, pmatch, 0)) { // run regexdelete[]pmatch;
         delete[] pmatch;
         rs.imatched = false;
-#ifdef REDEBUG
-            std::cerr << thread_id << "no match for:" << searchstring << std::endl;
-#endif
+        logger_debugregexp("no match for:", searchstring);
         return false; // if no match
     }
     size_t matchlen;
@@ -207,9 +200,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     }
     rs.imatched = true;
     delete[] pmatch;
-#ifdef REDEBUG
-    std::cerr << thread_id << "match(s) for:" << searchstring << std::endl;
-#endif
+    logger_debugregexp("match(s) for:", searchstring);
     return true; // match(s) found
 }
 

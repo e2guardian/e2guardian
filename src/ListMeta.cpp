@@ -659,9 +659,8 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *listna
 // is this URL in the given regexp URL list?
 int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
                               unsigned int list, String &lastcategory) {
-#ifdef REDEBUG
-    std::cerr << thread_id << "inRegExpURLList: " << urlin << std::endl;
-#endif
+
+    logger_debugregexp("inRegExpURLList: ", urlin);
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
         RegResult Rre;
@@ -688,27 +687,21 @@ int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std:
 // re-add the PTP
 /*if (ptp.length() > 0)
 			url = ptp + "//" + url;*/
-#ifdef REDEBUG
-        std::cerr << thread_id << "inRegExpURLList (processed): " << url << std::endl;
-#endif
+        logger_debugregexp("inRegExpURLList (processed): ", url);
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
             if (o.lm.l[list_ref[i]]->isNow()) {
                 if (j->match(url.toCharArray(), Rre))
                     return i;
             }
-#ifdef REDEBUG
             else
-                std::cerr << thread_id << "Outside included regexp list's time limit" << std::endl;
-#endif
+                logger_debugregexp("Outside included regexp list's time limit");
             i++;
         }
     }
-#ifdef REDEBUG
     else {
-        std::cerr << thread_id << "Outside top level regexp list's time limit" << std::endl;
+        logger_debugregexp("Outside top level regexp list's time limit");
     }
-#endif
     return -1;
 }
 
@@ -785,9 +778,7 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
             if (srcoff < oldlinelen) {
                 newLine += line.subString(srcoff, oldlinelen - srcoff);
             }
-#ifdef REDEBUG
-            std::cerr << thread_id << "Line modified! (" << line << " -> " << newLine << ")" << std::endl;
-#endif
+            logger_debugregexp("Line modified! (", line, " -> ", newLine, ")" );
             // copy newLine into line and continue with other regexes
             line = newLine;
             linemodified = true;
@@ -804,9 +795,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
         return false;
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-#ifdef REDEBUG
-        std::cerr << thread_id << "Starting header reg exp replace: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debugregexp("Starting header reg exp replace: ", *i);
         bool chop = false;
         if (i->endsWith("\r")) {
             i->chop();
@@ -816,10 +805,10 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
         if (chop)
             i->append("\r");
     }
-#ifdef REDEBUG
+
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
-        std::cerr << thread_id << "Starting header reg exp replace result: " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debugregexp("Starting header reg exp replace result: ", *i);
+
     return result;
 }
 
@@ -829,9 +818,7 @@ int ListMeta::inHeaderRegExp(list_info &listi, std::deque<String> &header, list_
         return false;
     int result = -1;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-#ifdef REDEBUG
-        std::cerr << thread_id << "Starting header reg exp check " << *i << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debugregexp("Starting header reg exp check ", *i);
         bool chop = false;
         if (i->endsWith("\r")) {
             i->chop();
