@@ -11,15 +11,13 @@
 #endif
 #include "SocketArray.hpp"
 #include "Queue.hpp"
+#include "Logger.hpp"
 
-#include <syslog.h>
 #include <cerrno>
 #include <cstring>
 
 // GLOBALS
 
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -50,9 +48,7 @@ int SocketArray::bindSingle(int port)
     if (socknum < 1) {
         return -1;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "bindSingle binding port" << port << std::endl;
-#endif
+    logger_debug("bindSingle binding port", port);
     lc_types.push_back(CT_PROXY);
     return drawer[0].bind(port);
 }
@@ -62,9 +58,7 @@ int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
     if (socknum <= index) {
         return -1;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "bindSingle binding port" << port  << " with type " << type << std::endl;
-#endif
+    logger_debug("bindSingle binding port", port, " with type ", type);
     lc_types.push_back(type);
     return drawer[index].bind(port);
 }
@@ -77,16 +71,9 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
         return -1;
     }
     for (unsigned int i = 0; i < ports.size(); i++) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "bindSingleM binding port" << ports[i] << std::endl;
-#endif
+        logger_debug("bindSingleM binding port", ports[i]);
         if (drawer[i].bind(ports[i].toInteger())) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error binding server socket: ["
-                          << ports[i] << " " << i << "] (" << strerror(errno) << ")" << std::endl;
-            }
-            String p = ports[i];
-            syslog(LOG_ERR, "Error binding socket: [%s %d] (%s)", p.toCharArray(), i, strerror(errno));
+            logger_error("Error binding server socket: [", ports[i], " ", i, "] (", strerror(errno), ")");
             return -1;
         }
         lc_types.push_back(CT_PROXY);
@@ -99,9 +86,7 @@ int *SocketArray::getFDAll()
 {
     int *fds = new int[socknum];
     for (unsigned int i = 0; i < socknum; i++) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Socket " << i << " fd:" << drawer[i].getFD() << std::endl;
-#endif
+        logger_debug("Socket ", i, " fd:", drawer[i].getFD() );
         fds[i] = drawer[i].getFD();
     }
     return fds;
@@ -112,10 +97,7 @@ int SocketArray::listenAll(int queue)
 {
     for (unsigned int i = 0; i < socknum; i++) {
         if (drawer[i].listen(queue)) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error listening to socket" << std::endl;
-            }
-            syslog(LOG_ERR, "%s", "Error listening to socket");
+            logger_error("Error listening to socket");
             return -1;
         }
     }
@@ -130,15 +112,9 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     }
     //for (unsigned int i = 0; i < socknum; i++) {
     for (unsigned int i = 0; i < ips.size(); i++) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Binding server socket[" << ports[i] << " " << ips[i] << " " << i << "])" << std::endl;
-#endif
+        logger_debug("Binding server socket[", ports[i], " ", ips[i], " ", i, "]" );
         if (drawer[i].bind(ips[i].toCharArray(), ports[i].toInteger())) {
-            if (!is_daemonised) {
-                std::cerr << thread_id << "Error binding server socket: ["
-                          << ports[i] << " " << ips[i] << " " << i << "] (" << strerror(errno) << ")" << std::endl;
-            }
-            syslog(LOG_ERR, "Error binding socket: [%s %s %d] (%s)", ports[i].toCharArray(), ips[i].toCharArray(), i, strerror(errno));
+            logger_error("Error binding server socket: [", ports[i], " ", ips[i], " ", i, "] (", strerror(errno), ")" );
             return -1;
         }
         lc_types.push_back(CT_PROXY);
