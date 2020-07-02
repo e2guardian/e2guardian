@@ -11,6 +11,7 @@
 #endif
 #include "String.hpp"
 #include "md5.hpp"
+#include "Logger.hpp"
 
 #if defined(__GNUC__) && __GNUC__ < 3 && __GNUC_MINOR__ < 96
 #warning "Using strstream instead of sstream"
@@ -22,7 +23,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
-#include <syslog.h>
 
 extern thread_local std::string thread_id;
 
@@ -399,12 +399,12 @@ bool String::headerVal()
 void String::chop()
 {
     if (this->length() > 0)
-    *this = this->substr(0, this->length() - 1);
+        *this = this->substr(0, this->length() - 1);
 }
 
 void String::lop()
 {
-        if (this->length() > 0)
+    if (this->length() > 0)
         *this = this->substr(1);
 }
 
@@ -661,9 +661,7 @@ String String::sort_search()
         else
            ret = ret + "+" + p[j++];
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Search words after sort are "  << ret.c_str() << std::endl;
-#endif
+    logger_debug("Search words after sort are ", ret);
    // delete [] temp;
     return ret;
 };
