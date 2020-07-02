@@ -10,9 +10,9 @@
 #endif
 
 #include "Socket.hpp"
+#include "Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <csignal>
 #include <fcntl.h>
 #include <sys/time.h>
@@ -37,7 +37,6 @@ extern bool reloadconfig;
 #define X509_V_FLAG_TRUSTED_FIRST 0
 #endif
 
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 //
@@ -276,10 +275,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
 #endif
 
     if (ctx == NULL) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
-#endif
-        log_ssl_errors("Error ssl context is null for %s", hostname.c_str());
+        log_ssl_errors("Error ssl context is null for ", hostname.c_str());
         return -1;
     }
 
@@ -294,20 +290,16 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     ERR_clear_error();
     if (certificate_path.length()) {
         if (!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str())) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "couldnt load certificates" << std::endl;
-#endif
-            log_ssl_errors("couldnt load certificates from %s", certificate_path.c_str());
+            log_ssl_errors("couldnt load certificates from ", certificate_path.c_str());
+            //tidy up
             SSL_CTX_free(ctx);
             ctx = NULL;
             return -2;
         }
     } else if (!SSL_CTX_set_default_verify_paths(ctx)) //use default if no certPpath given
     {
-#ifdef NETDEBUG
-        std::cout << thread_id << "couldnt load certificates" << std::endl;
-#endif
-            log_ssl_errors("couldnt load default certificates for %s", hostname.c_str());
+        log_ssl_errors("couldnt load default certificates for ", hostname.c_str());
+        //tidy up
         SSL_CTX_free(ctx);
         ctx = NULL;
         return -2;
@@ -399,59 +391,50 @@ bool Socket::isSslServer()
 //shuts down the current ssl connection
 void Socket::stopSsl()
 {
-#ifdef NETDEBUG
-    std::cout << thread_id << "ssl stopping" << std::endl;
-#endif
+    logger_debugnet("ssl stopping");
     if(!isssl) return;
 
     isssl = false;
 
     if (ssl != NULL) {
         if (issslserver) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "this is a server connection" << std::endl;
+            logger_debugnet("this is a server connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            std::cout << thread_id << "calling 1st ssl shutdown" << std::endl;
-#endif
+            logger_debugnet("calling 1st ssl shutdown");
+
             if (!SSL_shutdown(ssl)) {
-#ifdef NETDEBUG
-                std::cout << thread_id << "need to call SSL shutdown again" << std::endl;
+                logger_debugnet("need to call SSL shutdown again");
                 if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                    std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                    logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
                 }
                 if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                    std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                    logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
                 }
-                std::cout << thread_id << "Discarding extra data from client" << std::endl;
-#endif
+                logger_debugnet("Discarding extra data from client");
 
                 shutdown(SSL_get_fd(ssl), SHUT_WR);
                 char junk[1024];
                 readFromSocket(junk, sizeof(junk), 0, 5);
-#ifdef NETDEBUG
-                std::cout << thread_id << "done" << std::endl;
-#endif
+                logger_debugnet("done");
             }
         } else {
-#ifdef NETDEBUG
-            std::cout << thread_id << "this is a client connection" << std::endl;
+            logger_debugnet("this is a client connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            std::cout << thread_id << "calling ssl shutdown" << std::endl;
-#endif
+            logger_debugnet("calling ssl shutdown");
+
             SSL_shutdown(ssl);
-#ifdef NETDEBUG
-            std::cout << thread_id << "done" << std::endl;
-#endif
+
+            logger_debugnet("done");
         }
     }
 
@@ -519,10 +502,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     ctx = SSL_CTX_new(TLS_server_method());
 
     if (ctx == NULL) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
-#endif
+        logger_debugnet("Error ssl context is null (check that openssl has been inited)");
         return -1;
     }
 
@@ -534,10 +514,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the certificate
     if (SSL_CTX_use_certificate(ctx, x) < 1) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error using certificate" << std::endl;
-#endif
+        logger_debugnet("Error using certificate");
         cleanSsl();
         return -1;
     }
@@ -547,10 +524,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the private key
     if (SSL_CTX_use_PrivateKey(ctx, privKey) < 1) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error using private key" << std::endl;
-#endif
+        logger_debugnet("Error using private key");
         cleanSsl();
         return -1;
     }
@@ -564,10 +538,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     ERR_clear_error();
     if(!SSL_set_fd(ssl, this->getFD())) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Error setting ssl fd connection" << std::endl;
-#endif
-        log_ssl_errors("ssl_set_fd failed to client %s", "");
+        log_ssl_errors("ssl_set_fd failed to client", "");
         cleanSsl();
         return -1;
     };
@@ -599,11 +570,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     ERR_clear_error();
     if (SSL_do_handshake(ssl) < 0) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error doing ssl handshake" << std::endl;
-#endif
-        log_ssl_errors("ssl_handshake failed to client %s", "");
+        log_ssl_errors("ssl_handshake failed to client ", "");
         cleanSsl();
         return -1;
     }
@@ -618,28 +585,20 @@ bool Socket::checkForInput()
     if (!isssl) {
         return BaseSocket::checkForInput();
     }
-#ifdef NETDEBUG
-    std::cout << thread_id << "checking for input on ssl connection (non blocking)" << std::endl;
-#endif
+    logger_debugnet("checking for input on ssl connection (non blocking)");
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "found input on ssl connection" << std::endl;
-#endif
+        logger_debugnet("found input on ssl connection");
         return true;
     }
 
     int rc = SSL_pending(ssl);
 
     if (rc < 1) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "no pending data on ssl connection SSL_pending " << rc << std::endl;
-#endif
+        logger_debugnet("no pending data on ssl connection SSL_pending ", rc );
         return false;
     }
 
-#ifdef NETDEBUG
-    std::cout << thread_id << "found data on ssl connection" << std::endl;
-#endif
+    logger_debugnet("found data on ssl connection");
 
     return true;
 }
@@ -794,9 +753,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     int cnt = len;
     int tocopy = 0;
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Socket::readFromSocket: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+        logger_debugnet("Socket::readFromSocket: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart );
         tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -840,23 +797,19 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         }
 
         if (inbuffer) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Inbuffer SSL read to return " << cnt << " bytes" << std::endl;
-#endif
+            logger_debugnet("Inbuffer SSL read to return ", cnt, " bytes" );
 
-           buffstart = 0;
-           bufflen = rc;
-           if ((bufflen - buffstart) > 0) {
-              tocopy = cnt;
-              if ((bufflen - buffstart) < cnt)
-              tocopy = bufflen - buffstart;
-              memcpy(buff, buffer + buffstart, tocopy);
-              cnt -= tocopy;
-              buffstart += tocopy;
-              buff += tocopy;
-#ifdef NETDEBUG
-        std::cout << thread_id << "Inbuffer SSL read to returned " << tocopy << " bytes" << std::endl;
-#endif
+            buffstart = 0;
+            bufflen = rc;
+            if ((bufflen - buffstart) > 0) {
+                tocopy = cnt;
+                if ((bufflen - buffstart) < cnt)
+                tocopy = bufflen - buffstart;
+                memcpy(buff, buffer + buffstart, tocopy);
+                cnt -= tocopy;
+                buffstart += tocopy;
+                buff += tocopy;
+                logger_debugnet("Inbuffer SSL read to returned ", tocopy, " bytes");
            }
          } else {
         buff += rc;
@@ -881,9 +834,8 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     //int lw;
     hexs += "\r\n";
-#ifdef NETDEBUG
-    std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
-#endif
+    logger_debugnet("writeChunk  size=", hexs);
+
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
     return false;
