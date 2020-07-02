@@ -75,6 +75,17 @@ so that the docker daemon can collect it (and show it with `docker --logs ...')
 
 You can enable the dockermode in code with `logger.setDockerMode();`
 
+## Obsoletes
+
+The new Logger obsoletes/replaces the following:
+
+- e2guardian.conf:
+  - logsyslog, debuglevel, debuglevelfile, nologger, storyboardtrace
+
+- Code
+  - files: DebugManager.hpp/cpp
+  - defines: NETDEBUG, CHUNKDEBUG, SBDEBUG, NEWDEBUG_OFF
+
 ## TODOs
 
 - Logger Output to Email ??
