@@ -87,38 +87,38 @@ class Logger
 
 extern thread_local std::string thread_id;
 
-extern Logger __logger;
+extern Logger logger;
 
 #define logger_info(...)  \
-  if (__logger.isEnabled(LoggerSource::info)) \
-     __logger.vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
+  if (logger.isEnabled(LoggerSource::info)) \
+     logger.vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
 #define logger_error(...) \
-  if (__logger.isEnabled(LoggerSource::error)) \
-     __logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
+  if (logger.isEnabled(LoggerSource::error)) \
+     logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
 #define logger_config(...) \
-  if (__logger.isEnabled(LoggerSource::config)) \
-     __logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
+  if (logger.isEnabled(LoggerSource::config)) \
+     logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
 #define logger_story(...) \
-  if (__logger.isEnabled(LoggerSource::story)) \
-    __logger.vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
+  if (logger.isEnabled(LoggerSource::story)) \
+    logger.vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
 
 
 #ifdef E2DEBUG
   #define logger_debug(...) \
-    if (__logger.isEnabled(LoggerSource::debug)) \
-      __logger.vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
+    if (logger.isEnabled(LoggerSource::debug)) \
+      logger.vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
   #define logger_trace(...) \
-    if (__logger.isEnabled(LoggerSource::trace)) \
-      __logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
+    if (logger.isEnabled(LoggerSource::trace)) \
+      logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
   #define logger_debugnet(...) \
-    if (__logger.isEnabled(LoggerSource::debugnet)) \
-      __logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
+    if (logger.isEnabled(LoggerSource::debugnet)) \
+      logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
   #define logger_debugregexp(...) \
-    if (__logger.isEnabled(LoggerSource::debugregexp)) \
-      __logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
+    if (logger.isEnabled(LoggerSource::debugregexp)) \
+      logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
   #define logger_debugsb(...) \
-    if (__logger.isEnabled(LoggerSource::debugsb)) \
-      __logger.vlog(LoggerSource::debugsb,  __func__, __LINE__, __VA_ARGS__)
+    if (logger.isEnabled(LoggerSource::debugsb)) \
+      logger.vlog(LoggerSource::debugsb,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define logger_debug(...)

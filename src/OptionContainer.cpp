@@ -68,8 +68,9 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list)
 
 bool OptionContainer::read(std::string& filename, int type)
 {
-    LoggerConfigurator loggerConf(&__logger);
+    LoggerConfigurator loggerConf(&logger);
 
+    logger_config("read Configfile: ", filename, " type", type);
 	conffilename = filename;
 
 	// all sorts of exceptions could occur reading conf files
