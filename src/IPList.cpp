@@ -130,9 +130,8 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         // ignore blank lines
         if (strlen(buffer) < 7)
             continue;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "line: " << line << std::endl;
-#endif
+
+        logger_trace("");
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
         if (matchIP.match(line.toCharArray(),Rre)) {
             struct in_addr address;
