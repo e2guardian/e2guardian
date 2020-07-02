@@ -13,9 +13,9 @@
 
 #include "../ContentScanner.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -31,8 +31,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -109,9 +107,7 @@ int icapinstance::init(void *args)
 
     icapurl = cv["icapurl"]; // format: icap://icapserver:1344/avscan
     if (icapurl.length() < 3) {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Error reading icapurl option." << std::endl;
-        syslog(LOG_ERR, "Error reading icapurl option.");
+        logger_error("Error reading icapurl option.");
         return E2CS_ERROR;
         // it would be far better to do a test connection
     }
@@ -126,9 +122,7 @@ int icapinstance::init(void *args)
     }
     struct hostent *host;
     if ((host = gethostbyname(icaphost.toCharArray())) == 0) {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Error resolving icap host address." << std::endl;
-        syslog(LOG_ERR, "Error resolving icap host address.");
+        logger_error("Error resolving icap host address.");
         return E2CS_ERROR;
     }
     icapip = inet_ntoa(*(struct in_addr *)host->h_addr_list[0]);
@@ -168,9 +162,7 @@ int icapinstance::init(void *args)
 #endif
 
         if (line.after(" ").before(" ") != "200") {
-            if (!is_daemonised)
-                std::cerr << thread_id << "ICAP response not 200 OK" << std::endl;
-            syslog(LOG_ERR, "ICAP response not 200 OK");
+            logger_error("ICAP response not 200 OK");
             return E2CS_WARNING;
             //throw std::runtime_error("Response not 200 OK");
         }
@@ -212,9 +204,7 @@ int icapinstance::init(void *args)
         }
         icapsock.close();
     } catch (std::exception &e) {
-        if (!is_daemonised)
-            std::cerr << thread_id << "ICAP server did not respond to OPTIONS request: " << e.what() << std::endl;
-        syslog(LOG_ERR, "ICAP server did not respond to OPTIONS request: %s", e.what());
+        logger_error("ICAP server did not respond to OPTIONS request: ", e.what());
         return E2CS_ERROR;
     }
 
@@ -303,7 +293,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             }
             icapsock.close();
             lastmessage = "Exception sending message preview to ICAP";
-            syslog(LOG_ERR, "Exception sending message preview to ICAP: %s", e.what());
+            logger_error(lastmessage, e.what());
             return E2CS_SCANERROR;
         }
     }
@@ -352,7 +342,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
         }
         icapsock.close();
         lastmessage = "Exception sending memory file to ICAP";
-        syslog(LOG_ERR, "Exception sending memory file to ICAP: %s", e.what());
+        logger_error(lastmessage, e.what());
         return E2CS_SCANERROR;
     }
 
@@ -378,8 +368,8 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         }
 #endif
 
-	lastmessage = "Error opening file to send to ICAP";
-        syslog(LOG_ERR, "Error opening file to send to ICAP: %s", strerror(errno));
+	    lastmessage = "Error opening file to send to ICAP";
+        logger_error(lastmessage, strerror(errno));
         return E2CS_SCANERROR;
     }
     lseek(filefd, 0, SEEK_SET);
@@ -457,7 +447,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
 #endif
 	    icapsock.close();
             lastmessage = "Exception sending message preview to ICAP";
-            syslog(LOG_ERR, "Exception sending message preview to ICAP: %s", e.what());
+            logger_error(lastmessage, e.what());
             delete[] data;
             close(filefd);
             // this *might* just be an early response & closed connection
@@ -557,7 +547,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         }
 #endif
         lastmessage = "Exception sending file to ICAP";
-        syslog(LOG_ERR, "Exception sending file to ICAP: %s", e.what());
+        logger_error(lastmessage, e.what());
         delete[] data;
         close(filefd);
         // this *might* just be an early response & closed connection
@@ -589,8 +579,8 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
         }
 #endif
 
-	lastmessage = "Error connecting to ICAP server";
-        syslog(LOG_ERR, "Error connecting to ICAP server");
+	    lastmessage = "Error connecting to ICAP server";
+        logger_error(lastmessage);
         return false;
     }
     char objectsizehex[32];
@@ -647,8 +637,8 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
         }
 #endif
 
-	lastmessage = "Exception sending headers to ICAP";
-        syslog(LOG_ERR, "Exception sending headers to ICAP: %s", e.what());
+	    lastmessage = "Exception sending headers to ICAP";
+        logger_error(lastmessage, e.what());
         return false;
     }
     return true;
@@ -882,8 +872,8 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
            }
 #endif
 
-	    lastmessage = "ICAP reports no such service";
-            syslog(LOG_ERR, "ICAP reports no such service; check your server URL");
+	        lastmessage = "ICAP reports no such service";
+            logger_error(lastmessage, " check your server URL");
             delete[] data;
             return E2CS_SCANERROR;
         } else {
@@ -898,8 +888,8 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
            }
 #endif
 
-	    lastmessage = "ICAP returned unrecognised response code.";
-            syslog(LOG_ERR, "ICAP returned unrecognised response code: %s", returncode.toCharArray());
+	        lastmessage = "ICAP returned unrecognised response code.";
+            logger_error(lastmessage, returncode);
             delete[] data;
             return E2CS_SCANERROR;
         }
@@ -918,7 +908,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 
 
         lastmessage = "Exception getting reply from ICAP.";
-        syslog(LOG_ERR, "Exception getting reply from ICAP: %s", e.what());
+        logger_error(lastmessage, e.what());
         delete[] data;
         return E2CS_SCANERROR;
     }
