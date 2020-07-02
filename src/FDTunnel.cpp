@@ -22,15 +22,10 @@
 #include <algorithm>
 #include <sys/select.h>
 
-#ifdef E2DEBUG
-#include <iostream>
-#endif
-
 #include "FDTunnel.hpp"
+#include "Logger.hpp"
 
 // IMPLEMENTATION
-
-extern thread_local std::string thread_id;
 
 FDTunnel::FDTunnel()
     : throughput(0)
@@ -47,9 +42,7 @@ void FDTunnel::reset()
 bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targetthroughput, bool ignore, bool chunked)
 {
     if (chunked) {
-#ifdef E2DEBUG
-    std::cout << thread_id << "tunnelling chunked data." << std::endl;
-#endif
+        logger_debug("tunnelling chunked data.");
         int maxlen = 32000;
         char buff[32000];
         int timeout = sockfrom.getTimeout();
@@ -64,28 +57,21 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         return true;
     }
     if (targetthroughput == 0) {
-#ifdef E2DEBUG
-        std::cout << thread_id << "No data expected, tunnelling aborted." << std::endl;
-#endif
+        logger_debug("No data expected, tunnelling aborted.");
         return true;
     }
 
-#ifdef E2DEBUG
     if (targetthroughput < 0)
-        std::cout <<thread_id << "Tunnelling without known content-length" << std::endl;
+        logger_debug("Tunnelling without known content-length");
     else
-        std::cout <<thread_id << "Tunnelling with content length " << targetthroughput << std::endl;
-#endif
+        logger_debug("Tunnelling with content length ", targetthroughput);
+
     if ((sockfrom.bufflen - sockfrom.buffstart) > 0) {
-#ifdef E2DEBUG
-        std::cout <<thread_id << "Data in fdfrom's buffer; sending " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
-#endif
+        logger_debug("Data in fdfrom's buffer; sending ", (sockfrom.bufflen - sockfrom.buffstart), " bytes");
         if (!sockto.writeToSocket(sockfrom.buffer + sockfrom.buffstart, sockfrom.bufflen - sockfrom.buffstart, 0, 120000, false))
             return false;
            // throw std::runtime_error(std::string("Can't write to socket: ") + strerror(errno));
-#ifdef E2DEBUG
-        std::cout <<thread_id << "Data in fdfrom's buffer; sent " << (sockfrom.bufflen - sockfrom.buffstart) << " bytes" << std::endl;
-#endif
+        logger_debug("Data in fdfrom's buffer; sent ", (sockfrom.bufflen - sockfrom.buffstart), " bytes");
 
         throughput += sockfrom.bufflen - sockfrom.buffstart;
         sockfrom.bufflen = 0;
@@ -118,10 +104,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     while (!done && (targetthroughput > -1 ? throughput < targetthroughput : true)) {
         done = true; // if we don't make a sucessful read and write this
         // flag will stay true and so the while() will exit
-#ifdef E2DEBUG
-        std::cout <<thread_id << "Start of tunnel loop: throughput:" << throughput
-            << " target:"  << targetthroughput  << std::endl;
-#endif
+        logger_debug("Start of tunnel loop: throughput:", throughput, " target:", targetthroughput);
 
         //FD_CLR(fdto, &inset);
 
@@ -136,16 +119,10 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         {
             int rc = poll(twayfds, 2, timeout);
             if (rc < 1) {
-#ifdef E2DEBUG
-                std::cout <<thread_id << "tunnel tw poll returned error or timeout::" << rc
-                  << std::endl;
-#endif
+                logger_debug("tunnel tw poll returned error or timeout::", rc);
                 break; // an error occurred or it timed out so end while()
             }
-#ifdef E2DEBUG
-            std::cout <<thread_id << "tunnel tw poll returned ok:" << rc
-                  << std::endl;
-#endif
+            logger_debug("tunnel tw poll returned ok:", rc);
                   }
 
             if (twayfds[0].revents & (POLLIN | POLLHUP))
@@ -164,10 +141,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 } else if (!rc) {
                     done = true; // none received so pipe is closed so flag it
                 } else { // some data read
-#ifdef E2DEBUG
-                    std::cout <<thread_id << "tunnel got data from sockfrom: " << rc << " bytes"
-                        << std::endl;
-#endif
+                    logger_debug("tunnel got data from sockfrom: ", rc ," bytes");
                     throughput += rc; // increment our counter used to log
                     if (poll (tooutfds,1, timeout ) < 1)
                      {
@@ -179,10 +153,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                             if (!sockto.writeToSocket(buff, rc, 0, 0, false)) { // write data
                             break; // was an error writing
                             }
-#ifdef E2DEBUG
-                         std::cout <<thread_id << "tunnel wrote data out: " << rc << " bytes"
-                        << std::endl;
-#endif
+                         logger_debug("tunnel wrote data out: ", rc, " bytes");
                         done = false; // flag to say data still to be handled
                     } else {
                         break; // should never get here
@@ -198,9 +169,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     // need to be one way. As soon as the client tries to send data, break
     // the tunnel, as it will be a new request, possibly to an entirely
     // different webserver. PRA 2005-11-14
-#ifdef E2DEBUG
-                    std::cout <<thread_id << "fdto is sending data; closing tunnel. (This must be a persistent connection.)" << std::endl;
-#endif
+                    logger_debug("fdto is sending data; closing tunnel. (This must be a persistent connection.)");
                     break;
                 }
 
@@ -230,11 +199,10 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 }
             }
         }
-#ifdef E2DEBUG
         if ((throughput >= targetthroughput) && (targetthroughput > -1))
-            std::cout <<thread_id << "All expected data tunnelled. (expected " << targetthroughput << "; tunnelled " << throughput << ")" << std::endl;
+            logger_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")" );
         else
-            std::cout <<thread_id << "Tunnel closed." << std::endl;
-#endif
+            logger_debug("Tunnel closed.");
+
         return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;
     }

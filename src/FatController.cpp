@@ -9,7 +9,6 @@
 
 #include <sstream>
 #include <cstdlib>
-#include <syslog.h>
 #include <csignal>
 #include <ctime>
 #include <sys/stat.h>
@@ -132,7 +131,6 @@ std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
 extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 void stat_rec::clear()
 {
@@ -602,9 +600,7 @@ void wait_for_proxy()
             return;
         }
     } catch (std::exception &e) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << " -exception while creating proxysock: " << e.what() << std::endl;
-#endif
+        logger_debug(" -exception while creating proxysock: ", e.what());
     }
     syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
     if (o.monitor_flag_flag)
@@ -721,9 +717,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         std::string loglines;
         loglines.append(log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
-#ifdef E2DEBUG
-            std::cerr << thread_id << "received a log request" <<  loglines << std::endl;
-#endif
+            logger_debug("received a log request",  loglines);
 
         // Formatting code migration from ConnectionHandler
         // and email notification code based on patch provided
@@ -1098,9 +1092,8 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             *logfile << builtline << std::endl; // append the line
         else
             syslog(LOG_INFO, "%s", builtline.c_str());
-#ifdef E2DEBUG
-        std::cerr << itemcount << " " << builtline << std::endl;
-#endif
+        logger_debug(itemcount, " ", builtline);
+
 	if (o.e2_front_log)
 		std::cout << builtline << std::endl;
         //    delete ipcpeersock; // close the connection
@@ -1284,10 +1277,9 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 
         continue; // go back to listening
     }
-#ifdef E2DEBUG
     if( !logger_ttg)
-        std::cerr << thread_id << "log_listener exiting with error" << std::endl;
-#endif
+        logger_debug("log_listener exiting with error");
+
     if (logfile) {
         logfile->close(); // close the file
         delete logfile;
