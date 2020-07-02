@@ -64,7 +64,6 @@ void read_config(std::string& configfile, int type);
 //void read_config(const char *configfile, int type)
 void read_config(std::string& configfile, int type)
 {
-    logger_trace("Read configfile: ", configfile);
     int rc = open(configfile.c_str(), 0, O_RDONLY);
     if (rc < 0) {
         logger_error("Error opening ", configfile);
@@ -90,9 +89,10 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int rc;
 
-    __logger.setSyslogName("e2guardian");
+    logger.setSyslogName("e2guardian");
 #if E2DEBUG
-    __logger.enable(LoggerSource::debug);
+    logger.enable(LoggerSource::debug);
+    logger.enable(LoggerSource::trace);
 #endif    
 
     logger_info("Start ", prog_name );
