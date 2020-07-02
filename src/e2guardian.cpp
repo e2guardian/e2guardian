@@ -41,7 +41,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 
-LoggerConfigurator loggerConfig(&__logger);
+LoggerConfigurator loggerConfig(&logger);
 bool is_daemonised;
 
 // regexp used during URL decoding by HTTPHeader
@@ -203,8 +203,12 @@ int main(int argc, char *argv[])
 
     read_config(configfile, 2);
 
+    if ( o.SB_trace ) {
+        logger_info("Enable Storyboard tracing !!");
+        logger.enable(LoggerSource::story);
+    }
     if ( ! o.name_suffix.empty() ) {
-        __logger.setSyslogName(prog_name + o.name_suffix);
+        logger.setSyslogName(prog_name + o.name_suffix);
     }
 
     if (total_block_list && !o.readinStdin()) {

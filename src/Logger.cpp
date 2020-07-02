@@ -192,4 +192,4 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
 // --- Global Logger
 // -------------------------------------------------------------
 
-Logger __logger;
+Logger logger;
