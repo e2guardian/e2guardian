@@ -10,9 +10,9 @@
 #include "DataBuffer.hpp"
 #include "HTTPHeader.hpp"
 #include "OptionContainer.hpp"
+#include "Logger.hpp"
 
 #include <sys/stat.h>
-#include <syslog.h>
 #include <algorithm>
 #include <cstdlib>
 #include <unistd.h>
@@ -32,7 +32,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -287,9 +286,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         pos += rc;
         gettimeofday(&nowadays, NULL);
         if (nowadays.tv_sec - starttime.tv_sec > stimeout) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "buffered socket read more than timeout" << std::endl;
-#endif
+            logger_debug("buffered socket read more than timeout");
             return pos; // just return how much got so far then
         }
     }
@@ -308,10 +305,7 @@ int DataBuffer::getTempFileFD()
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 0) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "error creating temp " << tempfilepath << ": " << strerror(errno) << std::endl;
-#endif
-        syslog(LOG_ERR, "%sCould not create temp file to store download for scanning: %s", thread_id.c_str(), strerror(errno));
+        logger_error("Could not create temp file to store download for scanning: ", strerror(errno));
         tempfilefd = -1;
         tempfilepath = "";
     } else {
@@ -338,17 +332,15 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 
     // match request to download manager so browsers potentially can have a prettier version
     // and software updates, stream clients, etc. can have a compatible version.
-#ifdef E2DEBUG
+    //int rc = 0;
     int j = 0;
-#endif
+ //   int rc = -1;
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
 #ifdef E2DEBUG
         ++j;
 #endif
         if ((i + 1) == o.dmplugins_end) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Got to final download manager so defaulting to always match." << std::endl;
-#endif
+            logger_debug("Got to final download manager so defaulting to always match.");
             dm_plugin = (DMPlugin *)(*i);
             dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
             break;
@@ -362,9 +354,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
                 break;
             }
         }
-#ifdef E2DEBUG
         j++;
-#endif
     }
     return toobig;
 }
@@ -373,18 +363,14 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 bool DataBuffer::out(Socket *sock)
 {
     if (dontsendbody) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "dontsendbody true; not sending" << std::endl;
-#endif
+        logger_debug("dontsendbody true; not sending");
         return true;
     }
   //  if (!(*sock).readyForOutput(timeout)) return false; // exceptions on timeout or error
 
     if (tempfilefd > -1) {
-// must have been too big for ram so stream from disk in blocks
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Sending " << tempfilesize - bytesalreadysent << " bytes from temp file (" << bytesalreadysent << " already sent)" << std::endl;
-#endif
+        // must have been too big for ram so stream from disk in blocks
+        logger_debug("Sending ", tempfilesize - bytesalreadysent, " bytes from temp file (", bytesalreadysent, " already sent)");;
         off_t sent = bytesalreadysent;
         int rc;
 
@@ -402,15 +388,11 @@ bool DataBuffer::out(Socket *sock)
             std::cerr << thread_id << "reading temp file rc:" << rc << std::endl;
 #endif
             if (rc < 0) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "error reading temp file " << std::endl;
-#endif
+                logger_debug("error reading temp file so throwing exception");
                 return false;
             }
             if (rc == 0) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "got zero bytes reading temp file" << std::endl;
-#endif
+                logger_debug("got zero bytes reading temp file");
                 break; // should never happen
             }
             // as it's cached to disk the buffer must be reasonably big
@@ -423,9 +405,7 @@ bool DataBuffer::out(Socket *sock)
                 }
             }
             sent += rc;
-#ifdef E2DEBUG
-            std::cerr << thread_id << "total sent from temp:" << sent << std::endl;
-#endif
+            logger_debug("total sent from temp:", sent);
         }
         if (chunked && got_all) {
             String n;
@@ -438,9 +418,7 @@ bool DataBuffer::out(Socket *sock)
         unlink(tempfilepath.toCharArray());
     } else {
         off_t sent = bytesalreadysent;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Sending " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length << " in buffer; " << bytesalreadysent << " already sent)" << std::endl;
-#endif
+        logger_debug("Sending ", buffer_length - bytesalreadysent, " bytes from RAM (", buffer_length, " in buffer; ", bytesalreadysent, " already sent)" );
         // it's in RAM, so just send it, no streaming from disk
         int block_len;
         if(chunked)
@@ -476,9 +454,7 @@ bool DataBuffer::out(Socket *sock)
                     return false;
             }
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Sent " << buffer_length - bytesalreadysent << " bytes from RAM (" << buffer_length  << std::endl;
-#endif
+        logger_debug("Sent ", buffer_length - bytesalreadysent," bytes from RAM (", buffer_length);
     }
     return true;
 }
@@ -489,9 +465,7 @@ void DataBuffer::zlibinflate(bool header)
     if (data_length < 12) {
         return; // it can't possibly be zlib'd
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "compressed size:" << buffer_length << std::endl;
-#endif
+    logger_debug("compressed size:", buffer_length);
 
 #if ZLIB_VERNUM < 0x1210
 #warning ************************************
@@ -533,51 +507,37 @@ void DataBuffer::zlibinflate(bool header)
 
     if (err != Z_OK) { // was a problem so just return
         delete[] block; // don't forget to free claimed memory
-#ifdef E2DEBUG
-        std::cerr << thread_id << "bad init inflate: " << err << std::endl;
-#endif
+        logger_debug("bad init inflate: ", err);
         return;
     }
     while (true) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "inflate loop" << std::endl;
-#endif
+        logger_debug("inflate loop");
         err = inflate(&d_stream, Z_SYNC_FLUSH);
         bytesgot = d_stream.total_out;
         if (err == Z_STREAM_END) {
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
                 delete[] block;
-#ifdef E2DEBUG
-                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
-#endif
+                logger_debug("bad inflateEnd: ", d_stream.msg);
                 return;
             }
             break;
         }
         if (err != Z_OK) { // was a problem so just return
             delete[] block; // don't forget to free claimed memory
-#ifdef E2DEBUG
-            std::cerr << thread_id << "bad inflate: " << d_stream.msg << std::endl;
-#endif
+            logger_debug("bad inflate: ", d_stream.msg);
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
-#endif
+                logger_debug("bad inflateEnd: ", d_stream.msg);
             }
             return;
         }
         if (bytesgot > o.max_content_filter_size) {
             delete[] block; // don't forget to free claimed memory
-#ifdef E2DEBUG
-            std::cerr << thread_id << "inflated file larger than maxcontentfiltersize, not inflating further" << std::endl;
-#endif
+            logger_debug("inflated file larger than maxcontentfiltersize, not inflating further");
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "bad inflateEnd: " << d_stream.msg << std::endl;
-#endif
+                logger_debug("bad inflateEnd: ", d_stream.msg);
             }
             return;
         }
@@ -595,11 +555,9 @@ void DataBuffer::zlibinflate(bool header)
     }
 
     compresseddata = data;
-    compressed_buffer_length = data_length;
-    data_length = bytesgot;
-#ifdef E2DEBUG
-    std::cerr << thread_id << "decompressed size: " << buffer_length << std::endl;
-#endif
+    compressed_buffer_length = buffer_length;
+    buffer_length = bytesgot;
+    logger_debug("decompressed size: ", buffer_length);
     data = new char[bytesgot + 1];
     data[bytesgot] = '\0';
     memcpy(data, block, bytesgot);
@@ -614,9 +572,7 @@ struct newreplacement {
 bool DataBuffer::contentRegExp(FOptionContainer* &foc)
 {
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Starting content reg exp replace" << std::endl;
-#endif
+    logger_debug("Starting content reg exp replace");
     bool contentmodified = false;
     unsigned int i;
     unsigned int j, k, m;
@@ -694,9 +650,7 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
             dstpos = newblock;
             matches = m;
 
-#ifdef E2DEBUG
-            std::cerr << thread_id << "content matches:" << matches << std::endl;
-#endif
+            logger_debug("content matches:", matches);
             // replace top-level matches using filled-out replacement strings
             newreplacement *newrep;
             for (j = 0; j < matches; j++) {

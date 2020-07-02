@@ -641,10 +641,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     try {
         //int rc;
-
-#ifdef E2DEBUG
         int pcount = 0;
-#endif
 
         // assume all requests over the one persistent connection are from
         // the same user. means we only need to query the auth plugin until
