@@ -17,18 +17,13 @@
 #include <cerrno>
 #include <unistd.h>
 #include <stdexcept>
-#include <syslog.h>
 #include <sys/select.h>
 
-#ifdef NETDEBUG
-#include <iostream>
-#endif
-
 #include "BaseSocket.hpp"
+#include "Logger.hpp"
 
 // GLOBALS
 extern bool reloadconfig;
-extern thread_local std::string thread_id;
 
 // DEFINITIONS
 
@@ -372,9 +367,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         // first, return what's left from the previous buffer read, if anything
         int i = 0;
         if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-            std::cout << thread_id  << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+            logger_debugnet("data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
 
             //work out the maximum size we want to read from our internal buffer
             int tocopy = size - 1;
@@ -411,14 +404,10 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
             //      } catch (std::exception &e) {
             //          throw std::runtime_error(std::string("Can't read from socket: ") + e.what()); // on error
             //     }
-#ifdef NETDEBUG
-            std::cout << thread_id  << "getLine !SSL read into buffer; bufflen: " << bufflen << std::endl;
-#endif
+            logger_debugnet("getLine !SSL read into buffer; bufflen: ", bufflen);
             //if there was a socket error
             if (bufflen < 0) {
-#ifdef NETDEBUG
-                std::cout << thread_id  << "getLine Can't read from socket !SSL: " << std::endl;
-#endif
+                logger_debugnet("getLine Can't read from socket !SSL: ");
                 s_errno = errno;
                 return -1;
 //            throw std::runtime_error(std::string("Can't read from socket: ") + strerror(errno)); // on error
@@ -426,9 +415,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
             //if socket closed...
             if (bufflen == 0) {
                 buff[i] = '\0'; // ...terminate string & return what read
-#ifdef NETDEBUG
-                std::cout << thread_id  << "getLine terminate string !SSL: " << i << std::endl;
-#endif
+                logger_debugnet("getLine terminate string !SSL: ", i );
                 if (truncated)
                     *truncated = true;
                 return i;
@@ -438,17 +425,13 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
                 tocopy = (size - 1) - i;
             char *result = (char *) memccpy(buff + i, buffer, '\n', tocopy);
             if (result != NULL) {
-#ifdef NETDEBUG
-                std::cout << thread_id  << "getLine result1 !SSL: " << result << i << std::endl;
-#endif
+                logger_debugnet("getLine result1 !SSL: ", result, i );
                 // indicate that a newline was chopped off, if desired
                 if (chopped)
                     *chopped = true;
                 *(--result) = '\0';
                 buffstart += (result - (buff + i)) + 1;
-#ifdef NETDEBUG
-                std::cout << thread_id  << "getLine result2 !SSL: " << result << std::endl;
-#endif
+                logger_debugnet("getLine result2 !SSL: ", result );
                 return i + (result - (buff + i));
             }
             i += tocopy;
@@ -457,10 +440,9 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool honour_reloadcon
         buff[i] = '\0';
         if (truncated)
             *truncated = true;
-#ifdef NETDEBUG
         if (truncated)
-            std::cout << thread_id  << "Getline(SSL) truncated buffer end reached before we found a newline: " << buff  << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;;
-#endif
+            logger_debugnet("Getline(SSL) truncated buffer end reached before we found a newline: ", buff );
+
         return i;
     } catch (...) {
         return -1;
@@ -522,9 +504,7 @@ int BaseSocket::readFromSocketn(char *buff, int len, unsigned int flags, int tim
 
     // first, return what's left from the previous buffer read, if anything
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id  << "readFromSocketn: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+        logger_debugnet("readFromSocketn: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
         int tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -572,9 +552,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
     if ((bufflen - buffstart) > 0) {
         tocopy = len;
 
-#ifdef NETDEBUG
-        std::cout << thread_id  << "readFromSocket: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+        logger_debugnet("readFromSocket: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
 

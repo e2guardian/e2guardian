@@ -10,9 +10,9 @@
 #endif
 
 #include "Socket.hpp"
+#include "Logger.hpp"
 
 #include <string.h>
-#include <syslog.h>
 #include <csignal>
 #include <fcntl.h>
 #include <sys/time.h>
@@ -41,7 +41,6 @@ extern bool reloadconfig;
 #endif
 #endif
 
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 //
@@ -297,10 +296,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
 #endif
 
     if (ctx == NULL) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
-#endif
-        log_ssl_errors("Error ssl context is null for %s", hostname.c_str());
+        log_ssl_errors("Error ssl context is null for ", hostname.c_str());
         return -1;
     }
 
@@ -315,10 +311,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     ERR_clear_error();
     if (certificate_path.length()) {
         if (!SSL_CTX_load_verify_locations(ctx, NULL, certificate_path.c_str())) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "couldnt load certificates" << std::endl;
-#endif
-            log_ssl_errors("couldnt load certificates from %s", certificate_path.c_str());
+            log_ssl_errors("couldnt load certificates from ", certificate_path.c_str());
             //tidy up
             SSL_CTX_free(ctx);
             ctx = NULL;
@@ -326,10 +319,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         }
     } else if (!SSL_CTX_set_default_verify_paths(ctx)) //use default if no certPpath given
     {
-#ifdef NETDEBUG
-        std::cout << thread_id << "couldnt load certificates" << std::endl;
-#endif
-            log_ssl_errors("couldnt load default certificates for %s", hostname.c_str());
+        log_ssl_errors("couldnt load default certificates for ", hostname.c_str());
         //tidy up
         SSL_CTX_free(ctx);
         ctx = NULL;
@@ -385,9 +375,6 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     int rc = SSL_connect(ssl);
     if (rc < 0) {
         log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
-#ifdef NETDEBUG
-        std::cout << thread_id << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
-#endif
         // tidy up
         SSL_free(ssl);
         ssl = NULL;
@@ -415,59 +402,50 @@ bool Socket::isSslServer()
 //shuts down the current ssl connection
 void Socket::stopSsl()
 {
-#ifdef NETDEBUG
-    std::cout << thread_id << "ssl stopping" << std::endl;
-#endif
+    logger_debugnet("ssl stopping");
     if(!isssl) return;
 
     isssl = false;
 
     if (ssl != NULL) {
         if (issslserver) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "this is a server connection" << std::endl;
+            logger_debugnet("this is a server connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            std::cout << thread_id << "calling 1st ssl shutdown" << std::endl;
-#endif
+            logger_debugnet("calling 1st ssl shutdown");
+
             if (!SSL_shutdown(ssl)) {
-#ifdef NETDEBUG
-                std::cout << thread_id << "need to call SSL shutdown again" << std::endl;
+                logger_debugnet("need to call SSL shutdown again");
                 if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                    std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                    logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
                 }
                 if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                    std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                    logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
                 }
-                std::cout << thread_id << "Discarding extra data from client" << std::endl;
-#endif
+                logger_debugnet("Discarding extra data from client");
 
                 shutdown(SSL_get_fd(ssl), SHUT_WR);
                 char junk[1024];
                 readFromSocket(junk, sizeof(junk), 0, 5);
-#ifdef NETDEBUG
-                std::cout << thread_id << "done" << std::endl;
-#endif
+                logger_debugnet("done");
             }
         } else {
-#ifdef NETDEBUG
-            std::cout << thread_id << "this is a client connection" << std::endl;
+            logger_debugnet("this is a client connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                std::cout << thread_id << "SSL_SENT_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                std::cout << thread_id << "SSL_RECEIVED_SHUTDOWN IS SET" << std::endl;
+                logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            std::cout << thread_id << "calling ssl shutdown" << std::endl;
-#endif
+            logger_debugnet("calling ssl shutdown");
+
             SSL_shutdown(ssl);
-#ifdef NETDEBUG
-            std::cout << thread_id << "done" << std::endl;
-#endif
+
+            logger_debugnet("done");
         }
     }
 
@@ -518,18 +496,14 @@ int Socket::checkCertHostname(const std::string &_hostname)
 
     X509 *peercertificate = SSL_get_peer_certificate(ssl);
     if (peercertificate == NULL) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "unable to get certificate for " << hostname << std::endl;
-#endif
+        logger_debugnet("unable to get certificate for ", hostname);
         return -1;
     }
     //force to lower case as domain names are not case sensetive
     hostname.toLower();
 
-#ifdef NETDEBUG
-    std::cout << thread_id << "checking certificate" << hostname << std::endl;
-    std::cout << thread_id << "Checking hostname against subjectAltNames" << std::endl;
-#endif
+    logger_debugnet("checking certificate", hostname);
+    logger_debugnet("Checking hostname against subjectAltNames");
 
 
     bool matched = false;
@@ -563,17 +537,13 @@ int Socket::checkCertHostname(const std::string &_hostname)
         //force to lower case as domain names are not case sensetive
         altname.toLower();
 
-#ifdef NETDEBUG
-        std::cout << thread_id << "checking against alt name " << altname << std::endl;
-#endif
+        logger_debugnet("checking against alt name ", altname);
 
         if (hostname.compare(altname) == 0) {
             matched = true;
             break;
         } else if (altname.contains("*")) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "Wildcard certificate is in use" << std::endl;
-#endif
+            logger_debugnet("Wildcard certificate is in use");
             String  anend;
             anend = altname.after("*"); // need to keep the "."
             if (hostname.endsWith(anend)) {
@@ -605,9 +575,7 @@ int Socket::checkCertHostname(const std::string &_hostname)
         return -1;
     }
 
-#ifdef NETDEBUG
-    std::cout << thread_id << "checking hostname against the following common names" << std::endl;
-#endif
+    logger_debugnet("checking hostname against the following common names");;
 
     X509_NAME *name = X509_get_subject_name(peercertificate);
 
@@ -638,9 +606,7 @@ int Socket::checkCertHostname(const std::string &_hostname)
         //force to lower case as domain names are not case sensetive
         commonname.toLower();
 
-#ifdef NETDEBUG
-        std::cout << thread_id << "checking against common name " << commonname << std::endl;
-#endif
+        logger_debugnet("checking against common name ", commonname);
 
         //compare the hostname to the common name
         if (hostname.compare(commonname) == 0) {
@@ -649,9 +615,7 @@ int Socket::checkCertHostname(const std::string &_hostname)
         }
         //see if its a wildcard certificate
         else if (commonname.startsWith("*.")) {
-#ifdef NETDEBUG
-            std::cout << thread_id << "Wildcard certificate is in use" << std::endl;
-#endif
+            logger_debugnet("Wildcard certificate is in use");
             commonname = commonname.after("*"); // need to keep the "."
 
             if (hostname.endsWith(commonname)) {
@@ -700,10 +664,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 #endif
 
     if (ctx == NULL) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error ssl context is null (check that openssl has been inited)" << std::endl;
-#endif
+        logger_debugnet("Error ssl context is null (check that openssl has been inited)");
         return -1;
     }
 
@@ -715,10 +676,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the certificate
     if (SSL_CTX_use_certificate(ctx, x) < 1) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error using certificate" << std::endl;
-#endif
+        logger_debugnet("Error using certificate");
         cleanSsl();
         return -1;
     }
@@ -728,10 +686,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the private key
     if (SSL_CTX_use_PrivateKey(ctx, privKey) < 1) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error using private key" << std::endl;
-#endif
+        logger_debugnet("Error using private key");
         cleanSsl();
         return -1;
     }
@@ -745,10 +700,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     ERR_clear_error();
     if(!SSL_set_fd(ssl, this->getFD())) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Error setting ssl fd connection" << std::endl;
-#endif
-        log_ssl_errors("ssl_set_fd failed to client %s", "");
+        log_ssl_errors("ssl_set_fd failed to client", "");
         cleanSsl();
         return -1;
     };
@@ -757,22 +709,14 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     ERR_clear_error();
     if (SSL_accept(ssl) < 0) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error accepting ssl connection" << std::endl;
-#endif
-        log_ssl_errors("ssl_accept failed to client %s", "");
+        log_ssl_errors("ssl_accept failed to client ", "");
         cleanSsl();
         return -1;
     }
 
     ERR_clear_error();
     if (SSL_do_handshake(ssl) < 0) {
-#ifdef NETDEBUG
-        //syslog(LOG_ERR, "error creating ssl context\n");
-        std::cout << thread_id << "Error doing ssl handshake" << std::endl;
-#endif
-        log_ssl_errors("ssl_handshake failed to client %s", "");
+        log_ssl_errors("ssl_handshake failed to client ", "");
         cleanSsl();
         return -1;
     }
@@ -790,13 +734,9 @@ bool Socket::checkForInput()
     if (!isssl) {
         return BaseSocket::checkForInput();
     }
-#ifdef NETDEBUG
-    std::cout << thread_id << "checking for input on ssl connection (non blocking)" << std::endl;
-#endif
+    logger_debugnet("checking for input on ssl connection (non blocking)");
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "found input on ssl connection" << std::endl;
-#endif
+        logger_debugnet("found input on ssl connection");
         return true;
     }
 
@@ -810,15 +750,11 @@ bool Socket::checkForInput()
     int rc = SSL_pending(ssl);
 
     if (rc < 1) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "no pending data on ssl connection SSL_pending " << rc << std::endl;
-#endif
+        logger_debugnet("no pending data on ssl connection SSL_pending ", rc );
         return false;
     }
 
-#ifdef NETDEBUG
-    std::cout << thread_id << "found data on ssl connection" << std::endl;
-#endif
+    logger_debugnet("found data on ssl connection");
 
     return true;
 }
@@ -862,10 +798,8 @@ try {
 
     // first, return what's left from the previous buffer read, if anything
     int i = 0;
-    if ((bufflen - buffstart) > 0) {
-        /*#ifdef NETDEBUG
-        std::cout << thread_id << "data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif*/
+    if ((bufflen - buffstart) > 0) {        
+        logger_debugnet("data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
         int tocopy = size - 1;
         if ((bufflen - buffstart) < tocopy)
             tocopy = bufflen - buffstart;
@@ -892,15 +826,12 @@ try {
  //       }
 //        if( bcheckSForInput(timeout))
             bufflen = SSL_read(ssl, buffer, 4096);
-#ifdef NETDEBUG
-//std::cout << thread_id << "read into buffer; bufflen: " << bufflen <<std::endl;
-#endif
+            // logger_debugnet("read into buffer; bufflen: ", bufflen);
         if (bufflen < 0) {
   //          if (errno == EINTR ) {
    //             continue;
     //        }
-            std::cout << thread_id << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
-            log_ssl_errors("ssl_read failed %s", "");
+            log_ssl_errors("ssl_read failed ", "");
             return -1;
 //            throw std::runtime_error(std::string("Can't read from ssl socket")); //strerror(errno));  // on error
         }
@@ -1004,9 +935,7 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
 
     // first, return what's left from the previous buffer read, if anything
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Socket::readFromSocketn: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+        logger_debugnet("Socket::readFromSocketn: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart );
         int tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -1026,20 +955,18 @@ int Socket::readFromSocketn(char *buff, int len, unsigned int flags, int timeout
      //   }
         ERR_clear_error();
         rc = SSL_read(ssl, buff, cnt);
-#ifdef NETDEBUG
-        std::cout << thread_id << "ssl read said: " << rc << std::endl;
-#endif
+        logger_debugnet("ssl read said: ", rc);
 
         if (rc < 0) {
        //     if (errno == EINTR) {
          //       continue;
            // }
             log_ssl_errors("ssl_read failed %s", "");
-           s_errno = errno;
+            s_errno = errno;
             return -1;
         }
         if (rc == 0) { // eof
-             ishup = true;
+            ishup = true;
             return len - cnt;
         }
         buff += rc;
@@ -1062,9 +989,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     int cnt = len;
     int tocopy = 0;
     if ((bufflen - buffstart) > 0) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Socket::readFromSocket: data already in buffer; bufflen: " << bufflen << " buffstart: " << buffstart << std::endl;
-#endif
+        logger_debugnet("Socket::readFromSocket: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart );
         tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -1096,9 +1021,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         if (rc < 0) {
             s_errno = errno;
             log_ssl_errors("ssl_read failed %s", "");
-#ifdef NETDEBUG
-        std::cout << thread_id << "ssl_read failed" << s_errno << " failed to read " << cnt << " bytes" << std::endl;
-#endif
+            logger_debugnet("ssl_read failed", s_errno, " failed to read ", cnt, " bytes");
             rc = 0;
         }
         if (rc == 0) { // eof
@@ -1107,23 +1030,19 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
              }
 
         if (inbuffer) {
-#ifdef NETDEBUG
-        std::cout << thread_id << "Inbuffer SSL read to return " << cnt << " bytes" << std::endl;
-#endif
+            logger_debugnet("Inbuffer SSL read to return ", cnt, " bytes" );
 
-           buffstart = 0;
-           bufflen = rc;
-           if ((bufflen - buffstart) > 0) {
-              tocopy = cnt;
-              if ((bufflen - buffstart) < cnt)
-              tocopy = bufflen - buffstart;
-              memcpy(buff, buffer + buffstart, tocopy);
-              cnt -= tocopy;
-              buffstart += tocopy;
-              buff += tocopy;
-#ifdef NETDEBUG
-        std::cout << thread_id << "Inbuffer SSL read to returned " << tocopy << " bytes" << std::endl;
-#endif
+            buffstart = 0;
+            bufflen = rc;
+            if ((bufflen - buffstart) > 0) {
+                tocopy = cnt;
+                if ((bufflen - buffstart) < cnt)
+                tocopy = bufflen - buffstart;
+                memcpy(buff, buffer + buffstart, tocopy);
+                cnt -= tocopy;
+                buffstart += tocopy;
+                buff += tocopy;
+                logger_debugnet("Inbuffer SSL read to returned ", tocopy, " bytes");
            }
          } else {
         buff += rc;
@@ -1150,9 +1069,8 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     //int lw;
     hexs += "\r\n";
-#ifdef NETDEBUG
-    std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
-#endif
+    logger_debugnet("writeChunk  size=", hexs);
+
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
     return false;

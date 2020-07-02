@@ -10,8 +10,8 @@
 #include "e2config.h"
 #endif
 #include "UDSocket.hpp"
+#include "Logger.hpp"
 
-#include <syslog.h>
 #include <csignal>
 #include <fcntl.h>
 #include <sys/time.h>
@@ -22,11 +22,7 @@
 #include <stdexcept>
 #include <stddef.h>
 
-#ifdef NETDEBUG
-#include <iostream>
-#endif
 
-extern thread_local std::string thread_id;
 
 // necessary for calculating size of sockaddr_un in a portable manner
 
@@ -103,9 +99,7 @@ int UDSocket::connect(const char *path)
     if (strlen(path) > 108)
         return -1;
 
-#ifdef NETDEBUG
-    std::cerr << thread_id << "uds connect:" << path << std::endl;
-#endif
+    logger_debugnet("uds connect:", path);
     strcpy(my_adr.sun_path, path);
 
     my_adr_length = offsetof(struct sockaddr_un, sun_path) + strlen(path);
