@@ -16,8 +16,8 @@
 #include "../ContentScanner.hpp"
 #include "../UDSocket.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
-#include <syslog.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,8 +26,6 @@
 // GLOBALS
 
 extern OptionContainer o;
-extern bool is_daemonised;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -68,9 +66,7 @@ int kavdinstance::init(void *args)
 
     udspath = cv["kavdudsfile"];
     if (udspath.length() < 3) {
-        if (!is_daemonised)
-            std::cerr << thread_id << "Error reading kavdudsfile option." << std::endl;
-        syslog(LOG_ERR, "%s", "Error reading kavdudsfile option.");
+        logger_error("Error reading kavdudsfile option.");
         return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
@@ -97,7 +93,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     // the AV daemon's group membership.
     // chmod can error with EINTR, ignore this?
     if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
-        syslog(LOG_ERR, "Could not change file ownership to give kavd read access: %s", strerror(errno));
+        logger_error("Could not change file ownership to give kavd read access: ", strerror(errno));
         return E2CS_SCANERROR;
     };
     String command("SCAN bPQRSTUW ");
@@ -108,16 +104,15 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         command += filename;
     }
     command += "\r\n";
-#ifdef E2DEBUG
-    std::cerr << thread_id << "kavdscan command:" << command << std::endl;
-#endif
+    logger_debug("kavdscan command:", command);
+
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
-        syslog(LOG_ERR, "%s", "Error creating socket for talking to kavdscan");
+        logger_error("Error creating socket for talking to kavdscan");
         return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
-        syslog(LOG_ERR, "%s", "Error connecting to kavdscan socket");
+        logger_error("Error connecting to kavdscan socket");
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -132,7 +127,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     if (buff[0] != '2') {
         delete[] buff;
         stripedsocks.close();
-        syslog(LOG_ERR, "%s", "kavdscan did not return ok");
+        logger_error("kavdscan did not return ok");
         return E2CS_SCANERROR;
     }
     try {
@@ -140,7 +135,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     } catch (std::exception &e) {
         delete[] buff;
         stripedsocks.close();
-        syslog(LOG_ERR, "%s", "unable to write to kavdscan");
+        logger_error("unable to write to kavdscan");
         return E2CS_SCANERROR;
     }
     try {
@@ -148,17 +143,14 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     } catch (std::exception &e) {
         delete[] buff;
         stripedsocks.close();
-        syslog(LOG_ERR, "%s", "Error reading kavdscan socket");
+        logger_error("Error reading kavdscan socket");
         return E2CS_SCANERROR;
     }
     String reply(buff);
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
-#endif
+    logger_debug("Got from kavdscan:", reply);
+
     if (reply[0] == '2') { // clean
-#ifdef E2DEBUG
-        std::cerr << thread_id << "kavdscan - clean" << std::endl;
-#endif
+        logger_debug("kavdscan - clean");
         delete[] buff;
         stripedsocks.close();
         return E2CS_CLEAN;
@@ -174,15 +166,13 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             } catch (std::exception &e) {
                 delete[] buff;
                 stripedsocks.close();
-                syslog(LOG_ERR, "%s", "Error reading kavdscan socket");
+                logger_error("Error reading kavdscan socket");
                 return E2CS_SCANERROR;
             }
             reply = buff;
-#ifdef E2DEBUG
-            std::cerr << thread_id << "Got from kavdscan:" << reply << std::endl;
-#endif
+            logger_debug("Got from kavdscan:", reply);
         }
-        std::cerr << thread_id << "lastvirusname: " << lastvirusname << std::endl;
+        logger_error("lastvirusname: ", lastvirusname);
         delete[] buff;
         stripedsocks.close();
 
