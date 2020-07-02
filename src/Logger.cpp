@@ -34,7 +34,7 @@ Logger::~Logger() {
   closelog();
 }
 
-const std::string Logger::SOURCES[] = {"info", "error", "config", "story", "icap", "icapc", "clamav", "thhtps", \
+const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", "icap", "icapc", "clamav", "thhtps", \
                                       "debug", "trace", "debugnet", "debugsb", "debugchunk", "debugregexp"};
 const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
 
@@ -147,10 +147,15 @@ void Logger::setDockerMode(){
 
 void Logger::log(const LoggerSource source, const std::string func, const int line, const std::string message )
 {
-  std::string prepend;
-  if (source > LoggerSource::error)
-    prepend=source2string(source);
-  std::string  msg=Helper::build_message(prepend, func, line, message);
+  std::string tag;
+  std::string msg;
+  if (source > LoggerSource::access) {
+    tag=source2string(source);
+    msg=Helper::build_message(tag, func, line, message);
+  } else {
+    // no tags,func,line for: info,error,access
+    msg=Helper::build_message("", "" , 0, message);
+  }
   sendMessage(source, msg);
 };
 

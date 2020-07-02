@@ -16,7 +16,7 @@
 
 enum class LoggerSource {
   // used in production:
-  info, error, config, story, icap, icapc, clamav, thhtps,
+  info, error, access, config, story, icap, icapc, clamav, thhtps,
   // only usable when compiled with E2DEBUG:
   debug, trace, debugnet, debugsb, debugchunk, debugregexp,
   __MAX_VALUE
@@ -95,6 +95,9 @@ extern Logger logger;
 #define logger_error(...) \
   if (logger.isEnabled(LoggerSource::error)) \
      logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
+#define logger_access(...)  \
+  if (logger.isEnabled(LoggerSource::access)) \
+     logger.vlog(LoggerSource::access,  __func__, __LINE__, __VA_ARGS__)
 #define logger_config(...) \
   if (logger.isEnabled(LoggerSource::config)) \
      logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
