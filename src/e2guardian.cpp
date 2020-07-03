@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     char benchmark = '\0';
 #endif
 
-    // parse Options
+    logger_trace("parse Options");
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             for (unsigned int j = 1; j < strlen(argv[i]); j++) {
@@ -197,9 +197,11 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 
     if (needreset) {
+        logger_trace("reset Options");
         o.reset();
     }
 
+    logger_trace("read Configfile: ", configfile);
     read_config(configfile, 2);
 
     if ( o.SB_trace ) {
@@ -216,6 +218,7 @@ int main(int argc, char *argv[])
         logger_debug("Total block lists read OK from stdin.");
     }
 
+    logger_trace("create Lists");
     if(!o.createLists(0))  {
         logger_error("Error reading filter group conf file(s).");
         return 1;
@@ -308,6 +311,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
+    logger_trace("prepare Start");
     if (sysv_amirunning(o.pid_filename)) {
         logger_error("I seem to be running already!");
         return 1; // can't have two copies running!!
