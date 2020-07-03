@@ -423,7 +423,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
         lerr_mess = 0;
         if (retry > 0) {
             if (o.logconerror)
-                syslog(LOG_INFO, "%s retry %d to connect to %s", thread_id.c_str(), retry, cm.urldomain.c_str());
+                logger_info("retry ", retry, " to connect to ", cm.urldomain);
             if (!sock.isTimedout())
                 usleep(1000);       // don't hammer upstream
         }
@@ -3376,7 +3376,7 @@ bool ConnectionHandler::get_original_ip_port(Socket &peerconn, NaughtyFilter &ch
     if (
 getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) < 0
             ) {
-        syslog(LOG_ERR, "%sFailed to get client's original destination IP: %s", thread_id.c_str(), strerror(errno));
+        logger_error("Failed to get client's original destination IP: ", strerror(errno));
         return false;
     } else {
         char res[INET_ADDRSTRLEN];
@@ -4132,7 +4132,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                         if (csrc > 0)
                             responsescanners.push_back((CSPlugin *)(*i));
                         else if (csrc < 0)
-                            syslog(LOG_ERR, "%swillScanRequest returned error: %d", thread_id.c_str(), csrc);
+                            logger_error("willScanRequest returned error: ", csrc);
                     }
                 }
                 check_content(checkme, docbody,peerconn, peerconn,responsescanners);

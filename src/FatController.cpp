@@ -152,8 +152,7 @@ void stat_rec::start()
                fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
 	   }
         } else {
-           syslog(LOG_ERR, "Unable to open dstats_log %s for writing\nContinuing without logging\n",
-           o.dstat_location.c_str());
+           logger_error("Unable to open dstats_log '", o.dstat_location, "' for writing.Continuing without logging");
            o.dstat_log_flag = false;
         };
         maxusedfd = 0;
@@ -241,13 +240,12 @@ void monitor_flag_set(bool action)
     umask(S_IWOTH);
     FILE *fs = fopen(ftouch.c_str(), "w");
     if (!fs) {
-        syslog(LOG_ERR, "Unable to open monitor_flag %s for writing\n",
-            ftouch.c_str());
+        logger_error( "Unable to open monitor_flag ", ftouch, " for writing");
         o.monitor_flag_flag = false;
     }
     fclose(fs);
     if (unlink(fulink.c_str()) == -1) {
-        syslog(LOG_ERR, "Unable to unlink monitor_flag %s error: %s", fulink.c_str(), strerror(errno));
+        logger_error("Unable to unlink monitor_flag ", fulink, " error: ", strerror(errno));
     }
     return;
 }
@@ -328,9 +326,9 @@ void sig_segv(int signo, siginfo_t *info, void *secret)
     // Extract "real" info about first stack frame
     ucontext_t *uc = (ucontext_t *)secret;
 #ifdef REG_EIP
-    syslog(LOG_ERR, "SEGV received: memory address %p, EIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_EIP]));
+    logger_error("SEGV received: memory address ", info->si_addr, ", EIP ", (void *)(uc->uc_mcontext.gregs[REG_EIP]));
 #else
-    syslog(LOG_ERR, "SEGV received: memory address %p, RIP %p", info->si_addr, (void *)(uc->uc_mcontext.gregs[REG_RIP]));
+    logger_error("SEGV received: memory address ", info->si_addr, ", RIP ", (void *)(uc->uc_mcontext.gregs[REG_RIP]));
 #endif
     // Generate backtrace
     void *addresses[20];
@@ -347,8 +345,8 @@ void sig_segv(int signo, siginfo_t *info, void *secret)
     printf("backtrace returned: %d\n", c);
     // Skip first stack frame - it points to this signal handler
     for (int i = 1; i < c; i++) {
-        syslog(LOG_ERR, "%d: %zX ", i, (size_t)addresses[i]);
-        syslog(LOG_ERR, "%s", strings[i]);
+        logger_error(i, " ",  (size_t)addresses[i]);
+        logger_error(strings[i]);
     }
     // Kill off the current process
     //raise(SIGTERM); // Do we want to do this?
@@ -375,7 +373,7 @@ bool drop_priv_completely()
     }
     rc = setuid(o.proxy_user);
     if (rc == -1) {
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to setuid()");
+        logger_error("Unable to setuid()");
         return false; // setuid failed for some reason so exit with error
     }
     return true;
@@ -398,7 +396,7 @@ bool daemonise()
 
     int nullfd = -1;
     if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Couldn't open /dev/null");
+        logger_error("Couldn't open /dev/null");
         return false;
     }
 
@@ -425,7 +423,7 @@ bool daemonise()
     setsid(); // become session leader
     //int dummy = chdir("/"); // change working directory
     if (chdir("/") != 0) {// change working directory
-	    std::cerr << thread_id << " Can't change / directory !"  << std::endl;
+	    logger_error(" Can't change / directory !");
 	    return false;
     }
     umask(0); // clear our file mode creation mask
@@ -498,25 +496,25 @@ void tell_monitor(bool active) //may not be needed
     else
         buff1 = " stop";
 
-    syslog(LOG_ERR, "%sMonitorhelper called: %s%s", thread_id.c_str(), buff.c_str(), buff1.c_str());
+    logger_error("Monitorhelper called: ", buff, buff1);
     pid_t childid;
     childid = fork();
 
     if (childid == -1) {
-        syslog(LOG_ERR, "%sUnable to fork to tell monitorhelper error: %s", thread_id.c_str(), strerror(errno));
+        logger_error("Unable to fork to tell monitorhelper error: ", strerror(errno));
         return;
     };
 
     if (childid == 0) { // Am the child
 	int rc = seteuid(o.root_user);
 	if (rc != -1) {
-       		int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
+       	int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
 		if (systemreturn == -1) {
-            		syslog(LOG_ERR, "Unable to exec: %s%s : errno %d %s", buff.c_str(), buff1.c_str(), errno, strerror(errno));
-            		exit(0);
+            logger_error("Unable to exec: ",buff, buff1, " : errno ",  errno, " ", strerror(errno));
+            exit(0);
 		}
         } else {
-            	syslog(LOG_ERR, "Unable to set uid root");
+            	logger_error("Unable to set uid root");
             	exit(0);
 	}
     };
@@ -526,13 +524,13 @@ void tell_monitor(bool active) //may not be needed
         int status;
         rc = waitpid(childid, &status, 0);
         if (rc == -1) {
-            syslog(LOG_ERR, "%sWait for monitorhelper returned : errno %s", thread_id.c_str(), strerror(errno));
+            logger_error("Wait for monitorhelper returned : errno ", strerror(errno));
             return;
         };
         if (WIFEXITED(status)) {
             return;
         } else {
-            syslog(LOG_ERR, "%sMonitorhelper exited abnormally", thread_id.c_str());
+            logger_error("Monitorhelper exited abnormally");
             return;
         };
     };
@@ -558,7 +556,7 @@ void wait_for_proxy()
     } catch (std::exception &e) {
         logger_debug(" -exception while creating proxysock: ", e.what());
     }
-    syslog(LOG_ERR, "Proxy is not responding - Waiting for proxy to respond");
+    logger_error("Proxy is not responding - Waiting for proxy to respond");
     if (o.monitor_flag_flag)
         monitor_flag_set(false);
     if (o.monitor_helper_flag)
@@ -571,7 +569,7 @@ void wait_for_proxy()
         if (!rc) {
             proxysock.close();
             //cache_erroring = 0;
-            syslog(LOG_ERR, "Proxy now responding - resuming after %d seconds", wait_time);
+            logger_error("Proxy now responding - resuming after %d seconds", wait_time);
             if (o.monitor_flag_flag)
                monitor_flag_set(true);
             if (o.monitor_helper_flag)
@@ -583,7 +581,7 @@ void wait_for_proxy()
             wait_time++;
             cnt_down--;
             if (cnt_down < 1) {
-                syslog(LOG_ERR, "Proxy not responding - still waiting after %d seconds", wait_time);
+                logger_error("Proxy not responding - still waiting after %d seconds", wait_time);
                 cnt_down = o.proxy_failure_log_interval;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -673,7 +671,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         std::string loglines;
         loglines.append(log_Q->pop());  // get logdata from queue
         if (logger_ttg) break;
-            logger_debug("received a log request",  loglines);
+        logger_debug("received a log request",  loglines);
 
         // Formatting code migration from ConnectionHandler
         // and email notification code based on patch provided
@@ -1043,17 +1041,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         }
 
         logger_access(builtline);
-/*        
-        if (!logsyslog)
-            *logfile << builtline << std::endl; // append the line
-        else
-            syslog(LOG_INFO, "%s", builtline.c_str());
-        logger_debug(itemcount, " ", builtline);
 
-	if (o.e2_front_log)
-		std::cout << builtline << std::endl;
-        //    delete ipcpeersock; // close the connection
-*/
 
 #ifdef ENABLE_EMAIL
         // do the notification work here, but fork for speed
@@ -1076,7 +1064,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                         setsid();
                         FILE *mail = popen(o.mailer.c_str(), "w");
                         if (mail == NULL) {
-                            syslog(LOG_ERR, "Unable to contact defined mailer.");
+                            logger_error("Unable to contact defined mailer.");
                         } else {
                             fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->avadmin.c_str());
                             fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
@@ -1192,7 +1180,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
                                 setsid();
                                 FILE *mail = popen(o.mailer.c_str(), "w");
                                 if (mail == NULL) {
-                                    syslog(LOG_ERR, "Unable to contact defined mailer.");
+                                    logger_error("Unable to contact defined mailer.");
                                 } else {
                                     fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->contentadmin.c_str());
                                     fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
@@ -1241,12 +1229,12 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
         delete logfile;
     }
     } catch (...) {
-        syslog(LOG_ERR,"%slog_listener caught unexpected exception - exiting", thread_id.c_str());
+        logger_error("log_listener caught unexpected exception - exiting");
     }
     if (!logger_ttg)
-        syslog(LOG_ERR, "%slog_listener exiting with error", thread_id.c_str());
+        logger_error("log_listener exiting with error");
     else if (o.logconerror)
-        syslog(LOG_INFO,"%slog_listener exiting", thread_id.c_str());
+        logger_error("log_listener exiting");
 
     return; // It is only possible to reach here with an error
 }
@@ -1378,10 +1366,7 @@ int fc_controlit()   //
     rc = seteuid(o.root_user);
 #endif
     if (rc == -1) {
-        syslog(LOG_ERR, "%s%s", thread_id.c_str(), "Unable to seteuid() to bind filter port.");
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Unable to seteuid() to bind filter port." << std::endl;
-#endif
+        logger_error("Unable to seteuid() to bind filter port.");
         delete[] serversockfds;
         return 1;
     }
@@ -1728,7 +1713,7 @@ int fc_controlit()   //
    // dystat->reset();    // remove this line for production version
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    //syslog(LOG_INFO,"2nd wait complete");
+    //logger_info("2nd wait complete");
     logger_ttg = true;
     std::string nullstr("");
     o.log_Q->push(nullstr);

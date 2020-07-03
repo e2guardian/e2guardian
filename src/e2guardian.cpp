@@ -19,7 +19,6 @@
 #include <ctime>
 #include <unistd.h>
 #include <cerrno>
-#include <syslog.h>
 #include <pwd.h>
 #include <grp.h>
 #include <fstream>
@@ -339,12 +338,11 @@ int main(int argc, char *argv[])
     int fd_needed = (o.http_workers *2) + no_listen_fds + 6;
 
     if (((o.http_workers * 2) ) > max_maxchildren) {
-        syslog(LOG_ERR, "%s", "httpworkers option in e2guardian.conf has a value too high.");
-        std::cerr << " httpworkers option in e2guardian.conf has a value too high for current file id limit (" << rlim.rlim_cur << ")" << std::endl;
-        std::cerr << "httpworkers " << o.http_workers <<  " must not exceed 50% of " << max_maxchildren << "" << std::endl;
-        std::cerr << "in this configuration." << std::endl;
-        std::cerr << "Reduce httpworkers " << std::endl;
-        std::cerr << "Or increase the filedescriptors available with ulimit -n to at least=" << fd_needed << std::endl;
+        logger_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
+        logger_error("httpworkers ", o.http_workers,  " must not exceed 50% of ", max_maxchildren);
+        logger_error("in this configuration.");
+        logger_error("Reduce httpworkers ");
+        logger_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
         return 1; // we can't have rampant proccesses can we?
     }
 
@@ -387,9 +385,8 @@ int main(int argc, char *argv[])
             return 1; // seteuid failed for some reason so exit with error
         }
     } else {
-        syslog(LOG_ERR, "Unable to getpwnam() - does the proxy user exist?");
-        std::cerr << "Unable to getpwnam() - does the proxy user exist?" << std::endl;
-        std::cerr << "Proxy user looking for is '" << o.daemon_user_name << "'" << std::endl;
+        logger_error("Unable to getpwnam() - does the proxy user exist?");
+        logger_error("Proxy user looking for is '", o.daemon_user_name, "'" );
         return 1; // was unable to lockup the user id from passwd
         // for some reason, so exit with error
     }
@@ -397,9 +394,8 @@ int main(int argc, char *argv[])
     if (!o.no_logger && !o.log_syslog) {
         std::ofstream logfiletest(o.log_location.c_str(), std::ios::app);
         if (logfiletest.fail()) {
-            syslog(LOG_ERR, "Error opening/creating log file. (check ownership and access rights).");
-            std::cout << "Error opening/creating log file. (check ownership and access rights)." << std::endl;
-            std::cout << "I am running as " << o.daemon_user_name << " and I am trying to open " << o.log_location << std::endl;
+            logger_error("Error opening/creating log file. (check ownership and access rights).");
+            logger_error("I am running as ", o.daemon_user_name, " and I am trying to open ", o.log_location );
             return 1; // opening the log file for writing failed
         }
         logfiletest.close();

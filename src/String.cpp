@@ -621,7 +621,7 @@ String String::sort_search()
     }
     //char *temp = new (std::nothrow) char[ln + 1];
     //if (temp == NULL)  {
-     //   syslog(LOG_ERR, "Unable to create temp char[%d] in sort_search", ln);
+     //  logger_error("Unable to create temp char[%d] in sort_search", ln);
       //  return (*this);
     //}
    // strcpy(temp, (this)->c_str());

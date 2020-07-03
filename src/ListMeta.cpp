@@ -249,16 +249,15 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
     list_info *t = nullptr;
     unsigned int type = (unsigned int) tp;
-    logger_debug("Looking for ", name, " type ", type, " in listmeta");
+    //logger_debug("Looking for ", name, " type ", type, " in listmeta");
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
-            logger_debug("Found ", i->name, " type ", i->type, " in listmeta");
+            //logger_debug("Found ", i->name, " type ", i->type, " in listmeta");
             t = &(*i);
             return t;
         }
-        // std::cerr << thread_id << "Loop checking " << i->name << " type " << i->type << " in listmeta" << std::endl;
     }
-    logger_debug("Not Found ", name, " type ", type, " in listmeta");
+    //logger_debug("Not Found ", name, " type ", type, " in listmeta");
     return t;
 }
 
@@ -456,6 +455,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
 bool ListMeta::readFile(const char *filename, const char *pwd, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
+    logger_config("read File: ", filename);
     if (strlen(filename) < 3) {
         logger_error("Required Listname ", listname, " is not defined");
         return false;

@@ -195,30 +195,22 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inList(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << user << " to straight IP list" << std::endl;
-#endif
+        logger_debug("Matched IP ", user, " to straight IP list");
         return E2AUTH_OK;
     }
 //    fg = inSubnet(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << user << " to subnet" << std::endl;
-#endif
+        logger_debug("Matched IP ", user, " to subnet");
         return E2AUTH_OK;
     }
 //    fg = inRange(addr);
     if (fg >= 0) {
         rfg = fg;
-#ifdef E2DEBUG
-        std::cerr << thread_id << "Matched IP " << user << " to range" << std::endl;
-#endif
+        logger_debug("Matched IP ", user, " to range");
         return E2AUTH_OK;
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Matched IP " << user << " to nothing" << std::endl;
-#endif
+    logger_debug("Matched IP ", user, " to nothing");
     return E2AUTH_NOMATCH;
 }
 
@@ -330,20 +322,14 @@ int ipinstance::readIPMelangeList(const char *filename)
             key.removeWhiteSpace();
             value = line.after("filter");
         } else {
-            if (!is_daemonised)
-                std::cerr << thread_id << "No filter group given; entry " << line << " in " << filename << std::endl;
-            syslog(LOG_ERR, "No filter group given; entry %s in %s", line.toCharArray(), filename);
+            logger_error("No filter group given; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << "key: " << key << std::endl;
-        std::cerr << thread_id << "value: " << value.toInteger() << std::endl;
-#endif
+        logger_debug("key: ", key , "value: ", value.toInteger() );
+
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Filter group out of range; entry " << line << " in " << filename << std::endl;
-            syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), filename);
+            logger_error("Filter group out of range; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
@@ -401,35 +387,32 @@ int ipinstance::readIPMelangeList(const char *filename)
         }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
         else {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Entry " << line << " in " << filename << " was not recognised as an IP address, subnet or range" << std::endl;
-            syslog(LOG_ERR, "Entry %s in %s was not recognised as an IP address, subnet or range", line.toCharArray(), filename);
+            logger_error("Entry ", line, " in ", filename, " was not recognised as an IP address, subnet or range");
             warn = true;
         }
     }
     input.close();
-#ifdef E2DEBUG
-    std::cerr << thread_id << "starting sort" << std::endl;
-#endif
+    logger_debug("starting sort");
     std::sort(iplist.begin(), iplist.end());
+
 #ifdef E2DEBUG
-    std::cerr << thread_id << "sort complete" << std::endl;
-    std::cerr << thread_id << "ip list dump:" << std::endl;
+    logger_debug("sort complete");
+    logger_debug("ip list dump:");
     std::vector<ip>::const_iterator i = iplist.begin();
     while (i != iplist.end()) {
-        std::cerr << thread_id << "IP: " << i->addr << " Group: " << i->group << std::endl;
+        logger_debug("IP: ", i->addr, " Group: ", i->group );
         ++i;
     }
-    std::cerr << thread_id << "subnet list dump:" << std::endl;
+    logger_debug("subnet list dump:");
     std::list<subnetstruct>::const_iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        std::cerr << thread_id << "Masked IP: " << j->maskedaddr << " Mask: " << j->mask << " Group: " << j->group << std::endl;
+        logger_debug("Masked IP: ", j->maskedaddr, " Mask: ", j->mask, " Group: ", j->group );
         ++j;
     }
-    std::cerr << thread_id << "range list dump:" << std::endl;
+    logger_debug("range list dump:");
     std::list<rangestruct>::const_iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        std::cerr << thread_id << "Start IP: " << k->startaddr << " End IP: " << k->endaddr << " Group: " << k->group << std::endl;
+        logger_debug("Start IP: ", k->startaddr, " End IP: ", k->endaddr, " Group: ", k->group );
         ++k;
     }
 #endif
