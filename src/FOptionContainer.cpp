@@ -180,7 +180,7 @@ bool FOptionContainer::read(const char *filename) {
             logger_error("Error reading: ", filename);
             return false;
         }
-        logger_trace("Read conf into memory: ", filename);
+        logger_config("Read conf into memory: ", filename);
 
         if (findoptionS("disablecontentscan") == "on") {
             disable_content_scan = true;
@@ -255,8 +255,7 @@ bool FOptionContainer::read(const char *filename) {
                 if (findoptionS("allowemptyhostcert") == "on")
                     allow_empty_host_certs = true;
             } else {
-                syslog(LOG_ERR, "Warning: To use sslmitm, enablessl in e2guardian.conf must be on");
-                std::cerr << thread_id << "Warning: sslmitm requires ssl to be enabled in e2guardian.conf " << std::endl;
+                logger_error("Warning: sslmitm requires ssl to be enabled in e2guardian.conf ");
                 ssl_mitm = false;
             }
         } else {

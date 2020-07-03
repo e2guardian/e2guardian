@@ -750,7 +750,7 @@ bool OptionContainer::read(std::string& filename, int type)
             if (default_fg <= filter_groups) {
                 default_fg--;
             } else  {
-                syslog(LOG_ERR, "defaultfiltergroup out of range");
+                logger_error("defaultfiltergroup out of range");
                 return false;
             }
         }
@@ -760,7 +760,7 @@ bool OptionContainer::read(std::string& filename, int type)
             if (default_trans_fg <= filter_groups) {
                 default_trans_fg--;
             } else  {
-                syslog(LOG_ERR, "defaulttransparentfiltergroup out of range");
+                logger_error("defaulttransparentfiltergroup out of range");
                 return false;
             }
         }
@@ -770,7 +770,7 @@ bool OptionContainer::read(std::string& filename, int type)
             if (default_icap_fg <= filter_groups) {
                 default_icap_fg--;
             } else  {
-                syslog(LOG_ERR, "defaulticapfiltergroup out of range");
+                logger_error("defaulticapfiltergroup out of range");
                 return false;
             }
         }
@@ -878,6 +878,7 @@ bool OptionContainer::read(std::string& filename, int type)
    //     banned_ip_list_location = findoptionS("bannediplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
+
         iplist_dq = findoptionM("iplist");
         sitelist_dq = findoptionM("sitelist");
         ipsitelist_dq = findoptionM("ipsitelist");
@@ -1096,7 +1097,7 @@ bool OptionContainer::loadDMPlugins()
         logger_debug("loading download manager config: ", config);
         DMPlugin *dmpp = dm_plugin_load(config.toCharArray());
         if (dmpp == NULL) {
-            logger_error("dm_plugin_load() returned NULL pointer with config file: %s", config);
+            logger_error("dm_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
         bool lastplugin = (i == (numplugins - 1));

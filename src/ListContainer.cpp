@@ -65,9 +65,7 @@ void ListContainer::reset()
     // ref should already be zero)
     if (refcount > 0) {
         --refcount;
-#ifdef E2DEBUG
-//        std::cerr << thread_id << "de-reffing " << sourcefile << " due to manual list reset, refcount: " << refcount << std::endl;
-#endif
+        //  logger_debug("de-reffing ", sourcefile, " due to manual list reset, refcount: ", refcount);
         for (size_t i = 0; i < morelists.size(); ++i)
             o.lm.deRefList(morelists[i]);
     }
@@ -353,10 +351,9 @@ bool ListContainer::ifsreadItemList(std::istream *input, int len, bool checkends
 #endif
     }
 
-#ifdef E2DEBUG
     if (filters != 32)
-        std::cerr << thread_id << "Converting to lowercase" << std::endl;
-#endif
+        logger_debugregexp("Converting to lowercase");
+
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     String temp, inc, hostname, url;
     //char linebuffer[2048];
@@ -917,12 +914,10 @@ bool ListContainer::makeGraph(bool fqs)
         graphAdd(String(data + list[sizelist[i]], lengthlist[sizelist[i]]), 0, sizelist[i]);
     }
 
-#ifdef E2DEBUG
     logger_debug("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
     logger_debug("Most prolific node has ", maxchildnodes, " children");
     logger_debug("It ", (prolificroot ? "is" : "is not"), " the root node");
     logger_debug("Second most prolific node has ", secondmaxchildnodes, " children");
-#endif
 
     realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
     if (realgraphdata == NULL) {
@@ -1963,9 +1958,7 @@ bool ListContainer::isNow(TimeLimit &tl) {
             return false;
         }
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "time match " << tl.sthour << ":" << tl.stmin << "-" << tl.endhour << ":" << tl.endmin << " " << hour << ":" << min << " " << sourcefile << std::endl;
-#endif
+    logger_debug("time match ", tl.sthour, ":", tl.stmin, "-", tl.endhour, ":", tl.endmin, " ", hour, ":", min, " ", sourcefile);
     return true;
 }
 
@@ -1973,9 +1966,7 @@ int ListContainer::getCategoryIndex(String *lcat)
 {
     // where in the category list is our category? if nowhere, add it.
     if ((*lcat).length() < 2) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "blank entry index" << std::endl;
-#endif
+        logger_debug("blank entry index");
         return 0; // blank entry index
     }
     int l = (signed)listcategory.size();

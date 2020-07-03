@@ -13,7 +13,6 @@
 #include "DynamicIPList.hpp"
 #include "Logger.hpp"
 
-#include <syslog.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>

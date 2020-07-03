@@ -297,7 +297,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     logger_debug("Scanner result: ", (result), "Code: ", returncode);
     if (returncode == 255) {
         lastmessage = "Cannot get scanner return code";
-        syslog(LOG_ERR, "Cannot get command-line scanner return code: scanner exec failed");
+        logger_error("Cannot get command-line scanner return code: scanner exec failed");
         return E2CS_SCANERROR;
     }
 
