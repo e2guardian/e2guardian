@@ -81,12 +81,17 @@ The new Logger obsoletes/replaces the following:
 
 - e2guardian.conf:
   - logsyslog, debuglevel, debuglevelfile, nologger, storyboardtrace
+  - loglocation, rqloglocation, dstatlocation
+  - logconnectionhandlingerrors?, logchildprocesshandling?
 
 - Code
   - files: DebugManager.hpp/cpp
   - defines: NETDEBUG, CHUNKDEBUG, SBDEBUG, NEWDEBUG_OFF
+  - vars in OptionContainer o: logconerror, logchildprocs, log_ssl_errors?, log_location, RQlog_location, stat_location, dstat_location, dstat_log_flag, no_logger, log_syslog
 
 ## TODOs
 
 - Logger Output to Email ??
 - Logger Output sending to GrayLog, LogStash ??
+
+(last edit: 03.07.2020)
