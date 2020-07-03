@@ -25,6 +25,7 @@ Logger::Logger() {
 
   setLogOutput(LoggerSource::info,  LoggerDestination::stdout);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
+  setLogOutput(LoggerSource::access, LoggerDestination::file, "access.log");
 
   setLogOutput(LoggerSource::debug, LoggerDestination::stdout);
   setLogOutput(LoggerSource::trace, LoggerDestination::stdout);
@@ -51,8 +52,10 @@ struct Logger::Helper
       const std::string what)
   {
     std::stringstream message;
-    if (prepend != "") message << "[" << prepend << "] ";
-    if (thread_id != "") message << "(" << thread_id << ") ";
+    if (prepend != "") 
+      message << "[" << prepend << "] ";
+    if (thread_id != "" && thread_id != "log: ") 
+      message << "(" << thread_id << ") ";
 #ifdef E2DEBUG
     if (func != "") {
       message << " " << func;
@@ -68,8 +71,8 @@ struct Logger::Helper
     if (filename=="")
       return;
     std::ofstream logfile;
-    logfile.open(filename);
-    logfile << message;
+    logfile.open(filename,std::ofstream::out | std::ofstream::app );
+    logfile << message << std::endl;
     logfile.close();
   }
 };
@@ -105,7 +108,6 @@ std::string Logger::dest2string(LoggerDestination dest){
 // --- Properties
 // -------------------------------------------------------------
 
-// string Logger::getName(){ return _logname; };
 void  Logger::setSyslogName(const std::string logname){
   _logname = logname;
   closelog();
@@ -124,7 +126,13 @@ bool Logger::isEnabled(const LoggerSource source){
 
 void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename){
   _destination[static_cast<int>(source)] = destination;
-  _filename[static_cast<int>(source)] = filename;
+  if (filename.front() == '/')
+    // absolute path
+    _filename[static_cast<int>(source)] = filename;
+  else
+    // relative to __LOGLOCATION
+    _filename[static_cast<int>(source)]  = std::string(__LOGLOCATION) + filename;
+
   if (destination == LoggerDestination::none)
     disable(source);
   else
@@ -154,7 +162,7 @@ void Logger::log(const LoggerSource source, const std::string func, const int li
     msg=Helper::build_message(tag, func, line, message);
   } else {
     // no tags,func,line for: info,error,access
-    msg=Helper::build_message("", "" , 0, message);
+    msg=Helper::build_message("", "", 0, message);
   }
   sendMessage(source, msg);
 };
