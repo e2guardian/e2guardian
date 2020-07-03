@@ -1042,7 +1042,7 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             builtline += flags;
         }
 
-        logger_info(builtline);
+        logger_access(builtline);
 /*        
         if (!logsyslog)
             *logfile << builtline << std::endl; // append the line
