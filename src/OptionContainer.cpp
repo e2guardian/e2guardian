@@ -942,6 +942,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
 
         if (enable_ssl) {
+            logger_config("enable SSL");
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
                                               ca_private_key_path.c_str(),
@@ -958,11 +959,15 @@ bool OptionContainer::read(std::string &filename, int type) {
         logger_error(e.what());
         return false;
     }
+    logger_config("Done: read Configfile: ", filename);
     return true;
 }
 
 
-bool OptionContainer::readinStdin() {
+bool OptionContainer::readinStdin()
+{
+    logger_trace("");
+    
     if (!std::cin.good()) {
         logger_error("Error reading stdin");
         return false;
@@ -1059,6 +1064,7 @@ std::string OptionContainer::findoptionS(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
+            logger_config(o, "=", temp);
             return temp.toCharArray();
         }
     }
@@ -1094,6 +1100,7 @@ std::deque<String> OptionContainer::findoptionM(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
+            logger_config(o, "=" ,temp);
             results.push_back(temp);
         }
     }
@@ -1111,7 +1118,9 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
 }
 
 
-bool OptionContainer::loadDMPlugins() {
+bool OptionContainer::loadDMPlugins()
+{
+    logger_config("load Download manager plugins");
     std::deque<String> dq = findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
@@ -1143,7 +1152,9 @@ bool OptionContainer::loadDMPlugins() {
     return true;
 }
 
-bool OptionContainer::loadCSPlugins() {
+bool OptionContainer::loadCSPlugins()
+{
+    logger_config("load Content scanner plugins");
     std::deque<String> dq = findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
@@ -1175,7 +1186,9 @@ bool OptionContainer::loadCSPlugins() {
     return true;
 }
 
-bool OptionContainer::loadAuthPlugins() {
+bool OptionContainer::loadAuthPlugins()
+{
+    logger_config("load Auth plugins");
     // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
     auth_needs_proxy_query = false;
 
@@ -1220,8 +1233,9 @@ bool OptionContainer::loadAuthPlugins() {
 }
 
 
-bool OptionContainer::createLists(int load_id) {
-    std::shared_ptr<LOptionContainer> temp(new LOptionContainer(load_id));
+bool OptionContainer::createLists(int load_id)  {
+    logger_config("create Lists: ", load_id);
+    std::shared_ptr<LOptionContainer> temp (new LOptionContainer(load_id));
     if (temp->loaded_ok) {
         current_LOC = temp;
         return true;

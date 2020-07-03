@@ -40,47 +40,48 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-        logger_debug("iplist deque is size ", o.iplist_dq.size());
+        logger_config("iplist size is ", o.iplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_debug("sitelist deque is size ", o.sitelist_dq.size());
+        logger_config("sitelist size is ", o.sitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_debug("ipsitelist deque is size ", o.ipsitelist_dq.size());
+        logger_config("ipsitelist size is ", o.ipsitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_debug("urllist deque is size ", o.urllist_dq.size());
+        logger_config("urllist size is ", o.urllist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_error("regexpboollist deque is size ", o.regexpboollist_dq.size());;
+        logger_error("regexpboollist size is ", o.regexpboollist_dq.size());;
         if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_debug("maplist deque is size ", o.maplist_dq.size());
+        logger_config("maplist size is ", o.maplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
             loaded_ok = false;
     }
 
     {
-        logger_debug("ipmaplist deque is size ", o.ipmaplist_dq.size());
+        logger_config("ipmaplist size is ", o.ipmaplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
             loaded_ok = false;
     }
 
+    logger_config("read Storyboard: ", o.storyboard_location);
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
         logger_error("Storyboard not loaded OK");
         loaded_ok = false;
@@ -629,7 +630,7 @@ bool LOptionContainer::readFilterGroupConf()
     String groupname;
     bool need_html = false;
 
-    logger_trace("");
+    logger_config("read FilterGroups");
     if (o.use_group_names_list) {
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
@@ -691,7 +692,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     logger_debug("passed variables to filter group: ", numfg, " ", filename);
 
     bool rc = (*fg[numfg]).read(filename);
-    logger_debug("read filter group: ", numfg, " ", filename, " return is ", rc);
+    logger_debug("reading filter group: ", numfg, " ", filename, " return is ", rc);
 
     numfg++;
 
