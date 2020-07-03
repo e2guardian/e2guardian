@@ -11,6 +11,7 @@
 #include "Socket.hpp"
 #include "OptionContainer.hpp"
 #include "FDTunnel.hpp"
+#include "Logger.hpp"
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -18,13 +19,11 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
-#include <syslog.h>
 #include <cerrno>
 #include <zlib.h>
 
 // GLOBALS
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // IMPLEMENTATION
 
@@ -720,7 +719,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 std::cerr << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
             }
 #endif
-	    syslog(LOG_INFO, "%s header:size too big: %lu, see maxheaderlines", thread_id.c_str(), header.size());
+	        logger_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
             return false;
         }
@@ -739,7 +738,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
-                        syslog(LOG_INFO, "%sServer did not respond with ICAP", thread_id.c_str());
+                        logger_error("Server did not respond with ICAP");
 #ifndef NEWDEBUG_OFF
                         if(o.myDebug->ICAP)
                         {
