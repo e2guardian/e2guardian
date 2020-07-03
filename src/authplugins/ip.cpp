@@ -278,10 +278,7 @@ int ipinstance::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file (does it exist?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", "Error reading file (does it exist?): ", filename);
+        logger_error("Error reading file (does it exist?): ", filename);
         return -1;
     }
 

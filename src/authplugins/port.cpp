@@ -181,10 +181,7 @@ int portinstance::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading file (does it exist?): " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "%s%s", "Error reading file (does it exist?): ", filename);
+        logger_error("Error reading file (does it exist?): ", filename);
         return -1;
     }
 
@@ -217,9 +214,7 @@ int portinstance::readIPMelangeList(const char *filename)
 
         logger_debug("key: ", key, "value: ", value );
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Filter group out of range; entry " << line << " in " << filename << std::endl;
-            syslog(LOG_ERR, "Filter group out of range; entry %s in %s", line.toCharArray(), filename);
+            logger_error("Filter group out of range; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
@@ -232,9 +227,7 @@ int portinstance::readIPMelangeList(const char *filename)
         }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
         else {
-            if (!is_daemonised)
-                std::cerr << thread_id << "Entry " << line << " in " << filename << " was not recognised as an port " << std::endl;
-            syslog(LOG_ERR, "Entry %s in %s was not recognised as an port", line.toCharArray(), filename);
+            logger_error("Entry ", line, " in ", filename, " was not recognised as an port ");
             warn = true;
         }
     }
