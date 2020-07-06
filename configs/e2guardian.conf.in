@@ -523,7 +523,7 @@ trickledelay = 10
 # and other matching mechanisms.
 #
 # NOTE - ONLY default downloadmanager is supported in v5
-downloadmanager = '__LISTDIR__admanagers/default.conf'
+downloadmanager = '@E2CONFDIR@downloadmanagers/default.conf'
 
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
