@@ -180,6 +180,7 @@ class OptionContainer
     std::string generated_link_path;
     std::string openssl_conf_path;
     CertificateAuthority *ca;
+    time_t gen_cert_start, gen_cert_end;
     bool use_openssl_conf = false;
     bool have_openssl_conf = false;
     std::string set_cipher_list;

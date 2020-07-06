@@ -131,8 +131,8 @@ class ListContainer
     void reset();
 
     bool readPhraseList(const char *filename, bool isexception, int catindex = -1, int timeindex = -1, bool incref = true, int nlimit=0);
-    bool ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
-    bool ifsReadSortItemList(std::ifstream *input, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
+    bool ifsreadItemList(std::istream *input, String basedir, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters);
+    bool ifsReadSortItemList(std::ifstream *input, String basedir, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename);
     bool readItemList(const char *filename, const char *pwd, bool startswith, int filters, bool isip = false, bool istime = false, bool ismap = false);
     bool readStdinItemList(bool startswith, int filters);
     bool inList(const char *string, String &lastcategory);

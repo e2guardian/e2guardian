@@ -152,6 +152,12 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
         syslog(LOG_ERR, "Error reading %s", filename);
         return false;
     }
+    String base_dir(filename);
+    base_dir.baseDir();
+    //String base_dir = filename;
+    //size_t fnsize;
+    //if ((fnsize = base_dir.find_last_of("/")) > 0)
+    //      base_dir = base_dir.subString(1,fnsize);
     while (!conffiles.eof()) {
         getline(conffiles, linebuffer);
         if (!conffiles.fail() && linebuffer.length() != 0) {
@@ -161,39 +167,38 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp = temp.before("#");
                 }
                 temp.removeWhiteSpace(); // get rid of spaces at end of line
-                // check for PWD and add replace with now_pwd
-                while (temp.contains("__PWD__")) {
-                    String temp2 = temp.before("__PWD__");
+                // check for LISTDIR and add replace with now_pwd
+                while (temp.contains("__LISTDIR__")) {
+                    String temp2 = temp.before("__LISTDIR__");
                     temp2 += now_pwd;
-                    temp2 += temp.after("__PWD__");
+                    temp2 += temp.after("__LISTDIR__");
                     temp = temp2;
-                    //std::cerr << "pwd inserted " << temp;
                 }
 
                 // deal with included files
                 if (temp.startsWith(".")) {
                     String temp2 = temp.after(".Include<").before(">");
                     if (temp2.length() > 0) {
+                        temp2.fullPath(base_dir);
                         if (!readConfFile(temp2.toCharArray(), now_pwd)) {
                             conffiles.close();
                             return false;
                         }
                         continue;
                     }
-                    temp2 = temp.after(".Pwd<").before(">");
+                    temp2 = temp.after(".Define LISTDIR <").before(">");
                     if (temp2.length() > 0) {
                         now_pwd = temp2;
                         if(!now_pwd.endsWith("/"))
                             now_pwd += "/";
-                      //  std::cerr << "pwd set to " << now_pwd;
                     }
 
                     continue;
                 }
-                // append ,pwd=pwd  if line contains a file path - so that pwd can be passed to list file handler so that it can
-                // honour __PWD__ in Included listfiles
-                if (temp.contains("path=") && !temp.contains("pwd=")) {
-                    temp += ",pwd=";
+                // append ,listdir=now_pwd if line contains a file path - so that now_pwd can be passed
+                // to list file handler so that it can honour __LISTDIR__ in Included listfiles
+                if (temp.contains("path=") && !temp.contains("listdir=")) {
+                    temp += ",listdir=";
                     temp += now_pwd;
                 }
                 linebuffer = temp.toCharArray();

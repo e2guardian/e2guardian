@@ -354,7 +354,7 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 }
 
 //bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
-bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
+bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
 {
     unsigned int mem_used = 2;
     RegExp re;
@@ -438,12 +438,13 @@ bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, i
             if (do_includes) {
                 inc = temp.after(".Include<"); // to include
                 inc = inc.before(">");
-                if (inc.contains("__PWD__")) {
-                    String inc2 = inc.before("__PWD__");
+                if (inc.contains("__LISTDIR__")) {
+                    String inc2 = inc.before("__LISTDIR__");
                     inc2 += list_pwd;
-                    inc2 += inc.after("__PWD__");
+                    inc2 += inc.after("__LISTDIR__");
                     inc = inc2;
                 }
+                inc.fullPath(basedir);
                 if (!readAnotherItemList(inc.toCharArray(), list_pwd, startswith, filters)) { // read it
                     return false;
                 }
@@ -488,7 +489,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, i
     return true; // sucessful read
 }
 
-bool ListContainer::ifsReadSortItemList(std::ifstream *input, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
+bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
 {
     size_t len = 0;
     try {
@@ -501,7 +502,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, const char *list_p
         return false;
     }
     bool ret;
-    ret = ifsreadItemList(input, list_pwd, len, checkendstring, endstring, do_includes, startswith, filters);
+    ret = ifsreadItemList(input, basedir, list_pwd, len, checkendstring, endstring, do_includes, startswith, filters);
     if (ret) {
         doSort(startswith);
         return true;
@@ -556,7 +557,9 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
         syslog(LOG_ERR, "Error opening file: %s", filename);
         return false;
     }
-    if (!ifsreadItemList(&listfile, list_pwd, len, false, NULL, true, startswith, filters)) {
+    String base_dir(filename);
+    base_dir.baseDir();
+    if (!ifsreadItemList(&listfile, base_dir, list_pwd, len, false, NULL, true, startswith, filters)) {
         listfile.close();
         if (!is_daemonised) {
             std::cerr << thread_id << "Error reading: " << filename << std::endl;
@@ -588,7 +591,7 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
         return false;
     }
 
-    if (!ifsreadItemList(&std::cin, "",  len, true, "#ENDLIST", false, startswith, filters)) {
+    if (!ifsreadItemList(&std::cin, "", "",  len, true, "#ENDLIST", false, startswith, filters)) {
         if (!is_daemonised) {
             std::cerr << thread_id << "Error reading stdin: " << std::endl;
         }

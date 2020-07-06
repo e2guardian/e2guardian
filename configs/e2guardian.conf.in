@@ -19,6 +19,20 @@ language = 'ukenglish'
 
 # servername = 'my_name"
 
+# New in v5.4.2:- relative paths can be used in .Include<> (and in list files)
+# relative paths can used in .Include<>. The directory of current file will used
+
+#Also NEW in v5.4.2 - LISTDIR can be defined in .conf files.
+#This allows for more readable configuration and for templating.
+#This works similarly to a shell environment variable
+#The text between <> will replace occurances of __LISTDIR__ in .conf and 
+# 	list files.
+# Note: Currently only LISTDIR may be defined.
+#
+# The mapping is actioned as the file is read and is valid until another LISTDIR# 	is defined later in the file, or in an included .conf file.
+
+.Define LISTDIR <@E2CONFDIR@/lists/>
+
 #Debug Level
 #Enable debug e2guardian
 #debug one value:
@@ -271,8 +285,8 @@ custombannedflashfile = '@E2DATADIR@/blockedflash.swf'
 filtergroups = 1
 
 ##NEWIN V5.4 - filtergrouplist replaced with maplist
-#filtergroupslist = '@E2CONFDIR@/lists/filtergroupslist'
-maplist = 'name=defaultusermap, path=@E2CONFDIR@/lists/filtergroupslist'
+#filtergroupslist = '__LISTDIR__filtergroupslist'
+maplist = 'name=defaultusermap, path=__LISTDIR__filtergroupslist'
 
 # default filtergroup for standard (explicit proxy) mode
 # optional defaults to 1
@@ -296,22 +310,22 @@ maplist = 'name=defaultusermap, path=@E2CONFDIR@/lists/filtergroupslist'
 # These are now replaced with pre-authstoryboard logic but lists defined here
 #
 # bannediplist is ONLY for banned client IP
-iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=@E2CONFDIR@/lists/bannediplist'
+iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=__LISTDIR__bannediplist'
 # Put client dns names in bannedclientlist if required
-#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=@E2CONFDIR@/lists/bannedclientlist'
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=__LISTDIR__bannedclientlist'
 # exceptioniplist is ONLY for exception client IP
-iplist = 'name=exceptionclient,messageno=600,path=@E2CONFDIR@/lists/exceptioniplist'
+iplist = 'name=exceptionclient,messageno=600,path=__LISTDIR__exceptioniplist'
 # Put client dns names in exceptionclientlist if required
-#sitelist = 'name=exceptionclient,messageno=631,path=@E2CONFDIR@/lists/exceptionclientlist'
+#sitelist = 'name=exceptionclient,messageno=631,path=__LISTDIR__exceptionclientlist'
 
 # authexception lists are for exception sites/urls allowed before authentication# to allow for machines to update without user authentication
-ipsitelist = 'name=authexception,messageno=602,path=@E2CONFDIR@/lists/authexceptioniplist'
-sitelist = 'name=authexception,messageno=602,path=@E2CONFDIR@/lists/authexceptionsitelist'
-urllist = 'name=authexception,messageno=603,path=@E2CONFDIR@/lists/authexceptionurllist'
+ipsitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptioniplist'
+sitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptionsitelist'
+urllist = 'name=authexception,messageno=603,path=__LISTDIR__authexceptionurllist'
 
-sitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsitelist'
-ipsitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsiteiplist'
-regexpboollist = 'name=browser,path=@E2CONFDIR@/lists/browserregexplist'
+sitelist = 'name=nomitm,path=__LISTDIR__nomitmsitelist'
+ipsitelist = 'name=nomitm,path=__LISTDIR__nomitmsiteiplist'
+regexpboollist = 'name=browser,path=__LISTDIR__browserregexplist'
 
 #Note: only iplist, sitelist, ipsitelist, urllist, maplist and ipmaplist and regexpboollist can
 #  currently be defined for use with pre-authstoryboard.
@@ -320,7 +334,7 @@ regexpboollist = 'name=browser,path=@E2CONFDIR@/lists/browserregexplist'
 # A directory containing text files containing the room's name followed by IPs or ranges
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
-# perroomdirectory = '@E2CONFDIR@/lists/rooms/'
+# perroomdirectory = '__LISTDIR__rooms/'
 
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
@@ -521,9 +535,9 @@ downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 # Some of the scanner(s) require 3rd party software and libraries eg clamav.
 # See the individual plugin conf file for more options (if any).
 #
-#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/clamdscan.conf'
-#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
-#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
+#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/kavdscan.conf'
 #@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
 #@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
 
@@ -562,10 +576,11 @@ contentscannertimeout = 60
 
 ##NEWIN V5.4
 # Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
-# list for ip_auth
-ipmaplist = 'name=ipmap, path=@E2CONFDIR@/lists/authplugins/ipgroups'
-# list for port_auth
-maplist = 'name=portmap, path=@E2CONFDIR@/lists/authplugins/portgroups'
+
+# for ip_auth 
+ipmaplist = 'name=ipmap, path=__LISTDIR__authplugins/ipgroups'
+# for port auth
+maplist = 'name=portmap, path=__LISTDIR__authplugins/portgroups'
 
 # Map auth to ports
 # If enabled map auth plugins to ips/ports - number of authplugins must then be same as

@@ -82,6 +82,9 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
         syslog(LOG_ERR, "Error reading %s", filename);
         return false;
     }
+    String base_dir(filename);
+    base_dir.baseDir();
+
     while (!conffiles.eof()) {
         getline(conffiles, linebuffer);
         if (!conffiles.fail() && linebuffer.length() != 0) {
@@ -91,16 +94,35 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp = temp.before("#");
                 }
                 temp.removeWhiteSpace(); // get rid of spaces at end of line
+                while (temp.contains("__LISTDIR__")) {
+                    String temp2 = temp.before("__LISTDIR__");
+                    temp2 += now_pwd;
+                    temp2 += temp.after("__LISTDIR__");
+                    temp = temp2;
+                }
                 // deal with included files
                 if (temp.startsWith(".")) {
                     temp = temp.after(".Include<").before(">");
                     if (temp.length() > 0) {
+                        temp.fullPath(base_dir);
                         if (!readConfFile(temp.toCharArray(), now_pwd)) {
                             conffiles.close();
                             return false;
                         }
                     }
+                    String temp2 = temp.after(".Define LISTDIR <").before(">");
+                    if (temp2.length() > 0) {
+                        now_pwd = temp2;
+                        if(!now_pwd.endsWith("/"))
+                            now_pwd += "/";
+                    }
                     continue;
+                }
+                // append ,listdir=now_pwd if line contains a file path - so that now_pwd can be passed
+                // to list file handler so that it can honour __LISTDIR__ in Included listfiles
+                if (temp.contains("path=") && !temp.contains("listdir=")) {
+                    temp += ",listdir=";
+                    temp += now_pwd;
                 }
                 linebuffer = temp.toCharArray();
                 conffile.push_back(linebuffer); // stick option in deque
@@ -112,7 +134,6 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
 }
 
 bool OptionContainer::read(std::string &filename, int type) {
-    time_t gen_cert_start = 0, gen_cert_end = 0;
     conffilename = filename;
 
     // all sorts of exceptions could occur reading conf files
@@ -233,50 +254,50 @@ bool OptionContainer::read(std::string &filename, int type) {
             enable_ssl = false;
         }
 
-        if (enable_ssl) {
-            bool ret = true;
-            if (findoptionS("useopensslconf") == "on") {
-                use_openssl_conf = true;
-                openssl_conf_path = findoptionS("opensslconffile");
-                if (openssl_conf_path == "") {
-                    have_openssl_conf = false;
-                } else {
-                    have_openssl_conf = true;
-                }
-            } else {
-                use_openssl_conf = false;
-            };
+       if(enable_ssl) {
+        bool ret = true;
+    if (findoptionS("useopensslconf") == "on") {
+        use_openssl_conf = true;
+        openssl_conf_path = findoptionS("opensslconffile");
+        if (openssl_conf_path == "") {
+            have_openssl_conf = false;
+        } else {
+            have_openssl_conf = true;
+        }
+    } else {
+        use_openssl_conf = false;
+    };
 
-            ca_certificate_path = findoptionS("cacertificatepath");
-            if (ca_certificate_path == "") {
-                if (!is_daemonised) {
+        ca_certificate_path = findoptionS("cacertificatepath");
+        if (ca_certificate_path == "") {
+           if (!is_daemonised){
                     std::cerr << "cacertificatepath is required when ssl is enabled" << std::endl;
                 }
                 syslog(LOG_ERR, "%s", "cacertificatepath is required when ssl is enabled");
                 ret = false;
             }
 
-            ca_private_key_path = findoptionS("caprivatekeypath");
-            if (ca_private_key_path == "") {
-                if (!is_daemonised) {
+        ca_private_key_path = findoptionS("caprivatekeypath");
+        if (ca_private_key_path == "") {
+           if (!is_daemonised){
                     std::cerr << "caprivatekeypath is required when ssl is enabled" << std::endl;
                 }
                 syslog(LOG_ERR, "%s", "caprivatekeypath is required when ssl is enabled");
                 ret = false;
             }
 
-            cert_private_key_path = findoptionS("certprivatekeypath");
-            if (cert_private_key_path == "") {
-                if (!is_daemonised) {
+        cert_private_key_path = findoptionS("certprivatekeypath");
+        if (cert_private_key_path == "") {
+           if (!is_daemonised){
                     std::cerr << "certprivatekeypath is required when ssl is enabled" << std::endl;
                 }
                 syslog(LOG_ERR, "%s", "certprivatekeypath is required when ssl is enabled");
                 ret = false;
             }
 
-            generated_cert_path = findoptionS("generatedcertpath") + "/";
-            if (generated_cert_path == "/") {
-                if (!is_daemonised) {
+        generated_cert_path = findoptionS("generatedcertpath") + "/";
+        if (generated_cert_path == "/") {
+           if (!is_daemonised){
                     std::cerr << "generatedcertpath is required when ssl is enabled" << std::endl;
                 }
                 syslog(LOG_ERR, "%s", "generatedcertpath is required when ssl is enabled");
@@ -1055,7 +1076,7 @@ bool OptionContainer::readinStdin() {
             else
                 startswith = true;
 
-            int rc = lm.newItemList(fpath.c_str(),"", startswith, 1, true);
+            int rc = lm.newItemList(fpath.c_str(), "", startswith, 1, true);
             if (rc < 0)
                 return false;
             lm.l[rc]->doSort(url_list);

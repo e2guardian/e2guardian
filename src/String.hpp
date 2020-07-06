@@ -95,6 +95,10 @@ class String : public std::string
     int indexOf(const char *s) const;
     // does it contain this text?
     bool contains(const char *s) const;
+    // chop to base dir (for file paths)
+    void baseDir();
+    // convert relative path filename to fully pathed
+    void fullPath(String &base_dir);
     // index operator mark 2
     unsigned char charAt(int index)
     {

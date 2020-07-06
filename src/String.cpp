@@ -284,6 +284,22 @@ void String::removeChar(char old)
     delete [] c;
 }
 
+void String::baseDir()
+{
+    size_t fnsize;
+    if ((fnsize = this->find_last_of("/")) > 0)
+        *this = this->subString(0,++fnsize);
+}
+
+void String::fullPath(String &base_dir) {
+    if(!this->startsWith("/"))
+    {
+        String temp(base_dir);
+        temp += *this;
+        *this = temp;
+    }
+}
+
 // decode %xx to individual characters (checkme: i'm sure this is duplicated elsewhere...)
 void String::hexDecode()
 {

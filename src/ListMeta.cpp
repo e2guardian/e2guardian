@@ -125,7 +125,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 log_m_no = t.after("=").before(",").toInteger();
             } else if (t.startsWith("path=")) {
                 fpath = t.after("=").before(",");
-            } else if (t.startsWith("pwd=")) {
+            } else if (t.startsWith("listdir=")) {
                 pwd = t.after("=").before(",");
             } else if (t.startsWith("anonlog=true")) {
                 anonlog = true;
