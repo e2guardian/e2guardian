@@ -83,6 +83,9 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
         syslog(LOG_ERR, "Error reading %s", filename);
         return false;
     }
+    String base_dir(filename);
+    base_dir.baseDir();
+
     while (!conffiles.eof()) {
         getline(conffiles, linebuffer);
         if (!conffiles.fail() && linebuffer.length() != 0) {
@@ -92,16 +95,35 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp = temp.before("#");
                 }
                 temp.removeWhiteSpace(); // get rid of spaces at end of line
+                while (temp.contains("__LISTDIR__")) {
+                    String temp2 = temp.before("__LISTDIR__");
+                    temp2 += now_pwd;
+                    temp2 += temp.after("__LISTDIR__");
+                    temp = temp2;
+                }
                 // deal with included files
                 if (temp.startsWith(".")) {
                     temp = temp.after(".Include<").before(">");
                     if (temp.length() > 0) {
+                        temp.fullPath(base_dir);
                         if (!readConfFile(temp.toCharArray(), now_pwd)) {
                             conffiles.close();
                             return false;
                         }
                     }
+                    String temp2 = temp.after(".Define LISTDIR <").before(">");
+                    if (temp2.length() > 0) {
+                        now_pwd = temp2;
+                        if(!now_pwd.endsWith("/"))
+                            now_pwd += "/";
+                    }
                     continue;
+                }
+                // append ,listdir=now_pwd if line contains a file path - so that now_pwd can be passed
+                // to list file handler so that it can honour __LISTDIR__ in Included listfiles
+                if (temp.contains("path=") && !temp.contains("listdir=")) {
+                    temp += ",listdir=";
+                    temp += now_pwd;
                 }
                 linebuffer = temp.toCharArray();
                 conffile.push_back(linebuffer); // stick option in deque

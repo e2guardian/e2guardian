@@ -549,14 +549,14 @@ void LOptionContainer::loadRooms(bool throw_error)
                 temp = linestr;
                 if (temp.startsWith("#SITELIST")) {
                     ListContainer *sitelist = new ListContainer();
-                    if (sitelist->ifsReadSortItemList(&infile, "", true, "#ENDLIST", false, false, 0, filename.c_str())) {
+                    if (sitelist->ifsReadSortItemList(&infile, "", "", true, "#ENDLIST", false, false, 0, filename.c_str())) {
                         this_room.sitelist = sitelist;
                     } else {
                         delete sitelist;
                     }
                 } else if (temp.startsWith("#URLLIST")) {
                     ListContainer *urllist = new ListContainer();
-                    if (urllist->ifsReadSortItemList(&infile,"",  true, "#ENDLIST", false, true, 0, filename.c_str())) {
+                    if (urllist->ifsReadSortItemList(&infile,"", "",  true, "#ENDLIST", false, true, 0, filename.c_str())) {
                         this_room.urllist = urllist;
                     } else {
                         delete urllist;
