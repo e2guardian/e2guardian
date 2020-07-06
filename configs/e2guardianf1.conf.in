@@ -16,17 +16,26 @@ groupname = 'no_name_group'
 # Much logic has moved to storyboard files
 storyboard = '@E2CONFDIR@/examplef1.story'
 
-# NEW in v5.4.2:- relative paths can be used in .Include<> (and in list files)
-# relative paths can used in .Include<>. The directory of current file will used
 
-#Also NEW in v5.4.2 - LISTDIR can be defined in .conf files.
-#This allows for more readable configuration and for templating.
-#This works similarly to a shell environment variable
-#The text between <> will replace occurances of __LISTDIR__ in .conf and 
+# New in v5.4.2:- relative paths 
+# Relative paths can used in .Include<> and list files. 
+# 	The directory of current file will be insert where the file name
+#	does not start with '/'
+
+
+# Also NEW in v5.4.2 - LISTDIR 'variable' definition 
+# LISTDIR can be defined in .conf files.
+# This allows for more readable configuration and for templating.
+# This works similarly to a shell environment variable
+# The text between <> will replace occurances of __LISTDIR__ in .conf and 
 # 	list files.
 # Note: Currently only LISTDIR may be defined.
 #
-# The mapping is actioned as the file is read and is valid until another LISTDIR# 	is defined later in the file, or in an included .conf file.
+# The mapping is actioned as the file is read and is valid until another LISTDIR
+# 	is defined later in the file, or in an included .conf file.
+#
+# The scope of LISTDIR is in the rest of file it is defined in and all
+# all .Include<> files or list files in that portion of the file.
 
 .Define LISTDIR <@E2CONFDIR@/lists/>
 
