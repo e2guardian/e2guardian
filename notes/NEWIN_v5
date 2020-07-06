@@ -1,4 +1,4 @@
-This is the v5.4.1 near-stable version
+This is the v5.4.2 near-stable version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -78,7 +78,7 @@ READABLE THREAD_ID FOR LOGS & DEBUG
 
     hw10: for http_worker threads where '10' is the thread number
 
-    log: for logging thread
+    log: for logging thread for access.log
 
 REVISED DEBUG STAGE 1
 
@@ -145,6 +145,20 @@ BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 Requests without SNI and those not TLS no longer tried for MITM.
 New option to use original ip & port (currently Linux only)
 
+RELATIVE PATHS IN .Includes and list definition
+
+The directory of the current .conf (or list file) is taken as the prefix
+path.
+
+LIST DIRECTORY VARIABLE
+
+A list directory variable (LISTDIR) can be defined in config files.
+This works like an exported shell variable and the contents will replace
+__LISTDIR__ wherever it occurs in a .conf file or list file .Include.
+
+This feature will allow the development of templates and easier separation
+between boilerplate and user configuration.
+
 TESTING -  
 ---------
 
@@ -157,6 +171,10 @@ TO DO IN NEXT RELEASE
 
     Make sockets non-blocking so time-out works with MITM
 
+    Option for output file for storyboard trace
+
+    Revised 'Logger' system for debugging (by KDGunermann).
+
     Create 'output-filter' plug-in system for content modification
 
     POST content filtering
@@ -164,8 +182,6 @@ TO DO IN NEXT RELEASE
 
 TODO - for later releases.
 -----------------------
-
-    Option for output file for storyboard trace
 
     Re-look at MITM certificate generation.
     
@@ -176,10 +192,6 @@ TODO - for later releases.
 
     Remove duplicate list/storyboard warnings with a DRY system and add no warn
         option.
-
-    Polish new debug feature
-
-    Extend new debug feature to further modules
 
 
 WISHLIST
@@ -205,6 +217,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 17th March 2020
+Philip Pearce 7th July 2020
 
 

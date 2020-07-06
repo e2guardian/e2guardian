@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the pre-release version - v5.4.1 
+This is the pre-release version - v5.4.2 
 
 Note that there are significant changes to the configuration files in this 
 release.
@@ -25,7 +25,6 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	v5develop is used to develop new features
 *	Bugfixes primarily occurs in the version branch 
 
 ## Bugs and Feature Requests
