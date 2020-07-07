@@ -43,6 +43,16 @@ language = 'ukenglish'
 #     log_error=stderr
 #     log_access=file,access.log
 
+# Configure logging (see notes/HOWTO_Logger.md)
+#   format:
+#     log_{source}={destination}[,{filename}]
+#   example:
+#     log_debug=stdout
+#   defaults:
+#     log_info=stdout
+#     log_error=stderr
+#     log_access=file,access.log
+
 #Debug Level
 #Enable debug e2guardian
 #debug one value:
