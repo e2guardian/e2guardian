@@ -70,7 +70,7 @@ int DMPlugin::init(void *args)
     //}
 //#ifdef E2DEBUG
     //else
-        std::cerr << thread_id << "Fallback DM plugin; no matching options loaded" << std::endl;
+        logger_debug("Fallback DM plugin; no matching options loaded");
 //#endif
     return 0;
 }

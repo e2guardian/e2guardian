@@ -88,8 +88,6 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
-    logger_debug("bytes remaining is ", bytesremaining);
-
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     d->geteverything = false;
@@ -137,7 +135,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         int bsize = blocksize;
         if((!d->geteverything) && (d->bytes_toget < bsize))
             bsize = d->bytes_toget;
-        std::cerr << thread_id << "bsize is " << bsize << std::endl;
+        logger_debug("bsize is ", bsize);
 
         rc = d->readInFromSocket(sock,bsize,wantall, read_res);
         if(read_res & DB_TOBIG)

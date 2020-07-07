@@ -68,8 +68,6 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         logger_debug("Tunnelling without known content-length");
     else
         logger_debug("Tunnelling with content length ", targetthroughput);
-        std::cout <<thread_id << "Tunnelling with content length " << targetthroughput << std::endl;
-#endif
 
     if(twoway)
         ignore = false;
@@ -145,10 +143,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 done = true; // none received so pipe is closed so flag it
                         break;
             } else { // some data read
-#ifdef E2DEBUG
-            std::cout <<thread_id << "tunnel got data from sockfrom: " << sfbuff_cnt << " bytes"
-                    << std::endl;
-#endif
+            logger_debug("tunnel got data from sockfrom: ", sfbuff_cnt, " bytes");
             throughput += sfbuff_cnt; // increment our counter used to log
             sf_read_wait = false;
                 done = false;
@@ -178,12 +173,10 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     }
                 } else if (stbuff_cnt == 0) {
                     done = true; // none received so pipe is closed so flag it
-                            break;
+                    break;
                 } else { // some data read
-                    #ifdef E2DEBUG
-                    std::cout <<thread_id << "tunnel got data from sockto: " << stbuff_cnt << " bytes"
-                                                                                              << std::endl;
-                    #endif
+                    
+                    logger_debug("tunnel got data from sockto: ", stbuff_cnt, " bytes");
                     throughput += stbuff_cnt;
                     st_read_wait = false;
                     done = false;
@@ -216,10 +209,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     break; // an error occurred so end the while()
                 }
             } else { // data written
-#ifdef E2DEBUG
-                std::cout <<thread_id << "tunnel wrote data out: " << sfbuff_cnt << " bytes"
-                        << std::endl;
-#endif
+                logger_debug("tunnel wrote data out: ", sfbuff_cnt, " bytes");
                 st_write_wait = false;
                 sfbuff_cnt = 0;
                 done = false;
@@ -239,10 +229,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     break; // an error occurred so end the while()
                 }
             } else { // data written
-#ifdef E2DEBUG
-                std::cout <<thread_id << "tunnel wrote data out: " << stbuff_cnt << " bytes"
-                        << std::endl;
-#endif
+                logger_debug("tunnel wrote data out: ", stbuff_cnt, " bytes");
                 sf_write_wait = false;
                 stbuff_cnt = 0;
                 done = false;
@@ -258,7 +245,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         std::cout <<thread_id << " sf_ww is " << sf_write_wait << " st_ww is "  << st_write_wait << " sf_rw is " << sf_read_wait <<
                  " st_rw is "  << st_read_wait
                   << std::endl;
-         std::cout <<thread_id << " sf_ww_f is " << sf_write_wait_flags << " st_ww_f is "  << st_write_wait_flags << " sf_rw_f is " << sf_read_wait_flags <<
+        std::cout <<thread_id << " sf_ww_f is " << sf_write_wait_flags << " st_ww_f is "  << st_write_wait_flags << " sf_rw_f is " << sf_read_wait_flags <<
                   " st_rw_f is "  << st_read_wait_flags
                   << std::endl;
 
@@ -291,26 +278,19 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
     int rc = poll(twayfds, 2, timeout);
     if (rc < 1) {
-#ifdef E2DEBUG
-        std::cout <<thread_id << "tunnel tw poll returned error or timeout::" << rc
-          << std::endl;
-#endif
+        logger_debug("tunnel tw poll returned error or timeout::", rc);
         break; // an error occurred or it timed out so end while()
     }
 
-#ifdef E2DEBUG
-            std::cout <<thread_id << "tunnel tw poll returned ok:" << rc
-                  << std::endl;
-            std::cout <<thread_id << "tunnel tw poll returned revents:" << twayfds[0].revents << " " << twayfds[1].revents
-                  << std::endl;
-#endif
-        if((twayfds[0].revents & POLLERR) || (twayfds[1].revents & POLLERR)) {
-            break;
-        }
+    logger_debug("tunnel tw poll returned ok:", rc);
+    logger_debug("tunnel tw poll returned revents:", twayfds[0].revents, " ", twayfds[1].revents);
+
+    if((twayfds[0].revents & POLLERR) || (twayfds[1].revents & POLLERR)) {
+        break;
+    }
     done = false;
     }
 
-#ifdef E2DEBUG
         if ((throughput >= targetthroughput) && (targetthroughput > -1))
             logger_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")" );
         else

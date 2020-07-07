@@ -290,9 +290,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 
     for (std::vector<ListMeta::list_info>::iterator j = LMeta->list_vec.begin(); j != LMeta->list_vec.end(); j++) {
         if (!j->used) {
-            std::cerr << thread_id << "SB warning: Defined list " << LMeta->list_type(j->type) << ":" << j->name << " is not referenced in the storyboard " << filename << std::endl;
+            logger_debugsb("SB warning: Defined list ", LMeta->list_type(j->type), ":", j->name, " is not referenced in the storyboard ", filename);
         }
-        //    std::cerr << thread_id << "Defined list " << j->name << ":" << j->type << " " << j->used << " " << filename << std::endl;
     }
 
     return true;
@@ -589,9 +588,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         continue;
                     if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
                         continue;
-#ifdef SBDEBUG
-                    std::cerr << "checking " << j->name << " type " << j->type << "Target " << t << std::endl;
-#endif
+
+                    logger_debugsb("checking ", j->name, " type ", j->type, "Target ", t);
                     if (LMeta->inList(*j, t, res)) {  //found
                         state_result = true;
                         if (i->isif) {
@@ -604,10 +602,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             if (res.anon_log)
                                 cm.anon_log = true;
                         }
-#ifdef SBDEBUG
-                        std::cerr << "SB lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess "
-                                  << cm.log_message_no << " match " << res.match << std::endl;
-#endif
+
+                        logger_debugsb("SB lc", cm.lastcategory, " mess_no ", cm.message_no, " log_mess ",
+                                  cm.log_message_no, " match ", res.match);
                         break;
                     }
                 }

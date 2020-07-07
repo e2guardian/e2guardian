@@ -205,7 +205,7 @@ bool FOptionContainer::read(const char *filename) {
         String temp; // for tempory conversion and storage
         String list_pwd;
         if(!readConfFile(filename, list_pwd)){
-            logger_error("Error reading: "s + filename);
+            logger_error("Error reading: ", filename);
             return false;
         }
         logger_config("Read conf into memory: ", filename);
@@ -598,13 +598,13 @@ bool FOptionContainer::read(const char *filename) {
         std::string content_regexp_list_location(findoptionS("contentregexplist"));
         if (content_regexp_list_location.length() > 1) {
             unsigned int content_regexp_list;
-            if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
-                        return false;
+            if (!LMeta.readRegExReplacementFile(content_regexp_list_location.c_str(), list_pwd.toCharArray(), "contentregexplist", content_regexp_list, content_regexp_list_rep, content_regexp_list_comp)) {
+                return false;
             } else {
                 content_regexp_flag = true;
             } 
         } else {
-                content_regexp_flag = false;
+            content_regexp_flag = false;
         }
 
         logger_trace("Lists in memory");
@@ -615,32 +615,32 @@ bool FOptionContainer::read(const char *filename) {
 
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'checkrequest' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'checkrequest' is missing");
             return false;
         }
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
-        std::cerr << thread_id << "Required storyboard entry function 'checkresponse' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'checkresponse' is missing");
             return false;
         }
 
         if(!StoryB.setEntry(ENT_STORYB_LOG_CHECK,"checklogging")) {
-                std::cerr << thread_id << "Required storyboard entry function 'checklogging' is missing" << std::endl;
-                return false;
+            logger_error( "Required storyboard entry function 'checklogging' is missing" );
+            return false;
         }
 
         if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'thttps-checkrequest' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'thttps-checkrequest' is missing");
             return false;
         }
 
         if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
-            std::cerr << thread_id << "Required storyboard entry function 'icap-checkrequest' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'icap-checkrequest' is missing");
             return false;
         }
 
         if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-            std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
+            logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
             return false;
         }
         if (!precompileregexps()) {
@@ -648,15 +648,14 @@ bool FOptionContainer::read(const char *filename) {
         } // precompiled reg exps for speed
 
     if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-           std::cerr << thread_id << "Required storyboard entry function 'icap-checkresponse' is missing" << std::endl;
+           logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
            return false;
     }
 
     if (o.dm_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
                 if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
-                    std::cerr << thread_id << "Required DM storyboard entry function" << i->entry_function.c_str()
-                              << " is missing from pre_auth.stoary" << std::endl;
+                    logger_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
                 }
             }
         }

@@ -20,6 +20,7 @@
 #include <sstream>
 #include <dirent.h>
 #include <cstdlib>
+#include <unistd.h> 
 
 // GLOBALS
 
@@ -63,17 +64,15 @@ void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
     list.clear();
 }
 
-    LoggerConfigurator loggerConf(&__logger);
 bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
     String now_pwd(list_pwd);
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
+    LoggerConfigurator loggerConf(&logger);
+
     if (!conffiles.good()) {
-        if (!is_daemonised) {
-            std::cerr << thread_id << "Error reading: " << filename << std::endl;
-        }
-        syslog(LOG_ERR, "Error reading %s", filename);
+        logger_error("Error reading ", filename);
         return false;
     }
     String base_dir(filename);
@@ -225,10 +224,9 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
-            e2_front_log = true;
+            logger.setDockerMode();
         } else {
             no_daemon = false;
-            e2_front_log = false;
         }
 
         if (findoptionS("nologger") == "on") {
@@ -976,7 +974,7 @@ bool OptionContainer::readinStdin()
     String temp;
     while (!std::cin.eof()) {
         getline(std::cin, linebuffer);
-        logger_debug("Line in: ", linebuffer ;
+        logger_debug("Line in: ", linebuffer);
         if (linebuffer.length() < 2)
             continue; // its jibberish
 

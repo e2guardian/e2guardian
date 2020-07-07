@@ -106,7 +106,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         String t;
         t = list[i];
         logger_debug("reading ", t);
-        String nm, fpath;
+        String nm, fpath, pwd;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
         unsigned int m_no = 0, log_m_no = 0;

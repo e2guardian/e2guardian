@@ -208,9 +208,7 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     if(!(url).contains(btype.c_str()))
         return 0;
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "URL " << btype << " found checking..." << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("URL ", btype, " found checking...");
 
     String url_left((url).before(btype.c_str()));
     url_left.chop(); // remove the ? or &
@@ -232,9 +230,7 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     }
 
     if (hashed != url_hash) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << btype << " hash mismatch" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("URL ", btype, " hash mismatch");
         return 0;
     }
 
@@ -242,20 +238,14 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     time_t timeu = url_time.toLong();
 
     if (timeu < 1) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << btype << " bad time value" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("URL ", btype, " bad time value");
         return 1; // bad time value
     }
     if (timeu < timen) { // expired key
-#ifdef E2DEBUG
-        std::cerr << thread_id << "URL " << btype << " expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+        logger_debug("URL ", btype, " expired");
         return 1; // denotes expired but there
     }
-#ifdef E2DEBUG
-    std::cerr << thread_id << "URL " << btype << " not expired" << " Line: " << __LINE__ << " Function: " << __func__ << std::endl;
-#endif
+    logger_debug("URL ", btype, " not expired");
     return (int)timeu;
 }
 
@@ -361,7 +351,7 @@ ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bo
     //char *buffer = new char[250000];
     char *buffer = new char[64000];
     while (sent < filesize) {
-        rc = readEINTR(fd, buffer, 64000);
+        rc = read(fd, buffer, 64000);
         logger_debug(" -reading send file rc:", String(rc));
         if (rc < 0) {
             logger_error(" -error reading send file so aborting");
@@ -939,8 +929,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.filtergroup = filtergroup;
 
             docbody.set_current_config(ldl->fg[filtergroup]);
-            logger_debug(" -username: "s + clientuser +
-                         " -filtergroup: " + String(filtergroup));
+            logger_debug(" -username: " + clientuser + " -filtergroup: " + String(filtergroup));
 //
 // End of Authentication Checking
 //
@@ -2838,9 +2827,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         // int bypasstimestamp = 0;
         if (checkme.isscanbypassallowed &&
             isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-#ifdef E2DEBUG
-            std::cerr << thread_id << " -Scan Bypass URL match" << std::endl;
-#endif
+            logger_debug(" -Scan Bypass URL match");
             checkme.isscanbypass = true;
             checkme.isbypass = true;
             checkme.message_no = 608;
@@ -2851,17 +2838,13 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
             checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
             checkme.tempfilemime = (checkme.tempfilename.after("&M="));
             checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
-#ifdef E2DEBUG
-            std::cerr << thread_id << " -Original filename: " << checkme.tempfiledis << std::endl;
-#endif
+            logger_debug(" -Original filename: ", checkme.tempfiledis);
             String rtype(header.requestType());
             checkme.tempfilemime = checkme.tempfilemime.before("&D=");
             checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
             return true;
         }
-#ifdef E2DEBUG
-        std::cerr << thread_id << " -About to check for bypass..." << std::endl;
-#endif
+        logger_debug(" -About to check for bypass...");
         if (checkme.isscanbypass) {
             checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
                                                   clientip.c_str(), "GBYPASS=", clientuser);
@@ -2871,9 +2854,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(606);
                     checkme.message_no = 606;
                 }
-#ifdef E2DEBUG
-                std::cerr << thread_id << " -Filter bypass URL match" << std::endl;
-#endif
+                logger_debug(" -Filter bypass URL match");
             }
         }
 
@@ -2886,9 +2867,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(608);
                     checkme.message_no = 608;
                 }
-#ifdef E2DEBUG
-                std::cerr << thread_id << " -Infection bypass URL match" << std::endl;
-#endif
+                logger_debug(" -Infection bypass URL match");
             }
         }
 
@@ -2901,42 +2880,39 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(608);
                     checkme.message_no = 608;
                 }
-#ifdef E2DEBUG
-                std::cerr << thread_id << " -Too big to scan bypass URL match" << std::endl;
-#endif
+                logger_debug(" -Too big to scan bypass URL match");
             }
         }
     }
 
-        if (checkme.bypasstimestamp > 0) {
-            if (checkme.bypasstimestamp > 1) { // not expired
-                checkme.isbypass = true;
-                checkme.isexception = true;
-               checkme.log_message_no = checkme.message_no;
-            }
-        } else if (checkme.isbypassallowed) {  // no bypass in url so check for by pass cookie
-            String ud(checkme.urldomain);
-            if (ud.startsWith("www.")) {
-                ud = ud.after("www.");
-            }
-            if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
-                                      clientip.c_str(), clientuser.c_str())) {
-                logger_debug(" -Bypass cookie match");
-                checkme.iscookiebypass = true;
-                checkme.isbypass = true;
-                checkme.isexception = true;
-                checkme.exceptionreason = o.language_list.getTranslation(607);
-            }
+    if (checkme.bypasstimestamp > 0) {
+        if (checkme.bypasstimestamp > 1) { // not expired
+            checkme.isbypass = true;
+            checkme.isexception = true;
+            checkme.log_message_no = checkme.message_no;
         }
-        logger_debug(" -Finished bypass checks.");
+    } else if (checkme.isbypassallowed) {  // no bypass in url so check for by pass cookie
+        String ud(checkme.urldomain);
+        if (ud.startsWith("www.")) {
+            ud = ud.after("www.");
+        }
+        if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
+                                    clientip.c_str(), clientuser.c_str())) {
+            logger_debug(" -Bypass cookie match");
+            checkme.iscookiebypass = true;
+            checkme.isbypass = true;
+            checkme.isexception = true;
+            checkme.exceptionreason = o.language_list.getTranslation(607);
+        }
     }
+    logger_debug(" -Finished bypass checks.");
 
     if (checkme.isbypass) {
         logger_debug(" -bypass activated!");
     }
     //
-// End of bypass
-//
+    // End of bypass
+    //
     return false;    // checkme.isbypass should be checked for success - only returns true if is a scanned by-pass
 }
 

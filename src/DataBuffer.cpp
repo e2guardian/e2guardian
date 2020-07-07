@@ -120,8 +120,7 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
     int rc;
 
     if (size < 1) {
-
-        std::cerr << thread_id << "read request is negative" << std::endl;
+        logger_error("read request is negative");
         return -1;
     }
 
@@ -129,15 +128,10 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
             if (!swappedtodisk) {
                 // if not swapped to disk and file is too large for RAM, then swap to disk
                 if (data_length > o.max_content_ramcache_scan_size) {
-#ifdef E2DEBUG
-                    std::cerr << thread_id << "swapping to disk" << std::endl;
-#endif
+                    logger_debug("swapping to disk");
                     tempfilefd = getTempFileFD();
                     if (tempfilefd < 0) {
-#ifdef E2DEBUG
-                        std::cerr << thread_id << "error buffering to disk so skipping disk buffering" << std::endl;
-#endif
-                        syslog(LOG_ERR, "%s", "error buffering to disk so skipping disk buffering");
+                        logger_error("error buffering to disk so skipping disk buffering");
                         result = DB_TOBIG;
                         return -1;
                     }
@@ -146,19 +140,15 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
                     tempfilesize = data_length;
                 }
             } else if (tempfilesize > o.max_content_filecache_scan_size) {
-// if swapped to disk and file too large for that too, then give up
-#ifdef E2DEBUG
-                std::cerr << thread_id << "defaultdm: file too big to be scanned, halting download" << std::endl;
-#endif
+                // if swapped to disk and file too large for that too, then give up
+                logger_debug("defaultdm: file too big to be scanned, halting download");
                 result = DB_TOBIG | DB_TOBIG_SCAN;
                 return -1;
             }
         } else {
             if (data_length > o.max_content_filter_size) {
-// if we aren't downloading for virus scanning, and file too large for filtering, give up
-#ifdef E2DEBUG
-                std::cerr << "defaultdm: file too big to be filtered, halting download" << std::endl;
-#endif
+                // if we aren't downloading for virus scanning, and file too large for filtering, give up
+                logger_debug("defaultdm: file too big to be filtered, halting download");
                 result = DB_TOBIG | DB_TOBIG_FILTER;
                 return -1;
             }
@@ -206,9 +196,7 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
                 bytes_toget  -= rc;
                 write(tempfilefd, data, rc);
                 tempfilesize += rc;
-#ifdef E2DEBUG
-                std::cerr << thread_id << "written to disk:" << rc << " total:" << tempfilesize << std::endl;
-#endif
+                logger_debug("written to disk:", rc, " total:", tempfilesize);
             }
         }
         result = 0;
@@ -230,9 +218,7 @@ bool DataBuffer::increase_buffer(int extra) {
         data = temp;
         temp = nullptr;
         buffer_length += more; // update data size counter
-#ifdef E2DEBUG
-        std::cerr << thread_id << "data buffer extended by " << more << " to " << buffer_length << std::endl;
-#endif
+        logger_debug("data buffer extended by ", more, " to ", buffer_length);
         return true;
     }
     return false;
@@ -336,9 +322,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
     int j = 0;
  //   int rc = -1;
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
-#ifdef E2DEBUG
         ++j;
-#endif
         if ((i + 1) == o.dmplugins_end) {
             logger_debug("Got to final download manager so defaulting to always match.");
             dm_plugin = (DMPlugin *)(*i);
@@ -347,9 +331,7 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
         } else {
             dm_plugin = (DMPlugin *)(*i);
             if (story.runFunctEntry(dm_plugin->story_entry, *cm)) {
-#ifdef E2DEBUG
-                std::cerr << thread_id << "Matching download manager number: " << j << std::endl;
-#endif
+                logger_debug("Matching download manager number: ", j);
                 dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
                 break;
             }
@@ -384,9 +366,7 @@ bool DataBuffer::out(Socket *sock)
 
         while (sent < tempfilesize) {
             rc = read(tempfilefd, data, block_len);
-#ifdef E2DEBUG
-            std::cerr << thread_id << "reading temp file rc:" << rc << std::endl;
-#endif
+            logger_debug("reading temp file rc:", rc);
             if (rc < 0) {
                 logger_debug("error reading temp file so throwing exception");
                 return false;

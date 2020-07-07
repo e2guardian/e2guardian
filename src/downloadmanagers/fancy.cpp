@@ -87,9 +87,7 @@ int fancydm::init(void *args)
         story_entry = sen.entry_id;
         o.dm_entry_dq.push_back(sen);
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in fancy DM plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in fancy DM plugin config");
+        logger_error("No story_function defined in fancy DM plugin config");
         return -1;
     }
 
@@ -164,9 +162,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     int timeelapsed = 0;
 
     if (!d->icap) {
-#ifdef E2DEBUG
-        std::cerr << thread_id << "tranencodeing is " << docheader->transferEncoding() << std::endl;
-#endif
+        logger_debug("tranencodeing is ", docheader->transferEncoding());
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
@@ -203,9 +199,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-#ifdef E2DEBUG
-    std::cout << "blocksize: " << blocksize << std::endl;
-#endif
+    logger_debug("blocksize: ", blocksize);
 
     // determine downloaded filename
     String filename(requestheader->disposition());
@@ -317,26 +311,20 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                     peersock->writeString("<!-- force flush -->\r\n");
                     // add URL to clean cache (for all groups)
                     // TODO: aah - this will not work without clean cache!  Needs a different method????
-#ifdef E2DEBUG
-                    std::cout << "fancydm: file too big to be scanned, entering second stage of download" << std::endl;
-#endif
+                    logger_debug("fancydm: file too big to be scanned, entering second stage of download");
                 }
 
                 // too large to even download, let alone scan
                 if (bytesgot > upperlimit) {
-#ifdef E2DEBUG
-                    std::cout << "fancydm: file too big to be downloaded, halting second stage of download" << std::endl;
-#endif
+                    logger_debug("fancydm: file too big to be downloaded, halting second stage of download");
                     toobig_unscanned = false;
                     toobig_notdownloaded = true;
                     break;
                 }
             } else {
-// multi-stage download disabled, or we know content length
-// if swapped to disk and file too large for that too, then give up
-#ifdef E2DEBUG
-                std::cout << "fancydm: file too big to be scanned, halting download" << std::endl;
-#endif
+                // multi-stage download disabled, or we know content length
+                // if swapped to disk and file too large for that too, then give up
+                logger_debug("fancydm: file too big to be scanned, halting download");
                 toobig_unscanned = false;
                 toobig_notdownloaded = true;
                 break;
@@ -351,7 +339,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     if (initialsent) {
 
-        if (!swappedtodisk) { // if we sent textual content then we can't
+        if (!d->swappedtodisk) { // if we sent textual content then we can't
             // stream the file to the user so we must save to disk for them
             // to download by clicking on the magic link
             // You can get to this point by having a large ram cache, or

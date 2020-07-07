@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <iconv.h>
+#include <unistd.h>
 
 // DEFINES
 

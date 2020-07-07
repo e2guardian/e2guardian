@@ -1184,9 +1184,7 @@ String HTTPHeader::hashedURL(String *url,  std::string *clientip,
         hash = hash.md5(fdl.cgi_magic.c_str());
     res += hash;
     res += timecode;
-#ifdef E2DEBUG
-    std::cerr << thread_id << " -generate Bypass hashedurl data " << clientip->c_str() << " " << *url << " " << user << " " << timecode << " result " << res << std::endl;
-#endif
+    logger_debug(" -generate Bypass hashedurl data ", clientip, " ", *url, " ", user, " ", timecode, " result ", res);
     return res;
 }
 
@@ -1198,15 +1196,11 @@ String HTTPHeader::hashedCookie(String *url, const char *magic, std::string *cli
     //   if(ldl->fg[filtergroup]->bypass_v2)
     data += user;
     data += timecode;
-#ifdef E2DEBUG
-    std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << user << " " << timecode << std::endl;
-#endif
+    logger_debug(" -generate Bypass hashedCookie data ", clientip, " ", *url, " ", user, " ", timecode);
     String res(url->md5(data.toCharArray()));
     res += timecode;
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << " -Bypass hashedCookie=" << res << std::endl;
-#endif
+    logger_debug(" -Bypass hashedCookie=", res );
     return res;
 }
 
