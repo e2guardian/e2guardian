@@ -88,6 +88,8 @@ class Logger
   struct Helper;
 
   void sendMessage(const LoggerSource source, const std::string message);
+  void setDestination(const LoggerSource source, const LoggerDestination destination);
+  void setFilename(const LoggerSource source, const std::string filename);
 };
 
 extern thread_local std::string thread_id;

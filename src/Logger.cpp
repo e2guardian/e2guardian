@@ -67,13 +67,26 @@ struct Logger::Helper
     return message.str();
   }
 
-  static void sendToLogfile(const std::string filename, const std::string message){
+  static void sendToLogfile(const std::string &filename, const std::string &message){
     if (filename=="")
       return;
     std::ofstream logfile;
     logfile.open(filename,std::ofstream::out | std::ofstream::app );
-    logfile << message << std::endl;
+    if (!logfile.fail())
+      logfile << message << std::endl;
     logfile.close();
+  }
+
+  static bool testFile(const std::string &filename){
+    std::ofstream logfile;
+    bool fail;
+
+    logfile.open(filename,std::ofstream::out | std::ofstream::app );
+    fail = logfile.fail();
+    logfile.close();
+    if (fail)
+      std::cerr << "Failed to open/create logfile: " << filename << std::endl;
+
   }
 };
 
@@ -136,13 +149,8 @@ bool Logger::isEnabled(const char* source){
 }
 
 void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename, const bool alsoEnable){
-  _destination[static_cast<int>(source)] = destination;
-  if (filename.front() == '/')    // absolute path
-    _filename[static_cast<int>(source)] = filename;
-  else if (filename != "")       // relative to __LOGLOCATION
-    _filename[static_cast<int>(source)]  = std::string(__LOGLOCATION) + filename;
-  else
-    _filename[static_cast<int>(source)] = "";
+  setDestination(source, destination);
+  setFilename(source, filename);
 
   if (destination == LoggerDestination::none)
     disable(source);
@@ -153,10 +161,11 @@ void Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
 void Logger::setDockerMode(){
   // docker stdout/stderr are not in sync
   // so for debugging send everything to stderr (unbuffered)
-  setLogOutput(LoggerSource::info, LoggerDestination::stderr);
-  setLogOutput(LoggerSource::error, LoggerDestination::stderr);
-  setLogOutput(LoggerSource::debug, LoggerDestination::stderr, "", false);
-  setLogOutput(LoggerSource::trace, LoggerDestination::stderr, "", false);
+  setDestination(LoggerSource::info, LoggerDestination::stderr);
+  setDestination(LoggerSource::error, LoggerDestination::stderr);
+  setDestination(LoggerSource::access, LoggerDestination::stderr);
+  setDestination(LoggerSource::debug, LoggerDestination::stderr);
+  setDestination(LoggerSource::trace, LoggerDestination::stderr);
 }
 
 
@@ -210,6 +219,24 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
       break;
   }
 
+}
+void Logger::setDestination(const LoggerSource source, const LoggerDestination destination){
+  _destination[static_cast<int>(source)] = destination;
+}
+void Logger::setFilename(const LoggerSource source, const std::string filename){
+  std::string name;
+
+  if (filename.front() == '/')    // absolute path
+    name = filename;
+  else if (filename != "")       // relative to __LOGLOCATION
+    name = std::string(__LOGLOCATION) + filename;
+  else
+    name = "";
+
+  if (Helper::testFile(name))
+    _filename[static_cast<int>(source)] = name;
+  else
+    _filename[static_cast<int>(source)] = "";
 }
 
 // -------------------------------------------------------------
