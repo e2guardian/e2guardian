@@ -124,18 +124,18 @@ bool Logger::isEnabled(const LoggerSource source){
   return _enabled[static_cast<int>(source)];
 };
 
-void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename){
+void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename, const bool alsoEnable){
   _destination[static_cast<int>(source)] = destination;
-  if (filename.front() == '/')
-    // absolute path
+  if (filename.front() == '/')    // absolute path
     _filename[static_cast<int>(source)] = filename;
-  else
-    // relative to __LOGLOCATION
+  else if (filename != "")       // relative to __LOGLOCATION
     _filename[static_cast<int>(source)]  = std::string(__LOGLOCATION) + filename;
+  else
+    _filename[static_cast<int>(source)] = "";
 
   if (destination == LoggerDestination::none)
     disable(source);
-  else
+  else if (alsoEnable)  
     enable(source);  
 }  
 
@@ -144,8 +144,8 @@ void Logger::setDockerMode(){
   // so for debugging send everything to stderr (unbuffered)
   setLogOutput(LoggerSource::info, LoggerDestination::stderr);
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
-  setLogOutput(LoggerSource::debug, LoggerDestination::stderr);
-  setLogOutput(LoggerSource::trace, LoggerDestination::stderr);
+  setLogOutput(LoggerSource::debug, LoggerDestination::stderr, "", false);
+  setLogOutput(LoggerSource::trace, LoggerDestination::stderr, "", false);
 }
 
 

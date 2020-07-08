@@ -40,7 +40,7 @@ class Logger
   void disable(const LoggerSource source);
   bool isEnabled(const LoggerSource source);
 
-  void setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename="");
+  void setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename="", const bool alsoEnable = true);
 
   void setDockerMode();
 

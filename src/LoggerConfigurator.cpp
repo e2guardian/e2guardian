@@ -57,8 +57,6 @@ void LoggerConfigurator::configure(std::string option){
   
   LoggerSource src = Logger::string2source(source);
   LoggerDestination dst = Logger::string2dest(destination);
-  if (filename.find("/") == std::string::npos )
-    filename = std::string(__LOGLOCATION) + filename;
   
   logger_info("LoggerConfig:", " source:", source, " destination:", destination, " filename:", filename );
   _logger->setLogOutput(src, dst, filename);
