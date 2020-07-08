@@ -24,8 +24,8 @@ class DataBuffer
 {
     public:
     char *data;
-    off_t data_length;
-    off_t buffer_length;
+    off_t data_length = 0;
+    off_t buffer_length = 0;
     char *compresseddata= nullptr;
     off_t compressed_buffer_length = 0;
     off_t tempfilesize = 0;
