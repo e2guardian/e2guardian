@@ -117,7 +117,12 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp += ",listdir=";
                     temp += now_pwd;
                 }
+
+                if (temp.startsWith(LoggerConfigurator::PREFIX))
+                    loggerConf.configure(temp);
+
                 linebuffer = temp.toCharArray();
+                logger_config("read:", linebuffer);
                 conffile.push_back(linebuffer); // stick option in deque
             }
         }
