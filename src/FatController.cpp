@@ -625,16 +625,6 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     int contentmodified = 0, urlmodified = 0, headermodified = 0;
     int headeradded = 0;
 
-    std::ofstream *logfile = NULL;
-    if (!logsyslog) {
-        logfile = new std::ofstream(log_location.c_str(), std::ios::app);
-        if (logfile->fail()) {
-            logger_error("Error opening/creating log file.");
-            delete logfile;
-            return; // return with error
-        }
-    }
-
     String server("");
     // Get server name - only needed for formats 5 & 7
     if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
@@ -1224,10 +1214,6 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
     if( !logger_ttg)
         logger_debug("log_listener exiting with error");
 
-    if (logfile) {
-        logfile->close(); // close the file
-        delete logfile;
-    }
     } catch (...) {
         logger_error("log_listener caught unexpected exception - exiting");
     }

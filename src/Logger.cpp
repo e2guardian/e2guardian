@@ -85,8 +85,9 @@ struct Logger::Helper
     logfile.open(filename,std::ofstream::out | std::ofstream::app );
     fail = logfile.fail();
     logfile.close();
-    if (fail)
-      std::cerr << "Failed to open/create logfile: " << filename << std::endl;
+    if (fail) {
+      std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)" << std::endl;
+    }
     return fail;
   }
 };
