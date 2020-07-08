@@ -284,7 +284,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
         int bsize = blocksize;
         if ((!d->geteverything) && (d->bytes_toget < bsize))
             bsize = d->bytes_toget;
-        logger_debug(bsize is ", bsize);
+        logger_debug("bsize is ", bsize);
 
         rc = d->readInFromSocket(sock, bsize, wantall, read_res);
         if (read_res & DB_TOBIG)
