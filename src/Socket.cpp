@@ -348,11 +348,11 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     while (rc != 1) {
         ERR_clear_error();
         rc = SSL_connect(ssl);
-        std::cout << thread_id << "ssl_connect returned " << rc << std::endl;
+        logger_debugnet("ssl_connect returned ", rc );
 
         if (rc != 1) {
             s_errno = SSL_get_error(ssl,rc);
-            std::cout << thread_id << "ssl_connect s_error is " << s_errno << std::endl;
+            logger_debugnet("ssl_connect s_error is ", s_errno);
             switch (s_errno) {
                 case SSL_ERROR_WANT_READ:
                 case SSL_ERROR_WANT_WRITE:
@@ -360,9 +360,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
                     timedout = true;
                 default:
                     log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
-#ifdef NETDEBUG
-                    std::cout << thread_id << "ssl_connect failed with error " << SSL_get_error(ssl, rc) << std::endl;
-#endif
+                    logger_debugnet("ssl_connect failed with error ", SSL_get_error(ssl, rc));
                     // tidy up
                     SSL_free(ssl);
                     ssl = NULL;
@@ -547,7 +545,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     while (rc != 1) {
         ERR_clear_error();
         rc = SSL_accept(ssl);
-        std::cout << thread_id << "accepting returns " << rc << std::endl;
+        logger_debugnet("accepting returns ", rc);
         if (rc != 1) {
                 s_errno = SSL_get_error(ssl,rc);
                 switch (s_errno) {
@@ -557,10 +555,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
                         timedout = true;
                         return -1;
                     default:
-#ifdef NETDEBUG
-                        //syslog(LOG_ERR, "error creating ssl context\n");
-                        std::cout << thread_id << "Error accepting ssl connection error is " << s_errno << std::endl;
-#endif
+                        logger_debugnet("Error accepting ssl connection error is ", s_errno );
                         log_ssl_errors("ssl_accept failed to client %s", "");
                         cleanSsl();
                         return -1;
@@ -635,12 +630,11 @@ try {
         buffstart = 0;
         bufflen = 0;
         bufflen = SSL_read(ssl, buffer, SCK_READ_BUFF_SIZE);
-#ifdef NETDEBUG
-std::cout << thread_id << "read into buffer; bufflen: " << bufflen <<std::endl;
-#endif
+
+        logger_debugnet("read into buffer; bufflen: ", bufflen);
         if (bufflen < 1) {
             s_errno = SSL_get_error(ssl,bufflen);
-            std::cout << thread_id << "read into buffer; s_errno: " << s_errno <<std::endl;
+            logger_debugnet("read into buffer; s_errno: ", s_errno);
 
             switch (s_errno) {
                 case SSL_ERROR_WANT_READ:
@@ -656,9 +650,7 @@ std::cout << thread_id << "read into buffer; bufflen: " << bufflen <<std::endl;
                     return i;
                 default:
                     log_ssl_errors("ssl_read failed %s", "");
-#ifdef NETDEBUG
-                std::cout << thread_id << "SSL_read failed with error " << SSL_get_error(ssl, bufflen) << std::endl;
-#endif
+                    logger_debugnet("SSL_read failed with error ", SSL_get_error(ssl, bufflen));
                     ishup = true;
                     return -1;
             }
@@ -728,9 +720,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
                 default:
                     String serr(s_errno);
                     log_ssl_errors("ssl_write failed - error ",serr.c_str());
-#ifdef NETDEBUG
-                    std::cout << thread_id << "ssl_write failed" << s_errno << " failed to write" << std::endl;
-#endif
+                    logger_debugnet("ssl_write failed", s_errno, " failed to write");
                     ishup = true;
                     return false;
             }
@@ -787,9 +777,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
                     return len - cnt;
                 default:
                     log_ssl_errors("ssl_read failed %s", "");
-#ifdef NETDEBUG
-                    std::cout << thread_id << "ssl_read failed" << s_errno << " failed to read " << cnt << " bytes" << std::endl;
-#endif
+                    logger_debugnet("ssl_read failed", s_errno, " failed to read ",cnt, " bytes");
                     ishup = true;
                     return len - cnt;
             }
@@ -843,9 +831,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
 
 bool Socket::writeChunkTrailer( String &trailer) {
     std::string hexs ("0\r\n");
-#ifdef CHUNKDEBUG
-    std::cerr << thread_id << "writeChunk  size=" << hexs << std::endl;
-#endif
+    logger_debugnet("writeChunk  size=", hexs);
     if(writeString(hexs.c_str()) && writeToSocket(trailer.c_str(),trailer.length(),0,timeout) && writeString("\r\n"))
         return true;
     return false;
@@ -861,9 +847,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
             chunkError = true;
             return -1;
         }
-#ifdef CHUNKDEBUG
-        std::cerr << thread_id << "readChunk  size=" << size << std::endl;
-#endif
+        logger_debugnet("readChunk  size=", size);
         String l = size;
         l.chop();
         String t = l.before(";");
@@ -874,9 +858,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
             l = t;
         }
         chunk_to_read = l.hexToInteger();
-#ifdef CHUNKDEBUG
-        std::cerr << thread_id << "readChunk  chunk_to_read =" << chunk_to_read << std::endl;
-#endif
+        logger_debugnet("readChunk  chunk_to_read =", chunk_to_read);
     }
 
     int clen = chunk_to_read;
@@ -884,9 +866,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         clen = maxlen;
     }
     int rc = 0;
-#ifdef CHUNKDEBUG
-    std::cerr << thread_id << "readChunk  max_read =" << clen << std::endl;
-#endif
+    logger_debugnet("readChunk  max_read =", clen);
 
     if(clen == 0) {
         chunked_trailer = "";
@@ -904,9 +884,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
 
     if (clen > 0) {
         rc = readFromSocket(buffin, clen, 0, timeout);
-#ifdef CHUNKDEBUG
-        std::cerr << thread_id << "readChunk  read " << rc << std::endl;
-#endif
+        logger_debugnet("readChunk  read ", rc);
         if (rc < 0) {
             chunkError = true;
             return -1;
@@ -921,9 +899,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         return rc;
     } else {
         chunkError = true;
-#ifdef CHUNKDEBUG
-        std::cerr << thread_id << "readChunk - tail in error" << std::endl;
-#endif
+        logger_debugnet("readChunk - tail in error");
         return -1;
     }
 }
