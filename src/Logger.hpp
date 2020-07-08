@@ -37,8 +37,13 @@ class Logger
 
   // enable/disable Logging Sources
   void enable(const LoggerSource source);
+  void enable(const char* source);
+
   void disable(const LoggerSource source);
+  void disable(const char* source);
+  
   bool isEnabled(const LoggerSource source);
+  bool isEnabled(const char* source);
 
   void setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename="", const bool alsoEnable = true);
 

@@ -57,9 +57,13 @@ For every source the is a macro, which can be used to log messages, e.g.:
 - `log_error(...);` or `log_debug(..);`
 
 
-You may enable or disable a specific logger in code: 
+You may enable or disable a specific logger in code:
 
 - `logger.enable(LoggerSource::debug);`
+
+You may even enable/disable a specific logger in gdb:
+
+- `(gdb) call logger.disable("debug")`
 
 For adding a new logger source (tag, category) add:
 
