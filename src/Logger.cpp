@@ -81,12 +81,13 @@ struct Logger::Helper
     std::ofstream logfile;
     bool fail;
 
+    if (filename == "") return false;
     logfile.open(filename,std::ofstream::out | std::ofstream::app );
     fail = logfile.fail();
     logfile.close();
     if (fail)
       std::cerr << "Failed to open/create logfile: " << filename << std::endl;
-
+    return fail;
   }
 };
 
