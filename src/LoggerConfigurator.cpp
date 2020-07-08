@@ -13,8 +13,9 @@
 #endif
 
 #include <algorithm>
-#include <string>
+// #include <string>
 #include "LoggerConfigurator.hpp"
+#include "String.hpp"
 
 // -------------------------------------------------------------
 // --- Constructor
@@ -26,24 +27,24 @@ LoggerConfigurator::~LoggerConfigurator(){
   _logger = NULL;
 };
 
-const std::string LoggerConfigurator::PREFIX = std::string("log_");
+const String LoggerConfigurator::PREFIX("log_");
  
 // -------------------------------------------------------------
 // --- Public Functions
 // -------------------------------------------------------------
 
-void LoggerConfigurator::configure(std::string option){
-
-  // option.erase(std::remove(option.begin(), option.end(), " "), option.end());
-  std::string line = replaceinString(option, " ", "");
-  if (line.substr(0, PREFIX.size()) != PREFIX ) return;
+void LoggerConfigurator::configure(const std::string option)
+{
+  String line(option);
+  line.removeChar(' ');
+  if (!line.startsWith(PREFIX))  return;
 
   size_t pos1 = line.find("=",0);
   if (pos1 == std::string::npos ) return;
 
   std::string source = line.substr(PREFIX.size(), pos1 - PREFIX.size() );
   std::string destination;
-  std::string filename;
+  String filename;
 
   size_t pos2 = line.find(",", pos1);
   if (pos2 ==  std::string::npos) {
@@ -51,8 +52,9 @@ void LoggerConfigurator::configure(std::string option){
     filename = "";
   } else
   {
-    destination = line.substr(pos1+1, pos2-pos1);
-    filename = line.substr(pos2+1);
+    destination = line.substr(pos1+1, pos2-pos1-1);
+    filename = String(line.substr(pos2+1));
+    filename.removeChar('\'');
   }
   
   LoggerSource src = Logger::string2source(source);
