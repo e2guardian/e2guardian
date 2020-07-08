@@ -32,6 +32,8 @@ LOptionContainer::LOptionContainer()
 
 LOptionContainer::LOptionContainer(int load_id)
 {
+    logger_trace(load_id);
+
     char buff[40];
 
     sprintf(buff, "%ld", time(NULL));
@@ -64,7 +66,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     {
-        logger_error("regexpboollist size is ", o.regexpboollist_dq.size());;
+        logger_config("regexpboollist size is ", o.regexpboollist_dq.size());;
         if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
             loaded_ok = false;
     }
@@ -109,6 +111,7 @@ LOptionContainer::LOptionContainer(int load_id)
  //       }
  //   }
 
+    logger_trace("");
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
@@ -307,6 +310,8 @@ void LOptionContainer::deleteFilterGroupsJustListData()
 bool LOptionContainer::read(std::string& filename, int type, std::string& exception_ip_list_location,
                             std::string& banned_ip_list_location)
 {
+    logger_trace(filename);
+    
 	conffilename = filename;
 
 	// all sorts of exceptions could occur reading conf files

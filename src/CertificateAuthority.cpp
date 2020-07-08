@@ -56,7 +56,7 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the ca cert
     fp = fopen(caCert, "r");
     if (fp == NULL) {
-        logger_error("Couldn't open ca certificate");
+        logger_error("Couldn't open ca certificate file ", caCert);
         exit(1);
     }
     _caCert = PEM_read_X509(fp, NULL, NULL, NULL);

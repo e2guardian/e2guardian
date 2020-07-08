@@ -114,7 +114,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     // after read/write - PP
     while (!done && (targetthroughput > -1 ? throughput < targetthroughput : true)) {
         done = true; // if we don't make a successful read and write this
-        // flag will stay true and so the while() will exit
+                     // flag will stay true and so the while() will exit
         logger_debug("Start of tunnel loop: throughput:", throughput, " target:", targetthroughput);
 
         // 1st Try 'from' socket for input if not waiting for write on socket
@@ -242,12 +242,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             break;
         }
 
-        std::cout <<thread_id << " sf_ww is " << sf_write_wait << " st_ww is "  << st_write_wait << " sf_rw is " << sf_read_wait <<
-                 " st_rw is "  << st_read_wait
-                  << std::endl;
-        std::cout <<thread_id << " sf_ww_f is " << sf_write_wait_flags << " st_ww_f is "  << st_write_wait_flags << " sf_rw_f is " << sf_read_wait_flags <<
-                  " st_rw_f is "  << st_read_wait_flags
-                  << std::endl;
+        logger_debug("sf_ww is ", sf_write_wait, " st_ww is ", st_write_wait, " sf_rw is ", sf_read_wait, " st_rw is ", st_read_wait);
+        logger_debug("sf_ww_f is ", sf_write_wait_flags, " st_ww_f is ", st_write_wait_flags, " sf_rw_f is ", sf_read_wait_flags, " st_rw_f is ", st_read_wait_flags);
 
     // 5th set up and do poll
 

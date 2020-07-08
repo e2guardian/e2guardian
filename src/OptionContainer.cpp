@@ -829,6 +829,8 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
         storyboard_location = findoptionS("preauthstoryboard");
+        if (storyboard_location == "")
+            logger_error("Missing preauthstoryboard in: ", filename);
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") ||
             ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
@@ -1114,7 +1116,7 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        logger_error("Config problem; check allowed values for ", emessage);
+        logger_error("Config problem; check allowed values for ", emessage, "( ", l , " should be >= ", minl, " <=", maxl, ")");
         return false;
     }
     return true;

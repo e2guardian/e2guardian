@@ -484,6 +484,8 @@ bool FOptionContainer::read(const char *filename) {
         std::string banned_phrase_list_location(findoptionS("bannedphraselist"));
 
         std::string storyboard_location(findoptionS("storyboard"));
+        if (storyboard_location == "")
+            logger_error("Missing storyboard in ", filename );
 
         logger_trace("Read settings into memory");
 
