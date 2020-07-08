@@ -27,8 +27,8 @@ Logger::Logger() {
   setLogOutput(LoggerSource::error, LoggerDestination::stderr);
   setLogOutput(LoggerSource::access, LoggerDestination::file, "access.log");
 
-  setLogOutput(LoggerSource::debug, LoggerDestination::stdout);
-  setLogOutput(LoggerSource::trace, LoggerDestination::stdout);
+  setLogOutput(LoggerSource::debug, LoggerDestination::stdout, "", false);
+  setLogOutput(LoggerSource::trace, LoggerDestination::stdout, "", false);
 }
 
 Logger::~Logger() {
