@@ -69,7 +69,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     String temp; // for tempory conversion and storage
     String now_pwd(list_pwd);
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
-    LoggerConfigurator loggerConf(&logger);
+    LoggerConfigurator loggerConf(&e2logger);
 
     if (!conffiles.good()) {
         logger_error("Error reading ", filename);
@@ -229,7 +229,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
-            logger.setDockerMode();
+            e2logger.setDockerMode();
         } else {
             no_daemon = false;
         }

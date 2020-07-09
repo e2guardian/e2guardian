@@ -40,7 +40,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 
-LoggerConfigurator loggerConfig(&logger);
+LoggerConfigurator loggerConfig(&e2logger);
 bool is_daemonised;
 
 // regexp used during URL decoding by HTTPHeader
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     int rc;
 
-    logger.setSyslogName("e2guardian");
+    e2logger.setSyslogName("e2guardian");
 #if E2DEBUG
     logger.enable(LoggerSource::debug);
     logger.enable(LoggerSource::trace);
@@ -206,10 +206,10 @@ int main(int argc, char *argv[])
 
     if ( o.SB_trace ) {
         logger_info("Enable Storyboard tracing !!");
-        logger.enable(LoggerSource::story);
+        e2logger.enable(LoggerSource::story);
     }
     if ( ! o.name_suffix.empty() ) {
-        logger.setSyslogName(prog_name + o.name_suffix);
+        e2logger.setSyslogName(prog_name + o.name_suffix);
     }
 
     if (total_block_list && !o.readinStdin()) {
