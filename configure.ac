@@ -128,51 +128,6 @@ fi], [
   AC_MSG_RESULT(no)
 ])
 
-AC_MSG_CHECKING(for newdebug option)
-AC_ARG_WITH(newdebug,
-[AC_HELP_STRING([--with-newdebug@<:@=off@:>@], [switch off debuglevel build mode])],
-[if test "x${withval}" = "xon" ; then
-  AC_MSG_RESULT(YES)
-  AC_DEFINE(NEWDEBUG_ON, 1, [Define to enable debuglevel build mode])
-else
-  AC_MSG_RESULT(no)
-# enable by default
-  newdebug=${withval}
-  AC_DEFINE(NEWDEBUG_OFF, 1, [Define to disable debuglevel build mode])
-fi], [
-  # enable by default
-  AC_DEFINE(NEWDEBUG_ON, 1, [Define to enable debuglevel build mode])
-  AC_MSG_RESULT(yes)
-])
-
-AC_MSG_CHECKING(for netdebug option)
-AC_ARG_WITH(netdebug,
-[AC_HELP_STRING([--with-netdebug@<:@=off@:>@], [switch on netdebug build mode])],
-[if test "x${withval}" = "xoff" ; then
-  AC_MSG_RESULT(no)
-else
-  AC_MSG_RESULT(yes)
-  netdebug=${withval}
-  AC_DEFINE(NETDEBUG, 1, [Define to enable debug build mode for socket functions])
-fi], [
-  # disable by default
-  AC_MSG_RESULT(no)
-])
-
-AC_MSG_CHECKING(for REdebug option)
-AC_ARG_WITH(redebug,
-[AC_HELP_STRING([--with-redebug@<:@=off@:>@], [switch on redebug build mode])],
-[if test "x${withval}" = "xoff" ; then
-  AC_MSG_RESULT(no)
-else
-  AC_MSG_RESULT(yes)
-  redebug=${withval}
-  AC_DEFINE(REDEBUG, 1, [Define to enable debug build mode for regexp functions])
-fi], [
-  # disable by default
-  AC_MSG_RESULT(no)
-])
-
 
 AC_MSG_CHECKING(for proxy user)
 AC_ARG_WITH(proxyuser,
