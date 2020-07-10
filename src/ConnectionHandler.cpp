@@ -3427,47 +3427,24 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             }
 
             {
-// another round...
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << " ICAP -persisting (count " << ++pcount << ")" << " Client IP: " << clientip << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << " ICAP -persisting (count " << ++pcount << ")" << " - " << clientip << std::endl;
-                }
-#endif
+                // another round...
+                e2logger_debugicap(" ICAP -persisting (count ", ++pcount, ")", " Client IP: ", clientip);
+
                 icaphead.reset();
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
-#ifndef NEWDEBUG_OFF
-                        if(o.myDebug->ICAP)
-                        {
-                            std::ostringstream oss (std::ostringstream::out);
-                            oss << thread_id << " -ICAP Persistent connection timed out" << std::endl;
-                            o.myDebug->Debug("ICAP",oss.str());
-                            std::cerr << thread_id << " -ICAP Persistent connection timed out" << std::endl;
-                        }
-#endif
+                        e2logger_debugicap( " -ICAP Persistent connection timed out")
                         //send error response
-                            wline = "ICAP/1.0 408 Request timeout\r\n";
-                            wline += "Service: ";
-			    wline += PACKAGE_STRING; 
-			    wline  += "\r\n";
-                            wline += "Encapsulated: null-body=0\r\n";
-                            wline += "\r\n";
-                            peerconn.writeString(wline.toCharArray());
+                        wline = "ICAP/1.0 408 Request timeout\r\n";
+                        wline += "Service: ";
+        			    wline += PACKAGE_STRING; 
+		        	    wline  += "\r\n";
+                        wline += "Encapsulated: null-body=0\r\n";
+                        wline += "\r\n";
+                        peerconn.writeString(wline.toCharArray());
                     } else {
 
-#ifndef NEWDEBUG_OFF
-                            if(o.myDebug->ICAP)
-                            {
-                                std::ostringstream oss (std::ostringstream::out);
-                                oss << thread_id << " -ICAP Persistent connection closed" << std::endl;
-                                o.myDebug->Debug("ICAP",oss.str());
-                                std::cerr << thread_id << " -ICAP Persistent connection closed" << std::endl;
-                            }
-#endif
+                        e2logger_debugicap( " -ICAP Persistent connection closed");
                         // TODO: send error reply if needed
                         break;
                     }
@@ -3504,27 +3481,18 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 docbody.setICAP(true);
                 peerconn.resetChunk();
             }
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "service options enabled : " << wline << " icaphead.service_reqmod: "<< icaphead.service_reqmod << " icaphead.service_resmod: " << icaphead.service_resmod << " icaphead.service_options: " << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << " icaphead.icap_resmod_service: " << icaphead.icap_resmod_service << " icaphead.icap_reqmod_service: " << icaphead.icap_reqmod_service << std::endl;
-            }
-#endif
+                e2logger_debugicap("service options enabled : ", wline, 
+                                    " icaphead.service_reqmod: ", icaphead.service_reqmod,
+                                    " icaphead.service_resmod: ", icaphead.service_resmod,
+                                    " icaphead.service_options: ",
+                                    " icaphead.icap_reqmod_service: ", icaphead.icap_reqmod_service,
+                                    " icaphead.icap_resmod_service: ", icaphead.icap_resmod_service,
+                                    " icaphead.icap_reqmod_service: ", icaphead.icap_reqmod_service);
+
             // Check service option REQMOD, RESMOD, OPTIONS and call apropreate function(s)
             //
             if (icaphead.service_reqmod && icaphead.icap_reqmod_service) {
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "Icap reqmod check " << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "Icap reqmod check " << std::endl;
-                }
-#endif
+                e2logger_debugicap( "Icap reqmod check ");
                 if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0){
                     continue;
                 }else{
@@ -3532,15 +3500,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 }
 
             } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "Icap resmod check " << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "Icap resmod check " << std::endl;
-                }
-#endif
+                e2logger_debugicap("Icap resmod check ");
                 if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
                     continue;
                 else
@@ -3550,8 +3510,8 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: REQMOD\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
-		wline  += "\r\n";
+		        wline += PACKAGE_STRING; 
+		        wline  += "\r\n";
                 wline += "ISTag: \"";
                 wline += ldl->ISTag();
                 wline += "\"\r\n";
@@ -3560,22 +3520,15 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "respmod service options response : " << wline << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "respmod service options response : " << wline << std::endl;
-                }
-#endif
+                e2logger_debugicap("respmod service options response : ", wline);
+
             } else if (icaphead.service_options && icaphead.icap_resmod_service) {
                // respond with option response
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: RESPMOD\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
-		wline  += "\r\n";
+		        wline += PACKAGE_STRING; 
+		        wline  += "\r\n";
                 wline += "ISTag:";
                 wline += ldl->ISTag();
                 wline += "\r\n";
@@ -3584,64 +3537,34 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "respmod service options response : " << wline << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "respmod service options response : " << wline << std::endl;
-                }
-#endif
+                e2logger_debugicap("respmod service options response : ", wline);
+
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 wline = "ICAP/1.0 405 Method not allowed for service\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
-		wline  += "\r\n";
+		        wline += PACKAGE_STRING; 
+		        wline  += "\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "ICAP/1.0 405 Method not allowed for service " << wline << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "ICAP/1.0 405 Method not allowed for service " << wline << std::endl;
-                }
-#endif
+                e2logger_debugicap("ICAP/1.0 405 Method not allowed for service ", wline);
+
            } else {
                 //send error response
                 wline = "ICAP/1.0 400 Bad request\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
-		wline  += "\r\n";
+		        wline += PACKAGE_STRING; 
+		        wline  += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "ICAP/1.0 400 Bad request : " << wline << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "ICAP/1.0 400 Bad request : " << wline << std::endl;
-                }
-#endif
+                e2logger_debugicap("ICAP/1.0 400 Bad request : ", wline);
             }
         }
     //    } //catch (std::exception & e)
 
     if (!ismitm)
         try {
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "ICAP -Attempting graceful connection close" << std::endl;
-            }
-#endif
+            e2logger_debugicap("ICAP -Attempting graceful connection close");
 
             int fd = peerconn.getFD();
             if (fd > -1) {
@@ -3654,15 +3577,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             // close connection to the client
             peerconn.close();
         } catch (std::exception &e) {
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << " -ICAP connection handler caught an exception on connection closedown: " << e.what() << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << " -ICAP connection handler caught an exception on connection closedown: " << e.what() << std::endl;
-        }
-#endif
+            e2logger_debugicap(" -ICAP connection handler caught an exception on connection closedown: ", e.what());
             // close connection to the client
             peerconn.close();
         }
@@ -3725,16 +3640,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     authed = true;
     checkme.filtergroup = filtergroup;
 
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-    {
-            std::ostringstream oss (std::ostringstream::out);
-            int unrealgroup = filtergroup+1;
-            oss << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "-username: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
-    }
-#endif
+    int unrealgroup = filtergroup+1;
+    e2logger_debugicap("-username: ", clientuser, " ICAP -filtergroup: ", unrealgroup);
 
 //
 //
@@ -3951,20 +3858,12 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     {
         String wline = "ICAP/1.0 418 Bad composition - X-ICAP-E2G header not present\r\n";
         wline += "Service: ";
-	wline += PACKAGE_STRING; 
-	wline  += "\r\n";
+	    wline += PACKAGE_STRING; 
+	    wline  += "\r\n";
         wline += "Encapsulated: null-body=0\r\n";
         wline += "\r\n";
         peerconn.writeString(wline.toCharArray());
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << " ICAP Error: " << wline << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << " ICAP Error: " << wline << std::endl;
-        }
-#endif
+        e2logger_debugicap(" ICAP Error: ", wline);
         return 1;
     }
 
@@ -4001,16 +3900,11 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
     }
 
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-    {
-            int unrealfiltergroup = filtergroup + 1;
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP Respmod enabled - username: " << clientuser << " -filtergroup: " << unrealfiltergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "ICAP Respmod enabled -username: " << clientuser << " -filtergroup: " << unrealfiltergroup << " icaphead.icap_com.EBG: " << icaphead.icap_com.EBG << " icaphead.res_body_flag: " << icaphead.res_body_flag  << std::endl;
-    }
-#endif
+    int unrealfiltergroup = filtergroup + 1;
+    e2logger_debugicap("ICAP Respmod enabled - username: ", clientuser, 
+                        " -filtergroup: ", unrealfiltergroup,
+                        " icaphead.icap_com.EBG: ", icaphead.icap_com.EBG,
+                        " icaphead.res_body_flag: ", icaphead.res_body_flag);
 
     checkme.clientip = ip;
     checkme.filtergroup = filtergroup;
@@ -4027,15 +3921,12 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-        {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "Virus scan checkme.isexception: " << checkme.isexception  << " checkme.noviruscheck: " << checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << " checkme.isBlocked: " << checkme.isBlocked << " disable_content_scan: " << ldl->fg[filtergroup]->disable_content_scan << " csplugins: " << o.csplugins.size() << std::endl;
-            }
-#endif
+    e2logger_debugicap("Virus scan checkme.isexception: ", checkme.isexception, 
+                        " checkme.noviruscheck: ", checkme.noviruscheck,
+                        " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions,
+                        " checkme.isBlocked: ", checkme.isBlocked,
+                        " disable_content_scan: ", ldl->fg[filtergroup]->disable_content_scan,
+                        " csplugins: ", o.csplugins.size() );
 
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
@@ -4054,15 +3945,10 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(checkme.isexception) || !checkme.noviruscheck) {
             // Main checking is done in Storyboard function(s)
             ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions <<  std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "After StoryB icapcheckresmod" << checkme.isexception << " mess_no " << checkme.message_no  << " checkme.noviruscheck: "<< checkme.noviruscheck << " content_scan_exceptions: " << ldl->fg[filtergroup]->content_scan_exceptions << std::endl;
-            }
-#endif
+            e2logger_debugicap("After StoryB icapcheckresmod", checkme.isexception, 
+                                " mess_no ", checkme.message_no,
+                                " checkme.noviruscheck: ", checkme.noviruscheck,
+                                " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions);
 
 	   if (ldl->fg[filtergroup]->reporting_level != -1){
             checkme.isItNaughty = checkme.isBlocked;
