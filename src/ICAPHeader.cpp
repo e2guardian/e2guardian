@@ -718,7 +718,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 std::cerr << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
             }
 #endif
-	        logger_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
+	        e2logger_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
             return false;
         }
@@ -737,7 +737,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
-                        logger_error("Server did not respond with ICAP");
+                        e2logger_error("Server did not respond with ICAP");
 #ifndef NEWDEBUG_OFF
                         if(o.myDebug->ICAP)
                         {

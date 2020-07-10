@@ -72,7 +72,7 @@ int clamdinstance::init(void *args)
     // read in ClamD UNIX domain socket path
     udspath = cv["clamdudsfile"];
     if (udspath.length() < 3) {
-        logger_error("Error reading clamdudsfile option.");
+        e2logger_error("Error reading clamdudsfile option.");
         return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
@@ -102,7 +102,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     // the AV daemon's group membership.
     if (chmod(filename, S_IRGRP | S_IRUSR ) != 0) {
         lastmessage = "Error giving ClamD read access to temp file ";
-        logger_error(lastmessage, strerror(errno));
+        e2logger_error(lastmessage, strerror(errno));
         return E2CS_SCANERROR;
     };
     String command("SCAN ");
@@ -126,12 +126,12 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to ClamD";
-        logger_error(lastmessage);
+        e2logger_error(lastmessage);
         return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to ClamD socket";
-        logger_error(lastmessage);
+        e2logger_error(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -142,7 +142,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
-        logger_error(lastmessage);
+        e2logger_error(lastmessage);
 #ifndef NEWDEBUG_OFF
     if(o.myDebug->CLAMAV)
       {
@@ -175,7 +175,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
        }
 #endif
-        logger_error(lastmessage);
+        e2logger_error(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -194,7 +194,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
         lastmessage = "ClamD error: " + reply;
-        logger_error(lastmessage);
+        e2logger_error(lastmessage);
         return E2CS_SCANERROR;
     } else if (reply.endsWith("FOUND")) {
         lastvirusname = reply.after(": ").before(" FOUND");

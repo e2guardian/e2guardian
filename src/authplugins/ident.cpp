@@ -75,28 +75,28 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     int clientport = peercon.getPeerSourcePort();
     int serverport = peercon.getPort();
-    logger_debug("Connecting to: ", clientip, "to ask about: ", clientport);
+    e2logger_debug("Connecting to: ", clientip, "to ask about: ", clientport);
     Socket iq;
     iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
-        logger_debug("Error connecting to obtain ident from: ", clientip);
+        e2logger_debug("Error connecting to obtain ident from: ", clientip);
         return E2AUTH_NOMATCH;
     }
-    logger_debug("Connected to:", clientip);
+    e2logger_debug("Connected to:", clientip);
     std::string request;
     request = String(clientport).toCharArray();
     request += ", ";
     request += String(serverport).toCharArray();
     request += "\r\n";
 
-    logger_debug("About to send:", request);
+    e2logger_debug("About to send:", request);
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
-        logger_debug("Error writing to ident connection to: ", clientip);
+        e2logger_debug("Error writing to ident connection to: ", clientip);
         iq.close(); // close conection to client
         return -1;
     }
-    logger_debug("wrote ident request to:", clientip);
+    e2logger_debug("wrote ident request to:", clientip);
 
     char buff[8192];
     try {
@@ -106,7 +106,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     String temp;
     temp = buff; // convert to String
-    logger_debug("got ident reply: ", temp, " from: ", clientip);
+    e2logger_debug("got ident reply: ", temp, " from: ", clientip);
 
     iq.close(); // close conection to client
     temp = temp.after(":");
@@ -137,7 +137,7 @@ int identinstance::init(void *args)
 	    read_def_fg();
         return 0;
     } else {
-        logger_error("No story_function defined in ident auth plugin config");
+        e2logger_error("No story_function defined in ident auth plugin config");
         return -1;
     }
 }

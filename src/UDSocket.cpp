@@ -99,7 +99,7 @@ int UDSocket::connect(const char *path)
     if (strlen(path) > 108)
         return -1;
 
-    logger_debugnet("uds connect:", path);
+    e2logger_debugnet("uds connect:", path);
     strcpy(my_adr.sun_path, path);
 
     my_adr_length = offsetof(struct sockaddr_un, sun_path) + strlen(path);

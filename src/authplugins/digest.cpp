@@ -78,7 +78,7 @@ int digestinstance::init(void *args)
 	    read_def_fg();
         return 0;
     } else {
-        logger_error("No story_function defined in digest auth plugin config");
+        e2logger_error("No story_function defined in digest auth plugin config");
         return -1;
     }
 }

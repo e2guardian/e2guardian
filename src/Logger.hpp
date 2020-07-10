@@ -96,46 +96,46 @@ extern thread_local std::string thread_id;
 
 extern Logger e2logger;
 
-#define logger_info(...)  \
+#define e2logger_info(...)  \
   if (e2logger.isEnabled(LoggerSource::info)) \
      e2logger.vlog(LoggerSource::info,  __func__, __LINE__, __VA_ARGS__)
-#define logger_error(...) \
+#define e2logger_error(...) \
   if (e2logger.isEnabled(LoggerSource::error)) \
      e2logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
-#define logger_access(...)  \
+#define e2logger_access(...)  \
   if (e2logger.isEnabled(LoggerSource::access)) \
      e2logger.vlog(LoggerSource::access,  __func__, __LINE__, __VA_ARGS__)
-#define logger_config(...) \
+#define e2logger_config(...) \
   if (e2logger.isEnabled(LoggerSource::config)) \
      e2logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
-#define logger_story(...) \
+#define e2logger_story(...) \
   if (e2logger.isEnabled(LoggerSource::story)) \
     e2logger.vlog(LoggerSource::story, "", 0,  __VA_ARGS__)
 
 
 #ifdef E2DEBUG
-  #define logger_debug(...) \
+  #define e2logger_debug(...) \
     if (e2logger.isEnabled(LoggerSource::debug)) \
       e2logger.vlog(LoggerSource::debug,  __func__, __LINE__, __VA_ARGS__)
-  #define logger_trace(...) \
+  #define e2logger_trace(...) \
     if (e2logger.isEnabled(LoggerSource::trace)) \
       e2logger.vlog(LoggerSource::trace,  __func__, __LINE__, __VA_ARGS__)
-  #define logger_debugnet(...) \
+  #define e2logger_debugnet(...) \
     if (e2logger.isEnabled(LoggerSource::debugnet)) \
       e2logger.vlog(LoggerSource::debugnet,  __func__, __LINE__, __VA_ARGS__)
-  #define logger_debugregexp(...) \
+  #define e2logger_debugregexp(...) \
     if (e2logger.isEnabled(LoggerSource::debugregexp)) \
       e2logger.vlog(LoggerSource::debugregexp,  __func__, __LINE__, __VA_ARGS__)
-  #define logger_debugsb(...) \
+  #define e2logger_debugsb(...) \
     if (e2logger.isEnabled(LoggerSource::debugsb)) \
       e2logger.vlog(LoggerSource::debugsb,  __func__, __LINE__, __VA_ARGS__)
 
 #else
-  #define logger_debug(...)
-  #define logger_trace(...)
-  #define logger_debugnet(...)
-  #define logger_debugregexp(...)
-  #define logger_debugsb(...)
+  #define e2logger_debug(...)
+  #define e2logger_trace(...)
+  #define e2logger_debugnet(...)
+  #define e2logger_debugregexp(...)
+  #define e2logger_debugsb(...)
 #endif
 
 

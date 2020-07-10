@@ -70,7 +70,7 @@ int DMPlugin::init(void *args)
     //}
 //#ifdef E2DEBUG
     //else
-        logger_debug("Fallback DM plugin; no matching options loaded");
+        e2logger_debug("Fallback DM plugin; no matching options loaded");
 //#endif
     return 0;
 }
@@ -99,7 +99,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     bool matchedmime = false;
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
-        logger_debug("mimetype: ", mimetype);
+        e2logger_debug("mimetype: ", mimetype);
         String lc;
         if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
             if (!extensionlistenabled)
@@ -107,7 +107,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
         } else
             matchedmime = true;    
     } else {
-        logger_debug("NO mimelistenabled!");
+        e2logger_debug("NO mimelistenabled!");
     }
 
 
@@ -142,13 +142,13 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
                 }
             }
         }
-        logger_debug("extension: ", extension);
+        e2logger_debug("extension: ", extension);
         // check the extension list
         String lc;
         if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray(), lc) == NULL))
             return matchedmime;
     } else {
-        logger_debug("NO extensionlistenabled!");
+        e2logger_debug("NO extensionlistenabled!");
     }
 
 
@@ -166,7 +166,7 @@ bool DMPlugin::readStandardLists()
     String filename(cv["managedmimetypelist"]);
     if (filename.length() > 0) {
         if (!mimetypelist.readItemList(filename.toCharArray(),"", false, 0)) {
-            logger_error("Error opening managedmimetypelist");
+            e2logger_error("Error opening managedmimetypelist");
             return false;
         }
         mimetypelist.doSort(false);
@@ -178,7 +178,7 @@ bool DMPlugin::readStandardLists()
     filename = cv["managedextensionlist"];
     if (filename.length() > 0) {
         if (!extensionlist.readItemList(filename.toCharArray(), "", false, 0)) {
-            logger_error("Error opening managedextensionlist");
+            e2logger_error("Error opening managedextensionlist");
             return false;
         }
         extensionlist.doSort(false);
@@ -197,32 +197,32 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        logger_error("Unable to load plugin config: ", pluginConfigPath);
+        e2logger_error("Unable to load plugin config: ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
 
     if (plugname.length() < 1) {
-        logger_error("Unable read plugin config plugname variable: ", pluginConfigPath);
+        e2logger_error("Unable read plugin config plugname variable: ", pluginConfigPath);
         return NULL;
     }
 
     if (plugname == "default") {
-        logger_debug("Enabling default DM plugin");
+        e2logger_debug("Enabling default DM plugin");
         return defaultdmcreate(cv);
     }
 
     if (plugname == "fancy") {
-        logger_debug("Enabling fancy DM plugin");
+        e2logger_debug("Enabling fancy DM plugin");
         return fancydmcreate(cv);
     }
 
     if (plugname == "trickle") {
-        logger_debug("Enabling trickle DM plugin");
+        e2logger_debug("Enabling trickle DM plugin");
         return trickledmcreate(cv);
     }
 
-    logger_error("Unable to load plugin: ", plugname);
+    e2logger_error("Unable to load plugin: ", plugname);
     return NULL;
 }

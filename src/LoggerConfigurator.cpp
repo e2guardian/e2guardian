@@ -60,7 +60,7 @@ void LoggerConfigurator::configure(const std::string option)
   LoggerSource src = Logger::string2source(source);
   LoggerDestination dst = Logger::string2dest(destination);
   
-  logger_info("LoggerConfig:", " source:", source, " destination:", destination, " filename:", filename );
+  e2logger_info("LoggerConfig:", " source:", source, " destination:", destination, " filename:", filename );
   _logger->setLogOutput(src, dst, filename);
 
 };

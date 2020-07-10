@@ -131,7 +131,7 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
         if (strlen(buffer) < 7)
             continue;
 
-        logger_trace("");
+        e2logger_trace("");
         // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
         if (matchIP.match(line.toCharArray(),Rre)) {
             struct in_addr address;
@@ -189,33 +189,33 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
             hostlist.push_back(line);
         }
     }
-    logger_trace("starting sort");
+    e2logger_trace("starting sort");
     std::sort(iplist.begin(), iplist.end());
     std::sort(hostlist.begin(), hostlist.end());
-    logger_trace("sort complete");
+    e2logger_trace("sort complete");
 #ifdef E2DEBUG    
-    logger_debug("ip list dump:");
+    e2logger_debug("ip list dump:");
     std::vector<uint32_t>::iterator i = iplist.begin();
     while (i != iplist.end()) {
-        logger_debug("IP: ", String(*i));
+        e2logger_debug("IP: ", String(*i));
         ++i;
     }
-    logger_debug("subnet list dump:");
+    e2logger_debug("subnet list dump:");
     std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        logger_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
+        e2logger_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
         ++j;
     }
-    logger_debug("range list dump:");
+    e2logger_debug("range list dump:");
     std::list<ipl_rangestruct>::iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        logger_debug("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
+        e2logger_debug("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
         ++k;
     }
-    logger_debug("host list dump:");
+    e2logger_debug("host list dump:");
     std::vector<String>::iterator l = hostlist.begin();
     while (l != hostlist.end()) {
-        logger_debug("Hostname: ", *l );
+        e2logger_debug("Hostname: ", *l );
         ++l;
     }
 #endif
@@ -228,10 +228,10 @@ bool IPList::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        logger_error("Error reading file (does it exist?): ", filename);
+        e2logger_error("Error reading file (does it exist?): ", filename);
         return false;
     }
-    logger_debug("reading: ", filename);
+    e2logger_debug("reading: ", filename);
     if (ifsreadIPMelangeList(&input, false, NULL)) {
         input.close();
         return true;

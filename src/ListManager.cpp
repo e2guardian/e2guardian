@@ -47,7 +47,7 @@ int ListManager::findNULL()
 {
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
-            logger_debug("found free list:", std::to_string(i));
+            e2logger_debug("found free list:", std::to_string(i));
             // std::cerr << thread_id << "found free list:" << i << std::endl;
             return (signed)i;
         }
@@ -61,7 +61,7 @@ void ListManager::garbageCollect()
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] != NULL) {
             if ((*l[i]).refcount < 1) {
-                logger_debug("deleting zero ref list: ", String(i), " ",  String(l[i]->refcount) );
+                e2logger_debug("deleting zero ref list: ", String(i), " ",  String(l[i]->refcount) );
                 delete l[i];
                 l[i] = NULL;
             }
@@ -80,7 +80,7 @@ void ListManager::deRefList(size_t i)
 void ListManager::refList(size_t i)
 {
     l[i]->refcount++;
-    logger_debug("referencing list ref: ", String(i),
+    e2logger_debug("referencing list ref: ", String(i),
                  ", refcount: ", String(l[i]->refcount),
                  " (", l[i]->sourcefile, ")" );
 
@@ -98,7 +98,7 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
         if ((*l[i]).previousUseItem(filename, startswith, filters)) {
             // this upToDate check also checks all .Included files
             if ((*l[i]).upToDate()) {
-                logger_debug("Using previous item: ", String(i), " ", filename);
+                e2logger_debug("Using previous item: ", String(i), " ", filename);
                 refList(i);
                 return i;
             }
@@ -147,11 +147,11 @@ int ListManager::newStdinItemList(bool startswith, int filters, bool parent)
 int ListManager::newPhraseList(const char *exception, const char *banned, const char *weighted, int nlimit)
 {
     if ( !strlen(exception) )
-        { logger_error("missing exception phrase file "); return -1; }
+        { e2logger_error("missing exception phrase file "); return -1; }
     if ( !strlen(banned) )
-        { logger_error("missing banned phrase file "); return -1; }
+        { e2logger_error("missing banned phrase file "); return -1; }
     if ( !strlen(weighted) )
-        { logger_error("missing weighted phrase file "); return -1; }
+        { e2logger_error("missing weighted phrase file "); return -1; }
 
     time_t bannedpfiledate = getFileDate(banned);
     time_t exceptionpfiledate = getFileDate(exception);
@@ -170,7 +170,7 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
 //so when phrases read in in list container it needs to store
 //all the file names and if a single one has changed needs a
 //complete regenerate
-                logger_debug("Using previous phrase: ", exception, " - ", banned, " - ", weighted);
+                e2logger_debug("Using previous phrase: ", exception, " - ", banned, " - ", weighted);
                 refList(i);
                 return i;
             }
@@ -200,29 +200,29 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
     bool return_error = false;
     int res = newPhraseList(exception, banned, weighted, nlimit);
     if (res < 0) {
-        logger_error("Error opening phraselists");
+        e2logger_error("Error opening phraselists");
         return_error = true;
 //        return false;
     }
     if (!(*l[res]).used) {
-        logger_debug("Reading new phraselists");
+        e2logger_debug("Reading new phraselists");
 
         bool result = (*l[res]).readPhraseList(exception, true);
         if (!result) {
-            logger_error("Error opening exceptionphraselist");
+            e2logger_error("Error opening exceptionphraselist");
             return_error = true;
 //        return false;
         }
 
         result = (*l[res]).readPhraseList(banned, false, -1, -1, false,nlimit);
         if (!result) {
-            logger_error("Error opening bannedphraselist");
+            e2logger_error("Error opening bannedphraselist");
             return_error = true;
 //        return false;
         }
         result = (*l[res]).readPhraseList(weighted, false, -1, -1, false,nlimit);
         if (!result) {
-            logger_error("Error opening weightedphraselist");
+            e2logger_error("Error opening weightedphraselist");
             return_error = true;
             //return false;
         }

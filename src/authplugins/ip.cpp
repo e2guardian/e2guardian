@@ -136,7 +136,7 @@ int ipinstance::init(void *args)
 	    read_def_fg();
         return 0;
     } else {
-        logger_error("No story_function defined in IP auth plugin config");
+        e2logger_error("No story_function defined in IP auth plugin config");
         return -1;
     }
 }
@@ -195,22 +195,22 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inList(addr);
     if (fg >= 0) {
         rfg = fg;
-        logger_debug("Matched IP ", user, " to straight IP list");
+        e2logger_debug("Matched IP ", user, " to straight IP list");
         return E2AUTH_OK;
     }
 //    fg = inSubnet(addr);
     if (fg >= 0) {
         rfg = fg;
-        logger_debug("Matched IP ", user, " to subnet");
+        e2logger_debug("Matched IP ", user, " to subnet");
         return E2AUTH_OK;
     }
 //    fg = inRange(addr);
     if (fg >= 0) {
         rfg = fg;
-        logger_debug("Matched IP ", user, " to range");
+        e2logger_debug("Matched IP ", user, " to range");
         return E2AUTH_OK;
     }
-    logger_debug("Matched IP ", user, " to nothing");
+    e2logger_debug("Matched IP ", user, " to nothing");
     return E2AUTH_NOMATCH;
 }
 
@@ -278,7 +278,7 @@ int ipinstance::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        logger_error("Error reading file (does it exist?): ", filename);
+        e2logger_error("Error reading file (does it exist?): ", filename);
         return -1;
     }
 
@@ -319,14 +319,14 @@ int ipinstance::readIPMelangeList(const char *filename)
             key.removeWhiteSpace();
             value = line.after("filter");
         } else {
-            logger_error("No filter group given; entry ", line, " in ", filename);
+            e2logger_error("No filter group given; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
-        logger_debug("key: ", key , "value: ", value.toInteger() );
+        e2logger_debug("key: ", key , "value: ", value.toInteger() );
 
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-            logger_error("Filter group out of range; entry ", line, " in ", filename);
+            e2logger_error("Filter group out of range; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
@@ -384,32 +384,32 @@ int ipinstance::readIPMelangeList(const char *filename)
         }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
         else {
-            logger_error("Entry ", line, " in ", filename, " was not recognised as an IP address, subnet or range");
+            e2logger_error("Entry ", line, " in ", filename, " was not recognised as an IP address, subnet or range");
             warn = true;
         }
     }
     input.close();
-    logger_debug("starting sort");
+    e2logger_debug("starting sort");
     std::sort(iplist.begin(), iplist.end());
 
 #ifdef E2DEBUG
-    logger_debug("sort complete");
-    logger_debug("ip list dump:");
+    e2logger_debug("sort complete");
+    e2logger_debug("ip list dump:");
     std::vector<ip>::const_iterator i = iplist.begin();
     while (i != iplist.end()) {
-        logger_debug("IP: ", i->addr, " Group: ", i->group );
+        e2logger_debug("IP: ", i->addr, " Group: ", i->group );
         ++i;
     }
-    logger_debug("subnet list dump:");
+    e2logger_debug("subnet list dump:");
     std::list<subnetstruct>::const_iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        logger_debug("Masked IP: ", j->maskedaddr, " Mask: ", j->mask, " Group: ", j->group );
+        e2logger_debug("Masked IP: ", j->maskedaddr, " Mask: ", j->mask, " Group: ", j->group );
         ++j;
     }
-    logger_debug("range list dump:");
+    e2logger_debug("range list dump:");
     std::list<rangestruct>::const_iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        logger_debug("Start IP: ", k->startaddr, " End IP: ", k->endaddr, " Group: ", k->group );
+        e2logger_debug("Start IP: ", k->startaddr, " End IP: ", k->endaddr, " Group: ", k->group );
         ++k;
     }
 #endif

@@ -79,13 +79,13 @@ void DynamicIPList::purgeOldEntries()
 int DynamicIPList::posInList(unsigned long int ip)
 {
 #ifdef E2DEBUG
-    logger_debug("****** ip cache table ******");
-    logger_debug("items: ", items);
+    e2logger_debug("****** ip cache table ******");
+    e2logger_debug("items: ", items);
     int d;
     for (d = 0; d < items; d++) {
-        logger_debug(data[d]);
+        e2logger_debug(data[d]);
     }
-    logger_debug("****** ip cache table ******");
+    e2logger_debug("****** ip cache table ******");
 #endif
     if (items == 0) {
         return -1;

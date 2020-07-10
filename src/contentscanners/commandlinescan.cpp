@@ -99,7 +99,7 @@ int commandlineinstance::init(void *args)
     // read in program name
     progname = cv["progname"];
     if (progname.length() == 0) {
-        logger_error("Command-line scanner: No program specified");
+        e2logger_error("Command-line scanner: No program specified");
         return E2CS_ERROR;
     }
 
@@ -141,7 +141,7 @@ int commandlineinstance::init(void *args)
     if (ucvirusregexp.length()) {
         usevirusregexp = true;
         if (!virusregexp.comp(ucvirusregexp.toCharArray())) {
-            logger_error("Command-line scanner: Could not compile regular expression for extracting virus names");
+            e2logger_error("Command-line scanner: Could not compile regular expression for extracting virus names");
             return E2CS_ERROR;
         }
         String ssubmatch(cv["submatch"]);
@@ -158,10 +158,10 @@ int commandlineinstance::init(void *args)
     tempcodes[sinfectedcodes.length()] = '\0';
     strncpy(tempcodes, sinfectedcodes.c_str(), sinfectedcodes.length());
     result = strtok(tempcodes, ",");
-    logger_debug("Infected file return codes: ");
+    e2logger_debug("Infected file return codes: ");
     while (result) {
         tempinfectedcodes.push_back(atoi(result));
-        logger_debug(tempinfectedcodes.back() );
+        e2logger_debug(tempinfectedcodes.back() );
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
@@ -170,10 +170,10 @@ int commandlineinstance::init(void *args)
     strncpy(tempcodes, scleancodes.c_str(), scleancodes.length());
     result = strtok(tempcodes, ",");
     
-    logger_debug("Clean file return codes: ");
+    e2logger_debug("Clean file return codes: ");
     while (result) {
         tempcleancodes.push_back(atoi(result));
-        logger_debug(tempcleancodes.back());
+        e2logger_debug(tempcleancodes.back());
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
@@ -183,7 +183,7 @@ int commandlineinstance::init(void *args)
     numcleancodes = tempcleancodes.size();
     numinfectedcodes = tempinfectedcodes.size();
     if (!(usevirusregexp || numcleancodes || numinfectedcodes)) {
-        logger_error("Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp.");
+        e2logger_error("Command-line scanner requires some mechanism for interpreting results. Please define cleancodes, infectedcodes, and/or a virusregexp.");
         return E2CS_ERROR;
     }
 
@@ -207,7 +207,7 @@ int commandlineinstance::init(void *args)
         } else if (sdefaultresult == "infected") {
             defaultresult = 0;
         } else {
-            logger_error("Command-line scanner: Default result value not understood");
+            e2logger_error("Command-line scanner: Default result value not understood");
             return E2CS_WARNING;
         }
     }
@@ -228,17 +228,17 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     int scannerstderr[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstdout) == -1) {
         lastmessage = "Cannot create sockets for communicating with scanner";
-        logger_error(lastmessage, " ", strerror(errno) );
+        e2logger_error(lastmessage, " ", strerror(errno) );
         return E2CS_SCANERROR;
     }
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, scannerstderr) == -1) {
         lastmessage = "Cannot create sockets for communicating with scanner" ;
-        logger_error(lastmessage, " ", strerror(errno) );
+        e2logger_error(lastmessage, " ", strerror(errno) );
         return E2CS_SCANERROR;
     }
     int f = fork();
     if (f == 0) {
-        logger_debug("Running: ", progname, " ", filename);
+        e2logger_debug("Running: ", progname, " ", filename);
         // close read ends of sockets
         close(scannerstdout[0]);
         close(scannerstderr[0]);
@@ -249,11 +249,11 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
         arguments[numarguments] = (char *)filename;
         execv(arguments[0], arguments);
         // if we get here, an error occurred!
-        logger_error("Cannot exec command-line scanner (command ", progname, "  ",filename, "): ", strerror(errno));
+        e2logger_error("Cannot exec command-line scanner (command ", progname, "  ",filename, "): ", strerror(errno));
         _exit(255);
     } else if (f == -1) {
         lastmessage = "Cannot launch scanner";
-        logger_error("Cannot fork to launch command-line scanner (command ", progname, "  ",filename, "): ", strerror(errno));
+        e2logger_error("Cannot fork to launch command-line scanner (command ", progname, "  ",filename, "): ", strerror(errno));
         return E2CS_SCANERROR;
     }
 
@@ -290,14 +290,14 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
 
     if (waitpid(f, &returncode, 0) == -1) {
         lastmessage = "Cannot get scanner return code";
-        logger_error(lastmessage, " ", strerror(errno));
+        e2logger_error(lastmessage, " ", strerror(errno));
         return E2CS_SCANERROR;
     }
 
-    logger_debug("Scanner result: ", (result), "Code: ", returncode);
+    e2logger_debug("Scanner result: ", (result), "Code: ", returncode);
     if (returncode == 255) {
         lastmessage = "Cannot get scanner return code";
-        logger_error("Cannot get command-line scanner return code: scanner exec failed");
+        e2logger_error("Cannot get command-line scanner return code: scanner exec failed");
         return E2CS_SCANERROR;
     }
 

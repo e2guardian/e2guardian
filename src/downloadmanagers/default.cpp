@@ -43,7 +43,7 @@ public:
 // class factory code *MUST* be included in every plugin
 
 DMPlugin *defaultdmcreate(ConfigVar &definition) {
-    logger_trace("Creating default DM");
+    e2logger_trace("Creating default DM");
     return new dminstance(definition);
 }
 
@@ -75,7 +75,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 //                                or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-    logger_trace("Inside default download manager plugin  icap=", d->icap);
+    e2logger_trace("Inside default download manager plugin  icap=", d->icap);
 
     //  To access settings for the plugin use the following example:
     //      std::cerr << "cvtest:" << cv["dummy"] << std::endl;
@@ -84,7 +84,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     d->got_all = false;
     d->bytes_toget = docheader->contentLength();
     if (!d->icap) {
-        logger_debug("tranencodeing is ", docheader->transferEncoding());
+        e2logger_debug("tranencodeing is ", docheader->transferEncoding());
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
@@ -108,9 +108,11 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-    logger_debug("blocksize: ", blocksize);
+
+    e2logger_debug("blocksize: ", blocksize);
 
     while ((d->bytes_toget  > 0) || d->geteverything) {
+        e2logger_debug("toget:", d->bytes_toget, "geteverything", d->geteverything);
         // send x-header keep-alive here
         if (o.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
@@ -119,13 +121,13 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
                 themdays.tv_sec = nowadays.tv_sec;
                 d->doneinitialdelay = true;
                 if ((*headersent) < 1) {
-                    logger_debug("sending first line of header first");
+                    e2logger_debug("sending first line of header first");
                     if (!d->icap) {
                         docheader->out(NULL, peersock, __E2HEADER_SENDFIRSTLINE);
                         (*headersent) = 1;
                     }
                 }
-                logger_debug("trickle delay - sending X-E2KeepAlive: on");
+                e2logger_debug("trickle delay - sending X-E2KeepAlive: on");
                 if (!d->icap)
                     peersock->writeString("X-E2GKeepAlive: on\r\n");
             }
@@ -135,7 +137,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
         int bsize = blocksize;
         if((!d->geteverything) && (d->bytes_toget < bsize))
             bsize = d->bytes_toget;
-        logger_debug("bsize is ", bsize);
+        e2logger_debug("bsize is ", bsize);
 
         rc = d->readInFromSocket(sock,bsize,wantall, read_res);
         if(read_res & DB_TOBIG)
@@ -145,14 +147,14 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-            logger_debug("zlib format");
+            e2logger_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-            logger_debug("gzip format");
+            e2logger_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
     d->bytesalreadysent = 0;
-    logger_trace("Leaving default download manager plugin");
+    e2logger_trace("Leaving default download manager plugin");
     return 0;
 }

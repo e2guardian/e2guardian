@@ -121,12 +121,12 @@ bool RegExp::comp(const char *exp)
         regfree(&reg);
         wascompiled = false;
     }
-    logger_debugregexp("Compiling ", exp);
+    e2logger_debugregexp("Compiling ", exp);
 #ifdef HAVE_PCRE
-    logger_debugregexp("...with PCRE ");
+    e2logger_debugregexp("...with PCRE ");
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED | REG_DOTALL) != 0) { // compile regex
 #else
-    logger_debugregexp("...without PCRE ");
+    e2logger_debugregexp("...without PCRE ");
     if (regcomp(&reg, exp, REG_ICASE | REG_EXTENDED) != 0) {
 #endif
         regfree(&reg);
@@ -167,7 +167,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     if (regexec(&reg, pos, num_sub_expressions + 1, pmatch, 0)) { // run regexdelete[]pmatch;
         delete[] pmatch;
         rs.imatched = false;
-        logger_debugregexp("no match for:", searchstring);
+        e2logger_debugregexp("no match for:", searchstring);
         return false; // if no match
     }
     size_t matchlen;
@@ -200,7 +200,7 @@ bool RegExp::match(const char *text, RegResult &rs)
     }
     rs.imatched = true;
     delete[] pmatch;
-    logger_debugregexp("match(s) for:", searchstring);
+    e2logger_debugregexp("match(s) for:", searchstring);
     return true; // match(s) found
 }
 

@@ -119,8 +119,9 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
 
     int rc;
 
+    e2logger_trace("size:", size, " wantall:", wantall);
     if (size < 1) {
-        logger_error("read request is negative");
+        e2logger_error("read request is negative");
         return -1;
     }
 
@@ -128,10 +129,10 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
             if (!swappedtodisk) {
                 // if not swapped to disk and file is too large for RAM, then swap to disk
                 if (data_length > o.max_content_ramcache_scan_size) {
-                    logger_debug("swapping to disk");
+                    e2logger_debug("swapping to disk");
                     tempfilefd = getTempFileFD();
                     if (tempfilefd < 0) {
-                        logger_error("error buffering to disk so skipping disk buffering");
+                        e2logger_error("error buffering to disk so skipping disk buffering");
                         result = DB_TOBIG;
                         return -1;
                     }
@@ -141,19 +142,20 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
                 }
             } else if (tempfilesize > o.max_content_filecache_scan_size) {
                 // if swapped to disk and file too large for that too, then give up
-                logger_debug("defaultdm: file too big to be scanned, halting download");
+                e2logger_debug("defaultdm: file too big to be scanned, halting download");
                 result = DB_TOBIG | DB_TOBIG_SCAN;
                 return -1;
             }
         } else {
             if (data_length > o.max_content_filter_size) {
                 // if we aren't downloading for virus scanning, and file too large for filtering, give up
-                logger_debug("defaultdm: file too big to be filtered, halting download");
+                e2logger_debug("defaultdm: file too big to be filtered, halting download");
                 result = DB_TOBIG | DB_TOBIG_FILTER;
                 return -1;
             }
         }
 
+    e2logger_debug("swappedtodisk:", swappedtodisk);
         if (!swappedtodisk) {
         if (size > (buffer_length - data_length)) {
             if(!increase_buffer(size - (buffer_length - data_length))) {
@@ -161,8 +163,10 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
             }
         }
             if (chunked) {
+            e2logger_debug("readChunk:", data_length, ",", size);
                 rc = sock->readChunk((data + data_length), size, timeout);
             } else {
+            e2logger_debug("bufferReadFromSocket:", data_length, ",", size);
                 rc = bufferReadFromSocket(sock, (data + data_length), size, timeout);
             }
 
@@ -196,10 +200,11 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
                 bytes_toget  -= rc;
                 write(tempfilefd, data, rc);
                 tempfilesize += rc;
-                logger_debug("written to disk:", rc, " total:", tempfilesize);
+                e2logger_debug("written to disk:", rc, " total:", tempfilesize);
             }
         }
         result = 0;
+    e2logger_debug("rc=", rc, " bytes_toget=", bytes_toget, " data_length=", data_length);
         return rc;
 }
 
@@ -218,7 +223,7 @@ bool DataBuffer::increase_buffer(int extra) {
         data = temp;
         temp = nullptr;
         buffer_length += more; // update data size counter
-        logger_debug("data buffer extended by ", more, " to ", buffer_length);
+        e2logger_debug("data buffer extended by ", more, " to ", buffer_length);
         return true;
     }
     return false;
@@ -250,7 +255,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
 // incorporates a "global" timeout within which all reads must complete.
 int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int sockettimeout, int stimeout)
 {
-
+    e2logger_trace("");
     int pos = 0;
     int rc;
     struct timeval starttime;
@@ -272,7 +277,7 @@ int DataBuffer::bufferReadFromSocket(Socket *sock, char *buffer, int size, int s
         pos += rc;
         gettimeofday(&nowadays, NULL);
         if (nowadays.tv_sec - starttime.tv_sec > stimeout) {
-            logger_debug("buffered socket read more than timeout");
+            e2logger_debug("buffered socket read more than timeout");
             return pos; // just return how much got so far then
         }
     }
@@ -291,7 +296,7 @@ int DataBuffer::getTempFileFD()
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 0) {
-        logger_error("Could not create temp file to store download for scanning: ", strerror(errno));
+        e2logger_error("Could not create temp file to store download for scanning: ", strerror(errno));
         tempfilefd = -1;
         tempfilepath = "";
     } else {
@@ -321,17 +326,18 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
     //int rc = 0;
     int j = 0;
  //   int rc = -1;
+    e2logger_trace("");
     for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
         ++j;
         if ((i + 1) == o.dmplugins_end) {
-            logger_debug("Got to final download manager so defaulting to always match.");
+            e2logger_debug("Got to final download manager so defaulting to always match.");
             dm_plugin = (DMPlugin *)(*i);
             dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
             break;
         } else {
             dm_plugin = (DMPlugin *)(*i);
             if (story.runFunctEntry(dm_plugin->story_entry, *cm)) {
-                logger_debug("Matching download manager number: ", j);
+                e2logger_debug("Matching download manager number: ", j);
                 dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
                 break;
             }
@@ -345,14 +351,15 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
 bool DataBuffer::out(Socket *sock)
 {
     if (dontsendbody) {
-        logger_debug("dontsendbody true; not sending");
+        e2logger_debug("dontsendbody true; not sending");
         return true;
     }
   //  if (!(*sock).readyForOutput(timeout)) return false; // exceptions on timeout or error
 
+    e2logger_trace("");
     if (tempfilefd > -1) {
         // must have been too big for ram so stream from disk in blocks
-        logger_debug("Sending ", tempfilesize - bytesalreadysent, " bytes from temp file (", bytesalreadysent, " already sent)");;
+        e2logger_debug("Sending ", tempfilesize - bytesalreadysent, " bytes from temp file (", bytesalreadysent, " already sent)");;
         off_t sent = bytesalreadysent;
         int rc;
 
@@ -366,13 +373,13 @@ bool DataBuffer::out(Socket *sock)
 
         while (sent < tempfilesize) {
             rc = read(tempfilefd, data, block_len);
-            logger_debug("reading temp file rc:", rc);
+            e2logger_debug("reading temp file rc:", rc);
             if (rc < 0) {
-                logger_debug("error reading temp file so throwing exception");
+                e2logger_debug("error reading temp file so throwing exception");
                 return false;
             }
             if (rc == 0) {
-                logger_debug("got zero bytes reading temp file");
+                e2logger_debug("got zero bytes reading temp file");
                 break; // should never happen
             }
             // as it's cached to disk the buffer must be reasonably big
@@ -385,7 +392,7 @@ bool DataBuffer::out(Socket *sock)
                 }
             }
             sent += rc;
-            logger_debug("total sent from temp:", sent);
+            e2logger_debug("total sent from temp:", sent);
         }
         if (chunked && got_all) {
             String n;
@@ -398,7 +405,7 @@ bool DataBuffer::out(Socket *sock)
         unlink(tempfilepath.toCharArray());
     } else {
         off_t sent = bytesalreadysent;
-        logger_debug("Sending ", buffer_length - bytesalreadysent, " bytes from RAM (", buffer_length, " in buffer; ", bytesalreadysent, " already sent)" );
+        e2logger_debug("Sending ", buffer_length - bytesalreadysent, " bytes from RAM (", buffer_length, " in buffer; ", bytesalreadysent, " already sent)" );
         // it's in RAM, so just send it, no streaming from disk
         int block_len;
         if(chunked)
@@ -434,7 +441,7 @@ bool DataBuffer::out(Socket *sock)
                     return false;
             }
         }
-        logger_debug("Sent ", buffer_length - bytesalreadysent," bytes from RAM (", buffer_length);
+        e2logger_debug("Sent ", buffer_length - bytesalreadysent," bytes from RAM (", buffer_length);
     }
     return true;
 }
@@ -445,7 +452,7 @@ void DataBuffer::zlibinflate(bool header)
     if (data_length < 12) {
         return; // it can't possibly be zlib'd
     }
-    logger_debug("compressed size:", buffer_length);
+    e2logger_debug("compressed size:", buffer_length);
 
 #if ZLIB_VERNUM < 0x1210
 #warning ************************************
@@ -487,37 +494,37 @@ void DataBuffer::zlibinflate(bool header)
 
     if (err != Z_OK) { // was a problem so just return
         delete[] block; // don't forget to free claimed memory
-        logger_debug("bad init inflate: ", err);
+        e2logger_debug("bad init inflate: ", err);
         return;
     }
     while (true) {
-        logger_debug("inflate loop");
+        e2logger_debug("inflate loop");
         err = inflate(&d_stream, Z_SYNC_FLUSH);
         bytesgot = d_stream.total_out;
         if (err == Z_STREAM_END) {
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
                 delete[] block;
-                logger_debug("bad inflateEnd: ", d_stream.msg);
+                e2logger_debug("bad inflateEnd: ", d_stream.msg);
                 return;
             }
             break;
         }
         if (err != Z_OK) { // was a problem so just return
             delete[] block; // don't forget to free claimed memory
-            logger_debug("bad inflate: ", d_stream.msg);
+            e2logger_debug("bad inflate: ", d_stream.msg);
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
-                logger_debug("bad inflateEnd: ", d_stream.msg);
+                e2logger_debug("bad inflateEnd: ", d_stream.msg);
             }
             return;
         }
         if (bytesgot > o.max_content_filter_size) {
             delete[] block; // don't forget to free claimed memory
-            logger_debug("inflated file larger than maxcontentfiltersize, not inflating further");
+            e2logger_debug("inflated file larger than maxcontentfiltersize, not inflating further");
             err = inflateEnd(&d_stream);
             if (err != Z_OK) {
-                logger_debug("bad inflateEnd: ", d_stream.msg);
+                e2logger_debug("bad inflateEnd: ", d_stream.msg);
             }
             return;
         }
@@ -537,7 +544,7 @@ void DataBuffer::zlibinflate(bool header)
     compresseddata = data;
     compressed_buffer_length = buffer_length;
     buffer_length = bytesgot;
-    logger_debug("decompressed size: ", buffer_length);
+    e2logger_debug("decompressed size: ", buffer_length);
     data = new char[bytesgot + 1];
     data[bytesgot] = '\0';
     memcpy(data, block, bytesgot);
@@ -552,7 +559,7 @@ struct newreplacement {
 bool DataBuffer::contentRegExp(FOptionContainer* &foc)
 {
 
-    logger_debug("Starting content reg exp replace");
+    e2logger_debug("Starting content reg exp replace");
     bool contentmodified = false;
     unsigned int i;
     unsigned int j, k, m;
@@ -630,7 +637,7 @@ bool DataBuffer::contentRegExp(FOptionContainer* &foc)
             dstpos = newblock;
             matches = m;
 
-            logger_debug("content matches:", matches);
+            e2logger_debug("content matches:", matches);
             // replace top-level matches using filled-out replacement strings
             newreplacement *newrep;
             for (j = 0; j < matches; j++) {
