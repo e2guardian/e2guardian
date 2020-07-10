@@ -3433,7 +3433,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 icaphead.reset();
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
-                        e2logger_debugicap( " -ICAP Persistent connection timed out")
+                        e2logger_debugicap( " -ICAP Persistent connection timed out");
                         //send error response
                         wline = "ICAP/1.0 408 Request timeout\r\n";
                         wline += "Service: ";

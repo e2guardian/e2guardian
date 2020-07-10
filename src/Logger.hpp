@@ -19,7 +19,7 @@ enum class LoggerSource {
   info, error, access, config, story, clamav, thhtps,
   // only usable when compiled with E2DEBUG:
   debug, trace, debugnet, debugsb, debugchunk, debugregexp,
-  icap,
+  debugicap,
   __MAX_VALUE
 };
 

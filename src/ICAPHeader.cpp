@@ -35,15 +35,7 @@ void ICAPHeader::setTimeout(int t)
 
 bool ICAPHeader::setEncapRecs() {
     String t = *pencapsulated;
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "pencapsulated is " << t << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "pencapsulated is " << t << std::endl;
-        }
-#endif
+    e2logger_debugicap("pencapsulated is ", t);
     t = t.after(": ");
     while ( t.length() ) {
         String t1 = t.before(",");
@@ -195,16 +187,9 @@ void ICAPHeader::checkheader(bool allowpersistent)
             icap_com.log_mess_no = t.before(",").toInteger();
             icap_com.mess_string = t.after(",");
         }
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            String t2 = *i;
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "Header value from ICAP client: " << t2 <<  "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
-            o.myDebug->Debug("ICAP", oss.str());
-            std::cerr << "Header value from ICAP client: " << t2 <<  "allow_204 is " << allow_204 << " allow_206 is " << allow_206 << std::endl;
-        }
-#endif
+
+        String t2 = *i;
+        e2logger_debugicap("Header value from ICAP client: ", t2,  "allow_204 is ", allow_204, " allow_206 is ", allow_206 );
 
         }
     }
@@ -277,15 +262,7 @@ String ICAPHeader::getUrl()
         }
     }
 
-#ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAP)
-	{
-		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "from header url:" << answer << std::endl;
-		o.myDebug->Debug("ICAP",oss.str());
-		std::cerr << thread_id << "from header url:" << answer << std::endl;
-	}
-#endif
+	e2logger_debugicap("from header url:", answer);
 
     return answer;
 }
@@ -417,28 +394,12 @@ int ICAPHeader::decode1b64(char c)
 // send headers out over the given socket
 bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 {
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-	{
-		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "ICAP response starting - RCode " << res_code << " echo is " << echo << std::endl;
-		o.myDebug->Debug("ICAP",oss.str());
-		std::cerr << thread_id << "ICAP response starting - RCode " << res_code << " echo is " << echo << std::endl;
-	}
-#endif
+	e2logger_debugicap("ICAP response starting - RCode ", res_code, " echo is ", echo);
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
     if(echo) {
         if (service_reqmod && !(out_res_hdr_flag || out_req_hdr_flag)) {
             out_req_header = HTTPrequest.stringHeader();
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
-                o.myDebug->Debug("ICAP",oss.str().c_str());
-                std::cerr << thread_id << "out_req_header copied from HTTPrequest :" << out_req_header << std::endl;
-            }
-#endif
+            e2logger_debugicap("out_req_header copied from HTTPrequest :", out_req_header);
             out_req_hdr_flag = true;
             out_req_body_flag = req_body_flag;
             if (req_body > 0)
@@ -447,15 +408,7 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 
         if (service_resmod && !(out_res_hdr_flag)) {
             out_res_header = HTTPresponse.stringHeader();
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "out_res_header is " << out_res_header << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "out_res_header is " << out_res_header << std::endl;
-            }
-#endif
+            e2logger_debugicap("out_res_header is ", out_res_header);
             out_res_hdr_flag = true;
             out_res_body_flag = res_body_flag;
             if (res_body > 0) {
@@ -540,29 +493,12 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
         }
     }
 
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-     {
-        	std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "Icap response header is: " << l <<  std::endl;
-                std::cerr << thread_id << "Icap response header is: " << l << std::endl;
-                o.myDebug->Debug("ICAP", oss.str());
-     }
-#endif
+    e2logger_debugicap("Icap response header is: ", l);
     if (!sock.writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
         return false;
     }
 
-
-#ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAP)
-	{
-		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "Returning from icapheader:respond" <<  std::endl;
-    		std::cerr << thread_id << "Returning from icapheader:respond" << std::endl;
-		o.myDebug->Debug("ICAP", oss.str());
-	}
-#endif
+	e2logger_debugicap("Returning from icapheader:respond");
 
     return true;
 }
@@ -577,24 +513,8 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
         out_res_body_flag = true;
     }
 
-#ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAP)
-	{
-		std::ostringstream oss (std::ostringstream::out);
-		oss << thread_id << "out_res_header: " << out_res_header <<  std::endl;
-		o.myDebug->Debug("ICAP", oss.str());
-                std::cerr << thread_id << "out_res_header: " << out_res_header << std::endl;
-	}
-#endif
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-		std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "out_res_body: " << out_res_body <<  std::endl;
-                o.myDebug->Debug("ICAP", oss.str());
-                std::cerr << thread_id << "out_res_body: " << out_res_body << std::endl;
-        }
-#endif
+	e2logger_debugicap("out_res_header: ",out_res_header);
+    e2logger_debugicap("out_res_body: ", out_res_body);
 
 
 
@@ -621,23 +541,10 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         reset();
     dirty = true;
 
-#ifndef NEWDEBUG_OFF
-	if(o.myDebug->ICAP)
-	{
-		std::ostringstream oss (std::ostringstream::out);
-		if(is_response)
-		{
-			oss << thread_id << "Start of response ICAPheader:in"  << std::endl;
-			std::cerr << thread_id << "Start of response ICAPheader:in"  << std::endl;
-		}
-		else
-		{
-			oss << thread_id << "Start of request ICAPheader:in"  << std::endl;
-			std::cerr << thread_id << "Start of request ICAPheader:in"  << std::endl;
-		}
-		o.myDebug->Debug("ICAP", oss.str());
-	}
-#endif
+    if(is_response)
+        e2logger_debugicap("Start of response ICAPheader:in");
+    else
+        e2logger_debugicap("Start of request ICAPheader:in");
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins
@@ -654,38 +561,15 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         int rc;
         if (firsttime) {
 
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "ICAPheader:in before getLine - timeout: " << timeout  << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "ICAPheader:in before getLine - timeout: " << timeout << std::endl;
-            }
-#endif
+            e2logger_debugicap("ICAPheader:in before getLine - timeout: ", timeout);
 
             rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "firstime: ICAPheader:in after getLine " << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "firstime: ICAPheader:in after getLine "  << std::endl;
-            }
-#endif
+            e2logger_debugicap("firstime: ICAPheader:in after getLine ");
+
             if (rc == 0) return false;
             if (rc < 0 || truncated) {
                 ispersistent = false;
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "firstime: ICAPheader:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "firstime: ICAPheader:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
-                }
-#endif
+                e2logger_debugicap("firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
                 return false;
             }
         } else {
@@ -694,30 +578,14 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             if (rc == 0) return false;
             if (rc < 0 || truncated) {
                 ispersistent = false;
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "not firstime: ICAPheader:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-                    std::cerr << thread_id << "not firstime: ICAPheader:in after getLine: rc: " << rc << " truncated: " << truncated << std::endl;
-                }
-#endif
+                e2logger_debugicap("not firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
                 return false;        // do not allow non-terminated headers
             }
 
         }
 
         if (header.size() > o.max_header_lines) {
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "ICAP header:size too big =  " << header.size() << std::endl;
-            }
-#endif
+            e2logger_debugicap("ICAP header:size too big =  ", header.size() );
 	        e2logger_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
             return false;
@@ -738,51 +606,19 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
                         e2logger_error("Server did not respond with ICAP");
-#ifndef NEWDEBUG_OFF
-                        if(o.myDebug->ICAP)
-                        {
-                            std::ostringstream oss (std::ostringstream::out);
-                            oss << thread_id << "Returning from header:in Server did not respond with ICAP length: " << line.length() << " content: " << line << std::endl;
-                            o.myDebug->Debug("ICAP",oss.str());
-                            std::cerr << thread_id << "Returning from header:in Server did not respond with ICAP length: " <<  line.length() << " content: " << line << std::endl;
-                        }
-#endif
+                        e2logger_debugicap("Returning from header:in Server did not respond with ICAP length: ", line.length(), " content: ", line );
                     return false;
                 }
             } else {
                 method = line.before(" ");
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                        std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Returning from header:in client requests with ICAP length: " << line.length() << " content: " << line << std::endl;
-                        o.myDebug->Debug("ICAP",oss.str());
-                        std::cerr << thread_id << "Returning from header:in Client request with ICAP length: " <<  line.length() << " content: " << line << std::endl;
-                }
-#endif
+                e2logger_debugicap("Returning from header:in client requests with ICAP length: ", line.length(), " content: ", line);
                 String t = line.after(" ").before(" ");
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                        std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Request is " << t << " size: " << line.length() << " content: " << line << std::endl;
-                        o.myDebug->Debug("ICAP",oss.str());
-                        std::cerr << thread_id << "Request is " << t << " size: " << line.length() << " content: " << line << std::endl;
-                }
-#endif
+                e2logger_debugicap("Request is ", t, " size: ", line.length(), " content: ", line);
                 if (t.startsWith("icap://")) {
                     // valid protocol
                 } else {
                     icap_error = "400 Bad Request";
-#ifndef NEWDEBUG_OFF
-                   if(o.myDebug->ICAP)
-                   {
-                        std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Request error is: " << icap_error << " Line: " << t << std::endl;
-                        o.myDebug->Debug("ICAP",oss.str());
-                        std::cerr << thread_id << "Request error is: " << icap_error << std::endl;
-                   }
-#endif
+                    e2logger_debugicap("Request error is: ", icap_error, " Line: ", t);
                     return false;
                 }
                 t = t.after("//").after("/");
@@ -803,15 +639,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                     icap_error = "405 Method not allowed for service";
                 }
 
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                   {
-                        std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Request method is: " << method << " error?: " << icap_error << " url value: " << t << std::endl;
-                        o.myDebug->Debug("ICAP",oss.str());
-                        std::cerr << thread_id << "Request method is: " << method << " error?: " << icap_error << " url value: " << t << std::endl;
-                   }
-#endif
+                e2logger_debugicap("Request method is: ", method, " error?: ", icap_error, " url value: ", t);
             }
         }
             // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
@@ -820,16 +648,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 header.push_back(line); // stick the line in the deque that holds the header
             } else {
                 discard = true;
-#ifndef NEWDEBUG_OFF
-                if(o.myDebug->ICAP)
-                {
-                    std::ostringstream oss (std::ostringstream::out);
-                    oss << thread_id << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << std::endl;
-                    o.myDebug->Debug("ICAP",oss.str());
-
-                            std::cerr << thread_id << "Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)" << std::endl;
-                }
-#endif
+                e2logger_debugicap("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
             }
             firsttime = false;
 // End of while
@@ -837,29 +656,13 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
 
     if (header.size() == 0) {
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            oss << thread_id << "ICAP header:size = 0 "  << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-                std::cerr << thread_id << "ICAP header:size = 0 "  << std::endl;
-        }
-#endif
+        e2logger_debugicap("ICAP header:size = 0 ");
         return false;
     }
 
     header.pop_back(); // remove the final blank line of a header
     checkheader(allowpersistent); // sort out a few bits in the header
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->ICAP)
-    {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "checkheader done- " << encap_recs.size() << " encap_recs" << std::endl;
-        o.myDebug->Debug("ICAP",oss.str());
-            std::cerr << thread_id << "checkheader done- " << encap_recs.size() << " encap_recs" << std::endl;
-    }
-#endif
+    e2logger_debugicap("checkheader done- ", encap_recs.size(), " encap_recs");
     //now need to get http req and res headers - if present
     HTTPrequest.reset();
     HTTPresponse.reset();
