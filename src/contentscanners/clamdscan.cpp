@@ -113,15 +113,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         command += filename;
     }
     command += "\r\n";
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-      	std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << thread_id << "clamdscan command:" << command << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << "clamdscan command:" << command << std::endl;
-       }
-#endif
+    e2logger_debugclamav("clamdscan command:", command);
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
@@ -143,15 +135,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         e2logger_error(lastmessage);
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << lastmessage.toCharArray() << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
-       }
-#endif
+        e2logger_debugclamav(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -166,31 +150,15 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << lastmessage.toCharArray() << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << lastmessage.toCharArray() << std::endl;
-       }
-#endif
         e2logger_error(lastmessage);
+        e2logger_debugclamav(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
     String reply(buff);
     delete[] buff;
     reply.removeWhiteSpace();
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "Got from clamdscan: " << reply << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << "Got from clamdscan: " << reply << std::endl;
-       }
-#endif
+    e2logger_debugclamav("Got from clamdscan: ", reply);
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
         lastmessage = "ClamD error: " + reply;
@@ -201,25 +169,9 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // format is:
 // /foo/path/file: foovirus FOUND
 
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan INFECTED! with: " << lastvirusname << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << "clamdscan INFECTED! with: " << lastvirusname  << std::endl;
-       }
-#endif
+        e2logger_debugclamav("clamdscan INFECTED! with: ", lastvirusname);
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << "clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only" << std::endl;
-       }
-#endif
+            e2logger_debugclamav("clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only");
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
             return E2CS_WARNING;
@@ -231,14 +183,6 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // must be clean
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
-#ifndef NEWDEBUG_OFF
-    if(o.myDebug->CLAMAV)
-      {
-        std::ostringstream oss (std::ostringstream::out);
-        oss << thread_id << "clamdscan - he say yes (clean)" << std::endl;
-        o.myDebug->Debug("CLAMAV",oss.str());
-        std::cerr << thread_id << "clamdscan - he say yes (clean)" << std::endl;
-       }
-#endif
+    e2logger_debugclamav("clamdscan - he say yes (clean)");
     return E2CS_CLEAN;
 }
