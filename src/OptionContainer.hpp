@@ -244,7 +244,7 @@ class OptionContainer
 
     OptionContainer();
     ~OptionContainer();
-    bool read(std::string& filename, int type);
+    bool readConfig(std::string& filename, bool reload = false);
     bool readConfFile(const char *filename, String &list_pwd);
     void reset();
 

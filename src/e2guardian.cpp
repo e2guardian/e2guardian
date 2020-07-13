@@ -54,27 +54,6 @@ RegExp absurl_re, relurl_re;
 
 // DECLARATIONS
 
-// get the OptionContainer to read in the given configuration file
-void read_config(std::string& configfile, int type);
-
-// IMPLEMENTATION
-
-// get the OptionContainer to read in the given configuration file
-//void read_config(const char *configfile, int type)
-void read_config(std::string& configfile, int type)
-{
-    int rc = open(configfile.c_str(), 0, O_RDONLY);
-    if (rc < 0) {
-        e2logger_error("Error opening ", configfile);
-        exit(1); // could not open conf file for reading, exit with error
-    }
-    close(rc);
-
-    if (!o.read(configfile, type)) {
-        e2logger_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
-        exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
-    }
-}
 
 // program entry point
 int main(int argc, char *argv[])
@@ -109,10 +88,10 @@ int main(int argc, char *argv[])
                 bool dobreak = false;
                 switch (option) {
                 case 'q':
-                    read_config(configfile, 0);
+                    if (!o.readConfig(configfile, true)) exit(-1);
                     return sysv_kill(o.pid_filename,true);
                 case 'Q':
-                    read_config(configfile, 0);
+                    if (!o.readConfig(configfile, true)) exit(-1);
                     sysv_kill(o.pid_filename, false);
                     // give the old process time to die
                     while (sysv_amirunning(o.pid_filename))
@@ -122,13 +101,13 @@ int main(int argc, char *argv[])
                     needreset = true;
                     break;
                 case 's':
-                    read_config(configfile, 0);
+                    if (!o.readConfig(configfile, true)) exit(-1);
                     return sysv_showpid(o.pid_filename);
                 case 'r':
-                    read_config(configfile, 0);
+                    if (!o.readConfig(configfile, true)) exit(-1);
                     return sysv_hup(o.pid_filename);
                 case 'g':
-                    read_config(configfile, 0);
+                    if (!o.readConfig(configfile, true)) exit(-1);
                     return sysv_usr1(o.pid_filename);
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
@@ -202,7 +181,7 @@ int main(int argc, char *argv[])
     }
 
     e2logger_trace("read Configfile: ", configfile);
-    read_config(configfile, 2);
+    if (!o.readConfig(configfile)) exit(-1);
 
     if ( o.SB_trace ) {
         e2logger_info("Enable Storyboard tracing !!");
@@ -430,7 +409,7 @@ int main(int argc, char *argv[])
             }
             e2logger_trace("About to re-read conf file.");
             o.reset();
-            if (!o.read(configfile, 2)) {
+            if (!o.readConfig(configfile, true)) {
                 // OptionContainer class had an error reading the conf or
                 // other files so exit with error
                 e2logger_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
