@@ -84,14 +84,20 @@ You can enable the dockermode in code with `logger.setDockerMode();`
 The new Logger obsoletes/replaces the following:
 
 - e2guardian.conf:
-  - logsyslog, debuglevel, debuglevelfile, nologger, storyboardtrace
-  - loglocation, rqloglocation, dstatlocation
+  - logsyslog : can be replaced with 'log_info = syslog'
+  - name_suffix: can be replaced with 'log_info = syslog, e2gurdian_suffix'
+  - storyboardtrace: can be replaced with 'log_story = stdout'
+  - nologger: can be replaced with 'log_access = none'
+  - loglocation: can be replaced with 'log_access = file, loglocation'
+  - debuglevel, debuglevelfile,
+  - rqloglocation, dstatlocation
   - logconnectionhandlingerrors?, logchildprocesshandling?
 
 - Code
   - files: DebugManager.hpp/cpp
   - defines: NETDEBUG, CHUNKDEBUG, SBDEBUG, NEWDEBUG_OFF
   - vars in OptionContainer o: logconerror, logchildprocs, log_ssl_errors?, log_location, RQlog_location, stat_location, dstat_location, dstat_log_flag, no_logger, log_syslog
+
 
 ## TODOs
 
