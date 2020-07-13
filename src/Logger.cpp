@@ -43,7 +43,7 @@ Logger::~Logger() {
 
 const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", \
                                       "debug", "trace", "debugnet", "debugsb", "chunk", "regexp", \
-                                      "icap", "icapc", "clamav"};
+                                      "icap", "icapc", "clamav", "request"};
 const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
 
 // -------------------------------------------------------------

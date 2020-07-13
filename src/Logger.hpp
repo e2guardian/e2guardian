@@ -19,7 +19,7 @@ enum class LoggerSource {
   info, error, access, config, story, 
   // only usable when compiled with E2DEBUG:
   debug, trace, debugnet, debugsb, debugchunk, debugregexp,
-  debugicap, debugicapc, debugclamav,
+  debugicap, debugicapc, debugclamav, debugrequest,
   __MAX_VALUE
 };
 
@@ -139,6 +139,9 @@ extern Logger e2logger;
   #define e2logger_debugclamav(...) \
     if (e2logger.isEnabled(LoggerSource::debugclamav)) \
       e2logger.vlog(LoggerSource::debugclamav,  __func__, __LINE__, __VA_ARGS__)
+  #define e2logger_debugrequest(...) \
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) \
+      e2logger.vlog(LoggerSource::debugrequest,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define e2logger_debug(...)
@@ -149,6 +152,7 @@ extern Logger e2logger;
   #define e2logger_debugicap(...)
   #define e2logger_debugicapc(...)
   #define e2logger_debugclamav(...)
+  #define e2logger_debugrequest(...)
 #endif
 
 
