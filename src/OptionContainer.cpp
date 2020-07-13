@@ -68,19 +68,19 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
     String now_pwd(list_pwd);
-    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
     LoggerConfigurator loggerConf(&e2logger);
 
-    if (!conffiles.good()) {
+    std::ifstream inputfile(filename, std::ios::in); // e2guardian.conf or e2guardianfN.conf
+    if (!inputfile.good()) {
         e2logger_error("Error reading ", filename);
         return false;
     }
     String base_dir(filename);
     base_dir.baseDir();
 
-    while (!conffiles.eof()) {
-        getline(conffiles, linebuffer);
-        if (!conffiles.fail() && linebuffer.length() != 0) {
+    while (!inputfile.eof()) {
+        getline(inputfile, linebuffer);
+        if (!inputfile.fail() && linebuffer.length() != 0) {
             if (linebuffer[0] != '#') { // i.e. not commented out
                 temp = (char *) linebuffer.c_str();
                 if (temp.contains("#")) {
@@ -99,7 +99,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     if (temp.length() > 0) {
                         temp.fullPath(base_dir);
                         if (!readConfFile(temp.toCharArray(), now_pwd)) {
-                            conffiles.close();
+                            inputfile.close();
                             return false;
                         }
                     }
@@ -127,11 +127,11 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
             }
         }
     }
-    conffiles.close();
+    inputfile.close();
     return true;
 }
 
-bool OptionContainer::read(std::string &filename, int type) {
+bool OptionContainer::readConfig(std::string &filename, bool reload) {
     conffilename = filename;
 
     // all sorts of exceptions could occur reading conf files
@@ -140,61 +140,60 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
-        if (type == 0 || type == 2) {
 
-            if ((pid_filename = findoptionS("pidfilename")) == "") {
-                pid_filename = __PIDDIR;
-                pid_filename += "/e2guardian.pid";
-            }
+        if ((pid_filename = findoptionS("pidfilename")) == "") {
+            pid_filename = __PIDDIR;
+            pid_filename += "/e2guardian.pid";
+        }
 
-            if (findoptionS("logsyslog") == "on") {
-                log_syslog = true;
-                if ((name_suffix = findoptionS("namesuffix")) == "") {
-                    name_suffix = "";
-                }
-            } else if ((log_location = findoptionS("loglocation")) == "") {
-                log_location = __LOGLOCATION;
-                log_location += "/access.log";
-                log_syslog = false;
+        if (findoptionS("logsyslog") == "on") {
+            log_syslog = true;
+            if ((name_suffix = findoptionS("namesuffix")) == "") {
+                name_suffix = "";
             }
+        } else if ((log_location = findoptionS("loglocation")) == "") {
+            log_location = __LOGLOCATION;
+            log_location += "/access.log";
+            log_syslog = false;
+        }
 
-            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-                log_requests = false;
-            } else {
-                log_requests = true;
-            }
+        if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+            log_requests = false;
+        } else {
+            log_requests = true;
+        }
 
-            if ((stat_location = findoptionS("statlocation")) == "") {
-                stat_location = __LOGLOCATION;
-                stat_location += "/stats";
-            }
+        if ((stat_location = findoptionS("statlocation")) == "") {
+            stat_location = __LOGLOCATION;
+            stat_location += "/stats";
+        }
 
-            if ((dstat_location = findoptionS("dstatlocation")) == "") {
-                dstat_log_flag = false;
-            } else {
-                dstat_log_flag = true;
-                dstat_interval = findoptionI("dstatinterval");
-                if (dstat_interval == 0) {
-                    dstat_interval = 300; // 5 mins
-                }
+        if ((dstat_location = findoptionS("dstatlocation")) == "") {
+            dstat_log_flag = false;
+        } else {
+            dstat_log_flag = true;
+            dstat_interval = findoptionI("dstatinterval");
+            if (dstat_interval == 0) {
+                dstat_interval = 300; // 5 mins
             }
+        }
 
-            if (findoptionS("statshumanreadable") == "on") {
-                stats_human_readable = true;
-            } else {
-                stats_human_readable = false;
-            }
+        if (findoptionS("statshumanreadable") == "on") {
+            stats_human_readable = true;
+        } else {
+            stats_human_readable = false;
+        }
 
-            if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-                dns_user_logging = false;
-            } else {
-                dns_user_logging = true;
-            }
+        if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
+            dns_user_logging = false;
+        } else {
+            dns_user_logging = true;
+        }
 
-            log_header_value = findoptionS("logheadervalue");
-            if (type == 0) {
-                return true;
-            }
+        log_header_value = findoptionS("logheadervalue");
+
+        if (reload) {
+            return true;
         }
 
         if ((daemon_user_name = findoptionS("daemonuser")) == "") {
@@ -213,12 +212,6 @@ bool OptionContainer::read(std::string &filename, int type) {
 			no_daemon = false;
 		}
 		
-		if (findoptionS("dockermode") == "on") {
-			no_daemon = true;
-		} else {
-			no_daemon = false;
-		}
-
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
             e2logger.setDockerMode();
