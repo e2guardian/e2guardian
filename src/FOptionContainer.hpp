@@ -122,7 +122,7 @@ public:
                {};
 
     ~FOptionContainer();
-    bool read(const char *filename);
+    bool readFilterGroup(const char *filename);
     bool readConfFile(const char *filename, String &list_pwd);
     void reset();
     void resetJustListData();

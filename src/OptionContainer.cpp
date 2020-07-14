@@ -199,12 +199,12 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return true;
         }
 
-        if ((daemon_user_name = findoptionS("daemonuser")) == "") {
-            daemon_user_name = __PROXYUSER;
+        if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
+            proc.daemon_user_name = __PROXYUSER;
         }
 
-        if ((daemon_group_name = findoptionS("daemongroup")) == "") {
-            daemon_group_name = __PROXYGROUP;
+        if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
+            proc.daemon_group_name = __PROXYGROUP;
         }
 
         blocked_content_store = findoptionS("blockedcontentstore");

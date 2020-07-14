@@ -199,7 +199,7 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
     return true;
 }
 
-bool FOptionContainer::read(const char *filename) {
+bool FOptionContainer::readFilterGroup(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage

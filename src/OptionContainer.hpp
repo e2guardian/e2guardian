@@ -1,6 +1,9 @@
+// OptionContainer : global options, read from e2guardian.conf
+
 // For all support, instructions and copyright go to:
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
+
 
 #ifndef __HPP_OPTIONCONTAINER
 #define __HPP_OPTIONCONTAINER
@@ -28,10 +31,47 @@
 
 
 // DECLARATIONS
+struct ConfigOptions 
+{
+    std::string prog_name;   // (default e2guardian)
+    std::string configfile;  // Main Configfile (default e2guardian.conf)
+    char benchmark = '\0';
+};
+
+struct LogOptions
+{
+
+};
+
+struct ProcessOptions
+{
+    int root_user = 0;
+    int proxy_user = 0;
+    int proxy_group = 0;
+    std::string daemon_user_name;
+    std::string daemon_group_name;
+    bool is_daemonised = false;
+};
+
+struct NetworkOptions
+{
+
+};
+
+struct ListsOptions
+{
+    bool read_from_stdin = false;
+};
 
 class OptionContainer
 {
     public:
+    ConfigOptions   config;
+    LogOptions      log;
+    ProcessOptions  proc;
+    NetworkOptions  net;
+    ListsOptions    lists;
+
     Queue<std::string>* log_Q;
     Queue<std::string>* RQlog_Q;
     Queue<LQ_rec> http_worker_Q;
@@ -109,11 +149,6 @@ class OptionContainer
     int pcon_timeout = 0;
     int pcon_timeout_sec = 0;
     int http_workers = 0;
-    std::string daemon_user_name;
-    std::string daemon_group_name;
-    int proxy_user = 0;
-    int proxy_group = 0;
-    int root_user = 0;
     int max_ips = 0;
     bool recheck_replaced_urls;
     bool use_group_names_list = false;

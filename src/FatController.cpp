@@ -128,7 +128,6 @@ std::atomic<bool> reloadconfig ;
 std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
-extern bool is_daemonised;
 
 void stat_rec::clear()
 {
@@ -366,12 +365,12 @@ bool drop_priv_completely()
     // Suggested fix by Lawrence Manning Tue 25th February 2003
     //
 
-    int rc = seteuid(o.root_user); // need to be root again to drop properly
+    int rc = seteuid(o.proc.root_user); // need to be root again to drop properly
     if (rc == -1) {
         e2logger_error("Unable to seteuid(suid)");
         return false; // setuid failed for some reason so exit with error
     }
-    rc = setuid(o.proxy_user);
+    rc = setuid(o.proc.proxy_user);
     if (rc == -1) {
         e2logger_error("Unable to setuid()");
         return false; // setuid failed for some reason so exit with error
@@ -389,7 +388,7 @@ bool daemonise()
     return true; // if debug mode is enabled we don't want to detach
 #endif
 
-    if (is_daemonised) {
+    if (o.proc.is_daemonised) {
         return true; // we are already daemonised so this must be a
         // reload caused by a HUP
     }
@@ -429,7 +428,7 @@ bool daemonise()
     umask(0); // clear our file mode creation mask
     umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
 
-    is_daemonised = true;
+    o.proc.is_daemonised = true;
 
     return true;
 }
@@ -450,10 +449,10 @@ void handle_connections(int tindex)
 	        String ip;
 
             while (!ttg) {
-                e2logger_debug(" waiting connection on http_worker_Q ");
+                e2logger_debugnet(" waiting connection on http_worker_Q ");
                 LQ_rec rec = o.http_worker_Q.pop();
                 Socket *peersock = rec.sock;
-                e2logger_debug(" popped connection from http_worker_Q");
+                e2logger_debugnet(" popped connection from http_worker_Q");
                 if (ttg) break;
 
                 String peersockip = peersock->getPeerIP();
@@ -466,7 +465,7 @@ void handle_connections(int tindex)
                 ++dystat->conx;
 
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
-                e2logger_debug("handle_peer returned: ", String(rc));
+                e2logger_debugnet("handle_peer returned: ", String(rc));
 
                 --dystat->busychildren;
                 delete peersock;
@@ -506,17 +505,17 @@ void tell_monitor(bool active) //may not be needed
     };
 
     if (childid == 0) { // Am the child
-	int rc = seteuid(o.root_user);
-	if (rc != -1) {
-       	int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
-		if (systemreturn == -1) {
-            e2logger_error("Unable to exec: ",buff, buff1, " : errno ",  errno, " ", strerror(errno));
-            exit(0);
-		}
+	    int rc = seteuid(o.proc.root_user);
+    	if (rc != -1) {
+            int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
+            if (systemreturn == -1) {
+                e2logger_error("Unable to exec: ",buff, buff1, " : errno ",  errno, " ", strerror(errno));
+                exit(0);
+            }
         } else {
             	e2logger_error("Unable to set uid root");
             	exit(0);
-	}
+	    }
     };
 
     if (childid > 0) { // Am the parent
@@ -1356,9 +1355,9 @@ int fc_controlit()   //
 #endif
 //needdrop = true;
 #ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.root_user);
+    rc = setreuid((uid_t)-1, o.proc.root_user);
 #else
-    rc = seteuid(o.root_user);
+    rc = seteuid(o.proc.root_user);
 #endif
     if (rc == -1) {
         e2logger_error("Unable to seteuid() to bind filter port.");
@@ -1369,7 +1368,7 @@ int fc_controlit()   //
     // we have to open/create as root before drop privs
     int pidfilefd = sysv_openpidfile(o.pid_filename);
     if (pidfilefd < 0) {
-        e2logger_error("Error creating/opening pid file.");
+        e2logger_error("Error creating/opening pid file: ", o.pid_filename);
         delete[] serversockfds;
         return 1;
     }
@@ -1424,9 +1423,9 @@ int fc_controlit()   //
 // Made unconditional for same reasons as above
 //if (needdrop)
 #ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proxy_user);
+    rc = setreuid((uid_t)-1, o.proc.proxy_user);
 #else
-    rc = seteuid(o.proxy_user); // become low priv again
+    rc = seteuid(o.proc.proxy_user); // become low priv again
 #endif
     if (rc == -1) {
         e2logger_error("%sUnable to re-seteuid()");

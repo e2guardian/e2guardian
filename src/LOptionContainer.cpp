@@ -32,7 +32,7 @@ LOptionContainer::LOptionContainer()
 
 LOptionContainer::LOptionContainer(int load_id)
 {
-    e2logger_trace(load_id);
+    e2logger_trace("load_id: ", load_id);
 
     char buff[40];
 
@@ -111,7 +111,8 @@ LOptionContainer::LOptionContainer(int load_id)
  //       }
  //   }
 
-    e2logger_trace("");
+    e2logger_trace("Done reading Storyboard!");
+    
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
@@ -307,7 +308,7 @@ void LOptionContainer::deleteFilterGroupsJustListData()
 }
 
 #ifdef NOTDEF
-bool LOptionContainer::read(std::string& filename, int type, std::string& exception_ip_list_location,
+bool LOptionContainer::readList(std::string& filename, int type, std::string& exception_ip_list_location,
                             std::string& banned_ip_list_location)
 {
     e2logger_trace(filename);
@@ -696,7 +697,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 
     e2logger_debug("passed variables to filter group: ", numfg, " ", filename);
 
-    bool rc = (*fg[numfg]).read(filename);
+    bool rc = (*fg[numfg]).readFilterGroup(filename);
     e2logger_debug("reading filter group: ", numfg, " ", filename, " return is ", rc);
 
     numfg++;

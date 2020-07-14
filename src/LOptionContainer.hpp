@@ -71,7 +71,7 @@ class LOptionContainer
     LOptionContainer();
     LOptionContainer(int reload_id);
     ~LOptionContainer();
-    bool read(std::string& filename, int type, std::string& exception_ip_list_location,
+    bool readList(std::string& filename, int type, std::string& exception_ip_list_location,
               std::string& banned_ip_list_location);
     void reset();
     bool inExceptionIPList(const std::string *ip, std::string *&host);
