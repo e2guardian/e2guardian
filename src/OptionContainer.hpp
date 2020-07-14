@@ -128,9 +128,11 @@ class OptionContainer
     std::string filter_groups_list_location;
     //std::string banned_ip_list_location;
     //std::string exception_ip_list_location;
-    std::string log_location;
-    std::string RQlog_location;
-    bool log_requests = false;
+    
+    //std::string log_location;
+    //std::string RQlog_location;
+    //bool log_requests = false;
+
     std::string stat_location;
     std::string ipc_filename;
     std::string urlipc_filename;
@@ -153,8 +155,8 @@ class OptionContainer
     std::string logid_2;
 
     bool no_daemon = false;
-    bool no_logger = false;
-    bool log_syslog = false;
+    //bool no_logger = false;
+    //bool log_syslog = false;
     std::string name_suffix;
     unsigned int max_logitem_length = 2000;
     bool anonymise_logs = false;

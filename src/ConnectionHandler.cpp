@@ -747,7 +747,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // do this normalisation etc just the once at the start.
             checkme.setURL(ismitm);
 
-            if(o.log_requests) {
+            //if(o.log_requests) {
+            if (e2logger.isEnabled(LoggerSource::debugrequest)) {
                 std::string fnt;
                 if(ismitm)
                     fnt = "MITM";
@@ -1393,7 +1394,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
     if(cm.nolog) return;
 
-    if(o.log_requests) {
+    // if(o.log_requests) {
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
         what = thread_id;
     }
     what += cm.whatIsNaughtyLog;
@@ -1552,6 +1554,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 }
 
 void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
+    e2logger_trace("who: ", who, " from: ", from, "funct: ", funct);
     String rtype = cm.request_header->requestType();
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
@@ -1634,6 +1637,8 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
+        data += cr;  // data += String((theend).tv_sec) + cr;
+        data += cr;  // data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
@@ -3117,7 +3122,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             filtergroup = o.default_trans_fg;
 
-            if(o.log_requests) {
+            //if(o.log_requests) {
+            if (e2logger.isEnabled(LoggerSource::debugrequest)) {
                 std::string fnt = "THTTPS";
                 doRQLog(clientuser, clientip, checkme, fnt);
             }
@@ -3617,7 +3623,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     e2logger_debug("filtergroup set to ICAP default ", filtergroup);
     clientuser = icaphead.username;
 
-    if(o.log_requests) {
+    //if(o.log_requests) {
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
         std::string fnt = "REQMOD";
         doRQLog(clientuser, clientip, checkme, fnt);
     }
@@ -3908,7 +3915,8 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     checkme.clientip = ip;
     checkme.filtergroup = filtergroup;
-    if(o.log_requests) {
+    //if(o.log_requests) {
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
         std::string fnt = "RESPMOD";
         doRQLog(clientuser, clientip, checkme, fnt);
     }

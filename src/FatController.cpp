@@ -269,7 +269,7 @@ extern "C" {
 }
 
 // logging & URL cache processes
-void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue<std::string>* log_Q);
+void log_listener(Queue<std::string>* log_Q, bool is_RQlog);
 
 // fork off into background
 bool daemonise();
@@ -597,11 +597,12 @@ void wait_for_proxy()
 // *
 // *
 
-void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue<std::string> *log_Q) {
+void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
     if (is_RQlog)
         thread_id = "RQlog: ";
     else
         thread_id = "log: ";
+
     try {
         e2logger_trace("log listener started");
 
@@ -797,8 +798,10 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 
 
         // don't build the log line if we couldn't read all the component parts
-        if (error)
+        if (error) {
+            e2logger_error("Error in logline ", itemcount, " ", loglines);
             continue;
+        }    
 
         // Start building the log line
 
@@ -1030,7 +1033,13 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
             builtline += flags;
         }
 
-        e2logger_access(builtline);
+        // Send to Log
+        e2logger_trace("Now sending to Log");
+        if (is_RQlog) {
+            e2logger_debugrequest(builtline);
+        } else {
+            e2logger_access(builtline);
+        }
 
 
 #ifdef ENABLE_EMAIL
@@ -1479,14 +1488,16 @@ int fc_controlit()   //
     // This removes need for select and/or epoll greatly simplifying the code
     // Threads are created for logger, a separate thread for each listening port
     // and an array of worker threads to deal with the work.
-    if (!o.no_logger) {
-        std::thread log_thread(log_listener, o.log_location, false, o.log_syslog,o.log_Q);
+    //if (!o.no_logger) {
+    if (e2logger.isEnabled(LoggerSource::access)) {
+        std::thread log_thread(log_listener, o.log_Q, false);
         log_thread.detach();
         e2logger_trace("log_listener thread created");
     }
 
-    if(o.log_requests) {
-        std::thread RQlog_thread(log_listener, o.RQlog_location, true, false,o.RQlog_Q);
+    //if(o.log_requests) {
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+        std::thread RQlog_thread(log_listener, o.RQlog_Q, true);
         RQlog_thread.detach();
         e2logger_trace("RQlog_listener thread created");
     }
@@ -1703,7 +1714,8 @@ int fc_controlit()   //
     e2logger_ttg = true;
     std::string nullstr("");
     o.log_Q->push(nullstr);
-    if (o.log_requests) {
+    //if (o.log_requests) {
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
         o.RQlog_Q->push(nullstr);
     }
 

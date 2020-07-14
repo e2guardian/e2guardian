@@ -147,23 +147,6 @@ bool OptionContainer::read(std::string &filename, int type) {
                 pid_filename += "/e2guardian.pid";
             }
 
-            if (findoptionS("logsyslog") == "on") {
-                log_syslog = true;
-                if ((name_suffix = findoptionS("namesuffix")) == "") {
-                    name_suffix = "";
-                }
-            } else if ((log_location = findoptionS("loglocation")) == "") {
-                log_location = __LOGLOCATION;
-                log_location += "/access.log";
-                log_syslog = false;
-            }
-
-            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-                log_requests = false;
-            } else {
-                log_requests = true;
-            }
-
             if ((stat_location = findoptionS("statlocation")) == "") {
                 stat_location = __LOGLOCATION;
                 stat_location += "/stats";
@@ -224,12 +207,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             e2logger.setDockerMode();
         } else {
             no_daemon = false;
-        }
-
-        if (findoptionS("nologger") == "on") {
-            no_logger = true;
-        } else {
-            no_logger = false;
         }
 
         if (findoptionS("softrestart") == "on") {
