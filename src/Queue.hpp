@@ -12,6 +12,8 @@
 #include <deque>
 #include <queue>
 
+#include "Socket.hpp"
+
 template <typename T>
 class Queue {
 private:
