@@ -24,10 +24,12 @@
 #include "IPList.hpp"
 #include "Queue.hpp"
 #include "LOptionContainer.hpp"
+#include "CertificateAuthority.hpp"
+#include "AccessLogger.hpp"
+
 #include <deque>
 #include <atomic>
 
-#include "CertificateAuthority.hpp"
 
 
 // DECLARATIONS
@@ -40,6 +42,8 @@ struct ConfigOptions
 
 struct LogOptions
 {
+    Queue<AccessLogger::LogRecord> log_Q;
+    Queue<AccessLogger::LogRecord> RQlog_Q;
 
 };
 
@@ -72,8 +76,6 @@ class OptionContainer
     NetworkOptions  net;
     ListsOptions    lists;
 
-    Queue<std::string>* log_Q;
-    Queue<std::string>* RQlog_Q;
     Queue<LQ_rec> http_worker_Q;
     
     struct SB_entry_map {

@@ -28,8 +28,8 @@
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer() {
-    log_Q = new Queue<std::string>;
-    RQlog_Q = new Queue<std::string>;
+    //log.log_Q = new Queue<AccessLogger::LogRecord>;
+    //log.RQlog_Q = new Queue<AccessLogger::LogRecord>;
     // http_worker_Q = new Queue<LQ_rec>;
 }
 
@@ -145,26 +145,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             pid_filename = __PIDDIR;
             pid_filename += "/e2guardian.pid";
         }
-<<<<<<< HEAD
-=======
-
-        if (findoptionS("logsyslog") == "on") {
-            log_syslog = true;
-            if ((name_suffix = findoptionS("namesuffix")) == "") {
-                name_suffix = "";
-            }
-        } else if ((log_location = findoptionS("loglocation")) == "") {
-            log_location = __LOGLOCATION;
-            log_location += "/access.log";
-            log_syslog = false;
-        }
-
-        if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-            log_requests = false;
-        } else {
-            log_requests = true;
-        }
->>>>>>> refactor_main
 
         if ((stat_location = findoptionS("statlocation")) == "") {
             stat_location = __LOGLOCATION;
@@ -676,6 +656,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             log_client_host_and_ip = true;
         }
 
+        // TODO: Remove ??
         logid_1.assign(findoptionS("logid1"));
         if (logid_1.empty())
             logid_1.assign("-");
