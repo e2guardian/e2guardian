@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <sys/types.h>
 
 // DECLARATIONS
@@ -23,6 +24,9 @@ class String : public std::string
         : std::string(){};
     //~String();
 
+    // constructor from char
+    String(const char ch)
+        : std::string(1,ch){};
     // constructor from c-string
     String(const char *bs)
         : std::string(bs){};
@@ -95,15 +99,10 @@ class String : public std::string
     int indexOf(const char *s) const;
     // does it contain this text?
     bool contains(const char *s) const;
-    // chop to base dir (for file paths)
-    void baseDir();
-    // convert relative path filename to fully pathed
-    void fullPath(String &base_dir);
+
     // index operator mark 2
     unsigned char charAt(int index)
-    {
-        return (*this)[index];
-    };
+        { return (*this)[index]; };
 
     // return string following first occurrence of bs
     String after(const char *bs) const;
@@ -112,29 +111,39 @@ class String : public std::string
     // search & replace
     void replaceall(const char *what, const char *with);
 
-// return header value (after ':' and any leading whitespace) - assumes header finishes with '\r'
-
-    bool headerVal();
-
     // remove character from end/beginning
     void chop();
     void lop();
+    // remove trailing chars
+    void trim(char c);
     // remove leading & trailing whitespace
     void removeWhiteSpace();
     // remove punctuation
     void removePunctuation();
-    // remove protocol prefix (e.g. http://)
-    void removePTP();
-    // get hostname from string as url
-    String getHostname();
-    // truncate to given length
-    int limitLength(unsigned int l);
     // remove all occurrences of char from String
     void removeChar(char c);
     // remove repeated occurrences of this character
     void removeMultiChar(unsigned char c);
+    // truncate to given length
+    int limitLength(unsigned int l);
+
+
+    // return header value (after ':' and any leading whitespace) - assumes header finishes with '\r'
+    bool headerVal();
+
+    // remove protocol prefix (e.g. http://)
+    void removePTP();
+    // get hostname from string as url
+    String getHostname();
+
+    // operations on file paths
+    // chop to base dir (for file paths)
+    void baseDir();
+    // convert relative path filename to fully pathed
+    void fullPath(String &base_dir);
     // clean up slashes, trailing dots, etc. in file paths
     void realPath();
+
 
     // generate MD5 hash of string (using given salt)
     String md5();
@@ -142,6 +151,9 @@ class String : public std::string
 
     // Sort search words
     String sort_search();
+
+    // split on delimiter
+    std::vector<std::string> split(char delimiter);
 
     // get CN name that is oK for cert from url
     String CN();

@@ -440,6 +440,13 @@ void String::lop()
         *this = this->substr(1);
 }
 
+void String::trim(char c)
+{
+    size_type end = this->find_last_not_of(c);
+    if (end != std::string::npos)
+        *this = this->substr(0, end);
+}
+
 // remove leading & trailing whitespace
 void String::removeWhiteSpace()
 {
@@ -697,6 +704,19 @@ String String::sort_search()
    // delete [] temp;
     return ret;
 };
+
+// split on delimiter
+std::vector<std::string> String::split(char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(this->c_str());
+    while (std::getline(tokenStream, token, delimiter))
+    {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
 
 String String::CN() {
     if (this->length() < 64)
