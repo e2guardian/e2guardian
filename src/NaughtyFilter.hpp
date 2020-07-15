@@ -139,7 +139,9 @@ class NaughtyFilter
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;
     off_t docsize;   // to store the size of the returned document for logging
+    
     int filtergroup;
+    String filtergroupname;
 
     String tempfilename;
     String tempfilemime;

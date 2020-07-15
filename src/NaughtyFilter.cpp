@@ -139,6 +139,7 @@ void NaughtyFilter::reset()
     message_no = 0;
     is_text = false;
     filtergroup = 0;
+    filtergroupname = "";
     deep_urls_checked = false;
     has_deep_urls = false;
     issiteonly = false;
