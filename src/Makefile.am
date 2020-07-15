@@ -112,6 +112,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
 		       Queue.hpp, UrlRec.hpp, \
                        Logger.hpp Logger.cpp \
+                       AccessLogger.hpp AccessLogger.cpp \
                        LoggerConfigurator.hpp LoggerConfigurator.cpp \
 		       Auth.cpp Auth.hpp \
 		       $(ICAPSCAN_SOURCE) \
