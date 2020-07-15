@@ -14,6 +14,7 @@
 #include "BackedStore.hpp"
 #include "Queue.hpp"
 #include "ImageContainer.hpp"
+#include "AccessLogger.hpp"
 #include "Logger.hpp"
 
 #include <signal.h>
@@ -836,9 +837,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //CALL SB pre-authcheck
-            e2logger_trace("Run   StoryA pre-authcheck");
+            e2logger_trace("Run   STORY-A pre-authcheck");
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH, checkme);
-            e2logger_debug("After StoryA pre-authcheck",
+            e2logger_debug("After STORY-A pre-authcheck",
                 " isexception ", String(checkme.isexception),
                 " isBlocked ", String(checkme.isBlocked),
                 " message_no ", String(checkme.message_no));
@@ -981,9 +982,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
-                e2logger_trace("Check StoryB checkrequest");
+                e2logger_trace("Check STORY-B checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_REQUEST, checkme);
-                e2logger_debug("After StoryB checkrequest",
+                e2logger_debug("After STORY-B checkrequest",
                     " isexception ", String(checkme.isexception ),
                     " isblocked ", String(checkme.isBlocked ),
                     " gomitm ", String(checkme.gomitm),
@@ -1196,7 +1197,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //CALL SB checkresponse
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && (!checkme.logcategory) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
-                e2logger_debug("After StoryB checkresponse ",
+                e2logger_debug("After STORY-B checkresponse ",
                     " IsException ", String(checkme.isexception),
                     " IsBlocked ", String(checkme.isBlocked),
                     " mess_no ", String(checkme.message_no) );
@@ -1332,7 +1333,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //Log
             if (!checkme.isourwebserver) { // don't log requests to the web server
-                doLog(clientuser, clientip, checkme);
+                doLog(clientuser, clientip, checkme, &postparts);
             }
 
 
@@ -1380,285 +1381,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 }
 
 
-void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm) {
-
-    e2logger_trace("who: ", who, " from: ", from );
-
-    struct timeval theend;
-    gettimeofday(&theend, NULL);
-    String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
-    unsigned int port = cm.request_header->port;
-    std::string what;
-
-    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
-    if(cm.nolog) return;
-
-    // if(o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
-        what = thread_id;
-    }
-    what += cm.whatIsNaughtyLog;
-    String how = rtype;
-    off_t size = cm.docsize;
-    std::string *cat = &cm.whatIsNaughtyCategories;
-    bool isnaughty = cm.isItNaughty;
-    int naughtytype = cm.blocktype;
-    bool isexception = cm.isexception;
-    bool istext = cm.is_text;
-    struct timeval *thestart = &cm.thestart;
-    bool cachehit = false;
-    //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
-    int code = (cm.response_header->returnCode());
-    if (isnaughty) code = 403;
-    std::string mimetype = cm.mimetype;
-    bool wasinfected = cm.wasinfected;
-    bool wasscanned = cm.wasscanned;
-    int naughtiness = cm.naughtiness;
-    int filtergroup = cm.filtergroup;
-    HTTPHeader *reqheader = cm.request_header;
-    int message_no = cm.message_no;
-    bool contentmodified = cm.contentmodified;
-    bool urlmodified = cm.urlmodified;
-    bool headermodified = cm.headermodified;
-    bool headeradded = cm.headeradded;
-
-    // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
-    // or if it's an exception and exception logging is disabled
-    if (
-            (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
-            ((o.log_exception_hits == 0) && isexception)) {
-        if (o.ll != 0) {
-            if (isexception)
-                e2logger_debug(" -Not logging exceptions");
-            else
-                e2logger_debug(" -Not logging 'ADs' blocks");
-        }
-        return;
-    }
-
-    std::string data, cr("\n");
-
-    if ((isexception && (o.log_exception_hits == 2))
-        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
-        // put client hostname in log if enabled.
-        // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
-        // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
-        // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
-            e2logger_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
-            getClientFromIP(from.c_str(),cm.clienthost);
-            //std::deque<String> *names = ipToHostname(from.c_str());
-            //if (names->size() > 0) {
-                //clienthost = new std::string(names->front().toCharArray());
-                //cm.clienthost = *clienthost;
-            //}
-            //delete names;
-        }
-
-        // Build up string describing POST data parts, if any
-        std::ostringstream postdata;
-        for (std::list<postinfo>::iterator i = postparts.begin(); i != postparts.end(); ++i) {
-            // Replace characters which would break log format with underscores
-            std::string::size_type loc = 0;
-            while ((loc = i->filename.find_first_of(",;\t ", loc)) != std::string::npos)
-                i->filename[loc] = '_';
-            // Build up contents of log column
-            postdata << i->mimetype << "," << i->filename << "," << i->size
-                     << "," << i->blocked << "," << i->storedname << "," << i->bodyoffset << ";";
-        }
-        postdata << std::flush;
-
-        // Formatting code moved into log_listener in FatController.cpp
-        // Original patch by J. Gauthier
-
-        // Item length limit put back to avoid log listener
-        // overload with very long urls Philip Pearce Jan 2014
-        if ((cat != NULL) && (cat->length() > o.max_logitem_length))
-            cat->resize(o.max_logitem_length);
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
-            String user;
-            if (getdnstxt(from, user)) {
-                who = who + ":" + user;
-                SBauth.user_name = user;
-                SBauth.user_source = "dnslog";
-            };
-            is_real_user = true;    // avoid looping on persistent connections
-        };
-        std::string l_who = who;
-        std::string l_from = from;
-        std::string l_clienthost;
-        l_clienthost = cm.clienthost;
-
-        if (cm.anon_log) {
-            l_who = "";
-            l_from = "0.0.0.0";
-            l_clienthost = "";
-        }
-
-        // populate flags field
-        String flags = cm.getFlags();
-
-        e2logger_debug(" -Building raw log data string... ");
-
-        data = String(isexception) + cr;
-        data += (cat ? (*cat) + cr : cr);
-        data += String(isnaughty) + cr;
-        data += String(naughtytype) + cr;
-        data += String(naughtiness) + cr;
-        data += where + cr;
-        data += what + cr;
-        data += how + cr;
-        data += l_who + cr;
-        data += l_from + cr;
-        data += String(port) + cr;
-        data += String(wasscanned) + cr;
-        data += String(wasinfected) + cr;
-        data += String(contentmodified) + cr;
-        data += String(urlmodified) + cr;
-        data += String(headermodified) + cr;
-        data += String(size) + cr;
-        data += String(filtergroup) + cr;
-        data += String(code) + cr;
-        data += String(cachehit) + cr;
-        data += String(mimetype) + cr;
-        data += String((*thestart).tv_sec) + cr;
-        data += String((*thestart).tv_usec) + cr;
-        data += String((theend).tv_sec) + cr;
-        data += String((theend).tv_usec) + cr;
-        data += l_clienthost + cr;
-
-        if (o.log_user_agent)
-            data += (reqheader ? reqheader->userAgent() + cr : cr);
-        else
-            data += cr;
-        data += urlparams + cr;
-        data += postdata.str().c_str() + cr;
-        data += String(message_no) + cr;
-        data += String(headeradded) + cr;
-        data += flags + cr;
-        data += cm.search_terms;
-        data += cr;
-
-        e2logger_debug(" -...built");
-
-        //delete newcat;
-        // push on log queue
-        o.log_Q->push(data);
-        // connect to dedicated logging proc
-    }
-}
-
-void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
-    e2logger_trace("who: ", who, " from: ", from, "funct: ", funct);
-    String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
-    unsigned int port = cm.request_header->port;
-    std::string what = thread_id;
-    what += funct;
-    if (cm.isTLS)
-        what += "_TLS";
-    if (cm.hasSNI)
-        what += "_SNI";
-    if (cm.ismitm)
-        what += "_MITM";
-    String how = rtype;
-    off_t size = cm.docsize;
-    std::string *cat = nullptr;  //&cm.whatIsNaughtyCategories;
-    bool isnaughty = cm.isItNaughty;
-    int naughtytype = cm.blocktype;
-    bool isexception = cm.isexception;
-    struct timeval *thestart = &cm.thestart;
-    bool cachehit = false;
-    int code = 0;
-    std::string mimetype = cm.mimetype;
-    bool wasinfected = false;  //cm.wasinfected;
-    bool wasscanned = false;  //cm.wasscanned;
-    int naughtiness = 0;  //cm.naughtiness;
-    int filtergroup = cm.filtergroup;
-    HTTPHeader *reqheader = cm.request_header;
-    int message_no = cm.message_no;
-    bool contentmodified = false; //cm.contentmodified;
-    bool urlmodified = false; //cm.urlmodified;
-    bool headermodified = false; //cm.headermodified;
-    bool headeradded = false; //cm.headeradded;
-
-    std::string data, cr("\n");
-
-//    if ((isexception && (o.log_exception_hits == 2))
-//        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) 
-    if(true) {
-
-        // Item length limit put back to avoid log listener
-        // overload with very long urls Philip Pearce Jan 2014
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
-            String user;
-            if (getdnstxt(from, user)) {
-                who = who + ":" + user;
-            };
-            is_real_user = true;    // avoid looping on persistent connections
-        };
-        std::string l_who = who;
-        std::string l_from = from;
-        std::string l_clienthost;
-        l_clienthost = cm.clienthost;
-        String flags = cm.getFlags();
-
-        e2logger_debug(" -Building raw log data string... ");
-
-        data = String(isexception) + cr;
-        data += (cat ? (*cat) + cr : cr);
-        data += String(isnaughty) + cr;
-        data += String(naughtytype) + cr;
-        data += String(naughtiness) + cr;
-        data += where + cr;
-        data += what + cr;
-        data += how + cr;
-        data += l_who + cr;
-        data += l_from + cr;
-        data += String(port) + cr;
-        data += String(wasscanned) + cr;
-        data += String(wasinfected) + cr;
-        data += String(contentmodified) + cr;
-        data += String(urlmodified) + cr;
-        data += String(headermodified) + cr;
-        data += String(size) + cr;
-        data += String(filtergroup) + cr;
-        data += String(code) + cr;
-        data += String(cachehit) + cr;
-        data += String(mimetype) + cr;
-        data += String((*thestart).tv_sec) + cr;
-        data += String((*thestart).tv_usec) + cr;
-        data += cr;  // data += String((theend).tv_sec) + cr;
-        data += cr;  // data += String((theend).tv_usec) + cr;
-        data += l_clienthost + cr;
-        if (o.log_user_agent)
-            data += (reqheader ? reqheader->userAgent() + cr : cr);
-        else
-            data += cr;
-        data += urlparams + cr;
-        data += cr;
-        data += String(message_no) + cr;
-        data += String(headeradded) + cr;
-        data += flags + cr;
-        data += cr;
-
-        e2logger_debug(" -...built");
-
-        //delete newcat;
-        // push on log queue
-        o.RQlog_Q->push(data);
-        // connect to dedicated logging proc
-    }
-}
 
 
 // TODO - V5
@@ -2634,7 +2356,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     if (checkme.isItNaughty || checkme.upfailure) {
         e2logger_debug(" -SSL Interception failed ", checkme.whatIsNaughty, " nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
-        doLog(clientuser, clientip, checkme);
+        doLog(clientuser, clientip, checkme, &postparts);
 
         if(!justLog)
         	denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
@@ -2683,9 +2405,10 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         String tmp;
 
         for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
-            e2logger_debug(" -Querying next auth plugin...");
             // try to get the username & parse the return value
             auth_plugin = (AuthPlugin *) (*i);
+            e2logger_debug(" -Querying next auth plugin...", auth_plugin->getPluginName());
+
             if (only_client_ip && !auth_plugin->client_ip_based)
                 continue;
 
@@ -2739,6 +2462,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 dobreak = true;
                 break;
             }
+
             e2logger_debug(" -Auth plugin found username ", clientuser, " (", oldclientuser, "), now determining group");
 
             if (clientuser == oldclientuser) {
@@ -2927,7 +2651,7 @@ bool ConnectionHandler::sendScanFile(Socket &peerconn, NaughtyFilter &checkme, b
         checkme.request_header->chopBypass(checkme.url,"GSBYPASS=");
         checkme.logurl = checkme.request_header->getLogUrl();
 
-        doLog(clientuser, checkme.clientip, checkme);
+        doLog(clientuser, checkme.clientip, checkme, NULL);
 
         if (o.delete_downloaded_temp_files) {
             unlink(checkme.tempfilename.toCharArray());
@@ -3130,7 +2854,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
-            e2logger_debug("After StoryA thttps-pre-authcheck", checkme.isexception, " mess_no ",  checkme.message_no );
+            e2logger_debug("After STORY-A thttps-pre-authcheck", checkme.isexception, " mess_no ",  checkme.message_no );
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
 
@@ -3208,9 +2932,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
             if (!(checkme.isdone || isbanneduser || isbannedip || checkme.isexception)) {
-                e2logger_trace("Check StoryB thttps-checkrequest");
+                e2logger_trace("Check STORY-B thttps-checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_THTTPS_REQUEST,checkme);
-                e2logger_trace("After StoryB thttps-checkrequest",
+                e2logger_trace("After STORY-B thttps-checkrequest",
                             " isException: ", String(checkme.isexception),
                             " mess_no ", String(checkme.message_no));
 
@@ -3280,7 +3004,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //Log
             if (!checkme.isourwebserver) { // don't log requests to the web server
-                doLog(clientuser, clientip, checkme);
+                doLog(clientuser, clientip, checkme, NULL);
             }
 
 
@@ -3626,7 +3350,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //if(o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::debugrequest)) {
         std::string fnt = "REQMOD";
-        doRQLog(clientuser, clientip, checkme, fnt);
+        AccessLogger::doRQLog(clientuser, clientip, checkme, fnt);
     }
 
     int rc = E2AUTH_NOUSER;
@@ -3677,7 +3401,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     //CALL SB pre-authcheck
     ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_ICAP, checkme);
-    e2logger_debug("After StoryA icap-pre-authcheck", checkme.isexception, " mess_no ", checkme.message_no);
+    e2logger_debug("After STORY-A icap-pre-authcheck", checkme.isexception, " mess_no ", checkme.message_no);
     checkme.isItNaughty = checkme.isBlocked;
     bool isbannedip = checkme.isBlocked;
     //bool part_banned;
@@ -3726,7 +3450,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(isbanneduser || isbannedip || checkme.isexception)) {
 // Main checking is now done in Storyboard function(s)
         ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_REQMOD, checkme);
-        e2logger_debug("After StoryB checkreqmod", checkme.isexception, " mess_no ",  checkme.message_no,
+        e2logger_debug("After STORY-B checkreqmod", checkme.isexception, " mess_no ",  checkme.message_no,
                     " allow_204 : ", icaphead.allow_204);
 
 	if (ldl->fg[filtergroup]->reporting_level != -1){
@@ -3842,7 +3566,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
     //Log
     if (checkme.logcategory || !(checkme.isourwebserver || checkme.nolog)) { // don't log requests to the web server
-        doLog(clientuser, clientip, checkme);
+        doLog(clientuser, clientip, checkme, &postparts);
     }
     return 0;
 }
@@ -3953,7 +3677,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(checkme.isexception) || !checkme.noviruscheck) {
             // Main checking is done in Storyboard function(s)
             ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
-            e2logger_debugicap("After StoryB icapcheckresmod", checkme.isexception, 
+            e2logger_debugicap("After STORY-B icapcheckresmod", checkme.isexception, 
                                 " mess_no ", checkme.message_no,
                                 " checkme.noviruscheck: ", checkme.noviruscheck,
                                 " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions);
@@ -4040,7 +3764,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
         checkme.whatIsNaughtyLog = "ICAP Response filtering: ";
         checkme.whatIsNaughtyLog += checkme.whatIsNaughty;
-        doLog(clientuser, clientip, checkme);
+        doLog(clientuser, clientip, checkme, NULL);
     }
     if (persistPeer)
         return 0;
@@ -4064,4 +3788,24 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &st
     fg = cm.filtergroup;
     return E2AUTH_OK;
 }
+
+void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm, std::list<AccessLogger::postinfo> *postparts)
+{
+    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
+    if(cm.nolog) return;
+
+    cm.filtergroupname = ldl->fg[cm.filtergroup]->name; // TODO : we have filtergroup in Connectionhandler AND NaughtyFilter
+    AccessLogger::doLog(who, from, cm, postparts, urlparams);
+}
+
+void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct)
+{
+    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
+    if(cm.nolog) return;
+
+    cm.filtergroupname = ldl->fg[cm.filtergroup]->name;  // TODO: do we have a filtergroup??
+    AccessLogger::doRQLog(who, from, cm, funct);
+
+}
+
 

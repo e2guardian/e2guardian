@@ -17,30 +17,13 @@
 #include "ICAPHeader.hpp"
 #include "FatController.hpp"
 #include "Auth.hpp"
+#include "AccessLogger.hpp"
 
 // DECLARATIONS
 
 // add a known clean URL to the cache
 void addToClean(String &url, const int fg);
 
-// record for storing information about POST data parts
-// used for building up the POST data log column
-struct postinfo {
-    // MIME type & original filename (if available)
-    std::string mimetype;
-    std::string filename;
-    // name of file containing headers & body info
-    // for this POST part (if it has been stored)
-    std::string storedname;
-    // size of part
-    size_t size;
-    // offset of body data from start of file
-    // (if post part was stored on disk)
-    size_t bodyoffset;
-    bool blocked;
-    postinfo()
-        : size(0), bodyoffset(0), blocked(false){};
-};
 
 // the ConnectionHandler class - handles filtering, scanning, and blocking of
 // data passed between a client and the external proxy.
@@ -64,6 +47,9 @@ class ConnectionHandler
 
     auth_rec SBauth;      // record persists for whole connection
 
+    // TODO: Extract to new class
+    static bool getdnstxt(std::string &clientip, String &user);
+
     private:
     int filtergroup;
     int oldfg = 0;
@@ -76,7 +62,7 @@ class ConnectionHandler
     std::string oldclientuser;
     std::string *clienthost;
     std::string urlparams;
-    std::list<postinfo> postparts;
+    std::list<AccessLogger::postinfo> postparts;
     String lastcategory;
     std::shared_ptr<LOptionContainer> ldl;
 
@@ -91,7 +77,6 @@ class ConnectionHandler
     int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, DataBuffer &docbody) ;
 
     bool get_original_ip_port(Socket &peerconn, NaughtyFilter &checkme);
-    bool getdnstxt(std::string &clientip, String &user);
 
     String dns_error(int herror);
 
@@ -104,7 +89,7 @@ class ConnectionHandler
   //      bool urlmodified = false, bool headermodified = false,
    //     bool headeradded = false);
 
-    void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
+    void doLog(std::string &who, std::string &from, NaughtyFilter &cm, std::list<AccessLogger::postinfo> *postparts);
     void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);
 
     bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
