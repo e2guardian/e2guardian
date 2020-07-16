@@ -375,7 +375,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         connect_timeout_sec = findoptionI("connecttimeout");
         if (connect_timeout_sec == 0)
-            connect_timeout_sec = 3;
+            connect_timeout_sec = 5;
         if (!realitycheck(connect_timeout_sec, 1, 100, "connecttimeout")) {
             return false;
         } // check its a reasonable value
@@ -383,13 +383,14 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         connect_retries = findoptionI("connectretries");
         if (connect_retries == 0)
-            connect_retries = 5;
+            connect_retries = 1;
         if (!realitycheck(connect_retries, 1, 100, "connectretries")) {
             return false;
         } // check its a reasonable value
 
 
         proxy_timeout_sec = findoptionI("proxytimeout");
+        if (proxy_timeout_sec == 0) proxy_timeout_sec = 5;
         if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
             return false;
         } // check its a reasonable value
@@ -403,12 +404,14 @@ bool OptionContainer::read(std::string &filename, int type) {
         } // check its a reasonable value
 
         pcon_timeout_sec = findoptionI("pcontimeout");
+        if (pcon_timeout_sec == 0) pcon_timeout_sec = 55;
         if (!realitycheck(pcon_timeout_sec, 5, 300, "pcontimeout")) {
             return false;
         } // check its a reasonable value
         pcon_timeout = pcon_timeout_sec * 1000;
 
         exchange_timeout_sec = findoptionI("proxyexchange");
+        if (exchange_timeout_sec == 0) exchange_timeout_sec = 61;
         if (!realitycheck(exchange_timeout_sec, 5, 300, "proxyexchange")) {
             return false;
         }
@@ -511,6 +514,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             }
 
             content_scanner_timeout_sec = findoptionI("contentscannertimeout");
+            if (content_scanner_timeout_sec == 0) content_scanner_timeout_sec = 60;
             if (!realitycheck(content_scanner_timeout_sec, 1, 0, "contentscannertimeout")) {
                 return false;
             }
@@ -528,11 +532,6 @@ bool OptionContainer::read(std::string &filename, int type) {
                 scan_clean_cache = true;
             }
 
-            if (findoptionS("contentscanexceptions") == "on") {
-                content_scan_exceptions = true;
-            } else {
-                content_scan_exceptions = false;
-            }
         }
 
         if (findoptionS("deletedownloadedtempfiles") == "off") {
@@ -613,6 +612,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (!no_proxy) {
             proxy_port = findoptionI("proxyport");
+            if(proxy_port == 0) proxy_port = 3128;
             if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
                 return false;
             } // etc
@@ -620,6 +620,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         // multiple listen IP support
         filter_ip = findoptionM("filterip");
+        if( filter_ip.empty()) filter_ip.push_back("");
         if (filter_ip.size() > 127) {
             if (!is_daemonised) {
                 std::cerr << "Can not listen on more than 127 IPs" << std::endl;
@@ -645,6 +646,8 @@ bool OptionContainer::read(std::string &filename, int type) {
         //}
         //}
         filter_ports = findoptionM("filterports");
+        if (filter_ports.empty())
+            filter_ports.push_back("8080");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
             if (!is_daemonised) {
                 std::cerr << "filterports (" << filter_ports.size() << ") must match number of filterips ("
@@ -659,7 +662,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         } // check its a reasonable value
 
         transparenthttps_port = findoptionI("transparenthttpsport");
-        if (!realitycheck(filter_port, 0, 65535, "transparenthttpsport")) {
+        if (!realitycheck(filter_port, 1, 65535, "transparenthttpsport")) {
             return false;
         } // check its a reasonable value
 
@@ -683,10 +686,10 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-        if (findoptionS("useoriginalip") == "on") {
-            use_original_ip_port = true;
-        } else {
+        if (findoptionS("useoriginalip") == "off") {
             use_original_ip_port = false;
+        } else {
+            use_original_ip_port = true;
         }
 
 
@@ -695,6 +698,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         } // etc
         log_file_format = findoptionI("logfileformat");
+        if(log_file_format == 0) log_file_format = 8;
         if (!realitycheck(log_file_format, 1, 8, "logfileformat")) {
             return false;
         } // etc
@@ -765,6 +769,10 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             forwarded_for = false;
         }
+        if (findoptionS("addforwardedfor") == "on") {
+            forwarded_for = true;
+        }
+
         log_exception_hits = findoptionI("logexceptionhits");
         if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
             return false;
@@ -819,6 +827,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
         filter_groups = findoptionI("filtergroups");
+        if (filter_groups == 0) filter_groups = 1;
 
         default_fg = findoptionI("defaultfiltergroup");
         if (default_fg > 0) {

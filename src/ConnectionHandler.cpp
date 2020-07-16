@@ -3734,6 +3734,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 ++dystat->reqs;
 
                 ip = icaphead.clientip;
+                checkme.clientip = ip;
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -3969,7 +3970,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     int rc = E2AUTH_NOUSER;
-    if (clientuser != "") {
+    if (!(clientuser.empty() || clientuser == "-")) {
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);

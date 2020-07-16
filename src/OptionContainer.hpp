@@ -213,7 +213,6 @@ class OptionContainer
     off_t max_content_ramcache_scan_size;
     off_t max_content_filecache_scan_size;
     bool scan_clean_cache = false;
-    bool content_scan_exceptions = false;
     bool delete_downloaded_temp_files = false;
     bool search_sitelist_for_ip = false;
     std::string download_dir;
