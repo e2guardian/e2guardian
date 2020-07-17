@@ -42,8 +42,8 @@ struct ConfigOptions
 
 struct LogOptions
 {
-    Queue<AccessLogger::LogRecord> log_Q;
-    Queue<AccessLogger::LogRecord> RQlog_Q;
+    Queue<AccessLogger::LogRecord*> log_Q;
+    Queue<AccessLogger::LogRecord*> RQlog_Q;
 
 };
 

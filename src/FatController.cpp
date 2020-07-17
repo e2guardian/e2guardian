@@ -1074,10 +1074,10 @@ int fc_controlit()   //
     // e2logger_ttg = true;    
     AccessLogger::shutDown();
     AccessLogger::LogRecord null_record;
-    o.log.log_Q.push(null_record);
+    o.log.log_Q.push(NULL);
     //if (o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::debugrequest)) {        
-        o.log.RQlog_Q.push(null_record);
+        o.log.RQlog_Q.push(NULL);
     }
 
     if (o.logconerror) {

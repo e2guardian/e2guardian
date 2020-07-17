@@ -85,7 +85,7 @@ namespace AccessLogger {
     struct Helper;
   };
 
-  void log_listener(Queue<LogRecord> &log_Q, bool is_RQlog);
+  void log_listener(Queue<LogRecord*> &log_Q, bool is_RQlog);
 
   void doLog(std::string &who, std::string &from, NaughtyFilter &cm, std::list<AccessLogger::postinfo> *postparts, std::string urlparams);
   void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);

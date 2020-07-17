@@ -248,18 +248,17 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
             logrec->clienthost = "";
         }
 
-
         e2logger_debug(" -...built");
 
         // push on log queue
-        o.log.log_Q.push(*logrec);
+        o.log.log_Q.push(logrec);
     }
 }
 
 void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
 }
 
-void log_listener(Queue<LogRecord> &log_Q, bool is_RQlog)
+void log_listener(Queue<LogRecord*> &log_Q, bool is_RQlog)
 {
     if (is_RQlog)
         thread_id = "RQlog: ";
@@ -313,9 +312,9 @@ void log_listener(Queue<LogRecord> &log_Q, bool is_RQlog)
         blank_str = "";
 
     while (!e2logger_ttg) { // loop, essentially, for ever
-        LogRecord log_rec;
+        LogRecord *log_rec;
         log_rec = log_Q.pop();
-
+        if (log_rec == NULL) break;
         if (e2logger_ttg) break;
         e2logger_debug("received a log request");
 
@@ -372,27 +371,29 @@ void log_listener(Queue<LogRecord> &log_Q, bool is_RQlog)
         String builtline;
         switch (o.log_file_format) {
             case 1:
-                builtline = log_rec.getFormat1();
+                builtline = log_rec->getFormat1();
                 break;
             case 2:
-                builtline = log_rec.getFormat2();
+                builtline = log_rec->getFormat2();
                 break;
             case 3:
-                builtline = log_rec.getFormat3();
+                builtline = log_rec->getFormat3();
                 break;
             case 4:
-                builtline = log_rec.getFormat4();
+                builtline = log_rec->getFormat4();
                 break;
             case 5:
             case 6:
-                builtline = log_rec.getFormat5();
+                builtline = log_rec->getFormat5();
                 break;
             case 7:
             case 8:
             default:
-                builtline = log_rec.getFormat7();
+                builtline = log_rec->getFormat7();
                 break;
         }
+
+        delete log_rec; log_rec = NULL;
 
         // Send to Log
         e2logger_trace("Now sending to Log");
