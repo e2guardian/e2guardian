@@ -120,7 +120,6 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
 
     bool is_real_user; // ??
 
-    struct timeval *thestart = &cm.thestart;
     struct timeval theend;
     gettimeofday(&theend, NULL);
 
@@ -231,7 +230,7 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
 
         logrec->cachehit = false; // ?? cachehit;
         logrec->mimetype = cm.mimetype;
-        logrec->thestart = *(thestart);
+        logrec->thestart = cm.thestart;
         logrec->theend = theend;
         logrec->clientip = cm.clienthost;
         logrec->clienthost = cm.clienthost;
