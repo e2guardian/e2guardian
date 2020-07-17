@@ -154,7 +154,6 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
         || o.ll == 3 
         || (o.ll == 2 && cm.is_text)) {
 
-            std::raise(SIGTRAP);
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
@@ -647,45 +646,44 @@ String LogRecord::getFormatted(const std::string format, const char delimiter)
     return result;
 }
 
-#define FORMAT_1_2  "when who from where  what how  size weight category filtergroup " \
-                    "code mimetype clienthost groupname useragent params logid1 logid2 " \
-                    "postdata"
-#define FORMAT_5etc "timestamp server who from clienthost where how code size mimetype " \
-                    "useragent  squid_result_code duration squid_peer_code " \
-                    "message_no what weight category groupname filtergroup");
+#define FORMAT_DG       "when who from where  what how  size weight category filtergroup " \
+                        "code mimetype clienthost groupname useragent params logid1 logid2 " \
+                        "postdata"
+#define FORMAT_SQUID    "timestamp duration clienthost hitmiss size how where who hier mimetype"
+#define FORMAT_PROTEX   "timestamp server who from clienthost where how code size mimetype " \
+                        "useragent  squid_result_code duration squid_peer_code " \
+                        "message_no what weight category groupname filtergroup"
 
 String LogRecord::getFormat1()
 {
-    String format = String(FORMAT_1_2);
+    String format = String(FORMAT_DG);
     String formatted = this->getFormatted(format, ' ');
     return formatted;
 }
 
 String LogRecord::getFormat2()
 {
-    String format = String(FORMAT_1_2);
+    String format = String(FORMAT_DG);
     String formatted = this->getFormatted(format, ',');
     return formatted;
 }
 String LogRecord::getFormat3()
 {
-    String format = String("timestamp duration clienthost hitmiss size how where who hier mimetype");
+    String format = String(FORMAT_SQUID);
     String formatted = this->getFormatted(format, ',');
     return formatted;
 }
 
 String LogRecord::getFormat4()
 {
-    String format = String( "when who from where  what how  size weight category filtergroup " \
-                            "code mimetype clienthost groupname useragent params logid1 logid2 " \
-                            "postdata");
+    String format = String(FORMAT_DG);
     String formatted = this->getFormatted(format, '\t');
     return formatted;
 }
 
 String LogRecord::getFormat5()
 {
-    String format = String(FORMAT_5etc);
+    String format = String(FORMAT_PROTEX);
     String formatted = this->getFormatted(format, '\t');
     return formatted;
 
@@ -693,7 +691,7 @@ String LogRecord::getFormat5()
 
 String LogRecord::getFormat7()
 {
-    String format = String(FORMAT_5etc + "searchterms flags" );
+    String format = String(FORMAT_PROTEX) + "searchterms flags";
     String formatted = this->getFormatted(format, '\t');
     return formatted;
 
