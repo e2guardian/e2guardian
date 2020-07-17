@@ -532,7 +532,7 @@ trickledelay = 10
 # and other matching mechanisms.
 #
 # NOTE - ONLY default downloadmanager is supported in v5
-downloadmanager = '@E2CONFDIR@downloadmanagers/default.conf'
+downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 
 # Content Scanners (Also known as AV scanners)
 # These are plugins that scan the content of all files your browser fetches
@@ -543,9 +543,9 @@ downloadmanager = '@E2CONFDIR@downloadmanagers/default.conf'
 # Some of the scanner(s) require 3rd party software and libraries eg clamav.
 # See the individual plugin conf file for more options (if any).
 #
-#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/clamdscan.conf'
-#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/avastdscan.conf'
-#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/kavdscan.conf'
+#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
 #@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
 #@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
 
