@@ -145,56 +145,16 @@ int startDaemon()
         return 1; // we can't have rampant proccesses can we?
     }
 
-    o.proc.root_user = geteuid();
-
-    struct passwd *st; // prepare a struct
-    struct group *sg;
-    int rc;
-
-    // "daemongroup" option exists, but never used to be honoured. this is now
-    // an important feature, however, because we need to be able to create temp
-    // files with suitable permissions for scanning by AV daemons - we do this
-    // by becoming a member of a specified AV group and setting group read perms
-    if ((sg = getgrnam(o.proc.daemon_group_name.c_str())) != 0) {
-        o.proc.proxy_group = sg->gr_gid;
-    } else {
-        e2logger_error( "Unable to getgrnam(): ", strerror(errno));
-        e2logger_error("Check the group that e2guardian runs as (", o.proc.daemon_group_name, ")");
-        return 1;
-    }
-
-    if ((st = getpwnam(o.proc.daemon_user_name.c_str())) != 0) { // find uid for proxy user
-        o.proc.proxy_user = st->pw_uid;
-
-        rc = setgid(o.proc.proxy_group); // change to rights of proxy user group
-        // i.e. low - for security
-        if (rc == -1) {
-            e2logger_error("Unable to setgid()");
-            return 1; // setgid failed for some reason so exit with error
-        }
-#ifdef HAVE_SETREUID
-        rc = setreuid((uid_t)-1, st->pw_uid);
-#else
-        rc = seteuid(o.proc.proxy_user); // need to be euid so can su back
-// (yes it negates but no choice)
-#endif
-        if (rc == -1) {
-            e2logger_error("Unable to seteuid()");
-            return 1; // seteuid failed for some reason so exit with error
-        }
-    } else {
-        e2logger_error("Unable to getpwnam() - does the proxy user exist?");
-        e2logger_error("Proxy user looking for is '", o.proc.daemon_user_name, "'" );
-        return 1; // was unable to lockup the user id from passwd
-        // for some reason, so exit with error
-    }
-
+    if (!o.proc.find_user_ids()) return 1;
+    if (!o.proc.become_proxy_user()) return 1;
 
     // this is no longer a class, but the comment has been retained for historical reasons. PRA 03-10-2005
     //FatController f;  // Thomas The Tank Engine
 
     e2logger_trace("Starting Main loop");
     while (true) {
+        int rc;
+
         rc = fc_controlit();
         // its a little messy, but I wanted to split
         // all the ground work and non-daemon stuff
@@ -202,18 +162,10 @@ int startDaemon()
         // However the line is not so fine.
         if (rc == 2) {
 
-// In order to re-read the conf files and create cache files
-// we need to become root user again
+            // In order to re-read the conf files and create cache files
+            // we need to become root user again
+            if (!o.proc.become_root_user()) return 1;
 
-#ifdef HAVE_SETREUID
-            rc = setreuid((uid_t)-1, o.proc.root_user);
-#else
-            rc = seteuid(o.proc.root_user);
-#endif
-            if (rc == -1) {
-                e2logger_error("Unable to seteuid() to read conf files.");
-                return 1;
-            }
             e2logger_trace("About to re-read conf file.");
             o.reset();
             if (!o.readConfig(o.config.configfile, true)) {
@@ -227,16 +179,8 @@ int startDaemon()
             while (waitpid(-1, NULL, WNOHANG) > 0) {
             } // mop up defunts
 
-#ifdef HAVE_SETREUID
-            rc = setreuid((uid_t)-1, st->pw_uid);
-#else
-            rc = seteuid(st->pw_uid); // become low priv again
-#endif
-
-            if (rc == -1) {
-                e2logger_error("Unable to re-seteuid()");
-                return 1; // seteuid failed for some reason so exit with error
-            }
+             // become low priv again
+            if (!o.proc.become_proxy_user()) return 1;
             continue;
         }
 
@@ -288,7 +232,7 @@ int readCommandlineOptions(int argc, char *argv[]){
                               << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
                     return 0;
                 case 'N':
-                    o.no_daemon = true;
+                    o.proc.no_daemon = true;
                     break;
                 case 'c':
                     if ((i + 1) < argc) {

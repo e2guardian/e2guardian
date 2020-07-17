@@ -21,6 +21,10 @@
 #include <dirent.h>
 #include <cstdlib>
 #include <unistd.h> 
+#include <pwd.h>
+#include <grp.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 // GLOBALS
 
@@ -183,17 +187,13 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
 
         blocked_content_store = findoptionS("blockedcontentstore");
 
-		if (findoptionS("nodaemon") == "on") {
-			no_daemon = true;
-		} else {
-			no_daemon = false;
-		}
+		proc.no_daemon = (findoptionS("nodaemon") == "on");
 		
         if (findoptionS("dockermode") == "on") {
-            no_daemon = true;
+            proc.no_daemon = true;
             e2logger.setDockerMode();
         } else {
-            no_daemon = false;
+            proc.no_daemon = false;
         }
 
         if (findoptionS("softrestart") == "on") {
@@ -1193,6 +1193,131 @@ bool OptionContainer::createLists(int load_id)  {
     return false;
 }
 
+#pragma region ProcessOptions
+
+bool ProcessOptions::find_user_ids()
+{
+
+    struct passwd *st;
+    struct group *sg;
+    int rc;
+
+    root_user = geteuid();
+
+    // "daemongroup" option exists, but never used to be honoured. this is now
+    // an important feature, however, because we need to be able to create temp
+    // files with suitable permissions for scanning by AV daemons - we do this
+    // by becoming a member of a specified AV group and setting group read perms
+    if ((sg = getgrnam(daemon_group_name.c_str())) != 0) {
+        proxy_group = sg->gr_gid;
+    } else {
+        e2logger_error( "Unable to getgrnam(): ", strerror(errno));
+        e2logger_error("Check the group that e2guardian runs as (", daemon_group_name, ")");
+        return 1;
+    }
+
+    if ((st = getpwnam(daemon_user_name.c_str())) != 0) { // find uid for proxy user
+        proxy_user = st->pw_uid;
+
+        rc = setgid(proxy_group); // change to rights of proxy user group
+        // i.e. low - for security
+        if (rc == -1) {
+            e2logger_error("Unable to setgid()");
+            return false; // setgid failed for some reason so exit with error
+        }
+
+
+    } else {
+        e2logger_error("Unable to getpwnam() - does the proxy user exist?");
+        e2logger_error("Proxy user looking for is '", daemon_user_name, "'" );
+        return false;   // was unable to lockup the user id from passwd
+                        // for some reason, so exit with error
+    }
+    return true;
+}
+
+bool ProcessOptions::become_root_user()
+{
+    int rc;
+#ifdef HAVE_SETREUID
+    rc = setreuid((uid_t)-1, root_user);
+#else
+    rc = seteuid(root_user);
+#endif
+    if (rc == -1) {
+        e2logger_error("Unable to seteuid() to become root user");
+        return false;
+    }
+    return true;
+}
+
+bool ProcessOptions::become_proxy_user()
+{
+    int rc;
+#ifdef HAVE_SETREUID
+    rc = setreuid((uid_t)-1, proxy_user);
+#else
+    rc = seteuid(proxy_user); // become low priv again
+#endif
+    if (rc == -1) {
+        e2logger_error("Unable to re-seteuid() to become proxy user");
+        return false;
+    }
+    return true;
+}
+
+// Fork ourselves off into the background
+bool ProcessOptions::daemonise()
+{
+    if (no_daemon) {
+        return true;
+    }
+#ifdef E2DEBUG
+    return true; // if debug mode is enabled we don't want to detach
+#endif
+
+    if (is_daemonised) {
+        return true; // we are already daemonised so this must be a
+        // reload caused by a HUP
+    }
+
+    int nullfd = -1;
+    if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
+        e2logger_error("Couldn't open /dev/null");
+        return false;
+    }
+
+    pid_t pid;
+    if ((pid = fork()) < 0) {    // Error!!
+        close(nullfd);
+        return false;
+    } else if (pid != 0) {      // parent goes...
+        if (nullfd != -1) {
+            close(nullfd);
+        }
+        
+        exit(0);    // bye-bye
+    }
+
+    // child continues
+    dup2(nullfd, 0); // stdin
+    dup2(nullfd, 1); // stdout
+    dup2(nullfd, 2); // stderr
+    close(nullfd);
+
+    setsid(); // become session leader
+    if (chdir("/") != 0) {// change working directory
+	    e2logger_error(" Can't change / directory !");
+	    return false;
+    }
+    umask(0); // clear our file mode creation mask
+    umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
+
+    is_daemonised = true;
+
+    return true;
+}
+#pragma endregion
 
 std::shared_ptr<LOptionContainer> OptionContainer::currentLists() {
     return current_LOC;

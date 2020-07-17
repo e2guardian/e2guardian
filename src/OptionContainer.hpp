@@ -74,9 +74,17 @@ struct ProcessOptions
     int root_user = 0;
     int proxy_user = 0;
     int proxy_group = 0;
+
     std::string daemon_user_name;
     std::string daemon_group_name;
+
+    bool no_daemon = false;
     bool is_daemonised = false;
+
+    bool find_user_ids();
+    bool become_root_user();
+    bool become_proxy_user();
+    bool daemonise();           // Fork ourselves off into the background
 };
 
 struct NetworkOptions
@@ -201,7 +209,6 @@ class OptionContainer
     int dstat_interval = 300;
 
 
-    bool no_daemon = false;
     //bool no_logger = false;
     //bool log_syslog = false;
     std::string name_suffix;

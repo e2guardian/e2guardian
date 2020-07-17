@@ -375,60 +375,6 @@ bool drop_priv_completely()
     return true;
 }
 
-// Fork ourselves off into the background
-bool daemonise()
-{
-    if (o.no_daemon) {
-        return true;
-    }
-#ifdef E2DEBUG
-    return true; // if debug mode is enabled we don't want to detach
-#endif
-
-    if (o.proc.is_daemonised) {
-        return true; // we are already daemonised so this must be a
-        // reload caused by a HUP
-    }
-
-    int nullfd = -1;
-    if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
-        e2logger_error("Couldn't open /dev/null");
-        return false;
-    }
-
-    pid_t pid;
-    if ((pid = fork()) < 0) {
-        // Error!!
-        close(nullfd);
-        return false;
-    } else if (pid != 0) {
-        // parent goes...
-        if (nullfd != -1) {
-            close(nullfd);
-        }
-        // bye-bye
-        exit(0);
-    }
-
-    // child continues
-    dup2(nullfd, 0); // stdin
-    dup2(nullfd, 1); // stdout
-    dup2(nullfd, 2); // stderr
-    close(nullfd);
-
-    setsid(); // become session leader
-    //int dummy = chdir("/"); // change working directory
-    if (chdir("/") != 0) {// change working directory
-	    e2logger_error(" Can't change / directory !");
-	    return false;
-    }
-    umask(0); // clear our file mode creation mask
-    umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
-
-    o.proc.is_daemonised = true;
-
-    return true;
-}
 
 // *
 // *
@@ -711,16 +657,10 @@ int fc_controlit()   //
 /*bool needdrop = false;
 
 	if (o.filter_port < 1024) */
-#ifdef E2DEBUG
-    std::cerr << thread_id << "seteuiding for low port binding/pidfile creation" << std::endl;
-#endif
+    e2logger_debug( "seteuiding for low port binding/pidfile creation");
 //needdrop = true;
-#ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proc.root_user);
-#else
-    rc = seteuid(o.proc.root_user);
-#endif
-    if (rc == -1) {
+
+    if (!o.proc.become_root_user()) {
         e2logger_error("Unable to seteuid() to bind filter port.");
         delete[] serversockfds;
         return 1;
@@ -783,13 +723,8 @@ int fc_controlit()   //
 
 // Made unconditional for same reasons as above
 //if (needdrop)
-#ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proc.proxy_user);
-#else
-    rc = seteuid(o.proc.proxy_user); // become low priv again
-#endif
-    if (rc == -1) {
-        e2logger_error("%sUnable to re-seteuid()");
+    if (!o.proc.become_proxy_user()) {
+        e2logger_error("Unable to re-seteuid()");
         close(pidfilefd);
         delete[] serversockfds;
         return 1; // seteuid failed for some reason so exit with error
@@ -803,7 +738,7 @@ int fc_controlit()   //
         return 1;
     }
 
-    if (!daemonise()) {
+    if (!o.proc.daemonise()) {
         // detached daemon
         e2logger_error("Error daemonising");
         close(pidfilefd);
