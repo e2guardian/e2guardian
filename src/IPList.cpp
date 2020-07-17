@@ -70,6 +70,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
 
     // hostnames
     // TODO - take in a suggested hostname, look up only if not supplied, and return suggestion if found
+    // TODO KDG: should be done in AccessLogger
     if (o.reverse_client_ip_lookups) {
         std::unique_ptr<std::deque<String> > hostnames;
         if (host == NULL)
@@ -87,7 +88,8 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
         }
         // Even if we don't match anything, return a hostname
         // if desired for logging and we don't already have one.
-        if (o.log_client_hostnames && (host == NULL) && (hostnames->size() > 0))
+        // TODO KDG: should be done in AccessLogger
+        if (o.log.log_client_hostnames && (host == NULL) && (hostnames->size() > 0))
             host = new std::string(hostnames->front().toCharArray());
     }
 

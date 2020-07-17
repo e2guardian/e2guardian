@@ -167,13 +167,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             stats_human_readable = false;
         }
 
-        if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-            dns_user_logging = false;
-        } else {
-            dns_user_logging = true;
-        }
-
-        log_header_value = findoptionS("logheadervalue");
+        if (!findLogOptions()) return false;
 
         if (reload) {
             return true;
@@ -314,13 +308,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         }
 
 
-        max_logitem_length = findoptionI("maxlogitemlength");
-        // default of unlimited no longer allowed as could cause buffer overflow
-        if (max_logitem_length == 0)
-            max_logitem_length = 2000;
-        if (!realitycheck(max_logitem_length, 10, 32000, "maxlogitemlength")) {
-            return false;
-        }
 
         connect_timeout_sec = findoptionI("connecttimeout");
         if (connect_timeout_sec == 0)
@@ -617,52 +604,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         }
 
 
-        ll = findoptionI("loglevel");
-        if (!realitycheck(ll, 0, 3, "loglevel")) {
-            return false;
-        } // etc
-        log_file_format = findoptionI("logfileformat");
-        if (!realitycheck(log_file_format, 1, 8, "logfileformat")) {
-            return false;
-        } // etc
-        if (findoptionS("anonymizelogs") == "on") {
-            anonymise_logs = true;
-        } else {
-            anonymise_logs = false;
-        }
-        if (findoptionS("logadblocks") == "on") {
-            log_ad_blocks = true;
-        } else {
-            log_ad_blocks = false;
-        }
-        if (findoptionS("logtimestamp") == "on") {
-            log_timestamp = true;
-        } else {
-            log_timestamp = false;
-        }
-        if (findoptionS("loguseragent") == "on") {
-            log_user_agent = true;
-        } else {
-            log_user_agent = false;
-        }
-        if (findoptionS("usedashforblank") == "off") {
-            use_dash_for_blanks = false;
-        } else {
-            use_dash_for_blanks = true;
-        }
-        if (findoptionS("logclientnameandip") == "off") {
-            log_client_host_and_ip = false;
-        } else {
-            log_client_host_and_ip = true;
-        }
 
-        // TODO: Remove ??
-        logid_1.assign(findoptionS("logid1"));
-        if (logid_1.empty())
-            logid_1.assign("-");
-        logid_2.assign(findoptionS("logid2"));
-        if (logid_2.empty())
-            logid_2.assign("-");
 
 #ifdef SG_LOGFORMAT
         prod_id.assign(findoptionS("productid"));
@@ -693,10 +635,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         } else {
             forwarded_for = false;
         }
-        log_exception_hits = findoptionI("logexceptionhits");
-        if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
-            return false;
-        }
 
         if (findoptionS("logconnectionhandlingerrors") == "on") {
             logconerror = true;
@@ -724,12 +662,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             reverse_client_ip_lookups = true;
         } else {
             reverse_client_ip_lookups = false;
-        }
-        if (findoptionS("logclienthostnames") == "on") {
-            log_client_hostnames = true;
-            reverse_client_ip_lookups = true;
-        } else {
-            log_client_hostnames = false;
         }
 
         if (findoptionS("recheckreplacedurls") == "on") {
@@ -999,9 +931,44 @@ bool OptionContainer::readinStdin()
 }
 
 
+bool OptionContainer::findLogOptions()
+{
+    e2logger_trace("");
+
+    log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
+    log.log_header_value = findoptionS("logheadervalue");
+
+    // default of unlimited no longer allowed as could cause buffer overflow
+    log.max_logitem_length = realitycheckWithDefault("maxlogitemlength", 10, 32000, 2000);
+
+    log.log_level = realitycheckWithDefault("loglevel", 0, 3, 3);
+    log.log_file_format = realitycheckWithDefault("logfileformat", 1, 8, 1);
+
+    log.anonymise_logs = (findoptionS("anonymizelogs") == "on") ;
+    log.log_ad_blocks = (findoptionS("logadblocks") == "on");
+    log.log_timestamp = (findoptionS("logtimestamp") == "on");
+    log.log_user_agent = (findoptionS("loguseragent") == "on");
+    log.use_dash_for_blanks = (findoptionS("usedashforblank") == "off");
+    log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "off");
+
+    log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
+
+    log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
+    reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be don in log thread
+
+    log.logid_1 = findoptionS("logid1");
+    if (log.logid_1.empty())
+        log.logid_1 = "-";
+    log.logid_2 = findoptionS("logid2");
+    if (log.logid_2.empty())
+        log.logid_2 = "-";
+
+    return true;
+}
+
 long int OptionContainer::findoptionI(const char *option) {
-    long int res = String(findoptionS(option).c_str()).toLong();
-    return res;
+    std::string s = findoptionS(option);
+    return String(s).toLong();
 }
 
 std::string OptionContainer::findoptionS(const char *option) {
@@ -1083,6 +1050,21 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
         return false;
     }
     return true;
+}
+
+long int OptionContainer::realitycheckWithDefault(const char *option, long int minl, long int maxl, long int defaultl) {
+    // realitycheck checks an amount for certain expected criteria
+    // so we can spot problems in the conf files easier    
+    std::string s = findoptionS(option);
+    if ( s == "" ) return defaultl;
+    long int value = String(s).toLong();
+
+    if ((value < minl) || ((maxl > 0) && (value > maxl))) {
+        e2logger_error("Config problem; check allowed values for ", option, "( ", value , " should be >= ", minl, " <=", maxl, ")",
+                    "we are using default value:", defaultl);        
+        return defaultl;
+    }
+    return value;
 }
 
 

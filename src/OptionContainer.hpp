@@ -45,6 +45,28 @@ struct LogOptions
     Queue<AccessLogger::LogRecord*> log_Q;
     Queue<AccessLogger::LogRecord*> RQlog_Q;
 
+    int log_level = 0;
+    int log_file_format = 0;
+    int log_exception_hits = 0;
+    bool log_client_hostnames = false;
+    bool log_client_host_and_ip = false;  // TODO: unused ???
+    bool anonymise_logs = false;
+    bool log_ad_blocks = false;
+    bool log_timestamp = false;
+    bool log_user_agent = false;
+    bool use_dash_for_blanks = true;
+
+    unsigned int max_logitem_length = 2000;
+
+    std::string dns_user_logging_domain;  // TODO: not documented ??
+    bool dns_user_logging() { dns_user_logging_domain =! ""; };
+
+    std::string log_header_value;
+
+    // Hardware/organisation/etc. IDs
+    std::string logid_1;
+    std::string logid_2;
+
 };
 
 struct ProcessOptions
@@ -85,11 +107,8 @@ class OptionContainer
 
     // all our many, many options
     int filter_groups = 0;
-    int log_exception_hits = 0;
     bool config_error = false;
     bool non_standard_delimiter;
-    int log_file_format = 0;
-    std::string log_header_value;
     std::string ident_header_value;
     int weighted_phrase_mode = 0; // PIP added in - not sure if still required
     bool show_weighted_found = false;
@@ -101,13 +120,11 @@ class OptionContainer
     std::string custom_banned_flash_file;
     bool reverse_lookups = false;
     bool reverse_client_ip_lookups = false;
-    bool log_client_hostnames = false;
     bool use_xforwardedfor = false;
     std::deque<String> xforwardedfor_filter_ip;
     bool logconerror = false;
     bool logchildprocs = false;
     bool log_ssl_errors = false;
-    bool log_client_host_and_ip = false;
     int url_cache_number = 0;
     int url_cache_age = 0;
     int phrase_filter_mode = 0;
@@ -116,7 +133,6 @@ class OptionContainer
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
-    bool use_dash_for_blanks = true;
     bool hex_decode_content = false;
     bool force_quick_search = false;
     bool map_auth_to_ports = false;
@@ -139,7 +155,6 @@ class OptionContainer
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
-    int ll = 0;
     int connect_timeout = 0;
     int connect_timeout_sec = 0;
     int connect_retries = 0;
@@ -184,22 +199,12 @@ class OptionContainer
     bool dstat_log_flag = false;
     bool stats_human_readable = false;
     int dstat_interval = 300;
-    bool dns_user_logging = false;
-    std::string dns_user_logging_domain;
 
-    // Hardware/organisation/etc. IDs
-    std::string logid_1;
-    std::string logid_2;
 
     bool no_daemon = false;
     //bool no_logger = false;
     //bool log_syslog = false;
     std::string name_suffix;
-    unsigned int max_logitem_length = 2000;
-    bool anonymise_logs = false;
-    bool log_ad_blocks = false;
-    bool log_timestamp = false;
-    bool log_user_agent = false;
     bool soft_restart = false;
 
     std::string ssl_certificate_path;
@@ -312,10 +317,13 @@ class OptionContainer
   //  bool precompileregexps();
     long int findoptionI(const char *option);
     std::string findoptionS(const char *option);
-    bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
-   // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
 
+    bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
+    long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
+    bool findLogOptions();
+
+ // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
 };
 

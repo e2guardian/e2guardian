@@ -136,28 +136,28 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
 
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
-    if (o.ll == 0) return;
-    if (!o.log_ad_blocks) {
+    if (o.log.log_level == 0) return;
+    if (!o.log.log_ad_blocks) {
         if ( strstr(cat.c_str(), "ADs") != NULL ) {
             e2logger_debug(" -Not logging 'ADs' blocks");
             return;
         }
     }
-    if ((o.log_exception_hits == 0) && cm.isException) {
+    if ((o.log.log_exception_hits == 0) && cm.isException) {
         e2logger_debug(" -Not logging exceptions");               
         return;
     }
 
-    if ((cm.isException && (o.log_exception_hits == 2))
+    if ((cm.isException && (o.log.log_exception_hits == 2))
         || cm.isItNaughty 
-        || o.ll == 3 
-        || (o.ll == 2 && cm.is_text)) {
+        || o.log.log_level == 3 
+        || (o.log.log_level == 2 && cm.is_text)) {
 
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !cm.anon_log) {
+        if (o.log.log_client_hostnames && (cm.clienthost == "") && !cm.anon_log) {
 
             e2logger_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
             getClientFromIP(from.c_str(), cm.clienthost);
@@ -185,12 +185,12 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if (cat.length() > o.max_logitem_length)
-            cat.resize(o.max_logitem_length);
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
+        if (cat.length() > o.log.max_logitem_length)
+            cat.resize(o.log.max_logitem_length);
+        if (what.length() > o.log.max_logitem_length)
+            what.resize(o.log.max_logitem_length);
+        if (where.length() > o.log.max_logitem_length)
+            where.limitLength(o.log.max_logitem_length);
 
         // if (o.dns_user_logging && !is_real_user) {
         //     String user;
@@ -234,7 +234,7 @@ void doLog(std::string &who, std::string &from, NaughtyFilter &cm,
         logrec->theend = theend;
         logrec->clientip = cm.clienthost;
         logrec->clienthost = cm.clienthost;
-        if (o.log_user_agent)
+        if (o.log.log_user_agent)
           logrec->useragent = (reqheader ? reqheader->userAgent() : "" );
         logrec->postdata = postdata.str();
         logrec->message_no = cm.message_no;;
@@ -306,7 +306,7 @@ void log_listener(Queue<LogRecord*> &log_Q, bool is_RQlog)
     neterr_word = "*" + neterr_word + "* ";
     std::string blank_str;
 
-    if(o.use_dash_for_blanks)
+    if(o.log.use_dash_for_blanks)
         blank_str = "-";
     else
         blank_str = "";
@@ -369,7 +369,7 @@ void log_listener(Queue<LogRecord*> &log_Q, bool is_RQlog)
 #endif
 
         String builtline;
-        switch (o.log_file_format) {
+        switch (o.log.log_file_format) {
             case 1:
                 builtline = log_rec->getFormat1();
                 break;
@@ -605,20 +605,20 @@ String LogRecord::getPart(const std::string part)
     if (part == "datetime")     return Helper::getDateTime(theend);
     if (part == "duration")     return Helper::getDuration(thestart, theend);
 
-    if (part == "who")          return ( o.anonymise_logs ? "" : who);
-    if (part == "from")         return ( o.anonymise_logs ? "0.0.0.0" : from);
+    if (part == "who")          return ( o.log.anonymise_logs ? "" : who);
+    if (part == "from")         return ( o.log.anonymise_logs ? "0.0.0.0" : from);
     if (part == "where")        return Helper::getWhere(where, port);
     if (part == "what")         return what;
     if (part == "how")          return how;
     if (part == "code")         return std::to_string(code);
     if (part == "server")       return o.server_name;
-    if (part == "useragent")    return ( o.log_user_agent ? useragent : "");
+    if (part == "useragent")    return ( o.log.log_user_agent ? useragent : "");
     if (part == "params")       return urlparams;
     
     if (part == "filtergroup")  return String(filtergroup);
     if (part == "groupname")    return Helper::getGroupname(code, filtergroupname);
-    if (part == "clientip")     return ( o.anonymise_logs ? "" : clientip);
-    if (part == "clienthost")   return ( o.anonymise_logs ? "" : clienthost);
+    if (part == "clientip")     return ( o.log.anonymise_logs ? "" : clientip);
+    if (part == "clienthost")   return ( o.log.anonymise_logs ? "" : clienthost);
 
     if (part == "postdata")     return postdata;
     if (part == "category")     return category;
@@ -639,8 +639,10 @@ String LogRecord::getFormatted(const std::string format, const char delimiter)
     String result;
 
     for (auto const &s: tokens) {
-        String part = this->getPart(s);
-        result = result + part + String(delimiter);
+        if (s.length() > 0) {
+            String part = this->getPart(s);
+            result = result + part + String(delimiter);
+        }
     }
     result.chop();
     return result;
