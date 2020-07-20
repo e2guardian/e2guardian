@@ -3,9 +3,16 @@ include:
   - 'gitlabci/ubuntufocal.yml'
 
 stages:
+- build:ubuntufocal
+        
+- build:ubuntubionic
+- create-ubuntu-packagebionic
+- TestUbuntubionic
+
 - build:debian
 - create-debian-package
 - TestDebian
+
 - build:raspbian
 - create-raspbian-package
 #

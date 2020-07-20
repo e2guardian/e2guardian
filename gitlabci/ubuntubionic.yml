@@ -1,9 +1,3 @@
-stages:
-- build:ubuntubionic
-- create-ubuntu-packagebionic
-- TestUbuntubionic
-
-
 Package Docker Image Ubuntu:
   stage: build:ubuntubionic
   image: amd64/ubuntu:18.04
