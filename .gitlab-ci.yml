@@ -1,14 +1,11 @@
 stages:
 - ubuntufocal
-#        
 - ubuntubionic
 - create-ubuntu-packagebionic
 - Testubuntubionic
-#
 - build:debian
 - create-debian-package
 - TestDebian
-#
 - build:raspbian
 - create-raspbian-package
 #
@@ -16,7 +13,6 @@ stages:
 include:
   - 'gitlabci/ubuntufocal.yml'
   - 'gitlabci/ubuntubionic.yml'
-
 
 Package Docker Image Debian:
   stage: build:debian
