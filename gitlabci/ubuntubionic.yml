@@ -1,5 +1,11 @@
+stages:
+- build:ubuntubionic
+- create-ubuntu-packagebionic
+- TestUbuntubionic
+
+
 Package Docker Image Ubuntu:
-  stage: build:ubuntu
+  stage: build:ubuntubionic
   image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 20 minutes
@@ -21,7 +27,7 @@ Package Docker Image Ubuntu:
     - find / -name ".git" -exec rm -r "{}" +
 
 Create Ubuntu Package:
-  stage: create-ubuntu-package
+  stage: create-ubuntu-packagebionic
   image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 20 minutes
@@ -53,7 +59,7 @@ Create Ubuntu Package:
     - find / -name ".git" -exec rm -r "{}" +
 
 Test and publish Ubuntu:
-  stage: TestUbuntu 
+  stage: TestUbuntubionic 
   image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 20 minutes

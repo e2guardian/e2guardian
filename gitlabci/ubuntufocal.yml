@@ -1,5 +1,11 @@
+stages:
+- build:ubuntufocal
+  #- create-ubuntu-package
+  #- TestUbuntu
+
+
 Package Docker Image Ubuntu:
-  stage: build:ubuntu
+  stage: build:ubuntufocal
   image: amd64/ubuntu:20.04
   artifacts:
    expire_in: 20 minutes
