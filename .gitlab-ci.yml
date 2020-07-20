@@ -1,4 +1,5 @@
 stages:
+# At first : init variables
 - build:debian
 - create-debian-package
 - TestDebian
@@ -14,4 +15,4 @@ include:
   - 'gitlabci/debianbuster.yml'
   - 'gitlabci/ubuntufocal.yml'
   - 'gitlabci/ubuntubionic.yml'
-  - 'gitlabci/raspianbuster.yml'
+  - 'gitlabci/raspbianbuster.yml'
