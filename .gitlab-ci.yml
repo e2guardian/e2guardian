@@ -2,10 +2,10 @@ stages:
 - build:debian
 - create-debian-package
 - TestDebian
+- ubuntufocal
 - ubuntubionic
 - create-ubuntu-packagebionic
 - Testubuntubionic
-- ubuntufocal
 - build:raspbian
 - create-raspbian-package
 #
