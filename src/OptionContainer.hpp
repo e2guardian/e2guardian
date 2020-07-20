@@ -97,7 +97,33 @@ struct DStatOptions
 
 struct NetworkOptions
 {
+    std::string proxy_ip;
+    bool no_proxy = ( proxy_ip == "");
 
+    bool map_ports_to_ips = false;
+
+    std::deque<String> filter_ip;
+    std::deque<String> check_ip;
+    std::deque<String> filter_ports;
+
+    int filter_port = 0;
+    int proxy_port = 0;
+    int transparenthttps_port = 0;
+    int icap_port = 0;
+
+    int connect_timeout = 0;
+    int connect_timeout_sec = 0;
+    int connect_retries = 0;
+    int proxy_timeout = 0;
+    int proxy_timeout_sec = 0;
+    int peercon_timeout = 0;
+    int peercon_timeout_sec = 0;
+    int exchange_timeout = 0;
+    int exchange_timeout_sec = 0;
+
+    int proxy_failure_log_interval = 0; // or  in LogOptions ??
+
+    int number_of_fds_neded();
 };
 
 struct ListsOptions
@@ -153,35 +179,16 @@ class OptionContainer
     bool hex_decode_content = false;
     bool force_quick_search = false;
     bool map_auth_to_ports = false;
-    bool map_ports_to_ips = false;
-    int filter_port = 0;
-    int proxy_port = 0;
-    bool no_proxy = false;
-    int transparenthttps_port = 0;
-    int icap_port = 0;
+
     std::string server_name;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
-    std::string proxy_ip;
-    std::deque<String> filter_ip;
-    std::deque<String> check_ip;
-    std::deque<String> filter_ports;
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;
     bool SB_trace = false;
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
-    int connect_timeout = 0;
-    int connect_timeout_sec = 0;
-    int connect_retries = 0;
-    int proxy_timeout = 0;
-    int proxy_timeout_sec = 0;
-    int proxy_failure_log_interval = 0;
-    int exchange_timeout = 0;
-    int exchange_timeout_sec = 0;
-    int pcon_timeout = 0;
-    int pcon_timeout_sec = 0;
     int http_workers = 0;
     int max_ips = 0;
     bool recheck_replaced_urls;
@@ -336,6 +343,7 @@ class OptionContainer
 
     bool findLogOptions();
     bool findDStatOptions();
+    bool findNetworkOptions();
 
  // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);

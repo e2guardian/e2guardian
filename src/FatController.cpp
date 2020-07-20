@@ -549,21 +549,21 @@ int fc_controlit()   //
     thread_id = "master: ";
 
     // allocate & create our server sockets
-    if (o.map_ports_to_ips) {
-        serversocketcount = o.filter_ip.size();
+    if (o.net.map_ports_to_ips) {
+        serversocketcount = o.net.filter_ip.size();
     } else {
-        if (o.filter_ip.size() > 0) {
-            serversocketcount = o.filter_ip.size() * o.filter_ports.size();
+        if (o.net.filter_ip.size() > 0) {
+            serversocketcount = o.net.filter_ip.size() * o.net.filter_ports.size();
         } else {
-            serversocketcount = o.filter_ports.size();
+            serversocketcount = o.net.filter_ports.size();
         }
     }
 
     int serversocktopproxy = serversocketcount;
 
-    if (o.transparenthttps_port > 0)
+    if (o.net.transparenthttps_port > 0)
         ++serversocketcount;
-    if (o.icap_port> 0)
+    if (o.net.icap_port> 0)
         ++serversocketcount;
 
     serversockets.reset(serversocketcount);
@@ -602,8 +602,8 @@ int fc_controlit()   //
     // we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
     // if we don't find one, bind to any, as per old behaviour.
     // XXX AAAARGH!
-    if (o.filter_ip[0].length() > 6) {
-        if (serversockets.bindAll(o.filter_ip, o.filter_ports)) {
+    if (o.net.filter_ip[0].length() > 6) {
+        if (serversockets.bindAll(o.net.filter_ip, o.net.filter_ports)) {
             e2logger_error("Error binding server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
             delete[] serversockfds;
@@ -611,15 +611,15 @@ int fc_controlit()   //
         }
     } else {
         // listen/bind to a port (or ports) on any interface
-        if (o.map_ports_to_ips) {
-            if (serversockets.bindSingle(o.filter_port)) {
-                e2logger_error("Error binding server socket: [", o.filter_port, "] (", strerror(errno), ")" );
+        if (o.net.map_ports_to_ips) {
+            if (serversockets.bindSingle(o.net.filter_port)) {
+                e2logger_error("Error binding server socket: [", o.net.filter_port, "] (", strerror(errno), ")" );
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
             }
         } else {
-            if (serversockets.bindSingleM(o.filter_ports)) {
+            if (serversockets.bindSingleM(o.net.filter_ports)) {
                 e2logger_error("Error binding server sockets: (", strerror(errno), ")" );
                 close(pidfilefd);
                 delete[] serversockfds;
@@ -628,8 +628,8 @@ int fc_controlit()   //
         }
     }
 
-    if (o.transparenthttps_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
+    if (o.net.transparenthttps_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy++,o.net.transparenthttps_port, CT_THTTPS)) {
             e2logger_error("Error binding server thttps socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -637,8 +637,8 @@ int fc_controlit()   //
         }
     };
 
-    if (o.icap_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
+    if (o.net.icap_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy,o.net.icap_port, CT_ICAP)) {
             e2logger_error("Error binding server icap socket: (", strerror(errno), ")" );
             close(pidfilefd);
             delete[] serversockfds;

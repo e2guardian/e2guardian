@@ -94,12 +94,12 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
-    if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
+    if (loaded_ok && (o.net.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
         e2logger_error("Required storyboard entry function 'thttps-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
-    if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
+    if (loaded_ok && (o.net.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
         e2logger_error("Required storyboard entry function 'icap-pre-authcheck' is missing");
         loaded_ok = false;
     }

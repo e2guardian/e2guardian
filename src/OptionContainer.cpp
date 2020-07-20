@@ -52,8 +52,8 @@ void OptionContainer::reset() {
     //banned_ip_list.reset();
     language_list.reset();
     conffile.clear();
-    filter_ip.clear();
-    filter_ports.clear();
+    net.filter_ip.clear();
+    net.filter_ports.clear();
     auth_map.clear();
 }
 
@@ -163,6 +163,8 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return true;
         }
 
+		proc.no_daemon = (findoptionS("nodaemon") == "on");
+
         if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
             proc.daemon_user_name = __PROXYUSER;
         }
@@ -173,7 +175,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
 
         blocked_content_store = findoptionS("blockedcontentstore");
 
-		proc.no_daemon = (findoptionS("nodaemon") == "on");
 		
         if (findoptionS("dockermode") == "on") {
             proc.no_daemon = true;
@@ -293,48 +294,15 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return false;
         }
 
+        findNetworkOptions();
 
-
-        connect_timeout_sec = findoptionI("connecttimeout");
-        if (connect_timeout_sec == 0)
-            connect_timeout_sec = 3;
-        if (!realitycheck(connect_timeout_sec, 1, 100, "connecttimeout")) {
-            return false;
-        } // check its a reasonable value
-        connect_timeout = connect_timeout_sec * 1000;
-
-        connect_retries = findoptionI("connectretries");
-        if (connect_retries == 0)
-            connect_retries = 5;
-        if (!realitycheck(connect_retries, 1, 100, "connectretries")) {
-            return false;
-        } // check its a reasonable value
-
-
-        proxy_timeout_sec = findoptionI("proxytimeout");
-        if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
-            return false;
-        } // check its a reasonable value
-        proxy_timeout = proxy_timeout_sec * 1000;
-
-        proxy_failure_log_interval = findoptionI("proxyfailureloginterval");
-        if (proxy_failure_log_interval == 0)
-            proxy_failure_log_interval = 600; // 10 mins
-        if (!realitycheck(proxy_failure_log_interval, proxy_timeout_sec, 3600, "proxyfailureloginterval")) {
-            return false;
-        } // check its a reasonable value
-
-        pcon_timeout_sec = findoptionI("pcontimeout");
-        if (!realitycheck(pcon_timeout_sec, 5, 300, "pcontimeout")) {
-            return false;
-        } // check its a reasonable value
-        pcon_timeout = pcon_timeout_sec * 1000;
-
-        exchange_timeout_sec = findoptionI("proxyexchange");
-        if (!realitycheck(exchange_timeout_sec, 5, 300, "proxyexchange")) {
-            return false;
+        if (net.icap_port > 0) {   // add non-plugin auth for ICAP
+            SB_entry_map sen;
+            sen.entry_function = "auth_icap";
+            sen.entry_id = ENT_STORYA_AUTH_ICAP;
+            auth_entry_dq.push_back(sen);
         }
-        exchange_timeout = exchange_timeout_sec * 1000;
+
 
         http_workers = findoptionI("httpworkers");
         if (http_workers == 0) {
@@ -428,8 +396,8 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             if (content_scanner_timeout_sec > 0)
                 content_scanner_timeout = content_scanner_timeout_sec * 1000;
             else {
-                content_scanner_timeout = pcon_timeout;
-                content_scanner_timeout_sec = pcon_timeout_sec;
+                content_scanner_timeout = net.peercon_timeout;
+                content_scanner_timeout_sec = net.peercon_timeout_sec;
             }
 
             if (findoptionS("scancleancache") == "off") {
@@ -487,11 +455,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             force_quick_search = false;
         }
 
-        if (findoptionS("mapportstoips") == "off") {
-            map_ports_to_ips = false;
-        } else {
-            map_ports_to_ips = true;
-        }
 
         if (findoptionS("mapauthtoports") == "off") {
             map_auth_to_ports = false;
@@ -515,65 +478,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             banned_flash.read(custom_banned_flash_file.c_str());
         }
 
-        proxy_ip = findoptionS("proxyip");
-        if (proxy_ip == "")
-            no_proxy = true;
-        else
-            no_proxy = false;
 
-        if (!no_proxy) {
-            proxy_port = findoptionI("proxyport");
-            if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
-                return false;
-            } // etc
-        }
-
-        // multiple listen IP support
-        filter_ip = findoptionM("filterip");
-        if (filter_ip.size() > 127) {
-            e2logger_error("Can not listen on more than 127 IPs");
-            return false;
-        }
-        // multiple check IP support - used for loop checking
-        check_ip = findoptionM("checkip");
-        if (check_ip.size() > 127) {
-            e2logger_error("Can not check on more than 127 IPs");
-            return false;
-        }
-        //if (check_ip.size() == 0) {   // set defaults
-        //if (filter_ip.size() > 0) {
-        //    check_ip = filter_ip;
-        //} else {
-        //    String t = "127.0.0.1";
-        //    check_ip.push_back(t);
-        //}
-        //}
-        filter_ports = findoptionM("filterports");
-        if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
-            e2logger_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(), ")");
-            return false;
-        }
-        filter_port = filter_ports[0].toInteger();
-        if (!realitycheck(filter_port, 1, 65535, "filterport[0]")) {
-            return false;
-        }
-
-        transparenthttps_port = findoptionI("transparenthttpsport");
-        if (!realitycheck(filter_port, 0, 65535, "transparenthttpsport")) {
-            return false;
-        }
-
-        icap_port = findoptionI("icapport");
-        if (!realitycheck(filter_port, 0, 65535, "icapport")) {
-            return false;
-        }
-
-        if (icap_port > 0) {   // add non-plugin auth for ICAP
-            SB_entry_map sen;
-            sen.entry_function = "auth_icap";
-            sen.entry_id = ENT_STORYA_AUTH_ICAP;
-            auth_entry_dq.push_back(sen);
-        }
 
         icap_reqmod_url = findoptionS("icapreqmodurl");
         if (icap_reqmod_url == "")
@@ -749,8 +654,8 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
 
         // check if same number of auth-plugin as ports if in
         //     authmaptoport mode
-        if (map_auth_to_ports && (filter_ports.size() > 1)
-            && (filter_ports.size() != authplugins.size())) {
+        if (map_auth_to_ports && (net.filter_ports.size() > 1)
+            && (net.filter_ports.size() != authplugins.size())) {
             e2logger_error("In mapauthtoports mode you need to setup one port per auth plugin");
             return false;
         }
@@ -760,14 +665,14 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             AuthPlugin *tmpPlugin = (AuthPlugin *) authplugins[i];
             String tmpStr = tmpPlugin->getPluginName();
 
-            if ((!map_auth_to_ports) || filter_ports.size() == 1)
+            if ((!map_auth_to_ports) || net.filter_ports.size() == 1)
                 auth_map[i] = tmpStr;
             else
-                auth_map[filter_ports[i].toInteger()] = tmpStr;
+                auth_map[net.filter_ports[i].toInteger()] = tmpStr;
         }
 
         // if the more than one port is being used, validate the combination of auth plugins
-        if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports) {
+        if (authplugins.size() > 1 and net.filter_ports.size() > 1 and map_auth_to_ports) {
             std::deque<Plugin *>::iterator it = authplugins.begin();
             String firstPlugin;
             while (it != authplugins.end()) {
@@ -967,6 +872,65 @@ bool OptionContainer::findDStatOptions()
     dstat.stats_human_readable =  (findoptionS("statshumanreadable") == "on");
 
     return true;
+}
+
+bool OptionContainer::findNetworkOptions()
+{
+    net.connect_timeout_sec =  realitycheckWithDefault("connecttimeout", 1, 100, 3);
+    net.connect_timeout = net.connect_timeout_sec * 1000;
+    net.connect_retries = realitycheckWithDefault("connectretries", 1, 100, 5);
+
+    net.proxy_ip = findoptionS("proxyip");
+    if (!net.no_proxy) {
+        net.proxy_port = realitycheckWithDefault("proxyport", 1, 65535, 8080);
+    }
+
+    net.proxy_timeout_sec = realitycheckWithDefault("proxytimeout", 5, 100, 5);
+    net.proxy_timeout = net.proxy_timeout_sec * 1000;
+    net.proxy_failure_log_interval = realitycheckWithDefault("proxyfailureloginterval", net.proxy_timeout_sec, 3600, 600);
+
+    net.peercon_timeout_sec = realitycheckWithDefault("pcontimeout", 5, 300, 5);
+    net.peercon_timeout = net.peercon_timeout_sec * 1000;
+
+    net.exchange_timeout_sec = realitycheckWithDefault("proxyexchange", 5, 300, 5);
+    net.exchange_timeout = net.exchange_timeout_sec * 1000;
+
+    net.map_ports_to_ips = !(findoptionS("mapportstoips") == "off");
+
+    // multiple listen IP support
+    net.filter_ip = findoptionM("filterip");
+    if (net.filter_ip.size() > 127) {
+        e2logger_error("Can not listen on more than 127 IPs");
+        return false;
+    }
+    // multiple check IP support - used for loop checking
+    net.check_ip = findoptionM("checkip");
+    if (net.check_ip.size() > 127) {
+        e2logger_error("Can not check on more than 127 IPs");
+        return false;
+    }
+
+    net.filter_ports = findoptionM("filterports");
+    if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
+        e2logger_error("filterports (", net.filter_ports.size(), ") must match number of filterips (", net.filter_ip.size(), ")");
+        return false;
+    }
+    net.filter_port = net.filter_ports[0].toInteger();
+    if (!realitycheck(net.filter_port, 1, 65535, "filterport[0]")) {
+        return false;
+    }
+
+    net.transparenthttps_port = findoptionI("transparenthttpsport");
+    if (!realitycheck(net.transparenthttps_port, 0, 65535, "transparenthttpsport")) {
+        return false;
+    }
+
+    net.icap_port = findoptionI("icapport");
+    if (!realitycheck(net.icap_port, 0, 65535, "icapport")) {
+        return false;
+    }
+
+
 }
 
 long int OptionContainer::findoptionI(const char *option) {
@@ -1320,6 +1284,19 @@ bool ProcessOptions::daemonise()
 
     return true;
 }
+#pragma endregion
+
+#pragma region NetOptions
+
+int NetworkOptions::number_of_fds_neded() 
+{
+    if (map_ports_to_ips) {
+        return filter_ip.size();
+    } else {
+        return filter_ports.size() * filter_ip.size();
+    }
+}
+
 #pragma endregion
 
 std::shared_ptr<LOptionContainer> OptionContainer::currentLists() {

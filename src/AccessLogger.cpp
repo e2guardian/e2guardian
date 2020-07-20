@@ -625,7 +625,7 @@ String LogRecord::getPart(const std::string part)
     if (part == "size")         return String(size);
     if (part == "mimetype")     return mimetype;
     if (part == "hitmiss")      return Helper::getHitMiss(code, cachehit);
-    if (part == "hier")         return String("DEFAULT_PARENT/") + String(o.proxy_ip);
+    if (part == "hier")         return String("DEFAULT_PARENT/") + String(o.net.proxy_ip);
 
     if (part == "squid_result_code") return ""; // ???
     if (part == "squid_peer_code")   return ""; // ???

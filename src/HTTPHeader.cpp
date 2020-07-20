@@ -1599,7 +1599,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                         e2logger_error( "Proxy connection broken (1); trying to re-establish...");
                         reconnect = false;
                         sock->reset();
-                        int rc = sock->connect(o.proxy_ip, o.proxy_port);
+                        int rc = sock->connect(o.net.proxy_ip, o.net.proxy_port);
                         if (rc)
                             return false;
                             // throw std::exception();
@@ -1652,7 +1652,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 e2logger_error("Proxy connection broken (2); trying to re-establish...");
                 reconnect = false;
                 sock->reset();
-                int rc = sock->connect(o.proxy_ip, o.proxy_port);
+                int rc = sock->connect(o.net.proxy_ip, o.net.proxy_port);
                 if (rc)
                     return false;
                //     throw std::exception();

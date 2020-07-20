@@ -631,28 +631,23 @@ bool FOptionContainer::readFilterGroup(const char *filename) {
             return false;
         }
 
-        if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
+        if((o.net.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
             e2logger_error("Required storyboard entry function 'thttps-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
             e2logger_error("Required storyboard entry function 'icap-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
             e2logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
             return false;
         }
         if (!precompileregexps()) {
             return false;
         } // precompiled reg exps for speed
-
-    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-           e2logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
-           return false;
-    }
 
     if (o.dm_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
