@@ -87,6 +87,14 @@ struct ProcessOptions
     bool daemonise();           // Fork ourselves off into the background
 };
 
+struct DStatOptions
+{
+    std::string dstat_location;
+    bool dstat_log_flag = false;
+    bool stats_human_readable = false;
+    int dstat_interval = 300;
+};
+
 struct NetworkOptions
 {
 
@@ -103,6 +111,7 @@ class OptionContainer
     ConfigOptions   config;
     LogOptions      log;
     ProcessOptions  proc;
+    DStatOptions    dstat;
     NetworkOptions  net;
     ListsOptions    lists;
 
@@ -203,10 +212,6 @@ class OptionContainer
     bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag = false;
-    std::string dstat_location;
-    bool dstat_log_flag = false;
-    bool stats_human_readable = false;
-    int dstat_interval = 300;
 
 
     //bool no_logger = false;
@@ -328,7 +333,9 @@ class OptionContainer
 
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
+
     bool findLogOptions();
+    bool findDStatOptions();
 
  // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);

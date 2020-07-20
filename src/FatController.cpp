@@ -55,6 +55,7 @@
 #include "OptionContainer.hpp"
 #include "Logger.hpp"
 #include "AccessLogger.hpp"
+#include "DStat.hpp"
 
 #ifdef VALGRD
   extern "C"
@@ -129,79 +130,6 @@ std::atomic<int> reload_cnt;
 
 extern OptionContainer o;
 
-void stat_rec::clear()
-{
-    conx = 0;
-    reqs = 0;
-};
-
-void stat_rec::start()
-{
-    clear();
-    start_int = time(NULL);
-    end_int = start_int + o.dstat_interval;
-    if (o.dstat_log_flag) {
-        mode_t old_umask;
-        old_umask = umask(S_IWGRP | S_IWOTH);
-        fs = fopen(o.dstat_location.c_str(), "a");
-        if (fs) {
-    	   if (o.stats_human_readable){
-               fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt\n");
-	   } else {
-               fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
-	   }
-        } else {
-           e2logger_error("Unable to open dstats_log '", o.dstat_location, "' for writing.Continuing without logging");
-           o.dstat_log_flag = false;
-        };
-        maxusedfd = 0;
-        fflush(fs);
-        umask(old_umask);
-    };
-};
-
-void stat_rec::reset()
-{
-    time_t now = time(NULL);
-    int bc = busychildren;
-    long period = now - start_int;
-    long cnx = (long)conx;
-    long rqx = (long) reqs;
-    int mfd = maxusedfd;
-    int LC = o.LC_cnt;
-    // clear and reset stats now so that stats are less likely to be missed
-    clear();
-    if ((end_int + o.dstat_interval) > now)
-        start_int = end_int;
-    else
-        start_int = now;
-
-    end_int = start_int + o.dstat_interval;
-
-    long cps = cnx / period;
-    long rqs = rqx / period;
-    if (o.stats_human_readable){
-        struct tm * timeinfo;
-        time( &now);
-        timeinfo = localtime ( &now );
-        char buffer [50];
-        strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
-    	fprintf(fs, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d\n", buffer, o.http_workers,
-        bc, o.http_worker_Q.size(), o.log.log_Q.size(), cnx, cps, rqx, rqs, mfd, LC);
-    } else {
-        fprintf(fs, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d\n", now, o.http_workers,
-        bc, o.http_worker_Q.size(), o.log.log_Q.size(), cnx, cps, rqx, rqs, mfd, LC);
-    }
-
-    fflush(fs);
-};
-
-void stat_rec::close()
-{
-    if (fs != NULL) fclose(fs);
-};
-
-
 //int cache_erroring; // num cache errors reported by children
 //int restart_cnt = 0;
 //int restart_numchildren; // numchildren at time of gentle restart
@@ -248,9 +176,6 @@ void monitor_flag_set(bool action)
     }
     return;
 }
-
-stat_rec dstat;
-stat_rec *dystat = &dstat;
 
 // DECLARATIONS
 
@@ -404,13 +329,14 @@ void handle_connections(int tindex)
                     e2logger_info("Error accepting. (Ignorable)");
                     continue;
                 }
-                ++dystat->busychildren;
-                ++dystat->conx;
 
-                int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
+                dstat.connectionAccepted();
+
+                int rc = h.handlePeer(*peersock, peersockip, rec.ct_type); // deal with the connection
                 e2logger_debugnet("handle_peer returned: ", String(rc));
 
-                --dystat->busychildren;
+                dstat.connectionClosed();
+                
                 delete peersock;
                 break;
             };
@@ -571,8 +497,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
 			        break;
 		        }
                 e2logger_debug("got connection from accept");
-
-                if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
+                dstat.filedescriptorUsed(peersock->getFD());
                 errorcount = 0;
                 LQ_rec rec;
                 rec.sock = peersock;
@@ -829,7 +754,7 @@ int fc_controlit()   //
 
     e2logger_trace("sig handlers done");
 
-    dystat->busychildren = 0; // to keep count of our children
+    dstat.busychildrenReset(); // to keep count of our children
 
     // worker thread generation
     std::vector <std::thread> http_wt;
@@ -873,7 +798,7 @@ int fc_controlit()   //
         e2logger_info("Reconfiguring E2guardian: done");
     } else {
         e2logger_info("Started successfully.");
-        dystat->start();
+        dstat.start();
     }
     reloadconfig = false;
 
@@ -958,25 +883,20 @@ int fc_controlit()   //
 #endif   // end __OpenBSD__ else
 
         int q_size = o.http_worker_Q.size();
-        e2logger_debug("busychildren:", String(dystat->busychildren),
-                    " worker Q size:", String(q_size) );
-        if( o.dstat_log_flag) {
+        e2logger_debug("busychildren:", String(dstat.busychildren()),
+                        " worker Q size:", String(q_size) );
+
+        if( o.dstat.dstat_log_flag) {
             if (q_size > 10) {
                 e2logger_info("Warning: all ", String(o.http_workers), " http_worker threads are busy and ", String(q_size), " connections are waiting in the queue.");
             }
         } else {
-            int busy_child = dystat->busychildren;
-            if (busy_child > (o.http_workers - 10))
-                e2logger_info("Warning system is full : max httpworkers: ", String(o.http_workers), " Used: ", String(busy_child));
+            if (dstat.busychildren() > (o.http_workers - 10))
+                e2logger_info("Warning system is full : max httpworkers: ", String(o.http_workers), " Used: ", String(dstat.busychildren()));
         }
 
-        //      if (is_starting)
+        dstat.timetick();
 
-        time_t now = time(NULL);
-
-
-        if (o.dstat_log_flag && (now >= dystat->end_int))
-            dystat->reset();
     }
 
 
@@ -1025,7 +945,7 @@ int fc_controlit()   //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    if (o.dstat_log_flag) dystat->close();
+    dstat.close();
 
     delete[] serversockfds;
 

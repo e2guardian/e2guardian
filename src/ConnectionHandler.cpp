@@ -16,6 +16,7 @@
 #include "ImageContainer.hpp"
 #include "AccessLogger.hpp"
 #include "Logger.hpp"
+#include "DStat.hpp"
 
 #include <signal.h>
 #include <arpa/nameser.h>
@@ -554,7 +555,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 
 // pass data between proxy and client, filtering as we go.
 // this is the only public function of ConnectionHandler
-int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dystat, unsigned int lc_type) {
+int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, unsigned int lc_type) {
     persistent_authed = false;
     is_real_user = false;
     int rc = 0;
@@ -567,17 +568,17 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
     switch (lc_type) {
         case CT_PROXY:
             SBauth.is_proxy = true;
-            rc = handleConnection(peerconn, ip, false, proxysock, dystat);
+            rc = handleConnection(peerconn, ip, false, proxysock);
             break;
 
         case  CT_THTTPS:
             SBauth.is_transparent = true;
-            rc = handleTHTTPSConnection(peerconn, ip, proxysock, dystat);
+            rc = handleTHTTPSConnection(peerconn, ip, proxysock);
             break;
 
         case CT_ICAP:
             SBauth.is_icap = true;
-            rc = handleICAPConnection(peerconn, ip, proxysock, dystat);
+            rc = handleICAPConnection(peerconn, ip, proxysock);
             break;
 
     }
@@ -587,8 +588,7 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
 }
 
 
-int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock,
-                                        stat_rec *&dystat) {
+int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxysock) {
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
@@ -676,7 +676,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             firsttime = false;
             persistPeer = false;
         } else {
-            ++dystat->reqs;
+            dstat.requestAccepted();
         }
         //
         // End of set-up section
@@ -713,7 +713,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     e2logger_debug(" -Persistent connection closed");
                     break;
                 }
-                ++dystat->reqs;
+                dstat.requestAccepted();
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -1187,7 +1187,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 e2logger_debug("Going MITM ....");
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
-                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
+                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, clientip,checkme.isdirect);
                 persistPeer = false;
                 persistProxy = false;
                 //if (!checkme.isItNaughty) // surely we should just break here whatever? - No we need to log error
@@ -2200,8 +2200,7 @@ ConnectionHandler::writeback_error(NaughtyFilter &cm, Socket &cl_sock, int mess_
 
 bool
 ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn, bool &persistProxy, bool &authed,
-                          bool &persistent_authed, String &ip, stat_rec *&dystat, std::string &clientip,
-                          bool transparent) {
+                          bool &persistent_authed, String &ip, std::string &clientip, bool transparent) {
 
         e2logger_debug(" Start goMITM nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
@@ -2346,7 +2345,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
 
         //handleConnection inside the ssl tunnel
-        handleConnection(peerconn, ip, true, proxysock, dystat);
+        handleConnection(peerconn, ip, true, proxysock);
         e2logger_debug(" -Handling connections inside ssl tunnel: done");
     }
     o.ca->free_ca_serial(&caser);
@@ -2720,7 +2719,7 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     e2logger_debug("End content check isitNaughty is  ", cm.isItNaughty);
 }
 
-int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
+int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock) {
     e2logger_trace("");
 
     struct timeval thestart;
@@ -2806,7 +2805,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
              checkme.hasSNI = true;
              }
 
-            ++dystat->reqs;
+
+            dstat.requestAccepted();
         }
         }
 
@@ -2981,7 +2981,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 e2logger_debug("Going MITM ....");
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
-                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
+                goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, clientip, true);
                 //persistPeer = false;
                 persistProxy = false;
                 //if (!checkme.isItNaughty)
@@ -3100,7 +3100,7 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
 }
 
 
-int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec *&dystat) {
+int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock) {
 
     int pcount = 0;
     bool ismitm = false;
@@ -3179,7 +3179,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         break;
                     }
                 }
-                ++dystat->reqs;
+                dstat.requestAccepted();
 
                 ip = icaphead.clientip;
 

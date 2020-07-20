@@ -110,11 +110,12 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        e2guardian.cpp \ Plugin.hpp \
 		       LOptionContainer.cpp LOptionContainer.hpp \
                        CertificateAuthority.cpp CertificateAuthority.hpp \
-		       Queue.hpp, UrlRec.hpp, \
-                       Logger.hpp Logger.cpp \
-                       AccessLogger.hpp AccessLogger.cpp \
-                       LoggerConfigurator.hpp LoggerConfigurator.cpp \
-		       Auth.cpp Auth.hpp \
+		                  Queue.hpp, UrlRec.hpp, \
+                      Logger.hpp Logger.cpp \
+                      AccessLogger.hpp AccessLogger.cpp \
+                      LoggerConfigurator.hpp LoggerConfigurator.cpp \
+                      DStat.hpp DStat.cpp \
+		                  Auth.cpp Auth.hpp \
 		       $(ICAPSCAN_SOURCE) \
                        $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
                        $(AVASTDSCAN_SOURCE) \

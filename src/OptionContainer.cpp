@@ -155,23 +155,9 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             stat_location += "/stats";
         }
 
-        if ((dstat_location = findoptionS("dstatlocation")) == "") {
-            dstat_log_flag = false;
-        } else {
-            dstat_log_flag = true;
-            dstat_interval = findoptionI("dstatinterval");
-            if (dstat_interval == 0) {
-                dstat_interval = 300; // 5 mins
-            }
-        }
-
-        if (findoptionS("statshumanreadable") == "on") {
-            stats_human_readable = true;
-        } else {
-            stats_human_readable = false;
-        }
 
         if (!findLogOptions()) return false;
+        if (!findDStatOptions()) return false;
 
         if (reload) {
             return true;
@@ -962,6 +948,23 @@ bool OptionContainer::findLogOptions()
     log.logid_2 = findoptionS("logid2");
     if (log.logid_2.empty())
         log.logid_2 = "-";
+
+    return true;
+}
+
+bool OptionContainer::findDStatOptions()
+{
+    if ((dstat.dstat_location = findoptionS("dstatlocation")) == "") {
+        dstat.dstat_log_flag = false;
+    } else {
+        dstat.dstat_log_flag = true;
+        dstat.dstat_interval = findoptionI("dstatinterval");
+        if (dstat.dstat_interval == 0) {
+            dstat.dstat_interval = 300; // 5 mins
+        }
+    }
+
+    dstat.stats_human_readable =  (findoptionS("statshumanreadable") == "on");
 
     return true;
 }

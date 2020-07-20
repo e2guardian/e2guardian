@@ -43,7 +43,7 @@ class ConnectionHandler
 
     int load_id;
     // pass data between proxy and client, filtering as we go.
-    int handlePeer(Socket &peerconn, String &ip, stat_rec* &dystat, unsigned int LC_type);
+    int handlePeer(Socket &peerconn, String &ip, unsigned int LC_type);
 
     auth_rec SBauth;      // record persists for whole connection
 
@@ -69,10 +69,10 @@ class ConnectionHandler
     void peerDiag(const char *message, Socket &peersock );
     void upstreamDiag(const char *message, Socket &proxysock );
 
-    int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
+    int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn);
 
-    int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
-    int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
+    int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock);
+    int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock);
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;
     int handleICAPresmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, DataBuffer &docbody) ;
 
@@ -92,7 +92,7 @@ class ConnectionHandler
     void doLog(std::string &who, std::string &from, NaughtyFilter &cm, std::list<AccessLogger::postinfo> *postparts);
     void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);
 
-    bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
+    bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, std::string &clientip, bool transparent = false);
 
 
     // perform URL encoding on a string
