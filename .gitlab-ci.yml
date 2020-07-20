@@ -2,11 +2,13 @@ stages:
 # At first debian : init variables
 - build:debian
 - create-debian-package
-- TestDebian
+- testdebian
 - ubuntufocal
+- create-ubuntu-packagefocal
+- testubuntufocal
 - ubuntubionic
 - create-ubuntu-packagebionic
-- Testubuntubionic
+- testubuntubionic
 - build:raspbian
 - create-raspbian-package
 

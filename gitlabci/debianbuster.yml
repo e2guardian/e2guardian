@@ -52,7 +52,7 @@ Create Debian Package:
     - find / -name ".git" -exec rm -r "{}" +
 
 Test and publish Debian:
-  stage: TestDebian
+  stage: testdebian
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
