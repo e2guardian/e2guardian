@@ -1,4 +1,4 @@
-Package Docker Image Ubuntu:
+Package Docker Image Ubuntu bionic:
   stage: ubuntubionic
   image: amd64/ubuntu:18.04
   artifacts:
@@ -20,7 +20,7 @@ Package Docker Image Ubuntu:
     - make 
     - find / -name ".git" -exec rm -r "{}" +
 
-Create Ubuntu Package:
+Create Ubuntu Package bionic:
   stage: create-ubuntu-packagebionic
   image: amd64/ubuntu:18.04
   artifacts:
@@ -52,7 +52,7 @@ Create Ubuntu Package:
     - rm -rf .git
     - find / -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu:
+Test and publish Ubuntu bionic:
   stage: Testubuntubionic 
   image: amd64/ubuntu:18.04
   artifacts:
