@@ -9,6 +9,10 @@ stages:
 - create-raspbian-package
 #
 
+include:
+  - project: 'gitlabci/'
+    file: ubuntufocal.yml
+
 Package Docker Image Debian:
   stage: build:debian
   artifacts:
@@ -101,7 +105,7 @@ Test and publish Debian:
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
     - find / -name ".git" -exec rm -r "{}" +
-   
+
 Package Docker Image Ubuntu:
   stage: build:ubuntu
   image: amd64/ubuntu:18.04
