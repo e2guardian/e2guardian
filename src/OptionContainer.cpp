@@ -277,15 +277,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             monitor_helper_flag = true;
         }
 
-        server_name = findoptionS("servername");
-        if (server_name == "") {
-            char sysname[256];
-            int r;
-            r = gethostname(sysname, 256);
-            if (r == 0) {
-                server_name = sysname;
-            }
-        }
 
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
@@ -294,7 +285,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return false;
         }
 
-        findNetworkOptions();
 
         if (net.icap_port > 0) {   // add non-plugin auth for ICAP
             SB_entry_map sen;
@@ -876,6 +866,16 @@ bool OptionContainer::findDStatOptions()
 
 bool OptionContainer::findNetworkOptions()
 {
+    net.server_name = findoptionS("servername");
+    if (net.server_name == "") {
+        char sysname[256];
+        int r;
+        r = gethostname(sysname, 256);
+        if (r == 0) {
+            net.server_name = sysname;
+        }
+    }
+
     net.connect_timeout_sec =  realitycheckWithDefault("connecttimeout", 1, 100, 3);
     net.connect_timeout = net.connect_timeout_sec * 1000;
     net.connect_retries = realitycheckWithDefault("connectretries", 1, 100, 5);

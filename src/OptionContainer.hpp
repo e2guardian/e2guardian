@@ -97,6 +97,8 @@ struct DStatOptions
 
 struct NetworkOptions
 {
+    std::string server_name;
+
     std::string proxy_ip;
     bool no_proxy = ( proxy_ip == "");
 

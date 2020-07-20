@@ -611,7 +611,7 @@ String LogRecord::getPart(const std::string part)
     if (part == "what")         return what;
     if (part == "how")          return how;
     if (part == "code")         return std::to_string(code);
-    if (part == "server")       return o.server_name;
+    if (part == "server")       return o.net.server_name;
     if (part == "useragent")    return ( o.log.log_user_agent ? useragent : "");
     if (part == "params")       return urlparams;
     

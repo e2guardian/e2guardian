@@ -111,7 +111,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
     String safeurl(*url); // Take a copy of the URL so we can encode it to stop XSS
     bool safe = false;
     String servername("");
-    servername = o.server_name;
+    servername = o.net.server_name;
     for (unsigned int i = 0; i < sz; i++) {
         // preserve newlines from original file	    
         newline = false;
