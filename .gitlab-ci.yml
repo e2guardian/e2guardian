@@ -10,8 +10,7 @@ stages:
 #
 
 include:
-  - project: 'gitlabci/'
-    file: 'ubuntufocal.yml'
+  - 'gitlabci/ubuntufocal.yml'
 
 Package Docker Image Debian:
   stage: build:debian
