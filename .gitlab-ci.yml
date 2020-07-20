@@ -14,6 +14,6 @@ stages:
 
 include:
   - 'gitlabci/debianbuster.yml'
-  - 'gitlabci/ubuntufocal.yml'
   - 'gitlabci/ubuntubionic.yml'
   - 'gitlabci/raspbianbuster.yml'
+  - 'gitlabci/ubuntufocal.yml'
