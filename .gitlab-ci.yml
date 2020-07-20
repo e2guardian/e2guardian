@@ -1,5 +1,5 @@
 stages:
-# At first : init variables
+# At first debian : init variables
 - build:debian
 - create-debian-package
 - TestDebian
@@ -9,7 +9,6 @@ stages:
 - Testubuntubionic
 - build:raspbian
 - create-raspbian-package
-#
 
 include:
   - 'gitlabci/debianbuster.yml'
