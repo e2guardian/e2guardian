@@ -189,80 +189,8 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             soft_restart = false;
         }
 
-        ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
-        if (ssl_certificate_path == "/") {
-            ssl_certificate_path = ""; // "" will enable default openssl certs
-        }
-
-        if (findoptionS("enablessl") == "on") {
-            enable_ssl = true;
-        } else {
-            enable_ssl = false;
-        }
-
-    if(enable_ssl) {
-        bool ret = true;
-    if (findoptionS("useopensslconf") == "on") {
-        use_openssl_conf = true;
-        openssl_conf_path = findoptionS("opensslconffile");
-        if (openssl_conf_path == "") {
-            have_openssl_conf = false;
-        } else {
-            have_openssl_conf = true;
-        }
-    } else {
-        use_openssl_conf = false;
-    };
-
-        ca_certificate_path = findoptionS("cacertificatepath");
-        if (ca_certificate_path == "") {
-            e2logger_error("cacertificatepath is required when ssl is enabled");
-            ret = false;
-        }
-
-        ca_private_key_path = findoptionS("caprivatekeypath");
-        if (ca_private_key_path == "") {
-            e2logger_error("caprivatekeypath is required when ssl is enabled");
-            ret = false;
-        }
-
-        cert_private_key_path = findoptionS("certprivatekeypath");
-        if (cert_private_key_path == "") {
-            e2logger_error("certprivatekeypath is required when ssl is enabled");
-            ret = false;
-        }
-
-        generated_cert_path = findoptionS("generatedcertpath") + "/";
-        if (generated_cert_path == "/") {
-            e2logger_error("generatedcertpath is required when ssl is enabled");
-            ret = false;
-        }
-
-            time_t def_start = 1417872951; // 6th Dec 2014
-            time_t ten_years = 315532800;
-            gen_cert_start = findoptionI("generatedcertstart");
-            if (gen_cert_start < def_start)
-                gen_cert_start = def_start;
-            gen_cert_end = findoptionI("generatedcertend");
-            if (gen_cert_end < gen_cert_start)
-                gen_cert_end = gen_cert_start + ten_years;
-
-            set_cipher_list = findoptionS("setcipherlist");
-            if (set_cipher_list == "")
-                set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
-
-            if (ret) {
-#ifdef NODEF
-                ca = new CertificateAuthority(ca_certificate_path.c_str(),
-                ca_private_key_path.c_str(),
-                cert_private_key_path.c_str(),
-                generated_cert_path.c_str(),
-                gen_cert_start, gen_cert_end);
-#endif
-            } else {
-                return false;
-        }
-    }
+        if (!findCertificateOptions()) return false;
+        if (!findNetworkOptions()) return false;
 
 
 #ifdef ENABLE_EMAIL
@@ -720,21 +648,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return false;
         } // messages language file
 
-
-
-        if (enable_ssl) {
-            e2logger_config("enable SSL");
-            if (ca_certificate_path != "") {
-                ca = new CertificateAuthority(ca_certificate_path.c_str(),
-                                              ca_private_key_path.c_str(),
-                                              cert_private_key_path.c_str(),
-                                              generated_cert_path.c_str(),
-                                              gen_cert_start, gen_cert_end);
-            } else {
-                e2logger_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
-                return false;
-            }
-        }
+        if (cert.enable_ssl && !cert.start_ssl()) return false;        
 
     } catch (std::exception &e) {
         e2logger_error(e.what());
@@ -930,6 +844,79 @@ bool OptionContainer::findNetworkOptions()
         return false;
     }
 
+
+}
+
+bool OptionContainer::findCertificateOptions()
+{
+    cert.enable_ssl = (findoptionS("enablessl") == "on");
+
+    cert.ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
+    if (cert.ssl_certificate_path == "/") {
+        cert.ssl_certificate_path = ""; // "" will enable default openssl certs
+    }
+
+    if(cert.enable_ssl) {
+        bool ret = true;
+
+        if (findoptionS("useopensslconf") == "on") {
+            cert.use_openssl_conf = true;
+            cert.openssl_conf_path = findoptionS("opensslconffile");
+            cert.have_openssl_conf = (cert.openssl_conf_path != "");
+        } else {
+            cert.use_openssl_conf = false;
+        };
+
+        cert.ca_certificate_path = findoptionS("cacertificatepath");
+        if (cert.ca_certificate_path == "") {
+            e2logger_error("cacertificatepath is required when ssl is enabled");
+            ret = false;
+        }
+
+        cert.ca_private_key_path = findoptionS("caprivatekeypath");
+        if (cert.ca_private_key_path == "") {
+            e2logger_error("caprivatekeypath is required when ssl is enabled");
+            ret = false;
+        }
+
+        cert.cert_private_key_path = findoptionS("certprivatekeypath");
+        if (cert.cert_private_key_path == "") {
+            e2logger_error("certprivatekeypath is required when ssl is enabled");
+            ret = false;
+        }
+
+        cert.generated_cert_path = findoptionS("generatedcertpath") + "/";
+        if (cert.generated_cert_path == "/") {
+            e2logger_error("generatedcertpath is required when ssl is enabled");
+            ret = false;
+        }
+
+        time_t def_start = 1417872951; // 6th Dec 2014
+        time_t ten_years = 315532800;
+        cert.gen_cert_start = findoptionI("generatedcertstart");
+        if (cert.gen_cert_start < def_start)
+            cert.gen_cert_start = def_start;
+        cert.gen_cert_end = findoptionI("generatedcertend");
+        if (cert.gen_cert_end < cert.gen_cert_start)
+            cert.gen_cert_end = cert.gen_cert_start + ten_years;
+
+        cert.set_cipher_list = findoptionS("setcipherlist");
+        if (cert.set_cipher_list == "")
+            cert.set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
+
+        if (ret) {
+#ifdef NODEF
+            ca = new CertificateAuthority(ca_certificate_path.c_str(),
+            ca_private_key_path.c_str(),
+            cert_private_key_path.c_str(),
+            generated_cert_path.c_str(),
+            gen_cert_start, gen_cert_end);
+#endif
+        } else {
+           return false;
+        }
+    }
+    return true;
 
 }
 
@@ -1297,6 +1284,26 @@ int NetworkOptions::number_of_fds_neded()
     }
 }
 
+#pragma endregion
+
+#pragma region  CertificateOptions
+bool CertificateOptions::start_ssl()
+{
+    if (!enable_ssl) return true;
+
+    e2logger_config("enable SSL");
+    if (ca_certificate_path != "") {
+        ca = new CertificateAuthority(ca_certificate_path.c_str(),
+                                        ca_private_key_path.c_str(),
+                                        cert_private_key_path.c_str(),
+                                        generated_cert_path.c_str(),
+                                        gen_cert_start, gen_cert_end);
+        return true;
+    } else {
+        e2logger_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+        return false;
+    }
+}
 #pragma endregion
 
 std::shared_ptr<LOptionContainer> OptionContainer::currentLists() {

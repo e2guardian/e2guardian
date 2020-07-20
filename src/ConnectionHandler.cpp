@@ -2225,13 +2225,12 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     //generate the cert
     e2logger_debug(" -Getting ssl certificate for client connection");
 
-    pkey = o.ca->getServerPkey();
+    pkey = o.cert.ca->getServerPkey();
 
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
-                                                   &caser);
+    certfromcache = o.cert.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert, &caser);
     if (caser.asn == NULL) {
         e2logger_debug("caser.asn is NULL");                            }
         //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
@@ -2278,7 +2277,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             }
         }
 
-        if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
+        if (peerconn.startSslServer(cert, pkey, o.cert.set_cipher_list) < 0) {
 //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
             peerconn.stopSsl();
 
@@ -2303,7 +2302,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
         if (!checkme.isItNaughty) {
             e2logger_debug(" -Going SSL on upstream connection ");
-            std::string certpath = std::string(o.ssl_certificate_path);
+            std::string certpath = std::string(o.cert.ssl_certificate_path);
             if (proxysock.startSslClient(certpath, checkme.urldomain)) {
                 checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to negotiate ssl connection to server";
@@ -2330,7 +2329,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
         bool writecert = true;
         if (!certfromcache) {
-            writecert = o.ca->writeCertificate(checkme.urldomain.c_str(), cert,
+            writecert = o.cert.ca->writeCertificate(checkme.urldomain.c_str(), cert,
                                                &caser);
         }
 
@@ -2348,7 +2347,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         handleConnection(peerconn, ip, true, proxysock);
         e2logger_debug(" -Handling connections inside ssl tunnel: done");
     }
-    o.ca->free_ca_serial(&caser);
+    o.cert.ca->free_ca_serial(&caser);
 
 //stopssl on the proxy connection
 //if it was marked as naughty then show a deny page and close the connection

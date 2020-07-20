@@ -128,6 +128,26 @@ struct NetworkOptions
     int number_of_fds_neded();
 };
 
+struct CertificateOptions
+{
+    bool enable_ssl = false;
+
+    std::string ssl_certificate_path;
+
+    std::string ca_certificate_path;
+    std::string ca_private_key_path;
+    std::string cert_private_key_path;
+    std::string generated_cert_path;
+    std::string generated_link_path;
+    std::string openssl_conf_path;
+    CertificateAuthority *ca;
+    time_t gen_cert_start, gen_cert_end;
+    bool use_openssl_conf = false;
+    bool have_openssl_conf = false;
+    std::string set_cipher_list;
+
+    bool start_ssl();
+};
 struct ListsOptions
 {
     bool read_from_stdin = false;
@@ -136,12 +156,13 @@ struct ListsOptions
 class OptionContainer
 {
     public:
-    ConfigOptions   config;
-    LogOptions      log;
-    ProcessOptions  proc;
-    DStatOptions    dstat;
-    NetworkOptions  net;
-    ListsOptions    lists;
+    ConfigOptions       config;
+    LogOptions          log;
+    ProcessOptions      proc;
+    DStatOptions        dstat;
+    NetworkOptions      net;
+    CertificateOptions  cert;
+    ListsOptions        lists;
 
     Queue<LQ_rec> http_worker_Q;
     
@@ -182,7 +203,6 @@ class OptionContainer
     bool force_quick_search = false;
     bool map_auth_to_ports = false;
 
-    std::string server_name;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
     std::map<int, String> auth_map;
@@ -197,7 +217,6 @@ class OptionContainer
     bool use_group_names_list = false;
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
-    bool enable_ssl = false;
     bool auth_needs_proxy_in_plugin = false;
     bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
@@ -228,19 +247,6 @@ class OptionContainer
     std::string name_suffix;
     bool soft_restart = false;
 
-    std::string ssl_certificate_path;
-
-    std::string ca_certificate_path;
-    std::string ca_private_key_path;
-    std::string cert_private_key_path;
-    std::string generated_cert_path;
-    std::string generated_link_path;
-    std::string openssl_conf_path;
-    CertificateAuthority *ca;
-    time_t gen_cert_start, gen_cert_end;
-    bool use_openssl_conf = false;
-    bool have_openssl_conf = false;
-    std::string set_cipher_list;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -346,6 +352,7 @@ class OptionContainer
     bool findLogOptions();
     bool findDStatOptions();
     bool findNetworkOptions();
+    bool findCertificateOptions();
 
  // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
