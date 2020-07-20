@@ -11,7 +11,7 @@ Package Docker Image Ubuntu focal:
     - echo $VFULL
     - apt update
     - apt-get -y upgrade
-    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+    - export DEBIAN_FRONTEND="noninteractive" && apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
       bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
       libevent-pthreads-2.1-7 libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
@@ -53,7 +53,7 @@ Create Ubuntu Package focal:
     - rm -rf .git
     - find / -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu focal
+Test and publish Ubuntu focal:
   stage: Testubuntubionic 
   image: amd64/ubuntu:20.04
   artifacts:
