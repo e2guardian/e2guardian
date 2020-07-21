@@ -93,7 +93,7 @@ int fancydm::init(void *args)
 
     // read in absolute max download limit
     upperlimit = cv["maxdownloadsize"].toOffset() * 1024;
-    if (upperlimit <= o.max_content_filecache_scan_size)
+    if (upperlimit <= o.content.max_content_filecache_scan_size)
         upperlimit = 0;
 
     e2logger_debug("Upper download limit: ", upperlimit);
@@ -195,10 +195,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     // buffer size for streaming downloads
     off_t blocksize = 32768;
     // set to a sensible minimum
-    if (!wantall && (blocksize > o.max_content_filter_size))
-        blocksize = o.max_content_filter_size;
-    else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
-        blocksize = o.max_content_ramcache_scan_size;
+    if (!wantall && (blocksize > o.content.max_content_filter_size))
+        blocksize = o.content.max_content_filter_size;
+    else if (wantall && (blocksize > o.content.max_content_ramcache_scan_size))
+        blocksize = o.content.max_content_ramcache_scan_size;
     e2logger_debug("blocksize: ", blocksize);
 
     // determine downloaded filename
@@ -214,11 +214,11 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     while ((bytesgot < expectedsize) || d->geteverything) {
         // send text header to show status
-        if (o.trickle_delay > 0) {
+        if (o.content.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
             timeelapsed = nowadays.tv_sec - starttime.tv_sec;
-            if ((!initialsent && timeelapsed > o.initial_trickle_delay) ||
-                (initialsent && nowadays.tv_sec - themdays.tv_sec > o.trickle_delay)) {
+            if ((!initialsent && timeelapsed > o.content.initial_trickle_delay) ||
+                (initialsent && nowadays.tv_sec - themdays.tv_sec > o.content.trickle_delay)) {
                 initialsent = true;
                 bytessec = bytesgot / timeelapsed;
                 themdays.tv_sec = nowadays.tv_sec;

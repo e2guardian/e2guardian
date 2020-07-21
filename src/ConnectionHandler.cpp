@@ -1847,7 +1847,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
         // fixed to obey maxcontentramcachescansize
         if (!responsescanners.empty() &&
-            (isfile ? dblen <= o.max_content_filecache_scan_size : dblen <= o.max_content_ramcache_scan_size)) {
+            (isfile ? dblen <= o.content.max_content_filecache_scan_size : dblen <= o.content.max_content_ramcache_scan_size)) {
             int csrc = 0;
             int k = 0;
 
@@ -1918,7 +1918,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             e2logger_debug(" -content length large so skipping content scanning (virus) filtering");
         }
 //        rc = system("date");
-        if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
+        if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.content.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text", ldl->fg[filtergroup]) ||
                                               docheader->isContentType("-", ldl->fg[filtergroup]))) {
             e2logger_debug(" -Start content filtering: ");
@@ -1930,7 +1930,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
         else {
             e2logger_debug(" -Skipping content filtering: ");
-            if (dblen > o.max_content_filter_size)
+            if (dblen > o.content.max_content_filter_size)
                 e2logger_debug(" -Content too large");
             else if (checkme->isException)
                 e2logger_debug(" -Is flagged as an exception");
@@ -1952,7 +1952,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         return;
     }
 
-    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty &&
+    if ((dblen <= o.content.max_content_filter_size) && !checkme->isItNaughty &&
         docheader->isContentType("text", ldl->fg[filtergroup])) {
         contentmodified = docbody->contentRegExp(ldl->fg[filtergroup]);
         // content modifying uses global variable
@@ -1960,7 +1960,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
     else {
         e2logger_debug(" -Skipping content modification: ");
-        if (dblen > o.max_content_filter_size)
+        if (dblen > o.content.max_content_filter_size)
             e2logger_debug(" -Content too large");
         else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
             e2logger_debug(" -Not text");
@@ -2568,7 +2568,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
             e2logger_debug(" -Original filename: ", checkme.tempfiledis);
             String rtype(header.requestType());
             checkme.tempfilemime = checkme.tempfilemime.before("&D=");
-            checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
+            checkme.tempfilename = o.content.download_dir + "/tf" + checkme.tempfilename.before("&M=");
             return true;
         }
         e2logger_debug(" -About to check for bypass...");
@@ -2651,7 +2651,7 @@ bool ConnectionHandler::sendScanFile(Socket &peerconn, NaughtyFilter &checkme, b
 
         doLog(clientuser, checkme.clientip, checkme, NULL);
 
-        if (o.delete_downloaded_temp_files) {
+        if (o.content.delete_downloaded_temp_files) {
             unlink(checkme.tempfilename.toCharArray());
         }
     } catch (

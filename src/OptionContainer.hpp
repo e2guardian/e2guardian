@@ -153,13 +153,32 @@ struct ListsOptions
     bool read_from_stdin = false;
 };
 
+
+struct ContentScannerOptions {
+    bool contentscanning = false;
+
+    off_t max_content_filter_size;
+    off_t max_content_ramcache_scan_size;
+    off_t max_content_filecache_scan_size;
+    bool scan_clean_cache = false;              // Check: Not used?
+    bool content_scan_exceptions = false;       // Check: Not used?  (There is another one in FOptionContainer)
+    int initial_trickle_delay = 0;
+    int trickle_delay = 0;
+    int content_scanner_timeout = 0;
+    int content_scanner_timeout_sec = 0;
+
+    std::string download_dir;
+    bool delete_downloaded_temp_files = false;
+};
+
+
 class OptionContainer
 {
     public:
     ConfigOptions       config;
     LogOptions          log;
     ProcessOptions      proc;
-    DStatOptions        dstat;
+    ContentScannerOptions content;
     NetworkOptions      net;
     CertificateOptions  cert;
     ListsOptions        lists;
@@ -260,16 +279,6 @@ class OptionContainer
     std::string daemon_user;        // Check: Not used?
     std::string daemon_group;       // Check: Not used?
 
-    off_t max_content_filter_size;
-    off_t max_content_ramcache_scan_size;
-    off_t max_content_filecache_scan_size;
-    bool scan_clean_cache = false;              // Check: Not used?
-    bool content_scan_exceptions = false;       // Check: Not used?  (There is another one in FOptionContainer)
-    bool search_sitelist_for_ip = false;
-    int initial_trickle_delay = 0;
-    int trickle_delay = 0;
-    int content_scanner_timeout = 0;
-    int content_scanner_timeout_sec = 0;
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
@@ -336,6 +345,7 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
+    bool findContentScannerOptions();
     bool findLogOptions();
     bool findDStatOptions();
     bool findNetworkOptions();

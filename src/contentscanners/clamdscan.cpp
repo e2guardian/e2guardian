@@ -141,7 +141,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     }
     char *buff = new char[4096];
     int rc;
-    rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
+    rc = stripedsocks.getLine(buff, 4096, o.content.content_scanner_timeout);
     if (rc < 1) {
         delete[] buff;
         lastmessage = "Exception whist reading ClamD socket: ";

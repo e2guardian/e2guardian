@@ -128,7 +128,7 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
     if (wantall) {
             if (!swappedtodisk) {
                 // if not swapped to disk and file is too large for RAM, then swap to disk
-                if (data_length > o.max_content_ramcache_scan_size) {
+                if (data_length > o.content.max_content_ramcache_scan_size) {
                     e2logger_debug("swapping to disk");
                     tempfilefd = getTempFileFD();
                     if (tempfilefd < 0) {
@@ -140,14 +140,14 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
                     swappedtodisk = true;
                     tempfilesize = data_length;
                 }
-            } else if (tempfilesize > o.max_content_filecache_scan_size) {
+            } else if (tempfilesize > o.content.max_content_filecache_scan_size) {
                 // if swapped to disk and file too large for that too, then give up
                 e2logger_debug("defaultdm: file too big to be scanned, halting download");
                 result = DB_TOBIG | DB_TOBIG_SCAN;
                 return -1;
             }
         } else {
-            if (data_length > o.max_content_filter_size) {
+            if (data_length > o.content.max_content_filter_size) {
                 // if we aren't downloading for virus scanning, and file too large for filtering, give up
                 e2logger_debug("defaultdm: file too big to be filtered, halting download");
                 result = DB_TOBIG | DB_TOBIG_FILTER;
@@ -212,8 +212,8 @@ bool DataBuffer::increase_buffer(int extra) {
     int more = 65536;
     if (extra > more)
         more = extra;
-    if ((buffer_length + more) > o.max_content_filter_size) {
-        more = o.max_content_filter_size - buffer_length;
+    if ((buffer_length + more) > o.content.max_content_filter_size) {
+        more = o.content.max_content_filter_size - buffer_length;
     }
     if (more > 0) {
         char *temp = new char[buffer_length + more + 1]; // replacement store
@@ -290,7 +290,7 @@ int DataBuffer::getTempFileFD()
     if (tempfilefd > -1) {
         return tempfilefd;
     }
-    tempfilepath = o.download_dir.c_str();
+    tempfilepath = o.content.download_dir.c_str();
     tempfilepath += "/tfXXXXXX";
     char *tempfilepatharray = new char[tempfilepath.length() + 1];
     strcpy(tempfilepatharray, tempfilepath.toCharArray());
@@ -519,7 +519,7 @@ void DataBuffer::zlibinflate(bool header)
             }
             return;
         }
-        if (bytesgot > o.max_content_filter_size) {
+        if (bytesgot > o.content.max_content_filter_size) {
             delete[] block; // don't forget to free claimed memory
             e2logger_debug("inflated file larger than maxcontentfiltersize, not inflating further");
             err = inflateEnd(&d_stream);

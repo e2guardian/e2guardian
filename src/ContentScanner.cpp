@@ -82,7 +82,7 @@ int CSPlugin::init(void *args)
 int CSPlugin::makeTempFile(String *filename)
 {
     int tempfilefd;
-    String tempfilepath(o.download_dir.c_str());
+    String tempfilepath(o.content.download_dir.c_str());
     tempfilepath += "/csXXXXXX";
     char *tempfilepatharray = new char[tempfilepath.length() + 1];
     strcpy(tempfilepatharray, tempfilepath.toCharArray());

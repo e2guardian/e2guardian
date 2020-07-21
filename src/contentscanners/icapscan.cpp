@@ -140,7 +140,7 @@ int icapinstance::init(void *args)
         // parse the response
         char buff[8192];
         // first line - look for 200 OK
-        icapsock.getLine(buff, 8192, o.content_scanner_timeout);
+        icapsock.getLine(buff, 8192, o.content.content_scanner_timeout);
         line = buff;
 
         e2logger_debugicapc("ICAP/1.0 OPTIONS response: ", line);
@@ -150,7 +150,7 @@ int icapinstance::init(void *args)
             return E2CS_WARNING;
             //throw std::runtime_error("Response not 200 OK");
         }
-        while (icapsock.getLine(buff, 8192, o.content_scanner_timeout) > 0) {
+        while (icapsock.getLine(buff, 8192, o.content.content_scanner_timeout) > 0) {
             line = buff;
 
   	    if (line.startsWith("\r")) {
@@ -214,7 +214,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
     unsigned int sent = 0;
     if (usepreviews && (objectsize > previewsize)) {
         try {
-            if (!icapsock.writeToSocket(object, previewsize, 0, o.content_scanner_timeout)) {
+            if (!icapsock.writeToSocket(object, previewsize, 0, o.content.content_scanner_timeout)) {
                 throw std::runtime_error("standard error");
             }
             sent += previewsize;
@@ -247,7 +247,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
         }
     }
     try {
-        if(icapsock.writeToSocket(object + sent, objectsize - sent, 0, o.content_scanner_timeout)) {
+        if(icapsock.writeToSocket(object + sent, objectsize - sent, 0, o.content.content_scanner_timeout)) {
 
             e2logger_debugicapc("total sent to icap: ", objectsize);
 
@@ -317,7 +317,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
                 if (rc == 0) {
                     break; // should never happen
                 }
-                if (!icapsock.writeToSocket(data, rc, 0, o.content_scanner_timeout)) {
+                if (!icapsock.writeToSocket(data, rc, 0, o.content.content_scanner_timeout)) {
                     throw std::runtime_error("could not write to socket");
                 }
                 memcpy(object, data, (rc > 100) ? 100 : rc);
@@ -378,7 +378,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             }
             memcpy(object + objectsize, data, (rc > (100 - objectsize)) ? (100 - objectsize) : rc);
             objectsize += (rc > (100 - objectsize)) ? (100 - objectsize) : rc;
-            if (!icapsock.writeToSocket(data, rc, 0, o.content_scanner_timeout)) {
+            if (!icapsock.writeToSocket(data, rc, 0, o.content.content_scanner_timeout)) {
                 throw std::runtime_error("Unable to write to socket");
             };
             sent += rc;
@@ -470,7 +470,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
     char *data = new char[8192];
     try {
         String line;
-        int rc = icapsock.getLine(data, 8192, o.content_scanner_timeout);
+        int rc = icapsock.getLine(data, 8192, o.content.content_scanner_timeout);
         if (rc == 0)
             return ICAP_NODATA;
         line = data;
@@ -494,7 +494,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             // call doScan() again later, because people like Symantec seem
             // to think sending code 100 then code 204 one after the other
             // is not an abuse of the ICAP specification.
-            while (icapsock.getLine(data, 8192, o.content_scanner_timeout) > 0) {
+            while (icapsock.getLine(data, 8192, o.content.content_scanner_timeout) > 0) {
                 if (data[0] == 13)
                     break;
             }
@@ -504,7 +504,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 
             e2logger_debugicapc("ICAP says maybe not clean!");
 
-	        while (icapsock.getLine(data, 8192, o.content_scanner_timeout) > 0) {
+	        while (icapsock.getLine(data, 8192, o.content.content_scanner_timeout) > 0) {
                 if (data[0] == 13) // end marker
                     break;
                 line = data;
@@ -524,7 +524,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             if (needsBody) {
                 // grab & compare the HTTP return code from modified response
                 // if it's been modified, assume there's an infection
-                icapsock.getLine(data, 8192, o.content_scanner_timeout);
+                icapsock.getLine(data, 8192, o.content.content_scanner_timeout);
                 line = data;
 
                 e2logger_debugicapc( "Comparing original return code to modified:", docheader->header.front(), " ", line);
@@ -542,12 +542,12 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 }
                 // ok - headers were identical, so look at encapsulated body
                 // discard the rest of the encapsulated headers
-                while (icapsock.getLine(data, 8192, o.content_scanner_timeout) > 0) {
+                while (icapsock.getLine(data, 8192, o.content.content_scanner_timeout) > 0) {
                     if (data[0] == 13)
                         break;
                 }
                 // grab body chunk size
-		        icapsock.getLine(data, 8192, o.content_scanner_timeout);
+		        icapsock.getLine(data, 8192, o.content.content_scanner_timeout);
                 line = data;
 
                 e2logger_debugicapc("Comparing original body data to modified");
@@ -558,7 +558,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 unsigned int chunksize = (bodysize < 100) ? bodysize : 100;
                 if (chunksize > objectsize)
                     chunksize = objectsize;
-                icapsock.readFromSocket(data, chunksize, 0, o.content_scanner_timeout);
+                icapsock.readFromSocket(data, chunksize, 0, o.content.content_scanner_timeout);
                 if (memcmp(data, object, chunksize) == 0) {
 
                     e2logger_debugicapc("ICAP says clean! (body byte comparison)");

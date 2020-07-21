@@ -164,6 +164,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         }
 
 		proc.no_daemon = (findoptionS("nodaemon") == "on");
+        if (!findContentScannerOptions()) return false;
 
         if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
             proc.daemon_user_name = __PROXYUSER;
@@ -245,37 +246,7 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             monitor_flag_flag = true;
         }
 
-        max_content_filter_size = findoptionI("maxcontentfiltersize");
-        if (!realitycheck(max_content_filter_size, 0, 0, "maxcontentfiltersize")) {
-            return false;
-        } // check its a reasonable value
-
-        if (max_content_filter_size == 0) {
-            max_content_filter_size = 1; // Minimal value 0 = 1
-        }
-
-        max_content_filter_size *= 1024;
-
-        max_content_ramcache_scan_size = findoptionI("maxcontentramcachescansize");
-        if (!realitycheck(max_content_ramcache_scan_size, 0, 0, "maxcontentramcachescansize")) {
-            return false;
-        }
-        max_content_ramcache_scan_size *= 1024;
-
-        max_content_filecache_scan_size = findoptionI("maxcontentfilecachescansize");
-        if (!realitycheck(max_content_filecache_scan_size, 0, 0, "maxcontentfilecachescansize")) {
-            return false;
-        }
-        max_content_filecache_scan_size *= 1024;
-
-        if (max_content_ramcache_scan_size == 0) {
-            max_content_ramcache_scan_size = max_content_filecache_scan_size;
-        }
-
-        weighted_phrase_mode = findoptionI("weightedphrasemode");
-        if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
-            return false;
-        }
+        
         /*
 		if ((weighted_phrase_mode != 0)) {
 			max_content_filter_size = max_content_ramcache_scan_size;
@@ -285,57 +256,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
 			}
 		}
 */
-        bool contentscanning = findoptionM("contentscanner").size() > 0;
-        if (contentscanning) {
-
-            if (max_content_filter_size > max_content_ramcache_scan_size) {
-                e2logger_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
-                return false;
-            }
-            if (max_content_ramcache_scan_size > max_content_filecache_scan_size) {
-                e2logger_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
-                return false;
-            }
-
-            trickle_delay = findoptionI("trickledelay");
-            if (!realitycheck(trickle_delay, 1, 0, "trickledelay")) {
-                return false;
-            }
-            initial_trickle_delay = findoptionI("initialtrickledelay");
-            if (!realitycheck(initial_trickle_delay, 1, 0, "initialtrickledelay")) {
-                return false;
-            }
-
-            content_scanner_timeout_sec = findoptionI("contentscannertimeout");
-            if (!realitycheck(content_scanner_timeout_sec, 1, 0, "contentscannertimeout")) {
-                return false;
-            }
-
-            if (content_scanner_timeout_sec > 0)
-                content_scanner_timeout = content_scanner_timeout_sec * 1000;
-            else {
-                content_scanner_timeout = net.peercon_timeout;
-                content_scanner_timeout_sec = net.peercon_timeout_sec;
-            }
-
-            if (findoptionS("scancleancache") == "off") {
-                scan_clean_cache = false;
-            } else {
-                scan_clean_cache = true;
-            }
-
-            if (findoptionS("contentscanexceptions") == "on") {
-                content_scan_exceptions = true;
-            } else {
-                content_scan_exceptions = false;
-            }
-        }
-
-        if (findoptionS("deletedownloadedtempfiles") == "off") {
-            delete_downloaded_temp_files = false;
-        } else {
-            delete_downloaded_temp_files = true;
-        }
 
         if (findoptionS("searchsitelistforip"
                         "") == "off") {
@@ -726,6 +646,61 @@ bool OptionContainer::readinStdin()
 }
 
 
+bool OptionContainer::findContentScannerOptions()
+{
+
+    content.contentscanning = findoptionM("contentscanner").size() > 0;
+
+    content.max_content_filecache_scan_size = realitycheckWithDefault("maxcontentfilecachescansize", 0, 0, 20000 );
+    content.max_content_filecache_scan_size *= 1024;
+
+    content.max_content_ramcache_scan_size = realitycheckWithDefault("maxcontentramcachescansize", 0, 0, 2000);
+    content.max_content_ramcache_scan_size *= 1024;
+    if (content.max_content_ramcache_scan_size == 0) {
+        content.max_content_ramcache_scan_size = content.max_content_filecache_scan_size;
+    }
+
+    content.max_content_filter_size = realitycheckWithDefault("maxcontentfiltersize", 1, 0, content.max_content_ramcache_scan_size );
+    content.max_content_filter_size *= 1024;
+    if (content.max_content_filter_size == 0) {
+        content.max_content_filter_size = content.max_content_ramcache_scan_size;
+    }
+
+    if (content.contentscanning) {
+
+        if (content.max_content_filter_size > content.max_content_ramcache_scan_size) {
+            e2logger_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
+            return false;
+        }
+        if (content.max_content_ramcache_scan_size > content.max_content_filecache_scan_size) {
+            e2logger_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
+            return false;
+        }
+
+        content.trickle_delay = realitycheckWithDefault("trickledelay", 1, 0, 10);
+        content.initial_trickle_delay = realitycheckWithDefault("initialtrickledelay", 1, 0, 20);
+
+        content.content_scanner_timeout_sec = realitycheckWithDefault("contentscannertimeout", 1, 0, 60);
+        if (content.content_scanner_timeout_sec > 0)
+            content.content_scanner_timeout *= 1000;
+        else {
+            content.content_scanner_timeout = net.peercon_timeout;
+            content.content_scanner_timeout_sec = net.peercon_timeout_sec;
+        }
+
+        // KDG: not documented??
+        content.scan_clean_cache =  (findoptionS("scancleancache") != "off");
+        // KDG moved to FOptionContainer ??
+        content.content_scan_exceptions = (findoptionS("contentscanexceptions") == "on");
+    }
+
+    // this needs to be known before loading CS plugins,
+    // because ClamAV plugin makes use of it during init()
+    content.download_dir = findoptionS("filecachedir");
+    content.delete_downloaded_temp_files = (findoptionS("deletedownloadedtempfiles") != "off");
+
+    return true;
+}
 bool OptionContainer::findLogOptions()
 {
     e2logger_trace("");
