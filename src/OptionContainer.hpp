@@ -153,6 +153,15 @@ struct ListsOptions
     bool read_from_stdin = false;
 };
 
+struct NaughtyOptions
+{
+    int phrase_filter_mode = 0;
+    int weighted_phrase_mode = 0;   // PIP added in - not sure if still required (There is another on in FOption Container)
+    bool show_weighted_found = false;
+    bool show_all_weighted_found = false;   // logs weighted less than limit
+    int preserve_case = 0;
+    bool hex_decode_content = false;
+};
 
 struct ContentScannerOptions {
     bool contentscanning = false;
@@ -182,6 +191,7 @@ class OptionContainer
     NetworkOptions      net;
     CertificateOptions  cert;
     ListsOptions        lists;
+    NaughtyOptions        naughty;
 
     Queue<LQ_rec> http_worker_Q;
     
@@ -349,7 +359,7 @@ class OptionContainer
     bool findLogOptions();
     bool findDStatOptions();
     bool findNetworkOptions();
-    bool findCertificateOptions();
+    bool findNaughtyOptions();
 
  // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);

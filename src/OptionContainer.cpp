@@ -274,24 +274,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             return false;
         }
 
-        phrase_filter_mode = findoptionI("phrasefiltermode");
-        if (!realitycheck(phrase_filter_mode, 0, 3, "phrasefiltermode")) {
-            return false;
-        }
-        preserve_case = findoptionI("preservecase");
-        if (!realitycheck(preserve_case, 0, 2, "preservecase")) {
-            return false;
-        }
-        if (findoptionS("hexdecodecontent") == "on") {
-            hex_decode_content = true;
-        } else {
-            hex_decode_content = false;
-        }
-        if (findoptionS("forcequicksearch") == "on") {
-            force_quick_search = true;
-        } else {
-            force_quick_search = false;
-        }
 
 
         if (findoptionS("mapauthtoports") == "off") {
@@ -735,24 +717,23 @@ bool OptionContainer::findLogOptions()
 
     return true;
 }
-
-bool OptionContainer::findDStatOptions()
+bool OptionContainer::findNaughtyOptions()
 {
-    if ((dstat.dstat_location = findoptionS("dstatlocation")) == "") {
-        dstat.dstat_log_flag = false;
-    } else {
-        dstat.dstat_log_flag = true;
-        dstat.dstat_interval = findoptionI("dstatinterval");
-        if (dstat.dstat_interval == 0) {
-            dstat.dstat_interval = 300; // 5 mins
-        }
+    naughty.weighted_phrase_mode = realitycheckWithDefault("weightedphrasemode", 0, 2, 0);
+
+    naughty.phrase_filter_mode = realitycheckWithDefault("phrasefiltermode", 0, 3, 2);
+
+    naughty.preserve_case = realitycheckWithDefault("preservecase", 0, 2, 0);
+
+    naughty.hex_decode_content =  (findoptionS("hexdecodecontent") == "on");
+
+    naughty.show_weighted_found = (findoptionS("showweightedfound") == "on");
+    naughty.show_all_weighted_found = (findoptionS("showallweightedfound") == "on");
+    if (naughty.show_all_weighted_found ) {
+        naughty.show_weighted_found = true;
     }
-
-    dstat.stats_human_readable =  (findoptionS("statshumanreadable") == "on");
-
     return true;
 }
-
 bool OptionContainer::findNetworkOptions()
 {
     net.server_name = findoptionS("servername");

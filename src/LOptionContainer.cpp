@@ -685,8 +685,8 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     e2logger_debug("added filter group: ", numfg, " ", filename);
 
     // pass all the vars from OptionContainer needed
-    (*fg[numfg]).weighted_phrase_mode = o.weighted_phrase_mode;
-    (*fg[numfg]).force_quick_search = o.force_quick_search;
+    (*fg[numfg]).weighted_phrase_mode = o.naughty.weighted_phrase_mode;
+    (*fg[numfg]).force_quick_search = o.lists.force_quick_search;
     (*fg[numfg]).reverse_lookups = o.reverse_lookups;
 
     // pass in the group name
