@@ -173,34 +173,25 @@ class OptionContainer
 
     // all our many, many options
     int filter_groups = 0;
+    int numfg = 0;
+
     bool config_error = false;
-    bool non_standard_delimiter;
-    std::string ident_header_value;
-    int weighted_phrase_mode = 0; // PIP added in - not sure if still required
-    bool show_weighted_found = false;
-    bool show_all_weighted_found = false;   // logs weighted less than limit
+    bool non_standard_delimiter;    // Check: Not Used? (There is another one in FOptionContainer)
+    std::string ident_header_value; // Check:: Move to HTTPHeader ?
     bool forwarded_for = false;
-    bool use_custom_banned_image = false;
-    std::string custom_banned_image_file;
-    bool use_custom_banned_flash = false;
-    std::string custom_banned_flash_file;
-    bool reverse_lookups = false;
+    bool reverse_lookups = false;   // Check: There are another ones in FOptionContainer and ListMeta
     bool reverse_client_ip_lookups = false;
     bool use_xforwardedfor = false;
     std::deque<String> xforwardedfor_filter_ip;
     bool logconerror = false;
-    bool logchildprocs = false;
+    bool logchildprocs = false;     // CHECK: Not Used ?
     bool log_ssl_errors = false;
-    int url_cache_number = 0;
-    int url_cache_age = 0;
-    int phrase_filter_mode = 0;
-    int preserve_case = 0;
+    int url_cache_number = 0;       // CHECK: Not Used ?
+    int url_cache_age = 0;          // CHECK: Not Used ?
     unsigned int max_header_lines = 0;
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
-    bool hex_decode_content = false;
-    bool force_quick_search = false;
     bool map_auth_to_ports = false;
 
     std::string icap_reqmod_url;
@@ -212,17 +203,16 @@ class OptionContainer
     bool get_orig_ip = false;
 #endif
     int http_workers = 0;
-    int max_ips = 0;
-    bool recheck_replaced_urls;
+    int max_ips = 0;                // Check: Not Used ?
+    bool recheck_replaced_urls;     // Check: Not Used ?
     bool use_group_names_list = false;
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
     bool auth_needs_proxy_in_plugin = false;
-    bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
-    bool prefer_cached_lists = false;
+    bool prefer_cached_lists = false;   // Check: Not Used ?
     std::string languagepath;
-    std::string filter_groups_list_location;
+    std::string filter_groups_list_location;    // Check: Not used ?
     //std::string banned_ip_list_location;
     //std::string exception_ip_list_location;
     
@@ -230,12 +220,13 @@ class OptionContainer
     //std::string RQlog_location;
     //bool log_requests = false;
 
-    std::string stat_location;
-    std::string ipc_filename;
-    std::string urlipc_filename;
-    std::string ipipc_filename;
-    std::string pid_filename;
-    std::string blocked_content_store;
+    std::string stat_location;      // Check: Not used ?
+    std::string ipc_filename;       // Check: Not used ?
+    std::string urlipc_filename;    // Check: Not used ?
+    std::string ipipc_filename;     // Check: Not used ?
+
+    std::string blocked_content_store;  // Check: Not used ?
+
     std::string monitor_helper;
     bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
@@ -244,8 +235,8 @@ class OptionContainer
 
     //bool no_logger = false;
     //bool log_syslog = false;
-    std::string name_suffix;
-    bool soft_restart = false;
+    std::string name_suffix;        // Check: Not used? (There is another one in LOptionContainer)
+    bool soft_restart = false;      // Check: Not used?
 
 
 #ifdef ENABLE_EMAIL
@@ -266,16 +257,15 @@ class OptionContainer
     std::deque<SB_entry_map> auth_entry_dq;
     std::deque<SB_entry_map> dm_entry_dq;
 
-    std::string daemon_user;
-    std::string daemon_group;
+    std::string daemon_user;        // Check: Not used?
+    std::string daemon_group;       // Check: Not used?
+
     off_t max_content_filter_size;
     off_t max_content_ramcache_scan_size;
     off_t max_content_filecache_scan_size;
-    bool scan_clean_cache = false;
-    bool content_scan_exceptions = false;
-    bool delete_downloaded_temp_files = false;
+    bool scan_clean_cache = false;              // Check: Not used?
+    bool content_scan_exceptions = false;       // Check: Not used?  (There is another one in FOptionContainer)
     bool search_sitelist_for_ip = false;
-    std::string download_dir;
     int initial_trickle_delay = 0;
     int trickle_delay = 0;
     int content_scanner_timeout = 0;
@@ -284,8 +274,6 @@ class OptionContainer
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
     LanguageContainer language_list;
-    ImageContainer banned_image;
-    ImageContainer banned_flash;
 
     std::deque<Plugin *> dmplugins;
     std::deque<Plugin *> csplugins;
@@ -298,10 +286,9 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_end;
 
     ListManager lm;
-    int numfg = 0;
 
     // access denied domain (when using the CGI)
-    String access_denied_domain;
+    String access_denied_domain;        // Check: Not used? (There is another one in FOptionContainer and LOptionConatiner)
 
     bool loadCSPlugins();
     bool loadAuthPlugins();
@@ -323,7 +310,7 @@ class OptionContainer
     //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
   //  bool inTotalBlockList(String &url);
-    std::string per_room_directory_location;
+    std::string per_room_directory_location;    // Check: used? (There is another one in LOptionContainer)
     bool createLists(int load_id);
     std::shared_ptr<LOptionContainer> currentLists();
     std::atomic<int> LC_cnt;
@@ -332,11 +319,11 @@ class OptionContainer
     std::shared_ptr<LOptionContainer> current_LOC;
     std::string conffilename;
  //   std::string html_template_location;
-    std::string group_names_list_location;
+    std::string group_names_list_location;      // Check: used? (There is another one in LOptionContainer)
 
     private:
     std::deque<std::string> conffile;
-    int reporting_level = 0;
+    int reporting_level = 0;                    // Check: used? (There is another one in FOptionContainer and LOptionContainer)
 
 
     bool loadDMPlugins();
