@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 int startDaemon()
 {
     e2logger_trace("prepare Start");
-    if (sysv_amirunning(o.pid_filename)) {
+    if (sysv_amirunning(o.proc.pid_filename)) {
         e2logger_error("I seem to be running already!");
         return 1; // can't have two copies running!!
     }
@@ -201,26 +201,26 @@ int readCommandlineOptions(int argc, char *argv[]){
                 switch (option) {
                 case 'q':
                     if (!o.readConfig(o.config.configfile, true)) exit(-1);
-                    return sysv_kill(o.pid_filename,true);
+                    return sysv_kill(o.proc.pid_filename,true);
                 case 'Q':
                     if (!o.readConfig(o.config.configfile, true)) exit(-1);
-                    sysv_kill(o.pid_filename, false);
+                    sysv_kill(o.proc.pid_filename, false);
                     // give the old process time to die
-                    while (sysv_amirunning(o.pid_filename))
+                    while (sysv_amirunning(o.proc.pid_filename))
                         sleep(1);
-                    unlink(o.pid_filename.c_str());
+                    unlink(o.proc.pid_filename.c_str());
                     // remember to reset config before continuing
                     needreset = true;
                     break;
                 case 's':
                     if (!o.readConfig(o.config.configfile, true)) exit(-1);
-                    return sysv_showpid(o.pid_filename);
+                    return sysv_showpid(o.proc.pid_filename);
                 case 'r':
                     if (!o.readConfig(o.config.configfile, true)) exit(-1);
-                    return sysv_hup(o.pid_filename);
+                    return sysv_hup(o.proc.pid_filename);
                 case 'g':
                     if (!o.readConfig(o.config.configfile, true)) exit(-1);
-                    return sysv_usr1(o.pid_filename);
+                    return sysv_usr1(o.proc.pid_filename);
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
                               << std::endl

@@ -144,54 +144,24 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
-
-        if ((pid_filename = findoptionS("pidfilename")) == "") {
-            pid_filename = __PIDDIR;
-            pid_filename += "/e2guardian.pid";
-        }
-
-        if ((stat_location = findoptionS("statlocation")) == "") {
-            stat_location = __LOGLOCATION;
-            stat_location += "/stats";
-        }
-
-
+        if (!findProcOptions()) return false;
         if (!findLogOptions()) return false;
         if (!findDStatOptions()) return false;
 
-        if (reload) {
-            return true;
-        }
-
-		proc.no_daemon = (findoptionS("nodaemon") == "on");
-        if (!findContentScannerOptions()) return false;
-
-        if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
-            proc.daemon_user_name = __PROXYUSER;
-        }
-
-        if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
-            proc.daemon_group_name = __PROXYGROUP;
-        }
-
-        blocked_content_store = findoptionS("blockedcontentstore");
-
-		
-        if (findoptionS("dockermode") == "on") {
-            proc.no_daemon = true;
-            e2logger.setDockerMode();
-        } else {
-            proc.no_daemon = false;
-        }
-
-        if (findoptionS("softrestart") == "on") {
-            soft_restart = true;
-        } else {
-            soft_restart = false;
-        }
+        if (reload) return true;
 
         if (!findCertificateOptions()) return false;
         if (!findNetworkOptions()) return false;
+        if (!findConnectionOptions()) return false;
+        if (!findNaughtyOptions()) return false;
+        if (!findContentScannerOptions()) return false;
+
+
+
+
+        blocked_content_store = findoptionS("blockedcontentstore");
+	
+        soft_restart = (findoptionS("softrestart") == "on");
 
 
 #ifdef ENABLE_EMAIL

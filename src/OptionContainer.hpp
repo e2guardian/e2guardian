@@ -78,6 +78,8 @@ struct ProcessOptions
     std::string daemon_user_name;
     std::string daemon_group_name;
 
+    std::string pid_filename;
+
     bool no_daemon = false;
     bool is_daemonised = false;
 
