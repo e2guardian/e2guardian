@@ -1,7 +1,7 @@
 # Logger and LoggerConfigurator
 
-Starting with v5.4 we implemented a central logger.  
-It can log messages from different sources and send them to different destinations.  
+Starting with v5.5 we implemented a central logger.  
+It can log messages from different SOURCES and send them to different DESTINATIONS.  
 It can be used for normal messages from the application for the user as also debug messages for the devolper.
 It can be configured through the LoggerConfigurator either on the commandline or through the config file.
 
@@ -9,24 +9,25 @@ It can be configured through the LoggerConfigurator either on the commandline or
 
 Currently the following logger SOURCES are implemented:
 
-- info : normal messages from the application, default output: stdout
-- error: error messages from the application, default output: stderr
+- info :  normal messages from the application, default output: stdout
+- error:  error messages from the application, default output: stderr
 - access: logline for every access handled by e2guardian, default output access.log in __LOGLOCATION
 - config: logs infos about reading the configuration files, default output: none
-- story: logs infos about the storyboard workflow when handling a request, default output: none
-- icap: TBD
-- icaps: TBD
-- clamav: TBD
+- story:  logs infos about the storyboard workflow when handling a request, default output: none
 - thhtps: TBD
 
 the following source are only enabled when e2guardian is compiled with the '--with_e2debug' and are intended to be used by the developer:
 
-- debug: debugging messages about the program STATE (variables)
-- trace: debugging messages about the program FLOW (entering/leaving functions)
-- debugnet: debugging messages for handling the NETWORK
-- debugsb:  debugging messages for handling the STORYBOARD
-- debugchunk: TBD
-- debugregexp: debugging messages for handling REGEXP (regular expressions)
+- debug:        debugging messages about the program STATE (variables)
+- trace:        debugging messages about the program FLOW (entering/leaving functions)
+- debugnet:     debugging messages for handling the NETWORK
+- debugsb:      debugging messages for handling the STORYBOARD
+- debugchunk:   TBD
+- debugregexp:  debugging messages for handling REGEXP (regular expressions)
+- debugicap:    debugging messages from ICAP (Header, Connection)
+- debugicapc:   debugging messages from ICAP (Scan)
+- debugclamav:  debugging messages from the content scanner (e.g. ClamAV)
+- debugrequest  TBD
 
 Log messages can be send to the following DESTINATIONS:
 
@@ -84,14 +85,15 @@ You can enable the dockermode in code with `logger.setDockerMode();`
 The new Logger obsoletes/replaces the following:
 
 - e2guardian.conf:
-  - logsyslog : can be replaced with 'log_info = syslog'
-  - name_suffix: can be replaced with 'log_info = syslog, e2gurdian_suffix'
-  - storyboardtrace: can be replaced with 'log_story = stdout'
-  - nologger: can be replaced with 'log_access = none'
-  - loglocation: can be replaced with 'log_access = file, loglocation'
+  - logsyslog :       can be replaced with 'log_info = syslog'
+  - name_suffix:      can be replaced with 'log_info = syslog, e2guardian_suffix'
+  - storyboardtrace:  can be replaced with 'log_story = stdout'
+  - nologger:         can be replaced with 'log_access = none'
+  - loglocation:      can be replaced with 'log_access = file, loglocation'
   - debuglevel, debuglevelfile,
   - rqloglocation, dstatlocation
-  - logconnectionhandlingerrors?, logchildprocesshandling?
+  - logconnectionhandlingerrors?
+  - logchildprocesshandling?
 
 - Code
   - files: DebugManager.hpp/cpp
@@ -104,4 +106,4 @@ The new Logger obsoletes/replaces the following:
 - Logger Output to Email ??
 - Logger Output sending to GrayLog, LogStash ??
 
-(last edit: 03.07.2020)
+(last edit: 21.07.2020)
