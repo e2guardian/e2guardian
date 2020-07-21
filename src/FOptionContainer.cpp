@@ -253,7 +253,7 @@ bool FOptionContainer::readFilterGroup(const char *filename) {
 
 
         if (findoptionS("sslcheckcert") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_check_cert = true;
                 } else {
                     e2logger_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
@@ -264,7 +264,7 @@ bool FOptionContainer::readFilterGroup(const char *filename) {
         }
 
         if (findoptionS("sslmitm") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_mitm = true;
 
                 if (findoptionS("automitm") == "off") {
