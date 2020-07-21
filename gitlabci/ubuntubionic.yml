@@ -84,6 +84,7 @@ Test and publish Ubuntu bionic:
     - unset https_proxy
     - mkdir -p "${CI_COMMIT_BRANCH}"
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
+    - md5sum ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb >  ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).txt
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
