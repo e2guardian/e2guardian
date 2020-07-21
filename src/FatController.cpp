@@ -592,9 +592,9 @@ int fc_controlit()   //
     }
 
     // we have to open/create as root before drop privs
-    int pidfilefd = sysv_openpidfile(o.pid_filename);
+    int pidfilefd = sysv_openpidfile(o.proc.pid_filename);
     if (pidfilefd < 0) {
-        e2logger_error("Error creating/opening pid file: ", o.pid_filename);
+        e2logger_error("Error creating/opening pid file: ", o.proc.pid_filename);
         delete[] serversockfds;
         return 1;
     }

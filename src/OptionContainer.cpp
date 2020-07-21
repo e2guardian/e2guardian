@@ -252,21 +252,6 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             map_auth_to_ports = true;
         }
 
-        if (findoptionS("usecustombannedimage") == "off") {
-            use_custom_banned_image = false;
-        } else {
-            use_custom_banned_image = true;
-            custom_banned_image_file = findoptionS("custombannedimagefile");
-            banned_image.read(custom_banned_image_file.c_str());
-        }
-
-        if (findoptionS("usecustombannedflash") == "off") {
-            use_custom_banned_flash = false;
-        } else {
-            use_custom_banned_flash = true;
-            custom_banned_flash_file = findoptionS("custombannedflashfile");
-            banned_flash.read(custom_banned_flash_file.c_str());
-        }
 
 
 
@@ -278,33 +263,11 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-        if (findoptionS("useoriginalip") == "on") {
-            use_original_ip_port = true;
-        } else {
-            use_original_ip_port = false;
-        }
 
 
+        lists.force_quick_search = (findoptionS("forcequicksearch") == "on");
 
 
-#ifdef SG_LOGFORMAT
-        prod_id.assign(findoptionS("productid"));
-        if (prod_id.empty())
-            // SG '08
-            prod_id.assign("2");
-#endif
-
-        if (findoptionS("showweightedfound") == "on") {
-            show_weighted_found = true;
-        } else {
-            show_weighted_found = false;
-        }
-        if (findoptionS("showallweightedfound") == "on") {
-            show_all_weighted_found = true;
-            show_weighted_found = true;
-        } else {
-            show_all_weighted_found = false;
-        }
         reporting_level = findoptionI("reportinglevel");
         if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
             return false;
@@ -360,6 +323,14 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
         xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
         filter_groups = findoptionI("filtergroups");
+        if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
+            return false;
+        }
+        if (filter_groups < 1) {
+            e2logger_error("filtergroups too small");
+            return false;
+        }
+
 
         default_fg = findoptionI("defaultfiltergroup");
         if (default_fg > 0) {
@@ -413,24 +384,13 @@ bool OptionContainer::readConfig(std::string &filename, bool reload) {
             //loadRooms(true);
         }
 
-        if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
-            return false;
-        }
-        if (filter_groups < 1) {
-            e2logger_error("filtergroups too small");
-            return false;
-        }
 
         if (!loadDMPlugins()) {
             e2logger_error("Error loading DM plugins");
             return false;
         }
 
-        // this needs to be known before loading CS plugins,
-        // because ClamAV plugin makes use of it during init()
-        download_dir = findoptionS("filecachedir");
-
-        if (contentscanning) {
+        if (content.contentscanning) {
             if (!loadCSPlugins()) {
                 e2logger_error("Error loading CS plugins");
                 return false;
@@ -598,6 +558,26 @@ bool OptionContainer::readinStdin()
 }
 
 
+bool OptionContainer::findConnectionOptions()
+{
+    conn.use_custom_banned_image = (findoptionS("usecustombannedimage") != "off");
+    if (conn.use_custom_banned_image)
+    {
+        conn.custom_banned_image_file = findoptionS("custombannedimagefile");
+        conn.banned_image.read(conn.custom_banned_image_file.c_str());
+    }
+
+    conn.use_custom_banned_flash = (findoptionS("usecustombannedflash") != "off");
+    if (conn.use_custom_banned_image)
+    {
+        conn.custom_banned_flash_file = findoptionS("custombannedflashfile");
+        conn.banned_flash.read(conn.custom_banned_flash_file.c_str());
+    }
+
+    conn.use_original_ip_port = (findoptionS("useoriginalip") == "on");
+
+    return true;
+}
 bool OptionContainer::findContentScannerOptions()
 {
 

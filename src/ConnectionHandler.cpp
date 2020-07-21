@@ -424,7 +424,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             String des_ip;
             if (cm.isiphost)
                 des_ip = cm.urldomain;
-            if(o.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
+            if(o.conn.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
                 des_ip = cm.orig_ip;
 
             if(des_ip.length() > 0) {
@@ -1078,7 +1078,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     int out_port = header.port;
-                    if (o.use_original_ip_port && checkme.got_orig_ip &&
+                    if (o.conn.use_original_ip_port && checkme.got_orig_ip &&
                         !header.isProxyRequest)
                         out_port = checkme.orig_port;
                     if (connectUpstream(proxysock, checkme, out_port) < 0) {
@@ -1499,7 +1499,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
                 bool replaceflash = false;
-                if (o.use_custom_banned_image) {
+                if (o.conn.use_custom_banned_image) {
 
                     // It would be much nicer to do a mime comparison
                     // and see if the type is image/* but the header
@@ -1518,7 +1518,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                 }
 
-                if (o.use_custom_banned_flash) {
+                if (o.conn.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".swf") ||
@@ -1533,12 +1533,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_image.display_hb(eheader, ebody);
+                    o.conn.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_flash.display_hb(eheader, ebody);
+                    o.conn.banned_flash.display_hb(eheader, ebody);
                 } else {
                     // advanced ad blocking - if category contains ADs, wrap ad up in an "ad blocked" message,
                     // which provides a link to the original URL if you really want it. primarily
@@ -2948,7 +2948,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
                 int out_port;
-                if(checkme.got_orig_ip && o.use_original_ip_port)
+                if(checkme.got_orig_ip && o.conn.use_original_ip_port)
                     out_port = checkme.orig_port;
                 else
                     out_port = 443;

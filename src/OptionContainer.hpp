@@ -153,6 +153,8 @@ struct CertificateOptions
 struct ListsOptions
 {
     bool read_from_stdin = false;
+    bool force_quick_search = false;
+
 };
 
 struct NaughtyOptions
@@ -163,6 +165,18 @@ struct NaughtyOptions
     bool show_all_weighted_found = false;   // logs weighted less than limit
     int preserve_case = 0;
     bool hex_decode_content = false;
+};
+
+struct ConnectionOptions {
+    bool use_custom_banned_image = false;
+    std::string custom_banned_image_file;
+    ImageContainer banned_image;
+
+    bool use_custom_banned_flash = false;
+    std::string custom_banned_flash_file;
+    ImageContainer banned_flash;
+
+    bool use_original_ip_port = false;   // only for transparent and no upstream proxy
 };
 
 struct ContentScannerOptions {
@@ -186,14 +200,16 @@ struct ContentScannerOptions {
 class OptionContainer
 {
     public:
-    ConfigOptions       config;
-    LogOptions          log;
-    ProcessOptions      proc;
+    CertificateOptions    cert;
+    ConfigOptions         config;
+    ConnectionOptions     conn;
     ContentScannerOptions content;
-    NetworkOptions      net;
-    CertificateOptions  cert;
-    ListsOptions        lists;
+    DStatOptions          dstat;
+    ListsOptions          lists;
+    LogOptions            log;
     NaughtyOptions        naughty;
+    NetworkOptions        net;
+    ProcessOptions        proc;
 
     Queue<LQ_rec> http_worker_Q;
     
@@ -240,6 +256,8 @@ class OptionContainer
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
     bool auth_needs_proxy_in_plugin = false;
+
+    bool search_sitelist_for_ip = false;
 
     bool prefer_cached_lists = false;   // Check: Not Used ?
     std::string languagepath;
@@ -357,11 +375,14 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
+    bool findCertificateOptions();
+    bool findConnectionOptions();
     bool findContentScannerOptions();
-    bool findLogOptions();
     bool findDStatOptions();
+    bool findLogOptions();
     bool findNetworkOptions();
     bool findNaughtyOptions();
+    bool findProcOptions();
 
  // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
