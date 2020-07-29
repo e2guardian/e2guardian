@@ -175,11 +175,6 @@ bool OptionContainer::read(std::string &filename, int type) {
                 log_requests = true;
             }
 
-            if ((stat_location = findoptionS("statlocation")) == "") {
-                stat_location = __LOGLOCATION;
-                stat_location += "/stats";
-            }
-
             if ((dstat_location = findoptionS("dstatlocation")) == "") {
                 dstat_log_flag = false;
             } else {
@@ -216,8 +211,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             daemon_group_name = __PROXYGROUP;
         }
 
-        blocked_content_store = findoptionS("blockedcontentstore");
-
         if (findoptionS("nodaemon") == "on") {
             no_daemon = true;
         } else {
@@ -236,12 +229,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             no_logger = true;
         } else {
             no_logger = false;
-        }
-
-        if (findoptionS("softrestart") == "on") {
-            soft_restart = true;
-        } else {
-            soft_restart = false;
         }
 
 #ifdef __SSLMITM
@@ -359,7 +346,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
-            max_header_lines = 40;
+            max_header_lines = 50;
         if (!realitycheck(max_header_lines, 10, 250, "maxheaderlines")) {
             return false;
         }
@@ -390,18 +377,11 @@ bool OptionContainer::read(std::string &filename, int type) {
 
 
         proxy_timeout_sec = findoptionI("proxytimeout");
-        if (proxy_timeout_sec == 0) proxy_timeout_sec = 5;
+        if (proxy_timeout_sec == 0) proxy_timeout_sec = 55;
         if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
             return false;
         } // check its a reasonable value
         proxy_timeout = proxy_timeout_sec * 1000;
-
-        proxy_failure_log_interval = findoptionI("proxyfailureloginterval");
-        if (proxy_failure_log_interval == 0)
-            proxy_failure_log_interval = 600; // 10 mins
-        if (!realitycheck(proxy_failure_log_interval, proxy_timeout_sec, 3600, "proxyfailureloginterval")) {
-            return false;
-        } // check its a reasonable value
 
         pcon_timeout_sec = findoptionI("pcontimeout");
         if (pcon_timeout_sec == 0) pcon_timeout_sec = 55;
@@ -419,11 +399,11 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         http_workers = findoptionI("httpworkers");
         if (http_workers == 0) {
-            http_workers = 100;
+            http_workers = 500;
             if (!is_daemonised) {
-                std::cerr << " http_workers settings cannot be zero: value set to 100" << std::endl;
+                std::cerr << " http_workers settings cannot be zero: value set to 500" << std::endl;
             }
-            syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 100");
+            syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 500");
         }
         if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
             return false;
@@ -449,7 +429,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         } // check its a reasonable value
 
         if (max_content_filter_size == 0) {
-            max_content_filter_size = 1; // Minimal value 0 = 1
+            max_content_filter_size = 2048;
         }
 
         max_content_filter_size *= 1024;
@@ -464,6 +444,9 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!realitycheck(max_content_filecache_scan_size, 0, 0, "maxcontentfilecachescansize")) {
             return false;
         }
+        if (max_content_filecache_scan_size == 0) {
+            max_content_filecache_scan_size = 20000;
+        }
         max_content_filecache_scan_size *= 1024;
 
         if (max_content_ramcache_scan_size == 0) {
@@ -474,17 +457,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
             return false;
         }
-        /*
-		if ((weighted_phrase_mode != 0)) {
-			max_content_filter_size = max_content_ramcache_scan_size;
-			if (max_content_filter_size == 0) {
-				if (!is_daemonised)
-					std::cerr << "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)" << std::endl;
-				syslog(LOG_ERR, "%s", "maxcontent* settings cannot be zero (to disable phrase filtering, set weightedphrasemode to 0)");
-				return false;
-			}
-		}
-*/
+
         bool contentscanning = findoptionM("contentscanner").size() > 0;
         if (contentscanning) {
 
@@ -505,10 +478,16 @@ bool OptionContainer::read(std::string &filename, int type) {
             }
 
             trickle_delay = findoptionI("trickledelay");
+            if (trickle_delay == 0) {
+                trickle_delay = 10;
+            }
             if (!realitycheck(trickle_delay, 1, 0, "trickledelay")) {
                 return false;
             }
             initial_trickle_delay = findoptionI("initialtrickledelay");
+            if (initial_trickle_delay == 0) {
+                initial_trickle_delay = 20;
+            }
             if (!realitycheck(initial_trickle_delay, 1, 0, "initialtrickledelay")) {
                 return false;
             }
@@ -526,12 +505,6 @@ bool OptionContainer::read(std::string &filename, int type) {
                 content_scanner_timeout_sec = pcon_timeout_sec;
             }
 
-            if (findoptionS("scancleancache") == "off") {
-                scan_clean_cache = false;
-            } else {
-                scan_clean_cache = true;
-            }
-
         }
 
         if (findoptionS("deletedownloadedtempfiles") == "off") {
@@ -546,16 +519,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             search_sitelist_for_ip = true;
         }
-
-        url_cache_number = findoptionI("urlcachenumber");
-        if (!realitycheck(url_cache_number, 0, 0, "urlcachenumber")) {
-            return false;
-        } // check its a reasonable value
-
-        url_cache_age = findoptionI("urlcacheage");
-        if (!realitycheck(url_cache_age, 0, 0, "urlcacheage")) {
-            return false;
-        } // check its a reasonable value
 
         phrase_filter_mode = findoptionI("phrasefiltermode");
         if (!realitycheck(phrase_filter_mode, 0, 3, "phrasefiltermode")) {
@@ -576,13 +539,13 @@ bool OptionContainer::read(std::string &filename, int type) {
             force_quick_search = false;
         }
 
-        if (findoptionS("mapportstoips") == "off") {
+        if (findoptionS("mapportstoips") == "off") {  // to be removed in v5.5
             map_ports_to_ips = false;
         } else {
             map_ports_to_ips = true;
         }
 
-        if (findoptionS("mapauthtoports") == "off") {
+        if (findoptionS("mapauthtoports") == "off") {  // to be removed in v5.5
             map_auth_to_ports = false;
         } else {
             map_auth_to_ports = true;
@@ -593,6 +556,10 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             use_custom_banned_image = true;
             custom_banned_image_file = findoptionS("custombannedimagefile");
+            if (custom_banned_image_file.empty()) {
+                custom_banned_image_file = __DATADIR;
+                custom_banned_image_file += "/transparent1x1.gif";
+            }
             banned_image.read(custom_banned_image_file.c_str());
         }
 
@@ -601,6 +568,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             use_custom_banned_flash = true;
             custom_banned_flash_file = findoptionS("custombannedflashfile");
+
+            if (custom_banned_flash_file.empty()) {
+                custom_banned_flash_file = __DATADIR;
+                custom_banned_flash_file += "/blockedflash.swf";
+            }
             banned_flash.read(custom_banned_flash_file.c_str());
         }
 
@@ -637,14 +609,11 @@ bool OptionContainer::read(std::string &filename, int type) {
             syslog(LOG_ERR, "%s", "Can not check on more than 127 IPs");
             return false;
         }
-        //if (check_ip.size() == 0) {   // set defaults
-        //if (filter_ip.size() > 0) {
-        //    check_ip = filter_ip;
-        //} else {
-        //    String t = "127.0.0.1";
-        //    check_ip.push_back(t);
-        //}
-        //}
+        if (check_ip.empty()) {
+                String t = "127.0.0.1";
+                check_ip.push_back(t);
+        }
+
         filter_ports = findoptionM("filterports");
         if (filter_ports.empty())
             filter_ports.push_back("8080");
@@ -662,7 +631,8 @@ bool OptionContainer::read(std::string &filename, int type) {
         } // check its a reasonable value
 
         transparenthttps_port = findoptionI("transparenthttpsport");
-        if (!realitycheck(filter_port, 1, 65535, "transparenthttpsport")) {
+        if (transparenthttps_port == 0) transparenthttps_port = 8443;
+        if (!realitycheck(transparenthttps_port, 1, 65535, "transparenthttpsport")) {
             return false;
         } // check its a reasonable value
 
@@ -747,10 +717,10 @@ bool OptionContainer::read(std::string &filename, int type) {
             prod_id.assign("2");
 #endif
 
-        if (findoptionS("showweightedfound") == "on") {
-            show_weighted_found = true;
-        } else {
+        if (findoptionS("showweightedfound") == "off") {
             show_weighted_found = false;
+        } else {
+            show_weighted_found = true;
         }
         if (findoptionS("showallweightedfound") == "on") {
             show_all_weighted_found = true;
@@ -762,7 +732,14 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
             return false;
         }
-        languagepath = findoptionS("languagedir") + "/" + findoptionS("language") + "/";
+        String t = findoptionS("languagedir") + "/" ;
+        if (t == "/") {
+            t = __DATADIR;
+            t += "/languages";
+        }
+        languagepath = t;
+        languagepath += "/";
+        languagepath += findoptionS("language") + "/";
 
         if (findoptionS("forwardedfor") == "on") {
             forwarded_for = true;
@@ -872,6 +849,12 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
         storyboard_location = findoptionS("preauthstoryboard");
+        if (storyboard_location.empty()) {
+            storyboard_location = __CONFDIR;
+            storyboard_location += "/preauth.story";
+
+
+        }
 
         if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") ||
             ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
@@ -899,6 +882,9 @@ bool OptionContainer::read(std::string &filename, int type) {
         // this needs to be known before loading CS plugins,
         // because ClamAV plugin makes use of it during init()
         download_dir = findoptionS("filecachedir");
+        if (download_dir.empty()) {
+            download_dir = "/tmp";
+        }
 
         if (contentscanning) {
             if (!loadCSPlugins()) {

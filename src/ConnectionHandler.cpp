@@ -3974,13 +3974,16 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
-        if (rc != E2AUTH_OK)
-        {};
     }
-    else {
+    if (rc != E2AUTH_OK)
+    {
         if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, checkme, true,
                     true)) {
             //break;  // TODO Error return????
+        }
+        if (!(icaphead.username.empty() || icaphead.username == "-")) {
+            checkme.user = icaphead.username;      // restore username if we had one from icap header
+            clientuser = icaphead.username;      // restore username if we had one from icap header
         }
     }
 

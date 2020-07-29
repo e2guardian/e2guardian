@@ -189,6 +189,7 @@ fi], [
   proxyuser=nobody
 ])
 AC_SUBST(E2PROXYUSER, "$proxyuser")
+#AC_DEFINE_UNQUOTED(__PROXYUSER,"$proxyuser","User to run as")
 
 AC_MSG_CHECKING(for proxy group)
 AC_ARG_WITH(proxygroup,
@@ -205,6 +206,7 @@ fi], [
   proxygroup=nobody
 ])
 AC_SUBST(E2PROXYGROUP, "$proxygroup")
+#AC_DEFINE_UNQUOTED(__PROXYGROUP,"$proxygroup","Group to run as")
 
 AC_MSG_CHECKING(for piddir)
 AC_ARG_WITH(piddir,
@@ -222,6 +224,7 @@ fi], [
 ])
 AC_FINALIZE_VAR(E2PIDDIR,"$piddir")
 AC_SUBST(E2PIDDIR)
+#AC_DEFINE_UNQUOTED([__PIDDIR],[${E2PIDDIR}], "path of pid directory")
 
 
 AC_MSG_CHECKING(for logdir)
@@ -240,6 +243,7 @@ fi], [
 ])
 AC_FINALIZE_VAR(E2LOGLOCATION,"$logdir")
 AC_SUBST(E2LOGLOCATION)
+# AC_DEFINE_UNQUOTED([__LOGLOCATION],[${E2LOGLOCATION}], "path of log directory")
 
 PKG_PROG_PKG_CONFIG
 
@@ -650,6 +654,9 @@ AC_FINALIZE_VAR(E2DATADIR,"${datadir}/${PACKAGE_NAME}")
 AC_SUBST(E2DATADIR)
 AC_FINALIZE_VAR(E2CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf")
 AC_SUBST(E2CONFFILE)
+#AC_DEFINE_UNQUOTED(__CONFDIR,"${e2sysconfdir}","")
+AC_DEFINE_UNQUOTED([__DATADIR],["${E2DATADIR}"],["Data directory path"])
+AC_DEFINE_UNQUOTED(__CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf","Configure file path")
 
 AC_CONFIG_FILES([Makefile
 data/Makefile

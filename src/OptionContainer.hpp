@@ -140,7 +140,6 @@ class OptionContainer
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
-    std::string stat_location;
     std::string ipc_filename;
     std::string urlipc_filename;
     std::string ipipc_filename;
