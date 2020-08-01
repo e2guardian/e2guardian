@@ -882,7 +882,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // is this user banned?
             //isbanneduser = false;
-            if (o.use_xforwardedfor) {
+            if (o.use_xforwardedfor && !ismitm) {  // don't do this for mitm
                 bool use_xforwardedfor;
                 if (o.xforwardedfor_filter_ip.size() > 0) {
                     use_xforwardedfor = false;
@@ -2832,6 +2832,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
 
 //handleConnection inside the ssl tunnel
+        ip = clientip;
         handleConnection(peerconn, ip, true, proxysock, dystat);
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Handling connections inside ssl tunnel: done" << std::endl;
