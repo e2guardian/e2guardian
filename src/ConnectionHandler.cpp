@@ -899,6 +899,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::string xforwardip(header.getXForwardedForIP());
                     if (xforwardip.length() > 6) {
                         clientip = xforwardip;
+                        ip = clientip;
+                        header.setClientIP(ip);
                     }
 #ifdef DGDEBUG
                     std::cerr << thread_id << " -using x-forwardedfor:" << clientip << std::endl;
@@ -2832,7 +2834,6 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
 
 //handleConnection inside the ssl tunnel
-        ip = clientip;
         handleConnection(peerconn, ip, true, proxysock, dystat);
 #ifdef DGDEBUG
         std::cerr << thread_id << " -Handling connections inside ssl tunnel: done" << std::endl;
