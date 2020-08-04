@@ -109,7 +109,7 @@ class LOptionContainer
     long int findoptionI(const char *option);
     std::string findoptionS(const char *option);
     //bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
-    bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
+    bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html, int fg_no);
     std::deque<String> findoptionM(const char *option);
 
     //bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);

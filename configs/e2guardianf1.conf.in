@@ -2,166 +2,369 @@
 
 # This file is re-read on gentle restart and any changes actioned
 
-# Filter group mode IS NOT LONGER SUPPORTED
-# Unauthenticated users are treated as being in the default filter group.
-# groupmode = 1 #DISABLED
+### Filtergroup config is now split into sections as follows
+###
+### QUICK_START         - Items to check to get you started
+### MITM                - SSL MITM settings
+### URL_FILTERING       - URL filtering settings
+### URL_MAIN_LISTS	- URL/SITE lists - for downloaded lists(?)
+### URL_LOCAL_LISTS	- URL/SITE lists - local
+### FILE_TYPES		- Lists that control download filetype access
+### TIMES		- Time based lists
+### APPS		- Lists to control apps/browsers
+### REFERER		- Lists to allow exceptions based on referer site/url
+### URL_MOD		- Lists to modify url and ssl site target
+### REDIRECT		- Redirection list
+### LOG_ONLY		- Categorise and log but do not filter lists
+### POST		- Post filtering - not implimented yet in v5
+### PHRASES             - Content phrase settings and lists
+### SEARCH		- Search term filtering settings and lists
+### AV_SCANNERS         - AV scanner settings and lists
+### HEADER              - HTTP Header handling
+### BLOCK_PAGE          - Block Page formats and handling
+### BYPASS		- Bypass settings and lists
+### EMAILER		- Emailer settings (experimental)
+### OBSOLETE            - Obsolete settings
+### INFO                - Info on new features etc
+###
 
+
+### QUICK_START section
+###
+### e2guardian will work using examplef1.story 
+### and the example.group sub-directory of the lists directory
+### without you making any changes to this file.
+###
+### The items you are likely to need to change in production are 
+### in this section.
+### 
+### To set up for production:-
+###
+### In config directory:-
+###   Copy examplef1.story to group1.story
+### In list directory:-
+###   Create a group1 directory
+###   Copy the lists in lists/sample.group into this directory
+###	and edit them to your requirements
+### Comment out .define.., and storyboard = lines below.
+###
+### To add group two:-
+###
+### Copy this file to e2guardianf2.conf
+### and repeat above steps, but for group2.story, lists/group2 directory etc
+###
+### Repeat for any further groups
+###
+### Remember to adjust the 'filtergroups' setting in e2guardian.conf
+### to the number of groups you now have.
+
+#groupname = 'my_name_for_group'
+#
 # Filter group name
-# Used to fill in the -FILTERGROUP- placeholder in the HTML template file, and to
+# Used to fill in the -FILTERGROUP -placeholder in the HTML template file, and to
 # name the group in the access logs
-# Defaults to empty string
-#groupname = ''
-groupname = 'no_name_group'
+# Default 'group1' where 1 is the group number
 
-# Much logic has moved to storyboard files
-storyboard = '@E2CONFDIR@/examplef1.story'
-
-
-# New in v5.4.2:- relative paths 
-# Relative paths can used in .Include<> and list files. 
-# 	The directory of current file will be insert where the file name
-#	does not start with '/'
-
-
-# Also NEW in v5.4.2 - LISTDIR 'variable' definition 
-# LISTDIR can be defined in .conf files.
-# This allows for more readable configuration and for templating.
-# This works similarly to a shell environment variable
-# The text between <> will replace occurances of __LISTDIR__ in .conf and 
-# 	list files.
-# Note: Currently only LISTDIR may be defined.
+storyboard = '@E2CONFDIR@/examplef1.story'   # comment out for production
 #
-# The mapping is actioned as the file is read and is valid until another LISTDIR
-# 	is defined later in the file, or in an included .conf file.
+# Storyboard logic for this group
 #
-# The scope of LISTDIR is in the rest of file it is defined in and all
-# all .Include<> files or list files in that portion of the file.
+# defaults to '@E2CONFDIR@/group1.story' where 1 is the group number
 
-.Define LISTDIR <@E2CONFDIR@/lists/>
+.Define LISTDIR <@E2CONFDIR@/lists/example.group>  # comment out for production 
+# The directory path for list files for this group
+# This path replaces __LISTDIR__ wherever it occurs below or in included files.
+# See INFO section for full details
+# defaults (initialized) as <@E2CONFDIR@/lists/group1> where 1 is the group number
+ 
+#naughtynesslimit = 60
+#
+# Naughtiness limit
+# This the limit over which the page will be blocked.  Each weighted phrase is given
+# a value either positive or negative and the values added up.  Phrases to do with
+# good subjects will have negative values, and bad subjects will have positive
+# values.  See the weightedphraselist file for examples.
+# As a guide:
+# 60 is for young children,  100 for old children,  160 for young adults.
+# default 60
 
-# Enable legacy (E2) ssl logic
-# 
-# The following option is replaced by storyboard logic
-# ssllegacylogic = off
+###
+### END of QUICK_START section 
 
-# Content filtering files location
 
-bannedphraselist = '__LISTDIR__bannedphraselist'
-weightedphraselist = '__LISTDIR__weightedphraselist'
-exceptionphraselist = '__LISTDIR__exceptionphraselist'
-## To use oldphraselists comment out last 3 lines and
-## uncomment the follwing 3 lines
-#bannedphraselist = '__LISTDIR__oldbannedphraselist'
-#weightedphraselist = '__LISTDIR__oldweightedphraselist'
-#exceptionphraselist = '__LISTDIR__oldexceptionphraselist'
+### MITM section
+###
 
-### NOTE - New format for all other list definitions in v5.0 
-###        see notes/V5_list_definition for details
+# NOTE to enable SSL MITM 
+# enablessl must be defined as 'on' in e2guardian.conf
 
-#banned lists
-sitelist = 'name=banned,messageno=500,path=__LISTDIR__bannedsitelist'
-ipsitelist = 'name=banned,messageno=510,path=__LISTDIR__bannedsiteiplist'
-urllist = 'name=banned,messageno=501,path=__LISTDIR__bannedurllist'
-regexpboollist = 'name=banned,messageno=503,path=__LISTDIR__bannedregexpurllist'
-regexpboollist = 'name=banneduseragent,messageno=522,path=__LISTDIR__bannedregexpuseragentlist'
+#sslmitm = on
+#
+#SSL man in the middle
+# Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
+# using a different private key. Used to filter ssl sites
+#default off
+
+# mitmcheckcert = on
+#
+# Enable MITM site certificate checking
+# ignored if  sslmitm is off
+# default (recommended) is 'on'
+
+#Do not check ssl certificates for sites listed
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+#
+sitelist = 'name=nocheckcert,path=__LISTDIR__/nocheckcertsitelist'
+ipsitelist = 'name=nocheckcert,path=__LISTDIR__/nocheckcertsiteiplist'
+#
+
+# automitm = on
+#
+# Auto switch to MITM with upstream connection error or to deliver block page
+# ignored if  sslmitm is off
+# To revert to v4 type behavour switch this off
+# Default is 'on'
+
+# greyssl lists only used in onlymitmsslgrey mode to define sites that
+# will be MITM
+
+sitelist = 'name=greyssl,path=__LISTDIR__/greysslsitelist'
+ipsitelist = 'name=greyssl,path=__LISTDIR__/greysslsiteiplist'
+
+sitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsitelist'
+#ipsitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsiteiplist'
+
+###
+### END of MITM section 
+
+
+### URL_FILTERING section
+###
+
+#deepurlanalysis = off
+# Enable Deep URL Analysis
+# When enabled, E2 looks for URLs within URLs, checking against the bannedsitelist and
+# bannedurllist. This can be used, for example, to block images originating from banned
+# sites from appearing in Google Images search results, as the original URLs are
+# embedded in the thumbnail GET requests.
+# (on|off) default = off
+
+###
+### END of URL_FILTERING section 
+
+
+### URL_MAINLISTS section
+###
+### Most of the site/ipsite/url lists in this section are used for
+### switching on/off standard list categories
+###
+### It is best to use the LOCAL lists for your own lists of sites/urls
+### As these override the main ones.
+
+## For info on the format of list definitions see notes/V5_list_definition
+
+## Order of checking is broadly as follows:-
+##
+## 1. If in Local Exception lists - allow with no further checking
+## 2. If in Local Grey lists - retrieve page and content-check
+## 3. If in Local Banned lists - block with no further checking
+## 4. If in Main Exception lists - allow with no further checking
+## 5. If in Main Grey lists - retrieve page and content-check
+## 6. If in Main Banned lists (or blanket blocked) - block with no further checking
+## 7. If gets here  - retrieve page and content-check
+## 8. Check blocked/exception file/mime types.
+## 9. Content-check page
+
+## Exception lists
+
+sitelist = 'name=exception,messageno=602,path=__LISTDIR__/exceptionsitelist'
+ipsitelist = 'name=exception,messageno=602,path=__LISTDIR__/exceptionsiteiplist'
+urllist = 'name=exception,messageno=603,path=__LISTDIR__/exceptionurllist'
+
+regexpboollist = 'name=exception,messageno=609,path=__LISTDIR__/exceptionregexpurllist'
+
+## Grey (i.e. content check) lists
+
+sitelist = 'name=grey,path=__LISTDIR__/greysitelist'
+ipsitelist = 'name=grey,path=__LISTDIR__/greysiteiplist'
+urllist = 'name=grey,path=__LISTDIR__/greyurllist'
+
+## Banned sites/urls
+
+sitelist = 'name=banned,messageno=500,path=__LISTDIR__/bannedsitelist'
+ipsitelist = 'name=banned,messageno=510,path=__LISTDIR__/bannedsiteiplist'
+urllist = 'name=banned,messageno=501,path=__LISTDIR__/bannedurllist'
+
+regexpboollist = 'name=banned,messageno=503,path=__LISTDIR__/bannedregexpurllist'
 
 # 'bannedssl' lists are not currently used
-#sitelist = 'name=bannedssl,messageno=520,path=__LISTDIR__bannedsslsitelist'
-#ipsitelist = 'name=bannedssl,messageno=520,path=__LISTDIR__bannedsslsiteiplist'
+#sitelist = 'name=bannedssl,messageno=520,path=__LISTDIR__/bannedsslsitelist'
+#ipsitelist = 'name=bannedssl,messageno=520,path=__LISTDIR__/bannedsslsiteiplist'
 
+###
+### END of URL_MAINLISTS section 
+
+
+### URL_LOCAL_LISTS section
+###
+### if you do not want to use local lists
+### then comment out (or remove) all the list entries in this section and
+### make adjustments to site.story
+###
+
+
+## Local Exception lists
+
+sitelist = 'name=localexception,messageno=662,path=__LISTDIR__/localexceptionsitelist'
+ipsitelist = 'name=localexception,messageno=662,path=__LISTDIR__/localexceptionsiteiplist'
+urllist = 'name=localexception,messageno=663,path=__LISTDIR__/localexceptionurllist'
+
+## Local Grey lists
+
+sitelist = 'name=localgrey,path=__LISTDIR__/localgreysitelist'
+ipsitelist = 'name=localgrey,path=__LISTDIR__/localgreysiteiplist'
+urllist = 'name=localgrey,path=__LISTDIR__/localgreyurllist'
+
+## Local Banned lists
+
+sitelist = 'name=localbanned,messageno=560,path=__LISTDIR__/localbannedsitelist'
+ipsitelist = 'name=localbanned,messageno=560,path=__LISTDIR__/localbannedsiteiplist'
+urllist = 'name=localbanned,messageno=561,path=__LISTDIR__/localbannedurllist'
+
+## Bannedssl lists are not currently used
+#sitelist = 'name=localbannedssl,messageno=580,path=__LISTDIR__/localbannedsslsitelist'
+#ipsitelist = 'name=localbannedssl,messageno=580,path=__LISTDIR__/localbannedsslsiteiplist'
+
+###
+### END of URL_LOCAL_LISTS section 
+
+### FILE_TYPES section
+###
+
+# Uncomment the two lines below if want to ONLY allow extentions/mime types in these lists
+# You will also need to uncomment the checkfiletype function in site.story to enable this
+#fileextlist = 'name=exceptionextension,path=__LISTDIR__/exceptionextensionlist'
+#mimelist = 'name=exceptionmime,path=__LISTDIR__/exceptionmimetypelist'
+
+
+# Use the following lists to block specific kinds of file downloads.
+#
+fileextlist = 'name=bannedextension,messageno=900,path=__LISTDIR__/bannedextensionlist'
+mimelist = 'name=bannedmime,messageno=800,path=__LISTDIR__/bannedmimetypelist'
+
+#
+# In either file filtering mode, the following lists can be used to override
+# MIME type & extension blocks for particular domains & URLs (trusted download sites).
+#
+sitelist = 'name=exceptionfile,path=__LISTDIR__/exceptionfilesitelist'
+ipsitelist = 'name=exceptionfile,path=__LISTDIR__/exceptionfilesiteiplist'
+urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
+
+###
+### END of FILE_TYPES section 
+
+### TIMES section
+###
 
 # NEW in v5.4 bannedtimelist - times when no access is allowed
 # To activate a storyboard change is required - see examplef1.story
-#timelist = 'name=bannedtimes,messageno=122,path=__LISTDIR__bannedtimelist'
+#timelist = 'name=bannedtimes,messageno=122,path=__LISTDIR__/bannedtimelist'
 
 # NEW in v5.4 blankettimelist - times when blanket block is applied
 # To activate a storyboard change is required - see examplef1.story
-#timelist = 'name=blankettimes,messageno=122,path=__LISTDIR__blankettimelist'
+#timelist = 'name=blankettimes,messageno=122,path=__LISTDIR__/blankettimelist'
+
+###
+### END of TIMES section 
+
+### APPS section
+###
+### These lists are useful for allowing/blocking apps or browsers based 
+### on the user-agent
+
+regexpboollist = 'name=banneduseragent,messageno=522,path=__LISTDIR__/bannedregexpuseragentlist'
+
+regexpboollist = 'name=exceptionuseragent,messageno=610,path=__LISTDIR__/exceptionregexpuseragentlist'
+
+###
+### END of APPS section 
+
+### REFERER section
+###
+
+# refererexception lists are used to make a request an exception based on the
+# Referer header.
+
+sitelist = 'name=refererexception,messageno=620,path=__LISTDIR__/refererexceptionsitelist'
+ipsitelist = 'name=refererexception,messageno=620,path=__LISTDIR__/refererexceptionsiteiplist'
+urllist = 'name=refererexception,messageno=620,path=__LISTDIR__/refererexceptionurllist'
+
+# Some sites have the referering url in their url. Put these url in these
+# lists and e2g will extract the embeded url and then check this againist
+# the refererexception lists.  
+# For best results be as specific as possible
+
+sitelist = 'name=embededreferer,path=__LISTDIR__/../common/embededreferersitelist'
+ipsitelist = 'name=embededreferer,path=__LISTDIR__/../common/embededreferersiteiplist'
+urllist = 'name=embededreferer,path=__LISTDIR__/../common/embededrefererurllist'
 
 
-#grey (i.e. content check) lists
-sitelist = 'name=grey,path=__LISTDIR__greysitelist'
-ipsitelist = 'name=grey,path=__LISTDIR__greysiteiplist'
-urllist = 'name=grey,path=__LISTDIR__greyurllist'
-sitelist = 'name=greyssl,path=__LISTDIR__greysslsitelist'
-ipsitelist = 'name=greyssl,path=__LISTDIR__greysslsiteiplist'
+###
+### END of REFERER section 
 
-#exception lists
-sitelist = 'name=exception,messageno=602,path=__LISTDIR__exceptionsitelist'
-ipsitelist = 'name=exception,messageno=602,path=__LISTDIR__exceptionsiteiplist'
-urllist = 'name=exception,messageno=603,path=__LISTDIR__exceptionurllist'
-regexpboollist = 'name=exception,messageno=609,path=__LISTDIR__exceptionregexpurllist'
-regexpboollist = 'name=exceptionuseragent,messageno=610,path=__LISTDIR__exceptionregexpuseragentlist'
+### URL_MOD section
+###
 
-sitelist = 'name=refererexception,messageno=620,path=__LISTDIR__refererexceptionsitelist'
-ipsitelist = 'name=refererexception,messageno=620,path=__LISTDIR__refererexceptionsiteiplist'
-urllist = 'name=refererexception,messageno=620,path=__LISTDIR__refererexceptionurllist'
-sitelist = 'name=embededreferer,path=__LISTDIR__embededreferersitelist'
-ipsitelist = 'name=embededreferer,path=__LISTDIR__embededreferersiteiplist'
-urllist = 'name=embededreferer,path=__LISTDIR__embededrefererurllist'
+# change list is used to modify url on the fly
+# use to enforce safe search etc.
+# Do not try and change target site - use redirect for this.
+regexpreplacelist = 'name=change,path=__LISTDIR__/urlregexplist'
 
-#modification lists
-regexpreplacelist = 'name=change,path=__LISTDIR__urlregexplist'
-regexpreplacelist = 'name=sslreplace,path=__LISTDIR__sslsiteregexplist'
+# Replace target connection site for a ssl connection request
+# Note: this does not change the url in any way. It just changes
+# where the request is sent upstream and the new target must accept 
+# the original url. 
+regexpreplacelist = 'name=sslreplace,path=__LISTDIR__/sslsiteregexplist'
 
-#redirection lists
-regexpreplacelist = 'name=redirect,path=__LISTDIR__urlredirectregexplist'
-
-contentregexplist = '__LISTDIR__contentregexplist'
-
-# local versions of lists 
-
-#local banned
-sitelist = 'name=localbanned,messageno=560,path=__LISTDIR__localbannedsitelist'
-#ipsitelist = 'name=localbanned,messageno=560,path=__LISTDIR__localbannedsiteiplist'
-#urllist = 'name=localbanned,messageno=561,path=__LISTDIR__localbannedurllist'
-#sitelist = 'name=localbannedssl,messageno=580,path=__LISTDIR__localbannedsslsitelist'
-#ipsitelist = 'name=localbannedssl,messageno=580,path=__LISTDIR__localbannedsslsiteiplist'
-searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__localbannedsearchlist'
-
-#local grey lists
-sitelist = 'name=localgrey,path=__LISTDIR__localgreysitelist'
-#ipsitelist = 'name=localgrey,path=__LISTDIR__localgreysiteiplist'
-#urllist = 'name=localgrey,path=__LISTDIR__localgreyurllist'
-sitelist = 'name=localgreyssl,path=__LISTDIR__localgreysslsitelist'
-#ipsitelist = 'name=localgreyssl,path=__LISTDIR__localgreysslsiteiplist'
-
-#local exception lists
-sitelist = 'name=localexception,messageno=662,path=__LISTDIR__localexceptionsitelist'
-#ipsitelist = 'name=localexception,messageno=662,path=__LISTDIR__localexceptionsiteiplist'
-#urllist = 'name=localexception,messageno=663,path=__LISTDIR__localexceptionurllist'
+###
+### END of URL_MOD section 
 
 
-# Filetype filtering
+### REDIRECT section
+###
+
+# Used to redirect browser to different site and or url
+regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
+
+###
+### END of REDIRECT section 
+
+
+### LOG_ONLY section
+###
+
+# Categorise without blocking:
+
+# Supply categorised lists here and the category string shall be logged against
+# matching requests, but matching these lists does not perform any filtering
+# action.
+#sitelist = 'name=log,path=__LISTDIR__/logsitelist'
+#ipsitelist = 'name=log,path=__LISTDIR__/logsiteiplist'
+#urllist = 'name=log,path=__LISTDIR__/logurllist'
+#regexpboollist = 'name=log,path=__LISTDIR__/logregexpurllist'
+
+###
+### END of LOG_ONLY section 
+
+
+### POST section
+###
+
+#maxuploadsize = -1
 #
-# Allow bannedregexpurllist with grey list mode
-#
-# The following option is replaced by storyboard logic
-# bannedregexwithblanketblock = off
-#
-# The following option is replaced by storyboard logic
-#blockdownloads = off
-
-# Phrase filtering additional mime types (by default text/*)
-# textmimetypes = 'application/xhtml+xml,application/xml,application/json,application/javascript,application/x-javascript'
-
-# Uncomment the two lines below if want to only allow extentions/mime types in these lists
-# You will also need to uncomment the checkfiletype function in site.story to enable this
-#fileextlist = 'name=exceptionextension,path=__LISTDIR__exceptionextensionlist'
-#mimelist = 'name=exceptionmime,path=__LISTDIR__exceptionmimetypelist'
-#
-# Use the following lists to block specific kinds of file downloads.
-#
-fileextlist = 'name=bannedextension,messageno=900,path=__LISTDIR__bannedextensionlist'
-mimelist = 'name=bannedmime,messageno=800,path=__LISTDIR__bannedmimetypelist'
-#
-# In either file filtering mode, the following list can be used to override
-# MIME type & extension blocks for particular domains & URLs (trusted download sites).
-#
-sitelist = 'name=exceptionfile,path=__LISTDIR__exceptionfilesitelist'
-ipsitelist = 'name=exceptionfile,path=__LISTDIR__exceptionfilesiteiplist'
-urllist = 'name=exceptionfile,path=__LISTDIR__exceptionfileurllist'
-
 # POST protection (web upload and forms)
 # does not block forms without any file upload, i.e. this is just for
 # blocking or limiting uploads
@@ -172,135 +375,43 @@ urllist = 'name=exceptionfile,path=__LISTDIR__exceptionfileurllist'
 # NOTE: POST PROTECTION IS NOT YET IMPLIMENTED IN V5
 #maxuploadsize = 512
 #maxuploadsize = 0
-maxuploadsize = -1
+# default -1
 
-# Categorise without blocking:
-# Supply categorised lists here and the category string shall be logged against
-# matching requests, but matching these lists does not perform any filtering
-# action.
-#sitelist = 'name=log,path=__LISTDIR__logsitelist'
-#ipsitelist = 'name=log,path=__LISTDIR__logsiteiplist'
-#urllist = 'name=log,path=__LISTDIR__logurllist'
-#regexpboollist = 'name=log,path=__LISTDIR__logregexpurllist'
+###
+### END of POST section 
+
+
+### ACCESS_LOG section
+###
 
 # Do not log sites/urls/ext
 # Useful to prevent requests not made by user directly being logged
 # Makes logs more readable
-#sitelist = 'name=nolog,path=__LISTDIR__nologsitelist'
-#ipsitelist = 'name=nolog,path=__LISTDIR__nologsiteiplist'
-#urllist = 'name=nolog,path=__LISTDIR__nologurllist'
-#regexpboollist = 'name=nolog,path=__LISTDIR__nologregexpurllist'
-#fileextlist = 'name=nolog,path=__LISTDIR__nologextensionlist'
+#sitelist = 'name=nolog,path=__LISTDIR__//../common/nologsitelist'
+#ipsitelist = 'name=nolog,path=__LISTDIR__//../common/nologsiteiplist'
+#urllist = 'name=nolog,path=__LISTDIR__//../common/nologurllist'
+#regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
+#fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 
-# Outgoing HTTP request header rules:
-# Optional lists for blocking based on, and modification of, outgoing HTTP
-# request headers.  Format for headerregexplist is one modification rule per
-# line, similar to content/URL modifications.  Format for
-# bannedregexpheaderlist is one regular expression per line, with matching
-# headers causing a request to be blocked.
-# Headers are matched/replaced on a line-by-line basis, not as a contiguous
-# block.
-# Use for example, to remove cookies or prevent certain user-agents.
-regexpreplacelist = 'name=headermods,path=__LISTDIR__headerregexplist'
-regexpboollist = 'name=bannedheader,path=__LISTDIR__bannedregexpheaderlist'
-regexpboollist = 'name=exceptionheader,path=__LISTDIR__exceptionregexpheaderlist'
-# used for Youtube add cookies etc
-regexpreplacelist = 'name=addheader,path=__LISTDIR__addheaderregexplist'
+###
+### END of ACCESS_LOG section 
 
-# Response HTTP header rules:
-# Optional lists for modification or removal of HTTP response headers.  
-# Format for reponseheaderregexplist is one rule per line, similar to 
-# content/URL modifications.  
-# Headers are matched/replaced on a line-by-line basis, not as a contiguous
-# block.
-# Use for example, to remove protocol upgarde requests.
-regexpreplacelist = 'name=reponseheadermods,path=__LISTDIR__responseheaderregexplist'
 
-#Virus checking exceptions - matched urls will not be virus checked
-#Note that you also need to amend site.story in order for this to work.
-#mimelist = 'name=exceptionvirus,path=__LISTDIR__contentscanners/exceptionvirusmimetypelist'
-#fileextlist = 'name=exceptionvirus,path=__LISTDIR__contentscanners/exceptionvirusextensionlist'
-#sitelist = 'name=exceptionvirus,path=__LISTDIR__contentscanners/exceptionvirussitelist'
-#ipsitelist = 'name=exceptionvirus,path=__LISTDIR__contentscanners/exceptionvirussiteiplist'
-#urllist = 'name=exceptionvirus,path=__LISTDIR__contentscanners/exceptionvirusurllist'
+### PHRASES section
+###
 
+#weightedphrasemode = 0
 # Weighted phrase mode
 # Optional; overrides the weightedphrasemode option in e2guardian.conf
 # for this particular group.  See documentation for supported values in
 # that file.
-#weightedphrasemode = 0
 
-# Naughtiness limit
-# This the limit over which the page will be blocked.  Each weighted phrase is given
-# a value either positive or negative and the values added up.  Phrases to do with
-# good subjects will have negative values, and bad subjects will have positive
-# values.  See the weightedphraselist file for examples.
-# As a guide:
-# 50 is for young children,  100 for old children,  160 for young adults.
-naughtynesslimit = 50
-
-# Search term blocking
-# Search terms can be extracted from search URLs and filtered using one or 
-# both of two different methods.
-
-# Method 1 is that developed by Protex where specific 
-# search terms are contained in a bannedsearchlist.  
-# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment 
-# and overide this list as required.)  
-# These lists contain banned search words combinations on each line.  
-# Words are separated by '+' and must be in sorted order within a line.
-#    so to block 'sexy girl' then the list must contain the line
-#    	girl+sexy
-#    and this will block both 'sexy girl' and 'girl sexy'
-# To use this method, the searchregexplist must be enabled and the bannedsearchlist(s) defined
-
-# Method 2 is uses the 
-# bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
-# threshold for blocking than that used for normal page content.
-# To do this, the searchregexplist must be enabled and searchtermlimit 
-# must be greater than 0.
- 
+# textmimetypes = 'application/xhtml+xml,application/xml,application/json,application/javascript,application/x-javascript'
 #
-# Search engine regular expression list (need for both options)
-# List of regular expressions for matching search engine URLs.  It is assumed
-# that the search terms themselves will be contained in the 
-# of output of each expression.
-regexpreplacelist = 'name=searchterms,path=__LISTDIR__searchregexplist'
+# Phrase filter additional mime types (by default just text/*)
 
-# search terms exception (overide) list
-# Used to prevent urls such os completetion suggestion requests from being detected
-# as search requests
-regexpboollist = 'name=searchtermexceptions, path=__LISTDIR__searchexceptionregexplist'
+categorydisplaythreshold = 0
 #
-# Banned Search Term list(s) for option 1
-searchlist = 'name=banned,path=__LISTDIR__bannedsearchlist'
-searchlist = 'name=override,path=__LISTDIR__bannedsearchoveridelist'
-
-
-# Search term limit (for Option 2)
-# The limit over which requests will be blocked for containing search terms
-# which match the weightedphraselist.  This should usually be lower than the
-# 'naughtynesslimit' value above, because the amount of text being filtered
-# is only a few words, rather than a whole page.
-# This option must be uncommented if searchregexplist is uncommented.
-# A value of 0 here indicates that search terms should be extracted,
-# but no phrase filtering should be performed on the resulting text.
-#searchtermlimit = 0
-#
-# Search term phrase lists (for Option 2) 
-# If the three lines below are uncommented, search term blocking will use
-# the banned, weighted & exception phrases from these lists, instead of using
-# the same phrase lists as for page content.  This is optional but recommended,
-# as weights for individual phrases in the "normal" lists may not be
-# appropriate for blocking when those phrases appear in a much smaller block
-# of text.
-# Please note that all or none of the below should be uncommented, not a
-# mixture.
-# NOTE: these are phrase lists and still use the old style defines
-#bannedsearchtermlist = '__LISTDIR__bannedsearchtermlist'
-#weightedsearchtermlist = '__LISTDIR__weightedsearchtermlist'
-#exceptionsearchtermlist = '__LISTDIR__exceptionsearchtermlist'
-
 # Category display threshold
 # This option only applies to pages blocked by weighted phrase filtering.
 # Defines the minimum score that must be accumulated within a particular
@@ -311,8 +422,407 @@ searchlist = 'name=override,path=__LISTDIR__bannedsearchoveridelist'
 # -1 = display only the highest scoring category
 # 0 = display all categories (default)
 # > 0 = minimum score for a category to be displayed
-categorydisplaythreshold = 0
 
+
+bannedphraselist = '__LISTDIR__/bannedphraselist'
+weightedphraselist = '__LISTDIR__/weightedphraselist'
+exceptionphraselist = '__LISTDIR__/exceptionphraselist'
+## To use oldphraselists comment out last 3 lines and
+## uncomment the follwing 3 lines
+#bannedphraselist = '__LISTDIR__/oldbannedphraselist'
+#weightedphraselist = '__LISTDIR__/oldweightedphraselist'
+#exceptionphraselist = '__LISTDIR__/oldexceptionphraselist'
+
+###
+### END of PHRASES section 
+
+
+### SEARCH section
+###
+
+# Search term blocking
+# Search terms can be extracted from search URLs and filtered using one or
+# both of two different methods.
+
+# Method 1 is that developed by Protex where specific
+# search terms are contained in a bannedsearchlist.
+# (localbannedsearchlist and bannedsearchoveridelist can be used to suppliment
+# and overide this list as required.)
+# These lists contain banned search words combinations on each line.
+# Words are separated by '+' and must be in sorted order within a line.
+#    so to block 'sexy girl' then the list must contain the line
+#       girl+sexy
+#    and this will block both 'sexy girl' and 'girl sexy'
+# To use this method, the searchregexplist must be enabled and the bannedsearchlist(s) defined
+
+# Method 2 is uses the
+# bannedphraselist, weightedphraselist and exceptionphraselist, with a separate
+# threshold for blocking than that used for normal page content.
+# To do this, the searchregexplist must be enabled and searchtermlimit
+# must be greater than 0.
+
+# Search engine regular expression list (need for both options)
+# List of regular expressions for matching search engine URLs.  It is assumed
+# that the search terms themselves will be contained in the
+# of output of each expression.
+regexpreplacelist = 'name=searchterms,path=__LISTDIR__/../common/searchregexplist'
+# search engine regexp exception (overide) list
+# Used to prevent urls such os completetion suggestion requests from being detected
+# as search requests
+regexpboollist = 'name=searchtermexceptions, path=__LISTDIR__/../common/searchexceptionregexplist'
+
+# Search Term list(s) for option 1
+searchlist = 'name=banned,path=__LISTDIR__/bannedsearchlist'
+searchlist = 'name=override,path=__LISTDIR__/bannedsearchoveridelist'
+
+searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchlist'
+
+#searchtermlimit = 0
+#
+# Search term limit (for Option 2)
+# The limit over which requests will be blocked for containing search terms
+# which match the weightedphraselist.  This should usually be lower than the
+# 'naughtynesslimit' value above, because the amount of text being filtered
+# is only a few words, rather than a whole page.
+# This option must be uncommented if searchregexplist is uncommented.
+# A value of 0 here indicates that search terms should be extracted,
+# but no phrase filtering should be performed on the resulting text.
+
+# Search term phrase lists (for Option 2)
+# If the three lines below are uncommented, search term blocking will use
+# the banned, weighted & exception phrases from these lists, instead of using
+# the same phrase lists as for page content.  This is optional but recommended,
+# as weights for individual phrases in the "normal" lists may not be
+# appropriate for blocking when those phrases appear in a much smaller block
+# of text.
+# Please note that all or none of the below should be uncommented, not a
+# mixture.
+# NOTE: these are phrase lists and still use the old style defines
+#bannedsearchtermlist = '__LISTDIR__/bannedsearchtermlist'
+#weightedsearchtermlist = '__LISTDIR__/weightedsearchtermlist'
+#exceptionsearchtermlist = '__LISTDIR__/exceptionsearchtermlist'
+
+###
+### END of SEARCH section 
+
+
+### AV_SCANNERS section
+###
+
+#disablecontentscan = off
+#
+# Disable content scanning
+# If you enable this option you will disable content scanning for this group.
+# Content scanning primarily is AV scanning (if enabled) but could include
+# other types.
+# (on|off) default = off.
+
+#disablecontentscanerror = off
+#
+# Disable content scanning with error (timeout, AV crash, etc)
+# If you enable this option you will allow object with an unexpected result
+# Content scanning primarily is AV scanning (if enabled) but could include
+# other types.
+# With "on" you can allow INFECTED objects
+# (on|off) default = off. (default and highly recommended)
+
+#contentscanexceptions = off
+#
+# If 'on' exception sites, urls, users etc will be scanned
+# This is probably not desirable behavour as exceptions are
+# supposed to be trusted and will increase load.
+# Correct use of grey lists are a better idea.
+# (on|off) default = off
+
+#Virus checking exceptions - matched urls will not be virus checked
+#Note that you also need to amend site.story in order for this to work.
+#mimelist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirusmimetypelist'
+#fileextlist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirusextensionlist'
+#sitelist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirussitelist'
+#ipsitelist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirussiteiplist'
+#urllist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirusurllist'
+
+###
+### END of AV_SCANNERS section 
+
+
+### HEADER section
+###
+
+# Outgoing HTTP request header rules:
+# Lists for blocking based on, and modification of, outgoing HTTP
+# request headers.  Format for headerregexplist is one modification rule per
+# line, similar to content/URL modifications.  Format for
+# bannedregexpheaderlist is one regular expression per line, with matching
+# headers causing a request to be blocked.
+# Headers are matched/replaced on a line-by-line basis, not as a contiguous
+# block.
+# Use for example, to remove cookies or prevent certain user-agents.
+regexpreplacelist = 'name=headermods,path=__LISTDIR__/headerregexplist'
+regexpboollist = 'name=bannedheader,path=__LISTDIR__/bannedregexpheaderlist'
+regexpboollist = 'name=exceptionheader,path=__LISTDIR__/exceptionregexpheaderlist'
+# add cookies etc
+regexpreplacelist = 'name=addheader,path=__LISTDIR__/addheaderregexplist'
+
+# Response HTTP header rules:
+# Lists for modification or removal of HTTP response headers.
+# Format for reponseheaderregexplist is one rule per line, similar to
+# content/URL modifications.
+# Headers are matched/replaced on a line-by-line basis, not as a contiguous
+# block.
+# Use for example, to remove protocol upgrade requests.
+regexpreplacelist = 'name=reponseheadermods,path=__LISTDIR__/responseheaderregexplist'
+
+###
+### END of HEADER section 
+
+
+### BLOCK_PAGE section
+###
+
+#reportinglevel = 3
+#
+#
+# -1 = log, but do not block - Stealth mode
+#  0 = just say 'Access Denied'
+#  1 = report why but not what denied phrase
+#  2 = report fully
+#  3 = use HTML template file (accessdeniedaddress ignored) - recommended
+#
+# If defined, this overrides the global setting in e2guardian.conf for
+# members of this filter group.
+
+#accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
+#
+# accessdeniedaddress is the address of your web server to which the cgi
+# e2guardian reporting script was copied. Only used in reporting levels
+# 1 and 2.
+#
+# This webserver must be either:
+#  1. Non-proxied. Either a machine on the local network, or listed as an
+#     exception in your browser's proxy configuration.
+#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
+#     only for users using both transparent proxying and a non-local server
+#     to host this script.
+#
+
+#nonstandarddelimiter = off
+#
+# Non standard delimiter (only used with accessdeniedaddress)
+# To help preserve the full banned URL, including parameters, the variables
+# passed into the access denied CGI are separated using non-standard
+# delimiters. This can be useful to ensure correct operation of the filter
+# bypass modes. Parameters are split using "::" in place of "&", and "==" in
+# place of "=".
+# Default is enabled, but to go back to the standard mode, disable it.
+
+#htmltemplate = 'custom.html'
+#
+# HTML Template override
+# If defined, this specifies a custom HTML template file for members of this
+# filter group, overriding the global setting in e2guardian.conf. This is
+# only used in reporting level 3.
+#
+# The default template file path is <languagedir>/<language>/template.html
+# e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
+# language.
+#
+# This option generates a file path of the form:
+# <languagedir>/<language>/<htmltemplate>
+# e.g. @E2DATADIR@/languages/ukenglish/custom.html
+
+#neterrtemplate = 'custom_neterr_template.html' 
+#
+#Template for use to report network issues and sites which are not responding
+# The default template file path is <languagedir>/<language>/neterr_template.html
+# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using 
+# 'ukenglish' language.
+
+
+
+###
+### END of BLOCK_PAGE section 
+
+
+### BYPASS section
+###
+
+#bypass = 0
+#
+# Temporary Denied Page Bypass
+# This provides a link on the denied page to bypass the ban for a few minutes.  To be
+# secure it uses a random hashed secret generated at daemon startup.  You define the
+# number of seconds the bypass will function for before the deny will appear again.
+# To allow the link on the denied page to appear you will need to edit the template.html
+# or e2guardian.pl file for your language.
+# 300 = enable for 5 minutes
+# 0 = disable ( defaults to 0 )
+# -1 - depreciated - for backward compatability enables cgibypass with bypassversion 1
+
+bypassversion = 2
+#
+# Byapss version 2 provides a secure cgi communication (see notes/cgi_bypass documentation)
+#
+# Bypass version
+# can be 1 or 2
+# Always use v2 unless you have old style cgi hash generation in use
+# Default is 1
+
+# cgibypass = 'off'
+#
+# cgibypass - Use a separate program/CGI to (in v1 generate) or (in v2 validate) link
+# 'on' or 'off' (default)
+
+#bypasskey = ''
+#
+# Temporary Denied Page Bypass Secret Key
+# Rather than generating a random key you can specify one.  It must be more than 8 chars.
+# '' = generate a random one (recommended and default)
+# 'Mary had a little lamb.' = an example
+# '76b42abc1cd0fdcaf6e943dcbc93b826' = an example
+
+cgikey = 'you must change this text in order to be secure'
+# magic key for cgi bypass v2 - used to sign communications between e2g and cgi
+# default is blank
+
+
+# Users will not be able to bypass sites/urls in these lists
+sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
+#ipsitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/ipnobypass'
+#urllist = 'name=bannedbypass,messageno=501,path=__LISTDIR__/urlnobypass'
+
+#infectionbypass = 0
+#
+# Infection/Scan Error Bypass
+# Similar to the 'bypass' setting, but specifically for bypassing files scanned and found
+# to be infected, or files that trigger scanner errors - for example, archive types with
+# recognised but unsupported compression schemes, or corrupt archives.
+# The option specifies the number of seconds for which the bypass link will be valid.
+# 300 = enable for 5 minutes
+# 0 = disable (default)
+# -1 - depreciated - for backward compatability enables cgiinfectionbypass with bypassversion 1
+
+# cgiinfectionbypass = 'off'
+#
+# cgiinfectionbypass - Use a separate program/CGI to (v1 generate) or (v2 validate) link
+# 'on' or 'off' (default)
+
+#infectionbypasskey = ''
+#
+# Infection/Scan Error Bypass Secret Key
+# Same as the 'bypasskey' option, but used for infection bypass mode.
+
+#infectionbypasserrorsonly = on
+#
+# Infection/Scan Error Bypass on Scan Errors Only
+# Enable this option to allow infectionbypass links only when virus scanning fails,
+# not when a file is found to contain a virus.
+# on = enable (default and highly recommended)
+# off = disable
+
+
+###
+### END of BYPASS section 
+
+
+### EMAILER section
+###
+### Note this is experimental in v5 - not supported by maintainers
+
+# Email reporting - original patch by J. Gauthier
+
+#@EMAILSUPPORT@usesmtp = off   #NOT YET TESTED
+#
+# If on, will enable system wide events to be reported by email.
+# need to configure mail program (see 'mailer' in global config)
+# and email recipients
+# default usesmtp = off
+
+#@EMAILSUPPORT@mailfrom = ''
+#
+# who the email would come from
+# example: mailfrom = 'e2guardian@mycompany.com'
+
+#@EMAILSUPPORT@avadmin = ''
+#
+# who the virus emails go to (if notify av is on)
+# example: avadmin = 'admin@mycompany.com'
+
+#@EMAILSUPPORT@contentadmin = ''
+#
+# who the content emails go to (when thresholds are exceeded)
+# and contentnotify is on
+# example: contentadmin = 'admin@mycompany.com'
+
+#@EMAILSUPPORT@avsubject = 'e2guardian virus block'
+#
+# Subject of the email sent when a virus is caught.
+# only applicable if notifyav is on
+# default avsubject = 'e2guardian virus block'
+
+#@EMAILSUPPORT@contentsubject = 'e2guardian violation'
+#
+# Subject of the email sent when violation thresholds are exceeded
+# default contentsubject = 'e2guardian violation'
+
+#@EMAILSUPPORT@notifyav = off
+#
+# This will send a notification, if usesmtp/notifyav is on, any time an
+# infection is found.
+# Important: If this option is off, viruses will still be recorded like a
+# content infraction.
+
+#@EMAILSUPPORT@notifycontent = off
+#
+# This will send a notification, if usesmtp is on, based on thresholds
+# below
+
+#@EMAILSUPPORT@thresholdbyuser = off
+#
+# results are only predictable with user authenticated configs
+# if enabled the violation/threshold count is kept track of by the user
+
+#@EMAILSUPPORT@violations = 0
+#
+# number of violations before notification
+# setting to 0 will never trigger a notification
+
+#@EMAILSUPPORT@threshold = 0
+#
+# this is in seconds. If 'violations' occur in 'threshold' seconds, then
+# a notification is made.
+# if this is set to 0, then whenever the set number of violations are made a 
+# notifaction will be sent.
+
+###
+### END of EMAILER section 
+
+
+### OBSOLETE section
+###
+
+# groupmode = 1 #DISABLED
+# Filter group mode IS NOT LONGER SUPPORTED
+# Unauthenticated users are treated as being in the default filter group.
+
+# ssllegacylogic = off
+# Enable legacy (E2) ssl logic
+# The option is replaced by storyboard logic
+
+#sslcertcheck = off - NOT implimented in V5 yet
+#SSL certificate checking
+# Check that ssl certificates for servers on https connections are valid
+# and signed by a ca in the configured path
+# ONLY for connections that are NOT MITM
+
+# bannedregexwithblanketblock = off
+# option is replaced by storyboard logic
+
+#blockdownloads = off
+# option is replaced by storyboard logic
+
+#embeddedurlweight = 0
+#  - NOT implimented in v5
 # Embedded URL weighting
 # When set to something greater than zero, this option causes URLs embedded within a
 # page's HTML (from links, image tags, etc.) to be extracted and checked against the
@@ -328,263 +838,45 @@ categorydisplaythreshold = 0
 # Set to 0 to disable.
 # Defaults to 0.
 # WARNING: This option is highly CPU intensive!
-embeddedurlweight = 0
 
-# Temporary Denied Page Bypass
-# This provides a link on the denied page to bypass the ban for a few minutes.  To be
-# secure it uses a random hashed secret generated at daemon startup.  You define the
-# number of seconds the bypass will function for before the deny will appear again.
-# To allow the link on the denied page to appear you will need to edit the template.html
-# or e2guardian.pl file for your language.
-# 300 = enable for 5 minutes
-# 0 = disable ( defaults to 0 )
-# -1 - depreciated - for backward compatability enables cgibypass with bypassversion 1
-bypass = 0
-
-# Byapss version 2 is experimental, provide a secure cgi communication (see notes/cgi_bypass documentation)
-# 
-
-# Bypass version
-# can be 1 or 2
-# Always use v2 unless you have old style cgi hash generation in use
-# Default is 1
-# bypassversion = 2
-
-# cgibypass - Use a separate program/CGI to (in v1 generate) or (in v2 validate) link
-# 'on' or 'off' (default)
-# cgibypass = 'off'
-
-# Temporary Denied Page Bypass Secret Key
-# Rather than generating a random key you can specify one.  It must be more than 8 chars.
-# '' = generate a random one (recommended and default)
-# 'Mary had a little lamb.' = an example
-# '76b42abc1cd0fdcaf6e943dcbc93b826' = an example
-bypasskey = ''
-
-# magic key for cgi bypass v2 - used to sign communications between e2g and cgi
-# default is blank
-#cgikey = 'you must change this text in order to be secure'
-
-#  Users will not be able to bypass sites/urls in these lists
-sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__domainsnobypass'
-#ipsitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__ipnobypass'
-#urllist = 'name=bannedbypass,messageno=501,path=__LISTDIR__urlnobypass'
-
-# Infection/Scan Error Bypass
-# Similar to the 'bypass' setting, but specifically for bypassing files scanned and found
-# to be infected, or files that trigger scanner errors - for example, archive types with
-# recognised but unsupported compression schemes, or corrupt archives.
-# The option specifies the number of seconds for which the bypass link will be valid.
-# 300 = enable for 5 minutes
-# 0 = disable (default)
-# -1 - depreciated - for backward compatability enables cgiinfectionbypass with bypassversion 1
-infectionbypass = 0
-
-# cgiinfectionbypass - Use a separate program/CGI to (v1 generate) or (v2 validate) link
-# 'on' or 'off' (default)
-# cgiinfectionbypass = 'off'
-
-# Infection/Scan Error Bypass Secret Key
-# Same as the 'bypasskey' option, but used for infection bypass mode.
-infectionbypasskey = ''
-
-# Infection/Scan Error Bypass on Scan Errors Only
-# Enable this option to allow infectionbypass links only when virus scanning fails,
-# not when a file is found to contain a virus.
-# on = enable (default and highly recommended)
-# off = disable
-infectionbypasserrorsonly = on
-
-# Disable content scanning
-# If you enable this option you will disable content scanning for this group.
-# Content scanning primarily is AV scanning (if enabled) but could include
-# other types.
-# (on|off) default = off.
-disablecontentscan = off  
-
-# Disable content scanning with error (timeout, AV crash, etc)
-# If you enable this option you will allow object with an unexpected result
-# Content scanning primarily is AV scanning (if enabled) but could include
-# other types.
-# With "on" you can allow INFECTED objects 
-# (on|off) default = off. (default and highly recommended)
-disablecontentscanerror = off
-
-# If 'on' exception sites, urls, users etc will be scanned
-# This is probably not desirable behavour as exceptions are
-# supposed to be trusted and will increase load.
-# Correct use of grey lists are a better idea.
-# (on|off) default = off
-contentscanexceptions = off
-
-# Auth plugins
-# Enable Deep URL Analysis
-# When enabled, E2 looks for URLs within URLs, checking against the bannedsitelist and
-# bannedurllist. This can be used, for example, to block images originating from banned
-# sites from appearing in Google Images search results, as the original URLs are
-# embedded in the thumbnail GET requests.
-# (on|off) default = off
-deepurlanalysis = off
-
-# reportinglevel
-#
-# -1 = log, but do not block - Stealth mode
-#  0 = just say 'Access Denied'
-#  1 = report why but not what denied phrase
-#  2 = report fully
-#  3 = use HTML template file (accessdeniedaddress ignored) - recommended
-#
-# If defined, this overrides the global setting in e2guardian.conf for
-# members of this filter group.
-#
-reportinglevel = 3
-
-# accessdeniedaddress is the address of your web server to which the cgi
-# e2guardian reporting script was copied. Only used in reporting levels
-# 1 and 2.
-#
-# This webserver must be either:
-#  1. Non-proxied. Either a machine on the local network, or listed as an
-#     exception in your browser's proxy configuration.
-#  2. Added to the exceptionsitelist. Option 1 is preferable; this option is
-#     only for users using both transparent proxying and a non-local server
-#     to host this script.
-#
-#accessdeniedaddress = 'http://YOURSERVER.YOURDOMAIN/cgi-bin/e2guardian.pl'
-
-# HTML Template override
-# If defined, this specifies a custom HTML template file for members of this
-# filter group, overriding the global setting in e2guardian.conf. This is
-# only used in reporting level 3.
-#
-# The default template file path is <languagedir>/<language>/template.html
-# e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
-# language.
-#
-# This option generates a file path of the form:
-# <languagedir>/<language>/<htmltemplate>
-# e.g. @E2DATADIR@/languages/ukenglish/custom.html
-#
-#htmltemplate = 'custom.html'
-
-#Template for use to report network issues and sites which are not responding
-# The default template file path is <languagedir>/<language>/neterr_template.html
-# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using 'ukenglish'
-# language.
-#neterrtemplate = 'custom_neterr_template.html' 
-
-# Non standard delimiter (only used with accessdeniedaddress)
-# To help preserve the full banned URL, including parameters, the variables
-# passed into the access denied CGI are separated using non-standard
-# delimiters. This can be useful to ensure correct operation of the filter
-# bypass modes. Parameters are split using "::" in place of "&", and "==" in
-# place of "=".
-# Default is enabled, but to go back to the standard mode, disable it.
-
-#nonstandarddelimiter = off
-
-# Email reporting - original patch by J. Gauthier
-
-# Use SMTP
-# If on, will enable system wide events to be reported by email.
-# need to configure mail program (see 'mailer' in global config)
-# and email recipients
-# default usesmtp = off
-@EMAILSUPPORT@usesmtp = off   #NOT YET TESTED
-
-# mailfrom
-# who the email would come from
-# example: mailfrom = 'e2guardian@mycompany.com'
-@EMAILSUPPORT@mailfrom = ''
-
-# avadmin
-# who the virus emails go to (if notify av is on)
-# example: avadmin = 'admin@mycompany.com'
-@EMAILSUPPORT@avadmin = ''
-
-# contentdmin
-# who the content emails go to (when thresholds are exceeded)
-# and contentnotify is on
-# example: contentadmin = 'admin@mycompany.com'
-@EMAILSUPPORT@contentadmin = ''
-
-# avsubject
-# Subject of the email sent when a virus is caught.
-# only applicable if notifyav is on
-# default avsubject = 'e2guardian virus block'
-@EMAILSUPPORT@avsubject = 'e2guardian virus block'
-
-# content
-# Subject of the email sent when violation thresholds are exceeded
-# default contentsubject = 'e2guardian violation'
-@EMAILSUPPORT@contentsubject = 'e2guardian violation'
-
-# notifyAV
-# This will send a notification, if usesmtp/notifyav is on, any time an
-# infection is found.
-# Important: If this option is off, viruses will still be recorded like a
-# content infraction.
-@EMAILSUPPORT@notifyav = off
-
-# notifycontent
-# This will send a notification, if usesmtp is on, based on thresholds
-# below
-@EMAILSUPPORT@notifycontent = off
-
-# thresholdbyuser
-# results are only predictable with user authenticated configs
-# if enabled the violation/threshold count is kept track of by the user
-@EMAILSUPPORT@thresholdbyuser = off
-
-#violations
-# number of violations before notification
-# setting to 0 will never trigger a notification
-@EMAILSUPPORT@violations = 0
-
-#threshold
-# this is in seconds. If 'violations' occur in 'threshold' seconds, then
-# a notification is made.
-# if this is set to 0, then whenever the set number of violations are made a 
-# notifaction will be sent.
-@EMAILSUPPORT@threshold = 0
-
-#NOTE to enable SSL MITM or NON-MITM SSL CERT checking
-# enablessl must be defined as 'yes' in e2guardian.conf
-
-#SSL certificate checking
-# Check that ssl certificates for servers on https connections are valid
-# and signed by a ca in the configured path
-# ONLY for connections that are NOT MITM
-#sslcertcheck = off - NOT implimented in V5 yet
-
-#SSL man in the middle
-# Forge ssl certificates for all non-exception sites, decrypt the data then re encrypt it
-# using a different private key. Used to filter ssl sites
-sslmitm = off
-
+#onlymitmsslgrey = off  - ignored in V5
 #Limit SSL MITM to sites in greysslsitelist(s)
 # ignored if  sslmitm is off
 # SSL sites not matching greysslsitelist will be treat as if sslmitm is off.
-# The following option is replaced by storyboard logic
-#onlymitmsslgrey = off  - ignored in V5
+# The option is replaced by storyboard logic
 
-# Enable MITM site certificate checking
-# ignored if  sslmitm is off
-# default (recommended) is 'on'
-mitmcheckcert = on
-
-#Do not check ssl certificates for sites listed
-# Can be used to allow sites with self-signed or invalid certificates
-# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
-# Use with caution!
-# Ignored if mitmcheckcert is 'off'
-#nocheckcertsitelist = '__LISTDIR__nocheckcertsitelist'
-sitelist = 'name=nocheckcert,path=__LISTDIR__nocheckcertsitelist'
-ipsitelist = 'name=nocheckcert,path=__LISTDIR__nocheckcertsiteiplist'
+#contentregexplist = '__LISTDIR__/contentregexplist'
 #
+# not yet implemented in v5
 
-# Auto switch to MITM with upstream connection error or to deliver block page
-# ignored if  sslmitm is off
-# To revert to v4 type behavour switch this off
-# Default is 'on'
-# automitm = on
+###
+### END of OBSOLETE section 
+
+
+
+### INFO section
+###
+### No settings just info on new features etc
+
+# New in v5.4.2:- relative paths
+# Relative paths can used in .Include<> and list files.
+#       The directory of current file will be insert where the file name
+#       does not start with '/'
+
+
+# Also NEW in v5.4.2 - LISTDIR 'variable' definition
+# LISTDIR can be defined in .conf files.
+# This allows for more readable configuration and for templating.
+# This works similarly to a shell environment variable
+# The text between <> will replace occurances of __LISTDIR__ in .conf and
+#       list files.
+# Note: Currently only LISTDIR may be defined.
+#
+# The mapping is actioned as the file is read and is valid until another LISTDIR
+#       is defined later in the file, or in an included .conf file.
+#
+# The scope of LISTDIR is in the rest of file it is defined in and all
+# .Include<> files or list files in that portion of the file.
+
+###
+### END of INFO section

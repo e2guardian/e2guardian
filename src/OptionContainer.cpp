@@ -114,8 +114,8 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     String temp2 = temp.after(".Define LISTDIR <").before(">");
                     if (temp2.length() > 0) {
                         now_pwd = temp2;
-                        if(!now_pwd.endsWith("/"))
-                            now_pwd += "/";
+                        //if(!now_pwd.endsWith("/"))
+                        //    now_pwd += "/";
                     }
                     continue;
                 }
@@ -139,7 +139,8 @@ bool OptionContainer::read(std::string &filename, int type) {
 
     // all sorts of exceptions could occur reading conf files
     try {
-        String list_pwd;
+        String list_pwd = __CONFDIR;
+        list_pwd += "/lists/common"
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
@@ -434,7 +435,11 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         max_content_filter_size *= 1024;
 
-        max_content_ramcache_scan_size = findoptionI("maxcontentramcachescansize");
+        if(findoptionS("maxcontentramcachescansize").empty()) {
+            max_content_filecache_scan_size = 2000;
+        } else {
+            max_content_ramcache_scan_size = findoptionI("maxcontentramcachescansize");
+        }
         if (!realitycheck(max_content_ramcache_scan_size, 0, 0, "maxcontentramcachescansize")) {
             return false;
         }
@@ -452,8 +457,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (max_content_ramcache_scan_size == 0) {
             max_content_ramcache_scan_size = max_content_filecache_scan_size;
         }
-
-        weighted_phrase_mode = findoptionI("weightedphrasemode");
+        if ( findoptionS("weightedphrasemode").empty()) {
+            weighted_phrase_mode = 2;
+        } else {
+            weighted_phrase_mode = findoptionI("weightedphrasemode");
+        }
         if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
             return false;
         }
@@ -520,7 +528,11 @@ bool OptionContainer::read(std::string &filename, int type) {
             search_sitelist_for_ip = true;
         }
 
-        phrase_filter_mode = findoptionI("phrasefiltermode");
+        if (findoptionS("phrasefiltermode").empty()) {
+            phrase_filter_mode = 2;
+        } else {
+            phrase_filter_mode = findoptionI("phrasefiltermode");
+        }
         if (!realitycheck(phrase_filter_mode, 0, 3, "phrasefiltermode")) {
             return false;
         }
@@ -539,16 +551,16 @@ bool OptionContainer::read(std::string &filename, int type) {
             force_quick_search = false;
         }
 
-        if (findoptionS("mapportstoips") == "off") {  // to be removed in v5.5
-            map_ports_to_ips = false;
-        } else {
+        if (findoptionS("mapportstoips") == "on") {  // to be removed in v5.5
             map_ports_to_ips = true;
+        } else {
+            map_ports_to_ips = false;
         }
 
-        if (findoptionS("mapauthtoports") == "off") {  // to be removed in v5.5
-            map_auth_to_ports = false;
-        } else {
+        if (findoptionS("mapauthtoports") == "on") {  // to be removed in v5.5
             map_auth_to_ports = true;
+        } else {
+            map_auth_to_ports = false;
         }
 
         if (findoptionS("usecustombannedimage") == "off") {
@@ -631,8 +643,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         } // check its a reasonable value
 
         transparenthttps_port = findoptionI("transparenthttpsport");
-        if (transparenthttps_port == 0) transparenthttps_port = 8443;
-        if (!realitycheck(transparenthttps_port, 1, 65535, "transparenthttpsport")) {
+        if (!realitycheck(transparenthttps_port, 0, 65535, "transparenthttpsport")) {
             return false;
         } // check its a reasonable value
 
@@ -662,8 +673,11 @@ bool OptionContainer::read(std::string &filename, int type) {
             use_original_ip_port = true;
         }
 
-
-        ll = findoptionI("loglevel");
+        if(findoptionS("loglevel").empty()) {
+            ll = 3;
+        } else {
+            ll = findoptionI("loglevel");
+        }
         if (!realitycheck(ll, 0, 3, "loglevel")) {
             return false;
         } // etc
@@ -728,7 +742,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             show_all_weighted_found = false;
         }
-        reporting_level = findoptionI("reportinglevel");
+        if(findoptionS("reportinglevel").empty()) {
+            reporting_level = 3;
+        } else {
+            reporting_level = findoptionI("reportinglevel");
+        }
         if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
             return false;
         }
@@ -749,8 +767,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (findoptionS("addforwardedfor") == "on") {
             forwarded_for = true;
         }
-
-        log_exception_hits = findoptionI("logexceptionhits");
+        if (findoptionS("logexceptionhits").empty()) {
+            log_exception_hits = 2
+        } else {
+            log_exception_hits = findoptionI("logexceptionhits");
+        }
         if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
             return false;
         }

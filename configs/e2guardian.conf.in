@@ -44,7 +44,13 @@
 # language to use from languagedir.
 language = 'ukenglish'
 
-.Define LISTDIR <@E2CONFDIR@/lists/>
+#.Define LISTDIR <@E2CONFDIR@/lists/common>
+# NEW in v5.4.2 - LISTDIR 'variable' definition
+# This works similarly to a shell environment variable
+# The text between <> will replace occurances of __LISTDIR__ in .conf and
+#       list files.
+# See INFO section for more details
+# default LISTDIR value for e2guardian.conf is E2CONFDIR/lists/commom
 
 #dockermode = off
 #
@@ -143,7 +149,7 @@ languagedir = '@E2DATADIR@/languages'
 #
 # default '@E2CONFDIR@/preauth.story'
 
-# perroomdirectory = '__LISTDIR__rooms/'
+# perroomdirectory = '__LISTDIR__/../rooms/'
 #
 # Per-Room definition directory
 # A directory containing text files containing the room's name followed by IPs or ranges
@@ -261,8 +267,8 @@ generatedcertpath = '@E2PIDDIR@/generatedcerts/'
 
 # Sites that are impossible or undesirable to MITM
 #
-sitelist = 'name=nomitm,path=__LISTDIR__nomitmsitelist'
-ipsitelist = 'name=nomitm,path=__LISTDIR__nomitmsiteiplist'
+sitelist = 'name=nomitm,path=__LISTDIR__/nomitmsitelist'
+ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 
 ###
 ### END of MITM section
@@ -342,14 +348,14 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__nomitmsiteiplist'
 # Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
 
 # for ip_auth
-ipmaplist = 'name=ipmap, path=__LISTDIR__authplugins/ipgroups'
+ipmaplist = 'name=ipmap, path=__LISTDIR__/../authplugins/ipgroups'
 
 # for port auth
-maplist = 'name=portmap, path=__LISTDIR__authplugins/portgroups'
+maplist = 'name=portmap, path=__LISTDIR__/../authplugins/portgroups'
 
 #generic user to group mapping - used by default by basic, digest, ntlm, ident & icap
 # plugins
-maplist = 'name=defaultusermap, path=__LISTDIR__filtergroupslist'
+maplist = 'name=defaultusermap, path=__LISTDIR__/filtergroupslist'
 
 # If on it a user without group is considered like unauthenfied
 # E2guardian tries the next plugin
@@ -360,9 +366,9 @@ maplist = 'name=defaultusermap, path=__LISTDIR__filtergroupslist'
 # Authentication exception/banned clients
 #
 # bannediplist is ONLY for banned client IP
-iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=__LISTDIR__bannediplist'
+iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=__LISTDIR__/bannediplist'
 # exceptioniplist is ONLY for exception client IP
-iplist = 'name=exceptionclient,messageno=600,path=__LISTDIR__exceptioniplist'
+iplist = 'name=exceptionclient,messageno=600,path=__LISTDIR__/exceptioniplist'
 
 reverseclientiplookups = off
 # Reverse lookups for banned and exception IP clients.
@@ -375,17 +381,17 @@ reverseclientiplookups = off
 # leave it off.
 
 # Put client dns names in bannedclientlist if required
-#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=__LISTDIR__bannedclientlist'
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=__LISTDIR__/bannedclientlist'
 # Put client dns names in exceptionclientlist if required
-#sitelist = 'name=exceptionclient,messageno=631,path=__LISTDIR__exceptionclientlist'
+#sitelist = 'name=exceptionclient,messageno=631,path=__LISTDIR__/exceptionclientlist'
 
 # authexception lists are for exception sites/urls allowed before authentication
 # to allow for machines to update without user authentication
-ipsitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptioniplist'
-sitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptionsitelist'
-urllist = 'name=authexception,messageno=603,path=__LISTDIR__authexceptionurllist'
+ipsitelist = 'name=authexception,messageno=602,path=__LISTDIR__/authexceptioniplist'
+sitelist = 'name=authexception,messageno=602,path=__LISTDIR__/authexceptionsitelist'
+urllist = 'name=authexception,messageno=603,path=__LISTDIR__/authexceptionurllist'
 
-regexpboollist = 'name=browser,path=__LISTDIR__browserregexplist'
+regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 #
 # List of regexp that match match User-agent of browsers
 # Used to determine if client is a browser
@@ -447,11 +453,11 @@ nologger = off
 # With the settings as distributed all requests (apart from ADs) will
 # be logged.
 
-loglevel = 3
+#loglevel = 3
 # 0 = none  1 = just denied  2 = all text based  3 = all requests
-# default 0
+# default 3
 
-logexceptionhits = 2
+#logexceptionhits = 2
 # Log Exception Hits
 # Log if an exception (user, ip, URL, phrase) is matched and so
 # the page gets let through.  Can be useful for diagnosing
@@ -632,9 +638,9 @@ reverseaddresslookups = off
 # Some of the scanner(s) require 3rd party software and libraries eg clamav.
 # See the individual plugin conf file for more options (if any).
 #
-#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/clamdscan.conf'
-#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/avastdscan.conf'
-#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/kavdscan.conf'
+#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
 #@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
 #@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
 
@@ -694,7 +700,7 @@ usexforwardedfor = off
 ### BLOCK_PAGE section
 ###
 
-reportinglevel = 3
+#reportinglevel = 3
 #
 # reportinglevel
 #
@@ -706,7 +712,7 @@ reportinglevel = 3
 #
 #  Defines the global setting - can be overrided in e2guardianf1.conf
 #
-# default 0
+# default 3
 
 #usecustombannedimage = on
 #
@@ -820,7 +826,7 @@ weightedphrasemode = 2
 # links to banned URLs.
 #
 
-phrasefiltermode = 2
+#phrasefiltermode = 2
 #
 # Smart, Raw and Meta/Title phrase content filtering options
 # Smart is where the multiple spaces and HTML are removed before phrase filtering
@@ -831,6 +837,7 @@ phrasefiltermode = 2
 # 1 = smart only
 # 2 = both of the above 
 # 3 = meta/title
+# default 2
 
 #preservecase = 0
 #
@@ -903,7 +910,7 @@ phrasefiltermode = 2
 # The size is in Kibibytes - eg 2048 = 2Mb
 # default 2048
 
-maxcontentramcachescansize = 2000
+#maxcontentramcachescansize = 2000
 #
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
@@ -913,6 +920,7 @@ maxcontentramcachescansize = 2000
 # The size is in Kibibytes - eg 10240 = 10Mb
 # use 0 to set it to maxcontentfilecachescansize
 # This option may be ignored by the configured download manager.
+# default 2000
 
 #maxcontentfilecachescansize = 20000
 #
