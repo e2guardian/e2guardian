@@ -2,7 +2,7 @@ DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists
 
-SUBDIRS = oldphraselists phraselists . authplugins bannedrooms common example.group
+SUBDIRS = oldphraselists phraselists . authplugins rooms common example.group
 
 if NEED_CSLISTS
 SUBDIRS += contentscanners

@@ -877,10 +877,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         }
 
-        if (((per_room_directory_location = findoptionS("perroomdirectory")) != "") ||
-            ((per_room_directory_location = findoptionS("perroomblockingdirectory")) != "")) {
-            //loadRooms(true);
-        }
+        per_room_directory_location = findoptionS("perroomdirectory");
 
         if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
             return false;

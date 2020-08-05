@@ -1,10 +1,6 @@
-Extended Room functions in e2guardian 3.1
+Extended Room functions in e2guardian
 
-The previous room function has been extended so that hosts in a room can have a override list of urls with or without a blanket block function.
-
-The perbannedroomdirectory directive in e2guardian.conf is replaced by perroomdirectory, although for backward compatibility perbannedroomdirectory will still work.
-
-Each file in the rooms directory defines name, ip range and actions for that room.
+Hosts in a room can have a override list of urls with or without a blanket block function.
 
 File format:-
 
@@ -31,7 +27,7 @@ So there are 4 cases:-
 1.  #BLOCK and no (#SITELIST or #URLLIST) - block all access
 2.  #SITELIST and/or #URLLIST and no #BLOCK - trust these urls and allow normal access.
 3.  #SITELIST and/or #URLLIST and #BLOCK - only allow these urls.
-4.  #SITELIST, #URLLIST, #BLOCK all missing - Legacy foramt file - block all access.
+4.  #SITELIST, #URLLIST, #BLOCK all missing - Legacy format file - block all access.
 
 e.g.
 
