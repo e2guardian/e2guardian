@@ -11,7 +11,7 @@ if NEED_DMLISTS
 SUBDIRS += downloadmanagers
 endif
 
-WLISTS = 
+WLISTS = README
  
 EXTRA_DIST = 
 

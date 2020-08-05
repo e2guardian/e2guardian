@@ -25,6 +25,7 @@ nomitmsiteiplist \
 nomitmsitelist \
 searchregexplist \
 searchexceptionregexplist \
+README
  
 EXTRA_DIST = 
 

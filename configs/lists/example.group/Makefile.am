@@ -81,7 +81,8 @@ ipnobypass \
 domainsnobypass \
 urlnobypass \
 weightedphraselist \
-oldweightedphraselist
+oldweightedphraselist \
+README
  
 EXTRA_DIST = bannedphraselist.in \
 oldbannedphraselist.in \

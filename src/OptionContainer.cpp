@@ -140,7 +140,7 @@ bool OptionContainer::read(std::string &filename, int type) {
     // all sorts of exceptions could occur reading conf files
     try {
         String list_pwd = __CONFDIR;
-        list_pwd += "/lists/common"
+        list_pwd += "/lists/common";
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
@@ -768,7 +768,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             forwarded_for = true;
         }
         if (findoptionS("logexceptionhits").empty()) {
-            log_exception_hits = 2
+            log_exception_hits = 2;
         } else {
             log_exception_hits = findoptionI("logexceptionhits");
         }
