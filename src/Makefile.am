@@ -48,6 +48,7 @@ IPAUTH_SOURCE = authplugins/ip.cpp
 PORTAUTH_SOURCE = authplugins/port.cpp
 DIGESTAUTH_SOURCE = authplugins/digest.cpp
 HEADERAUTH_SOURCE = authplugins/header.cpp
+PFBASICAUTH_SOURCE = authplugins/ProxyFirstBasic.cpp
 
 if ENABLE_NTLM
 NTLMAUTH_SOURCE = authplugins/ntlm.cpp
@@ -121,4 +122,4 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
                        $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
                        $(NTLMAUTH_SOURCE) $(DIGESTAUTH_SOURCE) \
-		       $(HEADERAUTH_SOURCE) 
+		       $(HEADERAUTH_SOURCE) $(PFBASICAUTH_SOURCE)

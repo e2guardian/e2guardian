@@ -336,6 +336,9 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 
 #@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
 
+# Use pf-basic.conf where proxy is doing auth in front of e2g
+#authplugin = '@E2CONFDIR@/authplugins/pf-basic.conf'
+
 #authplugin = '@E2CONFDIR@/authplugins/ident.conf'
 
 #authplugin = '@E2CONFDIR@/authplugins/ip.conf'
