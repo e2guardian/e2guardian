@@ -1,8 +1,10 @@
 # Storyboard library file
 
 # For ease of upgrade DO NOT CHANGE THIS library file 
-# Make your function changes by overriding functions
-# in the site.story file - for site wide changes
+# Make your function changes by iusing user 'hook' functions
+# or by overriding functions
+# in the site.story file - for site wide changes.
+# 
 # and in filtergroup specific story file - see examplef1.story
 #
 # This library is built to largely duplicate the logic in V4
@@ -15,8 +17,11 @@
 #
 # The entry point in v5 for standard filtering is 'checkrequest'
 #
-# Entry function called by proxy module to check http request
+# Entry function called by proxy module to check http 
+# and https proxy requests
+# It is also called within a MITM session
 function(checkrequest)
+if(true) returnif hook_checkrequest
 if(viruscheckset) checknoscanlists
 if(bypassallowset) checknobypasslists
 if(exceptionset) return true 
@@ -40,6 +45,7 @@ if(true) setgrey
 
 # Entry function called by proxy module to check http response
 function(checkresponse)
+if(true) returnif hook_checkresponse
 if(exceptionset) return false
 if(responseheaderin,reponseheadermods) setmodheader
 if(viruscheckset) checknoscantypes
@@ -48,6 +54,7 @@ if(true) return checkfiletype
 
 # Entry function called by THTTPS module to check https request
 function(thttps-checkrequest)
+if(true) returnif hook_thttps-checkrequest
 if(true) thttps_automitm
 if(true) returnif checktimesblocked
 if(true) returnif localsslrequestcheck
@@ -56,6 +63,7 @@ ifnot(hassniset) checksni
 
 # Entry function called by ICAP module to check reqmod
 function(icap-checkrequest)
+if(true) returnif hook_icap-checkrequest
 #unless blocked or redirect or connect - leave logging for RESPMOD
 if(connect) return icapsslrequestcheck
 ifnot(greyset) icap-checkrequest2
@@ -82,6 +90,7 @@ if(true) setgrey
 
 # Entry function called by ICAP module to check respmod
 function(icap-checkresponse)
+if(true) returnif hook_icap-checkresponse
 if(viruscheckset) checknoscanlists
 if(true) return checkresponse
 
@@ -98,6 +107,7 @@ if(embeddedin, banned) return setblock
 # Local checks
 #  returns true if matches local exception or banned
 function(localcheckrequest)
+if(true) returnif hook_localcheckrequest
 if(connect) return localsslrequestcheck
 if(true) checktimesblocked
 if(returnset) return setblock
@@ -110,6 +120,7 @@ if(searchin,localbanned) return setblock
 # Local SSL checks
 #  returns true if matches local exception 
 function(localsslrequestcheck)
+if(true) returnif hook_localsslrequestcheck
 if(true) returnif sslchecktimesblocked
 if(sitein, localexception) return setexception
 if(sitein, localgreyssl) returnif sslcheckmitm
@@ -180,6 +191,7 @@ if(headerin, bannedheader) return setblock
 # Local SSL list(s) check
 #  returns true on match
 function(localsslcheckrequest)
+if(true) returnif hook_localsslcheckrequest
 if(sitein, localexception) return setexception
 #if(sitein, localbanned) return setblock
 
@@ -212,6 +224,7 @@ if(true) return true
 # SSL request check
 #  returns true if exception or gomitm
 function(sslrequestcheck)
+if(true) returnif hook_sslrequestcheck
 if(true) returnif sslexceptioncheck
 if(true) returnif sslcheckmitm
 if(sitein, banned) return setblock
@@ -232,6 +245,7 @@ if(urlin,bannedbypass) return unsetbypassallow
 # ICAP SSL request check
 #  returns true if exception 
 function(icapsslrequestcheck)
+if(true) returnif hook_icapsslrequestcheck
 if(true) returnif icapsquidbump
 if(true) returnif sslexceptioncheck
 if(true) sslreplace
@@ -290,3 +304,20 @@ function(is_search_term)
 if(urlin,searchtermexceptions) return false
 if(fullurlin,searchterms) setsearchterm
 if(returnset) return true
+
+# Placeholder functions for user hooks
+# Allow user code to be actioned at the start of key functions
+# If hook function returns false (default) processing continues
+# in parent function
+# if hook function returns true parent function exits with true
+#
+function(hook_checkrequest)
+function(hook_checkresponse)
+function(hook_thttps-checkrequest)
+function(hook_icap-checkrequest)
+function(hook_icap-checkresponse)
+function(hook_localcheckrequest)
+function(hook_localsslrequestcheck)
+function(hook_localsslcheckrequest)
+function(hook_sslrequestcheck)
+function(hook_icapsslrequestcheck)
