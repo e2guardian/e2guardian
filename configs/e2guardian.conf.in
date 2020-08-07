@@ -13,7 +13,8 @@
 ### MITM 		- SSL MITM settings
 ### ICAP_SERVICE 	- ICAP server mode settings
 ### TRANSPARENT 	- Transparent proxy settings
-### AUTH		- Authentication settings and lists
+### AUTH		- Authentication (user and group assignment) 
+###				settings and lists
 ### ACCESS_LOG		- Access log settings
 ### MONITORING		- Monitoring settings
 ### URL_FILTERING	- URL filtering settings
@@ -320,47 +321,105 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 
 ### AUTH section
 ###
+### In the context of e2guardian authentication is primarly
+### the determination of the filter group to be used.
+###
+### Some of the plug-in also return a username which is
+### then used in the access log
 
 # Auth plugins
 #
-# Handle the extraction of client usernames from various sources, such as
-# Proxy-Authorisation headers and ident servers, enabling requests to be
-# handled according to the settings of the user's filter group.
+# Handle the extraction of client usernames and groups from various sources,
+# enabling requests to be handled according to the settings of the user's 
+# filter group.
 #
 
-# If you do not use multiple filter groups, you need not specify this option.
-#
-#authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
+## There are four ways that e2g can be deployed and this affects the auth
+## plugins available
+## 
+##
+## 'Standalone' - e2g handles client and upstream traffic 
+##
+## 'Proxy-First' - client is logged in by proxy (squid)
+##		   and proxy passes e2g the user name in a 'basic' proxy
+##		   auth header
+##
+## 'Proxy-After' - client points to e2g which then uses upstream proxy
+##		   This is the method used by dg/e2g until v5.
+##
+## 'ICAP mode' - All trafic goes via squid and squid uses e2g as an
+##                 ICAP server.
+## ICAP has built in auth as username is supplied in the ICAP header
+## by squid. The user is checked against the filtergroupslist to get the
+## group.  To cater for the situation where user is missing ip based 
+## plugins such as 'ip' can be used as fall back.
 
-#authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
 
-#@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
+## There are three types of plugin
+## 'Native', 'Proxy-first' and 'Proxy-after' 
 
-# Use pf-basic.conf where proxy is doing auth in front of e2g
-#authplugin = '@E2CONFDIR@/authplugins/pf-basic.conf'
+## 'Native' plugins - these do not require use of a proxy
 
 #authplugin = '@E2CONFDIR@/authplugins/ident.conf'
+# Requires identd running on each client - gives username
 
+# Group based on ip or ip range - pseudo username of the ip
 #authplugin = '@E2CONFDIR@/authplugins/ip.conf'
 
+# Group based on e2g port number - pseudo username of the port
+# for this option the ports have to be declared as multiple filterport line
+#authplugin = '@E2CONFDIR@/authplugins/port.conf'
+
+# User and group obtained from dns entries mapping ip to user/group
+# dns entries maintained by separate authentication program.
+#authplugin = '@E2CONFDIR@/authplugins/dnsauth.conf'
+
+# HELP - more native plugins needed!  'basic' etc.
+
+## 'Proxy-first' plugin - requires a proxy in front to do the user 
+##  authentication.
+
+# Use pf-basic.conf where proxy is doing auth in front of e2g
+# New in v5.4
+#authplugin = '@E2CONFDIR@/authplugins/pf-basic.conf'
+
+# User defined in header - requires interception prior to e2g
+# to add headers
 #authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
 
-#authplugin = '@E2CONFDIR@/authplugins/port.conf'
+# ip plugin can also be used in Proxy first mode.
+
+## 'Proxy-after' plugins - requires a proxy behind.
+## These are pass-through plugins which reply on sniffing the
+## proxy auth headers between client and proxy to get username
+## - not recommended and will be removed in a future release
+
+# Basic auth on back-end proxy
+#authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
+
+# Digest auth on back-end proxy
+#authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
+
+# NTLM (only v1) auth on back-end proxy
+#@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
+
+# All native plugins can also be used in proxy-after mode
+
 
 # Auth mapping files - Map users (or client IPs) to filter groups
 # Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
 
-# for ip_auth
+#generic user to group mapping - used by default by basic, digest, ntlm, 
+# ident & icap plugins
+maplist = 'name=defaultusermap, path=__LISTDIR__/../authplugins/filtergroupslist'
+# for ip auth
 ipmaplist = 'name=ipmap, path=__LISTDIR__/../authplugins/ipgroups'
 
 # for port auth
 maplist = 'name=portmap, path=__LISTDIR__/../authplugins/portgroups'
 
-#generic user to group mapping - used by default by basic, digest, ntlm, ident & icap
-# plugins
-maplist = 'name=defaultusermap, path=__LISTDIR__/filtergroupslist'
 
-# If on it a user without group is considered like unauthenfied
+# If on a user without group is considered like unauthenfied
 # E2guardian tries the next plugin
 # If off the user is connected with defaultgroup
 # Defaults to off
