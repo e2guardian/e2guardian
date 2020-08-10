@@ -404,7 +404,9 @@ bool FOptionContainer::read(const char *filename) {
 
 #endif
         // override default reporting level
-        if (!findoptionS("reportinglevel").empty()) {   //uses value from e2guardian.conf if empty
+        if (findoptionS("reportinglevel").empty()) {   //uses value from e2guardian.conf if empty
+            reporting_level = o.reporting_level;
+        } else {
             reporting_level = findoptionI("reportinglevel");
             if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
                 return false;
