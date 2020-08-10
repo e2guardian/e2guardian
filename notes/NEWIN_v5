@@ -159,6 +159,21 @@ __LISTDIR__ wherever it occurs in a .conf file or list file .Include.
 This feature will allow the development of templates and easier separation
 between boilerplate and user configuration.
 
+REORGANIZED e2guardian.conf files and list directories.
+
+Both example e2guardian.conf files are reorganized into sections and more
+usage notes added to make it easier for new users to understand what changes
+they will need.
+
+List directory reorganized into sub-directories and READMEs added to help 
+users to know which list(s) to change.  
+The example.group sub-directory should be copied in a groupn directory for 
+each group.  
+Common lists are now in the common sub-directory.  
+As each group's lists are now in a different directory
+the e2guardianf1.conf files will be able to be copied into a new group .conf 
+with minimal changes.
+
 TESTING -  
 ---------
 
@@ -217,6 +232,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 7th July 2020
+Philip Pearce 10th August 2020
 
 
