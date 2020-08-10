@@ -334,7 +334,7 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 # filter group.
 #
 
-## There are four ways that e2g can be deployed and this affects the auth
+## There are five ways that e2g can be deployed and this affects the auth
 ## plugins available
 ## 
 ##
@@ -346,6 +346,15 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ##
 ## 'Proxy-After' - client points to e2g which then uses upstream proxy
 ##		   This is the method used by dg/e2g until v5.
+##                 If authentication is enabled on proxy, then
+##                 'Transparent' or IP auth will not work. 
+##
+## 'Transparent' - 80/443 requests are redirected to e2g on gateway
+##	           Can be used with Standalone or Proxy-After mode
+##                 Note: only IP based plugins will be used in this
+##                 and so normaly it is not possible to capture the
+##                 user name.  However, devices using transparent
+##                 can be put in their own default group.
 ##
 ## 'ICAP mode' - All trafic goes via squid and squid uses e2g as an
 ##                 ICAP server.
@@ -353,6 +362,9 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ## by squid. The user is checked against the filtergroupslist to get the
 ## group.  To cater for the situation where user is missing ip based 
 ## plugins such as 'ip' can be used as fall back.
+##
+## Note that e2g can support multiple methods at the same time, 
+## e.g. Standalone, Transparent and ICAP server
 
 
 ## There are three types of plugin
@@ -404,12 +416,14 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 #@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
 
 # All native plugins can also be used in proxy-after mode
+# but only auth is not forced by the upstream proxy
 
 
-# Auth mapping files - Map users (or client IPs) to filter groups
-# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
+## Auth mapping files - Map users (or client IPs) to filter groups
+## Note that from v5.4 lists used by auth plugins are defined here and 
+## not in auth *.conf files
 
-#generic user to group mapping - used by default by basic, digest, ntlm, 
+# Generic user to group mapping - used by default by basic, digest, ntlm, 
 # ident & icap plugins
 maplist = 'name=defaultusermap, path=__LISTDIR__/../authplugins/filtergroupslist'
 # for ip auth
