@@ -33,7 +33,6 @@ exceptionvirusextensionlist \
 exceptionfilesiteiplist \
 exceptionfilesitelist \
 exceptionfileurllist \
-exceptioniplist \
 exceptionclientlist \
 exceptionmimetypelist \
 exceptionphraselist \
