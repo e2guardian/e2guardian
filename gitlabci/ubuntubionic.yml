@@ -76,7 +76,7 @@ Test and publish Ubuntu bionic:
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian /home/e2
-    - echo "qwant.com" >> /etc/e2guardian/lists/bannedsitelist
+    - echo "qwant.com" >> /etc/e2guardian/lists/example.group/bannedsitelist
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 
     - curl -k -o /tmp/test https://www.google.com 
