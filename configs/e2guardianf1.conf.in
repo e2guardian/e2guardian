@@ -387,11 +387,11 @@ regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
 # Do not log sites/urls/ext
 # Useful to prevent requests not made by user directly being logged
 # Makes logs more readable
-#sitelist = 'name=nolog,path=__LISTDIR__//../common/nologsitelist'
-#ipsitelist = 'name=nolog,path=__LISTDIR__//../common/nologsiteiplist'
-#urllist = 'name=nolog,path=__LISTDIR__//../common/nologurllist'
-#regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
-#fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
+sitelist = 'name=nolog,path=__LISTDIR__//../common/nologsitelist'
+ipsitelist = 'name=nolog,path=__LISTDIR__//../common/nologsiteiplist'
+urllist = 'name=nolog,path=__LISTDIR__//../common/nologurllist'
+regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
+fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 
 ###
 ### END of ACCESS_LOG section 

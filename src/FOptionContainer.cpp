@@ -194,7 +194,7 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
                         now_pwd = temp2;
                         //if(!now_pwd.endsWith("/"))
                             //now_pwd += "/";
-                       std::cerr << "now_pwd set to " << now_pwd;
+                      // std::cerr << "now_pwd set to " << now_pwd;
                     }
 
                     continue;
