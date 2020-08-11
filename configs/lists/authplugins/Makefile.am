@@ -4,7 +4,7 @@ E2DATADIR = $(E2CONFDIR)/lists/authplugins
 
 SUBDIRS = .
 
-WLISTS = ipgroups portgroups
+WLISTS = ipgroups portgroups filtergroupslist
 
 EXTRA_DIST = $(WLISTS)
 
