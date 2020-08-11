@@ -225,7 +225,7 @@ certprivatekeypath = '@E2CONFDIR@/private/cert.key'
 #The public / private key pair used by all generated certificates
 # required if ssl_mitm is enabled.
 
-generatedcertpath = '@E2PIDDIR@/generatedcerts/'
+generatedcertpath = '@E2CONFDIR@/private/generatedcerts/'
 #
 #Generated cert path
 #The location where generated certificates will be saved for future use.
