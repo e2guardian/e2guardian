@@ -78,8 +78,8 @@ Test and publish Debian:
     - echo "qwant.com" >> /etc/e2guardian/lists/example.group/bannedsitelist
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 
-    - curl -A 'Firefox/' -k -o /tmp/test https://www.google.com 
-    - curl -A 'Firefox/' -k https://www.qwant.com | grep -i e2guardian 
+    - curl -k -o /tmp/test https://www.google.com 
+    - curl -k https://www.qwant.com | grep -i e2guardian 
     - unset https_proxy
     - mkdir -p "${CI_COMMIT_BRANCH}" 
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
