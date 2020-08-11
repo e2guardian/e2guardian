@@ -398,13 +398,10 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
         exchange_timeout = exchange_timeout_sec * 1000;
 
-        http_workers = findoptionI("httpworkers");
-        if (http_workers == 0) {
+        if (findoptionS("httpworkers").empty()) {
             http_workers = 500;
-            if (!is_daemonised) {
-                std::cerr << " http_workers settings cannot be zero: value set to 500" << std::endl;
-            }
-            syslog(LOG_ERR, "http_workers settings cannot be zero: value set to 500");
+        } else {
+            http_workers = findoptionI("httpworkers");
         }
         if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
             return false;

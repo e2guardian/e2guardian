@@ -63,7 +63,7 @@ Test and publish Ubuntu bionic:
   variables:
     PACKPATH: "/builds/fredbcode/e2guardian"
     PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
-    CERT_DIR: "/home/e2/e2install/"
+    CERT_DIR: "/etc/e2guardian/private/"
     OS: "ubuntu"
   script:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
@@ -72,10 +72,10 @@ Test and publish Ubuntu bionic:
     - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
-    - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^#cacertificatepath/cacertificatepath/;s/#caprivatekeypath/caprivatekeypath/;s/#certprivatekeypath/certprivatekeypath/;s/#generatedcertpath/generatedcertpath/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf 
+    - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
-    - chown --recursive e2guardian:e2guardian /home/e2
+    - chown --recursive e2guardian:e2guardian ${CERT_DIR}
     - echo "qwant.com" >> /etc/e2guardian/lists/example.group/bannedsitelist
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 
