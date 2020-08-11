@@ -16,7 +16,6 @@ embededreferersitelist \
 embededrefererurllist \
 exceptionclientlist \
 exceptioniplist \
-filtergroupslist \
 nologextensionlist \
 nologregexpurllist \
 nologsiteiplist \
