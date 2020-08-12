@@ -1242,7 +1242,7 @@ originalip = off
 
 # New in v5.4.2:- relative paths
 # Relative paths can used in .Include<> and list files.
-#       The directory of current file will be insert where the file name
+#       The directory of current file will be inserted where the file name
 #       does not start with '/'
 
 
@@ -1259,6 +1259,28 @@ originalip = off
 #
 # The scope of LISTDIR is in the rest of file it is defined in and all
 # .Include<> files or list files in that portion of the file.
+
+# It should be noted that re-definitions of single-line directives will 
+# over write any earlier ones.
+
+# The same is true of list definitions.  Later unique definitions will 
+# override earlier ones. A unique list definition is formed from the
+# list type and the name.
+#
+# So,
+
+# sitelist = 'name=banned,path=x...'
+# and
+# urllist = 'name=banned,path=y...'
+# are both unique
+
+# but
+
+# sitelist = 'name=banned,path=x...'
+# and
+# sitelist = 'name=banned,path=z...'
+# are not and the later definition will override the first.
+
 
 ###
 ### END of INFO section
