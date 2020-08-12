@@ -1,170 +1,64 @@
 # e2guardian config file for version @PACKAGE_VERSION@
 
-#NOTE This file is only read at start-up
+#NOTE This file (and any .Include<> files) are only read at start-up
 #
 # but the lists defined in this file are re-read on reload or gentle restart
 # as is any rooms directory files.
 
-# Language dir where languages are stored for internationalisation.
-# The HTML template within this dir is only used when reportinglevel
-# is set to 3. When used, e2guardian will display the HTML file instead of
-# using the perl cgi script.  This option is faster, cleaner
-# and easier to customise the access denied page.
-# The language file is used no matter what setting however.
-#
-languagedir = '@E2DATADIR@/languages'
+### Config is now split into sections as follows
+###
+### QUICK_START 	- Items to check to get you started
+### NAMES_PATHS 	- Names & Path settings
+### NETWORK 		- Network settings
+### MITM 		- SSL MITM settings
+### ICAP_SERVICE 	- ICAP server mode settings
+### TRANSPARENT 	- Transparent proxy settings
+### AUTH		- Authentication (user and group assignment) 
+###				settings and lists
+### ACCESS_LOG		- Access log settings
+### MONITORING		- Monitoring settings
+### URL_FILTERING	- URL filtering settings
+### LIST_SETTINGS	- Settings on how lists are handled
+### AV_SCANNERS		- AV scanner settings and lists
+### HEADER		- HTTP Header handling
+### BLOCK_PAGE		- Block Page formats and handling
+### DOWNLOAD_MANAGER	- Download manager settings
+### PHRASES		- Content phrase settings
+### TUNING		- Tuning parameters
+### DEBUG		- Debug settings
+### PROCESS		- e2guardian process settings
+### OBSOLETE		- Obsolete settings
+### INFO		- Info on new features etc
+###
+
+### QUICK_START section
+###
+### e2guardian will work as a normal http/s proxy server
+### listening on port 8080
+### without you making any changes to this file.
+### 
+### This section contains settings that you may want to
+### change, e.g language, dockermode, to set ICAP mode or enable SSL MITM
+### support
+### 
 
 # language to use from languagedir.
 language = 'ukenglish'
 
-# servername = 'my_name"
+#.Define LISTDIR <@E2CONFDIR@/lists/common>
+# NEW in v5.4.2 - LISTDIR 'variable' definition
+# This works similarly to a shell environment variable
+# The text between <> will replace occurances of __LISTDIR__ in .conf and
+#       list files.
+# See INFO section for more details
+# default LISTDIR value for e2guardian.conf is E2CONFDIR/lists/commom
 
-# New in v5.4.2:- relative paths can be used in .Include<> (and in list files)
-# relative paths can used in .Include<>. The directory of current file will used
-
-#Also NEW in v5.4.2 - LISTDIR can be defined in .conf files.
-#This allows for more readable configuration and for templating.
-#This works similarly to a shell environment variable
-#The text between <> will replace occurances of __LISTDIR__ in .conf and 
-# 	list files.
-# Note: Currently only LISTDIR may be defined.
-#
-# The mapping is actioned as the file is read and is valid until another LISTDIR# 	is defined later in the file, or in an included .conf file.
-
-.Define LISTDIR <@E2CONFDIR@/lists/>
-
-#Debug Level
-#Enable debug e2guardian
-#debug one value:
-#Eg
-#	debuglevel = 'ICAP'
-#Enable ICAP debug informations only
-#
-#Eg
-#	debuglevel = 'ALL'
-#Enable ALL debug informations
-#
-#Additive mode:
-#Eg
-#	debuglevel = 'ICAP,NET'
-#Enable ICAP and NET debug informations
-#
-#Soustractive mode:
-#Eg
-#	debuglevel = 'ALL,-ICAP'
-#Enable all debug informations but without ICAP debug informations
-#	debuglevel = 'ALL,-ICAP,-NET,-FILTER'
-#Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
-#by default disabled, if this option is required just uncomment the line below
-#works also with e2guardian -N (-N Do not go into the background)
-#Possible value : ICAP CLAMAV ICAPC (icap client) 
-#debuglevel = 'ALL'
-
-#Directory for result of debug level (log)
-#Works only if debuglevel is enabled
-#
-#debuglevelfile = '/var/log/e2guardian/debuge2'
-
-# Logging Settings
-#
-# 0 = none  1 = just denied  2 = all text based  3 = all requests
-loglevel = 3 
-
-# Log Exception Hits
-# Log if an exception (user, ip, URL, phrase) is matched and so
-# the page gets let through.  Can be useful for diagnosing
-# why a site gets through the filter.
-# 0 = never log exceptions
-# 1 = log exceptions, but do not explicitly mark them as such
-# 2 = always log & mark exceptions (default)
-logexceptionhits = 2
-
-# Log File Format
-# 1 = Dansguardian format (space delimited)
-# 2 = CSV-style format
-# 3 = Squid Log File Format
-# 4 = Tab delimited
-# Protex format type 5 Tab delimited, squid style format with extra fields
-# for filter block/result codes, reasons, filter group, and system name 
-# used in arrays so that combined logs show originating server.
-# 5 = Protex format
-# Protex format type 6 Same format as above but system name field is blank
-# used in stand-alone systems.
-# 6 = Protex format with server field blanked
-##NEWIN V5.4
-# 7 = Same as 5, but with searchterms and EXTFLAGS added
-#     See notes/New_log_fileds_in_log_format7-8.pdf for details
-# 8 = Same as 7, but with server field blanked
-
-logfileformat = 8 
-
-# Log a specific value from header
-# low case only
-# only used with logs: 1,5 and 6
-# logheadervalue = 'proxy-authorization:'
-
-# truncate large items in log lines
-# allowable values 10 to 32000
-# default 2000
-# unlimited not longer allowed - 0 will now set default of 2000 
-#maxlogitemlength = 2000
-
-# anonymize logs (blank out usernames & IPs)
-#anonymizelogs = off
-
-# Syslog logging
-#
-# Use syslog for access logging instead of logging to the file
-# at the defined or built-in "loglocation"
-#logsyslog = off
-
-#Suffix to append to program name when logging through syslog
-# Default is the e2Guardian instance number
-#namesuffix = $z
-
-# Log file location
-# 
-# Defines the log directory and filename.
-#loglocation = '@E2LOGLOCATION@/access.log'
-
-# Defines optional request log path
-# This is for useful for debug purposes to log all requests before processing or setting filter group
-# See notes/LogRequests for details
-#rqloglocation = '@E2LOGLOCATION@/request.log'
-
-# Dymamic statistics log file location
-#
-# Defines the dstats file directory and filename.
-# Once every 'dstatinterval' seconds, stats on number of threads in use,
-# Q sizes and other useful information is written to this file.
-# Format is similar to sar.  See notes/dstats_format for more details.
-# Default is not to write stats.
-dstatlocation = '@E2LOGLOCATION@/dstats.log'
-# Interval in seconds between stats output
-# Default 300 (= 5 mins)
-# Minimum 10 
-# Maximum 3600 (= 1 hour)
-#dstatinterval = 300  # = 5 minutes
-
-# Time format is epoch GMT+0 by default | statshumanreadable change to local zone
-#statshumanreadable = off
-
-# Container mode
-# the process will not fork into the background AND log in stdout 
-# In this mode systemd service is disabled !
-# Default:
 #dockermode = off
-
-# Network Settings
-# 
-# the IP that e2guardian listens on.  If left blank e2guardian will
-# listen on all IPs.  That would include all NICs, loopback, modem, etc.
-# Normally you would have your firewall protecting this, but if you want
-# you can limit it to a certain IP. To bind to multiple interfaces,
-# specify each IP on an individual filterip line.
-# If mapportstoips is 'on' you can have the same IP twice so long as 
-# it has a different port.
-filterip =
+#
+# Container mode
+# the process will not fork into the background AND log in stdout
+# In this mode systemd service is disabled !
+# Default: off
 
 # loop prevention
 #
@@ -172,328 +66,752 @@ filterip =
 # Include all e2g host server IPs and any VIP used when when in an array.
 # Specify each IP on an individual checkip line.
 #
-# Defaults: Not set - no loop prevention 
-#         
-checkip = 127.0.0.1
 
-# The ports that e2guardian listens to for proxy traffic.
-# Specify one line per filterip
-# line.  If both mapportstoips and mapauthtoports are set to 'on'
-# you can specify different authentication mechanisms per port but
-# only if the mechanisms can co-exist (e.g. basic/proxy auth can't)
-filterports = 8080
-#filterports = 8081
+#checkip = 127.0.0.1
+#checkip = ip_of_server
+#checkip = 2nd ip of server
+#checkip = VIP of server
+#
+# Defaults: Not set - only loop prevention for 127.0.0.1 requests
+#
 
-# Map ports to IPs
-# If enabled map filterports to filterip - number of filterports must then be same as
-# number of filterip
-# If disabled will listen on all filterports on all filterips.
-# on (default) | off
-mapportstoips = off
-
+#transparenthttpsport = 8443
+#
 #port for transparent https
-#if defined enables tranparent https
-#NOTE: To make work firewall will need to redirect tcp port 443 on routed 
-# packets to this port
-transparenthttpsport = 8443
+#NOTE: To make work firewall will need to redirect tcp port 443 on routed
+# packets to this port and ssl must be enabled with enablessl = on
+# default 0 - i.e. disabled 
 
-#port for ICAP
-#if defined enables icap mode 
-#icapport = 1344  
+#icapport = 1344
+#
+#port for ICAP server
+#if defined enables icap server mode
+# default is 0 - i.e. disabled
 
-# the ip of upstream proxy - optional - if blank e2g will go direct to sites.
-# default is "" i.e. no proxy 
 #proxyip = 127.0.0.1
+#
+# the ip of upstream proxy - optional - if blank e2g will go direct to sites.
+# default is "" i.e. no proxy
 
-# the port e2guardian connects to proxy on
-#proxyport = 3128
-
-# Proxy timeout 
-# Set tcp timeout between the Proxy and e2guardian
- # This is a connection timeout
- # If proxy is remote you may need to increase this to 10 or more.
-# Min 5 - Max 100
-proxytimeout = 5
-
-# Connect timeout 
-# Set tcp timeout between the e2guardian and upstream service (proxy or target host)
- # This is a connection timeout
- # For remote sites you may need to increase this to 10 or more.
-# Min 1 - Max 100
-# default 3
-connecttimeout = 5
-
-# Connect retries
-# Set the number of retries to make on connection failure before giving up
-# Min 1 - Max 100
+#filtergroups = 1
+#
+# filtergroups sets the number of filter groups. 
+# A filter group is a set of content filtering options you can apply to a 
+# group of users.  
+# The value must be 1 or more.
+# e2guardian will automatically look for e2guardianfN.conf where N is the filter
+# group.
 # default 1
 
-# Proxy header exchange
-# Set timeout between the Proxy and e2guardian 
-# Min 20 - Max 300
-# If this is higher than proxies timeout user will get proxy Gateway error page
-# If lower e2guardian Gateway error page
-proxyexchange = 61
-
-# Pconn timeout
-# how long a persistent connection will wait for other requests
-# squid apparently defaults to 1 minute (persistent_request_timeout),
-# so wait slightly less than this to avoid duff pconns.
-# Min 5 - Max 300
-pcontimeout = 55
-
-# This option only applies when request is transparent (http or https), 
-# when no upstream proxy is used, and where it is possible to detect 
-# the original destination ip & port
-# When enabled the upstream request will be directed at the original ip and port# and no DNS lookup will be performed.
-# This solves the 'snapchat' issue and also should increase speed of connection.
-# Currently this only works on linux systems.  BSD developers, PLEASE HELP fix
-# this for BSD, pfsense etc!
-# default = off
-useoriginalip = on
-
-# NOTE: The following option is removed in v5.4 - if left and enabled would give too many
-# false positives.
-# Whether to retrieve the original destination IP in transparent proxy
-# setups and check it against the domain pulled from the HTTP headers.
+#defaultfiltergroup = 1;
 #
-# See http://www.kb.cert.org/vuls/id/435052
-# NOTE: Only worked on Linux platforms
-@ORIGIPSUPPORT@originalip = off
-
-# Banned image replacement
-# Images that are banned due to domain/url/etc reasons including those
-# in the adverts blacklists can be replaced by an image.  This will,
-# for example, hide images from advert sites and remove broken image
-# icons from banned domains.
-# on (default) | off
-usecustombannedimage = on
-custombannedimagefile = '@E2DATADIR@/transparent1x1.gif'
-
-#Banned flash replacement
-usecustombannedflash = on
-custombannedflashfile = '@E2DATADIR@/blockedflash.swf'
-
-# Filter groups options
-# filtergroups sets the number of filter groups. A filter group is a set of content
-# filtering options you can apply to a group of users.  The value must be 1 or more.
-# e2guardian will automatically look for e2guardianfN.conf where N is the filter
-# group.  To assign users to groups use a mapping function in preauth.story.
-# By default use filtergroupslist.
-# You must have some sort of authentication to be able to map users
-# to a group.
-filtergroups = 1
-
-##NEWIN V5.4 - filtergrouplist replaced with maplist
-#filtergroupslist = '__LISTDIR__filtergroupslist'
-maplist = 'name=defaultusermap, path=__LISTDIR__filtergroupslist'
-
 # default filtergroup for standard (explicit proxy) mode
 # optional defaults to 1
-#defaultfiltergroup = 1;
 
+#enablessl = on
+#
+# Enable SSL support
+# This must be present to enable MITM and Cert checking
+# If on you must also check the MITM section.
+# default is off
+
+###
+### END of QUICK_START section
+
+
+### NAMES_PATHS section
+###
+
+# servername = 'my_name"
+#
+# Default is to use the system name of the host in logs
+
+#daemonuser = '@E2PROXYUSER@'
+#daemongroup = '@E2PROXYGROUP@'
+#
+# Daemon runas user and group
+# This is the user that e2guardian runs as.  Normally the user/group nobody.
+# Uncomment to use.  Defaults to the user/group set at compile time.
+#
+# Temp files created during virus scanning are given owner and group read
+# permmision so, if you have clamdscan plugin enabled,
+# the two processes must run with either the same group or user ID.
+
+languagedir = '@E2DATADIR@/languages'
+#
+# The HTML templates within this dir are only used when reportinglevel
+# is set to 3. When used, e2guardian will display the HTML file instead of
+# using the perl cgi script.  This option is faster, cleaner
+# and easier to customise the access denied page.
+# The language file is used no matter what setting however.
+#
+
+#preauthstoryboard = '@E2CONFDIR@/preauth.story'
+#
+# default '@E2CONFDIR@/preauth.story'
+
+# perroomdirectory = '__LISTDIR__/../rooms/'
+#
+# Per-Room definition directory
+# A directory containing text files containing the room's name followed by IPs or ranges
+# and optionaly site and url lists
+# Think of it as bannediplist and/or exceptions on crack
+
+###
+### END of NAMES_PATHS section
+
+
+### NETWORK section
+###
+
+#filterip =
+#
+# the IP that e2guardian listens on.  If left blank e2guardian will
+# listen on all IPs.  That would include all NICs, loopback, modem, etc.
+# Normally you would have your firewall protecting this, but if you want
+# you can limit it to a certain IP. To bind to multiple interfaces,
+# specify each IP on an individual filterip line.
+# default "" - listen on all IPs
+
+#filterports = 8080
+#filterports = 8081
+#
+# The port(s) that e2guardian listens to for proxy traffic.
+# Specify one line per port used for standard explict proxy.
+# These ports can also be used for redirected tranparent HTTP
+# Default is to listen on 8080 for proxy traffic
+
+#proxyport = 3128
+#
+# the port e2guardian connects to any upstream proxy on
+# default 3128
+
+###
+### END of NETWORK section
+
+
+### MITM section
+###
+
+#   Check these settings if enablessl = on
+#   For instructions on how to set this up
+#   see notes/ssl_mitm
+
+#sslcertificatepath = ''
+#
+#SSL certificate checking path
+#Path to CA certificates used to validate the certificates of https sites.
+# if left blank openssl default ca certificate bundle will be used
+#Leave as default unless you want to load non-default cert bundle
+
+#SSL man in the middle
+
+cacertificatepath = '@E2CONFDIR@/private/ca.pem'
+#
+#CA certificate path
+#Path to the CA certificate to use as a signing certificate for
+#generated certificates.
+# required if ssl_mitm is enabled.
+
+caprivatekeypath = '@E2CONFDIR@/private/ca.key'
+#
+#CA private key path
+#path to the private key that matches the public key in the CA certificate.
+# required if ssl_mitm is enabled.
+
+certprivatekeypath = '@E2CONFDIR@/private/cert.key'
+#
+#Cert private key path
+#The public / private key pair used by all generated certificates
+# required if ssl_mitm is enabled.
+
+generatedcertpath = '@E2CONFDIR@/private/generatedcerts/'
+#
+#Generated cert path
+#The location where generated certificates will be saved for future use.
+#(must be writable by the e2 user)
+# required if ssl_mitm is enabled.
+
+#Warning: if you change the cert start/end time from default on a running
+#         system you will need to clear the generated certificate
+#         store and also may get problems on running client browsers
+
+# generatedcertstart = 1417872951
+#
+#Generated cert start time (in unix time) - optional
+# defaults to 1417872951 = 6th Dec 2014
+
+# genratedcertend =
+#
+#Generated cert end time (in unix time) - optional
+# defaults to generatedcertstart + 10 years
+
+#useopensslconf = off
+#
+# Use openssl configuration file
+# switch this on if you want e2g to read in openssl configuration
+# This is useful if you want to use a hardware acceleration engine.
+# default is off
+
+# opensslconffile = '@E2CONFDIR@/openssl.conf'
+#
+# Alternate openssl configuration file
+# only used if useopensslconf = on
+# default is to use standard openssl configuration file
+# only use this if an alternate openssl configuration file is used for e2g
+
+# setcipherlist = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS"
+#
+# Sets the cipher list used by openssl
+# Default is "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS"
+# May be withdrawn in future versions as best defined in openssl.conf
+
+# Sites that are impossible or undesirable to MITM
+#
+sitelist = 'name=nomitm,path=__LISTDIR__/nomitmsitelist'
+ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
+
+###
+### END of MITM section
+
+
+### ICAP_SERVICE section
+###
+
+#defaulticapfiltergroup = 1
+#
+# default filtergroup for ICAP mode
+# defaults to 1
+
+#icapreqmodurl = 'request'
+#Url to respond to ICAP reqmod queries
+# default 'request'
+
+#icapresmodurl = 'response'
+#Url to respond to ICAP respmod queries
+# default 'response'
+
+###
+### END of ICAP_SERVICE section
+
+
+### TRANSPARENT section
+###
+
+#defaulttransparentfiltergroup = 1;
+#
 # default filtergroup for transparent proxy mode (http and thttps)
 # optional defaults to 1
-#defaulttransparentfiltergroup = 1;
 
-# default filtergroup for ICAP mode
-# optional defaults to 1
-#defaulticapfiltergroup = 1;
+#useoriginalip = on
+#
+# This option only applies when request is transparent (http or https),
+# when no upstream proxy is used, and where it is possible to detect
+# the original destination ip & port
+# When enabled the upstream request will be directed at the original ip and port
+# and no DNS lookup will be performed.
+# This solves the 'snapchat' issue and also should increase speed of connection.
+# Currently this ONLY works on linux systems.  
+# BSD developers, PLEASE HELP fix this for BSD, pfsense etc!
+# default = on (linux) ignored (bsd)
 
-# If on it a user without group is considered like unauthenfied
+###
+### END of TRANSPARENT section
+
+
+### AUTH section
+###
+### In the context of e2guardian authentication is primarly
+### the determination of the filter group to be used.
+###
+### Some of the plug-in also return a username which is
+### then used in the access log
+
+# Auth plugins
+#
+# Handle the extraction of client usernames and groups from various sources,
+# enabling requests to be handled according to the settings of the user's 
+# filter group.
+#
+
+## There are five ways that e2g can be deployed and this affects the auth
+## plugins available
+## 
+##
+## 'Standalone' - e2g handles client and upstream traffic 
+##
+## 'Proxy-First' - client is logged in by proxy (squid)
+##		   and proxy passes e2g the user name in a 'basic' proxy
+##		   auth header
+##
+## 'Proxy-After' - client points to e2g which then uses upstream proxy
+##		   This is the method used by dg/e2g until v5.
+##                 If authentication is enabled on proxy, then
+##                 'Transparent' or IP auth will not work. 
+##
+## 'Transparent' - 80/443 requests are redirected to e2g on gateway
+##	           Can be used with Standalone or Proxy-After mode
+##                 Note: only IP based plugins will be used in this
+##                 and so normaly it is not possible to capture the
+##                 user name.  However, devices using transparent
+##                 can be put in their own default group.
+##
+## 'ICAP mode' - All trafic goes via squid and squid uses e2g as an
+##                 ICAP server.
+## ICAP has built in auth as username is supplied in the ICAP header
+## by squid. The user is checked against the filtergroupslist to get the
+## group.  To cater for the situation where user is missing ip based 
+## plugins such as 'ip' can be used as fall back.
+##
+## Note that e2g can support multiple methods at the same time, 
+## e.g. Standalone, Transparent and ICAP server
+
+
+## There are three types of plugin
+## 'Native', 'Proxy-first' and 'Proxy-after' 
+
+## 'Native' plugins - these do not require use of a proxy
+
+#authplugin = '@E2CONFDIR@/authplugins/ident.conf'
+# Requires identd running on each client - gives username
+
+# Group based on ip or ip range - pseudo username of the ip
+#authplugin = '@E2CONFDIR@/authplugins/ip.conf'
+
+# Group based on e2g port number - pseudo username of the port
+# for this option the ports have to be declared as multiple filterport line
+#authplugin = '@E2CONFDIR@/authplugins/port.conf'
+
+# User and group obtained from dns entries mapping ip to user/group
+# dns entries maintained by separate authentication program.
+#authplugin = '@E2CONFDIR@/authplugins/dnsauth.conf'
+
+# HELP - more native plugins needed!  'basic' etc.
+
+## 'Proxy-first' plugin - requires a proxy in front to do the user 
+##  authentication.
+
+# Use pf-basic.conf where proxy is doing auth in front of e2g
+# New in v5.4
+#authplugin = '@E2CONFDIR@/authplugins/pf-basic.conf'
+
+# User defined in header - requires interception prior to e2g
+# to add headers
+#authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
+
+# ip plugin can also be used in Proxy first mode.
+
+## 'Proxy-after' plugins - requires a proxy behind.
+## These are pass-through plugins which reply on sniffing the
+## proxy auth headers between client and proxy to get username
+## - not recommended and will be removed in a future release
+
+# Basic auth on back-end proxy
+#authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
+
+# Digest auth on back-end proxy
+#authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
+
+# NTLM (only v1) auth on back-end proxy
+#@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
+
+# All native plugins can also be used in proxy-after mode
+# but only auth is not forced by the upstream proxy
+
+
+## Auth mapping files - Map users (or client IPs) to filter groups
+## Note that from v5.4 lists used by auth plugins are defined here and 
+## not in auth *.conf files
+
+# Generic user to group mapping - used by default by basic, digest, ntlm, 
+# ident & icap plugins
+maplist = 'name=defaultusermap, path=__LISTDIR__/../authplugins/filtergroupslist'
+# for ip auth
+ipmaplist = 'name=ipmap, path=__LISTDIR__/../authplugins/ipgroups'
+
+# for port auth
+maplist = 'name=portmap, path=__LISTDIR__/../authplugins/portgroups'
+
+
+# If on a user without group is considered like unauthenfied
 # E2guardian tries the next plugin
 # If off the user is connected with defaultgroup
 # Defaults to off
 # authrequiresuserandgroup = off
 
-# Authentication files location
-# These are now replaced with pre-authstoryboard logic but lists defined here
+# Authentication exception/banned clients
 #
 # bannediplist is ONLY for banned client IP
-iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=__LISTDIR__bannediplist'
-# Put client dns names in bannedclientlist if required
-#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=__LISTDIR__bannedclientlist'
+iplist = 'name=bannedclient,messageno=100,logmessageno=103,path=__LISTDIR__/bannediplist'
 # exceptioniplist is ONLY for exception client IP
-iplist = 'name=exceptionclient,messageno=600,path=__LISTDIR__exceptioniplist'
+iplist = 'name=exceptionclient,messageno=600,path=__LISTDIR__/exceptioniplist'
+
+reverseclientiplookups = off
+# Reverse lookups for banned and exception IP clients.
+# If set to on, e2guardian will look up the forward DNS for the IP
+# of the connecting computer.
+# If a client computer is matched against an IP given in the lists, then the
+# IP will be recorded in any log entries; if forward DNS is successful and a
+# match occurs against a hostname, the hostname will be logged instead.
+# It will reduce searching speed somewhat so unless you have a local DNS server,
+# leave it off.
+
+# Put client dns names in bannedclientlist if required
+#sitelist = 'name=bannedclient,messageno=100,logmessageno=104,path=__LISTDIR__/bannedclientlist'
 # Put client dns names in exceptionclientlist if required
-#sitelist = 'name=exceptionclient,messageno=631,path=__LISTDIR__exceptionclientlist'
+#sitelist = 'name=exceptionclient,messageno=631,path=__LISTDIR__/exceptionclientlist'
 
-# authexception lists are for exception sites/urls allowed before authentication# to allow for machines to update without user authentication
-ipsitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptioniplist'
-sitelist = 'name=authexception,messageno=602,path=__LISTDIR__authexceptionsitelist'
-urllist = 'name=authexception,messageno=603,path=__LISTDIR__authexceptionurllist'
+# authexception lists are for exception sites/urls allowed before authentication
+# to allow for machines to update without user authentication
+ipsitelist = 'name=authexception,messageno=602,path=__LISTDIR__/authexceptioniplist'
+sitelist = 'name=authexception,messageno=602,path=__LISTDIR__/authexceptionsitelist'
+urllist = 'name=authexception,messageno=603,path=__LISTDIR__/authexceptionurllist'
 
-sitelist = 'name=nomitm,path=__LISTDIR__nomitmsitelist'
-ipsitelist = 'name=nomitm,path=__LISTDIR__nomitmsiteiplist'
-regexpboollist = 'name=browser,path=__LISTDIR__browserregexplist'
+regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
+#
+# List of regexp that match match User-agent of browsers
+# Used to determine if client is a browser
+# and decide whether to send a block page or go MITM
 
-#Note: only iplist, sitelist, ipsitelist, urllist, maplist and ipmaplist and regexpboollist can
-#  currently be defined for use with pre-authstoryboard.
 
-# Per-Room definition directory
-# A directory containing text files containing the room's name followed by IPs or ranges
-# and optionaly site and url lists
-# Think of it as bannediplist and/or exceptions on crack
-# perroomdirectory = '__LISTDIR__rooms/'
+###
+### END of AUTH section
 
+
+### ACCESS_LOG section
+###
+
+## Location and format
+
+#loglocation = '@E2LOGLOCATION@/access.log'
+# Log file location
+#
+# Defines the log directory and filename.
+
+#logsyslog = off
+# Syslog logging
+# Use syslog for access logging instead of logging to the file
+# at the defined or built-in "loglocation"
+
+nologger = off
+# Disable logging process
+# on|off (defaults to off)
+
+#namesuffix = ""
+#Suffix to append to program name when logging through syslog
+# Default is blank
+
+#logfileformat = 8
+# Log File Format
+# 1 = Dansguardian format (space delimited)
+# 2 = CSV-style format
+# 3 = Squid Log File Format
+# 4 = Tab delimited
+# Protex format type 5 Tab delimited, squid style format with extra fields
+# for filter block/result codes, reasons, filter group, and system name
+# used in arrays so that combined logs show originating server.
+# 5 = Protex format
+# Protex format type 6 Same format as above but system name field is blank
+# used in stand-alone systems.
+# 6 = Protex format with server field blanked
+# 7 = Same as 5, but with searchterms and EXTFLAGS added
+#     See notes/New_log_fileds_in_log_format7-8.pdf for details
+# 8 = Same as 7, but with server field blanked
+# Default is 8
+
+#anonymizelogs = off
+# anonymize logs (blank out client usernames & IPs)
+# default off
+
+## What requests to log
+
+# Note: These options may be replaced by storyboard function in v5.5
+# With the settings as distributed all requests (apart from ADs) will
+# be logged.
+
+#loglevel = 3
+# 0 = none  1 = just denied  2 = all text based  3 = all requests
+# default 3
+
+#logexceptionhits = 2
+# Log Exception Hits
+# Log if an exception (user, ip, URL, phrase) is matched and so
+# the page gets let through.  Can be useful for diagnosing
+# why a site gets through the filter.
+# 0 = never log exceptions
+# 1 = log exceptions, but do not explicitly mark them as such
+# 2 = always log & mark exceptions (default)
+
+#logadblocks = off
+# Enable logging of "ADs" category blocks
+# on|off (defaults to off)
+
+## What extra data is to be logged
+
+#showweightedfound = on
 # Show weighted phrases found
 # If enabled then the phrases found that made up the total which excedes
 # the naughtyness limit will be logged and, if the reporting level is
 # high enough, reported. on | off
-# default is off
-showweightedfound = on
+# default is on
 
+#showallweightedfound = off
 # Show all weighted phrases found
 # If enabled then the phrases found that made up the total will be logged and, if the reporting level is
 # high enough, reported. on | off
 # default is off
-showallweightedfound = off
 
-# Weighted phrase mode
-# There are 3 possible modes of operation:
-# 0 = off = do not use the weighted phrase feature.
-# 1 = on, normal = normal weighted phrase operation.
-# 2 = on, singular = each weighted phrase found only counts once on a page.
-# 
-# IMPORTANT: Note that setting this to "0" turns off all features which
-# extract phrases from page content, including banned & exception
-# phrases (not just weighted), search term filtering, and scanning for
-# links to banned URLs.
+#logclienthostnames = off
+# Perform reverse lookups on client IPs for successful requests.
+# If set to on, e2guardian will look up the forward DNS for the IP
+# of the connecting computer, and log host names (where available) rather than
+# IPs against requests.
+# This is not dependent on reverseclientiplookups being enabled; however, if it
+# is, enabling this option does not incur any additional DNS requests.
+
+#loguseragent = off
+# Enable logging of client User-Agent
+# Some browsers will cause a *lot* of extra information on each line!
+# on|off (defaults to off)
+
+#logclientnameandip = on
+# Enable logging of both client hostname and its IP
+# If off the hostname will be logged instead of IP
+# Applies only to log formats 5, 6, 7 & 8.
+# on|off (defaults to on)
+# Needs to be turned off if you are using sarg log analysis.
+
+#dnsuserloggingdomain = ""
+# Used to get user/domain from special dns zone for logging purposes only
+# Similar to dnsauth plugin operation but only for logging.
+
+## Log formating options
+
+#usedashforblank = on
+# use dash ('-') instead of blank fields in log
+# This is essential for space delimited log formats, and makes all log types easier to read
+# But can be turned off if this causes a problem with log analysis
+# on|off (defaults to on)
+
+#logtimestamp = off
+# Add unix timestamp to time field so that date/time in readable format 
+# and unix timestamp - applies only to log formats 1,2 and 4
+# default off
+
+#logid1 = ""
+#logid2 = ""
+# only used in logformats 1, 2 and 4
+# default ""
+
+#productid = '2'
+# Used in SG_LOGFORMAT
+# default 2
+
+## Other access log options
+
+#maxlogitemlength = 2000
+# truncate large items in log lines
+# allowable values 10 to 32000
+# default 2000
+# unlimited not longer allowed - 0 will now set default of 2000
+
+###
+### END of ACCESS_LOG section
+
+
+### MONITORING section
+###
+
+dstatlocation = '@E2LOGLOCATION@/dstats.log'
+# Dymamic statistics log file location
 #
-weightedphrasemode = 2
+# Defines the dstats file directory and filename.
+# Once every 'dstatinterval' seconds, stats on number of threads in use,
+# Q sizes and other useful information is written to this file.
+# Format is similar to sar.  See notes/dstats_format for more details.
+# Default "" - do not to write stats.
 
-# Smart, Raw and Meta/Title phrase content filtering options
-# Smart is where the multiple spaces and HTML are removed before phrase filtering
-# Raw is where the raw HTML including meta tags are phrase filtered
-# Meta/Title is where only meta and title tags are phrase filtered (v. quick)
-# CPU usage can be effectively halved by using setting 0 or 1 compared to 2
-# 0 = raw only
-# 1 = smart only
-# 2 = both of the above (default)
-# 3 = meta/title
-phrasefiltermode = 2
+#dstatinterval = 300  # = 5 minutes
+# Interval in seconds between stats output
+# Default 300 (= 5 mins)
+# Minimum 10
+# Maximum 3600 (= 1 hour)
 
-# Lower casing options
-# When a document is scanned the uppercase letters are converted to lower case
-# in order to compare them with the phrases.  However this can break Big5 and
-# other 16-bit texts.  If needed preserve the case.  As of version 2.7.0 accented
-# characters are supported.
-# 0 = force lower case (default)
-# 1 = do not change case
-# 2 = scan first in lower case, then in original case
-preservecase = 0
+#statshumanreadable = off
+# Time format for dstat is epoch GMT+0 by default | statshumanreadable 
+# change to local zone
+# default off
 
-# Note:
-# If phrasefiltermode and preserve case are both 2, this equates to 4 phrase
-# filtering passes. If you have a large enough userbase for this to be a
-# worry, and need to filter pages in exotic character encodings, it may be
-# better to run two instances on separate servers: one with preservecase 1
-# (and possibly forcequicksearch 1) and non ASCII/UTF-8 phrase lists, and one
-# with preservecase 0 and ASCII/UTF-8 lists.
+# monitorhelper = '/usr/local/bin/mymonitor'
+# monitor helper path
+# If defined this script/binary will be called with start or stop appended as follows:-
+# At start after e2guardian has started listener and worker threads with
+# ' start' appended
+# When e2guardian is stopping with ' stop' appended
+# default '' - monitor helper disabled
 
-# Hex decoding options
-# When a document is scanned it can optionally convert %XX to chars.
-# If you find documents are getting past the phrase filtering due to encoding
-# then enable.  However this can break Big5 and other 16-bit texts.
-# off = disabled (default)
-# on = enabled
-hexdecodecontent = off
+# monitorflagprefix = '@E2PIDDIR@/e2g_flag_'
+# monitor flag prefix path
+# If defined path will be used to generate flag files as follows:-
+#
+# At start after e2guardian has started listener and worker threads with
+#  'running' appended
+# When e2guardian is stopping with 'paused' appended
+# default '' - flags disabled
 
-# Force Quick Search rather than DFA search algorithm
-# The current DFA implementation is not totally 16-bit character compatible
-# but is used by default as it handles large phrase lists much faster.
-# If you wish to use a large number of 16-bit character phrases then
-# enable this option.
-# off (default) | on (Big5 compatible)
-forcequicksearch = off
+###
+### END of MONITORING section
 
-# Reverse lookups for banned site and URLs.
+
+### URL_FILTERING section
+###
+
+reverseaddresslookups = off
+# Reverse lookups for site and URL lists.
 # If set to on, e2guardian will look up the forward DNS for an IP URL
 # address and search for both in the banned site and URL lists.  This would
 # prevent a user from simply entering the IP for a banned address.
 # It will reduce searching speed somewhat so unless you have a local caching
 # DNS server, leave it off and use the Blanket IP Block option in the
 # f1.story file instead.
-reverseaddresslookups = off
 
-# Reverse lookups for banned and exception IP lists.
-# If set to on, e2guardian will look up the forward DNS for the IP
-# of the connecting computer.  
-# If a client computer is matched against an IP given in the lists, then the
-# IP will be recorded in any log entries; if forward DNS is successful and a
-# match occurs against a hostname, the hostname will be logged instead.
-# It will reduce searching speed somewhat so unless you have a local DNS server, 
-# leave it off.
-reverseclientiplookups = off
 
-# Perform reverse lookups on client IPs for successful requests.
-# If set to on, e2guardian will look up the forward DNS for the IP
-# of the connecting computer, and log host names (where available) rather than
-# IPs against requests.
-# This is not dependent on reverseclientiplookups being enabled; however, if it
-# is, enabling this option does not incur any additional forward DNS requests.
-logclienthostnames = off
+###
+### END of URL_FILTERING section
 
-# Max content filter size
-# Sometimes web servers label binary files as text which can be very
-# large which causes a huge drain on memory and cpu resources.
-# To counter this, you can limit the size of the document to be
-# filtered and get it to just pass it straight through.
-# This setting also applies to content regular expression modification.
-# The value must not be higher than maxcontentramcachescansize
-# Do not set this too low as this will result in pages that contain a
-#  long preamble not being content filtered
-# The size is in Kibibytes - eg 2048 = 2Mb
-# use 0 to set it to maxcontentramcachescansize
-maxcontentfiltersize = 2048
 
-# Max content ram cache scan size
-# This is only used if you use a content scanner plugin such as AV
-# This is the max size of file that e2g will download and cache
-# in RAM.  After this limit is reached it will cache to disk
-# This value must be less than or equal to maxcontentfilecachescansize.
-# The size is in Kibibytes - eg 10240 = 10Mb
-# use 0 to set it to maxcontentfilecachescansize
-# This option may be ignored by the configured download manager.
-maxcontentramcachescansize = 2000
+### LIST_SETTINGS section
+###
 
-# Max content file cache scan size
-# This is only used if you use a content scanner plugin such as AV
-# This is the max size file that E2 will download
-# so that it can be scanned or virus checked.
-# This value must be greater or equal to maxcontentramcachescansize.
-# The size is in Kibibytes - eg 10240 = 10Mb
-maxcontentfilecachescansize = 20000
+# abortiflistmissing = off  
+# Abort if a list is missing or unreadable
+# default is to warn but then ignore missing lists
+# To abort on missing list set to on
+# default "off"
 
-# File cache dir
-# Where E2 will download files to be scanned if too large for the
-# RAM cache.
-filecachedir = '/tmp'
+#searchsitelistforip = on
+#Search sitelist for ip sites
+# In v5 a separate set of lists has been introduced for IP sites
+# and normally e2g will no longer check site lists for ip's
+# If you want to keep backward list compatablity then set this to
+# 'on' - but note this incurs an overhead - putting IP in ipsitelists
+# and setting this to off gives the fastest implimentation.
+# default is 'on'
 
-# Delete file cache after user completes download
-# When a file gets save to temp it stays there until it is deleted.
-# You can choose to have the file deleted when the user makes a sucessful
-# download.  This will mean if they click on the link to download from
-# the temp store a second time it will give a 404 error.
-# You should configure something to delete old files in temp to stop it filling up.
-# on|off (defaults to on)
-deletedownloadedtempfiles = on
+###
+### END of LIST_SETTINGS section
 
-# Initial Trickle delay
-# This is the number of seconds a browser connection is left waiting
-# before first being sent *something* to keep it alive.  The
-# *something* depends on the download manager chosen.
-# Do not choose a value too low or normal web pages will be affected.
-# A value between 20 and 110 would be sensible
-# This may be ignored by the configured download manager.
-initialtrickledelay = 20
 
-# Trickle delay
-# This is the number of seconds a browser connection is left waiting
-# before being sent more *something* to keep it alive.  The
-# *something* depends on the download manager chosen.
-# This may be ignored by the configured download manager.
-trickledelay = 10
+### AV_SCANNERS section
+###
+
+# Content Scanners (Also known as AV scanners)
+# These are plugins that scan the content of all files your browser fetches
+# for example to AV scan.  You can have more than one content
+# scanner. The plugins are run in the order you specify.
+# This is one of the few places you can have multiple options of the same name.
+#
+# Some of the scanner(s) require 3rd party software and libraries eg clamav.
+# See the individual plugin conf file for more options (if any).
+#
+#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/clamdscan.conf'
+#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
+#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
+#@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
+#@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
+
+#contentscannertimeout = 60
+# Content scanner timeout
+# Some of the content scanners support using a timeout value to stop
+# processing (eg AV scanning) the file if it takes too long.
+# If supported this will be used.
+# defaults to value of pcontimeout
+
+###
+### END of AV_SCANNERS section
+
+
+### HEADER section
+###
+
+#addforwardedfor = off
+#
+# if on it adds an X-Forwarded-For: <clientip> to the HTTP request
+# header.  This may help solve some problem sites that need to know the
+# source ip. on | off
+# default off
+
+# forwardedfor = off
+#
+# old name for addforwardedfor - retained for compatiblity.
+
+usexforwardedfor = off
+#
+# if on it uses the X-Forwarded-For: <clientip> to determine the client
+# IP. This is for when you have squid between the clients and e2guardian.
+# Warning - headers are easily spoofed. on | off
+# default off
+
+# xforwardedforfilterip =
+#
+# as mentioned above, the headers can be easily spoofed in order to fake the
+# request origin by setting the X-Forwarded-For header. If you have the
+# "usexforwardedfor" option enabled, you may want to specify the IPs from which
+# this kind of header is allowed, such as another upstream proxy server for
+# instance If you want authorize multiple IPs, specify each one on an individual
+# xforwardedforfilterip line.
+# default no entries
+
+# maxheaderlines = 50
+#
+# Limit number of http header lines in a request/response
+# (to guard against attacks)
+# Minimum 10 max 250
+# default 50
+
+###
+### END of HEADER section
+
+
+### BLOCK_PAGE section
+###
+
+#reportinglevel = 3
+#
+# reportinglevel
+#
+# -1 = log, but do not block - Stealth mode
+#  0 = just say 'Access Denied'
+#  1 = report why but not what denied phrase
+#  2 = report fully
+#  3 = use HTML template file (accessdeniedaddress ignored) - recommended
+#
+#  Defines the global setting - can be overrided in e2guardianf1.conf
+#
+# default 3
+
+#usecustombannedimage = on
+#
+#custombannedimagefile = '@E2DATADIR@/transparent1x1.gif'
+# Banned image replacement
+# Images that are banned due to domain/url/etc reasons including those
+# in the adverts blacklists can be replaced by an image.  This will,
+# for example, hide images from advert sites and remove broken image
+# icons from banned domains.
+# on (default) | off
+
+#usecustombannedflash = on
+#
+#custombannedflashfile = '@E2DATADIR@/blockedflash.swf'
+#
+#Banned flash replacement
+
+###
+### END of BLOCK_PAGE section
+
+
+### DOWNLOAD_MANAGER section
+###
 
 # Download Managers
 # These handle downloads of files to be filtered and scanned.
@@ -506,8 +824,7 @@ trickledelay = 10
 # 'keep alive'.
 #
 # There are various methods possible but not all are included.
-# The author does not have the time to write them all so I have
-# included a plugin systam.  Also, not all methods work with all
+# Also, not all methods work with all
 # browsers and clients.  Specifically some fancy methods don't
 # work with software that downloads updates.  To solve this,
 # each plugin can support a regular expression for matching
@@ -526,70 +843,381 @@ trickledelay = 10
 #downloadmanager = '@E2CONFDIR@/downloadmanagers/trickle.conf'
 downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 
-# Content Scanners (Also known as AV scanners)
-# These are plugins that scan the content of all files your browser fetches
-# for example to AV scan.  You can have more than one content
-# scanner. The plugins are run in the order you specify.
-# This is one of the few places you can have multiple options of the same name.
+#filecachedir = '/tmp'
 #
-# Some of the scanner(s) require 3rd party software and libraries eg clamav.
-# See the individual plugin conf file for more options (if any).
+# File cache dir
+# Where E2 will download files to be scanned if too large for the
+# RAM cache.
+# default "/tmp"
+
+#deletedownloadedtempfiles = on
 #
-#@CLAMDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/clamdscan.conf'
-#@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/avastdscan.conf'
-#@KAVDSUPPORT@contentscanner = '@E2CONFDIR@contentscanners/kavdscan.conf'
-#@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
-#@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
+# Delete file cache after user completes download
+# When a file gets save to temp it stays there until it is deleted.
+# You can choose to have the file deleted when the user makes a sucessful
+# download.  This will mean if they click on the link to download from
+# the temp store a second time it will give a 404 error.
+# You should configure something to delete old files in temp to stop it filling up.
+# on|off (defaults to on)
 
-# Content scanner timeout
-# Some of the content scanners support using a timeout value to stop
-# processing (eg AV scanning) the file if it takes too long.
-# If supported this will be used.
-# The default of 60 seconds is probably reasonable.
-contentscannertimeout = 60
+#initialtrickledelay = 20
+#
+# Initial Trickle delay
+# This is the number of seconds a browser connection is left waiting
+# before first being sent *something* to keep it alive.  The
+# *something* depends on the download manager chosen.
+# Do not choose a value too low or normal web pages will be affected.
+# A value between 20 and 110 would be sensible
+# This may be ignored by the configured download manager.
+# default 20
 
-# Content scan exceptions // THIS MOVED to e2guardianf1.conf
+#trickledelay = 10
+#
+# Trickle delay
+# This is the number of seconds a browser connection is left waiting
+# before being sent more *something* to keep it alive.  The
+# *something* depends on the download manager chosen.
+# This may be ignored by the configured download manager.
+# default 10
+
+###
+### END of DOWNLOAD_MANAGER section
+
+
+### PHRASES section
+###
+
+weightedphrasemode = 2
+#
+# Weighted phrase mode
+# There are 3 possible modes of operation:
+# 0 = off = do not use the weighted phrase feature.
+# 1 = on, normal = normal weighted phrase operation.
+# 2 = on, singular = each weighted phrase found only counts once on a page.
+#
+# IMPORTANT: Note that setting this to "0" turns off all features which
+# extract phrases from page content, including banned & exception
+# phrases (not just weighted), search term filtering, and scanning for
+# links to banned URLs.
+#
+
+#phrasefiltermode = 2
+#
+# Smart, Raw and Meta/Title phrase content filtering options
+# Smart is where the multiple spaces and HTML are removed before phrase filtering
+# Raw is where the raw HTML including meta tags are phrase filtered
+# Meta/Title is where only meta and title tags are phrase filtered (v. quick)
+# CPU usage can be effectively halved by using setting 0 or 1 compared to 2
+# 0 = raw only
+# 1 = smart only
+# 2 = both of the above 
+# 3 = meta/title
+# default 2
+
+#preservecase = 0
+#
+# Lower casing options
+# When a document is scanned the uppercase letters are converted to lower case
+# in order to compare them with the phrases.  However this can break Big5 and
+# other 16-bit texts.  If needed preserve the case.  As of version 2.7.0 accented
+# characters are supported.
+# 0 = force lower case (default)
+# 1 = do not change case
+# 2 = scan first in lower case, then in original case
+
+# Note:
+# If phrasefiltermode and preserve case are both 2, this equates to 4 phrase
+# filtering passes. If you have a large enough userbase for this to be a
+# worry, and need to filter pages in exotic character encodings, it may be
+# better to run two instances on separate servers: one with preservecase 1
+# (and possibly forcequicksearch 1) and non ASCII/UTF-8 phrase lists, and one
+# with preservecase 0 and ASCII/UTF-8 lists.
+
+#hexdecodecontent = off
+#
+# Hex decoding options
+# When a document is scanned it can optionally convert %XX to chars.
+# If you find documents are getting past the phrase filtering due to encoding
+# then enable.  However this can break Big5 and other 16-bit texts.
+# off = disabled (default)
+# on = enabled
+
+#forcequicksearch = off
+#
+# Force Quick Search rather than DFA search algorithm
+# The current DFA implementation is not totally 16-bit character compatible
+# but is used by default as it handles large phrase lists much faster.
+# If you wish to use a large number of 16-bit character phrases then
+# enable this option.
+# off (default) | on (Big5 compatible)
+
+###
+### END of PHRASES section
+
+
+### TUNING section
+###
+
+#httpworkers = 500
+#
+#sets the number of worker threads to use
+#
+# This figure is the maximum number of concurrent connections.
+# If more connections are made, connections will queue until a worker thread is free.
+# On large site you might want to try 5000 (max value 20000)
+# 500 is the default suitable for home or samll office use on 64-bit systems
+# On 32-bit systems reduce this to 300 to avoid exceeding the <4GB
+# virtual memory limit and on Linux decrease the thread stack size from
+# 10MB to 2MB (ulimit -s 2048)
+# default 500
+
+#maxcontentfiltersize = 2048
+#
+# Max content filter size
+# Sometimes web servers label binary files as text which can be very
+# large which causes a huge drain on memory and cpu resources.
+# To counter this, you can limit the size of the document to be
+# filtered and get it to just pass it straight through.
+# This setting also applies to content regular expression modification.
+# The value must not be higher than maxcontentramcachescansize
+# Do not set this too low as this will result in pages that contain a
+#  long preamble not being content filtered
+# The size is in Kibibytes - eg 2048 = 2Mb
+# default 2048
+
+#maxcontentramcachescansize = 2000
+#
+# Max content ram cache scan size
+# This is only used if you use a content scanner plugin such as AV
+# This is the max size of file that e2g will download and cache
+# in RAM.  After this limit is reached it will cache to disk
+# This value must be less than or equal to maxcontentfilecachescansize.
+# The size is in Kibibytes - eg 10240 = 10Mb
+# use 0 to set it to maxcontentfilecachescansize
+# This option may be ignored by the configured download manager.
+# default 2000
+
+#maxcontentfilecachescansize = 20000
+#
+# Max content file cache scan size
+# This is only used if you use a content scanner plugin such as AV
+# This is the max size file that E2 will download
+# so that it can be scanned or virus checked.
+# This value must be greater or equal to maxcontentramcachescansize.
+# The size is in Kibibytes - eg 10240 = 10Mb
+# default 20000
+
+
+#proxytimeout = 5
+#
+# Proxy timeout
+# Set tcp timeout between the Proxy and e2guardian
+# This is a connection timeout
+# If proxy is remote you may need to increase this to 10 or more.
+# Min 5 - Max 100
+# default 5
+
+#connecttimeout = 5
+#
+# Connect timeout
+# Set tcp timeout between the e2guardian and upstream service (proxy or target host)
+ # This is a connection timeout
+ # For remote sites you may need to increase this to 10 or more.
+# Min 1 - Max 100
+# default 5
+
+# connectretries = 1
+#
+# Connect retries
+# Set the number of retries to make on connection failure before giving up
+# Min 1 - Max 100
+# default 1
+
+#proxyexchange = 61
+#
+# Proxy header exchange
+# Set timeout between an upstream Proxy and e2guardian
+# Min 20 - Max 300
+# If this is higher than proxies timeout user will get proxy Gateway error page
+# If lower e2guardian Gateway error page
+# default 61
+
+#pcontimeout = 55
+#
+# Pconn timeout
+# how long a persistent connection will wait for other requests
+# Min 5 - Max 300
+# default 55
+
+###
+### END of TUNING section
+
+
+### DEBUG section
+###
+
+## Things that can used on production binaries
+
+# storyboardtrace = on
+#
+# Storyboard tracing
+# Warning - produces verbose output - do not use in production
+# Output goes to syslog (or stderr when compiled with E2DEBUG defined)
+# default off
+# Use to debug storyboard logic flow
+
+#logsslerrors = on
+#
+# Logs openssl error 'stack' in syslog
+# Used to diagnose openssl errors
+# It is normal for some openssl errors to occur
+# Can be left on or off
+# default off
+
+#logconnectionhandlingerrors = on
+#
+# if on it logs some debug info regarding accept()ing and failed connections
+# which
+# can usually be ignored.  These are logged by syslog.  It is safe to leave
+# it on or off
+# default off
+
+#rqloglocation = '@E2LOGLOCATION@/request.log'
+#
+# Defines optional request log path
+# This is for useful for debug purposes to log all requests before processing or setting filter group
+# See notes/LogRequests for details
+# Default is "" - no request log
+
+## Things that will only work if specifically compliled
+
+## 'NEW' debug system (generaly compliled in release systems)
+## Note that this is only partialy implimented and only works for ICAP, CLAMAV 
+## and ICAPC
+## and so 'ALL' = 'ICAP,CLAMAV,ICAPC' only.
+## To debug other areas of code re-compiling in debug mode is required
+
+## It will be replaced by a new general logging system in v5.5
+
+#debuglevel = 'ALL'
+#
+#Debug Level
+#Enable debug e2guardian
+#debug one value:
+#Eg
+#       debuglevel = 'ICAP'
+#Enable ICAP debug informations only
+#
+#Eg
+#       debuglevel = 'ALL'
+#Enable ALL debug informations
+#
+#Additive mode:
+#Eg
+#       debuglevel = 'ICAP,NET'
+#Enable ICAP and NET debug informations
+#
+#Soustractive mode:
+#Eg
+#       debuglevel = 'ALL,-ICAP'
+#Enable all debug informations but without ICAP debug informations
+#       debuglevel = 'ALL,-ICAP,-NET,-FILTER'
+#Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
+#by default disabled, if this option is required just uncomment the line below
+#works also with e2guardian -N (-N Do not go into the background)
+#Possible value : ICAP CLAMAV ICAPC (icap client)
+
+#debuglevelfile = '/var/log/e2guardian/debuge2'
+#Directory for result of debug level (log)
+#Works only if debuglevel is enabled
+#
+
+###
+### END of DEBUG section
+
+
+### PROCESS section
+###
+
+# Process options
+# (Change these only if you really know what you are doing).
+# These options allow you to run multiple instances of e2guardian on a single machine.
+# Remember to edit the log file path also if that is your intention.
+
+#pidfilename = '@E2PIDDIR@/e2guardian.pid'
+#
+# PID filename
+#
+# Defines process id directory and filename.
+
+#nodaemon = off
+#
+# Disable daemoning
+# If enabled the process will not fork into the background.
+# It is not usually advantageous to do this.
+# on|off (defaults to off)
+
+#@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'   
+#
+# Mail program
+# Path (sendmail-compatible) email program, with options.
+# Not used if usesmtp is disabled (filtergroup specific).
+## Note that this is experimental in v5 - no support from maintainers
+
+
+###
+### END of PROCESS section
+
+
+### OBSOLETE section
+###
+### Directives here are depreciated and may already not work
+###
+
+originalip = off
+# NOTE: This option is removed in v5.4 - if left and enabled would give too many
+# false positives.
+
 # contentscanexceptions = off
+# Content scan exceptions // THIS MOVED to e2guardianf1.conf
 
-# Auth plugins
-# 
-# Handle the extraction of client usernames from various sources, such as
-# Proxy-Authorisation headers and ident servers, enabling requests to be
-# handled according to the settings of the user's filter group.
-#
-
-# If you do not use multiple filter groups, you need not specify this option.
-#
-#authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
-
-#authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
-
-#@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
-
-#authplugin = '@E2CONFDIR@/authplugins/ident.conf'
-
-#authplugin = '@E2CONFDIR@/authplugins/ip.conf'
-
-#authplugin = '@E2CONFDIR@/authplugins/proxy-header.conf'
-
-#authplugin = '@E2CONFDIR@/authplugins/port.conf'
-
-##NEWIN V5.4
-# Note that from v5.4 lists used by auth plugins are defined here and not in auth *.conf files
-
-# for ip_auth 
-ipmaplist = 'name=ipmap, path=__LISTDIR__authplugins/ipgroups'
-# for port auth
-maplist = 'name=portmap, path=__LISTDIR__authplugins/portgroups'
-
-# Map auth to ports
-# If enabled map auth plugins to ips/ports - number of authplugins must then be same as
-# number of ports
-# If disabled scan authplugins on all ports - number of authplugins can then be different
-#  to number of ports
-# on (default) | off
+#mapportstoips = off
 #mapauthtoports = off
+# Map auth to ports/ports to ip  - does not work work correctly
+#  - very confusing options
+# default off - to be removed in v5.5.
 
+# logheadervalue = 'proxy-authorization:'
+# Log a specific value from header
+# low case only
+# only used with logs: 1,5 and 6
+
+#statlocation = "" 
+#  url cache/stats no  longer in use
+
+#blockedcontentstore = "" 
+#  no  longer in use
+
+#softrestart = off
+#  no  longer in use
+
+#proxyfailureloginterval = 0
+#  no  longer in use
+
+#scancleancache = true
+#  no  longer in use
+
+#urlcachenumber = 0
+#  no  longer in use
+
+#groupnamesfile = ''
+#  no longer supportied - will be removed in v5.5
+
+#urlcacheage= 0
+#  no  longer in use
+
+#recheckreplacedurls = off - option does not work - may be removed in v5.5
+#
 # Re-check replaced URLs
 # As a matter of course, URLs undergo regular expression search/replace (urlregexplist)
 # *after* checking the exception site/URL/regexpURL lists, but *before* checking against
@@ -599,209 +1227,59 @@ maplist = 'name=portmap, path=__LISTDIR__authplugins/portgroups'
 # after replacement, making it possible for URL replacement to trigger exceptions based
 # on them.
 # Defaults to off.
-recheckreplacedurls = off
 
-# Misc settings
+#logchildprocesshandling - will be removed in v5.5
+# no longer in use
 
-# if on it adds an X-Forwarded-For: <clientip> to the HTTP request
-# header.  This may help solve some problem sites that need to know the
-# source ip. on | off
-forwardedfor = off
+###
+### END of OBSOLETE section
 
-# if on it uses the X-Forwarded-For: <clientip> to determine the client
-# IP. This is for when you have squid between the clients and e2guardian.
-# Warning - headers are easily spoofed. on | off
-usexforwardedfor = off
 
-# as mentioned above, the headers can be easily spoofed in order to fake the
-# request origin by setting the X-Forwarded-For header. If you have the
-# "usexforwardedfor" option enabled, you may want to specify the IPs from which
-# this kind of header is allowed, such as another upstream proxy server for
-# instance If you want authorize multiple IPs, specify each one on an individual
-# xforwardedforfilterip line.
-# xforwardedforfilterip = 
+### INFO section
+###
+### No settings just info on new features etc
 
-# if on it logs some debug info regarding accept()ing and failed connections
-# which
-# can usually be ignored.  These are logged by syslog.  It is safe to leave
-# it on or off
-logconnectionhandlingerrors = on
+# New in v5.4.2:- relative paths
+# Relative paths can used in .Include<> and list files.
+#       The directory of current file will be inserted where the file name
+#       does not start with '/'
 
-#sets the number of worker threads to use 
+
+# Also NEW in v5.4.2 - LISTDIR 'variable' definition
+# LISTDIR can be defined in .conf files.
+# This allows for more readable configuration and for templating.
+# This works similarly to a shell environment variable
+# The text between <> will replace occurances of __LISTDIR__ in .conf and
+#       list files.
+# Note: Currently only LISTDIR may be defined.
 #
-# This figure is the maximum number of concurrent connections.
-# If more connections are made, connections will queue until a worker thread is free.
-# On large site you might want to try 5000 (max value 20000)
-# 500 is the default suitable for home or samll office use on 64-bit systems
-# On 32-bit systems reduce this to 300 to avoid exceeding the <4GB
-# virtual memory limit and on Linux decrease the thread stack size from
-# 10MB to 2MB (ulimit -s 2048)
-httpworkers = 500 
-
-# Process options
-# (Change these only if you really know what you are doing).
-# These options allow you to run multiple instances of e2guardian on a single machine.
-# Remember to edit the log file path above also if that is your intention.
-
-# PID filename
-# 
-# Defines process id directory and filename.
-#pidfilename = '@E2PIDDIR@/e2guardian.pid'
-
-# Disable daemoning
-# If enabled the process will not fork into the background.
-# It is not usually advantageous to do this.
-# on|off (defaults to off)
-nodaemon = off
-
-# Disable logging process
-# on|off (defaults to off)
-nologger = off
-
-# Enable logging of "ADs" category blocks
-# on|off (defaults to off)
-logadblocks = off
-
-# Enable logging of client User-Agent
-# Some browsers will cause a *lot* of extra information on each line!
-# on|off (defaults to off)
-loguseragent = off
-
-# Enable logging of client hostname and its IP
-# If off the hostname will be logged instead of IP
-# Applies only to log formats 5, 6, 7 & 8.
-# on|off (defaults to on)
-# Needs to be turned off if you are using sarg log analysis.
-logclientnameandip = on
-
-# use dash ('-') instead of blank fields in log
-# This is essential for space delimited log formats, and makes all log types easier to read
-# But can be turned off if this causes a problem with log analysis
-# on|off (defaults to on)
-usedashforblank = on
-
-# Daemon runas user and group
-# This is the user that e2guardian runs as.  Normally the user/group nobody.
-# Uncomment to use.  Defaults to the user set at compile time.
-# Temp files created during virus scanning are given owner and group read
-
-# clamdscan, the two processes must run with either the same group or user ID.
-#daemonuser = '@E2PROXYUSER@'
-#daemongroup = '@E2PROXYGROUP@'
-
-
-# Mail program
-# Path (sendmail-compatible) email program, with options.
-# Not used if usesmtp is disabled (filtergroup specific).
-#@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'   # NOT YET IMPLIMENTED
-
-# Enable SSL support  
-# This must be present to enable MITM and/or Cert checking
-# default is off
-enablessl = off
-
-#SSL certificate checking path
-#Path to CA certificates used to validate the certificates of https sites.
-# if left blank openssl default ca certificate bundle will be used
-#Leave as default unless you want to load non-default cert bundle
-#sslcertificatepath = ''
-
-#SSL man in the middle
-#CA certificate path
-#Path to the CA certificate to use as a signing certificate for 
-#generated certificates.
-# default is blank - required if ssl_mitm is enabled.
-#cacertificatepath = '/home/e2/e2install/ca.pem'
-
-#CA private key path
-#path to the private key that matches the public key in the CA certificate.
-# default is blank - required if ssl_mitm is enabled.
-#caprivatekeypath = '/home/e2/e2install/ca.key'
-
-#Cert private key path
-#The public / private key pair used by all generated certificates
-# default is blank - required if ssl_mitm is enabled.
-#certprivatekeypath = '/home/e2/e2install/cert.key'
-
-#Generated cert path
-#The location where generated certificates will be saved for future use.
-#(must be writable by the e2 user)
-# default is blank - required if ssl_mitm is enabled.
-#generatedcertpath = '/home/e2/e2install/generatedcerts/'
-
-#Warning: if you change the cert start/end time from default on a running 
-#         system you will need to clear the generated certificate 
-#         store and also may get problems on running client browsers
-
-#Generated cert start time (in unix time) - optional
-# defaults to 1417872951 = 6th Dec 2014
-# generatedcertstart = 1417872951 
-
-#Generated cert end time (in unix time) - optional
-# defaults to generatedcertstart + 10 years
-#genratedcertend =
-# generatedcertstart =
-
-#Use openssl configuration file
-# switch this on if you want e2g to read in openssl configuration
-# This is useful if you want to use a hardware acceleration engine.
-# default is off
-#useopensslconf = off
+# The mapping is actioned as the file is read and is valid until another LISTDIR
+#       is defined later in the file, or in an included .conf file.
 #
+# The scope of LISTDIR is in the rest of file it is defined in and all
+# .Include<> files or list files in that portion of the file.
 
-#Alternate openssl configuration file
-# only used if useopensslconf = on
-# default is to use standard openssl configuration file
-# only use this if an alternate openssl configuration file is used for e2g
-# opensslconffile = '/home/e2/openssl.conf'
+# It should be noted that re-definitions of single-line directives will 
+# over write any earlier ones.
 
-
-# monitor helper path 
-# If defined this script/binary will be called with start or stop appended as follows:-
-# Note change in V4!!! - No longer detects cache failure
-# At start after e2guardian has started listener and worker threads with 
-# ' start' appended
-# When e2guardian is stopping with ' stop' appended
-# monitorhelper = '/usr/local/bin/mymonitor'  
-
-# monitor flag prefix path 
-# If defined path will be used to generate flag files as follows:-
-# 
-# At start after e2guardian has started listener and worker threads with 
-#  'running' appended
-# When e2guardian is stopping with 'paused' appended
-# Note change in V4!!! - No longer detects cache failure
-# monitorflagprefix = '/home/e2g/run/e2g_flag_'
-
-# Much logic has moved to storyboard files
-preauthstoryboard = '@E2CONFDIR@/preauth.story'
-
-# Storyboard tracing
-# Warning - produces verbose output - do not use in production
-# Output goes to syslog (or stderr in debug mode)
-# default off
-# storyboardtrace = off
-
-# Abort if list is missing or unreadable
-# default is to warn but then ignore missing lists
-# To abort on missing list set to on
-# abortiflistmissing = off  //NOT YET IMPLIMENTED
-
-#Search sitelist for ip sites
-# In v5 a separate set of lists has been introduced for IP sites
-# and normally e2g will no longer check site lists for ip's
-# If you want to keep backward list compatablity then set this to
-# 'on' - but note this incurs an overhead - putting IP in ipsitelists
-# and setting this to off gives the fastest implimentation.
-# default is 'on'
-searchsitelistforip = on
-
-
-# http header checking setings
+# The same is true of list definitions.  Later unique definitions will 
+# override earlier ones. A unique list definition is formed from the
+# list type and the name.
 #
-# Limit number of http header lines in a request/response
-# (to guard against attacks)
-# Minimum 10 max 250
-# default 50
-# maxheaderlines = 50
+# So,
 
+# sitelist = 'name=banned,path=x...'
+# and
+# urllist = 'name=banned,path=y...'
+# are both unique
+
+# but
+
+# sitelist = 'name=banned,path=x...'
+# and
+# sitelist = 'name=banned,path=z...'
+# are not and the later definition will override the first.
+
+
+###
+### END of INFO section

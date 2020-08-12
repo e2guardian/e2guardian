@@ -29,6 +29,7 @@ extern authcreate_t identcreate;
 extern authcreate_t ipcreate;
 extern authcreate_t portcreate;
 extern authcreate_t headercreate;
+extern authcreate_t PF_basic_create;
 
 #ifdef PRT_DNSAUTH
 extern authcreate_t dnsauthcreate;
@@ -162,6 +163,13 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
         std::cerr << thread_id << "Enabling proxy-header auth plugin" << std::endl;
 #endif
         return headercreate(cv);
+    }
+
+    if (plugname == "pf-basic") {
+#ifdef E2DEBUG
+        std::cerr << thread_id << "Enabling proxy-header auth plugin" << std::endl;
+#endif
+        return PF_basic_create(cv);
     }
 
 #ifdef PRT_DNSAUTH

@@ -38,6 +38,9 @@ function(icap-pre-authcheck)
 #if(clientin,ipmap) return setgroup
 #
 
+function(auth_pf_basic)
+if(userin,defaultusermap) return setgroup
+
 function(auth_proxy_basic)
 if(userin,defaultusermap) return setgroup
 

@@ -1,0 +1,95 @@
+Package Docker Image Ubuntu bionic:
+  stage: ubuntubionic
+  image: amd64/ubuntu:18.04
+  artifacts:
+   expire_in: 20 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian  
+  script:
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo $VFULL
+    - apt update
+    - apt-get -y upgrade
+    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
+      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
+      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
+      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
+    - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - make 
+    - find / -name ".git" -exec rm -r "{}" +
+
+Create Ubuntu Package bionic:
+  stage: create-ubuntu-packagebionic
+  image: amd64/ubuntu:18.04
+  artifacts:
+   expire_in: 20 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian  
+  variables:
+    PACKPATH: "/builds/fredbcode/e2guardian"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    OS: "ubuntu"
+  script:
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo $VFULL
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
+    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
+    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
+    - mkdir -p ${PACKPATH}/share/e2guardian/languages
+    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    - find ${PACKDST}/ -type f -name "Makefil*" -delete
+    - find ${PACKDST}/ -type f -name "*.in" -delete
+    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - rm -rf .git
+    - find / -name ".git" -exec rm -r "{}" +
+
+Test and publish Ubuntu bionic:
+  stage: testubuntubionic 
+  image: amd64/ubuntu:18.04
+  artifacts:
+   expire_in: 20 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian
+  variables:
+    PACKPATH: "/builds/fredbcode/e2guardian"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    CERT_DIR: "/etc/e2guardian/private/"
+    OS: "ubuntu"
+  script:
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo $VFULL
+    - apt update
+    - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
+    - VERSION=`lsb_release -cs`
+    - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
+    - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
+    - mkdir -p ${CERT_DIR}generatedcerts
+    - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
+    - chown --recursive e2guardian:e2guardian ${CERT_DIR}
+    - echo "qwant.com" >> /etc/e2guardian/lists/example.group/bannedsitelist
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 
+    - curl -k -o /tmp/test https://www.google.com 
+    - curl -k https://www.qwant.com | grep -i e2guardian 
+    - unset https_proxy
+    - mkdir -p "${CI_COMMIT_BRANCH}"
+    - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
+    - md5sum ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb >  ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d)_md5.txt
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ssh-add <(echo "$SSH_NOSTROMO_KEY")
+    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
+    - find / -name ".git" -exec rm -r "{}" +
+     

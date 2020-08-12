@@ -2,10 +2,23 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.4.2
 
-April/May 2020
+April to August 2020
 
- - Fix #602 - log timestamp records time log written
- - Fix #520 - by-pass cookie generation and check does not match
+Fixes
+  - Fix #619 When using x-forwarded-IP behind proxy MITM requests show wrong IP
+  - Fix #616 IP auth issue in ICAP mode
+  - Fix #609 .Include not working in e2guardian.conf
+  - Fix #607  Merge pull request #608 from KDGundermann 
+              wrong file path for example
+  - Remove example .Includes for phraselists that are no longer in distribution
+  - Fix #602 - log timestamp records time log written
+  - Fix #520 - by-pass cookie generation and check does not match
+
+New features
+  Add 'hook' calls and placeholder functions to common.story
+  Add pf-basic auth plugin - use when squid in front of e2g #620
+  Reorganize lists and example config files (#618) 
+  Feature .Define LISTDIR <> and __LISTDIR__ insertion added #610
 
 version 5.4.1
 

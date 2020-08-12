@@ -189,8 +189,9 @@ bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp2 = temp.after(".Define LISTDIR <").before(">");
                     if (temp2.length() > 0) {
                         now_pwd = temp2;
-                        if(!now_pwd.endsWith("/"))
-                            now_pwd += "/";
+                        //if(!now_pwd.endsWith("/"))
+                            //now_pwd += "/";
+                      // std::cerr << "now_pwd set to " << now_pwd;
                     }
 
                     continue;
@@ -214,7 +215,10 @@ bool FOptionContainer::read(const char *filename) {
     try { // all sorts of exceptions could occur reading conf files
         std::string linebuffer;
         String temp; // for tempory conversion and storage
-        String list_pwd;
+        String list_pwd = __CONFDIR;
+        list_pwd += "/lists/group";
+        list_pwd += String(filtergroup);
+        //list_pwd += "/";
         if(!readConfFile(filename, list_pwd))
             return false;
 
@@ -393,9 +397,13 @@ bool FOptionContainer::read(const char *filename) {
 
 #endif
         // override default reporting level
-        reporting_level = findoptionI("reportinglevel");
-        if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
-            return false;
+        if (findoptionS("reportinglevel").empty()) {   //uses value from e2guardian.conf if empty
+            reporting_level = o.reporting_level;
+        } else {
+            reporting_level = findoptionI("reportinglevel");
+            if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
+                return false;
+            }
         }
 
         if (reporting_level == 0) {
@@ -404,7 +412,11 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         long temp_max_upload_size;
-        temp_max_upload_size = findoptionI("maxuploadsize");
+        if (findoptionS("maxuploadsize").empty()) {
+            temp_max_upload_size = -1;
+        } else {
+            temp_max_upload_size = findoptionI("maxuploadsize");
+        }
 
         if ((realitycheck(temp_max_upload_size, -1, 10000000, "max_uploadsize")) && (temp_max_upload_size != 0)) {
             max_upload_size = temp_max_upload_size;
@@ -518,7 +530,8 @@ bool FOptionContainer::read(const char *filename) {
 	    if (findoptionS("groupname").length() > 0) {
             	name = findoptionS("groupname");
 	    } else {
-		name = "no_name_group";
+		name = "group";
+        name += String(filtergroup);
 	    }
 #ifdef E2DEBUG
             std::cerr << thread_id << "Group name: " << name << std::endl;
@@ -546,6 +559,12 @@ bool FOptionContainer::read(const char *filename) {
         std::string banned_phrase_list_location(findoptionS("bannedphraselist"));
 
         std::string storyboard_location(findoptionS("storyboard"));
+        if( storyboard_location.empty()) {
+            storyboard_location = __CONFDIR;
+            storyboard_location += "/group";
+            storyboard_location += String(filtergroup);
+            storyboard_location += ".story";
+        }
 
 #ifdef E2DEBUG
         std::cerr << thread_id << "Read settings into memory" << std::endl;
@@ -554,6 +573,9 @@ bool FOptionContainer::read(const char *filename) {
 
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
+            if (naughtyness_limit == 0) {
+                naughtyness_limit = 60;
+            }
             if (!realitycheck(naughtyness_limit, 1, 0, "naughtynesslimit"))
                 return false;
 

@@ -78,7 +78,7 @@ READABLE THREAD_ID FOR LOGS & DEBUG
 
     hw10: for http_worker threads where '10' is the thread number
 
-    log: for logging thread
+    log: for logging thread for access.log
 
 REVISED DEBUG STAGE 1
 
@@ -145,6 +145,35 @@ BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 Requests without SNI and those not TLS no longer tried for MITM.
 New option to use original ip & port (currently Linux only)
 
+RELATIVE PATHS IN .Includes and list definition
+
+The directory of the current .conf (or list file) is taken as the prefix
+path.
+
+LIST DIRECTORY VARIABLE
+
+A list directory variable (LISTDIR) can be defined in config files.
+This works like an exported shell variable and the contents will replace
+__LISTDIR__ wherever it occurs in a .conf file or list file .Include.
+
+This feature will allow the development of templates and easier separation
+between boilerplate and user configuration.
+
+REORGANIZED e2guardian.conf files and list directories.
+
+Both example e2guardian.conf files are reorganized into sections and more
+usage notes added to make it easier for new users to understand what changes
+they will need.
+
+List directory reorganized into sub-directories and READMEs added to help 
+users to know which list(s) to change.  
+The example.group sub-directory should be copied in a groupn directory for 
+each group.  
+Common lists are now in the common sub-directory.  
+As each group's lists are now in a different directory
+the e2guardianf1.conf files will be able to be copied into a new group .conf 
+with minimal changes.
+
 TESTING -  
 ---------
 
@@ -161,6 +190,10 @@ TO DO IN THIS RELEASE
 
     Re-implement fancy download manager
 
+    Option for output file for storyboard trace
+
+    Revised 'Logger' system for debugging (by KDGunermann).
+
     Create 'output-filter' plug-in system for content modification
 
     POST content filtering
@@ -168,8 +201,6 @@ TO DO IN THIS RELEASE
 
 TODO - for later releases.
 -----------------------
-
-    Option for output file for storyboard trace
 
     Re-look at MITM certificate generation.
     
@@ -180,10 +211,6 @@ TODO - for later releases.
 
     Remove duplicate list/storyboard warnings with a DRY system and add no warn
         option.
-
-    Polish new debug feature
-
-    Extend new debug feature to further modules
 
 
 WISHLIST
@@ -209,6 +236,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 17th March 2020
+Philip Pearce 10th August 2020
 
 

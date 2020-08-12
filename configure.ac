@@ -189,6 +189,7 @@ fi], [
   proxyuser=nobody
 ])
 AC_SUBST(E2PROXYUSER, "$proxyuser")
+#AC_DEFINE_UNQUOTED(__PROXYUSER,"$proxyuser","User to run as")
 
 AC_MSG_CHECKING(for proxy group)
 AC_ARG_WITH(proxygroup,
@@ -205,6 +206,7 @@ fi], [
   proxygroup=nobody
 ])
 AC_SUBST(E2PROXYGROUP, "$proxygroup")
+#AC_DEFINE_UNQUOTED(__PROXYGROUP,"$proxygroup","Group to run as")
 
 AC_MSG_CHECKING(for piddir)
 AC_ARG_WITH(piddir,
@@ -222,6 +224,7 @@ fi], [
 ])
 AC_FINALIZE_VAR(E2PIDDIR,"$piddir")
 AC_SUBST(E2PIDDIR)
+#AC_DEFINE_UNQUOTED([__PIDDIR],[${E2PIDDIR}], "path of pid directory")
 
 
 AC_MSG_CHECKING(for logdir)
@@ -240,6 +243,7 @@ fi], [
 ])
 AC_FINALIZE_VAR(E2LOGLOCATION,"$logdir")
 AC_SUBST(E2LOGLOCATION)
+# AC_DEFINE_UNQUOTED([__LOGLOCATION],[${E2LOGLOCATION}], "path of log directory")
 
 PKG_PROG_PKG_CONFIG
 
@@ -648,6 +652,9 @@ AC_FINALIZE_VAR(E2DATADIR,"${datadir}/${PACKAGE_NAME}")
 AC_SUBST(E2DATADIR)
 AC_FINALIZE_VAR(E2CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf")
 AC_SUBST(E2CONFFILE)
+#AC_DEFINE_UNQUOTED(__CONFDIR,"${e2sysconfdir}","")
+AC_DEFINE_UNQUOTED([__DATADIR],["${E2DATADIR}"],["Data directory path"])
+AC_DEFINE_UNQUOTED(__CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf","Configure file path")
 
 AC_CONFIG_FILES([Makefile
 data/Makefile
@@ -666,20 +673,22 @@ configs/e2guardianf1.conf
 configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
+configs/lists/common/Makefile
+configs/lists/example.group/Makefile
 configs/lists/phraselists/Makefile
 configs/lists/oldphraselists/Makefile
-configs/lists/bannedrooms/Makefile
+configs/lists/rooms/Makefile
 configs/lists/contentscanners/Makefile
-configs/lists/bannedphraselist
-configs/lists/oldbannedphraselist
-configs/lists/bannedurllist
-configs/lists/bannedsitelist
-configs/lists/domainsnobypass
-configs/lists/urlnobypass
-configs/lists/exceptionphraselist
-configs/lists/weightedphraselist
-configs/lists/oldexceptionphraselist
-configs/lists/oldweightedphraselist
+configs/lists/example.group/bannedphraselist
+configs/lists/example.group/oldbannedphraselist
+configs/lists/example.group/bannedurllist
+configs/lists/example.group/bannedsitelist
+configs/lists/example.group/domainsnobypass
+configs/lists/example.group/urlnobypass
+configs/lists/example.group/exceptionphraselist
+configs/lists/example.group/weightedphraselist
+configs/lists/example.group/oldexceptionphraselist
+configs/lists/example.group/oldweightedphraselist
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/contentscanners/Makefile

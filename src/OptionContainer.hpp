@@ -138,7 +138,6 @@ class OptionContainer
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
-    std::string stat_location;
     std::string ipc_filename;
     std::string urlipc_filename;
     std::string ipipc_filename;
@@ -209,7 +208,6 @@ class OptionContainer
     off_t max_content_ramcache_scan_size;
     off_t max_content_filecache_scan_size;
     bool scan_clean_cache = false;
-    bool content_scan_exceptions = false;
     bool delete_downloaded_temp_files = false;
     bool search_sitelist_for_ip = false;
     std::string download_dir;
@@ -270,10 +268,11 @@ class OptionContainer
     std::string conffilename;
  //   std::string html_template_location;
     std::string group_names_list_location;
+    int reporting_level = 0;
 
     private:
     std::deque<std::string> conffile;
-    int reporting_level = 0;
+    bool readConfFile(const char *filename, String &list_pwd);
 
 
     bool loadDMPlugins();

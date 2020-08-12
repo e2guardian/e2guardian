@@ -1,0 +1,185 @@
+
+### Lists in this directory relate to a single filter group
+### each filter group has it's own directory
+
+###
+### Many of the exception/grey/banned site/ipsite/url lists are used for
+### switching on/off standard list categories
+###
+### Where available it is best to use the LOCAL lists for your own lists of
+### sites/urls as these override the main ones.
+
+## Order of checking is broadly as follows:-
+##
+## 1. If in Local Exception lists - allow with no further checking
+## 2. If in Local Grey lists - retrieve page and content-check
+## 3. If in Local Banned lists - block with no further checking
+## 4. If in Main Exception lists - allow with no further checking
+## 5. If in Main Grey lists - retrieve page and content-check
+## 6. If in Main Banned lists (or blanket blocked) - block with no further checking
+## 7. If gets here  - retrieve page and content-check
+## 8. Check blocked/exception file/mime types.
+## 9. Content-check page
+
+## Lists in this directory:-
+
+# Nocheckcert lists
+# Do not check ssl certificates for sites listed
+# Can be used to allow sites with self-signed or invalid certificates
+# or to reduced CPU load by not checking certs on heavily used sites (e.g. Google, Bing)
+# Use with caution!
+# Ignored if mitmcheckcert is 'off'
+#
+nocheckcertsitelist
+nocheckcertsiteiplist
+
+# greyssl lists only used in onlymitmsslgrey mode to define sites that
+# will be MITM
+greysslsitelist
+greysslsiteiplist
+localgreysslsitelist
+localgreysslsiteiplist
+
+## Exception lists
+##  Put sites you trust in these lists
+##  they override Grey and Banned entries
+exceptionsitelist
+exceptionsiteiplist
+exceptionurllist
+exceptionregexpurllist
+
+## Grey (i.e. content check) lists
+##  Put sites you want content-checked in these lists
+##  they override Banned entries
+greysitelist
+greysiteiplist
+greyurllist
+
+## Banned sites/urls
+bannedsitelist
+bannedsiteiplist
+bannedurllist
+bannedregexpurllist
+
+# 'bannedssl' lists are not currently used
+bannedsslsitelist
+bannedsslsiteiplist
+
+## Local Exception lists
+localexceptionsitelist
+localexceptionsiteiplist
+localexceptionurllist
+
+## Local Grey lists
+localgreysitelist
+localgreysiteiplist
+localgreyurllist
+
+## Local Banned lists
+localbannedsitelist
+localbannedsiteiplist
+localbannedurllist
+
+## Bannedssl lists are not currently used
+localbannedsslsitelist
+localbannedsslsiteiplist
+
+
+# File type/extensions
+exceptionextensionlist
+exceptionmimetypelist
+
+
+# Use the following lists to block specific kinds of file downloads.
+bannedextensionlist
+bannedmimetypelist
+
+# In either file filtering mode, the following lists can be used to override
+# MIME type & extension blocks for particular domains & URLs (trusted download sites).
+#
+exceptionfilesitelist
+exceptionfilesiteiplist
+exceptionfileurllist
+
+# NEW in v5.4 bannedtimelist - times when no access is allowed
+# To activate a storyboard change is required - see examplef1.story
+bannedtimelist
+
+# NEW in v5.4 blankettimelist - times when blanket block is applied
+# To activate a storyboard change is required - see examplef1.story
+blankettimelist
+
+
+### These lists are useful for allowing/blocking apps or browsers based 
+### on the user-agent
+bannedregexpuseragentlist
+exceptionregexpuseragentlist
+
+# refererexception lists are used to make a request an exception based on the
+# Referer header.
+refererexceptionsitelist
+refererexceptionsiteiplist
+refererexceptionurllist
+
+# Used to modify url on the fly
+# use to enforce safe search etc.
+# Do not try and change target site - use redirect for this.
+urlregexplist
+
+# Replace target connection site for a ssl connection request
+# Note: this does not change the url in any way. It just changes
+# where the request is sent upstream and the new target must accept 
+# the original url. 
+sslsiteregexplist
+
+# Used to redirect browser to different site and or url
+urlredirectregexplist
+
+# Categorise without blocking:
+# Supply categorised lists here and the category string shall be logged against
+# matching requests, but matching these lists does not perform any filtering
+# action.
+logsitelist
+logsiteiplist
+logurllist
+logregexpurllist
+
+# Phrase lists
+bannedphraselist
+weightedphraselist
+exceptionphraselist
+
+oldbannedphraselist
+oldweightedphraselist
+oldexceptionphraselist
+
+# Search Term list(s) for option 1
+bannedsearchlist
+bannedsearchoveridelist
+
+localbannedsearchlist
+
+# Outgoing HTTP request header rules:
+# Lists for blocking based on, and modification of, outgoing HTTP
+# request headers.  Format for headerregexplist is one modification rule per
+# line, similar to content/URL modifications.  Format for
+# bannedregexpheaderlist is one regular expression per line, with matching
+# headers causing a request to be blocked.
+# Headers are matched/replaced on a line-by-line basis, not as a contiguous
+# block.
+# Use for example, to remove cookies or prevent certain user-agents.
+headerregexplist
+bannedregexpheaderlist
+exceptionregexpheaderlist
+
+# add cookies or other headers etc to matched urls
+addheaderregexplist
+
+# Response HTTP header rules:
+# Lists for modification or removal of HTTP response headers.
+# Format for reponseheaderregexplist is one rule per line, similar to
+# content/URL modifications.
+# Headers are matched/replaced on a line-by-line basis, not as a contiguous
+# block.
+# Use for example, to remove protocol upgrade requests.
+responseheaderregexplist

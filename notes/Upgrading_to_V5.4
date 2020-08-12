@@ -61,13 +61,13 @@ maplist = 'name=defaultusermap, path=@E2CONFDIR@/lists/filtergroupslist'
 
 Add defines for nomitm lists - these are lists of sites that should never be mitm (where mitm cannot work) e.g. Sites only used by apps that do not follow normal certificate rules etc. Sites in these lists will be treated as non-mitm.
 
-sitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsitelist'
-ipsitelist = 'name=nomitm,path=@E2CONFDIR@/lists/nomitmsiteiplist'
+sitelist = 'name=nomitm,path=@E2CONFDIR@/lists/common/nomitmsitelist'
+ipsitelist = 'name=nomitm,path=@E2CONFDIR@/lists/common/nomitmsiteiplist'
 
 Add defines for browser list - it is used to determine whether to return a block page with https.
 Non-browser user-agents cannot understand block page and often refuse to be mitm.
 
-regexpboollist = 'name=browser,path=@E2CONFDIR@/lists/browserregexplist'
+regexpboollist = 'name=browser,path=@E2CONFDIR@/lists/common/browserregexplist'
 
 Add maplists for any auth plugins you are using - Note you must also replace the authplugins/*.conf
 files with the new v5.4 examples.
@@ -118,15 +118,15 @@ Add searchexceptionregexplist define
 # search terms exception (overide) list
 # Used to prevent urls such os completetion suggestion requests from being detected
 # as search requests
-regexpboollist = 'name=searchtermexceptions, path=@E2CONFDIR@/lists/searchexceptionregexplist'
+regexpboollist = 'name=searchtermexceptions, path=@E2CONFDIR@/lists/common/searchexceptionregexplist'
 
 Storyboards
 -----------
 
 Replace the old common.story with the new v5.4 version.
 
-Replace the old preauth.story with the new one.  Note that group assignment is now storyboarded
-in this file allowing more flexible group assignment.
+Replace the old preauth.story with the new one.  Note that group assignment is 
+now storyboarded in this file allowing more flexible group assignment.
 
 Using the new v5.4 examplef1.story as a template create a new fn.story for each filtergroup, 
 actioning any blanket block required and refering to your old fn.story file(s).
@@ -136,25 +136,29 @@ Remove the line 'function(checknobypasslists)' from your site.story file.
 Lists
 -----
 
-Copy the following list files (new or revised in v5.4) into your working directory and then edit them to your requirements:-
+You may wish to reorganize your existing lists along along the same lines as 
+suggested in the list/README, but this is optional.
 
-nomitmsitelist
-nomitmsiteiplist
-browserregexplist
-bannedphraselist
-weightedphraselist
-exceptionphraselist
-oldbannedphraselist
-oldweightedphraselist
-oldexceptionphraselist
-bannedtimelist
-blankettimelist
-responseheaderregexplist
-nologurllist
-nologsitelist
-nologregexpurllist
-nologextensionlist
-searchexceptionregexplist
+Copy the following list files (new or revised in v5.4) into your working 
+directory(ies) and then edit them to your requirements:-
+
+common/nomitmsitelist
+common/nomitmsiteiplist
+common/browserregexplist
+example.group/bannedphraselist
+example.group/weightedphraselist
+example.group/exceptionphraselist
+example.group/oldbannedphraselist
+example.group/oldweightedphraselist
+example.group/oldexceptionphraselist
+example.group/bannedtimelist
+example.group/blankettimelist
+example.group/responseheaderregexplist
+common/nologurllist
+common/nologsitelist
+common/nologregexpurllist
+common/nologextensionlist
+common/searchexceptionregexplist
 
 Note that phrase list paths have changed so that they are organised by language.
 
@@ -164,4 +168,5 @@ First run
 On the initial test run look at the standard output of e2guardian.  This will show any missing lists as well as those
 which are never used by the storyboarding.
 
-Revised 27 April 2020
+Revised 10 August 2020
+

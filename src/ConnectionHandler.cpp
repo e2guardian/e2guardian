@@ -873,7 +873,15 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // is this user banned?
             //isbanneduser = false;
-            if (o.use_xforwardedfor) {
+#ifdef NOTDEF
+	if(!ismitm) {
+// pretend to use xforwarded for
+		clientip = "192.6.6.6";
+		ip = clientip;
+	}
+#endif
+
+            if (!ismitm && o.use_xforwardedfor) {
                 bool use_xforwardedfor;
                 if (o.xforwardedfor_filter_ip.size() > 0) {
                     use_xforwardedfor = false;
@@ -886,10 +894,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 } else {
                     use_xforwardedfor = true;
                 }
-                if (use_xforwardedfor == 1) {
+                if (use_xforwardedfor) {
                     std::string xforwardip(header.getXForwardedForIP());
                     if (xforwardip.length() > 6) {
                         clientip = xforwardip;
+                        ip = clientip;
+                        header.setClientIP(ip);
                     }
 #ifdef E2DEBUG
                     std::cerr << thread_id << " -using x-forwardedfor:" << clientip << std::endl;
@@ -3770,6 +3780,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 ++dystat->reqs;
 
                 ip = icaphead.clientip;
+                checkme.clientip = ip;
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
                 gettimeofday(&thestart, NULL);
@@ -4005,17 +4016,20 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     int rc = E2AUTH_NOUSER;
-    if (clientuser != "") {
+    if (!(clientuser.empty() || clientuser == "-")) {
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
-        if (rc != E2AUTH_OK)
-        {};
     }
-    else {
+    if (rc != E2AUTH_OK)
+    {
         if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, checkme, true,
                     true)) {
             //break;  // TODO Error return????
+        }
+        if (!(icaphead.username.empty() || icaphead.username == "-")) {
+            checkme.user = icaphead.username;      // restore username if we had one from icap header
+            clientuser = icaphead.username;      // restore username if we had one from icap header
         }
     }
 

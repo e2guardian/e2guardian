@@ -962,9 +962,9 @@ void HTTPHeader::checkheader(bool allowpersistent)
             i->assign("X-E2G-IgnoreMe: removed upgrade-insecure-requests\r");
         }
 
-        if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
-            plogheadervalue = &(*i);
-        }
+   //     if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
+    //        plogheadervalue = &(*i);
+     //   }
         if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
             pheaderident = &(*i);
         }
