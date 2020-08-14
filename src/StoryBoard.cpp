@@ -264,8 +264,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 if (!found) {
                     // warning message
                     e2logger_debugsb("SB warning: Undefined list ", j->list_name,
-                                " used at line ", String(j->file_lineno),
-                                " of ", i->file_name), " (", filename, ")";
+                                " used at line ", j->file_lineno,
+                                " of ", i->file_name, " (", filename, ")");
                 } else {
                     e2logger_debugsb("SB ", j->list_name, " matches ", String(j->list_id_dq.size()), " types");
                 }
