@@ -762,10 +762,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
     } else {
         reqres = "REQ";
     }
-    //std::hash<std::thread::id> htid;
-//    std::thread::id tid = std::this_thread::get_id();
-//    std::size_t tid = htid(std::this_thread::get_id());
-    const char *tid = thread_id.c_str();
+    //const char *tid = thread_id.c_str();
 
 	if (header.size() != 0){
         String *line;
@@ -799,10 +796,8 @@ void HTTPHeader::dbshowheader(bool outgoing)
         inout = reqres + "OUT";
     else
         inout = reqres + "IN";
-
-    std::hash<std::thread::id> htid;
+//    std::hash<std::thread::id> htid;
 //    std::thread::id tid = std::this_thread::get_id();
-    std::size_t tid = htid(std::this_thread::get_id());
 
     if (header.size() != 0){
         String *line;
@@ -1741,10 +1736,14 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         reset();
     dirty = true;
 
-    if(is_response)
+#ifdef E2DEBUG
+    if(is_response) {
         e2logger_debug("Start of response header:in");
-    else
+    }
+    else {
         e2logger_debug("Start of request header:in");
+    }
+#endif
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins

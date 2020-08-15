@@ -96,41 +96,43 @@ void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
         std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
 
-        if (peersock.isTimedout())
+        if (peersock.isTimedout()) {
             e2logger_info(message, " Client at ", peer_ip, " Connection timedout - errno: ", err);
-        else if (peersock.isHup())
+        } else if (peersock.isHup()) {
             e2logger_info(message, " Client at ", peer_ip, " has disconnected - errno: ", err);
-        else if (peersock.sockError())
-            e2logger_info(message, " Client at ", peer_ip, " Connection socket error - errno: ", err);
-        else if (peersock.isNoRead())
-            e2logger_info(message, " cant read Client Connection at ", peer_ip, " - errno: ", err);
-        else if (peersock.isNoWrite())
-            e2logger_info(message, " cant write Client Connection at ", peer_ip, " - errno: ", err);
-        else if (peersock.isNoOpp())
-            e2logger_info(message, " Client Connection is no-op - errno: ", err);
-        else
-            e2logger_info(message, " Client Connection at ", peer_ip, " problem - errno: ", err);
-    }
+        } else if (peersock.sockError()) {
+                e2logger_info(message, " Client at ", peer_ip, " Connection socket error - errno: ", err);
+        } else if (peersock.isNoRead()) {
+                e2logger_info(message, " cant read Client Connection at ", peer_ip, " - errno: ", err);
+        } else if (peersock.isNoWrite()) {
+                e2logger_info(message, " cant write Client Connection at ", peer_ip, " - errno: ", err);
+        } else if (peersock.isNoOpp()) {
+                e2logger_info(message, " Client Connection is no-op - errno: ", err);
+        } else {
+                e2logger_info(message, " Client Connection at ", peer_ip, " problem - errno: ", err);
+        }
+}
 }
 
 void ConnectionHandler::upstreamDiag(const char *message, Socket &proxysock) {
     if (o.logconerror) {
 
         int err = proxysock.getErrno();
-        if (proxysock.isTimedout())
+        if (proxysock.isTimedout()) {
             e2logger_info(message, " upstream timedout - errno: ", err);
-        else if (proxysock.isHup())
+        } else if (proxysock.isHup()) {
             e2logger_info(message, " upstream has disconnected - errno: ", err);
-        else if (proxysock.sockError())
+        } else if (proxysock.sockError())  {
             e2logger_info(message, " upstream socket error - errno: ", err);
-        else if (proxysock.isNoRead())
+        } else if (proxysock.isNoRead()) {
             e2logger_info(message, " cant read upstream Connection - errno: ", err);
-        else if (proxysock.isNoWrite())
+        } else if (proxysock.isNoWrite()) {
             e2logger_info(message, " cant write upstream Connection  - errno: ", err);
-        else if (proxysock.isNoOpp())
+        } else if (proxysock.isNoOpp()) {
             e2logger_info(message, " upstream Connection is no-op - errno: ", err);
-        else
+        } else {
             e2logger_info(message, " upstream Connection problem - errno: ", err);
+        }
     }
     if (proxysock.isNoOpp())
         proxysock.close();
@@ -631,7 +633,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     try {
         //int rc;
+#ifdef E2DEBUG
         int pcount = 0;
+#endif
 
         // assume all requests over the one persistent connection are from
         // the same user. means we only need to query the auth plugin until
@@ -1439,10 +1443,11 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
             ((o.log_exception_hits == 0) && isexception)) {
         if (o.ll != 0) {
-            if (isexception)
+            if (isexception) {
                 e2logger_debug(" -Not logging exceptions");
-            else
+            } else {
                 e2logger_debug(" -Not logging 'ADs' blocks");
+            }
         }
         return;
     }
@@ -2218,18 +2223,19 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
         else {
             e2logger_debug(" -Skipping content filtering: ");
-            if (dblen > o.max_content_filter_size)
+            if (dblen > o.max_content_filter_size) {
                 e2logger_debug(" -Content too large");
-            else if (checkme->isException)
+            } else if (checkme->isException) {
                 e2logger_debug(" -Is flagged as an exception");
-            else if (checkme->isItNaughty)
+            } else if (checkme->isItNaughty) {
                 e2logger_debug(" -Is already flagged as naughty (content scanning)");
-            else if (isbypass)
-                e2logger_debug(" -Is flagged as a bypass");
-            else if (docheader->authRequired())
+            } else if (isbypass) {
+              e2logger_debug(" -Is flagged as a bypass");
+            } else if (docheader->authRequired()) {
                 e2logger_debug(" -Is a set of auth required headers");
-            else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
+            } else if (!docheader->isContentType("text",ldl->fg[filtergroup])) {
                 e2logger_debug(" -Not text");
+            }
         }
     }
 
@@ -2248,12 +2254,13 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
     else {
         e2logger_debug(" -Skipping content modification: ");
-        if (dblen > o.max_content_filter_size)
-            e2logger_debug(" -Content too large");
-        else if (!docheader->isContentType("text",ldl->fg[filtergroup]))
+        if (dblen > o.max_content_filter_size) {
+          e2logger_debug(" -Content too large");
+        } else if (!docheader->isContentType("text",ldl->fg[filtergroup])) {
             e2logger_debug(" -Not text");
-        else if (checkme->isItNaughty)
-            e2logger_debug(" -Already flagged as naughty");
+        } else if (checkme->isItNaughty) {
+          e2logger_debug(" -Already flagged as naughty");
+        }
     }
     //rc = system("date");
 
@@ -2791,10 +2798,14 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         //break;
 
         if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
-            if (!authed)
+#ifdef E2DEBUG
+            if (!authed) {
                 e2logger_debug(" -No identity found; using defaults");
-            else
+            }
+            else {
                 e2logger_debug(" -Plugin returned out-of-range filter group number; using defaults");
+            }
+#endif
 
             // If none of the auth plugins currently loaded rely on querying the proxy,
             // such as 'ident' or 'ip', then pretend we're authed. What this flag
@@ -3388,7 +3399,9 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
 
 int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec *&dystat) {
 
+#ifdef E2DEBUG
     int pcount = 0;
+#endif
     bool ismitm = false;
 
     struct timeval thestart;
@@ -3661,8 +3674,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     authed = true;
     checkme.filtergroup = filtergroup;
 
-    int unrealgroup = filtergroup+1;
-    e2logger_debugicap("-username: ", clientuser, " ICAP -filtergroup: ", unrealgroup);
+    //int unrealgroup = filtergroup+1;
+    e2logger_debugicap("-username: ", clientuser, " ICAP -filtergroup: ", filtergroup);
 
 //
 //
@@ -3921,9 +3934,9 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         checkme.whatIsNaughtyLog = icaphead.icap_com.mess_string;
     }
 
-    int unrealfiltergroup = filtergroup + 1;
+    //int unrealfiltergroup = filtergroup + 1;
     e2logger_debugicap("ICAP Respmod enabled - username: ", clientuser, 
-                        " -filtergroup: ", unrealfiltergroup,
+                        " -filtergroup: ", filtergroup,
                         " icaphead.icap_com.EBG: ", icaphead.icap_com.EBG,
                         " icaphead.res_body_flag: ", icaphead.res_body_flag);
 

@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     int rc;
 
     e2logger.setSyslogName("e2guardian");
-#if E2DEBUG
+#ifdef E2DEBUG
     e2logger.enable(LoggerSource::debug);
     e2logger.enable(LoggerSource::trace);
 #endif    

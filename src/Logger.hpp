@@ -131,8 +131,8 @@ extern Logger e2logger;
     if (e2logger.isEnabled(LoggerSource::debugsb)) \
       e2logger.vlog(LoggerSource::debugsb,  __func__, __LINE__, __VA_ARGS__)
   #define e2logger_debugicap(...) \
-    if (e2logger.isEnabled(LoggerSource::debugicap)) \
-      e2logger.vlog(LoggerSource::debugicap,  __func__, __LINE__, __VA_ARGS__)
+     if (e2logger.isEnabled(LoggerSource::debugicap)) \
+       e2logger.vlog(LoggerSource::debugicap,  __func__, __LINE__, __VA_ARGS__)
   #define e2logger_debugicapc(...) \
     if (e2logger.isEnabled(LoggerSource::debugicapc)) \
       e2logger.vlog(LoggerSource::debugicapc,  __func__, __LINE__, __VA_ARGS__)

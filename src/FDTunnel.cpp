@@ -64,10 +64,11 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
         return true;
     }
 
-    if (targetthroughput < 0)
+    if (targetthroughput < 0) {
         e2logger_debug("Tunnelling without known content-length");
-    else
+    } else {
         e2logger_debug("Tunnelling with content length ", targetthroughput);
+    }
 
     if(twoway)
         ignore = false;
@@ -286,10 +287,11 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     done = false;
     }
 
-        if ((throughput >= targetthroughput) && (targetthroughput > -1))
-            e2logger_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")" );
-        else
-            e2logger_debug("Tunnel closed.");
+    if ((throughput >= targetthroughput) && (targetthroughput > -1)) {
+        e2logger_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")");
+    } else {
+        e2logger_debug("Tunnel closed.");
+    }
 
         return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;
     }

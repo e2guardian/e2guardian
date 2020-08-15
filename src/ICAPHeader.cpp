@@ -541,10 +541,13 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         reset();
     dirty = true;
 
-    if(is_response)
+#ifdef E2DEBUG
+    if(is_response) {
         e2logger_debugicap("Start of response ICAPheader:in");
-    else
+    } else {
         e2logger_debugicap("Start of request ICAPheader:in");
+    }
+#endif
 
     // the RFCs don't specify a max header line length so this should be
     // dynamic really.  Pointed out (well reminded actually) by Daniel Robbins

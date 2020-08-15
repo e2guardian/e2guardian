@@ -226,6 +226,8 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
     case LoggerDestination::file:
       Helper::sendToLogfile(_filename[static_cast<int>(source)], message);
       break;
+      case LoggerDestination::__MAX_VALUE:
+          break;
   }
 
 }

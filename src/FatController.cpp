@@ -464,8 +464,11 @@ void handle_connections(int tindex)
                 }
                 ++dystat->busychildren;
                 ++dystat->conx;
-
+#ifdef E2DEBUG
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
+#else
+                h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
+#endif
                 e2logger_debug("handle_peer returned: ", String(rc));
 
                 --dystat->busychildren;
@@ -1226,10 +1229,11 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
     } catch (...) {
         e2logger_error("log_listener caught unexpected exception - exiting");
     }
-    if (!e2logger_ttg)
+    if (!e2logger_ttg) {
         e2logger_error("log_listener exiting with error");
-    else if (o.logconerror)
+    } else if (o.logconerror) {
         e2logger_error("log_listener exiting");
+    }
 
     return; // It is only possible to reach here with an error
 }
@@ -1602,10 +1606,12 @@ int fc_controlit()   //
             e2logger_trace("gentle reload activated");
 
             e2logger_info("Reconfiguring E2guardian: gentle reload starting");
-            if (o.createLists(++reload_cnt))
+            if (o.createLists(++reload_cnt)) {
                 e2logger_info("Reconfiguring E2guardian: gentle reload completed");
-            else
+            } else {
+
                 e2logger_info("%sReconfiguring E2guardian: gentle reload failed");
+            }
 
             gentlereload = false;
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
