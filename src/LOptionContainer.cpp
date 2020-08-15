@@ -657,7 +657,7 @@ bool LOptionContainer::readFilterGroupConf()
             }
             e2logger_debug("Group name: ", groupname);
         }
-        if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html)) {
+        if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html, i)) {
             e2logger_error("Error opening filter group config: ", file);
             return false;
         }
@@ -665,7 +665,7 @@ bool LOptionContainer::readFilterGroupConf()
     return true;
 }
 
-bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html)
+bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html, int fg_no)
 {
     e2logger_debug("adding filter group: ", numfg, " ", filename);
 
@@ -690,6 +690,9 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 
     // pass in the group name
     (*fg[numfg]).name = groupname;
+
+    // pass in the group number
+    (*fg[numfg]).filtergroup = fg_no;
 
     // pass in the reporting level - can be overridden
     (*fg[numfg]).reporting_level = reporting_level;

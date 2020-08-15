@@ -1,0 +1,68 @@
+Package Docker Image Raspbian:
+  stage: build:raspbian
+  artifacts:
+   expire_in: 20 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian   
+  image: amd64/debian:stable
+  variables:
+    OS: "raspbian" 
+  script:
+   - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+   - echo $VFULL
+   - apt update 
+   - apt-get -y upgrade 
+   - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils lsb-release 
+   - echo "deb-src http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list 
+   - dpkg --add-architecture armhf 
+   - apt-get update 
+   - apt-get install -y build-essential crossbuild-essential-armhf 
+   - apt-get build-dep -y -a armhf e2guardian 
+   - cd /builds/fredbcode/e2guardian   
+   - ./autogen.sh
+   - export 
+   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
+   - make ARCH=arm-linux-gnueabihf 
+   - file src/e2guardian | grep "ARM, EABI5"
+   - find / -name ".git" -exec rm -r "{}" +
+
+Create Raspbian Package:
+  stage: create-raspbian-package
+  image: amd64/debian:stable
+  artifacts:
+   expire_in: 20 minutes
+   name: build
+   paths:
+    - /builds/fredbcode/e2guardian   
+  variables:
+    PACKPATH: "/builds/fredbcode/e2guardian"
+    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
+    OS: "raspbian"
+  script:
+    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo $VFULL
+    - apt update
+    - apt install -y curl git lsb-release binutils
+    - VERSION=`lsb_release -cs`
+    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
+    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
+    - mkdir -p ${PACKPATH}/share/e2guardian/languages
+    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    - find ${PACKDST}/ -type f -name "Makefil*" -delete
+    - find ${PACKDST}/ -type f -name "*.in" -delete
+    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
+    - md5sum ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb >  ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d)_md5.txt
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ssh-add <(echo "$SSH_NOSTROMO_KEY")
+    - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
+    - find / -name ".git" -exec rm -r "{}" +

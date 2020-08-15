@@ -5,7 +5,7 @@ E2DATADIR = $(E2CONFDIR)/authplugins
 SUBDIRS = .
 
 FLISTS = proxy-basic.conf ident.conf ip.conf proxy-digest.conf \
-	 port.conf 
+	 port.conf pf-basic.conf
 
 if ENABLE_NTLM
 FLISTS += proxy-ntlm.conf

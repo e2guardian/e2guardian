@@ -33,6 +33,7 @@
 #function(checkblanketblock)
 #if(true,,502) return setblock  # = ** total blanket
 #if(siteisip,,505) return setblock  # = *ip ip blanket
+
 # To use timed blanket block 
 # define times in blankettimelist,
 # uncomment the list definition for 'blankettimes' in e2guardianfn.conf,

@@ -1,0 +1,24 @@
+README for lists directory
+
+All lists have now been moved into sub-directories
+
+As before plugins have their own directories for lists and mappings
+used by plugins
+
+Sub-directories:
+
+authplugins      - lists/maps used by authplugins
+blacklists	 - placeholder for 3rd party url lists
+common           - lists used by e2guardian.conf and common lists for groups
+contentscanners  - lists used by content/AV scanners
+downloadmanagers - lists used by downloadmanagers
+example.group	 - example lists for group use used by e2guardianf1.conf
+group1		 - lists for group 1
+group2		 - lists for group 2
+...
+groupn		 - lists for group n
+oldphraselists	 - old style format phraselists
+phraselists	 - lists of phrases
+rooms      	 - location (ip) based block/allow
+
+

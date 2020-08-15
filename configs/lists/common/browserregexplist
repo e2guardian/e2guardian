@@ -8,3 +8,8 @@
 (Opera/)
 (Safari/)
 (Edge/)
+
+# curl and wget are not browsers - but are often used for testing
+# so are included below
+(curl/)
+(wget/)

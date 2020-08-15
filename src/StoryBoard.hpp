@@ -37,6 +37,7 @@
 #define  ENT_STORYA_AUTH_NTLM_PROXY         16
 #define  ENT_STORYA_AUTH_DIGEST_PROXY         17
 #define  ENT_STORYA_AUTH_ICAP   18
+#define  ENT_STORYA_AUTH_PF_BASIC   19
 
 // Entry point codes for storyfn.story
 #define  ENT_STORYB_PROXY_REQUEST    1
