@@ -32,14 +32,14 @@
 extern OptionContainer o;
 
 void log_ssl_errors(const char *mess, const char *site) {
-    e2logger_debugnet(mess, site);
+    E2LOGGER_debugnet(mess, site);
     if( o.log_ssl_errors ) {
-        e2logger_error("SSL Error: ", mess, " at: ", site);
+        E2LOGGER_error("SSL Error: ", mess, " at: ", site);
         unsigned long e;
         char buff[512];
         while ((e = ERR_get_error())) {
             ERR_error_string(e, &buff[0]);
-            e2logger_error("SSL Error: ", buff, " at: ", site);
+            E2LOGGER_error("SSL Error: ", buff, " at: ", site);
         }
     }
 }
@@ -56,7 +56,7 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the ca cert
     fp = fopen(caCert, "r");
     if (fp == NULL) {
-        e2logger_error("Couldn't open ca certificate file ", caCert);
+        E2LOGGER_error("Couldn't open ca certificate file ", caCert);
         exit(1);
     }
     _caCert = PEM_read_X509(fp, NULL, NULL, NULL);
@@ -70,12 +70,12 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the ca priv key
     fp = fopen(caPrivKey, "r");
     if (fp == NULL) {
-        e2logger_error("Couldn't open ca private key");
+        E2LOGGER_error("Couldn't open ca private key");
         exit(1);
     }
     _caPrivKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
     if (_caPrivKey == NULL) {
-        e2logger_error("Couldn't load ca private key");
+        E2LOGGER_error("Couldn't load ca private key");
         exit(1);
     }
 
@@ -84,13 +84,13 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
     //load the priv key to use with generated certificates
     fp = fopen(certPrivKey, "r");
     if (fp == NULL) {
-        e2logger_error("Couldn't open certificate private key");
+        E2LOGGER_error("Couldn't open certificate private key");
         exit(1);
     }
     _certPrivKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
 
     if (_certPrivKey == NULL) {
-        e2logger_error("Couldn't load certificate private key");
+        E2LOGGER_error("Couldn't load certificate private key");
         exit(1);
     }
     fclose(fp);
@@ -117,7 +117,7 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
     std::string sname(commonname );
     sname += "B";
 
-    e2logger_debug("Generating serial no for ", commonname );
+    E2LOGGER_debug("Generating serial no for ", commonname );
 
     EVP_MD_CTX *mdctx;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -155,9 +155,9 @@ bool CertificateAuthority::getSerial(const char *commonname, struct ca_serial *c
 
     char *dbg = BN_bn2hex(bn);
     if (dbg != NULL) {
-        e2logger_debug("Serial no is ", dbg);
+        E2LOGGER_debug("Serial no is ", dbg);
     } else {
-        e2logger_debug("bn2hex returned null instead of serial number");
+        E2LOGGER_debug("bn2hex returned null instead of serial number");
     }
     caser->charhex = dbg;
     caser->asn = BN_to_ASN1_INTEGER(bn, NULL);
@@ -176,7 +176,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     // make directory path
     int rc = mkpath(dirpath.c_str(), 0700); // only want e2g to have access to these dir
     if (rc != 0) {
-        e2logger_error("error creating certificate sub-directory: ", dirpath);
+        E2LOGGER_error("error creating certificate sub-directory: ", dirpath);
         return false; 
     }
 
@@ -188,10 +188,10 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
     fl.l_len = 0;
     fl.l_pid = getpid();
 
-    e2logger_debug("certificate file is ",path);
+    E2LOGGER_debug("certificate file is ",path);
     int fd = open(path.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR); //only e2g has access
     if (fd < 0) {
-        e2logger_error("error opening new certificate");
+        E2LOGGER_error("error opening new certificate");
         exit(1);
     }
 
@@ -205,14 +205,14 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 
     //check if someone else created the file before we did (avoid the race condition)
     if (pos < 0) {
-        e2logger_debug("error seeking to find certificate size ");
+        E2LOGGER_debug("error seeking to find certificate size ");
         fl.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &fl);
         close(fd);
         return false;
     } else if (pos > 0) {
         //didnt get first lock so cert should be there now
-        e2logger_debug("didnt get first lock pos was ", pos);
+        E2LOGGER_debug("didnt get first lock pos was ", pos);
         fl.l_type = F_UNLCK;
         fcntl(fd, F_SETLK, &fl);
         close(fd);
@@ -221,7 +221,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 
     //looks like we got the first lock so write the certificate
     //write the cert to a file
-    e2logger_debug("got first lock ");
+    E2LOGGER_debug("got first lock ");
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
         return false;
@@ -279,13 +279,13 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
     //set valid from and expires dates
     // now from fixed date - should ensure regenerated certs are same and that servers in loadbalanced arrary give same cert
     if (!ASN1_TIME_set(X509_get_notBefore(newCert), _ca_start)) {
-        e2logger_debug("get_notBefore on cert failed for ", commonname );
+        E2LOGGER_debug("get_notBefore on cert failed for ", commonname );
         X509_free(newCert);
         return NULL;
     }
 
     if (!ASN1_TIME_set(X509_get_notAfter(newCert), _ca_end)) {
-        e2logger_debug("get_notAfter on cert failed for ", commonname);
+        E2LOGGER_debug("get_notAfter on cert failed for ", commonname);
         X509_free(newCert);
         return NULL;
     }
@@ -354,7 +354,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         return NULL;
     }
 
-    e2logger_debug("certificate create ", name );
+    E2LOGGER_debug("certificate create ", name );
 
     return newCert;
 }
@@ -375,13 +375,13 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
     caser->filepath = strdup(filepath.c_str());
     caser->filename = strdup(path.c_str());
 
-    e2logger_debug("looking for cert ", path);
+    E2LOGGER_debug("looking for cert ", path);
     //check to see if there is a symlink to the file
     //	std::string path(_certLinks + filename);
     FILE *link = fopen(path.c_str(), "r");
 
     if (link != NULL) {
-        e2logger_debug("Certificate found");
+        E2LOGGER_debug("Certificate found");
 
         //if there was then the certificate has already been created
         *cert = PEM_read_X509(link, NULL, NULL, NULL);
@@ -391,7 +391,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
         //dont need to check the return as this returns null if it couldnt load a cert
         return true;
     } else {
-        e2logger_debug("Certificate not found. Creating one");
+        E2LOGGER_debug("Certificate not found. Creating one");
 
         //generate a certificate
         *cert = generateCertificate(commonname, caser);

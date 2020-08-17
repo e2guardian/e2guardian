@@ -109,14 +109,14 @@ HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
 // listname is used in error messages.
 bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsigned int *whichlist, bool sortsw, bool cache, const char *listname)
 {
-    e2logger_trace(filename);
+    E2LOGGER_trace(filename);
     if (strlen(filename) < 3) {
-        e2logger_error("Required Listname ", listname, " is not defined");
+        E2LOGGER_error("Required Listname ", listname, " is not defined");
         return false;
     }
     int res = o.lm.newItemList(filename, list_pwd, sortsw, 1, true);
     if (res < 0) {
-        e2logger_error("Error opening ", listname);
+        E2LOGGER_error("Error opening ", listname);
         return false;
     }
     (*whichlist) = (unsigned)res;
@@ -131,14 +131,14 @@ bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsi
 }
 
 bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
-    e2logger_trace(filename);    
+    E2LOGGER_trace(filename);    
     std::string linebuffer;
     String now_pwd(list_pwd);
     String temp; // for tempory conversion and storage
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
 
     if (!conffiles.good()) {
-        e2logger_error("Error reading: ", filename);
+        E2LOGGER_error("Error reading: ", filename);
         return false;
     }
     String base_dir(filename);
@@ -209,10 +209,10 @@ bool FOptionContainer::read(const char *filename) {
         list_pwd += String(filtergroup);
         //list_pwd += "/";
         if(!readConfFile(filename, list_pwd)){
-            e2logger_error("Error reading: ", filename);
+            E2LOGGER_error("Error reading: ", filename);
             return false;
         }
-        e2logger_config("Read conf into memory: ", filename);
+        E2LOGGER_config("Read conf into memory: ", filename);
 
         if (findoptionS("disablecontentscan") == "on") {
             disable_content_scan = true;
@@ -232,7 +232,7 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
-        e2logger_debug("disable_content_scan: ", String(disable_content_scan),
+        E2LOGGER_debug("disable_content_scan: ", String(disable_content_scan),
                     " disablecontentscanerror: ", String(disable_content_scan_error),
                     " contentscanexceptions: ", String(content_scan_exceptions) );
 
@@ -250,7 +250,7 @@ bool FOptionContainer::read(const char *filename) {
             int size = (int) text_mime.size();
             int i;
             for (i = 0; i < size; i++) {
-                E2LOGGER_DEBUG("mimes filtering : ", text_mime[i]);
+                E2LOGGER_debug("mimes filtering : ", text_mime[i]);
             }
 #endif
         }
@@ -260,7 +260,7 @@ bool FOptionContainer::read(const char *filename) {
             if(o.enable_ssl) {
                 ssl_check_cert = true;
                 } else {
-                    e2logger_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                    E2LOGGER_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
                     ssl_check_cert = false;
                 }
         } else {
@@ -284,7 +284,7 @@ bool FOptionContainer::read(const char *filename) {
                 if (findoptionS("allowemptyhostcert") == "on")
                     allow_empty_host_certs = true;
             } else {
-                e2logger_error("Warning: sslmitm requires ssl to be enabled in e2guardian.conf ");
+                E2LOGGER_error("Warning: sslmitm requires ssl to be enabled in e2guardian.conf ");
                 ssl_mitm = false;
             }
         } else {
@@ -307,7 +307,7 @@ bool FOptionContainer::read(const char *filename) {
 
         if (findoptionS("notifyav") == "on") {
             if (!use_smtp) {
-                e2logger_error("notifyav cannot be on while usesmtp is off.");
+                E2LOGGER_error("notifyav cannot be on while usesmtp is off.");
                 return false;
             }
             notifyav = true;
@@ -317,7 +317,7 @@ bool FOptionContainer::read(const char *filename) {
 
         if (findoptionS("notifycontent") == "on") {
             if (!use_smtp) {
-                e2logger_error("notifycontent cannot be on while usesmtp is off.");
+                E2LOGGER_error("notifycontent cannot be on while usesmtp is off.");
                 return false;
             }
             notifycontent = true;
@@ -334,7 +334,7 @@ bool FOptionContainer::read(const char *filename) {
         avadmin = findoptionS("avadmin");
         if (avadmin.length() == 0) {
             if (notifyav == 1) {
-                e2logger_error("avadmin cannot be blank while notifyav is on.");
+                E2LOGGER_error("avadmin cannot be blank while notifyav is on.");
                 return false;
             }
         }
@@ -342,7 +342,7 @@ bool FOptionContainer::read(const char *filename) {
         contentadmin = findoptionS("contentadmin");
         if (contentadmin.length() == 0) {
             if (use_smtp) {
-                e2logger_error("contentadmin cannot be blank while usesmtp is on.");
+                E2LOGGER_error("contentadmin cannot be blank while usesmtp is on.");
                 return false;
             }
         }
@@ -350,19 +350,19 @@ bool FOptionContainer::read(const char *filename) {
         mailfrom = findoptionS("mailfrom");
         if (mailfrom.length() == 0) {
             if (use_smtp) {
-                e2logger_error("mailfrom cannot be blank while usesmtp is on.");
+                E2LOGGER_error("mailfrom cannot be blank while usesmtp is on.");
                 return false;
             }
         }
         avsubject = findoptionS("avsubject");
         if (avsubject.length() == 0 && notifyav == 1 && use_smtp == 1) {
-            e2logger_error("avsubject cannot be blank while notifyav is on.");
+            E2LOGGER_error("avsubject cannot be blank while notifyav is on.");
             return false;
         }
 
         contentsubject = findoptionS("contentsubject");
         if (contentsubject.length() == 0 && use_smtp) {
-            e2logger_error("contentsubject cannot be blank while usesmtp is on.");
+            E2LOGGER_error("contentsubject cannot be blank while usesmtp is on.");
             return false;
         }
 
@@ -378,7 +378,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         if (reporting_level == 0) {
-            e2logger_error("Reporting_level is : ", String(reporting_level), " file ", filename);
+            E2LOGGER_error("Reporting_level is : ", String(reporting_level), " file ", filename);
         }
 
         long temp_max_upload_size;
@@ -393,10 +393,10 @@ bool FOptionContainer::read(const char *filename) {
             if (temp_max_upload_size > 0)
                 max_upload_size *= 1024;
         } else {
-            e2logger_error( "Invalid maxuploadsize: ", String(temp_max_upload_size) );
+            E2LOGGER_error( "Invalid maxuploadsize: ", String(temp_max_upload_size) );
             return false;
         }
-        e2logger_debug("maxuploadsize: ", String(temp_max_upload_size) );
+        E2LOGGER_debug("maxuploadsize: ", String(temp_max_upload_size) );
 
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -418,13 +418,13 @@ bool FOptionContainer::read(const char *filename) {
             } else {
                 access_denied_domain = "localhost"; // No initialized value
                 if (access_denied_domain.length() < 4) {
-                    e2logger_error("Warning accessdeniedaddress setting appears to be wrong.");
+                    E2LOGGER_error("Warning accessdeniedaddress setting appears to be wrong.");
                 }
             }
         }
         if (reporting_level == 3) {
             if (access_denied_domain.length() > 1) {
-                e2logger_error("Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
+                E2LOGGER_error("Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
                 return false;
             }
             // override default banned page
@@ -433,14 +433,14 @@ bool FOptionContainer::read(const char *filename) {
                 html_template = o.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    e2logger_error("Error reading HTML Template file: ", html_template);
+                    E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
                 html_template = o.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
-                    e2logger_error("Error reading default HTML Template file: ", html_template);
+                    E2LOGGER_error("Error reading default HTML Template file: ", html_template);
                     return false;
                 }
             }
@@ -450,7 +450,7 @@ bool FOptionContainer::read(const char *filename) {
                 neterr_template = o.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
-                    e2logger_error("Error reading NetErr HTML Template file: ", neterr_template);
+                    E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
                     return false;
                     // HTML template file
                 }
@@ -458,7 +458,7 @@ bool FOptionContainer::read(const char *filename) {
                 neterr_template = o.languagepath + "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
-                    e2logger_error("Error reading default HTML and NetErr Template file: ", html_template);
+                    E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);
                     return false;
 	        }
 	    } 
@@ -478,14 +478,14 @@ bool FOptionContainer::read(const char *filename) {
 		name = "group";
         name += String(filtergroup);
 	    }
-        e2logger_debug("Group name: ", name);
+        E2LOGGER_debug("Group name: ", name);
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
-        e2logger_debug("Embedded URL Weight: ", std::to_string(embedded_url_weight));
+        E2LOGGER_debug("Embedded URL Weight: ", std::to_string(embedded_url_weight));
 
         category_threshold = findoptionI("categorydisplaythreshold");
-        e2logger_debug("Category display threshold: ", std::to_string(category_threshold));
+        E2LOGGER_debug("Category display threshold: ", std::to_string(category_threshold));
 
         // Support weighted phrase mode per group
         if (findoptionS("weightedphrasemode").length() > 0) {
@@ -506,9 +506,9 @@ bool FOptionContainer::read(const char *filename) {
             storyboard_location += ".story";
         }
 
-        e2logger_trace("Read settings into memory");
+        E2LOGGER_trace("Read settings into memory");
 
-        e2logger_trace("Reading phrase, URL and site lists into memory");
+        E2LOGGER_trace("Reading phrase, URL and site lists into memory");
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
             if (naughtyness_limit == 0) {
@@ -528,61 +528,61 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            e2logger_debug("ipsitelist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("ipsitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("iplist");
-            e2logger_debug("iplist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("iplist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("timelist");
-            e2logger_debug("timelist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("timelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            e2logger_debug("sitelist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("sitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            e2logger_debug("urllist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("urllist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("searchlist");
-            e2logger_debug("searchlist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("searchlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
-            e2logger_debug("fileextlist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("fileextlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("mimelist");
-            e2logger_debug("mimelist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("mimelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
-            e2logger_debug("regexpboollist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("regexpboollist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
-            e2logger_debug("regexpreplacelist deque is size ", String(dq.size()) );
+            E2LOGGER_debug("regexpreplacelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 
@@ -631,40 +631,40 @@ bool FOptionContainer::read(const char *filename) {
             content_regexp_flag = false;
         }
 
-        e2logger_trace("Lists in memory");
+        E2LOGGER_trace("Lists in memory");
 
-        e2logger_trace("Read Storyboard");
+        E2LOGGER_trace("Read Storyboard");
         if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
             return false;
 
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_REQUEST,"checkrequest")) {
-            e2logger_error("Required storyboard entry function 'checkrequest' is missing");
+            E2LOGGER_error("Required storyboard entry function 'checkrequest' is missing");
             return false;
         }
 
         if(!StoryB.setEntry(ENT_STORYB_PROXY_RESPONSE,"checkresponse")) {
-            e2logger_error("Required storyboard entry function 'checkresponse' is missing");
+            E2LOGGER_error("Required storyboard entry function 'checkresponse' is missing");
             return false;
         }
 
         if(!StoryB.setEntry(ENT_STORYB_LOG_CHECK,"checklogging")) {
-            e2logger_error( "Required storyboard entry function 'checklogging' is missing" );
+            E2LOGGER_error( "Required storyboard entry function 'checklogging' is missing" );
             return false;
         }
 
         if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
-            e2logger_error("Required storyboard entry function 'thttps-checkrequest' is missing");
+            E2LOGGER_error("Required storyboard entry function 'thttps-checkrequest' is missing");
             return false;
         }
 
         if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
-            e2logger_error("Required storyboard entry function 'icap-checkrequest' is missing");
+            E2LOGGER_error("Required storyboard entry function 'icap-checkrequest' is missing");
             return false;
         }
 
         if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-            e2logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
+            E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
             return false;
         }
         if (!precompileregexps()) {
@@ -672,14 +672,14 @@ bool FOptionContainer::read(const char *filename) {
         } // precompiled reg exps for speed
 
     if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
-           e2logger_error("Required storyboard entry function 'icap-checkresponse' is missing");
+           E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
            return false;
     }
 
     if (o.dm_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
                 if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
-                    e2logger_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
+                    E2LOGGER_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
                 }
             }
         }
@@ -718,7 +718,7 @@ bool FOptionContainer::read(const char *filename) {
                 }
                 magic = s;
             }
-            e2logger_debug("Setting magic key to '", magic, "'");
+            E2LOGGER_debug("Setting magic key to '", magic, "'");
 
             // Create the Bypass Cookie magic key
             cookie_magic = std::string(16u, ' ');
@@ -744,12 +744,12 @@ bool FOptionContainer::read(const char *filename) {
                 }
                 imagic = s;
             }
-            e2logger_debug("Setting imagic key to '", imagic, "'");
+            E2LOGGER_debug("Setting imagic key to '", imagic, "'");
 
             if (findoptionS("infectionbypasserrorsonly") == "off") {
                 infection_bypass_errors_only = false;
             } else {
-                e2logger_debug("Only allowing infection bypass on scan error");
+                E2LOGGER_debug("Only allowing infection bypass on scan error");
                 infection_bypass_errors_only = true;
             }
         }
@@ -763,22 +763,22 @@ bool FOptionContainer::read(const char *filename) {
         if(((cgi_bypass)||(cgi_infection_bypass)) && (bypass_version == 2)) {
             cgi_magic = findoptionS("cgikey");
             if ( cgi_magic.length() < 9 ) {
-                e2logger_error("A valid cgikey must be provided with bypass cgi version 2");
+                E2LOGGER_error("A valid cgikey must be provided with bypass cgi version 2");
                 return false;
             };
             cgi_bypass_v2 = true;
             if(cgi_infection_bypass && infection_bypass_mode < 60) {
-                e2logger_error("infectionbypassmode must be greater than 60 with bypass cgi version 2");
+                E2LOGGER_error("infectionbypassmode must be greater than 60 with bypass cgi version 2");
                 return false;
             } else if(bypass_mode < 60) {
-                e2logger_error("bypassmode must be greater than 60 with bypass cgi version 2");
+                E2LOGGER_error("bypassmode must be greater than 60 with bypass cgi version 2");
                 return false;
             }
 
         }
     
     } catch (std::exception &e) {
-        e2logger_error(e.what()); // when called the daemon has not
+        E2LOGGER_error(e.what()); // when called the daemon has not
         // detached so we can do this
         return false;
     }
@@ -869,7 +869,7 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
     // realitycheck checks a String for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        e2logger_error("Config problem; check allowed values for ", emessage);
+        E2LOGGER_error("Config problem; check allowed values for ", emessage);
         return false;
     }
     return true;
@@ -878,7 +878,7 @@ bool FOptionContainer::realitycheck(int l, int minl, int maxl, const char *emess
 bool FOptionContainer::precompileregexps()
 {
     if (!isiphost.comp(".*[a-z|A-Z].*")) {
-        e2logger_error("Error compiling RegExp isiphost.");
+        E2LOGGER_error("Error compiling RegExp isiphost.");
         return false;
     }
 

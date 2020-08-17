@@ -105,7 +105,7 @@ int portinstance::init(void *args)
 	    read_def_fg();
         return 0;
     } else {
-        e2logger_error("No story_function defined in port auth plugin config");
+        E2LOGGER_error("No story_function defined in port auth plugin config");
         return -1;
     }
 }
@@ -134,10 +134,10 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
     fg = inList(s.toInteger());
     if (fg >= 0) {
         pfg = fg;
-        E2LOGGER_DEBUG("Matched port ", user, " to port list");
+        E2LOGGER_debug("Matched port ", user, " to port list");
         return E2AUTH_OK;
     }
-    E2LOGGER_DEBUG("Matched port ", user, " to nothing");
+    E2LOGGER_debug("Matched port ", user, " to nothing");
     return E2AUTH_NOMATCH;
 }
 #endif
@@ -181,7 +181,7 @@ int portinstance::readIPMelangeList(const char *filename)
     // load in the list file
     std::ifstream input(filename);
     if (!input) {
-        e2logger_error("Error reading file (does it exist?): ", filename);
+        E2LOGGER_error("Error reading file (does it exist?): ", filename);
         return -1;
     }
 
@@ -207,14 +207,14 @@ int portinstance::readIPMelangeList(const char *filename)
             key.removeWhiteSpace();
             value = line.after("filter");
         } else {
-            e2logger_error("No filter group given; entry ", line, " in ", filename);
+            E2LOGGER_error("No filter group given; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
 
-        E2LOGGER_DEBUG("key: ", key, "value: ", value );
+        E2LOGGER_debug("key: ", key, "value: ", value );
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-            e2logger_error("Filter group out of range; entry ", line, " in ", filename);
+            E2LOGGER_error("Filter group out of range; entry ", line, " in ", filename);
             warn = true;
             continue;
         }
@@ -227,19 +227,19 @@ int portinstance::readIPMelangeList(const char *filename)
         }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
         else {
-            e2logger_error("Entry ", line, " in ", filename, " was not recognised as an port ");
+            E2LOGGER_error("Entry ", line, " in ", filename, " was not recognised as an port ");
             warn = true;
         }
     }
     input.close();
-    E2LOGGER_DEBUG("starting sort");
+    E2LOGGER_debug("starting sort");
     //	std::sort(ipportlist.begin(), ipportlist.end());
 #ifdef E2DEBUG
-    E2LOGGER_DEBUG("sort complete");
-    E2LOGGER_DEBUG("port list dump:");
+    E2LOGGER_debug("sort complete");
+    E2LOGGER_debug("port list dump:");
     std::deque<portstruct>::iterator i = ipportlist.begin();
     while (i != ipportlist.end()) {
-        E2LOGGER_DEBUG("port: ", i->port, " Group: ", i->group);
+        E2LOGGER_debug("port: ", i->port, " Group: ", i->group);
         i++;
     }
 #endif

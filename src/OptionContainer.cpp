@@ -72,7 +72,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     LoggerConfigurator loggerConf(&e2logger);
 
     if (!conffiles.good()) {
-        e2logger_error("Error reading ", filename);
+        E2LOGGER_error("Error reading ", filename);
         return false;
     }
     String base_dir(filename);
@@ -118,11 +118,11 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp += now_pwd;
                 }
 
-                if (temp.startsWith(LoggerConfigurator::PREFIX))
+                if (temp.startsWith(LoggerConfigurator::Prefix))
                     loggerConf.configure(temp);
 
                 linebuffer = temp.toCharArray();
-                e2logger_config("read:", linebuffer);
+                E2LOGGER_config("read:", linebuffer);
                 conffile.push_back(linebuffer); // stick option in deque
             }
         }
@@ -247,25 +247,25 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         ca_certificate_path = findoptionS("cacertificatepath");
         if (ca_certificate_path == "") {
-            e2logger_error("cacertificatepath is required when ssl is enabled");
+            E2LOGGER_error("cacertificatepath is required when ssl is enabled");
             ret = false;
         }
 
         ca_private_key_path = findoptionS("caprivatekeypath");
         if (ca_private_key_path == "") {
-            e2logger_error("caprivatekeypath is required when ssl is enabled");
+            E2LOGGER_error("caprivatekeypath is required when ssl is enabled");
             ret = false;
         }
 
         cert_private_key_path = findoptionS("certprivatekeypath");
         if (cert_private_key_path == "") {
-            e2logger_error("certprivatekeypath is required when ssl is enabled");
+            E2LOGGER_error("certprivatekeypath is required when ssl is enabled");
             ret = false;
         }
 
         generated_cert_path = findoptionS("generatedcertpath") + "/";
         if (generated_cert_path == "/") {
-            e2logger_error("generatedcertpath is required when ssl is enabled");
+            E2LOGGER_error("generatedcertpath is required when ssl is enabled");
             ret = false;
         }
 
@@ -440,11 +440,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (contentscanning) {
 
             if (max_content_filter_size > max_content_ramcache_scan_size) {
-                e2logger_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
+                E2LOGGER_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
                 return false;
             }
             if (max_content_ramcache_scan_size > max_content_filecache_scan_size) {
-                e2logger_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
+                E2LOGGER_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
                 return false;
             }
 
@@ -569,13 +569,13 @@ bool OptionContainer::read(std::string &filename, int type) {
         filter_ip = findoptionM("filterip");
         if( filter_ip.empty()) filter_ip.push_back("");
         if (filter_ip.size() > 127) {
-            e2logger_error("Can not listen on more than 127 IPs");
+            E2LOGGER_error("Can not listen on more than 127 IPs");
             return false;
         }
         // multiple check IP support - used for loop checking
         check_ip = findoptionM("checkip");
         if (check_ip.size() > 127) {
-            e2logger_error("Can not check on more than 127 IPs");
+            E2LOGGER_error("Can not check on more than 127 IPs");
             return false;
         }
         if (check_ip.empty()) {
@@ -587,7 +587,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (filter_ports.empty())
             filter_ports.push_back("8080");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
-            e2logger_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(), ")");
+            E2LOGGER_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(), ")");
             return false;
         }
         filter_port = filter_ports[0].toInteger();
@@ -785,7 +785,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             if (default_fg <= filter_groups) {
                 default_fg--;
             } else  {
-                e2logger_error("defaultfiltergroup out of range");
+                E2LOGGER_error("defaultfiltergroup out of range");
                 return false;
             }
         }
@@ -795,7 +795,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             if (default_trans_fg <= filter_groups) {
                 default_trans_fg--;
             } else  {
-                e2logger_error("defaulttransparentfiltergroup out of range");
+                E2LOGGER_error("defaulttransparentfiltergroup out of range");
                 return false;
             }
         }
@@ -805,7 +805,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             if (default_icap_fg <= filter_groups) {
                 default_icap_fg--;
             } else  {
-                e2logger_error("defaulticapfiltergroup out of range");
+                E2LOGGER_error("defaulticapfiltergroup out of range");
                 return false;
             }
         }
@@ -837,12 +837,12 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
         if (filter_groups < 1) {
-            e2logger_error("filtergroups too small");
+            E2LOGGER_error("filtergroups too small");
             return false;
         }
 
         if (!loadDMPlugins()) {
-            e2logger_error("Error loading DM plugins");
+            E2LOGGER_error("Error loading DM plugins");
             return false;
         }
 
@@ -855,13 +855,13 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (contentscanning) {
             if (!loadCSPlugins()) {
-                e2logger_error("Error loading CS plugins");
+                E2LOGGER_error("Error loading CS plugins");
                 return false;
             }
         }
 
         if (!loadAuthPlugins()) {
-            e2logger_error("Error loading auth plugins");
+            E2LOGGER_error("Error loading auth plugins");
             return false;
         }
 
@@ -869,7 +869,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     authmaptoport mode
         if (map_auth_to_ports && (filter_ports.size() > 1)
             && (filter_ports.size() != authplugins.size())) {
-            e2logger_error("In mapauthtoports mode you need to setup one port per auth plugin");
+            E2LOGGER_error("In mapauthtoports mode you need to setup one port per auth plugin");
             return false;
         }
 
@@ -891,18 +891,18 @@ bool OptionContainer::read(std::string &filename, int type) {
             while (it != authplugins.end()) {
                 AuthPlugin *tmp = (AuthPlugin *) *it;
                 if (tmp->getPluginName().startsWith("proxy-basic")) {
-                    e2logger_error("Proxy auth is not possible with multiple ports");
+                    E2LOGGER_error("Proxy auth is not possible with multiple ports");
                     return false;
                 }
                 if (tmp->getPluginName().startsWith("proxy-ntlm") && (tmp->isTransparent() == false)) {
-                    e2logger_error("Non-transparent NTLM is not possible with multiple ports");
+                    E2LOGGER_error("Non-transparent NTLM is not possible with multiple ports");
                     return false;
                 }
                 if (it == authplugins.begin())
                     firstPlugin = tmp->getPluginName();
                 else {
                     if ((firstPlugin == tmp->getPluginName()) and (!tmp->getPluginName().startsWith("ssl-core"))) {
-                        e2logger_error("Auth plugins can not be the same");
+                        E2LOGGER_error("Auth plugins can not be the same");
                         return false;
                     }
                 }
@@ -933,7 +933,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
-            e2logger_debug("Not using groupnameslist");
+            E2LOGGER_debug("Not using groupnameslist");
         } else {
             use_group_names_list = true;
         }
@@ -946,7 +946,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
 
         if (enable_ssl) {
-            e2logger_config("enable SSL");
+            E2LOGGER_config("enable SSL");
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
                                               ca_private_key_path.c_str(),
@@ -954,33 +954,33 @@ bool OptionContainer::read(std::string &filename, int type) {
                                               generated_cert_path.c_str(),
                                               gen_cert_start, gen_cert_end);
             } else {
-                e2logger_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+                E2LOGGER_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
                 return false;
             }
         }
 
     } catch (std::exception &e) {
-        e2logger_error(e.what());
+        E2LOGGER_error(e.what());
         return false;
     }
-    e2logger_config("Done: read Configfile: ", filename);
+    E2LOGGER_config("Done: read Configfile: ", filename);
     return true;
 }
 
 
 bool OptionContainer::readinStdin()
 {
-    e2logger_trace("");
+    E2LOGGER_trace("");
     
     if (!std::cin.good()) {
-        e2logger_error("Error reading stdin");
+        E2LOGGER_error("Error reading stdin");
         return false;
     }
     std::string linebuffer;
     String temp;
     while (!std::cin.eof()) {
         getline(std::cin, linebuffer);
-        e2logger_debug("Line in: ", linebuffer);
+        E2LOGGER_debug("Line in: ", linebuffer);
         if (linebuffer.length() < 2)
             continue; // its jibberish
 
@@ -1068,7 +1068,7 @@ std::string OptionContainer::findoptionS(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
-            e2logger_config(o, "=", temp);
+            E2LOGGER_config(o, "=", temp);
             return temp.toCharArray();
         }
     }
@@ -1104,7 +1104,7 @@ std::deque<String> OptionContainer::findoptionM(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
-            e2logger_config(o, "=" ,temp);
+            E2LOGGER_config(o, "=" ,temp);
             results.push_back(temp);
         }
     }
@@ -1115,7 +1115,7 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        e2logger_error("Config problem; check allowed values for ", emessage, "( ", l , " should be >= ", minl, " <=", maxl, ")");
+        E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l , " should be >= ", minl, " <=", maxl, ")");
         return false;
     }
     return true;
@@ -1124,29 +1124,29 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
 
 bool OptionContainer::loadDMPlugins()
 {
-    e2logger_config("load Download manager plugins");
+    E2LOGGER_config("load Download manager plugins");
     std::deque<String> dq = findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
-        e2logger_error("There must be at least one download manager option");
+        E2LOGGER_error("There must be at least one download manager option");
         return false;
     }
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-        e2logger_debug("loading download manager config: ", config);
+        E2LOGGER_debug("loading download manager config: ", config);
         DMPlugin *dmpp = dm_plugin_load(config.toCharArray());
         if (dmpp == NULL) {
-            e2logger_error("dm_plugin_load() returned NULL pointer with config file: ", config);
+            E2LOGGER_error("dm_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
         bool lastplugin = (i == (numplugins - 1));
         int rc = dmpp->init(&lastplugin);
         if (rc < 0) {
-            e2logger_error("Download manager plugin init returned error value: ", rc);
+            E2LOGGER_error("Download manager plugin init returned error value: ", rc);
             return false;
         } else if (rc > 0) {
-            e2logger_error("Download manager plugin init returned warning value: ", rc);
+            E2LOGGER_error("Download manager plugin init returned warning value: ", rc);
         }
         dmplugins.push_back(dmpp);
     }
@@ -1158,7 +1158,7 @@ bool OptionContainer::loadDMPlugins()
 
 bool OptionContainer::loadCSPlugins()
 {
-    e2logger_config("load Content scanner plugins");
+    E2LOGGER_config("load Content scanner plugins");
     std::deque<String> dq = findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
@@ -1168,19 +1168,19 @@ bool OptionContainer::loadCSPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
         // worth adding some input checking on config
-        e2logger_debug("loading content scanner config: ", config);
+        E2LOGGER_debug("loading content scanner config: ", config);
         CSPlugin *cspp = cs_plugin_load(config.toCharArray());
         if (cspp == NULL) {
-            e2logger_error("cs_plugin_load() returned NULL pointer with config file: ", config);
+            E2LOGGER_error("cs_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-        e2logger_debug("Content scanner plugin is good, calling init...");
+        E2LOGGER_debug("Content scanner plugin is good, calling init...");
         int rc = cspp->init(NULL);
         if (rc < 0) {
-            e2logger_error("Content scanner plugin init returned error value: ", rc);
+            E2LOGGER_error("Content scanner plugin init returned error value: ", rc);
             return false;
         } else if (rc > 0) {
-            e2logger_error("Content scanner plugin init returned warning value: ", rc);
+            E2LOGGER_error("Content scanner plugin init returned warning value: ", rc);
         }
         csplugins.push_back(cspp);
     }
@@ -1192,7 +1192,7 @@ bool OptionContainer::loadCSPlugins()
 
 bool OptionContainer::loadAuthPlugins()
 {
-    e2logger_config("load Auth plugins");
+    E2LOGGER_config("load Auth plugins");
     // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
     auth_needs_proxy_query = false;
 
@@ -1205,28 +1205,28 @@ bool OptionContainer::loadAuthPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
         // worth adding some input checking on config
-        e2logger_debug("loading auth plugin config: ", config);
+        E2LOGGER_debug("loading auth plugin config: ", config);
         AuthPlugin *app = auth_plugin_load(config.toCharArray());
         if (app == NULL) {
-            e2logger_error("auth_plugin_load() returned NULL pointer with config file: ", config);
+            E2LOGGER_error("auth_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-        e2logger_debug("Auth plugin is good, calling init...");
+        E2LOGGER_debug("Auth plugin is good, calling init...");
         int rc = app->init(NULL);
         if (rc < 0) {
-            e2logger_error("Auth plugin init returned error value:", rc);
+            E2LOGGER_error("Auth plugin init returned error value:", rc);
             return false;
         } else if (rc > 0) {
-            e2logger_error("Auth plugin init returned warning value: ", rc);
+            E2LOGGER_error("Auth plugin init returned warning value: ", rc);
         }
 
         if (app->needs_proxy_query) {
             auth_needs_proxy_query = true;
-            e2logger_debug("Auth plugin relies on querying parent proxy");
+            E2LOGGER_debug("Auth plugin relies on querying parent proxy");
         }
         if (app->needs_proxy_access_in_plugin) {
             auth_needs_proxy_in_plugin = true;
-            e2logger_debug("Auth plugin relies on querying parent proxy within plugin");
+            E2LOGGER_debug("Auth plugin relies on querying parent proxy within plugin");
         }
         authplugins.push_back(app);
     }
@@ -1238,7 +1238,7 @@ bool OptionContainer::loadAuthPlugins()
 
 
 bool OptionContainer::createLists(int load_id)  {
-    e2logger_config("create Lists: ", load_id);
+    E2LOGGER_config("create Lists: ", load_id);
     std::shared_ptr<LOptionContainer> temp (new LOptionContainer(load_id));
     if (temp->loaded_ok) {
         current_LOC = temp;

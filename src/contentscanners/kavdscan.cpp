@@ -65,7 +65,7 @@ int kavdinstance::init(void *args)
 
     udspath = cv["kavdudsfile"];
     if (udspath.length() < 3) {
-        e2logger_error("Error reading kavdudsfile option.");
+        E2LOGGER_error("Error reading kavdudsfile option.");
         return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
@@ -92,7 +92,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     // the AV daemon's group membership.
     // chmod can error with EINTR, ignore this?
     if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
-        e2logger_error("Could not change file ownership to give kavd read access: ", strerror(errno));
+        E2LOGGER_error("Could not change file ownership to give kavd read access: ", strerror(errno));
         return E2CS_SCANERROR;
     };
     String command("SCAN bPQRSTUW ");
@@ -103,15 +103,15 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         command += filename;
     }
     command += "\r\n";
-    e2logger_debug("kavdscan command:", command);
+    E2LOGGER_debug("kavdscan command:", command);
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
-        e2logger_error("Error creating socket for talking to kavdscan");
+        E2LOGGER_error("Error creating socket for talking to kavdscan");
         return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
-        e2logger_error("Error connecting to kavdscan socket");
+        E2LOGGER_error("Error connecting to kavdscan socket");
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -126,7 +126,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     if (buff[0] != '2') {
         delete[] buff;
         stripedsocks.close();
-        e2logger_error("kavdscan did not return ok");
+        E2LOGGER_error("kavdscan did not return ok");
         return E2CS_SCANERROR;
     }
     try {
@@ -134,7 +134,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     } catch (std::exception &e) {
         delete[] buff;
         stripedsocks.close();
-        e2logger_error("unable to write to kavdscan");
+        E2LOGGER_error("unable to write to kavdscan");
         return E2CS_SCANERROR;
     }
     try {
@@ -142,14 +142,14 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     } catch (std::exception &e) {
         delete[] buff;
         stripedsocks.close();
-        e2logger_error("Error reading kavdscan socket");
+        E2LOGGER_error("Error reading kavdscan socket");
         return E2CS_SCANERROR;
     }
     String reply(buff);
-    e2logger_debug("Got from kavdscan:", reply);
+    E2LOGGER_debug("Got from kavdscan:", reply);
 
     if (reply[0] == '2') { // clean
-        e2logger_debug("kavdscan - clean");
+        E2LOGGER_debug("kavdscan - clean");
         delete[] buff;
         stripedsocks.close();
         return E2CS_CLEAN;
@@ -165,13 +165,13 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             } catch (std::exception &e) {
                 delete[] buff;
                 stripedsocks.close();
-                e2logger_error("Error reading kavdscan socket");
+                E2LOGGER_error("Error reading kavdscan socket");
                 return E2CS_SCANERROR;
             }
             reply = buff;
-            e2logger_debug("Got from kavdscan:", reply);
+            E2LOGGER_debug("Got from kavdscan:", reply);
         }
-        e2logger_error("lastvirusname: ", lastvirusname);
+        E2LOGGER_error("lastvirusname: ", lastvirusname);
         delete[] buff;
         stripedsocks.close();
 

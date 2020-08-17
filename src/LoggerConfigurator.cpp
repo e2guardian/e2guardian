@@ -27,7 +27,7 @@ LoggerConfigurator::~LoggerConfigurator(){
   _logger = NULL;
 };
 
-const String LoggerConfigurator::PREFIX("log_");
+const String LoggerConfigurator::Prefix("log_");
  
 // -------------------------------------------------------------
 // --- Public Functions
@@ -37,12 +37,12 @@ void LoggerConfigurator::configure(const std::string option)
 {
   String line(option);
   line.removeChar(' ');
-  if (!line.startsWith(PREFIX))  return;
+  if (!line.startsWith(Prefix)) return;
 
   size_t pos1 = line.find("=",0);
   if (pos1 == std::string::npos ) return;
 
-  std::string source = line.substr(PREFIX.size(), pos1 - PREFIX.size() );
+  std::string source = line.substr(Prefix.size(), pos1 - Prefix.size() );
   std::string destination;
   String filename;
 
@@ -57,10 +57,10 @@ void LoggerConfigurator::configure(const std::string option)
     filename.removeChar('\'');
   }
   
-  LoggerSource src = Logger::string2source(source);
-  LoggerDestination dst = Logger::string2dest(destination);
+  LoggerSource src = _logger->string2source(source);
+  LoggerDestination dst = _logger->string2dest(destination);
   
-  e2logger_info("LoggerConfig:", " source:", source, " destination:", destination, " filename:", filename );
+  E2LOGGER_info("LoggerConfig:", " source:", source, " destination:", destination, " filename:", filename );
   _logger->setLogOutput(src, dst, filename);
 
 };

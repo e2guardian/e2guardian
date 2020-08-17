@@ -61,7 +61,7 @@ bool LanguageContainer::readLanguageList(const char *filename)
     unsigned int k;
     std::ifstream languagefile(filename, std::ios::in); // open the file for reading
     if (!languagefile.good()) {
-        e2logger_error("Error opening messages file (does it exist?): ", filename);
+        E2LOGGER_error("Error opening messages file (does it exist?): ", filename);
         return false;
     }
     while (!languagefile.eof()) { // keep going until end of file

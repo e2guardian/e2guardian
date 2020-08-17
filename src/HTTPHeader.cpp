@@ -214,7 +214,7 @@ String HTTPHeader::getMIMEBoundary()
 // does the given content type string match our headers?
 bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
 {
-    e2logger_debug("mime type: ", getContentType());
+    E2LOGGER_debug("mime type: ", getContentType());
 
     // Do standard check first!
     if (getContentType().startsWith(t))
@@ -228,15 +228,15 @@ bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
         int i;
         for (i = 0; i < size; i++) {
             if (mime.startsWith(text_mime[i])) {
-                e2logger_debug( "mimes match : ", text_mime[i]);
+                E2LOGGER_debug( "mimes match : ", text_mime[i]);
                 return true;
             }
 	        else {
-                e2logger_debug("mimes check : ", text_mime[i]);
+                E2LOGGER_debug("mimes check : ", text_mime[i]);
 	        }
         }
    }
-   e2logger_debug("mimes result : false !");
+   E2LOGGER_debug("mimes result : false !");
    return false;
 }
 
@@ -307,7 +307,7 @@ bool HTTPHeader::isCompressed()
             // should not be here, but not must not
             return false;
         }
-        e2logger_debug( "is compressed!");
+        E2LOGGER_debug( "is compressed!");
         return true; // i.e. encoded with something other than clear
     }
     return false;
@@ -394,7 +394,7 @@ void HTTPHeader::makePersistent(bool persist)
 // make the request look like it's come from/to the origin server
 void HTTPHeader::makeTransparent(bool incoming)
 {
-    e2logger_trace("");
+    E2LOGGER_trace("");
     if (incoming) {
         // remove references to the proxy before sending to browser
         if (pproxyconnection != NULL) {
@@ -475,8 +475,8 @@ void HTTPHeader::removeEncoding(int newlen)
     // unless it proves to be necessary further down the line. PRA 20-10-2005
     if (pcontentencoding != NULL) {
         /*
-		e2logger_debug("Stripping Content-Encoding header");
-		e2logger_debug("Old: ", header[i]);
+		E2LOGGER_debug("Stripping Content-Encoding header");
+		E2LOGGER_debug("Old: ", header[i]);
 		// only strip supported compression types
 		String temp(header[i].after(":"));
 		temp.removeWhiteSpace();
@@ -496,7 +496,7 @@ void HTTPHeader::removeEncoding(int newlen)
         (*pcontentencoding) = "X-DansGuardian-Removed: Content-Encoding\r";
         /*			else
 			header[i] = "Content-Encoding: "+newheader;
-		    e2logger_debug("New: ", header[i]);
+		    E2LOGGER_debug("New: ", header[i]);
         */
     }
 }
@@ -524,29 +524,29 @@ void HTTPHeader::setURL(String &url)
         hostname = hostname.before(":"); // chop off the port bit
     }
 
-    e2logger_debug("setURL: header.front() changed from: ", header.front());
+    E2LOGGER_debug("setURL: header.front() changed from: ", header.front());
     if (https && header.front().startsWith("CONNECT"))
         // Should take form of "CONNECT example.com:443 HTTP/1.0" for SSL
         header.front() = header.front().before(" ") + " " + hostname + ":" + String(port) + " " + header.front().after(" ").after(" ");
     else 
         header.front() = header.front().before(" ") + " " + url + " " + header.front().after(" ").after(" ");
     
-    e2logger_debug(" to: ", header.front());    
+    E2LOGGER_debug(" to: ", header.front());    
 
     if (phost != NULL) {
-        e2logger_debug("setURL: header[] line changed from: ", (*phost));
+        E2LOGGER_debug("setURL: header[] line changed from: ", (*phost));
         (*phost) = String("Host: ") + hostname;
         if (port != (https ? 443 : 80)) {
             (*phost) += ":";
             (*phost) += String(port);
         }
         (*phost) += "\r";
-        e2logger_debug(" to ", (*phost));
+        E2LOGGER_debug(" to ", (*phost));
     }
     if (pport != NULL) {
-        e2logger_debug("setURL: header[] line changed from: ", (*pport));
+        E2LOGGER_debug("setURL: header[] line changed from: ", (*pport));
         (*pport) = String("Port: ") + String(port) + "\r";
-        e2logger_debug(" to ", (*pport));
+        E2LOGGER_debug(" to ", (*pport));
     }
     // Don't just cache the URL we're sent - getUrl() performs some other
     // processing, notably stripping the port part. Caching here will
@@ -629,7 +629,7 @@ bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::dequ
             if (srcoff < oldlinelen) {
                 newLine += line.subString(srcoff, oldlinelen - srcoff);
             }
-            e2logger_debug("Line modified! (", line, " -> ", newLine, ")" );
+            E2LOGGER_debug("Line modified! (", line, " -> ", newLine, ")" );
             // copy newLine into line and continue with other regexes
             line = newLine;
             linemodified = true;
@@ -652,7 +652,7 @@ bool HTTPHeader::addHeader(String &newheader) {
         addheaderchecked = true;
         std::string line(newheader + "\r");
         header.push_back(String(line.c_str()));
-        e2logger_debug("addheader = ", newheader);
+        E2LOGGER_debug("addheader = ", newheader);
         return true;
     }
     return false;
@@ -680,7 +680,7 @@ bool HTTPHeader::malformedURL(const String &url)
     if (host.contains("/"))
         host = host.before("/");
     if (host.length() < 2) {
-        e2logger_debug("host len too small!");
+        E2LOGGER_debug("host len too small!");
         return true;
     }
     if (host.contains(":"))
@@ -688,7 +688,7 @@ bool HTTPHeader::malformedURL(const String &url)
     // endsWith . check removed as this format is used by Apple Configurator Updates
     //	if (host.contains("..") || host.endsWith(".")) {
     if (host.contains("..")) {
-        e2logger_debug("double dots in domain name!");
+        E2LOGGER_debug("double dots in domain name!");
         return true;
     }
     int i, len;
@@ -707,7 +707,7 @@ bool HTTPHeader::malformedURL(const String &url)
         if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z')
             && !(c >= '0' && c <= '9') && c != '.' && c != '-' && c != '_') {
             // only allowed letters, digits, hiphen, dots
-            e2logger_debug("bad char in hostname!");
+            E2LOGGER_debug("bad char in hostname!");
             return true;
         }
     }
@@ -715,7 +715,7 @@ bool HTTPHeader::malformedURL(const String &url)
     if (containsletter)
         return false;
     else
-        e2logger_debug("Checking for IP obfuscation in ", host);
+        E2LOGGER_debug("Checking for IP obfuscation in ", host);
 
     // Check no IP obfuscation is going on
     // This includes IPs encoded as a single decimal number,
@@ -766,7 +766,7 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
 
 	if (header.size() != 0){
         String *line;
-        e2logger_debug("Client: START ", reqres, "-------------------------------" );
+        E2LOGGER_debug("Client: START ", reqres, "-------------------------------" );
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
@@ -775,11 +775,11 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
             } else {
                 inout = "OUT";
             }
-            e2logger_debug(inout, ": Client IP ", clientip, " ", line2 );
+            E2LOGGER_debug(inout, ": Client IP ", clientip, " ", line2 );
         }
-        e2logger_debug("Client: END ", reqres, " -------------------------------");
+        E2LOGGER_debug("Client: END ", reqres, " -------------------------------");
     } else {
-        e2logger_debug("Call : from HTTPHeader.cpp to dbshowheader but", reqres, " header is empty" );
+        E2LOGGER_debug("Call : from HTTPHeader.cpp to dbshowheader but", reqres, " header is empty" );
     }
 }
 
@@ -801,15 +801,15 @@ void HTTPHeader::dbshowheader(bool outgoing)
 
     if (header.size() != 0){
         String *line;
-        e2logger_debug("Client: START-------------------------------");
+        E2LOGGER_debug("Client: START-------------------------------");
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             line = &(*i);
             String line2 = *line;
-            e2logger_debug(inout,": dbshowheader bool: ", line2);
+            E2LOGGER_debug(inout,": dbshowheader bool: ", line2);
         }
-        e2logger_debug("Client: END-------------------------------");
+        E2LOGGER_debug("Client: END-------------------------------");
     } else {
-        e2logger_debug("Call : from HTTPHeader.cpp to dbshowheader but header is empty");
+        E2LOGGER_debug("Call : from HTTPHeader.cpp to dbshowheader but header is empty");
     }
 }
 
@@ -853,14 +853,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
         } else if ((pcontentlength == NULL) && i->startsWithLower("content-length:")) {
             pcontentlength = &(*i);
         tp = *i;
-        e2logger_debug("tp =", tp);
+        E2LOGGER_debug("tp =", tp);
 
         if(!tp.headerVal())
             pcontentlength = NULL;
         else {
             contentlength = tp.toInteger();
         }
-        e2logger_debug("tp =", tp, " Contentlen.int =", contentlength);
+        E2LOGGER_debug("tp =", tp, " Contentlen.int =", contentlength);
 
         }
         // is this ever sent outgoing?
@@ -902,14 +902,14 @@ void HTTPHeader::checkheader(bool allowpersistent)
             pheaderident = &(*i);
         }
 
-        e2logger_debug("Header value from client: ", *i);
+        E2LOGGER_debug("Header value from client: ", *i);
     }
 }
 
     //if its http1.1
     bool onepointone = false;
     if (header.front().after("HTTP/").startsWith("1.1")) {
-        e2logger_debug("CheckHeader: HTTP/1.1 detected");
+        E2LOGGER_debug("CheckHeader: HTTP/1.1 detected");
         onepointone = true;
     }
 
@@ -917,7 +917,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         requesttype = header.front().before(" ");
         if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
         {
-            e2logger_debug("zero contentlength on request due to not POST/PUT ");
+            E2LOGGER_debug("zero contentlength on request due to not POST/PUT ");
             contentlength = 0;
         }
         if(header.front().after(" ").startsWith("/"))
@@ -930,7 +930,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         returncode = tp.toInteger();
         if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
         {
-            e2logger_debug("zero contentlength on response due to returncode ", String(returncode) );
+            E2LOGGER_debug("zero contentlength on response due to returncode ", String(returncode) );
             contentlength = 0;
         }
     }
@@ -940,7 +940,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
     if(!icap) {
         if (pproxyconnection != NULL) {
             if (pproxyconnection->contains("lose")) {
-                e2logger_debug("CheckHeader: P-C says close");
+                E2LOGGER_debug("CheckHeader: P-C says close");
                 connectionclose = true;
             } else {
                 connectionclose = false;
@@ -955,11 +955,11 @@ void HTTPHeader::checkheader(bool allowpersistent)
     // manner expected by E2 and will result in waiting for time-outs.  Bug identified by Jason Deasi.
     bool isconnect = false;
     if (outgoing && header.front()[0] == 'C') {
-        e2logger_debug("CheckHeader: CONNECT request detected");
+        E2LOGGER_debug("CheckHeader: CONNECT request detected");
         isconnect = true;
     }
 
-    e2logger_debug("CheckHeader flags before normalisation: ",
+    E2LOGGER_debug("CheckHeader flags before normalisation: ",
                     " AP=", String(allowpersistent),
                     " PPC=", String(pproxyconnection != NULL),
                     " 1.1=", String(onepointone),
@@ -985,7 +985,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         }
     }
 
-    e2logger_debug("CheckHeader flags after normalisation: ",
+    E2LOGGER_debug("CheckHeader flags after normalisation: ",
                     " AP=", String(allowpersistent),
                     " WP=", String(waspersistent) );
 
@@ -995,7 +995,7 @@ if(!icap) {
     // (modify pproxyconnection or add connection close/keep-alive - Client version, of course)
     if (allowpersistent) {
         if (pproxyconnection == NULL) {
-            e2logger_debug("CheckHeader: Adding our own Proxy-Connection: Keep-Alive");
+            E2LOGGER_debug("CheckHeader: Adding our own Proxy-Connection: Keep-Alive");
             header.push_back("Connection: keep-alive\r");
             pproxyconnection = &(header.back());
         } else {
@@ -1003,7 +1003,7 @@ if(!icap) {
         }
     } else {
         if (pproxyconnection == NULL) {
-            e2logger_debug("CheckHeader: Adding our own Proxy-Connection: Close");
+            E2LOGGER_debug("CheckHeader: Adding our own Proxy-Connection: Close");
             header.push_back("Connection: close\r");
             pproxyconnection = &(header.back());
         } else {
@@ -1134,7 +1134,7 @@ String HTTPHeader::getUrl(bool withport, bool isssl)
     //		answer.chop();
     //	}
 
-    e2logger_debug("from header url:", answer);
+    E2LOGGER_debug("from header url:", answer);
     // Don't include port numbers in the URL in the cached version.
     // Most of the code only copes with URLs *without* port specifiers.
     if (!withport)
@@ -1179,7 +1179,7 @@ String HTTPHeader::hashedURL(String *url,  std::string *clientip,
         hash = hash.md5(fdl.cgi_magic.c_str());
     res += hash;
     res += timecode;
-    e2logger_debug(" -generate Bypass hashedurl data ", clientip, " ", *url, " ", user, " ", timecode, " result ", res);
+    E2LOGGER_debug(" -generate Bypass hashedurl data ", clientip, " ", *url, " ", user, " ", timecode, " result ", res);
     return res;
 }
 
@@ -1191,11 +1191,11 @@ String HTTPHeader::hashedCookie(String *url, const char *magic, std::string *cli
     //   if(ldl->fg[filtergroup]->bypass_v2)
     data += user;
     data += timecode;
-    e2logger_debug(" -generate Bypass hashedCookie data ", clientip, " ", *url, " ", user, " ", timecode);
+    E2LOGGER_debug(" -generate Bypass hashedCookie data ", clientip, " ", *url, " ", user, " ", timecode);
     String res(url->md5(data.toCharArray()));
     res += timecode;
 
-    e2logger_debug(" -Bypass hashedCookie=", res );
+    E2LOGGER_debug(" -Bypass hashedCookie=", res );
     return res;
 }
 
@@ -1281,7 +1281,7 @@ String HTTPHeader::getCookie(const char *cookie)
         }
     }
     line.removeWhiteSpace();
-    e2logger_debug("Found cookie:", line );
+    E2LOGGER_debug("Found cookie:", line );
     return line;
 }
 
@@ -1296,7 +1296,7 @@ void HTTPHeader::setCookie(const char *cookie, const char *domain, const char *v
     line += domain;
     line += "\r";
     header.push_back(line);
-    e2logger_debug("Setting cookie:", line);
+    E2LOGGER_debug("Setting cookie:", line);
     // no expiry specified so ends with the browser session
 }
 
@@ -1305,7 +1305,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
 {
     String cookie(getCookie("GBYPASS"));
     if (!cookie.length()) {
-        e2logger_debug("No bypass cookie");
+        E2LOGGER_debug("No bypass cookie");
         return false;
     }
     String cookiehash(cookie.subString(0, 32));
@@ -1317,7 +1317,7 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
     bool matched = false;
     while (url.contains(".")) {
         String hashed(url.md5(mymagic.toCharArray()));
-        e2logger_debug("Bypass cookie:", cookiehash, " hashed: ", hashed, " contains ", clientip, " ", user, " ", url, " ", cookietime);
+        E2LOGGER_debug("Bypass cookie:", cookiehash, " hashed: ", hashed, " contains ", clientip, " ", user, " ", url, " ", cookietime);
         if (hashed == cookiehash) {
             matched = true;
             break;
@@ -1325,13 +1325,13 @@ bool HTTPHeader::isBypassCookie(String url, const char *magic, const char *clien
         url = url.after(".");
     }
     if (not matched) {
-        e2logger_debug("Cookie GBYPASS not match");
+        E2LOGGER_debug("Cookie GBYPASS not match");
         return false;
     }
     time_t timen = time(NULL);
     time_t timeu = cookietime.toLong();
     if (timeu < timen) {
-        e2logger_debug("Cookie GBYPASS expired: ", timeu, " ", timen );
+        E2LOGGER_debug("Cookie GBYPASS expired: ", timeu, " ", timen );
         return false;
     }
     return true;
@@ -1347,7 +1347,7 @@ String HTTPHeader::getReferer()
         }
     }
     line.removeWhiteSpace();
-    e2logger_debug("Found Referer URL:", line);
+    E2LOGGER_debug("Found Referer URL:", line);
     return line;
 }
 
@@ -1364,7 +1364,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
     if (s.length() < 3) {
         return s;
     }
-    e2logger_trace("decoding url");
+    E2LOGGER_trace("decoding url");
     RegResult Rre;
     if (!urldecode_re.match(s.c_str(),Rre)) {
         return s;
@@ -1384,7 +1384,7 @@ String HTTPHeader::decode(const String &s, bool decodeAll)
         n = Rre.result(match).c_str();
         n.lop(); // remove %
         result += hexToChar(n, decodeAll);
-        // e2logger_debug("encoded: ", Rre.result(match), " decoded: ", hexToChar(n), " string so far: ", result);
+        // E2LOGGER_debug("encoded: ", Rre.result(match), " decoded: ", hexToChar(n), " string so far: ", result);
         pos = offset + 3;
     }
     if (size > pos) {
@@ -1532,15 +1532,15 @@ String HTTPHeader::URLEncode()
 
 String HTTPHeader::stringHeader() {
     String l;
-    e2logger_debug("stringHeader started hsize=", header.size() );
+    E2LOGGER_debug("stringHeader started hsize=", header.size() );
     if (header.size() > 0) {
         for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
             if (! (*i).startsWith("X-E2G-IgnoreMe")){
-                e2logger_debug("Found Header: ", *i );
+                E2LOGGER_debug("Found Header: ", *i );
                 l += (*i) + "\n";
             }
             else {
-                e2logger_debug("Found Header X-E2G-IgnoreMe: ", *i );
+                E2LOGGER_debug("Found Header X-E2G-IgnoreMe: ", *i );
             }
         }
         l += "\r\n";
@@ -1569,9 +1569,9 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             l = header.front() + "\n";
 
             if(is_response)  {
-                e2logger_debug("response headerout:", l);
+                E2LOGGER_debug("response headerout:", l);
             } else {
-                e2logger_debug("request headerout:", l);
+                E2LOGGER_debug("request headerout:", l);
             }
 
             //if a socket is ssl we want to send relative paths not absolute urls
@@ -1582,7 +1582,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 
             if (isdirect && !is_response) {
                 l = header.front().before(" ") + " /" + header.front().after("://").after("/").before(" ") + " HTTP/1.1\r\n";
-                e2logger_debug("request headerout (modified for direct):", l);
+                E2LOGGER_debug("request headerout (modified for direct):", l);
             }
 
             // first reconnect loop - send first line
@@ -1591,7 +1591,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                     // reconnect & try again if we've been told to
                     if (reconnect && !isdirect) {
                         // don't try more than once
-                        e2logger_error( "Proxy connection broken (1); trying to re-establish...");
+                        E2LOGGER_error( "Proxy connection broken (1); trying to re-establish...");
                         reconnect = false;
                         sock->reset();
                         int rc = sock->connect(o.proxy_ip, o.proxy_port);
@@ -1604,7 +1604,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                     return false;
                 }
                 // if we got here, we succeeded, so break the reconnect loop
-                e2logger_debug("headertoclient: ", l.substr(0, l.length()-1), " timeout:", String(timeout));
+                E2LOGGER_debug("headertoclient: ", l.substr(0, l.length()-1), " timeout:", String(timeout));
                 break;
             }
         }
@@ -1618,11 +1618,11 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     if (header.size() > 1) {
         for (std::deque<String>::iterator i = header.begin() + 1; i != header.end(); i++) {
             if (! (*i).startsWith("X-E2G-IgnoreMe")){
-                e2logger_debug("Found Header: ", *i);
+                E2LOGGER_debug("Found Header: ", *i);
                 l += (*i) + "\n";
             }
             else {
-                e2logger_debug("Found Header X-E2G-IgnoreMe: ", *i );
+                E2LOGGER_debug("Found Header X-E2G-IgnoreMe: ", *i );
             }
         }
 
@@ -1630,7 +1630,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
     if (!is_response && o.forwarded_for && !isdirect)  {
         std::string line("X-Forwarded-For: ");
         line.append(s_clientip).append("\r\n");
-        e2logger_debug("Adding Header: ", line);
+        E2LOGGER_debug("Adding Header: ", line);
        l += line;
     }
     l += "\r\n";
@@ -1644,7 +1644,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             // reconnect & try again if we've been told to
             if (reconnect && !isdirect) {
                 // don't try more than once
-                e2logger_error("Proxy connection broken (2); trying to re-establish...");
+                E2LOGGER_error("Proxy connection broken (2); trying to re-establish...");
                 reconnect = false;
                 sock->reset();
                 int rc = sock->connect(o.proxy_ip, o.proxy_port);
@@ -1661,22 +1661,22 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         // if we got here, we succeeded, so break the reconnect loop
         break;
     }
-    e2logger_debug("Header written - pstdata_len:", postdata_len );
+    E2LOGGER_debug("Header written - pstdata_len:", postdata_len );
 
     if (postdata_len > 0) {
-        e2logger_debug("Sending manually set POST data");
+        E2LOGGER_debug("Sending manually set POST data");
         if (!sock->writeToSocket(postdata, postdata_len, 0, timeout)) {
-            e2logger_debug("Could not send POST data!");
+            E2LOGGER_debug("Could not send POST data!");
             //throw std::exception();
             return false;
         }
     } else if ((peersock != NULL) && (!requestType().startsWith("HTTP")) && (pcontentlength != NULL)) {
-        e2logger_debug("Opening tunnel for POST data");
+        E2LOGGER_debug("Opening tunnel for POST data");
         FDTunnel fdt;
         if (!fdt.tunnel(*peersock, *sock, false, contentLength(), true) )
             return false;
     }
-    e2logger_debug("Returning from header:out ");
+    E2LOGGER_debug("Returning from header:out ");
 #ifdef E2DEBUG
     dbshowheader(true);
 #endif
@@ -1738,10 +1738,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 
 #ifdef E2DEBUG
     if(is_response) {
-        E2LOGGER_DEBUG("Start of response header:in");
+        E2LOGGER_debug("Start of response header:in");
     }
     else {
-        E2LOGGER_DEBUG("Start of request header:in");
+        E2LOGGER_debug("Start of request header:in");
     }
 #endif
 
@@ -1762,12 +1762,12 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         bool truncated = false;
         int rc;
         if (firsttime) {
-            e2logger_debug("header:in before getLine - timeout:", timeout );
-            e2logger_debug("firstime: header:in after getLine ");
+            E2LOGGER_debug("header:in before getLine - timeout:", timeout );
+            E2LOGGER_debug("firstime: header:in after getLine ");
             rc = sock->getLine(buff, 32768, timeout,  NULL, &truncated);
            if (rc < 0 || truncated) {
                 ispersistent = false;
-                e2logger_debug("firstime: header:in after getLine: rc: ", rc, " truncated: ", truncated  );
+                E2LOGGER_debug("firstime: header:in after getLine: rc: ", rc, " truncated: ", truncated  );
 #ifdef E2DEBUG
                 dbshowheader(false);
 #endif
@@ -1780,7 +1780,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
             rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);   // timeout reduced to 100ms for lines after first
             if (rc < 0 || truncated) {
                 ispersistent = false;
-                e2logger_debug("not firstime header:in after getLine: rc: ", rc, " truncated: ", truncated );
+                E2LOGGER_debug("not firstime header:in after getLine: rc: ", rc, " truncated: ", truncated );
 #ifdef E2DEBUG
                 dbshowheader(false);
 #endif
@@ -1790,7 +1790,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         }
 
         if (header.size() > o.max_header_lines) {
-    	    e2logger_error("header:size too big: %lu, see maxheaderlines", header.size());
+    	    E2LOGGER_error("header:size too big: %lu, see maxheaderlines", header.size());
 	        dbshowheader(false);
             ispersistent = false;
             return false;
@@ -1809,7 +1809,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
             if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
             {
                 if(o.logconerror)
-                    e2logger_error("Returning from header:in Server did not respond with HTTP ");
+                    E2LOGGER_error("Returning from header:in Server did not respond with HTTP ");
 #ifdef E2DEBUG
                 dbshowheader(false);
 #endif
@@ -1822,25 +1822,25 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
             header.push_back(line); // stick the line in the deque that holds the header
         } else {
             discard = true;
-            e2logger_debug("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
+            E2LOGGER_debug("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
         }
         firsttime = false;
 // End of while
     }
 
     if (header.size() == 0) {
-        e2logger_debug("header:size = 0 ");
+        E2LOGGER_debug("header:size = 0 ");
         return false;
     }
 
     header.pop_back(); // remove the final blank line of a header
 
-    e2logger_debug("header:size =  ", header.size());
+    E2LOGGER_debug("header:size =  ", header.size());
     if (header.size() > 0)
-        e2logger_debug("first line =  ", header[0]);
+        E2LOGGER_debug("first line =  ", header[0]);
 
     checkheader(allowpersistent); // sort out a few bits in the header
 
-    e2logger_debug("isProxyRequest is ", isProxyRequest);
+    E2LOGGER_debug("isProxyRequest is ", isProxyRequest);
     return true;
 }

@@ -348,11 +348,11 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     while (rc != 1) {
         ERR_clear_error();
         rc = SSL_connect(ssl);
-        e2logger_debugnet("ssl_connect returned ", rc );
+        E2LOGGER_debugnet("ssl_connect returned ", rc );
 
         if (rc != 1) {
             s_errno = SSL_get_error(ssl,rc);
-            e2logger_debugnet("ssl_connect s_error is ", s_errno);
+            E2LOGGER_debugnet("ssl_connect s_error is ", s_errno);
             switch (s_errno) {
                 case SSL_ERROR_WANT_READ:
                 case SSL_ERROR_WANT_WRITE:
@@ -360,7 +360,7 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
                     timedout = true;
                 default:
                     log_ssl_errors("ssl_connect failed to %s", hostname.c_str());
-                    e2logger_debugnet("ssl_connect failed with error ", SSL_get_error(ssl, rc));
+                    E2LOGGER_debugnet("ssl_connect failed with error ", SSL_get_error(ssl, rc));
                     // tidy up
                     SSL_free(ssl);
                     ssl = NULL;
@@ -389,50 +389,50 @@ bool Socket::isSslServer()
 //shuts down the current ssl connection
 void Socket::stopSsl()
 {
-    e2logger_debugnet("ssl stopping");
+    E2LOGGER_debugnet("ssl stopping");
     if(!isssl) return;
 
     isssl = false;
 
     if (ssl != NULL) {
         if (issslserver) {
-            e2logger_debugnet("this is a server connection");
+            E2LOGGER_debugnet("this is a server connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                e2logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
+                E2LOGGER_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                e2logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
+                E2LOGGER_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            e2logger_debugnet("calling 1st ssl shutdown");
+            E2LOGGER_debugnet("calling 1st ssl shutdown");
 
             if (!SSL_shutdown(ssl)) {
-                e2logger_debugnet("need to call SSL shutdown again");
+                E2LOGGER_debugnet("need to call SSL shutdown again");
                 if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                    e2logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
+                    E2LOGGER_debugnet("SSL_SENT_SHUTDOWN IS SET");
                 }
                 if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                    e2logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
+                    E2LOGGER_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
                 }
-                e2logger_debugnet("Discarding extra data from client");
+                E2LOGGER_debugnet("Discarding extra data from client");
 
                 shutdown(SSL_get_fd(ssl), SHUT_WR);
                 char junk[1024];
                 readFromSocket(junk, sizeof(junk), 0, 5);
-                e2logger_debugnet("done");
+                E2LOGGER_debugnet("done");
             }
         } else {
-            e2logger_debugnet("this is a client connection");
+            E2LOGGER_debugnet("this is a client connection");
             if (SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) {
-                e2logger_debugnet("SSL_SENT_SHUTDOWN IS SET");
+                E2LOGGER_debugnet("SSL_SENT_SHUTDOWN IS SET");
             }
             if (SSL_get_shutdown(ssl) & SSL_RECEIVED_SHUTDOWN) {
-                e2logger_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
+                E2LOGGER_debugnet("SSL_RECEIVED_SHUTDOWN IS SET");
             }
-            e2logger_debugnet("calling ssl shutdown");
+            E2LOGGER_debugnet("calling ssl shutdown");
 
             SSL_shutdown(ssl);
 
-            e2logger_debugnet("done");
+            E2LOGGER_debugnet("done");
         }
     }
 
@@ -500,7 +500,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     ctx = SSL_CTX_new(TLS_server_method());
 
     if (ctx == NULL) {
-        e2logger_debugnet("Error ssl context is null (check that openssl has been inited)");
+        E2LOGGER_debugnet("Error ssl context is null (check that openssl has been inited)");
         return -1;
     }
 
@@ -512,7 +512,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the certificate
     if (SSL_CTX_use_certificate(ctx, x) < 1) {
-        e2logger_debugnet("Error using certificate");
+        E2LOGGER_debugnet("Error using certificate");
         cleanSsl();
         return -1;
     }
@@ -522,7 +522,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the private key
     if (SSL_CTX_use_PrivateKey(ctx, privKey) < 1) {
-        e2logger_debugnet("Error using private key");
+        E2LOGGER_debugnet("Error using private key");
         cleanSsl();
         return -1;
     }
@@ -545,7 +545,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
     while (rc != 1) {
         ERR_clear_error();
         rc = SSL_accept(ssl);
-        e2logger_debugnet("accepting returns ", rc);
+        E2LOGGER_debugnet("accepting returns ", rc);
         if (rc != 1) {
                 s_errno = SSL_get_error(ssl,rc);
                 switch (s_errno) {
@@ -555,7 +555,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
                         timedout = true;
                         return -1;
                     default:
-                        e2logger_debugnet("Error accepting ssl connection error is ", s_errno );
+                        E2LOGGER_debugnet("Error accepting ssl connection error is ", s_errno );
                         log_ssl_errors("ssl_accept failed to client %s", "");
                         cleanSsl();
                         return -1;
@@ -580,20 +580,20 @@ bool Socket::checkForInput()
     if (!isssl) {
         return BaseSocket::checkForInput();
     }
-    e2logger_debugnet("checking for input on ssl connection (non blocking)");
+    E2LOGGER_debugnet("checking for input on ssl connection (non blocking)");
     if ((bufflen - buffstart) > 0) {
-        e2logger_debugnet("found input on ssl connection");
+        E2LOGGER_debugnet("found input on ssl connection");
         return true;
     }
 
     int rc = SSL_pending(ssl);
 
     if (rc < 1) {
-        e2logger_debugnet("no pending data on ssl connection SSL_pending ", rc );
+        E2LOGGER_debugnet("no pending data on ssl connection SSL_pending ", rc );
         return false;
     }
 
-    e2logger_debugnet("found data on ssl connection");
+    E2LOGGER_debugnet("found data on ssl connection");
 
     return true;
 }
@@ -631,10 +631,10 @@ try {
         bufflen = 0;
         bufflen = SSL_read(ssl, buffer, SCK_READ_BUFF_SIZE);
 
-        e2logger_debugnet("read into buffer; bufflen: ", bufflen);
+        E2LOGGER_debugnet("read into buffer; bufflen: ", bufflen);
         if (bufflen < 1) {
             s_errno = SSL_get_error(ssl,bufflen);
-            e2logger_debugnet("read into buffer; s_errno: ", s_errno);
+            E2LOGGER_debugnet("read into buffer; s_errno: ", s_errno);
 
             switch (s_errno) {
                 case SSL_ERROR_WANT_READ:
@@ -650,7 +650,7 @@ try {
                     return i;
                 default:
                     log_ssl_errors("ssl_read failed %s", "");
-                    e2logger_debugnet("SSL_read failed with error ", SSL_get_error(ssl, bufflen));
+                    E2LOGGER_debugnet("SSL_read failed with error ", SSL_get_error(ssl, bufflen));
                     ishup = true;
                     return -1;
             }
@@ -720,7 +720,7 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
                 default:
                     String serr(s_errno);
                     log_ssl_errors("ssl_write failed - error ",serr.c_str());
-                    e2logger_debugnet("ssl_write failed", s_errno, " failed to write");
+                    E2LOGGER_debugnet("ssl_write failed", s_errno, " failed to write");
                     ishup = true;
                     return false;
             }
@@ -743,7 +743,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     int cnt = len;
     int tocopy = 0;
     if ((bufflen - buffstart) > 0) {
-        e2logger_debugnet("Socket::readFromSocket: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart );
+        E2LOGGER_debugnet("Socket::readFromSocket: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart );
         tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -777,7 +777,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
                     return len - cnt;
                 default:
                     log_ssl_errors("ssl_read failed %s", "");
-                    e2logger_debugnet("ssl_read failed", s_errno, " failed to read ",cnt, " bytes");
+                    E2LOGGER_debugnet("ssl_read failed", s_errno, " failed to read ",cnt, " bytes");
                     ishup = true;
                     return len - cnt;
             }
@@ -785,7 +785,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
         }
 
         if (inbuffer) {
-            e2logger_debugnet("Inbuffer SSL read to return ", cnt, " bytes" );
+            E2LOGGER_debugnet("Inbuffer SSL read to return ", cnt, " bytes" );
 
             buffstart = 0;
             bufflen = rc;
@@ -797,7 +797,7 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
                 cnt -= tocopy;
                 buffstart += tocopy;
                 buff += tocopy;
-                e2logger_debugnet("Inbuffer SSL read to returned ", tocopy, " bytes");
+                E2LOGGER_debugnet("Inbuffer SSL read to returned ", tocopy, " bytes");
            }
          } else {
         buff += rc;
@@ -822,7 +822,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
     std::string hexs (stm.str());
     //int lw;
     hexs += "\r\n";
-    e2logger_debugnet("writeChunk  size=", hexs);
+    E2LOGGER_debugnet("writeChunk  size=", hexs);
 
     if(writeString(hexs.c_str()) && writeToSocket(buffout,len,0,timeout) && writeString("\r\n"))
         return true;
@@ -831,7 +831,7 @@ bool Socket::writeChunk( char *buffout, int len, int timeout){
 
 bool Socket::writeChunkTrailer( String &trailer) {
     std::string hexs ("0\r\n");
-    e2logger_debugnet("writeChunk  size=", hexs);
+    E2LOGGER_debugnet("writeChunk  size=", hexs);
     if(writeString(hexs.c_str()) && writeToSocket(trailer.c_str(),trailer.length(),0,timeout) && writeString("\r\n"))
         return true;
     return false;
@@ -847,7 +847,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
             chunkError = true;
             return -1;
         }
-        e2logger_debugnet("readChunk  size=", size);
+        E2LOGGER_debugnet("readChunk  size=", size);
         String l = size;
         l.chop();
         String t = l.before(";");
@@ -858,7 +858,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
             l = t;
         }
         chunk_to_read = l.hexToInteger();
-        e2logger_debugnet("readChunk  chunk_to_read =", chunk_to_read);
+        E2LOGGER_debugnet("readChunk  chunk_to_read =", chunk_to_read);
     }
 
     int clen = chunk_to_read;
@@ -866,7 +866,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         clen = maxlen;
     }
     int rc = 0;
-    e2logger_debugnet("readChunk  max_read =", clen);
+    E2LOGGER_debugnet("readChunk  max_read =", clen);
 
     if(clen == 0) {
         chunked_trailer = "";
@@ -884,7 +884,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
 
     if (clen > 0) {
         rc = readFromSocket(buffin, clen, 0, timeout);
-        e2logger_debugnet("readChunk  read ", rc);
+        E2LOGGER_debugnet("readChunk  read ", rc);
         if (rc < 0) {
             chunkError = true;
             return -1;
@@ -899,7 +899,7 @@ int Socket::readChunk( char *buffin, int maxlen, int timeout){
         return rc;
     } else {
         chunkError = true;
-        e2logger_debugnet("readChunk - tail in error");
+        E2LOGGER_debugnet("readChunk - tail in error");
         return -1;
     }
 }

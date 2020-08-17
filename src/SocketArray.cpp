@@ -48,7 +48,7 @@ int SocketArray::bindSingle(int port)
     if (socknum < 1) {
         return -1;
     }
-    e2logger_debug("bindSingle binding port", port);
+    E2LOGGER_debug("bindSingle binding port", port);
     lc_types.push_back(CT_PROXY);
     return drawer[0].bind(port);
 }
@@ -58,7 +58,7 @@ int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
     if (socknum <= index) {
         return -1;
     }
-    e2logger_debug("bindSingle binding port", port, " with type ", type);
+    E2LOGGER_debug("bindSingle binding port", port, " with type ", type);
     lc_types.push_back(type);
     return drawer[index].bind(port);
 }
@@ -71,9 +71,9 @@ int SocketArray::bindSingleM(std::deque<String> &ports)
         return -1;
     }
     for (unsigned int i = 0; i < ports.size(); i++) {
-        e2logger_debug("bindSingleM binding port", ports[i]);
+        E2LOGGER_debug("bindSingleM binding port", ports[i]);
         if (drawer[i].bind(ports[i].toInteger())) {
-            e2logger_error("Error binding server socket: [", ports[i], " ", i, "] (", strerror(errno), ")");
+            E2LOGGER_error("Error binding server socket: [", ports[i], " ", i, "] (", strerror(errno), ")");
             return -1;
         }
         lc_types.push_back(CT_PROXY);
@@ -86,7 +86,7 @@ int *SocketArray::getFDAll()
 {
     int *fds = new int[socknum];
     for (unsigned int i = 0; i < socknum; i++) {
-        e2logger_debug("Socket ", i, " fd:", drawer[i].getFD() );
+        E2LOGGER_debug("Socket ", i, " fd:", drawer[i].getFD() );
         fds[i] = drawer[i].getFD();
     }
     return fds;
@@ -97,7 +97,7 @@ int SocketArray::listenAll(int queue)
 {
     for (unsigned int i = 0; i < socknum; i++) {
         if (drawer[i].listen(queue)) {
-            e2logger_error("Error listening to socket");
+            E2LOGGER_error("Error listening to socket");
             return -1;
         }
     }
@@ -112,9 +112,9 @@ int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
     }
     //for (unsigned int i = 0; i < socknum; i++) {
     for (unsigned int i = 0; i < ips.size(); i++) {
-        e2logger_debug("Binding server socket[", ports[i], " ", ips[i], " ", i, "]" );
+        E2LOGGER_debug("Binding server socket[", ports[i], " ", ips[i], " ", i, "]" );
         if (drawer[i].bind(ips[i].toCharArray(), ports[i].toInteger())) {
-            e2logger_error("Error binding server socket: [", ports[i], " ", ips[i], " ", i, "] (", strerror(errno), ")" );
+            E2LOGGER_error("Error binding server socket: [", ports[i], " ", ips[i], " ", i, "] (", strerror(errno), ")" );
             return -1;
         }
         lc_types.push_back(CT_PROXY);

@@ -65,13 +65,13 @@ void read_config(std::string& configfile, int type)
 {
     int rc = open(configfile.c_str(), 0, O_RDONLY);
     if (rc < 0) {
-        e2logger_error("Error opening ", configfile);
+        E2LOGGER_error("Error opening ", configfile);
         exit(1); // could not open conf file for reading, exit with error
     }
     close(rc);
 
     if (!o.read(configfile, type)) {
-        e2logger_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
+        E2LOGGER_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
         exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
     }
 }
@@ -94,14 +94,14 @@ int main(int argc, char *argv[])
     e2logger.enable(LoggerSource::trace);
 #endif    
 
-    e2logger_info("Start ", prog_name );
-    e2logger_debug("Running in debug_mode...");
+    E2LOGGER_info("Start ", prog_name );
+    E2LOGGER_debug("Running in debug_mode...");
 
 #ifdef __BENCHMARK
     char benchmark = '\0';
 #endif
 
-    e2logger_trace("parse Options");
+    E2LOGGER_trace("parse Options");
     for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             for (unsigned int j = 1; j < strlen(argv[i]); j++) {
@@ -197,15 +197,15 @@ int main(int argc, char *argv[])
     setlocale(LC_ALL, "");
 
     if (needreset) {
-        e2logger_trace("reset Options");
+        E2LOGGER_trace("reset Options");
         o.reset();
     }
 
-    e2logger_trace("read Configfile: ", configfile);
+    E2LOGGER_trace("read Configfile: ", configfile);
     read_config(configfile, 2);
 
     if ( o.SB_trace ) {
-        e2logger_info("Enable Storyboard tracing !!");
+        E2LOGGER_info("Enable Storyboard tracing !!");
         e2logger.enable(LoggerSource::story);
     }
     if ( ! o.name_suffix.empty() ) {
@@ -213,14 +213,14 @@ int main(int argc, char *argv[])
     }
 
     if (total_block_list && !o.readinStdin()) {
-        e2logger_error("Error on reading total_block_list");
+        E2LOGGER_error("Error on reading total_block_list");
 //		return 1;
-        e2logger_debug("Total block lists read OK from stdin.");
+        E2LOGGER_debug("Total block lists read OK from stdin.");
     }
 
-    e2logger_trace("create Lists");
+    E2LOGGER_trace("create Lists");
     if(!o.createLists(0))  {
-        e2logger_error("Error reading filter group conf file(s).");
+        E2LOGGER_error("Error reading filter group conf file(s).");
         return 1;
     }
 
@@ -311,9 +311,9 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    e2logger_trace("prepare Start");
+    E2LOGGER_trace("prepare Start");
     if (sysv_amirunning(o.pid_filename)) {
-        e2logger_error("I seem to be running already!");
+        E2LOGGER_error("I seem to be running already!");
         return 1; // can't have two copies running!!
     }
 
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
 
     struct rlimit rlim;
     if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        e2logger_error( "getrlimit call returned error: ", errno);
+        E2LOGGER_error( "getrlimit call returned error: ", errno);
         return 1;
     }
     int max_maxchildren;
@@ -342,11 +342,11 @@ int main(int argc, char *argv[])
     int fd_needed = (o.http_workers *2) + no_listen_fds + 6;
 
     if (((o.http_workers * 2) ) > max_maxchildren) {
-        e2logger_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
-        e2logger_error("httpworkers ", o.http_workers,  " must not exceed 50% of ", max_maxchildren);
-        e2logger_error("in this configuration.");
-        e2logger_error("Reduce httpworkers ");
-        e2logger_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
+        E2LOGGER_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
+        E2LOGGER_error("httpworkers ", o.http_workers,  " must not exceed 50% of ", max_maxchildren);
+        E2LOGGER_error("in this configuration.");
+        E2LOGGER_error("Reduce httpworkers ");
+        E2LOGGER_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
         return 1; // we can't have rampant proccesses can we?
     }
 
@@ -364,8 +364,8 @@ int main(int argc, char *argv[])
     if ((sg = getgrnam(o.daemon_group_name.c_str())) != 0) {
         o.proxy_group = sg->gr_gid;
     } else {
-        e2logger_error( "Unable to getgrnam(): ", strerror(errno));
-        e2logger_error("Check the group that e2guardian runs as (", o.daemon_group_name, ")");
+        E2LOGGER_error( "Unable to getgrnam(): ", strerror(errno));
+        E2LOGGER_error("Check the group that e2guardian runs as (", o.daemon_group_name, ")");
         return 1;
     }
 
@@ -375,7 +375,7 @@ int main(int argc, char *argv[])
         rc = setgid(o.proxy_group); // change to rights of proxy user group
         // i.e. low - for security
         if (rc == -1) {
-            e2logger_error("Unable to setgid()");
+            E2LOGGER_error("Unable to setgid()");
             return 1; // setgid failed for some reason so exit with error
         }
 #ifdef HAVE_SETREUID
@@ -385,12 +385,12 @@ int main(int argc, char *argv[])
 // (yes it negates but no choice)
 #endif
         if (rc == -1) {
-            e2logger_error("Unable to seteuid()");
+            E2LOGGER_error("Unable to seteuid()");
             return 1; // seteuid failed for some reason so exit with error
         }
     } else {
-        e2logger_error("Unable to getpwnam() - does the proxy user exist?");
-        e2logger_error("Proxy user looking for is '", o.daemon_user_name, "'" );
+        E2LOGGER_error("Unable to getpwnam() - does the proxy user exist?");
+        E2LOGGER_error("Proxy user looking for is '", o.daemon_user_name, "'" );
         return 1; // was unable to lockup the user id from passwd
         // for some reason, so exit with error
     }
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
     // this is no longer a class, but the comment has been retained for historical reasons. PRA 03-10-2005
     //FatController f;  // Thomas The Tank Engine
 
-    e2logger_trace("Starting Main loop");
+    E2LOGGER_trace("Starting Main loop");
     while (true) {
         rc = fc_controlit();
         // its a little messy, but I wanted to split
@@ -425,18 +425,18 @@ int main(int argc, char *argv[])
             rc = seteuid(rootuid);
 #endif
             if (rc == -1) {
-                e2logger_error("Unable to seteuid() to read conf files.");
+                E2LOGGER_error("Unable to seteuid() to read conf files.");
                 return 1;
             }
-            e2logger_trace("About to re-read conf file.");
+            E2LOGGER_trace("About to re-read conf file.");
             o.reset();
             if (!o.read(configfile, 2)) {
                 // OptionContainer class had an error reading the conf or
                 // other files so exit with error
-                e2logger_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
+                E2LOGGER_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
                 return 1;
             }
-            e2logger_trace("conf file read.");
+            E2LOGGER_trace("conf file read.");
 
             if (nodaemon) {
                 o.no_daemon = 1;
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
 #endif
 
             if (rc == -1) {
-                e2logger_error("Unable to re-seteuid()");
+                E2LOGGER_error("Unable to re-seteuid()");
                 return 1; // seteuid failed for some reason so exit with error
             }
             continue;
@@ -461,7 +461,7 @@ int main(int argc, char *argv[])
         if (is_daemonised)
         	return 0; // exit without error
         if (rc > 0) {
-            e2logger_error("Exiting with error");
+            E2LOGGER_error("Exiting with error");
             return rc; // exit returning the error number
         }
     }

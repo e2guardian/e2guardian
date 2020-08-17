@@ -48,7 +48,7 @@ class trickledm : public DMPlugin
 
 DMPlugin *trickledmcreate(ConfigVar &definition)
 {
-    e2logger_trace("Creating trickle DM");
+    E2LOGGER_trace("Creating trickle DM");
     return new trickledm(definition);
 }
 
@@ -78,7 +78,7 @@ int trickledm::init(void *args)
         o.dm_entry_dq.push_back(sen);
         return 0;
     } else {
-        e2logger_error("No story_function defined in trickle DM plugin config");
+        E2LOGGER_error("No story_function defined in trickle DM plugin config");
         return -1;
     }
 }
@@ -98,7 +98,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 //                                or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-    e2logger_trace("Inside trickle download manager plugin");
+    E2LOGGER_trace("Inside trickle download manager plugin");
 
     //  To access settings for the plugin use the following example:
     //      std::cout << "cvtest:" << cv["dummy"] << std::endl;
@@ -108,11 +108,11 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     d->bytes_toget = docheader->contentLength();
 
     if (!d->icap) {
-        e2logger_debug("tranencodeing is ", docheader->transferEncoding());
+        E2LOGGER_debug("tranencodeing is ", docheader->transferEncoding());
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
-    e2logger_debug("bytes remaining is ", d->bytes_toget);
+    E2LOGGER_debug("bytes remaining is ", d->bytes_toget);
     // if using non-persistent connections, some servers will not report
     // a content-length. in these situations, just download everything.
     d->geteverything = false;
@@ -133,7 +133,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-    e2logger_debug("blocksize: ",  blocksize);
+    E2LOGGER_debug("blocksize: ",  blocksize);
 
     while ((d->bytes_toget > 0) || d->geteverything) {
         // send keep-alive bytes here
@@ -141,18 +141,18 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
             themdays.tv_sec = nowadays.tv_sec;
             d->doneinitialdelay = true;
             if ((*headersent) < 1) {
-                e2logger_debug("sending header first");
+                E2LOGGER_debug("sending header first");
                 docheader->out(NULL, peersock, __E2HEADER_SENDALL);
                 (*headersent) = 2;
             }
             if (!d->swappedtodisk) {
                 // leave a kilobyte "barrier" so the whole file does not get sent before scanning
                 if ((d->data_length > 1024) && (d->bytesalreadysent < (d->data_length - 1024))) {
-                    e2logger_debug("trickle delay - sending a byte from the memory buffer");
+                    E2LOGGER_debug("trickle delay - sending a byte from the memory buffer");
                     peersock->writeToSocket(d->data + (d->bytesalreadysent++), 1, 0, d->timeout);
                 }
                 else
-                    e2logger_debug("trickle delay - no unsent bytes remaining! (memory)");
+                    E2LOGGER_debug("trickle delay - no unsent bytes remaining! (memory)");
             
             } else {
                 // check the file is at least one kilobyte ahead of our send pointer, so
@@ -160,14 +160,14 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
                 if (lseek(d->tempfilefd, d->bytesalreadysent + 1024, SEEK_SET) != (off_t) -1) {
                //    ssize_t bytes_written; //new just remove GCC warning
                     lseek(d->tempfilefd, d->bytesalreadysent, SEEK_SET);
-                    e2logger_debug("trickle delay - sending a byte from the file");
+                    E2LOGGER_debug("trickle delay - sending a byte from the file");
                     char byte;
                  //   bytes_written = read(d->tempfilefd, &byte, 1);
                     peersock->writeToSocket(&byte, 1, 0, d->timeout);
                     d->bytesalreadysent++;
                 }
                 else
-                    e2logger_debug("trickle delay - no unsent bytes remaining! (file)");
+                    E2LOGGER_debug("trickle delay - no unsent bytes remaining! (file)");
             }
         }
 
@@ -176,7 +176,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
         int bsize = blocksize;
         if ((!d->geteverything) && (d->bytes_toget < bsize))
             bsize = d->bytes_toget;
-        e2logger_debug("bsize is ", bsize);
+        E2LOGGER_debug("bsize is ", bsize);
 
         rc = d->readInFromSocket(sock, bsize, wantall, read_res);
         if (read_res & DB_TOBIG)
@@ -186,13 +186,13 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-            e2logger_debug("zlib format");
+            E2LOGGER_debug("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-            e2logger_debug("gzip format");
+            E2LOGGER_debug("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }
-    e2logger_trace("Leaving trickle download manager plugin");
+    E2LOGGER_trace("Leaving trickle download manager plugin");
     return 0;
 }

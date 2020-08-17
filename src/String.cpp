@@ -621,7 +621,7 @@ String String::sort_search()
     }
     //char *temp = new (std::nothrow) char[ln + 1];
     //if (temp == NULL)  {
-     //  e2logger_error("Unable to create temp char[%d] in sort_search", ln);
+     //  E2LOGGER_error("Unable to create temp char[%d] in sort_search", ln);
       //  return (*this);
     //}
    // strcpy(temp, (this)->c_str());
@@ -693,7 +693,7 @@ String String::sort_search()
         else
            ret = ret + "+" + p[j++];
     }
-    e2logger_debug("Search words after sort are ", ret);
+    E2LOGGER_debug("Search words after sort are ", ret);
    // delete [] temp;
     return ret;
 };

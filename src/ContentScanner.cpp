@@ -89,7 +89,7 @@ int CSPlugin::makeTempFile(String *filename)
     //	mode_t mask = umask(S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP); // this mask is reversed
     umask(0007); // only allow access to e2g user and group
     if ((tempfilefd = mkstemp(tempfilepatharray)) < 1) {
-        e2logger_error("Could not create temp file for contentscanner.");
+        E2LOGGER_error("Could not create temp file for contentscanner.");
         tempfilefd = -1;
     } else {
         (*filename) = tempfilepatharray;
@@ -104,11 +104,11 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
 {
     int tempfd = makeTempFile(filename); // String gets modified
     if (tempfd < 0) {
-        e2logger_error("Error creating temp file in writeMemoryTempFile.");
+        E2LOGGER_error("Error creating temp file in writeMemoryTempFile.");
         return E2CS_ERROR;
     }
     errno = 0;
-    e2logger_debug("About to writeMemoryTempFile ", (*filename), " size: ", objectsize);
+    E2LOGGER_debug("About to writeMemoryTempFile ", (*filename), " size: ", objectsize);
 
     while (true) {
         if (write(tempfd, object, objectsize) < 0) {
@@ -132,7 +132,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
     // Then delete the temp file.
     String tempfilepath;
     if (writeMemoryTempFile(object, objectsize, &tempfilepath) != E2CS_OK) {
-        e2logger_error("Error creating/writing temp file for scanMemory.");
+        E2LOGGER_error("Error creating/writing temp file for scanMemory.");
         return E2CS_SCANERROR;
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
@@ -153,22 +153,22 @@ bool CSPlugin::readStandardLists()      // this is now done in Storyboard
     exceptionvirussitelist.reset();
     exceptionvirusurllist.reset();
     if (!exceptionvirusmimetypelist.readItemList(cv["exceptionvirusmimetypelist"].toCharArray(), false, 0)) {
-        e2logger_error("Error opening exceptionvirusmimetypelist");
+        E2LOGGER_error("Error opening exceptionvirusmimetypelist");
         return false;
     }
     exceptionvirusmimetypelist.doSort(false);
     if (!exceptionvirusextensionlist.readItemList(cv["exceptionvirusextensionlist"].toCharArray(), false, 0)) {
-        e2logger_error("Error opening exceptionvirusextensionlist");
+        E2LOGGER_error("Error opening exceptionvirusextensionlist");
         return false;
     }
     exceptionvirusextensionlist.doSort(false);
     if (!exceptionvirussitelist.readItemList(cv["exceptionvirussitelist"].toCharArray(), false, 0)) {
-        e2logger_error("Error opening exceptionvirussitelist");
+        E2LOGGER_error("Error opening exceptionvirussitelist");
         return false;
     }
     exceptionvirussitelist.doSort(false);
     if (!exceptionvirusurllist.readItemList(cv["exceptionvirusurllist"].toCharArray(), true, 0)) {
-        e2logger_error("Error opening exceptionvirusurllist");
+        E2LOGGER_error("Error opening exceptionvirusurllist");
         return false;
     }
     exceptionvirusurllist.doSort(true);
@@ -184,7 +184,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 {
     // Most content scanners only deal with original, unmodified content
     if (reconstituted) {
-        e2logger_debug("willScanRequest: ignoring reconstituted data");
+        E2LOGGER_debug("willScanRequest: ignoring reconstituted data");
         return E2CS_NOSCAN;
     }
 
@@ -193,10 +193,10 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // implications as downlaoding them.
     if (post) {
         if (scanpost) {
-            e2logger_debug("willScanRequest: I'm interested in uploads");
+            E2LOGGER_debug("willScanRequest: I'm interested in uploads");
             return E2CS_NEEDSCAN;
         } else {
-            e2logger_debug("willScanRequest: Not interested in uploads");
+            E2LOGGER_debug("willScanRequest: Not interested in uploads");
             return E2CS_NOSCAN;
         }
     }
@@ -227,7 +227,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Don't scan the web server which hosts the access denied page
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
-        E2LOGGER_DEBUG("willScanRequest: ignoring our own webserver");
+        E2LOGGER_debug("willScanRequest: ignoring our own webserver");
         return E2CS_NOSCAN;
     }
 
@@ -235,7 +235,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     tempurl = domain;
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            E2LOGGER_DEBUG("willScanRequest: ignoring exception virus site");
+            E2LOGGER_debug("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
@@ -244,7 +244,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         // allows matching of .tld
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            E2LOGGER_DEBUG("willScanRequest: ignoring exception virus site");
+            E2LOGGER_debug("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
     }
@@ -262,18 +262,18 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
             if (tempurl.length() > fl) {
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
-                    E2LOGGER_DEBUG("willScanRequest: ignoring exception virus URL");
+                    E2LOGGER_debug("willScanRequest: ignoring exception virus URL");
                     return E2CS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-                E2LOGGER_DEBUG("willScanRequest: ignoring exception virus URL");
+                E2LOGGER_debug("willScanRequest: ignoring exception virus URL");
                 return E2CS_NOSCAN; // exact match
             }
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
 
-    E2LOGGER_DEBUG("willScanRequest: I'm interested");
+    E2LOGGER_debug("willScanRequest: I'm interested");
     return E2CS_NEEDSCAN;
 #endif
 }
@@ -323,51 +323,51 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        e2logger_error("Unable to load plugin config ", pluginConfigPath);
+        E2LOGGER_error("Unable to load plugin config ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {
-        e2logger_error("Unable read plugin config plugname variable %s",pluginConfigPath);
+        E2LOGGER_error("Unable read plugin config plugname variable %s",pluginConfigPath);
         return NULL;
     }
 
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
-        E2LOGGER_DEBUG("Enabling ClamDscan CS plugin");
+        E2LOGGER_debug("Enabling ClamDscan CS plugin");
         return clamdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
-        E2LOGGER_DEBUG("Enabling AvastDscan CS plugin");
+        E2LOGGER_debug("Enabling AvastDscan CS plugin");
         return avastdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
-        E2LOGGER_DEBUG("Enabling KAVDscan CS plugin");
+        E2LOGGER_debug("Enabling KAVDscan CS plugin");
         return kavdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
-        E2LOGGER_DEBUG("Enabling ICAPscan CS plugin");
+        E2LOGGER_debug("Enabling ICAPscan CS plugin");
         return icapcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
-        E2LOGGER_DEBUG("Enabling command-line CS plugin");
+        E2LOGGER_debug("Enabling command-line CS plugin");
         return commandlinecreate(cv);
     }
 #endif
 
-    e2logger_error("Unable to load plugin ", pluginConfigPath);
+    E2LOGGER_error("Unable to load plugin ", pluginConfigPath);
     return NULL;
 }

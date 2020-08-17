@@ -65,7 +65,7 @@ void ListContainer::reset()
     // ref should already be zero)
     if (refcount > 0) {
         --refcount;
-        //  e2logger_debug("de-reffing ", sourcefile, " due to manual list reset, refcount: ", refcount);
+        //  E2LOGGER_debug("de-reffing ", sourcefile, " due to manual list reset, refcount: ", refcount);
         for (size_t i = 0; i < morelists.size(); ++i)
             o.lm.deRefList(morelists[i]);
     }
@@ -142,7 +142,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        e2logger_error("Error reading file (does it exist?) ", filename, ": ", e.what());
+        E2LOGGER_error("Error reading file (does it exist?) ", filename, ": ", e.what());
         o.config_error = true;
         return false;
     }
@@ -154,7 +154,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
     if (!listfile.good()) {
-        e2logger_error("Error opening file (does it exist?): ", filename);
+        E2LOGGER_error("Error opening file (does it exist?): ", filename);
         o.config_error = true;
         return false;
     }
@@ -179,7 +179,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 temp = line.after(".include<").before(">");
                 if (temp.length() > 0) {
                     if (!readPhraseList(temp.toCharArray(), isexception, catindex, timeindex, false, nlimit)) {
-                        e2logger_error("  at line ", line_no, " of ", filename);
+                        E2LOGGER_error("  at line ", line_no, " of ", filename);
                         continue;
 //                        listfile.close();
 //                        return false;
@@ -195,12 +195,12 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 // if it is already in our category list, and adding it to the list (also
                 // returning index) if it is not.
                 catindex = getCategoryIndex(&lcat);
-                e2logger_debug("List category: ", lcat, "Category list index: ", catindex);
+                E2LOGGER_debug("List category: ", lcat, "Category list index: ", catindex);
             }
             // phrase lists can also be marked as not to be case-converted,
             // to aid support for exotic character encodings
             else if (line.startsWith("#noconvert")) {
-                e2logger_debug("List flagged as not to be case-converted");
+                E2LOGGER_debug("List flagged as not to be case-converted");
                 caseinsensitive = false;
             }
             // Read in time tags; set timeindex to the ID of the new tag
@@ -211,7 +211,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 }
                 timelimits.push_back(tl);
                 timeindex = timelimits.size() - 1;
-                e2logger_debug("Found time limit on phrase list. Now have ", timelimits.size(), " limits on this list (including parents).");
+                E2LOGGER_debug("Found time limit on phrase list. Now have ", timelimits.size(), " limits on this list (including parents).");
                 continue;
             }
         }
@@ -288,7 +288,7 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
     phrase.removePunctuation();
 
     if (phrase.length() > 127) {
-        e2logger_error("Phrase length too long, truncating: ", phrase);
+        E2LOGGER_error("Phrase length too long, truncating: ", phrase);
         phrase = phrase.subString(0, 127);
     }
 
@@ -298,7 +298,7 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
 
     if (type < 10) {
         if (!addToItemListPhrase(phrase.toCharArray(), phrase.length(), type, weighting, false, catindex, timeindex)) {
-            e2logger_error("Duplicate phrase, dropping: ", phrase );
+            E2LOGGER_error("Duplicate phrase, dropping: ", phrase );
         }
         return;
     }
@@ -353,7 +353,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
     }
 
     if (filters != 32)
-        e2logger_debugregexp("Converting to lowercase");
+        E2LOGGER_debugregexp("Converting to lowercase");
 
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     String temp, inc, hostname, url;
@@ -367,7 +367,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
             continue; // its jibberish
         if (temp.length() > 2048) {
             temp.limitLength(100);
-            e2logger_error("Line too long in list file - ignored ", temp );
+            E2LOGGER_error("Line too long in list file - ignored ", temp );
             continue;
         }
 
@@ -380,7 +380,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
                 continue;
             } else if (temp.startsWith("#listcategory:")) {
                 category = temp.after("\"").before("\"");
-                e2logger_debug("found item list category: ", category);
+                E2LOGGER_debug("found item list category: ", category);
                 continue;
             } else if (checkendstring && temp.startsWith(endstring)) {
                 break;
@@ -470,7 +470,7 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, co
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        e2logger_error("Error reading file ", filename, ": ", e.what());
+        E2LOGGER_error("Error reading file ", filename, ": ", e.what());
         return false;
     }
     bool ret;
@@ -502,7 +502,7 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
     std::string linebuffer;
-    e2logger_debug(filename);
+    E2LOGGER_debug(filename);
 
     //struct stat s;
     filedate = getFileDate(filename);
@@ -510,7 +510,7 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     try {
         len = getFileLength(filename);
     } catch (std::runtime_error &e) {
-        e2logger_error("Error reading file ", filename, ": ", e.what());
+        E2LOGGER_error("Error reading file ", filename, ": ", e.what());
         return false;
     }
     if (len < 2) {
@@ -519,14 +519,14 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     }
     std::ifstream listfile(filename, std::ios::in);
     if (!listfile.good()) {
-        e2logger_error("Error opening: ", filename);
+        E2LOGGER_error("Error opening: ", filename);
         return false;
     }
     String base_dir(filename);
     base_dir.baseDir();
     if (!ifsreadItemList(&listfile, base_dir, list_pwd, len, false, NULL, true, startswith, filters)) {
         listfile.close();
-        e2logger_error("Error reading: ", filename);
+        E2LOGGER_error("Error reading: ", filename);
         return false;
     }
     listfile.close();
@@ -536,7 +536,7 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
 // for stdin item lists - read item list from stdin
 bool ListContainer::readStdinItemList(bool startswith, int filters) {
     if (filters != 32)
-        e2logger_debug("Converting to lowercase");
+        E2LOGGER_debug("Converting to lowercase");
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
@@ -544,12 +544,12 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
     size_t len = 2046;
     increaseMemoryBy(2048); // Allocate some memory to hold list
     if (!std::cin.good()) {
-        e2logger_error("Error reading stdin: ");
+        E2LOGGER_error("Error reading stdin: ");
         return false;
     }
 
     if (!ifsreadItemList(&std::cin, "", "",  len, true, "#ENDLIST", false, startswith, filters)) {
-        e2logger_error("Error reading stdin: ");
+        E2LOGGER_error("Error reading stdin: ");
         return false;
     } else
         return true;
@@ -561,7 +561,7 @@ bool ListContainer::readAnotherItemList(const char *filename, const char *list_p
 {
     int result = o.lm.newItemList(filename, list_pwd, startswith, filters, false, is_iplist, is_timelist, is_map);
     if (result < 0) {
-        e2logger_error("Error opening file: ", filename);
+        E2LOGGER_error("Error opening file: ", filename);
         return false;
     }
     morelists.push_back((unsigned)result);
@@ -898,7 +898,7 @@ bool ListContainer::makeGraph(bool fqs)
     graphused = true;
 
 #ifdef E2DEBUG
-    E2LOGGER_DEBUG("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
+    E2LOGGER_debug("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
                  ", starting off with allocation of ", (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) );
     prolificroot = false;
     secondmaxchildnodes = 0;
@@ -908,7 +908,7 @@ bool ListContainer::makeGraph(bool fqs)
     current_graphdata_size = (GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET;
     realgraphdata = (int *)calloc(current_graphdata_size, sizeof(int));
     if (realgraphdata == NULL) {
-        e2logger_error("Cannot allocate memory for phrase tree: ", strerror(errno));
+        E2LOGGER_error("Cannot allocate memory for phrase tree: ", strerror(errno));
         return false;
     }
     graphitems++;
@@ -923,14 +923,14 @@ bool ListContainer::makeGraph(bool fqs)
         graphAdd(String(data + list[sizelist[i]], lengthlist[sizelist[i]]), 0, sizelist[i]);
     }
 
-    e2logger_debug("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
-    e2logger_debug("Most prolific node has ", maxchildnodes, " children");
-    e2logger_debug("It ", (prolificroot ? "is" : "is not"), " the root node");
-    e2logger_debug("Second most prolific node has ", secondmaxchildnodes, " children");
+    E2LOGGER_debug("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
+    E2LOGGER_debug("Most prolific node has ", maxchildnodes, " children");
+    E2LOGGER_debug("It ", (prolificroot ? "is" : "is not"), " the root node");
+    E2LOGGER_debug("Second most prolific node has ", secondmaxchildnodes, " children");
 
     realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
     if (realgraphdata == NULL) {
-        e2logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
+        E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
         return false;
     }
 
@@ -1162,11 +1162,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 
     if (force_quick_search || graphitems == 0) {
 #ifdef E2DEBUG
-        E2LOGGER_DEBUG("Map (quicksearch) start");
+        E2LOGGER_debug("Map (quicksearch) start");
         for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-            E2LOGGER_DEBUG("Map: ", i->first, " ", i->second.second);
+            E2LOGGER_debug("Map: ", i->first, " ", i->second.second);
         }
-        E2LOGGER_DEBUG("Map (quicksearch) end");
+        E2LOGGER_debug("Map (quicksearch) end");
 #endif
         return;
     }
@@ -1215,7 +1215,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
                         } else {
                             existingitem->second.second++;
                         }
-                        e2logger_debug("Found this phrase: ", phrase);
+                        E2LOGGER_debug("Found this phrase: ", phrase);
                     }
                     // grab this node's number of children
                     sl = graphdata[ppos + 2];
@@ -1252,11 +1252,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
         }
     }
 #ifdef E2DEBUG
-    E2LOGGER_DEBUG("Map start");
+    E2LOGGER_debug("Map start");
     for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-        E2LOGGER_DEBUG("Map: ", i->first, " ", i->second.second);
+        E2LOGGER_debug("Map: ", i->first, " ", i->second.second);
     }
-    E2LOGGER_DEBUG("Map end");
+    E2LOGGER_debug("Map end");
 #endif
 }
 
@@ -1334,7 +1334,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
             int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
             realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
             if (realgraphdata == NULL) {
-                e2logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
+                E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                 exit(1);
             }
             memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
@@ -1347,7 +1347,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         }
         numlinks = graphdata[inx * GRAPHENTRYSIZE + 2];
         if ((inx == 0) ? ((numlinks + 1) > MAXROOTLINKS) : ((numlinks + 1) > MAXLINKS)) {
-            e2logger_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [1])");
+            E2LOGGER_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [1])");
             exit(1);
         }
         if ((numlinks + 1) > maxchildnodes) {
@@ -1369,7 +1369,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         while (s.length() > 0) {
             numlinks = graphdata2[i * GRAPHENTRYSIZE + 2];
             if ((inx == 0) ? ((numlinks + 1) > MAXROOTLINKS) : ((numlinks + 1) > MAXLINKS)) {
-                e2logger_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [2])" );
+                E2LOGGER_error("Cannot load phraselists from this many languages/encodings simultaneously. (more than ", ((inx == 0) ? MAXROOTLINKS : MAXLINKS), " links from this node! [2])" );
                 exit(1);
             }
             if ((numlinks + 1) > maxchildnodes) {
@@ -1391,7 +1391,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
                 int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
                 realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
                 if (realgraphdata == NULL) {
-                    e2logger_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
+                    E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                     exit(1);
                 }
                 memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
@@ -1487,7 +1487,7 @@ void ListContainer::addToIPList(String& line)
         }
         else
         {
-            e2logger_debug("Not adding to any IP list:", line);
+            E2LOGGER_debug("Not adding to any IP list:", line);
         }
     }
 }
@@ -1504,12 +1504,12 @@ void ListContainer::addToDataMap(String& line) {
         if (value.startsWith("filter"))
             value = value.after("filter");
     } else {
-        e2logger_error("No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str());
+        E2LOGGER_error("No filter group given; entry %s in %s", line.toCharArray(), sourcefile.c_str());
         //warn = true;
         return;
     }
 
-    e2logger_debug("key: ", key, " value: ", value);
+    E2LOGGER_debug("key: ", key, " value: ", value);
 
     datamap d(key,value);
     datamaplist.push_back(d);
@@ -1529,14 +1529,14 @@ void ListContainer::addToIPMap(String& line)
         if (value.startsWith("filter"))
             value = value.after("filter");
     } else {
-        e2logger_error("No filter group given; entry %s in %s", line, sourcefile );
+        E2LOGGER_error("No filter group given; entry %s in %s", line, sourcefile );
         //warn = true;
         return;
     }
-    e2logger_debug("key: ", key, " value: ", value);
+    E2LOGGER_debug("key: ", key, " value: ", value);
 
     if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-        e2logger_error("Filter group out of range; entry %s in %s", line, sourcefile);
+        E2LOGGER_error("Filter group out of range; entry %s in %s", line, sourcefile);
         //warn = true;
         return;
     }
@@ -1595,7 +1595,7 @@ void ListContainer::addToIPMap(String& line)
     }
         // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
     else {
-        e2logger_error( "Entry ", line, " in ", sourcefile, " was not recognised as an IP address, subnet or range");
+        E2LOGGER_error( "Entry ", line, " in ", sourcefile, " was not recognised as an IP address, subnet or range");
         //warn = true;
     }
 }
@@ -1664,22 +1664,22 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inIPMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        e2logger_debug("Matched IP ", ip, " to straight IP list");
+        E2LOGGER_debug("Matched IP ", ip, " to straight IP list");
         return rfg;
     }
     fgs = inSubnetMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        e2logger_debug("Matched IP ", ip, " to subnet");
+        E2LOGGER_debug("Matched IP ", ip, " to subnet");
         return rfg;
     }
     fgs = inIPRangeMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        e2logger_debug("Matched IP ", ip, " to range");
+        E2LOGGER_debug("Matched IP ", ip, " to range");
         return rfg;
     }
-    e2logger_debug("Matched IP ", ip, " to nothing");
+    E2LOGGER_debug("Matched IP ", ip, " to nothing");
     return "";
 }
 
@@ -1805,16 +1805,16 @@ time_t getFileDate(const char *filename)
     int rc = stat(filename, &status);
     if (rc != 0) {
         if (errno == ENOENT) {
-            e2logger_error("Error reading ",filename, ". Check directory and file permissions. They should be 640 and 750: ", strerror(errno));
+            E2LOGGER_error("Error reading ",filename, ". Check directory and file permissions. They should be 640 and 750: ", strerror(errno));
             return 0;
         }
         // If there are permission problems, just reload the file (CN)
         if (errno == EACCES) {
-            e2logger_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: ", strerror(errno));
+            E2LOGGER_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 640 and 750 and readable by the e2guardian user: ", strerror(errno));
             return 0;
         }
         else {
-            e2logger_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: ", strerror(errno));
+            E2LOGGER_error("Error reading ", filename, ". Check directory and file permissions and ownership. They should be 750 and 640 and readable by the e2guardian user: ", strerror(errno));
             return 0;
             //return sysv_kill(o.pid_filename);
         }
@@ -1854,7 +1854,7 @@ bool ListContainer::upToDate()
 }
 
 bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
-    e2logger_debug("Found a time tag");
+    E2LOGGER_debug("Found a time tag");
     String temp((*tag).after("#time: "));
     return readTimeBand(temp, tl);
 }
@@ -1872,23 +1872,23 @@ bool ListContainer::readTimeBand(String &tag, TimeLimit &tl) {
     String tdays(temp.after(" "));
     tdays.removeWhiteSpace();
     if (tsthour > 23) {
-        e2logger_error("Time Tag Start Hour over bounds.");
+        E2LOGGER_error("Time Tag Start Hour over bounds.");
         return false;
     }
     if (tendhour > 23) {
-        e2logger_error("Time Tag End Hour over bounds.");
+        E2LOGGER_error("Time Tag End Hour over bounds.");
         return false;
     }
     if (tstmin > 59) {
-        e2logger_error("Time Tag Start Min over bounds.");
+        E2LOGGER_error("Time Tag Start Min over bounds.");
         return false;
     }
     if (tendmin > 59) {
-        e2logger_error("Time Tag End Min over bounds.");
+        E2LOGGER_error("Time Tag End Min over bounds.");
         return false;
     }
     if (tdays.length() > 7) {
-        e2logger_error("Time Tag Days over bounds.");
+        E2LOGGER_error("Time Tag Days over bounds.");
         return false;
     }
     istimelimited = true;
@@ -1967,7 +1967,7 @@ bool ListContainer::isNow(TimeLimit &tl) {
             return false;
         }
     }
-    e2logger_debug("time match ", tl.sthour, ":", tl.stmin, "-", tl.endhour, ":", tl.endmin, " ", hour, ":", min, " ", sourcefile);
+    E2LOGGER_debug("time match ", tl.sthour, ":", tl.stmin, "-", tl.endhour, ":", tl.endmin, " ", hour, ":", min, " ", sourcefile);
     return true;
 }
 
@@ -1975,7 +1975,7 @@ int ListContainer::getCategoryIndex(String *lcat)
 {
     // where in the category list is our category? if nowhere, add it.
     if ((*lcat).length() < 2) {
-        e2logger_debug("blank entry index");
+        E2LOGGER_debug("blank entry index");
         return 0; // blank entry index
     }
     int l = (signed)listcategory.size();
@@ -2052,7 +2052,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     }
     }
 
-    e2logger_debug("inIPList ", category, " no match for ", ipstr);
+    E2LOGGER_debug("inIPList ", category, " no match for ", ipstr);
     return NULL;
 }
 

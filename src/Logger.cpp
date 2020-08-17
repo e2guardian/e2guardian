@@ -41,10 +41,12 @@ Logger::~Logger() {
   closelog();
 }
 
-const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", \
-                                      "debug", "trace", "debugnet", "debugsb", "chunk", "regexp", \
-                                      "icap", "icapc", "clamav", "request"};
-const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
+#ifdef NOTDEF
+//const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", \
+//                                      "debug", "trace", "debugnet", "debugsb", "chunk", "regexp", \
+//                                      "icap", "icapc", "clamav", "request"};
+//const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
+#endif
 
 // -------------------------------------------------------------
 // --- Helper
@@ -104,25 +106,26 @@ struct Logger::Helper
 // -------------------------------------------------------------
 
 LoggerSource Logger::string2source(std::string source){
-  for( int i=0; i < static_cast<int>(LoggerSource::__MAX_VALUE); i++)
+  for( int i=0; i < static_cast<int>(LoggerSource::__Max_Value); i++)
   {
-    if (Logger::SOURCES[i] == source) return static_cast<LoggerSource>(i);
+    if (source == Sources[i]  ) return static_cast<LoggerSource>(i);
   }
   return LoggerSource::info;
 }
+
 LoggerDestination Logger::string2dest(std::string destination){
-  for( int i=0; i < static_cast<int>(LoggerDestination::__MAX_VALUE); i++)
+  for( int i=0; i < static_cast<int>(LoggerDestination::__Max_Value); i++)
   {
-    if (Logger::DESTINATIONS[i] == destination) return static_cast<LoggerDestination>(i);
+    if (Destinations[i] == destination) return static_cast<LoggerDestination>(i);
   }
   return LoggerDestination::none;
 }
 
 std::string Logger::source2string(LoggerSource source){
-  return Logger::SOURCES[static_cast<int>(source)];
+  return Sources[static_cast<int>(source)];
 }
 std::string Logger::dest2string(LoggerDestination dest){
-  return Logger::DESTINATIONS[static_cast<int>(dest)];
+  return Destinations[static_cast<int>(dest)];
 }
 
 
@@ -164,7 +167,7 @@ void Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
   if (destination == LoggerDestination::none)
     disable(source);
   else if (alsoEnable)  
-    enable(source);  
+    enable(source);
 }  
 
 void Logger::setDockerMode(){
@@ -226,7 +229,7 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
     case LoggerDestination::file:
       Helper::sendToLogfile(_filename[static_cast<int>(source)], message);
       break;
-      case LoggerDestination::__MAX_VALUE:
+      case LoggerDestination::__Max_Value:
           break;
   }
 

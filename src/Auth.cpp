@@ -86,11 +86,11 @@ int AuthPlugin::determineGroup(std::string &user, int &fg, StoryBoard & story, N
             cm.authrec->group_source = "pdef";
             return E2AUTH_OK;
         }
-        e2logger_debug("User not in filter groups list for: ", pluginName);
+        E2LOGGER_debug("User not in filter groups list for: ", pluginName);
         return E2AUTH_NOGROUP;
       }
 
-    e2logger_debug("Group found for: ", user, " in ", pluginName);
+    E2LOGGER_debug("Group found for: ", user, " in ", pluginName);
     fg = cm.filtergroup;
     return E2AUTH_OK;
 }
@@ -101,43 +101,43 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     ConfigVar cv;
 
     if (cv.readVar(pluginConfigPath, "=") > 0) {
-        e2logger_error("Unable to load plugin config: ", pluginConfigPath);
+        E2LOGGER_error("Unable to load plugin config: ", pluginConfigPath);
         return NULL;
     }
 
     String plugname(cv["plugname"]);
     if (plugname.length() < 1) {        
-        e2logger_error("Unable read plugin config plugname variable: ", pluginConfigPath);
+        E2LOGGER_error("Unable read plugin config plugname variable: ", pluginConfigPath);
         return NULL;
     }
 
     if (plugname == "proxy-basic") {
-        e2logger_debug("Enabling proxy-basic auth plugin");
+        E2LOGGER_debug("Enabling proxy-basic auth plugin");
         return proxycreate(cv);
     }
 
     if (plugname == "proxy-digest") {
-        e2logger_debug("Enabling proxy-digest auth plugin");
+        E2LOGGER_debug("Enabling proxy-digest auth plugin");
         return digestcreate(cv);
     }
 
     if (plugname == "ident") {
-        e2logger_debug("Enabling ident server auth plugin");
+        E2LOGGER_debug("Enabling ident server auth plugin");
         return identcreate(cv);
     }
 
     if (plugname == "ip") {
-        e2logger_debug("Enabling IP-based auth plugin");
+        E2LOGGER_debug("Enabling IP-based auth plugin");
         return ipcreate(cv);
     }
 
     if (plugname == "port") {
-        e2logger_debug("Enabling port-based auth plugin");
+        E2LOGGER_debug("Enabling port-based auth plugin");
         return portcreate(cv);
     }
 
     if (plugname == "proxy-header") {
-        e2logger_debug("Enabling proxy-header auth plugin");
+        E2LOGGER_debug("Enabling proxy-header auth plugin");
         return headercreate(cv);
     }
 
@@ -150,19 +150,19 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
-        E2LOGGER_DEBUG("Enabling DNS-based auth plugin");
+        E2LOGGER_debug("Enabling DNS-based auth plugin");
         return dnsauthcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_NTLM
     if (plugname == "proxy-ntlm") {
-        E2LOGGER_DEBUG("Enabling proxy-NTLM auth plugin");
+        E2LOGGER_debug("Enabling proxy-NTLM auth plugin");
         return ntlmcreate(cv);
     }
 #endif
 
-    e2logger_error("Unable to load plugin: ", pluginConfigPath);
+    E2LOGGER_error("Unable to load plugin: ", pluginConfigPath);
     return NULL;
 }
 

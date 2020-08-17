@@ -32,7 +32,7 @@ LOptionContainer::LOptionContainer()
 
 LOptionContainer::LOptionContainer(int load_id)
 {
-    e2logger_trace(load_id);
+    E2LOGGER_trace(load_id);
 
     char buff[40];
 
@@ -42,80 +42,80 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-        e2logger_config("iplist size is ", o.iplist_dq.size());
+        E2LOGGER_config("iplist size is ", o.iplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("sitelist size is ", o.sitelist_dq.size());
+        E2LOGGER_config("sitelist size is ", o.sitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("ipsitelist size is ", o.ipsitelist_dq.size());
+        E2LOGGER_config("ipsitelist size is ", o.ipsitelist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("urllist size is ", o.urllist_dq.size());
+        E2LOGGER_config("urllist size is ", o.urllist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("regexpboollist size is ", o.regexpboollist_dq.size());;
+        E2LOGGER_config("regexpboollist size is ", o.regexpboollist_dq.size());;
         if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("maplist size is ", o.maplist_dq.size());
+        E2LOGGER_config("maplist size is ", o.maplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
             loaded_ok = false;
     }
 
     {
-        e2logger_config("ipmaplist size is ", o.ipmaplist_dq.size());
+        E2LOGGER_config("ipmaplist size is ", o.ipmaplist_dq.size());
         if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
             loaded_ok = false;
     }
 
-    e2logger_config("read Storyboard: ", o.storyboard_location);
+    E2LOGGER_config("read Storyboard: ", o.storyboard_location);
     if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
-        e2logger_error("Storyboard not loaded OK");
+        E2LOGGER_error("Storyboard not loaded OK");
         loaded_ok = false;
     }
 
     if (loaded_ok && !StoryA.setEntry(ENT_STORYA_PRE_AUTH,"pre-authcheck")) {
-        e2logger_error("Required storyboard entry function 'pre-authcheck' is missing");
+        E2LOGGER_error("Required storyboard entry function 'pre-authcheck' is missing");
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
-        e2logger_error("Required storyboard entry function 'thttps-pre-authcheck' is missing");
+        E2LOGGER_error("Required storyboard entry function 'thttps-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
     if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
-        e2logger_error("Required storyboard entry function 'icap-pre-authcheck' is missing");
+        E2LOGGER_error("Required storyboard entry function 'icap-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
  //   if (loaded_ok && o.use_filter_groups_list)  {
  //       if (!doReadItemList(o.filter_groups_list_location.c_str(), &filter_groups_list, "filtergroupslist", true)) {
- //           e2logger_error("Failed to read filtergroupslist");
+ //           E2LOGGER_error("Failed to read filtergroupslist");
  //           loaded_ok = false;
  //       }
  //   }
 
-    e2logger_trace("");
+    E2LOGGER_trace("");
     if (loaded_ok && o.auth_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
-                    e2logger_error("Required auth storyboard entry function", i->entry_function,
+                    E2LOGGER_error("Required auth storyboard entry function", i->entry_function,
                                 " is missing from pre_auth.stoary");
                     loaded_ok = false;
                 }
@@ -124,7 +124,7 @@ LOptionContainer::LOptionContainer(int load_id)
 
     if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;
-        e2logger_error("Error in reading filter group files");
+        E2LOGGER_error("Error in reading filter group files");
     }
     reload_id = load_id;
     ++o.LC_cnt;
@@ -168,7 +168,7 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
     String lastcategory;
     String foundurl;
 
-    e2logger_trace("inURLList");
+    E2LOGGER_trace("inURLList");
     url.removeWhiteSpace(); // just in case of weird browser crap
     url.toLower();
     url.removePTP(); // chop off the ht(f)tp(s)://
@@ -184,14 +184,14 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
         url.chop(); // chop off trailing / if any
     }
 
-    e2logger_debug("inURLList (processed): ", url);
+    E2LOGGER_debug("inURLList (processed): ", url);
     while (url.before("/").contains(".")) {
         i = lc->findStartsWith(url.toCharArray(), lastcategory);
         if (i != NULL) {
             foundurl = i;
             fl = foundurl.length();
-            e2logger_debug("foundurl: ", foundurl, ":", foundurl.length());
-            e2logger_debug("url: ", url, ":", fl);
+            E2LOGGER_debug("foundurl: ", foundurl, ":", foundurl.length());
+            E2LOGGER_debug("url: ", url, ":", fl);
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                     return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -210,7 +210,7 @@ bool LOptionContainer::doReadItemList(const char *filename, ListContainer *lc, c
 {
     bool result = lc->readItemList(filename, false, 0);
     if (!result) {
-        e2logger_error("Error opening ", fname);
+        E2LOGGER_error("Error opening ", fname);
         return false;
     }
     if (swsort)
@@ -233,13 +233,13 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
     String temp;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
-            e2logger_debug(" IP is in room: ", i->name);
+            E2LOGGER_debug(" IP is in room: ", i->name);
             temp = url;
             ListContainer *lc;
             if (i->sitelist) {
                 lc = i->sitelist;
                 if (inSiteList(temp, lc, false, false)) {
-                    e2logger_debug(" room site exception found: ");
+                    E2LOGGER_debug(" room site exception found: ");
                     *isexception = true;
                     room = i->name;
                     return true;
@@ -247,7 +247,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             }
             temp = url;
             if (i->urllist && inURLList(temp, i->urllist, false, false)) {
-                e2logger_debug(" room url exception found: ");
+                E2LOGGER_debug(" room url exception found: ");
                 *isexception = true;
                 room = i->name;
                 return true;
@@ -256,10 +256,10 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 *block = true;
                 *part_block = i->part_block;
                 room = i->name;
-                e2logger_debug(" room blanket block active: ");
+                E2LOGGER_debug(" room blanket block active: ");
                 return true;
             } else {
-                e2logger_debug(" room - no url/site exception or block found: ");
+                E2LOGGER_debug(" room - no url/site exception or block found: ");
                 return false;
             }
         }
@@ -286,7 +286,7 @@ void LOptionContainer::deleteFilterGroups()
 {
     for (int i = 0; i < numfg; i++) {
         if (fg[i] != NULL) {
-            e2logger_debug("In deleteFilterGroups loop");
+            E2LOGGER_debug("In deleteFilterGroups loop");
             delete fg[i]; // delete extra FOptionContainer objects
             fg[i] = NULL;
         }
@@ -320,7 +320,7 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 		String temp;  // for tempory conversion and storage
 		std::ifstream conffiles(filename.c_str(), std::ios::in);  // e2guardian.conf
 		if (!conffiles.good()) {
-			e2logger_error("error reading e2guardian.conf");
+			E2LOGGER_error("error reading e2guardian.conf");
 			return false;
 		}
 		while (!conffiles.eof()) {
@@ -362,25 +362,25 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 //        std::string language_list_location(languagepath + "messages");
         {
             std::deque<String> dq = findoptionM("iplist");
-            E2LOGGER_DEBUG("iplist deque is size ", dq.size());
+            E2LOGGER_debug("iplist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IP, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            E2LOGGER_DEBUG("sitelist deque is size ", dq.size());
+            E2LOGGER_debug("sitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_SITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            E2LOGGER_DEBUG("ipsitelist deque is size ", dq.size());
+            E2LOGGER_debug("ipsitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IPSITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            E2LOGGER_DEBUG("urllist deque is size ", dq.size());
+            E2LOGGER_debug("urllist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_URL, dq);
         }
 
@@ -388,17 +388,17 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
             return false;
 
         if (!StoryA.setEntry1("pre-authcheck")) {
-            e2logger_error("Required storyboard entry function 'pre-authcheck' is missing");
+            E2LOGGER_error("Required storyboard entry function 'pre-authcheck' is missing");
             return false;
         }
 
         if (!readFilterGroupConf()) {
-            e2logger_error("Error reading filter group conf file(s).");
+            E2LOGGER_error("Error reading filter group conf file(s).");
             return false;
         }
 
     } catch (std::exception &e) {
-        e2logger_error(e.what());
+        E2LOGGER_error(e.what());
         return false;
     }
     return true;
@@ -420,7 +420,7 @@ void LOptionContainer::loadRooms(bool throw_error)
     DIR *d = opendir(per_room_directory_location.c_str());
     if (d == NULL) {
         if (throw_error) {
-            e2logger_error("Could not open room definitions directory: ", strerror(errno));
+            E2LOGGER_error("Could not open room definitions directory: ", strerror(errno));
             exit(1);
         } else {
             return;
@@ -433,34 +433,34 @@ void LOptionContainer::loadRooms(bool throw_error)
             continue;
         std::string filename(per_room_directory_location);
         filename.append(f->d_name);
-        e2logger_debug("Room file found : ", filename);
+        E2LOGGER_debug("Room file found : ", filename);
         std::ifstream infile(filename.c_str(), std::ios::in);
         if (!infile.good()) {
-            e2logger_error(" Could not open file room definitions ");
+            E2LOGGER_error(" Could not open file room definitions ");
             exit(1);
         }
-        e2logger_debug("Opened room file : ", filename);
+        E2LOGGER_debug("Opened room file : ", filename);
 
         std::string roomname;
-        e2logger_debug(" Reading room file : ", filename);
+        E2LOGGER_debug(" Reading room file : ", filename);
         getline(infile, roomname);
         if (infile.eof()) {
-            e2logger_error(" Unexpected EOF ", filename);
+            E2LOGGER_error(" Unexpected EOF ", filename);
             exit(1);
         }
         if (infile.fail()) {
-            e2logger_error(" Unexpected failure on read: ", filename);;
+            E2LOGGER_error(" Unexpected failure on read: ", filename);;
             exit(1);
         }
         if (infile.bad()) {
-            e2logger_error(" Unexpected badbit failure on read: ", filename);
+            E2LOGGER_error(" Unexpected badbit failure on read: ", filename);
             exit(1);
         }
         if (!infile.good()) {
-            e2logger_error(" Could not open file room definitions: ", filename);
+            E2LOGGER_error(" Could not open file room definitions: ", filename);
             exit(1);
         }
-        e2logger_debug(" Room name is: ", roomname);
+        E2LOGGER_debug(" Room name is: ", roomname);
 
         roomname = roomname.substr(1);
         room_item this_room;
@@ -509,7 +509,7 @@ void LOptionContainer::loadRooms(bool throw_error)
         rooms.push_back(this_room);
         infile.close();
         if (roomname.size() <= 2) {
-            e2logger_error( "Could not read room from definitions file \"", filename, '"');
+            E2LOGGER_error( "Could not read room from definitions file \"", filename, '"');
             exit(1);
         }
         roomname = roomname.substr(1); // remove leading '#'
@@ -517,7 +517,7 @@ void LOptionContainer::loadRooms(bool throw_error)
 
     if (closedir(d) != 0) {
         if (errno != EINTR) {
-            e2logger_error("Could not close room definitions directory: ", strerror(errno));
+            E2LOGGER_error("Could not close room definitions directory: ", strerror(errno));
             exit(1);
         }
     }
@@ -618,7 +618,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        e2logger_error("Config problem; check allowed values for ", emessage);
+        E2LOGGER_error("Config problem; check allowed values for ", emessage);
         return false;
     }
     return true;
@@ -635,11 +635,11 @@ bool LOptionContainer::readFilterGroupConf()
     String groupname;
     bool need_html = false;
 
-    e2logger_config("read FilterGroups");
+    E2LOGGER_config("read FilterGroups");
     if (o.use_group_names_list) {
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
-            e2logger_error("Error opening group names file: ", group_names_list_location);
+            E2LOGGER_error("Error opening group names file: ", group_names_list_location);
             return false;
         }
     }
@@ -652,13 +652,13 @@ bool LOptionContainer::readFilterGroupConf()
             groupnum << i;
             groupname = groupnamesfile[groupnum.str().c_str()];
             if (groupname.length() == 0) {
-                e2logger_error("Group names file too short: ", group_names_list_location);
+                E2LOGGER_error("Group names file too short: ", group_names_list_location);
                 return false;
             }
-            e2logger_debug("Group name: ", groupname);
+            E2LOGGER_debug("Group name: ", groupname);
         }
         if (!readAnotherFilterGroupConf(file.toCharArray(), groupname.toCharArray(), need_html, i)) {
-            e2logger_error("Error opening filter group config: ", file);
+            E2LOGGER_error("Error opening filter group config: ", file);
             return false;
         }
     }
@@ -667,7 +667,7 @@ bool LOptionContainer::readFilterGroupConf()
 
 bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html, int fg_no)
 {
-    e2logger_debug("adding filter group: ", numfg, " ", filename);
+    E2LOGGER_debug("adding filter group: ", numfg, " ", filename);
 
     // array of pointers to FOptionContainer
     typedef FOptionContainer *PFOptionContainer;
@@ -681,7 +681,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     fg = temp;
     fg[numfg] = new FOptionContainer;
 
-    e2logger_debug("added filter group: ", numfg, " ", filename);
+    E2LOGGER_debug("added filter group: ", numfg, " ", filename);
 
     // pass all the vars from OptionContainer needed
     (*fg[numfg]).weighted_phrase_mode = o.weighted_phrase_mode;
@@ -697,10 +697,10 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     // pass in the reporting level - can be overridden
     (*fg[numfg]).reporting_level = reporting_level;
 
-    e2logger_debug("passed variables to filter group: ", numfg, " ", filename);
+    E2LOGGER_debug("passed variables to filter group: ", numfg, " ", filename);
 
     bool rc = (*fg[numfg]).read(filename);
-    e2logger_debug("reading filter group: ", numfg, " ", filename, " return is ", rc);
+    E2LOGGER_debug("reading filter group: ", numfg, " ", filename, " return is ", rc);
 
     numfg++;
 

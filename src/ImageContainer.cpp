@@ -46,7 +46,7 @@ void ImageContainer::reset()
 //void ImageContainer::display(Socket *s)
 bool ImageContainer::display(Socket *s)
 {
-    e2logger_debug("Displaying custom image file mimetype: ", mimetype);
+    E2LOGGER_debug("Displaying custom image file mimetype: ", mimetype);
     s->writeString("Content-type: ");
     s->writeString(mimetype.toCharArray());
     s->writeString("\n\n");
@@ -94,11 +94,11 @@ bool ImageContainer::read(const char *filename)
         image = new char[imagelength + 1];
         imagefile.read(image, imagelength);
         if (!imagefile.good()) {
-            e2logger_error("Error reading custom image file: ", filename);
+            E2LOGGER_error("Error reading custom image file: ", filename);
             return false;
         }
     } else {
-        e2logger_error("Error reading custom image file: ", filename);
+        E2LOGGER_error("Error reading custom image file: ", filename);
         return false;
     }
     imagefile.close();

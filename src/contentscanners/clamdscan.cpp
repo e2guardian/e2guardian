@@ -72,7 +72,7 @@ int clamdinstance::init(void *args)
     // read in ClamD UNIX domain socket path
     udspath = cv["clamdudsfile"];
     if (udspath.length() < 3) {
-        e2logger_error("Error reading clamdudsfile option.");
+        E2LOGGER_error("Error reading clamdudsfile option.");
         return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
@@ -102,7 +102,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
     // the AV daemon's group membership.
     if (chmod(filename, S_IRGRP | S_IRUSR ) != 0) {
         lastmessage = "Error giving ClamD read access to temp file ";
-        e2logger_error(lastmessage, strerror(errno));
+        E2LOGGER_error(lastmessage, strerror(errno));
         return E2CS_SCANERROR;
     };
     String command("SCAN ");
@@ -113,17 +113,17 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         command += filename;
     }
     command += "\r\n";
-    e2logger_debugclamav("clamdscan command:", command);
+    E2LOGGER_debugclamav("clamdscan command:", command);
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to ClamD";
-        e2logger_error(lastmessage);
+        E2LOGGER_error(lastmessage);
         return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to ClamD socket";
-        e2logger_error(lastmessage);
+        E2LOGGER_error(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -134,8 +134,8 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
-        e2logger_error(lastmessage);
-        e2logger_debugclamav(lastmessage);
+        E2LOGGER_error(lastmessage);
+        E2LOGGER_debugclamav(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -150,28 +150,28 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isTimedout())  lastmessage += " TimedOut";
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
-        e2logger_error(lastmessage);
-        e2logger_debugclamav(lastmessage);
+        E2LOGGER_error(lastmessage);
+        E2LOGGER_debugclamav(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
     String reply(buff);
     delete[] buff;
     reply.removeWhiteSpace();
-    e2logger_debugclamav("Got from clamdscan: ", reply);
+    E2LOGGER_debugclamav("Got from clamdscan: ", reply);
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
         lastmessage = "ClamD error: " + reply;
-        e2logger_error(lastmessage);
+        E2LOGGER_error(lastmessage);
         return E2CS_SCANERROR;
     } else if (reply.endsWith("FOUND")) {
         lastvirusname = reply.after(": ").before(" FOUND");
 // format is:
 // /foo/path/file: foovirus FOUND
 
-        e2logger_debugclamav("clamdscan INFECTED! with: ", lastvirusname);
+        E2LOGGER_debugclamav("clamdscan INFECTED! with: ", lastvirusname);
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
-            e2logger_debugclamav("clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only");
+            E2LOGGER_debugclamav("clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only");
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
             return E2CS_WARNING;
@@ -183,6 +183,6 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // must be clean
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
-    e2logger_debugclamav("clamdscan - he say yes (clean)");
+    E2LOGGER_debugclamav("clamdscan - he say yes (clean)");
     return E2CS_CLEAN;
 }

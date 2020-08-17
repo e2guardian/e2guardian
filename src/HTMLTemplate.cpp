@@ -55,7 +55,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     String line;
     std::ifstream templatefile(filename, std::ios::in); // e2guardian.conf
     if (!templatefile.good()) {
-        e2logger_error("error reading HTML template file: ", filename);
+        E2LOGGER_error("error reading HTML template file: ", filename);
         return false;
     }
     while (!templatefile.eof()) {
@@ -83,7 +83,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
         }
     }
     if (html.size() < 0) {
-	    e2logger_error("Unable to parse template file: ", filename);
+	    E2LOGGER_error("Unable to parse template file: ", filename);
         return false;
     }
 
@@ -103,7 +103,7 @@ void makeURLSafe(String &url)
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                            std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip, String &extflags) {
 
-    e2logger_debug("Displaying TEMPLATE. url:", url, " reason:", reason, " logreason:", logreason);
+    E2LOGGER_debug("Displaying TEMPLATE. url:", url, " reason:", reason, " logreason:", logreason);
 
     String line;
     bool newline;
@@ -116,12 +116,12 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         // preserve newlines from original file	    
         newline = false;
         line = html[i];
-    	e2logger_debug("Displaying TEMPLATE: ", line);
+    	E2LOGGER_debug("Displaying TEMPLATE: ", line);
 
         // Take care SSLMITM negotiation error
         if (line.length() < 1){
             ebody += "\n";
-            e2logger_error("Corrupted TEMPLATE returns: ", url->c_str());
+            E2LOGGER_error("Corrupted TEMPLATE returns: ", url->c_str());
             break;
         }
 

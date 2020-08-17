@@ -73,24 +73,24 @@ int avastdinstance::init(void *args)
     // read in AvastD UNIX domain socket path
     udspath = cv["avastdudsfile"];
     if (udspath.length() < 3) {
-        e2logger_error("Error reading avastdudsfile option.", udspath);
+        E2LOGGER_error("Error reading avastdudsfile option.", udspath);
         return E2CS_ERROR;
         // it would be far better to do a test connection to the file but
         // could not be arsed for now
     }
 
     archivewarn = cv["archivewarn"] == "on";
-    e2logger_debug("avastd configuration: archivewarn = ", archivewarn);
+    E2LOGGER_debug("avastd configuration: archivewarn = ", archivewarn);
     avastprotocol = cv["avastprotocol"];
     if (avastprotocol.length() < 3) {
         avastprotocol = "avast4";
-        e2logger_error("avasd configuration missing avastprotocol: use ", avastprotocol);
+        E2LOGGER_error("avasd configuration missing avastprotocol: use ", avastprotocol);
     }
     if (avastprotocol.compare("avast4") != 0 && avastprotocol.compare("avast2014") != 0) {
-        e2logger_error("Error reading avastprotocol option.");
+        E2LOGGER_error("Error reading avastprotocol option.");
         return E2CS_ERROR;
     }
-    e2logger_debug("avastd configuration: avastprotocol = ", avastprotocol);
+    E2LOGGER_debug("avastd configuration: avastprotocol = ", avastprotocol);
 
     // set some parameter by avastd protocol version
     if (avastprotocol.compare("avast4") == 0) {
@@ -117,19 +117,19 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
     // TODO? chmod can error out with EINTR, we may wish to ignore this
     if (chmod(filename, S_IRGRP | S_IRUSR) != 0) {
         lastmessage = "Error giving AvastD read access to temp file";
-        e2logger_error("Could not change file ownership to give AvastD read access: ", strerror(errno));
+        E2LOGGER_error("Could not change file ownership to give AvastD read access: ", strerror(errno));
         return E2CS_SCANERROR;
     };
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
         lastmessage = "Error opening socket to talk to AvastD";
-        e2logger_error("Error creating socket for talking to AvastD");
+        E2LOGGER_error("Error creating socket for talking to AvastD");
         return E2CS_SCANERROR;
     }
     if (stripedsocks.connect(udspath.toCharArray()) < 0) {
         lastmessage = "Error connecting to AvastD socket";
-        e2logger_error("Error connecting to AvastD socket");
+        E2LOGGER_error("Error connecting to AvastD socket");
         return E2CS_SCANERROR;
     }
 
@@ -143,13 +143,13 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         // After connecting, the daemon sends the following welcome message:
         // 220 Welcome to avast! Virus scanning daemon x.x (VPS yy-yy dd.mm.yyyy)
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
-        e2logger_debug("Got from avastd: ", encode(buffer));
+        E2LOGGER_debug("Got from avastd: ", encode(buffer));
 
         if (strncmp(buffer, "220 ", 4) != 0) {
             lastmessage = "Unexpected reply during AvastD handshake: ";
             String ebuffer(encode(buffer));
             lastmessage += ebuffer;
-            e2logger_error(lastmessage);
+            E2LOGGER_error(lastmessage);
             return E2CS_SCANERROR;
         }
         // Syntax:
@@ -157,7 +157,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         String command("SCAN ");
         command += encode(filename);
         command += "\r\n";
-        e2logger_debug("avastd command: ", encode(command));
+        E2LOGGER_debug("avastd command: ", encode(command));
         stripedsocks.writeString(command.toCharArray());
 
         // Possible return codes:
@@ -167,13 +167,13 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         //         200 OK
 
         rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
-        e2logger_debug("Got from avastd: ", encode(buffer));
+        E2LOGGER_debug("Got from avastd: ", encode(buffer));
 
         if (strncmp(buffer, scanreturncode.toCharArray(), 4) != 0) {
             lastmessage = "Unexpected reply to scan command: ";
             String ebuffer(encode(buffer));
             lastmessage += ebuffer;
-            e2logger_error(lastmessage);
+            E2LOGGER_error(lastmessage);
             return E2CS_SCANERROR;
         }
 
@@ -193,26 +193,26 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
              rc > 0 && !truncated && buffer[0] != '\r';
 
              rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, NULL, &truncated)) {
-            e2logger_debug("Got from avastd: ", encode(buffer));
+            E2LOGGER_debug("Got from avastd: ", encode(buffer));
             // If a line can't fit in our buffer, we're probably dealing with a zip bomb or
             // something similarly nasty. Let's consider it an error, whatever archivewarn says.
             if (buffer[rc - 1] != '\r') {
                 lastmessage = "Error whilst reading AvastD socket: can't fit line in buffer.";
-                e2logger_error(lastmessage);
+                E2LOGGER_error(lastmessage);
                 return E2CS_SCANERROR;
             }
 
             // We're looking for this kind of string: ^[^\t]*\t\[.\](\t.*)?\r$
             char *result = strchr(buffer, '\t');
             if (strncmp(buffer, "200 ", 4) == 0 && avastprotocol.compare("avast2014") == 0) {
-                e2logger_debug("ignore 200 SCAN OK and exit loop");
+                E2LOGGER_debug("ignore 200 SCAN OK and exit loop");
                 break;
             } else {
                 if ((avastprotocol.compare("avast4") == 0 && (result == NULL || result[1] != '[' || result[1] == '\0' || result[3] != ']' || (result[4] != '\t' && result[4] != '\r'))) || (avastprotocol.compare("avast2014") == 0 && (result == NULL || result[1] != '[' || result[1] == '\0' || result[3] != ']'))) {
                     lastmessage = "Unexpected reply in scan results: ";
                     String ebuffer(encode(buffer));
                     lastmessage += ebuffer;
-                    e2logger_error(lastmessage);
+                    E2LOGGER_error(lastmessage);
                     return E2CS_SCANERROR;
                 }
                 *result = '\0';
@@ -220,12 +220,12 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                 switch (result[-3]) {
                 case '+':
                     // Clean!
-                    e2logger_debug("avastd result: ", encode(buffer) "\tclean!");
+                    E2LOGGER_debug("avastd result: ", encode(buffer) "\tclean!");
                     break;
 
                 case 'L':
                     // Infected!
-                    e2logger_debug("avastd result: ", encode(buffer), "\tinfected with ", result);
+                    E2LOGGER_debug("avastd result: ", encode(buffer), "\tinfected with ", result);
                     if (!lastvirusname.empty())
                         lastvirusname += " ";
                     {
@@ -237,7 +237,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
 
                 default:
                     // Can't interpret result.
-                    e2logger_debug("avastd result: ", encode(buffer), "\tcan't analyze (", result, ")" );
+                    E2LOGGER_debug("avastd result: ", encode(buffer), "\tcan't analyze (", result, ")" );
                     if (!lastvirusname.empty())
                         lastvirusname += " ";
                     lastvirusname += "Encrypted";
@@ -249,15 +249,15 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
     } catch (std::exception &e) {
         lastmessage = "Exception whilst reading AvastD socket: ";
         lastmessage += e.what();
-        e2logger_error(lastmessage);
+        E2LOGGER_error(lastmessage);
         return E2CS_SCANERROR;
     }
-    e2logger_debug("avastd final result: infected: ", infected, "\twarning: ", warning, "\tlastvirusname: ", lastvirusname, "\ttruncated: ", truncated);
+    E2LOGGER_debug("avastd final result: infected: ", infected, "\twarning: ", warning, "\tlastvirusname: ", lastvirusname, "\ttruncated: ", truncated);
 
     // Socket unexpectedly closed.
     if (rc == 0 || truncated || (avastprotocol.compare("avast4") == 0 && buffer[0] != '\r')) {
         lastmessage = "Error whilst reading AvastD socket: truncated data.";
-        e2logger_error(lastmessage);
+        E2LOGGER_error(lastmessage);
         return E2CS_SCANERROR;
     }
 
@@ -293,7 +293,7 @@ String avastdinstance::encode(const String &Str)
             break;
         case '\0':
             // This shouldn't happen.
-            e2logger_debug("Warning: '\\0' found in filename.");
+            E2LOGGER_debug("Warning: '\\0' found in filename.");
             *(p++) = '\\';
             *(p++) = '0';
             break;

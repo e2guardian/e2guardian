@@ -70,19 +70,19 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         rec.action_id = SB_COM_IFNOT;
         rec.isif = false;
     } else {
-        e2logger_error("StoryBoard error: Invalid command ", command, "at line ", String(line_no), " of ", file_name);
+        E2LOGGER_error("StoryBoard error: Invalid command ", command, "at line ", String(line_no), " of ", file_name);
         return false;
     }
     rec.file_lineno = line_no;
     // process params
-    e2logger_debugsb("CLine ", params, " Action ", action);
+    E2LOGGER_debugsb("CLine ", params, " Action ", action);
 
     String state;
     String temp;
     String temp2;
     if (params.contains(",")) {
         state = params.before(",");
-        e2logger_debugsb("CLine state is ", state);
+        E2LOGGER_debugsb("CLine state is ", state);
         temp = params.after(",");
     } else {
         state = params;
@@ -90,7 +90,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
     state.removeWhiteSpace();
     rec.state = getStateID(state);
     if (rec.state == 0) {
-        e2logger_error("StoryBoard error: Invalid state ", state, " at line ", String(line_no), " of ", file_name);
+        E2LOGGER_error("StoryBoard error: Invalid state ", state, " at line ", String(line_no), " of ", file_name);
         return false;
     }
 
@@ -104,7 +104,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.list_name = temp2;
-        e2logger_debugsb("CLine list is ", temp2);
+        E2LOGGER_debugsb("CLine list is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -116,7 +116,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.mess_no = temp2.toInteger();
-        e2logger_debugsb("CLine mess_no is ", temp2);
+        E2LOGGER_debugsb("CLine mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -128,7 +128,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         }
         temp2.removeWhiteSpace();
         rec.log_mess_no = temp2.toInteger();
-        e2logger_debugsb("CLine log_mess_no is ", temp2);
+        E2LOGGER_debugsb("CLine log_mess_no is ", temp2);
     }
     if ( temp.length() ) {
         if (temp.contains(",")) {
@@ -141,7 +141,7 @@ bool SBFunction::addline(String command, String params, String action, unsigned 
         temp2.removeWhiteSpace();
         if (temp2 == "optional")
             rec.optional = true;
-        e2logger_debugsb("CLine optional is true");
+        E2LOGGER_debugsb("CLine optional is true");
     }
     // check list and get list_ID - needs ListMeta object - done in StoryBook::readfile
 

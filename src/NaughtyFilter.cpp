@@ -192,11 +192,11 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     const String *domain, FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms)
 {
     if (searchterms)
-        e2logger_debug("Content flagged as search terms - disabling hex decoding, META/TITLE extraction & HTML removal");
+        E2LOGGER_debug("Content flagged as search terms - disabling hex decoding, META/TITLE extraction & HTML removal");
 
 
     if (foc->weighted_phrase_mode == 0) {
-        e2logger_debug("Weighted phrase mode 0 - not going any further.");
+        E2LOGGER_debug("Weighted phrase mode 0 - not going any further.");
         return;
     }
 
@@ -211,7 +211,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     // and the case alteration should modify case post-decoding
     // Search terms are already hex decoded, as they need to be to strip URL decoding
     if (!searchterms && o.hex_decode_content) { // Mod suggested by AFN Tue 8th April 2003
-        e2logger_debug("Hex decoding is enabled");
+        E2LOGGER_debug("Hex decoding is enabled");
         char *hexdecoded_buf = new char[rawbodylen + 128 + 1];
         memset(hexdecoded_buf, 0, rawbodylen + 128 + 1);
         unsigned char c1;
@@ -259,7 +259,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     if (o.preserve_case == 2) {
         // scanning twice *is* desired
         // first time round the loop, don't preserve case (non-exotic encodings)
-        e2logger_debug("Filtering with/without case preservation is enabled");
+        E2LOGGER_debug("Filtering with/without case preservation is enabled");
         preserve_case = false;
     }
 
@@ -282,11 +282,11 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         do_raw = true;
 
     for (int loop = 0; loop < (o.preserve_case == 2 ? 2 : 1); loop++) {
-        e2logger_debug("Preserve case: ", preserve_case );
+        E2LOGGER_debug("Preserve case: ", preserve_case );
 
         off_t i, j;
         if (searchterms || do_raw)
-            e2logger_debug("Raw content needed");
+            E2LOGGER_debug("Raw content needed");
 
         // use the one that's been hex decoded, but not stripped
         // make a copy of the document lowercase char by char
@@ -311,7 +311,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 }
             }
         } else {
-            e2logger_debug("Not preserving case of raw content");
+            E2LOGGER_debug("Not preserving case of raw content");
             if (do_nohtml || o.phrase_filter_mode == 3) {
                 for (i = 0; i < hexdecodedlen; i++) {
                     c = hexdecoded[i];
@@ -348,7 +348,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         // filter meta tags & title only
         // based on idea from Nicolas Peyrussie
         if (!searchterms && (o.phrase_filter_mode == 3)) {
-            e2logger_debug("Filtering META/title");
+            E2LOGGER_debug("Filtering META/title");
             bool addit = false; // flag if we should copy this char to filtered version
             bool needcheck = false; // flag if we actually find anything worth filtering
             off_t bodymetalen;
@@ -356,22 +356,22 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             // find </head> or <body> as end of search range
             char *endhead = strstr(bodylc, "</head");
             if (endhead != NULL)
-                e2logger_debug("Found '</head', limiting search range");
+                E2LOGGER_debug("Found '</head', limiting search range");
             if (endhead == NULL) {
                 endhead = strstr(bodylc, "<body");
                 if (endhead != NULL)
-                    e2logger_debug("Found '<body', limiting search range");
+                    E2LOGGER_debug("Found '<body', limiting search range");
             }
 
             // if case preserved, also look for uppercase versions
             if (preserve_case and (endhead == NULL)) {
                 endhead = strstr(bodylc, "</HEAD");
                 if (endhead != NULL)
-                    e2logger_debug("Found '</HEAD', limiting search range");
+                    E2LOGGER_debug("Found '</HEAD', limiting search range");
                 if (endhead == NULL) {
                     endhead = strstr(bodylc, "<BODY");
                     if (endhead != NULL)
-                        e2logger_debug("Found '<BODY', limiting search range");
+                        E2LOGGER_debug("Found '<BODY', limiting search range");
                 }
             }
 
@@ -390,7 +390,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 // are we at the start of a tag?
                 if ((!addit) && (c == '<')) {
                     if ((strncmp(bodylc + i + 1, "meta", 4) == 0) or (preserve_case and (strncmp(bodylc + i + 1, "META", 4) == 0))) {
-                        e2logger_debug("Found META");
+                        E2LOGGER_debug("Found META");
                         // start adding data to the check buffer
                         addit = true;
                         needcheck = true;
@@ -400,7 +400,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                     }
                     // are we at the start of a title tag?
                     else if ((strncmp(bodylc + i + 1, "title", 5) == 0) or (preserve_case and (strncmp(bodylc + i + 1, "TITLE", 5) == 0))) {
-                        e2logger_debug("Found TITLE");
+                        E2LOGGER_debug("Found TITLE");
                         // start adding data to the check buffer
                         addit = true;
                         needcheck = true;
@@ -434,12 +434,12 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             }
             if (needcheck) {
                 bodymeta[j++] = '\0';
-                e2logger_debug(bodymeta);
+                E2LOGGER_debug(bodymeta);
                 bodymetalen = j;
                 checkphrase(bodymeta, bodymetalen, NULL, NULL, foc, phraselist, limit, searchterms);
             }
             else
-                e2logger_debug("Nothing to filter");
+                E2LOGGER_debug("Nothing to filter");
 
             delete[] bodymeta;
             // surely the intention is to search *only* meta/title, so always exit
@@ -453,7 +453,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         if (do_nohtml) {
             // if we fell through to here, use the one that's been hex decoded AND stripped
             // Strip HTML
-            e2logger_debug("\"Smart\" filtering is enabled");
+            E2LOGGER_debug("\"Smart\" filtering is enabled");
             // we need this extra byte *
             bool inhtml = false; // to flag if our pointer is within a html <>
             bool addit; // flag if we should copy this char to filtered version
@@ -481,7 +481,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                     bodynohtml[j++] = c; // copy it to the filtered copy
                 }
             }
-            e2logger_debug("Checking smart content");
+            E2LOGGER_debug("Checking smart content");
             checkphrase(bodynohtml, j - 1, NULL, NULL, foc, phraselist, limit, searchterms);
             if (isItNaughty || isException) {
                 delete[] bodylc;
@@ -499,7 +499,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
                 delete[] hexdecoded;
             return; // only doing nohtml mode filtering
         } else {
-            e2logger_debug("Checking raw content");
+            E2LOGGER_debug("Checking raw content");
 
             if (do_nohtml) { // already removed if not!
                 // replace html tag start and finish with space so that Start and finish words are detected
@@ -582,12 +582,12 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         if (absurl_re.match(file, Rre)) {
             // each match generates 2 results (because of the brackets in the regex), 
             // we're only interested in the first
-            E2LOGGER_DEBUG("Found ", Rre.numberOfMatches() / 2, " absolute URLs:");
+            E2LOGGER_debug("Found ", Rre.numberOfMatches() / 2, " absolute URLs:");
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 // chop off quotes
                 u = Rre.result(i);
                 u = u.subString(1, u.length() - 2);
-                E2LOGGER_DEBUG(u);
+                E2LOGGER_debug(u);
 
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
                     !(lastcategory.contains("ADs")))
@@ -634,7 +634,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 
             // each match generates 2 results (because of the brackets in the regex),
             // we're only interested in the first
-            E2LOGGER_DEBUG("Found ", Rre.numberOfMatches() / 2, " relative URLs:");
+            E2LOGGER_debug("Found ", Rre.numberOfMatches() / 2, " relative URLs:");
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 u = Rre.result(i);
 
@@ -643,7 +643,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 if (u.contains("://"))
                     continue;
 
-                E2LOGGER_DEBUG(u);
+                E2LOGGER_debug(u);
                 // remove src/href & quotes
                 u = u.after("=");
                 u.removeWhiteSpace();
@@ -655,7 +655,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 else
                     u = currurl + u;
 
-                E2LOGGER_DEBUG("absolute form: ", u );
+                E2LOGGER_debug("absolute form: ", u );
 
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
                      !(lastcategory.contains("ADs")))
@@ -690,8 +690,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         if (catinited) {
             weighting = ourcat->second.weight;
             weightedphrase += "]";
-            E2LOGGER_DEBUG(weightedphrase);
-            E2LOGGER_DEBUG("score from embedded URLs: ", ourcat->second.weight );
+            E2LOGGER_debug(weightedphrase);
+            E2LOGGER_debug("score from embedded URLs: ", ourcat->second.weight );
         }
     }
 #endif // END OF LEAVE_OUT_FOR_NOW
@@ -737,7 +737,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #ifdef E2DEBUG
                     combicurrent++;
                     cat = (*++combicurrent);
-                    E2LOGGER_DEBUG("Ignoring combi phrase based on time limits: ", combisofar, "; ",
+                    E2LOGGER_debug("Ignoring combi phrase based on time limits: ", combisofar, "; ",
                                     o.lm.l[phraselist]->getListCategoryAtD(cat));
 #else
                     combicurrent += 2;
@@ -786,7 +786,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                         weightedphrase += combisofar;
                     }
 
-                    e2logger_debug("found combi weighted phrase (", foc->weighted_phrase_mode, "): ", combisofar,
+                    E2LOGGER_debug("found combi weighted phrase (", foc->weighted_phrase_mode, "): ", combisofar,
                                  " x", lowest_occurrences, " (per phrase: ",  weight,
                                  ", calculated: ", (weight * (foc->weighted_phrase_mode == 2 ? 1 : lowest_occurrences)), ")" );
 
@@ -839,7 +839,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
     while (foundcurrent != foundend) {
         // check time for current phrase
         if (not o.lm.l[phraselist]->checkTimeAt(foundcurrent->second.first)) {
-            e2logger_debug("Ignoring phrase based on time limits: ", foundcurrent->first,
+            E2LOGGER_debug("Ignoring phrase based on time limits: ", foundcurrent->first,
                              ", ", o.lm.l[phraselist]->getListCategoryAt(foundcurrent->second.first) );
             foundcurrent++;
             continue;
@@ -881,7 +881,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 
                 weightedphrase += foundcurrent->first;
             }
-            e2logger_debug("found weighted phrase (", foc->weighted_phrase_mode, "): ", foundcurrent->first,
+            E2LOGGER_debug("found weighted phrase (", foc->weighted_phrase_mode, "): ", foundcurrent->first,
                             " x", foundcurrent->second.second,
                             " (per phrase: ", o.lm.l[phraselist]->getWeightAt(foundcurrent->second.first),
                             ", calculated: ", weight, ")" );
@@ -900,14 +900,14 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         foundcurrent++;
     }
 
-    e2logger_debug("WEIGHTING: ", weighting );
+    E2LOGGER_debug("WEIGHTING: ", weighting );
 
     // store the lowest negative weighting or highest positive weighting out of all filtering runs, preferring to store positive weightings.
     if ((weighting < 0 && naughtiness <= 0 && weighting < naughtiness) || (naughtiness >= 0 && weighting > naughtiness) || (naughtiness < 0 && weighting > 0)) {
         naughtiness = weighting;
     }
 
-    e2logger_debug("NAUGHTINESS: ", naughtiness );
+    E2LOGGER_debug("NAUGHTINESS: ", naughtiness );
 
     // *now* we can safely get down to the whole banning business!
 

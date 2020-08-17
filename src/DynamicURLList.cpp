@@ -58,11 +58,11 @@ void DynamicURLList::flush()
 int DynamicURLList::posInList(const char *url)
 {
     if (items == 0) {
-        e2logger_debug("url list cache is empty");
+        E2LOGGER_debug("url list cache is empty");
         // if the list is empty, indicate that the entry should go in pos 0
         return -1;
     }
-    e2logger_error("url list cache: performing search...");
+    E2LOGGER_error("url list cache: performing search...");
     return search(0, items - 1, url);
 }
 
@@ -158,22 +158,22 @@ bool DynamicURLList::setListSize(unsigned int s, unsigned int t)
 // see if the given URL is in the list
 bool DynamicURLList::inURLList(const char *url, const int fg)
 {
-    e2logger_debug("url cache search request: ", fg, " ", url);
+    E2LOGGER_debug("url cache search request: ", fg, " ", url);
     if (items == 0) {
         return false;
     }
 //#ifdef E2DEBUG
-    e2logger_debug("****** url cache table ******");
-    e2logger_debug("items: ", items);
+    E2LOGGER_debug("****** url cache table ******");
+    E2LOGGER_debug("items: ", items);
     for (int i = 0; i < items; i++) {
         std::stringstream ss;
         for (unsigned int j = 0; j < groups[index[i]].length(); j++) {
             ss << (unsigned int)(groups[index[i]][j]) << " ";
         }
         ss << (char *)(index[i] * 1000 + urls);
-        e2logger_debug(ss.str());
+        E2LOGGER_debug(ss.str());
     }
-    e2logger_debug("****** url cache table ******");
+    E2LOGGER_debug("****** url cache table ******");
 //#endif
 
     // truncate URL if necessary, as we have a length limit on our buffers
@@ -185,7 +185,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         pos = posInList(url);
     }
 
-    e2logger_debug("pos: ", pos);
+    E2LOGGER_debug("pos: ", pos);
 
     // if we have found an entry, also check to see that it hasn't gone inactive.
     // todo: could we speed things up a little by simply refreshing the timer on the
@@ -196,7 +196,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
     if (pos > -1) {
         unsigned long int timenow = time(NULL);
         if ((timenow - urlreftime[index[pos]]) > timeout) {
-            e2logger_debug("found but url ttl exceeded: ", (timenow - urlreftime[index[pos]]));
+            E2LOGGER_debug("found but url ttl exceeded: ", (timenow - urlreftime[index[pos]]));
             return false;
         }
         // o.filter_groups + 1 is a special case, meaning clean for all groups
@@ -209,7 +209,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
             for (unsigned int j = 0; j < groups[index[pos]].length(); j++) {
                 ss << (unsigned int)(groups[index[pos]][j]) << " ";
             }
-            E2LOGGER_DEBUG("found but url not flagged clean for this group: ", fg, " (is clean for: ", ss.str(),  ")" );
+            E2LOGGER_debug("found but url not flagged clean for this group: ", fg, " (is clean for: ", ss.str(),  ")" );
 #endif
             return false;
         }
@@ -222,7 +222,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
 // also, maintain the lists' sorting, to allow binary search to be performed
 void DynamicURLList::addEntry(const char *url, const int fg)
 {
-    e2logger_debug("url cache add request: ", fg, " ", url, " itemsbeforeadd: ", items);
+    E2LOGGER_debug("url cache add request: ", fg, " ", url, " itemsbeforeadd: ", items);
     int len = strlen(url);
     bool resized = false;
     char *u;
@@ -243,7 +243,7 @@ void DynamicURLList::addEntry(const char *url, const int fg)
         if (resized) {
             delete[] u;
         }
-        e2logger_debug("Entry found at pos: ", pos);
+        E2LOGGER_debug("Entry found at pos: ", pos);
         urlreftime[index[pos]] = time(NULL); // reset refresh counter
         if (groups[index[pos]].find((char)fg, 0) == std::string::npos)
             groups[index[pos]] += (char)fg; // flag it as clean for this filter group
@@ -252,11 +252,11 @@ void DynamicURLList::addEntry(const char *url, const int fg)
 
     pos = 0 - pos - 1; // now contains the insertion point
 
-    e2logger_debug("insertion pos: ", pos, " size: ", size);
+    E2LOGGER_debug("insertion pos: ", pos, " size: ", size);
 
     // the list isn't full, so simply push new entry onto the back
     if (items < size) {
-        e2logger_debug("items<size: ", items, "<", size);
+        E2LOGGER_debug("items<size: ", items, "<", size);
         char *urlref;
         urlref = items * 1000 + urls;
         memcpy(urlref, u, len);
