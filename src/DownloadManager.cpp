@@ -99,7 +99,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     bool matchedmime = false;
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
-        e2logger_debug("mimetype: ", mimetype);
+        E2LOGGER_DEBUG("mimetype: ", mimetype);
         String lc;
         if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
             if (!extensionlistenabled)
@@ -107,7 +107,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
         } else
             matchedmime = true;    
     } else {
-        e2logger_debug("NO mimelistenabled!");
+        E2LOGGER_DEBUG("NO mimelistenabled!");
     }
 
 
@@ -142,13 +142,13 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
                 }
             }
         }
-        e2logger_debug("extension: ", extension);
+        E2LOGGER_DEBUG("extension: ", extension);
         // check the extension list
         String lc;
         if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray(), lc) == NULL))
             return matchedmime;
     } else {
-        e2logger_debug("NO extensionlistenabled!");
+        E2LOGGER_DEBUG("NO extensionlistenabled!");
     }
 
 

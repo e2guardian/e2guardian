@@ -227,7 +227,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Don't scan the web server which hosts the access denied page
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
-        e2logger_debug("willScanRequest: ignoring our own webserver");
+        E2LOGGER_DEBUG("willScanRequest: ignoring our own webserver");
         return E2CS_NOSCAN;
     }
 
@@ -235,7 +235,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     tempurl = domain;
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            e2logger_debug("willScanRequest: ignoring exception virus site");
+            E2LOGGER_DEBUG("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
@@ -244,7 +244,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         // allows matching of .tld
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            e2logger_debug("willScanRequest: ignoring exception virus site");
+            E2LOGGER_DEBUG("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
     }
@@ -262,18 +262,18 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
             if (tempurl.length() > fl) {
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
-                    e2logger_debug("willScanRequest: ignoring exception virus URL");
+                    E2LOGGER_DEBUG("willScanRequest: ignoring exception virus URL");
                     return E2CS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-                e2logger_debug("willScanRequest: ignoring exception virus URL");
+                E2LOGGER_DEBUG("willScanRequest: ignoring exception virus URL");
                 return E2CS_NOSCAN; // exact match
             }
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
 
-    e2logger_debug("willScanRequest: I'm interested");
+    E2LOGGER_DEBUG("willScanRequest: I'm interested");
     return E2CS_NEEDSCAN;
 #endif
 }
@@ -335,35 +335,35 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
-        e2logger_debug("Enabling ClamDscan CS plugin");
+        E2LOGGER_DEBUG("Enabling ClamDscan CS plugin");
         return clamdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
-        e2logger_debug("Enabling AvastDscan CS plugin");
+        E2LOGGER_DEBUG("Enabling AvastDscan CS plugin");
         return avastdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
-        e2logger_debug("Enabling KAVDscan CS plugin");
+        E2LOGGER_DEBUG("Enabling KAVDscan CS plugin");
         return kavdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
-        e2logger_debug("Enabling ICAPscan CS plugin");
+        E2LOGGER_DEBUG("Enabling ICAPscan CS plugin");
         return icapcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
-        e2logger_debug("Enabling command-line CS plugin");
+        E2LOGGER_DEBUG("Enabling command-line CS plugin");
         return commandlinecreate(cv);
     }
 #endif

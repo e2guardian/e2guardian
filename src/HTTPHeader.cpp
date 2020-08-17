@@ -1738,10 +1738,10 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 
 #ifdef E2DEBUG
     if(is_response) {
-        e2logger_debug("Start of response header:in");
+        E2LOGGER_DEBUG("Start of response header:in");
     }
     else {
-        e2logger_debug("Start of request header:in");
+        E2LOGGER_DEBUG("Start of request header:in");
     }
 #endif
 

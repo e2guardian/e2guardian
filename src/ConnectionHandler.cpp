@@ -1692,12 +1692,12 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
     if (ldl->fg[filtergroup]->inRefererExceptionLists(header->getReferer())) {
         return true;
     }
-    e2logger_debug(" -checking for embed url in ", temp);
+    E2LOGGER_DEBUG(" -checking for embed url in ", temp);
 
     if (ldl->fg[filtergroup]->inEmbededRefererLists(temp)) {
 
 // look for referer URLs within URLs
-        e2logger_debug(" -starting embeded referer deep analysis");
+        E2LOGGER_DEBUG(" -starting embeded referer deep analysis");
         String deepurl(temp.after("p://"));
         deepurl = header->decode(deepurl, true);
         while (deepurl.contains(":")) {
@@ -1707,11 +1707,11 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
             }
 
             if (ldl->fg[filtergroup]->inRefererExceptionLists(deepurl)) {
-                e2logger_debug("deep site found in trusted referer list; ");
+                E2LOGGER_DEBUG("deep site found in trusted referer list; ");
                 return true;
             }
         }
-        e2logger_debug(" -done embdeded referer deep analysis");
+        E2LOGGER_DEBUG(" -done embdeded referer deep analysis");
     }
     return false;
 }
@@ -2402,11 +2402,11 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
-        e2logger_debug("DNS query returned error ", dns_error(h_errno));
+        E2LOGGER_DEBUG("DNS query returned error ", dns_error(h_errno));
         return false;
     }
     if (ns_initparse(response.buf, responseLen, &handle) < 0) {
-        e2logger_debug("ns_initparse returned error ", strerror(errno));
+        E2LOGGER_DEBUG("ns_initparse returned error ", strerror(errno));
         return false;
     }
     //int rrnum; /* resource record number */
@@ -2417,11 +2417,11 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
         if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
-            e2logger_debug("ns_paserr returned error ", strerror(errno));
+            E2LOGGER_DEBUG("ns_paserr returned error ", strerror(errno));
             return false;
         } else {
             if (ns_rr_type(rr) == ns_t_txt) {
-                e2logger_debug("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
+                E2LOGGER_DEBUG("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
                 u_char *k = (u_char *)ns_rr_rdata(rr);
                 char p[400];
                 unsigned int j = 0;
@@ -2430,7 +2430,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
                 }
 //                p[j] = (char)NULL;
                 p[j] = '\0';
-                e2logger_debug("ns_rr_data returned ", p );
+                E2LOGGER_DEBUG("ns_rr_data returned ", p );
                 String dnstxt(p);
                 user = dnstxt.before(",");
                 return true;
@@ -2800,10 +2800,10 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
 #ifdef E2DEBUG
             if (!authed) {
-                e2logger_debug(" -No identity found; using defaults");
+                E2LOGGER_DEBUG(" -No identity found; using defaults");
             }
             else {
-                e2logger_debug(" -Plugin returned out-of-range filter group number; using defaults");
+                E2LOGGER_DEBUG(" -Plugin returned out-of-range filter group number; using defaults");
             }
 #endif
 
@@ -3714,7 +3714,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 #ifdef NOTDEF      // TODO does this need restoring???
         if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
                         checkme.urld)) {
-            e2logger_debug("ICAP isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
+            E2LOGGER_DEBUG("ICAP isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
             if (isbannedip) {
          //       matchedip = clienthost == NULL;
                 checkme.isBlocked = checkme.isItNaughty = true;

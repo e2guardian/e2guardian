@@ -250,7 +250,7 @@ bool FOptionContainer::read(const char *filename) {
             int size = (int) text_mime.size();
             int i;
             for (i = 0; i < size; i++) {
-                e2logger_debug("mimes filtering : ", text_mime[i]);
+                E2LOGGER_DEBUG("mimes filtering : ", text_mime[i]);
             }
 #endif
         }

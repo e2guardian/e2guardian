@@ -150,14 +150,14 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
 
 #ifdef PRT_DNSAUTH
     if (plugname == "dnsauth") {
-        e2logger_debug("Enabling DNS-based auth plugin");
+        E2LOGGER_DEBUG("Enabling DNS-based auth plugin");
         return dnsauthcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_NTLM
     if (plugname == "proxy-ntlm") {
-        e2logger_debug("Enabling proxy-NTLM auth plugin");
+        E2LOGGER_DEBUG("Enabling proxy-NTLM auth plugin");
         return ntlmcreate(cv);
     }
 #endif

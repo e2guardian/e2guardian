@@ -898,7 +898,7 @@ bool ListContainer::makeGraph(bool fqs)
     graphused = true;
 
 #ifdef E2DEBUG
-    e2logger_debug("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
+    E2LOGGER_DEBUG("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
                  ", starting off with allocation of ", (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) );
     prolificroot = false;
     secondmaxchildnodes = 0;
@@ -1162,11 +1162,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 
     if (force_quick_search || graphitems == 0) {
 #ifdef E2DEBUG
-        e2logger_debug("Map (quicksearch) start");
+        E2LOGGER_DEBUG("Map (quicksearch) start");
         for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-            e2logger_debug("Map: ", i->first, " ", i->second.second);
+            E2LOGGER_DEBUG("Map: ", i->first, " ", i->second.second);
         }
-        e2logger_debug("Map (quicksearch) end");
+        E2LOGGER_DEBUG("Map (quicksearch) end");
 #endif
         return;
     }
@@ -1252,11 +1252,11 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
         }
     }
 #ifdef E2DEBUG
-    e2logger_debug("Map start");
+    E2LOGGER_DEBUG("Map start");
     for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-        e2logger_debug("Map: ", i->first, " ", i->second.second);
+        E2LOGGER_DEBUG("Map: ", i->first, " ", i->second.second);
     }
-    e2logger_debug("Map end");
+    E2LOGGER_DEBUG("Map end");
 #endif
 }
 

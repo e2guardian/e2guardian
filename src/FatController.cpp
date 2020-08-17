@@ -557,7 +557,7 @@ void wait_for_proxy()
             return;
         }
     } catch (std::exception &e) {
-        e2logger_debug(" -exception while creating proxysock: ", e.what());
+        E2LOGGER_DEBUG(" -exception while creating proxysock: ", e.what());
     }
     e2logger_error("Proxy is not responding - Waiting for proxy to respond");
     if (o.monitor_flag_flag)
@@ -1639,7 +1639,7 @@ int fc_controlit()   //
                 //timer_settime(timerid,0,&timeout, NULL);
                 setitimer(ITIMER_REAL, &timeout, NULL);
 
-                e2logger_debug("signal:", String(rc);
+                E2LOGGER_DEBUG("signal:", String(rc);
                 if (o.logconerror) {
                     e2logger_info("sigtimedwait() signal recd:", String(rsig) );
                 }

@@ -195,22 +195,22 @@ int ipinstance::determineGroup(std::string &user, int &rfg, ListContainer &uglc)
 //    fg = inList(addr);
     if (fg >= 0) {
         rfg = fg;
-        e2logger_debug("Matched IP ", user, " to straight IP list");
+        E2LOGGER_DEBUG("Matched IP ", user, " to straight IP list");
         return E2AUTH_OK;
     }
 //    fg = inSubnet(addr);
     if (fg >= 0) {
         rfg = fg;
-        e2logger_debug("Matched IP ", user, " to subnet");
+        E2LOGGER_DEBUG("Matched IP ", user, " to subnet");
         return E2AUTH_OK;
     }
 //    fg = inRange(addr);
     if (fg >= 0) {
         rfg = fg;
-        e2logger_debug("Matched IP ", user, " to range");
+        E2LOGGER_DEBUG("Matched IP ", user, " to range");
         return E2AUTH_OK;
     }
-    e2logger_debug("Matched IP ", user, " to nothing");
+    E2LOGGER_DEBUG("Matched IP ", user, " to nothing");
     return E2AUTH_NOMATCH;
 }
 
@@ -323,7 +323,7 @@ int ipinstance::readIPMelangeList(const char *filename)
             warn = true;
             continue;
         }
-        e2logger_debug("key: ", key , "value: ", value.toInteger() );
+        E2LOGGER_DEBUG("key: ", key , "value: ", value.toInteger() );
 
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
             e2logger_error("Filter group out of range; entry ", line, " in ", filename);
@@ -389,27 +389,27 @@ int ipinstance::readIPMelangeList(const char *filename)
         }
     }
     input.close();
-    e2logger_debug("starting sort");
+    E2LOGGER_DEBUG("starting sort");
     std::sort(iplist.begin(), iplist.end());
 
 #ifdef E2DEBUG
-    e2logger_debug("sort complete");
-    e2logger_debug("ip list dump:");
+    E2LOGGER_DEBUG("sort complete");
+    E2LOGGER_DEBUG("ip list dump:");
     std::vector<ip>::const_iterator i = iplist.begin();
     while (i != iplist.end()) {
-        e2logger_debug("IP: ", i->addr, " Group: ", i->group );
+        E2LOGGER_DEBUG("IP: ", i->addr, " Group: ", i->group );
         ++i;
     }
-    e2logger_debug("subnet list dump:");
+    E2LOGGER_DEBUG("subnet list dump:");
     std::list<subnetstruct>::const_iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        e2logger_debug("Masked IP: ", j->maskedaddr, " Mask: ", j->mask, " Group: ", j->group );
+        E2LOGGER_DEBUG("Masked IP: ", j->maskedaddr, " Mask: ", j->mask, " Group: ", j->group );
         ++j;
     }
-    e2logger_debug("range list dump:");
+    E2LOGGER_DEBUG("range list dump:");
     std::list<rangestruct>::const_iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        e2logger_debug("Start IP: ", k->startaddr, " End IP: ", k->endaddr, " Group: ", k->group );
+        E2LOGGER_DEBUG("Start IP: ", k->startaddr, " End IP: ", k->endaddr, " Group: ", k->group );
         ++k;
     }
 #endif

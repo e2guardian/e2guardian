@@ -209,7 +209,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
             for (unsigned int j = 0; j < groups[index[pos]].length(); j++) {
                 ss << (unsigned int)(groups[index[pos]][j]) << " ";
             }
-            e2logger_debug("found but url not flagged clean for this group: ", fg, " (is clean for: ", ss.str(),  ")" );
+            E2LOGGER_DEBUG("found but url not flagged clean for this group: ", fg, " (is clean for: ", ss.str(),  ")" );
 #endif
             return false;
         }

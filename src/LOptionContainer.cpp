@@ -310,7 +310,7 @@ void LOptionContainer::deleteFilterGroupsJustListData()
 bool LOptionContainer::read(std::string& filename, int type, std::string& exception_ip_list_location,
                             std::string& banned_ip_list_location)
 {
-    e2logger_trace(filename);
+    E2LOGGER_TRACE(filename);
     
 	conffilename = filename;
 
@@ -362,25 +362,25 @@ bool LOptionContainer::read(std::string& filename, int type, std::string& except
 //        std::string language_list_location(languagepath + "messages");
         {
             std::deque<String> dq = findoptionM("iplist");
-            e2logger_debug("iplist deque is size ", dq.size());
+            E2LOGGER_DEBUG("iplist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IP, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            e2logger_debug("sitelist deque is size ", dq.size());
+            E2LOGGER_DEBUG("sitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_SITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            e2logger_debug("ipsitelist deque is size ", dq.size());
+            E2LOGGER_DEBUG("ipsitelist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_IPSITE, dq);
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            e2logger_debug("urllist deque is size ", dq.size());
+            E2LOGGER_DEBUG("urllist deque is size ", dq.size());
             LMeta.load_type(LIST_TYPE_URL, dq);
         }
 

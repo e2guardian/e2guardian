@@ -194,28 +194,28 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
     std::sort(hostlist.begin(), hostlist.end());
     e2logger_trace("sort complete");
 #ifdef E2DEBUG    
-    e2logger_debug("ip list dump:");
+    E2LOGGER_DEBUG("ip list dump:");
     std::vector<uint32_t>::iterator i = iplist.begin();
     while (i != iplist.end()) {
-        e2logger_debug("IP: ", String(*i));
+        E2LOGGER_DEBUG("IP: ", String(*i));
         ++i;
     }
-    e2logger_debug("subnet list dump:");
+    E2LOGGER_DEBUG("subnet list dump:");
     std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
     while (j != ipsubnetlist.end()) {
-        e2logger_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
+        E2LOGGER_DEBUG("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
         ++j;
     }
-    e2logger_debug("range list dump:");
+    E2LOGGER_DEBUG("range list dump:");
     std::list<ipl_rangestruct>::iterator k = iprangelist.begin();
     while (k != iprangelist.end()) {
-        e2logger_debug("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
+        E2LOGGER_DEBUG("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
         ++k;
     }
-    e2logger_debug("host list dump:");
+    E2LOGGER_DEBUG("host list dump:");
     std::vector<String>::iterator l = hostlist.begin();
     while (l != hostlist.end()) {
-        e2logger_debug("Hostname: ", *l );
+        E2LOGGER_DEBUG("Hostname: ", *l );
         ++l;
     }
 #endif

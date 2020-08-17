@@ -217,9 +217,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
     }
 
 #ifdef E2DEBUG
-    e2logger_debug("NTLM - header - ");
+    E2LOGGER_DEBUG("NTLM - header - ");
     for (unsigned int i = 0; i < h.header.size(); i++)
-    	e2logger_debug(h.header[i]);
+    	E2LOGGER_DEBUG(h.header[i]);
 #endif
 
     if (at != "NTLM") {
@@ -282,9 +282,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             std::string clientip;
             clientip = peercon.getPeerIP();
 #ifdef E2DEBUG
-            e2logger_debug("NTLM - Invalid message of length ", message.length(), ", message was: ", message, "IP: ", clientip, " header size ", h.header.size() );
+            E2LOGGER_DEBUG("NTLM - Invalid message of length ", message.length(), ", message was: ", message, "IP: ", clientip, " header size ", h.header.size() );
             for (unsigned int i = 0; i < h.header.size(); i++)
-                e2logger_debug(h.header[i]);
+                E2LOGGER_DEBUG(h.header[i]);
 #endif
               return -3;
         }
@@ -354,9 +354,9 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         return E2AUTH_NOMATCH;
     } else {
 #ifdef E2DEBUG
-        e2logger_debug("NTLM - step 2 was not part of an auth handshake!");
+        E2LOGGER_DEBUG("NTLM - step 2 was not part of an auth handshake!");
         for (unsigned int i = 0; i < h.header.size(); i++)
-            e2logger_debug(h.header[i]);
+            E2LOGGER_DEBUG(h.header[i]);
 #endif
         e2logger_error("NTLM - step 2 was not part of an auth handshake! (", h.header[0], ")");
         return -1;

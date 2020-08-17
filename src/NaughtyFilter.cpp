@@ -582,12 +582,12 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         if (absurl_re.match(file, Rre)) {
             // each match generates 2 results (because of the brackets in the regex), 
             // we're only interested in the first
-            e2logger_debug("Found ", Rre.numberOfMatches() / 2, " absolute URLs:");
+            E2LOGGER_DEBUG("Found ", Rre.numberOfMatches() / 2, " absolute URLs:");
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 // chop off quotes
                 u = Rre.result(i);
                 u = u.subString(1, u.length() - 2);
-                e2logger_debug(u);
+                E2LOGGER_DEBUG(u);
 
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
                     !(lastcategory.contains("ADs")))
@@ -634,7 +634,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 
             // each match generates 2 results (because of the brackets in the regex),
             // we're only interested in the first
-            e2logger_debug("Found ", Rre.numberOfMatches() / 2, " relative URLs:");
+            E2LOGGER_DEBUG("Found ", Rre.numberOfMatches() / 2, " relative URLs:");
             for (int i = 0; i < Rre.numberOfMatches(); i += 2) {
                 u = Rre.result(i);
 
@@ -643,7 +643,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 if (u.contains("://"))
                     continue;
 
-                e2logger_debug(u);
+                E2LOGGER_DEBUG(u);
                 // remove src/href & quotes
                 u = u.after("=");
                 u.removeWhiteSpace();
@@ -655,7 +655,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 else
                     u = currurl + u;
 
-                e2logger_debug("absolute form: ", u );
+                E2LOGGER_DEBUG("absolute form: ", u );
 
                 if ((((j = foc->inBannedSiteList(u, false, false, false, lastcategory)) != NULL) &&
                      !(lastcategory.contains("ADs")))
@@ -690,8 +690,8 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         if (catinited) {
             weighting = ourcat->second.weight;
             weightedphrase += "]";
-            e2logger_debug(weightedphrase);
-            e2logger_debug("score from embedded URLs: ", ourcat->second.weight );
+            E2LOGGER_DEBUG(weightedphrase);
+            E2LOGGER_DEBUG("score from embedded URLs: ", ourcat->second.weight );
         }
     }
 #endif // END OF LEAVE_OUT_FOR_NOW
@@ -737,7 +737,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
 #ifdef E2DEBUG
                     combicurrent++;
                     cat = (*++combicurrent);
-                    e2logger_debug("Ignoring combi phrase based on time limits: ", combisofar, "; ",
+                    E2LOGGER_DEBUG("Ignoring combi phrase based on time limits: ", combisofar, "; ",
                                     o.lm.l[phraselist]->getListCategoryAtD(cat));
 #else
                     combicurrent += 2;
