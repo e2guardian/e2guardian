@@ -30,7 +30,6 @@
 OptionContainer::OptionContainer() {
     log_Q = new Queue<std::string>;
     RQlog_Q = new Queue<std::string>;
-    // http_worker_Q = new Queue<LQ_rec>;
 }
 
 
@@ -158,6 +157,9 @@ bool OptionContainer::read(std::string &filename, int type) {
                 log_location += "/access.log";
                 log_syslog = false;
             }
+
+            if (!log_syslog)
+                e2logger.setLogOutput(LoggerSource::access, LoggerDestination::file, log_location);
 
             if ((RQlog_location = findoptionS("rqloglocation")) == "") {
                 log_requests = false;

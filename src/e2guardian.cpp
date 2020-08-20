@@ -87,6 +87,7 @@ int main(int argc, char *argv[])
     std::string prog_name("e2guardian");
     srand(time(NULL));
     int rc;
+    thread_id = "master: ";
 
     e2logger.setSyslogName("e2guardian");
 #ifdef E2DEBUG

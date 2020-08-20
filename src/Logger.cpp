@@ -17,6 +17,8 @@
 #include <syslog.h>
 #include "Logger.hpp"
 
+extern bool is_daemonised;
+
 // -------------------------------------------------------------
 // --- Global Logger
 // -------------------------------------------------------------
@@ -41,11 +43,11 @@ Logger::~Logger() {
   closelog();
 }
 
-#ifdef NOTDEF
-//const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", \
-//                                      "debug", "trace", "debugnet", "debugsb", "chunk", "regexp", \
-//                                      "icap", "icapc", "clamav", "request"};
-//const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
+#ifdef NOTDEF        // to avoid compiler warning
+const std::string Logger::SOURCES[] = {"info", "error", "access", "config", "story", \
+                                      "debug", "trace", "debugnet", "debugsb", "chunk", "regexp", \
+                                      "icap", "icapc", "clamav", "request"};
+const std::string Logger::DESTINATIONS[] = {"none", "stdout", "stderr", "syslog", "file"};
 #endif
 
 // -------------------------------------------------------------
@@ -60,23 +62,27 @@ struct Logger::Helper
       const int line, 
       const std::string what)
   {
-    std::stringstream message;
-    if (prepend != "") 
-      message << "[" << prepend << "] ";
-    if (thread_id != "" && thread_id != "log: ") 
-      message << "(" << thread_id << ") ";
+    std::string message;      // overhead of stream no longer required as all params types now known
+    if (!prepend.empty())
+        ((message = "[") += prepend) += "] ";
+    if (!thread_id.empty() && thread_id != "log: ")
+      message += thread_id;
 #ifdef E2DEBUG
-    if (func != "") {
-      message << " " << func;
+    if (!func.empty()) {
+      message += func;
       if (line > 0)
-        message << ":" << line << " ";
+        (message += ":") += std::to_string(line) += " ";
     };
 #endif
-    message << what;
-    return message.str();
+    message += what;
+    return message;
   }
 
-  static void sendToLogfile(const std::string &filename, const std::string &message){
+  static  void sendToLogfile(std::ostream *outs, const std::string &message) {
+        (*outs) << message << std::endl;
+    }
+
+  void sendToLogfile(const std::string &filename, const std::string &message){
     if (filename=="")
       return;
     std::ofstream logfile;
@@ -87,19 +93,19 @@ struct Logger::Helper
   }
 
   static bool testFile(const std::string &filename){
-    std::ofstream logfile;
-    bool fail;
+    bool good;
 
     if (filename == "") return false;
-    logfile.open(filename,std::ofstream::out | std::ofstream::app );
-    fail = logfile.fail();
+      std::ofstream logfile(filename,std::ios::out | std::ios::app );
+    good = logfile.good();
     logfile.close();
-    if (fail) {
+    if (!good) {
       std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)" << std::endl;
     }
-    return fail;
+    return good;
   }
 };
+
 
 // -------------------------------------------------------------
 // --- static Functions
@@ -140,27 +146,28 @@ void  Logger::setSyslogName(const std::string logname){
 };
 
 void Logger::enable(const LoggerSource source){
-  _enabled[static_cast<int>(source)] = true;
+  source_dests[static_cast<int>(source)].enabled = true;
 };
 void Logger::enable(const char* source){
   enable(string2source(std::string(source)));
 }
 
 void Logger::disable(const LoggerSource source){
-  _enabled[static_cast<int>(source)] = false;
+  source_dests[static_cast<int>(source)].enabled = false;
 };
 void Logger::disable(const char* source){
   disable(string2source(std::string(source)));
 }
 
-bool Logger::isEnabled(const LoggerSource source){
-  return _enabled[static_cast<int>(source)];
+bool Logger::isEnabled(const LoggerSource source) {
+   return source_dests[static_cast<int>(source)].enabled;
 };
 bool Logger::isEnabled(const char* source){
   return isEnabled(string2source(std::string(source)));
 }
 
-void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename, const bool alsoEnable){
+void Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename,
+                          const bool alsoEnable){
   setDestination(source, destination);
   setFilename(source, filename);
 
@@ -205,7 +212,8 @@ void Logger::log(const LoggerSource source, const std::string func, const int li
 // -------------------------------------------------------------
 
 void Logger::sendMessage(const LoggerSource source, const std::string message){
-  LoggerDestination destination = _destination[static_cast<int>(source)];
+  source_rec *srec = &source_dests[static_cast<int>(source)];
+  LoggerDestination destination = srec->destination;
   int loglevel;
 
   switch (destination) {
@@ -218,16 +226,22 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
       std::cerr << message << std::endl;
       break;
     case LoggerDestination::syslog:
-      if (source == LoggerSource::error)
+      if (source == LoggerSource::error) {
         loglevel = LOG_ERR;
-      else if (source >= LoggerSource::debug)
+        if (!is_daemonised )
+          std::cerr << message << std::endl;   // show to console as well as syslog when not daemonised
+      } else if (source >= LoggerSource::debug)
         loglevel = LOG_DEBUG;
       else
         loglevel = LOG_INFO;
-      syslog(loglevel, "%s", message.c_str());
+      syslog(srec->syslog_flag, "%s", message.c_str());
       break;
     case LoggerDestination::file:
-      Helper::sendToLogfile(_filename[static_cast<int>(source)], message);
+      //  std::cerr << "Acesss filename = " << srec->filename << std::endl;
+        if(srec->outs == nullptr)
+            std::cerr << "log outs is nullptr";
+        else
+            Helper::sendToLogfile(srec->outs, message);
       break;
       case LoggerDestination::__Max_Value:
           break;
@@ -235,21 +249,27 @@ void Logger::sendMessage(const LoggerSource source, const std::string message){
 
 }
 void Logger::setDestination(const LoggerSource source, const LoggerDestination destination){
-  _destination[static_cast<int>(source)] = destination;
+  source_dests[static_cast<int>(source)].destination = destination;
 }
 void Logger::setFilename(const LoggerSource source, const std::string filename){
   std::string name;
 
-  if (filename.front() == '/')    // absolute path
-    name = filename;
-  else if (filename != "")       // relative to __LOGLOCATION
-    name = std::string(__LOGLOCATION) + filename;
-  else
-    name = "";
+  source_dests[static_cast<int>(source)].filename = "";  // clear current entry
 
-  if (Helper::testFile(name))
-    _filename[static_cast<int>(source)] = name;
-  else
-    _filename[static_cast<int>(source)] = "";
+    if (!filename.empty()) {
+        if (filename.front() == '/')    // absolute path
+            name = filename;
+        else        // relative to __LOGLOCATION
+            name = std::string(__LOGLOCATION) + filename;
+
+        std::ofstream *file_stream = new std::ofstream(name, std::ios::out | std::ios::app);
+        if (file_stream->fail()) {
+            std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)" << std::endl;
+            delete file_stream;
+            return;
+        }
+        source_dests[static_cast<int>(source)].filename = name;
+        source_dests[static_cast<int>(source)].outs = file_stream;
+    }
 }
 

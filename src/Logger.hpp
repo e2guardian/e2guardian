@@ -10,7 +10,9 @@
 #ifndef __HPP_LOGGING
 #define __HPP_LOGGING
 
+#include <vector>
 #include <sstream>
+#include <syslog.h>
 
 // only C++14 : using namespace std::string_literals;
 
@@ -85,11 +87,50 @@ class Logger
   };
 
   private:
+
+    struct source_rec {
+        bool enabled = false;
+        LoggerDestination destination = LoggerDestination::none;
+        std::string filename;
+        std::ostream *outs = nullptr;
+        int syslog_flag = LOG_INFO;
+        bool show_funct_line = false;
+        bool funct_line_last = true;
+        bool show_source_category = false;
+        bool show_thread_id = true;
+    };
+
+    source_rec source_dests[static_cast<int>(LoggerSource::__Max_Value)];
+
   std::string _logname;
 
-  bool _enabled[static_cast<int>(LoggerSource::__Max_Value)];
-  LoggerDestination _destination[static_cast<int>(LoggerSource::__Max_Value)];
-  std::string _filename[static_cast<int>(LoggerSource::__Max_Value)];
+  // arrays below replaced with array of source_rec
+  //bool _enabled[static_cast<int>(LoggerSource::__Max_Value)];
+  //LoggerDestination _destination[static_cast<int>(LoggerSource::__Max_Value)];
+  //std::string _filename[static_cast<int>(LoggerSource::__Max_Value)];
+
+    std::vector<LoggerSource> working_messages = {
+            LoggerSource::info,
+            LoggerSource::error,
+            LoggerSource::story,
+    };
+
+    std::vector<LoggerSource> working_logs = {
+            LoggerSource::access,
+            LoggerSource::debugrequest,
+    };
+
+    std::vector<LoggerSource> debug_messages = {
+            LoggerSource::trace,
+            LoggerSource::debug,
+            LoggerSource::debugchunk,
+            LoggerSource::debugclamav,
+            LoggerSource::debugicap,
+            LoggerSource::debugicapc,
+            LoggerSource::debugnet,
+            LoggerSource::debugregexp,
+            LoggerSource::debugsb,
+    };
 
   struct Helper;
 
@@ -108,9 +149,14 @@ extern Logger e2logger;
 #define E2LOGGER_error(...) \
   if (e2logger.isEnabled(LoggerSource::error)) \
      e2logger.vlog(LoggerSource::error,  __func__, __LINE__, __VA_ARGS__)
-#define E2LOGGER_access(...)  \
+
+#define E2LOGGER_access(STR)  \
   if (e2logger.isEnabled(LoggerSource::access)) \
-     e2logger.vlog(LoggerSource::access,  __func__, __LINE__, __VA_ARGS__)
+     e2logger.vlog(LoggerSource::access,  __func__, __LINE__, STR)
+#define E2LOGGER_debugrequest(...) \
+    if (e2logger.isEnabled(LoggerSource::debugrequest)) \
+      e2logger.vlog(LoggerSource::debugrequest,  __func__, __LINE__, __VA_ARGS__)
+
 #define E2LOGGER_config(...) \
   if (e2logger.isEnabled(LoggerSource::config)) \
      e2logger.vlog(LoggerSource::config,  __func__, __LINE__, __VA_ARGS__)
@@ -144,9 +190,6 @@ extern Logger e2logger;
   #define E2LOGGER_debugclamav(...) \
     if (e2logger.isEnabled(LoggerSource::debugclamav)) \
       e2logger.vlog(LoggerSource::debugclamav,  __func__, __LINE__, __VA_ARGS__)
-  #define E2LOGGER_debugrequest(...) \
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) \
-      e2logger.vlog(LoggerSource::debugrequest,  __func__, __LINE__, __VA_ARGS__)
 
 #else
   #define E2LOGGER_debug(...)

@@ -121,7 +121,7 @@
 // the values can get altered by outside influences, this is useful.
 //static volatile bool ttg = false;
 std::atomic<bool> ttg;
-std::atomic<bool> E2LOGGER_ttg;
+std::atomic<bool> e2logger_ttg;
 std::atomic<bool> gentlereload;
 //static volatile bool sig_term_killall = false;
 std::atomic<bool> reloadconfig ;
@@ -443,7 +443,8 @@ bool daemonise()
 // handle any connections received by this thread
 void handle_connections(int tindex)
 {
-    thread_id = "hw" + std::to_string(tindex);
+    (thread_id = "hw") += std::to_string(tindex) += ": ";
+
     try {
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
             ConnectionHandler h;    // the class that handles the connections
@@ -466,10 +467,10 @@ void handle_connections(int tindex)
                 ++dystat->conx;
 #ifdef E2DEBUG
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
+                E2LOGGER_debug("handle_peer returned: ", rc);
 #else
                 h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
 #endif
-                E2LOGGER_debug("handle_peer returned: ", String(rc));
 
                 --dystat->busychildren;
                 delete peersock;
@@ -661,10 +662,10 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         blank_str = "";
 
 
-    while (!E2LOGGER_ttg) { // loop, essentially, for ever
+    while (!e2logger_ttg) { // loop, essentially, for ever
         std::string loglines;
         loglines.append(log_Q->pop());  // get logdata from queue
-        if (E2LOGGER_ttg) break;
+        if (e2logger_ttg) break;
         E2LOGGER_debug("received a log request");
 
         // Formatting code migration from ConnectionHandler
@@ -1223,13 +1224,13 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
 
         continue; // go back to listening
     }
-    if( !E2LOGGER_ttg)
+    if( !e2logger_ttg)
         E2LOGGER_debug("log_listener exiting with error");
 
     } catch (...) {
         E2LOGGER_error("log_listener caught unexpected exception - exiting");
     }
-    if (!E2LOGGER_ttg) {
+    if (!e2logger_ttg) {
         E2LOGGER_error("log_listener exiting with error");
     } else if (o.logconerror) {
         E2LOGGER_error("log_listener exiting");
@@ -1313,7 +1314,7 @@ int fc_controlit()   //
     int rc;
     bool is_starting = true;
     ttg = false;
-    E2LOGGER_ttg = false;
+    e2logger_ttg = false;
     reloadconfig = false;
     gentlereload = false;
     reload_cnt = 0;
@@ -1717,7 +1718,7 @@ int fc_controlit()   //
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     //E2LOGGER_info("2nd wait complete");
-    E2LOGGER_ttg = true;
+    e2logger_ttg = true;
     std::string nullstr("");
     o.log_Q->push(nullstr);
     //if (o.log_requests) {
