@@ -3658,12 +3658,50 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
+#ifndef NEWDEBUG_OFF
+        if(o.myDebug->ICAP)
+        {
+            std::ostringstream oss (std::ostringstream::out);
+            int unrealgroup = filtergroup+1;
+            oss << thread_id << "filter group set from filtergroupslist: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
+            o.myDebug->Debug("ICAP",oss.str());
+        }
+#endif
+    } else {
+        oldclientuser = "user not known";
     }
+
     if (rc != E2AUTH_OK)
     {
+#ifndef NEWDEBUG_OFF
+        if(o.myDebug->ICAP)
+        {
+            std::ostringstream oss (std::ostringstream::out);
+            int unrealgroup = filtergroup+1;
+            oss << thread_id << "filter group NOT set from filtergroupslist: trying auth plugins"  << std::endl;
+            o.myDebug->Debug("ICAP",oss.str());
+        }
+#endif
+        persistent_authed = false;
         if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, checkme, true,
                     true)) {
+#ifndef NEWDEBUG_OFF
+            if(o.myDebug->ICAP)
+            {
+                std::ostringstream oss (std::ostringstream::out);
+                oss << thread_id << "error return from doAuth"  << std::endl;
+                o.myDebug->Debug("ICAP",oss.str());
+            }
+#endif
             //break;  // TODO Error return????
+        } else {
+#ifndef NEWDEBUG_OFF
+            if (o.myDebug->ICAP) {
+                std::ostringstream oss(std::ostringstream::out);
+                oss << thread_id << "OK return from doAuth" << std::endl;
+                o.myDebug->Debug("ICAP", oss.str());
+            }
+#endif
         }
         if (!(icaphead.username.empty() || icaphead.username == "-")) {
             checkme.user = icaphead.username;      // restore username if we had one from icap header
