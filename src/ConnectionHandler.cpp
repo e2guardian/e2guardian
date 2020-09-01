@@ -1473,7 +1473,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
     int code = (cm.response_header->returnCode());
     if (isnaughty) code = 403;
-    std::string mimetype = cm.mimetype;
+    std::string mimetype = cm.response_header->getContentType();
     bool wasinfected = cm.wasinfected;
     bool wasscanned = cm.wasscanned;
     int naughtiness = cm.naughtiness;
@@ -3190,9 +3190,12 @@ void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
 
 void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
                                       std::deque<CSPlugin *> &responsescanners) {
-    if (((cm.response_header->isContentType("text", ldl->fg[filtergroup]) ||
-          cm.response_header->isContentType("-", ldl->fg[filtergroup])) && !cm.isexception) ||
-        !responsescanners.empty()) {
+    if (!responsescanners.empty() ||
+        (
+                (cm.response_header->isContentType("text", ldl->fg[filtergroup]) ||
+                    cm.response_header->isContentType("-", ldl->fg[filtergroup])
+                ) && !cm.isexception
+        )) {
         cm.waschecked = true;
         if (!responsescanners.empty()) {
 #ifdef E2DEBUG

@@ -62,6 +62,6 @@ if(clientin,ipmap) return setgroup
 function(auth_port)
 if(listenportin,portmap) return setgroup
 
-function(auth_icap)  // non-plugin auth for ICAP - function name is hard-coded
+function(auth_icap)  # non-plugin auth for ICAP - function name is hard-coded
 if(userin,defaultusermap) return setgroup
 
