@@ -22,7 +22,7 @@ Package Docker Image Raspbian:
    - cd /builds/fredbcode/e2guardian   
    - ./autogen.sh
    - export 
-   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
+   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes --with-debug_high
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
    - find / -name ".git" -exec rm -r "{}" +

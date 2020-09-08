@@ -57,7 +57,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
         E2LOGGER_error("Storyboard file", filename, " is not defined");
         return false;
     }
-    E2LOGGER_trace("Reading storyboard file ", filename);
+    DEBUG_trace("Reading storyboard file ", filename);
 
     LMeta = &LM;
     std::string linebuffer; // a string line buffer ;)
@@ -88,7 +88,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             continue;
         }
 
-        E2LOGGER_debugsb("Readline ", linebuffer);
+        DEBUG_story("Readline ", linebuffer);
 
         line = linebuffer.c_str();
         line.removeWhiteSpace();
@@ -173,7 +173,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             funct_vec.push_back(curr_function);
     }
 
-    E2LOGGER_debug("Read storyboard file ", filename, " finished. ",
+    DEBUG_debug("Read storyboard file ", filename, " finished. ",
             " function vect size is ", String(funct_vec.size()),
             " is_top ", String(is_top) );
 
@@ -181,11 +181,11 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 
     // only do the 2nd pass once all file(s) have been read
     // in top file now do second pass to record action functions ids in command lines and add list_ids
-    E2LOGGER_trace("Read storyboard start 2nd pass checking");
+    DEBUG_trace("Read storyboard start 2nd pass checking");
 
     for (std::vector<SBFunction>::iterator i = funct_vec.begin(); i != funct_vec.end(); i++) {
         for (std::deque<SBFunction::com_rec>::iterator j = i->comm_dq.begin(); j != i->comm_dq.end(); j++) {
-            E2LOGGER_debugsb("Line ", String(j->file_lineno),
+            DEBUG_story("Line ", String(j->file_lineno),
                         " state is ", String(j->state),
                         " actionid ", String(j->action_id),
                         " listname ", j->list_name,
@@ -249,7 +249,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     ListMeta::list_info listi;
                     if (listiptr) {
                         listi = *listiptr;
-                        E2LOGGER_debugsb("SB list reference ", String(listi.list_ref),
+                        DEBUG_story("SB list reference ", String(listi.list_ref),
                                     " '", listi.name, "' found for ", j->list_name);
 
                         if (listi.name.length()) {
@@ -263,11 +263,11 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 }
                 if (!found) {
                     // warning message
-                    E2LOGGER_debugsb("SB warning: Undefined list ", j->list_name,
+                    E2LOGGER_error("SB warning: Undefined list ", j->list_name,
                                 " used at line ", j->file_lineno,
                                 " of ", i->file_name, " (", filename, ")");
                 } else {
-                    E2LOGGER_debugsb("SB ", j->list_name, " matches ", String(j->list_id_dq.size()), " types");
+                    DEBUG_story("SB ", j->list_name, " matches ", String(j->list_id_dq.size()), " types");
                 }
 
             }
@@ -279,7 +279,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                             " at line ", String(j->file_lineno),
                             " of ", i->file_name);
             }
-            E2LOGGER_debugsb("Line ", String(j->file_lineno),
+            DEBUG_story("Line ", String(j->file_lineno),
                         " state is ", String(j->state),
                         " actionid ", String(j->action_id),
                         " listname ", j->list_name);
@@ -290,7 +290,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 
     for (std::vector<ListMeta::list_info>::iterator j = LMeta->list_vec.begin(); j != LMeta->list_vec.end(); j++) {
         if (!j->used) {
-            E2LOGGER_debugsb("SB warning: Defined list ", LMeta->list_type(j->type), ":", j->name, " is not referenced in the storyboard ", filename);
+            E2LOGGER_error("SB warning: Defined list ", LMeta->list_type(j->type), ":", j->name, " is not referenced in the storyboard ", filename);
         }
     }
 
@@ -323,8 +323,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     SBFunction *F = &(funct_vec[fID]);
     bool action_return = false;
 
-    E2LOGGER_story("SB:Entering ", F->getName(),
-                    " line: ", String(F->file_lineno), " of ", F->file_name );
+    E2LOGGER_storytrace("SB:Entering ", F->getName(),
+                    " line: ", F->file_lineno, " of ", F->file_name );
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
         bool isListCheck = false;
@@ -483,7 +483,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
         }
 
-        E2LOGGER_debugsb("SB-Test  ",
+        DEBUG_story("SB-Test  ",
                     " state: ", F->getState(i->state),
                     " target: ", target,
                     " target2: ", target2,
@@ -493,14 +493,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     " state_result: ", String(state_result));
 
         if (isHeaderCheck) {
-            E2LOGGER_trace("HeaderCheck");
+            DEBUG_trace("HeaderCheck");
             for (std::deque<String>::iterator u = targetheader->header.begin();
                  u != targetheader->header.end(); u++) {
                // String t = *u;
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {
                     ListMeta::list_result res;
-                    E2LOGGER_debugsb("checking ", j->name, " type ", j->type);
+                    DEBUG_story("checking ", j->name, " type ", j->type);
 
                     if (LMeta->inList(*j, *u, res)) {  //found
                         state_result = true;
@@ -517,7 +517,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             if (res.anon_log)
                                 cm.anon_log = true;
                         }
-                        E2LOGGER_debugsb("SB lc", cm.lastcategory, " mess_no ", cm.message_no, 
+                        DEBUG_story("SB lc", cm.lastcategory, " mess_no ", cm.message_no,
                                     " log_mess ", cm.log_message_no, " match ",res.match);
                         break;
                     }
@@ -527,7 +527,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             }
         }
         if (isListCheck) {
-            E2LOGGER_debugsb("ListCheck:", i->list_name, " size:", i->list_id_dq.size());
+            DEBUG_story("ListCheck:", i->list_name, " size:", i->list_id_dq.size());
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
                 ListMeta::list_result res;
                 String t;
@@ -538,7 +538,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 } else {
                     t = target;
                 }
-                E2LOGGER_debugsb("ListCheck ", j->name, "(type ", j->type, ")", " for ", t );
+                DEBUG_story("ListCheck ", j->name, "(type ", j->type, ")", " for ", t );
                 if (cm.issiteonly && (j->type == LIST_TYPE_URL || j->type == LIST_TYPE_FILE_EXT))
                    continue;
                 if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
@@ -546,7 +546,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
                     continue;
 
-                // E2LOGGER_debugsb("checking ", j->name, " type ", String(j->type));
+                // DEBUG_story("checking ", j->name, " type ", String(j->type));
 
                 if (LMeta->inList(*j, t, res)) {  //found
                     state_result = true;
@@ -561,15 +561,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.anon_log = true;
                     }
 
-                    E2LOGGER_debugsb("ListCheck lc", cm.lastcategory, " mess_no ", cm.message_no,
+                    DEBUG_story("ListCheck lc", cm.lastcategory, " mess_no ", cm.message_no,
                                     " log_mess ", cm.log_message_no, " match ", res.match);
                     break;
                 }
             }
-            E2LOGGER_debug("ListCheck:", i->list_name, " NOT FOUND");
+            DEBUG_debug("ListCheck:", i->list_name, " NOT FOUND");
         }
         if (isMultiListCheck && !state_result) {
-            E2LOGGER_trace("MultiListCheck");
+            DEBUG_trace("MultiListCheck");
             for (std::deque<url_rec>::iterator u = targetdq.begin(); u != targetdq.end(); u++) {
 
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
@@ -590,7 +590,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
                         continue;
 
-                    E2LOGGER_debugsb("checking ", j->name, " type ", j->type, "Target ", t);
+                    DEBUG_story("checking ", j->name, " type ", j->type, "Target ", t);
                     if (LMeta->inList(*j, t, res)) {  //found
                         state_result = true;
                         if (i->isif) {
@@ -604,7 +604,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                                 cm.anon_log = true;
                         }
 
-                        E2LOGGER_debugsb("SB lc", cm.lastcategory, " mess_no ", cm.message_no, " log_mess ",
+                        DEBUG_story("SB lc", cm.lastcategory, " mess_no ", cm.message_no, " log_mess ",
                                   cm.log_message_no, " match ", res.match);
                         break;
                     }
@@ -615,7 +615,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (!i->isif) {
             state_result = !state_result;
         }
-        E2LOGGER_debugsb("SB-Result",
+        DEBUG_story("SB-Result",
                     " state: ", F->getState(i->state),
                     " target: ", target,
                     " target2: ", target2,
@@ -624,10 +624,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     " isSearch: ", String(cm.isSearch),
                     " state_result: ", String(state_result));
 
-        E2LOGGER_story("  SB-Result: Line", String(i->file_lineno),
+        E2LOGGER_storytrace("SB: ", i->file_lineno,
                         ( i->isif ? " if(" : " ifnot(" ),
                         F->getState(i->state), ",",        
-                        i->list_name, ") returns ",
+                        i->list_name, ") is ",
                         (state_result ? "true" : "false" ) );
 
         if (!state_result) {
@@ -642,7 +642,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (i->mess_no > 0) cm.message_no = i->mess_no;
         if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
 
-        E2LOGGER_debugsb("ACTION ",
+        DEBUG_story("ACTION ",
                     " lc: ", cm.lastcategory,
                     " mess_no: ", String(cm.message_no),
                     " log_mess: ", String(cm.log_message_no),
@@ -695,13 +695,13 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.urldomain = cm.url.getHostname();
                     cm.urldomain.toLower();
                     cm.connect_site = cm.urldomain;                    
-                    E2LOGGER_story("SB: URL modified to ", cm.url);                    
+                    DEBUG_story("SB: URL modified to ", cm.url);                    
                     break;
                 case SB_FUNC_SETCONNECTSITE:
                     cm.urlmodified = true;
                     cm.logurl = cm.result;
                     cm.connect_site = cm.result.getHostname();
-                    E2LOGGER_story("SB: connect site changed to ", cm.connect_site);                    
+                    DEBUG_story("SB: connect site changed to ", cm.connect_site);                    
                     break;
                 case SB_FUNC_SETLOGCAT:
                     cm.logcategory = true;
@@ -804,12 +804,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     break;
             }
-            E2LOGGER_story("SB-ACTION: ", F->name, " : ", F->getBIFunct(i->action_id), " ", (action_return? "true" : "false" ));
+           // DEBUG_story("SB-ACTION: ", F->name, " : ", F->getBIFunct(i->action_id), " ", (action_return? "true" : "false" ));
         } else {      // is SB defined function
 
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id, cm);
-                E2LOGGER_story("SB:resuming: ", F->name);
+                E2LOGGER_storytrace("SB:Resuming ", F->name, " in ", F->file_name );
             }
 
         }
@@ -820,7 +820,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             break;
     }
 
-    E2LOGGER_story( "SB:Leaving ", F->getName(), " returned ", (action_return ? "true" : "false"));
+    E2LOGGER_storytrace( "SB:Exiting ", F->getName(), " returned ", (action_return ? "true" : "false"));
 
     return action_return;
 }
@@ -834,7 +834,7 @@ bool StoryBoard::setEntry(unsigned int index, String fname) {
 };
 
 bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
-    E2LOGGER_trace("");
+    DEBUG_trace("");
     cm.isdone = false;   // only has logical scope for a single call
     if (entrys[index] > 0)
         return runFunct(entrys[index], cm);

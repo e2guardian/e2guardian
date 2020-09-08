@@ -105,7 +105,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         // parse line
         String t;
         t = list[i];
-        E2LOGGER_debug("reading ", t);
+        DEBUG_debug("reading ", t);
         String nm, fpath, pwd;
         bool anonlog = o.anonymise_logs;
         bool sitewild = true;
@@ -152,7 +152,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
             rec.log_mess_no = m_no;
         }
 
-        E2LOGGER_debug("List name = ", nm, " m_no=", m_no, " log_m_no=", rec.log_mess_no, " path=", fpath);
+        DEBUG_debug("List name = ", nm, " m_no=", m_no, " log_m_no=", rec.log_mess_no, " path=", fpath);
 
         switch (method_type) {
             case LIST_METHOD_IP:
@@ -249,15 +249,15 @@ ListMeta::list_info ListMeta::findList(String name, int tp) {
 ListMeta::list_info *ListMeta::findListPtr(String name, int tp) {
     list_info *t = nullptr;
     unsigned int type = (unsigned int) tp;
-    //E2LOGGER_debug("Looking for ", name, " type ", type, " in listmeta");
+    //DEBUG_debug("Looking for ", name, " type ", type, " in listmeta");
     for (std::vector<struct list_info>::iterator i = list_vec.begin(); i != list_vec.end(); i++) {
         if (i->name == name && i->type == type) {
-            //E2LOGGER_debug("Found ", i->name, " type ", i->type, " in listmeta");
+            //DEBUG_debug("Found ", i->name, " type ", i->type, " in listmeta");
             t = &(*i);
             return t;
         }
     }
-    //E2LOGGER_debug("Not Found ", name, " type ", type, " in listmeta");
+    //DEBUG_debug("Not Found ", name, " type ", type, " in listmeta");
     return t;
 }
 
@@ -455,7 +455,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
 // sort using startsWith or endsWith depending on sortsw, and create a cache file if desired.
 // listname is used in error messages.
 bool ListMeta::readFile(const char *filename, const char *pwd, unsigned int *whichlist, bool sortsw, const char *listname, bool isip, bool istime, bool ismap) {
-    E2LOGGER_config("read File: ", filename);
+    DEBUG_config("read File: ", filename);
     if (strlen(filename) < 3) {
         E2LOGGER_error("Required Listname ", listname, " is not defined");
         return false;
@@ -520,7 +520,7 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     unsigned int fl;
     char *i;
     String foundurl;
-    E2LOGGER_debug("inURLList: ", url);
+    DEBUG_debug("inURLList: ", url);
 //    url.removeWhiteSpace(); // just in case of weird browser crap
 //    url.toLower();
 //    url.removePTP(); // chop off the ht(f)tp(s)://
@@ -536,15 +536,15 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
         url.chop(); // chop off trailing / if any
     }
 
-    E2LOGGER_debug("inURLList (processed): ", url);
+    DEBUG_debug("inURLList (processed): ", url);
 
         while (url.before("/").contains(".")) {
             i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
             if (i != NULL) {
                 foundurl = i;
                 fl = foundurl.length();
-                E2LOGGER_debug("foundurl: ", foundurl, foundurl.length());
-                E2LOGGER_debug("url: ", url, fl);
+                DEBUG_debug("foundurl: ", foundurl, foundurl.length());
+                DEBUG_debug("url: ", url, fl);
                 if (url.length() > fl) {
                     if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
                         return i; // matches /blah/ or /blah/foo but not /blahfoo
@@ -664,7 +664,7 @@ bool ListMeta::readRegExReplacementFile(const char *filename, const char *list_p
 int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref,
                               unsigned int list, String &lastcategory) {
 
-    E2LOGGER_debugregexp("inRegExpURLList: ", urlin);
+    DEBUG_regexp("inRegExpURLList: ", urlin);
     // check parent list's time limit
     if (o.lm.l[list]->isNow()) {
         RegResult Rre;
@@ -691,7 +691,7 @@ int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std:
 // re-add the PTP
 /*if (ptp.length() > 0)
 			url = ptp + "//" + url;*/
-        E2LOGGER_debugregexp("inRegExpURLList (processed): ", url);
+        DEBUG_regexp("inRegExpURLList (processed): ", url);
         unsigned int i = 0;
         for (std::deque<RegExp>::iterator j = list_comp.begin(); j != list_comp.end(); j++) {
             if (o.lm.l[list_ref[i]]->isNow()) {
@@ -699,12 +699,12 @@ int ListMeta::inRegExpURLList(String &urlin, std::deque<RegExp> &list_comp, std:
                     return i;
             }
             else
-                E2LOGGER_debugregexp("Outside included regexp list's time limit");
+                DEBUG_regexp("Outside included regexp list's time limit");
             i++;
         }
     }
     else {
-        E2LOGGER_debugregexp("Outside top level regexp list's time limit");
+        DEBUG_regexp("Outside top level regexp list's time limit");
     }
     return -1;
 }
@@ -782,7 +782,7 @@ bool ListMeta::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<
             if (srcoff < oldlinelen) {
                 newLine += line.subString(srcoff, oldlinelen - srcoff);
             }
-            E2LOGGER_debugregexp("Line modified! (", line, " -> ", newLine, ")" );
+            DEBUG_regexp("Line modified! (", line, " -> ", newLine, ")" );
             // copy newLine into line and continue with other regexes
             line = newLine;
             linemodified = true;
@@ -799,7 +799,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
         return false;
     bool result = false;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-        E2LOGGER_debugregexp("Starting header reg exp replace: ", *i);
+        DEBUG_regexp("Starting header reg exp replace: ", *i);
         bool chop = false;
         if (i->endsWith("\r")) {
             i->chop();
@@ -811,7 +811,7 @@ bool ListMeta::headerRegExpReplace(ListMeta::list_info &listi, std::deque<String
     }
 
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++)
-        E2LOGGER_debugregexp("Starting header reg exp replace result: ", *i);
+        DEBUG_regexp("Starting header reg exp replace result: ", *i);
 
     return result;
 }
@@ -822,7 +822,7 @@ int ListMeta::inHeaderRegExp(list_info &listi, std::deque<String> &header, list_
         return false;
     int result = -1;
     for (std::deque<String>::iterator i = header.begin(); i != header.end(); i++) {
-        E2LOGGER_debugregexp("Starting header reg exp check ", *i);
+        DEBUG_regexp("Starting header reg exp check ", *i);
         bool chop = false;
         if (i->endsWith("\r")) {
             i->chop();

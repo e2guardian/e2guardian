@@ -79,23 +79,6 @@ READABLE THREAD_ID FOR LOGS & DEBUG
     hw10: for http_worker threads where '10' is the thread number
 
     log: for logging thread for access.log
-
-REVISED DEBUG STAGE 1
-
-    The following low level debugs are no longer enabled by E2DEBUG:
-
-    Network sockets - use NETDEBUG instead
-
-    Regular expressions - use REDEBUG instead
-
-    This reduces the volume of information and makes the debug
-    log easier to read.
-
-REVISED DEBUG STAGE 2
-
-    New debuglevel option in e2guardian.conf.  Allows some debuging on
-    production systems.   Currently just for ICAP and CLAMAV.  Will be
-    extended to other sections of code in future releases.
     
 HTTP/1.1
 
@@ -128,9 +111,8 @@ lists to be loaded via stdin.  See notes/lists_via_stdin.
 
 OPENSSL v1.1 SUPPORT
 
-    Supports OpenSSL v1.1 as well as v1.0.2 or above
-    Note: Support for pre v1.1 OpenSSL versions is depreciated and will 
-          be withdrawn in v5.5.
+    Supports OpenSSL v1.1 
+    Note: Support for pre v1.1 OpenSSL versions is withdrawn in v5.5.
 
 % OPTION FOR PHRASE LISTS
 
@@ -174,6 +156,26 @@ As each group's lists are now in a different directory
 the e2guardianf1.conf files will be able to be copied into a new group .conf 
 with minimal changes.
 
+NEW LOGGER and DEBUG system for logging, messages and debuging.
+
+Thanks to KDGunermann for all his work on this!
+
+This replaces the legacy and 'NEWDEBUG' with a unified logging system.
+
+Note that the --with-e2debug configure option is replaceed by two debug 'levels'
+--with-debug_high intended for high level debuging (similar to NEWDEBUG, but covering the whole
+product)
+ and --with-debug_low for low level code debuging
+
+See notes/HOWTO_Logger.md and example e2guardian.conf for more details
+
+LOG ROTATION
+
+New command line option -t for log rotation
+
+See notes/rotating_logs for more details
+ 
+
 TESTING -  
 ---------
 
@@ -186,13 +188,11 @@ TO DO IN THIS RELEASE
 
     Reduce unnecessary memory usage on in DataBuffer & DMplugins - complete
 
-    Integrate DMplugins with storyboards for plugin match.
+    Integrate DMplugins with storyboards for plugin match. - in progress
 
-    Re-implement fancy download manager
+    Re-implement fancy download manager - in progress
 
-    Option for output file for storyboard trace
-
-    Revised 'Logger' system for debugging (by KDGunermann).
+    Option for output file for storyboard trace - complete as part of Logger
 
     Create 'output-filter' plug-in system for content modification
 
@@ -209,8 +209,7 @@ TODO - for later releases.
     Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
         no log option)
 
-    Remove duplicate list/storyboard warnings with a DRY system and add no warn
-        option.
+    Remove duplicate list/storyboard warnings with a DRY system.
 
 
 WISHLIST
@@ -236,6 +235,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 10th August 2020
+Philip Pearce 8th September 2020
 
 

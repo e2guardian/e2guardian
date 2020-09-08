@@ -1,0 +1,20 @@
+Rotating Logs - new in v5.5
+
+A new -t option for e2guardian will now rotate the logs (access, request and dstat).
+
+The existing log will be linked to logname.old.  If this is successful then the existing logfilename will be unlinked, the log file closed and then reopened.
+
+Note that in order to avoid any thread conflict this is performed at the next entry to be output to the log.  It can be a period of time before this occured ( 5 mins or more for dstat ).
+
+The logname.old should be moved by the calling script as any further rotate call will fail if the 
+.old file is still present.
+
+So script logic is:-
+
+cd $LOGDIR
+e2guardian -t
+sleep 320   // wait for next dstats entry - can be over 5 mins
+mv access.log.old $LOGSTOREDIR  // or gzip etc
+mv dstats.log.old $LOGSTOREDIR
+
+

@@ -1,0 +1,73 @@
+README for lists/common directory
+
+### Lists held in this directory:-
+
+## Lists defined in e2guardian.conf
+
+# Sites that are impossible or undesirable to MITM
+#
+nomitmsitelist
+nomitmsiteiplist
+
+
+# Banned clients
+#
+bannediplist
+# ONLY for banned client IP
+#
+exceptioniplist
+# ONLY for exception client IP
+#
+bannedclientlist
+# Put client dns names in bannedclientlist if required
+exceptionclientlist
+# Put client dns names in exceptionclientlist if required
+
+# Auth exceptions
+# Target Sites/Urls allowed before authentication
+# to allow for machines to update without user authentication
+#
+authexceptioniplist
+authexceptionsitelist
+authexceptionurllist
+
+browserregexpboollist
+#
+# List of regexp that match match User-agent of browsers
+# Used to determine if client is a browser
+# and decide whether to send a block page or go MITM
+
+
+## Lists common to all groups (defined in e2guardianfn.conf)
+
+
+# Embeded referer
+# Some sites have the referering url in their url. Put these url in these
+# lists and e2g will extract the embeded url and then check this againist
+# the refererexception lists.
+# For best results be as specific as possible
+embededreferersitelist
+embededreferersiteiplist
+embededrefererurllist
+
+# Nolog lists
+# Do not log sites/urls/ext
+# Useful to prevent requests not made by user directly being logged
+# Makes logs more readable
+nologsitelist
+nologsiteiplist
+nologurllist
+nologregexpurllist
+nologextensionlist
+
+# Search engine regular expression list 
+# List of regular expressions for matching search engine URLs.  It is assumed
+# that the search terms themselves will be contained in the
+# of output of each expression.
+searchregexplist
+#
+# search engine regexp exception (overide) list
+# Used to prevent urls such os completetion suggestion requests from being detected
+# as search requests
+searchexceptionregexplist
+

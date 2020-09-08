@@ -651,11 +651,12 @@ String String::sort_search()
         if ( j < ln) ind[j++] = 0;
         i++;
     };
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
     int k = 0;
     while (k <= c)
         {
-        std::cerr << thread_id << "Search word " << k << " is " << p[k] << std::endl;
+//        std::cerr << thread_id << "Search word " << k << " is " << p[k] << std::endl;
+        DEBUG_debug("Search word ", k, " is ", p[k]);
         k++;
         }
 #endif
@@ -676,11 +677,12 @@ String String::sort_search()
             j++;
         };
     };
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
     k = 0;
     while (k <= c)
         {
-        std::cerr << thread_id << "Search word after sort" << k << " is " << p[k] << std::endl;
+        //std::cerr << thread_id << "Search word after sort" << k << " is " << p[k] << std::endl;
+        DEBUG_debug("Search word after sort", k, " is ", p[k]);
         k++;
         }
 #endif
@@ -693,7 +695,7 @@ String String::sort_search()
         else
            ret = ret + "+" + p[j++];
     }
-    E2LOGGER_debug("Search words after sort are ", ret);
+    DEBUG_debug("Search words after sort are ", ret);
    // delete [] temp;
     return ret;
 };

@@ -13,18 +13,25 @@
 #include "Logger.hpp"
 #include "String.hpp"
 
-class LoggerConfigurator{
-  public:
-  LoggerConfigurator(Logger* logger);
-  ~LoggerConfigurator();
+class LoggerConfigurator {
+public:
+    LoggerConfigurator(Logger *logger);
 
-  const static String Prefix;
+    ~LoggerConfigurator();
 
-  // option: log_{source}={output}[, filename]
-  void configure(const std::string option);
+    const static String Prefix;
 
-  private:
-  Logger* _logger;
+    // option: log_{source}={output}[, filename]
+    bool configure(const std::string option);
+    bool configure(LoggerSource source, const std::string option);
+
+    // debuglevel option  debuglevel = 'ALL,-ICAP:destination:file
+    bool debuglevel(const std::string option);
+
+    void debugformat(int fmt);
+
+private:
+    Logger *_logger;
 
 };
 

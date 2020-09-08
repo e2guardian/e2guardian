@@ -1,5 +1,19 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.5.0
+
+March to September 2020
+
+New features
+  Log rotation
+  New Logger/Debug integrated from coding by KDGundermann 
+  IO (normal and MITM ssl) rewritten to be non-blocking 
+	- timeouts now honored when in MITM mode
+	- faster throughput - less io system calls
+	- full double-buffered duplex tunneling
+  Removal of support for pre v1.1 OpenSSL versions
+  Much code tidying
+
 version 5.4.2
 
 April to August 2020

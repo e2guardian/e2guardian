@@ -47,6 +47,7 @@ class OptionContainer
     bool config_error = false;
     bool non_standard_delimiter;
     int log_file_format = 0;
+    int debug_format = 1;
     std::string log_header_value;
     std::string ident_header_value;
     int weighted_phrase_mode = 0; // PIP added in - not sure if still required
@@ -63,7 +64,6 @@ class OptionContainer
     bool use_xforwardedfor = false;
     std::deque<String> xforwardedfor_filter_ip;
     bool logconerror = false;
-    bool logchildprocs = false;
     bool log_ssl_errors = false;
     bool log_client_host_and_ip = false;
     int url_cache_number = 0;
@@ -150,8 +150,8 @@ class OptionContainer
     std::string logid_2;
 
     bool no_daemon = false;
-    bool no_logger = false;
-    bool log_syslog = false;
+ //  bool no_logger = false;
+ //   bool log_syslog = false;
     std::string name_suffix;
     unsigned int max_logitem_length = 2000;
     bool anonymise_logs = false;

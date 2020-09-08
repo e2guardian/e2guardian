@@ -47,7 +47,7 @@ int ListManager::findNULL()
 {
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] == NULL) {
-            E2LOGGER_debug("found free list:", std::to_string(i));
+            DEBUG_debug("found free list:", std::to_string(i));
             // std::cerr << thread_id << "found free list:" << i << std::endl;
             return (signed)i;
         }
@@ -61,7 +61,7 @@ void ListManager::garbageCollect()
     for (unsigned int i = 0; i < l.size(); i++) {
         if (l[i] != NULL) {
             if ((*l[i]).refcount < 1) {
-                E2LOGGER_debug("deleting zero ref list: ", String(i), " ",  String(l[i]->refcount) );
+                DEBUG_debug("deleting zero ref list: ", String(i), " ",  String(l[i]->refcount) );
                 delete l[i];
                 l[i] = NULL;
             }
@@ -80,7 +80,7 @@ void ListManager::deRefList(size_t i)
 void ListManager::refList(size_t i)
 {
     l[i]->refcount++;
-    E2LOGGER_debug("referencing list ref: ", String(i),
+    DEBUG_debug("referencing list ref: ", String(i),
                  ", refcount: ", String(l[i]->refcount),
                  " (", l[i]->sourcefile, ")" );
 
@@ -98,7 +98,7 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
         if ((*l[i]).previousUseItem(filename, startswith, filters)) {
             // this upToDate check also checks all .Included files
             if ((*l[i]).upToDate()) {
-                E2LOGGER_debug("Using previous item: ", String(i), " ", filename);
+                DEBUG_debug("Using previous item: ", String(i), " ", filename);
                 refList(i);
                 return i;
             }
@@ -170,7 +170,7 @@ int ListManager::newPhraseList(const char *exception, const char *banned, const 
 //so when phrases read in in list container it needs to store
 //all the file names and if a single one has changed needs a
 //complete regenerate
-                E2LOGGER_debug("Using previous phrase: ", exception, " - ", banned, " - ", weighted);
+                DEBUG_debug("Using previous phrase: ", exception, " - ", banned, " - ", weighted);
                 refList(i);
                 return i;
             }
@@ -205,7 +205,7 @@ bool ListManager::readbplfile(const char *banned, const char *exception, const c
 //        return false;
     }
     if (!(*l[res]).used) {
-        E2LOGGER_debug("Reading new phraselists");
+        DEBUG_debug("Reading new phraselists");
 
         bool result = (*l[res]).readPhraseList(exception, true);
         if (!result) {

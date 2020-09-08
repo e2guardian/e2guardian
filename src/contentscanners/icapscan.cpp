@@ -127,7 +127,7 @@ int icapinstance::init(void *args)
     }
     icapip = inet_ntoa(*(struct in_addr *)host->h_addr_list[0]);
 
-    E2LOGGER_debugicapc("ICAP server is ", icapip );
+    DEBUG_avscan("ICAP server is ", icapip );
 
     // try to connect to the ICAP server and perform an OPTIONS request
     Socket icapsock;
@@ -143,7 +143,7 @@ int icapinstance::init(void *args)
         icapsock.getLine(buff, 8192, o.content_scanner_timeout);
         line = buff;
 
-        E2LOGGER_debugicapc("ICAP/1.0 OPTIONS response: ", line);
+        DEBUG_avscan("ICAP/1.0 OPTIONS response: ", line);
 
         if (line.after(" ").before(" ") != "200") {
             E2LOGGER_error("ICAP response not 200 OK");
@@ -176,7 +176,7 @@ int icapinstance::init(void *args)
                     supportsXIF = true;
                 }
 
-            E2LOGGER_debugicapc("ICAP/1.0 OPTIONS response part: ", line);
+            DEBUG_avscan("ICAP/1.0 OPTIONS response part: ", line);
         }
         icapsock.close();
     } catch (std::exception &e) {
@@ -185,9 +185,9 @@ int icapinstance::init(void *args)
     }
 
     if (usepreviews){
-        E2LOGGER_debugicapc( "Message previews enabled; size: ", previewsize);
+        DEBUG_avscan( "Message previews enabled; size: ", previewsize);
     } else {
-        E2LOGGER_debugicapc("Message previews enabled; size: disabled");
+        DEBUG_avscan("Message previews enabled; size: disabled");
     }	
 
     return E2CS_OK;
@@ -208,7 +208,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
     }
 
     if (usepreviews && (objectsize > previewsize)){
-        E2LOGGER_debugicapc("Sending memory date to icap preview first");
+        DEBUG_avscan("Sending memory date to icap preview first");
     }	
 
     unsigned int sent = 0;
@@ -233,7 +233,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             icapsock.writeString(objectsizehex);
         } catch (std::exception &e) {
 
-            E2LOGGER_debugicapc("Exception sending message preview to ICAP: ", e.what());
+            DEBUG_avscan("Exception sending message preview to ICAP: ", e.what());
 	        // this *might* just be an early response & closed connection
             if (icapsock.checkForInput()) {
                 int rc = doScan(icapsock, docheader, object, objectsize, checkme);
@@ -249,15 +249,15 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
     try {
         if(icapsock.writeToSocket(object + sent, objectsize - sent, 0, o.content_scanner_timeout)) {
 
-            E2LOGGER_debugicapc("total sent to icap: ", objectsize);
+            DEBUG_avscan("total sent to icap: ", objectsize);
 
 	        icapsock.writeString("\r\n0\r\n\r\n"); // end marker
-            E2LOGGER_debugicapc("memory was sent to icap");
+            DEBUG_avscan("memory was sent to icap");
 
     	}
     } catch (std::exception &e) {
 
-        E2LOGGER_debugicapc("Exception sending memory file to ICAP: ", e.what());
+        DEBUG_avscan("Exception sending memory file to ICAP: ", e.what());
 
         // this *might* just be an early response & closed connection
         if (icapsock.checkForInput()) {
@@ -283,7 +283,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     int filefd = open(filename, O_RDONLY);
     if (filefd < 0) {
 
-        E2LOGGER_debugicapc("Error opening file (", filename, "): ", strerror(errno));
+        DEBUG_avscan("Error opening file (", filename, "): ", strerror(errno));
 
 	    lastmessage = "Error opening file to send to ICAP";
         E2LOGGER_error(lastmessage, strerror(errno));
@@ -305,7 +305,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     char *object = new char[100];
     int objectsize = 0;
 
-    E2LOGGER_debugicapc("About to send file data to icap");
+    DEBUG_avscan("About to send file data to icap");
 
     if (usepreviews && (filesize > previewsize)) {
         try {
@@ -348,7 +348,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     	    icapsock.close();
             lastmessage = "Exception sending message preview to ICAP";
             E2LOGGER_error(lastmessage, e.what());
-            E2LOGGER_debugicapc(lastmessage, e.what());
+            DEBUG_avscan(lastmessage, e.what());
             delete[] data;
             close(filefd);
             // this *might* just be an early response & closed connection
@@ -367,13 +367,13 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     try {
         while (sent < filesize) {
             int rc = read(filefd, data, 256 * 1024);
-            E2LOGGER_debugicapc("reading icap file rc: ", rc);
+            DEBUG_avscan("reading icap file rc: ", rc);
             if (rc < 0) {
-            	E2LOGGER_debugicapc("error reading icap file so throwing exception");
+            	DEBUG_avscan("error reading icap file so throwing exception");
                 throw std::runtime_error("could not read from file");
             }
             if (rc == 0) {
-                E2LOGGER_debugicapc("got zero bytes reading icap file");
+                DEBUG_avscan("got zero bytes reading icap file");
                 break; // should never happen
             }
             memcpy(object + objectsize, data, (rc > (100 - objectsize)) ? (100 - objectsize) : rc);
@@ -384,15 +384,15 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             sent += rc;
         }
 
-        E2LOGGER_debugicapc("total sent to icap: ", sent);
+        DEBUG_avscan("total sent to icap: ", sent);
 
         icapsock.writeString("\r\n0\r\n\r\n"); // end marker
 
-        E2LOGGER_debugicapc("file was sent to icap");
+        DEBUG_avscan("file was sent to icap");
 
     } catch (std::exception &e) {
 
-        E2LOGGER_debugicapc( "Exception sending file to ICAP: ", e.what());
+        DEBUG_avscan( "Exception sending file to ICAP: ", e.what());
         lastmessage = "Exception sending file to ICAP";
         E2LOGGER_error(lastmessage, e.what());
         delete[] data;
@@ -416,7 +416,7 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
     int rc = icapsock.connect(icapip.toCharArray(), icapport);
     if (rc) {
 	    lastmessage = "Error connecting to ICAP server";
-        E2LOGGER_debugicapc(lastmessage);
+        DEBUG_avscan(lastmessage);
         E2LOGGER_error(lastmessage);
         return false;
     }
@@ -447,7 +447,7 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
     }
     icapheader += "\r\n\r\n";
 
-    E2LOGGER_debugicapc("About to send icapheader:\n", icapheader, encapsulatedheader, httpresponseheader, objectsizehex);
+    DEBUG_avscan("About to send icapheader:\n", icapheader, encapsulatedheader, httpresponseheader, objectsizehex);
 
     try {
         icapsock.writeString(icapheader.toCharArray());
@@ -457,7 +457,7 @@ bool icapinstance::doHeaders(Socket &icapsock, HTTPHeader *reqheader, HTTPHeader
     } catch (std::exception &e) {
         
 	    lastmessage = "Exception sending headers to ICAP";
-        E2LOGGER_debugicapc(lastmessage, e.what());
+        DEBUG_avscan(lastmessage, e.what());
         E2LOGGER_error(lastmessage, e.what());
         return false;
     }
@@ -474,7 +474,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
         if (rc == 0)
             return ICAP_NODATA;
         line = data;
-        E2LOGGER_debugicapc("reply from icap: ", line);
+        DEBUG_avscan("reply from icap: ", line);
 
 	    // reply is of the format:
         // ICAP/1.0 204 No Content Necessary (etc)
@@ -482,12 +482,12 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
         String returncode(line.after(" ").before(" "));
 
         if (returncode == "204") {
-            E2LOGGER_debugicapc("ICAP says clean!");
+            DEBUG_avscan("ICAP says clean!");
 	        delete[] data;
            return E2CS_CLEAN;
         } else if (returncode == "100") {
 
-            E2LOGGER_debugicapc("ICAP says continue!");
+            DEBUG_avscan("ICAP says continue!");
 
             // discard rest of headers (usually just a blank line)
             // this is so we are in the right place in the data stream to
@@ -502,7 +502,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             return ICAP_CONTINUE;
         } else if (returncode == "200") {
 
-            E2LOGGER_debugicapc("ICAP says maybe not clean!");
+            DEBUG_avscan("ICAP says maybe not clean!");
 
 	        while (icapsock.getLine(data, 8192, o.content_scanner_timeout) > 0) {
                 if (data[0] == 13) // end marker
@@ -510,7 +510,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 line = data;
                 // Symantec's engine gives us the virus name in the ICAP headers
                 if (supportsXIF && line.startsWith("X-Infection-Found")) {
-                    E2LOGGER_debugicapc("ICAP says infected! (X-Infection-Found)");
+                    DEBUG_avscan("ICAP says infected! (X-Infection-Found)");
 		            lastvirusname = line.after("Threat=").before(";");
                     delete[] data;
 
@@ -527,12 +527,12 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 icapsock.getLine(data, 8192, o.content_scanner_timeout);
                 line = data;
 
-                E2LOGGER_debugicapc( "Comparing original return code to modified:", docheader->header.front(), " ", line);
+                DEBUG_avscan( "Comparing original return code to modified:", docheader->header.front(), " ", line);
 
 		        int respmodReturnCode = line.after(" ").before(" ").toInteger();
                 if (respmodReturnCode != docheader->returnCode()) {
 
-                    E2LOGGER_debugicapc("ICAP says infected! (returned header comparison)");
+                    DEBUG_avscan("ICAP says infected! (returned header comparison)");
 
 		            delete[] data;
                     lastvirusname = "Unknown";
@@ -550,7 +550,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 		        icapsock.getLine(data, 8192, o.content_scanner_timeout);
                 line = data;
 
-                E2LOGGER_debugicapc("Comparing original body data to modified");
+                DEBUG_avscan("Comparing original body data to modified");
 
                 int bodysize = line.hexToInteger();
                 // get, say, the first 100 bytes and compare them to what we
@@ -561,13 +561,13 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 icapsock.readFromSocket(data, chunksize, 0, o.content_scanner_timeout);
                 if (memcmp(data, object, chunksize) == 0) {
 
-                    E2LOGGER_debugicapc("ICAP says clean! (body byte comparison)");
+                    DEBUG_avscan("ICAP says clean! (body byte comparison)");
 
                     delete[] data;
                     return E2CS_CLEAN;
                 } else {
 
-                   	E2LOGGER_debugicapc("ICAP says infected! (body byte comparison)");
+                   	DEBUG_avscan("ICAP says infected! (body byte comparison)");
 
 		            delete[] data;
                     lastvirusname = "Unknown";
@@ -579,7 +579,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             // even if we don't find an X-Infection-Found header,
             // the file is still infected!
 
-            E2LOGGER_debugicapc("ICAP says infected! (no further tests)");
+            DEBUG_avscan("ICAP says infected! (no further tests)");
 
 	    delete[] data;
             lastvirusname = "Unknown";
@@ -588,7 +588,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
             return E2CS_INFECTED;
         } else if (returncode == "404") {
 
-            E2LOGGER_debugicapc("ICAP says no such service!");
+            DEBUG_avscan("ICAP says no such service!");
 
 	        lastmessage = "ICAP reports no such service";
             E2LOGGER_error(lastmessage, " check your server URL");
@@ -597,7 +597,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
         } else {
 
 	        lastmessage = "ICAP returned unrecognised response code.";
-            E2LOGGER_debugicapc(lastmessage, returncode);
+            DEBUG_avscan(lastmessage, returncode);
             E2LOGGER_error(lastmessage, returncode);
             delete[] data;
             return E2CS_SCANERROR;
@@ -607,7 +607,7 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 
         lastmessage = "Exception getting reply from ICAP.";
         E2LOGGER_error(lastmessage, e.what());
-        E2LOGGER_debugicapc(lastmessage, e.what());
+        DEBUG_avscan(lastmessage, e.what());
         delete[] data;
         return E2CS_SCANERROR;
     }

@@ -58,6 +58,8 @@ language = 'ukenglish'
 # Container mode
 # the process will not fork into the background AND log in stdout
 # In this mode systemd service is disabled !
+#
+# Also sets info, error and warning messages to stderr 
 # Default: off
 
 # loop prevention
@@ -157,6 +159,17 @@ languagedir = '@E2DATADIR@/languages'
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
 
+# set_error = 'stderr'
+# set_info = 'stdout'
+# set_warning = 'stderr'
+#
+# change error, info and warning message output from defaults
+# defaults are:
+# set_error = 'syslog:LOG_ERR'
+# set_info = 'syslog:LOG_INFO'
+# set_warning = 'syslog:LOG_WARNING'
+#
+# If dockermode is set then any setting here will be overridden by dockermode settings 
 ###
 ### END of NAMES_PATHS section
 
@@ -483,19 +496,25 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 
 ## Location and format
 
+#set_accesslog = 'file:@E2LOGLOCATION@/access.log'
+#set_accesslog = 'syslog:LOG_INFO'
+#set_accesslog = 'stderr'
+# Sets output for access log
+# default is 'file:access.log'
+
 #loglocation = '@E2LOGLOCATION@/access.log'
 # Log file location
 #
 # Defines the log directory and filename.
+# Retained for backward compatibility
+# - ignored if set_accesslog is defined
 
 #logsyslog = off
 # Syslog logging
 # Use syslog for access logging instead of logging to the file
 # at the defined or built-in "loglocation"
-
-nologger = off
-# Disable logging process
-# on|off (defaults to off)
+# Retained for backward compatibility
+# - ignored if set_accesslog is defined
 
 #namesuffix = ""
 #Suffix to append to program name when logging through syslog
@@ -522,6 +541,13 @@ nologger = off
 #anonymizelogs = off
 # anonymize logs (blank out client usernames & IPs)
 # default off
+
+#tag_logs = on
+# This option adds a tag to the front of each log line
+# It is useful where multiple outputs are made to the same
+# output source (e.g. stderr) to identify which type of of log 
+# entry it is.
+# default 'off'
 
 ## What requests to log
 
@@ -622,14 +648,20 @@ nologger = off
 ### MONITORING section
 ###
 
-dstatlocation = '@E2LOGLOCATION@/dstats.log'
-# Dymamic statistics log file location
+# set_dstatslog = 'file:@E2LOGLOCATION@/dstats.log'
+# Dymamic statistics log file output
 #
 # Defines the dstats file directory and filename.
 # Once every 'dstatinterval' seconds, stats on number of threads in use,
 # Q sizes and other useful information is written to this file.
 # Format is similar to sar.  See notes/dstats_format for more details.
-# Default "" - do not to write stats.
+# Default - do not to write stats.
+
+dstatlocation = '@E2LOGLOCATION@/dstats.log'
+# Dymamic statistics log file location
+#
+# Retained for backward compatiblity
+# Ignored if set_dstatslog is defined
 
 #dstatinterval = 300  # = 5 minutes
 # Interval in seconds between stats output
@@ -1056,19 +1088,9 @@ weightedphrasemode = 2
 ### DEBUG section
 ###
 
-# Configure logging (see notes/HOWTO_Logger.md)
+# Configure standard logging (see notes/HOWTO_Logger.md)
 #   format:
-#     log_{source}={destination}[,{filename}]
-#   example:
-#     log_debug=stdout
-#   defaults:
-#     log_info=stdout
-#     log_error=stderr
-#     log_access=file,access.log
-
-# Configure logging (see notes/HOWTO_Logger.md)
-#   format:
-#     log_{source}={destination}[,{filename}]
+#     log_{source}={destination}[:{filename}]
 #   example:
 #     log_debug=stdout
 #   defaults:
@@ -1085,7 +1107,6 @@ weightedphrasemode = 2
 # Output goes to syslog (or stderr when compiled with E2DEBUG defined)
 # default off
 # Use to debug storyboard logic flow
-# deprecated with 5.5 : use log_story=stdout instead
 
 #logsslerrors = on
 #
@@ -1103,55 +1124,103 @@ weightedphrasemode = 2
 # it on or off
 # default off
 
+#set_requestlog = 'none'
+#set_requestlog = 'file:@E2LOGLOCATION@/request.log'
+# Set optional request log output
+# This is for useful for debug purposes to log all requests before processing or setting filter group
+# See notes/LogRequests for details
+# default is 'none'
+
+
 #rqloglocation = '@E2LOGLOCATION@/request.log'
 #
 # Defines optional request log path
-# This is for useful for debug purposes to log all requests before processing or setting filter group
-# See notes/LogRequests for details
 # Default is "" - no request log
+# Retained for backward compatiblity
+# Ignored if set_requestlog is defined
 
-## Things that will only work if specifically compliled
+## The new debug system uses a extended format
+## but is backward compatible with the "NewDebug" system.
 
-## 'NEW' debug system (generaly compliled in release systems)
-## Note that this is only partialy implimented and only works for ICAP, CLAMAV 
-## and ICAPC
-## and so 'ALL' = 'ICAP,CLAMAV,ICAPC' only.
-## To debug other areas of code re-compiling in debug mode is required
+## debuglevel is used to  define the debug categories
+## and optionally the destination of the debug logs
+##
 
-## It will be replaced by a new general logging system in v5.5
+## format is:
+## debuglevel = 'debugtypes[:destination[:filename|sysloglevel]]'
+##
+## debugtypes can be single type or muliple types separated by ','
+##   'ALL' can be used to enable all debug types available
+##   'HIGH' can be used to enable all high level debug types available
+##   'LOW' can be used to enable all low level debug types available
+##   and types can be switched off by pre-fixing them with '-'
+##
+## destination can be:
+##   stdout - output to stdout
+##   stderr - output to stderr
+##   syslog - output to syslog at sysloglevel
+##   file - output to filename
+##
+## if destination is omitted then output will be to the default debug 
+## destination or whatever is defined in the last debuglevel.
+##
+## Multiple debuglevel options can be used to allow different debug sets 
+## to be output to different destinations. If a a debug type is repeated
+## then the last debuglevel wins.
 
-#debuglevel = 'ALL'
+
+#debuglevel = 'icap:file:/var/log/e2guardian/icap.log'
+#Enable ICAP debug informations only in specified file
 #
-#Debug Level
-#Enable debug e2guardian
-#debug one value:
-#Eg
-#       debuglevel = 'ICAP'
-#Enable ICAP debug informations only
+#debuglevel = 'ALL:syslog,LOG_DEBUG'
+# enable all debugs available and output to syslog LOG_DEBUG level
 #
-#Eg
-#       debuglevel = 'ALL'
-#Enable ALL debug informations
+#debuglevel = 'icap,network:stderr'
+#Enable ICAP and NETWORK debug to stderr
 #
-#Additive mode:
-#Eg
-#       debuglevel = 'ICAP,NET'
-#Enable ICAP and NET debug informations
-#
-#Soustractive mode:
-#Eg
-#       debuglevel = 'ALL,-ICAP'
+#Subtractive mode:
+#debuglevel = 'ALL,-icap'
 #Enable all debug informations but without ICAP debug informations
-#       debuglevel = 'ALL,-ICAP,-NET,-FILTER'
-#Enable all debug informations but without ICAP, NETWORK and FILTER debug informations
-#by default disabled, if this option is required just uncomment the line below
-#works also with e2guardian -N (-N Do not go into the background)
-#Possible value : ICAP CLAMAV ICAPC (icap client)
 
-#debuglevelfile = '/var/log/e2guardian/debuge2'
-#Directory for result of debug level (log)
-#Works only if debuglevel is enabled
+#debuglevel = 'ALL,-icap,-network'
+#Enable all debug but without ICAP, NETWORK debug informations
+
+## Types of debug available when compliled with E2DEBUG_HIGH
+##
+## icap - ICAP main debug
+## proxy - proxy (normal) debug
+## thttps - Transparent HTTPS debug
+## auth - authentication plugins debug
+## avscan - AV scan debug
+## dwload - download manager debug
+
+## Types of debug available when compliled with E2DEBUG_LOW
+## (only useful for developers)
+##
+## trace - trace program flow
+## network - low level network functions
+## story - storyboard debug
+## regexp - regexp debug
+## config - debug configuration and lists set-up
+## content - debug content checking
+## debug - debug not yet included in a more specific type
+
+
+
+# debugformat = 1
 #
+# There is a choice of debug formats available
+# 1: thread_id: message function():file:line
+# 2: thread_id: function():file:line message
+# 3: thread_id: message
+# 4: (type) thread_id: message function():file:line
+# 5: (type) thread_id: function():file:line message
+# 6: (type) thread_id: message
+#
+# Formats 1,3,4,6 are better for developers and bug-fixing
+# Formats 2,5 for those exploring the program flow.
+# default 1
+
 
 ###
 ### END of DEBUG section
@@ -1159,7 +1228,6 @@ weightedphrasemode = 2
 
 ### PROCESS section
 ###
-
 # Process options
 # (Change these only if you really know what you are doing).
 # These options allow you to run multiple instances of e2guardian on a single machine.
@@ -1232,7 +1300,7 @@ originalip = off
 #  no  longer in use
 
 #groupnamesfile = ''
-#  no longer supportied - will be removed in v5.5
+#  no longer supportied 
 
 #urlcacheage= 0
 #  no  longer in use

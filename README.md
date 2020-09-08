@@ -1,14 +1,16 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the pre-release version - v5.4.2 
+This is the very pre-release version - v5.5.0
+
+Warning - this version is work in progress!!! 
 
 Note that there are significant changes to the configuration files in this 
-release and the sample lists have been re-organized into sub-directories.
+releasei.
 For details see e2guardian.conf, e2guardianf1.conf and the README files in
 configs/lists configs/lists/common and config/lists/example.group
 
-Note: Some configuration files in this version are not backward compatible
-with v4 or v5.3 configuration files.
+Note: Some configuration files in this version are not fully backward compatible
+with v5.4 configuration files.
 
 Please read notes/NEWIN_v5 before installing.
 

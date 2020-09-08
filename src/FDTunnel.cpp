@@ -42,7 +42,7 @@ void FDTunnel::reset()
 bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targetthroughput, bool ignore, bool chunked)
 {
     if (chunked) {
-        E2LOGGER_debug("tunnelling chunked data.");
+        DEBUG_debug("tunnelling chunked data.");
         int maxlen = 32000;
         char sfbuff[32000];
         int timeout = sockfrom.getTimeout();
@@ -60,14 +60,14 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     throughput = 0;
 
     if (targetthroughput == 0) {
-        E2LOGGER_debug("No data expected, tunnelling aborted.");
+        DEBUG_debug("No data expected, tunnelling aborted.");
         return true;
     }
 
     if (targetthroughput < 0) {
-        E2LOGGER_debug("Tunnelling without known content-length");
+        DEBUG_debug("Tunnelling without known content-length");
     } else {
-        E2LOGGER_debug("Tunnelling with content length ", targetthroughput);
+        DEBUG_debug("Tunnelling with content length ", targetthroughput);
     }
 
     if(twoway)
@@ -116,7 +116,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     while (!done && (targetthroughput > -1 ? throughput < targetthroughput : true)) {
         done = true; // if we don't make a successful read and write this
                      // flag will stay true and so the while() will exit
-        //E2LOGGER_debug("Start of tunnel loop: throughput:", throughput, " target:", targetthroughput);
+        //DEBUG_debug("Start of tunnel loop: throughput:", throughput, " target:", targetthroughput);
 
         // 1st Try 'from' socket for input if not waiting for write on socket
         //
@@ -144,7 +144,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                 done = true; // none received so pipe is closed so flag it
                         break;
             } else { // some data read
-            //E2LOGGER_debug("tunnel got data from sockfrom: ", sfbuff_cnt, " bytes");
+            //DEBUG_debug("tunnel got data from sockfrom: ", sfbuff_cnt, " bytes");
             throughput += sfbuff_cnt; // increment our counter used to log
             sf_read_wait = false;
                 done = false;
@@ -160,7 +160,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             if ((stbuff_cnt == 0 && !st_write_wait) && (!st_read_wait || (twayfds[1].revents & st_read_wait_flags))) {
 
                 stbuff_cnt = sockto.readFromSocket(stbuff, sizeof(stbuff), 0, 0, true);
-                //E2LOGGER_debug("tunnel got return rom sockto:read ", stbuff_cnt, " bytes");
+                //DEBUG_debug("tunnel got return rom sockto:read ", stbuff_cnt, " bytes");
 
                 if (stbuff_cnt < 0) {
                     stbuff_cnt = 0;
@@ -176,7 +176,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     break;
                 } else { // some data read
                     
-                    //E2LOGGER_debug("tunnel got data from sockto: ", stbuff_cnt, " bytes");
+                    //DEBUG_debug("tunnel got data from sockto: ", stbuff_cnt, " bytes");
                     throughput += stbuff_cnt;
                     st_read_wait = false;
                     done = false;
@@ -209,7 +209,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     break; // an error occurred so end the while()
                 }
             } else { // data written
-                //E2LOGGER_debug("tunnel wrote data out: ", sfbuff_cnt, " bytes");
+                //DEBUG_debug("tunnel wrote data out: ", sfbuff_cnt, " bytes");
                 st_write_wait = false;
                 sfbuff_cnt = 0;
                 done = false;
@@ -229,7 +229,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
                     break; // an error occurred so end the while()
                 }
             } else { // data written
-                //E2LOGGER_debug("tunnel wrote data out: ", stbuff_cnt, " bytes");
+                //DEBUG_debug("tunnel wrote data out: ", stbuff_cnt, " bytes");
                 sf_write_wait = false;
                 stbuff_cnt = 0;
                 done = false;
@@ -242,8 +242,8 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
             break;
         }
 
-        //E2LOGGER_debug("sf_ww is ", sf_write_wait, " st_ww is ", st_write_wait, " sf_rw is ", sf_read_wait, " st_rw is ", st_read_wait);
-        //E2LOGGER_debug("sf_ww_f is ", sf_write_wait_flags, " st_ww_f is ", st_write_wait_flags, " sf_rw_f is ", sf_read_wait_flags, " st_rw_f is ", st_read_wait_flags);
+        //DEBUG_debug("sf_ww is ", sf_write_wait, " st_ww is ", st_write_wait, " sf_rw is ", sf_read_wait, " st_rw is ", st_read_wait);
+        //DEBUG_debug("sf_ww_f is ", sf_write_wait_flags, " st_ww_f is ", st_write_wait_flags, " sf_rw_f is ", sf_read_wait_flags, " st_rw_f is ", st_read_wait_flags);
 
     // 5th set up and do poll
 
@@ -274,12 +274,12 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
     int rc = poll(twayfds, 2, timeout);
     if (rc < 1) {
-        E2LOGGER_debug("tunnel tw poll returned error or timeout::", rc);
+        DEBUG_debug("tunnel tw poll returned error or timeout::", rc);
         break; // an error occurred or it timed out so end while()
     }
 
-    //E2LOGGER_debug("tunnel tw poll returned ok:", rc);
-    //E2LOGGER_debug("tunnel tw poll returned revents:", twayfds[0].revents, " ", twayfds[1].revents);
+    //DEBUG_debug("tunnel tw poll returned ok:", rc);
+    //DEBUG_debug("tunnel tw poll returned revents:", twayfds[0].revents, " ", twayfds[1].revents);
 
     if((twayfds[0].revents & POLLERR) || (twayfds[1].revents & POLLERR)) {
         break;
@@ -288,9 +288,9 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
     }
 
     if ((throughput >= targetthroughput) && (targetthroughput > -1)) {
-        E2LOGGER_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")");
+        DEBUG_debug("All expected data tunnelled. (expected ", targetthroughput, "; tunnelled ", throughput, ")");
     } else {
-        E2LOGGER_debug("Tunnel closed.");
+        DEBUG_debug("Tunnel closed.");
     }
 
         return (targetthroughput > -1) ? (throughput >= targetthroughput) : true;

@@ -114,20 +114,33 @@ AC_MSG_CHECKING(build os)
 AC_CANONICAL_BUILD
 AC_MSG_RESULT($build_os)
 
-AC_MSG_CHECKING(for debug option)
-AC_ARG_WITH(e2debug,
-[AC_HELP_STRING([--with-e2debug@<:@=off@:>@], [switch on debug build mode])],
+AC_MSG_CHECKING(for debug_high option)
+AC_ARG_WITH(debug_high,
+[AC_HELP_STRING([--with-debug_high@<:@=off@:>@], [switch on high level debug build mode])],
 [if test "x${withval}" = "xoff" ; then
   AC_MSG_RESULT(no)
 else
   AC_MSG_RESULT(yes)
-  e2debug=${withval}
-  AC_DEFINE(E2DEBUG, 1, [Define to enable debug build mode])
+  debug_high=${withval}
+  AC_DEFINE(DEBUG_HIGH, 1, [Define to enable high level debug build mode])
+fi], [
+  # enable by default
+  AC_MSG_RESULT(yes)
+])
+
+AC_MSG_CHECKING(for debug_low option)
+AC_ARG_WITH(debug_low,
+[AC_HELP_STRING([--with-debug_low@<:@=off@:>@], [switch on low level debug build mode])],
+[if test "x${withval}" = "xoff" ; then
+  AC_MSG_RESULT(no)
+else
+  AC_MSG_RESULT(yes)
+  debug_low=${withval}
+  AC_DEFINE(DEBUG_LOW, 1, [Define to enable low level debug build mode])
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
 ])
-
 
 AC_MSG_CHECKING(for proxy user)
 AC_ARG_WITH(proxyuser,

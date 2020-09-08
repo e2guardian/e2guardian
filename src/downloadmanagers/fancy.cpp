@@ -68,7 +68,7 @@ class fancydm : public DMPlugin
 
 DMPlugin *fancydmcreate(ConfigVar &definition)
 {
-    E2LOGGER_trace("Creating fancy DM");
+    DEBUG_trace("Creating fancy DM");
     return new fancydm(definition);
 }
 
@@ -96,7 +96,7 @@ int fancydm::init(void *args)
     if (upperlimit <= o.max_content_filecache_scan_size)
         upperlimit = 0;
 
-    E2LOGGER_debug("Upper download limit: ", upperlimit);
+    DEBUG_dwload("Upper download limit: ", upperlimit);
 
     String fname(cv["template"]);
     if (fname.length() > 0) {
@@ -148,7 +148,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 //                  or to mark the header has already been sent
 //bool *toobig = flag to modify to say if it could not all be downloaded
 
-    E2LOGGER_trace("Inside fancy download manager plugin");
+    DEBUG_trace("Inside fancy download manager plugin");
 
     //int rc = 0;
 
@@ -162,7 +162,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     int timeelapsed = 0;
 
     if (!d->icap) {
-        E2LOGGER_debug("tranencodeing is ", docheader->transferEncoding());
+        DEBUG_dwload("tranencodeing is ", docheader->transferEncoding());
         d->chunked = docheader->transferEncoding().contains("chunked");
     }
 
@@ -199,7 +199,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
         blocksize = o.max_content_filter_size;
     else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
         blocksize = o.max_content_ramcache_scan_size;
-    E2LOGGER_debug("blocksize: ", blocksize);
+    DEBUG_dwload("blocksize: ", blocksize);
 
     // determine downloaded filename
     String filename(requestheader->disposition());
@@ -223,7 +223,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                 bytessec = bytesgot / timeelapsed;
                 themdays.tv_sec = nowadays.tv_sec;
                 if ((*headersent) < 1) {
-                    E2LOGGER_debug("sending header for text status");
+                    DEBUG_dwload("sending header for text status");
                     message = "HTTP/1.0 200 OK\nContent-Type: text/html\n\n";
                     // Output initial template
                     std::deque<String>::iterator i = progresspage.html.begin();
@@ -256,7 +256,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                     (*headersent) = 2;
                 }
 
-                E2LOGGER_debug("trickle delay - sending progress...");
+                DEBUG_dwload("trickle delay - sending progress...");
                 message = "Downloading status: ";
                 // Output a call to template's JavaScript progressupdate function
                 jsmessage = "<script language='javascript'>\n<!--\nprogressupdate(" + String(bytesgot) + "," +
@@ -284,7 +284,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
         int bsize = blocksize;
         if ((!d->geteverything) && (d->bytes_toget < bsize))
             bsize = d->bytes_toget;
-        E2LOGGER_debug("bsize is ", bsize);
+        DEBUG_dwload("bsize is ", bsize);
 
         rc = d->readInFromSocket(sock, bsize, wantall, read_res);
         if (read_res & DB_TOBIG)
@@ -311,12 +311,12 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
                     peersock->writeString("<!-- force flush -->\r\n");
                     // add URL to clean cache (for all groups)
                     // TODO: aah - this will not work without clean cache!  Needs a different method????
-                    E2LOGGER_debug("fancydm: file too big to be scanned, entering second stage of download");
+                    DEBUG_dwload("fancydm: file too big to be scanned, entering second stage of download");
                 }
 
                 // too large to even download, let alone scan
                 if (bytesgot > upperlimit) {
-                    E2LOGGER_debug("fancydm: file too big to be downloaded, halting second stage of download");
+                    DEBUG_dwload("fancydm: file too big to be downloaded, halting second stage of download");
                     toobig_unscanned = false;
                     toobig_notdownloaded = true;
                     break;
@@ -324,7 +324,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             } else {
                 // multi-stage download disabled, or we know content length
                 // if swapped to disk and file too large for that too, then give up
-                E2LOGGER_debug("fancydm: file too big to be scanned, halting download");
+                DEBUG_dwload("fancydm: file too big to be scanned, halting download");
                 toobig_unscanned = false;
                 toobig_notdownloaded = true;
                 break;
@@ -345,7 +345,7 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
             // You can get to this point by having a large ram cache, or
             // slow internet connection with small initial trickle delay.
             // This should be rare.
-            E2LOGGER_debug("swapping to disk");
+            DEBUG_dwload("swapping to disk");
             d->tempfilefd = d->getTempFileFD();
             if (d->tempfilefd < 0) {
                 E2LOGGER_error("error buffering complete to disk so skipping disk buffering");
@@ -375,10 +375,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     if (!(*toobig) && !d->swappedtodisk) { // won't deflate stuff swapped to disk
         if (d->decompress.contains("deflate")) {
-            E2LOGGER_debug("zlib format");
+            DEBUG_dwload("zlib format");
             d->zlibinflate(false); // incoming stream was zlib compressed
         } else if (d->decompress.contains("gzip")) {
-            E2LOGGER_debug("gzip format");
+            DEBUG_dwload("gzip format");
             d->zlibinflate(true); // incoming stream was gzip compressed
         }
     }

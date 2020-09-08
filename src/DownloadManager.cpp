@@ -49,29 +49,6 @@ DMPlugin::DMPlugin(ConfigVar &definition)
 // default initialisation procedure
 int DMPlugin::init(void *args)
 {
-   // bool lastplugin = *((bool *)args);
-//    if (!lastplugin) {
-        // compile regex for matching supported user agents
- //       String r(cv["useragentregexp"]);
-  //      if (r.length() > 0) {
-//#ifdef E2DEBUG
-   //         std::cerr << thread_id << "useragent regexp: " << r << std::endl;
-//#endif
-    //        ua_match.comp(r.toCharArray());
-     //   } else {
-// no useragent regex? then default to .*
-//#ifdef E2DEBUG
-      //      std::cerr << thread_id << "no useragent regular expression; defaulting to .*" << std::endl;
-//#endif
-       //     alwaysmatchua = true;
-//        }
-        //if (!readStandardLists())
-         //   return -1;
-    //}
-//#ifdef E2DEBUG
-    //else
-        E2LOGGER_debug("Fallback DM plugin; no matching options loaded");
-//#endif
     return 0;
 }
 
@@ -99,7 +76,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
     bool matchedmime = false;
     if (mimelistenabled) {
         mimetype = docheader->getContentType();
-        E2LOGGER_debug("mimetype: ", mimetype);
+        DEBUG_dwload("mimetype: ", mimetype);
         String lc;
         if (mimetypelist.findInList(mimetype.toCharArray(), lc) == NULL) {
             if (!extensionlistenabled)
@@ -107,7 +84,7 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
         } else
             matchedmime = true;    
     } else {
-        E2LOGGER_debug("NO mimelistenabled!");
+        DEBUG_dwload("NO mimelistenabled!");
     }
 
 
@@ -142,13 +119,13 @@ bool DMPlugin::willHandle(HTTPHeader *requestheader, HTTPHeader *docheader)
                 }
             }
         }
-        E2LOGGER_debug("extension: ", extension);
+        DEBUG_dwload("extension: ", extension);
         // check the extension list
         String lc;
         if (!extension.contains(".") || (extensionlist.findEndsWith(extension.toCharArray(), lc) == NULL))
             return matchedmime;
     } else {
-        E2LOGGER_debug("NO extensionlistenabled!");
+        DEBUG_dwload("NO extensionlistenabled!");
     }
 
 
@@ -209,17 +186,17 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
     }
 
     if (plugname == "default") {
-        E2LOGGER_debug("Enabling default DM plugin");
+        DEBUG_dwload("Enabling default DM plugin");
         return defaultdmcreate(cv);
     }
 
     if (plugname == "fancy") {
-        E2LOGGER_debug("Enabling fancy DM plugin");
+        DEBUG_dwload("Enabling fancy DM plugin");
         return fancydmcreate(cv);
     }
 
     if (plugname == "trickle") {
-        E2LOGGER_debug("Enabling trickle DM plugin");
+        DEBUG_dwload("Enabling trickle DM plugin");
         return trickledmcreate(cv);
     }
 

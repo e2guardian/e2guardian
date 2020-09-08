@@ -181,7 +181,7 @@ String ConnectionHandler::hashedURL(String *url, int filtergroup, std::string *c
         res += url->md5(magic.toCharArray());
     }
     res += timecode;
-    E2LOGGER_debug(" -generate Bypass hashedurl data ", clientip, " ", *url, " ", clientuser, " ", timecode, " result ", res);
+    DEBUG_debug(" -generate Bypass hashedurl data ", clientip, " ", *url, " ", clientuser, " ", timecode, " result ", res);
     return res;
 }
 
@@ -192,10 +192,10 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     data += clientip->c_str();
     data += clientuser;
     data += timecode;
-    E2LOGGER_debug(" -generate Bypass hashedCookie data ", clientip, " ", *url, " ", clientuser, " ", timecode);
+    DEBUG_debug(" -generate Bypass hashedCookie data ", clientip, " ", *url, " ", clientuser, " ", timecode);
     String res(url->md5(data.toCharArray()));
     res += timecode;
-    E2LOGGER_debug(" -Bypass hashedCookie="+ res);
+    DEBUG_debug(" -Bypass hashedCookie="+ res);
     return res;
 }
 
@@ -210,14 +210,14 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     if(!(url).contains(btype.c_str()))
         return 0;
 
-    E2LOGGER_debug("URL ", btype, " found checking...");
+    DEBUG_debug("URL ", btype, " found checking...");
 
     String url_left((url).before(btype.c_str()));
     url_left.chop(); // remove the ? or &
     String url_right((url).after(btype.c_str()));
     String url_hash(url_right.subString(0, 32));
     String url_time(url_right.after(url_hash.toCharArray()));
-    E2LOGGER_debug("URL: ", url_left, ", HASH: ", url_hash, ", TIME: ", url_time);
+    DEBUG_debug("URL: ", url_left, ", HASH: ", url_hash, ", TIME: ", url_time);
 
     String mymagic(magic);
     mymagic += clientip;
@@ -232,7 +232,7 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     }
 
     if (hashed != url_hash) {
-        E2LOGGER_debug("URL ", btype, " hash mismatch");
+        DEBUG_debug("URL ", btype, " hash mismatch");
         return 0;
     }
 
@@ -240,14 +240,14 @@ int ConnectionHandler::isBypassURL(String url, const char *magic, const char *cl
     time_t timeu = url_time.toLong();
 
     if (timeu < 1) {
-        E2LOGGER_debug("URL ", btype, " bad time value");
+        DEBUG_debug("URL ", btype, " bad time value");
         return 1; // bad time value
     }
     if (timeu < timen) { // expired key
-        E2LOGGER_debug("URL ", btype, " expired");
+        DEBUG_debug("URL ", btype, " expired");
         return 1; // denotes expired but there
     }
-    E2LOGGER_debug("URL ", btype, " not expired");
+    DEBUG_debug("URL ", btype, " not expired");
     return (int)timeu;
 }
 
@@ -260,14 +260,14 @@ bool ConnectionHandler::isScanBypassURL(String url, const char *magic, const cha
     if (!(url).contains("GSBYPASS=")) { // If this is not a bypass url
         return false;
     }
-    E2LOGGER_debug("URL GSBYPASS found checking...");
+    DEBUG_debug("URL GSBYPASS found checking...");
 
     String url_left((url).before("GSBYPASS="));
     url_left.chop(); // remove the ? or &
     String url_right((url).after("GSBYPASS="));
 
     String url_hash(url_right.subString(0, 32));
-    E2LOGGER_debug("URL: ", url_left, ", HASH: ", url_hash);
+    DEBUG_debug("URL: ", url_left, ", HASH: ", url_hash);
 
     // format is:
     // GSBYPASS=hash(ip+url+tempfilename+mime+disposition+secret)
@@ -287,13 +287,13 @@ bool ConnectionHandler::isScanBypassURL(String url, const char *magic, const cha
         hashed = tohash.md5(ldl->fg[filtergroup]->cgi_magic.c_str());
     }
 
-    E2LOGGER_debug("checking hash: ", clientip, " ", url_left, " ", tempfilename, " ",
+    DEBUG_debug("checking hash: ", clientip, " ", url_left, " ", tempfilename, " ",
                     tempfilemime, " ", tempfiledis, " ", magic, " ", hashed);
 
     if (hashed == url_hash) {
         return true;
     }
-    E2LOGGER_debug("URL GSBYPASS HASH mismatch");
+    DEBUG_debug("URL GSBYPASS HASH mismatch");
 
     return false;
 }
@@ -354,7 +354,7 @@ ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bo
     char *buffer = new char[64000];
     while (sent < filesize) {
         rc = read(fd, buffer, 64000);
-        E2LOGGER_debug(" -reading send file rc:", String(rc));
+        DEBUG_debug(" -reading send file rc:", String(rc));
         if (rc < 0) {
             E2LOGGER_error(" -error reading send file so aborting");
             delete[] buffer;
@@ -382,7 +382,7 @@ ConnectionHandler::sendFile(Socket *peerconn, NaughtyFilter &cm, String &url, bo
             }
         }
         sent += rc;
-        E2LOGGER_debug(" -total sent from temp: ", String(sent));
+        DEBUG_debug(" -total sent from temp: ", String(sent));
 
     }
     if (is_icap) {
@@ -409,7 +409,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             break;
         }
     }
-    E2LOGGER_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
+    DEBUG_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
 
     while (++retry < o.connect_retries) {
         lerr_mess = 0;
@@ -445,7 +445,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 
                 sock.setTimeout(o.connect_timeout);
 
-                E2LOGGER_debug("Connecting to IP ", des_ip, " port ", String(port));
+                DEBUG_debug("Connecting to IP ", des_ip, " port ", String(port));
 
                 int rc = sock.connect(des_ip, port);
                 if (rc < 0) {
@@ -467,7 +467,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                 int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
                 if (rc)  // problem
                 {
-                    E2LOGGER_debug("connectUpstream: getaddrinfo returned ", String(rc),
+                    DEBUG_debug("connectUpstream: getaddrinfo returned ", String(rc),
                                 " for ", cm.connect_site, " ", gai_strerror(rc) );
 
                     bool rt = false;
@@ -514,11 +514,11 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                         may_be_loop = false;
                     }
 
-                    E2LOGGER_debug("Connecting to IP ", t, " port ", String(port));
+                    DEBUG_debug("Connecting to IP ", t, " port ", String(port));
                     int rc = sock.connect(t, port);
                     if (rc == 0) {
                         freeaddrinfo(infoptr);
-                        E2LOGGER_debug("Got connection upfailure is ", String(cm.upfailure) );
+                        DEBUG_debug("Got connection upfailure is ", String(cm.upfailure) );
                         return 0;
                     }
                 }
@@ -559,10 +559,6 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
     persistent_authed = false;
     is_real_user = false;
     int rc = 0;
-    //#ifdef E2DEBUG
-    // for debug info only - TCP peer port
-    //thread_id = peerconn.getPeerSourcePort();
-    //#endif
     Socket proxysock;    // also used for direct connection
 
     switch (lc_type) {
@@ -629,12 +625,16 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     postparts.clear();
 
     // debug stuff surprisingly enough
-    E2LOGGER_debug(" -got peer connection from ", clientip );
+    DEBUG_proxy(" -got peer connection from ", clientip );
 
     try {
         //int rc;
-#ifdef E2DEBUG
+#ifdef DEBUG_HIGH
         int pcount = 0;
+#else
+#ifdef DEBUG_LOW
+        int pcount = 0;
+#endif
 #endif
 
         // assume all requests over the one persistent connection are from
@@ -691,7 +691,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         while ((firsttime || persistPeer) && !ttg)
             //    while ((firsttime || persistPeer) && !reloadconfig)
         {
-            E2LOGGER_debug(" firsttime =", firsttime, " ismitm =", ismitm, " clientuser =", clientuser, " group = ", filtergroup);
+            DEBUG_proxy(" firsttime =", firsttime, " ismitm =", ismitm, " clientuser =", clientuser, " group = ", filtergroup);
             ldl = o.currentLists();
             NaughtyFilter checkme(header, docheader, SBauth);
             checkme.listen_port = peerconn.getPort();
@@ -710,10 +710,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     persistProxy = false;
             } else {
                 // another round...
-                E2LOGGER_debug(" -persisting (count ", ++pcount, ") - ", clientip);
+                DEBUG_proxy(" -persisting (count ", ++pcount, ") - ", clientip);
                 header.reset();
                 if (!header.in(&peerconn, true)) {
-                    E2LOGGER_debug(" -Persistent connection closed");
+                    DEBUG_proxy(" -Persistent connection closed");
                     break;
                 }
                 ++dystat->reqs;
@@ -752,7 +752,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.setURL(ismitm);
 
             //if(o.log_requests) {
-            if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+            if (e2logger.isEnabled(LoggerSource::requestlog)) {
                 std::string fnt;
                 if(ismitm)
                     fnt = "MITM";
@@ -767,7 +767,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //If proxy connection is not persistent..// do this later after checking if direct or via proxy
 
-            E2LOGGER_debug("Start URL ", checkme.url, "is_ssl=", checkme.is_ssl, "ismitm=", ismitm);
+            DEBUG_proxy("Start URL ", checkme.url, "is_ssl=", checkme.is_ssl, "ismitm=", ismitm);
 
             // checks for bad URLs to prevent security holes/domain obfuscation.
             if (header.malformedURL(checkme.url)) {
@@ -836,7 +836,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         ip = clientip;
                         header.setClientIP(ip);
                     }
-                    E2LOGGER_debug(" -using x-forwardedfor:", clientip);
+                    DEBUG_proxy(" -using x-forwardedfor:", clientip);
                 }
             }
             checkme.clientip = clientip;
@@ -850,9 +850,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //CALL SB pre-authcheck
-            E2LOGGER_trace("Run   StoryA pre-authcheck");
+            DEBUG_trace("Run   StoryA pre-authcheck");
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH, checkme);
-            E2LOGGER_debug("After StoryA pre-authcheck",
+            DEBUG_proxy("After StoryA pre-authcheck",
                 " isexception ", String(checkme.isexception),
                 " isBlocked ", String(checkme.isBlocked),
                 " message_no ", String(checkme.message_no));
@@ -862,12 +862,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             bool part_banned;
             if (isbannedip) {
                 // matchedip = clienthost == NULL;
-                E2LOGGER_debug("IP is banned!");
+                DEBUG_proxy("IP is banned!");
             } else {
                 if (ldl->inRoom(clientip, room, &(checkme.clienthost), &isbannedip, &part_banned, &checkme.isexception,
                                 checkme.urld)) {
 
-                    E2LOGGER_debug(" isbannedip = ", String(isbannedip),
+                    DEBUG_proxy(" isbannedip = ", String(isbannedip),
                          " ispart_banned = ", String(part_banned),
                          " isexception = ", String(checkme.isexception));
 
@@ -892,7 +892,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             //
             // don't have credentials for this connection yet? get some!
-            E2LOGGER_trace("start Authentication");
+            DEBUG_trace("start Authentication");
             overide_persist = false;
             if (!persistent_authed) {
                 bool only_ip_auth;
@@ -906,7 +906,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     only_ip_auth = true;
                 }
                 SBauth.group_source = "def";
-                E2LOGGER_debug("isProxyRequest is ", String(header.isProxyRequest),
+                DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
                             " only_ip_auth is ", String(only_ip_auth),
                             " needs proxy for auth plugin is ", String(o.auth_needs_proxy_in_plugin) );
 
@@ -938,13 +938,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
                 //checkme.filtergroup = filtergroup;
             } else {
-                E2LOGGER_debug(" -Already got credentials for this connection - not querying auth plugins");
+                DEBUG_proxy(" -Already got credentials for this connection - not querying auth plugins");
                 authed = true;
             }
             checkme.filtergroup = filtergroup;
 
             docbody.set_current_config(ldl->fg[filtergroup]);
-            E2LOGGER_debug(" -username: " + clientuser + " -filtergroup: " + String(filtergroup));
+            DEBUG_proxy(" -username: " + clientuser + " -filtergroup: " + String(filtergroup));
 //
 // End of Authentication Checking
 //
@@ -952,7 +952,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             //			Set if candidate for MITM
             //			(Exceptions will not go MITM)
-            E2LOGGER_trace("ismitmcandidate");
+            DEBUG_trace("ismitmcandidate");
             checkme.ismitmcandidate = checkme.isconnect && (!checkme.nomitm) && ldl->fg[filtergroup]->ssl_mitm && (header.port == 443);
             if (checkme.ismitmcandidate ) {
                 if(!ldl->fg[filtergroup]->automitm) checkme.automitm = false;
@@ -964,7 +964,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //
             // Start of by pass
             //
-            E2LOGGER_trace("checkByPass");
+            DEBUG_trace("checkByPass");
             if (!checkme.isdone && checkByPass(checkme, ldl, header, proxysock, peerconn, clientip)
                 && sendScanFile(peerconn, checkme)) {
                 persistProxy = false;
@@ -995,9 +995,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 // Main checking is now done in Storyboard function(s)
                 //   String funct = "checkrequest";
                 //   ldl->fg[filtergroup]->StoryB.runFunct(funct, checkme);
-                E2LOGGER_trace("Check StoryB checkrequest");
+                DEBUG_trace("Check StoryB checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_REQUEST, checkme);
-                E2LOGGER_debug("After StoryB checkrequest",
+                DEBUG_proxy("After StoryB checkrequest",
                     " isexception ", String(checkme.isexception ),
                     " isblocked ", String(checkme.isBlocked ),
                     " gomitm ", String(checkme.gomitm),
@@ -1024,7 +1024,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
-                E2LOGGER_debug("Setting GBYPASS cookie; bypasstimestamp = ", checkme.bypasstimestamp);
+                DEBUG_proxy("Setting GBYPASS cookie; bypasstimestamp = ", checkme.bypasstimestamp);
                 String ud(checkme.urldomain);
                 if (ud.startsWith("www.")) {
                     ud = ud.after("www.");
@@ -1138,7 +1138,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 
-                    E2LOGGER_debug(" -persistPeer: ", String(persistPeer));
+                    DEBUG_proxy(" -persistPeer: ", String(persistPeer));
 
                     //check response code
                     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
@@ -1197,7 +1197,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // ssl_grey is covered in storyboard
             if (!checkme.tunnel_rest && checkme.isconnect && checkme.gomitm)
             {
-                E2LOGGER_debug("Going MITM ....");
+                DEBUG_proxy("Going MITM ....");
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip,checkme.isdirect);
@@ -1210,7 +1210,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             //CALL SB checkresponse
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && (!checkme.isconnect) && (!checkme.logcategory) && !checkme.tunnel_rest) {
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_PROXY_RESPONSE, checkme);
-                E2LOGGER_debug("After StoryB checkresponse ",
+                DEBUG_proxy("After StoryB checkresponse ",
                     " IsException ", String(checkme.isexception),
                     " IsBlocked ", String(checkme.isBlocked),
                     " mess_no ", String(checkme.message_no) );
@@ -1241,7 +1241,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         else if (csrc < 0)
                             E2LOGGER_error("willScanRequest returned error: ", csrc);
                     }
-                    E2LOGGER_debug(" -Content scanners interested in response data: ", responsescanners.size());
+                    DEBUG_proxy(" -Content scanners interested in response data: ", responsescanners.size());
                 }
 
                 //- if grey content check
@@ -1317,8 +1317,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!checkme.isItNaughty) {
                 if (checkme.tunnel_rest) {
                     bool chunked = docheader.transferEncoding().contains("chunked");
-                    E2LOGGER_debug(" -Tunnelling to client");
-                    E2LOGGER_debug(" - Content-Length:", docheader.contentLength(), " cm.docsize:", checkme.docsize);
+                    DEBUG_proxy(" -Tunnelling to client");
+                    DEBUG_proxy(" - Content-Length:", docheader.contentLength(), " cm.docsize:", checkme.docsize);
 
                     if (!fdt.tunnel(proxysock, peerconn, checkme.isconnect, docheader.contentLength() - checkme.docsize,
                                     true, chunked))
@@ -1332,7 +1332,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
 
-            E2LOGGER_debug(" -Forwarding body to client :",
+            DEBUG_proxy(" -Forwarding body to client :",
                         " Upfailure is ", String(checkme.upfailure),
                         " isItNaughty is ", String(checkme.isItNaughty));
 
@@ -1360,7 +1360,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             break;
         }
     } catch (std::exception &e) {
-        E2LOGGER_debug(" -connection handler caught an exception: ", e.what());
+        DEBUG_proxy(" -connection handler caught an exception: ", e.what());
         if (o.logconerror)
             E2LOGGER_error("-connection handler caught an exception %s", e.what());
 
@@ -1370,7 +1370,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     }
     if (!ismitm)
         try {
-            E2LOGGER_debug(" -Attempting graceful connection close");
+            DEBUG_proxy(" -Attempting graceful connection close");
             //syslog(LOG_INFO, " -Attempting graceful connection close" );
             int fd = peerconn.getFD();
             if (fd > -1) {
@@ -1384,7 +1384,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             peerconn.close();
             proxysock.close();
         } catch (std::exception &e) {
-            E2LOGGER_debug(" -connection handler caught an exception on connection closedown: ", e.what() );
+            DEBUG_debug(" -connection handler caught an exception on connection closedown: ", e.what() );
             // close connection to the client
             peerconn.close();
             proxysock.close();
@@ -1396,7 +1396,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
 void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm) {
 
-    E2LOGGER_trace("who: ", who, " from: ", from );
+    DEBUG_trace("who: ", who, " from: ", from );
 
     struct timeval theend;
     gettimeofday(&theend, NULL);
@@ -1409,7 +1409,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     if(cm.nolog) return;
 
     // if(o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+    if (e2logger.isEnabled(LoggerSource::requestlog)) {
         what = thread_id;
     }
     what += cm.whatIsNaughtyLog;
@@ -1425,7 +1425,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
     int code = (cm.response_header->returnCode());
     if (isnaughty) code = 403;
-    std::string mimetype = cm.mimetype;
+    std::string mimetype = cm.response_header->getContentType();
     bool wasinfected = cm.wasinfected;
     bool wasscanned = cm.wasscanned;
     int naughtiness = cm.naughtiness;
@@ -1444,9 +1444,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             ((o.log_exception_hits == 0) && isexception)) {
         if (o.ll != 0) {
             if (isexception) {
-                E2LOGGER_debug(" -Not logging exceptions");
+                DEBUG_debug(" -Not logging exceptions");
             } else {
-                E2LOGGER_debug(" -Not logging 'ADs' blocks");
+                DEBUG_debug(" -Not logging 'ADs' blocks");
             }
         }
         return;
@@ -1461,7 +1461,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
         if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
-            E2LOGGER_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
+            DEBUG_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
             getClientFromIP(from.c_str(),cm.clienthost);
             //std::deque<String> *names = ipToHostname(from.c_str());
             //if (names->size() > 0) {
@@ -1518,7 +1518,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         // populate flags field
         String flags = cm.getFlags();
 
-        E2LOGGER_debug(" -Building raw log data string... ");
+        DEBUG_debug(" -Building raw log data string... ");
 
         data = String(isexception) + cr;
         data += (cat ? (*cat) + cr : cr);
@@ -1559,7 +1559,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += cm.search_terms;
         data += cr;
 
-        E2LOGGER_debug(" -...built");
+        DEBUG_debug(" -...built");
 
         //delete newcat;
         // push on log queue
@@ -1569,7 +1569,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 }
 
 void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
-    E2LOGGER_trace("who: ", who, " from: ", from, "funct: ", funct);
+    DEBUG_trace("who: ", who, " from: ", from, "funct: ", funct);
     String rtype = cm.request_header->requestType();
     String where = cm.logurl;
     unsigned int port = cm.request_header->port;
@@ -1590,7 +1590,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
     struct timeval *thestart = &cm.thestart;
     bool cachehit = false;
     int code = 0;
-    std::string mimetype = cm.mimetype;
+    std::string mimetype = "";  //cm.mimetype;
     bool wasinfected = false;  //cm.wasinfected;
     bool wasscanned = false;  //cm.wasscanned;
     int naughtiness = 0;  //cm.naughtiness;
@@ -1627,7 +1627,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         l_clienthost = cm.clienthost;
         String flags = cm.getFlags();
 
-        E2LOGGER_debug(" -Building raw log data string... ");
+        DEBUG_debug(" -Building raw log data string... ");
 
         data = String(isexception) + cr;
         data += (cat ? (*cat) + cr : cr);
@@ -1666,7 +1666,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += flags + cr;
         data += cr;
 
-        E2LOGGER_debug(" -...built");
+        DEBUG_debug(" -...built");
 
         //delete newcat;
         // push on log queue
@@ -1692,12 +1692,12 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
     if (ldl->fg[filtergroup]->inRefererExceptionLists(header->getReferer())) {
         return true;
     }
-    E2LOGGER_debug(" -checking for embed url in ", temp);
+    DEBUG_debug(" -checking for embed url in ", temp);
 
     if (ldl->fg[filtergroup]->inEmbededRefererLists(temp)) {
 
 // look for referer URLs within URLs
-        E2LOGGER_debug(" -starting embeded referer deep analysis");
+        DEBUG_debug(" -starting embeded referer deep analysis");
         String deepurl(temp.after("p://"));
         deepurl = header->decode(deepurl, true);
         while (deepurl.contains(":")) {
@@ -1707,11 +1707,11 @@ bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, S
             }
 
             if (ldl->fg[filtergroup]->inRefererExceptionLists(deepurl)) {
-                E2LOGGER_debug("deep site found in trusted referer list; ");
+                DEBUG_debug("deep site found in trusted referer list; ");
                 return true;
             }
         }
-        E2LOGGER_debug(" -done embdeded referer deep analysis");
+        DEBUG_debug(" -done embdeded referer deep analysis");
     }
     return false;
 }
@@ -1726,7 +1726,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                       bool ispostblock, int headersent, bool wasinfected, bool scanerror,
                                       bool forceshow) {
     int reporting_level = ldl->fg[filtergroup]->reporting_level;
-    E2LOGGER_debug(" -reporting level is ", reporting_level);
+    DEBUG_debug(" -reporting level is ", reporting_level);
     if (checkme->whatIsNaughty == "" && checkme->message_no > 0) {
         checkme->whatIsNaughty = o.language_list.getTranslation(checkme->message_no);
     }
@@ -1751,7 +1751,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
         if (reporting_level > 0) {
             // generate a filter bypass hash
             if (!wasinfected && (checkme->isbypassallowed) && !ispostblock) {
-                E2LOGGER_debug(" -Enabling filter bypass hash generation");
+                DEBUG_debug(" -Enabling filter bypass hash generation");
                 filterhash = true;
                 if (ldl->fg[filtergroup]->bypass_mode > 0 )
                     dohash = true;
@@ -1760,14 +1760,14 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             else if (wasinfected && checkme->isinfectionbypassallowed) {
                 // only generate if scanerror (if option to only bypass scan errors is enabled)
                 if ((*ldl->fg[filtergroup]).infection_bypass_errors_only ? scanerror : true) {
-                    E2LOGGER_debug(" -Enabling infection bypass hash generation");
+                    DEBUG_debug(" -Enabling infection bypass hash generation");
                     virushash = true;
                     if (ldl->fg[filtergroup]->infection_bypass_mode > 0)
                         dohash = true;
                 }
             }
         }
-        E2LOGGER_debug(" - filter bypass hash generation", " virushah ", virushash, " dohash", dohash, " filterhash ", filterhash);
+        DEBUG_debug(" - filter bypass hash generation", " virushah ", virushash, " dohash", dohash, " filterhash ", filterhash);
 
 // the user is using the full whack of custom banned images and/or HTML templates
         if (reporting_level == 3 || (headersent > 0 && reporting_level > 0) || forceshow || (*header).requestType().startsWith("CONNECT"))
@@ -2099,11 +2099,11 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     //proxysock->bcheckForInput(120000);
     bool compressed = docheader->isCompressed();
     if (compressed) {
-        E2LOGGER_debug(" -Decompressing as we go.....");
+        DEBUG_debug(" -Decompressing as we go.....");
         docbody->setDecompress(docheader->contentEncoding());
     }
-    E2LOGGER_debug(docheader->contentEncoding());
-    E2LOGGER_debug(" -about to get body from proxy");
+    DEBUG_debug(docheader->contentEncoding());
+    DEBUG_debug(" -about to get body from proxy");
     (*pausedtoobig) = docbody->in(proxysock, peerconn, header, docheader, !responsescanners.empty(),
                                   headersent, ldl->fg[filtergroup]->StoryB, checkme ); // get body from proxy
 // checkme: surely if pausedtoobig is true, we just want to break here?
@@ -2111,9 +2111,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 // and larger than max_content_filter_size if not.
 // in fact, why don't we check the content length (when it's not -1) before even triggering the download managers?
     if ((*pausedtoobig)) {
-        E2LOGGER_debug(" -got PARTIAL body ");
+        DEBUG_debug(" -got PARTIAL body ");
     } else {
-        E2LOGGER_debug(" -got body");
+        DEBUG_debug(" -got body");
     }
 
     off_t dblen;
@@ -2128,7 +2128,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     // these were encountered browsing opengroup.org, caused by a stats script. (PRA 21/09/2005)
     // if we wanted to honour a hypothetical min_content_scan_size, we'd do it here.
     if (((*docsize) = dblen) == 0) {
-        E2LOGGER_debug(" -Not scanning zero-length body");
+        DEBUG_debug(" -Not scanning zero-length body");
         // it's not inconceivable that we received zlib or gzip encoded content
         // that is, after decompression, zero length. we need to cater for this.
         // seen on SW's internal MediaWiki.
@@ -2147,7 +2147,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             for (std::deque<CSPlugin *>::iterator i = responsescanners.begin(); i != responsescanners.end(); i++) {
                 (*wasscanned) = true;
                 if (isfile) {
-                    E2LOGGER_debug(" -Running scanFile");
+                    DEBUG_debug(" -Running scanFile");
                     csrc = (*i)->scanFile(header, docheader, clientuser->c_str(), ldl->fg[filtergroup],
                                           clientip->c_str(), docbody->tempfilepath.toCharArray(), checkme);
                     if ((csrc != E2CS_CLEAN) && (csrc != E2CS_WARNING)) {
@@ -2155,16 +2155,16 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                         // delete infected (or unscanned due to error) file straight away
                     }
                 } else {
-                    E2LOGGER_debug(" -Running scanMemory");
+                    DEBUG_debug(" -Running scanMemory");
                     csrc = (*i)->scanMemory(header, docheader, clientuser->c_str(), ldl->fg[filtergroup],
                                             clientip->c_str(), docbody->data, docbody->data_length, checkme);
                 }
-                E2LOGGER_debug(" -AV scan ", k, " returned: ", csrc);
+                DEBUG_debug(" -AV scan ", k, " returned: ", csrc);
                 if (csrc == E2CS_WARNING) {
                     // Scanner returned a warning. File wasn't infected, but wasn't scanned properly, either.
                     (*wasscanned) = false;
                     (*scanerror) = false;
-                    E2LOGGER_debug((*i)->getLastMessage());
+                    DEBUG_debug((*i)->getLastMessage());
                     (*csmessage) = (*i)->getLastMessage();
                 } else if (csrc == E2CS_BLOCKED) {
                     (*wasscanned) = true;
@@ -2204,37 +2204,37 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                 k++;
             }
 
-            E2LOGGER_debug(" -finished running AV");
+            DEBUG_debug(" -finished running AV");
 //            rc = system("date");
         }
         else if (!responsescanners.empty()) {
-            E2LOGGER_debug(" -content length large so skipping content scanning (virus) filtering");
+            DEBUG_debug(" -content length large so skipping content scanning (virus) filtering");
         }
 //        rc = system("date");
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text", ldl->fg[filtergroup]) ||
                                               docheader->isContentType("-", ldl->fg[filtergroup]))) {
-            E2LOGGER_debug(" -Start content filtering: ");
+            DEBUG_debug(" -Start content filtering: ");
             checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
                              ldl->fg[filtergroup], ldl->fg[filtergroup]->banned_phrase_list,
                              ldl->fg[filtergroup]->naughtyness_limit);
-            E2LOGGER_debug(" -Done content filtering");
+            DEBUG_debug(" -Done content filtering");
         }
 
         else {
-            E2LOGGER_debug(" -Skipping content filtering: ");
+            DEBUG_debug(" -Skipping content filtering: ");
             if (dblen > o.max_content_filter_size) {
-                E2LOGGER_debug(" -Content too large");
+                DEBUG_debug(" -Content too large");
             } else if (checkme->isException) {
-                E2LOGGER_debug(" -Is flagged as an exception");
+                DEBUG_debug(" -Is flagged as an exception");
             } else if (checkme->isItNaughty) {
-                E2LOGGER_debug(" -Is already flagged as naughty (content scanning)");
+                DEBUG_debug(" -Is already flagged as naughty (content scanning)");
             } else if (isbypass) {
-              E2LOGGER_debug(" -Is flagged as a bypass");
+              DEBUG_debug(" -Is flagged as a bypass");
             } else if (docheader->authRequired()) {
-                E2LOGGER_debug(" -Is a set of auth required headers");
+                DEBUG_debug(" -Is a set of auth required headers");
             } else if (!docheader->isContentType("text",ldl->fg[filtergroup])) {
-                E2LOGGER_debug(" -Not text");
+                DEBUG_debug(" -Not text");
             }
         }
     }
@@ -2253,13 +2253,13 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     }
 
     else {
-        E2LOGGER_debug(" -Skipping content modification: ");
+        DEBUG_debug(" -Skipping content modification: ");
         if (dblen > o.max_content_filter_size) {
-          E2LOGGER_debug(" -Content too large");
+          DEBUG_debug(" -Content too large");
         } else if (!docheader->isContentType("text",ldl->fg[filtergroup])) {
-            E2LOGGER_debug(" -Not text");
+            DEBUG_debug(" -Not text");
         } else if (checkme->isItNaughty) {
-          E2LOGGER_debug(" -Already flagged as naughty");
+          DEBUG_debug(" -Already flagged as naughty");
         }
     }
     //rc = system("date");
@@ -2267,7 +2267,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
     if (contentmodified) { // this would not include infected/cured files
         // if the content was modified then it must have fit in ram so no
         // need to worry about swapped to disk stuff
-        E2LOGGER_debug(" -content modification made");
+        DEBUG_debug(" -content modification made");
         if (compressed) {
             docheader->removeEncoding(docbody->data_length);
             // need to modify header to mark as not compressed
@@ -2281,7 +2281,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         // the original compressed version (if there) and send
         // that to the browser
     }
-    E2LOGGER_debug(" Returning from content checking");
+    DEBUG_debug(" Returning from content checking");
 }
 
 
@@ -2289,7 +2289,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     String connect_request = "CONNECT " + hostname + ":";
     connect_request += "443 HTTP/1.1\r\n\r\n";
 
-    E2LOGGER_debug(" -creating tunnel through proxy to ", hostname);
+    DEBUG_debug(" -creating tunnel through proxy to ", hostname);
 
     //somewhere to hold the header from the proxy
     HTTPHeader header(__HEADER_RESPONSE);
@@ -2298,7 +2298,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
     if (!(sock->writeString(connect_request.c_str()) && header.in(sock, true))) {
 
-        E2LOGGER_debug(" -Error creating tunnel through proxy", strerror(errno) );
+        DEBUG_debug(" -Error creating tunnel through proxy", strerror(errno) );
         //(*checkme).whatIsNaughty = "Unable to create tunnel through local proxy";
         checkme->message_no = 157;
         (*checkme).whatIsNaughty = o.language_list.getTranslation(157);
@@ -2318,7 +2318,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
         (*checkme).isItNaughty = true;
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
 
-        E2LOGGER_debug(" -Tunnel status was ", header.returnCode(), " expecting 200 ok");
+        DEBUG_debug(" -Tunnel status was ", header.returnCode(), " expecting 200 ok");
 
         return -1;
     }
@@ -2328,7 +2328,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
 void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, NaughtyFilter *checkme)
 {
-    E2LOGGER_debug(" -checking SSL certificate is valid");
+    DEBUG_debug(" -checking SSL certificate is valid");
 
     long rc = sslsock->checkCertValid(hostname);
     //check that everything in this certificate is correct appart from the hostname
@@ -2354,7 +2354,7 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
         return;
     }
 
-    E2LOGGER_debug(" -checking SSL certificate hostname");
+    DEBUG_debug(" -checking SSL certificate hostname");
 
     //check the common name and altnames of a certificate against hostname
     if (sslsock->checkCertHostname(hostname) < 0) {
@@ -2387,11 +2387,11 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
 //        ippath = p1;
 //    }
 
-    E2LOGGER_debug("IPPath is ", ippath);
+    DEBUG_debug("IPPath is ", ippath);
 
     // change '.' to '-'
     ippath.swapChar('.', '-');
-    E2LOGGER_debug("IPPath is ", ippath);
+    DEBUG_debug("IPPath is ", ippath);
 #ifdef PRT_DNSAUTH
     // get info from DNS
     union {
@@ -2402,11 +2402,11 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
-        E2LOGGER_debug("DNS query returned error ", dns_error(h_errno));
+        DEBUG_debug("DNS query returned error ", dns_error(h_errno));
         return false;
     }
     if (ns_initparse(response.buf, responseLen, &handle) < 0) {
-        E2LOGGER_debug("ns_initparse returned error ", strerror(errno));
+        DEBUG_debug("ns_initparse returned error ", strerror(errno));
         return false;
     }
     //int rrnum; /* resource record number */
@@ -2417,11 +2417,11 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
         if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
-            E2LOGGER_debug("ns_paserr returned error ", strerror(errno));
+            DEBUG_debug("ns_paserr returned error ", strerror(errno));
             return false;
         } else {
             if (ns_rr_type(rr) == ns_t_txt) {
-                E2LOGGER_debug("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
+                DEBUG_debug("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
                 u_char *k = (u_char *)ns_rr_rdata(rr);
                 char p[400];
                 unsigned int j = 0;
@@ -2430,7 +2430,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
                 }
 //                p[j] = (char)NULL;
                 p[j] = '\0';
-                E2LOGGER_debug("ns_rr_data returned ", p );
+                DEBUG_debug("ns_rr_data returned ", p );
                 String dnstxt(p);
                 user = dnstxt.before(",");
                 return true;
@@ -2498,10 +2498,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                           bool &persistent_authed, String &ip, stat_rec *&dystat, std::string &clientip,
                           bool transparent) {
 
-        E2LOGGER_debug(" Start goMITM nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
+        DEBUG_debug(" Start goMITM nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
 
-    E2LOGGER_debug(" -Intercepting HTTPS connection");
+    DEBUG_debug(" -Intercepting HTTPS connection");
     HTTPHeader *header = checkme.request_header;
     HTTPHeader *docheader = checkme.response_header;
     bool justLog = false;
@@ -2519,7 +2519,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     EVP_PKEY *pkey = NULL;
     bool certfromcache = false;
     //generate the cert
-    E2LOGGER_debug(" -Getting ssl certificate for client connection");
+    DEBUG_debug(" -Getting ssl certificate for client connection");
 
     pkey = o.ca->getServerPkey();
 
@@ -2529,7 +2529,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
                                                    &caser);
     if (caser.asn == NULL) {
-        E2LOGGER_debug("caser.asn is NULL");                            }
+        DEBUG_debug("caser.asn is NULL");                            }
         //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
 
         //check that the generated cert is not null and fillin checkme if it is
@@ -2557,7 +2557,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     //if (!checkme.isItNaughty)
     if (true)
     {
-        E2LOGGER_debug(" -Going SSL on the peer connection");
+        DEBUG_debug(" -Going SSL on the peer connection");
 
         if (!transparent) {
 //send a 200 to the client no matter what because they managed to get a connection to us
@@ -2595,10 +2595,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
     if (proxysock.isOpen()) {
         // tsslclient connected to the proxy and check the certificate of the server
-        E2LOGGER_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
+        DEBUG_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
         if (!checkme.isItNaughty) {
-            E2LOGGER_debug(" -Going SSL on upstream connection ");
+            DEBUG_debug(" -Going SSL on upstream connection ");
             std::string certpath = std::string(o.ssl_certificate_path);
             if (proxysock.startSslClient(certpath, checkme.urldomain)) {
                 checkme.isItNaughty = true;
@@ -2609,10 +2609,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                 checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             }
         }
-        E2LOGGER_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
+        DEBUG_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
         if (!checkme.isItNaughty) {
-            E2LOGGER_debug(" -Checking certificate");
+            DEBUG_debug(" -Checking certificate");
             //will fill in checkme of its own accord
             if (!checkme.nocheckcert) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
@@ -2622,7 +2622,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         }
     }
 
-    E2LOGGER_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
+    DEBUG_debug(" nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
         bool writecert = true;
         if (!certfromcache) {
@@ -2634,7 +2634,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         if (!writecert) {
             E2LOGGER_error("Couldn't save certificate to on disk cache");
         }
-        E2LOGGER_debug(" -Handling connections inside ssl tunnel");
+        DEBUG_debug(" -Handling connections inside ssl tunnel");
 
         if (authed) {
             persistent_authed = true;
@@ -2642,14 +2642,14 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
         //handleConnection inside the ssl tunnel
         handleConnection(peerconn, ip, true, proxysock, dystat);
-        E2LOGGER_debug(" -Handling connections inside ssl tunnel: done");
+        DEBUG_debug(" -Handling connections inside ssl tunnel: done");
     }
     o.ca->free_ca_serial(&caser);
 
 //stopssl on the proxy connection
 //if it was marked as naughty then show a deny page and close the connection
     if (checkme.isItNaughty || checkme.upfailure) {
-        E2LOGGER_debug(" -SSL Interception failed ", checkme.whatIsNaughty, " nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
+        DEBUG_debug(" -SSL Interception failed ", checkme.whatIsNaughty, " nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
         doLog(clientuser, clientip, checkme);
 
@@ -2658,10 +2658,10 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, checkme.badcert);
     }
-    E2LOGGER_debug(" -Shutting down ssl to proxy");
+    DEBUG_debug(" -Shutting down ssl to proxy");
     proxysock.stopSsl();
 
-    E2LOGGER_debug(" -Shutting down ssl to client");
+    DEBUG_debug(" -Shutting down ssl to client");
 
     peerconn.stopSsl();
 
@@ -2690,7 +2690,7 @@ bool ConnectionHandler::doAuth(int &auth_result, bool &authed, int &filtergroup,
 bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlugin *auth_plugin, Socket &peerconn,
                                Socket &proxysock, HTTPHeader &header, NaughtyFilter &cm, bool only_client_ip, bool isconnect_like) {
 
-    E2LOGGER_debug(" -Not got persistent credentials for this connection - querying auth plugins");
+    DEBUG_debug(" -Not got persistent credentials for this connection - querying auth plugins");
     bool dobreak = false;
     rc = 0;
     if (o.authplugins.size() != 0) {
@@ -2700,7 +2700,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         String tmp;
 
         for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
-            E2LOGGER_debug(" -Querying next auth plugin...");
+            DEBUG_debug(" -Querying next auth plugin...");
             // try to get the username & parse the return value
             auth_plugin = (AuthPlugin *) (*i);
             if (only_client_ip && !auth_plugin->client_ip_based)
@@ -2731,10 +2731,10 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             }
 
             if (rc == E2AUTH_NOMATCH) {
-                E2LOGGER_debug("Auth plugin did not find a match; querying remaining plugins");
+                DEBUG_debug("Auth plugin did not find a match; querying remaining plugins");
                 continue;
             } else if (rc == E2AUTH_REDIRECT) {
-                E2LOGGER_debug("Auth plugin told us to redirect client to \"", clientuser, "\"; not querying remaining plugins");
+                DEBUG_debug("Auth plugin told us to redirect client to \"", clientuser, "\"; not querying remaining plugins");
                 if (isconnect_like)      // it is connect or trans https so cannot send redirect
                 {
                     dobreak = true;
@@ -2749,17 +2749,17 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     break;
                 }
             } else if (rc == E2AUTH_OK_NOPERSIST) {
-                E2LOGGER_debug("Auth plugin  returned OK but no persist not setting persist auth");
+                DEBUG_debug("Auth plugin  returned OK but no persist not setting persist auth");
                 overide_persist = true;
             } else if (rc < 0) {
                 E2LOGGER_error("Auth plugin returned error code: ", rc);
                 dobreak = true;
                 break;
             }
-            E2LOGGER_debug(" -Auth plugin found username ", clientuser, " (", oldclientuser, "), now determining group");
+            DEBUG_debug(" -Auth plugin found username ", clientuser, " (", oldclientuser, "), now determining group");
 
             if (clientuser == oldclientuser) {
-                E2LOGGER_debug(" -Same user as last time, re-using old group no.");
+                DEBUG_debug(" -Same user as last time, re-using old group no.");
                 authed = true;
                 filtergroup = oldfg;
                 break;
@@ -2767,11 +2767,11 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // try to get the filter group & parse the return value
             rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->StoryA, cm);
             if (rc == E2AUTH_OK) {
-                E2LOGGER_debug("Auth plugin found username & group; not querying remaining plugins");
+                DEBUG_debug("Auth plugin found username & group; not querying remaining plugins");
                 authed = true;
                 break;
             } else if (rc == E2AUTH_NOMATCH) {
-                E2LOGGER_debug("Auth plugin did not find a match; querying remaining plugins");
+                DEBUG_debug("Auth plugin did not find a match; querying remaining plugins");
                 clientuser = "";
                 continue;
             } else if (rc == E2AUTH_NOGROUP) {
@@ -2780,7 +2780,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     SBauth.user_source = "";
                     continue;
                 }
-                E2LOGGER_debug("Auth plugin found username \"", clientuser, "\" but no associated group; not querying remaining plugins");
+                DEBUG_debug("Auth plugin found username \"", clientuser, "\" but no associated group; not querying remaining plugins");
 
                 //filtergroup = 0; // default now set before call to doAuth
                 authed = true;
@@ -2798,12 +2798,12 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         //break;
 
         if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
             if (!authed) {
-                E2LOGGER_debug(" -No identity found; using defaults");
+                DEBUG_debug(" -No identity found; using defaults");
             }
             else {
-                E2LOGGER_debug(" -Plugin returned out-of-range filter group number; using defaults");
+                DEBUG_debug(" -Plugin returned out-of-range filter group number; using defaults");
             }
 #endif
 
@@ -2814,14 +2814,14 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // 'ip', because Squid isn't necessarily going to return 'auth required'.
             authed = !o.auth_needs_proxy_query;
             if (!o.auth_needs_proxy_query)
-                E2LOGGER_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
+                DEBUG_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
 
             clientuser = "-";
             //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
         } else {
-            E2LOGGER_debug(" -Identity found; caching username & group");
+            DEBUG_debug(" -Identity found; caching username & group");
             if (auth_plugin->is_connection_based && !overide_persist) {
-                E2LOGGER_debug("Auth plugin is for a connection-based auth method - keeping credentials for entire connection");
+                DEBUG_debug("Auth plugin is for a connection-based auth method - keeping credentials for entire connection");
                 persistent_authed = true;
             }
             oldclientuser = clientuser;
@@ -2829,7 +2829,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         }
     } else {
         // We don't have any auth plugins loaded
-        E2LOGGER_debug(" -No auth plugins loaded; using defaults & feigning persistency");
+        DEBUG_debug(" -No auth plugins loaded; using defaults & feigning persistency");
         authed = true;
         clientuser = "-";
         //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
@@ -2853,7 +2853,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         // int bypasstimestamp = 0;
         if (checkme.isscanbypassallowed &&
             isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-            E2LOGGER_debug(" -Scan Bypass URL match");
+            DEBUG_debug(" -Scan Bypass URL match");
             checkme.isscanbypass = true;
             checkme.isbypass = true;
             checkme.message_no = 608;
@@ -2864,13 +2864,13 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
             checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
             checkme.tempfilemime = (checkme.tempfilename.after("&M="));
             checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
-            E2LOGGER_debug(" -Original filename: ", checkme.tempfiledis);
+            DEBUG_debug(" -Original filename: ", checkme.tempfiledis);
             String rtype(header.requestType());
             checkme.tempfilemime = checkme.tempfilemime.before("&D=");
             checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
             return true;
         }
-        E2LOGGER_debug(" -About to check for bypass...");
+        DEBUG_debug(" -About to check for bypass...");
         if (checkme.isscanbypass) {
             checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
                                                   clientip.c_str(), "GBYPASS=", clientuser);
@@ -2880,7 +2880,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(606);
                     checkme.message_no = 606;
                 }
-                E2LOGGER_debug(" -Filter bypass URL match");
+                DEBUG_debug(" -Filter bypass URL match");
             }
         }
 
@@ -2893,7 +2893,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(608);
                     checkme.message_no = 608;
                 }
-                E2LOGGER_debug(" -Infection bypass URL match");
+                DEBUG_debug(" -Infection bypass URL match");
             }
         }
 
@@ -2906,7 +2906,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                     checkme.exceptionreason = o.language_list.getTranslation(608);
                     checkme.message_no = 608;
                 }
-                E2LOGGER_debug(" -Too big to scan bypass URL match");
+                DEBUG_debug(" -Too big to scan bypass URL match");
             }
         }
     }
@@ -2924,17 +2924,17 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         }
         if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
                                     clientip.c_str(), clientuser.c_str())) {
-            E2LOGGER_debug(" -Bypass cookie match");
+            DEBUG_debug(" -Bypass cookie match");
             checkme.iscookiebypass = true;
             checkme.isbypass = true;
             checkme.isexception = true;
             checkme.exceptionreason = o.language_list.getTranslation(607);
         }
     }
-    E2LOGGER_debug(" -Finished bypass checks.");
+    DEBUG_debug(" -Finished bypass checks.");
 
     if (checkme.isbypass) {
-        E2LOGGER_debug(" -bypass activated!");
+        DEBUG_debug(" -bypass activated!");
     }
     //
     // End of bypass
@@ -2992,7 +2992,7 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
         !responsescanners.empty()) {
         cm.waschecked = true;
         if (!responsescanners.empty()) {
-            E2LOGGER_debug(" -Filtering with expectation of a possible csmessage");;
+            DEBUG_debug(" -Filtering with expectation of a possible csmessage");;
             String csmessage;
             contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent,
                           &cm.pausedtoobig,
@@ -3000,11 +3000,11 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
                           &cm.wasinfected, &cm.wasscanned, cm.isbypass, cm.urld, cm.urldomain, &cm.scanerror,
                           cm.contentmodified, &csmessage);
             if (csmessage.length() > 0) {
-                E2LOGGER_debug(" -csmessage found: ", csmessage);;
+                DEBUG_debug(" -csmessage found: ", csmessage);;
                 cm.exceptionreason = csmessage.toCharArray();
             }
         } else {
-            E2LOGGER_debug(" -Calling contentFilter ");;
+            DEBUG_debug(" -Calling contentFilter ");;
             contentFilter(cm.response_header, cm.request_header, &docbody, &proxysock, &peerconn, &cm.headersent,
                           &cm.pausedtoobig,
                           &cm.docsize, &cm, cm.wasclean, filtergroup, responsescanners, &clientuser, &cm.clientip,
@@ -3014,11 +3014,11 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     } else {
         cm.tunnel_rest = true;
     }
-    E2LOGGER_debug("End content check isitNaughty is  ", cm.isItNaughty);
+    DEBUG_debug("End content check isitNaughty is  ", cm.isItNaughty);
 }
 
 int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
-    E2LOGGER_trace("");
+    DEBUG_trace("");
 
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
@@ -3042,7 +3042,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     matchedip = false;
 
 
-    E2LOGGER_debug(" -got peer connection - clientip is ", clientip);
+    DEBUG_thttps(" -got peer connection - clientip is ", clientip);
 
     try {
         int rc;
@@ -3063,7 +3063,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
         char buff[2048];
         rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
-        E2LOGGER_debug( "bytes peeked ", rc );
+        DEBUG_thttps( "bytes peeked ", rc );
         unsigned short toread = 0;
         if (rc == 5) {
         if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
@@ -3073,7 +3073,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         if (toread > 2048) toread = 2048;
         }
 
-        E2LOGGER_debug("hello length is ", toread, " magic is ", buff[0], buff[1], buff[2], " isTLS is ", checkme.isTLS);
+        DEBUG_thttps("hello length is ", toread, " magic is ", buff[0], buff[1], buff[2], " isTLS is ", checkme.isTLS);
 
        if(checkme.isTLS) {
             rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000);
@@ -3086,7 +3086,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                         std::string peerIP = peerconn.getPeerIP();
                         if(peerconn.isTimedout())
                         {
-                            E2LOGGER_debug("Connection timed out");
+                            DEBUG_thttps("Connection timed out");
                         }
                         E2LOGGER_error("No header recd from client - errno: ", err);
                     } else {
@@ -3096,7 +3096,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             firsttime = false;
             //persistPeer = false;
         } else {
-            E2LOGGER_debug("bytes peeked ", rc );
+            DEBUG_thttps("bytes peeked ", rc );
              char *ret = get_TLS_SNI(buff, &rc);
              if (ret != NULL) {
              checkme.url = ret;
@@ -3115,7 +3115,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             return -1;
         }
 
-        E2LOGGER_debug("hasSNI = ", checkme.hasSNI, " SNI is ", checkme.url,  " Orig IP ", checkme.orig_ip, " Orig port ", checkme.orig_port );
+        DEBUG_thttps("hasSNI = ", checkme.hasSNI, " SNI is ", checkme.url,  " Orig IP ", checkme.orig_ip, " Orig port ", checkme.orig_port );
         //
         // End of set-up section
 
@@ -3144,14 +3144,14 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             filtergroup = o.default_trans_fg;
 
             //if(o.log_requests) {
-            if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+            if (e2logger.isEnabled(LoggerSource::requestlog)) {
                 std::string fnt = "THTTPS";
                 doRQLog(clientuser, clientip, checkme, fnt);
             }
 
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
-            E2LOGGER_debug("After StoryA thttps-pre-authcheck", checkme.isexception, " mess_no ",  checkme.message_no );
+            DEBUG_thttps("After StoryA thttps-pre-authcheck", checkme.isexception, " mess_no ",  checkme.message_no );
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
 
@@ -3178,7 +3178,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             checkme.filtergroup = filtergroup;
             if(!checkme.nomitm) checkme.nomitm = !ldl->fg[filtergroup]->ssl_mitm;
 
-            E2LOGGER_debug(" -username: ", clientuser, " -filtergroup: ", filtergroup);
+            DEBUG_thttps(" -username: ", clientuser, " -filtergroup: ", filtergroup);
 //
 //
 // End of Authentication Checking
@@ -3208,7 +3208,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //} else {
             // /   if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
             // /                   checkme.urld)) {
-            // /       E2LOGGER_debug(" isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
+            // /       DEBUG_thttps(" isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
           //.          if (isbannedip) {
                  //       matchedip = clienthost == NULL;
             //            checkme.isBlocked = checkme.isItNaughty = true;
@@ -3229,9 +3229,9 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             // being a banned user/IP overrides the fact that a site may be in the exception lists
             // needn't check these lists in bypass modes
             if (!(checkme.isdone || isbanneduser || isbannedip || checkme.isexception)) {
-                E2LOGGER_trace("Check StoryB thttps-checkrequest");
+                DEBUG_trace("Check StoryB thttps-checkrequest");
                 ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_THTTPS_REQUEST,checkme);
-                E2LOGGER_trace("After StoryB thttps-checkrequest",
+                DEBUG_trace("After StoryB thttps-checkrequest",
                             " isException: ", String(checkme.isexception),
                             " mess_no ", String(checkme.message_no));
 
@@ -3263,7 +3263,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 }
             }
 
-            E2LOGGER_debug(" after connectUpstream nf ", checkme.isItNaughty," upfail ", checkme.upfailure);
+            DEBUG_thttps(" after connectUpstream nf ", checkme.isItNaughty," upfail ", checkme.upfailure);
 
             if((checkme.isItNaughty ||checkme.upfailure) && checkme.automitm && checkme.hasSNI)
                 checkme.gomitm = true;  // allows us to send splash page
@@ -3275,7 +3275,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
             //if ismitm - GO MITM
                 if (checkme.gomitm && !checkme.nomitm)
                 {
-                E2LOGGER_debug("Going MITM ....");
+                DEBUG_thttps("Going MITM ....");
                 if(!ldl->fg[filtergroup]->mitm_check_cert)
                     checkme.nocheckcert = true;
                 goMITM(checkme, proxysock, peerconn, persistProxy, authed, persistent_authed, ip, dystat, clientip, true);
@@ -3291,7 +3291,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             //if not grey tunnel response
             if (!checkme.isItNaughty && checkme.tunnel_rest) {
-                E2LOGGER_debug(" -Tunnelling to client");
+                DEBUG_thttps(" -Tunnelling to client");
                 if (!fdt.tunnel(proxysock, peerconn,true, -1 , true))
                     persistProxy = false;
                 checkme.docsize += fdt.throughput;
@@ -3311,7 +3311,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
         }
         } catch (std::exception & e)
         {
-        E2LOGGER_debug(" - THTTPS connection handler caught an exception: ", e.what() );
+        DEBUG_thttps(" - THTTPS connection handler caught an exception: ", e.what() );
         if(o.logconerror)
             E2LOGGER_error(" - THTTPS connection handler caught an exception %s" , e.what());
 
@@ -3399,9 +3399,14 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
 
 int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec *&dystat) {
 
-#ifdef E2DEBUG
+#ifdef DEBUG_HIGH
+    int pcount = 0;
+#else
+#ifdef DEBUG_LOW
     int pcount = 0;
 #endif
+#endif
+
     bool ismitm = false;
 
     struct timeval thestart;
@@ -3457,12 +3462,12 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 
             {
                 // another round...
-                E2LOGGER_debugicap(" ICAP -persisting (count ", ++pcount, ")", " Client IP: ", clientip);
+                DEBUG_icap(" ICAP -persisting (count ", ++pcount, ")", " Client IP: ", clientip);
 
                 icaphead.reset();
                 if (!icaphead.in(&peerconn, true)) {
                     if (peerconn.isTimedout()) {
-                        E2LOGGER_debugicap( " -ICAP Persistent connection timed out");
+                        DEBUG_icap( " -ICAP Persistent connection timed out");
                         //send error response
                         wline = "ICAP/1.0 408 Request timeout\r\n";
                         wline += "Service: ";
@@ -3473,7 +3478,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         peerconn.writeString(wline.toCharArray());
                     } else {
 
-                        E2LOGGER_debugicap( " -ICAP Persistent connection closed");
+                        DEBUG_icap( " -ICAP Persistent connection closed");
                         // TODO: send error reply if needed
                         break;
                     }
@@ -3511,7 +3516,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 docbody.setICAP(true);
                 peerconn.resetChunk();
             }
-                E2LOGGER_debugicap("service options enabled : ", wline, 
+                DEBUG_icap("service options enabled : ", wline,
                                     " icaphead.service_reqmod: ", icaphead.service_reqmod,
                                     " icaphead.service_resmod: ", icaphead.service_resmod,
                                     " icaphead.service_options: ",
@@ -3522,7 +3527,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             // Check service option REQMOD, RESMOD, OPTIONS and call apropreate function(s)
             //
             if (icaphead.service_reqmod && icaphead.icap_reqmod_service) {
-                E2LOGGER_debugicap( "Icap reqmod check ");
+                DEBUG_icap( "Icap reqmod check ");
                 if (handleICAPreqmod(peerconn,ip, checkme, icaphead, auth_plugin) == 0){
                     continue;
                 }else{
@@ -3530,7 +3535,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 }
 
             } else if (icaphead.service_resmod && icaphead.icap_resmod_service) {
-                E2LOGGER_debugicap("Icap resmod check ");
+                DEBUG_icap("Icap resmod check ");
                 if (handleICAPresmod(peerconn,ip, checkme, icaphead, docbody) == 0)
                     continue;
                 else
@@ -3550,7 +3555,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-                E2LOGGER_debugicap("respmod service options response : ", wline);
+                DEBUG_icap("respmod service options response : ", wline);
 
             } else if (icaphead.service_options && icaphead.icap_resmod_service) {
                // respond with option response
@@ -3567,7 +3572,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //   wline += "Preview: 0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-                E2LOGGER_debugicap("respmod service options response : ", wline);
+                DEBUG_icap("respmod service options response : ", wline);
 
             } else if ((icaphead.service_reqmod && !icaphead.icap_reqmod_service) ||
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
@@ -3578,7 +3583,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-                E2LOGGER_debugicap("ICAP/1.0 405 Method not allowed for service ", wline);
+                DEBUG_icap("ICAP/1.0 405 Method not allowed for service ", wline);
 
            } else {
                 //send error response
@@ -3587,14 +3592,14 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
 		        wline += PACKAGE_STRING; 
 		        wline  += "\r\n";
                 peerconn.writeString(wline.toCharArray());
-                E2LOGGER_debugicap("ICAP/1.0 400 Bad request : ", wline);
+                DEBUG_icap("ICAP/1.0 400 Bad request : ", wline);
             }
         }
     //    } //catch (std::exception & e)
 
     if (!ismitm)
         try {
-            E2LOGGER_debugicap("ICAP -Attempting graceful connection close");
+            DEBUG_icap("ICAP -Attempting graceful connection close");
 
             int fd = peerconn.getFD();
             if (fd > -1) {
@@ -3607,7 +3612,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             // close connection to the client
             peerconn.close();
         } catch (std::exception &e) {
-            E2LOGGER_debugicap(" -ICAP connection handler caught an exception on connection closedown: ", e.what());
+            DEBUG_icap(" -ICAP connection handler caught an exception on connection closedown: ", e.what());
             // close connection to the client
             peerconn.close();
         }
@@ -3644,11 +3649,11 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
-    E2LOGGER_debug("filtergroup set to ICAP default ", filtergroup);
+    DEBUG_icap("filtergroup set to ICAP default ", filtergroup);
     clientuser = icaphead.username;
 
     //if(o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+    if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::string fnt = "REQMOD";
         doRQLog(clientuser, clientip, checkme, fnt);
     }
@@ -3658,50 +3663,21 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
         rc = determineGroup(clientuser, filtergroup, ldl->StoryA, checkme, ENT_STORYA_AUTH_ICAP);
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            int unrealgroup = filtergroup+1;
-            oss << thread_id << "filter group set from filtergroupslist: " << clientuser << " ICAP -filtergroup: " << unrealgroup  << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-        }
-#endif
+        DEBUG_icap("filter group set from filtergroupslist: ", clientuser, " ICAP -filtergroup: ", filtergroup);
     } else {
         oldclientuser = "user not known";
     }
 
     if (rc != E2AUTH_OK)
     {
-#ifndef NEWDEBUG_OFF
-        if(o.myDebug->ICAP)
-        {
-            std::ostringstream oss (std::ostringstream::out);
-            int unrealgroup = filtergroup+1;
-            oss << thread_id << "filter group NOT set from filtergroupslist: trying auth plugins"  << std::endl;
-            o.myDebug->Debug("ICAP",oss.str());
-        }
-#endif
+        DEBUG_icap("filter group NOT set from filtergroupslist: trying auth plugins");
         persistent_authed = false;
         if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, icaphead.HTTPrequest, checkme, true,
                     true)) {
-#ifndef NEWDEBUG_OFF
-            if(o.myDebug->ICAP)
-            {
-                std::ostringstream oss (std::ostringstream::out);
-                oss << thread_id << "error return from doAuth"  << std::endl;
-                o.myDebug->Debug("ICAP",oss.str());
-            }
-#endif
+            DEBUG_icap("error return from doAuth");
             //break;  // TODO Error return????
         } else {
-#ifndef NEWDEBUG_OFF
-            if (o.myDebug->ICAP) {
-                std::ostringstream oss(std::ostringstream::out);
-                oss << thread_id << "OK return from doAuth" << std::endl;
-                o.myDebug->Debug("ICAP", oss.str());
-            }
-#endif
+            DEBUG_icap("OK return from doAuth");
         }
         if (!(icaphead.username.empty() || icaphead.username == "-")) {
             checkme.user = icaphead.username;      // restore username if we had one from icap header
@@ -3713,7 +3689,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.filtergroup = filtergroup;
 
     //int unrealgroup = filtergroup+1;
-    E2LOGGER_debugicap("-username: ", clientuser, " ICAP -filtergroup: ", filtergroup);
+    DEBUG_icap("-username: ", clientuser, " ICAP -filtergroup: ", filtergroup);
 
 //
 //
@@ -3742,7 +3718,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
     //CALL SB pre-authcheck
     ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_ICAP, checkme);
-    E2LOGGER_debug("After StoryA icap-pre-authcheck", checkme.isexception, " mess_no ", checkme.message_no);
+    DEBUG_debug("After StoryA icap-pre-authcheck", checkme.isexception, " mess_no ", checkme.message_no);
     checkme.isItNaughty = checkme.isBlocked;
     bool isbannedip = checkme.isBlocked;
     //bool part_banned;
@@ -3752,7 +3728,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 #ifdef NOTDEF      // TODO does this need restoring???
         if (ldl->inRoom(clientip, room, clienthost, &isbannedip, &part_banned, &checkme.isexception,
                         checkme.urld)) {
-            E2LOGGER_debug("ICAP isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
+            DEBUG_debug("ICAP isbannedip = ", isbannedip, "ispart_banned = ", part_banned, " isexception = ", checkme.isexception);
             if (isbannedip) {
          //       matchedip = clienthost == NULL;
                 checkme.isBlocked = checkme.isItNaughty = true;
@@ -3791,7 +3767,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(isbanneduser || isbannedip || checkme.isexception)) {
 // Main checking is now done in Storyboard function(s)
         ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_REQMOD, checkme);
-        E2LOGGER_debug("After StoryB checkreqmod", checkme.isexception, " mess_no ",  checkme.message_no,
+        DEBUG_debug("After StoryB checkreqmod", checkme.isexception, " mess_no ",  checkme.message_no,
                     " allow_204 : ", icaphead.allow_204);
 
 	if (ldl->fg[filtergroup]->reporting_level != -1){
@@ -3803,7 +3779,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     if (checkme.isbypass && !(checkme.iscookiebypass || checkme.isvirusbypass)) {
-        E2LOGGER_debug("Setting GBYPASS cookie; bypasstimestamp = ", checkme.bypasstimestamp);
+        DEBUG_debug("Setting GBYPASS cookie; bypasstimestamp = ", checkme.bypasstimestamp);
         String ud(checkme.urldomain);
         if (ud.startsWith("www.")) {
             ud = ud.after("www.");
@@ -3890,7 +3866,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
                 peerconn.drainChunk(peerconn.getTimeout());   // drains any body
             }
             done = true;
-            E2LOGGER_debug("ICAP Naughty");
+            DEBUG_debug("ICAP Naughty");
             // break loop "// maintain a persistent connection"
             // return 1;
         };
@@ -3935,7 +3911,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         wline += "Encapsulated: null-body=0\r\n";
         wline += "\r\n";
         peerconn.writeString(wline.toCharArray());
-        E2LOGGER_debugicap(" ICAP Error: ", wline);
+        DEBUG_icap(" ICAP Error: ", wline);
         return 1;
     }
 
@@ -3973,7 +3949,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     //int unrealfiltergroup = filtergroup + 1;
-    E2LOGGER_debugicap("ICAP Respmod enabled - username: ", clientuser, 
+    DEBUG_icap("ICAP Respmod enabled - username: ", clientuser,
                         " -filtergroup: ", filtergroup,
                         " icaphead.icap_com.EBG: ", icaphead.icap_com.EBG,
                         " icaphead.res_body_flag: ", icaphead.res_body_flag);
@@ -3981,7 +3957,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.clientip = ip;
     checkme.filtergroup = filtergroup;
     //if(o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+    if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::string fnt = "RESPMOD";
         doRQLog(clientuser, clientip, checkme, fnt);
     }
@@ -3994,7 +3970,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     // virus checkichurchillng candidate?
     // checkme.noviruscheck defaults to true
-    E2LOGGER_debugicap("Virus scan checkme.isexception: ", checkme.isexception, 
+    DEBUG_icap("Virus scan checkme.isexception: ", checkme.isexception,
                         " checkme.noviruscheck: ", checkme.noviruscheck,
                         " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions,
                         " checkme.isBlocked: ", checkme.isBlocked,
@@ -4018,7 +3994,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     if (!(checkme.isexception) || !checkme.noviruscheck) {
             // Main checking is done in Storyboard function(s)
             ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_ICAP_RESMOD,checkme);
-            E2LOGGER_debugicap("After StoryB icapcheckresmod", checkme.isexception, 
+            DEBUG_icap("After StoryB icapcheckresmod", checkme.isexception,
                                 " mess_no ", checkme.message_no,
                                 " checkme.noviruscheck: ", checkme.noviruscheck,
                                 " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions);
@@ -4121,11 +4097,11 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &st
     }
     cm.user = user;
     if (!story.runFunctEntry(story_entry, cm)) {
-        E2LOGGER_debug("User not in filter groups list for: icap ");
+        DEBUG_debug("User not in filter groups list for: icap ");
         return E2AUTH_NOGROUP;
     }
 
-    E2LOGGER_debug("Group found for: ", user.c_str(), " in icap ");
+    DEBUG_debug("Group found for: ", user.c_str(), " in icap ");
     fg = cm.filtergroup;
     return E2AUTH_OK;
 }

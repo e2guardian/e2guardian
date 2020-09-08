@@ -56,117 +56,115 @@
 #include "Logger.hpp"
 
 #ifdef VALGRD
-  extern "C"
+extern "C"
+{
+  static void*
+  execute_native_thread_routine(void* __p)
   {
-    static void*
-    execute_native_thread_routine(void* __p)
-    {
-      std::thread::_Impl_base* __t = static_cast<std::thread::_Impl_base*>(__p);
-      std::thread::__shared_base_type __local;
-      __local.swap(__t->_M_this_ptr);
+    std::thread::_Impl_base* __t = static_cast<std::thread::_Impl_base*>(__p);
+    std::thread::__shared_base_type __local;
+    __local.swap(__t->_M_this_ptr);
 
-      __try
-	{
-	  __t->_M_run();
-	}
-      __catch(const __cxxabiv1::__forced_unwind&)
-	{
-	  __throw_exception_again;
-	}
-      __catch(...)
-	{
-	  std::terminate();
-	}
-
-      return nullptr;
-    }
-  } // extern "C"
-
-
-  void
-  std::thread::_M_start_thread(__shared_base_type __b)
+    __try
   {
-    if (!__gthread_active_p())
+    __t->_M_run();
+  }
+    __catch(const __cxxabiv1::__forced_unwind&)
+  {
+    __throw_exception_again;
+  }
+    __catch(...)
+  {
+    std::terminate();
+  }
+
+    return nullptr;
+  }
+} // extern "C"
+
+
+void
+std::thread::_M_start_thread(__shared_base_type __b)
+{
+  if (!__gthread_active_p())
 #if __cpp_exceptions
-      throw system_error(make_error_code(errc::operation_not_permitted),
-			 "Enable multithreading to use std::thread");
+    throw system_error(make_error_code(errc::operation_not_permitted),
+           "Enable multithreading to use std::thread");
 #else
-      __throw_system_error(int(errc::operation_not_permitted));
+    __throw_system_error(int(errc::operation_not_permitted));
 #endif
 
-    _M_start_thread(std::move(__b), nullptr);
-  }
+  _M_start_thread(std::move(__b), nullptr);
+}
 
 
-  void
-  std::thread::_M_start_thread(__shared_base_type __b, void (*)())
+void
+std::thread::_M_start_thread(__shared_base_type __b, void (*)())
+{
+  auto ptr = __b.get();
+  ptr->_M_this_ptr = std::move(__b);
+  int __e = __gthread_create(&_M_id._M_thread,
+                 &execute_native_thread_routine, ptr);
+  if (__e)
   {
-    auto ptr = __b.get();
-    ptr->_M_this_ptr = std::move(__b);
-    int __e = __gthread_create(&_M_id._M_thread,
-			       &execute_native_thread_routine, ptr);
-    if (__e)
-    {
-      ptr->_M_this_ptr.reset();
-      __throw_system_error(__e);
-    }
+    ptr->_M_this_ptr.reset();
+    __throw_system_error(__e);
   }
+}
 
 #endif
 
 // GLOBALS
 
-// these are used in signal handlers - "volatile" indicates they can change at
-// any time, and therefore value reading on them does not get optimised. since
-// the values can get altered by outside influences, this is useful.
-//static volatile bool ttg = false;
 std::atomic<bool> ttg;
 std::atomic<bool> e2logger_ttg;
 std::atomic<bool> gentlereload;
-//static volatile bool sig_term_killall = false;
-std::atomic<bool> reloadconfig ;
+std::atomic<bool> reloadconfig;
 std::atomic<int> reload_cnt;
+std::atomic<bool> rotate_access;
+std::atomic<bool> rotate_request;
+std::atomic<bool> rotate_dstat;
+
+extern std::atomic<bool> g_is_starting;
 
 extern OptionContainer o;
 extern bool is_daemonised;
 
-void stat_rec::clear()
-{
+void stat_rec::clear() {
     conx = 0;
     reqs = 0;
 };
 
-void stat_rec::start()
-{
-    clear();
-    start_int = time(NULL);
-    end_int = start_int + o.dstat_interval;
-    if (o.dstat_log_flag) {
-        mode_t old_umask;
-        old_umask = umask(S_IWGRP | S_IWOTH);
-        fs = fopen(o.dstat_location.c_str(), "a");
-        if (fs) {
-    	   if (o.stats_human_readable){
-               fprintf(fs, "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt\n");
-	   } else {
-               fprintf(fs, "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt\n");
-	   }
-        } else {
-           E2LOGGER_error("Unable to open dstats_log '", o.dstat_location, "' for writing.Continuing without logging");
-           o.dstat_log_flag = false;
-        };
+void stat_rec::start(bool firsttime = true) {
+
+    if (firsttime) {
+        clear();
+        start_int = time(NULL);
+        end_int = start_int + o.dstat_interval;
         maxusedfd = 0;
-        fflush(fs);
-        umask(old_umask);
+    }
+
+    if (o.dstat_log_flag) {
+        // now opened by Logger
+        //mode_t old_umask;
+        //old_umask = umask(S_IWGRP | S_IWOTH);
+        //fs = fopen(o.dstat_location.c_str(), "a");
+        std::string outmess;
+        if (o.stats_human_readable) {
+            outmess = "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt";
+        } else {
+            outmess = "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt";
+        }
+        E2LOGGER_dstatslog(outmess);
+        e2logger.flush(LoggerSource::dstatslog);
     };
 };
 
-void stat_rec::reset()
-{
+void stat_rec::reset() {
     time_t now = time(NULL);
     int bc = busychildren;
     long period = now - start_int;
-    long cnx = (long)conx;
+    long cnx = (long) conx;
     long rqx = (long) reqs;
     int mfd = maxusedfd;
     int LC = o.LC_cnt;
@@ -179,26 +177,38 @@ void stat_rec::reset()
 
     end_int = start_int + o.dstat_interval;
 
-    long cps = cnx / period;
-    long rqs = rqx / period;
-    if (o.stats_human_readable){
-        struct tm * timeinfo;
-        time( &now);
-        timeinfo = localtime ( &now );
-        char buffer [50];
-        strftime (buffer,50,"%Y-%m-%d %H:%M",timeinfo);
-    	fprintf(fs, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d\n", buffer, o.http_workers,
-        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
-    } else {
-        fprintf(fs, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d\n", now, o.http_workers,
-        bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    if (rotate_dstat) {
+        e2logger.rotate(LoggerSource::dstatslog);
+        start(false);  // output header
+        rotate_dstat = false;
     }
 
-    fflush(fs);
+    char outbuff[101];
+
+    long cps = cnx / period;
+    long rqs = rqx / period;
+    if (o.stats_human_readable) {
+        struct tm *timeinfo;
+        time(&now);
+        timeinfo = localtime(&now);
+        char buffer[50];
+        strftime(buffer, 50, "%Y-%m-%d %H:%M", timeinfo);
+        snprintf(outbuff, 100, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
+                 o.http_workers,
+                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    } else {
+        snprintf(outbuff, 100, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
+                 o.http_workers,
+                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+    }
+    std::string outs(outbuff);
+    E2LOGGER_dstatslog(outs);
+    e2logger.flush(LoggerSource::dstatslog);
+
+    //fflush(fs);
 };
 
-void stat_rec::close()
-{
+void stat_rec::close() {
     if (fs != NULL) fclose(fs);
 };
 
@@ -222,8 +232,7 @@ Socket *peersock(NULL); // the socket which will contain the connection
 //String peersockip; // which will contain the connection ip
 
 
-void monitor_flag_set(bool action)
-{
+void monitor_flag_set(bool action) {
 
     String fulink = o.monitor_flag_prefix;
     String ftouch = fulink;
@@ -240,7 +249,7 @@ void monitor_flag_set(bool action)
     umask(S_IWOTH);
     FILE *fs = fopen(ftouch.c_str(), "w");
     if (!fs) {
-        E2LOGGER_error( "Unable to open monitor_flag ", ftouch, " for writing");
+        E2LOGGER_error("Unable to open monitor_flag ", ftouch, " for writing");
         o.monitor_flag_flag = false;
     }
     fclose(fs);
@@ -269,7 +278,7 @@ extern "C" {
 }
 
 // logging & URL cache processes
-void log_listener(Queue<std::string>* log_Q, bool is_RQlog);
+void log_listener(Queue<std::string> *log_Q, bool is_RQlog);
 
 // fork off into background
 bool daemonise();
@@ -282,82 +291,8 @@ bool drop_priv_completely();
 
 // IMPLEMENTATION
 
-// signal handlers
-extern "C" { // The kernel knows nothing of objects so
-// we have to have a lump of c
-//void sig_term(int signo)
-//{
-    //sig_term_killall = true;
-    //ttg = true; // its time to go
-//}
-//void sig_termsafe(int signo)
-//{
-    //ttg = true; // its time to go
-//}
-//void sig_hup(int signo)
-//{
-    //reloadconfig = true;
-//#ifdef E2DEBUG
-    //std::cerr << "HUP received." << std::endl;
-//#endif
-//}
-//void sig_usr1(int signo)
-//{
-    //gentlereload = true;
-//#ifdef E2DEBUG
-    //std::cerr << "USR1 received." << std::endl;
-//#endif
-//}
-//void sig_childterm(int signo)
-//{
-//#ifdef E2DEBUG
-    //std::cerr << "TERM received." << std::endl;
-//#endif
-    //_exit(0);
-//}
-
-#ifdef  NOTDEF
-#ifdef ENABLE_SEGV_BACKTRACE
-void sig_segv(int signo, siginfo_t *info, void *secret)
-{
-#ifdef E2DEBUG
-    std::cerr << "SEGV received." << std::endl;
-#endif
-    // Extract "real" info about first stack frame
-    ucontext_t *uc = (ucontext_t *)secret;
-#ifdef REG_EIP
-    E2LOGGER_error("SEGV received: memory address ", info->si_addr, ", EIP ", (void *)(uc->uc_mcontext.gregs[REG_EIP]));
-#else
-    E2LOGGER_error("SEGV received: memory address ", info->si_addr, ", RIP ", (void *)(uc->uc_mcontext.gregs[REG_RIP]));
-#endif
-    // Generate backtrace
-    void *addresses[20];
-    char **strings;
-    int c = backtrace(addresses, 20);
-// Overwrite call to sigaction with caller's address
-// to give a more useful backtrace
-#ifdef REG_EIP
-    addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_EIP]);
-#else
-    addresses[1] = (void *)(uc->uc_mcontext.gregs[REG_RIP]);
-#endif
-    strings = backtrace_symbols(addresses, c);
-    printf("backtrace returned: %d\n", c);
-    // Skip first stack frame - it points to this signal handler
-    for (int i = 1; i < c; i++) {
-        E2LOGGER_error(i, " ",  (size_t)addresses[i]);
-        E2LOGGER_error(strings[i]);
-    }
-    // Kill off the current process
-    //raise(SIGTERM); // Do we want to do this?
-}
-#endif
-#endif
-}
-
 // completely drop our privs - i.e. setuid, not just seteuid
-bool drop_priv_completely()
-{
+bool drop_priv_completely() {
     // This is done to solve the problem where the total processes for the
     // uid rather than euid is taken for RLIMIT_NPROC and so can't fork()
     // as many as expected.
@@ -380,12 +315,11 @@ bool drop_priv_completely()
 }
 
 // Fork ourselves off into the background
-bool daemonise()
-{
+bool daemonise() {
     if (o.no_daemon) {
         return true;
     }
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
     return true; // if debug mode is enabled we don't want to detach
 #endif
 
@@ -423,8 +357,8 @@ bool daemonise()
     setsid(); // become session leader
     //int dummy = chdir("/"); // change working directory
     if (chdir("/") != 0) {// change working directory
-	    E2LOGGER_error(" Can't change / directory !");
-	    return false;
+        E2LOGGER_error(" Can't change / directory !");
+        return false;
     }
     umask(0); // clear our file mode creation mask
     umask(S_IWGRP | S_IWOTH); // set to mor sensible setting??
@@ -441,20 +375,19 @@ bool daemonise()
 // *
 
 // handle any connections received by this thread
-void handle_connections(int tindex)
-{
+void handle_connections(int tindex) {
     (thread_id = "hw") += std::to_string(tindex) += ": ";
 
     try {
         while (!ttg) {  // extra loop in order to delete and create ConnentionHandler on new lists or error
             ConnectionHandler h;    // the class that handles the connections
-	        String ip;
+            String ip;
 
             while (!ttg) {
-                E2LOGGER_debug(" waiting connection on http_worker_Q ");
+                DEBUG_debug(" waiting connection on http_worker_Q ");
                 LQ_rec rec = o.http_worker_Q.pop();
                 Socket *peersock = rec.sock;
-                E2LOGGER_debug(" popped connection from http_worker_Q");
+                DEBUG_debug(" popped connection from http_worker_Q");
                 if (ttg) break;
 
                 String peersockip = peersock->getPeerIP();
@@ -465,9 +398,9 @@ void handle_connections(int tindex)
                 }
                 ++dystat->busychildren;
                 ++dystat->conx;
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
                 int rc = h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
-                E2LOGGER_debug("handle_peer returned: ", rc);
+                DEBUG_debug("handle_peer returned: ", rc);
 #else
                 h.handlePeer(*peersock, peersockip, dystat, rec.ct_type); // deal with the connection
 #endif
@@ -510,17 +443,18 @@ void tell_monitor(bool active) //may not be needed
     };
 
     if (childid == 0) { // Am the child
-	int rc = seteuid(o.root_user);
-	if (rc != -1) {
-       	int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(), (char *)NULL); // should not return from call
-		if (systemreturn == -1) {
-            E2LOGGER_error("Unable to exec: ",buff, buff1, " : errno ",  errno, " ", strerror(errno));
-            exit(0);
-		}
+        int rc = seteuid(o.root_user);
+        if (rc != -1) {
+            int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(),
+                                     (char *) NULL); // should not return from call
+            if (systemreturn == -1) {
+                E2LOGGER_error("Unable to exec: ", buff, buff1, " : errno ", errno, " ", strerror(errno));
+                exit(0);
+            }
         } else {
-            	E2LOGGER_error("Unable to set uid root");
-            	exit(0);
-	}
+            E2LOGGER_error("Unable to set uid root");
+            exit(0);
+        }
     };
 
     if (childid > 0) { // Am the parent
@@ -558,7 +492,7 @@ void wait_for_proxy()
             return;
         }
     } catch (std::exception &e) {
-        E2LOGGER_debug(" -exception while creating proxysock: ", e.what());
+        DEBUG_debug(" -exception while creating proxysock: ", e.what());
     }
     E2LOGGER_error("Proxy is not responding - Waiting for proxy to respond");
     if (o.monitor_flag_flag)
@@ -608,624 +542,634 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         thread_id = "log: ";
 
     try {
-        E2LOGGER_trace("log listener started");
+        DEBUG_trace("log listener started");
 
 #ifdef ENABLE_EMAIL
-    // Email notification patch by J. Gauthier
-    std::map<std::string, int> violation_map;
-    std::map<std::string, int> timestamp_map;
-    std::map<std::string, std::string> vbody_map;
+        // Email notification patch by J. Gauthier
+        std::map<std::string, int> violation_map;
+        std::map<std::string, int> timestamp_map;
+        std::map<std::string, std::string> vbody_map;
 
-    int curv_tmp, stamp_tmp, byuser;
+        int curv_tmp, stamp_tmp, byuser;
 #endif
 
-    //String where, what, how;
-    std::string cr("\n");
+        //String where, what, how;
+        std::string cr("\n");
 
-    std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
-    std::string stype, postdata, flags, searchterms;
-    int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
-    int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
-    long tv_sec = 0, tv_usec = 0, endtv_sec = 0, endtv_usec = 0;
-    int contentmodified = 0, urlmodified = 0, headermodified = 0;
-    int headeradded = 0;
+        std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
+        std::string stype, postdata, flags, searchterms;
+        int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
+        int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
+        long tv_sec = 0, tv_usec = 0, endtv_sec = 0, endtv_usec = 0;
+        int contentmodified = 0, urlmodified = 0, headermodified = 0;
+        int headeradded = 0;
 
-    String server("");
-    // Get server name - only needed for formats 5 & 7
-    if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
-    	server = o.server_name;
-    }
+        String server("");
+        // Get server name - only needed for formats 5 & 7
+        if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
+            server = o.server_name;
+        }
 
-    std::string exception_word = o.language_list.getTranslation(51);
-    exception_word = "*" + exception_word + "* ";
-    std::string denied_word = o.language_list.getTranslation(52);
-    denied_word = "*" + denied_word;
-    std::string infected_word = o.language_list.getTranslation(53);
-    infected_word = "*" + infected_word + "* ";
-    std::string scanned_word = o.language_list.getTranslation(54);
-    scanned_word = "*" + scanned_word + "* ";
-    std::string contentmod_word = o.language_list.getTranslation(55);
-    contentmod_word = "*" + contentmod_word + "* ";
-    std::string urlmod_word = o.language_list.getTranslation(56);
-    urlmod_word = "*" + urlmod_word + "* ";
-    std::string headermod_word = o.language_list.getTranslation(57);
-    headermod_word = "*" + headermod_word + "* ";
-    std::string headeradd_word = o.language_list.getTranslation(58);
-    headeradd_word = "*" + headeradd_word + "* ";
-    std::string neterr_word = o.language_list.getTranslation(59);
-    neterr_word = "*" + neterr_word + "* ";
-    std::string blank_str;
+        std::string exception_word = o.language_list.getTranslation(51);
+        exception_word = "*" + exception_word + "* ";
+        std::string denied_word = o.language_list.getTranslation(52);
+        denied_word = "*" + denied_word;
+        std::string infected_word = o.language_list.getTranslation(53);
+        infected_word = "*" + infected_word + "* ";
+        std::string scanned_word = o.language_list.getTranslation(54);
+        scanned_word = "*" + scanned_word + "* ";
+        std::string contentmod_word = o.language_list.getTranslation(55);
+        contentmod_word = "*" + contentmod_word + "* ";
+        std::string urlmod_word = o.language_list.getTranslation(56);
+        urlmod_word = "*" + urlmod_word + "* ";
+        std::string headermod_word = o.language_list.getTranslation(57);
+        headermod_word = "*" + headermod_word + "* ";
+        std::string headeradd_word = o.language_list.getTranslation(58);
+        headeradd_word = "*" + headeradd_word + "* ";
+        std::string neterr_word = o.language_list.getTranslation(59);
+        neterr_word = "*" + neterr_word + "* ";
+        std::string blank_str;
 
-    if(o.use_dash_for_blanks)
-        blank_str = "-";
-    else
-        blank_str = "";
+        if (o.use_dash_for_blanks)
+            blank_str = "-";
+        else
+            blank_str = "";
 
 
-    while (!e2logger_ttg) { // loop, essentially, for ever
-        std::string loglines;
-        loglines.append(log_Q->pop());  // get logdata from queue
-        if (e2logger_ttg) break;
-        E2LOGGER_debug("received a log request");
+        while (!e2logger_ttg) { // loop, essentially, for ever
+            std::string loglines;
+            loglines.append(log_Q->pop());  // get logdata from queue
+            if (e2logger_ttg) break;
+            if (is_RQlog && rotate_request) {
+                e2logger.rotate(LoggerSource::requestlog);
+                rotate_request = false;
+            } else if (!is_RQlog && rotate_access) {
+                e2logger.rotate(LoggerSource::accesslog);
+                rotate_access = false;
+            }
+            DEBUG_debug("received a log request");
 
-        // Formatting code migration from ConnectionHandler
-        // and email notification code based on patch provided
-        // by J. Gauthier
+            // Formatting code migration from ConnectionHandler
+            // and email notification code based on patch provided
+            // by J. Gauthier
 
-        // read in the various parts of the log string
-        bool error = true;
-        int itemcount = 0;
-        //char * dup = strdup(loglines.c_str());
-        //const char *delim = "\n";
-        std::istringstream iss(loglines);
-        std::string logline;
-        std::shared_ptr<LOptionContainer> ldl;
-        ldl = o.currentLists();
+            // read in the various parts of the log string
+            bool error = true;
+            int itemcount = 0;
+            //char * dup = strdup(loglines.c_str());
+            //const char *delim = "\n";
+            std::istringstream iss(loglines);
+            std::string logline;
+            std::shared_ptr <LOptionContainer> ldl;
+            ldl = o.currentLists();
 
-        while (std::getline(iss, logline)) {
-            // Loop around reading in data, because we might have huge URLs
-            std::string s;
+            while (std::getline(iss, logline)) {
+                // Loop around reading in data, because we might have huge URLs
+                std::string s;
 
-            if (o.use_dash_for_blanks && logline == "") {
-                s = "-";
-            } else if (!o.use_dash_for_blanks && logline == "-") {
-                s = "";
-            } else {
-                s = logline;
+                if (o.use_dash_for_blanks && logline == "") {
+                    s = "-";
+                } else if (!o.use_dash_for_blanks && logline == "-") {
+                    s = "";
+                } else {
+                    s = logline;
+                }
+
+                switch (itemcount) {
+                    case 0:
+                        isexception = atoi(logline.c_str());
+                        break;
+                    case 1:
+                        cat = s;
+                        break;
+                    case 2:
+                        isnaughty = atoi(logline.c_str());
+                        break;
+                    case 3:
+                        naughtytype = atoi(logline.c_str());
+                        break;
+                    case 4:
+                        sweight = s;
+                        break;
+                    case 5:
+                        where = s;
+                        break;
+                    case 6:
+                        what = s;
+                        break;
+                    case 7:
+                        how = s;
+                        break;
+                    case 8:
+                        who = s;
+                        break;
+                    case 9:
+                        from = s;
+                        break;
+                    case 10:
+                        port = atoi(logline.c_str());
+                        break;
+                    case 11:
+                        wasscanned = atoi(logline.c_str());
+                        break;
+                    case 12:
+                        wasinfected = atoi(logline.c_str());
+                        break;
+                    case 13:
+                        contentmodified = atoi(logline.c_str());
+                        break;
+                    case 14:
+                        urlmodified = atoi(logline.c_str());
+                        break;
+                    case 15:
+                        headermodified = atoi(logline.c_str());
+                        break;
+                    case 16:
+                        ssize = s;
+                        break;
+                    case 17:
+                        filtergroup = atoi(logline.c_str());
+                        if (filtergroup < 0 || filtergroup > o.numfg) filtergroup = 0;
+                        break;
+                    case 18:
+                        code = atoi(logline.c_str());
+                        break;
+                    case 19:
+                        cachehit = atoi(logline.c_str());
+                        break;
+                    case 20:
+                        mimetype = s;
+                        break;
+                    case 21:
+                        tv_sec = atol(logline.c_str());
+                        break;
+                    case 22:
+                        tv_usec = atol(logline.c_str());
+                        break;
+                    case 23:
+                        endtv_sec = atol(logline.c_str());
+                        break;
+                    case 24:
+                        endtv_usec = atol(logline.c_str());
+                        break;
+                    case 25:
+                        clienthost = s;
+                        break;
+                    case 26:
+                        useragent = s;
+                        break;
+                    case 27:
+                        params = s;
+                        break;
+                    case 28:
+                        postdata = s;
+                        break;
+                    case 29:
+                        message_no = s;
+                        break;
+                    case 30:
+                        headeradded = atoi(logline.c_str());
+                        break;
+                    case 31:
+                        flags = s;
+                        break;
+                    case 32:
+                        searchterms = s;
+                        error = false;
+                        break;
+                }
+                itemcount++;
             }
 
-            switch (itemcount) {
-                case 0:
-                    isexception = atoi(logline.c_str());
-                    break;
+
+            // don't build the log line if we couldn't read all the component parts
+            if (error) {
+                E2LOGGER_error("Error in logline ", itemcount, " ", loglines);
+                continue;
+            }
+
+            // Start building the log line
+
+            if (port != 0 && port != 80) {
+                // put port numbers of non-standard HTTP requests into the logged URL
+                String newwhere(where);
+                if (newwhere.after("://").contains("/")) {
+                    String proto, host, path;
+                    proto = newwhere.before("://");
+                    host = newwhere.after("://");
+                    path = host.after("/");
+                    host = host.before("/");
+                    newwhere = proto;
+                    newwhere += "://";
+                    newwhere += host;
+                    newwhere += ":";
+                    newwhere += String((int) port);
+                    newwhere += "/";
+                    newwhere += path;
+                    where = newwhere;
+                } else {
+                    where += ":";
+                    where += String((int) port);
+                }
+            }
+
+            bool neterr = false;
+
+            // stamp log entries so they stand out/can be searched
+            switch (naughtytype) {
                 case 1:
-                    cat = s;
+                    stype = "-POST";
                     break;
                 case 2:
-                    isnaughty = atoi(logline.c_str());
+                    stype = "-PARAMS";
                     break;
                 case 3:
-                    naughtytype = atoi(logline.c_str());
+                    neterr = true;
                     break;
-                case 4:
-                    sweight = s;
-                    break;
-                case 5:
-                    where = s;
-                    break;
-                case 6:
-                    what = s;
-                    break;
-                case 7:
-                    how = s;
-                    break;
-                case 8:
-                    who = s;
-                    break;
-                case 9:
-                    from = s;
-                    break;
-                case 10:
-                    port = atoi(logline.c_str());
-                    break;
-                case 11:
-                    wasscanned = atoi(logline.c_str());
-                    break;
-                case 12:
-                    wasinfected = atoi(logline.c_str());
-                    break;
-                case 13:
-                    contentmodified = atoi(logline.c_str());
-                    break;
-                case 14:
-                    urlmodified = atoi(logline.c_str());
-                    break;
-                case 15:
-                    headermodified = atoi(logline.c_str());
-                    break;
-                case 16:
-                    ssize = s;
-                    break;
-                case 17:
-                    filtergroup = atoi(logline.c_str());
-                    if (filtergroup < 0 || filtergroup > o.numfg) filtergroup = 0;
-                    break;
-                case 18:
-                    code = atoi(logline.c_str());
-                    break;
-                case 19:
-                    cachehit = atoi(logline.c_str());
-                    break;
-                case 20:
-                    mimetype = s;
-                    break;
-                case 21:
-                    tv_sec = atol(logline.c_str());
-                    break;
-                case 22:
-                    tv_usec = atol(logline.c_str());
-                    break;
-                case 23:
-                    endtv_sec = atol(logline.c_str());
-                    break;
-                case 24:
-                    endtv_usec = atol(logline.c_str());
-                    break;
-                case 25:
-                    clienthost = s;
-                    break;
-                case 26:
-                    useragent = s;
-                    break;
-                case 27:
-                    params = s;
-                    break;
-                case 28:
-                    postdata = s;
-                    break;
-                case 29:
-                    message_no = s;
-                    break;
-                case 30:
-                    headeradded = atoi(logline.c_str());
-                    break;
-                case 31:
-                    flags = s;
-                    break;
-                case 32:
-                    searchterms = s;
-                    error = false;
-                    break;
+                default:
+                    stype.clear();
             }
-            itemcount++;
-        }
 
-
-        // don't build the log line if we couldn't read all the component parts
-        if (error) {
-            E2LOGGER_error("Error in logline ", itemcount, " ", loglines);
-            continue;
-        }    
-
-        // Start building the log line
-
-        if (port != 0 && port != 80) {
-            // put port numbers of non-standard HTTP requests into the logged URL
-            String newwhere(where);
-            if (newwhere.after("://").contains("/")) {
-                String proto, host, path;
-                proto = newwhere.before("://");
-                host = newwhere.after("://");
-                path = host.after("/");
-                host = host.before("/");
-                newwhere = proto;
-                newwhere += "://";
-                newwhere += host;
-                newwhere += ":";
-                newwhere += String((int) port);
-                newwhere += "/";
-                newwhere += path;
-                where = newwhere;
-            } else {
-                where += ":";
-                where += String((int) port);
+            if (isnaughty) {
+                if (neterr)
+                    what = neterr_word + what;
+                else
+                    what = denied_word + stype + "* " + what;
+            } else if (isexception && (o.log_exception_hits == 2)) {
+                what = exception_word + what;
             }
-        }
 
-        bool neterr = false;
+            if (wasinfected)
+                what = infected_word + stype + "* " + what;
+            else if (wasscanned)
+                what = scanned_word + what;
 
-        // stamp log entries so they stand out/can be searched
-        switch (naughtytype) {
-            case 1:
-                stype = "-POST";
-                break;
-            case 2:
-                stype = "-PARAMS";
-                break;
-            case 3:
-                neterr = true;
-                break;
-            default:
-                stype.clear();
-        }
-
-        if (isnaughty) {
-            if (neterr)
-                what = neterr_word + what;
-            else
-                what = denied_word + stype + "* " + what;
-        } else if (isexception && (o.log_exception_hits == 2)) {
-            what = exception_word + what;
-        }
-
-        if (wasinfected)
-            what = infected_word + stype + "* " + what;
-        else if (wasscanned)
-            what = scanned_word + what;
-
-        if (contentmodified) {
-            what = contentmod_word + what;
-        }
-        if (urlmodified) {
-            what = urlmod_word + what;
-        }
-        if (headermodified) {
-            what = headermod_word + what;
-        }
-        if (headeradded) {
-            what = headeradd_word + what;
-        }
-
-        std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
-
-        // create a string representation of UNIX timestamp if desired
-        if (o.log_timestamp || (o.log_file_format == 3)
-            || (o.log_file_format > 4)) {
-            String temp((int) (endtv_usec / 1000));
-            while (temp.length() < 3) {
-                temp = "0" + temp;
+            if (contentmodified) {
+                what = contentmod_word + what;
             }
-            if (temp.length() > 3) {
-                temp = "999";
+            if (urlmodified) {
+                what = urlmod_word + what;
             }
-            utime = temp;
-            utime = "." + utime;
-            utime = String((int) endtv_sec) + utime;
-        }
-
-
-        if ((o.log_file_format <= 2) || (o.log_file_format == 4)) {
-            // "when" not used in format 3, and not if logging timestamps instead in formats 5-8
-            //time_t now = time(NULL);
-            time_t now = endtv_sec;
-            char date[32];
-            struct tm *tm = localtime(&now);
-            strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
-            when = date;
-            // append timestamp if desired
-            if (o.log_timestamp)
-                when += " " + utime;
-        }
-
-        // blank out IP, hostname and username if desired
-        if (o.anonymise_logs) {
-            who = "";
-            from = "0.0.0.0";
-            clienthost.clear();
-        } else if ((clienthost == blank_str) || (clienthost == "DNSERROR")) {
-            clienthost = from;
-        }
-
-        String groupname;
-        String stringcode(code);
-        String stringgroup(filtergroup + 1);
-
-        if (is_RQlog) {
-            groupname = "";
-        } else {
-            if (stringcode == "407") {
-                groupname = "negotiate_identification";
-            } else {
-                groupname = ldl->fg[filtergroup]->name;
+            if (headermodified) {
+                what = headermod_word + what;
             }
-        }
+            if (headeradded) {
+                what = headeradd_word + what;
+            }
 
-        switch (o.log_file_format) {
-            case 4:
-                builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
-                            + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
-                            + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
-                            #ifdef SG_LOGFORMAT
-                            + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
-                    + params + "\t" + o.logid_2 + "\t" + postdata;
-                            #else
-                            + "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" + postdata;
-#endif
-                break;
-            case 3: {
-                // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
-                std::string duration, hier, hitmiss;
-                long durationsecs, durationusecs;
-                durationsecs = (endtv_sec - tv_sec);
-                durationusecs = endtv_usec - tv_usec;
-                durationusecs = (durationusecs / 1000) + durationsecs * 1000;
-                String temp((int) durationusecs);
-                while (temp.length() < 6) {
-                    temp = " " + temp;
+            std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
+
+            // create a string representation of UNIX timestamp if desired
+            if (o.log_timestamp || (o.log_file_format == 3)
+                || (o.log_file_format > 4)) {
+                String temp((int) (endtv_usec / 1000));
+                while (temp.length() < 3) {
+                    temp = "0" + temp;
                 }
-                duration = temp;
+                if (temp.length() > 3) {
+                    temp = "999";
+                }
+                utime = temp;
+                utime = "." + utime;
+                utime = String((int) endtv_sec) + utime;
+            }
 
-                if (code == 403) {
-                    hitmiss = "TCP_DENIED/403";
+
+            if ((o.log_file_format <= 2) || (o.log_file_format == 4)) {
+                // "when" not used in format 3, and not if logging timestamps instead in formats 5-8
+                //time_t now = time(NULL);
+                time_t now = endtv_sec;
+                char date[32];
+                struct tm *tm = localtime(&now);
+                strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
+                when = date;
+                // append timestamp if desired
+                if (o.log_timestamp)
+                    when += " " + utime;
+            }
+
+            // blank out IP, hostname and username if desired
+            if (o.anonymise_logs) {
+                who = "";
+                from = "0.0.0.0";
+                clienthost.clear();
+            } else if ((clienthost == blank_str) || (clienthost == "DNSERROR")) {
+                clienthost = from;
+            }
+
+            String groupname;
+            String stringcode(code);
+            String stringgroup(filtergroup + 1);
+
+            if (is_RQlog) {
+                groupname = "";
+            } else {
+                if (stringcode == "407") {
+                    groupname = "negotiate_identification";
                 } else {
-                    if (cachehit) {
-                        hitmiss = "TCP_HIT/";
-                        hitmiss.append(stringcode);
-                    } else {
-                        hitmiss = "TCP_MISS/";
-                        hitmiss.append(stringcode);
-                    }
+                    groupname = ldl->fg[filtergroup]->name;
                 }
-                hier = "DEFAULT_PARENT/";
-                hier += o.proxy_ip;
-                builtline =
-                        utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " + hitmiss +
-                        " " + ssize + " "
-                        + how + " " + where + " " + who + " " + hier + " " + mimetype;
-                break;
             }
-            case 2:
-                builtline = "\"" + when + "\",\"" + who + "\",\"" + from + "\",\"" + where + "\",\"" + what + "\",\""
+
+            switch (o.log_file_format) {
+                case 4:
+                    builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
+                                + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
+                                + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
+                                #ifdef SG_LOGFORMAT
+                                + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
+                    + params + "\t" + o.logid_2 + "\t" + postdata;
+                                #else
+                                + "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" +
+                                postdata;
+#endif
+                    break;
+                case 3: {
+                    // as certain bits of info are logged in format 3, their creation is best done here, not in all cases.
+                    std::string duration, hier, hitmiss;
+                    long durationsecs, durationusecs;
+                    durationsecs = (endtv_sec - tv_sec);
+                    durationusecs = endtv_usec - tv_usec;
+                    durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                    String temp((int) durationusecs);
+                    while (temp.length() < 6) {
+                        temp = " " + temp;
+                    }
+                    duration = temp;
+
+                    if (code == 403) {
+                        hitmiss = "TCP_DENIED/403";
+                    } else {
+                        if (cachehit) {
+                            hitmiss = "TCP_HIT/";
+                            hitmiss.append(stringcode);
+                        } else {
+                            hitmiss = "TCP_MISS/";
+                            hitmiss.append(stringcode);
+                        }
+                    }
+                    hier = "DEFAULT_PARENT/";
+                    hier += o.proxy_ip;
+                    builtline =
+                            utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " +
+                            hitmiss +
+                            " " + ssize + " "
+                            + how + " " + where + " " + who + " " + hier + " " + mimetype;
+                    break;
+                }
+                case 2:
+                    builtline =
+                            "\"" + when + "\",\"" + who + "\",\"" + from + "\",\"" + where + "\",\"" + what + "\",\""
                             + how + "\",\"" + ssize + "\",\"" + sweight + "\",\"" + cat + "\",\"" + stringgroup +
                             "\",\""
                             + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
                             groupname + "\",\""
                             + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
                             postdata + "\"";
-                break;
-            case 1:
-                builtline = when + " " + who + " " + from + " " + where + " " + what + " "
-                            + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
-                            + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
-                            + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
-                break;
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            default:
-                std::string duration;
-                long durationsecs, durationusecs;
-                durationsecs = (endtv_sec - tv_sec);
-                durationusecs = endtv_usec - tv_usec;
-                durationusecs = (durationusecs / 1000) + durationsecs * 1000;
-                String temp((int) durationusecs);
-                duration = temp;
+                    break;
+                case 1:
+                    builtline = when + " " + who + " " + from + " " + where + " " + what + " "
+                                + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
+                                + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
+                                + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                default:
+                    std::string duration;
+                    long durationsecs, durationusecs;
+                    durationsecs = (endtv_sec - tv_sec);
+                    durationusecs = endtv_usec - tv_usec;
+                    durationusecs = (durationusecs / 1000) + durationsecs * 1000;
+                    String temp((int) durationusecs);
+                    duration = temp;
 
-                builtline = utime + "\t"
-                            + server + "\t"
-                            + who + "\t";
-                if (o.log_client_host_and_ip) {
-                    builtline += from + "\t";
-                    builtline += clienthost + "\t";
-                } else {
-                    if (clienthost.length() > 2)
-                        builtline += clienthost + "\t";
-                    else
+                    builtline = utime + "\t"
+                                + server + "\t"
+                                + who + "\t";
+                    if (o.log_client_host_and_ip) {
                         builtline += from + "\t";
-                }
-                builtline += where + "\t"
-                            + how + "\t"
-                            + stringcode + "\t"
-                            + ssize + "\t"
-                            + mimetype + "\t"
-                            + (o.log_user_agent ? useragent : blank_str) + "\t"
-                            + blank_str + "\t" // squid result code
-                            + duration + "\t"
-                            + blank_str + "\t" // squid peer code
-                            + message_no + "\t" // dg message no
-                            + what + "\t"
-                            + sweight + "\t"
-                            + cat + "\t"
-                            + groupname + "\t"
-                            + stringgroup;
-        }
-        if (o.log_file_format > 6) {
-            builtline += "\t";
-            builtline += searchterms;
-            builtline += "\t";
-            builtline += flags;
-        }
+                        builtline += clienthost + "\t";
+                    } else {
+                        if (clienthost.length() > 2)
+                            builtline += clienthost + "\t";
+                        else
+                            builtline += from + "\t";
+                    }
+                    builtline += where + "\t"
+                                 + how + "\t"
+                                 + stringcode + "\t"
+                                 + ssize + "\t"
+                                 + mimetype + "\t"
+                                 + (o.log_user_agent ? useragent : blank_str) + "\t"
+                                 + blank_str + "\t" // squid result code
+                                 + duration + "\t"
+                                 + blank_str + "\t" // squid peer code
+                                 + message_no + "\t" // dg message no
+                                 + what + "\t"
+                                 + sweight + "\t"
+                                 + cat + "\t"
+                                 + groupname + "\t"
+                                 + stringgroup;
+            }
+            if (o.log_file_format > 6) {
+                builtline += "\t";
+                builtline += searchterms;
+                builtline += "\t";
+                builtline += flags;
+            }
 
-        // Send to Log
-        E2LOGGER_trace("Now sending to Log");
-        if (is_RQlog) {
-            E2LOGGER_debugrequest(builtline);
-        } else {
-            E2LOGGER_access(builtline);
-        }
+            // Send to Log
+            DEBUG_trace("Now sending to Log");
+            if (is_RQlog) {
+                E2LOGGER_requestlog(builtline);
+            } else {
+                E2LOGGER_accesslog(builtline);
+            }
 
 
 #ifdef ENABLE_EMAIL
-        // do the notification work here, but fork for speed
-        if (ldl->fg[filtergroup]->use_smtp == true) {
+            // do the notification work here, but fork for speed
+            if (ldl->fg[filtergroup]->use_smtp == true) {
 
-            // run through the gambit to find out of we're sending notification
-            // because if we're not.. then fork()ing is a waste of time.
+                // run through the gambit to find out of we're sending notification
+                // because if we're not.. then fork()ing is a waste of time.
 
-            // virus
-            if ((wasscanned && wasinfected) && (ldl->fg[filtergroup]->notifyav)) {
-                // Use a double fork to ensure child processes are reaped adequately.
-                pid_t smtppid;
-                if ((smtppid = fork()) != 0) {
-                    // Parent immediately waits for first child
-                    waitpid(smtppid, NULL, 0);
-                } else {
-                    // First child forks off the *real* process, but immediately exits itself
-                    if (fork() == 0) {
-                        // Second child - do stuff
-                        setsid();
-                        FILE *mail = popen(o.mailer.c_str(), "w");
-                        if (mail == NULL) {
-                            E2LOGGER_error("Unable to contact defined mailer.");
-                        } else {
-                            fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->avadmin.c_str());
-                            fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
-                            fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->avsubject.c_str());
-                            fprintf(mail, "A virus was detected by e2guardian.\n\n");
-                            fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
-                            if (who != blank_str)
-                                fprintf(mail, "%-10s%s\n", "User:", who.c_str());
-                            fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
-                            fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
-                            // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
-                            String swhat(what);
-                            fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100).c_str()).toCharArray());
-                            fprintf(mail, "%-10s%s\n", "Method:", how.c_str());
-                            fprintf(mail, "%-10s%s\n", "Size:", ssize.c_str());
-                            fprintf(mail, "%-10s%s\n", "Weight:", sweight.c_str());
-                            if (cat.c_str() != NULL)
-                                fprintf(mail, "%-10s%s\n", "Category:", cat.c_str());
-                            fprintf(mail, "%-10s%s\n", "Mime type:", mimetype.c_str());
-                            fprintf(mail, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
-                            fprintf(mail, "%-10s%s\n", "HTTP resp:", stringcode.c_str());
+                // virus
+                if ((wasscanned && wasinfected) && (ldl->fg[filtergroup]->notifyav)) {
+                    // Use a double fork to ensure child processes are reaped adequately.
+                    pid_t smtppid;
+                    if ((smtppid = fork()) != 0) {
+                        // Parent immediately waits for first child
+                        waitpid(smtppid, NULL, 0);
+                    } else {
+                        // First child forks off the *real* process, but immediately exits itself
+                        if (fork() == 0) {
+                            // Second child - do stuff
+                            setsid();
+                            FILE *mail = popen(o.mailer.c_str(), "w");
+                            if (mail == NULL) {
+                                E2LOGGER_error("Unable to contact defined mailer.");
+                            } else {
+                                fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->avadmin.c_str());
+                                fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
+                                fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->avsubject.c_str());
+                                fprintf(mail, "A virus was detected by e2guardian.\n\n");
+                                fprintf(mail, "%-10s%s\n", "Data/Time:", when.c_str());
+                                if (who != blank_str)
+                                    fprintf(mail, "%-10s%s\n", "User:", who.c_str());
+                                fprintf(mail, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
+                                fprintf(mail, "%-10s%s\n", "Where:", where.c_str());
+                                // specifically, the virus name comes after message 1100 ("Virus or bad content detected.")
+                                String swhat(what);
+                                fprintf(mail, "%-10s%s\n", "Why:", swhat.after(o.language_list.getTranslation(1100).c_str()).toCharArray());
+                                fprintf(mail, "%-10s%s\n", "Method:", how.c_str());
+                                fprintf(mail, "%-10s%s\n", "Size:", ssize.c_str());
+                                fprintf(mail, "%-10s%s\n", "Weight:", sweight.c_str());
+                                if (cat.c_str() != NULL)
+                                    fprintf(mail, "%-10s%s\n", "Category:", cat.c_str());
+                                fprintf(mail, "%-10s%s\n", "Mime type:", mimetype.c_str());
+                                fprintf(mail, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
+                                fprintf(mail, "%-10s%s\n", "HTTP resp:", stringcode.c_str());
 
-                            pclose(mail);
-                        }
-                        // Second child exits
-                        _exit(0);
-                    }
-                    // First child exits
-                    _exit(0);
-                }
-            }
-
-            // naughty OR virus
-            else if ((isnaughty || (wasscanned && wasinfected)) && (ldl->fg[filtergroup]->notifycontent)) {
-                byuser = ldl->fg[filtergroup]->byuser;
-
-                // if no violations so far by this user/group,
-                // reset threshold counters
-                if (byuser) {
-                    if (!violation_map[who]) {
-                        // set the time of the first violation
-                        timestamp_map[who] = time(0);
-                        vbody_map[who] = "";
-                    }
-                } else if (!ldl->fg[filtergroup]->current_violations) {
-                    // set the time of the first violation
-                    ldl->fg[filtergroup]->threshold_stamp = time(0);
-                    ldl->fg[filtergroup]->violationbody = "";
-                }
-
-                // increase per-user or per-group violation count
-                if (byuser)
-                    violation_map[who]++;
-                else
-                    ldl->fg[filtergroup]->current_violations++;
-
-                // construct email report
-                char *vbody_temp = new char[8192];
-                sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
-                vbody += vbody_temp;
-
-                if ((!byuser) && (who != blank_str)) {
-                    sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
-                    vbody += vbody_temp;
-                }
-                sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Why:", what.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Method:", how.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Size:", ssize.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Weight:", sweight.c_str());
-                vbody += vbody_temp;
-                if (cat.c_str() != NULL) {
-                    sprintf(vbody_temp, "%-10s%s\n", "Category:", cat.c_str());
-                    vbody += vbody_temp;
-                }
-                sprintf(vbody_temp, "%-10s%s\n", "Mime type:", mimetype.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
-                vbody += vbody_temp;
-                sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
-                vbody += vbody_temp;
-                delete[] vbody_temp;
-
-                // store the report with the group/user
-                if (byuser) {
-                    vbody_map[who] += vbody;
-                    curv_tmp = violation_map[who];
-                    stamp_tmp = timestamp_map[who];
-                } else {
-                    ldl->fg[filtergroup]->violationbody += vbody;
-                    curv_tmp = ldl->fg[filtergroup]->current_violations;
-                    stamp_tmp = ldl->fg[filtergroup]->threshold_stamp;
-                }
-
-                // if threshold exceeded, send mail
-                if (curv_tmp >= ldl->fg[filtergroup]->violations) {
-                    if ((ldl->fg[filtergroup]->threshold == 0) || ((time(0) - stamp_tmp) <= ldl->fg[filtergroup]->threshold)) {
-                        // Use a double fork to ensure child processes are reaped adequately.
-                        pid_t smtppid;
-                        if ((smtppid = fork()) != 0) {
-                            // Parent immediately waits for first child
-                            waitpid(smtppid, NULL, 0);
-                        } else {
-                            // First child forks off the *real* process, but immediately exits itself
-                            if (fork() == 0) {
-                                // Second child - do stuff
-                                setsid();
-                                FILE *mail = popen(o.mailer.c_str(), "w");
-                                if (mail == NULL) {
-                                    E2LOGGER_error("Unable to contact defined mailer.");
-                                } else {
-                                    fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->contentadmin.c_str());
-                                    fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
-
-                                    if (byuser)
-                                        fprintf(mail, "Subject: %s (%s)\n", ldl->fg[filtergroup]->contentsubject.c_str(), who.c_str());
-                                    else
-                                        fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->contentsubject.c_str());
-
-                                    fprintf(mail, "%i violation%s ha%s occurred within %i seconds.\n",
-                                        curv_tmp,
-                                        (curv_tmp == 1) ? "" : "s",
-                                        (curv_tmp == 1) ? "s" : "ve",
-                                        ldl->fg[filtergroup]->threshold);
-
-                                    fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
-                                    if (byuser)
-                                        fprintf(mail, "%s", vbody_map[who].c_str());
-                                    else
-                                        fprintf(mail, "%s", ldl->fg[filtergroup]->violationbody.c_str());
-                                    pclose(mail);
-                                }
-                                // Second child exits
-                                _exit(0);
+                                pclose(mail);
                             }
-                            // First child exits
+                            // Second child exits
                             _exit(0);
                         }
+                        // First child exits
+                        _exit(0);
                     }
-                    if (byuser)
-                        violation_map[who] = 0;
-                    else
-                        ldl->fg[filtergroup]->current_violations = 0;
                 }
-            } // end naughty OR virus
-        } // end usesmtp
+
+                // naughty OR virus
+                else if ((isnaughty || (wasscanned && wasinfected)) && (ldl->fg[filtergroup]->notifycontent)) {
+                    byuser = ldl->fg[filtergroup]->byuser;
+
+                    // if no violations so far by this user/group,
+                    // reset threshold counters
+                    if (byuser) {
+                        if (!violation_map[who]) {
+                            // set the time of the first violation
+                            timestamp_map[who] = time(0);
+                            vbody_map[who] = "";
+                        }
+                    } else if (!ldl->fg[filtergroup]->current_violations) {
+                        // set the time of the first violation
+                        ldl->fg[filtergroup]->threshold_stamp = time(0);
+                        ldl->fg[filtergroup]->violationbody = "";
+                    }
+
+                    // increase per-user or per-group violation count
+                    if (byuser)
+                        violation_map[who]++;
+                    else
+                        ldl->fg[filtergroup]->current_violations++;
+
+                    // construct email report
+                    char *vbody_temp = new char[8192];
+                    sprintf(vbody_temp, "%-10s%s\n", "Data/Time:", when.c_str());
+                    vbody += vbody_temp;
+
+                    if ((!byuser) && (who != blank_str)) {
+                        sprintf(vbody_temp, "%-10s%s\n", "User:", who.c_str());
+                        vbody += vbody_temp;
+                    }
+                    sprintf(vbody_temp, "%-10s%s (%s)\n", "From:", from.c_str(), ((clienthost.length() > 0) ? clienthost.c_str() : blank_str.c_str()));
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Where:", where.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Why:", what.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Method:", how.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Size:", ssize.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Weight:", sweight.c_str());
+                    vbody += vbody_temp;
+                    if (cat.c_str() != NULL) {
+                        sprintf(vbody_temp, "%-10s%s\n", "Category:", cat.c_str());
+                        vbody += vbody_temp;
+                    }
+                    sprintf(vbody_temp, "%-10s%s\n", "Mime type:", mimetype.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n", "Group:", ldl->fg[filtergroup]->name.c_str());
+                    vbody += vbody_temp;
+                    sprintf(vbody_temp, "%-10s%s\n\n", "HTTP resp:", stringcode.c_str());
+                    vbody += vbody_temp;
+                    delete[] vbody_temp;
+
+                    // store the report with the group/user
+                    if (byuser) {
+                        vbody_map[who] += vbody;
+                        curv_tmp = violation_map[who];
+                        stamp_tmp = timestamp_map[who];
+                    } else {
+                        ldl->fg[filtergroup]->violationbody += vbody;
+                        curv_tmp = ldl->fg[filtergroup]->current_violations;
+                        stamp_tmp = ldl->fg[filtergroup]->threshold_stamp;
+                    }
+
+                    // if threshold exceeded, send mail
+                    if (curv_tmp >= ldl->fg[filtergroup]->violations) {
+                        if ((ldl->fg[filtergroup]->threshold == 0) || ((time(0) - stamp_tmp) <= ldl->fg[filtergroup]->threshold)) {
+                            // Use a double fork to ensure child processes are reaped adequately.
+                            pid_t smtppid;
+                            if ((smtppid = fork()) != 0) {
+                                // Parent immediately waits for first child
+                                waitpid(smtppid, NULL, 0);
+                            } else {
+                                // First child forks off the *real* process, but immediately exits itself
+                                if (fork() == 0) {
+                                    // Second child - do stuff
+                                    setsid();
+                                    FILE *mail = popen(o.mailer.c_str(), "w");
+                                    if (mail == NULL) {
+                                        E2LOGGER_error("Unable to contact defined mailer.");
+                                    } else {
+                                        fprintf(mail, "To: %s\n", ldl->fg[filtergroup]->contentadmin.c_str());
+                                        fprintf(mail, "From: %s\n", ldl->fg[filtergroup]->mailfrom.c_str());
+
+                                        if (byuser)
+                                            fprintf(mail, "Subject: %s (%s)\n", ldl->fg[filtergroup]->contentsubject.c_str(), who.c_str());
+                                        else
+                                            fprintf(mail, "Subject: %s\n", ldl->fg[filtergroup]->contentsubject.c_str());
+
+                                        fprintf(mail, "%i violation%s ha%s occurred within %i seconds.\n",
+                                            curv_tmp,
+                                            (curv_tmp == 1) ? "" : "s",
+                                            (curv_tmp == 1) ? "s" : "ve",
+                                            ldl->fg[filtergroup]->threshold);
+
+                                        fprintf(mail, "%s\n\n", "This exceeds the notification threshold.");
+                                        if (byuser)
+                                            fprintf(mail, "%s", vbody_map[who].c_str());
+                                        else
+                                            fprintf(mail, "%s", ldl->fg[filtergroup]->violationbody.c_str());
+                                        pclose(mail);
+                                    }
+                                    // Second child exits
+                                    _exit(0);
+                                }
+                                // First child exits
+                                _exit(0);
+                            }
+                        }
+                        if (byuser)
+                            violation_map[who] = 0;
+                        else
+                            ldl->fg[filtergroup]->current_violations = 0;
+                    }
+                } // end naughty OR virus
+            } // end usesmtp
 #endif
 
-        continue; // go back to listening
-    }
-    if( !e2logger_ttg)
-        E2LOGGER_debug("log_listener exiting with error");
+            continue; // go back to listening
+        }
+        if (!e2logger_ttg)
+                DEBUG_debug("log_listener exiting with error");
 
     } catch (...) {
         E2LOGGER_error("log_listener caught unexpected exception - exiting");
@@ -1247,7 +1191,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
         thread_id = "listen_";
         thread_id += std::to_string(index);
         thread_id += "_";
-        switch(ct_type) {
+        switch (ct_type) {
             case CT_PROXY:
                 thread_id += "proxy: ";
                 break;
@@ -1265,11 +1209,11 @@ void accept_connections(int index) // thread to listen on a single listening soc
             Socket *peersock = serversockets[index]->accept();
             int err = serversockets[index]->getErrno();
             if (err == 0 && peersock != NULL && peersock->getFD() > -1) {
-            	if (ttg) {
-			        delete peersock;
-			        break;
-		        }
-                E2LOGGER_debug("got connection from accept");
+                if (ttg) {
+                    delete peersock;
+                    break;
+                }
+                DEBUG_debug("got connection from accept");
 
                 if (peersock->getFD() > dstat.maxusedfd) dstat.maxusedfd = peersock->getFD();
                 errorcount = 0;
@@ -1278,23 +1222,23 @@ void accept_connections(int index) // thread to listen on a single listening soc
                 rec.ct_type = ct_type;
                 o.http_worker_Q.push(rec);
 
-                E2LOGGER_debug("pushed connection to http_worker_Q");
+                DEBUG_debug("pushed connection to http_worker_Q");
             } else {
-            	if (ttg) {
-			        if (peersock != nullptr) delete peersock;
-			        break;
-		        }
+                if (ttg) {
+                    if (peersock != nullptr) delete peersock;
+                    break;
+                }
                 E2LOGGER_error("Error on accept: errorcount ", String(errorcount), " errno: ", String(err));
 
                 ++errorcount;
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
             }
         };
-        if (!ttg) 
+        if (!ttg)
             E2LOGGER_error("Error count on accept exceeds 30");
         serversockets[index]->close();
     } catch (...) {
-       E2LOGGER_error("listener thread caught unexpected exception exiting");
+        E2LOGGER_error("listener thread caught unexpected exception exiting");
     }
     if (o.logconerror) {
         E2LOGGER_info("listener thread exiting");
@@ -1318,6 +1262,9 @@ int fc_controlit()   //
     reloadconfig = false;
     gentlereload = false;
     reload_cnt = 0;
+    rotate_request = false;
+    rotate_access = false;
+    rotate_dstat = false;
 
     o.lm.garbageCollect();
     thread_id = "master: ";
@@ -1337,7 +1284,7 @@ int fc_controlit()   //
 
     if (o.transparenthttps_port > 0)
         ++serversocketcount;
-    if (o.icap_port> 0)
+    if (o.icap_port > 0)
         ++serversocketcount;
 
     serversockets.reset(serversocketcount);
@@ -1352,14 +1299,8 @@ int fc_controlit()   //
         }
     }
 
-// PRA 10-10-2005
-/*bool needdrop = false;
+    DEBUG_trace("seteuiding for low port binding/pidfile creation");
 
-	if (o.filter_port < 1024) */
-#ifdef E2DEBUG
-    std::cerr << thread_id << "seteuiding for low port binding/pidfile creation" << std::endl;
-#endif
-//needdrop = true;
 #ifdef HAVE_SETREUID
     rc = setreuid((uid_t)-1, o.root_user);
 #else
@@ -1393,14 +1334,14 @@ int fc_controlit()   //
         // listen/bind to a port (or ports) on any interface
         if (o.map_ports_to_ips) {
             if (serversockets.bindSingle(o.filter_port)) {
-                E2LOGGER_error("Error binding server socket: [", o.filter_port, "] (", strerror(errno), ")" );
+                E2LOGGER_error("Error binding server socket: [", o.filter_port, "] (", strerror(errno), ")");
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
             }
         } else {
             if (serversockets.bindSingleM(o.filter_ports)) {
-                E2LOGGER_error("Error binding server sockets: (", strerror(errno), ")" );
+                E2LOGGER_error("Error binding server sockets: (", strerror(errno), ")");
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
@@ -1409,7 +1350,7 @@ int fc_controlit()   //
     }
 
     if (o.transparenthttps_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy++,o.transparenthttps_port, CT_THTTPS)) {
+        if (serversockets.bindSingle(serversocktopproxy++, o.transparenthttps_port, CT_THTTPS)) {
             E2LOGGER_error("Error binding server thttps socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -1418,8 +1359,8 @@ int fc_controlit()   //
     };
 
     if (o.icap_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy,o.icap_port, CT_ICAP)) {
-            E2LOGGER_error("Error binding server icap socket: (", strerror(errno), ")" );
+        if (serversockets.bindSingle(serversocktopproxy, o.icap_port, CT_ICAP)) {
+            E2LOGGER_error("Error binding server icap socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
@@ -1461,17 +1402,17 @@ int fc_controlit()   //
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
     if (o.use_openssl_conf) {
-    	if(o.have_openssl_conf) {
-            if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr,0) != 1) {
+        if (o.have_openssl_conf) {
+            if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr, 0) != 1) {
                 E2LOGGER_error("Error reading openssl config file ", o.openssl_conf_path.c_str());
                 return false;
             }
-    	} else {
-            if (CONF_modules_load_file(nullptr, nullptr,0) != 1) {
+        } else {
+            if (CONF_modules_load_file(nullptr, nullptr, 0) != 1) {
                 E2LOGGER_error("Error reading default openssl config files");
                 return false;
             }
-    	}
+        }
     }
     SSL_library_init();
 
@@ -1486,6 +1427,8 @@ int fc_controlit()   //
     // than being reported on screen as we've detached from the console and
     // trying to write to stdout will not be nice.
 
+    g_is_starting = false;
+
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
 
@@ -1494,21 +1437,21 @@ int fc_controlit()   //
     // Threads are created for logger, a separate thread for each listening port
     // and an array of worker threads to deal with the work.
     //if (!o.no_logger) {
-    if (e2logger.isEnabled(LoggerSource::access)) {
+    if (e2logger.isEnabled(LoggerSource::accesslog)) {
         std::thread log_thread(log_listener, o.log_Q, false);
         log_thread.detach();
-        E2LOGGER_trace("log_listener thread created");
+        DEBUG_trace("log_listener thread created");
     }
 
     //if(o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+    if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::thread RQlog_thread(log_listener, o.RQlog_Q, true);
         RQlog_thread.detach();
-        E2LOGGER_trace("RQlog_listener thread created");
+        DEBUG_trace("RQlog_listener thread created");
     }
 
     // I am the main thread here onwards.
-    E2LOGGER_trace("Master thread created threads");
+    DEBUG_trace("Master thread created threads");
 
     sigset_t signal_set;
     sigemptyset(&signal_set);
@@ -1518,7 +1461,7 @@ int fc_controlit()   //
     sigaddset(&signal_set, SIGUSR1);
 
 #ifdef __OpenBSD__
-    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
+    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
     // set up timer for main loop
     struct itimerval timeout;
     timeout.it_interval.tv_sec = 0;
@@ -1537,7 +1480,7 @@ int fc_controlit()   //
         return 1;
     }
 
-    E2LOGGER_trace("sig handlers done");
+    DEBUG_trace("sig handlers done");
 
     dystat->busychildren = 0; // to keep count of our children
 
@@ -1551,9 +1494,9 @@ int fc_controlit()   //
     }
     for (auto &i : http_wt) {
         i.detach();
-   }
+    }
 
-   E2LOGGER_trace("http_worker threads created");
+    DEBUG_trace("http_worker threads created");
 
     //   set listener threads going
     std::vector <std::thread> listen_threads;
@@ -1565,7 +1508,7 @@ int fc_controlit()   //
         i.detach();
     }
 
-    E2LOGGER_trace("listen  threads created");
+    DEBUG_trace("listen  threads created");
 
     time_t tmaxspare;
 
@@ -1590,11 +1533,11 @@ int fc_controlit()   //
     if (is_starting) {
         if (o.monitor_flag_flag)
             monitor_flag_set(true);
-    	if (o.monitor_helper_flag){
-        	tell_monitor(true);
+        if (o.monitor_helper_flag) {
+            tell_monitor(true);
         }
         is_starting = false;
-   }
+    }
 
     while (failurecount < 30 && !ttg && !reloadconfig) {
 
@@ -1604,7 +1547,7 @@ int fc_controlit()   //
         // OR, its timetogo - got a sigterm
         // OR, we need to exit to reread config
         if (gentlereload) {
-            E2LOGGER_trace("gentle reload activated");
+            DEBUG_trace("gentle reload activated");
 
             E2LOGGER_info("Reconfiguring E2guardian: gentle reload starting");
             if (o.createLists(++reload_cnt)) {
@@ -1618,36 +1561,39 @@ int fc_controlit()   //
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
         }
 #ifdef __OpenBSD__
-    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
-        timeout.it_value.tv_sec = 5;
-        setitimer(ITIMER_REAL, &timeout, NULL);
-        int rsig;
-        rc = sigwait(&signal_set, &rsig);
-        if (rc < 0) {
-            if (errno != EAGAIN) {
-                E2LOGGER_info("Unexpected error from sigtimedwait(): ", String(errno), " ", strerror(errno));
-            }
-        } else {
-            if (rsig == SIGUSR1)
-                gentlereload = true;
-            if (rsig == SIGTERM)
-                ttg = true;
-            if (rsig == SIGHUP)
-                gentlereload = true;
-            if (rsig != SIGALRM) {
-                // unset alarm
-                timeout.it_value.tv_sec = 0;
-                //timer_settime(timerid,0,&timeout, NULL);
-                setitimer(ITIMER_REAL, &timeout, NULL);
+        // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
+            timeout.it_value.tv_sec = 5;
+            setitimer(ITIMER_REAL, &timeout, NULL);
+            int rsig;
+            rc = sigwait(&signal_set, &rsig);
+            if (rc < 0) {
+                if (errno != EAGAIN) {
+                    E2LOGGER_info("Unexpected error from sigtimedwait(): ", String(errno), " ", strerror(errno));
+                }
+            } else {
+                if (rsig == SIGUSR1) {
+                    rotate_access = true;
+                    rotate_request = true;
+                    rotate_dstat = true;
+                }
+                if (rsig == SIGTERM)
+                    ttg = true;
+                if (rsig == SIGHUP)
+                    gentlereload = true;
+                if (rsig != SIGALRM) {
+                    // unset alarm
+                    timeout.it_value.tv_sec = 0;
+                    //timer_settime(timerid,0,&timeout, NULL);
+                    setitimer(ITIMER_REAL, &timeout, NULL);
 
-                E2LOGGER_debug("signal:", String(rc);
-                if (o.logconerror) {
-                    E2LOGGER_info("sigtimedwait() signal recd:", String(rsig) );
+                    DEBUG_debug("signal:", String(rc);
+                    if (o.logconerror) {
+                        E2LOGGER_info("sigtimedwait() signal recd:", String(rsig) );
+                    }
                 }
             }
-        }
 #else
-	// other posix compliant platforms
+        // other posix compliant platforms
         timeout.tv_sec = 5;
         rc = sigtimedwait(&signal_set, NULL, &timeout);
         if (rc < 0) {
@@ -1655,14 +1601,17 @@ int fc_controlit()   //
                 E2LOGGER_info("Unexpected error from sigtimedwait():", String(errno), " ", strerror(errno));
             }
         } else {
-            if (rc == SIGUSR1)
-                gentlereload = true;
+            if (rc == SIGUSR1) {
+                rotate_access = true;
+                rotate_request = true;
+                rotate_dstat = true;
+            }
             if (rc == SIGTERM)
                 ttg = true;
             if (rc == SIGHUP)
                 gentlereload = true;
 
-            E2LOGGER_debug("signal: ", String(rc));
+            DEBUG_debug("signal: ", String(rc));
             if (o.logconerror) {
                 E2LOGGER_info("ssigtimedwait() signal recd:", String(rc));
             }
@@ -1670,16 +1619,18 @@ int fc_controlit()   //
 #endif   // end __OpenBSD__ else
 
         int q_size = o.http_worker_Q.size();
-        E2LOGGER_debug("busychildren:", String(dystat->busychildren),
-                    " worker Q size:", String(q_size) );
-        if( o.dstat_log_flag) {
+        DEBUG_debug("busychildren:", String(dystat->busychildren),
+                    " worker Q size:", q_size);
+        if (o.dstat_log_flag) {
             if (q_size > 10) {
-                E2LOGGER_info("Warning: all ", String(o.http_workers), " http_worker threads are busy and ", String(q_size), " connections are waiting in the queue.");
+                E2LOGGER_info("Warning: all ", o.http_workers, " http_worker threads are busy and ",
+                              q_size, " connections are waiting in the queue.");
             }
         } else {
             int busy_child = dystat->busychildren;
             if (busy_child > (o.http_workers - 10))
-                E2LOGGER_info("Warning system is full : max httpworkers: ", String(o.http_workers), " Used: ", String(busy_child));
+                E2LOGGER_info("Warning system is full : max httpworkers: ", o.http_workers, " Used: ",
+                              busy_child);
         }
 
         //      if (is_starting)
@@ -1700,21 +1651,21 @@ int fc_controlit()   //
     E2LOGGER_info("Stopping");
 
     if (o.monitor_flag_flag)
-       monitor_flag_set(false);
+        monitor_flag_set(false);
     if (o.monitor_helper_flag)
         tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     if (o.logconerror) {
         E2LOGGER_info("sending null socket to http_workers to stop them");
     }
-    Socket* NS = NULL;
+    Socket *NS = NULL;
     LQ_rec rec;
     rec.sock = NS;
     rec.ct_type = CT_PROXY;
     for (i = 0; i < o.http_workers; i++) {
         o.http_worker_Q.push(rec);
     }
-   // dystat->reset();    // remove this line for production version
+    // dystat->reset();    // remove this line for production version
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     //E2LOGGER_info("2nd wait complete");
@@ -1722,7 +1673,7 @@ int fc_controlit()   //
     std::string nullstr("");
     o.log_Q->push(nullstr);
     //if (o.log_requests) {
-    if (e2logger.isEnabled(LoggerSource::debugrequest)) {
+    if (e2logger.isEnabled(LoggerSource::requestlog)) {
         o.RQlog_Q->push(nullstr);
     }
 

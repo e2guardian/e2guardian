@@ -109,7 +109,7 @@ HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
 // listname is used in error messages.
 bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsigned int *whichlist, bool sortsw, bool cache, const char *listname)
 {
-    E2LOGGER_trace(filename);
+    DEBUG_trace(filename);
     if (strlen(filename) < 3) {
         E2LOGGER_error("Required Listname ", listname, " is not defined");
         return false;
@@ -131,7 +131,7 @@ bool FOptionContainer::readFile(const char *filename, const char *list_pwd, unsi
 }
 
 bool FOptionContainer::readConfFile(const char *filename, String &list_pwd) {
-    E2LOGGER_trace(filename);    
+    DEBUG_trace(filename);    
     std::string linebuffer;
     String now_pwd(list_pwd);
     String temp; // for tempory conversion and storage
@@ -212,7 +212,7 @@ bool FOptionContainer::read(const char *filename) {
             E2LOGGER_error("Error reading: ", filename);
             return false;
         }
-        E2LOGGER_config("Read conf into memory: ", filename);
+        DEBUG_config("Read conf into memory: ", filename);
 
         if (findoptionS("disablecontentscan") == "on") {
             disable_content_scan = true;
@@ -232,7 +232,7 @@ bool FOptionContainer::read(const char *filename) {
             content_scan_exceptions = false;
         }
 
-        E2LOGGER_debug("disable_content_scan: ", String(disable_content_scan),
+        DEBUG_debug("disable_content_scan: ", String(disable_content_scan),
                     " disablecontentscanerror: ", String(disable_content_scan_error),
                     " contentscanexceptions: ", String(content_scan_exceptions) );
 
@@ -246,11 +246,11 @@ bool FOptionContainer::read(const char *filename) {
             }
             text_mime.push_back(mimes.substr(0, comma));
             mimes = mimes.substr(comma + 1);
-#ifdef E2DEBUG
+#ifdef DEBUG_HIGH
             int size = (int) text_mime.size();
             int i;
             for (i = 0; i < size; i++) {
-                E2LOGGER_debug("mimes filtering : ", text_mime[i]);
+                DEBUG_debug("mimes filtering : ", text_mime[i]);
             }
 #endif
         }
@@ -396,7 +396,7 @@ bool FOptionContainer::read(const char *filename) {
             E2LOGGER_error( "Invalid maxuploadsize: ", String(temp_max_upload_size) );
             return false;
         }
-        E2LOGGER_debug("maxuploadsize: ", String(temp_max_upload_size) );
+        DEBUG_debug("maxuploadsize: ", String(temp_max_upload_size) );
 
         // override default access denied address
         if (reporting_level == 1 || reporting_level == 2) {
@@ -478,14 +478,14 @@ bool FOptionContainer::read(const char *filename) {
 		name = "group";
         name += String(filtergroup);
 	    }
-        E2LOGGER_debug("Group name: ", name);
+        DEBUG_debug("Group name: ", name);
         }
 
         embedded_url_weight = findoptionI("embeddedurlweight");
-        E2LOGGER_debug("Embedded URL Weight: ", std::to_string(embedded_url_weight));
+        DEBUG_debug("Embedded URL Weight: ", std::to_string(embedded_url_weight));
 
         category_threshold = findoptionI("categorydisplaythreshold");
-        E2LOGGER_debug("Category display threshold: ", std::to_string(category_threshold));
+        DEBUG_debug("Category display threshold: ", std::to_string(category_threshold));
 
         // Support weighted phrase mode per group
         if (findoptionS("weightedphrasemode").length() > 0) {
@@ -506,9 +506,9 @@ bool FOptionContainer::read(const char *filename) {
             storyboard_location += ".story";
         }
 
-        E2LOGGER_trace("Read settings into memory");
+        DEBUG_trace("Read settings into memory");
 
-        E2LOGGER_trace("Reading phrase, URL and site lists into memory");
+        DEBUG_trace("Reading phrase, URL and site lists into memory");
         if (weighted_phrase_mode > 0) {
             naughtyness_limit = findoptionI("naughtynesslimit");
             if (naughtyness_limit == 0) {
@@ -528,61 +528,61 @@ bool FOptionContainer::read(const char *filename) {
 
         {
             std::deque<String> dq = findoptionM("ipsitelist");
-            E2LOGGER_debug("ipsitelist deque is size ", String(dq.size()) );
+            DEBUG_debug("ipsitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IPSITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("iplist");
-            E2LOGGER_debug("iplist deque is size ", String(dq.size()) );
+            DEBUG_debug("iplist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_IP, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("timelist");
-            E2LOGGER_debug("timelist deque is size ", String(dq.size()) );
+            DEBUG_debug("timelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_TIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("sitelist");
-            E2LOGGER_debug("sitelist deque is size ", String(dq.size()) );
+            DEBUG_debug("sitelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SITE, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("urllist");
-            E2LOGGER_debug("urllist deque is size ", String(dq.size()) );
+            DEBUG_debug("urllist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_URL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("searchlist");
-            E2LOGGER_debug("searchlist deque is size ", String(dq.size()) );
+            DEBUG_debug("searchlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_SEARCH, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("fileextlist");
-            E2LOGGER_debug("fileextlist deque is size ", String(dq.size()) );
+            DEBUG_debug("fileextlist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_FILE_EXT, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("mimelist");
-            E2LOGGER_debug("mimelist deque is size ", String(dq.size()) );
+            DEBUG_debug("mimelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_MIME, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpboollist");
-            E2LOGGER_debug("regexpboollist deque is size ", String(dq.size()) );
+            DEBUG_debug("regexpboollist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, dq)) return false;
         }
 
         {
             std::deque<String> dq = findoptionM("regexpreplacelist");
-            E2LOGGER_debug("regexpreplacelist deque is size ", String(dq.size()) );
+            DEBUG_debug("regexpreplacelist deque is size ", String(dq.size()) );
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 
@@ -631,9 +631,9 @@ bool FOptionContainer::read(const char *filename) {
             content_regexp_flag = false;
         }
 
-        E2LOGGER_trace("Lists in memory");
+        DEBUG_trace("Lists in memory");
 
-        E2LOGGER_trace("Read Storyboard");
+        DEBUG_trace("Read Storyboard");
         if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
             return false;
 
@@ -718,7 +718,7 @@ bool FOptionContainer::read(const char *filename) {
                 }
                 magic = s;
             }
-            E2LOGGER_debug("Setting magic key to '", magic, "'");
+            DEBUG_debug("Setting magic key to '", magic, "'");
 
             // Create the Bypass Cookie magic key
             cookie_magic = std::string(16u, ' ');
@@ -744,12 +744,12 @@ bool FOptionContainer::read(const char *filename) {
                 }
                 imagic = s;
             }
-            E2LOGGER_debug("Setting imagic key to '", imagic, "'");
+            DEBUG_debug("Setting imagic key to '", imagic, "'");
 
             if (findoptionS("infectionbypasserrorsonly") == "off") {
                 infection_bypass_errors_only = false;
             } else {
-                E2LOGGER_debug("Only allowing infection bypass on scan error");
+                DEBUG_debug("Only allowing infection bypass on scan error");
                 infection_bypass_errors_only = true;
             }
         }

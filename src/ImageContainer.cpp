@@ -46,7 +46,7 @@ void ImageContainer::reset()
 //void ImageContainer::display(Socket *s)
 bool ImageContainer::display(Socket *s)
 {
-    E2LOGGER_debug("Displaying custom image file mimetype: ", mimetype);
+    DEBUG_debug("Displaying custom image file mimetype: ", mimetype);
     s->writeString("Content-type: ");
     s->writeString(mimetype.toCharArray());
     s->writeString("\n\n");

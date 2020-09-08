@@ -279,7 +279,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool *chopped, bool *
         // first, return what's left from the previous buffer read, if anything
         int i = 0;
         if ((bufflen - buffstart) > 0) {
-            E2LOGGER_debugnet("data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
+            DEBUG_network("data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
 
             //work out the maximum size we want to read from our internal buffer
             int tocopy = size - 1;
@@ -322,7 +322,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool *chopped, bool *
             //if socket closed...
             if (bufflen == 0) {
                 buff[i] = '\0'; // ...terminate string & return what read
-                E2LOGGER_debugnet("getLine terminate string !SSL: ", i );
+                DEBUG_network("getLine terminate string !SSL: ", i );
                 if (truncated)
                     *truncated = true;
                 return i;
@@ -332,13 +332,13 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool *chopped, bool *
                 tocopy = (size - 1) - i;
             char *result = (char *) memccpy(buff + i, buffer, '\n', tocopy);
             if (result != NULL) {
-                E2LOGGER_debugnet("getLine result1 !SSL: ", result, i );
+                DEBUG_network("getLine result1 !SSL: ", result, i );
                 // indicate that a newline was chopped off, if desired
                 if (chopped)
                     *chopped = true;
                 *(--result) = '\0';
                 buffstart += (result - (buff + i)) + 1;
-                E2LOGGER_debugnet("getLine result2 !SSL: ", result );
+                DEBUG_network("getLine result2 !SSL: ", result );
                 return i + (result - (buff + i));
             }
             i += tocopy;
@@ -348,7 +348,7 @@ int BaseSocket::getLine(char *buff, int size, int timeout, bool *chopped, bool *
         if (truncated)
             *truncated = true;
         if (truncated)
-            E2LOGGER_debugnet("Getline(SSL) truncated buffer end reached before we found a newline: ", buff );
+            DEBUG_network("Getline(SSL) truncated buffer end reached before we found a newline: ", buff );
 
         return i;
     } catch (...) {
@@ -396,7 +396,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
 
     // first, return what's left from the previous buffer read, if anything
     if ((bufflen - buffstart) > 0) {
-        E2LOGGER_debugnet("readFromSocketn: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
+        DEBUG_network("readFromSocketn: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
         int tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;

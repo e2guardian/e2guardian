@@ -108,7 +108,7 @@ int CSPlugin::writeMemoryTempFile(const char *object, unsigned int objectsize, S
         return E2CS_ERROR;
     }
     errno = 0;
-    E2LOGGER_debug("About to writeMemoryTempFile ", (*filename), " size: ", objectsize);
+    DEBUG_avscan("About to writeMemoryTempFile ", (*filename), " size: ", objectsize);
 
     while (true) {
         if (write(tempfd, object, objectsize) < 0) {
@@ -136,7 +136,7 @@ int CSPlugin::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, const
         return E2CS_SCANERROR;
     }
     int rc = scanFile(requestheader, docheader, user, foc, ip, tempfilepath.toCharArray(), checkme, disposition, mimetype);
-#ifndef E2DEBUG
+#ifndef DEBUG_LOW
     unlink(tempfilepath.toCharArray()); // delete temp file
 #endif
     return rc;
@@ -184,7 +184,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
 {
     // Most content scanners only deal with original, unmodified content
     if (reconstituted) {
-        E2LOGGER_debug("willScanRequest: ignoring reconstituted data");
+        DEBUG_avscan("willScanRequest: ignoring reconstituted data");
         return E2CS_NOSCAN;
     }
 
@@ -193,10 +193,10 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // implications as downlaoding them.
     if (post) {
         if (scanpost) {
-            E2LOGGER_debug("willScanRequest: I'm interested in uploads");
+            DEBUG_avscan("willScanRequest: I'm interested in uploads");
             return E2CS_NEEDSCAN;
         } else {
-            E2LOGGER_debug("willScanRequest: Not interested in uploads");
+            DEBUG_avscan("willScanRequest: Not interested in uploads");
             return E2CS_NOSCAN;
         }
     }
@@ -227,7 +227,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     // Don't scan the web server which hosts the access denied page
     if (((foc->reporting_level == 1) || (foc->reporting_level == 2))
         && domain.startsWith(foc->access_denied_domain)) {
-        E2LOGGER_debug("willScanRequest: ignoring our own webserver");
+        DEBUG_avscan("willScanRequest: ignoring our own webserver");
         return E2CS_NOSCAN;
     }
 
@@ -235,7 +235,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
     tempurl = domain;
     while (tempurl.contains(".")) {
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            E2LOGGER_debug("willScanRequest: ignoring exception virus site");
+            DEBUG_avscan("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
@@ -244,7 +244,7 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
         // allows matching of .tld
         tempurl = "." + tempurl;
         if (exceptionvirussitelist.findInList(tempurl.toCharArray(), lc) != NULL) {
-            E2LOGGER_debug("willScanRequest: ignoring exception virus site");
+            DEBUG_avscan("willScanRequest: ignoring exception virus site");
             return E2CS_NOSCAN; // exact match
         }
     }
@@ -262,18 +262,18 @@ int CSPlugin::willScanRequest(const String &url, const char *user, FOptionContai
             if (tempurl.length() > fl) {
                 unsigned char c = tempurl[fl];
                 if (c == '/' || c == '?' || c == '&' || c == '=') {
-                    E2LOGGER_debug("willScanRequest: ignoring exception virus URL");
+                    DEBUG_avscan("willScanRequest: ignoring exception virus URL");
                     return E2CS_NOSCAN; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-                E2LOGGER_debug("willScanRequest: ignoring exception virus URL");
+                DEBUG_avscan("willScanRequest: ignoring exception virus URL");
                 return E2CS_NOSCAN; // exact match
             }
         }
         tempurl = tempurl.after("."); // check for being in higher level domains
     }
 
-    E2LOGGER_debug("willScanRequest: I'm interested");
+    DEBUG_avscan("willScanRequest: I'm interested");
     return E2CS_NEEDSCAN;
 #endif
 }
@@ -335,35 +335,35 @@ CSPlugin *cs_plugin_load(const char *pluginConfigPath)
 
 #ifdef ENABLE_CLAMD
     if (plugname == "clamdscan") {
-        E2LOGGER_debug("Enabling ClamDscan CS plugin");
+        DEBUG_avscan("Enabling ClamDscan CS plugin");
         return clamdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_AVASTD
     if (plugname == "avastdscan") {
-        E2LOGGER_debug("Enabling AvastDscan CS plugin");
+        DEBUG_avscan("Enabling AvastDscan CS plugin");
         return avastdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_KAVD
     if (plugname == "kavdscan") {
-        E2LOGGER_debug("Enabling KAVDscan CS plugin");
+        DEBUG_avscan("Enabling KAVDscan CS plugin");
         return kavdcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_ICAP
     if (plugname == "icapscan") {
-        E2LOGGER_debug("Enabling ICAPscan CS plugin");
+        DEBUG_avscan("Enabling ICAPscan CS plugin");
         return icapcreate(cv);
     }
 #endif
 
 #ifdef ENABLE_COMMANDLINE
     if (plugname == "commandlinescan") {
-        E2LOGGER_debug("Enabling command-line CS plugin");
+        DEBUG_avscan("Enabling command-line CS plugin");
         return commandlinecreate(cv);
     }
 #endif

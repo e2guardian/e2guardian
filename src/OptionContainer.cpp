@@ -20,7 +20,7 @@
 #include <sstream>
 #include <dirent.h>
 #include <cstdlib>
-#include <unistd.h> 
+#include <unistd.h>
 
 // GLOBALS
 
@@ -68,7 +68,6 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     String temp; // for tempory conversion and storage
     String now_pwd(list_pwd);
     std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
-    LoggerConfigurator loggerConf(&e2logger);
 
     if (!conffiles.good()) {
         E2LOGGER_error("Error reading ", filename);
@@ -117,11 +116,11 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
                     temp += now_pwd;
                 }
 
-                if (temp.startsWith(LoggerConfigurator::Prefix))
-                    loggerConf.configure(temp);
+                // if (temp.startsWith(LoggerConfigurator::Prefix))
+                //     loggerConf.configure(temp);
 
                 linebuffer = temp.toCharArray();
-                E2LOGGER_config("read:", linebuffer);
+                DEBUG_config("read:", linebuffer);
                 conffile.push_back(linebuffer); // stick option in deque
             }
         }
@@ -132,6 +131,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
 
 bool OptionContainer::read(std::string &filename, int type) {
     conffilename = filename;
+    LoggerConfigurator loggerConf(&e2logger);
 
     // all sorts of exceptions could occur reading conf files
     try {
@@ -140,60 +140,119 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
-        if (type == 0 || type == 2) {
+        //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
 
-            if ((pid_filename = findoptionS("pidfilename")) == "") {
-                pid_filename = __PIDDIR;
-                pid_filename += "/e2guardian.pid";
-            }
+        if ((pid_filename = findoptionS("pidfilename")) == "") {
+            pid_filename = __PIDDIR;
+            pid_filename += "/e2guardian.pid";
+        }
 
-            if (findoptionS("logsyslog") == "on") {
-                log_syslog = true;
-                if ((name_suffix = findoptionS("namesuffix")) == "") {
-                    name_suffix = "";
-                }
-            } else if ((log_location = findoptionS("loglocation")) == "") {
-                log_location = __LOGLOCATION;
-                log_location += "/access.log";
-                log_syslog = false;
-            }
+        if (type == 0) {     // pid_filename is the only thing needed for type 0 in order to send signals
+            return true;
+        }
 
-            if (!log_syslog)
-                e2logger.setLogOutput(LoggerSource::access, LoggerDestination::file, log_location);
-
-            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-                log_requests = false;
-            } else {
-                log_requests = true;
-            }
-
-            if ((dstat_location = findoptionS("dstatlocation")) == "") {
-                dstat_log_flag = false;
-            } else {
-                dstat_log_flag = true;
-                dstat_interval = findoptionI("dstatinterval");
-                if (dstat_interval == 0) {
-                    dstat_interval = 300; // 5 mins
-                }
-            }
-
-            if (findoptionS("statshumanreadable") == "on") {
-                stats_human_readable = true;
-            } else {
-                stats_human_readable = false;
-            }
-
-            if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-                dns_user_logging = false;
-            } else {
-                dns_user_logging = true;
-            }
-
-            log_header_value = findoptionS("logheadervalue");
-            if (type == 0) {
-                return true;
+        {
+            std::string temp = findoptionS("set_info");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::info, temp))
+                    return false;
             }
         }
+
+        {
+            std::string temp = findoptionS("set_error");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::error, temp))
+                    return false;
+            }
+        }
+
+        {
+            std::string temp = findoptionS("set_warning");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::warning, temp))
+                    return false;
+            }
+        }
+
+        {
+            String temp = findoptionS("set_accesslog");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::accesslog, temp))
+                    return false;
+            } else {
+                    log_location = findoptionS("loglocation");
+                    if (log_location.empty()) {
+                        log_location = __LOGLOCATION;
+                        log_location += "/access.log";
+                    }
+                    if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log_location))
+                        return false;
+                }
+        }
+
+        if (findoptionS("tag_logs") == "on") {
+            e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
+            e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
+        }
+
+        {
+            String temp = findoptionS("set_requestlog");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::requestlog, temp))
+                    return false;
+                log_requests = true;
+            } else {
+                if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+                    log_requests = false;
+                } else {
+                    log_requests = true;
+                    if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, RQlog_location))
+                        return false;
+                }
+            }
+        }
+
+        {
+            dstat_log_flag = false;
+            String temp = findoptionS("set_dstatslog");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::dstatslog, temp))
+                    return false;
+                dstat_log_flag = true;
+            } else {
+                if ((dstat_location = findoptionS("dstatlocation")) == "") {
+                    dstat_log_flag = false;
+                } else {
+                    dstat_log_flag = true;
+                    if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat_location))
+                        return false;
+                }
+            }
+        }
+
+        dstat_interval = findoptionI("dstatinterval");
+        if (dstat_interval == 0) {
+            dstat_interval = 300; // 5 mins
+        }
+
+        if (findoptionS("statshumanreadable") == "on") {
+            stats_human_readable = true;
+        } else {
+            stats_human_readable = false;
+        }
+
+        if (findoptionS("tag_dstatlog") == "on") {
+            e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
+        }
+
+        if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
+            dns_user_logging = false;
+        } else {
+            dns_user_logging = true;
+        }
+
+        log_header_value = findoptionS("logheadervalue");
 
         if ((daemon_user_name = findoptionS("daemonuser")) == "") {
             daemon_user_name = __PROXYUSER;
@@ -203,12 +262,12 @@ bool OptionContainer::read(std::string &filename, int type) {
             daemon_group_name = __PROXYGROUP;
         }
 
-		if (findoptionS("nodaemon") == "on") {
-			no_daemon = true;
-		} else {
-			no_daemon = false;
-		}
-		
+        if (findoptionS("nodaemon") == "on") {
+            no_daemon = true;
+        } else {
+            no_daemon = false;
+        }
+
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
             e2logger.setDockerMode();
@@ -233,43 +292,43 @@ bool OptionContainer::read(std::string &filename, int type) {
             enable_ssl = false;
         }
 
-    if(enable_ssl) {
-        bool ret = true;
-    if (findoptionS("useopensslconf") == "on") {
-        use_openssl_conf = true;
-        openssl_conf_path = findoptionS("opensslconffile");
-        if (openssl_conf_path == "") {
-            have_openssl_conf = false;
-        } else {
-            have_openssl_conf = true;
-        }
-    } else {
-        use_openssl_conf = false;
-    };
+        if (enable_ssl) {
+            bool ret = true;
+            if (findoptionS("useopensslconf") == "on") {
+                use_openssl_conf = true;
+                openssl_conf_path = findoptionS("opensslconffile");
+                if (openssl_conf_path == "") {
+                    have_openssl_conf = false;
+                } else {
+                    have_openssl_conf = true;
+                }
+            } else {
+                use_openssl_conf = false;
+            };
 
-        ca_certificate_path = findoptionS("cacertificatepath");
-        if (ca_certificate_path == "") {
-            E2LOGGER_error("cacertificatepath is required when ssl is enabled");
-            ret = false;
-        }
+            ca_certificate_path = findoptionS("cacertificatepath");
+            if (ca_certificate_path == "") {
+                E2LOGGER_error("cacertificatepath is required when ssl is enabled");
+                ret = false;
+            }
 
-        ca_private_key_path = findoptionS("caprivatekeypath");
-        if (ca_private_key_path == "") {
-            E2LOGGER_error("caprivatekeypath is required when ssl is enabled");
-            ret = false;
-        }
+            ca_private_key_path = findoptionS("caprivatekeypath");
+            if (ca_private_key_path == "") {
+                E2LOGGER_error("caprivatekeypath is required when ssl is enabled");
+                ret = false;
+            }
 
-        cert_private_key_path = findoptionS("certprivatekeypath");
-        if (cert_private_key_path == "") {
-            E2LOGGER_error("certprivatekeypath is required when ssl is enabled");
-            ret = false;
-        }
+            cert_private_key_path = findoptionS("certprivatekeypath");
+            if (cert_private_key_path == "") {
+                E2LOGGER_error("certprivatekeypath is required when ssl is enabled");
+                ret = false;
+            }
 
-        generated_cert_path = findoptionS("generatedcertpath") + "/";
-        if (generated_cert_path == "/") {
-            E2LOGGER_error("generatedcertpath is required when ssl is enabled");
-            ret = false;
-        }
+            generated_cert_path = findoptionS("generatedcertpath") + "/";
+            if (generated_cert_path == "/") {
+                E2LOGGER_error("generatedcertpath is required when ssl is enabled");
+                ret = false;
+            }
 
             time_t def_start = 1417872951; // 6th Dec 2014
             time_t ten_years = 315532800;
@@ -294,8 +353,8 @@ bool OptionContainer::read(std::string &filename, int type) {
 #endif
             } else {
                 return false;
+            }
         }
-    }
 
 
 #ifdef ENABLE_EMAIL
@@ -407,7 +466,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         max_content_filter_size *= 1024;
 
-        if(findoptionS("maxcontentramcachescansize").empty()) {
+        if (findoptionS("maxcontentramcachescansize").empty()) {
             max_content_filecache_scan_size = 2000;
         } else {
             max_content_ramcache_scan_size = findoptionI("maxcontentramcachescansize");
@@ -429,7 +488,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (max_content_ramcache_scan_size == 0) {
             max_content_ramcache_scan_size = max_content_filecache_scan_size;
         }
-        if ( findoptionS("weightedphrasemode").empty()) {
+        if (findoptionS("weightedphrasemode").empty()) {
             weighted_phrase_mode = 2;
         } else {
             weighted_phrase_mode = findoptionI("weightedphrasemode");
@@ -561,7 +620,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (!no_proxy) {
             proxy_port = findoptionI("proxyport");
-            if(proxy_port == 0) proxy_port = 3128;
+            if (proxy_port == 0) proxy_port = 3128;
             if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
                 return false;
             } // etc
@@ -569,7 +628,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         // multiple listen IP support
         filter_ip = findoptionM("filterip");
-        if( filter_ip.empty()) filter_ip.push_back("");
+        if (filter_ip.empty()) filter_ip.push_back("");
         if (filter_ip.size() > 127) {
             E2LOGGER_error("Can not listen on more than 127 IPs");
             return false;
@@ -581,15 +640,16 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
         if (check_ip.empty()) {
-                String t = "127.0.0.1";
-                check_ip.push_back(t);
+            String t = "127.0.0.1";
+            check_ip.push_back(t);
         }
 
         filter_ports = findoptionM("filterports");
         if (filter_ports.empty())
             filter_ports.push_back("8080");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
-            E2LOGGER_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(), ")");
+            E2LOGGER_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(),
+                           ")");
             return false;
         }
         filter_port = filter_ports[0].toInteger();
@@ -628,7 +688,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             use_original_ip_port = true;
         }
 
-        if(findoptionS("loglevel").empty()) {
+        if (findoptionS("loglevel").empty()) {
             ll = 3;
         } else {
             ll = findoptionI("loglevel");
@@ -637,7 +697,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         } // etc
         log_file_format = findoptionI("logfileformat");
-        if(log_file_format == 0) log_file_format = 8;
+        if (log_file_format == 0) log_file_format = 8;
         if (!realitycheck(log_file_format, 1, 8, "logfileformat")) {
             return false;
         } // etc
@@ -697,7 +757,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             show_all_weighted_found = false;
         }
-        if(findoptionS("reportinglevel").empty()) {
+        if (findoptionS("reportinglevel").empty()) {
             reporting_level = 3;
         } else {
             reporting_level = findoptionI("reportinglevel");
@@ -705,7 +765,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
             return false;
         }
-        String t = findoptionS("languagedir") + "/" ;
+        String t = findoptionS("languagedir") + "/";
         if (t == "/") {
             t = __DATADIR;
             t += "/languages";
@@ -735,11 +795,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             logconerror = true;
         } else {
             logconerror = false;
-        }
-        if (findoptionS("logchildprocesshandling") == "on") {
-            logchildprocs = true;
-        } else {
-            logchildprocs = false;
         }
 
         if (findoptionS("logsslerrors") == "on") {
@@ -786,7 +841,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (default_fg > 0) {
             if (default_fg <= filter_groups) {
                 default_fg--;
-            } else  {
+            } else {
                 E2LOGGER_error("defaultfiltergroup out of range");
                 return false;
             }
@@ -796,7 +851,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (default_trans_fg > 0) {
             if (default_trans_fg <= filter_groups) {
                 default_trans_fg--;
-            } else  {
+            } else {
                 E2LOGGER_error("defaulttransparentfiltergroup out of range");
                 return false;
             }
@@ -806,7 +861,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (default_icap_fg > 0) {
             if (default_icap_fg <= filter_groups) {
                 default_icap_fg--;
-            } else  {
+            } else {
                 E2LOGGER_error("defaulticapfiltergroup out of range");
                 return false;
             }
@@ -818,11 +873,37 @@ bool OptionContainer::read(std::string &filename, int type) {
             abort_on_missing_list = false;
         }
 
-        if (findoptionS("storyboardtrace") == "on")
         {
+            std::string temp = findoptionS("set_storytrace");
+            if (!temp.empty()) {
+                if (!loggerConf.configure(LoggerSource::storytrace, temp))
+                    return false;
+            }
+        }
+
+        if (findoptionS("storyboardtrace") == "on") {
             SB_trace = true;
+            e2logger.enable(LoggerSource::storytrace);
         } else {
             SB_trace = false;
+        }
+
+        {
+            std::deque <String> temp = findoptionM("debuglevel");
+            if (!temp.empty()) {
+                LoggerConfigurator loggerConf(&e2logger);
+                for (std::deque<String>::iterator i = temp.begin(); i != temp.end(); i++) {
+                    loggerConf.debuglevel(*i);
+                }
+            }
+        }
+
+        debug_format = findoptionI("debugformat");
+        if (debug_format == 0)
+            debug_format = 1;
+        {
+            LoggerConfigurator lc(&e2logger);
+            lc.debugformat(debug_format);
         }
 
         storyboard_location = findoptionS("preauthstoryboard");
@@ -917,8 +998,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         //    filter_groups = 1;
         numfg = filter_groups;
 
-        //filter_groups_list_location = findoptionS("filtergroupslist");
-        //     banned_ip_list_location = findoptionS("bannediplist");
         group_names_list_location = findoptionS("groupnamesfile");
         std::string language_list_location(languagepath + "messages");
 
@@ -935,7 +1014,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (group_names_list_location.length() == 0) {
             use_group_names_list = false;
-            E2LOGGER_debug("Not using groupnameslist");
+            DEBUG_debug("Not using groupnameslist");
         } else {
             use_group_names_list = true;
         }
@@ -948,7 +1027,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
 
         if (enable_ssl) {
-            E2LOGGER_config("enable SSL");
+            DEBUG_config("enable SSL");
             if (ca_certificate_path != "") {
                 ca = new CertificateAuthority(ca_certificate_path.c_str(),
                                               ca_private_key_path.c_str(),
@@ -956,7 +1035,8 @@ bool OptionContainer::read(std::string &filename, int type) {
                                               generated_cert_path.c_str(),
                                               gen_cert_start, gen_cert_end);
             } else {
-                E2LOGGER_error("Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
+                E2LOGGER_error(
+                        "Error - Valid cacertificatepath, caprivatekeypath and generatedcertpath must given when using MITM.");
                 return false;
             }
         }
@@ -965,15 +1045,14 @@ bool OptionContainer::read(std::string &filename, int type) {
         E2LOGGER_error(e.what());
         return false;
     }
-    E2LOGGER_config("Done: read Configfile: ", filename);
+    DEBUG_config("Done: read Configfile: ", filename);
     return true;
 }
 
 
-bool OptionContainer::readinStdin()
-{
-    E2LOGGER_trace("");
-    
+bool OptionContainer::readinStdin() {
+    DEBUG_trace("");
+
     if (!std::cin.good()) {
         E2LOGGER_error("Error reading stdin");
         return false;
@@ -982,7 +1061,7 @@ bool OptionContainer::readinStdin()
     String temp;
     while (!std::cin.eof()) {
         getline(std::cin, linebuffer);
-        E2LOGGER_debug("Line in: ", linebuffer);
+        DEBUG_debug("Line in: ", linebuffer);
         if (linebuffer.length() < 2)
             continue; // its jibberish
 
@@ -1070,19 +1149,19 @@ std::string OptionContainer::findoptionS(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
-            E2LOGGER_config(o, "=", temp);
+            DEBUG_config(o, "=", temp);
             return temp.toCharArray();
         }
     }
     return "";
 }
 
-std::deque<String> OptionContainer::findoptionM(const char *option) {
+std::deque <String> OptionContainer::findoptionM(const char *option) {
     // findoptionS returns all the matching options
     String temp;
     String temp2;
     String o(option);
-    std::deque<String> results;
+    std::deque <String> results;
 
     for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
         if ((*i).empty())
@@ -1106,7 +1185,7 @@ std::deque<String> OptionContainer::findoptionM(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
-            E2LOGGER_config(o, "=" ,temp);
+            DEBUG_config(o, "=", temp);
             results.push_back(temp);
         }
     }
@@ -1117,17 +1196,17 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     // realitycheck checks an amount for certain expected criteria
     // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l , " should be >= ", minl, " <=", maxl, ")");
+        E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l, " should be >= ", minl, " <=",
+                       maxl, ")");
         return false;
     }
     return true;
 }
 
 
-bool OptionContainer::loadDMPlugins()
-{
-    E2LOGGER_config("load Download manager plugins");
-    std::deque<String> dq = findoptionM("downloadmanager");
+bool OptionContainer::loadDMPlugins() {
+    DEBUG_config("load Download manager plugins");
+    std::deque <String> dq = findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         E2LOGGER_error("There must be at least one download manager option");
@@ -1136,7 +1215,7 @@ bool OptionContainer::loadDMPlugins()
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
-        E2LOGGER_debug("loading download manager config: ", config);
+        DEBUG_debug("loading download manager config: ", config);
         DMPlugin *dmpp = dm_plugin_load(config.toCharArray());
         if (dmpp == NULL) {
             E2LOGGER_error("dm_plugin_load() returned NULL pointer with config file: ", config);
@@ -1158,10 +1237,9 @@ bool OptionContainer::loadDMPlugins()
     return true;
 }
 
-bool OptionContainer::loadCSPlugins()
-{
-    E2LOGGER_config("load Content scanner plugins");
-    std::deque<String> dq = findoptionM("contentscanner");
+bool OptionContainer::loadCSPlugins() {
+    DEBUG_config("load Content scanner plugins");
+    std::deque <String> dq = findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         return true; // to have one is optional
@@ -1170,13 +1248,13 @@ bool OptionContainer::loadCSPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
         // worth adding some input checking on config
-        E2LOGGER_debug("loading content scanner config: ", config);
+        DEBUG_debug("loading content scanner config: ", config);
         CSPlugin *cspp = cs_plugin_load(config.toCharArray());
         if (cspp == NULL) {
             E2LOGGER_error("cs_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-        E2LOGGER_debug("Content scanner plugin is good, calling init...");
+        DEBUG_debug("Content scanner plugin is good, calling init...");
         int rc = cspp->init(NULL);
         if (rc < 0) {
             E2LOGGER_error("Content scanner plugin init returned error value: ", rc);
@@ -1192,13 +1270,12 @@ bool OptionContainer::loadCSPlugins()
     return true;
 }
 
-bool OptionContainer::loadAuthPlugins()
-{
-    E2LOGGER_config("load Auth plugins");
+bool OptionContainer::loadAuthPlugins() {
+    DEBUG_config("load Auth plugins");
     // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
     auth_needs_proxy_query = false;
 
-    std::deque<String> dq = findoptionM("authplugin");
+    std::deque <String> dq = findoptionM("authplugin");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         return true; // to have one is optional
@@ -1207,13 +1284,13 @@ bool OptionContainer::loadAuthPlugins()
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
         // worth adding some input checking on config
-        E2LOGGER_debug("loading auth plugin config: ", config);
+        DEBUG_debug("loading auth plugin config: ", config);
         AuthPlugin *app = auth_plugin_load(config.toCharArray());
         if (app == NULL) {
             E2LOGGER_error("auth_plugin_load() returned NULL pointer with config file: ", config);
             return false;
         }
-        E2LOGGER_debug("Auth plugin is good, calling init...");
+        DEBUG_debug("Auth plugin is good, calling init...");
         int rc = app->init(NULL);
         if (rc < 0) {
             E2LOGGER_error("Auth plugin init returned error value:", rc);
@@ -1224,11 +1301,11 @@ bool OptionContainer::loadAuthPlugins()
 
         if (app->needs_proxy_query) {
             auth_needs_proxy_query = true;
-            E2LOGGER_debug("Auth plugin relies on querying parent proxy");
+            DEBUG_debug("Auth plugin relies on querying parent proxy");
         }
         if (app->needs_proxy_access_in_plugin) {
             auth_needs_proxy_in_plugin = true;
-            E2LOGGER_debug("Auth plugin relies on querying parent proxy within plugin");
+            DEBUG_debug("Auth plugin relies on querying parent proxy within plugin");
         }
         authplugins.push_back(app);
     }
@@ -1239,9 +1316,9 @@ bool OptionContainer::loadAuthPlugins()
 }
 
 
-bool OptionContainer::createLists(int load_id)  {
-    E2LOGGER_config("create Lists: ", load_id);
-    std::shared_ptr<LOptionContainer> temp (new LOptionContainer(load_id));
+bool OptionContainer::createLists(int load_id) {
+    DEBUG_config("create Lists: ", load_id);
+    std::shared_ptr <LOptionContainer> temp(new LOptionContainer(load_id));
     if (temp->loaded_ok) {
         current_LOC = temp;
         return true;
@@ -1250,6 +1327,6 @@ bool OptionContainer::createLists(int load_id)  {
 }
 
 
-std::shared_ptr<LOptionContainer> OptionContainer::currentLists() {
+std::shared_ptr <LOptionContainer> OptionContainer::currentLists() {
     return current_LOC;
 }

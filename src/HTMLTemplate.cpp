@@ -103,7 +103,7 @@ void makeURLSafe(String &url)
 void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, std::string &logreason, std::string &categories,
                            std::string *user, std::string *ip, std::string *host, int filtergroup, String grpname, String &hashed , String &localip, String &extflags) {
 
-    E2LOGGER_debug("Displaying TEMPLATE. url:", url, " reason:", reason, " logreason:", logreason);
+    DEBUG_debug("Displaying TEMPLATE. url:", url, " reason:", reason, " logreason:", logreason);
 
     String line;
     bool newline;
@@ -116,7 +116,7 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
         // preserve newlines from original file	    
         newline = false;
         line = html[i];
-    	E2LOGGER_debug("Displaying TEMPLATE: ", line);
+    	DEBUG_debug("Displaying TEMPLATE: ", line);
 
         // Take care SSLMITM negotiation error
         if (line.length() < 1){

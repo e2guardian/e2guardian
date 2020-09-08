@@ -128,12 +128,11 @@ int commandlineinstance::init(void *args)
     }
     progname = cv["progname"];
 
-#ifdef E2DEBUG
-    std::cerr << thread_id << "Program and arguments: ";
+#ifdef DEBUG_HIGH
+    DEBUG_avscan("Program and arguments: ");
     for (int i = 0; i < numarguments; i++) {
-        std::cerr << thread_id << arguments[i] << " ";
+        DEBUG_avscan(arguments[i], ", ";
     }
-    std::cerr << thread_id << std::endl;
 #endif
 
     // read in virus name regular expression
@@ -158,10 +157,10 @@ int commandlineinstance::init(void *args)
     tempcodes[sinfectedcodes.length()] = '\0';
     strncpy(tempcodes, sinfectedcodes.c_str(), sinfectedcodes.length());
     result = strtok(tempcodes, ",");
-    E2LOGGER_debug("Infected file return codes: ");
+    DEBUG_avscan("Infected file return codes: ");
     while (result) {
         tempinfectedcodes.push_back(atoi(result));
-        E2LOGGER_debug(tempinfectedcodes.back() );
+        DEBUG_avscan(tempinfectedcodes.back() );
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
@@ -170,10 +169,10 @@ int commandlineinstance::init(void *args)
     strncpy(tempcodes, scleancodes.c_str(), scleancodes.length());
     result = strtok(tempcodes, ",");
     
-    E2LOGGER_debug("Clean file return codes: ");
+    DEBUG_avscan("Clean file return codes: ");
     while (result) {
         tempcleancodes.push_back(atoi(result));
-        E2LOGGER_debug(tempcleancodes.back());
+        DEBUG_avscan(tempcleancodes.back());
         result = strtok(NULL, ",");
     }
     delete[] tempcodes;
@@ -238,7 +237,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     }
     int f = fork();
     if (f == 0) {
-        E2LOGGER_debug("Running: ", progname, " ", filename);
+        DEBUG_avscan("Running: ", progname, " ", filename);
         // close read ends of sockets
         close(scannerstdout[0]);
         close(scannerstderr[0]);
@@ -265,7 +264,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     std::string result;
     FILE *readme = fdopen(scannerstdout[0], "r");
     while (fgets(buff, 8192, readme) != NULL) {
-#ifndef E2DEBUG
+#ifndef DEBUG_LOW
         if (usevirusregexp)
 #endif
             result += buff;
@@ -273,7 +272,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     fclose(readme);
     readme = fdopen(scannerstderr[0], "r");
     while (fgets(buff, 8192, readme) != NULL) {
-#ifndef E2DEBUG
+#ifndef DEBUG_LOW
         if (usevirusregexp)
 #endif
             result += buff;
@@ -294,7 +293,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
         return E2CS_SCANERROR;
     }
 
-    E2LOGGER_debug("Scanner result: ", (result), "Code: ", returncode);
+    DEBUG_avscan("Scanner result: ", (result), "Code: ", returncode);
     if (returncode == 255) {
         lastmessage = "Cannot get scanner return code";
         E2LOGGER_error("Cannot get command-line scanner return code: scanner exec failed");

@@ -75,28 +75,28 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     int clientport = peercon.getPeerSourcePort();
     int serverport = peercon.getPort();
-    E2LOGGER_debug("Connecting to: ", clientip, "to ask about: ", clientport);
+    DEBUG_auth("Connecting to: ", clientip, "to ask about: ", clientport);
     Socket iq;
     iq.setTimeout(5000);
     int rc = iq.connect(clientip.c_str(), 113); // ident port
     if (rc) {
-        E2LOGGER_debug("Error connecting to obtain ident from: ", clientip);
+        DEBUG_auth("Error connecting to obtain ident from: ", clientip);
         return E2AUTH_NOMATCH;
     }
-    E2LOGGER_debug("Connected to:", clientip);
+    DEBUG_auth("Connected to:", clientip);
     std::string request;
     request = String(clientport).toCharArray();
     request += ", ";
     request += String(serverport).toCharArray();
     request += "\r\n";
 
-    E2LOGGER_debug("About to send:", request);
+    DEBUG_auth("About to send:", request);
     if (!iq.writeToSocket((char *)request.c_str(), request.length(), 0, 5000)) {
-        E2LOGGER_debug("Error writing to ident connection to: ", clientip);
+        DEBUG_auth("Error writing to ident connection to: ", clientip);
         iq.close(); // close conection to client
         return -1;
     }
-    E2LOGGER_debug("wrote ident request to:", clientip);
+    DEBUG_auth("wrote ident request to:", clientip);
 
     char buff[8192];
     try {
@@ -106,7 +106,7 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
     }
     String temp;
     temp = buff; // convert to String
-    E2LOGGER_debug("got ident reply: ", temp, " from: ", clientip);
+    DEBUG_auth("got ident reply: ", temp, " from: ", clientip);
 
     iq.close(); // close conection to client
     temp = temp.after(":");

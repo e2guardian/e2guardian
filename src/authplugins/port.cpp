@@ -134,10 +134,10 @@ int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &ugl
     fg = inList(s.toInteger());
     if (fg >= 0) {
         pfg = fg;
-        E2LOGGER_debug("Matched port ", user, " to port list");
+        DEBUG_auth("Matched port ", user, " to port list");
         return E2AUTH_OK;
     }
-    E2LOGGER_debug("Matched port ", user, " to nothing");
+    DEBUG_auth("Matched port ", user, " to nothing");
     return E2AUTH_NOMATCH;
 }
 #endif
@@ -212,7 +212,7 @@ int portinstance::readIPMelangeList(const char *filename)
             continue;
         }
 
-        E2LOGGER_debug("key: ", key, "value: ", value );
+        DEBUG_auth("key: ", key, "value: ", value );
         if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
             E2LOGGER_error("Filter group out of range; entry ", line, " in ", filename);
             warn = true;
@@ -232,14 +232,14 @@ int portinstance::readIPMelangeList(const char *filename)
         }
     }
     input.close();
-    E2LOGGER_debug("starting sort");
+    DEBUG_auth("starting sort");
     //	std::sort(ipportlist.begin(), ipportlist.end());
-#ifdef E2DEBUG
-    E2LOGGER_debug("sort complete");
-    E2LOGGER_debug("port list dump:");
+#ifdef DEBUG_HIGH
+    DEBUG_auth("sort complete");
+    DEBUG_auth("port list dump:");
     std::deque<portstruct>::iterator i = ipportlist.begin();
     while (i != ipportlist.end()) {
-        E2LOGGER_debug("port: ", i->port, " Group: ", i->group);
+        DEBUG_auth("port: ", i->port, " Group: ", i->group);
         i++;
     }
 #endif

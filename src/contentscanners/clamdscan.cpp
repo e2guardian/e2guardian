@@ -113,7 +113,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         command += filename;
     }
     command += "\r\n";
-    E2LOGGER_debugclamav("clamdscan command:", command);
+    DEBUG_avscan("clamdscan command:", command);
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
@@ -135,7 +135,7 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoWrite())  lastmessage += " NotWritable";
         E2LOGGER_error(lastmessage);
-        E2LOGGER_debugclamav(lastmessage);
+        DEBUG_avscan(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
@@ -151,14 +151,14 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
         if (stripedsocks.isHup())  lastmessage += " HUPed";
         if (stripedsocks.isNoRead()) lastmessage += " NotReadable";
         E2LOGGER_error(lastmessage);
-        E2LOGGER_debugclamav(lastmessage);
+        DEBUG_avscan(lastmessage);
         stripedsocks.close();
         return E2CS_SCANERROR;
     }
     String reply(buff);
     delete[] buff;
     reply.removeWhiteSpace();
-    E2LOGGER_debugclamav("Got from clamdscan: ", reply);
+    DEBUG_avscan("Got from clamdscan: ", reply);
     stripedsocks.close();
     if (reply.endsWith("ERROR")) {
         lastmessage = "ClamD error: " + reply;
@@ -169,9 +169,9 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // format is:
 // /foo/path/file: foovirus FOUND
 
-        E2LOGGER_debugclamav("clamdscan INFECTED! with: ", lastvirusname);
+        DEBUG_avscan("clamdscan INFECTED! with: ", lastvirusname);
         if (archivewarn && (lastvirusname.contains(".Exceeded") || lastvirusname.contains(".Encrypted"))) {
-            E2LOGGER_debugclamav("clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only");
+            DEBUG_avscan("clamdscan: detected an ArchiveBlockMax \"virus\"; logging warning only");
             lastmessage = "Archive not fully scanned: " + lastvirusname;
 
             return E2CS_WARNING;
@@ -183,6 +183,6 @@ int clamdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, co
 // must be clean
 // Note: we should really check what the output of a "clean" message actually looks like,
 // and check explicitly for that, but the ClamD documentation is sparse on output formats.
-    E2LOGGER_debugclamav("clamdscan - he say yes (clean)");
+    DEBUG_avscan("clamdscan - he say yes (clean)");
     return E2CS_CLEAN;
 }

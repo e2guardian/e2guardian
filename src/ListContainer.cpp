@@ -65,7 +65,7 @@ void ListContainer::reset()
     // ref should already be zero)
     if (refcount > 0) {
         --refcount;
-        //  E2LOGGER_debug("de-reffing ", sourcefile, " due to manual list reset, refcount: ", refcount);
+        //  DEBUG_debug("de-reffing ", sourcefile, " due to manual list reset, refcount: ", refcount);
         for (size_t i = 0; i < morelists.size(); ++i)
             o.lm.deRefList(morelists[i]);
     }
@@ -195,12 +195,12 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 // if it is already in our category list, and adding it to the list (also
                 // returning index) if it is not.
                 catindex = getCategoryIndex(&lcat);
-                E2LOGGER_debug("List category: ", lcat, "Category list index: ", catindex);
+                DEBUG_debug("List category: ", lcat, "Category list index: ", catindex);
             }
             // phrase lists can also be marked as not to be case-converted,
             // to aid support for exotic character encodings
             else if (line.startsWith("#noconvert")) {
-                E2LOGGER_debug("List flagged as not to be case-converted");
+                DEBUG_debug("List flagged as not to be case-converted");
                 caseinsensitive = false;
             }
             // Read in time tags; set timeindex to the ID of the new tag
@@ -211,7 +211,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 }
                 timelimits.push_back(tl);
                 timeindex = timelimits.size() - 1;
-                E2LOGGER_debug("Found time limit on phrase list. Now have ", timelimits.size(), " limits on this list (including parents).");
+                DEBUG_debug("Found time limit on phrase list. Now have ", timelimits.size(), " limits on this list (including parents).");
                 continue;
             }
         }
@@ -353,7 +353,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
     }
 
     if (filters != 32)
-        E2LOGGER_debugregexp("Converting to lowercase");
+        DEBUG_config("Converting to lowercase");
 
     increaseMemoryBy(len + 2); // Allocate some memory to hold file
     String temp, inc, hostname, url;
@@ -380,7 +380,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
                 continue;
             } else if (temp.startsWith("#listcategory:")) {
                 category = temp.after("\"").before("\"");
-                E2LOGGER_debug("found item list category: ", category);
+                DEBUG_config("found item list category: ", category);
                 continue;
             } else if (checkendstring && temp.startsWith(endstring)) {
                 break;
@@ -502,7 +502,7 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
     if (sourcefile.startsWithLower("memory:"))
         return readStdinItemList(startswith, filters);
     std::string linebuffer;
-    E2LOGGER_debug(filename);
+    DEBUG_config(filename);
 
     //struct stat s;
     filedate = getFileDate(filename);
@@ -536,7 +536,7 @@ bool ListContainer::readItemList(const char *filename, const char *list_pwd, boo
 // for stdin item lists - read item list from stdin
 bool ListContainer::readStdinItemList(bool startswith, int filters) {
     if (filters != 32)
-        E2LOGGER_debug("Converting to lowercase");
+        DEBUG_config("Converting to lowercase");
     std::string linebuffer;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
@@ -897,8 +897,8 @@ bool ListContainer::makeGraph(bool fqs)
     std::string lasts;
     graphused = true;
 
-#ifdef E2DEBUG
-    E2LOGGER_debug("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
+#ifdef DEBUG_LOW
+    DEBUG_debug("Bytes needed for phrase tree in worst-case scenario: ", (sizeof(int) * ((GRAPHENTRYSIZE * data_length) + ROOTOFFSET)),
                  ", starting off with allocation of ", (sizeof(int) * ((GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET)) );
     prolificroot = false;
     secondmaxchildnodes = 0;
@@ -923,10 +923,10 @@ bool ListContainer::makeGraph(bool fqs)
         graphAdd(String(data + list[sizelist[i]], lengthlist[sizelist[i]]), 0, sizelist[i]);
     }
 
-    E2LOGGER_debug("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
-    E2LOGGER_debug("Most prolific node has ", maxchildnodes, " children");
-    E2LOGGER_debug("It ", (prolificroot ? "is" : "is not"), " the root node");
-    E2LOGGER_debug("Second most prolific node has ", secondmaxchildnodes, " children");
+    DEBUG_config("Bytes actually needed for phrase tree: ", (sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) );
+    DEBUG_config("Most prolific node has ", maxchildnodes, " children");
+    DEBUG_config("It ", (prolificroot ? "is" : "is not"), " the root node");
+    DEBUG_config("Second most prolific node has ", secondmaxchildnodes, " children");
 
     realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
     if (realgraphdata == NULL) {
@@ -1161,12 +1161,12 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
     }
 
     if (force_quick_search || graphitems == 0) {
-#ifdef E2DEBUG
-        E2LOGGER_debug("Map (quicksearch) start");
+#ifdef DEBUG_LOW
+        DEBUG_debug("Map (quicksearch) start");
         for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-            E2LOGGER_debug("Map: ", i->first, " ", i->second.second);
+            DEBUG_debug("Map: ", i->first, " ", i->second.second);
         }
-        E2LOGGER_debug("Map (quicksearch) end");
+        DEBUG_debug("Map (quicksearch) end");
 #endif
         return;
     }
@@ -1215,7 +1215,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
                         } else {
                             existingitem->second.second++;
                         }
-                        E2LOGGER_debug("Found this phrase: ", phrase);
+                        DEBUG_debug("Found this phrase: ", phrase);
                     }
                     // grab this node's number of children
                     sl = graphdata[ppos + 2];
@@ -1251,12 +1251,12 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
             }
         }
     }
-#ifdef E2DEBUG
-    E2LOGGER_debug("Map start");
+#ifdef DEBUG_LOW
+    DEBUG_debug("Map start");
     for (std::map<std::string, std::pair<unsigned int, int> >::iterator i = result.begin(); i != result.end(); i++) {
-        E2LOGGER_debug("Map: ", i->first, " ", i->second.second);
+        DEBUG_debug("Map: ", i->first, " ", i->second.second);
     }
-    E2LOGGER_debug("Map end");
+    DEBUG_debug("Map end");
 #endif
 }
 
@@ -1352,11 +1352,11 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         }
         if ((numlinks + 1) > maxchildnodes) {
             maxchildnodes = numlinks + 1;
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
             prolificroot = (inx == 0);
 #endif
         }
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
         else if ((numlinks + 1) > secondmaxchildnodes)
             secondmaxchildnodes = numlinks + 1;
 #endif
@@ -1374,11 +1374,11 @@ void ListContainer::graphAdd(String s, const int inx, int item)
             }
             if ((numlinks + 1) > maxchildnodes) {
                 maxchildnodes = numlinks + 1;
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
                 prolificroot = (inx == 0);
 #endif
             }
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
             else if ((numlinks + 1) > secondmaxchildnodes)
                 secondmaxchildnodes = numlinks + 1;
 #endif
@@ -1487,7 +1487,7 @@ void ListContainer::addToIPList(String& line)
         }
         else
         {
-            E2LOGGER_debug("Not adding to any IP list:", line);
+            DEBUG_config("Not adding to any IP list:", line);
         }
     }
 }
@@ -1509,7 +1509,7 @@ void ListContainer::addToDataMap(String& line) {
         return;
     }
 
-    E2LOGGER_debug("key: ", key, " value: ", value);
+    DEBUG_debug("key: ", key, " value: ", value);
 
     datamap d(key,value);
     datamaplist.push_back(d);
@@ -1533,10 +1533,10 @@ void ListContainer::addToIPMap(String& line)
         //warn = true;
         return;
     }
-    E2LOGGER_debug("key: ", key, " value: ", value);
+    DEBUG_debug("key: ", key, " value: ", value);
 
     if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-        E2LOGGER_error("Filter group out of range; entry %s in %s", line, sourcefile);
+        E2LOGGER_error("Filter group out of range; entry ", line, " in ", sourcefile);
         //warn = true;
         return;
     }
@@ -1664,22 +1664,22 @@ String ListContainer::getIPMapData(std::string &ip)
     fgs = inIPMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        E2LOGGER_debug("Matched IP ", ip, " to straight IP list");
+        DEBUG_debug("Matched IP ", ip, " to straight IP list");
         return rfg;
     }
     fgs = inSubnetMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        E2LOGGER_debug("Matched IP ", ip, " to subnet");
+        DEBUG_debug("Matched IP ", ip, " to subnet");
         return rfg;
     }
     fgs = inIPRangeMap(addr);
     if (fgs != "") {
         rfg = fgs;
-        E2LOGGER_debug("Matched IP ", ip, " to range");
+        DEBUG_debug("Matched IP ", ip, " to range");
         return rfg;
     }
-    E2LOGGER_debug("Matched IP ", ip, " to nothing");
+    DEBUG_debug("Matched IP ", ip, " to nothing");
     return "";
 }
 
@@ -1854,7 +1854,7 @@ bool ListContainer::upToDate()
 }
 
 bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
-    E2LOGGER_debug("Found a time tag");
+    DEBUG_config("Found a time tag");
     String temp((*tag).after("#time: "));
     return readTimeBand(temp, tl);
 }
@@ -1967,7 +1967,7 @@ bool ListContainer::isNow(TimeLimit &tl) {
             return false;
         }
     }
-    E2LOGGER_debug("time match ", tl.sthour, ":", tl.stmin, "-", tl.endhour, ":", tl.endmin, " ", hour, ":", min, " ", sourcefile);
+    DEBUG_debug("time match ", tl.sthour, ":", tl.stmin, "-", tl.endhour, ":", tl.endmin, " ", hour, ":", min, " ", sourcefile);
     return true;
 }
 
@@ -1975,7 +1975,7 @@ int ListContainer::getCategoryIndex(String *lcat)
 {
     // where in the category list is our category? if nowhere, add it.
     if ((*lcat).length() < 2) {
-        E2LOGGER_debug("blank entry index");
+        DEBUG_debug("blank entry index");
         return 0; // blank entry index
     }
     int l = (signed)listcategory.size();
@@ -2052,7 +2052,7 @@ const char* ListContainer::inIPList(const std::string &ipstr )
     }
     }
 
-    E2LOGGER_debug("inIPList ", category, " no match for ", ipstr);
+    DEBUG_debug("inIPList ", category, " no match for ", ipstr);
     return NULL;
 }
 

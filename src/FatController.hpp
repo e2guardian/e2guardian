@@ -29,7 +29,7 @@ struct stat_rec {
     std::atomic<int> busychildren; 
     FILE *fs; // file stream
     void reset();
-    void start();
+    void start(bool firsttime);
     void clear();
     void close();
 };

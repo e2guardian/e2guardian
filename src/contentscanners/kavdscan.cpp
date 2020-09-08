@@ -103,7 +103,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         command += filename;
     }
     command += "\r\n";
-    E2LOGGER_debug("kavdscan command:", command);
+    DEBUG_avscan("kavdscan command:", command);
 
     UDSocket stripedsocks;
     if (stripedsocks.getFD() < 0) {
@@ -146,10 +146,10 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         return E2CS_SCANERROR;
     }
     String reply(buff);
-    E2LOGGER_debug("Got from kavdscan:", reply);
+    DEBUG_avscan("Got from kavdscan:", reply);
 
     if (reply[0] == '2') { // clean
-        E2LOGGER_debug("kavdscan - clean");
+        DEBUG_avscan("kavdscan - clean");
         delete[] buff;
         stripedsocks.close();
         return E2CS_CLEAN;
@@ -169,7 +169,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
                 return E2CS_SCANERROR;
             }
             reply = buff;
-            E2LOGGER_debug("Got from kavdscan:", reply);
+            DEBUG_avscan("Got from kavdscan:", reply);
         }
         E2LOGGER_error("lastvirusname: ", lastvirusname);
         delete[] buff;

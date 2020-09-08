@@ -63,7 +63,7 @@ class ntlminstance : public AuthPlugin
         client_ip_based = false;
         // whether or not to enable the magic "transparent NTLM" (NTLM auth for transparent proxies) mode
         if (definition["transparent"] == "on") {
-            E2LOGGER_debug("Transparent NTLM Enabled");
+            DEBUG_auth("Transparent NTLM Enabled");
             transparent = true;
             transparent_ip = definition["transparent_ip"].toCharArray();
             transparent_port = definition["transparent_port"].toInteger();
@@ -172,7 +172,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 // First dance with NTLM - initial auth negociation -
     if (transparent && (at != "NTLM")) {
         // obey forwarded-for options in what we send out
-        E2LOGGER_debug("NTLM - forging initial auth required from origin server");
+        DEBUG_auth("NTLM - forging initial auth required from origin server");
 
         if (!h.header[h.header.size() - 1].find("X-Forwarded-For") == 0){
             if (o.forwarded_for) {
@@ -216,10 +216,11 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         h.setURL(domain);
     }
 
-#ifdef E2DEBUG
-    E2LOGGER_debug("NTLM - header - ");
-    for (unsigned int i = 0; i < h.header.size(); i++)
-    	E2LOGGER_debug(h.header[i]);
+#ifdef DEBUG_HIGH
+    DEBUG_auth("NTLM - header - ");
+    for (unsigned int i = 0; i < h.header.size(); i++) {
+    	DEBUG_auth(h.header[i]);
+    }
 #endif
 
     if (at != "NTLM") {
@@ -227,7 +228,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         if (at.length() == 0) {
             // allow the initial request through so the client will get the proxy's initial auth required response.
             // advertise persistent connections so that parent proxy will agree to advertise NTLM support.
-            E2LOGGER_debug("No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM");
+            DEBUG_auth("No auth negotiation currently in progress - making initial request persistent so that proxy will advertise NTLM");
             h.makePersistent();
         }
         return E2AUTH_NOMATCH;
@@ -235,16 +236,16 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
 
     HTTPHeader res_hd(__HEADER_RESPONSE);
 
-    E2LOGGER_debug("NTLM - sending step 1");
+    DEBUG_auth("NTLM - sending step 1");
     if (!h.isPersistent()) {
     	h.makePersistent();
     }
     h.out(&peercon, upstreamcon, __E2HEADER_SENDALL);
 
-    E2LOGGER_debug("NTLM - receiving step 2");
+    DEBUG_auth("NTLM - receiving step 2");
     res_hd.in(upstreamcon, true);
     if (res_hd.authRequired()) {
-        E2LOGGER_debug("NTLM - sending step 2");
+        DEBUG_auth("NTLM - sending step 2");
         if (transparent)
             h.makeTransparent(true);
         res_hd.out(NULL, &peercon, __E2HEADER_SENDALL);
@@ -252,7 +253,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             fdt.tunnel(*upstreamcon, peercon, false, res_hd.contentLength(), true);
         }
 
-        E2LOGGER_debug("NTLM - receiving step 3");
+        DEBUG_auth("NTLM - receiving step 3");
         // Buggy with IE and Chrome: todo needs more investigations !
         h.in(&peercon, true);
         if (h.header.size() == 0) {
@@ -267,7 +268,7 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
             h.setURL(domain);
         }
 
-        E2LOGGER_debug("NTLM - decoding type 3 message");
+        DEBUG_auth("NTLM - decoding type 3 message");
         std::string message(h.getAuthData());
         ntlm_authenticate auth;
         ntlm_auth *a = &(auth.a);
@@ -281,10 +282,11 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         if ((message.length() > sizeof(ntlm_auth)) || (message.length() < offsetof(ntlm_auth, payload))) {
             std::string clientip;
             clientip = peercon.getPeerIP();
-#ifdef E2DEBUG
-            E2LOGGER_debug("NTLM - Invalid message of length ", message.length(), ", message was: ", message, "IP: ", clientip, " header size ", h.header.size() );
-            for (unsigned int i = 0; i < h.header.size(); i++)
-                E2LOGGER_debug(h.header[i]);
+#ifdef DEBUG_HIGH
+            DEBUG_auth("NTLM - Invalid message of length ", message.length(), ", message was: ", message, "IP: ", clientip, " header size ", h.header.size() );
+            for (unsigned int i = 0; i < h.header.size(); i++) {
+                DEBUG_auth(h.header[i]);
+	    }
 #endif
               return -3;
         }
@@ -315,10 +317,10 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
                     local_iconv_adaptor(iconv, ic, &inptr, &l, &outptr, &l2);
                     iconv_close(ic);
                     username2[256 - l2] = '\0';
-                    E2LOGGER_debug("NTLM - got username (converted from UTF-16LE) ", username2);
+                    DEBUG_auth("NTLM - got username (converted from UTF-16LE) ", username2);
                     string = username2;
                 } else {
-                    E2LOGGER_debug("NTLM - got username ", username);
+                    DEBUG_auth("NTLM - got username ", username);
                     string = username;
                 }
 		    authrec.user_name = string;
@@ -353,10 +355,11 @@ int ntlminstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std
         }
         return E2AUTH_NOMATCH;
     } else {
-#ifdef E2DEBUG
-        E2LOGGER_debug("NTLM - step 2 was not part of an auth handshake!");
-        for (unsigned int i = 0; i < h.header.size(); i++)
-            E2LOGGER_debug(h.header[i]);
+#ifdef DEBUG_HIGH
+        DEBUG_auth("NTLM - step 2 was not part of an auth handshake!");
+        for (unsigned int i = 0; i < h.header.size(); i++) {
+            DEBUG_auth(h.header[i]);
+        }
 #endif
         E2LOGGER_error("NTLM - step 2 was not part of an auth handshake! (", h.header[0], ")");
         return -1;

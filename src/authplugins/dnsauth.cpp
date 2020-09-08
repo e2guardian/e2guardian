@@ -135,7 +135,7 @@ int dnsauthinstance::init(void *args)
         return -1;
     }
 
-    E2LOGGER_debug( "basedomain is ", basedomain, " authurl is ", authurl);
+    DEBUG_auth( "basedomain is ", basedomain, " authurl is ", authurl);
     return 0;
 }
 
@@ -160,11 +160,11 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
         ippath = p1;
     }
 
-    E2LOGGER_debug("IPPath is ", ippath);
+    DEBUG_auth("IPPath is ", ippath);
 
     // change '.' to '-'
     ippath.swapChar('.', '-');
-    E2LOGGER_debug("IPPath is ", ippath);
+    DEBUG_auth("IPPath is ", ippath);
     if (getdnstxt(ippath)) {
         string = userst.user;
         is_real_user = true;
@@ -195,7 +195,7 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
 int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
 {
     fg = userst.group;
-    E2LOGGER_debug("Matched user", user, " to group ", fg, " in cached DNS record");
+    DEBUG_auth("Matched user", user, " to group ", fg, " in cached DNS record");
     return E2AUTH_OK;
 }
 
@@ -211,11 +211,11 @@ bool dnsauthinstance::getdnstxt(String &ippath)
     ns_msg handle; /* handle for response message */
     responseLen = res_querydomain(ippath.c_str(), basedomain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
-        E2LOGGER_debug("DNS query returned error ", dns_error(h_errno));
+        DEBUG_auth("DNS query returned error ", dns_error(h_errno));
         return false;
     }
     if (ns_initparse(response.buf, responseLen, &handle) < 0) {
-        E2LOGGER_debug("ns_initparse returned error ", strerror(errno));
+        DEBUG_auth("ns_initparse returned error ", strerror(errno));
         return false;
     }
 
@@ -227,11 +227,11 @@ bool dnsauthinstance::getdnstxt(String &ippath)
     int i = ns_msg_count(handle, ns_s_an);
     if (i > 0) {
         if (ns_parserr(&handle, ns_s_an, 0, &rr)) {
-            E2LOGGER_debug("ns_paserr returned error ", strerror(errno));
+            DEBUG_auth("ns_paserr returned error ", strerror(errno));
             return false;
         } else {
             if (ns_rr_type(rr) == ns_t_txt) {
-                E2LOGGER_debug("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
+                DEBUG_auth("ns_rr_rdlen returned ", ns_rr_rdlen(rr));
                 u_char *k = (u_char *)ns_rr_rdata(rr);
                 char p[400];
                 unsigned int j = 0;
@@ -239,7 +239,7 @@ bool dnsauthinstance::getdnstxt(String &ippath)
                     p[j++] = k[j1];
                 }
                 p[j] = '\0';
-                E2LOGGER_debug("ns_rr_data returned ", p);
+                DEBUG_auth("ns_rr_data returned ", p);
                 String dnstxt(p);
                 userst.user = dnstxt.before(",");
                 userst.group = (dnstxt.after(",")).toInteger() - 1;

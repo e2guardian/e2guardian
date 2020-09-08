@@ -35,7 +35,7 @@ void ICAPHeader::setTimeout(int t)
 
 bool ICAPHeader::setEncapRecs() {
     String t = *pencapsulated;
-    E2LOGGER_debugicap("pencapsulated is ", t);
+    DEBUG_icap("pencapsulated is ", t);
     t = t.after(": ");
     while ( t.length() ) {
         String t1 = t.before(",");
@@ -189,7 +189,7 @@ void ICAPHeader::checkheader(bool allowpersistent)
         }
 
         String t2 = *i;
-        E2LOGGER_debugicap("Header value from ICAP client: ", t2,  "allow_204 is ", allow_204, " allow_206 is ", allow_206 );
+        DEBUG_icap("Header value from ICAP client: ", t2,  "allow_204 is ", allow_204, " allow_206 is ", allow_206 );
 
         }
     }
@@ -262,7 +262,7 @@ String ICAPHeader::getUrl()
         }
     }
 
-	E2LOGGER_debugicap("from header url:", answer);
+	DEBUG_icap("from header url:", answer);
 
     return answer;
 }
@@ -394,12 +394,12 @@ int ICAPHeader::decode1b64(char c)
 // send headers out over the given socket
 bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 {
-	E2LOGGER_debugicap("ICAP response starting - RCode ", res_code, " echo is ", echo);
+	DEBUG_icap("ICAP response starting - RCode ", res_code, " echo is ", echo);
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
     if(echo) {
         if (service_reqmod && !(out_res_hdr_flag || out_req_hdr_flag)) {
             out_req_header = HTTPrequest.stringHeader();
-            E2LOGGER_debugicap("out_req_header copied from HTTPrequest :", out_req_header);
+            DEBUG_icap("out_req_header copied from HTTPrequest :", out_req_header);
             out_req_hdr_flag = true;
             out_req_body_flag = req_body_flag;
             if (req_body > 0)
@@ -408,7 +408,7 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
 
         if (service_resmod && !(out_res_hdr_flag)) {
             out_res_header = HTTPresponse.stringHeader();
-            E2LOGGER_debugicap("out_res_header is ", out_res_header);
+            DEBUG_icap("out_res_header is ", out_res_header);
             out_res_hdr_flag = true;
             out_res_body_flag = res_body_flag;
             if (res_body > 0) {
@@ -493,12 +493,12 @@ bool ICAPHeader::respond(Socket &sock, String res_code, bool echo, bool encap)
         }
     }
 
-    E2LOGGER_debugicap("Icap response header is: ", l);
+    DEBUG_icap("Icap response header is: ", l);
     if (!sock.writeToSocket(l.toCharArray(), l.length(), 0, timeout)) {
         return false;
     }
 
-	E2LOGGER_debugicap("Returning from icapheader:respond");
+	DEBUG_icap("Returning from icapheader:respond");
 
     return true;
 }
@@ -513,8 +513,8 @@ bool  ICAPHeader::errorResponse(Socket &peerconn, String &res_header, String &re
         out_res_body_flag = true;
     }
 
-	E2LOGGER_debugicap("out_res_header: ",out_res_header);
-    E2LOGGER_debugicap("out_res_body: ", out_res_body);
+	DEBUG_icap("out_res_header: ",out_res_header);
+    DEBUG_icap("out_res_body: ", out_res_body);
 
 
 
@@ -541,11 +541,11 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         reset();
     dirty = true;
 
-#ifdef E2DEBUG
+#ifdef DEBUG_HIGH
     if(is_response) {
-        E2LOGGER_debugicap("Start of response ICAPheader:in");
+        DEBUG_icap("Start of response ICAPheader:in");
     } else {
-        E2LOGGER_debugicap("Start of request ICAPheader:in");
+        DEBUG_icap("Start of request ICAPheader:in");
     }
 #endif
 
@@ -564,15 +564,15 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
         int rc;
         if (firsttime) {
 
-            E2LOGGER_debugicap("ICAPheader:in before getLine - timeout: ", timeout);
+            DEBUG_icap("ICAPheader:in before getLine - timeout: ", timeout);
 
             rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);
-            E2LOGGER_debugicap("firstime: ICAPheader:in after getLine ");
+            DEBUG_icap("firstime: ICAPheader:in after getLine ");
 
             if (rc == 0) return false;
             if (rc < 0 || truncated) {
                 ispersistent = false;
-                E2LOGGER_debugicap("firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
+                DEBUG_icap("firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
                 return false;
             }
         } else {
@@ -581,14 +581,14 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             if (rc == 0) return false;
             if (rc < 0 || truncated) {
                 ispersistent = false;
-                E2LOGGER_debugicap("not firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
+                DEBUG_icap("not firstime: ICAPheader:in after getLine: rc: ", rc, " truncated: ", truncated );
                 return false;        // do not allow non-terminated headers
             }
 
         }
 
         if (header.size() > o.max_header_lines) {
-            E2LOGGER_debugicap("ICAP header:size too big =  ", header.size() );
+            DEBUG_icap("ICAP header:size too big =  ", header.size() );
 	        E2LOGGER_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
             return false;
@@ -609,19 +609,19 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                       (line.after(" ").before(" ").toInteger() > 99))) {
                     if (o.logconerror)
                         E2LOGGER_error("Server did not respond with ICAP");
-                        E2LOGGER_debugicap("Returning from header:in Server did not respond with ICAP length: ", line.length(), " content: ", line );
+                        DEBUG_icap("Returning from header:in Server did not respond with ICAP length: ", line.length(), " content: ", line );
                     return false;
                 }
             } else {
                 method = line.before(" ");
-                E2LOGGER_debugicap("Returning from header:in client requests with ICAP length: ", line.length(), " content: ", line);
+                DEBUG_icap("Returning from header:in client requests with ICAP length: ", line.length(), " content: ", line);
                 String t = line.after(" ").before(" ");
-                E2LOGGER_debugicap("Request is ", t, " size: ", line.length(), " content: ", line);
+                DEBUG_icap("Request is ", t, " size: ", line.length(), " content: ", line);
                 if (t.startsWith("icap://")) {
                     // valid protocol
                 } else {
                     icap_error = "400 Bad Request";
-                    E2LOGGER_debugicap("Request error is: ", icap_error, " Line: ", t);
+                    DEBUG_icap("Request error is: ", icap_error, " Line: ", t);
                     return false;
                 }
                 t = t.after("//").after("/");
@@ -642,7 +642,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                     icap_error = "405 Method not allowed for service";
                 }
 
-                E2LOGGER_debugicap("Request method is: ", method, " error?: ", icap_error, " url value: ", t);
+                DEBUG_icap("Request method is: ", method, " error?: ", icap_error, " url value: ", t);
             }
         }
             // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
@@ -651,7 +651,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                 header.push_back(line); // stick the line in the deque that holds the header
             } else {
                 discard = true;
-                E2LOGGER_debugicap("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
+                DEBUG_icap("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
             }
             firsttime = false;
 // End of while
@@ -659,13 +659,13 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
 
     if (header.size() == 0) {
-        E2LOGGER_debugicap("ICAP header:size = 0 ");
+        DEBUG_icap("ICAP header:size = 0 ");
         return false;
     }
 
     header.pop_back(); // remove the final blank line of a header
     checkheader(allowpersistent); // sort out a few bits in the header
-    E2LOGGER_debugicap("checkheader done- ", encap_recs.size(), " encap_recs");
+    DEBUG_icap("checkheader done- ", encap_recs.size(), " encap_recs");
     //now need to get http req and res headers - if present
     HTTPrequest.reset();
     HTTPresponse.reset();
