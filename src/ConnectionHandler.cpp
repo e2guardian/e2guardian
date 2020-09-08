@@ -1463,12 +1463,6 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
             DEBUG_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
             getClientFromIP(from.c_str(),cm.clienthost);
-            //std::deque<String> *names = ipToHostname(from.c_str());
-            //if (names->size() > 0) {
-                //clienthost = new std::string(names->front().toCharArray());
-                //cm.clienthost = *clienthost;
-            //}
-            //delete names;
         }
 
         // Build up string describing POST data parts, if any
@@ -1485,7 +1479,6 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         postdata << std::flush;
 
         // Formatting code moved into log_listener in FatController.cpp
-        // Original patch by J. Gauthier
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014

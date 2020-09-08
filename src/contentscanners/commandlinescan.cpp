@@ -131,7 +131,7 @@ int commandlineinstance::init(void *args)
 #ifdef DEBUG_HIGH
     DEBUG_avscan("Program and arguments: ");
     for (int i = 0; i < numarguments; i++) {
-        DEBUG_avscan(arguments[i], ", ";
+        DEBUG_avscan(arguments[i], ", ");
     }
 #endif
 
