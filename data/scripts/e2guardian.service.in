@@ -5,6 +5,7 @@ After=network.target
 [Service]
 TasksMax=infinity
 LimitNOFILE=65535
+StackLIMIT=infinity:infinity
 Type=forking
 IgnoreSIGPIPE=no
 GuessMainPID=no
