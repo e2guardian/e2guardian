@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the very pre-release version - v5.5.0
+This is the very pre-release version - v5.5.0r
 
 Warning - this version is work in progress!!! 
 
