@@ -750,6 +750,13 @@ reverseaddresslookups = off
 #@AVASTDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/avastdscan.conf'
 #@KAVDSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/kavdscan.conf'
 #@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
+
+# Warning: The commandlinescan plugin uses 'fork()' which does not work well
+#  in a large multi-threaded program like e2g. It can cause unpredictable 
+#  crashes.
+# On a small scale system (home user) it may work ok, but not recommended for
+#  larger scale systems.  The more active threads, the more likely a crash is.
+#
 #@COMMANDLINESUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/commandlinescan.conf'
 
 #contentscannertimeout = 60
