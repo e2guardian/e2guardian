@@ -668,7 +668,6 @@ data/scripts/logrotation
 data/scripts/solaris-init
 data/scripts/systemv-init
 data/scripts/e2guardian.service
-data/scripts/e2guardianrasp.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
