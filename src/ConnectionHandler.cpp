@@ -1669,46 +1669,6 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 }
 
 
-// TODO - V5
-#ifdef NOTDEF
-// check if embeded url trusted referer
-bool ConnectionHandler::embededRefererChecks(HTTPHeader *header, String *urld, String *url,
-    int filtergroup)
-{
-
-    char *i;
-    int j;
-    String temp;
-    temp = (*urld);
-    temp.hexDecode();
-
-    if (ldl->fg[filtergroup]->inRefererExceptionLists(header->getReferer())) {
-        return true;
-    }
-    DEBUG_debug(" -checking for embed url in ", temp);
-
-    if (ldl->fg[filtergroup]->inEmbededRefererLists(temp)) {
-
-// look for referer URLs within URLs
-        DEBUG_debug(" -starting embeded referer deep analysis");
-        String deepurl(temp.after("p://"));
-        deepurl = header->decode(deepurl, true);
-        while (deepurl.contains(":")) {
-            deepurl = deepurl.after(":");
-            while (deepurl.startsWith(":") || deepurl.startsWith("/")) {
-                deepurl.lop();
-            }
-
-            if (ldl->fg[filtergroup]->inRefererExceptionLists(deepurl)) {
-                DEBUG_debug("deep site found in trusted referer list; ");
-                return true;
-            }
-        }
-        DEBUG_debug(" -done embdeded referer deep analysis");
-    }
-    return false;
-}
-#endif
 
 // based on patch by Aecio F. Neto (afn@harvest.com.br) - Harvest Consultoria (http://www.harvest.com.br)
 // show the relevant banned page/image/CGI based on report level setting, request type etc.
