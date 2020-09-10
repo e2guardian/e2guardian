@@ -22,7 +22,7 @@ Package Docker Image Raspbian:
    - cd /builds/fredbcode/e2guardian   
    - ./autogen.sh
    - export 
-   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes --with-debug_high
+   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
    - find / -name ".git" -exec rm -r "{}" +
@@ -41,11 +41,12 @@ Create Raspbian Package:
     OS: "raspbian"
   script:
     - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
-    - echo $VFULL
     - apt update
     - apt install -y curl git lsb-release binutils
+    - echo $VFULL
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
