@@ -7,9 +7,10 @@
 
 # Tiime banding syntax:
 # <start hour> <start minute> <end hour> <end minute> <days>
+# Note figures are 0 based - hours (0-23) mins (0-59) days (0-6)
 # Example:
-# 22 0 24 0 01234
+# 22 0 23 59 01234
 # 0  0 07 0 01234
 
 # Uncomment the lines above to blanket block from
-# 0am to 5am and 10pm to 12pm, Monday to Friday.
+# 0am to 5am and 10pm to 11:59pm, Monday to Friday.
