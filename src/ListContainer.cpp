@@ -9,6 +9,9 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+
+#include <syslog.h>
+#include <algorithm>
 #include "ListContainer.hpp"
 #include "OptionContainer.hpp"
 #include "RegExp.hpp"
@@ -41,19 +44,16 @@ extern OptionContainer o;
 
 
 // Constructor - set default values
-ListContainer::ListContainer()
-{
+ListContainer::ListContainer() {
 }
 
 // delete the memory block when the class is destryed
-ListContainer::~ListContainer()
-{
+ListContainer::~ListContainer() {
     reset();
 }
 
 // for both types of list - clear & reset all values
-void ListContainer::reset()
-{
+void ListContainer::reset() {
     free(data);
     if (graphused)
         free(realgraphdata);
@@ -107,7 +107,7 @@ void ListContainer::reset()
     bannedpfiledate = 0;
     exceptionpfiledate = 0;
     weightedpfiledate = 0;
-    if(is_iplist) {
+    if (is_iplist) {
         iplist.clear();
         iprangelist.clear();
         ipsubnetlist.clear();
@@ -115,8 +115,7 @@ void ListContainer::reset()
 }
 
 // for item lists - during a config reload, can we simply retain the already loaded list?
-bool ListContainer::previousUseItem(const char *filename, bool startswith, int filters)
-{
+bool ListContainer::previousUseItem(const char *filename, bool startswith, int filters) {
     String f(filename);
     if (f == sourcefile && startswith == sourcestartswith && filters == sourcefilters) {
         return true;
@@ -126,8 +125,8 @@ bool ListContainer::previousUseItem(const char *filename, bool startswith, int f
 
 // for phrase lists - read in the given file, which may be an exception list
 // inherit category and time limits from parent
-bool ListContainer::readPhraseList(const char *filename, bool isexception, int catindex, int timeindex, bool incref, int nlimit)
-{
+bool ListContainer::readPhraseList(const char *filename, bool isexception, int catindex, int timeindex, bool incref,
+                                   int nlimit) {
     // only increment refcount on first read, not read of included files
     // (includes get amalgamated, unlike item lists)
     if (incref)
@@ -174,7 +173,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 line.toLower();
             if (line.startsWith("<"))
                 readPhraseListHelper(line, isexception, catindex, timeindex, nlimit);
-            // handle included list files
+                // handle included list files
             else if (line.startsWith(".")) {
                 temp = line.after(".include<").before(">");
                 if (temp.length() > 0) {
@@ -186,7 +185,7 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                     }
                 }
             }
-            // phrase lists can be categorised (but not time limited)
+                // phrase lists can be categorised (but not time limited)
             else if (line.startsWith("#listcategory:")) {
                 //use the original line so as to preserve case in category names
                 temp = linebuffer.c_str();
@@ -197,13 +196,13 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
                 catindex = getCategoryIndex(&lcat);
                 DEBUG_debug("List category: ", lcat, "Category list index: ", catindex);
             }
-            // phrase lists can also be marked as not to be case-converted,
-            // to aid support for exotic character encodings
+                // phrase lists can also be marked as not to be case-converted,
+                // to aid support for exotic character encodings
             else if (line.startsWith("#noconvert")) {
                 DEBUG_debug("List flagged as not to be case-converted");
                 caseinsensitive = false;
             }
-            // Read in time tags; set timeindex to the ID of the new tag
+                // Read in time tags; set timeindex to the ID of the new tag
             else if (line.startsWith("#time: ")) { // see if we have a time tag
                 TimeLimit tl;
                 if (!readTimeTag(&line, tl)) {
@@ -221,18 +220,17 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
 }
 
 // for phrase lists - helper function for readPhraseList
-void ListContainer::readPhraseListHelper(String line, bool isexception, int catindex, int timeindex, int &nlimit)
-{
+void ListContainer::readPhraseListHelper(String line, bool isexception, int catindex, int timeindex, int &nlimit) {
     // read in weighting value, if there
     //  1st check for % weighting
-   int weighting = line.after("><").before("%>").toInteger();
-   if (weighting != 0)     // it is a %
-   {
-       weighting = (weighting * nlimit) / 100;
-   } else {
-       // check for normal weighting
+    int weighting = line.after("><").before("%>").toInteger();
+    if (weighting != 0)     // it is a %
+    {
+        weighting = (weighting * nlimit) / 100;
+    } else {
+        // check for normal weighting
         weighting = line.after("><").before(">").toInteger();
-   }
+    }
     // defaults to 0
     int type;
     if (weighting != 0) {
@@ -266,8 +264,7 @@ void ListContainer::readPhraseListHelper(String line, bool isexception, int cati
 }
 
 // for phrase lists - push phrase, type, weighting & category onto combi list
-void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting, int catindex, int timeindex)
-{
+void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting, int catindex, int timeindex) {
     // -1=exception
     // 0=banned
     // 1=weighted
@@ -310,8 +307,8 @@ void ListContainer::readPhraseListHelper2(String phrase, int type, int weighting
 }
 
 // for item lists - add phrases to list proper
-bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int weighting, bool combi, int catindex, int timeindex)
-{
+bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int weighting, bool combi, int catindex,
+                                        int timeindex) {
     list.push_back(data_length);
     lengthlist.push_back(len);
     for (size_t i = 0; i < len; i++) {
@@ -332,13 +329,14 @@ bool ListContainer::addToItemListPhrase(const char *s, size_t len, int type, int
 }
 
 //bool ListContainer::ifsreadItemList(std::istream *input, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
-bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *list_pwd, int len, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters)
-{
+bool
+ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *list_pwd, int len, bool checkendstring,
+                               const char *endstring, bool do_includes, bool startswith, int filters) {
     unsigned int mem_used = 2;
     RegExp re;
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
-    if(is_iplist) {
+    if (is_iplist) {
 #ifdef HAVE_PCRE
         matchIP.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
     matchSubnet.comp("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
@@ -359,6 +357,7 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
     String temp, inc, hostname, url;
     //char linebuffer[2048];
     char linebuffer[20000];    // increased to allow checking of line length
+
 
     while (!input->eof()) {
         input->getline(linebuffer, sizeof(linebuffer));
@@ -426,12 +425,14 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
             }
             continue;
         }
-        if(!(is_iplist || is_timelist)) {
-            if (temp.endsWith("/")) {
-                temp.chop(); // tidy up
-            }
-            if (temp.startsWith("ftp://")) {
-                temp = temp.after("ftp://"); // tidy up
+        if (!(is_iplist || is_timelist)) {
+            if (filters != 32) {
+                if (temp.endsWith("/")) {
+                    temp.chop(); // tidy up
+                }
+                if (temp.startsWith("ftp://")) {
+                    temp = temp.after("ftp://"); // tidy up
+                }
             }
             if (filters == 1) { // remove port addresses
                 if (temp.before("/").contains(":")) { // quicker than full regexp
@@ -448,11 +449,12 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
         }
         if (temp.length() > 0) {
             mem_used += temp.length() + 1;
-            if (is_iplist)
+            if (is_iplist) {
                 addToIPList(temp);
-            else if (is_timelist)
-                addToTimeList(temp);
-            else if (is_map) {
+            } else if (is_timelist) {
+                if (!addToTimeList(temp))
+                    return false;
+            } else if (is_map) {
                 addToDataMap(temp);
             } else {
                 if (mem_used > data_memory)
@@ -464,8 +466,9 @@ bool ListContainer::ifsreadItemList(std::istream *input, String basedir, const c
     return true; // sucessful read
 }
 
-bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, const char *list_pwd, bool checkendstring, const char *endstring, bool do_includes, bool startswith, int filters, const char *filename)
-{
+bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, const char *list_pwd, bool checkendstring,
+                                        const char *endstring, bool do_includes, bool startswith, int filters,
+                                        const char *filename) {
     size_t len = 0;
     try {
         len = getFileLength(filename);
@@ -483,20 +486,20 @@ bool ListContainer::ifsReadSortItemList(std::ifstream *input, String basedir, co
 }
 
 // for item lists - read item list from file. checkme - what is startswith? is it used? what is filters?
-bool ListContainer::readItemList(const char *filename, const char *list_pwd, bool startswith, int filters, bool isip, bool istime, bool ismap)
-{
+bool ListContainer::readItemList(const char *filename, const char *list_pwd, bool startswith, int filters, bool isip,
+                                 bool istime, bool ismap) {
     ++refcount;
     sourcefile = filename;
     sourcestartswith = startswith;
     sourcefilters = filters;
 
-    if(isip) is_iplist = true;
+    if (isip) is_iplist = true;
     else is_iplist = false;
 
-    if(istime) is_timelist = true;
+    if (istime) is_timelist = true;
     else is_timelist = false;
 
-    if(ismap) is_map = true;
+    if (ismap) is_map = true;
     else is_map = false;
 
     if (sourcefile.startsWithLower("memory:"))
@@ -557,20 +560,18 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
 
 
 // for item lists - read nested item lists
-bool ListContainer::readAnotherItemList(const char *filename, const char *list_pwd, bool startswith, int filters)
-{
+bool ListContainer::readAnotherItemList(const char *filename, const char *list_pwd, bool startswith, int filters) {
     int result = o.lm.newItemList(filename, list_pwd, startswith, filters, false, is_iplist, is_timelist, is_map);
     if (result < 0) {
         E2LOGGER_error("Error opening file: ", filename);
         return false;
     }
-    morelists.push_back((unsigned)result);
+    morelists.push_back((unsigned) result);
     return true;
 }
 
 // for item lists - is this item in the list?
-bool ListContainer::inList(const char *string, String &lastcategory)
-{
+bool ListContainer::inList(const char *string, String &lastcategory) {
     if (findInList(string, lastcategory) != NULL) {
         return true;
     }
@@ -578,8 +579,7 @@ bool ListContainer::inList(const char *string, String &lastcategory)
 }
 
 // for item lists - is an item in the list that ends with this string?
-bool ListContainer::inListEndsWith(const char *string, String &lastcategory)
-{
+bool ListContainer::inListEndsWith(const char *string, String &lastcategory) {
     if (isNow()) {
         if (items > 0) {
             if (search(&ListContainer::greaterThanEW, 0, items - 1, string) >= 0) {
@@ -591,7 +591,7 @@ bool ListContainer::inListEndsWith(const char *string, String &lastcategory)
         for (unsigned int i = 0; i < morelists.size(); i++) {
             rc = (*o.lm.l[morelists[i]]).inListEndsWith(string, lastcategory);
             if (rc) {
-            //    lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+                //    lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return true;
             }
         }
@@ -600,8 +600,7 @@ bool ListContainer::inListEndsWith(const char *string, String &lastcategory)
 }
 
 // for item lists - is an item in the list that starts with this string?
-bool ListContainer::inListStartsWith(const char *string, String &lastcategory)
-{
+bool ListContainer::inListStartsWith(const char *string, String &lastcategory) {
     if (isNow()) {
         if (items > 0) {
             if (search(&ListContainer::greaterThanSW, 0, items - 1, string) >= 0) {
@@ -622,17 +621,15 @@ bool ListContainer::inListStartsWith(const char *string, String &lastcategory)
 }
 
 // find pointer to the part of the data array containing this string
-const char *ListContainer::findInList(const char *string, String &lastcategory)
-{
+const char *ListContainer::findInList(const char *string, String &lastcategory) {
     if (isNow()) {
         if (is_iplist) {
-            if(is_map) {
+            if (is_map) {
                 std::string sstring = string;
                 String rcs = getIPMapData(sstring);
                 if (rcs != "")
                     return rcs.toCharArray();
-            } else if(inIPList(string) != NULL)
-            {
+            } else if (inIPList(string) != NULL) {
                 lastcategory = category;
                 return "";    //TODO return IP/IPblock/IPrange matched
             }
@@ -667,8 +664,7 @@ const char *ListContainer::findInList(const char *string, String &lastcategory)
 }
 
 // find an item in the list which starts with this
-char *ListContainer::findStartsWith(const char *string, String &lastcategory)
-{
+char *ListContainer::findStartsWith(const char *string, String &lastcategory) {
     if (isNow()) {
         if (items > 0) {
             int r = search(&ListContainer::greaterThanSW, 0, items - 1, string);
@@ -689,8 +685,7 @@ char *ListContainer::findStartsWith(const char *string, String &lastcategory)
     return NULL;
 }
 
-char *ListContainer::findStartsWithPartial(const char *string, String &lastcategory)
-{
+char *ListContainer::findStartsWithPartial(const char *string, String &lastcategory) {
     if (isNow()) {
         if (items > 0) {
             int r = search(&ListContainer::greaterThanSW, 0, items - 1, string);
@@ -716,8 +711,7 @@ char *ListContainer::findStartsWithPartial(const char *string, String &lastcateg
     return NULL;
 }
 
-char *ListContainer::findEndsWith(const char *string, String &lastcategory)
-{
+char *ListContainer::findEndsWith(const char *string, String &lastcategory) {
     if (isNow()) {
         if (items > 0) {
             int r = search(&ListContainer::greaterThanEW, 0, items - 1, string);
@@ -739,29 +733,27 @@ char *ListContainer::findEndsWith(const char *string, String &lastcategory)
 }
 
 // For phrase lists - grab the text, score and type of a given phrase, based on item number within list
-std::string ListContainer::getItemAtInt(int index)
-{
+std::string ListContainer::getItemAtInt(int index) {
     std::string s(data + list[index], lengthlist[index]);
     return s;
 }
-int ListContainer::getWeightAt(unsigned int index)
-{
+
+int ListContainer::getWeightAt(unsigned int index) {
     return weight[index];
 }
-int ListContainer::getTypeAt(unsigned int index)
-{
+
+int ListContainer::getTypeAt(unsigned int index) {
     return itemtype[index];
 }
 // Phrase lists - check whether the current time is within the limit imposed upon the given phrase
-bool ListContainer::checkTimeAt(unsigned int index)
-{
+bool ListContainer::checkTimeAt(unsigned int index) {
     if (timelimitindex[index] == -1) {
         return true;
     }
     return isNow(timelimitindex[index]);
 }
-bool ListContainer::checkTimeAtD(int index)
-{
+
+bool ListContainer::checkTimeAtD(int index) {
     if (index == -1) {
         return true;
     }
@@ -769,8 +761,7 @@ bool ListContainer::checkTimeAtD(int index)
 }
 
 struct lessThanEWF : public std::binary_function<const size_t &, const size_t &, bool> {
-    bool operator()(const size_t &aoff, const size_t &boff)
-    {
+    bool operator()(const size_t &aoff, const size_t &boff) {
         const char *a = data + aoff;
         const char *b = data + boff;
         size_t alen = strlen(a);
@@ -792,8 +783,7 @@ struct lessThanEWF : public std::binary_function<const size_t &, const size_t &,
 };
 
 struct lessThanSWF : public std::binary_function<const size_t &, const size_t &, bool> {
-    bool operator()(const size_t &aoff, const size_t &boff)
-    {
+    bool operator()(const size_t &aoff, const size_t &boff) {
         const char *a = data + aoff;
         const char *b = data + boff;
         size_t alen = strlen(a);
@@ -813,8 +803,7 @@ struct lessThanSWF : public std::binary_function<const size_t &, const size_t &,
     char *data;
 };
 
-void ListContainer::doSort(const bool startsWith)
-{ // sort by ending of line
+void ListContainer::doSort(const bool startsWith) { // sort by ending of line
     for (size_t i = 0; i < morelists.size(); i++)
         (*o.lm.l[morelists[i]]).doSort(startsWith);
     if (is_iplist) {
@@ -847,8 +836,7 @@ void ListContainer::doSort(const bool startsWith)
 }
 
 
-bool ListContainer::makeGraph(bool fqs)
-{
+bool ListContainer::makeGraph(bool fqs) {
     force_quick_search = fqs;
     if (data_length == 0)
         return true;
@@ -883,7 +871,9 @@ bool ListContainer::makeGraph(bool fqs)
                 // the existing phrase is weighted and the new phrase is banned
                 // OR
                 // new phrase is an exception; exception phrases take precedence
-                if ((itemtype[foundindex] > 9 && itemtype[i] < 10) || (itemtype[foundindex] == 1 && itemtype[i] == 1 && (weight[i] > weight[foundindex])) || (itemtype[foundindex] == 1 && itemtype[i] == 0) || itemtype[i] == -1) {
+                if ((itemtype[foundindex] > 9 && itemtype[i] < 10) ||
+                    (itemtype[foundindex] == 1 && itemtype[i] == 1 && (weight[i] > weight[foundindex])) ||
+                    (itemtype[foundindex] == 1 && itemtype[i] == 0) || itemtype[i] == -1) {
                     itemtype[foundindex] = itemtype[i];
                     weight[foundindex] = weight[i];
                     categoryindex[foundindex] = categoryindex[i];
@@ -906,7 +896,7 @@ bool ListContainer::makeGraph(bool fqs)
 
     // Make a conservative guess at how much memory will be needed - call realloc() as necessary to change what is actually taken
     current_graphdata_size = (GRAPHENTRYSIZE * ((data_length / 3) + 1)) + ROOTOFFSET;
-    realgraphdata = (int *)calloc(current_graphdata_size, sizeof(int));
+    realgraphdata = (int *) calloc(current_graphdata_size, sizeof(int));
     if (realgraphdata == NULL) {
         E2LOGGER_error("Cannot allocate memory for phrase tree: ", strerror(errno));
         return false;
@@ -928,7 +918,7 @@ bool ListContainer::makeGraph(bool fqs)
     DEBUG_config("It ", (prolificroot ? "is" : "is not"), " the root node");
     DEBUG_config("Second most prolific node has ", secondmaxchildnodes, " children");
 
-    realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
+    realgraphdata = (int *) realloc(realgraphdata, sizeof(int) * ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET));
     if (realgraphdata == NULL) {
         E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
         return false;
@@ -952,8 +942,7 @@ bool ListContainer::makeGraph(bool fqs)
     return true;
 }
 
-void ListContainer::graphSizeSort(int l, int r, std::deque<size_t> *sizelist)
-{
+void ListContainer::graphSizeSort(int l, int r, std::deque<size_t> *sizelist) {
     if (r <= l)
         return;
     size_t e;
@@ -961,8 +950,7 @@ void ListContainer::graphSizeSort(int l, int r, std::deque<size_t> *sizelist)
     size_t v = getItemAtInt((*sizelist)[r]).length();
     int i = l - 1, j = r, p = i, q = r;
     for (;;) {
-        while (getItemAtInt((*sizelist)[++i]).length() < v)
-            ;
+        while (getItemAtInt((*sizelist)[++i]).length() < v);
         while (v < getItemAtInt((*sizelist)[--j]).length()) {
             if (j == l)
                 break;
@@ -1005,8 +993,7 @@ void ListContainer::graphSizeSort(int l, int r, std::deque<size_t> *sizelist)
 }
 
 // find the total number of children a node has, along all branches
-int ListContainer::graphFindBranches(unsigned int pos)
-{
+int ListContainer::graphFindBranches(unsigned int pos) {
     int branches = 0;
     int *graphdata;
     if (pos == 0)
@@ -1025,8 +1012,7 @@ int ListContainer::graphFindBranches(unsigned int pos)
 }
 
 // copy all phrases starting from a given root link into the slowgraph
-void ListContainer::graphCopyNodePhrases(unsigned int pos)
-{
+void ListContainer::graphCopyNodePhrases(unsigned int pos) {
     int *graphdata;
     if (pos == 0)
         graphdata = realgraphdata;
@@ -1063,7 +1049,9 @@ void ListContainer::graphCopyNodePhrases(unsigned int pos)
         // the existing phrase is weighted and the new phrase is banned
         // OR
         // new phrase is an exception; exception phrases take precedence
-        if ((itemtype[foundindex] > 9 && itemtype[phrasenumber] < 10) || (itemtype[foundindex] == 1 && itemtype[phrasenumber] == 1 && (weight[phrasenumber] > weight[foundindex])) || (itemtype[foundindex] == 1 && itemtype[phrasenumber] == 0) || itemtype[phrasenumber] == -1) {
+        if ((itemtype[foundindex] > 9 && itemtype[phrasenumber] < 10) ||
+            (itemtype[foundindex] == 1 && itemtype[phrasenumber] == 1 && (weight[phrasenumber] > weight[foundindex])) ||
+            (itemtype[foundindex] == 1 && itemtype[phrasenumber] == 0) || itemtype[phrasenumber] == -1) {
             itemtype[foundindex] = itemtype[phrasenumber];
             weight[foundindex] = weight[phrasenumber];
             categoryindex[foundindex] = categoryindex[phrasenumber];
@@ -1072,8 +1060,7 @@ void ListContainer::graphCopyNodePhrases(unsigned int pos)
     }
 }
 
-int ListContainer::bmsearch(char *file, off_t fl, const std::string &s)
-{
+int ListContainer::bmsearch(char *file, off_t fl, const std::string &s) {
     off_t pl = s.length();
     if (fl < pl)
         return 0; // reality checking
@@ -1112,7 +1099,7 @@ int ListContainer::bmsearch(char *file, off_t fl, const std::string &s)
         qsBc[j] = p;
     }
     for (j = 0; j < pl; j++) { // Preprocessing
-        qsBc[(unsigned char)phrase[j]] = pl - j;
+        qsBc[(unsigned char) phrase[j]] = pl - j;
     }
 
     // Now do the searching!
@@ -1132,7 +1119,7 @@ int ListContainer::bmsearch(char *file, off_t fl, const std::string &s)
             }
             count++;
         }
-        j += qsBc[(unsigned char)file[j + pl]]; // shift
+        j += qsBc[(unsigned char) file[j + pl]]; // shift
     }
     delete[] phrase;
     return count;
@@ -1141,8 +1128,7 @@ int ListContainer::bmsearch(char *file, off_t fl, const std::string &s)
 // Format of the data is each entry has GRAPHENTRYSIZE int values with format of:
 // [letter][last letter flag][num links][from phrase][link0][link1]...
 
-void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, int> > &result, char *doc, off_t len)
-{
+void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, int> > &result, char *doc, off_t len) {
     off_t i, j, k;
     std::map<std::string, std::pair<unsigned int, int> >::iterator existingitem;
 
@@ -1228,9 +1214,9 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
                         depth++;
                         continue;
                     }
-                    // if we just matched a node that has no children,
-                    // we can stop searching. there should be no case in
-                    // which the node was not also marked as end of phrase.
+                        // if we just matched a node that has no children,
+                        // we can stop searching. there should be no case in
+                        // which the node was not also marked as end of phrase.
                     else
                         break;
                 }
@@ -1260,8 +1246,7 @@ void ListContainer::graphSearch(std::map<std::string, std::pair<unsigned int, in
 #endif
 }
 
-void ListContainer::graphAdd(String s, const int inx, int item)
-{
+void ListContainer::graphAdd(String s, const int inx, int item) {
     unsigned char p = s.charAt(0);
     unsigned char c;
     bool found = false;
@@ -1277,7 +1262,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
     //iterate over the input node's immediate children
     for (i = 0; i < graphdata[inx * GRAPHENTRYSIZE + 2]; i++) {
         //grab the character from this child
-        c = (unsigned char)graphdata2[(graphdata[inx * GRAPHENTRYSIZE + 4 + i]) * GRAPHENTRYSIZE];
+        c = (unsigned char) graphdata2[(graphdata[inx * GRAPHENTRYSIZE + 4 + i]) * GRAPHENTRYSIZE];
         if (p == c) {
             //it matches the first char of our string!
             //keep searching, starting from here, to see if the entire phrase is already in the graph
@@ -1305,7 +1290,9 @@ void ListContainer::graphAdd(String s, const int inx, int item)
                 // 11 = combination banned
                 // 12 = combination weighted
                 // 20,21,22 = end of combi marker
-                if ((itemtype[px] > 9 && itemtype[item] < 10) || (itemtype[px] == 1 && itemtype[item] == 1 && (weight[item] > weight[px])) || (itemtype[px] == 1 && itemtype[item] == 0) || itemtype[item] == -1) {
+                if ((itemtype[px] > 9 && itemtype[item] < 10) ||
+                    (itemtype[px] == 1 && itemtype[item] == 1 && (weight[item] > weight[px])) ||
+                    (itemtype[px] == 1 && itemtype[item] == 0) || itemtype[item] == -1) {
                     // exists as a combi entry already
                     // if got here existing entry must be a combi AND
                     // new entry is not a combi so we overwrite the
@@ -1332,12 +1319,13 @@ void ListContainer::graphAdd(String s, const int inx, int item)
         // Reallocate memory if we're running out
         if (current_graphdata_size < ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) {
             int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
-            realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
+            realgraphdata = (int *) realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
             if (realgraphdata == NULL) {
                 E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                 exit(1);
             }
-            memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
+            memset(realgraphdata + current_graphdata_size, 0,
+                   sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
             current_graphdata_size = new_current_graphdata_size;
             graphdata2 = realgraphdata + ROOTOFFSET;
             if (inx == 0)
@@ -1389,12 +1377,13 @@ void ListContainer::graphAdd(String s, const int inx, int item)
             // Reallocate memory if we're running out
             if (current_graphdata_size < ((GRAPHENTRYSIZE * graphitems) + ROOTOFFSET)) {
                 int new_current_graphdata_size = (GRAPHENTRYSIZE * (graphitems + 256)) + ROOTOFFSET;
-                realgraphdata = (int *)realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
+                realgraphdata = (int *) realloc(realgraphdata, sizeof(int) * new_current_graphdata_size);
                 if (realgraphdata == NULL) {
                     E2LOGGER_error("Cannot reallocate memory for phrase tree: ", strerror(errno));
                     exit(1);
                 }
-                memset(realgraphdata + current_graphdata_size, 0, sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
+                memset(realgraphdata + current_graphdata_size, 0,
+                       sizeof(int) * (new_current_graphdata_size - current_graphdata_size));
                 current_graphdata_size = new_current_graphdata_size;
                 graphdata2 = realgraphdata + ROOTOFFSET;
                 if (inx == 0)
@@ -1412,8 +1401,7 @@ void ListContainer::graphAdd(String s, const int inx, int item)
 }
 
 
-void ListContainer::addToItemList(const char *s, size_t len)
-{
+void ListContainer::addToItemList(const char *s, size_t len) {
     list.push_back(data_length);
     lengthlist.push_back(len);
     for (size_t i = 0; i < len; i++) {
@@ -1424,26 +1412,28 @@ void ListContainer::addToItemList(const char *s, size_t len)
     items++;
 }
 
-void ListContainer::addToTimeList(String &line) {
+bool ListContainer::addToTimeList(String &line) {
     TimeLimit tl;
-    if(readTimeBand(line,tl))
+    if (readTimeBand(line, tl)) {
         timelist.push_back(tl);
+        return true;
+    }
+    return false;
 }
 
-void ListContainer::addToIPList(String& line)
-{
-    if(is_map) return addToIPMap(line);
+void ListContainer::addToIPList(String &line) {
+    if (is_map) return addToIPMap(line);
 
     RegResult Rre;
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-    if (matchIP.match(line.toCharArray(),Rre)) {
+    if (matchIP.match(line.toCharArray(), Rre)) {
         struct in_addr address;
         if (inet_aton(line.toCharArray(), &address)) {
             uint32_t addr = ntohl(address.s_addr);
             iplist.push_back(addr);
         }
-    } else if (matchSubnet.match(line.toCharArray(),Rre)) {
+    } else if (matchSubnet.match(line.toCharArray(), Rre)) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(line.before("/"));
@@ -1456,7 +1446,7 @@ void ListContainer::addToIPList(String& line)
             s.maskedaddr = addr & s.mask;
             ipsubnetlist.push_back(s);
         }
-    } else if (matchCIDR.match(line.toCharArray(),Rre)) {
+    } else if (matchCIDR.match(line.toCharArray(), Rre)) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(line.before("/"));
@@ -1474,7 +1464,7 @@ void ListContainer::addToIPList(String& line)
                 ipsubnetlist.push_back(s);
             }
         }
-    } else if (matchRange.match(line.toCharArray(),Rre)) {
+    } else if (matchRange.match(line.toCharArray(), Rre)) {
         struct in_addr addressstart;
         struct in_addr addressend;
         String start(line.before("-"));
@@ -1492,7 +1482,7 @@ void ListContainer::addToIPList(String& line)
     }
 }
 
-void ListContainer::addToDataMap(String& line) {
+void ListContainer::addToDataMap(String &line) {
     String key, value;
 
     // split into key & value
@@ -1515,8 +1505,7 @@ void ListContainer::addToDataMap(String& line) {
     datamaplist.push_back(d);
 }
 
-void ListContainer::addToIPMap(String& line)
-{
+void ListContainer::addToIPMap(String &line) {
     RegResult Rre;
     String key, value;
 
@@ -1542,12 +1531,12 @@ void ListContainer::addToIPMap(String& line)
     }
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
-    if (matchIP.match(key.toCharArray(),Rre)) {
+    if (matchIP.match(key.toCharArray(), Rre)) {
         struct in_addr address;
         if (inet_aton(key.toCharArray(), &address)) {
             ipmaplist.push_back(ipmap(ntohl(address.s_addr), value));
         }
-    } else if (matchSubnet.match(key.toCharArray(),Rre)) {
+    } else if (matchSubnet.match(key.toCharArray(), Rre)) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(key.before("/"));
@@ -1561,7 +1550,7 @@ void ListContainer::addToIPMap(String& line)
             s.group = value;
             ipmapsubnetlist.push_back(s);
         }
-    } else if (matchCIDR.match(key.toCharArray(),Rre)) {
+    } else if (matchCIDR.match(key.toCharArray(), Rre)) {
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(key.before("/"));
@@ -1580,7 +1569,7 @@ void ListContainer::addToIPMap(String& line)
                 ipmapsubnetlist.push_back(s);
             }
         }
-    } else if (matchRange.match(key.toCharArray(),Rre)) {
+    } else if (matchRange.match(key.toCharArray(), Rre)) {
         struct in_addr addressstart;
         struct in_addr addressend;
         String start(key.before("-"));
@@ -1601,8 +1590,7 @@ void ListContainer::addToIPMap(String& line)
 }
 
 // binary search list for given IP & return filter group, or -1 on failure
-String ListContainer::searchIPMap(int a, int s, const uint32_t &ip)
-{
+String ListContainer::searchIPMap(int a, int s, const uint32_t &ip) {
     if (a > s)
         return "";
     int m = (a + s) / 2;
@@ -1616,8 +1604,7 @@ String ListContainer::searchIPMap(int a, int s, const uint32_t &ip)
 }
 
 // search subnet list for given IP & return filter group or -1
-String ListContainer::inSubnetMap(const uint32_t &ip)
-{
+String ListContainer::inSubnetMap(const uint32_t &ip) {
     for (std::list<subnetstruct>::const_iterator i = ipmapsubnetlist.begin(); i != ipmapsubnetlist.end(); ++i) {
         if (i->maskedaddr == (ip & i->mask)) {
             return i->group;
@@ -1627,8 +1614,7 @@ String ListContainer::inSubnetMap(const uint32_t &ip)
 }
 
 // search range list for a range containing given IP & return filter group or -1
-String ListContainer::inIPRangeMap(const uint32_t &ip)
-{
+String ListContainer::inIPRangeMap(const uint32_t &ip) {
     for (std::list<rangestruct>::const_iterator i = ipmaprangelist.begin(); i != ipmaprangelist.end(); ++i) {
         if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
             return i->group;
@@ -1637,8 +1623,7 @@ String ListContainer::inIPRangeMap(const uint32_t &ip)
     return "";
 }
 
-String ListContainer::inIPMap(const uint32_t &ip)
-{
+String ListContainer::inIPMap(const uint32_t &ip) {
     if (ipmaplist.size() > 0) {
         return searchIPMap(0, ipmaplist.size(), ip);
     }
@@ -1646,15 +1631,14 @@ String ListContainer::inIPMap(const uint32_t &ip)
 }
 
 String ListContainer::getMapData(String &key) {
-    for(std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i ) {
-        if(i->key == key)
+    for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i) {
+        if (i->key == key)
             return i->group;
     }
     return "";
 }
 
-String ListContainer::getIPMapData(std::string &ip)
-{
+String ListContainer::getIPMapData(std::string &ip) {
     struct in_addr sin;
     inet_aton(ip.c_str(), &sin);
     uint32_t addr = ntohl(sin.s_addr);
@@ -1684,9 +1668,7 @@ String ListContainer::getIPMapData(std::string &ip)
 }
 
 
-
-int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p)
-{
+int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p) {
     if (a > s)
         return (-1 - a);
     int m = (a + s) / 2;
@@ -1700,8 +1682,7 @@ int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const 
     return search(comparitor, a, m - 1, p);
 }
 
-int ListContainer::greaterThanEWF(const char *a, const char *b)
-{
+int ListContainer::greaterThanEWF(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
     int apos = alen - 1;
@@ -1718,8 +1699,7 @@ int ListContainer::greaterThanEWF(const char *a, const char *b)
     return 0; // both equal
 }
 
-int ListContainer::greaterThanSWF(const char *a, const char *b)
-{
+int ListContainer::greaterThanSWF(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
     int maxlen = alen < blen ? alen : blen;
@@ -1735,8 +1715,7 @@ int ListContainer::greaterThanSWF(const char *a, const char *b)
     return 0; // both equal
 }
 
-int ListContainer::greaterThanSW(const char *a, const char *b)
-{
+int ListContainer::greaterThanSW(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
     int maxlen = alen < blen ? alen : blen;
@@ -1754,16 +1733,15 @@ int ListContainer::greaterThanSW(const char *a, const char *b)
     if ((alen > blen) && !(a[blen] == '/' || a[blen] == '?' || a[blen] == '&' || a[blen] == '='))
         return 1;
 
-    // if the banned URL is longer than the URL we're checking, the two
-    // can't possibly match.
+        // if the banned URL is longer than the URL we're checking, the two
+        // can't possibly match.
     else if (blen > alen)
         return -1;
 
     return 0; // both equal
 }
 
-int ListContainer::greaterThanEW(const char *a, const char *b)
-{
+int ListContainer::greaterThanEW(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
     int apos = alen - 1;
@@ -1778,29 +1756,27 @@ int ListContainer::greaterThanEW(const char *a, const char *b)
     return 0; // both equal
 }
 
-void ListContainer::increaseMemoryBy(size_t bytes)
-{
+void ListContainer::increaseMemoryBy(size_t bytes) {
     if (data_memory > 0) {
-        data = (char *)realloc(data, (data_memory + bytes) * sizeof(char));
+        data = (char *) realloc(data, (data_memory + bytes) * sizeof(char));
         memset(data + data_memory, 0, bytes * sizeof(char));
         data_memory += bytes;
     } else {
         free(data);
-        data = (char *)calloc(bytes, sizeof(char));
+        data = (char *) calloc(bytes, sizeof(char));
         data_memory = bytes;
     }
 }
 
-size_t getFileLength(const char *filename)
-{
+size_t getFileLength(const char *filename) {
     struct stat status;
     int rc = stat(filename, &status);
     if (rc < 0)
         throw std::runtime_error(strerror(errno));
     return status.st_size;
 }
-time_t getFileDate(const char *filename)
-{
+
+time_t getFileDate(const char *filename) {
     struct stat status;
     int rc = stat(filename, &status);
     if (rc != 0) {
@@ -1821,6 +1797,7 @@ time_t getFileDate(const char *filename)
     }
     return status.st_mtime;
 }
+
 #ifdef NODEF
 time_t getFileDate(const char *filename)
 {
@@ -1836,8 +1813,7 @@ time_t getFileDate(const char *filename)
 }
 #endif
 
-bool ListContainer::upToDate()
-{
+bool ListContainer::upToDate() {
     if (sourcefile.startsWith("memory:"))
         return true;
 
@@ -1862,12 +1838,16 @@ bool ListContainer::readTimeTag(String *tag, TimeLimit &tl) {
 bool ListContainer::readTimeBand(String &tag, TimeLimit &tl) {
     String temp(tag);
     unsigned int tsthour, tstmin, tendhour, tendmin;
+    temp.removeWhiteSpace();
     tsthour = temp.before(" ").toInteger();
     temp = temp.after(" ");
+    temp.removeWhiteSpace();
     tstmin = temp.before(" ").toInteger();
     temp = temp.after(" ");
+    temp.removeWhiteSpace();
     tendhour = temp.before(" ").toInteger();
     temp = temp.after(" ");
+    temp.removeWhiteSpace();
     tendmin = temp.before(" ").toInteger();
     String tdays(temp.after(" "));
     tdays.removeWhiteSpace();
@@ -1908,7 +1888,7 @@ bool ListContainer::isNow(int index) {
     if (!istimelimited) {
         return true;
     }
-    TimeLimit &tl = listtimelimit;
+    TimeLimit tl = listtimelimit;
     if (index > -1) {
         tl = timelimits[index];
     }
@@ -1971,14 +1951,13 @@ bool ListContainer::isNow(TimeLimit &tl) {
     return true;
 }
 
-int ListContainer::getCategoryIndex(String *lcat)
-{
+int ListContainer::getCategoryIndex(String *lcat) {
     // where in the category list is our category? if nowhere, add it.
     if ((*lcat).length() < 2) {
         DEBUG_debug("blank entry index");
         return 0; // blank entry index
     }
-    int l = (signed)listcategory.size();
+    int l = (signed) listcategory.size();
     int i;
     for (i = 0; i < l; i++) {
         if ((*lcat) == listcategory[i]) {
@@ -1989,8 +1968,7 @@ int ListContainer::getCategoryIndex(String *lcat)
     return l;
 }
 
-String ListContainer::getListCategoryAt(unsigned int index, unsigned int *catindex)
-{
+String ListContainer::getListCategoryAt(unsigned int index, unsigned int *catindex) {
     //category index of -1 indicates uncategorised list
     if ((index >= categoryindex.size()) || (categoryindex[index] < 0)) {
         return "";
@@ -2003,8 +1981,7 @@ String ListContainer::getListCategoryAt(unsigned int index, unsigned int *catind
     return listcategory[categoryindex[index]];
 }
 
-String ListContainer::getListCategoryAtD(unsigned int index)
-{
+String ListContainer::getListCategoryAtD(unsigned int index) {
     //category index of -1 indicates uncategorised list
     if ((index < 0) || (index >= listcategory.size())) {
         return "";
@@ -2014,8 +1991,7 @@ String ListContainer::getListCategoryAtD(unsigned int index)
 
 
 // search for IP in list of individual IPs, ranges, subnets
-const char* ListContainer::inIPList(const std::string &ipstr )
-{
+const char *ListContainer::inIPList(const std::string &ipstr) {
     struct in_addr addr;
     inet_aton(ipstr.c_str(), &addr);
     uint32_t ip = ntohl(addr.s_addr);
@@ -2028,28 +2004,28 @@ const char* ListContainer::inIPList(const std::string &ipstr )
 
     // ranges
     if (iprangelist.size() > 0) {
-    for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
-        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-            String ret = hIPtoChar(i->startaddr);
-            ret += "-";
-            ret += hIPtoChar(i->endaddr);
+        for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+            if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+                String ret = hIPtoChar(i->startaddr);
+                ret += "-";
+                ret += hIPtoChar(i->endaddr);
 //            return ret;
-            return "";
+                return "";
+            }
         }
-    }
     }
 
     // subnets
     if (ipsubnetlist.size() > 0) {
-    for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
-        if (i->maskedaddr == (ip & i->mask)) {
-            String ret = hIPtoChar(i->maskedaddr);
-            ret += "/";
-            ret += hIPtoChar(i->mask);
-            //return ret;
-            return "";
+        for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
+            if (i->maskedaddr == (ip & i->mask)) {
+                String ret = hIPtoChar(i->maskedaddr);
+                ret += "/";
+                ret += hIPtoChar(i->mask);
+                //return ret;
+                return "";
+            }
         }
-    }
     }
 
     DEBUG_debug("inIPList ", category, " no match for ", ipstr);
