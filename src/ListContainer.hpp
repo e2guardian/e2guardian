@@ -256,7 +256,7 @@ class ListContainer
     void addToIPList(String &line);
     void addToIPMap(String &line);
     void addToDataMap(String &line);
-    void addToTimeList(String &line);
+    bool addToTimeList(String &line);
     int greaterThanEWF(const char *a, const char *b); // full match
     int greaterThanEW(const char *a, const char *b); // partial ends with
     int greaterThanSWF(const char *a, const char *b); // full match

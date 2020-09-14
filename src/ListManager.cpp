@@ -122,8 +122,8 @@ int ListManager::newItemList(const char *filename, const char *pwd, bool startsw
         l.push_back(new ListContainer);
         free = l.size() - 1;
     }
-    (*l[free]).parent = parent;
-    if (!(*l[free]).readItemList(filename, pwd,  startswith, filters, isip, istime, ismap)) {
+    (l[free])->parent = parent;
+    if (!(l[free]->readItemList(filename, pwd,  startswith, filters, isip, istime, ismap))) {
         delete l[free];
         l[free] = NULL;
         return -1;
