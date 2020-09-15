@@ -123,15 +123,11 @@ class OptionContainer
     bool auth_needs_proxy_in_plugin = false;
     bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
-    bool prefer_cached_lists = false;
     std::string languagepath;
     std::string filter_groups_list_location;
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
-    std::string ipc_filename;
-    std::string urlipc_filename;
-    std::string ipipc_filename;
     std::string pid_filename;
     std::string blocked_content_store;
     std::string monitor_helper;
@@ -148,6 +144,10 @@ class OptionContainer
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
+
+    // internal test urls
+    std::string internal_test_url;
+    std::string internal_status_url;
 
     bool no_daemon = false;
  //  bool no_logger = false;
