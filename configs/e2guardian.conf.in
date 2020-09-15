@@ -642,13 +642,41 @@ dstatlocation = '@E2LOGLOCATION@/dstats.log'
 # change to local zone
 # default off
 
-# monitorhelper = '/usr/local/bin/mymonitor'
-# monitor helper path
-# If defined this script/binary will be called with start or stop appended as follows:-
-# At start after e2guardian has started listener and worker threads with
-# ' start' appended
-# When e2guardian is stopping with ' stop' appended
-# default '' - monitor helper disabled
+# internaltesturl = 'internal.test.e2guardian.org'
+#
+# A pretend url for testing e2g is working.
+#
+# It returns a small page containing OK if working ok.
+#
+# Used by loadbalancers and monitoring software (e.g. smokeping)
+# to detect if e2g is functioning.
+#
+# It is tested for after connection is successful and a worker thread is 
+# assigned, but before user auth and group assignment is made.
+#
+# This has been built in to e2g since v3, but this option allows the 
+# url to be changed.
+#
+# default 'internal.test.e2guardian.org'
+
+# internalstatusurl = 'internal.status.e2guardian.org'
+#
+# A pretend url for checking the status of a user.
+#
+# It returns a small page providing various information
+# such as user name, ip, filtering group, server name,
+# e2guardian version, flags field.
+#
+# Designed to used by status software and by technical staff for testing
+# user access/assignment.
+#
+# It is tested for after user auth and group assignment is made, but
+# before any filtering is performed.
+
+# New in v5.4.3, this option allows the 
+# url to be changed.
+#
+# default 'internal.status.e2guardian.org'
 
 # monitorflagprefix = '@E2PIDDIR@/e2g_flag_'
 # monitor flag prefix path
@@ -1244,6 +1272,15 @@ originalip = off
 
 #logchildprocesshandling - will be removed in v5.5
 # no longer in use
+
+# monitorhelper = '/usr/local/bin/mymonitor' - to remove in v5.5
+# monitor helper path
+# Not recommended - likely to cause crashes as it uses fork()
+# If defined this script/binary will be called with start or stop appended as follows:-
+# At start after e2guardian has started listener and worker threads with
+# ' start' appended
+# When e2guardian is stopping with ' stop' appended
+# default '' - monitor helper disabled
 
 ###
 ### END of OBSOLETE section

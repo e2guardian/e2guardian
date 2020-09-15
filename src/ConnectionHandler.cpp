@@ -862,7 +862,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             // TODO this needs moving is proxy operation is still to be tested
-            if (checkme.urldomain == "internal.test.e2guardian.org") {
+            if (checkme.urldomain == o.internal_test_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                 peerconn.writeString("</BODY></HTML>\n");
@@ -1047,6 +1047,32 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 #endif
 
+            if (checkme.urldomain == o.internal_status_url) {
+                peerconn.writeString(
+                        "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal status</TITLE></HEAD><BODY><H1>e2guardian internal status OK</H1> ");
+                String temp = "User: ";
+                temp += clientuser;
+                temp += "<br>";
+                temp += "IP: ";
+                temp += ip;
+                temp += "<br>";
+                temp += "Filtergroup: ";
+                temp += ldl->fg[filtergroup]->name;
+                temp += "<br>";
+                temp += "Flags: ";
+                temp += checkme.getFlags();
+                temp += "<br>";
+                temp += "e2g version: ";
+                temp += PACKAGE_VERSION;
+                temp += "<br>";
+                temp += "Server: ";
+                temp += o.server_name;
+                temp += "<br>";
+                peerconn.writeString(temp);
+                peerconn.writeString("</BODY></HTML>\n");
+                proxysock.close(); // close connection to proxy
+                break;
+            }
             //
             // Start of by pass
             //

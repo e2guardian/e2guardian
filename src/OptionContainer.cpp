@@ -886,6 +886,14 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
+        if ((internal_test_url = findoptionS("internaltesturl")).empty()) {
+            internal_test_url = "internal.test.e2guardian.org";
+        }
+
+        if ((internal_status_url = findoptionS("internalstatusurl")).empty()) {
+            internal_status_url = "internal.status.e2guardian.org";
+        }
+
         if (!loadDMPlugins()) {
             if (!is_daemonised) {
                 std::cerr << "Error loading DM plugins" << std::endl;
