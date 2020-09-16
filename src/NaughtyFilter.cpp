@@ -119,7 +119,8 @@ void NaughtyFilter::setURL(String &sni) {
 
 void NaughtyFilter::reset()
 {
-    anon_log = o.anonymise_logs;
+    anon_user = o.anonymise_logs;
+    anon_url = false;
     logurl = "";
     isItNaughty = false;
     isException = false;
@@ -1043,3 +1044,22 @@ String NaughtyFilter::getFlags() {
     }
     return flags;
 }
+
+String NaughtyFilter::get_lastmatch() {
+    if (anon_url) {
+        return lastmatch.anonimise();
+    }
+    return lastmatch;
+}
+
+String NaughtyFilter::get_logUrl() {
+    if (anon_url) {
+        String t1 = logurl.before("://");
+        String t2 = logurl.after("://");
+        t1 += "://";
+        t1 += t2.anonimise();
+        return t1;
+    }
+    return logurl;
+}
+

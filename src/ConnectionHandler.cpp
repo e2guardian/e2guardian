@@ -1427,7 +1427,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     struct timeval theend;
     gettimeofday(&theend, NULL);
     String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
+    String where = cm.get_logUrl();
     unsigned int port = cm.request_header->port;
     std::string what;
 
@@ -1528,7 +1528,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         std::string l_clienthost;
         l_clienthost = cm.clienthost;
 
-        if (cm.anon_log) {
+        if (cm.anon_user) {
             l_who = "";
             l_from = "0.0.0.0";
             l_clienthost = "";
@@ -1871,7 +1871,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 			//
 			// DISPLAYING TEMPLATE
 
-			String fullurl = checkme->logurl;
+			String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
 			ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
