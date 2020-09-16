@@ -1476,7 +1476,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     struct timeval theend;
     gettimeofday(&theend, NULL);
     String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
+    String where = cm.get_logUrl();
     unsigned int port = cm.request_header->port;
     std::string what;
 
@@ -1535,7 +1535,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
+        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
 #ifdef E2DEBUG
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
@@ -1586,7 +1586,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         std::string l_clienthost;
         l_clienthost = cm.clienthost;
 
-        if (cm.anon_log) {
+        if (cm.anon_user) {
             l_who = "";
             l_from = "0.0.0.0";
             l_clienthost = "";
@@ -2000,7 +2000,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 			//
 			// DISPLAYING TEMPLATE
 
-			String fullurl = checkme->logurl;
+			String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
 			ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,

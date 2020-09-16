@@ -68,7 +68,8 @@ class NaughtyFilter
     bool has_deep_urls = false;
     std::deque<url_rec> deep_urls;
 
-    bool anon_log = false;
+    bool anon_user = false;
+    bool anon_url = false;
     // flags from ConnectionHandler
     bool upfailure = false;  //set when problem with upstream connection (site or proxy)
     bool waschecked = false;
@@ -133,6 +134,9 @@ class NaughtyFilter
     String realuser; // real or authed user name
     String lastmatch;
     String result;
+
+    String get_lastmatch();
+    String get_logUrl();
 
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;
