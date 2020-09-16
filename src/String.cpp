@@ -719,7 +719,6 @@ String String::CN() {
 
 String String::anonimise() {
     std::string temp;
-    bool lastspace = false;
     unsigned char t;
     unsigned int l = this->length();
     for (unsigned int i = 0; i < l; i++) {
