@@ -276,7 +276,7 @@ int main(int argc,char *argv[])
 
     unsigned int rootuid; // prepare a struct for use later
     rootuid = geteuid();
-    o.root_user = rootuid;
+    o.proc.root_user = rootuid;
 
     struct passwd *st; // prepare a struct
     struct group *sg;
@@ -284,18 +284,18 @@ int main(int argc,char *argv[])
     // This is an important feature because we need to be able to create temp
     // files with suitable permissions for scanning by AV daemons - we do this
     // by becoming a member of a specified AV group and setting group read perms
-    if ((sg = getgrnam(o.daemon_group_name.c_str())) != 0) {
-        o.proxy_group = sg->gr_gid;
+    if ((sg = getgrnam(o.proc.daemon_group_name.c_str())) != 0) {
+        o.proc.proxy_group = sg->gr_gid;
     } else {
         E2LOGGER_error( "Unable to getgrnam(): ", strerror(errno));
-        E2LOGGER_error("Check the group that e2guardian runs as (", o.daemon_group_name, ")");
+        E2LOGGER_error("Check the group that e2guardian runs as (", o.proc.daemon_group_name, ")");
         return 1;
     }
 
-    if ((st = getpwnam(o.daemon_user_name.c_str())) != 0) { // find uid for proxy user
-        o.proxy_user = st->pw_uid;
+    if ((st = getpwnam(o.proc.daemon_user_name.c_str())) != 0) { // find uid for proxy user
+        o.proc.proxy_user = st->pw_uid;
 
-        rc = setgid(o.proxy_group); // change to rights of proxy user group
+        rc = setgid(o.proc.proxy_group); // change to rights of proxy user group
         // i.e. low - for security
         if (rc == -1) {
             E2LOGGER_error("Unable to setgid()");
@@ -304,7 +304,7 @@ int main(int argc,char *argv[])
 #ifdef HAVE_SETREUID
         rc = setreuid((uid_t)-1, st->pw_uid);
 #else
-        rc = seteuid(o.proxy_user); // need to be euid so can su back
+        rc = seteuid(o.proc.proxy_user); // need to be euid so can su back
 // (yes it negates but no choice)
 #endif
         if (rc == -1) {
@@ -313,7 +313,7 @@ int main(int argc,char *argv[])
         }
     } else {
         E2LOGGER_error("Unable to getpwnam() - does the proxy user exist?");
-        E2LOGGER_error("Proxy user looking for is '", o.daemon_user_name, "'" );
+        E2LOGGER_error("Proxy user looking for is '", o.proc.daemon_user_name, "'" );
         return 1; // was unable to lockup the user id from passwd
         // for some reason, so exit with error
     }

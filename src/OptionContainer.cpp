@@ -246,20 +246,16 @@ bool OptionContainer::read(std::string &filename, int type) {
             e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
         }
 
-        if ((dns_user_logging_domain = findoptionS("dnsuserloggingdomain")) == "") {
-            dns_user_logging = false;
-        } else {
-            dns_user_logging = true;
+        log.dns_user_logging_domain = (findoptionS("dnsuserloggingdomain") == "");
+
+        log.log_header_value = findoptionS("logheadervalue");
+
+        if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
+            proc.daemon_user_name = __PROXYUSER;
         }
 
-        log_header_value = findoptionS("logheadervalue");
-
-        if ((daemon_user_name = findoptionS("daemonuser")) == "") {
-            daemon_user_name = __PROXYUSER;
-        }
-
-        if ((daemon_group_name = findoptionS("daemongroup")) == "") {
-            daemon_group_name = __PROXYGROUP;
+        if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
+            proc.daemon_group_name = __PROXYGROUP;
         }
 
         if (findoptionS("nodaemon") == "on") {
@@ -387,11 +383,11 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-        max_logitem_length = findoptionI("maxlogitemlength");
+        log.max_logitem_length = findoptionI("maxlogitemlength");
         // default of unlimited no longer allowed as could cause buffer overflow
-        if (max_logitem_length == 0)
-            max_logitem_length = 2000;
-        if (!realitycheck(max_logitem_length, 10, 32000, "maxlogitemlength")) {
+        if (log.max_logitem_length == 0)
+            log.max_logitem_length = 2000;
+        if (!realitycheck(log.max_logitem_length, 10, 32000, "maxlogitemlength")) {
             return false;
         }
 
@@ -708,48 +704,25 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!realitycheck(ll, 0, 3, "loglevel")) {
             return false;
         } // etc
-        log_file_format = findoptionI("logfileformat");
-        if (log_file_format == 0) log_file_format = 8;
-        if (!realitycheck(log_file_format, 1, 8, "logfileformat")) {
+        log.log_file_format = findoptionI("logfileformat");
+        if (log.log_file_format == 0) log.log_file_format = 8;
+        if (!realitycheck(log.log_file_format, 1, 8, "logfileformat")) {
             return false;
         } // etc
-        if (findoptionS("anonymizelogs") == "on") {
-            anonymise_logs = true;
-        } else {
-            anonymise_logs = false;
-        }
-        if (findoptionS("logadblocks") == "on") {
-            log_ad_blocks = true;
-        } else {
-            log_ad_blocks = false;
-        }
-        if (findoptionS("logtimestamp") == "on") {
-            log_timestamp = true;
-        } else {
-            log_timestamp = false;
-        }
-        if (findoptionS("loguseragent") == "on") {
-            log_user_agent = true;
-        } else {
-            log_user_agent = false;
-        }
-        if (findoptionS("usedashforblank") == "off") {
-            use_dash_for_blanks = false;
-        } else {
-            use_dash_for_blanks = true;
-        }
-        if (findoptionS("logclientnameandip") == "off") {
-            log_client_host_and_ip = false;
-        } else {
-            log_client_host_and_ip = true;
-        }
 
-        logid_1.assign(findoptionS("logid1"));
-        if (logid_1.empty())
-            logid_1.assign("-");
-        logid_2.assign(findoptionS("logid2"));
-        if (logid_2.empty())
-            logid_2.assign("-");
+        log.anonymise_logs = (findoptionS("anonymizelogs") == "on");
+        log.log_ad_blocks = (findoptionS("logadblocks") == "on");
+        log.log_timestamp = (findoptionS("logtimestamp") == "on");
+        log.log_user_agent = (findoptionS("loguseragent") == "on");
+        log.use_dash_for_blanks = (findoptionS("usedashforblank") == "on");
+        log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "on");
+
+        log.logid_1.assign(findoptionS("logid1"));
+        if (log.logid_1.empty())
+            log.logid_1.assign("-");
+        log.logid_2.assign(findoptionS("logid2"));
+        if (log.logid_2.empty())
+            log.logid_2.assign("-");
 
 #ifdef SG_LOGFORMAT
         prod_id.assign(findoptionS("productid"));
@@ -795,11 +768,11 @@ bool OptionContainer::read(std::string &filename, int type) {
             forwarded_for = true;
         }
         if (findoptionS("logexceptionhits").empty()) {
-            log_exception_hits = 2;
+            log.log_exception_hits = 2;
         } else {
-            log_exception_hits = findoptionI("logexceptionhits");
+            log.log_exception_hits = findoptionI("logexceptionhits");
         }
-        if (!realitycheck(log_exception_hits, 0, 2, "logexceptionhits")) {
+        if (!realitycheck(log.log_exception_hits, 0, 2, "logexceptionhits")) {
             return false;
         }
 
@@ -826,10 +799,10 @@ bool OptionContainer::read(std::string &filename, int type) {
             reverse_client_ip_lookups = false;
         }
         if (findoptionS("logclienthostnames") == "on") {
-            log_client_hostnames = true;
+            log.log_client_hostnames = true;
             reverse_client_ip_lookups = true;
         } else {
-            log_client_hostnames = false;
+            log.log_client_hostnames = false;
         }
 
         if (findoptionS("recheckreplacedurls") == "on") {

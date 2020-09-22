@@ -301,12 +301,12 @@ bool drop_priv_completely() {
     // Suggested fix by Lawrence Manning Tue 25th February 2003
     //
 
-    int rc = seteuid(o.root_user); // need to be root again to drop properly
+    int rc = seteuid(o.proc.root_user); // need to be root again to drop properly
     if (rc == -1) {
         E2LOGGER_error("Unable to seteuid(suid)");
         return false; // setuid failed for some reason so exit with error
     }
-    rc = setuid(o.proxy_user);
+    rc = setuid(o.proc.proxy_user);
     if (rc == -1) {
         E2LOGGER_error("Unable to setuid()");
         return false; // setuid failed for some reason so exit with error
@@ -443,7 +443,7 @@ void tell_monitor(bool active) //may not be needed
     };
 
     if (childid == 0) { // Am the child
-        int rc = seteuid(o.root_user);
+        int rc = seteuid(o.proc.root_user);
         if (rc != -1) {
             int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(),
                                      (char *) NULL); // should not return from call
@@ -590,7 +590,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         neterr_word = "*" + neterr_word + "* ";
         std::string blank_str;
 
-        if (o.use_dash_for_blanks)
+        if (o.log.use_dash_for_blanks)
             blank_str = "-";
         else
             blank_str = "";
@@ -627,9 +627,9 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 // Loop around reading in data, because we might have huge URLs
                 std::string s;
 
-                if (o.use_dash_for_blanks && logline == "") {
+                if (o.log.use_dash_for_blanks && logline == "") {
                     s = "-";
-                } else if (!o.use_dash_for_blanks && logline == "-") {
+                } else if (!o.log.use_dash_for_blanks && logline == "-") {
                     s = "";
                 } else {
                     s = logline;
@@ -820,7 +820,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
 
             // create a string representation of UNIX timestamp if desired
-            if (o.log_timestamp || (o.log.log_file_format == 3)
+            if (o.log.log_timestamp || (o.log.log_file_format == 3)
                 || (o.log.log_file_format > 4)) {
                 String temp((int) (endtv_usec / 1000));
                 while (temp.length() < 3) {
@@ -844,12 +844,12 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
                 when = date;
                 // append timestamp if desired
-                if (o.log_timestamp)
+                if (o.log.log_timestamp)
                     when += " " + utime;
             }
 
             // blank out IP, hostname and username if desired
-            if (o.anonymise_logs) {
+            if (o.log.anonymise_logs) {
                 who = "";
                 from = "0.0.0.0";
                 clienthost.clear();
@@ -880,7 +880,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                 + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
                     + params + "\t" + o.logid_2 + "\t" + postdata;
                                 #else
-                                + "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" +
+                                + "\t" + useragent + "\t" + params + "\t" + o.log.logid_1 + "\t" + o.log.logid_2 + "\t" +
                                 postdata;
 #endif
                     break;
@@ -924,14 +924,14 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                             "\",\""
                             + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
                             groupname + "\",\""
-                            + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
+                            + useragent + "\",\"" + params + "\",\"" + o.log.logid_1 + "\",\"" + o.log.logid_2 + "\",\"" +
                             postdata + "\"";
                     break;
                 case 1:
                     builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                                 + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
                                 + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
-                                + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                                + useragent + " " + params + " " + o.log.logid_1 + " " + o.log.logid_2 + " " + postdata;
                     break;
                 case 5:
                 case 6:
@@ -949,7 +949,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                     builtline = utime + "\t"
                                 + server + "\t"
                                 + who + "\t";
-                    if (o.log_client_host_and_ip) {
+                    if (o.log.log_client_host_and_ip) {
                         builtline += from + "\t";
                         builtline += clienthost + "\t";
                     } else {
@@ -963,7 +963,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                  + stringcode + "\t"
                                  + ssize + "\t"
                                  + mimetype + "\t"
-                                 + (o.log_user_agent ? useragent : blank_str) + "\t"
+                                 + (o.log.log_user_agent ? useragent : blank_str) + "\t"
                                  + blank_str + "\t" // squid result code
                                  + duration + "\t"
                                  + blank_str + "\t" // squid peer code
@@ -1304,9 +1304,9 @@ int fc_controlit()   //
     DEBUG_trace("seteuiding for low port binding/pidfile creation");
 
 #ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.root_user);
+    rc = setreuid((uid_t)-1, o.proc.root_user);
 #else
-    rc = seteuid(o.root_user);
+    rc = seteuid(o.proc.root_user);
 #endif
     if (rc == -1) {
         E2LOGGER_error("Unable to seteuid() to bind filter port.");
@@ -1377,9 +1377,9 @@ int fc_controlit()   //
 // Made unconditional for same reasons as above
 //if (needdrop)
 #ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proxy_user);
+    rc = setreuid((uid_t)-1, o.proc.proxy_user);
 #else
-    rc = seteuid(o.proxy_user); // become low priv again
+    rc = seteuid(o.proc.proxy_user); // become low priv again
 #endif
     if (rc == -1) {
         E2LOGGER_error("%sUnable to re-seteuid()");

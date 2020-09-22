@@ -87,7 +87,7 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
         }
         // Even if we don't match anything, return a hostname
         // if desired for logging and we don't already have one.
-        if (o.log_client_hostnames && (host == NULL) && (hostnames->size() > 0))
+        if (o.log.log_client_hostnames && (host == NULL) && (hostnames->size() > 0))
             host = new std::string(hostnames->front().toCharArray());
     }
 

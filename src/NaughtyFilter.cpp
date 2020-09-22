@@ -119,7 +119,7 @@ void NaughtyFilter::setURL(String &sni) {
 
 void NaughtyFilter::reset()
 {
-    anon_user = o.anonymise_logs;
+    anon_user = o.log.anonymise_logs;
     anon_url = false;
     logurl = "";
     isItNaughty = false;

@@ -107,7 +107,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         t = list[i];
         DEBUG_debug("reading ", t);
         String nm, fpath, pwd;
-        bool anonlog = o.anonymise_logs;
+        bool anonlog = o.log.anonymise_logs;
         bool sitewild = true;
         unsigned int m_no = 0, log_m_no = 0;
         t.removeWhiteSpace();

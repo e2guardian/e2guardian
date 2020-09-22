@@ -281,11 +281,6 @@ class OptionContainer
     int pcon_timeout = 0;
     int pcon_timeout_sec = 0;
     int http_workers = 0;
-    std::string daemon_user_name;
-    std::string daemon_group_name;
-    int proxy_user = 0;
-    int proxy_group = 0;
-    int root_user = 0;
     int max_ips = 0;
     bool recheck_replaced_urls;
     bool use_group_names_list = false;
