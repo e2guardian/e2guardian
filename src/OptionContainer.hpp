@@ -269,7 +269,6 @@ class OptionContainer
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
-    int ll = 0;
     int connect_timeout = 0;
     int connect_timeout_sec = 0;
     int connect_retries = 0;
@@ -429,8 +428,9 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
+    bool findLogOptions();
     bool findProcOptions();
-    
+
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
     std::deque<String> findoptionMD(const char *option, const char *delim);

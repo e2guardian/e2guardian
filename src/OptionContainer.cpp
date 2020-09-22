@@ -141,6 +141,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
 
         if (!findProcOptions()) return false;
+        if (!findLogOptions()) return false;        
 
         //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
 
@@ -243,9 +244,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
         }
 
-        log.dns_user_logging_domain = (findoptionS("dnsuserloggingdomain") == "");
-
-        log.log_header_value = findoptionS("logheadervalue");
 
         if (findoptionS("nodaemon") == "on") {
             no_daemon = true;
@@ -368,15 +366,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (max_header_lines == 0)
             max_header_lines = 50;
         if (!realitycheck(max_header_lines, 10, 250, "maxheaderlines")) {
-            return false;
-        }
-
-
-        log.max_logitem_length = findoptionI("maxlogitemlength");
-        // default of unlimited no longer allowed as could cause buffer overflow
-        if (log.max_logitem_length == 0)
-            log.max_logitem_length = 2000;
-        if (!realitycheck(log.max_logitem_length, 10, 32000, "maxlogitemlength")) {
             return false;
         }
 
@@ -685,34 +674,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             use_original_ip_port = true;
         }
 
-        if (findoptionS("loglevel").empty()) {
-            ll = 3;
-        } else {
-            ll = findoptionI("loglevel");
-        }
-        if (!realitycheck(ll, 0, 3, "loglevel")) {
-            return false;
-        } // etc
-        log.log_file_format = findoptionI("logfileformat");
-        if (log.log_file_format == 0) log.log_file_format = 8;
-        if (!realitycheck(log.log_file_format, 1, 8, "logfileformat")) {
-            return false;
-        } // etc
-
-        log.anonymise_logs = (findoptionS("anonymizelogs") == "on");
-        log.log_ad_blocks = (findoptionS("logadblocks") == "on");
-        log.log_timestamp = (findoptionS("logtimestamp") == "on");
-        log.log_user_agent = (findoptionS("loguseragent") == "on");
-        log.use_dash_for_blanks = (findoptionS("usedashforblank") == "on");
-        log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "on");
-
-        log.logid_1.assign(findoptionS("logid1"));
-        if (log.logid_1.empty())
-            log.logid_1.assign("-");
-        log.logid_2.assign(findoptionS("logid2"));
-        if (log.logid_2.empty())
-            log.logid_2.assign("-");
-
 #ifdef SG_LOGFORMAT
         prod_id.assign(findoptionS("productid"));
         if (prod_id.empty())
@@ -756,14 +717,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (findoptionS("addforwardedfor") == "on") {
             forwarded_for = true;
         }
-        if (findoptionS("logexceptionhits").empty()) {
-            log.log_exception_hits = 2;
-        } else {
-            log.log_exception_hits = findoptionI("logexceptionhits");
-        }
-        if (!realitycheck(log.log_exception_hits, 0, 2, "logexceptionhits")) {
-            return false;
-        }
 
         if (findoptionS("logconnectionhandlingerrors") == "on") {
             logconerror = true;
@@ -786,12 +739,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             reverse_client_ip_lookups = true;
         } else {
             reverse_client_ip_lookups = false;
-        }
-        if (findoptionS("logclienthostnames") == "on") {
-            log.log_client_hostnames = true;
-            reverse_client_ip_lookups = true;
-        } else {
-            log.log_client_hostnames = false;
         }
 
         if (findoptionS("recheckreplacedurls") == "on") {
@@ -1094,6 +1041,40 @@ bool OptionContainer::readinStdin() {
                 urllist_dq.push_back(param);
         }
     }
+    return true;
+}
+
+bool OptionContainer::findLogOptions()
+{
+
+    log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
+    log.log_header_value = findoptionS("logheadervalue");
+
+    // default of unlimited no longer allowed as could cause buffer overflow
+    log.max_logitem_length = realitycheckWithDefault("maxlogitemlength", 10, 32000, 2000);
+
+    log.log_level = realitycheckWithDefault("loglevel", 0, 3, 3);
+    log.log_file_format = realitycheckWithDefault("logfileformat", 1, 8, 1);
+
+    log.anonymise_logs = (findoptionS("anonymizelogs") == "on") ;
+    log.log_ad_blocks = (findoptionS("logadblocks") == "on");
+    log.log_timestamp = (findoptionS("logtimestamp") == "on");
+    log.log_user_agent = (findoptionS("loguseragent") == "on");
+    log.use_dash_for_blanks = (findoptionS("usedashforblank") == "off");
+    log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "off");
+
+    log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
+
+    log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
+    reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
+
+    log.logid_1 = findoptionS("logid1");
+    if (log.logid_1.empty())
+        log.logid_1 = "-";
+    log.logid_2 = findoptionS("logid2");
+    if (log.logid_2.empty())
+        log.logid_2 = "-";
+
     return true;
 }
 

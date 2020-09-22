@@ -1479,9 +1479,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
     if (
-            (o.ll == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
+            (o.log.log_level == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
             ((o.log.log_exception_hits == 0) && isexception)) {
-        if (o.ll != 0) {
+        if (o.log.log_level != 0) {
             if (isexception) {
                 DEBUG_debug(" -Not logging exceptions");
             } else {
@@ -1494,7 +1494,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     std::string data, cr("\n");
 
     if ((isexception && (o.log.log_exception_hits == 2))
-        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
+        || isnaughty || o.log.log_level == 3 || (o.log.log_level == 2 && istext)) {
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
