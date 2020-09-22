@@ -422,15 +422,19 @@ class OptionContainer
 
     bool loadDMPlugins();
 
-  //  bool precompileregexps();
     long int findoptionI(const char *option);
     std::string findoptionS(const char *option);
+    std::deque<String> findoptionM(const char *option);
+
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
+    long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
+
+    bool findProcOptions();
+    
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
     std::deque<String> findoptionMD(const char *option, const char *delim);
 
-//    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
 };
 
 #endif

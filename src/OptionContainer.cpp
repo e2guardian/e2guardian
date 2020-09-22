@@ -140,12 +140,9 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!readConfFile(filename.c_str(), list_pwd))
             return false;
 
-        //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
+        if (!findProcOptions()) return false;
 
-        if ((pid_filename = findoptionS("pidfilename")) == "") {
-            pid_filename = __PIDDIR;
-            pid_filename += "/e2guardian.pid";
-        }
+        //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
 
         if (type == 0) {     // pid_filename is the only thing needed for type 0 in order to send signals
             return true;
@@ -249,14 +246,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         log.dns_user_logging_domain = (findoptionS("dnsuserloggingdomain") == "");
 
         log.log_header_value = findoptionS("logheadervalue");
-
-        if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
-            proc.daemon_user_name = __PROXYUSER;
-        }
-
-        if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
-            proc.daemon_group_name = __PROXYGROUP;
-        }
 
         if (findoptionS("nodaemon") == "on") {
             no_daemon = true;
@@ -1108,6 +1097,30 @@ bool OptionContainer::readinStdin() {
     return true;
 }
 
+bool OptionContainer::findProcOptions()
+{
+
+    proc.no_daemon = (findoptionS("nodaemon") == "on");
+
+    if (findoptionS("dockermode") == "on") {
+        proc.no_daemon = true;
+        e2logger.setDockerMode();
+    }
+
+    if ((proc.pid_filename = findoptionS("pidfilename")) == "") {
+        proc.pid_filename = std::string(__PIDDIR) + "/e2guardian.pid";
+    }
+
+    if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
+        proc.daemon_user_name = __PROXYUSER;
+    }
+
+    if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
+        proc.daemon_group_name = __PROXYGROUP;
+    }
+    return true;
+
+}
 
 long int OptionContainer::findoptionI(const char *option) {
     long int res = String(findoptionS(option).c_str()).toLong();
@@ -1209,6 +1222,20 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     return true;
 }
 
+long int OptionContainer::realitycheckWithDefault(const char *option, long int minl, long int maxl, long int defaultl) {
+    // realitycheck checks an amount for certain expected criteria
+    // so we can spot problems in the conf files easier    
+    std::string s = findoptionS(option);
+    if ( s == "" ) return defaultl;
+    long int value = String(s).toLong();
+
+    if ((value < minl) || ((maxl > 0) && (value > maxl))) {
+        E2LOGGER_error("Config problem; check allowed values for ", option, "( ", value , " should be >= ", minl, " <=", maxl, ")",
+                    "we are using default value:", defaultl);        
+        return defaultl;
+    }
+    return value;
+}
 
 bool OptionContainer::loadDMPlugins() {
     DEBUG_config("load Download manager plugins");
