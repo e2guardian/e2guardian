@@ -195,11 +195,11 @@ void stat_rec::reset() {
         strftime(buffer, 50, "%Y-%m-%d %H:%M", timeinfo);
         snprintf(outbuff, 100, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
                  o.http_workers,
-                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+                 bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
         snprintf(outbuff, 100, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
                  o.http_workers,
-                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+                 bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
     std::string outs(outbuff);
     E2LOGGER_dstatslog(outs);
@@ -566,7 +566,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
 
         String server("");
         // Get server name - only needed for formats 5 & 7
-        if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
+        if ((o.log.log_file_format == 5) || (o.log.log_file_format == 7)) {
             server = o.server_name;
         }
 
@@ -795,7 +795,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                     what = neterr_word + what;
                 else
                     what = denied_word + stype + "* " + what;
-            } else if (isexception && (o.log_exception_hits == 2)) {
+            } else if (isexception && (o.log.log_exception_hits == 2)) {
                 what = exception_word + what;
             }
 
@@ -820,8 +820,8 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
 
             // create a string representation of UNIX timestamp if desired
-            if (o.log_timestamp || (o.log_file_format == 3)
-                || (o.log_file_format > 4)) {
+            if (o.log_timestamp || (o.log.log_file_format == 3)
+                || (o.log.log_file_format > 4)) {
                 String temp((int) (endtv_usec / 1000));
                 while (temp.length() < 3) {
                     temp = "0" + temp;
@@ -835,7 +835,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             }
 
 
-            if ((o.log_file_format <= 2) || (o.log_file_format == 4)) {
+            if ((o.log.log_file_format <= 2) || (o.log.log_file_format == 4)) {
                 // "when" not used in format 3, and not if logging timestamps instead in formats 5-8
                 //time_t now = time(NULL);
                 time_t now = endtv_sec;
@@ -871,7 +871,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 }
             }
 
-            switch (o.log_file_format) {
+            switch (o.log.log_file_format) {
                 case 4:
                     builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                                 + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
@@ -974,7 +974,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                  + groupname + "\t"
                                  + stringgroup;
             }
-            if (o.log_file_format > 6) {
+            if (o.log.log_file_format > 6) {
                 builtline += "\t";
                 builtline += searchterms;
                 builtline += "\t";
@@ -1445,14 +1445,14 @@ int fc_controlit()   //
     // and an array of worker threads to deal with the work.
     //if (!o.no_logger) {
     if (e2logger.isEnabled(LoggerSource::accesslog)) {
-        std::thread log_thread(log_listener, o.log_Q, false);
+        std::thread log_thread(log_listener, o.log.log_Q, false);
         log_thread.detach();
         DEBUG_trace("log_listener thread created");
     }
 
     //if(o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
-        std::thread RQlog_thread(log_listener, o.RQlog_Q, true);
+        std::thread RQlog_thread(log_listener, o.log.RQlog_Q, true);
         RQlog_thread.detach();
         DEBUG_trace("RQlog_listener thread created");
     }
@@ -1678,10 +1678,10 @@ int fc_controlit()   //
     //E2LOGGER_info("2nd wait complete");
     e2logger_ttg = true;
     std::string nullstr("");
-    o.log_Q->push(nullstr);
+    o.log.log_Q->push(nullstr);
     //if (o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
-        o.RQlog_Q->push(nullstr);
+        o.log.RQlog_Q->push(nullstr);
     }
 
     if (o.logconerror) {

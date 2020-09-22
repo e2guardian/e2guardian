@@ -28,8 +28,8 @@
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer() {
-    log_Q = new Queue<std::string>;
-    RQlog_Q = new Queue<std::string>;
+    log.log_Q = new Queue<std::string>;
+    log.RQlog_Q = new Queue<std::string>;
 }
 
 

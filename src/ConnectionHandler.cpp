@@ -1479,8 +1479,8 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
     if (
-            (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
-            ((o.log_exception_hits == 0) && isexception)) {
+            (o.ll == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
+            ((o.log.log_exception_hits == 0) && isexception)) {
         if (o.ll != 0) {
             if (isexception) {
                 DEBUG_debug(" -Not logging exceptions");
@@ -1493,13 +1493,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
     std::string data, cr("\n");
 
-    if ((isexception && (o.log_exception_hits == 2))
+    if ((isexception && (o.log.log_exception_hits == 2))
         || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
+        if (o.log.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
             DEBUG_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
             getClientFromIP(from.c_str(),cm.clienthost);
         }
@@ -1521,13 +1521,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if ((cat != NULL) && (cat->length() > o.max_logitem_length))
-            cat->resize(o.max_logitem_length);
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
+        if ((cat != NULL) && (cat->length() > o.log.max_logitem_length))
+            cat->resize(o.log.max_logitem_length);
+        if (what.length() > o.log.max_logitem_length)
+            what.resize(o.log.max_logitem_length);
+        if (where.length() > o.log.max_logitem_length)
+            where.limitLength(o.log.max_logitem_length);
+        if (o.log.dns_user_logging() && !is_real_user) {
             String user;
             if (getdnstxt(from, user)) {
                 who = who + ":" + user;
@@ -1579,7 +1579,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
 
-        if (o.log_user_agent)
+        if (o.log.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
             data += cr;
@@ -1595,7 +1595,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
         //delete newcat;
         // push on log queue
-        o.log_Q->push(data);
+        o.log.log_Q->push(data);
         // connect to dedicated logging proc
     }
 }
@@ -1642,11 +1642,11 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
+        if (what.length() > o.log.max_logitem_length)
+            what.resize(o.log.max_logitem_length);
+        if (where.length() > o.log.max_logitem_length)
+            where.limitLength(o.log.max_logitem_length);
+        if (o.log.dns_user_logging() && !is_real_user) {
             String user;
             if (getdnstxt(from, user)) {
                 who = who + ":" + user;
@@ -1687,7 +1687,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += cr;  // data += String((theend).tv_sec) + cr;
         data += cr;  // data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
-        if (o.log_user_agent)
+        if (o.log.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
             data += cr;
@@ -1702,7 +1702,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 
         //delete newcat;
         // push on log queue
-        o.RQlog_Q->push(data);
+        o.log.RQlog_Q->push(data);
         // connect to dedicated logging proc
     }
 }
