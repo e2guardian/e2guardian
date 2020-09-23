@@ -428,8 +428,10 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
-    bool findLogOptions();
     bool findProcOptions();
+    bool findLoggerOptions();
+    bool findAccessLogOptions();
+    bool findDStatOptions();
 
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);

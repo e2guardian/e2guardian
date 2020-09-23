@@ -69,8 +69,8 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
     String now_pwd(list_pwd);
-    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
 
+    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
     if (!conffiles.good()) {
         E2LOGGER_error("Error reading ", filename);
         return false;
@@ -133,7 +133,6 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
 
 bool OptionContainer::read(std::string &filename, int type) {
     conffilename = filename;
-    LoggerConfigurator loggerConf(&e2logger);
 
     // all sorts of exceptions could occur reading conf files
     try {
@@ -143,7 +142,8 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
 
         if (!findProcOptions()) return false;
-        if (!findLogOptions()) return false;        
+        if (!findLoggerOptions()) return false;
+        if (!findAccessLogOptions()) return false;        
 
         //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
 
@@ -151,100 +151,8 @@ bool OptionContainer::read(std::string &filename, int type) {
             return true;
         }
 
-        {
-            std::string temp = findoptionS("set_info");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::info, temp))
-                    return false;
-            }
-        }
+        if (!findDStatOptions()) return false;
 
-        {
-            std::string temp = findoptionS("set_error");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::error, temp))
-                    return false;
-            }
-        }
-
-        {
-            std::string temp = findoptionS("set_warning");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::warning, temp))
-                    return false;
-            }
-        }
-
-        {
-            String temp = findoptionS("set_accesslog");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::accesslog, temp))
-                    return false;
-            } else {
-                    log_location = findoptionS("loglocation");
-                    if (log_location.empty()) {
-                        log_location = __LOGLOCATION;
-                        log_location += "/access.log";
-                    }
-                    if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log_location))
-                        return false;
-                }
-        }
-
-        if (findoptionS("tag_logs") == "on") {
-            e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
-            e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
-        }
-
-        {
-            String temp = findoptionS("set_requestlog");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::requestlog, temp))
-                    return false;
-                log_requests = true;
-            } else {
-                if ((RQlog_location = findoptionS("rqloglocation")) == "") {
-                    log_requests = false;
-                } else {
-                    log_requests = true;
-                    if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, RQlog_location))
-                        return false;
-                }
-            }
-        }
-
-        {
-            dstat_log_flag = false;
-            String temp = findoptionS("set_dstatslog");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::dstatslog, temp))
-                    return false;
-                dstat_log_flag = true;
-            } else {
-                if ((dstat_location = findoptionS("dstatlocation")) == "") {
-                    dstat_log_flag = false;
-                } else {
-                    dstat_log_flag = true;
-                    if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat_location))
-                        return false;
-                }
-            }
-        }
-
-        dstat_interval = findoptionI("dstatinterval");
-        if (dstat_interval == 0) {
-            dstat_interval = 300; // 5 mins
-        }
-
-        if (findoptionS("statshumanreadable") == "on") {
-            stats_human_readable = true;
-        } else {
-            stats_human_readable = false;
-        }
-
-        if (findoptionS("tag_dstatlog") == "on") {
-            e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
-        }
 
 
         if (findoptionS("nodaemon") == "on") {
@@ -796,13 +704,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             abort_on_missing_list = false;
         }
 
-        {
-            std::string temp = findoptionS("set_storytrace");
-            if (!temp.empty()) {
-                if (!loggerConf.configure(LoggerSource::storytrace, temp))
-                    return false;
-            }
-        }
 
         if (findoptionS("storyboardtrace") == "on") {
             SB_trace = true;
@@ -811,15 +712,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             SB_trace = false;
         }
 
-        {
-            std::deque <String> temp = findoptionM("debuglevel");
-            if (!temp.empty()) {
-                LoggerConfigurator loggerConf(&e2logger);
-                for (std::deque<String>::iterator i = temp.begin(); i != temp.end(); i++) {
-                    loggerConf.debuglevel(*i);
-                }
-            }
-        }
 
         debug_format = findoptionI("debugformat");
         if (debug_format == 0)
@@ -1046,7 +938,112 @@ bool OptionContainer::readinStdin() {
     return true;
 }
 
-bool OptionContainer::findLogOptions()
+bool OptionContainer::findLoggerOptions()
+{
+    LoggerConfigurator loggerConf(&e2logger);
+
+    {
+        std::string temp = findoptionS("set_info");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::info, temp))
+                return false;
+        }
+    }
+
+    {
+        std::string temp = findoptionS("set_error");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::error, temp))
+                return false;
+        }
+    }
+
+    {
+        std::string temp = findoptionS("set_warning");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::warning, temp))
+                return false;
+        }
+    }
+
+    {
+        String temp = findoptionS("set_accesslog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::accesslog, temp))
+                return false;
+        } else {
+                log_location = findoptionS("loglocation");
+                if (log_location.empty()) {
+                    log_location = __LOGLOCATION;
+                    log_location += "/access.log";
+                }
+                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log_location))
+                    return false;
+            }
+    }
+
+    if (findoptionS("tag_logs") == "on") {
+        e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
+        e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
+    }
+
+    {
+        String temp = findoptionS("set_requestlog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::requestlog, temp))
+                return false;
+            log_requests = true;
+        } else {
+            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+                log_requests = false;
+            } else {
+                log_requests = true;
+                if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, RQlog_location))
+                    return false;
+            }
+        }
+    }
+
+    {
+        dstat_log_flag = false;
+        String temp = findoptionS("set_dstatslog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::dstatslog, temp))
+                return false;
+            dstat_log_flag = true;
+        } else {
+            if ((dstat_location = findoptionS("dstatlocation")) == "") {
+                dstat_log_flag = false;
+            } else {
+                dstat_log_flag = true;
+                if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat_location))
+                    return false;
+            }
+        }
+    }
+
+    {
+        std::string temp = findoptionS("set_storytrace");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::storytrace, temp))
+                return false;
+        }
+    }
+
+    {
+        std::deque <String> temp = findoptionM("debuglevel");
+        if (!temp.empty()) {
+            for (std::deque<String>::iterator i = temp.begin(); i != temp.end(); i++) {
+                loggerConf.debuglevel(*i);
+            }
+        }
+    }
+
+    return true;
+
+}
+
+bool OptionContainer::findAccessLogOptions()
 {
 
     log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
@@ -1205,9 +1202,8 @@ bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, con
     return true;
 }
 
+// realitycheckWithDefault gets an option value, checks for minl and maxl bounds and defaults to defaultl if no value was found
 long int OptionContainer::realitycheckWithDefault(const char *option, long int minl, long int maxl, long int defaultl) {
-    // realitycheck checks an amount for certain expected criteria
-    // so we can spot problems in the conf files easier    
     std::string s = findoptionS(option);
     if ( s == "" ) return defaultl;
     long int value = String(s).toLong();
