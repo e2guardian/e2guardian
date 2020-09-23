@@ -1831,7 +1831,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         // check first line header
             if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
             {
-                if(o.logconerror)
+                if(o.conn.logconerror)
                     E2LOGGER_error("Returning from header:in Server did not respond with HTTP ");
 #ifdef DEBUG_LOW
                 dbshowheader(false);

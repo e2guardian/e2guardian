@@ -91,7 +91,7 @@ void addToClean(String &url, const int fg) {
 //
 
 void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         //int peerport = peersock.getPeerSourcePort();
         std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
@@ -115,7 +115,7 @@ void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
 }
 
 void ConnectionHandler::upstreamDiag(const char *message, Socket &proxysock) {
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
 
         int err = proxysock.getErrno();
         if (proxysock.isTimedout()) {
@@ -414,7 +414,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     while (++retry < o.net.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
-            if (o.logconerror)
+            if (o.conn.logconerror)
                 E2LOGGER_info("retry ", retry, " to connect to ", cm.urldomain);
             if (!sock.isTimedout())
                 usleep(1000);       // don't hammer upstream
@@ -424,7 +424,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             String des_ip;
             if (cm.isiphost)
                 des_ip = cm.urldomain;
-            if(o.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
+            if(o.conn.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
                 des_ip = cm.orig_ip;
 
             if(des_ip.length() > 0) {
@@ -670,7 +670,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
         bool firsttime = true;
         if (!header.in(&peerconn, true)) {     // get header from client, allowing persistency
-            if (o.logconerror) {
+            if (o.conn.logconerror) {
                 if (peerconn.getFD() > -1) {
 
                     int err = peerconn.getErrno();
@@ -1128,7 +1128,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     int out_port = header.port;
-                    if (o.use_original_ip_port && checkme.got_orig_ip &&
+                    if (o.conn.use_original_ip_port && checkme.got_orig_ip &&
                         !header.isProxyRequest)
                         out_port = checkme.orig_port;
                     if (connectUpstream(proxysock, checkme, out_port) < 0) {
@@ -1400,7 +1400,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         }
     } catch (std::exception &e) {
         DEBUG_proxy(" -connection handler caught an exception: ", e.what());
-        if (o.logconerror)
+        if (o.conn.logconerror)
             E2LOGGER_error("-connection handler caught an exception %s", e.what());
 
         // close connection to proxy
@@ -1784,7 +1784,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
                 bool replaceflash = false;
-                if (o.use_custom_banned_image) {
+                if (o.conn.use_custom_banned_image) {
 
                     // It would be much nicer to do a mime comparison
                     // and see if the type is image/* but the header
@@ -1803,7 +1803,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                 }
 
-                if (o.use_custom_banned_flash) {
+                if (o.conn.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".swf") ||
@@ -1818,12 +1818,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_image.display_hb(eheader, ebody);
+                    o.conn.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_flash.display_hb(eheader, ebody);
+                    o.conn.banned_flash.display_hb(eheader, ebody);
                 } else {
                     // advanced ad blocking - if category contains ADs, wrap ad up in an "ad blocked" message,
                     // which provides a link to the original URL if you really want it. primarily
@@ -3157,7 +3157,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
        if(checkme.isTLS) {
             rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000);
             if (rc < 1 ) {     // get header from client, allowing persistency
-                if (o.logconerror) {
+                if (o.conn.logconerror) {
                     if (peerconn.getFD() > -1) {
 
                         int err = peerconn.getErrno();
@@ -3326,7 +3326,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
                 int out_port;
-                if(checkme.got_orig_ip && o.use_original_ip_port)
+                if(checkme.got_orig_ip && o.conn.use_original_ip_port)
                     out_port = checkme.orig_port;
                 else
                     out_port = 443;
@@ -3392,7 +3392,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         } catch (std::exception & e)
         {
         DEBUG_thttps(" - THTTPS connection handler caught an exception: ", e.what() );
-        if(o.logconerror)
+        if(o.conn.logconerror)
             E2LOGGER_error(" - THTTPS connection handler caught an exception %s" , e.what());
 
         // close connection to proxy

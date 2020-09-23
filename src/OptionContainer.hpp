@@ -177,6 +177,7 @@ struct ConnectionHandlerOptions {
     ImageContainer banned_flash;
 
     bool use_original_ip_port = false;   // only for transparent and no upstream proxy
+    bool logconerror = false;
 };
 
 struct ContentScannerOptions {
@@ -202,7 +203,7 @@ class OptionContainer
     public:
     CertificateOptions    cert;
     ConfigOptions         config;
-    ConnectionOptions     conn;
+    ConnectionHandlerOptions  conn;
     ContentScannerOptions content;
     DStatOptions          dstat;
     ListsOptions          lists;
@@ -226,14 +227,10 @@ class OptionContainer
     int debug_format = 1;
     std::string ident_header_value;
     bool forwarded_for = false;
-    bool use_custom_banned_image = false;
-    std::string custom_banned_image_file;
-    bool use_custom_banned_flash = false;
-    std::string custom_banned_flash_file;
+
     bool reverse_lookups = false;
     bool reverse_client_ip_lookups = false;
     bool use_xforwardedfor = false;
-    bool logconerror = false;
     bool log_ssl_errors = false;
     int url_cache_number = 0;
     int url_cache_age = 0;
@@ -265,7 +262,6 @@ class OptionContainer
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
     bool auth_needs_proxy_in_plugin = false;
-    bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
     std::string languagepath;
     std::string filter_groups_list_location;
@@ -314,8 +310,6 @@ class OptionContainer
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
     LanguageContainer language_list;
-    ImageContainer banned_image;
-    ImageContainer banned_flash;
 
     std::deque<Plugin *> dmplugins;
     std::deque<Plugin *> csplugins;
@@ -380,6 +374,7 @@ class OptionContainer
 
     bool findAccessLogOptions();
     bool findCertificateOptions();
+    bool findConnectionHandlerOptions();
     bool findContentScannerOptions();
     bool findDStatOptions();
     bool findLoggerOptions();

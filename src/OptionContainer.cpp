@@ -714,34 +714,34 @@ bool OptionContainer::findCertificateOptions()
 
 bool OptionContainer::findConnectionHandlerOptions()
 {
-    logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
+    conn.logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
 
     if (findoptionS("usecustombannedimage") == "off") {
-        use_custom_banned_image = false;
+        conn.use_custom_banned_image = false;
     } else {
-        use_custom_banned_image = true;
-        custom_banned_image_file = findoptionS("custombannedimagefile");
-        if (custom_banned_image_file.empty()) {
-            custom_banned_image_file = __DATADIR;
-            custom_banned_image_file += "/transparent1x1.gif";
+        conn.use_custom_banned_image = true;
+        conn.custom_banned_image_file = findoptionS("custombannedimagefile");
+        if (conn.custom_banned_image_file.empty()) {
+            conn.custom_banned_image_file = __DATADIR;
+            conn.custom_banned_image_file += "/transparent1x1.gif";
         }
-        banned_image.read(custom_banned_image_file.c_str());
+        conn.banned_image.read(conn.custom_banned_image_file.c_str());
     }
 
     if (findoptionS("usecustombannedflash") == "off") {
-        use_custom_banned_flash = false;
+        conn.use_custom_banned_flash = false;
     } else {
-        use_custom_banned_flash = true;
-        custom_banned_flash_file = findoptionS("custombannedflashfile");
+        conn.use_custom_banned_flash = true;
+        conn.custom_banned_flash_file = findoptionS("custombannedflashfile");
 
-        if (custom_banned_flash_file.empty()) {
-            custom_banned_flash_file = __DATADIR;
-            custom_banned_flash_file += "/blockedflash.swf";
+        if (conn.custom_banned_flash_file.empty()) {
+            conn.custom_banned_flash_file = __DATADIR;
+            conn.custom_banned_flash_file += "/blockedflash.swf";
         }
-        banned_flash.read(custom_banned_flash_file.c_str());
+        conn.banned_flash.read(conn.custom_banned_flash_file.c_str());
     }
 
-    use_original_ip_port = (findoptionS("useoriginalip") != "off");
+    conn.use_original_ip_port = (findoptionS("useoriginalip") != "off");
 
     return true;
 }

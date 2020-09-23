@@ -392,7 +392,7 @@ void handle_connections(int tindex) {
 
                 String peersockip = peersock->getPeerIP();
                 if (peersock->getFD() < 0 || peersockip.length() < 7) {
-//            if (o.logconerror)
+//            if (o.conn.logconerror)
                     E2LOGGER_info("Error accepting. (Ignorable)");
                     continue;
                 }
@@ -1176,7 +1176,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
     }
     if (!e2logger_ttg) {
         E2LOGGER_error("log_listener exiting with error");
-    } else if (o.logconerror) {
+    } else if (o.conn.logconerror) {
         E2LOGGER_error("log_listener exiting");
     }
 
@@ -1243,7 +1243,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
     } catch (...) {
         E2LOGGER_error("listener thread caught unexpected exception exiting");
     }
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("listener thread exiting");
     }
 }
@@ -1588,7 +1588,7 @@ int fc_controlit()   //
                     setitimer(ITIMER_REAL, &timeout, NULL);
 
                     DEBUG_debug("signal:", String(rc);
-                    if (o.logconerror) {
+                    if (o.conn.logconerror) {
                         E2LOGGER_info("sigtimedwait() signal recd:", String(rsig) );
                     }
                 }
@@ -1613,7 +1613,7 @@ int fc_controlit()   //
                 gentlereload = true;
 
             DEBUG_debug("signal: ", String(rc));
-            if (o.logconerror) {
+            if (o.conn.logconerror) {
                 E2LOGGER_info("ssigtimedwait() signal recd:", String(rc));
             }
         }
@@ -1656,7 +1656,7 @@ int fc_controlit()   //
     if (o.monitor_helper_flag)
         tell_monitor(false); // tell monitor that we are not accepting any more connections
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("sending null socket to http_workers to stop them");
     }
     Socket *NS = NULL;
@@ -1678,11 +1678,11 @@ int fc_controlit()   //
         o.log.RQlog_Q->push(nullstr);
     }
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("stopping any remaining connections");
     }
     serversockets.self_connect();   // stop accepting connections
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("connections stopped");
     }
 
@@ -1692,7 +1692,7 @@ int fc_controlit()   //
 
     delete[] serversockfds;
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("Main thread exiting.");
     }
     return 0;

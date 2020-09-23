@@ -543,7 +543,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             if (is_response) {
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
-                    if (o.logconerror)
+                    if (o.conn.logconerror)
                         E2LOGGER_error("Server did not respond with ICAP");
                         DEBUG_icap("Returning from header:in Server did not respond with ICAP length: ", line.length(), " content: ", line );
                     return false;
