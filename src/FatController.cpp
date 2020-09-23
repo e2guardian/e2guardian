@@ -1302,20 +1302,14 @@ int fc_controlit()   //
     }
 
     DEBUG_trace("seteuiding for low port binding/pidfile creation");
-
-#ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proc.root_user);
-#else
-    rc = seteuid(o.proc.root_user);
-#endif
-    if (rc == -1) {
+     if (!o.proc.become_root_user()) {
         E2LOGGER_error("Unable to seteuid() to bind filter port.");
         delete[] serversockfds;
         return 1;
     }
 
     // we have to open/create as root before drop privs
-    int pidfilefd = sysv_openpidfile(o.pid_filename);
+    int pidfilefd = sysv_openpidfile(o.proc.pid_filename);
     if (pidfilefd < 0) {
         E2LOGGER_error("Error creating/opening pid file.");
         delete[] serversockfds;

@@ -33,6 +33,7 @@ struct ConfigOptions
     std::string prog_name;   // (default e2guardian)
     std::string configfile;  // Main Configfile (default e2guardian.conf)
     char benchmark = '\0';
+    bool total_block_list = false;
 };
 struct LogOptions
 {
@@ -294,7 +295,6 @@ class OptionContainer
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
-    std::string pid_filename;
     std::string blocked_content_store;
     std::string monitor_helper;
     bool monitor_helper_flag = false;
