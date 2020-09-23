@@ -395,6 +395,7 @@ class OptionContainer
 
     bool findAccessLogOptions();
     bool findCertificateOptions();
+    bool findContentScannerOptions();
     bool findDStatOptions();
     bool findLoggerOptions();
     bool findNetworkOptions();
