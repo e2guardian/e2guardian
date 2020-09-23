@@ -1077,6 +1077,26 @@ bool OptionContainer::findAccessLogOptions()
     return true;
 }
 
+bool OptionContainer::findDStatOptions()
+{
+    dstat_interval = findoptionI("dstatinterval");
+    if (dstat_interval == 0) {
+        dstat_interval = 300; // 5 mins
+    }
+
+    if (findoptionS("statshumanreadable") == "on") {
+        stats_human_readable = true;
+    } else {
+        stats_human_readable = false;
+    }
+
+    if (findoptionS("tag_dstatlog") == "on") {
+        e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
+    }
+
+    return true;
+}
+
 bool OptionContainer::findProcOptions()
 {
 
