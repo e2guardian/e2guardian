@@ -432,6 +432,7 @@ class OptionContainer
     bool findLoggerOptions();
     bool findAccessLogOptions();
     bool findDStatOptions();
+    bool findCertificateOptions();
 
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
