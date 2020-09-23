@@ -924,25 +924,25 @@ bool OptionContainer::findAccessLogOptions()
 bool OptionContainer::findNaughtyOptions()
 {
     if (findoptionS("weightedphrasemode").empty()) {
-        weighted_phrase_mode = 2;
+        naughty.weighted_phrase_mode = 2;
     } else {
-        weighted_phrase_mode = realitycheckWithDefault("weightedphrasemode", 0, 2, 2);
+        naughty.weighted_phrase_mode = realitycheckWithDefault("weightedphrasemode", 0, 2, 2);
     }
 
     if (findoptionS("phrasefiltermode").empty()) {
-        phrase_filter_mode = 2;
+        naughty.phrase_filter_mode = 2;
     } else {
-        phrase_filter_mode = realitycheckWithDefault("phrasefiltermode", 0, 3, 2);
+        naughty.phrase_filter_mode = realitycheckWithDefault("phrasefiltermode", 0, 3, 2);
     }
 
-    preserve_case = realitycheckWithDefault("preservecase", 0, 2, 0);
+    naughty.preserve_case = realitycheckWithDefault("preservecase", 0, 2, 0);
 
-    hex_decode_content = (findoptionS("hexdecodecontent") == "on");
+    naughty.hex_decode_content = (findoptionS("hexdecodecontent") == "on");
 
-    show_weighted_found = (findoptionS("showweightedfound") != "off");
-    show_all_weighted_found =  (findoptionS("showallweightedfound") == "on");
-    if (show_all_weighted_found)
-        show_weighted_found = true;
+    naughty.show_weighted_found = (findoptionS("showweightedfound") != "off");
+    naughty.show_all_weighted_found =  (findoptionS("showallweightedfound") == "on");
+    if (naughty.show_all_weighted_found)
+        naughty.show_weighted_found = true;
 
     return true;
 }

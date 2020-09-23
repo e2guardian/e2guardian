@@ -225,9 +225,6 @@ class OptionContainer
     bool non_standard_delimiter;
     int debug_format = 1;
     std::string ident_header_value;
-    int weighted_phrase_mode = 0; // PIP added in - not sure if still required
-    bool show_weighted_found = false;
-    bool show_all_weighted_found = false;   // logs weighted less than limit
     bool forwarded_for = false;
     bool use_custom_banned_image = false;
     std::string custom_banned_image_file;
@@ -240,13 +237,10 @@ class OptionContainer
     bool log_ssl_errors = false;
     int url_cache_number = 0;
     int url_cache_age = 0;
-    int phrase_filter_mode = 0;
-    int preserve_case = 0;
     unsigned int max_header_lines = 0;
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
-    bool hex_decode_content = false;
     bool force_quick_search = false;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
