@@ -284,10 +284,6 @@ class OptionContainer
     bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag = false;
-    std::string dstat_location;
-    bool dstat_log_flag = false;
-    bool stats_human_readable = false;
-    int dstat_interval = 300;
 
     // internal test urls
     std::string internal_test_url;

@@ -944,18 +944,18 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        dstat_log_flag = false;
+        dstat.dstat_log_flag = false;
         String temp = findoptionS("set_dstatslog");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::dstatslog, temp))
                 return false;
-            dstat_log_flag = true;
+            dstat.dstat_log_flag = true;
         } else {
-            if ((dstat_location = findoptionS("dstatlocation")) == "") {
-                dstat_log_flag = false;
+            if ((dstat.dstat_location = findoptionS("dstatlocation")) == "") {
+                dstat.dstat_log_flag = false;
             } else {
-                dstat_log_flag = true;
-                if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat_location))
+                dstat.dstat_log_flag = true;
+                if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat.dstat_location))
                     return false;
             }
         }
@@ -1099,15 +1099,15 @@ bool OptionContainer::findNetworkOptions()
 
 bool OptionContainer::findDStatOptions()
 {
-    dstat_interval = findoptionI("dstatinterval");
-    if (dstat_interval == 0) {
-        dstat_interval = 300; // 5 mins
+    dstat.dstat_interval = findoptionI("dstatinterval");
+    if (dstat.dstat_interval == 0) {
+        dstat.dstat_interval = 300; // 5 mins
     }
 
     if (findoptionS("statshumanreadable") == "on") {
-        stats_human_readable = true;
+        dstat.stats_human_readable = true;
     } else {
-        stats_human_readable = false;
+        dstat.stats_human_readable = false;
     }
 
     if (findoptionS("tag_dstatlog") == "on") {

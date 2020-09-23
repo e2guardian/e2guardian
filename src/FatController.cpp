@@ -140,17 +140,17 @@ void stat_rec::start(bool firsttime = true) {
     if (firsttime) {
         clear();
         start_int = time(NULL);
-        end_int = start_int + o.dstat_interval;
+        end_int = start_int + o.dstat.dstat_interval;
         maxusedfd = 0;
     }
 
-    if (o.dstat_log_flag) {
+    if (o.dstat.dstat_log_flag) {
         // now opened by Logger
         //mode_t old_umask;
         //old_umask = umask(S_IWGRP | S_IWOTH);
         //fs = fopen(o.dstat_location.c_str(), "a");
         std::string outmess;
-        if (o.stats_human_readable) {
+        if (o.dstat.stats_human_readable) {
             outmess = "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt";
         } else {
             outmess = "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt";
@@ -170,12 +170,12 @@ void stat_rec::reset() {
     int LC = o.LC_cnt;
     // clear and reset stats now so that stats are less likely to be missed
     clear();
-    if ((end_int + o.dstat_interval) > now)
+    if ((end_int + o.dstat.dstat_interval) > now)
         start_int = end_int;
     else
         start_int = now;
 
-    end_int = start_int + o.dstat_interval;
+    end_int = start_int + o.dstat.dstat_interval;
 
     if (rotate_dstat) {
         e2logger.rotate(LoggerSource::dstatslog);
@@ -187,7 +187,7 @@ void stat_rec::reset() {
 
     long cps = cnx / period;
     long rqs = rqx / period;
-    if (o.stats_human_readable) {
+    if (o.dstat.stats_human_readable) {
         struct tm *timeinfo;
         time(&now);
         timeinfo = localtime(&now);
@@ -1622,7 +1622,7 @@ int fc_controlit()   //
         int q_size = o.http_worker_Q.size();
         DEBUG_debug("busychildren:", String(dystat->busychildren),
                     " worker Q size:", q_size);
-        if (o.dstat_log_flag) {
+        if (o.dstat.dstat_log_flag) {
             if (q_size > 10) {
                 E2LOGGER_info("Warning: all ", o.http_workers, " http_worker threads are busy and ",
                               q_size, " connections are waiting in the queue.");
@@ -1639,7 +1639,7 @@ int fc_controlit()   //
         time_t now = time(NULL);
 
 
-        if (o.dstat_log_flag && (now >= dystat->end_int))
+        if (o.dstat.dstat_log_flag && (now >= dystat->end_int))
             dystat->reset();
     }
 
@@ -1688,7 +1688,7 @@ int fc_controlit()   //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    if (o.dstat_log_flag) dystat->close();
+    if (o.dstat.dstat_log_flag) dystat->close();
 
     delete[] serversockfds;
 
