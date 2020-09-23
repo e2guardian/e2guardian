@@ -135,7 +135,6 @@ struct CertificateOptions
     bool enable_ssl = false;
 
     std::string ssl_certificate_path;
-
     std::string ca_certificate_path;
     std::string ca_private_key_path;
     std::string cert_private_key_path;
@@ -143,12 +142,13 @@ struct CertificateOptions
     std::string generated_link_path;
     std::string openssl_conf_path;
     CertificateAuthority *ca;
+
     time_t gen_cert_start, gen_cert_end;
     bool use_openssl_conf = false;
     bool have_openssl_conf = false;
     std::string set_cipher_list;
 
-    bool start_ssl();
+    bool generate_ca_certificate();
 };
 struct ListsOptions
 {
@@ -270,7 +270,6 @@ class OptionContainer
     bool use_group_names_list = false;
     bool auth_needs_proxy_query = false;
     bool auth_requires_user_and_group = false;
-    bool enable_ssl = false;
     bool auth_needs_proxy_in_plugin = false;
     bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
@@ -294,20 +293,6 @@ class OptionContainer
  //   bool log_syslog = false;
     std::string name_suffix;
     bool soft_restart = false;
-
-    std::string ssl_certificate_path;
-
-    std::string ca_certificate_path;
-    std::string ca_private_key_path;
-    std::string cert_private_key_path;
-    std::string generated_cert_path;
-    std::string generated_link_path;
-    std::string openssl_conf_path;
-    CertificateAuthority *ca;
-    time_t gen_cert_start, gen_cert_end;
-    bool use_openssl_conf = false;
-    bool have_openssl_conf = false;
-    std::string set_cipher_list;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier

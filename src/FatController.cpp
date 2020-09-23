@@ -1402,10 +1402,10 @@ int fc_controlit()   //
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
-    if (o.use_openssl_conf) {
-        if (o.have_openssl_conf) {
-            if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr, 0) != 1) {
-                E2LOGGER_error("Error reading openssl config file ", o.openssl_conf_path.c_str());
+    if (o.cert.use_openssl_conf) {
+        if (o.cert.have_openssl_conf) {
+            if (CONF_modules_load_file(o.cert.openssl_conf_path.c_str(), nullptr, 0) != 1) {
+                E2LOGGER_error("Error reading openssl config file ", o.cert.openssl_conf_path.c_str());
                 return false;
             }
         } else {

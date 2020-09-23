@@ -257,18 +257,18 @@ bool FOptionContainer::read(const char *filename) {
 
 
         if (findoptionS("sslcheckcert") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_check_cert = true;
-                } else {
-                    E2LOGGER_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
-                    ssl_check_cert = false;
-                }
+            } else {
+                E2LOGGER_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                ssl_check_cert = false;
+            }
         } else {
             ssl_check_cert = false;
         }
 
         if (findoptionS("sslmitm") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_mitm = true;
 
                 if (findoptionS("automitm") == "off") {
