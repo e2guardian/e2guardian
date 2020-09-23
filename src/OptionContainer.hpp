@@ -167,7 +167,7 @@ struct NaughtyOptions
     bool hex_decode_content = false;
 };
 
-struct ConnectionOptions {
+struct ConnectionHandlerOptions {
     bool use_custom_banned_image = false;
     std::string custom_banned_image_file;
     ImageContainer banned_image;

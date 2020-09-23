@@ -154,6 +154,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findDStatOptions()) return false;
         if (!findCertificateOptions()) return false;
         if (!findNetworkOptions()) return false;
+        if (!findConnectionHandlerOptions()) return false;
         if (!findContentScannerOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
@@ -173,14 +174,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         // Email notification patch by J. Gauthier
         mailer = findoptionS("mailer");
 #endif
-
-        monitor_helper = findoptionS("monitorhelper");
-        if (monitor_helper == "") {
-            monitor_helper_flag = false;
-        } else {
-            monitor_helper_flag = true;
-        }
-
 
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
@@ -213,8 +206,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             monitor_flag_flag = true;
         }
 
-        if (findoptionS("searchsitelistforip"
-                        "") == "off") {
+        if (findoptionS("searchsitelistforip") == "off") {
             search_sitelist_for_ip = false;
         } else {
             search_sitelist_for_ip = true;
@@ -329,11 +321,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-        if (findoptionS("useoriginalip") == "off") {
-            use_original_ip_port = false;
-        } else {
-            use_original_ip_port = true;
-        }
 
 #ifdef SG_LOGFORMAT
         prod_id.assign(findoptionS("productid"));
@@ -368,11 +355,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             forwarded_for = true;
         }
 
-        if (findoptionS("logconnectionhandlingerrors") == "on") {
-            logconerror = true;
-        } else {
-            logconerror = false;
-        }
 
         if (findoptionS("logsslerrors") == "on") {
             log_ssl_errors = true;
@@ -727,6 +709,40 @@ bool OptionContainer::findCertificateOptions()
             return false;
         }
     }
+    return true;
+}
+
+bool OptionContainer::findConnectionHandlerOptions()
+{
+    logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
+
+    if (findoptionS("usecustombannedimage") == "off") {
+        use_custom_banned_image = false;
+    } else {
+        use_custom_banned_image = true;
+        custom_banned_image_file = findoptionS("custombannedimagefile");
+        if (custom_banned_image_file.empty()) {
+            custom_banned_image_file = __DATADIR;
+            custom_banned_image_file += "/transparent1x1.gif";
+        }
+        banned_image.read(custom_banned_image_file.c_str());
+    }
+
+    if (findoptionS("usecustombannedflash") == "off") {
+        use_custom_banned_flash = false;
+    } else {
+        use_custom_banned_flash = true;
+        custom_banned_flash_file = findoptionS("custombannedflashfile");
+
+        if (custom_banned_flash_file.empty()) {
+            custom_banned_flash_file = __DATADIR;
+            custom_banned_flash_file += "/blockedflash.swf";
+        }
+        banned_flash.read(custom_banned_flash_file.c_str());
+    }
+
+    use_original_ip_port = (findoptionS("useoriginalip") != "off");
+
     return true;
 }
 
