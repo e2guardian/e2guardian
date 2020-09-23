@@ -155,12 +155,9 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findCertificateOptions()) return false;
         if (!findNetworkOptions()) return false;
         if (!findContentScannerOptions()) return false;
+        if (!findNaughtyOptions()) return false;
 
-        if (findoptionS("nodaemon") == "on") {
-            no_daemon = true;
-        } else {
-            no_daemon = false;
-        }
+        no_daemon =  (findoptionS("nodaemon") == "on");
 
         if (findoptionS("dockermode") == "on") {
             no_daemon = true;
@@ -169,11 +166,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             no_daemon = false;
         }
 
-        if (findoptionS("softrestart") == "on") {
-            soft_restart = true;
-        } else {
-            soft_restart = false;
-        }
+        soft_restart = (findoptionS("softrestart") == "on");
 
 
 #ifdef ENABLE_EMAIL
@@ -220,18 +213,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             monitor_flag_flag = true;
         }
 
-
-        if (findoptionS("weightedphrasemode").empty()) {
-            weighted_phrase_mode = 2;
-        } else {
-            weighted_phrase_mode = findoptionI("weightedphrasemode");
-        }
-        if (!realitycheck(weighted_phrase_mode, 0, 2, "weightedphrasemode")) {
-            return false;
-        }
-
-
-
         if (findoptionS("searchsitelistforip"
                         "") == "off") {
             search_sitelist_for_ip = false;
@@ -239,23 +220,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             search_sitelist_for_ip = true;
         }
 
-        if (findoptionS("phrasefiltermode").empty()) {
-            phrase_filter_mode = 2;
-        } else {
-            phrase_filter_mode = findoptionI("phrasefiltermode");
-        }
-        if (!realitycheck(phrase_filter_mode, 0, 3, "phrasefiltermode")) {
-            return false;
-        }
-        preserve_case = findoptionI("preservecase");
-        if (!realitycheck(preserve_case, 0, 2, "preservecase")) {
-            return false;
-        }
-        if (findoptionS("hexdecodecontent") == "on") {
-            hex_decode_content = true;
-        } else {
-            hex_decode_content = false;
-        }
         if (findoptionS("forcequicksearch") == "on") {
             force_quick_search = true;
         } else {
@@ -378,17 +342,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             prod_id.assign("2");
 #endif
 
-        if (findoptionS("showweightedfound") == "off") {
-            show_weighted_found = false;
-        } else {
-            show_weighted_found = true;
-        }
-        if (findoptionS("showallweightedfound") == "on") {
-            show_all_weighted_found = true;
-            show_weighted_found = true;
-        } else {
-            show_all_weighted_found = false;
-        }
         if (findoptionS("reportinglevel").empty()) {
             reporting_level = 3;
         } else {
@@ -964,6 +917,32 @@ bool OptionContainer::findAccessLogOptions()
     log.logid_2 = findoptionS("logid2");
     if (log.logid_2.empty())
         log.logid_2 = "-";
+
+    return true;
+}
+
+bool OptionContainer::findNaughtyOptions()
+{
+    if (findoptionS("weightedphrasemode").empty()) {
+        weighted_phrase_mode = 2;
+    } else {
+        weighted_phrase_mode = realitycheckWithDefault("weightedphrasemode", 0, 2, 2);
+    }
+
+    if (findoptionS("phrasefiltermode").empty()) {
+        phrase_filter_mode = 2;
+    } else {
+        phrase_filter_mode = realitycheckWithDefault("phrasefiltermode", 0, 3, 2);
+    }
+
+    preserve_case = realitycheckWithDefault("preservecase", 0, 2, 0);
+
+    hex_decode_content = (findoptionS("hexdecodecontent") == "on");
+
+    show_weighted_found = (findoptionS("showweightedfound") != "off");
+    show_all_weighted_found =  (findoptionS("showallweightedfound") == "on");
+    if (show_all_weighted_found)
+        show_weighted_found = true;
 
     return true;
 }

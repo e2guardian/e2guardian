@@ -389,6 +389,7 @@ class OptionContainer
     bool findContentScannerOptions();
     bool findDStatOptions();
     bool findLoggerOptions();
+    bool findNaughtyOptions();
     bool findNetworkOptions();
     bool findProcOptions();
 
