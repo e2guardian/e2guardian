@@ -231,11 +231,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-        if (findoptionS("deletedownloadedtempfiles") == "off") {
-            delete_downloaded_temp_files = false;
-        } else {
-            delete_downloaded_temp_files = true;
-        }
 
         if (findoptionS("searchsitelistforip"
                         "") == "off") {
@@ -543,12 +538,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
-        // this needs to be known before loading CS plugins,
-        // because ClamAV plugin makes use of it during init()
-        download_dir = findoptionS("filecachedir");
-        if (download_dir.empty()) {
-            download_dir = "/tmp";
-        }
 
         if (content.contentscanning) {
             if (!loadCSPlugins()) {
@@ -791,42 +780,51 @@ bool OptionContainer::findCertificateOptions()
 bool OptionContainer::findContentScannerOptions()
 {
 
-    max_content_filecache_scan_size = realitycheckWithDefault("maxcontentfilecachescansize", 0, 0, 20000);
-    max_content_filecache_scan_size *= 1024;
+    content.max_content_filecache_scan_size = realitycheckWithDefault("maxcontentfilecachescansize", 0, 0, 20000);
+    content.max_content_filecache_scan_size *= 1024;
 
-    max_content_ramcache_scan_size = realitycheckWithDefault("maxcontentramcachescansize", 0, 0, 2000);
-    max_content_ramcache_scan_size *= 1024;
-    if (max_content_ramcache_scan_size == 0) {
-        max_content_ramcache_scan_size = max_content_filecache_scan_size;
+    content.max_content_ramcache_scan_size = realitycheckWithDefault("maxcontentramcachescansize", 0, 0, 2000);
+    content.max_content_ramcache_scan_size *= 1024;
+    if (content.max_content_ramcache_scan_size == 0) {
+        content.max_content_ramcache_scan_size = content.max_content_filecache_scan_size;
     }
 
-    max_content_filter_size = realitycheckWithDefault("maxcontentfiltersize", 0, 0, 2048);
-    max_content_filter_size *= 1024;
+    content.max_content_filter_size = realitycheckWithDefault("maxcontentfiltersize", 0, 0, 2048);
+    content.max_content_filter_size *= 1024;
 
     content.contentscanning = findoptionM("contentscanner").size() > 0;
     if (content.contentscanning) {
 
-        if (max_content_filter_size > max_content_ramcache_scan_size) {
+        if (content.max_content_filter_size > content.max_content_ramcache_scan_size) {
             E2LOGGER_error("maxcontentfiltersize can not be greater than maxcontentramcachescansize");
             return false;
         }
-        if (max_content_ramcache_scan_size > max_content_filecache_scan_size) {
+        if (content.max_content_ramcache_scan_size > content.max_content_filecache_scan_size) {
             E2LOGGER_error("maxcontentramcachescansize can not be greater than maxcontentfilecachescansize");
             return false;
         }
 
-        trickle_delay = realitycheckWithDefault("trickledelay", 1, 0, 10);
-        initial_trickle_delay = realitycheckWithDefault("initialtrickledelay", 1, 0, 20);
+        content.trickle_delay = realitycheckWithDefault("trickledelay", 1, 0, 10);
+        content.initial_trickle_delay = realitycheckWithDefault("initialtrickledelay", 1, 0, 20);
 
-        content_scanner_timeout_sec = realitycheckWithDefault("contentscannertimeout", 1, 0, 60);
-        if (content_scanner_timeout_sec > 0)
-            content_scanner_timeout = content_scanner_timeout_sec * 1000;
+        content.content_scanner_timeout_sec = realitycheckWithDefault("contentscannertimeout", 1, 0, 60);
+        if (content.content_scanner_timeout_sec > 0)
+            content.content_scanner_timeout = content.content_scanner_timeout_sec * 1000;
         else {
-            content_scanner_timeout = net.pcon_timeout;
-            content_scanner_timeout_sec = net.pcon_timeout_sec;
+            content.content_scanner_timeout = net.pcon_timeout;
+            content.content_scanner_timeout_sec = net.pcon_timeout_sec;
         }
 
     }
+
+    // this needs to be known before loading CS plugins,
+    // because ClamAV plugin makes use of it during init()
+    content.download_dir = findoptionS("filecachedir");
+    if (content.download_dir.empty()) {
+        content.download_dir = "/tmp";
+    }
+    content.delete_downloaded_temp_files = (findoptionS("deletedownloadedtempfiles") != "off");
+
     return true;
 
 }

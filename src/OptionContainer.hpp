@@ -314,17 +314,8 @@ class OptionContainer
 
     std::string daemon_user;
     std::string daemon_group;
-    off_t max_content_filter_size;
-    off_t max_content_ramcache_scan_size;
-    off_t max_content_filecache_scan_size;
-    bool scan_clean_cache = false;
-    bool delete_downloaded_temp_files = false;
+
     bool search_sitelist_for_ip = false;
-    std::string download_dir;
-    int initial_trickle_delay = 0;
-    int trickle_delay = 0;
-    int content_scanner_timeout = 0;
-    int content_scanner_timeout_sec = 0;
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;

@@ -120,7 +120,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
     int rc;
     try {
         // read kaspersky kavdscan (AV Enging Server) - format: 2xx greeting
-        rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
+        rc = stripedsocks.getLine(buff, 4096, o.content.content_scanner_timeout);
     } catch (std::exception &e) {
     }
     if (buff[0] != '2') {
@@ -138,7 +138,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
         return E2CS_SCANERROR;
     }
     try {
-        rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
+        rc = stripedsocks.getLine(buff, 4096, o.content.content_scanner_timeout);
     } catch (std::exception &e) {
         delete[] buff;
         stripedsocks.close();
@@ -161,7 +161,7 @@ int kavdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             reply.removeWhiteSpace();
             lastvirusname = lastvirusname + " " + reply.after("322-").before(" ");
             try {
-                rc = stripedsocks.getLine(buff, 4096, o.content_scanner_timeout);
+                rc = stripedsocks.getLine(buff, 4096, o.content.content_scanner_timeout);
             } catch (std::exception &e) {
                 delete[] buff;
                 stripedsocks.close();
