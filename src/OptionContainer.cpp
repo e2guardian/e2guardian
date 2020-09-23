@@ -49,8 +49,8 @@ void OptionContainer::reset() {
     //banned_ip_list.reset();
     language_list.reset();
     conffile.clear();
-    filter_ip.clear();
-    filter_ports.clear();
+    net.filter_ip.clear();
+    net.filter_ports.clear();
     auth_map.clear();
 }
 
@@ -153,7 +153,7 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if (!findDStatOptions()) return false;
         if (!findCertificateOptions()) return false;
-
+        if (!findNetworkOptions()) return false;
 
         if (findoptionS("nodaemon") == "on") {
             no_daemon = true;
@@ -187,15 +187,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             monitor_helper_flag = true;
         }
 
-        server_name = findoptionS("servername");
-        if (server_name == "") {
-            char sysname[256];
-            int r;
-            r = gethostname(sysname, 256);
-            if (r == 0) {
-                server_name = sysname;
-            }
-        }
 
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
@@ -204,42 +195,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
-        connect_timeout_sec = findoptionI("connecttimeout");
-        if (connect_timeout_sec == 0)
-            connect_timeout_sec = 5;
-        if (!realitycheck(connect_timeout_sec, 1, 100, "connecttimeout")) {
-            return false;
-        } // check its a reasonable value
-        connect_timeout = connect_timeout_sec * 1000;
-
-        connect_retries = findoptionI("connectretries");
-        if (connect_retries == 0)
-            connect_retries = 1;
-        if (!realitycheck(connect_retries, 1, 100, "connectretries")) {
-            return false;
-        } // check its a reasonable value
-
-
-        proxy_timeout_sec = findoptionI("proxytimeout");
-        if (proxy_timeout_sec == 0) proxy_timeout_sec = 55;
-        if (!realitycheck(proxy_timeout_sec, 5, 100, "proxytimeout")) {
-            return false;
-        } // check its a reasonable value
-        proxy_timeout = proxy_timeout_sec * 1000;
-
-        pcon_timeout_sec = findoptionI("pcontimeout");
-        if (pcon_timeout_sec == 0) pcon_timeout_sec = 55;
-        if (!realitycheck(pcon_timeout_sec, 5, 300, "pcontimeout")) {
-            return false;
-        } // check its a reasonable value
-        pcon_timeout = pcon_timeout_sec * 1000;
-
-        exchange_timeout_sec = findoptionI("proxyexchange");
-        if (exchange_timeout_sec == 0) exchange_timeout_sec = 61;
-        if (!realitycheck(exchange_timeout_sec, 5, 300, "proxyexchange")) {
-            return false;
-        }
-        exchange_timeout = exchange_timeout_sec * 1000;
 
         if (findoptionS("httpworkers").empty()) {
             http_workers = 500;
@@ -342,8 +297,8 @@ bool OptionContainer::read(std::string &filename, int type) {
             if (content_scanner_timeout_sec > 0)
                 content_scanner_timeout = content_scanner_timeout_sec * 1000;
             else {
-                content_scanner_timeout = pcon_timeout;
-                content_scanner_timeout_sec = pcon_timeout_sec;
+                content_scanner_timeout = net.pcon_timeout;
+                content_scanner_timeout_sec = net.pcon_timeout_sec;
             }
 
         }
@@ -384,17 +339,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             force_quick_search = false;
         }
 
-        if (findoptionS("mapportstoips") == "on") {  // to be removed in v5.5
-            map_ports_to_ips = true;
-        } else {
-            map_ports_to_ips = false;
-        }
-
-        if (findoptionS("mapauthtoports") == "on") {  // to be removed in v5.5
-            map_auth_to_ports = true;
-        } else {
-            map_auth_to_ports = false;
-        }
 
         if (findoptionS("usecustombannedimage") == "off") {
             use_custom_banned_image = false;
@@ -421,11 +365,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             banned_flash.read(custom_banned_flash_file.c_str());
         }
 
-        proxy_ip = findoptionS("proxyip");
-        if (proxy_ip == "")
-            no_proxy = true;
-        else
-            no_proxy = false;
 
         if (!no_proxy) {
             proxy_port = findoptionI("proxyport");
@@ -588,7 +527,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             use_xforwardedfor = false;
         }
 
-        xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
         filter_groups = findoptionI("filtergroups");
         if (filter_groups == 0) filter_groups = 1;
@@ -698,8 +636,8 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         // check if same number of auth-plugin as ports if in
         //     authmaptoport mode
-        if (map_auth_to_ports && (filter_ports.size() > 1)
-            && (filter_ports.size() != authplugins.size())) {
+        if (net.map_auth_to_ports && (net.filter_ports.size() > 1)
+            && (net.filter_ports.size() != authplugins.size())) {
             E2LOGGER_error("In mapauthtoports mode you need to setup one port per auth plugin");
             return false;
         }
@@ -709,14 +647,14 @@ bool OptionContainer::read(std::string &filename, int type) {
             AuthPlugin *tmpPlugin = (AuthPlugin *) authplugins[i];
             String tmpStr = tmpPlugin->getPluginName();
 
-            if ((!map_auth_to_ports) || filter_ports.size() == 1)
+            if ((!net.map_auth_to_ports) || net.filter_ports.size() == 1)
                 auth_map[i] = tmpStr;
             else
-                auth_map[filter_ports[i].toInteger()] = tmpStr;
+                auth_map[net.filter_ports[i].toInteger()] = tmpStr;
         }
 
         // if the more than one port is being used, validate the combination of auth plugins
-        if (authplugins.size() > 1 and filter_ports.size() > 1 and map_auth_to_ports) {
+        if (authplugins.size() > 1 and net.filter_ports.size() > 1 and net.map_auth_to_ports) {
             std::deque<Plugin *>::iterator it = authplugins.begin();
             String firstPlugin;
             while (it != authplugins.end()) {
@@ -1076,6 +1014,87 @@ bool OptionContainer::findAccessLogOptions()
         log.logid_2 = "-";
 
     return true;
+}
+
+bool OptionContainer::findNetworkOptions()
+{
+    net.server_name = findoptionS("servername");
+    if (net.server_name == "") {
+        char sysname[256];
+        int r;
+        r = gethostname(sysname, 256);
+        if (r == 0) {
+            net.server_name = sysname;
+        }
+    }
+
+    net.connect_timeout_sec = realitycheckWithDefault("connecttimeout", 1, 100, 5);
+    net.connect_timeout = net.connect_timeout_sec * 1000;
+
+    net.connect_retries = realitycheckWithDefault("connectretries", 1, 100, 1);
+
+    net.proxy_ip = findoptionS("proxyip");
+    if (!net.no_proxy) {
+        net.proxy_port = realitycheckWithDefault("proxyport", 1, 65535, 3128);
+    }
+
+    net.proxy_timeout_sec = realitycheckWithDefault("proxytimeout", 5, 100, 55);
+    net.proxy_timeout = net.proxy_timeout_sec * 1000;
+
+    net.pcon_timeout_sec = realitycheckWithDefault("pcontimeout", 5, 300, 55);
+    net.pcon_timeout = net.pcon_timeout_sec * 1000;
+
+    net.exchange_timeout_sec = realitycheckWithDefault("proxyexchange", 5, 300, 61);
+    net.exchange_timeout = net.exchange_timeout_sec * 1000;
+
+    net.map_ports_to_ips = (findoptionS("mapportstoips") == "on");    // to be removed in v5.5
+    net.map_auth_to_ports = (findoptionS("mapauthtoports") == "on");  // to be removed in v5.5
+
+    // multiple listen IP support
+    net.filter_ip = findoptionM("filterip");
+    if (net.filter_ip.empty()) 
+        net.filter_ip.push_back("");
+    if (net.filter_ip.size() > 127) {
+        E2LOGGER_error("Can not listen on more than 127 IPs");
+        return false;
+    }
+    // multiple check IP support - used for loop checking
+    net.check_ip = findoptionM("checkip");
+    if (net.check_ip.size() > 127) {
+        E2LOGGER_error("Can not check on more than 127 IPs");
+        return false;
+    }
+    if (net.check_ip.empty()) {
+        net.check_ip.push_back("127.0.0.1");
+    }
+
+    net.filter_ports = findoptionM("filterports");
+    if (net.filter_ports.empty())
+        net.filter_ports.push_back("8080");
+    if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
+        E2LOGGER_error("filterports (", net.filter_ports.size(), ") must match number of filterips (", net.filter_ip.size(),
+                        ")");
+        return false;
+    }
+    net.filter_port = net.filter_ports[0].toInteger();
+    if (!realitycheck(net.filter_port, 1, 65535, "filterport[0]")) {
+        return false;
+    }
+
+    net.transparenthttps_port = findoptionI("transparenthttpsport");
+    if (!realitycheck(net.transparenthttps_port, 0, 65535, "transparenthttpsport")) {
+        return false;
+    }
+
+    net.icap_port = findoptionI("icapport");
+    if (!realitycheck(net.icap_port, 0, 65535, "icapport")) {
+        return false;
+    }
+
+    net.xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
+
+    return true;
+
 }
 
 bool OptionContainer::findDStatOptions()

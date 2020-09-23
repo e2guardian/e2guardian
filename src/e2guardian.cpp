@@ -272,10 +272,10 @@ int startDaemon()
 
     // calc the number of listening processes
     int no_listen_fds;
-    if (o.map_ports_to_ips) {
-        no_listen_fds = o.filter_ip.size();
+    if (o.net.map_ports_to_ips) {
+        no_listen_fds = o.net.filter_ip.size();
     } else {
-        no_listen_fds = o.filter_ports.size() * o.filter_ip.size();
+        no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
     }
 
     struct rlimit rlim;

@@ -653,17 +653,17 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         }
 
-        if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
+        if((o.net.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
             E2LOGGER_error("Required storyboard entry function 'thttps-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
             E2LOGGER_error("Required storyboard entry function 'icap-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
             E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
             return false;
         }
@@ -671,12 +671,12 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         } // precompiled reg exps for speed
 
-    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
            E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
            return false;
-    }
+        }
 
-    if (o.dm_entry_dq.size() > 0)  {
+        if (o.dm_entry_dq.size() > 0)  {
             for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
                 if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
                     E2LOGGER_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
@@ -684,9 +684,9 @@ bool FOptionContainer::read(const char *filename) {
             }
         }
     
-    if (!precompileregexps()) {
-        return false;
-    } // precompiled reg exps for speed
+        if (!precompileregexps()) {
+            return false;
+        } // precompiled reg exps for speed
 
         cgi_bypass = (findoptionS("cgibypass")== "on" );
         cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");

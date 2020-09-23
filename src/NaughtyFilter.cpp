@@ -176,7 +176,7 @@ void NaughtyFilter::reset()
     urlredirect = false;
     logcategory = false;
     upfailure = false;
-    isdirect = o.no_proxy;  // always set if no proxy defined
+    isdirect = o.net.no_proxy;  // always set if no proxy defined
     //            authed = false;
     //            isbanneduser = false;
     mimetype = "-";

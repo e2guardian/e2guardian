@@ -403,7 +403,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     int lerr_mess = 0;
     int retry = -1;
     bool may_be_loop = false;
-    for (auto it = o.filter_ports.begin(); it != o.filter_ports.end(); it++) {
+    for (auto it = o.net.filter_ports.begin(); it != o.net.filter_ports.end(); it++) {
         if (*it == sport) {
             may_be_loop = true;
             break;
@@ -411,7 +411,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     }
     DEBUG_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
 
-    while (++retry < o.connect_retries) {
+    while (++retry < o.net.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
             if (o.logconerror)
@@ -430,8 +430,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             if(des_ip.length() > 0) {
                 if (may_be_loop) {  // check check_ip list
                     bool do_break = false;
-                    if (o.check_ip.size() > 0) {
-                        for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                    if (o.net.check_ip.size() > 0) {
+                        for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                             if (*it == des_ip) {
                                 do_break = true;
                                 lerr_mess = 212;
@@ -443,7 +443,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     may_be_loop = false;
                 }
 
-                sock.setTimeout(o.connect_timeout);
+                sock.setTimeout(o.net.connect_timeout);
 
                 DEBUG_debug("Connecting to IP ", des_ip, " port ", String(port));
 
@@ -501,8 +501,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
                     if (may_be_loop) {  // check check_ip list
                         bool do_break = false;
-                        if (o.check_ip.size() > 0) {
-                            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                        if (o.net.check_ip.size() > 0) {
+                            for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                                 if (*it == t) {
                                     do_break = true;
                                     lerr_mess = 212;
@@ -528,8 +528,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                 continue;
             }
         } else {  //is via proxy
-            sock.setTimeout(o.proxy_timeout);
-            int rc = sock.connect(o.proxy_ip, o.proxy_port);
+            sock.setTimeout(o.net.proxy_timeout);
+            int rc = sock.connect(o.net.proxy_ip, o.net.proxy_port);
             if (rc < 0) {
                 if (sock.isTimedout())
                     lerr_mess = 201;
@@ -605,8 +605,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     // set a timeout as we don't want blocking 4 eva
     // this also sets how long a peerconn will wait for other requests
-    header.setTimeout(o.pcon_timeout);
-    docheader.setTimeout(o.exchange_timeout);
+    header.setTimeout(o.net.pcon_timeout);
+    docheader.setTimeout(o.net.exchange_timeout);
 
 
     //int bypasstimestamp = 0;
@@ -702,7 +702,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             NaughtyFilter checkme(header, docheader, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
-            docbody.setTimeout(o.exchange_timeout);
+            docbody.setTimeout(o.net.exchange_timeout);
             FDTunnel fdt;
 
             if (firsttime) {
@@ -798,7 +798,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             persistOutgoing = header.isPersistent();
             // now check if in input proxy mode and direct upstream if upstream needs closing
             if (persistProxy && last_isdirect &&
-            ((last_domain_port != checkme.urldomainport)|| !o.no_proxy)) {
+            ((last_domain_port != checkme.urldomainport)|| !o.net.no_proxy)) {
                 proxysock.close();
                 persistProxy = false;
             }
@@ -824,10 +824,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             if (!ismitm && o.use_xforwardedfor) {
                 bool use_xforwardedfor;
-                if (o.xforwardedfor_filter_ip.size() > 0) {
+                if (o.net.xforwardedfor_filter_ip.size() > 0) {
                     use_xforwardedfor = false;
-                    for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                        if (strcmp(clientip.c_str(), o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+                    for (unsigned int i = 0; i < o.net.xforwardedfor_filter_ip.size(); i++) {
+                        if (strcmp(clientip.c_str(), o.net.xforwardedfor_filter_ip[i].c_str()) == 0) {
                             use_xforwardedfor = true;
                             break;
                         }
@@ -991,7 +991,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 temp += PACKAGE_VERSION;
                 temp += "<br>";
                 temp += "Server: ";
-                temp += o.server_name;
+                temp += o.net.server_name;
                 temp += "<br>";
                 peerconn.writeString(temp);
                 peerconn.writeString("</BODY></HTML>\n");
@@ -1052,7 +1052,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (checkme.isdirect) {
                 header.setDirect();
                 last_isdirect = true;
-                if(!o.no_proxy) {    // we are in mixed mode proxy and direct
+                if(!o.net.no_proxy) {    // we are in mixed mode proxy and direct
                     if(persistProxy) {  // if upstream socket is open close it
                         proxysock.close();
                         persistProxy = false;
@@ -1144,7 +1144,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
                 if (!checkme.upfailure) {
-                    if (!proxysock.readyForOutput(o.proxy_timeout)) {
+                    if (!proxysock.readyForOutput(o.net.proxy_timeout)) {
                         upstreamDiag("Unable to write upstream", proxysock);
                         break;
                     }
@@ -2068,7 +2068,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
     // we blocked the request, so flush the client connection & close the proxy connection.
     if ((*checkme).isItNaughty) {
-        (*peerconn).readyForOutput(o.proxy_timeout); //as best a flush as I can
+        (*peerconn).readyForOutput(o.net.proxy_timeout); //as best a flush as I can
         (*proxysock).close(); // close connection to proxy
         // we said no to the request, so return true, indicating exit the connhandler
         return true;
@@ -2286,7 +2286,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     //somewhere to hold the header from the proxy
     HTTPHeader header(__HEADER_RESPONSE);
     //header.setTimeout(o.pcon_timeout);
-    header.setTimeout(o.proxy_timeout);
+    header.setTimeout(o.net.proxy_timeout);
 
     if (!(sock->writeString(connect_request.c_str()) && header.in(sock, true))) {
 
@@ -3019,7 +3019,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
 
     X509 *cert = NULL;
     struct ca_serial caser;
@@ -3502,7 +3502,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
 
     std::string clientip(ip.toCharArray()); // hold the ICAP clients ip
 
@@ -3539,7 +3539,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
-            docbody.setTimeout(o.exchange_timeout);
+            docbody.setTimeout(o.net.exchange_timeout);
             docbody.setICAP(true);
             FDTunnel fdt;
             String wline = "";

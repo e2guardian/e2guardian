@@ -567,7 +567,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         String server("");
         // Get server name - only needed for formats 5 & 7
         if ((o.log.log_file_format == 5) || (o.log.log_file_format == 7)) {
-            server = o.server_name;
+            server = o.net.server_name;
         }
 
         std::string exception_word = o.language_list.getTranslation(51);
@@ -909,7 +909,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                         }
                     }
                     hier = "DEFAULT_PARENT/";
-                    hier += o.proxy_ip;
+                    hier += o.net.proxy_ip;
                     builtline =
                             utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " +
                             hitmiss +
@@ -1284,9 +1284,9 @@ int fc_controlit()   //
 
     int serversocktopproxy = serversocketcount;
 
-    if (o.transparenthttps_port > 0)
+    if (o.net.transparenthttps_port > 0)
         ++serversocketcount;
-    if (o.icap_port > 0)
+    if (o.net.icap_port > 0)
         ++serversocketcount;
 
     serversockets.reset(serversocketcount);
@@ -1350,8 +1350,8 @@ int fc_controlit()   //
         }
     }
 
-    if (o.transparenthttps_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy++, o.transparenthttps_port, CT_THTTPS)) {
+    if (o.net.transparenthttps_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy++, o.net.transparenthttps_port, CT_THTTPS)) {
             E2LOGGER_error("Error binding server thttps socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -1359,8 +1359,8 @@ int fc_controlit()   //
         }
     };
 
-    if (o.icap_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy, o.icap_port, CT_ICAP)) {
+    if (o.net.icap_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy, o.net.icap_port, CT_ICAP)) {
             E2LOGGER_error("Error binding server icap socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
