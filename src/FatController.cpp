@@ -316,7 +316,7 @@ bool drop_priv_completely() {
 
 // Fork ourselves off into the background
 bool daemonise() {
-    if (o.no_daemon) {
+    if (o.proc.no_daemon) {
         return true;
     }
 #ifdef DEBUG_LOW

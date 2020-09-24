@@ -45,7 +45,7 @@ class LOptionContainer
 
     // all our options
 
-    std::string name_suffix;
+    std::string name_suffix;   // Unused ???
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;

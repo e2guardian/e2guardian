@@ -158,16 +158,8 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findContentScannerOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
-        no_daemon =  (findoptionS("nodaemon") == "on");
 
-        if (findoptionS("dockermode") == "on") {
-            no_daemon = true;
-            e2logger.setDockerMode();
-        } else {
-            no_daemon = false;
-        }
-
-        soft_restart = (findoptionS("softrestart") == "on");
+        // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
 
 #ifdef ENABLE_EMAIL
@@ -367,11 +359,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         } else {
             reverse_lookups = false;
         }
-        if (findoptionS("reverseclientiplookups") == "on") {
-            reverse_client_ip_lookups = true;
-        } else {
-            reverse_client_ip_lookups = false;
-        }
 
         if (findoptionS("recheckreplacedurls") == "on") {
             recheck_replaced_urls = true;
@@ -434,13 +421,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-        debug_format = findoptionI("debugformat");
-        if (debug_format == 0)
-            debug_format = 1;
-        {
-            LoggerConfigurator lc(&e2logger);
-            lc.debugformat(debug_format);
-        }
 
         storyboard_location = findoptionS("preauthstoryboard");
         if (storyboard_location.empty()) {
@@ -742,6 +722,7 @@ bool OptionContainer::findConnectionHandlerOptions()
     }
 
     conn.use_original_ip_port = (findoptionS("useoriginalip") != "off");
+    conn.reverse_client_ip_lookups = (findoptionS("reverseclientiplookups") == "on");
 
     return true;
 }
@@ -842,6 +823,9 @@ bool OptionContainer::findLoggerOptions()
             }
     }
 
+    log.debug_format = realitycheckWithDefault("debugformat", 1, 6, 1);
+    loggerConf.debugformat(log.debug_format);
+
     if (findoptionS("tag_logs") == "on") {
         e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
         e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
@@ -925,7 +909,7 @@ bool OptionContainer::findAccessLogOptions()
     log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
 
     log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
-    reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
+    conn.reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
 
     log.logid_1 = findoptionS("logid1");
     if (log.logid_1.empty())

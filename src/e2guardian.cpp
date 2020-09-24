@@ -113,8 +113,8 @@ int main(int argc,char *argv[])
         e2logger.enable(LoggerSource::story);
     }
 
-    if ( ! o.name_suffix.empty() ) {
-        e2logger.setSyslogName(o.config.prog_name + o.name_suffix);
+    if ( ! o.log.name_suffix.empty() ) {
+        e2logger.setSyslogName(o.config.prog_name + o.log.name_suffix);
     }
 
     if (o.config.total_block_list && !o.readinStdin()) {

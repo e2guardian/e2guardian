@@ -848,7 +848,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.clientip = clientip;
 
             // Look up reverse DNS name of client if needed
-            if (o.reverse_client_ip_lookups) {
+            if (o.conn.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(),checkme.clienthost);
            //     std::unique_ptr<std::deque<String> > hostnames;
            //     hostnames.reset(ipToHostname(clientip.c_str()));
@@ -3216,7 +3216,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
 
 
             // Look up reverse DNS name of client if needed
-            if (o.reverse_client_ip_lookups) {
+            if (o.conn.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
             }
 
@@ -3799,7 +3799,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.clientip = clientip;
 
     // Look up reverse DNS name of client if needed
-    if (o.reverse_client_ip_lookups) {
+    if (o.conn.reverse_client_ip_lookups) {
         getClientFromIP(clientip.c_str(),checkme.clienthost);
         //     std::unique_ptr<std::deque<String> > hostnames;
         //     hostnames.reset(ipToHostname(clientip.c_str()));
@@ -4061,7 +4061,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         doRQLog(clientuser, clientip, checkme, fnt);
     }
     // Look up reverse DNS name of client if needed
-    if (o.reverse_client_ip_lookups) {
+    if (o.conn.reverse_client_ip_lookups) {
         getClientFromIP(clientip.c_str(), checkme.clienthost);
     }
 

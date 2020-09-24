@@ -46,6 +46,8 @@ struct LogOptions
     int log_level = 0;
     int log_file_format = 0;
     int log_exception_hits = 0;
+    int debug_format = 1;
+
     bool log_client_hostnames = false;
     bool log_client_host_and_ip = false;  // TODO: unused ???
     bool anonymise_logs = false;
@@ -64,6 +66,8 @@ struct LogOptions
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
+
+    std::string name_suffix;    // for SyslogName, where configured ??
 
 };
 
@@ -178,6 +182,9 @@ struct ConnectionHandlerOptions {
 
     bool use_original_ip_port = false;   // only for transparent and no upstream proxy
     bool logconerror = false;
+
+    bool reverse_client_ip_lookups = false;
+
 };
 
 struct ContentScannerOptions {
@@ -223,13 +230,11 @@ class OptionContainer
     // all our many, many options
     int filter_groups = 0;
     bool config_error = false;
-    bool non_standard_delimiter;
-    int debug_format = 1;
+    //bool non_standard_delimiter;  // unused, but in FOptionContainer
     std::string ident_header_value;
     bool forwarded_for = false;
 
     bool reverse_lookups = false;
-    bool reverse_client_ip_lookups = false;
     bool use_xforwardedfor = false;
     bool log_ssl_errors = false;
     int url_cache_number = 0;
@@ -278,11 +283,7 @@ class OptionContainer
     std::string internal_test_url;
     std::string internal_status_url;
 
-    bool no_daemon = false;
- //  bool no_logger = false;
- //   bool log_syslog = false;
-    std::string name_suffix;
-    bool soft_restart = false;
+    //bool soft_restart = false;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
