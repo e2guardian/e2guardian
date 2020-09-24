@@ -919,7 +919,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
    //     if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
     //        plogheadervalue = &(*i);
      //   }
-        if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+        if ((o.header.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.header.ident_header_value)) {
             pheaderident = &(*i);
         }
 
@@ -1650,7 +1650,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         }
 
     }
-    if (!is_response && o.forwarded_for && !isdirect)  {
+    if (!is_response && o.header.forwarded_for && !isdirect)  {
         std::string line("X-Forwarded-For: ");
         line.append(s_clientip).append("\r\n");
         DEBUG_debug("Adding Header: ", line);
@@ -1812,7 +1812,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > o.header.max_header_lines) {
     	    E2LOGGER_error("header:size too big: %lu, see maxheaderlines", header.size());
 	        dbshowheader(false);
             ispersistent = false;

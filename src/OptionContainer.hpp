@@ -99,6 +99,14 @@ struct DStatOptions
     int dstat_interval = 300;
 };
 
+struct HTTPHeaderOptions 
+{
+    std::string ident_header_value;
+    bool forwarded_for = false;
+    unsigned int max_header_lines = 0;
+
+};
+
 struct NetworkOptions
 {
     std::string server_name;
@@ -213,6 +221,7 @@ class OptionContainer
     ConnectionHandlerOptions  conn;
     ContentScannerOptions content;
     DStatOptions          dstat;
+    HTTPHeaderOptions     header;
     ListsOptions          lists;
     LogOptions            log;
     NaughtyOptions        naughty;
@@ -231,15 +240,12 @@ class OptionContainer
     int filter_groups = 0;
     bool config_error = false;
     //bool non_standard_delimiter;  // unused, but in FOptionContainer
-    std::string ident_header_value;
-    bool forwarded_for = false;
 
     bool reverse_lookups = false;
     bool use_xforwardedfor = false;
     bool log_ssl_errors = false;
-    int url_cache_number = 0;
-    int url_cache_age = 0;
-    unsigned int max_header_lines = 0;
+    int url_cache_number = 0;       // unused ??
+    int url_cache_age = 0;          // unused ??
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
@@ -378,6 +384,7 @@ class OptionContainer
     bool findConnectionHandlerOptions();
     bool findContentScannerOptions();
     bool findDStatOptions();
+    bool findHeaderOptions();
     bool findLoggerOptions();
     bool findNaughtyOptions();
     bool findNetworkOptions();

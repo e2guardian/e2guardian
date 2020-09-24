@@ -156,6 +156,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findNetworkOptions()) return false;
         if (!findConnectionHandlerOptions()) return false;
         if (!findContentScannerOptions()) return false;
+        if (!findHeaderOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
 
@@ -167,12 +168,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         mailer = findoptionS("mailer");
 #endif
 
-        max_header_lines = findoptionI("maxheaderlines");
-        if (max_header_lines == 0)
-            max_header_lines = 50;
-        if (!realitycheck(max_header_lines, 10, 250, "maxheaderlines")) {
-            return false;
-        }
 
 
         if (findoptionS("httpworkers").empty()) {
@@ -338,14 +333,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         languagepath += "/";
         languagepath += findoptionS("language") + "/";
 
-        if (findoptionS("forwardedfor") == "on") {
-            forwarded_for = true;
-        } else {
-            forwarded_for = false;
-        }
-        if (findoptionS("addforwardedfor") == "on") {
-            forwarded_for = true;
-        }
 
 
         if (findoptionS("logsslerrors") == "on") {
@@ -919,6 +906,17 @@ bool OptionContainer::findAccessLogOptions()
         log.logid_2 = "-";
 
     return true;
+}
+
+bool OptionContainer::findHeaderOptions()
+{
+    header.forwarded_for = (findoptionS("forwardedfor") == "on");
+    if (findoptionS("addforwardedfor") == "on") {
+        header.forwarded_for = true;
+    }
+
+    header.max_header_lines = realitycheckWithDefault("maxheaderlines", 10, 250, 50);
+
 }
 
 bool OptionContainer::findNaughtyOptions()

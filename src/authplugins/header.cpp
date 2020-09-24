@@ -29,7 +29,7 @@ class headerinstance : public AuthPlugin
         : AuthPlugin(definition)
     {
     	String fname(cv["header"]);
-	    o.ident_header_value = fname;
+	    o.header.ident_header_value = fname;
         needs_proxy_query = true;
         client_ip_based = false;
     };

@@ -523,7 +523,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > o.header.max_header_lines) {
             DEBUG_icap("ICAP header:size too big =  ", header.size() );
 	        E2LOGGER_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
