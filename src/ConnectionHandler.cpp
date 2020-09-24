@@ -1784,7 +1784,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
                 bool replaceflash = false;
-                if (o.conn.use_custom_banned_image) {
+                if (o.block.use_custom_banned_image) {
 
                     // It would be much nicer to do a mime comparison
                     // and see if the type is image/* but the header
@@ -1803,7 +1803,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                 }
 
-                if (o.conn.use_custom_banned_flash) {
+                if (o.block.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".swf") ||
@@ -1818,12 +1818,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.conn.banned_image.display_hb(eheader, ebody);
+                    o.block.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.conn.banned_flash.display_hb(eheader, ebody);
+                    o.block.banned_flash.display_hb(eheader, ebody);
                 } else {
                     // advanced ad blocking - if category contains ADs, wrap ad up in an "ad blocked" message,
                     // which provides a link to the original URL if you really want it. primarily

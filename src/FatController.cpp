@@ -422,6 +422,8 @@ void handle_connections(int tindex) {
 // *
 // *
 
+
+#ifdef REMOVE_IN_55
 void tell_monitor(bool active) //may not be needed
 {
 
@@ -473,6 +475,7 @@ void tell_monitor(bool active) //may not be needed
         };
     };
 };
+#endif
 
 #ifdef NOTDEF
 void wait_for_proxy()
@@ -1534,9 +1537,9 @@ int fc_controlit()   //
     if (is_starting) {
         if (o.monitor_flag_flag)
             monitor_flag_set(true);
-        if (o.monitor_helper_flag) {
-            tell_monitor(true);
-        }
+        // if (o.monitor_helper_flag) {
+        //     tell_monitor(true);
+        // }
         is_starting = false;
     }
 
@@ -1653,8 +1656,8 @@ int fc_controlit()   //
 
     if (o.monitor_flag_flag)
         monitor_flag_set(false);
-    if (o.monitor_helper_flag)
-        tell_monitor(false); // tell monitor that we are not accepting any more connections
+    // if (o.monitor_helper_flag)
+    //     tell_monitor(false); // tell monitor that we are not accepting any more connections
 
     if (o.conn.logconerror) {
         E2LOGGER_info("sending null socket to http_workers to stop them");

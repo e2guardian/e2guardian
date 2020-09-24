@@ -369,7 +369,7 @@ bool FOptionContainer::read(const char *filename) {
 #endif
         // override default reporting level
         if (findoptionS("reportinglevel").empty()) {   //uses value from e2guardian.conf if empty
-            reporting_level = o.reporting_level;
+            reporting_level = o.block.reporting_level;
         } else {
             reporting_level = findoptionI("reportinglevel");
             if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
@@ -430,14 +430,14 @@ bool FOptionContainer::read(const char *filename) {
             // override default banned page
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
-                html_template = o.languagepath + html_template;
+                html_template = o.block.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
-                html_template = o.languagepath + "template.html";
+                html_template = o.block.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
@@ -447,7 +447,7 @@ bool FOptionContainer::read(const char *filename) {
 
             String neterr_template(findoptionS("neterrtemplate"));
             if (neterr_template != "") {
-                neterr_template = o.languagepath + neterr_template;
+                neterr_template = o.block.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
@@ -455,7 +455,7 @@ bool FOptionContainer::read(const char *filename) {
                     // HTML template file
                 }
             } else {  // if blank will default to HTML template file
-                neterr_template = o.languagepath + "neterr_template.html";
+                neterr_template = o.block.languagepath + "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);

@@ -28,6 +28,20 @@
 
 
 // DECLARATIONS
+struct BlockPageOptions
+{
+    int reporting_level = 0;
+    std::string languagepath;
+
+    bool use_custom_banned_image = false;
+    std::string custom_banned_image_file;
+    ImageContainer banned_image;
+
+    bool use_custom_banned_flash = false;
+    std::string custom_banned_flash_file;
+    ImageContainer banned_flash;
+
+};
 struct CertificateOptions
 {
     bool enable_ssl = false;
@@ -56,13 +70,6 @@ struct ConfigOptions
     bool total_block_list = false;
 };
 struct ConnectionHandlerOptions {
-    bool use_custom_banned_image = false;
-    std::string custom_banned_image_file;
-    ImageContainer banned_image;
-
-    bool use_custom_banned_flash = false;
-    std::string custom_banned_flash_file;
-    ImageContainer banned_flash;
 
     bool use_original_ip_port = false;   // only for transparent and no upstream proxy
     bool logconerror = false;
@@ -221,6 +228,7 @@ struct ProcessOptions
 class OptionContainer
 {
     public:
+    BlockPageOptions      block;
     CertificateOptions    cert;
     ConfigOptions         config;
     ConnectionHandlerOptions  conn;
@@ -276,13 +284,12 @@ class OptionContainer
     bool auth_requires_user_and_group = false;
     bool auth_needs_proxy_in_plugin = false;
 
-    std::string languagepath;
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
     std::string blocked_content_store;
-    std::string monitor_helper;
-    bool monitor_helper_flag = false;
+    // std::string monitor_helper;
+    // bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag = false;
 
@@ -360,7 +367,7 @@ class OptionContainer
     std::string conffilename;
  //   std::string html_template_location;
     // std::string group_names_list_location;
-    int reporting_level = 0;
+    
 
     private:
     std::deque<std::string> conffile;
@@ -376,6 +383,7 @@ class OptionContainer
     long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
     bool findAccessLogOptions();
+    bool findBlockPageOptions();
     bool findCertificateOptions();
     bool findConnectionHandlerOptions();
     bool findContentScannerOptions();

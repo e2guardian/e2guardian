@@ -101,7 +101,7 @@ int fancydm::init(void *args)
     String fname(cv["template"]);
     if (fname.length() > 0) {
         // read the template file, and return OK on success, error on failure.
-        fname = o.languagepath + fname;
+        fname = o.block.languagepath + fname;
         return progresspage.readTemplateFile(fname.toCharArray(), "-FILENAME-|-FILESIZE-|-SERVERIP-") ? 0 : -1;
     } else {
         // eek! there's no template option in our config.

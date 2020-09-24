@@ -180,12 +180,13 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         } // check its a reasonable value
 
-        monitor_helper = findoptionS("monitorhelper");
-        if (monitor_helper == "") {
-            monitor_helper_flag = false;
-        } else {
-            monitor_helper_flag = true;
-        }
+        // to remove in v5.5
+        // monitor_helper = findoptionS("monitorhelper");
+        // if (monitor_helper == "") {
+        //     monitor_helper_flag = false;
+        // } else {
+        //     monitor_helper_flag = true;
+        // }
 
         monitor_flag_prefix = findoptionS("monitorflagprefix");
         if (monitor_flag_prefix == "") {
@@ -317,22 +318,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             prod_id.assign("2");
 #endif
 
-        if (findoptionS("reportinglevel").empty()) {
-            reporting_level = 3;
-        } else {
-            reporting_level = findoptionI("reportinglevel");
-        }
-        if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
-            return false;
-        }
-        String t = findoptionS("languagedir") + "/";
-        if (t == "/") {
-            t = __DATADIR;
-            t += "/languages";
-        }
-        languagepath = t;
-        languagepath += "/";
-        languagepath += findoptionS("language") + "/";
 
 
 
@@ -469,7 +454,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     use_group_names_list = true;
         // }
 
-        std::string language_list_location(languagepath + "messages");
+        std::string language_list_location(block.languagepath + "messages");
 
         iplist_dq = findoptionM("iplist");
         sitelist_dq = findoptionM("sitelist");
@@ -564,6 +549,44 @@ bool OptionContainer::readinStdin() {
     return true;
 }
 
+bool OptionContainer::findBlockPageOptions()
+{
+    String t = findoptionS("languagedir") + "/";
+    if (t == "/") {
+        t = __DATADIR;
+        t += "/languages";
+    }
+    block.languagepath = t + "/" + findoptionS("language") + "/";
+
+    block.reporting_level = realitycheckWithDefault("reportinglevel", -1, 3, 3);
+
+    if (findoptionS("usecustombannedimage") == "off") {
+        block.use_custom_banned_image = false;
+    } else {
+        block.use_custom_banned_image = true;
+        block.custom_banned_image_file = findoptionS("custombannedimagefile");
+        if (block.custom_banned_image_file.empty()) {
+            block.custom_banned_image_file = __DATADIR;
+            block.custom_banned_image_file += "/transparent1x1.gif";
+        }
+        block.banned_image.read(block.custom_banned_image_file.c_str());
+    }
+
+    if (findoptionS("usecustombannedflash") == "off") {
+        block.use_custom_banned_flash = false;
+    } else {
+        block.use_custom_banned_flash = true;
+        block.custom_banned_flash_file = findoptionS("custombannedflashfile");
+
+        if (block.custom_banned_flash_file.empty()) {
+            block.custom_banned_flash_file = __DATADIR;
+            block.custom_banned_flash_file += "/blockedflash.swf";
+        }
+        block.banned_flash.read(block.custom_banned_flash_file.c_str());
+    }
+    return true;
+}
+
 bool OptionContainer::findCertificateOptions()
 {
     cert.ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
@@ -639,31 +662,6 @@ bool OptionContainer::findCertificateOptions()
 bool OptionContainer::findConnectionHandlerOptions()
 {
     conn.logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
-
-    if (findoptionS("usecustombannedimage") == "off") {
-        conn.use_custom_banned_image = false;
-    } else {
-        conn.use_custom_banned_image = true;
-        conn.custom_banned_image_file = findoptionS("custombannedimagefile");
-        if (conn.custom_banned_image_file.empty()) {
-            conn.custom_banned_image_file = __DATADIR;
-            conn.custom_banned_image_file += "/transparent1x1.gif";
-        }
-        conn.banned_image.read(conn.custom_banned_image_file.c_str());
-    }
-
-    if (findoptionS("usecustombannedflash") == "off") {
-        conn.use_custom_banned_flash = false;
-    } else {
-        conn.use_custom_banned_flash = true;
-        conn.custom_banned_flash_file = findoptionS("custombannedflashfile");
-
-        if (conn.custom_banned_flash_file.empty()) {
-            conn.custom_banned_flash_file = __DATADIR;
-            conn.custom_banned_flash_file += "/blockedflash.swf";
-        }
-        conn.banned_flash.read(conn.custom_banned_flash_file.c_str());
-    }
 
     conn.use_original_ip_port = (findoptionS("useoriginalip") != "off");
     conn.reverse_client_ip_lookups = (findoptionS("reverseclientiplookups") == "on");
@@ -882,6 +880,7 @@ bool OptionContainer::findFilterGroupOptions()
     filter.default_icap_fg--;
 
 }
+
 bool OptionContainer::findHeaderOptions()
 {
     header.forwarded_for = (findoptionS("forwardedfor") == "on");
