@@ -156,6 +156,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findNetworkOptions()) return false;
         if (!findConnectionHandlerOptions()) return false;
         if (!findContentScannerOptions()) return false;
+        if (!findFilterGroupOptions()) return false;
         if (!findHeaderOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
@@ -360,38 +361,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-        filter_groups = findoptionI("filtergroups");
-        if (filter_groups == 0) filter_groups = 1;
-
-        default_fg = findoptionI("defaultfiltergroup");
-        if (default_fg > 0) {
-            if (default_fg <= filter_groups) {
-                default_fg--;
-            } else {
-                E2LOGGER_error("defaultfiltergroup out of range");
-                return false;
-            }
-        }
-
-        default_trans_fg = findoptionI("defaulttransparentfiltergroup");
-        if (default_trans_fg > 0) {
-            if (default_trans_fg <= filter_groups) {
-                default_trans_fg--;
-            } else {
-                E2LOGGER_error("defaulttransparentfiltergroup out of range");
-                return false;
-            }
-        }
-
-        default_icap_fg = findoptionI("defaulticapfiltergroup");
-        if (default_icap_fg > 0) {
-            if (default_icap_fg <= filter_groups) {
-                default_icap_fg--;
-            } else {
-                E2LOGGER_error("defaulticapfiltergroup out of range");
-                return false;
-            }
-        }
 
         if (findoptionS("abortiflistmissing") == "on") {
             abort_on_missing_list = true;
@@ -419,13 +388,6 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         per_room_directory_location = findoptionS("perroomdirectory");
 
-        if (!realitycheck(filter_groups, 1, 0, "filtergroups")) {
-            return false;
-        }
-        if (filter_groups < 1) {
-            E2LOGGER_error("filtergroups too small");
-            return false;
-        }
 
         if ((internal_test_url = findoptionS("internaltesturl")).empty()) {
             internal_test_url = "internal.test.e2guardian.org";
@@ -498,12 +460,15 @@ bool OptionContainer::read(std::string &filename, int type) {
             }
         }
 
-        // if there's no auth enabled, we only need the first group's settings - THIS IS NO LONGER THE CASE TRANs, ICAP canbe set to different defaults
-        //if (authplugins.size() == 0)
-        //    filter_groups = 1;
-        numfg = filter_groups;
 
-        group_names_list_location = findoptionS("groupnamesfile");
+        // group_names_list_location = findoptionS("groupnamesfile"); // no longer supported
+        // if (group_names_list_location.length() == 0) {
+        //     use_group_names_list = false;
+        //     DEBUG_debug("Not using groupnameslist");
+        // } else {
+        //     use_group_names_list = true;
+        // }
+
         std::string language_list_location(languagepath + "messages");
 
         iplist_dq = findoptionM("iplist");
@@ -516,14 +481,6 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         if ((findoptionS("authrequiresuserande2roup") == "on") && (authplugins.size() > 1))
             auth_requires_user_and_group = true;
-
-        if (group_names_list_location.length() == 0) {
-            use_group_names_list = false;
-            DEBUG_debug("Not using groupnameslist");
-        } else {
-            use_group_names_list = true;
-        }
-
 
         if (!language_list.readLanguageList(language_list_location.c_str())) {
             return false;
@@ -908,6 +865,23 @@ bool OptionContainer::findAccessLogOptions()
     return true;
 }
 
+bool OptionContainer::findFilterGroupOptions()
+{
+    filter.filter_groups = findoptionI("filtergroups");
+    if (filter.filter_groups == 0) filter.filter_groups = 1;
+
+    filter.numfg = filter.filter_groups; 
+
+    filter.default_fg = realitycheckWithDefault("defaultfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_fg--;    // zero based index
+
+    filter.default_trans_fg = realitycheckWithDefault("defaulttransparentfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_trans_fg--;
+
+    filter.default_icap_fg = realitycheckWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_icap_fg--;
+
+}
 bool OptionContainer::findHeaderOptions()
 {
     header.forwarded_for = (findoptionS("forwardedfor") == "on");

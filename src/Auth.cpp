@@ -167,12 +167,12 @@ int AuthPlugin::get_default(bool is_transparent) {
 void AuthPlugin::read_def_fg() {
     String t = cv["defaultfiltergroup"];
     int i = t.toInteger();
-    if(i > 0 && i <= o.filter_groups) {
+    if(i > 0 && i <= o.filter.filter_groups) {
         default_fg = i;
     }
     t = cv["defaulttransparentfiltergroup"];
     i = t.toInteger();
-    if(i > 0 && i <= o.filter_groups) {
+    if(i > 0 && i <= o.filter.filter_groups) {
         tran_default_fg = i;
     }
 }

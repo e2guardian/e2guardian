@@ -903,13 +903,13 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!persistent_authed) {
                 bool only_ip_auth;
                 if (header.isProxyRequest) {
-                    filtergroup = o.default_fg;
+                    filtergroup = o.filter.default_fg;
                     SBauth.is_proxy = true;
                     if(!peerconn.down_thread_id.empty())
                         SBauth.is_tlsproxy = true;
                     only_ip_auth = false;
                 } else {
-                    filtergroup = o.default_trans_fg;
+                    filtergroup = o.filter.default_trans_fg;
                     SBauth.is_transparent = true;
                     only_ip_auth = true;
                 }
@@ -2794,7 +2794,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             return false;
         //break;
 
-        if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
+        if ((!authed) || (filtergroup < 0) || (filtergroup >= o.filter.numfg)) {
 #ifdef DEBUG_LOW
             if (!authed) {
                 DEBUG_auth(" -No identity found; using defaults");
@@ -3220,7 +3220,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
             }
 
-            filtergroup = o.default_trans_fg;
+            filtergroup = o.filter.default_trans_fg;
 
             //if(o.log_requests) {
             if (e2logger.isEnabled(LoggerSource::requestlog)) {

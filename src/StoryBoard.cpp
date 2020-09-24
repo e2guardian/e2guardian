@@ -775,7 +775,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     if (cm.result.size() > 0) {
                         int g = cm.result.toInteger();
-                        if (g > 0 && g <= o.numfg) {
+                        if (g > 0 && g <= o.filter.numfg) {
                             cm.filtergroup = --g;
                             cm.authrec->group_source = i->list_name;
                             action_return = true;

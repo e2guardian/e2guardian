@@ -128,7 +128,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
     reload_id = load_id;
     ++o.LC_cnt;
-    if (load_id == 0)    o.numfg = numfg;   // do this on first load only
+    if (load_id == 0)    o.filter.numfg = numfg;   // do this on first load only
 }
 
 
@@ -643,7 +643,7 @@ bool LOptionContainer::readFilterGroupConf()
             return false;
         }
     }
-    for (int i = 1; i <= o.filter_groups; i++) {
+    for (int i = 1; i <= o.filter.filter_groups; i++) {
         file = prefix;
         file += String(i);
         file += ".conf";

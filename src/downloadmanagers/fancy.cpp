@@ -129,7 +129,7 @@ bool fancydm::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
     if(!peersock.writeString("</body></html>\n")) return false;
     if (toobig_notdownloaded) {
         // add URL to clean cache (for all groups)
-        addToClean(prettyurl, o.filter_groups + 1);
+        addToClean(prettyurl, o.filter.filter_groups + 1);
     }
     return true;
 }

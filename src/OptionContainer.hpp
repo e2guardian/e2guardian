@@ -28,12 +28,95 @@
 
 
 // DECLARATIONS
+struct CertificateOptions
+{
+    bool enable_ssl = false;
+
+    std::string ssl_certificate_path;
+    std::string ca_certificate_path;
+    std::string ca_private_key_path;
+    std::string cert_private_key_path;
+    std::string generated_cert_path;
+    std::string generated_link_path;
+    std::string openssl_conf_path;
+    CertificateAuthority *ca;
+
+    time_t gen_cert_start, gen_cert_end;
+    bool use_openssl_conf = false;
+    bool have_openssl_conf = false;
+    std::string set_cipher_list;
+
+    bool generate_ca_certificate();
+};
 struct ConfigOptions 
 {
     std::string prog_name;   // (default e2guardian)
     std::string configfile;  // Main Configfile (default e2guardian.conf)
     char benchmark = '\0';
     bool total_block_list = false;
+};
+struct ConnectionHandlerOptions {
+    bool use_custom_banned_image = false;
+    std::string custom_banned_image_file;
+    ImageContainer banned_image;
+
+    bool use_custom_banned_flash = false;
+    std::string custom_banned_flash_file;
+    ImageContainer banned_flash;
+
+    bool use_original_ip_port = false;   // only for transparent and no upstream proxy
+    bool logconerror = false;
+
+    bool reverse_client_ip_lookups = false;
+
+};
+struct ContentScannerOptions {
+    
+    bool contentscanning = false;
+
+    off_t max_content_filter_size;
+    off_t max_content_ramcache_scan_size;
+    off_t max_content_filecache_scan_size;
+    bool scan_clean_cache = false;              // Check: Not used?
+    bool content_scan_exceptions = false;       // Check: Not used?  (There is another one in FOptionContainer)
+    int initial_trickle_delay = 0;
+    int trickle_delay = 0;
+    int content_scanner_timeout = 0;
+    int content_scanner_timeout_sec = 0;
+
+    std::string download_dir;
+    bool delete_downloaded_temp_files = false;
+};
+struct DStatOptions
+{
+    std::string dstat_location;
+    bool dstat_log_flag = false;
+    bool stats_human_readable = false;
+    int dstat_interval = 300;
+};
+struct FilterGroupOptions
+{
+    int filter_groups = 0;
+    int numfg = 0;
+    int default_fg = 0;
+    int default_trans_fg = 0;
+    int default_icap_fg = 0;
+    std::string filter_groups_list_location;
+    ListContainer filter_groups_list;
+
+};
+struct HTTPHeaderOptions 
+{
+    std::string ident_header_value;
+    bool forwarded_for = false;
+    unsigned int max_header_lines = 0;
+
+};
+struct ListsOptions
+{
+    bool read_from_stdin = false;
+    bool force_quick_search = false;
+
 };
 struct LogOptions
 {
@@ -70,43 +153,6 @@ struct LogOptions
     std::string name_suffix;    // for SyslogName, where configured ??
 
 };
-
-struct ProcessOptions
-{
-    int root_user = 0;
-    int proxy_user = 0;
-    int proxy_group = 0;
-
-    std::string daemon_user_name;
-    std::string daemon_group_name;
-
-    std::string pid_filename;
-
-    bool no_daemon = false;
-    bool is_daemonised = false;
-
-    bool find_user_ids();
-    bool become_root_user();
-    bool become_proxy_user();
-    bool daemonise();           // Fork ourselves off into the background
-};
-
-struct DStatOptions
-{
-    std::string dstat_location;
-    bool dstat_log_flag = false;
-    bool stats_human_readable = false;
-    int dstat_interval = 300;
-};
-
-struct HTTPHeaderOptions 
-{
-    std::string ident_header_value;
-    bool forwarded_for = false;
-    unsigned int max_header_lines = 0;
-
-};
-
 struct NetworkOptions
 {
     std::string server_name;
@@ -141,34 +187,6 @@ struct NetworkOptions
 
     int number_of_fds_neded();
 };
-
-struct CertificateOptions
-{
-    bool enable_ssl = false;
-
-    std::string ssl_certificate_path;
-    std::string ca_certificate_path;
-    std::string ca_private_key_path;
-    std::string cert_private_key_path;
-    std::string generated_cert_path;
-    std::string generated_link_path;
-    std::string openssl_conf_path;
-    CertificateAuthority *ca;
-
-    time_t gen_cert_start, gen_cert_end;
-    bool use_openssl_conf = false;
-    bool have_openssl_conf = false;
-    std::string set_cipher_list;
-
-    bool generate_ca_certificate();
-};
-struct ListsOptions
-{
-    bool read_from_stdin = false;
-    bool force_quick_search = false;
-
-};
-
 struct NaughtyOptions
 {
     int phrase_filter_mode = 0;
@@ -178,39 +196,26 @@ struct NaughtyOptions
     int preserve_case = 0;
     bool hex_decode_content = false;
 };
+struct ProcessOptions
+{
+    int root_user = 0;
+    int proxy_user = 0;
+    int proxy_group = 0;
 
-struct ConnectionHandlerOptions {
-    bool use_custom_banned_image = false;
-    std::string custom_banned_image_file;
-    ImageContainer banned_image;
+    //std::string daemon_user;
+    //std::string daemon_group;
+    std::string daemon_user_name;
+    std::string daemon_group_name;
 
-    bool use_custom_banned_flash = false;
-    std::string custom_banned_flash_file;
-    ImageContainer banned_flash;
+    std::string pid_filename;
 
-    bool use_original_ip_port = false;   // only for transparent and no upstream proxy
-    bool logconerror = false;
+    bool no_daemon = false;
+    bool is_daemonised = false;
 
-    bool reverse_client_ip_lookups = false;
-
-};
-
-struct ContentScannerOptions {
-    
-    bool contentscanning = false;
-
-    off_t max_content_filter_size;
-    off_t max_content_ramcache_scan_size;
-    off_t max_content_filecache_scan_size;
-    bool scan_clean_cache = false;              // Check: Not used?
-    bool content_scan_exceptions = false;       // Check: Not used?  (There is another one in FOptionContainer)
-    int initial_trickle_delay = 0;
-    int trickle_delay = 0;
-    int content_scanner_timeout = 0;
-    int content_scanner_timeout_sec = 0;
-
-    std::string download_dir;
-    bool delete_downloaded_temp_files = false;
+    bool find_user_ids();
+    bool become_root_user();
+    bool become_proxy_user();
+    bool daemonise();           // Fork ourselves off into the background
 };
 
 class OptionContainer
@@ -221,6 +226,7 @@ class OptionContainer
     ConnectionHandlerOptions  conn;
     ContentScannerOptions content;
     DStatOptions          dstat;
+    FilterGroupOptions    filter;
     HTTPHeaderOptions     header;
     ListsOptions          lists;
     LogOptions            log;
@@ -237,7 +243,6 @@ class OptionContainer
     };
 
     // all our many, many options
-    int filter_groups = 0;
     bool config_error = false;
     //bool non_standard_delimiter;  // unused, but in FOptionContainer
 
@@ -246,9 +251,6 @@ class OptionContainer
     bool log_ssl_errors = false;
     int url_cache_number = 0;       // unused ??
     int url_cache_age = 0;          // unused ??
-    int default_fg = 0;
-    int default_trans_fg = 0;
-    int default_icap_fg = 0;
     bool force_quick_search = false;
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
@@ -275,7 +277,6 @@ class OptionContainer
     bool auth_needs_proxy_in_plugin = false;
 
     std::string languagepath;
-    std::string filter_groups_list_location;
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
@@ -309,13 +310,9 @@ class OptionContainer
     std::deque<SB_entry_map> auth_entry_dq;
     std::deque<SB_entry_map> dm_entry_dq;
 
-    std::string daemon_user;
-    std::string daemon_group;
-
     bool search_sitelist_for_ip = false;
 
     HTMLTemplate html_template;
-    ListContainer filter_groups_list;
     LanguageContainer language_list;
 
     std::deque<Plugin *> dmplugins;
@@ -329,7 +326,6 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_end;
 
     ListManager lm;
-    int numfg = 0;
 
     // access denied domain (when using the CGI)
     String access_denied_domain;
@@ -363,7 +359,7 @@ class OptionContainer
     std::shared_ptr<LOptionContainer> current_LOC;
     std::string conffilename;
  //   std::string html_template_location;
-    std::string group_names_list_location;
+    // std::string group_names_list_location;
     int reporting_level = 0;
 
     private:
@@ -384,6 +380,7 @@ class OptionContainer
     bool findConnectionHandlerOptions();
     bool findContentScannerOptions();
     bool findDStatOptions();
+    bool findFilterGroupOptions();
     bool findHeaderOptions();
     bool findLoggerOptions();
     bool findNaughtyOptions();
