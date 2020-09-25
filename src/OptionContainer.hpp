@@ -31,7 +31,6 @@
 struct BlockPageOptions
 {
     int reporting_level = 0;
-    std::string languagepath;
 
     bool use_custom_banned_image = false;
     std::string custom_banned_image_file;
@@ -66,6 +65,11 @@ struct ConfigOptions
 {
     std::string prog_name;   // (default e2guardian)
     std::string configfile;  // Main Configfile (default e2guardian.conf)
+    std::string conffilename;
+
+
+    std::string languagepath;
+
     char benchmark = '\0';
     bool total_block_list = false;
 };
@@ -75,6 +79,10 @@ struct ConnectionHandlerOptions {
     bool logconerror = false;
 
     bool reverse_client_ip_lookups = false;
+
+    // internal test urls
+    std::string internal_test_url;
+    std::string internal_status_url;
 
 };
 struct ContentScannerOptions {
@@ -145,6 +153,7 @@ struct LogOptions
     bool log_timestamp = false;
     bool log_user_agent = false;
     bool use_dash_for_blanks = true;
+    bool SB_trace = false;
 
     unsigned int max_logitem_length = 2000;
 
@@ -271,7 +280,6 @@ class OptionContainer
     std::deque<String> TLS_filter_ports;
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;
-    bool SB_trace = false;
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
@@ -292,10 +300,8 @@ class OptionContainer
     // bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag = false;
+    bool search_sitelist_for_ip = false;
 
-    // internal test urls
-    std::string internal_test_url;
-    std::string internal_status_url;
 
     //bool soft_restart = false;
 
@@ -317,10 +323,10 @@ class OptionContainer
     std::deque<SB_entry_map> auth_entry_dq;
     std::deque<SB_entry_map> dm_entry_dq;
 
-    bool search_sitelist_for_ip = false;
 
-    HTMLTemplate html_template;
     LanguageContainer language_list;
+    HTMLTemplate html_template;
+    ListManager lm;
 
     std::deque<Plugin *> dmplugins;
     std::deque<Plugin *> csplugins;
@@ -332,16 +338,16 @@ class OptionContainer
     std::deque<Plugin *>::iterator authplugins_begin;
     std::deque<Plugin *>::iterator authplugins_end;
 
-    ListManager lm;
 
     // access denied domain (when using the CGI)
-    String access_denied_domain;
+    // String access_denied_domain; // Unused, see FOptionContainer/LOptionContainer 
 
     bool loadCSPlugins();
     bool loadAuthPlugins();
     void deletePlugins(std::deque<Plugin *> &list);
- //   void deleteFilterGroups();
-  //  void deleteFilterGroupsJustListData();
+
+    //   void deleteFilterGroups();
+    //  void deleteFilterGroupsJustListData();
 
     //...and the functions that read them
 
@@ -364,8 +370,7 @@ class OptionContainer
 
     //LOptionContainer* current_LOC;
     std::shared_ptr<LOptionContainer> current_LOC;
-    std::string conffilename;
- //   std::string html_template_location;
+    //   std::string html_template_location;
     // std::string group_names_list_location;
     
 
@@ -385,6 +390,7 @@ class OptionContainer
     bool findAccessLogOptions();
     bool findBlockPageOptions();
     bool findCertificateOptions();
+    bool findConfigOptions();
     bool findConnectionHandlerOptions();
     bool findContentScannerOptions();
     bool findDStatOptions();

@@ -108,13 +108,9 @@ int main(int argc,char *argv[])
     DEBUG_trace("read Configfile: ", o.config.configfile);
     read_config(o.config.configfile, 2);
 
-    if ( o.SB_trace ) {
+    if ( o.log.SB_trace ) {
         DEBUG_config("Enable Storyboard tracing !!");
         e2logger.enable(LoggerSource::story);
-    }
-
-    if ( ! o.log.name_suffix.empty() ) {
-        e2logger.setSyslogName(o.config.prog_name + o.log.name_suffix);
     }
 
     if (o.config.total_block_list && !o.readinStdin()) {
@@ -129,15 +125,8 @@ int main(int argc,char *argv[])
         return 1;
     }
 
+    prepareRegExp();
 
-    urldecode_re.comp("%[0-9a-fA-F][0-9a-fA-F]"); // regexp for url decoding
-
-#ifdef HAVE_PCRE
-    // todo: these only work with PCRE enabled (non-greedy matching).
-    // change them, or make them a feature for which you need PCRE?
-    absurl_re.comp("[\"'](http|ftp)://.*?[\"']"); // find absolute URLs in quotes
-    relurl_re.comp("(href|src)\\s*=\\s*[\"'].*?[\"']"); // find relative URLs in quotes
-#endif
     return startDaemon();
 
 }
@@ -318,7 +307,7 @@ int startDaemon()
             o.reset();
             if (!o.read(o.config.configfile, 2)) {
                 // OptionContainer class had an error reading the conf or
-                // other files so exit with error
+                // other files so exit with errora
                 E2LOGGER_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");
                 return 1;
             }
@@ -339,8 +328,19 @@ int startDaemon()
             return rc; // exit returning the error number
         }
 
-
     }
 
+}
+
+void prepareRegExp()
+{
+    urldecode_re.comp("%[0-9a-fA-F][0-9a-fA-F]"); // regexp for url decoding
+
+#ifdef HAVE_PCRE
+    // todo: these only work with PCRE enabled (non-greedy matching).
+    // change them, or make them a feature for which you need PCRE?
+    absurl_re.comp("[\"'](http|ftp)://.*?[\"']"); // find absolute URLs in quotes
+    relurl_re.comp("(href|src)\\s*=\\s*[\"'].*?[\"']"); // find relative URLs in quotes
+#endif
 
 }

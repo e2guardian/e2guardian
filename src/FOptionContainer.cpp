@@ -430,14 +430,14 @@ bool FOptionContainer::read(const char *filename) {
             // override default banned page
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
-                html_template = o.block.languagepath + html_template;
+                html_template = o.config.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
-                html_template = o.block.languagepath + "template.html";
+                html_template = o.config.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
@@ -447,7 +447,7 @@ bool FOptionContainer::read(const char *filename) {
 
             String neterr_template(findoptionS("neterrtemplate"));
             if (neterr_template != "") {
-                neterr_template = o.block.languagepath + neterr_template;
+                neterr_template = o.config.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
@@ -455,7 +455,7 @@ bool FOptionContainer::read(const char *filename) {
                     // HTML template file
                 }
             } else {  // if blank will default to HTML template file
-                neterr_template = o.block.languagepath + "neterr_template.html";
+                neterr_template = o.config.languagepath + "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);

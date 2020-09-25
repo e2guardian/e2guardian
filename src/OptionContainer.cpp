@@ -132,7 +132,7 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
 }
 
 bool OptionContainer::read(std::string &filename, int type) {
-    conffilename = filename;
+    config.conffilename = filename;
 
     // all sorts of exceptions could occur reading conf files
     try {
@@ -151,6 +151,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return true;
         }
 
+        if (!findConfigOptions()) return false;
         if (!findDStatOptions()) return false;
         if (!findCertificateOptions()) return false;
         if (!findNetworkOptions()) return false;
@@ -354,12 +355,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-        if (findoptionS("storyboardtrace") == "on") {
-            SB_trace = true;
-            e2logger.enable(LoggerSource::storytrace);
-        } else {
-            SB_trace = false;
-        }
 
 
 
@@ -373,14 +368,6 @@ bool OptionContainer::read(std::string &filename, int type) {
 
         per_room_directory_location = findoptionS("perroomdirectory");
 
-
-        if ((internal_test_url = findoptionS("internaltesturl")).empty()) {
-            internal_test_url = "internal.test.e2guardian.org";
-        }
-
-        if ((internal_status_url = findoptionS("internalstatusurl")).empty()) {
-            internal_status_url = "internal.status.e2guardian.org";
-        }
 
         if (!loadDMPlugins()) {
             E2LOGGER_error("Error loading DM plugins");
@@ -454,7 +441,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     use_group_names_list = true;
         // }
 
-        std::string language_list_location(block.languagepath + "messages");
 
         iplist_dq = findoptionM("iplist");
         sitelist_dq = findoptionM("sitelist");
@@ -464,12 +450,9 @@ bool OptionContainer::read(std::string &filename, int type) {
         maplist_dq = findoptionM("maplist");
         ipmaplist_dq = findoptionM("ipmaplist");
 
-        if ((findoptionS("authrequiresuserande2roup") == "on") && (authplugins.size() > 1))
+        if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
             auth_requires_user_and_group = true;
 
-        if (!language_list.readLanguageList(language_list_location.c_str())) {
-            return false;
-        } // messages language file
 
         if (cert.enable_ssl) {
             if (!cert.generate_ca_certificate()) return false;
@@ -549,14 +532,42 @@ bool OptionContainer::readinStdin() {
     return true;
 }
 
+bool OptionContainer::findAccessLogOptions()
+{
+
+    log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
+    log.log_header_value = findoptionS("logheadervalue");
+
+    // default of unlimited no longer allowed as could cause buffer overflow
+    log.max_logitem_length = realitycheckWithDefault("maxlogitemlength", 10, 32000, 2000);
+
+    log.log_level = realitycheckWithDefault("loglevel", 0, 3, 3);
+    log.log_file_format = realitycheckWithDefault("logfileformat", 1, 8, 1);
+
+    log.anonymise_logs = (findoptionS("anonymizelogs") == "on") ;
+    log.log_ad_blocks = (findoptionS("logadblocks") == "on");
+    log.log_timestamp = (findoptionS("logtimestamp") == "on");
+    log.log_user_agent = (findoptionS("loguseragent") == "on");
+    log.use_dash_for_blanks = (findoptionS("usedashforblank") == "off");
+    log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "off");
+
+    log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
+
+    log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
+    conn.reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
+
+    log.logid_1 = findoptionS("logid1");
+    if (log.logid_1.empty())
+        log.logid_1 = "-";
+    log.logid_2 = findoptionS("logid2");
+    if (log.logid_2.empty())
+        log.logid_2 = "-";
+
+    return true;
+}
+
 bool OptionContainer::findBlockPageOptions()
 {
-    String t = findoptionS("languagedir") + "/";
-    if (t == "/") {
-        t = __DATADIR;
-        t += "/languages";
-    }
-    block.languagepath = t + "/" + findoptionS("language") + "/";
 
     block.reporting_level = realitycheckWithDefault("reportinglevel", -1, 3, 3);
 
@@ -659,12 +670,37 @@ bool OptionContainer::findCertificateOptions()
     return true;
 }
 
+bool OptionContainer::findConfigOptions()
+{
+    String t = findoptionS("languagedir") + "/";
+    if (t == "/") {
+        t = __DATADIR;
+        t += "/languages";
+    }
+    config.languagepath = t + "/" + findoptionS("language") + "/";
+
+    std::string language_list_location(config.languagepath + "messages");
+    if (!language_list.readLanguageList(language_list_location.c_str())) {
+        return false;
+    } // messages language file
+
+    return true;
+}
+
 bool OptionContainer::findConnectionHandlerOptions()
 {
     conn.logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
 
     conn.use_original_ip_port = (findoptionS("useoriginalip") != "off");
     conn.reverse_client_ip_lookups = (findoptionS("reverseclientiplookups") == "on");
+
+    if ((conn.internal_test_url = findoptionS("internaltesturl")).empty()) {
+        conn.internal_test_url = "internal.test.e2guardian.org";
+    }
+
+    if ((conn.internal_status_url = findoptionS("internalstatusurl")).empty()) {
+        conn.internal_status_url = "internal.status.e2guardian.org";
+    }
 
     return true;
 }
@@ -721,6 +757,36 @@ bool OptionContainer::findContentScannerOptions()
 
 }
 
+
+bool OptionContainer::findFilterGroupOptions()
+{
+    filter.filter_groups = findoptionI("filtergroups");
+    if (filter.filter_groups == 0) filter.filter_groups = 1;
+
+    filter.numfg = filter.filter_groups; 
+
+    filter.default_fg = realitycheckWithDefault("defaultfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_fg--;    // zero based index
+
+    filter.default_trans_fg = realitycheckWithDefault("defaulttransparentfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_trans_fg--;
+
+    filter.default_icap_fg = realitycheckWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_icap_fg--;
+
+}
+
+bool OptionContainer::findHeaderOptions()
+{
+    header.forwarded_for = (findoptionS("forwardedfor") == "on");
+    if (findoptionS("addforwardedfor") == "on") {
+        header.forwarded_for = true;
+    }
+
+    header.max_header_lines = realitycheckWithDefault("maxheaderlines", 10, 250, 50);
+
+}
+
 bool OptionContainer::findLoggerOptions()
 {
     LoggerConfigurator loggerConf(&e2logger);
@@ -747,6 +813,15 @@ bool OptionContainer::findLoggerOptions()
             if (!loggerConf.configure(LoggerSource::warning, temp))
                 return false;
         }
+    }
+
+    {
+        if (findoptionS("logsyslog") == "on") {
+            if ((log.name_suffix = findoptionS("namesuffix")) == "") {
+                log.name_suffix = "";
+            }
+            e2logger.setSyslogName(config.prog_name + log.name_suffix);
+        }     
     }
 
     {
@@ -817,6 +892,16 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
+        if (findoptionS("storyboardtrace") == "on") {
+            log.SB_trace = true;
+            e2logger.enable(LoggerSource::storytrace);
+        } else {
+            log.SB_trace = false;
+        }
+    }
+
+
+    {
         std::deque <String> temp = findoptionM("debuglevel");
         if (!temp.empty()) {
             for (std::deque<String>::iterator i = temp.begin(); i != temp.end(); i++) {
@@ -826,69 +911,6 @@ bool OptionContainer::findLoggerOptions()
     }
 
     return true;
-
-}
-
-bool OptionContainer::findAccessLogOptions()
-{
-
-    log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
-    log.log_header_value = findoptionS("logheadervalue");
-
-    // default of unlimited no longer allowed as could cause buffer overflow
-    log.max_logitem_length = realitycheckWithDefault("maxlogitemlength", 10, 32000, 2000);
-
-    log.log_level = realitycheckWithDefault("loglevel", 0, 3, 3);
-    log.log_file_format = realitycheckWithDefault("logfileformat", 1, 8, 1);
-
-    log.anonymise_logs = (findoptionS("anonymizelogs") == "on") ;
-    log.log_ad_blocks = (findoptionS("logadblocks") == "on");
-    log.log_timestamp = (findoptionS("logtimestamp") == "on");
-    log.log_user_agent = (findoptionS("loguseragent") == "on");
-    log.use_dash_for_blanks = (findoptionS("usedashforblank") == "off");
-    log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "off");
-
-    log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
-
-    log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
-    conn.reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
-
-    log.logid_1 = findoptionS("logid1");
-    if (log.logid_1.empty())
-        log.logid_1 = "-";
-    log.logid_2 = findoptionS("logid2");
-    if (log.logid_2.empty())
-        log.logid_2 = "-";
-
-    return true;
-}
-
-bool OptionContainer::findFilterGroupOptions()
-{
-    filter.filter_groups = findoptionI("filtergroups");
-    if (filter.filter_groups == 0) filter.filter_groups = 1;
-
-    filter.numfg = filter.filter_groups; 
-
-    filter.default_fg = realitycheckWithDefault("defaultfiltergroup", 1, filter.filter_groups, 1);
-    filter.default_fg--;    // zero based index
-
-    filter.default_trans_fg = realitycheckWithDefault("defaulttransparentfiltergroup", 1, filter.filter_groups, 1);
-    filter.default_trans_fg--;
-
-    filter.default_icap_fg = realitycheckWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
-    filter.default_icap_fg--;
-
-}
-
-bool OptionContainer::findHeaderOptions()
-{
-    header.forwarded_for = (findoptionS("forwardedfor") == "on");
-    if (findoptionS("addforwardedfor") == "on") {
-        header.forwarded_for = true;
-    }
-
-    header.max_header_lines = realitycheckWithDefault("maxheaderlines", 10, 250, 50);
 
 }
 

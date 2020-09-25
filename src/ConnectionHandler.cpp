@@ -784,7 +784,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             // TODO this needs moving is proxy operation is still to be tested
-            if (checkme.urldomain == o.internal_test_url) {
+            if (checkme.urldomain == o.conn.internal_test_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                 peerconn.writeString("</BODY></HTML>\n");
@@ -972,7 +972,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.automitm = false;
             }
 
-            if (checkme.urldomain == o.internal_status_url) {
+            if (checkme.urldomain == o.conn.internal_status_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal status</TITLE></HEAD><BODY><H1>e2guardian internal status OK</H1> ");
                 String temp = "User: ";

@@ -627,7 +627,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
 
 bool LOptionContainer::readFilterGroupConf()
 {
-    String prefix(o.conffilename);
+    String prefix(o.config.conffilename);
     prefix = prefix.before(".conf");
     prefix += "f";
     String file;
