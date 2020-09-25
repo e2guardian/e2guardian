@@ -225,6 +225,8 @@ struct ProcessOptions
 
     std::string pid_filename;
 
+    int http_workers = 0;
+
     bool no_daemon = false;
     bool is_daemonised = false;
 
@@ -284,7 +286,6 @@ class OptionContainer
     bool get_orig_ip = false;
 #endif
 
-    int http_workers = 0;
     int max_ips = 0;
     bool recheck_replaced_urls;
     bool use_group_names_list = false;

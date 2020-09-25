@@ -194,11 +194,11 @@ void stat_rec::reset() {
         char buffer[50];
         strftime(buffer, 50, "%Y-%m-%d %H:%M", timeinfo);
         snprintf(outbuff, 100, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
-                 o.http_workers,
+                 o.proc.http_workers,
                  bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
         snprintf(outbuff, 100, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
-                 o.http_workers,
+                 o.proc.http_workers,
                  bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
     std::string outs(outbuff);
@@ -1490,10 +1490,10 @@ int fc_controlit()   //
 
     // worker thread generation
     std::vector <std::thread> http_wt;
-    http_wt.reserve(o.http_workers);
+    http_wt.reserve(o.proc.http_workers);
 
     int i;
-    for (i = 0; i < o.http_workers; i++) {
+    for (i = 0; i < o.proc.http_workers; i++) {
         http_wt.push_back(std::thread(handle_connections, i));
     }
     for (auto &i : http_wt) {
@@ -1627,13 +1627,13 @@ int fc_controlit()   //
                     " worker Q size:", q_size);
         if (o.dstat.dstat_log_flag) {
             if (q_size > 10) {
-                E2LOGGER_info("Warning: all ", o.http_workers, " http_worker threads are busy and ",
+                E2LOGGER_info("Warning: all ", o.proc.http_workers, " http_worker threads are busy and ",
                               q_size, " connections are waiting in the queue.");
             }
         } else {
             int busy_child = dystat->busychildren;
-            if (busy_child > (o.http_workers - 10))
-                E2LOGGER_info("Warning system is full : max httpworkers: ", o.http_workers, " Used: ",
+            if (busy_child > (o.proc.http_workers - 10))
+                E2LOGGER_info("Warning system is full : max httpworkers: ", o.proc.http_workers, " Used: ",
                               busy_child);
         }
 
@@ -1666,7 +1666,7 @@ int fc_controlit()   //
     LQ_rec rec;
     rec.sock = NS;
     rec.ct_type = CT_PROXY;
-    for (i = 0; i < o.http_workers; i++) {
+    for (i = 0; i < o.proc.http_workers; i++) {
         o.http_worker_Q.push(rec);
     }
     // dystat->reset();    // remove this line for production version

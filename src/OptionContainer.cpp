@@ -55,16 +55,8 @@ void OptionContainer::reset() {
 }
 
 
-void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
-    for (std::deque<Plugin *>::iterator i = list.begin(); i != list.end(); i++) {
-        if ((*i) != NULL) {
-            (*i)->quit();
-            delete (*i);
-        }
-    }
-    list.clear();
-}
-
+// Purpose: reads the configuration file into deque OptionContainer:conffile
+// Params : list_pwd : base directory when looking for lists definitions
 bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     std::string linebuffer;
     String temp; // for tempory conversion and storage
@@ -131,6 +123,8 @@ bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
     return true;
 }
 
+// Purpose: reads all options from the main configuration file (e2guardian.conf)
+// Params:  type = ???
 bool OptionContainer::read(std::string &filename, int type) {
     config.conffilename = filename;
 
@@ -157,29 +151,17 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findNetworkOptions()) return false;
         if (!findConnectionHandlerOptions()) return false;
         if (!findContentScannerOptions()) return false;
+        if (!findBlockPageOptions()) return false;
         if (!findFilterGroupOptions()) return false;
         if (!findHeaderOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
-
         // soft_restart = (findoptionS("softrestart") == "on"); // Unused
-
 
 #ifdef ENABLE_EMAIL
         // Email notification patch by J. Gauthier
         mailer = findoptionS("mailer");
 #endif
-
-
-
-        if (findoptionS("httpworkers").empty()) {
-            http_workers = 500;
-        } else {
-            http_workers = findoptionI("httpworkers");
-        }
-        if (!realitycheck(http_workers, 20, 20000, "httpworkers")) {
-            return false;
-        } // check its a reasonable value
 
         // to remove in v5.5
         // monitor_helper = findoptionS("monitorhelper");
@@ -319,9 +301,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             prod_id.assign("2");
 #endif
 
-
-
-
         if (findoptionS("logsslerrors") == "on") {
             log_ssl_errors = true;
         } else {
@@ -347,33 +326,24 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
 
-
         if (findoptionS("abortiflistmissing") == "on") {
             abort_on_missing_list = true;
         } else {
             abort_on_missing_list = false;
         }
 
-
-
-
-
         storyboard_location = findoptionS("preauthstoryboard");
         if (storyboard_location.empty()) {
             storyboard_location = __CONFDIR;
             storyboard_location += "/preauth.story";
-
-
         }
 
         per_room_directory_location = findoptionS("perroomdirectory");
-
 
         if (!loadDMPlugins()) {
             E2LOGGER_error("Error loading DM plugins");
             return false;
         }
-
 
         if (content.contentscanning) {
             if (!loadCSPlugins()) {
@@ -432,7 +402,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             }
         }
 
-
         // group_names_list_location = findoptionS("groupnamesfile"); // no longer supported
         // if (group_names_list_location.length() == 0) {
         //     use_group_names_list = false;
@@ -440,7 +409,6 @@ bool OptionContainer::read(std::string &filename, int type) {
         // } else {
         //     use_group_names_list = true;
         // }
-
 
         iplist_dq = findoptionM("iplist");
         sitelist_dq = findoptionM("sitelist");
@@ -774,6 +742,7 @@ bool OptionContainer::findFilterGroupOptions()
     filter.default_icap_fg = realitycheckWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
     filter.default_icap_fg--;
 
+    return true;
 }
 
 bool OptionContainer::findHeaderOptions()
@@ -785,6 +754,7 @@ bool OptionContainer::findHeaderOptions()
 
     header.max_header_lines = realitycheckWithDefault("maxheaderlines", 10, 250, 50);
 
+    return true;
 }
 
 bool OptionContainer::findLoggerOptions()
@@ -898,6 +868,11 @@ bool OptionContainer::findLoggerOptions()
         } else {
             log.SB_trace = false;
         }
+    }
+
+    if ( log.SB_trace ) {
+        DEBUG_config("Enable Storyboard tracing !!");
+        e2logger.enable(LoggerSource::story);
     }
 
 
@@ -1062,6 +1037,9 @@ bool OptionContainer::findProcOptions()
     if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
         proc.daemon_group_name = __PROXYGROUP;
     }
+
+    proc.http_workers = realitycheckWithDefault("httpworkers", 20, 20000, 500);
+
     return true;
 
 }
@@ -1180,6 +1158,7 @@ long int OptionContainer::realitycheckWithDefault(const char *option, long int m
     return value;
 }
 
+#pragma region Plugins
 bool OptionContainer::loadDMPlugins() {
     DEBUG_config("load Download manager plugins");
     std::deque <String> dq = findoptionM("downloadmanager");
@@ -1291,6 +1270,16 @@ bool OptionContainer::loadAuthPlugins() {
     return true;
 }
 
+void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
+    for (std::deque<Plugin *>::iterator i = list.begin(); i != list.end(); i++) {
+        if ((*i) != NULL) {
+            (*i)->quit();
+            delete (*i);
+        }
+    }
+    list.clear();
+}
+#pragma endregion
 
 bool OptionContainer::createLists(int load_id) {
     DEBUG_config("create Lists: ", load_id);

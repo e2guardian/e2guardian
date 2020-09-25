@@ -55,9 +55,10 @@ RegExp absurl_re, relurl_re;
 
 // DECLARATIONS
 int readCommandlineOptions(int argc, char *argv[]);
-int runBenchmarks();
-void prepareRegExp();
 int startDaemon();
+int runBenchmarks();
+bool check_enough_filedescriptors();
+void prepareRegExp();
 
 // get the OptionContainer to read in the given configuration file
 void read_config(std::string& configfile, int type);
@@ -107,11 +108,6 @@ int main(int argc,char *argv[])
     
     DEBUG_trace("read Configfile: ", o.config.configfile);
     read_config(o.config.configfile, 2);
-
-    if ( o.log.SB_trace ) {
-        DEBUG_config("Enable Storyboard tracing !!");
-        e2logger.enable(LoggerSource::story);
-    }
 
     if (o.config.total_block_list && !o.readinStdin()) {
         E2LOGGER_error("Error on reading total_block_list");
@@ -259,34 +255,7 @@ int startDaemon()
         return 1; // can't have two copies running!!
     }
 
-    // calc the number of listening processes
-    int no_listen_fds;
-    if (o.net.map_ports_to_ips) {
-        no_listen_fds = o.net.filter_ip.size();
-    } else {
-        no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
-    }
-
-    struct rlimit rlim;
-    if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        E2LOGGER_error( "getrlimit call returned error: ", errno);
-        return 1;
-    }
-
-    // enough fds needed for listening_fds + logger + ipcs + stdin/out/err
-    // in addition to two for each worker thread
-    int max_free_fds = rlim.rlim_cur - (no_listen_fds + 6);
-    int fd_needed = (o.http_workers *2) + no_listen_fds + 6;
-
-    if (((o.http_workers * 2) ) > max_free_fds) {
-        E2LOGGER_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
-        E2LOGGER_error("httpworkers ", o.http_workers,  " must not exceed 50% of ", max_free_fds);
-        E2LOGGER_error("in this configuration.");
-        E2LOGGER_error("Reduce httpworkers ");
-        E2LOGGER_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
-        return 1; // we can't have rampant proccesses can we?
-    }
-
+    if (!check_enough_filedescriptors()) return 1;
     if (!o.proc.find_user_ids()) return 1;
     if (!o.proc.become_proxy_user()) return 1;
 
@@ -297,6 +266,7 @@ int startDaemon()
         // all the ground work and non-daemon stuff
         // away from the daemon class
         // However the line is not so fine.
+        // fc_controlit never returns 2 ??!  KDG 2020-09-25
         if (rc == 2) {
 
             // In order to re-read the conf files
@@ -343,4 +313,37 @@ void prepareRegExp()
     relurl_re.comp("(href|src)\\s*=\\s*[\"'].*?[\"']"); // find relative URLs in quotes
 #endif
 
+}
+
+bool check_enough_filedescriptors()
+{
+    // calc the number of listening processes
+    int no_listen_fds;
+    if (o.net.map_ports_to_ips) {
+        no_listen_fds = o.net.filter_ip.size();
+    } else {
+        no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
+    }
+
+    struct rlimit rlim;
+    if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
+        E2LOGGER_error( "getrlimit call returned error: ", errno);
+        return false;
+    }
+
+    // enough fds needed for listening_fds + logger + ipcs + stdin/out/err
+    // in addition to two for each worker thread
+    int max_free_fds = rlim.rlim_cur - (no_listen_fds + 6);
+    int fd_needed = (o.proc.http_workers *2) + no_listen_fds + 6;
+
+    if (((o.proc.http_workers * 2) ) > max_free_fds) {
+        E2LOGGER_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
+        E2LOGGER_error("httpworkers ", o.proc.http_workers,  " must not exceed 50% of ", max_free_fds);
+        E2LOGGER_error("in this configuration.");
+        E2LOGGER_error("Reduce httpworkers ");
+        E2LOGGER_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
+        return false; // we can't have rampant proccesses can we?
+    }
+
+    return true;
 }
