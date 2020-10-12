@@ -3396,6 +3396,8 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
             }
 
+            checkme.clientip = clientip;
+
             filtergroup = o.default_trans_fg;
 
             if(o.log_requests) {
