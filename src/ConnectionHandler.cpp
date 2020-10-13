@@ -3007,7 +3007,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
     HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
 
-    NaughtyFilter checkme(header, docheader);
+    NaughtyFilter checkme(header, docheader, SBauth);
     checkme.listen_port = peerconn.getPort();
     checkme.reset();
 
@@ -3128,6 +3128,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
                 doRQLog(clientuser, clientip, checkme, fnt);
             }
 
+            checkme.clientip = clientip;
+
             //CALL SB pre-authcheck
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH_THTTPS,checkme);
             DEBUG_thttps("After StoryA thttps-pre-authcheck", checkme.isexception, " mess_no ",  checkme.message_no );
@@ -3172,7 +3174,6 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
             // is this user banned?
             isbanneduser = false;
-            checkme.clientip = clientip;
 
 
             if(checkme.hasSNI & !checkme.nomitm ) checkme.ismitmcandidate = ldl->fg[filtergroup]->ssl_mitm;

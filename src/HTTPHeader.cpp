@@ -858,7 +858,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         if(!tp.headerVal())
             pcontentlength = NULL;
         else {
-            contentlength = tp.toInteger();
+            contentlength = tp.toOffset();
         }
         DEBUG_debug("tp =", tp, " Contentlen.int =", contentlength);
 
