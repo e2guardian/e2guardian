@@ -3267,7 +3267,7 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
     HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
 
-    NaughtyFilter checkme(header, docheader);
+    NaughtyFilter checkme(header, docheader, SBauth);
     checkme.listen_port = peerconn.getPort();
     checkme.reset();
 
