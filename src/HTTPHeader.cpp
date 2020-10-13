@@ -923,7 +923,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         if(!tp.headerVal())
             pcontentlength = NULL;
         else {
-            contentlength = tp.toInteger();
+            contentlength = tp.toOffset();
         }
 #ifdef E2DEBUG
         std::cerr << thread_id << "tp =" << tp << " Contentlen.int =" << contentlength << std::endl;
