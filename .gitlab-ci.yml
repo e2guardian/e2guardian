@@ -1,6 +1,6 @@
 stages:
 # At first debian : init variables
-- build:debian
+- build
 - create-debian-package
 - testdebian
 - ubuntubionic

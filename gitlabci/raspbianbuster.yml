@@ -1,8 +1,8 @@
 Package Docker Image Raspbian:
-  stage: build:raspbian
+  stage: build
   artifacts:
    expire_in: 20 minutes
-   name: build
+   name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   
   image: amd64/debian:stable
@@ -32,7 +32,7 @@ Create Raspbian Package:
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
-   name: build
+   name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   
   variables:
