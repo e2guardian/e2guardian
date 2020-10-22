@@ -1,8 +1,11 @@
 Package Docker Image Ubuntu focal:
   stage: build 
   image: amd64/ubuntu:20.04
-  dependencies:
-    - builddebian
+  needs:
+    - project: $CI_PROJECT_PATH
+      job: buildebian
+      ref: $CI_COMMIT_BRANCH
+      artifacts: true
   artifacts:
    expire_in: 20 minutes
    name: buildfocal
