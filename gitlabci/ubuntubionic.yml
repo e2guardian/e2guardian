@@ -1,11 +1,6 @@
 Package Docker Image Ubuntu bionic:
   stage: build 
   image: amd64/ubuntu:18.04
-  needs:
-    - project: https://gitlab.com/fredbcode/e2guardian
-      job: builddebian 
-      ref: v5.5.dev
-      artifacts: true
   artifacts:
    expire_in: 60 minutes
    name: buildbionic

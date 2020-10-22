@@ -1,10 +1,5 @@
 Package Docker Image Raspbian:
   stage: build
-  needs:
-    - project: $CI_PROJECT_PATH
-      job: builddebian
-      ref: $CI_COMMIT_BRANCH
-      artifacts: true
   artifacts:
    expire_in: 60 minutes
    name: buildraspbian
