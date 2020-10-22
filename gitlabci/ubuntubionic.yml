@@ -1,8 +1,11 @@
 Package Docker Image Ubuntu bionic:
   stage: build 
   image: amd64/ubuntu:18.04
-  dependencies:
-    - builddebian:makedebian
+  needs:
+    - project: $CI_PROJECT_PATH
+      job: buildebian 
+      ref: $CI_COMMIT_BRANCH
+      artifacts: true
   artifacts:
    expire_in: 20 minutes
    name: buildbionic
