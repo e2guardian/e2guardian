@@ -6,7 +6,7 @@ Package Docker Image Raspbian:
       ref: $CI_COMMIT_BRANCH
       artifacts: true
   artifacts:
-   expire_in: 20 minutes
+   expire_in: 60 minutes
    name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   
@@ -36,7 +36,7 @@ Create Raspbian Package:
   stage: create-raspbian-package
   image: amd64/debian:stable
   artifacts:
-   expire_in: 20 minutes
+   expire_in: 60 minutes
    name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   

@@ -7,7 +7,7 @@ Package Docker Image Ubuntu bionic:
       ref: $CI_COMMIT_BRANCH
       artifacts: true
   artifacts:
-   expire_in: 20 minutes
+   expire_in: 60 minutes
    name: buildbionic
    paths:
     - /builds/fredbcode/e2guardian  
@@ -29,7 +29,7 @@ Create Ubuntu Package bionic:
   stage: create-ubuntu-packagebionic
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 20 minutes
+   expire_in: 60 minutes
    name: buildbionic
    paths:
     - /builds/fredbcode/e2guardian  
@@ -61,7 +61,7 @@ Test and publish Ubuntu bionic:
   stage: testubuntubionic 
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 20 minutes
+   expire_in: 60 minutes
    name: buildbionic
    paths:
     - /builds/fredbcode/e2guardian
