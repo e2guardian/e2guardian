@@ -1,8 +1,8 @@
 Package Docker Image Ubuntu focal:
-  stage: ubuntufocal
+  stage: build 
   image: amd64/ubuntu:20.04
   dependencies:
-    - builddebianstable
+    - builddebian
   artifacts:
    expire_in: 20 minutes
    name: buildfocal

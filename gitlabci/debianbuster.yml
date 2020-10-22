@@ -1,5 +1,5 @@
 Package Docker Image Debian:
-  stage: builddebian
+  stage: build
   artifacts:
    expire_in: 20 minutes
    name: builddebianstable
@@ -25,7 +25,7 @@ Create Debian Package:
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
-   name: builddebainstable 
+   name: builddebianstable 
    paths:
     - /builds/fredbcode/e2guardian
   variables:
