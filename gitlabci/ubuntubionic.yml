@@ -3,7 +3,7 @@ Package Docker Image Ubuntu bionic:
   image: amd64/ubuntu:18.04
   needs:
     - project: $CI_PROJECT_PATH
-      job: buildebian 
+      job: builddebian 
       ref: $CI_COMMIT_BRANCH
       artifacts: true
   artifacts:

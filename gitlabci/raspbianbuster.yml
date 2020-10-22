@@ -2,7 +2,7 @@ Package Docker Image Raspbian:
   stage: build
   needs:
     - project: $CI_PROJECT_PATH
-      job: buildebian
+      job: builddebian
       ref: $CI_COMMIT_BRANCH
       artifacts: true
   artifacts:
