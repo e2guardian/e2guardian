@@ -1,5 +1,5 @@
 Create Debian Package:
-  stage: buildebian
+  stage: builddebian
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
