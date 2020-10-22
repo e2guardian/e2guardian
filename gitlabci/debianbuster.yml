@@ -1,5 +1,5 @@
 Package Docker Image Debian:
-  stage: build
+  stage: builddebian
   artifacts:
    expire_in: 20 minutes
    name: builddebianstable
