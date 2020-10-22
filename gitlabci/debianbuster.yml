@@ -2,7 +2,7 @@ Package Docker Image Debian:
   stage: builddebian
   artifacts:
    expire_in: 20 minutes
-   name: builddebianstable
+   name: builddebian
    paths:
     - /builds/fredbcode/e2guardian  
   image: amd64/debian:stable
@@ -25,7 +25,7 @@ Create Debian Package:
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
-   name: builddebianstable 
+   name: builddebian 
    paths:
     - /builds/fredbcode/e2guardian
   variables:
@@ -56,7 +56,7 @@ Test and publish Debian:
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
-   name: builddebianstable
+   name: builddebian
    paths:
     - /builds/fredbcode/e2guardian 
   variables:
