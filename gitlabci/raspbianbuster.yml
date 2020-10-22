@@ -1,5 +1,7 @@
 Package Docker Image Raspbian:
   stage: build
+  dependencies:
+    - builddebianstable
   artifacts:
    expire_in: 20 minutes
    name: buildraspbian

@@ -1,6 +1,8 @@
 Package Docker Image Ubuntu bionic:
   stage: build 
   image: amd64/ubuntu:18.04
+  dependencies:
+    - builddebianstable
   artifacts:
    expire_in: 20 minutes
    name: buildbionic
