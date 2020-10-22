@@ -25,7 +25,7 @@ Package Docker Image Raspbian:
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
-   - find / -name ".git" -exec rm -r "{}" +
+   - find ./ -name ".git" -exec rm -r "{}" +
 
 Create Raspbian Package:
   stage: create-raspbian-package
@@ -66,4 +66,4 @@ Create Raspbian Package:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - find / -name ".git" -exec rm -r "{}" +
+    - find ./ -name ".git" -exec rm -r "{}" +
