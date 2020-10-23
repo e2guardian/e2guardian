@@ -463,6 +463,89 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
             }
         }
     }
+
+    if (is_iplist) {
+        if (is_map) {
+            std::sort(ipmaplist.begin(), ipmaplist.end());
+            // temp code for testing
+            if (false) {
+                std::cerr << "ipmaplist size is " << ipmaplist.size() << std::endl;
+                std::vector<String> iplist2{
+                        "10.81.64.5",
+                        "10.81.76.23",
+                        "10.81.65.12",
+                        "10.81.65.16",
+                        "10.81.65.22",
+                        "10.81.65.25",
+                        "10.81.65.29",
+                        "10.81.65.31",
+                        "10.81.65.33",
+                        "10.81.65.35",
+                        "10.81.65.36",
+                        "10.81.65.37",
+                        "10.81.65.39",
+                        "10.81.65.40",
+                        "10.81.65.41",
+                        "10.81.65.45",
+                        "10.81.65.48",
+                        "10.81.65.49",
+                        "10.81.65.50",
+                        "10.81.65.51",
+                        "10.81.65.52",
+                        "10.81.65.55",
+                        "10.81.65.56",
+                        "10.81.65.57",
+                        "10.81.65.58",
+                        "10.81.65.59",
+                        "10.81.65.63",
+                        "10.81.65.60",
+                        "10.81.65.93",
+                        "10.81.65.159",
+                        "10.81.66.13",
+                        "10.81.66.18",
+                        "10.81.66.20",
+                        "10.81.66.25",
+                        "10.81.66.26",
+                        "10.81.66.28",
+                        "10.81.66.34",
+                        "10.81.66.36",
+                        "10.81.66.37",
+                        "10.81.66.39",
+                        "10.81.66.40",
+                        "10.81.66.42",
+                        "10.81.66.43",
+                        "10.81.66.44",
+                        "10.81.66.47",
+                        "10.81.66.51",
+                        "10.81.66.58",
+                        "10.81.66.64",
+                        "10.81.66.75",
+                        "10.81.67.10",
+                        "10.81.67.11",
+                        "10.81.67.12",
+                        "10.81.69.10",
+                        "10.81.70.13",
+                        "10.81.70.14",
+                        "192.168.206.27",
+                        "192.168.206.30",
+                        "192.168.206.35",
+                        "192.168.206.36",
+                };
+                for (auto item: iplist2) {
+                    String res = getIPMapData(item);
+                    if (res.empty()) {
+                        std::cerr << "IP " << item << " NOT found" << std::endl;
+                    } else {
+                        std::cerr << "IP " << item << " found group " << res << std::endl;
+                    }
+
+                }
+            }
+        } else {
+            std::sort(iplist.begin(), iplist.end());
+
+        }
+    }
     return true; // sucessful read
 }
 
@@ -1523,7 +1606,6 @@ void ListContainer::addToIPMap(String &line) {
         return;
     }
     DEBUG_debug("key: ", key, " value: ", value);
-
     if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
         E2LOGGER_error("Filter group out of range; entry ", line, " in ", sourcefile);
         //warn = true;
@@ -1532,11 +1614,16 @@ void ListContainer::addToIPMap(String &line) {
 
     // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
     if (matchIP.match(key.toCharArray(), Rre)) {
+//        std::cerr << "Is straigth IP " << key << std::endl;
         struct in_addr address;
-        if (inet_aton(key.toCharArray(), &address)) {
-            ipmaplist.push_back(ipmap(ntohl(address.s_addr), value));
+        auto aton_res = inet_aton(key.toCharArray(), &address);
+//        std::cerr << "aton returned " << aton_res << std::endl;
+        if (aton_res != 0) {
+            ipmap tmap(ntohl(address.s_addr), value);
+            ipmaplist.push_back(tmap);
         }
     } else if (matchSubnet.match(key.toCharArray(), Rre)) {
+//        std::cerr << "Is subnet IP " << key << std::endl;
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(key.before("/"));
@@ -1551,6 +1638,7 @@ void ListContainer::addToIPMap(String &line) {
             ipmapsubnetlist.push_back(s);
         }
     } else if (matchCIDR.match(key.toCharArray(), Rre)) {
+//        std::cerr << "Is CIDR " << key << std::endl;
         struct in_addr address;
         struct in_addr addressmask;
         String subnet(key.before("/"));
@@ -1570,6 +1658,7 @@ void ListContainer::addToIPMap(String &line) {
             }
         }
     } else if (matchRange.match(key.toCharArray(), Rre)) {
+//        std::cerr << "Is IP range " << key << std::endl;
         struct in_addr addressstart;
         struct in_addr addressend;
         String start(key.before("-"));
@@ -1591,16 +1680,28 @@ void ListContainer::addToIPMap(String &line) {
 
 // binary search list for given IP & return filter group, or -1 on failure
 String ListContainer::searchIPMap(int a, int s, const uint32_t &ip) {
-    if (a > s)
+    // change to serial search for testing
+    if (false) {
+        for (auto item : ipmaplist) {
+            if (item.addr == ip) {
+                return item.group;
+            }
+        }
         return "";
-    int m = (a + s) / 2;
-    if (ipmaplist[m].addr == ip)
-        return ipmaplist[m].group;
-    if (ipmaplist[m].addr < ip)
-        return searchIPMap(m + 1, s, ip);
-    if (a == s)
-        return "";
-    return searchIPMap(a, m - 1, ip);
+    }
+
+    if (true) {
+        if (a > s)
+            return "";
+        int m = (a + s) / 2;
+        if (ipmaplist[m].addr == ip)
+            return ipmaplist[m].group;
+        if (ipmaplist[m].addr < ip)
+            return searchIPMap(m + 1, s, ip);
+        if (a == s)
+            return "";
+        return searchIPMap(a, m - 1, ip);
+    }
 }
 
 // search subnet list for given IP & return filter group or -1
