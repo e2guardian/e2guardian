@@ -2,16 +2,18 @@ stages:
 # At first debian : init variables
 - builddebian
 - create-debian-package
+###
 - build
+- createpackage
 - testdebian
   #- ubuntubionic
-- create-ubuntu-packagebionic
+  #- create-ubuntu-packagebionic
 - testubuntubionic
   #- ubuntufocal
-- create-ubuntu-packagefocal
+  #- create-ubuntu-packagefocal
 - testubuntufocal
   #- build:raspbian
-- create-raspbian-package
+  #- create-raspbian-package
 
 include:
   - 'gitlabci/debianbuster.yml'

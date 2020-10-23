@@ -21,7 +21,7 @@ Package Docker Image Ubuntu bionic:
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Create Ubuntu Package bionic:
-  stage: create-ubuntu-packagebionic
+  stage: create-package
   image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 60 minutes
