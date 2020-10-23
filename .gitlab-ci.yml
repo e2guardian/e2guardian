@@ -2,6 +2,7 @@ stages:
 # At first debian : init variables
 - builddebian
 - create-debian-package
+- test-publish-debian
 ###
 - build
 - create-package
