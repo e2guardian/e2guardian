@@ -1,9 +1,8 @@
-Package Docker Image Ubuntu focal:
-  stage: ubuntufocal
+build:focal:
+  stage: build 
   image: amd64/ubuntu:20.04
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian
   script:
@@ -20,12 +19,12 @@ Package Docker Image Ubuntu focal:
     - make
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Ubuntu Package focal:
-  stage: create-ubuntu-packagefocal
+package:focal:
+  stage: create-package
   image: amd64/ubuntu:20.04
+  dependencies:
+    - build:focal
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian  
   variables:
@@ -53,12 +52,12 @@ Create Ubuntu Package focal:
     - rm -rf .git
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu focal:
-  stage: testubuntufocal 
+test:focal:
+  stage: test-publish 
   image: amd64/ubuntu:20.04
+  dependencies:
+    - package:focal
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian
   variables:

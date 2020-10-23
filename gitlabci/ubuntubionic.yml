@@ -1,9 +1,8 @@
-Package Docker Image Ubuntu bionic:
-  stage: ubuntubionic
+build:bionic:
+  stage: build 
   image: amd64/ubuntu:18.04
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian  
   script:
@@ -20,12 +19,12 @@ Package Docker Image Ubuntu bionic:
     - make 
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Ubuntu Package bionic:
-  stage: create-ubuntu-packagebionic
+package:bionic:
+  stage: create-package
   image: amd64/ubuntu:18.04
+  dependencies:
+    - build:bionic
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian  
   variables:
@@ -52,12 +51,12 @@ Create Ubuntu Package bionic:
     - rm -rf .git
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu bionic:
-  stage: testubuntubionic 
+test:bionic:
+  stage: test-publish 
   image: amd64/ubuntu:18.04
+  dependencies:
+    - package:bionic
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian
   variables:
