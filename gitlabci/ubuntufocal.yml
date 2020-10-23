@@ -21,7 +21,7 @@ build:focal:
 
 package:focal:
   stage: create-package
-  image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:20.04
   dependencies:
     - build:focal
   artifacts:
@@ -54,7 +54,7 @@ package:focal:
 
 test:focal:
   stage: test-publish 
-  image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:20.04
   dependencies:
     - package:focal
   artifacts:
