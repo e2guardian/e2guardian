@@ -1,8 +1,7 @@
-Build Raspbian:
+build:raspbian:
   stage: build
   artifacts:
    expire_in: 60 minutes
-   name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   
   image: amd64/debian:stable
@@ -27,12 +26,12 @@ Build Raspbian:
    - file src/e2guardian | grep "ARM, EABI5"
    - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Raspbian Package:
+package:raspbian:
   stage: create-package
-  image: amd64/debian:stable
+  dependencies:
+    - build:raspbian
   artifacts:
    expire_in: 60 minutes
-   name: buildraspbian
    paths:
     - /builds/fredbcode/e2guardian   
   variables:

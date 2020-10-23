@@ -19,7 +19,7 @@ build:bionic:
     - make 
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Package:bionic:
+package:bionic:
   stage: create-package
   image: amd64/ubuntu:18.04
   dependencies:

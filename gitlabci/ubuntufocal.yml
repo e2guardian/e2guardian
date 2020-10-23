@@ -1,9 +1,8 @@
- Build Ubuntu focal:
+build:focal:
   stage: build 
   image: amd64/ubuntu:20.04
   artifacts:
    expire_in: 60 minutes
-   name: buildfocal
    paths:
     - /builds/fredbcode/e2guardian
   script:
@@ -20,12 +19,13 @@
     - make
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Ubuntu Package focal:
+package:focal:
   stage: create-package
-  image: amd64/ubuntu:20.04
+  image: amd64/ubuntu:18.04
+  dependencies:
+    - build:focal
   artifacts:
    expire_in: 60 minutes
-   name: buildfocal
    paths:
     - /builds/fredbcode/e2guardian  
   variables:
@@ -53,12 +53,13 @@ Create Ubuntu Package focal:
     - rm -rf .git
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu focal:
-  stage: test-publish
-  image: amd64/ubuntu:20.04
+test:focal:
+  stage: test-publish 
+  image: amd64/ubuntu:18.04
+  dependencies:
+    - package:focal
   artifacts:
    expire_in: 60 minutes
-   name: buildfocal
    paths:
     - /builds/fredbcode/e2guardian
   variables:
