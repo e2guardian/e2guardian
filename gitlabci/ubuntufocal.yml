@@ -25,7 +25,6 @@ package:focal:
   dependencies:
     - build:focal
   artifacts:
-   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian  
   variables:
@@ -59,7 +58,6 @@ test:focal:
   dependencies:
     - package:focal
   artifacts:
-   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian
   variables:

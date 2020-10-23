@@ -32,7 +32,6 @@ package:raspbian:
   dependencies:
     - build:raspbian
   artifacts:
-   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian   
   variables:
