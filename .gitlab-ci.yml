@@ -5,7 +5,7 @@ stages:
 ###
 - build
 - create-package
-- testdebian
+- test-publish
   #- ubuntubionic
   #- create-ubuntu-packagebionic
 - testubuntubionic

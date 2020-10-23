@@ -21,7 +21,7 @@ Package Docker Image Ubuntu focal:
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Create Ubuntu Package focal:
-  stage: create--package
+  stage: create-package
   image: amd64/ubuntu:20.04
   artifacts:
    expire_in: 60 minutes
@@ -54,7 +54,7 @@ Create Ubuntu Package focal:
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Test and publish Ubuntu focal:
-  stage: testubuntufocal 
+  stage: test-publish
   image: amd64/ubuntu:20.04
   artifacts:
    expire_in: 60 minutes

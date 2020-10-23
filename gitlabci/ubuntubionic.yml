@@ -53,7 +53,7 @@ Create Ubuntu Package bionic:
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Test and publish Ubuntu bionic:
-  stage: testubuntubionic 
+  stage: test-publish 
   image: amd64/ubuntu:18.04
   artifacts:
    expire_in: 60 minutes
