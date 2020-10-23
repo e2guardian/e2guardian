@@ -1,4 +1,4 @@
-Build:dbionic:
+Build:bionic:
   stage: build 
   image: amd64/ubuntu:18.04
   artifacts:
