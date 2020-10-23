@@ -1,5 +1,5 @@
 Build debian package:
-  stage: builddebian
+  stage: build-debian
   artifacts:
    name: builddebian 
    expire_in: 120 minutes
@@ -52,7 +52,7 @@ Create Debian Package:
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Test and publish Debian:
-  stage: testdebian
+  stage: test-publish-debian
   image: amd64/debian:stable
   artifacts:
    expire_in: 20 minutes
