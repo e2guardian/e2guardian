@@ -1,11 +1,10 @@
-Package Docker Image Raspbian:
-  stage: build:raspbian
+build:raspbian:
+  stage: build
+  image: amd64/debian:stable
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   expire_in: 30 minutes
    paths:
     - /builds/fredbcode/e2guardian   
-  image: amd64/debian:stable
   variables:
     OS: "raspbian" 
   script:
@@ -19,20 +18,19 @@ Package Docker Image Raspbian:
    - apt-get update 
    - apt-get install -y build-essential crossbuild-essential-armhf 
    - apt-get build-dep -y -a armhf e2guardian 
-   - cd /builds/fredbcode/e2guardian   
+   - cd /builds/fredbcode/e2guardian && make clean  
    - ./autogen.sh
-   - export 
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
-   - find / -name ".git" -exec rm -r "{}" +
+   - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Raspbian Package:
-  stage: create-raspbian-package
+package:raspbian:
+  stage: create-package
   image: amd64/debian:stable
+  dependencies:
+    - build:raspbian
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian   
   variables:
@@ -66,4 +64,4 @@ Create Raspbian Package:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +

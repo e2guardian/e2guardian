@@ -1,10 +1,9 @@
-Package Docker Image Debian:
-  stage: build:debian
+Build debian package:
+  stage: build-debian
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   expire_in: 30 minutes
    paths:
-    - /builds/fredbcode/e2guardian  
+    - /builds/fredbcode/e2guardian
   image: amd64/debian:stable
   variables:
     OS: "debian"
@@ -17,15 +16,13 @@ Package Docker Image Debian:
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
     - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
-    - make 
-    - find / -name ".git" -exec rm -r "{}" +
+    - make
+    - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Create Debian Package:
   stage: create-debian-package
   image: amd64/debian:stable
   artifacts:
-   expire_in: 20 minutes
-   name: build 
    paths:
     - /builds/fredbcode/e2guardian
   variables:
@@ -49,14 +46,13 @@ Create Debian Package:
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - echo "export VFULL=$VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +
 
 Test and publish Debian:
-  stage: testdebian
+  stage: test-publish-debian
   image: amd64/debian:stable
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   name: builddebian
    paths:
     - /builds/fredbcode/e2guardian 
   variables:
@@ -90,4 +86,4 @@ Test and publish Debian:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +
