@@ -1,9 +1,8 @@
-Package Docker Image Ubuntu focal:
-  stage: ubuntufocal
+build:focal:
+  stage: build 
   image: amd64/ubuntu:20.04
   artifacts:
-   expire_in: 20 minutes
-   name: build
+   expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian
   script:
@@ -18,14 +17,14 @@ Package Docker Image Ubuntu focal:
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
     - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Create Ubuntu Package focal:
-  stage: create-ubuntu-packagefocal
+package:focal:
+  stage: create-package
   image: amd64/ubuntu:20.04
+  dependencies:
+    - build:focal
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian  
   variables:
@@ -51,14 +50,14 @@ Create Ubuntu Package focal:
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - rm -rf .git
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Test and publish Ubuntu focal:
-  stage: testubuntufocal 
+test:focal:
+  stage: test-publish 
   image: amd64/ubuntu:20.04
+  dependencies:
+    - package:focal
   artifacts:
-   expire_in: 20 minutes
-   name: build
    paths:
     - /builds/fredbcode/e2guardian
   variables:
@@ -92,4 +91,4 @@ Test and publish Ubuntu focal:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
-    - find / -name ".git" -exec rm -r "{}" +
+    - find /builds/ -name ".git" -exec rm -r "{}" +
