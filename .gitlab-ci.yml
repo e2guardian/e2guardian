@@ -8,10 +8,10 @@ stages:
 - test-publish
   #- ubuntubionic
   #- create-ubuntu-packagebionic
-- testubuntubionic
+  #- testubuntubionic
   #- ubuntufocal
   #- create-ubuntu-packagefocal
-- testubuntufocal
+  #- testubuntufocal
   #- build:raspbian
   #- create-raspbian-package
 
