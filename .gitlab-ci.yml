@@ -9,14 +9,6 @@ stages:
 - build
 - create-package
 - test-publish
-  #- ubuntubionic
-  #- create-ubuntu-packagebionic
-  #- testubuntubionic
-  #- ubuntufocal
-  #- create-ubuntu-packagefocal
-  #- testubuntufocal
-  #- build:raspbian
-  #- create-raspbian-package
 
 include:
   - 'gitlabci/debianbuster.yml'
