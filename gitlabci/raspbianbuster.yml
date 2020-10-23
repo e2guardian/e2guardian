@@ -1,10 +1,10 @@
 build:raspbian:
   stage: build
+  image: amd64/debian:stable
   artifacts:
    expire_in: 60 minutes
    paths:
     - /builds/fredbcode/e2guardian   
-  image: amd64/debian:stable
   variables:
     OS: "raspbian" 
   script:
@@ -28,6 +28,7 @@ build:raspbian:
 
 package:raspbian:
   stage: create-package
+  image: amd64/debian:stable
   dependencies:
     - build:raspbian
   artifacts:
