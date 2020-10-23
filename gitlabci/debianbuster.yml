@@ -1,7 +1,7 @@
 Build debian package:
   stage: build-debian
   artifacts:
-   expire_in: 120 minutes
+   expire_in: 30 minutes
    paths:
     - /builds/fredbcode/e2guardian
   image: amd64/debian:stable
