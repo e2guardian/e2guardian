@@ -1,4 +1,4 @@
-Package Docker Image Raspbian:
+Build Raspbian:
   stage: build
   artifacts:
    expire_in: 60 minutes

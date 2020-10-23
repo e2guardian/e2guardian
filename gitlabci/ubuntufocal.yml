@@ -1,4 +1,4 @@
-Package Docker Image Ubuntu focal:
+ Build Ubuntu focal:
   stage: build 
   image: amd64/ubuntu:20.04
   artifacts:

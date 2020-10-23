@@ -1,4 +1,4 @@
-Build:bionic:
+build:bionic:
   stage: build 
   image: amd64/ubuntu:18.04
   artifacts:
@@ -23,7 +23,7 @@ Package:bionic:
   stage: create-package
   image: amd64/ubuntu:18.04
   dependencies:
-    - Build:bionic
+    - build:bionic
   artifacts:
    expire_in: 60 minutes
    paths:
@@ -52,11 +52,11 @@ Package:bionic:
     - rm -rf .git
     - find /builds/ -name ".git" -exec rm -r "{}" +
 
-Test:bionic:
+test:bionic:
   stage: test-publish 
   image: amd64/ubuntu:18.04
   dependencies:
-    - Package:bionic
+    - package:bionic
   artifacts:
    expire_in: 60 minutes
    paths:
