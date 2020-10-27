@@ -467,6 +467,7 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
     if (is_iplist) {
         if (is_map) {
             std::sort(ipmaplist.begin(), ipmaplist.end());
+            issorted = true;
             // temp code for testing
             if (false) {
                 std::cerr << "ipmaplist size is " << ipmaplist.size() << std::endl;
@@ -543,8 +544,12 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
             }
         } else {
             std::sort(iplist.begin(), iplist.end());
+            issorted = true;
 
         }
+    } else if (is_map) {
+        std::sort(datamaplist.begin(), datamaplist.end());
+        issorted = true;
     }
     return true; // sucessful read
 }
