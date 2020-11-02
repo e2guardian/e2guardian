@@ -4192,6 +4192,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
     }
 
+
     //check for redirect
     // URL regexp search and edirect
     if (checkme.urlredirect) {
@@ -4212,6 +4213,12 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         check_search_terms(checkme);  // will set isItNaughty if needed
 
 
+    // check for CONNECT redirect
+    if (icaphead.HTTPrequest.requestType() == "CONNECT") {
+        if (checkme.connect_site != checkme.urldomain) {
+            icaphead.HTTPrequest.setURL(checkme.connect_site);
+        }
+    }
     // TODO V5 call POST scanning code New NaughtyFilter function????
 
     if (!done && checkme.isItNaughty) {
