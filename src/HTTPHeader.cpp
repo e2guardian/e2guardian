@@ -507,6 +507,9 @@ void HTTPHeader::setURL(String &url)
 {
     String hostname;
     bool https = (url.before("://") == "https");
+    if(requestType() == "CONNECT"){
+        https = true;
+    }
     int port = (https ? 443 : 80);
 
     if (!url.after("://").contains("/")) {
