@@ -657,6 +657,18 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
+        TLS_filter_ports = findoptionM("tlsfilterports");
+        TLSproxyCN = findoptionS("tlsproxycn");
+        if (TLSproxyCN.empty())
+            TLSproxyCN = server_name;
+        {
+            String temp = TLSproxyCN;
+            int tno = temp.before(".").toInteger();
+            if ( tno > 0 && tno < 256 ) {
+                TLSproxyCN_is_ip = true;
+            }
+        }
+
         transparenthttps_port = findoptionI("transparenthttpsport");
         if (!realitycheck(transparenthttps_port, 0, 65535, "transparenthttpsport")) {
             return false;

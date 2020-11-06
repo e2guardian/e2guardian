@@ -363,8 +363,6 @@ bool BaseSocket::writeString(const char *line)
     return writeToSocket(line, l, 0, timeout);
 }
 
-
-// write data to socket
 bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, int timeout)
 {
     int actuallysent = 0;
@@ -376,16 +374,43 @@ bool BaseSocket::writeToSocket(const char *buff, int len, unsigned int flags, in
         if(isNoWrite()) return false;
         sent = send(sck, buff + actuallysent, len - actuallysent, 0);
 
-            if (sent  < 1) {
+        if (sent  < 1) {
             if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
                 if (readyForOutput(timeout)) continue; // now able to send
             }
-                s_errno = errno;
-                return false; // other end is closed
-            }
+            s_errno = errno;
+            return false; // other end is closed
+        }
         actuallysent += sent;
     }
     return true;
+
+}
+
+// write data to socket - returns no of bytes written or 0 if would block and -1 on error
+int BaseSocket::writeToSocketNB(const char *buff, int len, unsigned int flags)
+{
+    int actuallysent = 0;
+    int sent;
+    while (actuallysent < len) {
+        sent = 0;
+        s_errno = 0;
+        errno = 0;
+        if(isNoWrite()) return -1;
+        sent = send(sck, buff + actuallysent, len - actuallysent, 0);
+
+            if (sent  < 1) {
+            if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+                s_errno = errno;
+                return 0;
+            }
+                s_errno = errno;
+                return -1; // other end is closed
+            }
+        actuallysent += sent;
+            return sent;
+    }
+    return -1;    //should never get here
 }
 
 // read a specified expected amount and return what actually read

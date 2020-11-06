@@ -51,6 +51,7 @@ class Socket : public BaseSocket
     int getPeerSourcePort();
     int getPort();
     void setPort(int port);
+    void setClientAddr( std::string ip, int port);
     unsigned long int getPeerSourceAddr();
 
     // get local IP
@@ -110,10 +111,13 @@ class Socket : public BaseSocket
     bool writeString(const char *line);
     bool writeString(std::string line);
 
-    // write buffer to string
+    // write buff to socket - blocking
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout);
-    // read from socket, returning number of bytes read
 
+    // write buff to socket non-blocking - returns number of bytes written or 0 if would block or -1 on error
+    int writeToSocketNB(const char *buff, int len, unsigned int flags);
+
+    // read from socket, returning number of bytes read
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part = false);
 
     bool getIeof();
@@ -127,7 +131,10 @@ class Socket : public BaseSocket
     // local & remote addresses
     struct sockaddr_in my_adr;
     struct sockaddr_in peer_adr;
-    int my_port;
+    int my_port = 0;
+    std::string my_addr;
+    int client_port = 0;
+    std::string client_addr;
     bool ieof = false;
 };
 

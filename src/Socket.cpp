@@ -79,10 +79,11 @@ Socket::Socket(int fd)    //not used!!!!
     my_adr.sin_family = AF_INET;
     peer_adr.sin_family = AF_INET;
     peer_adr_length = sizeof(struct sockaddr_in);
-    int f = 1;
+    //int f = 1;
 
-    int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
-    if (res < 0) s_errno = errno;
+    //int res = setsockopt(sck, IPPROTO_TCP, TCP_NODELAY, &f, sizeof(int));
+    fcntl(sck, F_SETFL, O_NONBLOCK);
+    //if (res < 0) s_errno = errno;
     my_port = 0;
     chunkError = false;
 
@@ -124,12 +125,18 @@ std::string Socket::getLocalIP() {
 
 // find the ip of the client connecting to us
 std::string Socket::getPeerIP() {
+    if (!client_addr.empty()) {
+        return client_addr;
+    }
     char res[INET_ADDRSTRLEN];
     return inet_ntop(AF_INET,&peer_adr.sin_addr, res, sizeof(res));
 }
 
 // find the port of the client connecting to us
 int Socket::getPeerSourcePort() {
+    if (client_port > 0) {
+        return client_port;
+    }
     return ntohs(peer_adr.sin_port);
 }
 
@@ -139,6 +146,11 @@ int Socket::getPort() {
 
 void Socket::setPort(int port) {
     my_port = port;
+}
+
+void Socket::setClientAddr( std::string ip, int port) {
+    client_port = port;
+    client_addr = ip;
 }
 
 // return the address of the client connecting to us
@@ -522,6 +534,7 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
 
     //set the ctx to use the private key
     if (SSL_CTX_use_PrivateKey(ctx, privKey) < 1) {
+        log_ssl_errors("Error using private key","test");
         DEBUG_network("Error using private key");
         cleanSsl();
         return -1;
@@ -713,14 +726,14 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
                     case SSL_ERROR_WANT_WRITE:
                     if (ssl_poll_wait(s_errno, timeout)) continue;
                     timedout = true;
-                    return -1;
+                    return false;
                 case SSL_ERROR_ZERO_RETURN:  // eof
                     ishup = true;
                     return false;
                 default:
                     String serr(s_errno);
                     log_ssl_errors("ssl_write failed - error ",serr.c_str());
-                    DEBUG_network("ssl_write failed", s_errno, " failed to write");
+                    DEBUG_network("ssl_write failed", s_errno, " failed to write: sys errno is", errno);
                     ishup = true;
                     return false;
             }
@@ -729,6 +742,37 @@ bool Socket::writeToSocket(const char *buff, int len, unsigned int flags, int ti
         actuallysent += sent;
     }
     return true;
+}
+
+int Socket::writeToSocketNB(const char *buff, int len, unsigned int flags) {
+    if (len == 0)   // nothing to write
+        return 0;
+    if (!isssl) {
+        return BaseSocket::writeToSocketNB(buff, len, flags);
+    }
+
+    int sent;
+    ERR_clear_error();
+    sent = SSL_write(ssl, buff, len);
+    if (sent < 1) {
+        s_errno = SSL_get_error(ssl, sent);
+        switch (s_errno) {
+            case SSL_ERROR_WANT_READ:
+            case SSL_ERROR_WANT_WRITE:
+                return 0;
+            case SSL_ERROR_ZERO_RETURN:  // eof
+                ishup = true;
+                return -1;
+            default:
+                String serr(s_errno);
+                log_ssl_errors("ssl_write failed - error ", serr.c_str());
+                DEBUG_network("ssl_write failed", s_errno, " failed to write: sys errno is", errno);
+                ishup = true;
+                return -1;
+        }
+
+    }
+    return sent;
 }
 
 int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part )
@@ -759,10 +803,13 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     int rc;
     while (cnt > 0) {
         bool inbuffer;
+        int get_now = cnt;
+        if (get_now > 8000) get_now = 8000;
+
         ERR_clear_error();
 
         inbuffer = false;
-        rc = SSL_read(ssl, buff, cnt);
+        rc = SSL_read(ssl, buff, get_now);
 
         if (rc < 1) {
             s_errno = SSL_get_error(ssl,rc);
@@ -776,8 +823,8 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
                     ishup = true;
                     return len - cnt;
                 default:
+                    DEBUG_network("ssl_read failed ", s_errno, " errno ", errno, " failed to read ", get_now, " bytes");
                     log_ssl_errors("ssl_read failed %s", "");
-                    DEBUG_network("ssl_read failed", s_errno, " failed to read ",cnt, " bytes");
                     ishup = true;
                     return len - cnt;
             }

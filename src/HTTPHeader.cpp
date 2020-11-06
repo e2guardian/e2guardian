@@ -1763,8 +1763,8 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         int rc;
         if (firsttime) {
             DEBUG_debug("header:in before getLine - timeout:", timeout );
-            DEBUG_debug("firstime: header:in after getLine ");
             rc = sock->getLine(buff, 32768, timeout,  NULL, &truncated);
+            DEBUG_debug("firstime: header:in after getLine ");
            if (rc < 0 || truncated) {
                 ispersistent = false;
                 DEBUG_debug("firstime: header:in after getLine: rc: ", rc, " truncated: ", truncated  );

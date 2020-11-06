@@ -48,7 +48,7 @@ struct LQ_rec {
 #define CT_PROXY          1     // Normal proxy connection also handles tranpartent http
 #define CT_THTTPS       2     // Transparent https connection
 #define CT_ICAP              4     //  ICAP connection
-
+#define CT_PROXY_TLS          8     // Normal proxy connection over https
 
 
 
