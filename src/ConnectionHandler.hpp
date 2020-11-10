@@ -84,7 +84,7 @@ class ConnectionHandler
     void upstreamDiag(const char *message, Socket &proxysock );
 
     int handleConnection(Socket &peerconn, String &ip, bool ismitm, Socket &proxyconn, stat_rec* &dystat);
-    int handleProxyTLSConnection(Socket &peerconn, String &ip, stat_rec* &dystat);
+    int handleProxyTLSConnection(Socket &peerconn, String &ip, Socket &upssock, stat_rec* &dystat);
     int handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     int handleICAPConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat);
     int handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFilter &checkme, ICAPHeader &icaphead, AuthPlugin *auth_plugin) ;

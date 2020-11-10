@@ -574,7 +574,7 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
 
         case  CT_PROXY_TLS:
             SBauth.is_proxy = true;
-            rc = handleProxyTLSConnection(peerconn, ip, dystat);
+            rc = handleProxyTLSConnection(peerconn, ip, proxysock, dystat);
             break;
 
         case CT_ICAP:
@@ -3001,7 +3001,7 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     DEBUG_debug("End content check isitNaughty is  ", cm.isItNaughty);
 }
 
-int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, stat_rec* &dystat) {
+int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, Socket &upsconn, stat_rec* &dystat) {
 
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
@@ -3050,33 +3050,37 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, st
             o.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
-        int socks[2];
-        if (socketpair(AF_UNIX,SOCK_STREAM, 0, socks) != 0) {
-            E2LOGGER_error("Unable to create socket pair");
-            return 1;
-        }
-    Socket *s_inside = new Socket(socks[0]);
+     //   int socks[2];
+      //  if (socketpair(AF_UNIX,SOCK_STREAM, 0, socks) != 0) {
+       //     E2LOGGER_error("Unable to create socket pair");
+        //    return 1;
+        //}
+   // Socket *s_inside = new Socket(socks[0]);
     //Socket *s_outside = new Socket(socks[1]);
     //    Socket s_inside(socks[0]);
-        Socket s_outside(socks[1]);
-        s_inside->setClientAddr(peerconn.getPeerIP(),peerconn.getPeerSourcePort());
-        s_inside->setPort(peerconn.getPort());
+   //     Socket s_outside(socks[1]);
+   //     s_inside->setClientAddr(peerconn.getPeerIP(),peerconn.getPeerSourcePort());
+   //     s_inside->setPort(peerconn.getPort());
 
         //Q for service
-        LQ_rec lq_rec;
-        lq_rec.sock = s_inside;
-        lq_rec.ct_type = CT_PROXY;
-    DEBUG_debug("inside pair socket about to push to Q");
-        o.http_worker_Q.push(lq_rec);
-        DEBUG_debug("inside pair socket pushed to Q");
+    //    LQ_rec lq_rec;
+    //    lq_rec.sock = s_inside;
+    //    lq_rec.ct_type = CT_PROXY;
+    //DEBUG_debug("inside pair socket about to push to Q");
+   //     o.http_worker_Q.push(lq_rec);
+   //     DEBUG_debug("inside pair socket pushed to Q");
+DEBUG_network("about to connect to 8084");
+    upsconn.connect("127.0.0.1", 8084);
+    DEBUG_network("connected to 8084 - starting tunnell");
 
         // and then two way tunnel to outside socket;
         FDTunnel tunn;
 
-        tunn.tunnel(peerconn, s_outside, true);
+        tunn.tunnel(peerconn, upsconn, true);
+    DEBUG_network("tunnell finished");
 
         peerconn.close();
-        s_outside.close();
+        upsconn.close();
        // if (s_inside != nullptr) delete s_inside;
         return 0;
     }

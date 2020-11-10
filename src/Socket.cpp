@@ -647,7 +647,7 @@ try {
         DEBUG_network("read into buffer; bufflen: ", bufflen);
         if (bufflen < 1) {
             s_errno = SSL_get_error(ssl,bufflen);
-            DEBUG_network("read into buffer; s_errno: ", s_errno);
+            DEBUG_network("read into buffer; s_errno: ", s_errno, " timeout ", timeout);
 
             switch (s_errno) {
                 case SSL_ERROR_WANT_READ:
@@ -804,12 +804,13 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
     while (cnt > 0) {
         bool inbuffer;
         int get_now = cnt;
-        if (get_now > 8000) get_now = 8000;
+//        if (get_now > 8000) get_now = 8000;
 
         ERR_clear_error();
 
         inbuffer = false;
         rc = SSL_read(ssl, buff, get_now);
+        int myerrno = errno;
 
         if (rc < 1) {
             s_errno = SSL_get_error(ssl,rc);
@@ -822,8 +823,11 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
                 case SSL_ERROR_ZERO_RETURN:  // eof
                     ishup = true;
                     return len - cnt;
+//                case 5:   // problem with base sacket
+//                    DEBUG_network("ssl_read failed but ignored ", s_errno, " errno ", myerrno, " failed to read ", get_now, " bytes returned ",(len - cnt));
+//                    return len - cnt;
                 default:
-                    DEBUG_network("ssl_read failed ", s_errno, " errno ", errno, " failed to read ", get_now, " bytes");
+                    DEBUG_network("ssl_read failed ", s_errno, " errno ", myerrno, " failed to read ", get_now, " bytes");
                     log_ssl_errors("ssl_read failed %s", "");
                     ishup = true;
                     return len - cnt;
@@ -1022,7 +1026,9 @@ bool Socket::ssl_poll_wait(int serr, int timeout) {
         if (isNoRead())
             return false;
         errno = 0;
+        DEBUG_network("now poll(infds,1",timeout);
         rc = poll(infds, 1, timeout);
+        DEBUG_network("poll result",rc);
         if (rc == 0) {
             timedout = true;
             return false;   //timeout

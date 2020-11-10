@@ -212,6 +212,9 @@ bool BaseSocket::isNoWrite()
 // blocking check to see if there is data waiting on socket
 bool BaseSocket::checkForInput(int timeout)
 {
+    if(timeout == 0) {
+        return false;
+    }
     if ((bufflen - buffstart) > 0)
         return true; // is data left in buffer
 
@@ -421,7 +424,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
 
     // first, return what's left from the previous buffer read, if anything
     if ((bufflen - buffstart) > 0) {
-        DEBUG_network("readFromSocketn: data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
+        DEBUG_network("data already in buffer; bufflen: ", bufflen, " buffstart: ", buffstart);
         int tocopy = len;
         if ((bufflen - buffstart) < len)
             tocopy = bufflen - buffstart;
@@ -448,6 +451,7 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
             return -1;
         }
         if (rc == 0) { // eof
+            ishup = true;
             return len - cnt;
         }
         cnt -= rc;
