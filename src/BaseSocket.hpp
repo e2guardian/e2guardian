@@ -57,7 +57,7 @@ class BaseSocket
     virtual BaseSocket *accept() = 0;
 
     // non-blocking check for input data
-    bool checkForInput(int timeout = 0);
+    bool checkForInput(int timeout = 20);
     // non-blocking check for writable socket
     //bool readyForOutput();
     // blocking check

@@ -54,6 +54,8 @@ class Socket : public BaseSocket
     void setClientAddr( std::string ip, int port);
     unsigned long int getPeerSourceAddr();
 
+    std::string down_thread_id;
+
     // get local IP
     std::string getLocalIP();
     int getLocalPort();
@@ -100,7 +102,7 @@ class Socket : public BaseSocket
     //void readyForOutput(int timeout, bool honour_reloadconfig = false);
 
     // non-blocking check for input data
-    bool checkForInput();
+    bool checkForInput(int timeout = 20);
     //bool bcheckForInput(int timeout);
     bool ssl_poll_wait(int eno, int timeout);
 

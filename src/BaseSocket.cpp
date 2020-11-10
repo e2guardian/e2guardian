@@ -445,7 +445,10 @@ int BaseSocket::readFromSocket(char *buff, int len, unsigned int flags, int time
         if (rc < 0) {
             if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
                 if (checkForInput(timeout)) continue;// now got some input
-                else  return -1;// timed out
+                else  {
+                    timedout = true;
+                    return -1;// timed out
+                }
             }
             s_errno = errno;
             return -1;
