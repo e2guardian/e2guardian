@@ -951,7 +951,7 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
         return;
     }
     if (is_map) {     // deal with datamaplist
-        std::sort(datamaplist.begin(), datamaplist.end());
+        //std::sort(datamaplist.begin(), datamaplist.end());
         return;
     }
 
@@ -1817,9 +1817,10 @@ String ListContainer::inIPMap(const uint32_t &ip) {
 }
 
 String ListContainer::getMapData(String &key) {
-    for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i) {
-        if (i->key == key)
-            return i->group;
+    for (auto i : datamaplist) {
+  //  for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i)
+        if (i.key == key)
+            return i.group;
     }
     return "";
 }
