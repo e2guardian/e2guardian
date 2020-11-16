@@ -57,19 +57,24 @@ class BaseSocket
     virtual BaseSocket *accept() = 0;
 
     // non-blocking check for input data
-    bool checkForInput(int timeout = 0);
+    bool checkForInput(int timeout = 20);
     // non-blocking check for writable socket
     //bool readyForOutput();
     // blocking check
     bool readyForOutput(int timeout);
 
-    // get a line from the socket - can break on config reloads
+    // get a line from the socket
     int getLine(char *buff, int size, int timeout, bool *chopped = NULL, bool *truncated = NULL);
 
-    // write buffer to string - throws std::exception on error
-    bool writeString(const char *line); //throw(std::exception);
-    // write buffer to string
+    // write string to socket
+    bool writeString(const char *line);
+
+    // write buff to socket - blocking
     bool writeToSocket(const char *buff, int len, unsigned int flags, int timeout);
+
+    // write buff to socket - returns number of bytes written or 0 if would block or -1 on error
+    int writeToSocketNB(const char *buff, int len, unsigned int flags);
+
     // read from socket, returning number of bytes read
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part = false);
     short int get_wait_flag(bool write_flag);

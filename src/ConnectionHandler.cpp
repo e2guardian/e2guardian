@@ -572,6 +572,11 @@ int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dysta
             rc = handleTHTTPSConnection(peerconn, ip, proxysock, dystat);
             break;
 
+        case  CT_PROXY_TLS:
+            SBauth.is_proxy = true;
+            rc = handleProxyTLSConnection(peerconn, ip, proxysock, dystat);
+            break;
+
         case CT_ICAP:
             SBauth.is_icap = true;
             rc = handleICAPConnection(peerconn, ip, proxysock, dystat);
@@ -591,6 +596,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     //peerconn.setTimeout(o.proxy_timeout);
     peerconn.setTimeout(o.pcon_timeout);
+    DEBUG_proxy("down_stream thread ",peerconn.down_thread_id);
 
     // ldl = o.currentLists();
 
@@ -899,6 +905,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (header.isProxyRequest) {
                     filtergroup = o.default_fg;
                     SBauth.is_proxy = true;
+                    if(!peerconn.down_thread_id.empty())
+                        SBauth.is_tlsproxy = true;
                     only_ip_auth = false;
                 } else {
                     filtergroup = o.default_trans_fg;
@@ -1331,8 +1339,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         persistOutgoing = false;
 //#endif
                     } else {
-                        if (!docbody.out(&peerconn))
+                        if (!docbody.out(&peerconn)) {
+                            DEBUG_network(" docbody.out returned error");
                             checkme.pausedtoobig = false;
+                        }
                         if (checkme.pausedtoobig)
                             checkme.tunnel_rest = true;
                     }
@@ -2506,7 +2516,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
     certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
-                                                   &caser);
+                                                   &caser, checkme.isiphost);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
         //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
@@ -2996,56 +3006,138 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
     DEBUG_debug("End content check isitNaughty is  ", cm.isItNaughty);
 }
 
-int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
-    DEBUG_trace("");
+int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, Socket &upsconn, stat_rec* &dystat) {
 
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
     peerconn.setTimeout(o.pcon_timeout);
 
-    HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
-    HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
+    X509 *cert = NULL;
+    struct ca_serial caser;
+    caser.asn = NULL;
+    caser.charhex = NULL;
+    caser.filepath = NULL;
+    caser.filename = NULL;
 
-    NaughtyFilter checkme(header, docheader, SBauth);
-    checkme.listen_port = peerconn.getPort();
-    checkme.reset();
+    EVP_PKEY *pkey = NULL;
+    bool certfromcache = false;
+    //generate the cert
+    DEBUG_debug(" -Getting ssl certificate for client TLS proxy connection");
+
+    pkey = o.ca->getServerPkey();
+
+    //generate the certificate but dont write it to disk (avoid someone
+    //requesting lots of places that dont exist causing the disk to fill
+    //up / run out of inodes
+    certfromcache = o.ca->getServerCertificate(o.TLSproxyCN.c_str(), &cert,
+                                               &caser, o.TLSproxyCN_is_ip);
+    if (caser.asn == NULL) {
+        DEBUG_debug("caser.asn is NULL");                            }
+        //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
+
+        //check that the generated cert is not null
+        if (cert == NULL) {
+            DEBUG_debug(" cert is NULL for TLS proxy");
+            return 1;
+        }
+
+        if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
+            peerconn.stopSsl();
+            if(cert != NULL) {
+                X509_free(cert);
+                cert = NULL;
+            }
+            return 1;
+        }
+
+        if(!certfromcache)
+            o.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
+
+        // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
+        int socks[2];
+        if (socketpair(AF_UNIX,SOCK_STREAM|SOCK_NONBLOCK, 0, socks) != 0) {
+            E2LOGGER_error("Unable to create socket pair");
+            return 1;
+        }
+    Socket *s_inside = new Socket(socks[0]);
+        Socket s_outside(socks[1]);
+        s_inside->setClientAddr(peerconn.getPeerIP(),peerconn.getPeerSourcePort());
+        s_inside->setPort(peerconn.getPort());
+        s_inside->down_thread_id = thread_id;
+
+        //Q for service
+        LQ_rec lq_rec;
+        lq_rec.sock = s_inside;
+        lq_rec.ct_type = CT_PROXY;
+    DEBUG_debug("inside pair socket about to push to Q");
+        o.http_worker_Q.push(lq_rec);
+        DEBUG_debug("inside pair socket pushed to Q");
+//DEBUG_network("about to connect to 8084");
+//    upsconn.connect("127.0.0.1", 8084);
+//    DEBUG_network("connected to 8084 - starting tunnell");
+
+        // and then two way tunnel to outside socket;
+        FDTunnel tunn;
+
+        tunn.tunnel(peerconn, s_outside, true);
+    DEBUG_network("tunnell finished");
+        peerconn.stopSsl();
+        peerconn.close();
+       // if (s_inside != nullptr) delete s_inside;
+        return 0;
+    }
+
+    int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Socket &proxysock, stat_rec* &dystat) {
+        DEBUG_trace("");
+
+        struct timeval thestart;
+        gettimeofday(&thestart, NULL);
+
+        peerconn.setTimeout(o.pcon_timeout);
+
+        HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
+        HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
+
+        NaughtyFilter checkme(header, docheader, SBauth);
+        checkme.listen_port = peerconn.getPort();
+        checkme.reset();
 
 
-    std::string clientip(ip.toCharArray()); // hold the clients ip
-    docheader.setClientIP(ip);
+        std::string clientip(ip.toCharArray()); // hold the clients ip
+        docheader.setClientIP(ip);
 
-    if (clienthost) delete clienthost;
+        if (clienthost) delete clienthost;
 
-    clienthost = NULL; // and the hostname, if available
-    matchedip = false;
-
-
-    DEBUG_thttps(" -got peer connection - clientip is ", clientip);
-
-    try {
-        int rc;
+        clienthost = NULL; // and the hostname, if available
+        matchedip = false;
 
 
-        //int oldfg = 0;
-        bool authed = false;
-        bool isbanneduser = false;
-        bool firsttime = true;
+        DEBUG_thttps(" -got peer connection - clientip is ", clientip);
 
-        AuthPlugin *auth_plugin = NULL;
+        try {
+            int rc;
 
-        // RFC states that connections are persistent
-        //bool persistOutgoing = true;
-        //bool persistPeer = true;
-        bool persistProxy = false;
-        //bool direct = false;
 
-        char buff[2048];
-        rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
-        DEBUG_thttps( "bytes peeked ", rc );
-        unsigned short toread = 0;
-        if (rc == 5) {
-        if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
+            //int oldfg = 0;
+            bool authed = false;
+            bool isbanneduser = false;
+            bool firsttime = true;
+
+            AuthPlugin *auth_plugin = NULL;
+
+            // RFC states that connections are persistent
+            //bool persistOutgoing = true;
+            //bool persistPeer = true;
+            bool persistProxy = false;
+            //bool direct = false;
+
+            char buff[2048];
+            rc = peerconn.readFromSocket(buff, 5, (MSG_PEEK ), 20000, true);
+            DEBUG_thttps( "bytes peeked ", rc );
+            unsigned short toread = 0;
+            if (rc == 5) {
+            if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 )   // has TLS hello signiture
             checkme.isTLS = true;
 
         toread = ( buff[3] << (8*1) | buff[4]);

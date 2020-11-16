@@ -65,18 +65,19 @@ int SocketArray::bindSingle(unsigned int index, int port, unsigned int type)
 
 
 // bind our first socket to any IP and one or more ports
-int SocketArray::bindSingleM(std::deque<String> &ports)
+int SocketArray::bindSingleM(std::deque<String> &ports, int &index, int ct_type )
 {
-    if (socknum < ports.size()) {
+    if ( socknum < (index + ports.size())) {
         return -1;
     }
-    for (unsigned int i = 0; i < ports.size(); i++) {
-        DEBUG_debug("bindSingleM binding port", ports[i]);
-        if (drawer[i].bind(ports[i].toInteger())) {
-            E2LOGGER_error("Error binding server socket: [", ports[i], " ", i, "] (", strerror(errno), ")");
+    for (auto i : ports) {
+        DEBUG_debug("bindSingleM binding port", i);
+        if (drawer[index].bind(i.toInteger())) {
+            E2LOGGER_error("Error binding server socket: [", i, " ", index, "] (", strerror(errno), ")");
             return -1;
         }
-        lc_types.push_back(CT_PROXY);
+        lc_types.push_back(ct_type);
+        index++;
     }
     return 0;
 }
@@ -105,19 +106,23 @@ int SocketArray::listenAll(int queue)
 }
 
 // bind all sockets to given IP list
-int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports)
+int SocketArray::bindAll(std::deque<String> &ips, std::deque<String> &ports, int &index, int ct_type)
 {
-    if (ips.size() > socknum) {
+    if ((index + (ips.size() * ports.size())) > socknum) {
         return -1;
     }
     //for (unsigned int i = 0; i < socknum; i++) {
-    for (unsigned int i = 0; i < ips.size(); i++) {
-        DEBUG_debug("Binding server socket[", ports[i], " ", ips[i], " ", i, "]" );
-        if (drawer[i].bind(ips[i].toCharArray(), ports[i].toInteger())) {
-            E2LOGGER_error("Error binding server socket: [", ports[i], " ", ips[i], " ", i, "] (", strerror(errno), ")" );
-            return -1;
+    for (auto i_ips : ips) {
+        for (auto i_ports : ports) {
+            DEBUG_debug("Binding server socket[", i_ports, " ", i_ips, " ", index, "]");
+            if (drawer[index].bind(i_ips.toCharArray(), i_ports.toInteger())) {
+                E2LOGGER_error("Error binding server socket: [", i_ports, " ", i_ips, " ", index, "] (", strerror(errno),
+                               ")");
+                return -1;
+            }
+            lc_types.push_back(ct_type);
+            index++;
         }
-        lc_types.push_back(CT_PROXY);
     }
     return 0;
 }

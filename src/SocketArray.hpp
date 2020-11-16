@@ -33,11 +33,11 @@ class SocketArray
     void deleteAll();
 
     // bind our sockets to the given IPs
-    int bindAll(std::deque<String> &ips, std::deque<String> &ports);
+    int bindAll(std::deque<String> &ips, std::deque<String> &ports, int &index, int ct_type);
     // bind just the one, to all available IPs
     int bindSingle(int port);
     int bindSingle(unsigned int index, int port, unsigned int CT_type);
-    int bindSingleM(std::deque<String> &port);
+    int bindSingleM(std::deque<String> &port, int &index, int ct_type);
     // set all sockets listening with given kernel queue length
     int listenAll(int queue);
 

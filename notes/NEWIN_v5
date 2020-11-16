@@ -156,6 +156,7 @@ As each group's lists are now in a different directory
 the e2guardianf1.conf files will be able to be copied into a new group .conf 
 with minimal changes.
 
+V5.5 
 NEW LOGGER and DEBUG system for logging, messages and debuging.
 
 Thanks to KDGunermann for all his work on this!
@@ -174,6 +175,12 @@ LOG ROTATION
 New command line option -t for log rotation
 
 See notes/rotating_logs for more details
+
+SECURE PROXY
+
+Secure (TLS) Proxy is now supported.
+
+See NETWORK section in e2guardian.conf for more information.
  
 
 TESTING -  
@@ -187,6 +194,10 @@ TO DO IN THIS RELEASE
     Make sockets non-blocking so time-out works with MITM - complete
 
     Reduce unnecessary memory usage on in DataBuffer & DMplugins - complete
+
+    Create replacement for mapauthtoports.
+
+    Bearer over basic token-based auth plugin.
 
     Integrate DMplugins with storyboards for plugin match. - in progress
 

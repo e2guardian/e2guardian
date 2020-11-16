@@ -88,9 +88,12 @@ class OptionContainer
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
     std::string proxy_ip;
+    std::string TLSproxyCN;
+    bool TLSproxyCN_is_ip = false;
     std::deque<String> filter_ip;
     std::deque<String> check_ip;
     std::deque<String> filter_ports;
+    std::deque<String> TLS_filter_ports;
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;
     bool SB_trace = false;
