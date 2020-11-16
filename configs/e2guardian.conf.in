@@ -189,10 +189,29 @@ languagedir = '@E2DATADIR@/languages'
 #filterports = 8080
 #filterports = 8081
 #
-# The port(s) that e2guardian listens to for proxy traffic.
+# The port(s) that e2guardian listens to for http proxy traffic.
 # Specify one line per port used for standard explict proxy.
 # These ports can also be used for redirected tranparent HTTP
 # Default is to listen on 8080 for proxy traffic
+
+#tlsfilterports = 8090
+#tlsfilterports = 8091
+#
+# The port(s) that e2guardian listens to for TLS (secure) proxy traffic.
+# Specify one line per port used for secure explict proxy.
+# Note that using TLS proxy consumes double the number of file descriptors (4)
+#     and httpsworker threads (2) per session
+# The MITM root CA must also be installed on the client even when not using
+#     MITM.
+# Default is none
+
+#tlsproxycn = 192.168.1.25
+#tlsproxycn = mye2g.anydomain
+#
+# The common name (CN) to be used to generate the server certificate for 
+# TLS proxy.  Can be IP or DNS name but must match entry used in clients
+# proxy settings.  
+# default is system name.
 
 #proxyport = 3128
 #

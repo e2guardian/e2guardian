@@ -1026,8 +1026,12 @@ String NaughtyFilter::getFlags() {
             flags = "T";
         else if (authrec->is_icap)
             flags += "I";
-        else
-            flags += "P";
+        else {
+            if(authrec->is_tlsproxy)
+                flags += "L";
+            else
+                flags += "P";
+        }
 
         if (ismitm)
             flags += "M";

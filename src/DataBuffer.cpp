@@ -110,8 +110,10 @@ void DataBuffer::swapbacktocompressed()
         delete[] data;
         data_length = compressed_buffer_length;
         data = compresseddata;
+
         compresseddata = nullptr;
         compressed_buffer_length = 0;
+        DEBUG_network("Compressed data size ", data_length);
     }
 }
 
@@ -405,7 +407,7 @@ bool DataBuffer::out(Socket *sock)
         unlink(tempfilepath.toCharArray());
     } else {
         off_t sent = bytesalreadysent;
-        DEBUG_debug("Sending ", buffer_length - bytesalreadysent, " bytes from RAM (", buffer_length, " in buffer; ", bytesalreadysent, " already sent)" );
+        DEBUG_debug("Sending ", data_length, " bytes from RAM (", buffer_length, " in buffer; ", bytesalreadysent, " already sent)" );
         // it's in RAM, so just send it, no streaming from disk
         int block_len;
         if(chunked)
@@ -418,8 +420,10 @@ bool DataBuffer::out(Socket *sock)
                 if( block_len > (data_length - sent))
                     block_len = (data_length - sent);
                 if (chunked) {
-                    if (!sock->writeChunk(data + sent, block_len, timeout))
+                    if (!sock->writeChunk(data + sent, block_len, timeout)) {
+                        DEBUG_network("writeChunk failed after ", sent, " bytes");
                         return false;
+                    }
 
                 } else {
                     if (!sock->writeToSocket(data + sent, data_length - sent, 0, timeout))
@@ -427,7 +431,8 @@ bool DataBuffer::out(Socket *sock)
                 }
                 sent += block_len;
             }
-            if (chunked && got_all) {
+            //if (chunked && got_all)
+            if (chunked ) {
                 String n;
                 if (!sock->writeChunkTrailer(n))
                     return false;

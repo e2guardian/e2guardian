@@ -905,6 +905,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (header.isProxyRequest) {
                     filtergroup = o.default_fg;
                     SBauth.is_proxy = true;
+                    if(!peerconn.down_thread_id.empty())
+                        SBauth.is_tlsproxy = true;
                     only_ip_auth = false;
                 } else {
                     filtergroup = o.default_trans_fg;
@@ -1337,8 +1339,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         persistOutgoing = false;
 //#endif
                     } else {
-                        if (!docbody.out(&peerconn))
+                        if (!docbody.out(&peerconn)) {
+                            DEBUG_network(" docbody.out returned error");
                             checkme.pausedtoobig = false;
+                        }
                         if (checkme.pausedtoobig)
                             checkme.tunnel_rest = true;
                     }
@@ -3052,14 +3056,12 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
         int socks[2];
-        if (socketpair(AF_UNIX,SOCK_STREAM, 0, socks) != 0) {
+        if (socketpair(AF_UNIX,SOCK_STREAM|SOCK_NONBLOCK, 0, socks) != 0) {
             E2LOGGER_error("Unable to create socket pair");
             return 1;
         }
     Socket *s_inside = new Socket(socks[0]);
-    Socket *s_outside = new Socket(socks[1]);
-    //    Socket s_inside(socks[0]);
-   //     Socket s_outside(socks[1]);
+        Socket s_outside(socks[1]);
         s_inside->setClientAddr(peerconn.getPeerIP(),peerconn.getPeerSourcePort());
         s_inside->setPort(peerconn.getPort());
         s_inside->down_thread_id = thread_id;
@@ -3078,11 +3080,10 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         // and then two way tunnel to outside socket;
         FDTunnel tunn;
 
-        tunn.tunnel(peerconn, *s_outside, true);
+        tunn.tunnel(peerconn, s_outside, true);
     DEBUG_network("tunnell finished");
         peerconn.stopSsl();
         peerconn.close();
-        s_outside->close();
        // if (s_inside != nullptr) delete s_inside;
         return 0;
     }

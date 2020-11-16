@@ -49,6 +49,7 @@ struct auth_rec {
     bool is_proxy = false;
     bool is_transparent = false;
     bool is_icap = false;
+    bool is_tlsproxy = false;
     String user_source;
     String group_source;
 };
