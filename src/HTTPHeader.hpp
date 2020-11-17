@@ -216,7 +216,10 @@ class HTTPHeader
     // generate bypass hashed cookie
     String hashedCookie(String *url, const char *magic, std::string *clientip, int bypasstimestamp, std::string user);
 
-       private:
+    // base64 decode a complete string
+    std::string decodeb64(const String &line);
+
+private:
         // timeout for socket operations
         int timeout;
 
@@ -270,8 +273,6 @@ class HTTPHeader
     static String hexToChar(const String &n, bool all = false);
     // base64 decode an individual char
     int decode1b64(char c);
-    // base64 decode a complete string
-    std::string decodeb64(const String &line);
 
     // modify supplied accept-encoding header, adding "identity" and stripping unsupported compression types
     String modifyEncodings(String e);

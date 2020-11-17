@@ -380,7 +380,8 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ##		   This is the method used by dg/e2g until v5.
 ##                 If authentication is enabled on proxy, then
 ##                 sslreplace, 'Transparent' or IP auth and possibly
-		   other features will not work. 
+##		   other features will not work. 
+##		   Withdrawn in v5.5!
 ##
 ## 'Transparent' - 80/443 requests are redirected to e2g on gateway
 ##	           Can be used with Standalone or Proxy-After mode
@@ -436,20 +437,20 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ## 'Proxy-after' plugins - requires a proxy behind.
 ## These are pass-through plugins which reply on sniffing the
 ## proxy auth headers between client and proxy to get username
-## - DEPRECIATED and will be removed for this release
+## - DEPRECIATED and are removed from this release
 ## - Use Proxy-first plugin and squid in front of e2g instead
 
 # Basic auth on back-end proxy
 #authplugin = '@E2CONFDIR@/authplugins/proxy-basic.conf'
-## - DEPRECIATED and will be removed for this release
+## - DEPRECIATED and has been removed from this release
 
 # Digest auth on back-end proxy
 #authplugin = '@E2CONFDIR@/authplugins/proxy-digest.conf'
-## - DEPRECIATED and will be removed for this release
+## - DEPRECIATED and has been removed from this release
 
 # NTLM (only v1) auth on back-end proxy
 #@NTLMSUPPORT@authplugin = '@E2CONFDIR@/authplugins/proxy-ntlm.conf'
-## - DEPRECIATED and will be removed for this release
+## - DEPRECIATED and has been removed from this release
 
 # All native plugins can also be used in proxy-after mode
 # but only when auth is not forced by the upstream proxy

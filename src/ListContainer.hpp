@@ -236,7 +236,7 @@ class ListContainer
     std::list<rangestruct> ipmaprangelist;
     std::list<subnetstruct> ipmapsubnetlist;
     //std::list<datamap> datamaplist;
-    std::deque<datamap> datamaplist;
+    std::vector<datamap> datamaplist;
 
     //timelists
     std::vector<TimeLimit> timelist;

@@ -15,6 +15,7 @@
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
 #include "LOptionContainer.hpp"
+#include "../../../../../opt/rh/devtoolset-2/root/usr/include/c++/4.8.2/deque"
 
 // DEFINES
 
@@ -84,6 +85,10 @@ class AuthPlugin : public Plugin
     // is this a connection-based auth type, i.e. assume all subsequent requests on the pconn are from the same user?
     bool is_connection_based;
 
+    std::deque<int> portlist;   // holds list of ports this plugin is valid for
+    void read_ports();
+    bool port_matched(int &port);
+
 
     int default_fg = 0;
     int tran_default_fg = 0;
@@ -110,6 +115,7 @@ class AuthPlugin : public Plugin
 
     protected:
     ConfigVar cv;
+    String bearer_secret;
 
     private:
     String pluginName;

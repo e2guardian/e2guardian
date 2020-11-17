@@ -1737,9 +1737,10 @@ String ListContainer::inIPMap(const uint32_t &ip) {
 }
 
 String ListContainer::getMapData(String &key) {
-    for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i) {
-        if (i->key == key)
-            return i->group;
+    for ( auto i : datamaplist) {
+    //for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i)
+        if (i.key == key)
+            return i.group;
     }
     return "";
 }

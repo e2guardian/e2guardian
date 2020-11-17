@@ -21,8 +21,6 @@
 
 extern OptionContainer o;
 
-extern authcreate_t proxycreate;
-extern authcreate_t digestcreate;
 extern authcreate_t identcreate;
 extern authcreate_t ipcreate;
 extern authcreate_t portcreate;
@@ -33,9 +31,6 @@ extern authcreate_t PF_basic_create;
 extern authcreate_t dnsauthcreate;
 #endif
 
-#ifdef ENABLE_NTLM
-extern authcreate_t ntlmcreate;
-#endif
 
 // IMPLEMENTATION
 
@@ -49,6 +44,7 @@ AuthPlugin::AuthPlugin(ConfigVar &definition)
 int AuthPlugin::init(void *args)
 {
     read_def_fg();
+    read_ports();
     return 0;
 }
 
@@ -111,15 +107,6 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
         return NULL;
     }
 
-    if (plugname == "proxy-basic") {
-        DEBUG_auth("Enabling proxy-basic auth plugin");
-        return proxycreate(cv);
-    }
-
-    if (plugname == "proxy-digest") {
-        DEBUG_auth("Enabling proxy-digest auth plugin");
-        return digestcreate(cv);
-    }
 
     if (plugname == "ident") {
         DEBUG_auth("Enabling ident server auth plugin");
@@ -153,12 +140,6 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     }
 #endif
 
-#ifdef ENABLE_NTLM
-    if (plugname == "proxy-ntlm") {
-        DEBUG_auth("Enabling proxy-NTLM auth plugin");
-        return ntlmcreate(cv);
-    }
-#endif
 
     E2LOGGER_error("Unable to load plugin: ", pluginConfigPath);
     return NULL;
@@ -188,3 +169,27 @@ void AuthPlugin::read_def_fg() {
         tran_default_fg = i;
     }
 }
+
+void AuthPlugin::read_ports() {
+    String t = cv["ports"];
+    if (t.empty()) return;
+    while (t.contains(",")) {
+        String p = t.before(",");
+        int pn = p.toInteger();
+        portlist.push_back(pn);
+        t = t.after(",");
+    }
+    int pn = t.toInteger();
+    portlist.push_back(pn);
+}
+
+
+bool AuthPlugin::port_matched(int &port) {
+    if (portlist.empty()) return true;
+    for (auto rec : portlist) {
+        if (rec == port) return true;
+    }
+    return false;
+
+}
+

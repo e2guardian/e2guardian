@@ -7,15 +7,13 @@ include_directories(.)
 include_directories(src)
 
 add_executable(v5_0
-        src/authplugins/digest.cpp
         src/authplugins/dnsauth.cpp
         src/authplugins/header.cpp
         src/authplugins/ident.cpp
         src/authplugins/ip.cpp
-        src/authplugins/ntlm.cpp
         src/authplugins/port.cpp
-        src/authplugins/proxy.cpp
         src/authplugins/ProxyFirstBasic.cpp
+        src/authplugins/BearerBasic.cpp
         src/contentscanners/avastdscan.cpp
         src/contentscanners/clamdscan.cpp
         src/contentscanners/commandlinescan.cpp

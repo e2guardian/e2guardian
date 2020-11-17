@@ -2684,15 +2684,16 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
     rc = 0;
     if (o.authplugins.size() != 0) {
         // We have some auth plugins load
-        int authloop = 0;
+       // int authloop = 0;
         rc = 0;
         String tmp;
+        int p = peerconn.getPort();
 
         for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
             DEBUG_debug(" -Querying next auth plugin...");
             // try to get the username & parse the return value
             auth_plugin = (AuthPlugin *) (*i);
-            if (only_client_ip && !auth_plugin->client_ip_based)
+            if ((only_client_ip && !auth_plugin->client_ip_based) || !auth_plugin->port_matched(p))
                 continue;
 
             // auth plugin selection for multi ports
@@ -2701,23 +2702,8 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // Logic changed to allow auth scan with multiple ports as option to auth-port
             //       fixed mapping
             //
-            if (o.map_auth_to_ports) {
-                if (o.filter_ports.size() > 1) {
-                    tmp = o.auth_map[peerconn.getPort()];
-                } else {
-                    // auth plugin selection for one port
-                    tmp = o.auth_map[authloop];
-                    authloop++;
-                }
 
-                if (tmp.compare(auth_plugin->getPluginName().toCharArray()) == 0) {
-                    rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
-                } else {
-                    rc = E2AUTH_NOMATCH;
-                }
-            } else {
                 rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
-            }
 
             if (rc == E2AUTH_NOMATCH) {
                 DEBUG_debug("Auth plugin did not find a match; querying remaining plugins");

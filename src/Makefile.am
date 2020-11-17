@@ -1,14 +1,6 @@
 clean_SUBDIRS= . downloadmanagers contentscanners authplugins
 DISTCLEANFILES = Makefile.in
 
-# A MASSIVE thank you to Lawrence Manning for pointing out the
-# -export-dynamic option was needed to solve a long problem
-# which stopped E22.9 from actually running ever.
-# Daniel Barron Fri 18th March 2005
-
-# Unfortunately, since it was never made to work on anything
-# other than Linux, libtool support has been removed in favour
-# of configure-time options (at DB's request).
 
 if ENABLE_CLAMD
 CLAMDSCAN_SOURCE = contentscanners/clamdscan.cpp
@@ -44,19 +36,14 @@ DEFAULTDM_SOURCE = downloadmanagers/default.cpp
 FANCYDM_SOURCE = downloadmanagers/fancy.cpp
 TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
 
-PROXYAUTH_SOURCE = authplugins/proxy.cpp
 IDENTAUTH_SOURCE = authplugins/ident.cpp
 IPAUTH_SOURCE = authplugins/ip.cpp
 PORTAUTH_SOURCE = authplugins/port.cpp
-DIGESTAUTH_SOURCE = authplugins/digest.cpp
 HEADERAUTH_SOURCE = authplugins/header.cpp
 PFBASICAUTH_SOURCE = authplugins/ProxyFirstBasic.cpp
+BEARERBASICAUTH_SOURCE = authplugins/BearerBasic.cpp
 
-if ENABLE_NTLM
-NTLMAUTH_SOURCE = authplugins/ntlm.cpp
-else
 NTLMAUTH_SOURCE =
-endif
 
 if PRT_DNSAUTH
 DNSAUTH_SOURCE = authplugins/dnsauth.cpp
@@ -120,8 +107,8 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        $(AVASTDSCAN_SOURCE) \
                        $(COMMANDLINE_SOURCE) \
                        $(DEFAULTDM_SOURCE) $(FANCYDM_SOURCE) \
-                       $(TRICKLEDM_SOURCE) $(PROXYAUTH_SOURCE) \
+                       $(TRICKLEDM_SOURCE)  \
                        $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
                        $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
-                       $(NTLMAUTH_SOURCE) $(DIGESTAUTH_SOURCE) \
+		       $(BEARERBASICAUTH_SOURCE) \
 		       $(HEADERAUTH_SOURCE) $(PFBASICAUTH_SOURCE)
