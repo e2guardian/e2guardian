@@ -574,6 +574,15 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
     } else if (is_map) {
         std::sort(datamaplist.begin(), datamaplist.end());
         issorted = true;
+        if(false) {   // make true for testing
+            for (auto item : datamaplist) {
+                std::cerr << item.key << " mapped to " << item.group << std::endl;
+            }
+            std::cerr << "End of list" << std::endl;
+            String t = "philip";
+            String tg = getMapData(t);
+            std::cerr << "Search for philip got " << tg.c_str() << std::endl;
+        }
     }
     return true; // sucessful read
 }
@@ -1816,13 +1825,36 @@ String ListContainer::inIPMap(const uint32_t &ip) {
     return "";
 }
 
-String ListContainer::getMapData(String &key) {
-    for (auto i : datamaplist) {
-  //  for (std::deque<datamap>::const_iterator i = datamaplist.begin(); i != datamaplist.end(); ++i)
-        if (i.key == key)
-            return i.group;
+// binary search list for given key & return filter group, or -1 on failure
+String ListContainer::searchDataMap(int a, int s, const String  &key) {
+    // change to serial search for testing
+    if (false) {
+        for (auto item : datamaplist) {
+            if (item.key== key) {
+                return item.group;
+            }
+        }
+        return "";
     }
-    return "";
+
+    if (true) {
+        if (a > s)
+            return "";
+        int m = (a + s) / 2;
+        if (datamaplist[m].key == key)
+            return datamaplist[m].group;
+        if (datamaplist[m].key < key)
+            return searchDataMap(m + 1, s, key);
+        if (a == s)
+            return "";
+        return searchDataMap(a, m - 1, key);
+    }
+}
+
+String ListContainer::getMapData(String &key) {
+    if(datamaplist.empty())
+        return "";
+    return  searchDataMap(0,datamaplist.size(),key);
 }
 
 String ListContainer::getIPMapData(std::string &ip) {
