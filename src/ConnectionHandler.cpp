@@ -2708,7 +2708,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 //requesting lots of places that dont exist causing the disk to fill
 //up / run out of inodes
         certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
-                                                   &caser);
+                                                   &caser, checkme.isiphost);
 #ifdef E2DEBUG
         if (caser.asn == NULL) {
                                 std::cerr << "caser.asn is NULL" << std::endl;
@@ -3269,7 +3269,8 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
 
     NaughtyFilter checkme(header, docheader, SBauth);
     checkme.listen_port = peerconn.getPort();
-    checkme.reset();
+    checkme.isconnect = true;
+    //checkme.reset();
 
 
     std::string clientip(ip.toCharArray()); // hold the clients ip
@@ -3397,6 +3398,7 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             }
 
             checkme.clientip = clientip;
+            checkme.isconnect = true;
 
             filtergroup = o.default_trans_fg;
 
