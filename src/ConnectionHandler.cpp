@@ -3443,6 +3443,7 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
         char res[INET_ADDRSTRLEN];
         checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
         checkme.orig_port = ntohs(origaddr.sin_port);
+        checkme.got_orig_ip = true;
         return true;
     }
 #else   // TODO: BSD code needs adding - depends on firewall being used
