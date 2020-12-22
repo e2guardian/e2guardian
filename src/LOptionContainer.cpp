@@ -685,7 +685,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 
     // pass all the vars from OptionContainer needed
     (*fg[numfg]).weighted_phrase_mode = o.naughty.weighted_phrase_mode;
-    (*fg[numfg]).force_quick_search = o.force_quick_search;
+    (*fg[numfg]).force_quick_search = o.lists.force_quick_search;
     (*fg[numfg]).reverse_lookups = o.reverse_lookups;
 
     // pass in the group name

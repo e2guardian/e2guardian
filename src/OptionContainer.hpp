@@ -176,13 +176,17 @@ struct NetworkOptions
     std::string proxy_ip;
     bool no_proxy = ( proxy_ip == "");
 
+    std::string TLSproxyCN;
+    bool TLSproxyCN_is_ip = false;
+
     bool map_ports_to_ips = false;
     bool map_auth_to_ports = false;
 
     std::deque<String> filter_ip;
     std::deque<String> check_ip;
-    std::deque<String> filter_ports;
     std::deque<String> xforwardedfor_filter_ip;
+    std::deque<String> filter_ports;
+    std::deque<String> TLS_filter_ports;
 
     int filter_port = 0;
     int proxy_port = 0;
@@ -270,16 +274,10 @@ class OptionContainer
     bool log_ssl_errors = false;
     int url_cache_number = 0;       // unused ??
     int url_cache_age = 0;          // unused ??
-    bool force_quick_search = false;
+
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
-    std::string proxy_ip;
-    std::string TLSproxyCN;
-    bool TLSproxyCN_is_ip = false;
-    std::deque<String> filter_ip;
-    std::deque<String> check_ip;
-    std::deque<String> filter_ports;
-    std::deque<String> TLS_filter_ports;
+
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;
 #ifdef NOTDEF

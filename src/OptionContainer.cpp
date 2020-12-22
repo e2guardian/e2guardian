@@ -984,15 +984,15 @@ bool OptionContainer::findNetworkOptions()
         return false;
     }
 
-    TLS_filter_ports = findoptionM("tlsfilterports");
-    TLSproxyCN = findoptionS("tlsproxycn");
-    if (TLSproxyCN.empty())
-        TLSproxyCN = net.server_name;
+    net.TLS_filter_ports = findoptionM("tlsfilterports");
+    net.TLSproxyCN = findoptionS("tlsproxycn");
+    if (net.TLSproxyCN.empty())
+        net.TLSproxyCN = net.server_name;
     {
-        String temp = TLSproxyCN;
+        String temp = net.TLSproxyCN;
         int tno = temp.before(".").toInteger();
         if ( tno > 0 && tno < 256 ) {
-            TLSproxyCN_is_ip = true;
+            net.TLSproxyCN_is_ip = true;
         }
     }
 

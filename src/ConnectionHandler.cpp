@@ -3038,8 +3038,8 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.cert.ca->getServerCertificate(o.TLSproxyCN.c_str(), &cert,
-                                               &caser, o.TLSproxyCN_is_ip);
+    certfromcache = o.cert.ca->getServerCertificate(o.net.TLSproxyCN.c_str(), &cert,
+                                               &caser, o.net.TLSproxyCN_is_ip);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
         //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
@@ -3060,7 +3060,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         }
 
         if(!certfromcache)
-            o.cert.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
+            o.cert.ca->writeCertificate(o.net.TLSproxyCN.c_str(), cert, &caser);
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
         int socks[2];

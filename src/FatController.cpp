@@ -1276,13 +1276,13 @@ int fc_controlit()   //
     thread_id = "master: ";
 
     // allocate & create our server sockets
-        if (o.filter_ip.size() > 0) {
-            serversocketcount = o.filter_ip.size() * o.filter_ports.size();
-            if (!o.TLS_filter_ports.empty()) {
-                serversocketcount += (o.filter_ip.size() * o.TLS_filter_ports.size());
+        if (o.net.filter_ip.size() > 0) {
+            serversocketcount = o.net.filter_ip.size() * o.net.filter_ports.size();
+            if (!o.net.TLS_filter_ports.empty()) {
+                serversocketcount += (o.net.filter_ip.size() * o.net.TLS_filter_ports.size());
             }
         } else {
-            serversocketcount = o.filter_ports.size() + o.TLS_filter_ports.size();
+            serversocketcount = o.net.filter_ports.size() + o.net.TLS_filter_ports.size();
         }
 
     int serversocktopproxy = serversocketcount;
@@ -1321,15 +1321,15 @@ int fc_controlit()   //
 
     int ss_index = 0;
     // we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
-    if (o.filter_ip[0].length() > 6) {
-        if (serversockets.bindAll(o.filter_ip, o.filter_ports,ss_index,CT_PROXY)) {
+    if (o.net.filter_ip[0].length() > 6) {
+        if (serversockets.bindAll(o.net.filter_ip, o.net.filter_ports,ss_index,CT_PROXY)) {
             E2LOGGER_error("Error binding HTTP proxy server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
         }
-        if (!o.TLS_filter_ports.empty()) {
-            if (serversockets.bindAll(o.filter_ip, o.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
+        if (!o.net.TLS_filter_ports.empty()) {
+            if (serversockets.bindAll(o.net.filter_ip, o.net.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
                 E2LOGGER_error(
                         "Error binding TLS proxy server socket (is something else running on the filter port and ip?");
                 close(pidfilefd);
@@ -1339,13 +1339,13 @@ int fc_controlit()   //
         }
     } else {
         // listen/bind to a port (or ports) on any interface
-            if (serversockets.bindSingleM(o.filter_ports, ss_index, CT_PROXY)) {
+            if (serversockets.bindSingleM(o.net.filter_ports, ss_index, CT_PROXY)) {
                 E2LOGGER_error("Error binding HTTP proxy server sockets: (", strerror(errno), ")");
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
             }
-        if (serversockets.bindSingleM(o.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
+        if (serversockets.bindSingleM(o.net.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
             E2LOGGER_error("Error binding TLS proxy server sockets: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
