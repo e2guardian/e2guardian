@@ -595,7 +595,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     gettimeofday(&thestart, NULL);
 
     //peerconn.setTimeout(o.proxy_timeout);
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
     DEBUG_proxy("down_stream thread ",peerconn.down_thread_id);
 
     // ldl = o.currentLists();
@@ -2518,7 +2518,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
+    certfromcache = o.cert.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
                                                    &caser, checkme.isiphost);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
@@ -3033,12 +3033,12 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     //generate the cert
     DEBUG_debug(" -Getting ssl certificate for client TLS proxy connection");
 
-    pkey = o.ca->getServerPkey();
+    pkey = o.cert.ca->getServerPkey();
 
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.ca->getServerCertificate(o.TLSproxyCN.c_str(), &cert,
+    certfromcache = o.cert.ca->getServerCertificate(o.TLSproxyCN.c_str(), &cert,
                                                &caser, o.TLSproxyCN_is_ip);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
@@ -3050,7 +3050,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             return 1;
         }
 
-        if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
+        if (peerconn.startSslServer(cert, pkey, o.cert.set_cipher_list) < 0) {
             peerconn.stopSsl();
             if(cert != NULL) {
                 X509_free(cert);
@@ -3060,7 +3060,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         }
 
         if(!certfromcache)
-            o.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
+            o.cert.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
         int socks[2];
@@ -3102,7 +3102,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         struct timeval thestart;
         gettimeofday(&thestart, NULL);
 
-        peerconn.setTimeout(o.pcon_timeout);
+        peerconn.setTimeout(o.net.pcon_timeout);
 
         HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
         HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)

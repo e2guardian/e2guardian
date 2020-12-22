@@ -980,6 +980,19 @@ bool OptionContainer::findNetworkOptions()
         return false;
     }
 
+    TLS_filter_ports = findoptionM("tlsfilterports");
+    TLSproxyCN = findoptionS("tlsproxycn");
+    if (TLSproxyCN.empty())
+        TLSproxyCN = net.server_name;
+    {
+        String temp = TLSproxyCN;
+        int tno = temp.before(".").toInteger();
+        if ( tno > 0 && tno < 256 ) {
+            TLSproxyCN_is_ip = true;
+        }
+    }
+
+
     net.transparenthttps_port = findoptionI("transparenthttpsport");
     if (!realitycheck(net.transparenthttps_port, 0, 65535, "transparenthttpsport")) {
         return false;
@@ -989,6 +1002,14 @@ bool OptionContainer::findNetworkOptions()
     if (!realitycheck(net.icap_port, 0, 65535, "icapport")) {
         return false;
     }
+
+    if (net.icap_port > 0) {   // add non-plugin auth for ICAP
+        SB_entry_map sen;
+        sen.entry_function = "auth_icap";
+        sen.entry_id = ENT_STORYA_AUTH_ICAP;
+        auth_entry_dq.push_back(sen);
+    }
+
 
     net.xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
 
