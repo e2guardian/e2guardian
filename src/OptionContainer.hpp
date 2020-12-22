@@ -129,7 +129,7 @@ struct HTTPHeaderOptions
 };
 struct ListsOptions
 {
-    bool read_from_stdin = false;
+    bool read_from_stdin = false;     // unused ?? kdg 22.12.2020
     bool force_quick_search = false;
 
 };
@@ -397,6 +397,7 @@ class OptionContainer
     bool findDStatOptions();
     bool findFilterGroupOptions();
     bool findHeaderOptions();
+    bool findListsOptions();
     bool findLoggerOptions();
     bool findNaughtyOptions();
     bool findNetworkOptions();

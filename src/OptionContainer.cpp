@@ -154,6 +154,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (!findBlockPageOptions()) return false;
         if (!findFilterGroupOptions()) return false;
         if (!findHeaderOptions()) return false;
+        if (!findListsOptions()) return false;
         if (!findNaughtyOptions()) return false;
 
         // soft_restart = (findoptionS("softrestart") == "on"); // Unused
@@ -184,11 +185,6 @@ bool OptionContainer::read(std::string &filename, int type) {
             search_sitelist_for_ip = true;
         }
 
-        if (findoptionS("forcequicksearch") == "on") {
-            force_quick_search = true;
-        } else {
-            force_quick_search = false;
-        }
 
 
         if (findoptionS("usecustombannedimage") == "off") {
@@ -756,6 +752,14 @@ bool OptionContainer::findHeaderOptions()
 
     return true;
 }
+
+bool OptionContainer::findListsOptions()
+{
+    lists.force_quick_search = (findoptionS("forcequicksearch") == "on");
+
+    return true;
+}
+
 
 bool OptionContainer::findLoggerOptions()
 {
