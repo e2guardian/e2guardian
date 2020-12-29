@@ -80,6 +80,7 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (!findBlockPageOptions(cr)) return false;
         if (!findFilterGroupOptions(cr)) return false;
         if (!findHeaderOptions(cr)) return false;
+        if (!findICAPOptions(cr)) return false;
         if (!findListsOptions(cr)) return false;
         if (!findMonitorOptions(cr)) return false;
         if (!findNaughtyOptions(cr)) return false;
@@ -206,10 +207,6 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         icap_reqmod_url = findoptionS("icapreqmodurl");
         if (icap_reqmod_url == "")
             icap_reqmod_url = "request";
-
-        icap_resmod_url = cr.findoptionS("icapresmodurl");
-        if (icap_resmod_url == "")
-            icap_resmod_url = "response";
 
         log_ssl_errors = cr.findoptionB("logsslerrors");
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
@@ -557,6 +554,19 @@ bool OptionContainer::findHeaderOptions(ConfigReader &cr)
     }
 
     header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 250, 50);
+
+    return true;
+}
+
+bool OptionContainer::findICAPOptions(ConfigReader &cr)
+{
+    icap.icap_reqmod_url = cr.findoptionS("icapreqmodurl");
+    if (icap.icap_reqmod_url == "")
+        icap.icap_reqmod_url = "request";
+
+    icap.icap_resmod_url = cr.findoptionS("icapresmodurl");
+    if (icap.icap_resmod_url == "")
+        icap.icap_resmod_url = "response";
 
     return true;
 }

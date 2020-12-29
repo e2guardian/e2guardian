@@ -561,9 +561,9 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                     return false;
                 }
                 t = t.after("//").after("/");
-                if (t == o.icap_reqmod_url) {
+                if (t == o.icap.icap_reqmod_url) {
                     icap_reqmod_service = true;
-                } else if (t == o.icap_resmod_url) {
+                } else if (t == o.icap.icap_resmod_url) {
                     icap_resmod_service = true;
                 } else {
                     icap_error = "404 ICAP Service not found";

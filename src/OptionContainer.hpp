@@ -137,6 +137,11 @@ struct HTTPHeaderOptions
     unsigned int max_header_lines = 0;
 
 };
+struct ICAPOptions
+{
+    std::string icap_reqmod_url;
+    std::string icap_resmod_url;
+};
 struct ListsOptions
 {
     bool read_from_stdin = false;     // unused ?? kdg 22.12.2020
@@ -317,6 +322,7 @@ class OptionContainer
     DStatOptions            dstat;
     FilterGroupOptions      filter;
     HTTPHeaderOptions       header;
+    ICAPOptions             icap;
     ListsOptions            lists;
     LogOptions              log;
     MonitorOptions          monitor;
@@ -336,8 +342,6 @@ class OptionContainer
     bool use_xforwardedfor = false;
     bool log_ssl_errors = false;
 
-    std::string icap_reqmod_url;
-    std::string icap_resmod_url;
 
     std::string blocked_content_store;
 
@@ -381,6 +385,7 @@ class OptionContainer
     bool findDStatOptions(ConfigReader &cr);
     bool findFilterGroupOptions(ConfigReader &cr);
     bool findHeaderOptions(ConfigReader &cr);
+    bool findICAPOptions(ConfigReader &cr);
     bool findListsOptions(ConfigReader &cr);
     bool findLoggerOptions(ConfigReader &cr);
     bool findMonitorOptions(ConfigReader &cr);
