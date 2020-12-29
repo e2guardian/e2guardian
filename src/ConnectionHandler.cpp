@@ -4217,11 +4217,14 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
 
     // check for CONNECT redirect
-    if (icaphead.HTTPrequest.requestType() == "CONNECT") {
+    if ((icaphead.HTTPrequest.requestType() == "CONNECT") && checkme.urlmodified) {
+        // DEBUG_debug("is CONNECT logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         if (checkme.connect_site != checkme.urldomain) {
-            icaphead.HTTPrequest.setURL(checkme.connect_site);
+            icaphead.HTTPrequest.setConnect(checkme.connect_site);
+            // DEBUG_debug("after setURL logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         }
     }
+
     // TODO V5 call POST scanning code New NaughtyFilter function????
 
     if (!done && checkme.isItNaughty) {

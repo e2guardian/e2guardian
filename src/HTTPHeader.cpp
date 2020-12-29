@@ -582,6 +582,18 @@ void HTTPHeader::setURL(String &url)
     cachedurl = "";   // blank cachedurl so that getUrl will re-generate it
 }
 
+void HTTPHeader::setConnect(String &con_site) {
+    if (requestType() != "CONNECT") return;
+    header.front() = header.front().before(" ") + " " + con_site + ":" + String(port) + " " + header.front().after(" ").after(" ");
+    //remove all other headers
+    if (header.size() > 1) {
+        header.erase(header.begin()+1, header.end());
+    }
+    if (phost != NULL) {
+        phost = nullptr;
+    }
+}
+
 // Does a regexp search and replace.
 // urlRegExp Code originally from from Ton Gorter 2004
 bool HTTPHeader::regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list)
