@@ -208,7 +208,6 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (icap_reqmod_url == "")
             icap_reqmod_url = "request";
 
-        log_ssl_errors = cr.findoptionB("logsslerrors");
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
         per_room_directory_location = cr.findoptionS("perroomdirectory");
 
@@ -618,10 +617,10 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 
     {
         if (cr.findoptionB("logsyslog")) {
-            if ((log.name_suffix = cr.findoptionS("namesuffix")) == "") {
-                log.name_suffix = "";
+            if ((logger.name_suffix = cr.findoptionS("namesuffix")) == "") {
+                logger.name_suffix = "";
             }
-            e2logger.setSyslogName(config.prog_name + log.name_suffix);
+            e2logger.setSyslogName(config.prog_name + logger.name_suffix);
         }     
     }
 
@@ -641,8 +640,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             }
     }
 
-    log.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
-    loggerConf.debugformat(log.debug_format);
+    logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
+    loggerConf.debugformat(logger.debug_format);
 
     if (cr.findoptionB("tag_logs")) {
         e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
@@ -694,14 +693,14 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 
     {
         if (cr.findoptionB("storyboardtrace")) {
-            log.SB_trace = true;
+            logger.SB_trace = true;
             e2logger.enable(LoggerSource::storytrace);
         } else {
-            log.SB_trace = false;
+            logger.SB_trace = false;
         }
     }
 
-    if ( log.SB_trace ) {
+    if ( logger.SB_trace ) {
         DEBUG_config("Enable Storyboard tracing !!");
         e2logger.enable(LoggerSource::story);
     }

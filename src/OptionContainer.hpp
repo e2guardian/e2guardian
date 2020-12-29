@@ -28,6 +28,43 @@
 
 
 // DECLARATIONS
+struct AccessLogOptions
+{
+    std::string log_location;
+    std::string RQlog_location;
+
+    Queue<std::string>* log_Q;
+    Queue<std::string>* RQlog_Q;
+
+    //Queue<AccessLogger::LogRecord*> log_Q;
+    //Queue<AccessLogger::LogRecord*> RQlog_Q;
+
+    int log_level = 0;
+    int log_file_format = 0;
+    int log_exception_hits = 0;
+
+    bool log_requests = false;
+    bool log_client_hostnames = false;
+    bool log_client_host_and_ip = false;  // TODO: unused ???
+    bool anonymise_logs = false;
+    bool log_ad_blocks = false;
+    bool log_timestamp = false;
+    bool log_user_agent = false;
+    bool use_dash_for_blanks = true;
+  
+    unsigned int max_logitem_length = 2000;
+
+    std::string dns_user_logging_domain;  // TODO: not documented ??
+    bool dns_user_logging() { return !dns_user_logging_domain.empty(); };
+
+    std::string log_header_value;
+
+    // Hardware/organisation/etc. IDs
+    std::string logid_1;
+    std::string logid_2;
+    std::string prod_id;
+};
+
 struct AuthPluginOptions 
 {
     bool auth_needs_proxy_query = false;
@@ -158,43 +195,12 @@ struct ListsOptions
     std::deque<String> ipmaplist_dq;
 
 };
-struct LogOptions
+struct LoggerOptions
 {
-    std::string log_location;
-    std::string RQlog_location;
-
-    Queue<std::string>* log_Q;
-    Queue<std::string>* RQlog_Q;
-
-    //Queue<AccessLogger::LogRecord*> log_Q;
-    //Queue<AccessLogger::LogRecord*> RQlog_Q;
-
-    int log_level = 0;
-    int log_file_format = 0;
-    int log_exception_hits = 0;
     int debug_format = 1;
 
-    bool log_requests = false;
-    bool log_client_hostnames = false;
-    bool log_client_host_and_ip = false;  // TODO: unused ???
-    bool anonymise_logs = false;
-    bool log_ad_blocks = false;
-    bool log_timestamp = false;
-    bool log_user_agent = false;
-    bool use_dash_for_blanks = true;
+    bool log_ssl_errors = false;
     bool SB_trace = false;
-
-    unsigned int max_logitem_length = 2000;
-
-    std::string dns_user_logging_domain;  // TODO: not documented ??
-    bool dns_user_logging() { return !dns_user_logging_domain.empty(); };
-
-    std::string log_header_value;
-
-    // Hardware/organisation/etc. IDs
-    std::string logid_1;
-    std::string logid_2;
-    std::string prod_id;
 
     std::string name_suffix;    // for SyslogName, where configured ??
 
@@ -314,6 +320,7 @@ class OptionContainer
 {
     public:
     // all our many, many options
+    AccessLogOptions        log;
     BlockPageOptions        block;
     CertificateOptions      cert;
     ConfigOptions           config;
@@ -324,7 +331,7 @@ class OptionContainer
     HTTPHeaderOptions       header;
     ICAPOptions             icap;
     ListsOptions            lists;
-    LogOptions              log;
+    LoggerOptions           logger;
     MonitorOptions          monitor;
     NaughtyOptions          naughty;
     NetworkOptions          net;
@@ -340,10 +347,6 @@ class OptionContainer
     bool config_error = false;
 
     bool use_xforwardedfor = false;
-    bool log_ssl_errors = false;
-
-
-    std::string blocked_content_store;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
@@ -358,6 +361,7 @@ class OptionContainer
     //int url_cache_number = 0;       // unused ??
     //int url_cache_age = 0;          // unused ??
     //bool recheck_replaced_urls;     // unused ??
+    //std::string blocked_content_store; // unused ??
     
     OptionContainer();
     ~OptionContainer();
