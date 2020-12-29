@@ -96,12 +96,12 @@ int portinstance::quit()
 // plugin init - read in ip melange list
 int portinstance::init(void *args)
 {
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYA_AUTH_PORT;
         story_entry = sen.entry_id;
-        o.auth_entry_dq.push_back(sen);
+        o.story.auth_entry_dq.push_back(sen);
 	    read_def_fg();
         return 0;
     } else {

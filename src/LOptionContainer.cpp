@@ -84,7 +84,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     DEBUG_config("read Storyboard: ", o.storyboard_location);
-    if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
+    if (!StoryA.readFile(o.story.storyboard_location.c_str(), LMeta, true)) {
         E2LOGGER_error("Storyboard not loaded OK");
         loaded_ok = false;
     }
@@ -112,11 +112,11 @@ LOptionContainer::LOptionContainer(int load_id)
  //   }
 
     DEBUG_trace("");
-    if (loaded_ok && o.auth_entry_dq.size() > 0)  {
-            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
+    if (loaded_ok && o.story.auth_entry_dq.size() > 0)  {
+            for (std::deque<struct StoryBoardOptions::SB_entry_map>::const_iterator i = o.story.auth_entry_dq.begin(); i != o.story.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
                     E2LOGGER_error("Required auth storyboard entry function", i->entry_function,
-                                " is missing from pre_auth.stoary");
+                                " is missing from pre_auth.story");
                     loaded_ok = false;
                 }
             }

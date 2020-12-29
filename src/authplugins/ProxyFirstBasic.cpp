@@ -14,12 +14,11 @@
 
 #include "../Auth.hpp"
 #include "../OptionContainer.hpp"
+#include "../Logger.hpp"
 
 #include <syslog.h>
 
-extern bool is_daemonised;
 extern OptionContainer o;
-extern thread_local std::string thread_id;
 
 // DECLARATIONS
 
@@ -62,7 +61,7 @@ int pf_basic_instance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h
         string.resize(string.find_first_of(':'));
         authrec.user_name = string;
         authrec.user_source = "pf_basic";
-	is_real_user = true;
+	    is_real_user = true;
         return E2AUTH_OK;
     }
     return E2AUTH_NOMATCH;
@@ -70,18 +69,16 @@ int pf_basic_instance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h
 
 int pf_basic_instance::init(void *args)
 {
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYA_AUTH_PF_BASIC;
         story_entry = sen.entry_id;
-        o.auth_entry_dq.push_back(sen);
+        o.story.auth_entry_dq.push_back(sen);
         read_def_fg();
         return 0;
     } else {
-        if (!is_daemonised)
-            std::cerr << thread_id << "No story_function defined in proxy auth plugin config" << std::endl;
-        syslog(LOG_ERR, "No story_function defined in proxy auth plugin config");
+        E2LOGGER_error("No story_function defined in proxy auth plugin config");
         return -1;
     }
 }

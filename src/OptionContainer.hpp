@@ -277,6 +277,19 @@ struct ProcessOptions
     bool become_proxy_user();
     bool daemonise();           // Fork ourselves off into the background
 };
+struct StoryBoardOptions
+{
+    struct SB_entry_map {
+        int entry_id = 0;
+        String entry_function;
+    };
+
+    std::string storyboard_location;  // better: preauth_location ??
+
+    std::deque<SB_entry_map> auth_entry_dq;
+    std::deque<SB_entry_map> dm_entry_dq;
+
+};    
 
 class OptionContainer
 {
@@ -296,14 +309,11 @@ class OptionContainer
     NetworkOptions        net;
     PluginOptions         plugins;
     ProcessOptions        proc;
+    StoryBoardOptions     story;
 
 
     Queue<LQ_rec> http_worker_Q;
     
-    struct SB_entry_map {
-        int entry_id = 0;
-        String entry_function;
-    };
 
     bool config_error = false;
 
@@ -341,11 +351,6 @@ class OptionContainer
     std::string mailer;
 #endif
 
-    std::string storyboard_location;
-
-
-    std::deque<SB_entry_map> auth_entry_dq;
-    std::deque<SB_entry_map> dm_entry_dq;
 
 
     LanguageContainer language_list;
@@ -387,6 +392,7 @@ class OptionContainer
     bool findNetworkOptions(ConfigReader &cr);
     bool findPluginOptions(ConfigReader &cr);
     bool findProcOptions(ConfigReader &cr);
+    bool findStoryBoardOptions(ConfigReader &cr);
 
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);

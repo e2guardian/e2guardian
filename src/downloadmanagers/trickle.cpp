@@ -70,12 +70,12 @@ int trickledm::init(void *args)
 {
     DMPlugin::init(args);
 
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYB_DM_TRICKLE;
         story_entry = sen.entry_id;
-        o.dm_entry_dq.push_back(sen);
+        o.story.dm_entry_dq.push_back(sen);
         return 0;
     } else {
         E2LOGGER_error("No story_function defined in trickle DM plugin config");

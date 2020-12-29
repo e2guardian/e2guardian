@@ -89,7 +89,7 @@ class LOptionContainer
     const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
-    String ISTag() {
+    String ISTag() {  // unused ??
         return start_time;
     }
 

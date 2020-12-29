@@ -83,6 +83,7 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (!findListsOptions(cr)) return false;
         if (!findNaughtyOptions(cr)) return false;
         if (!findPluginOptions(cr)) return false;
+        if (!findStoryBoardOptions(cr)) return false;
 
 
         // soft_restart = (findoptionS("softrestart") == "on"); // Unused
@@ -225,11 +226,6 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         recheck_replaced_urls = cr.findoptionB("recheckreplacedurls");
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
 
-        storyboard_location = cr.findoptionS("preauthstoryboard");
-        if (storyboard_location.empty()) {
-            storyboard_location = __CONFDIR;
-            storyboard_location += "/preauth.story";
-        }
 
         per_room_directory_location = cr.findoptionS("perroomdirectory");
 
@@ -838,10 +834,10 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     }
 
     if (net.icap_port > 0) {   // add non-plugin auth for ICAP
-        SB_entry_map sen;
+        StoryBoardOptions::SB_entry_map sen;
         sen.entry_function = "auth_icap";
         sen.entry_id = ENT_STORYA_AUTH_ICAP;
-        auth_entry_dq.push_back(sen);
+        story.auth_entry_dq.push_back(sen);
     }
 
 
@@ -960,6 +956,16 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
 
     return true;
 
+}
+
+bool OptionContainer::findStoryBoardOptions(ConfigReader &cr)
+{
+    story.storyboard_location = cr.findoptionS("preauthstoryboard");
+    if (story.storyboard_location.empty()) {
+        story.storyboard_location = __CONFDIR;
+        story.storyboard_location += "/preauth.story";
+    }
+    return true;
 }
 
 

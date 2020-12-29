@@ -80,12 +80,12 @@ int fancydm::init(void *args)
     // call inherited init
     DMPlugin::init(args);
 
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYB_DM_FANCY;
         story_entry = sen.entry_id;
-        o.dm_entry_dq.push_back(sen);
+        o.story.dm_entry_dq.push_back(sen);
     } else {
         E2LOGGER_error("No story_function defined in fancy DM plugin config");
         return -1;

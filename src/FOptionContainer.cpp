@@ -676,8 +676,8 @@ bool FOptionContainer::read(const char *filename) {
            return false;
         }
 
-        if (o.dm_entry_dq.size() > 0)  {
-            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
+        if (o.story.dm_entry_dq.size() > 0)  {
+            for (std::deque<struct StoryBoardOptions::SB_entry_map>::const_iterator i = o.story.dm_entry_dq.begin(); i != o.story.dm_entry_dq.end(); ++i) {
                 if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
                     E2LOGGER_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
                 }
