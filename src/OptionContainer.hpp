@@ -131,6 +131,16 @@ struct ListsOptions
 {
     bool read_from_stdin = false;     // unused ?? kdg 22.12.2020
     bool force_quick_search = false;
+    bool abort_on_missing_list = false;
+    bool search_sitelist_for_ip = false;
+
+    std::deque<String> iplist_dq;
+    std::deque<String> sitelist_dq;
+    std::deque<String> ipsitelist_dq;
+    std::deque<String> urllist_dq;
+    std::deque<String> regexpboollist_dq;
+    std::deque<String> maplist_dq;
+    std::deque<String> ipmaplist_dq;
 
 };
 struct LogOptions
@@ -279,7 +289,6 @@ class OptionContainer
     std::string icap_resmod_url;
 
     std::map<int, String> auth_map;
-    bool abort_on_missing_list = false;
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
@@ -299,7 +308,6 @@ class OptionContainer
     // bool monitor_helper_flag = false;
     std::string monitor_flag_prefix;
     bool monitor_flag_flag = false;
-    bool search_sitelist_for_ip = false;
 
 
     //bool soft_restart = false;
@@ -311,13 +319,6 @@ class OptionContainer
 
     std::string storyboard_location;
 
-    std::deque<String> iplist_dq;
-    std::deque<String> sitelist_dq;
-    std::deque<String> ipsitelist_dq;
-    std::deque<String> urllist_dq;
-    std::deque<String> regexpboollist_dq;
-    std::deque<String> maplist_dq;
-    std::deque<String> ipmaplist_dq;
 
     std::deque<SB_entry_map> auth_entry_dq;
     std::deque<SB_entry_map> dm_entry_dq;

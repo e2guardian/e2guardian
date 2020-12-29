@@ -104,11 +104,6 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
             monitor_flag_flag = true;
         }
 
-        if (cr.findoptionS("searchsitelistforip") == "off") {
-            search_sitelist_for_ip = false;
-        } else {
-            search_sitelist_for_ip = true;
-        }
 
 
 
@@ -297,13 +292,6 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
             }
         }
 
-        iplist_dq = *cr.findoptionM("iplist");
-        sitelist_dq = *cr.findoptionM("sitelist");
-        ipsitelist_dq = *cr.findoptionM("ipsitelist");
-        urllist_dq = *cr.findoptionM("urllist");
-        regexpboollist_dq = *cr.findoptionM("regexpboollist");
-        maplist_dq = *cr.findoptionM("maplist");
-        ipmaplist_dq = *cr.findoptionM("ipmaplist");
 
         if ( cr.findoptionB("authrequiresuserandgroup") && (authplugins.size() > 1))
             auth_requires_user_and_group = true;
@@ -379,9 +367,9 @@ bool OptionContainer::readinStdin() {
                 return false;
             lm.l[rc]->doSort(url_list);
             if (site_list)
-                sitelist_dq.push_back(param);
+                lists.sitelist_dq.push_back(param);
             else
-                urllist_dq.push_back(param);
+                lists.urllist_dq.push_back(param);
         }
     }
     return true;
@@ -648,6 +636,15 @@ bool OptionContainer::findListsOptions(ConfigReader &cr)
 {
     lists.force_quick_search = cr.findoptionB("forcequicksearch");
     lists.abort_on_missing_list = cr.findoptionB("abortiflistmissing");
+    lists.search_sitelist_for_ip = cr.findoptionB("searchsitelistforip");
+
+    lists.iplist_dq = *cr.findoptionM("iplist");
+    lists.sitelist_dq = *cr.findoptionM("sitelist");
+    lists.ipsitelist_dq = *cr.findoptionM("ipsitelist");
+    lists.urllist_dq = *cr.findoptionM("urllist");
+    lists.regexpboollist_dq = *cr.findoptionM("regexpboollist");
+    lists.maplist_dq = *cr.findoptionM("maplist");
+    lists.ipmaplist_dq = *cr.findoptionM("ipmaplist");
 
     return true;
 }

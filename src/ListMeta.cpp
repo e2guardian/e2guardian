@@ -223,7 +223,7 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 break;
         }
     }
-    if (errors && o.abort_on_missing_list) return false;
+    if (errors && o.lists.abort_on_missing_list) return false;
     return true;
 }
 

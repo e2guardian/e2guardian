@@ -545,7 +545,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                    continue;
                 if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
                     continue;
-                if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
+                if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.lists.search_sitelist_for_ip)
                     continue;
 
                 // DEBUG_story("checking ", j->name, " type ", String(j->type));
@@ -591,7 +591,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         continue;
                     if (!(u->site_is_ip) && j->type == LIST_TYPE_IPSITE)
                         continue;
-                    if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
+                    if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.lists.search_sitelist_for_ip)
                         continue;
 
                     DEBUG_story("checking ", j->name, " type ", j->type, "Target ", t);

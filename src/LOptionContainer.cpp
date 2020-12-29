@@ -42,44 +42,44 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-        DEBUG_config("iplist size is ", o.iplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
+        DEBUG_config("iplist size is ", o.lists.iplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IP, o.lists.iplist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("sitelist size is ", o.sitelist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
+        DEBUG_config("sitelist size is ", o.lists.sitelist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_SITE, o.lists.sitelist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("ipsitelist size is ", o.ipsitelist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
+        DEBUG_config("ipsitelist size is ", o.lists.ipsitelist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IPSITE, o.lists.ipsitelist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("urllist size is ", o.urllist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
+        DEBUG_config("urllist size is ", o.lists.urllist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_URL, o.lists.urllist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("regexpboollist size is ", o.regexpboollist_dq.size());;
-        if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
+        DEBUG_config("regexpboollist size is ", o.lists.regexpboollist_dq.size());;
+        if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.lists.regexpboollist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("maplist size is ", o.maplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
+        DEBUG_config("maplist size is ", o.lists.maplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_MAP, o.lists.maplist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("ipmaplist size is ", o.ipmaplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
+        DEBUG_config("ipmaplist size is ", o.lists.ipmaplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IPMAP, o.lists.ipmaplist_dq))
             loaded_ok = false;
     }
 
@@ -122,7 +122,7 @@ LOptionContainer::LOptionContainer(int load_id)
             }
     }
 
-    if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
+    if(loaded_ok && (!readFilterGroupConf() || (o.lists.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;
         E2LOGGER_error("Error in reading filter group files");
     }
