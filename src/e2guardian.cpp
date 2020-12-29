@@ -88,7 +88,7 @@ int main(int argc,char *argv[])
     readCommandlineOptions(argc, argv);
     
     DEBUG_trace("read Configfile: ", o.config.configfile);
-    if (!o.read_config(o.config.configfile, 2)) {
+    if (!o.read_config(o.config.configfile)) {
         E2LOGGER_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
         exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
     }
@@ -149,10 +149,10 @@ int readCommandlineOptions(int argc, char *argv[])
                 bool dobreak = false;
                 switch (option) {
                 case 'q':
-                    o.read_config(o.config.configfile, 0);
+                    o.read_config(o.config.configfile, false);
                     return sysv_kill(o.proc.pid_filename,true);
                 case 'Q':
-                    o.read_config(o.config.configfile, 0);
+                    o.read_config(o.config.configfile, false);
                     sysv_kill(o.proc.pid_filename, false);
                     // give the old process time to die
                     while (sysv_amirunning(o.proc.pid_filename))
@@ -162,14 +162,14 @@ int readCommandlineOptions(int argc, char *argv[])
                     needreset = true;
                     break;
                 case 's':
-                    o.read_config(o.config.configfile, 0);
+                    o.read_config(o.config.configfile, false);
                     return sysv_showpid(o.proc.pid_filename);
                 case 'r':
                 case 'g':
-                    o.read_config(o.config.configfile, 0);
+                    o.read_config(o.config.configfile, false);
                     return sysv_hup(o.proc.pid_filename);
                 case 't':
-                    o.read_config(o.config.configfile, 0);
+                    o.read_config(o.config.configfile, false);
                     return sysv_usr1(o.proc.pid_filename);
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
@@ -260,7 +260,7 @@ int startDaemon()
 
             DEBUG_trace("About to re-read conf file.");
             o.reset();
-            if (!o.read_config(o.config.configfile, 2)) {
+            if (!o.read_config(o.config.configfile, true)) {
                 // OptionContainer class had an error reading the conf or
                 // other files so exit with errora
                 E2LOGGER_error("Error re-parsing the e2guardian.conf file or other e2guardian configuration files");

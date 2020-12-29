@@ -40,30 +40,17 @@ OptionContainer::~OptionContainer() {
 }
 
 void OptionContainer::reset() {
-    //deleteFilterGroups();
     deletePlugins(dmplugins);
     deletePlugins(csplugins);
     deletePlugins(authplugins);
-    //deleteRooms();
-    //exception_ip_list.reset();
-    //banned_ip_list.reset();
     language_list.reset();
-    conffile.clear();
     net.filter_ip.clear();
     net.filter_ports.clear();
     auth_map.clear();
 }
 
-
-// Purpose: reads the configuration file into deque OptionContainer:conffile
-// Params : list_pwd : base directory when looking for lists definitions
-//bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
-//    return cr.readConfig(filename, list_pwd);
-//}
-
 // Purpose: reads all options from the main configuration file (e2guardian.conf)
-// Params:  type = ???
-bool OptionContainer::read_config(std::string &filename, int type) {
+bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
     ConfigReader          cr;
 
     config.conffilename = filename;
@@ -79,9 +66,7 @@ bool OptionContainer::read_config(std::string &filename, int type) {
         if (!findLoggerOptions(cr)) return false;
         if (!findAccessLogOptions(cr)) return false;        
 
-        //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
-
-        if (type == 0) {     // pid_filename is the only thing needed for type 0 in order to send signals
+        if (!readFullConfig) {     // pid_filename is the only thing needed for type 0 in order to send signals
             return true;
         }
 
@@ -311,14 +296,6 @@ bool OptionContainer::read_config(std::string &filename, int type) {
                 *it++;
             }
         }
-
-        // group_names_list_location = findoptionS("groupnamesfile"); // no longer supported
-        // if (group_names_list_location.length() == 0) {
-        //     use_group_names_list = false;
-        //     DEBUG_debug("Not using groupnameslist");
-        // } else {
-        //     use_group_names_list = true;
-        // }
 
         iplist_dq = *cr.findoptionM("iplist");
         sitelist_dq = *cr.findoptionM("sitelist");

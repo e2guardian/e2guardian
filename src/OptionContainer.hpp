@@ -354,37 +354,24 @@ class OptionContainer
     OptionContainer();
     ~OptionContainer();
 
-    bool read_config(std::string& filename, int type);
-    //bool readConfFile(const char *filename, String &list_pwd);
+    bool read_config(std::string& filename, bool readFullConfig=true);
     void reset();
 
-    //const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
-    //char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
     //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
-  //  bool inTotalBlockList(String &url);
+
     std::string per_room_directory_location;
     bool createLists(int load_id);
-    std::shared_ptr<LOptionContainer> currentLists();
-    std::atomic<int> LC_cnt;
 
-    //LOptionContainer* current_LOC;
+    std::atomic<int> LC_cnt;
+    std::shared_ptr<LOptionContainer> currentLists();
     std::shared_ptr<LOptionContainer> current_LOC;
-    //   std::string html_template_location;
-    // std::string group_names_list_location;
     
 
     private:
-    std::deque<std::string> conffile;
+    // std::deque<std::string> conffile;
 
-
-    // long int findoptionI(const char *option);
-    // std::string findoptionS(const char *option);
-    // std::deque<String> findoptionM(const char *option);
-
-    bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
-    // long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
     bool findAccessLogOptions(ConfigReader &cr);
     bool findBlockPageOptions(ConfigReader &cr);
