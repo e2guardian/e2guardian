@@ -918,7 +918,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             " only_ip_auth is ", String(only_ip_auth),
                             " needs proxy for auth plugin is ", String(o.auth_needs_proxy_in_plugin) );
 
-                if (!persistProxy && o.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
+                if (!persistProxy && o.plugins.auth.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
                 {
                     if (connectUpstream(proxysock, checkme, header.port) < 0) {
                         if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
@@ -1017,7 +1017,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head or not yet authed
                 && !(checkme.isBlocked)  // or already blocked
                 && authed   // and is authed
-                && (o.csplugins.size() > 0)            //  and we have scan plugins
+                && (o.plugins.csplugins.size() > 0)            //  and we have scan plugins
                 && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
                 && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
                 // and not exception unless scan exceptions enabled
@@ -1188,7 +1188,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             checkme.isconnect = false;
                             checkme.isexception = true;
                         } else if (!authed && checkme.request_header->isProxyRequest
-                                   && o.auth_needs_proxy_in_plugin && !checkme.isexception) {
+                                   && o.plugins.auth.auth_needs_proxy_in_plugin && !checkme.isexception) {
                             checkme.isItNaughty = true;
                             checkme.message_no =  110;
                         }
@@ -1269,7 +1269,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
                 if (!checkme.noviruscheck) {
-                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                    for (std::deque<Plugin *>::iterator i = o.plugins.csplugins_begin; i != o.plugins.csplugins_end; ++i) {
                         int csrc = ((CSPlugin *) (*i))->willScanRequest(header.getUrl(), clientuser.c_str(),
                                                                         ldl->fg[filtergroup], clientip.c_str(), false,
                                                                         false, checkme.isexception, checkme.isbypass);
@@ -2685,14 +2685,14 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
     DEBUG_debug(" -Not got persistent credentials for this connection - querying auth plugins");
     bool dobreak = false;
     rc = 0;
-    if (o.authplugins.size() != 0) {
+    if (o.plugins.authplugins.size() != 0) {
         // We have some auth plugins load
        // int authloop = 0;
         rc = 0;
         String tmp;
         int p = peerconn.getPort();
 
-        for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
+        for (std::deque<Plugin *>::iterator i = o.plugins.authplugins_begin; i != o.plugins.authplugins_end; i++) {
             DEBUG_debug(" -Querying next auth plugin...");
             // try to get the username & parse the return value
             auth_plugin = (AuthPlugin *) (*i);
@@ -2772,7 +2772,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 clientuser = "";
                 continue;
             } else if (rc == E2AUTH_NOGROUP) {
-                if (o.auth_requires_user_and_group || !is_real_user) {
+                if (o.plugins.auth.auth_requires_user_and_group || !is_real_user) {
                     clientuser = "";
                     SBauth.user_source = "";
                     continue;
@@ -2809,9 +2809,9 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // actually controls is whether or not the query should be forwarded to the
             // proxy (without pre-emptive blocking); we don't want this for 'ident' or
             // 'ip', because Squid isn't necessarily going to return 'auth required'.
-            authed = !o.auth_needs_proxy_query;
-            if (!o.auth_needs_proxy_query)
-                DEBUG_auth(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
+            authed = !o.plugins.auth.auth_needs_proxy_query;
+            if (!o.plugins.auth.auth_needs_proxy_query)
+                DEBUG_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
 
             clientuser = "-";
             //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
@@ -4078,7 +4078,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
-        && (o.csplugins.size() > 0)            //  and we have scan plugins
+        && (o.plugins.csplugins.size() > 0)            //  and we have scan plugins
         && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
         && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
         && !checkme.isvirusbypass   // and is not virus bypass
@@ -4137,7 +4137,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
    if (!done && !checkme.isItNaughty) {
            if(!checkme.noviruscheck)
                 {
-                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                    for (std::deque<Plugin *>::iterator i = o.plugins.csplugins_begin; i != o.plugins.csplugins_end; ++i) {
                         int csrc = ((CSPlugin *)(*i))->willScanRequest(checkme.url, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
                         if (csrc > 0)
                             responsescanners.push_back((CSPlugin *)(*i));

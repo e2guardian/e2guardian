@@ -28,7 +28,15 @@
 
 
 // DECLARATIONS
-struct BlockPageOptions
+struct AuthPluginOptions 
+{
+    bool auth_needs_proxy_query = false;
+    bool auth_needs_proxy_in_plugin = false;
+    bool auth_requires_user_and_group = false;
+
+    std::map<int, String> auth_map;
+};
+struct BlockPageOptions 
 {
     int reporting_level = 0;
 
@@ -226,6 +234,26 @@ struct NaughtyOptions
     int preserve_case = 0;
     bool hex_decode_content = false;
 };
+struct PluginOptions
+{
+    std::deque<Plugin *> dmplugins;
+    std::deque<Plugin *> csplugins;
+    std::deque<Plugin *> authplugins;
+    std::deque<Plugin *>::iterator dmplugins_begin;
+    std::deque<Plugin *>::iterator dmplugins_end;
+    std::deque<Plugin *>::iterator csplugins_begin;
+    std::deque<Plugin *>::iterator csplugins_end;
+    std::deque<Plugin *>::iterator authplugins_begin;
+    std::deque<Plugin *>::iterator authplugins_end;
+
+    bool loadDMPlugins(ConfigReader &cr);
+    bool loadCSPlugins(ConfigReader &cr);
+    bool loadAuthPlugins(ConfigReader &cr);
+
+    void deletePlugins(std::deque<Plugin *> &list);
+
+    AuthPluginOptions   auth;     // for Auth Plugin
+};    
 struct ProcessOptions
 {
     int root_user = 0;
@@ -253,6 +281,7 @@ struct ProcessOptions
 class OptionContainer
 {
     public:
+    // all our many, many options
     BlockPageOptions      block;
     CertificateOptions    cert;
     ConfigOptions         config;
@@ -265,6 +294,7 @@ class OptionContainer
     LogOptions            log;
     NaughtyOptions        naughty;
     NetworkOptions        net;
+    PluginOptions         plugins;
     ProcessOptions        proc;
 
 
@@ -275,9 +305,7 @@ class OptionContainer
         String entry_function;
     };
 
-    // all our many, many options
     bool config_error = false;
-    //bool non_standard_delimiter;  // unused, but in FOptionContainer
 
     bool reverse_lookups = false;
     bool use_xforwardedfor = false;
@@ -288,7 +316,6 @@ class OptionContainer
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
 
-    std::map<int, String> auth_map;
 #ifdef NOTDEF
     bool get_orig_ip = false;
 #endif
@@ -296,9 +323,6 @@ class OptionContainer
     int max_ips = 0;
     bool recheck_replaced_urls;
     bool use_group_names_list = false;
-    bool auth_needs_proxy_query = false;
-    bool auth_requires_user_and_group = false;
-    bool auth_needs_proxy_in_plugin = false;
 
     std::string log_location;
     std::string RQlog_location;
@@ -328,36 +352,12 @@ class OptionContainer
     HTMLTemplate html_template;
     ListManager lm;
 
-    std::deque<Plugin *> dmplugins;
-    std::deque<Plugin *> csplugins;
-    std::deque<Plugin *> authplugins;
-    std::deque<Plugin *>::iterator dmplugins_begin;
-    std::deque<Plugin *>::iterator dmplugins_end;
-    std::deque<Plugin *>::iterator csplugins_begin;
-    std::deque<Plugin *>::iterator csplugins_end;
-    std::deque<Plugin *>::iterator authplugins_begin;
-    std::deque<Plugin *>::iterator authplugins_end;
-
-
-    // access denied domain (when using the CGI)
-    // String access_denied_domain; // Unused, see FOptionContainer/LOptionContainer 
-
-    bool loadDMPlugins(ConfigReader &cr);
-    bool loadCSPlugins(ConfigReader &cr);
-    bool loadAuthPlugins(ConfigReader &cr);
-    void deletePlugins(std::deque<Plugin *> &list);
-
-    //   void deleteFilterGroups();
-    //  void deleteFilterGroupsJustListData();
-
-    //...and the functions that read them
 
     OptionContainer();
     ~OptionContainer();
 
     bool read_config(std::string& filename, bool readFullConfig=true);
     void reset();
-
 
     //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
@@ -371,8 +371,6 @@ class OptionContainer
     
 
     private:
-    // std::deque<std::string> conffile;
-
 
     bool findAccessLogOptions(ConfigReader &cr);
     bool findBlockPageOptions(ConfigReader &cr);
@@ -387,6 +385,7 @@ class OptionContainer
     bool findLoggerOptions(ConfigReader &cr);
     bool findNaughtyOptions(ConfigReader &cr);
     bool findNetworkOptions(ConfigReader &cr);
+    bool findPluginOptions(ConfigReader &cr);
     bool findProcOptions(ConfigReader &cr);
 
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);

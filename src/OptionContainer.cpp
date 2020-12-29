@@ -40,13 +40,14 @@ OptionContainer::~OptionContainer() {
 }
 
 void OptionContainer::reset() {
-    deletePlugins(dmplugins);
-    deletePlugins(csplugins);
-    deletePlugins(authplugins);
+    plugins.deletePlugins(plugins.dmplugins);
+    plugins.deletePlugins(plugins.csplugins);
+    plugins.deletePlugins(plugins.authplugins);
+    plugins.auth.auth_map.clear();
+
     language_list.reset();
     net.filter_ip.clear();
     net.filter_ports.clear();
-    auth_map.clear();
 }
 
 // Purpose: reads all options from the main configuration file (e2guardian.conf)
@@ -66,7 +67,7 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (!findLoggerOptions(cr)) return false;
         if (!findAccessLogOptions(cr)) return false;        
 
-        if (!readFullConfig) {     // pid_filename is the only thing needed for type 0 in order to send signals
+        if (!readFullConfig) {     // pid_filename is the only thing needed to send signals
             return true;
         }
 
@@ -81,6 +82,8 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (!findHeaderOptions(cr)) return false;
         if (!findListsOptions(cr)) return false;
         if (!findNaughtyOptions(cr)) return false;
+        if (!findPluginOptions(cr)) return false;
+
 
         // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
@@ -230,71 +233,7 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
 
         per_room_directory_location = cr.findoptionS("perroomdirectory");
 
-        if (!loadDMPlugins(cr)) {
-            E2LOGGER_error("Error loading DM plugins");
-            return false;
-        }
 
-        if (content.contentscanning) {
-            if (!loadCSPlugins(cr)) {
-                E2LOGGER_error("Error loading CS plugins");
-                return false;
-            }
-        }
-
-        if (!loadAuthPlugins(cr)) {
-            E2LOGGER_error("Error loading auth plugins");
-            return false;
-        }
-
-        // check if same number of auth-plugin as ports if in
-        //     authmaptoport mode
-        if (net.map_auth_to_ports && (net.filter_ports.size() > 1)
-            && (net.filter_ports.size() != authplugins.size())) {
-            E2LOGGER_error("In mapauthtoports mode you need to setup one port per auth plugin");
-            return false;
-        }
-
-        // map port numbers to auth plugin names
-        for (unsigned int i = 0; i < authplugins.size(); i++) {
-            AuthPlugin *tmpPlugin = (AuthPlugin *) authplugins[i];
-            String tmpStr = tmpPlugin->getPluginName();
-
-            if ((!net.map_auth_to_ports) || net.filter_ports.size() == 1)
-                auth_map[i] = tmpStr;
-            else
-                auth_map[net.filter_ports[i].toInteger()] = tmpStr;
-        }
-
-        // if the more than one port is being used, validate the combination of auth plugins
-        if (authplugins.size() > 1 and net.filter_ports.size() > 1 and net.map_auth_to_ports) {
-            std::deque<Plugin *>::iterator it = authplugins.begin();
-            String firstPlugin;
-            while (it != authplugins.end()) {
-                AuthPlugin *tmp = (AuthPlugin *) *it;
-                if (tmp->getPluginName().startsWith("proxy-basic")) {
-                    E2LOGGER_error("Proxy auth is not possible with multiple ports");
-                    return false;
-                }
-                if (tmp->getPluginName().startsWith("proxy-ntlm") && (tmp->isTransparent() == false)) {
-                    E2LOGGER_error("Non-transparent NTLM is not possible with multiple ports");
-                    return false;
-                }
-                if (it == authplugins.begin())
-                    firstPlugin = tmp->getPluginName();
-                else {
-                    if ((firstPlugin == tmp->getPluginName()) and (!tmp->getPluginName().startsWith("ssl-core"))) {
-                        E2LOGGER_error("Auth plugins can not be the same");
-                        return false;
-                    }
-                }
-                *it++;
-            }
-        }
-
-
-        if ( cr.findoptionB("authrequiresuserandgroup") && (authplugins.size() > 1))
-            auth_requires_user_and_group = true;
 
 
         if (cert.enable_ssl) {
@@ -374,6 +313,8 @@ bool OptionContainer::readinStdin() {
     }
     return true;
 }
+
+// PRIVATE 
 
 bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 {
@@ -926,6 +867,73 @@ bool OptionContainer::findDStatOptions(ConfigReader &cr)
     return true;
 }
 
+bool OptionContainer::findPluginOptions(ConfigReader &cr)
+{
+    if (!plugins.loadDMPlugins(cr)) {
+        E2LOGGER_error("Error loading DM plugins");
+        return false;
+    }
+
+    if (content.contentscanning) {
+        if (!plugins.loadCSPlugins(cr)) {
+            E2LOGGER_error("Error loading CS plugins");
+            return false;
+        }
+    }
+
+    if (!plugins.loadAuthPlugins(cr)) {
+        E2LOGGER_error("Error loading auth plugins");
+        return false;
+    }
+
+    // check if same number of auth-plugin as ports if in
+    //     authmaptoport mode
+    if (net.map_auth_to_ports && (net.filter_ports.size() > 1)
+        && (net.filter_ports.size() != plugins.authplugins.size())) {
+        E2LOGGER_error("In mapauthtoports mode you need to setup one port per auth plugin");
+        return false;
+    }
+
+    // map port numbers to auth plugin names
+    for (unsigned int i = 0; i < plugins.authplugins.size(); i++) {
+        AuthPlugin *tmpPlugin = (AuthPlugin *) plugins.authplugins[i];
+        String tmpStr = tmpPlugin->getPluginName();
+
+        if ((!net.map_auth_to_ports) || net.filter_ports.size() == 1)
+            plugins.auth.auth_map[i] = tmpStr;
+        else
+            plugins.auth.auth_map[net.filter_ports[i].toInteger()] = tmpStr;
+    }
+
+    // if the more than one port is being used, validate the combination of auth plugins
+    if (plugins.authplugins.size() > 1 and net.filter_ports.size() > 1 and net.map_auth_to_ports) {
+        std::deque<Plugin *>::iterator it = plugins.authplugins.begin();
+        String firstPlugin;
+        while (it != plugins.authplugins.end()) {
+            AuthPlugin *tmp = (AuthPlugin *) *it;
+            if (tmp->getPluginName().startsWith("proxy-basic")) {
+                E2LOGGER_error("Proxy auth is not possible with multiple ports");
+                return false;
+            }
+            if (tmp->getPluginName().startsWith("proxy-ntlm") && (tmp->isTransparent() == false)) {
+                E2LOGGER_error("Non-transparent NTLM is not possible with multiple ports");
+                return false;
+            }
+            if (it == plugins.authplugins.begin())
+                firstPlugin = tmp->getPluginName();
+            else {
+                if ((firstPlugin == tmp->getPluginName()) and (!tmp->getPluginName().startsWith("ssl-core"))) {
+                    E2LOGGER_error("Auth plugins can not be the same");
+                    return false;
+                }
+            }
+            *it++;
+        }
+    }
+
+    return true;
+}
+
 bool OptionContainer::findProcOptions(ConfigReader &cr)
 {
 
@@ -1065,7 +1073,7 @@ long int OptionContainer::realitycheckWithDefault(const char *option, long int m
 }
 
 #pragma region Plugins
-bool OptionContainer::loadDMPlugins(ConfigReader &cr) {
+bool PluginOptions::loadDMPlugins(ConfigReader &cr) {
     DEBUG_config("load Download manager plugins");
     std::deque<String> dq = *cr.findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
@@ -1098,7 +1106,7 @@ bool OptionContainer::loadDMPlugins(ConfigReader &cr) {
     return true;
 }
 
-bool OptionContainer::loadCSPlugins(ConfigReader &cr) {
+bool PluginOptions::loadCSPlugins(ConfigReader &cr) {
     DEBUG_config("load Content scanner plugins");
     std::deque<String> dq = *cr.findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
@@ -1131,16 +1139,21 @@ bool OptionContainer::loadCSPlugins(ConfigReader &cr) {
     return true;
 }
 
-bool OptionContainer::loadAuthPlugins(ConfigReader &cr) {
+bool PluginOptions::loadAuthPlugins(ConfigReader &cr) {
     DEBUG_config("load Auth plugins");
-    // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
-    auth_needs_proxy_query = false;
 
     std::deque<String> dq = *cr.findoptionM("authplugin");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         return true; // to have one is optional
     }
+
+    // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
+    auth.auth_needs_proxy_query = false;
+
+    if ( cr.findoptionB("authrequiresuserandgroup") && (authplugins.size() > 1))
+        auth.auth_requires_user_and_group = true;
+
     String config;
     for (unsigned int i = 0; i < numplugins; i++) {
         config = dq[i];
@@ -1161,22 +1174,24 @@ bool OptionContainer::loadAuthPlugins(ConfigReader &cr) {
         }
 
         if (app->needs_proxy_query) {
-            auth_needs_proxy_query = true;
+            auth.auth_needs_proxy_query = true;
             DEBUG_debug("Auth plugin relies on querying parent proxy");
         }
         if (app->needs_proxy_access_in_plugin) {
-            auth_needs_proxy_in_plugin = true;
+            auth.auth_needs_proxy_in_plugin = true;
             DEBUG_debug("Auth plugin relies on querying parent proxy within plugin");
         }
         authplugins.push_back(app);
     }
+
+
     // cache reusable iterators
     authplugins_begin = authplugins.begin();
     authplugins_end = authplugins.end();
     return true;
 }
 
-void OptionContainer::deletePlugins(std::deque<Plugin *> &list) {
+void PluginOptions::deletePlugins(std::deque<Plugin *> &list) {
     for (std::deque<Plugin *>::iterator i = list.begin(); i != list.end(); i++) {
         if ((*i) != NULL) {
             (*i)->quit();

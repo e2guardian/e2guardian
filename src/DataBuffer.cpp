@@ -329,9 +329,9 @@ bool DataBuffer::in(Socket *sock, Socket *peersock, HTTPHeader *requestheader, H
     int j = 0;
  //   int rc = -1;
     DEBUG_trace("");
-    for (std::deque<Plugin *>::iterator i = o.dmplugins_begin; i != o.dmplugins_end; i++) {
+    for (std::deque<Plugin *>::iterator i = o.plugins.dmplugins_begin; i != o.plugins.dmplugins_end; i++) {
         ++j;
-        if ((i + 1) == o.dmplugins_end) {
+        if ((i + 1) == o.plugins.dmplugins_end) {
             DEBUG_debug("Got to final download manager so defaulting to always match.");
             dm_plugin = (DMPlugin *)(*i);
             dm_plugin->in(this, sock, peersock, requestheader, docheader, runav, headersent, &toobig);
