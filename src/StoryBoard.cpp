@@ -903,7 +903,7 @@ std::deque<url_rec> StoryBoard::ipToHostname(NaughtyFilter &cm) {
 }
 
 bool StoryBoard::has_reverse_hosts(std::deque<url_rec> &urec, NaughtyFilter &cm) {
-    if (!(cm.isiphost && o.reverse_lookups))
+    if (!(cm.isiphost && o.story.reverse_lookups))
         return false;
     if (!cm.reverse_checked) {
         cm.reversedURLs = ipToHostname(cm);

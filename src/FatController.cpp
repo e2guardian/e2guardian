@@ -234,7 +234,7 @@ Socket *peersock(NULL); // the socket which will contain the connection
 
 void monitor_flag_set(bool action) {
 
-    String fulink = o.monitor_flag_prefix;
+    String fulink = o.monitor.monitor_flag_prefix;
     String ftouch = fulink;
     if (action) {
         fulink += "paused";
@@ -250,7 +250,7 @@ void monitor_flag_set(bool action) {
     FILE *fs = fopen(ftouch.c_str(), "w");
     if (!fs) {
         E2LOGGER_error("Unable to open monitor_flag ", ftouch, " for writing");
-        o.monitor_flag_flag = false;
+        o.monitor.monitor_flag_flag = false;
     }
     fclose(fs);
     if (unlink(fulink.c_str()) == -1) {
@@ -880,8 +880,8 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                 + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
                                 + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
                                 #ifdef SG_LOGFORMAT
-                                + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
-                    + params + "\t" + o.logid_2 + "\t" + postdata;
+                                + "\t" + useragent + "\t\t" + o.log.logid_1 + "\t" + o.log.prod_id + "\t"
+                    + params + "\t" + o.log.logid_2 + "\t" + postdata;
                                 #else
                                 + "\t" + useragent + "\t" + params + "\t" + o.log.logid_1 + "\t" + o.log.logid_2 + "\t" +
                                 postdata;
@@ -1535,7 +1535,7 @@ int fc_controlit()   //
     reloadconfig = false;
 
     if (is_starting) {
-        if (o.monitor_flag_flag)
+        if (o.monitor.monitor_flag_flag)
             monitor_flag_set(true);
         // if (o.monitor_helper_flag) {
         //     tell_monitor(true);
@@ -1654,7 +1654,7 @@ int fc_controlit()   //
 
     E2LOGGER_info("Stopping");
 
-    if (o.monitor_flag_flag)
+    if (o.monitor.monitor_flag_flag)
         monitor_flag_set(false);
     // if (o.monitor_helper_flag)
     //     tell_monitor(false); // tell monitor that we are not accepting any more connections

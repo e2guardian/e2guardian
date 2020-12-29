@@ -124,6 +124,8 @@ struct FilterGroupOptions
     int default_fg = 0;
     int default_trans_fg = 0;
     int default_icap_fg = 0;
+    bool use_group_names_list = false;  // Never set ?!?!
+
     std::string filter_groups_list_location;
     ListContainer filter_groups_list;
 
@@ -153,6 +155,9 @@ struct ListsOptions
 };
 struct LogOptions
 {
+    std::string log_location;
+    std::string RQlog_location;
+
     Queue<std::string>* log_Q;
     Queue<std::string>* RQlog_Q;
 
@@ -164,6 +169,7 @@ struct LogOptions
     int log_exception_hits = 0;
     int debug_format = 1;
 
+    bool log_requests = false;
     bool log_client_hostnames = false;
     bool log_client_host_and_ip = false;  // TODO: unused ???
     bool anonymise_logs = false;
@@ -183,10 +189,16 @@ struct LogOptions
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
+    std::string prod_id;
 
     std::string name_suffix;    // for SyslogName, where configured ??
 
 };
+struct MonitorOptions
+{
+    std::string monitor_flag_prefix;
+    bool monitor_flag_flag = false;
+};    
 struct NetworkOptions
 {
     std::string server_name;
@@ -289,90 +301,73 @@ struct StoryBoardOptions
     std::deque<SB_entry_map> auth_entry_dq;
     std::deque<SB_entry_map> dm_entry_dq;
 
+    bool reverse_lookups = false;
+
 };    
 
 class OptionContainer
 {
     public:
     // all our many, many options
-    BlockPageOptions      block;
-    CertificateOptions    cert;
-    ConfigOptions         config;
+    BlockPageOptions        block;
+    CertificateOptions      cert;
+    ConfigOptions           config;
     ConnectionHandlerOptions  conn;
-    ContentScannerOptions content;
-    DStatOptions          dstat;
-    FilterGroupOptions    filter;
-    HTTPHeaderOptions     header;
-    ListsOptions          lists;
-    LogOptions            log;
-    NaughtyOptions        naughty;
-    NetworkOptions        net;
-    PluginOptions         plugins;
-    ProcessOptions        proc;
-    StoryBoardOptions     story;
+    ContentScannerOptions   content;
+    DStatOptions            dstat;
+    FilterGroupOptions      filter;
+    HTTPHeaderOptions       header;
+    ListsOptions            lists;
+    LogOptions              log;
+    MonitorOptions          monitor;
+    NaughtyOptions          naughty;
+    NetworkOptions          net;
+    PluginOptions           plugins;
+    ProcessOptions          proc;
+    StoryBoardOptions       story;
 
+    LanguageContainer       language_list;
+    ListManager             lm;
 
     Queue<LQ_rec> http_worker_Q;
     
-
     bool config_error = false;
 
-    bool reverse_lookups = false;
     bool use_xforwardedfor = false;
     bool log_ssl_errors = false;
-    int url_cache_number = 0;       // unused ??
-    int url_cache_age = 0;          // unused ??
 
     std::string icap_reqmod_url;
     std::string icap_resmod_url;
 
-#ifdef NOTDEF
-    bool get_orig_ip = false;
-#endif
-
-    int max_ips = 0;
-    bool recheck_replaced_urls;
-    bool use_group_names_list = false;
-
-    std::string log_location;
-    std::string RQlog_location;
-    bool log_requests = false;
     std::string blocked_content_store;
-    // std::string monitor_helper;
-    // bool monitor_helper_flag = false;
-    std::string monitor_flag_prefix;
-    bool monitor_flag_flag = false;
-
-
-    //bool soft_restart = false;
 
 #ifdef ENABLE_EMAIL
     // Email notification patch by J. Gauthier
     std::string mailer;
 #endif
 
+    HTMLTemplate html_template; // unused ?? never set, not mentioned in e2guardian.conf but used in FOptionContainer::getHTMLTemplate
 
+    std::string per_room_directory_location;  // not used but in LOptionContainer ??
 
-    LanguageContainer language_list;
-    HTMLTemplate html_template;
-    ListManager lm;
-
-
+    //int max_ips = 0;                // unused ??
+    //int url_cache_number = 0;       // unused ??
+    //int url_cache_age = 0;          // unused ??
+    //bool recheck_replaced_urls;     // unused ??
+    
     OptionContainer();
     ~OptionContainer();
 
     bool read_config(std::string& filename, bool readFullConfig=true);
     void reset();
 
-    //bool readStdin(ListContainer *lc, bool swsort, const char *listname );
     bool readinStdin();
 
-    std::string per_room_directory_location;
     bool createLists(int load_id);
 
     std::atomic<int> LC_cnt;
-    std::shared_ptr<LOptionContainer> currentLists();
     std::shared_ptr<LOptionContainer> current_LOC;
+    std::shared_ptr<LOptionContainer> currentLists();
     
 
     private:
@@ -388,6 +383,7 @@ class OptionContainer
     bool findHeaderOptions(ConfigReader &cr);
     bool findListsOptions(ConfigReader &cr);
     bool findLoggerOptions(ConfigReader &cr);
+    bool findMonitorOptions(ConfigReader &cr);
     bool findNaughtyOptions(ConfigReader &cr);
     bool findNetworkOptions(ConfigReader &cr);
     bool findPluginOptions(ConfigReader &cr);

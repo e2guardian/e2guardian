@@ -83,7 +83,7 @@ LOptionContainer::LOptionContainer(int load_id)
             loaded_ok = false;
     }
 
-    DEBUG_config("read Storyboard: ", o.storyboard_location);
+    DEBUG_config("read Storyboard: ", o.story.storyboard_location);
     if (!StoryA.readFile(o.story.storyboard_location.c_str(), LMeta, true)) {
         E2LOGGER_error("Storyboard not loaded OK");
         loaded_ok = false;
@@ -636,7 +636,7 @@ bool LOptionContainer::readFilterGroupConf()
     bool need_html = false;
 
     DEBUG_config("read FilterGroups");
-    if (o.use_group_names_list) {
+    if (o.filter.use_group_names_list) {
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
             E2LOGGER_error("Error opening group names file: ", group_names_list_location);
@@ -647,7 +647,7 @@ bool LOptionContainer::readFilterGroupConf()
         file = prefix;
         file += String(i);
         file += ".conf";
-        if (o.use_group_names_list) {
+        if (o.filter.use_group_names_list) {
             std::ostringstream groupnum;
             groupnum << i;
             groupname = groupnamesfile[groupnum.str().c_str()];
@@ -686,7 +686,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     // pass all the vars from OptionContainer needed
     (*fg[numfg]).weighted_phrase_mode = o.naughty.weighted_phrase_mode;
     (*fg[numfg]).force_quick_search = o.lists.force_quick_search;
-    (*fg[numfg]).reverse_lookups = o.reverse_lookups;
+    (*fg[numfg]).reverse_lookups = o.story.reverse_lookups;
 
     // pass in the group name
     (*fg[numfg]).name = groupname;

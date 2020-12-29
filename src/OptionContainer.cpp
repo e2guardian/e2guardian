@@ -81,12 +81,10 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (!findFilterGroupOptions(cr)) return false;
         if (!findHeaderOptions(cr)) return false;
         if (!findListsOptions(cr)) return false;
+        if (!findMonitorOptions(cr)) return false;
         if (!findNaughtyOptions(cr)) return false;
         if (!findPluginOptions(cr)) return false;
         if (!findStoryBoardOptions(cr)) return false;
-
-
-        // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
 #ifdef ENABLE_EMAIL
         // Email notification patch by J. Gauthier
@@ -213,24 +211,12 @@ bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
-
-#ifdef SG_LOGFORMAT
-        prod_id.assign(cr.findoptionS("productid"));
-        if (prod_id.empty())
-            // SG '08
-            prod_id.assign("2");
-#endif
-
         log_ssl_errors = cr.findoptionB("logsslerrors");
-        reverse_lookups = cr.findoptionB("reverseaddresslookups");
-        recheck_replaced_urls = cr.findoptionB("recheckreplacedurls");
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
-
-
         per_room_directory_location = cr.findoptionS("perroomdirectory");
 
-
-
+        // recheck_replaced_urls = cr.findoptionB("recheckreplacedurls");
+        // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
         if (cert.enable_ssl) {
             if (!cert.generate_ca_certificate()) return false;
@@ -342,6 +328,13 @@ bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
     log.logid_2 = cr.findoptionS("logid2");
     if (log.logid_2.empty())
         log.logid_2 = "-";
+
+#ifdef SG_LOGFORMAT
+    log.prod_id = cr.findoptionS("productid");
+    if (log.prod_id.empty())
+        // SG '08
+        log.prod_id = "2";
+#endif
 
     return true;
 }
@@ -537,7 +530,6 @@ bool OptionContainer::findContentScannerOptions(ConfigReader &cr)
 
 }
 
-
 bool OptionContainer::findFilterGroupOptions(ConfigReader &cr)
 {
     filter.filter_groups = cr.findoptionI("filtergroups");
@@ -586,7 +578,6 @@ bool OptionContainer::findListsOptions(ConfigReader &cr)
     return true;
 }
 
-
 bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 {
     LoggerConfigurator loggerConf(&e2logger);
@@ -630,12 +621,12 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
         } else {
-                log_location = cr.findoptionS("loglocation");
-                if (log_location.empty()) {
-                    log_location = __LOGLOCATION;
-                    log_location += "/access.log";
+                log.log_location = cr.findoptionS("loglocation");
+                if (log.log_location.empty()) {
+                    log.log_location = __LOGLOCATION;
+                    log.log_location += "/access.log";
                 }
-                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log_location))
+                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
                     return false;
             }
     }
@@ -653,13 +644,13 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::requestlog, temp))
                 return false;
-            log_requests = true;
+            log.log_requests = true;
         } else {
-            if ((RQlog_location = cr.findoptionS("rqloglocation")) == "") {
-                log_requests = false;
+            if ((log.RQlog_location = cr.findoptionS("rqloglocation")) == "") {
+                log.log_requests = false;
             } else {
-                log_requests = true;
-                if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, RQlog_location))
+                log.log_requests = true;
+                if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, log.RQlog_location))
                     return false;
             }
         }
@@ -717,6 +708,22 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 
     return true;
 
+}
+
+bool OptionContainer::findMonitorOptions(ConfigReader &cr)
+{
+    // to remove in v5.5
+    // monitor_helper = findoptionS("monitorhelper");
+    // if (monitor_helper == "") {
+    //     monitor_helper_flag = false;
+    // } else {
+    //     monitor_helper_flag = true;
+    // }
+
+    monitor.monitor_flag_prefix = cr.findoptionS("monitorflagprefix");
+    monitor.monitor_flag_flag = (monitor.monitor_flag_prefix != "");
+
+    return true;
 }
 
 bool OptionContainer::findNaughtyOptions(ConfigReader &cr)
@@ -965,6 +972,9 @@ bool OptionContainer::findStoryBoardOptions(ConfigReader &cr)
         story.storyboard_location = __CONFDIR;
         story.storyboard_location += "/preauth.story";
     }
+
+    story.reverse_lookups = cr.findoptionB("reverseaddresslookups");
+
     return true;
 }
 

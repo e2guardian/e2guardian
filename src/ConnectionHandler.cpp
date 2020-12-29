@@ -916,7 +916,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 SBauth.group_source = "def";
                 DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
                             " only_ip_auth is ", String(only_ip_auth),
-                            " needs proxy for auth plugin is ", String(o.auth_needs_proxy_in_plugin) );
+                            " needs proxy for auth plugin is ", String(o.plugins.auth.auth_needs_proxy_in_plugin) );
 
                 if (!persistProxy && o.plugins.auth.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
                 {
@@ -4074,7 +4074,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                         " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions,
                         " checkme.isBlocked: ", checkme.isBlocked,
                         " disable_content_scan: ", ldl->fg[filtergroup]->disable_content_scan,
-                        " csplugins: ", o.csplugins.size() );
+                        " csplugins: ", o.plugins.csplugins.size() );
 
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked

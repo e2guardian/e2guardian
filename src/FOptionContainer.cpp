@@ -471,7 +471,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         // grab group name (if not using external group names file)
-        if (!o.use_group_names_list) {
+        if (!o.filter.use_group_names_list) {
 	        if (findoptionS("groupname").length() > 0) {
             	name = findoptionS("groupname");
 	    } else {
