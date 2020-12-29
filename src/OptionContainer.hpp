@@ -7,24 +7,24 @@
 
 // INCLUDES
 
+#include "Auth.hpp"
+#include "CertificateAuthority.hpp"
+#include "ConfigReader.hpp"
 #include "FOptionContainer.hpp"
 #include "DownloadManager.hpp"
 #include "ContentScanner.hpp"
 #include "String.hpp"
 #include "HTMLTemplate.hpp"
+#include "ImageContainer.hpp"
 #include "ListContainer.hpp"
 #include "ListManager.hpp"
 #include "LanguageContainer.hpp"
-#include "ImageContainer.hpp"
+#include "LOptionContainer.hpp"
 #include "RegExp.hpp"
-#include "Auth.hpp"
 #include "IPList.hpp"
 #include "Queue.hpp"
-#include "LOptionContainer.hpp"
-#include <deque>
 #include <atomic>
 
-#include "CertificateAuthority.hpp"
 
 
 // DECLARATIONS
@@ -341,8 +341,9 @@ class OptionContainer
     // access denied domain (when using the CGI)
     // String access_denied_domain; // Unused, see FOptionContainer/LOptionContainer 
 
-    bool loadCSPlugins();
-    bool loadAuthPlugins();
+    bool loadDMPlugins(ConfigReader &cr);
+    bool loadCSPlugins(ConfigReader &cr);
+    bool loadAuthPlugins(ConfigReader &cr);
     void deletePlugins(std::deque<Plugin *> &list);
 
     //   void deleteFilterGroups();
@@ -352,8 +353,9 @@ class OptionContainer
 
     OptionContainer();
     ~OptionContainer();
-    bool read(std::string& filename, int type);
-    bool readConfFile(const char *filename, String &list_pwd);
+
+    bool read_config(std::string& filename, int type);
+    //bool readConfFile(const char *filename, String &list_pwd);
     void reset();
 
     //const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
@@ -377,29 +379,27 @@ class OptionContainer
     std::deque<std::string> conffile;
 
 
-    bool loadDMPlugins();
-
-    long int findoptionI(const char *option);
-    std::string findoptionS(const char *option);
-    std::deque<String> findoptionM(const char *option);
+    // long int findoptionI(const char *option);
+    // std::string findoptionS(const char *option);
+    // std::deque<String> findoptionM(const char *option);
 
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
-    long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
+    // long int realitycheckWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
 
-    bool findAccessLogOptions();
-    bool findBlockPageOptions();
-    bool findCertificateOptions();
-    bool findConfigOptions();
-    bool findConnectionHandlerOptions();
-    bool findContentScannerOptions();
-    bool findDStatOptions();
-    bool findFilterGroupOptions();
-    bool findHeaderOptions();
-    bool findListsOptions();
-    bool findLoggerOptions();
-    bool findNaughtyOptions();
-    bool findNetworkOptions();
-    bool findProcOptions();
+    bool findAccessLogOptions(ConfigReader &cr);
+    bool findBlockPageOptions(ConfigReader &cr);
+    bool findCertificateOptions(ConfigReader &cr);
+    bool findConfigOptions(ConfigReader &cr);
+    bool findConnectionHandlerOptions(ConfigReader &cr);
+    bool findContentScannerOptions(ConfigReader &cr);
+    bool findDStatOptions(ConfigReader &cr);
+    bool findFilterGroupOptions(ConfigReader &cr);
+    bool findHeaderOptions(ConfigReader &cr);
+    bool findListsOptions(ConfigReader &cr);
+    bool findLoggerOptions(ConfigReader &cr);
+    bool findNaughtyOptions(ConfigReader &cr);
+    bool findNetworkOptions(ConfigReader &cr);
+    bool findProcOptions(ConfigReader &cr);
 
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);

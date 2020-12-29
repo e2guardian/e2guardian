@@ -57,87 +57,27 @@ void OptionContainer::reset() {
 
 // Purpose: reads the configuration file into deque OptionContainer:conffile
 // Params : list_pwd : base directory when looking for lists definitions
-bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
-    std::string linebuffer;
-    String temp; // for tempory conversion and storage
-    String now_pwd(list_pwd);
-
-    std::ifstream conffiles(filename, std::ios::in); // e2guardianfN.conf
-    if (!conffiles.good()) {
-        E2LOGGER_error("Error reading ", filename);
-        return false;
-    }
-    String base_dir(filename);
-    base_dir.baseDir();
-
-    while (!conffiles.eof()) {
-        getline(conffiles, linebuffer);
-        if (!conffiles.fail() && linebuffer.length() != 0) {
-            if (linebuffer[0] != '#') { // i.e. not commented out
-                temp = (char *) linebuffer.c_str();
-                if (temp.contains("#")) {
-                    temp = temp.before("#");
-                }
-                temp.removeWhiteSpace(); // get rid of spaces at end of line
-                while (temp.contains("__LISTDIR__")) {
-                    String temp2 = temp.before("__LISTDIR__");
-                    temp2 += now_pwd;
-                    temp2 += temp.after("__LISTDIR__");
-                    temp = temp2;
-                }
-                // deal with included files
-                if (temp.startsWith(".")) {
-                    temp = temp.after(".Include<").before(">");
-                    if (temp.length() > 0) {
-                        temp.fullPath(base_dir);
-                        if (!readConfFile(temp.toCharArray(), now_pwd)) {
-                            conffiles.close();
-                            return false;
-                        }
-                    }
-                    String temp2 = temp.after(".Define LISTDIR <").before(">");
-                    if (temp2.length() > 0) {
-                        now_pwd = temp2;
-                        //if(!now_pwd.endsWith("/"))
-                        //    now_pwd += "/";
-                    }
-                    continue;
-                }
-                // append ,listdir=now_pwd if line contains a file path - so that now_pwd can be passed
-                // to list file handler so that it can honour __LISTDIR__ in Included listfiles
-                if (temp.contains("path=") && !temp.contains("listdir=")) {
-                    temp += ",listdir=";
-                    temp += now_pwd;
-                }
-
-                // if (temp.startsWith(LoggerConfigurator::Prefix))
-                //     loggerConf.configure(temp);
-
-                linebuffer = temp.toCharArray();
-                DEBUG_config("read:", linebuffer);
-                conffile.push_back(linebuffer); // stick option in deque
-            }
-        }
-    }
-    conffiles.close();
-    return true;
-}
+//bool OptionContainer::readConfFile(const char *filename, String &list_pwd) {
+//    return cr.readConfig(filename, list_pwd);
+//}
 
 // Purpose: reads all options from the main configuration file (e2guardian.conf)
 // Params:  type = ???
-bool OptionContainer::read(std::string &filename, int type) {
+bool OptionContainer::read_config(std::string &filename, int type) {
+    ConfigReader          cr;
+
     config.conffilename = filename;
 
     // all sorts of exceptions could occur reading conf files
     try {
         String list_pwd = __CONFDIR;
         list_pwd += "/lists/common";
-        if (!readConfFile(filename.c_str(), list_pwd))
+        if (!cr.readConfig(filename.c_str(), list_pwd))
             return false;
 
-        if (!findProcOptions()) return false;
-        if (!findLoggerOptions()) return false;
-        if (!findAccessLogOptions()) return false;        
+        if (!findProcOptions(cr)) return false;
+        if (!findLoggerOptions(cr)) return false;
+        if (!findAccessLogOptions(cr)) return false;        
 
         //if (type == 0 || type == 2) {    //always either 0 or 2 so no need for this
 
@@ -145,23 +85,23 @@ bool OptionContainer::read(std::string &filename, int type) {
             return true;
         }
 
-        if (!findConfigOptions()) return false;
-        if (!findDStatOptions()) return false;
-        if (!findCertificateOptions()) return false;
-        if (!findNetworkOptions()) return false;
-        if (!findConnectionHandlerOptions()) return false;
-        if (!findContentScannerOptions()) return false;
-        if (!findBlockPageOptions()) return false;
-        if (!findFilterGroupOptions()) return false;
-        if (!findHeaderOptions()) return false;
-        if (!findListsOptions()) return false;
-        if (!findNaughtyOptions()) return false;
+        if (!findConfigOptions(cr)) return false;
+        if (!findDStatOptions(cr)) return false;
+        if (!findCertificateOptions(cr)) return false;
+        if (!findNetworkOptions(cr)) return false;
+        if (!findConnectionHandlerOptions(cr)) return false;
+        if (!findContentScannerOptions(cr)) return false;
+        if (!findBlockPageOptions(cr)) return false;
+        if (!findFilterGroupOptions(cr)) return false;
+        if (!findHeaderOptions(cr)) return false;
+        if (!findListsOptions(cr)) return false;
+        if (!findNaughtyOptions(cr)) return false;
 
         // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
 #ifdef ENABLE_EMAIL
         // Email notification patch by J. Gauthier
-        mailer = findoptionS("mailer");
+        mailer = cr.findoptionS("mailer");
 #endif
 
         // to remove in v5.5
@@ -172,14 +112,14 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     monitor_helper_flag = true;
         // }
 
-        monitor_flag_prefix = findoptionS("monitorflagprefix");
+        monitor_flag_prefix = cr.findoptionS("monitorflagprefix");
         if (monitor_flag_prefix == "") {
             monitor_flag_flag = false;
         } else {
             monitor_flag_flag = true;
         }
 
-        if (findoptionS("searchsitelistforip") == "off") {
+        if (cr.findoptionS("searchsitelistforip") == "off") {
             search_sitelist_for_ip = false;
         } else {
             search_sitelist_for_ip = true;
@@ -285,70 +225,44 @@ bool OptionContainer::read(std::string &filename, int type) {
         if (icap_reqmod_url == "")
             icap_reqmod_url = "request";
 
-        icap_resmod_url = findoptionS("icapresmodurl");
+        icap_resmod_url = cr.findoptionS("icapresmodurl");
         if (icap_resmod_url == "")
             icap_resmod_url = "response";
 
 
 #ifdef SG_LOGFORMAT
-        prod_id.assign(findoptionS("productid"));
+        prod_id.assign(cr.findoptionS("productid"));
         if (prod_id.empty())
             // SG '08
             prod_id.assign("2");
 #endif
 
-        if (findoptionS("logsslerrors") == "on") {
-            log_ssl_errors = true;
-        } else {
-            log_ssl_errors = false;
-        }
+        log_ssl_errors = cr.findoptionB("logsslerrors");
+        reverse_lookups = cr.findoptionB("reverseaddresslookups");
+        recheck_replaced_urls = cr.findoptionB("recheckreplacedurls");
+        use_xforwardedfor = cr.findoptionB("usexforwardedfor");
 
-        if (findoptionS("reverseaddresslookups") == "on") {
-            reverse_lookups = true;
-        } else {
-            reverse_lookups = false;
-        }
-
-        if (findoptionS("recheckreplacedurls") == "on") {
-            recheck_replaced_urls = true;
-        } else {
-            recheck_replaced_urls = false;
-        }
-
-        if (findoptionS("usexforwardedfor") == "on") {
-            use_xforwardedfor = true;
-        } else {
-            use_xforwardedfor = false;
-        }
-
-
-        if (findoptionS("abortiflistmissing") == "on") {
-            abort_on_missing_list = true;
-        } else {
-            abort_on_missing_list = false;
-        }
-
-        storyboard_location = findoptionS("preauthstoryboard");
+        storyboard_location = cr.findoptionS("preauthstoryboard");
         if (storyboard_location.empty()) {
             storyboard_location = __CONFDIR;
             storyboard_location += "/preauth.story";
         }
 
-        per_room_directory_location = findoptionS("perroomdirectory");
+        per_room_directory_location = cr.findoptionS("perroomdirectory");
 
-        if (!loadDMPlugins()) {
+        if (!loadDMPlugins(cr)) {
             E2LOGGER_error("Error loading DM plugins");
             return false;
         }
 
         if (content.contentscanning) {
-            if (!loadCSPlugins()) {
+            if (!loadCSPlugins(cr)) {
                 E2LOGGER_error("Error loading CS plugins");
                 return false;
             }
         }
 
-        if (!loadAuthPlugins()) {
+        if (!loadAuthPlugins(cr)) {
             E2LOGGER_error("Error loading auth plugins");
             return false;
         }
@@ -406,15 +320,15 @@ bool OptionContainer::read(std::string &filename, int type) {
         //     use_group_names_list = true;
         // }
 
-        iplist_dq = findoptionM("iplist");
-        sitelist_dq = findoptionM("sitelist");
-        ipsitelist_dq = findoptionM("ipsitelist");
-        urllist_dq = findoptionM("urllist");
-        regexpboollist_dq = findoptionM("regexpboollist");
-        maplist_dq = findoptionM("maplist");
-        ipmaplist_dq = findoptionM("ipmaplist");
+        iplist_dq = *cr.findoptionM("iplist");
+        sitelist_dq = *cr.findoptionM("sitelist");
+        ipsitelist_dq = *cr.findoptionM("ipsitelist");
+        urllist_dq = *cr.findoptionM("urllist");
+        regexpboollist_dq = *cr.findoptionM("regexpboollist");
+        maplist_dq = *cr.findoptionM("maplist");
+        ipmaplist_dq = *cr.findoptionM("ipmaplist");
 
-        if ((findoptionS("authrequiresuserandgroup") == "on") && (authplugins.size() > 1))
+        if ( cr.findoptionB("authrequiresuserandgroup") && (authplugins.size() > 1))
             auth_requires_user_and_group = true;
 
 
@@ -496,50 +410,50 @@ bool OptionContainer::readinStdin() {
     return true;
 }
 
-bool OptionContainer::findAccessLogOptions()
+bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 {
 
-    log.dns_user_logging_domain = findoptionS("dnsuserloggingdomain");
-    log.log_header_value = findoptionS("logheadervalue");
+    log.dns_user_logging_domain = cr.findoptionS("dnsuserloggingdomain");
+    log.log_header_value = cr.findoptionS("logheadervalue");
 
     // default of unlimited no longer allowed as could cause buffer overflow
-    log.max_logitem_length = realitycheckWithDefault("maxlogitemlength", 10, 32000, 2000);
+    log.max_logitem_length = cr.findoptionIWithDefault("maxlogitemlength", 10, 32000, 2000);
 
-    log.log_level = realitycheckWithDefault("loglevel", 0, 3, 3);
-    log.log_file_format = realitycheckWithDefault("logfileformat", 1, 8, 1);
+    log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
+    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 1, 8, 1);
 
-    log.anonymise_logs = (findoptionS("anonymizelogs") == "on") ;
-    log.log_ad_blocks = (findoptionS("logadblocks") == "on");
-    log.log_timestamp = (findoptionS("logtimestamp") == "on");
-    log.log_user_agent = (findoptionS("loguseragent") == "on");
-    log.use_dash_for_blanks = (findoptionS("usedashforblank") == "off");
-    log.log_client_host_and_ip = (findoptionS("logclientnameandip") == "off");
+    log.anonymise_logs = cr.findoptionB("anonymizelogs");
+    log.log_ad_blocks = cr.findoptionB("logadblocks");
+    log.log_timestamp = cr.findoptionB("logtimestamp");
+    log.log_user_agent = cr.findoptionB("loguseragent");
+    log.use_dash_for_blanks = cr.findoptionB("usedashforblank");
+    log.log_client_host_and_ip = cr.findoptionB("logclientnameandip");
 
-    log.log_exception_hits = realitycheckWithDefault("logexceptionhits", 0, 2, 2);
+    log.log_exception_hits = cr.findoptionIWithDefault("logexceptionhits", 0, 2, 2);
 
-    log.log_client_hostnames = (findoptionS("logclienthostnames") == "on");
+    log.log_client_hostnames = cr.findoptionB("logclienthostnames");
     conn.reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
 
-    log.logid_1 = findoptionS("logid1");
+    log.logid_1 = cr.findoptionS("logid1");
     if (log.logid_1.empty())
         log.logid_1 = "-";
-    log.logid_2 = findoptionS("logid2");
+    log.logid_2 = cr.findoptionS("logid2");
     if (log.logid_2.empty())
         log.logid_2 = "-";
 
     return true;
 }
 
-bool OptionContainer::findBlockPageOptions()
+bool OptionContainer::findBlockPageOptions(ConfigReader &cr)
 {
 
-    block.reporting_level = realitycheckWithDefault("reportinglevel", -1, 3, 3);
+    block.reporting_level = cr.findoptionIWithDefault("reportinglevel", -1, 3, 3);
 
-    if (findoptionS("usecustombannedimage") == "off") {
+    if ( !cr.findoptionB("usecustombannedimage") ) {
         block.use_custom_banned_image = false;
     } else {
         block.use_custom_banned_image = true;
-        block.custom_banned_image_file = findoptionS("custombannedimagefile");
+        block.custom_banned_image_file = cr.findoptionS("custombannedimagefile");
         if (block.custom_banned_image_file.empty()) {
             block.custom_banned_image_file = __DATADIR;
             block.custom_banned_image_file += "/transparent1x1.gif";
@@ -547,11 +461,11 @@ bool OptionContainer::findBlockPageOptions()
         block.banned_image.read(block.custom_banned_image_file.c_str());
     }
 
-    if (findoptionS("usecustombannedflash") == "off") {
+    if ( !cr.findoptionB("usecustombannedflash") ) {
         block.use_custom_banned_flash = false;
     } else {
         block.use_custom_banned_flash = true;
-        block.custom_banned_flash_file = findoptionS("custombannedflashfile");
+        block.custom_banned_flash_file = cr.findoptionS("custombannedflashfile");
 
         if (block.custom_banned_flash_file.empty()) {
             block.custom_banned_flash_file = __DATADIR;
@@ -562,44 +476,44 @@ bool OptionContainer::findBlockPageOptions()
     return true;
 }
 
-bool OptionContainer::findCertificateOptions()
+bool OptionContainer::findCertificateOptions(ConfigReader &cr)
 {
-    cert.ssl_certificate_path = findoptionS("sslcertificatepath") + "/";
+    cert.ssl_certificate_path = cr.findoptionS("sslcertificatepath") + "/";
     if (cert.ssl_certificate_path == "/") {
         cert.ssl_certificate_path = ""; // "" will enable default openssl certs
     }
 
-    cert.enable_ssl = (findoptionS("enablessl") == "on");
+    cert.enable_ssl = cr.findoptionB("enablessl");
 
     if (cert.enable_ssl) {
         bool ret = true;
-        if (findoptionS("useopensslconf") == "on") {
+        if (cr.findoptionB("useopensslconf")) {
             cert.use_openssl_conf = true;
-            cert.openssl_conf_path = findoptionS("opensslconffile");
+            cert.openssl_conf_path = cr.findoptionS("opensslconffile");
             cert.have_openssl_conf = (cert.openssl_conf_path == "");
         } else {
             cert.use_openssl_conf = false;
         };
 
-        cert.ca_certificate_path = findoptionS("cacertificatepath");
+        cert.ca_certificate_path = cr.findoptionS("cacertificatepath");
         if (cert.ca_certificate_path == "") {
             E2LOGGER_error("cacertificatepath is required when ssl is enabled");
             ret = false;
         }
 
-        cert.ca_private_key_path = findoptionS("caprivatekeypath");
+        cert.ca_private_key_path = cr.findoptionS("caprivatekeypath");
         if (cert.ca_private_key_path == "") {
             E2LOGGER_error("caprivatekeypath is required when ssl is enabled");
             ret = false;
         }
 
-        cert.cert_private_key_path = findoptionS("certprivatekeypath");
+        cert.cert_private_key_path = cr.findoptionS("certprivatekeypath");
         if (cert.cert_private_key_path == "") {
             E2LOGGER_error("certprivatekeypath is required when ssl is enabled");
             ret = false;
         }
 
-        cert.generated_cert_path = findoptionS("generatedcertpath") + "/";
+        cert.generated_cert_path = cr.findoptionS("generatedcertpath") + "/";
         if (cert.generated_cert_path == "/") {
             E2LOGGER_error("generatedcertpath is required when ssl is enabled");
             ret = false;
@@ -607,14 +521,14 @@ bool OptionContainer::findCertificateOptions()
 
         time_t def_start = 1417872951; // 6th Dec 2014
         time_t ten_years = 315532800;
-        cert.gen_cert_start = findoptionI("generatedcertstart");
+        cert.gen_cert_start = cr.findoptionI("generatedcertstart");
         if (cert.gen_cert_start < def_start)
             cert.gen_cert_start = def_start;
-        cert.gen_cert_end = findoptionI("generatedcertend");
+        cert.gen_cert_end = cr.findoptionI("generatedcertend");
         if (cert.gen_cert_end < cert.gen_cert_start)
             cert.gen_cert_end = cert.gen_cert_start + ten_years;
 
-        cert.set_cipher_list = findoptionS("setcipherlist");
+        cert.set_cipher_list = cr.findoptionS("setcipherlist");
         if (cert.set_cipher_list == "")
             cert.set_cipher_list = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS";
 
@@ -634,14 +548,14 @@ bool OptionContainer::findCertificateOptions()
     return true;
 }
 
-bool OptionContainer::findConfigOptions()
+bool OptionContainer::findConfigOptions(ConfigReader &cr)
 {
-    String t = findoptionS("languagedir") + "/";
+    String t = cr.findoptionS("languagedir") + "/";
     if (t == "/") {
         t = __DATADIR;
         t += "/languages";
     }
-    config.languagepath = t + "/" + findoptionS("language") + "/";
+    config.languagepath = t + "/" + cr.findoptionS("language") + "/";
 
     std::string language_list_location(config.languagepath + "messages");
     if (!language_list.readLanguageList(language_list_location.c_str())) {
@@ -651,40 +565,40 @@ bool OptionContainer::findConfigOptions()
     return true;
 }
 
-bool OptionContainer::findConnectionHandlerOptions()
+bool OptionContainer::findConnectionHandlerOptions(ConfigReader &cr)
 {
-    conn.logconerror = (findoptionS("logconnectionhandlingerrors") == "on");
+    conn.logconerror = cr.findoptionB("logconnectionhandlingerrors");
 
-    conn.use_original_ip_port = (findoptionS("useoriginalip") != "off");
-    conn.reverse_client_ip_lookups = (findoptionS("reverseclientiplookups") == "on");
+    conn.use_original_ip_port = cr.findoptionB("useoriginalip");
+    conn.reverse_client_ip_lookups = cr.findoptionB("reverseclientiplookups");
 
-    if ((conn.internal_test_url = findoptionS("internaltesturl")).empty()) {
+    if ((conn.internal_test_url = cr.findoptionS("internaltesturl")).empty()) {
         conn.internal_test_url = "internal.test.e2guardian.org";
     }
 
-    if ((conn.internal_status_url = findoptionS("internalstatusurl")).empty()) {
+    if ((conn.internal_status_url = cr.findoptionS("internalstatusurl")).empty()) {
         conn.internal_status_url = "internal.status.e2guardian.org";
     }
 
     return true;
 }
 
-bool OptionContainer::findContentScannerOptions()
+bool OptionContainer::findContentScannerOptions(ConfigReader &cr)
 {
 
-    content.max_content_filecache_scan_size = realitycheckWithDefault("maxcontentfilecachescansize", 0, 0, 20000);
+    content.max_content_filecache_scan_size = cr.findoptionIWithDefault("maxcontentfilecachescansize", 0, 0, 20000);
     content.max_content_filecache_scan_size *= 1024;
 
-    content.max_content_ramcache_scan_size = realitycheckWithDefault("maxcontentramcachescansize", 0, 0, 2000);
+    content.max_content_ramcache_scan_size = cr.findoptionIWithDefault("maxcontentramcachescansize", 0, 0, 2000);
     content.max_content_ramcache_scan_size *= 1024;
     if (content.max_content_ramcache_scan_size == 0) {
         content.max_content_ramcache_scan_size = content.max_content_filecache_scan_size;
     }
 
-    content.max_content_filter_size = realitycheckWithDefault("maxcontentfiltersize", 0, 0, 2048);
+    content.max_content_filter_size = cr.findoptionIWithDefault("maxcontentfiltersize", 0, 0, 2048);
     content.max_content_filter_size *= 1024;
 
-    content.contentscanning = findoptionM("contentscanner").size() > 0;
+    content.contentscanning = cr.findoptionM("contentscanner")->size() > 0;
     if (content.contentscanning) {
 
         if (content.max_content_filter_size > content.max_content_ramcache_scan_size) {
@@ -696,10 +610,10 @@ bool OptionContainer::findContentScannerOptions()
             return false;
         }
 
-        content.trickle_delay = realitycheckWithDefault("trickledelay", 1, 0, 10);
-        content.initial_trickle_delay = realitycheckWithDefault("initialtrickledelay", 1, 0, 20);
+        content.trickle_delay = cr.findoptionIWithDefault("trickledelay", 1, 0, 10);
+        content.initial_trickle_delay = cr.findoptionIWithDefault("initialtrickledelay", 1, 0, 20);
 
-        content.content_scanner_timeout_sec = realitycheckWithDefault("contentscannertimeout", 1, 0, 60);
+        content.content_scanner_timeout_sec = cr.findoptionIWithDefault("contentscannertimeout", 1, 0, 60);
         if (content.content_scanner_timeout_sec > 0)
             content.content_scanner_timeout = content.content_scanner_timeout_sec * 1000;
         else {
@@ -711,62 +625,63 @@ bool OptionContainer::findContentScannerOptions()
 
     // this needs to be known before loading CS plugins,
     // because ClamAV plugin makes use of it during init()
-    content.download_dir = findoptionS("filecachedir");
+    content.download_dir = cr.findoptionS("filecachedir");
     if (content.download_dir.empty()) {
         content.download_dir = "/tmp";
     }
-    content.delete_downloaded_temp_files = (findoptionS("deletedownloadedtempfiles") != "off");
+    content.delete_downloaded_temp_files = cr.findoptionB("deletedownloadedtempfiles");
 
     return true;
 
 }
 
 
-bool OptionContainer::findFilterGroupOptions()
+bool OptionContainer::findFilterGroupOptions(ConfigReader &cr)
 {
-    filter.filter_groups = findoptionI("filtergroups");
+    filter.filter_groups = cr.findoptionI("filtergroups");
     if (filter.filter_groups == 0) filter.filter_groups = 1;
 
     filter.numfg = filter.filter_groups; 
 
-    filter.default_fg = realitycheckWithDefault("defaultfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_fg = cr.findoptionIWithDefault("defaultfiltergroup", 1, filter.filter_groups, 1);
     filter.default_fg--;    // zero based index
 
-    filter.default_trans_fg = realitycheckWithDefault("defaulttransparentfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_trans_fg = cr.findoptionIWithDefault("defaulttransparentfiltergroup", 1, filter.filter_groups, 1);
     filter.default_trans_fg--;
 
-    filter.default_icap_fg = realitycheckWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
+    filter.default_icap_fg = cr.findoptionIWithDefault("defaulticapfiltergroup", 1, filter.filter_groups, 1);
     filter.default_icap_fg--;
 
     return true;
 }
 
-bool OptionContainer::findHeaderOptions()
+bool OptionContainer::findHeaderOptions(ConfigReader &cr)
 {
-    header.forwarded_for = (findoptionS("forwardedfor") == "on");
-    if (findoptionS("addforwardedfor") == "on") {
+    header.forwarded_for = cr.findoptionB("forwardedfor");
+    if (cr.findoptionB("addforwardedfor")) {
         header.forwarded_for = true;
     }
 
-    header.max_header_lines = realitycheckWithDefault("maxheaderlines", 10, 250, 50);
+    header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 250, 50);
 
     return true;
 }
 
-bool OptionContainer::findListsOptions()
+bool OptionContainer::findListsOptions(ConfigReader &cr)
 {
-    lists.force_quick_search = (findoptionS("forcequicksearch") == "on");
+    lists.force_quick_search = cr.findoptionB("forcequicksearch");
+    lists.abort_on_missing_list = cr.findoptionB("abortiflistmissing");
 
     return true;
 }
 
 
-bool OptionContainer::findLoggerOptions()
+bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 {
     LoggerConfigurator loggerConf(&e2logger);
 
     {
-        std::string temp = findoptionS("set_info");
+        std::string temp = cr.findoptionS("set_info");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::info, temp))
                 return false;
@@ -774,7 +689,7 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        std::string temp = findoptionS("set_error");
+        std::string temp = cr.findoptionS("set_error");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::error, temp))
                 return false;
@@ -782,7 +697,7 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        std::string temp = findoptionS("set_warning");
+        std::string temp = cr.findoptionS("set_warning");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::warning, temp))
                 return false;
@@ -790,8 +705,8 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        if (findoptionS("logsyslog") == "on") {
-            if ((log.name_suffix = findoptionS("namesuffix")) == "") {
+        if (cr.findoptionB("logsyslog")) {
+            if ((log.name_suffix = cr.findoptionS("namesuffix")) == "") {
                 log.name_suffix = "";
             }
             e2logger.setSyslogName(config.prog_name + log.name_suffix);
@@ -799,12 +714,12 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        String temp = findoptionS("set_accesslog");
+        String temp = cr.findoptionS("set_accesslog");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
         } else {
-                log_location = findoptionS("loglocation");
+                log_location = cr.findoptionS("loglocation");
                 if (log_location.empty()) {
                     log_location = __LOGLOCATION;
                     log_location += "/access.log";
@@ -814,22 +729,22 @@ bool OptionContainer::findLoggerOptions()
             }
     }
 
-    log.debug_format = realitycheckWithDefault("debugformat", 1, 6, 1);
+    log.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
     loggerConf.debugformat(log.debug_format);
 
-    if (findoptionS("tag_logs") == "on") {
+    if (cr.findoptionB("tag_logs")) {
         e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
         e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
     }
 
     {
-        String temp = findoptionS("set_requestlog");
+        String temp = cr.findoptionS("set_requestlog");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::requestlog, temp))
                 return false;
             log_requests = true;
         } else {
-            if ((RQlog_location = findoptionS("rqloglocation")) == "") {
+            if ((RQlog_location = cr.findoptionS("rqloglocation")) == "") {
                 log_requests = false;
             } else {
                 log_requests = true;
@@ -841,13 +756,13 @@ bool OptionContainer::findLoggerOptions()
 
     {
         dstat.dstat_log_flag = false;
-        String temp = findoptionS("set_dstatslog");
+        String temp = cr.findoptionS("set_dstatslog");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::dstatslog, temp))
                 return false;
             dstat.dstat_log_flag = true;
         } else {
-            if ((dstat.dstat_location = findoptionS("dstatlocation")) == "") {
+            if ((dstat.dstat_location = cr.findoptionS("dstatlocation")) == "") {
                 dstat.dstat_log_flag = false;
             } else {
                 dstat.dstat_log_flag = true;
@@ -858,7 +773,7 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        std::string temp = findoptionS("set_storytrace");
+        std::string temp = cr.findoptionS("set_storytrace");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::storytrace, temp))
                 return false;
@@ -866,7 +781,7 @@ bool OptionContainer::findLoggerOptions()
     }
 
     {
-        if (findoptionS("storyboardtrace") == "on") {
+        if (cr.findoptionB("storyboardtrace")) {
             log.SB_trace = true;
             e2logger.enable(LoggerSource::storytrace);
         } else {
@@ -881,9 +796,9 @@ bool OptionContainer::findLoggerOptions()
 
 
     {
-        std::deque <String> temp = findoptionM("debuglevel");
-        if (!temp.empty()) {
-            for (std::deque<String>::iterator i = temp.begin(); i != temp.end(); i++) {
+        std::deque<String> *temp = cr.findoptionM("debuglevel");
+        if ( temp && !temp->empty()) {
+            for (std::deque<String>::iterator i = temp->begin(); i != temp->end(); i++) {
                 loggerConf.debuglevel(*i);
             }
         }
@@ -893,35 +808,35 @@ bool OptionContainer::findLoggerOptions()
 
 }
 
-bool OptionContainer::findNaughtyOptions()
+bool OptionContainer::findNaughtyOptions(ConfigReader &cr)
 {
-    if (findoptionS("weightedphrasemode").empty()) {
+    if (cr.findoptionS("weightedphrasemode").empty()) {
         naughty.weighted_phrase_mode = 2;
     } else {
-        naughty.weighted_phrase_mode = realitycheckWithDefault("weightedphrasemode", 0, 2, 2);
+        naughty.weighted_phrase_mode = cr.findoptionIWithDefault("weightedphrasemode", 0, 2, 2);
     }
 
-    if (findoptionS("phrasefiltermode").empty()) {
+    if (cr.findoptionS("phrasefiltermode").empty()) {
         naughty.phrase_filter_mode = 2;
     } else {
-        naughty.phrase_filter_mode = realitycheckWithDefault("phrasefiltermode", 0, 3, 2);
+        naughty.phrase_filter_mode = cr.findoptionIWithDefault("phrasefiltermode", 0, 3, 2);
     }
 
-    naughty.preserve_case = realitycheckWithDefault("preservecase", 0, 2, 0);
+    naughty.preserve_case = cr.findoptionIWithDefault("preservecase", 0, 2, 0);
 
-    naughty.hex_decode_content = (findoptionS("hexdecodecontent") == "on");
+    naughty.hex_decode_content = (cr.findoptionB("hexdecodecontent"));
 
-    naughty.show_weighted_found = (findoptionS("showweightedfound") != "off");
-    naughty.show_all_weighted_found =  (findoptionS("showallweightedfound") == "on");
+    naughty.show_weighted_found = (cr.findoptionB("showweightedfound"));
+    naughty.show_all_weighted_found =  (cr.findoptionB("showallweightedfound"));
     if (naughty.show_all_weighted_found)
         naughty.show_weighted_found = true;
 
     return true;
 }
 
-bool OptionContainer::findNetworkOptions()
+bool OptionContainer::findNetworkOptions(ConfigReader &cr)
 {
-    net.server_name = findoptionS("servername");
+    net.server_name = cr.findoptionS("servername");
     if (net.server_name == "") {
         char sysname[256];
         int r;
@@ -931,30 +846,30 @@ bool OptionContainer::findNetworkOptions()
         }
     }
 
-    net.connect_timeout_sec = realitycheckWithDefault("connecttimeout", 1, 100, 5);
+    net.connect_timeout_sec = cr.findoptionIWithDefault("connecttimeout", 1, 100, 5);
     net.connect_timeout = net.connect_timeout_sec * 1000;
 
-    net.connect_retries = realitycheckWithDefault("connectretries", 1, 100, 1);
+    net.connect_retries = cr.findoptionIWithDefault("connectretries", 1, 100, 1);
 
-    net.proxy_ip = findoptionS("proxyip");
+    net.proxy_ip = cr.findoptionI("proxyip");
     if (!net.no_proxy) {
-        net.proxy_port = realitycheckWithDefault("proxyport", 1, 65535, 3128);
+        net.proxy_port = cr.findoptionIWithDefault("proxyport", 1, 65535, 3128);
     }
 
-    net.proxy_timeout_sec = realitycheckWithDefault("proxytimeout", 5, 100, 55);
+    net.proxy_timeout_sec = cr.findoptionIWithDefault("proxytimeout", 5, 100, 55);
     net.proxy_timeout = net.proxy_timeout_sec * 1000;
 
-    net.pcon_timeout_sec = realitycheckWithDefault("pcontimeout", 5, 300, 55);
+    net.pcon_timeout_sec = cr.findoptionIWithDefault("pcontimeout", 5, 300, 55);
     net.pcon_timeout = net.pcon_timeout_sec * 1000;
 
-    net.exchange_timeout_sec = realitycheckWithDefault("proxyexchange", 5, 300, 61);
+    net.exchange_timeout_sec = cr.findoptionIWithDefault("proxyexchange", 5, 300, 61);
     net.exchange_timeout = net.exchange_timeout_sec * 1000;
 
-    net.map_ports_to_ips = (findoptionS("mapportstoips") == "on");    // to be removed in v5.5
-    net.map_auth_to_ports = (findoptionS("mapauthtoports") == "on");  // to be removed in v5.5
+    net.map_ports_to_ips = cr.findoptionB("mapportstoips");    // to be removed in v5.5
+    net.map_auth_to_ports = cr.findoptionB("mapauthtoports");  // to be removed in v5.5
 
     // multiple listen IP support
-    net.filter_ip = findoptionM("filterip");
+    net.filter_ip = *cr.findoptionM("filterip");
     if (net.filter_ip.empty()) 
         net.filter_ip.push_back("");
     if (net.filter_ip.size() > 127) {
@@ -962,7 +877,7 @@ bool OptionContainer::findNetworkOptions()
         return false;
     }
     // multiple check IP support - used for loop checking
-    net.check_ip = findoptionM("checkip");
+    net.check_ip = *cr.findoptionM("checkip");
     if (net.check_ip.size() > 127) {
         E2LOGGER_error("Can not check on more than 127 IPs");
         return false;
@@ -971,7 +886,7 @@ bool OptionContainer::findNetworkOptions()
         net.check_ip.push_back("127.0.0.1");
     }
 
-    net.filter_ports = findoptionM("filterports");
+    net.filter_ports = *cr.findoptionM("filterports");
     if (net.filter_ports.empty())
         net.filter_ports.push_back("8080");
     if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
@@ -984,8 +899,8 @@ bool OptionContainer::findNetworkOptions()
         return false;
     }
 
-    net.TLS_filter_ports = findoptionM("tlsfilterports");
-    net.TLSproxyCN = findoptionS("tlsproxycn");
+    net.TLS_filter_ports = *cr.findoptionM("tlsfilterports");
+    net.TLSproxyCN = cr.findoptionS("tlsproxycn");
     if (net.TLSproxyCN.empty())
         net.TLSproxyCN = net.server_name;
     {
@@ -997,12 +912,12 @@ bool OptionContainer::findNetworkOptions()
     }
 
 
-    net.transparenthttps_port = findoptionI("transparenthttpsport");
+    net.transparenthttps_port = cr.findoptionI("transparenthttpsport");
     if (!realitycheck(net.transparenthttps_port, 0, 65535, "transparenthttpsport")) {
         return false;
     }
 
-    net.icap_port = findoptionI("icapport");
+    net.icap_port = cr.findoptionI("icapport");
     if (!realitycheck(net.icap_port, 0, 65535, "icapport")) {
         return false;
     }
@@ -1015,64 +930,56 @@ bool OptionContainer::findNetworkOptions()
     }
 
 
-    net.xforwardedfor_filter_ip = findoptionM("xforwardedforfilterip");
+    net.xforwardedfor_filter_ip = *cr.findoptionM("xforwardedforfilterip");
 
     return true;
 
 }
 
-bool OptionContainer::findDStatOptions()
+bool OptionContainer::findDStatOptions(ConfigReader &cr)
 {
-    dstat.dstat_interval = findoptionI("dstatinterval");
+    dstat.dstat_interval = cr.findoptionI("dstatinterval");
     if (dstat.dstat_interval == 0) {
         dstat.dstat_interval = 300; // 5 mins
     }
 
-    if (findoptionS("statshumanreadable") == "on") {
-        dstat.stats_human_readable = true;
-    } else {
-        dstat.stats_human_readable = false;
-    }
+    dstat.stats_human_readable = cr.findoptionB("statshumanreadable");
 
-    if (findoptionS("tag_dstatlog") == "on") {
+    if (cr.findoptionB("tag_dstatlog")) {
         e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
     }
 
     return true;
 }
 
-bool OptionContainer::findProcOptions()
+bool OptionContainer::findProcOptions(ConfigReader &cr)
 {
 
-    proc.no_daemon = (findoptionS("nodaemon") == "on");
+    proc.no_daemon = cr.findoptionB("nodaemon");
 
-    if (findoptionS("dockermode") == "on") {
+    if (cr.findoptionB("dockermode")) {
         proc.no_daemon = true;
         e2logger.setDockerMode();
     }
 
-    if ((proc.pid_filename = findoptionS("pidfilename")) == "") {
+    if ((proc.pid_filename = cr.findoptionS("pidfilename")) == "") {
         proc.pid_filename = std::string(__PIDDIR) + "/e2guardian.pid";
     }
 
-    if ((proc.daemon_user_name = findoptionS("daemonuser")) == "") {
+    if ((proc.daemon_user_name = cr.findoptionS("daemonuser")) == "") {
         proc.daemon_user_name = __PROXYUSER;
     }
 
-    if ((proc.daemon_group_name = findoptionS("daemongroup")) == "") {
+    if ((proc.daemon_group_name = cr.findoptionS("daemongroup")) == "") {
         proc.daemon_group_name = __PROXYGROUP;
     }
 
-    proc.http_workers = realitycheckWithDefault("httpworkers", 20, 20000, 500);
+    proc.http_workers = cr.findoptionIWithDefault("httpworkers", 20, 20000, 500);
 
     return true;
 
 }
 
-long int OptionContainer::findoptionI(const char *option) {
-    long int res = String(findoptionS(option).c_str()).toLong();
-    return res;
-}
 
 std::string OptionContainer::findoptionS(const char *option) {
     // findoptionS returns a found option stored in the deque
@@ -1184,9 +1091,9 @@ long int OptionContainer::realitycheckWithDefault(const char *option, long int m
 }
 
 #pragma region Plugins
-bool OptionContainer::loadDMPlugins() {
+bool OptionContainer::loadDMPlugins(ConfigReader &cr) {
     DEBUG_config("load Download manager plugins");
-    std::deque <String> dq = findoptionM("downloadmanager");
+    std::deque<String> dq = *cr.findoptionM("downloadmanager");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         E2LOGGER_error("There must be at least one download manager option");
@@ -1217,9 +1124,9 @@ bool OptionContainer::loadDMPlugins() {
     return true;
 }
 
-bool OptionContainer::loadCSPlugins() {
+bool OptionContainer::loadCSPlugins(ConfigReader &cr) {
     DEBUG_config("load Content scanner plugins");
-    std::deque <String> dq = findoptionM("contentscanner");
+    std::deque<String> dq = *cr.findoptionM("contentscanner");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         return true; // to have one is optional
@@ -1250,12 +1157,12 @@ bool OptionContainer::loadCSPlugins() {
     return true;
 }
 
-bool OptionContainer::loadAuthPlugins() {
+bool OptionContainer::loadAuthPlugins(ConfigReader &cr) {
     DEBUG_config("load Auth plugins");
     // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
     auth_needs_proxy_query = false;
 
-    std::deque <String> dq = findoptionM("authplugin");
+    std::deque<String> dq = *cr.findoptionM("authplugin");
     unsigned int numplugins = dq.size();
     if (numplugins < 1) {
         return true; // to have one is optional
@@ -1459,7 +1366,17 @@ bool CertificateOptions::generate_ca_certificate()
     return true;
 }
 
-
 std::shared_ptr <LOptionContainer> OptionContainer::currentLists() {
     return current_LOC;
+}
+
+bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage) {
+    // realitycheck checks an amount for certain expected criteria
+    // so we can spot problems in the conf files easier
+    if ((l < minl) || ((maxl > 0) && (l > maxl))) {
+        E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l, " should be >= ", minl, " <=",
+                       maxl, ")");
+        return false;
+    }
+    return true;
 }
