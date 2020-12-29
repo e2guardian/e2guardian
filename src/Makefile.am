@@ -93,6 +93,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        md5.cpp md5.hpp \
                        DownloadManager.cpp DownloadManager.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
+                       ConfigReader.cpp ConfigReader.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
 		       SocketArray.cpp SocketArray.hpp \
                        e2guardian.cpp \ Plugin.hpp \
