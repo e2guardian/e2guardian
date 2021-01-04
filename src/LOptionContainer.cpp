@@ -709,3 +709,12 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     }
     return true;
 }
+
+int LOptionContainer::getFgFromName(String &name) {
+    for (int i = 0; i < o.numfg ; i++) {
+        if (name == (*fg[i]).name)
+            return i;
+    }
+    // not found
+            return -1;
+}

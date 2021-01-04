@@ -26,6 +26,7 @@ extern authcreate_t ipcreate;
 extern authcreate_t portcreate;
 extern authcreate_t headercreate;
 extern authcreate_t PF_basic_create;
+extern authcreate_t bearer_basic_create;
 
 #ifdef PRT_DNSAUTH
 extern authcreate_t dnsauthcreate;
@@ -107,6 +108,8 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
         return NULL;
     }
 
+    DEBUG_auth("plugname :", plugname);
+
 
     if (plugname == "ident") {
         DEBUG_auth("Enabling ident server auth plugin");
@@ -131,6 +134,10 @@ AuthPlugin *auth_plugin_load(const char *pluginConfigPath)
     if (plugname == "pf-basic") {
         DEBUG_auth("Enabling proxy-header auth plugin");
         return PF_basic_create(cv);
+    }
+    if (plugname == "bearer-basic") {
+        DEBUG_auth("Enabling bearer-basic auth plugin");
+        return bearer_basic_create(cv);
     }
 
 #ifdef PRT_DNSAUTH

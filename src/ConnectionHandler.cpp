@@ -936,6 +936,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header, checkme,
                             only_ip_auth,
                             checkme.isconnect)) {
+                    if (checkme.auth_result == E2AUTH_407_SENT) {
+                        continue;
+                    }
                     if ((checkme.auth_result == E2AUTH_REDIRECT) && checkme.isconnect &&
                         ldl->fg[filtergroup]->ssl_mitm) {
                         checkme.gomitm = true;
@@ -2699,17 +2702,17 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // auth plugin selection for multi ports
             //
             //
-            // Logic changed to allow auth scan with multiple ports as option to auth-port
+            // Logic changed to allow auth scan with multiple ports as option to replace auth-port
             //       fixed mapping
             //
 
-                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth);
+                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth, cm);
 
             if (rc == E2AUTH_NOMATCH) {
-                DEBUG_debug("Auth plugin did not find a match; querying remaining plugins");
+                DEBUG_auth("Auth plugin did not find a match; querying remaining plugins");
                 continue;
             } else if (rc == E2AUTH_REDIRECT) {
-                DEBUG_debug("Auth plugin told us to redirect client to \"", clientuser, "\"; not querying remaining plugins");
+                DEBUG_auth("Auth plugin told us to redirect client to \"", clientuser, "\"; not querying remaining plugins");
                 if (isconnect_like)      // it is connect or trans https so cannot send redirect
                 {
                     dobreak = true;
@@ -2724,17 +2727,36 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     break;
                 }
             } else if (rc == E2AUTH_OK_NOPERSIST) {
-                DEBUG_debug("Auth plugin  returned OK but no persist not setting persist auth");
+                DEBUG_auth("Auth plugin  returned OK but no persist not setting persist auth");
                 overide_persist = true;
+            } else if (rc == E2AUTH_OK_GOT_GROUP)  {
+                DEBUG_auth("Auth plugin  returned OK_GOT_GROUP ");
+                filtergroup = SBauth.filter_group;
+                authed = true;
+                break;      // got user and group so break
+            } else if (rc == E2AUTH_OK_GOT_GROUP_NAME)  {
+                DEBUG_auth("Auth plugin  returned OK_GOT_GROUP_NAME ");
+                filtergroup = ldl->getFgFromName(SBauth.fg_name);
+                if (filtergroup > -1) {
+                    SBauth.filter_group = filtergroup;
+                    authed = true;
+                    break;      // got user and group so break
+                } else {
+                    rc = E2AUTH_OK;  // just got user so change status flag to that effect
+                }
+            } else if (rc == E2AUTH_407_SENT)  {
+                DEBUG_auth("Auth plugin  has sent 407 so break");
+                dobreak = true;
+                break;
             } else if (rc < 0) {
                 E2LOGGER_error("Auth plugin returned error code: ", rc);
                 dobreak = true;
                 break;
             }
-            DEBUG_debug(" -Auth plugin found username ", clientuser, " (", oldclientuser, "), now determining group");
+            DEBUG_auth(" -Auth plugin found username ", clientuser, " (", oldclientuser, "), now determining group");
 
             if (clientuser == oldclientuser) {
-                DEBUG_debug(" -Same user as last time, re-using old group no.");
+                DEBUG_auth(" -Same user as last time, re-using old group no.");
                 authed = true;
                 filtergroup = oldfg;
                 break;
@@ -2742,11 +2764,11 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // try to get the filter group & parse the return value
             rc = auth_plugin->determineGroup(clientuser, filtergroup, ldl->StoryA, cm);
             if (rc == E2AUTH_OK) {
-                DEBUG_debug("Auth plugin found username & group; not querying remaining plugins");
+                DEBUG_auth("Auth plugin found username & group; not querying remaining plugins");
                 authed = true;
                 break;
             } else if (rc == E2AUTH_NOMATCH) {
-                DEBUG_debug("Auth plugin did not find a match; querying remaining plugins");
+                DEBUG_auth("Auth plugin did not find a match; querying remaining plugins");
                 clientuser = "";
                 continue;
             } else if (rc == E2AUTH_NOGROUP) {
@@ -2755,7 +2777,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     SBauth.user_source = "";
                     continue;
                 }
-                DEBUG_debug("Auth plugin found username \"", clientuser, "\" but no associated group; not querying remaining plugins");
+                DEBUG_auth("Auth plugin found username \"", clientuser, "\" but no associated group; not querying remaining plugins");
 
                 //filtergroup = 0; // default now set before call to doAuth
                 authed = true;
@@ -2775,10 +2797,10 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
 #ifdef DEBUG_LOW
             if (!authed) {
-                DEBUG_debug(" -No identity found; using defaults");
+                DEBUG_auth(" -No identity found; using defaults");
             }
             else {
-                DEBUG_debug(" -Plugin returned out-of-range filter group number; using defaults");
+                DEBUG_auth(" -Plugin returned out-of-range filter group number; using defaults");
             }
 #endif
 
@@ -2789,14 +2811,14 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // 'ip', because Squid isn't necessarily going to return 'auth required'.
             authed = !o.auth_needs_proxy_query;
             if (!o.auth_needs_proxy_query)
-                DEBUG_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
+                DEBUG_auth(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
 
             clientuser = "-";
             //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
         } else {
-            DEBUG_debug(" -Identity found; caching username & group");
+            DEBUG_auth(" -Identity found; caching username & group");
             if (auth_plugin->is_connection_based && !overide_persist) {
-                DEBUG_debug("Auth plugin is for a connection-based auth method - keeping credentials for entire connection");
+                DEBUG_auth("Auth plugin is for a connection-based auth method - keeping credentials for entire connection");
                 persistent_authed = true;
             }
             oldclientuser = clientuser;
@@ -2804,7 +2826,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
         }
     } else {
         // We don't have any auth plugins loaded
-        DEBUG_debug(" -No auth plugins loaded; using defaults & feigning persistency");
+        DEBUG_auth(" -No auth plugins loaded; using defaults & feigning persistency");
         authed = true;
         clientuser = "-";
         //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
@@ -3915,9 +3937,11 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 
 
     // check for CONNECT redirect
-    if (icaphead.HTTPrequest.requestType() == "CONNECT") {
+    if ((icaphead.HTTPrequest.requestType() == "CONNECT") && checkme.urlmodified) {
+        // DEBUG_debug("is CONNECT logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         if (checkme.connect_site != checkme.urldomain) {
-            icaphead.HTTPrequest.setURL(checkme.connect_site);
+            icaphead.HTTPrequest.setConnect(checkme.connect_site);
+            // DEBUG_debug("after setURL logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
         }
     }
     // TODO V5 call POST scanning code New NaughtyFilter function????

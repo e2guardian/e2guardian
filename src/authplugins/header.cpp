@@ -33,7 +33,7 @@ class headerinstance : public AuthPlugin
         needs_proxy_query = true;
         client_ip_based = false;
     };
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm);
     int init(void *args);
 };
 
@@ -49,8 +49,7 @@ AuthPlugin *headercreate(ConfigVar &definition)
 // end of Class factory
 
 // proxy auth header username extraction
-int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec)
-{
+int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm) {
     if (fname.length() < 0) 
    	return E2AUTH_NOMATCH;
 

@@ -319,71 +319,7 @@ String ICAPHeader::hexToChar(const String &n, bool all)
     }
 }
 
-// decode a line of base64
-std::string ICAPHeader::decodeb64(const String &line)
-{ // decode a block of b64 MIME
-    long four = 0;
-    int d;
-    std::string result;
-    int len = line.length() - 4;
-    for (int i = 0; i < len; i += 4) {
-        four = 0;
-        d = decode1b64(line[i + 0]);
-        four = four | d;
-        d = decode1b64(line[i + 1]);
-        four = (four << 6) | d;
-        d = decode1b64(line[i + 2]);
-        four = (four << 6) | d;
-        d = decode1b64(line[i + 3]);
-        four = (four << 6) | d;
-        d = (four & 0xFF0000) >> 16;
-        result += (char)d;
-        d = (four & 0xFF00) >> 8;
-        result += (char)d;
-        d = four & 0xFF;
-        result += (char)d;
-    }
-    return result;
-}
 
-// decode an individual base64 character
-int ICAPHeader::decode1b64(char c)
-{
-    unsigned char i = '\0';
-    switch (c) {
-    case '+':
-        i = 62;
-        break;
-    case '/':
-        i = 63;
-        break;
-    case '=':
-        i = 0;
-        break;
-    default: // must be A-Z, a-z or 0-9
-        i = '9' - c;
-        if (i > 0x3F) { // under 9
-            i = 'Z' - c;
-            if (i > 0x3F) { // over Z
-                i = 'z' - c;
-                if (i > 0x3F) { // over z so invalid
-                    i = 0x80; // so set the high bit
-                } else {
-                    // a-z
-                    i = c - 71;
-                }
-            } else {
-                // A-Z
-                i = c - 65;
-            }
-        } else {
-            // 0-9
-            i = c + 4;
-        }
-        break;
-    }
-    return (int)i;
-}
 
 // *
 // *

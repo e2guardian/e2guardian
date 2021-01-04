@@ -28,7 +28,7 @@ class identinstance : public AuthPlugin
         : AuthPlugin(definition){
         client_ip_based = true;    // not sure if this is correct!!
     };
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm);
     int init(void *args);
 };
 
@@ -45,7 +45,7 @@ AuthPlugin *identcreate(ConfigVar &definition)
 
 // ident server username extraction
 // checkme: needs better error reporting
-int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec)
+int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm)
 {
     std::string clientip;
     bool use_xforwardedfor;

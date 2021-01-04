@@ -130,9 +130,6 @@ class ICAPHeader
     static String decode(const String &s, bool decodeAll = false);
 
 
-    // encode url
-    String URLEncode();
-
     ICAPHeader()
     {
         reset();
@@ -199,10 +196,6 @@ class ICAPHeader
 
     // convert %xx back to original character
     static String hexToChar(const String &n, bool all = false);
-    // base64 decode an individual char
-    int decode1b64(char c);
-    // base64 decode a complete string
-    std::string decodeb64(const String &line);
 
 };
 

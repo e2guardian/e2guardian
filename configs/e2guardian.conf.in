@@ -381,7 +381,7 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ##                 If authentication is enabled on proxy, then
 ##                 sslreplace, 'Transparent' or IP auth and possibly
 ##		   other features will not work. 
-##		   Withdrawn in v5.5!
+##		   NOTE: Withdrawn in v5.5!
 ##
 ## 'Transparent' - 80/443 requests are redirected to e2g on gateway
 ##	           Can be used with Standalone or Proxy-After mode

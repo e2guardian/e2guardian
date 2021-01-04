@@ -15,7 +15,7 @@
 #include "HTTPHeader.hpp"
 #include "ListContainer.hpp"
 #include "LOptionContainer.hpp"
-#include "../../../../../opt/rh/devtoolset-2/root/usr/include/c++/4.8.2/deque"
+#include <deque>
 
 // DEFINES
 
@@ -40,6 +40,15 @@
 // auth plugin found a partial or incomplet answer (Eg NTLM): just break ident loop for this request  
 #define E2AUTH_NOIDENTPART 5
 
+// identify returns this if it has determined both user and group (and added group id to authrec)
+#define E2AUTH_OK_GOT_GROUP 10
+
+// This means plugin has sent 407 to client, so no further processing of this request
+#define E2AUTH_407_SENT    11
+
+// identify returns this if it has determined both user and group (and added group name to authrec)
+#define E2AUTH_OK_GOT_GROUP_NAME 12
+
 // any < 0 return code signifies error
 
 // auth_rec structure for use by storyboarding/extended logging
@@ -47,6 +56,7 @@ struct auth_rec {
     String user_name;
     bool is_authed;
     int filter_group;
+    String fg_name;
     bool is_proxy = false;
     bool is_transparent = false;
     bool is_icap = false;
@@ -71,7 +81,7 @@ class AuthPlugin : public Plugin
     // REDIRECT - redirect user to URL in string
     // NOMATCH - did not find the necessary info in the request (query remaining plugins)
     // any < 0 - error
-    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec) = 0;
+    virtual int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec,NaughtyFilter &cm) = 0;
 
     // determine what filter group the given username is in
     // queries the standard filtergroupslist
@@ -116,6 +126,7 @@ class AuthPlugin : public Plugin
     protected:
     ConfigVar cv;
     String bearer_secret;
+    String bearer_realm;
 
     private:
     String pluginName;

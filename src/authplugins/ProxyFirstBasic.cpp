@@ -33,7 +33,7 @@ class pf_basic_instance : public AuthPlugin
         needs_proxy_query = false;
         client_ip_based = false;
     };
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec,NaughtyFilter &cm);
     int init(void *args);
 };
 
@@ -49,7 +49,7 @@ AuthPlugin *PF_basic_create(ConfigVar &definition)
 // end of Class factory
 
 // proxy auth header username extraction
-int pf_basic_instance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec)
+int pf_basic_instance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec,NaughtyFilter &cm)
 {
     // don't match for non-basic auth types
     String t(h.getAuthType());

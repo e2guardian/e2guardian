@@ -55,7 +55,7 @@ class portinstance : public AuthPlugin
         client_ip_based = false;
     }
 
-    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec);
+    int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm);
     //int determineGroup(std::string &user, int &fg, ListContainer &uglc);
 
     int init(void *args);
@@ -113,7 +113,7 @@ int portinstance::init(void *args)
 // Port-based filter group determination
 // never actually return NOUSER from this, because we don't actually look in the portgroupslist.
 // NOUSER stops ConnectionHandler from querying subsequent plugins.
-int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*int &fg,*/ std::string &string, bool &is_real_user,auth_rec &authrec)
+int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm)
 {
     // we don't get usernames out of this plugin, just a filter group
     // for now, use the dest Port as the username
@@ -125,125 +125,3 @@ int portinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*i
     return E2AUTH_OK;
 }
 
-#ifdef NODEF
-int portinstance::determineGroup(std::string &user, int &pfg, ListContainer &uglc)
-{
-    // check ports
-    String s = user;
-    int fg;
-    fg = inList(s.toInteger());
-    if (fg >= 0) {
-        pfg = fg;
-        DEBUG_auth("Matched port ", user, " to port list");
-        return E2AUTH_OK;
-    }
-    DEBUG_auth("Matched port ", user, " to nothing");
-    return E2AUTH_NOMATCH;
-}
-#endif
-
-
-#ifdef NODEF
-//
-//
-// Port list functions (port match)
-//
-//
-
-// search for port in list & return filter group on success, -1 on failure
-int portinstance::inList(const int &port)
-{
-    if (ipportlist.size() > 0) {
-        return searchList(0, ipportlist.size(),(unsigned int) port);
-    }
-    return -1;
-}
-
-// binary search list for given port & return filter group, or -1 on failure
-int portinstance::searchList(int a, int s, const unsigned int &port)
-{
-    if (a > s)
-        return -1;
-    int m = (a + s) / 2;
-    if (ipportlist[m].port == port)
-        return ipportlist[m].group;
-    if (ipportlist[m].port < port)
-        return searchList(m + 1, s, port);
-    if (a == s)
-        return -1;
-    return searchList(a, m - 1, port);
-}
-
-// read in a list linking ports to filter groups
-// return 0 for success, -1 for failure, 1 for warning
-int portinstance::readIPMelangeList(const char *filename)
-{
-    // load in the list file
-    std::ifstream input(filename);
-    if (!input) {
-        E2LOGGER_error("Error reading file (does it exist?): ", filename);
-        return -1;
-    }
-
-    // read in the file
-    String line;
-    String key, value;
-    char buffer[2048];
-    bool warn = false;
-    while (input) {
-        if (!input.getline(buffer, sizeof(buffer))) {
-            break;
-        }
-        // ignore comments
-        if (buffer[0] == '#')
-            continue;
-        // ignore blank lines
-        if (strlen(buffer) < 10)
-            continue;
-        line = buffer;
-        // split into key & value
-        if (line.contains("=")) {
-            key = line.before("=");
-            key.removeWhiteSpace();
-            value = line.after("filter");
-        } else {
-            E2LOGGER_error("No filter group given; entry ", line, " in ", filename);
-            warn = true;
-            continue;
-        }
-
-        DEBUG_auth("key: ", key, "value: ", value );
-        if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
-            E2LOGGER_error("Filter group out of range; entry ", line, " in ", filename);
-            warn = true;
-            continue;
-        }
-        // store the IP port(numerically, not as a string) and filter group in the port list
-        if (int p = key.toInteger()) {
-            portstruct s;
-            s.port = p;
-            s.group = value.toInteger() - 1;
-            ipportlist.push_back(s);
-        }
-        // hmmm. the key didn't match any of our regular expressions. output message & return a warning value.
-        else {
-            E2LOGGER_error("Entry ", line, " in ", filename, " was not recognised as an port ");
-            warn = true;
-        }
-    }
-    input.close();
-    DEBUG_auth("starting sort");
-    //	std::sort(ipportlist.begin(), ipportlist.end());
-#ifdef DEBUG_HIGH
-    DEBUG_auth("sort complete");
-    DEBUG_auth("port list dump:");
-    std::deque<portstruct>::iterator i = ipportlist.begin();
-    while (i != ipportlist.end()) {
-        DEBUG_auth("port: ", i->port, " Group: ", i->group);
-        i++;
-    }
-#endif
-    // return either warning or success
-    return warn ? 1 : 0;
-}
-#endif

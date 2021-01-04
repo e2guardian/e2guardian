@@ -53,7 +53,7 @@ class LOptionContainer
     IPList banned_ip_list;
     ListMeta LMeta;
     StoryBoard StoryA;
-    ListManager lm;
+    //ListManager lm;
     FOptionContainer **fg = nullptr;
     bool loaded_ok;
     int reload_id;
@@ -65,6 +65,7 @@ class LOptionContainer
 
     void deleteFilterGroups();
     void deleteFilterGroupsJustListData();
+    int getFgFromName(String &name);  // returns -1 if not found
 
     //...and the functions that read them
 

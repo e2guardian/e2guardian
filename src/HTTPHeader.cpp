@@ -274,7 +274,11 @@ std::string HTTPHeader::getAuthData()
 {
     if (pproxyauthorization != NULL) {
         String line(pproxyauthorization->after(" ").after(" "));
-        return decodeb64(line); // it's base64 MIME encoded
+        //line.chop();
+        DEBUG_auth(("pauth string size:"),line.length());
+        String ret = decodeb64(line);
+        ret.removeChar('\0');
+        return ret; // it's base64 MIME encoded
     }
     return "";
 }
@@ -498,6 +502,18 @@ void HTTPHeader::removeEncoding(int newlen)
 			header[i] = "Content-Encoding: "+newheader;
 		    DEBUG_debug("New: ", header[i]);
         */
+    }
+}
+
+void HTTPHeader::setConnect(String &con_site) {
+    if (requestType() != "CONNECT") return;
+    header.front() = header.front().before(" ") + " " + con_site + ":" + String(port) + " " + header.front().after(" ").after(" ");
+    //remove all other headers
+            if (header.size() > 1) {
+                header.erase(header.begin()+1, header.end());
+            }
+    if (phost != NULL) {
+                phost = nullptr;
     }
 }
 
@@ -1439,11 +1455,11 @@ String HTTPHeader::hexToChar(const String &n, bool all)
 
 // decode a line of base64
 std::string HTTPHeader::decodeb64(const String &line)
-{ // decode a block of b64 MIME
+{ // decode a block of b64 MIME - will not work with binary data only with text - trailing cr or newline are ignored
     long four = 0;
     int d;
     std::string result;
-    int len = line.length() - 4;
+    int len = line.length() - 3;
     for (int i = 0; i < len; i += 4) {
         four = 0;
         d = decode1b64(line[i + 0]);
@@ -1455,11 +1471,14 @@ std::string HTTPHeader::decodeb64(const String &line)
         d = decode1b64(line[i + 3]);
         four = (four << 6) | d;
         d = (four & 0xFF0000) >> 16;
-        result += (char)d;
+        result += (char)d;      // first char cannot be padding so this is safe
         d = (four & 0xFF00) >> 8;
-        result += (char)d;
+        if (d > 0) {            // if d is 0 = padding so do not put ^@ in string!
+          result += (char)d;
+          return result;
+        }
         d = four & 0xFF;
-        result += (char)d;
+        if (d > 0) result += (char)d;           // if d is 0 = padding so do not put ^@ in string!
     }
     return result;
 }
