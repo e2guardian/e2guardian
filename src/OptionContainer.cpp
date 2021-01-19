@@ -8,14 +8,13 @@
 #include "e2config.h"
 #endif
 
-#include "LOptionContainer.hpp"
-#include "OptionContainer.hpp"
-#include "RegExp.hpp"
 #include "ConfigVar.hpp"
+#include "OptionContainer.hpp"
+#include "LOptionContainer.hpp"
+#include "RegExp.hpp"
 #include "Logger.hpp"
 #include "LoggerConfigurator.hpp"
 
-//#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <dirent.h>
@@ -51,16 +50,14 @@ void OptionContainer::reset() {
 }
 
 // Purpose: reads all options from the main configuration file (e2guardian.conf)
-bool OptionContainer::read_config(std::string &filename, bool readFullConfig) {
+bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
     ConfigReader          cr;
-
-    config.conffilename = filename;
 
     // all sorts of exceptions could occur reading conf files
     try {
-        String list_pwd = __CONFDIR;
-        list_pwd += "/lists/common";
-        if (!cr.readConfig(filename.c_str(), list_pwd))
+        Path list_pwd(__CONFDIR);
+        list_pwd.append("/lists/common");
+        if (!cr.readConfig(filename, list_pwd))
             return false;
 
         if (!findProcOptions(cr)) return false;

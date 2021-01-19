@@ -15,6 +15,7 @@
 #include <map>
 
 #include "Logger.hpp"
+#include "String.hpp"
 
 // IMPLEMENTATION
 const char DELIMITER = '=';
@@ -86,39 +87,35 @@ ConfigReader::~ConfigReader() {
 }
 
 // construct & read in the given config file
-ConfigReader::ConfigReader(const char *filename, String &list_pwd)
+ConfigReader::ConfigReader(const Path &filename, const Path &list_pwd)
 {
    readConfig(filename, list_pwd );
 }
 
 // method readConfig
-bool ConfigReader::readConfig(const char *filename, String &list_pwd) {
+bool ConfigReader::readConfig(const Path &filename, const Path &list_pwd) {
 
+    Path base_dir = filename.baseDir();
+    std::string now_pwd = list_pwd.fullPath();
     std::string linebuffer;
-    String temp;
-    String now_pwd(list_pwd);
 
-    std::ifstream conffile(filename, std::ios::in); // e2guardianfN.conf
+    std::ifstream conffile(filename.fullPath(), std::ios::in); // e2guardian.conf
     if (!conffile.good()) {
-        E2LOGGER_error("Error reading ", filename);
+        E2LOGGER_error("Error reading ", filename.fullPath());
         return false;
     }
-    String base_dir(filename);
-    base_dir.baseDir();
 
     while (!conffile.eof()) {
       getline(conffile, linebuffer);
       if (!conffile.fail() && linebuffer.length() != 0) {
-        temp = (char *) linebuffer.c_str();
-        if (linebuffer[0] == '#') {
-          // skip comment line
-          continue;
+        String temp = (char *) linebuffer.c_str();
+        if (linebuffer[0] == '#') {          
+          continue;   // skip comment line
         }
         else if (linebuffer[0] == '.') {
-          temp = temp.after(".Include<").before(">");
-          if (temp.length() > 0) {
-              temp.fullPath(base_dir);
-              if (!readConfig(temp.toCharArray(), now_pwd)) {
+          String filename = temp.after(".Include<").before(">");
+          if (filename.length() > 0) {
+              if (!readConfig( base_dir.combine(filename), now_pwd)) {
                   conffile.close();
                   return false;
               }
@@ -126,8 +123,8 @@ bool ConfigReader::readConfig(const char *filename, String &list_pwd) {
           temp = temp.after(".Define LISTDIR <").before(">");
           if (temp.length() > 0) {
               now_pwd = temp;
-              //if(!now_pwd.endsWith("/"))
-              //    now_pwd += "/";
+              if(now_pwd.back() != '/')
+                  now_pwd += "/";
           }
         } 
         else
@@ -136,11 +133,8 @@ bool ConfigReader::readConfig(const char *filename, String &list_pwd) {
             temp = temp.before("#");  // remove trailing comment
           }
           temp.removeWhiteSpace(); // get rid of spaces at end of line
-          while (temp.contains("__LISTDIR__")) {
-              String temp2 = temp.before("__LISTDIR__");
-              temp2 += now_pwd;
-              temp2 += temp.after("__LISTDIR__");
-              temp = temp2;
+          if (temp.contains("__LISTDIR__")) {
+              temp.replaceall("__LISTDIR__", now_pwd.c_str());
           }
           // append ,listdir=now_pwd if line contains a file path - so that now_pwd can be passed
           // to list file handler so that it can honour __LISTDIR__ in Included listfiles

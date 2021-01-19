@@ -627,7 +627,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
 
 bool LOptionContainer::readFilterGroupConf()
 {
-    String prefix(o.config.conffilename);
+    String prefix(o.config.configfile);
     prefix = prefix.before(".conf");
     prefix += "f";
     String file;
@@ -711,7 +711,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 }
 
 int LOptionContainer::getFgFromName(String &name) {
-    for (int i = 0; i < o.numfg ; i++) {
+    for (int i = 0; i < o.filter.numfg ; i++) {
         if (name == (*fg[i]).name)
             return i;
     }

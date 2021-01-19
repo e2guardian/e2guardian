@@ -30,6 +30,7 @@
 #include <cstring>
 #include <deque>
 #include "String.hpp"
+#include "Utils/Path.hpp"
 
 // DECLARATIONS
 class ConfigReaderImpl;
@@ -41,8 +42,8 @@ class ConfigReader
 
     // read the given file, storing option/value for later retrival
     // Params : list_pwd : base directory when looking for lists definitions
-    ConfigReader(const char *filename, String &list_pwd);
-    bool readConfig(const char *filename, String &list_pwd);
+    ConfigReader(const Path &filename, const Path &list_pwd);
+    bool readConfig(const Path &filename, const Path &list_pwd);
 
     std::deque<String>* findoptionM(const char *option);
     std::string findoptionS(const char *option);

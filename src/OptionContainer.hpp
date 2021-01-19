@@ -109,11 +109,8 @@ struct CertificateOptions
 struct ConfigOptions 
 {
     std::string prog_name;   // (default e2guardian)
-    std::string configfile;  // Main Configfile (default e2guardian.conf)
-    std::string conffilename;
-
-
-    std::string languagepath;
+    std::string configfile;  // Main Configfile (default ${e2sysconfdir}/e2guardian.conf)
+    std::string languagepath;   
 
     char benchmark = '\0';
     bool total_block_list = false;
@@ -366,7 +363,7 @@ class OptionContainer
     OptionContainer();
     ~OptionContainer();
 
-    bool read_config(std::string& filename, bool readFullConfig=true);
+    bool read_config(const Path &filename, bool readFullConfig=true);
     void reset();
 
     bool readinStdin();

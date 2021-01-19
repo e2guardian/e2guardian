@@ -96,7 +96,9 @@ int main(int argc,char *argv[])
 
     if (o.config.total_block_list && !o.readinStdin()) {
         E2LOGGER_error("Error on reading total_block_list");
-//		return 1;
+    } 
+    else 
+    {
         DEBUG_debug("Total block lists read OK from stdin.");
     }
 
@@ -180,7 +182,7 @@ int readCommandlineOptions(int argc, char *argv[])
                     o.proc.no_daemon = true;
                     break;
                 case 'c':   // already processed this - so skip
-                        skip_next = true;
+                    skip_next = true;
                     break;
                 case 'i':
                     o.config.total_block_list = true;
