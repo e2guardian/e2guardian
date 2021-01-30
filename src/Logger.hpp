@@ -22,16 +22,24 @@
 
 // only C++14 : using namespace std::string_literals;
 
+// FileRec: handling open/write/rotate/close of files
 class FileRec {
 public:
-    std::string filename;
-    FILE *file_stream;
-    int link_count = 0;
-    bool open = false;
+    FileRec(std::string filename, bool unbuffered);   //constructor
+    ~FileRec();                                       //destructor
 
+    std::string filename;
+    int link_count = 0;
+
+    bool open();
     bool write(std::string &msg);
     bool rotate();
     bool flush();
+    bool close();
+
+private:
+    FILE *file_stream;
+    bool unbuffered = false;
 };
 
 
@@ -57,18 +65,16 @@ public:
     ~Logger();  // destructor
 
     void setSyslogName(const std::string logname);
+    void setDockerMode();
 
     // enable/disable Logging Sources
     void enable(const LoggerSource source);
-
     void enable(const char *source);
 
     void disable(const LoggerSource source);
-
     void disable(const char *source);
 
     bool isEnabled(const LoggerSource source);
-
     bool isEnabled(const char *source);
 
     bool rotate(const LoggerSource source);
@@ -76,8 +82,6 @@ public:
 
     bool setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename = "",
                       const bool alsoEnable = true);
-
-    void setDockerMode();
 
     void log(const LoggerSource source, std::string message);
 
@@ -164,6 +168,8 @@ public:
 
 private:
 
+    std::string _syslogname;
+
     std::vector <FileRec*> Files;
 
     struct SourceRec {
@@ -183,13 +189,12 @@ private:
 
     FileRec *findFileRec(std::string filename);
 
-    FileRec *addFile(std::string filename);
+    FileRec *addFile(std::string filename, bool unbuffered);
 
     void rmFileLink(FileRec *fileRec);
 
     void deleteFileEntry(std::string filename);
 
-    std::string _logname;
 
     // arrays below replaced with array of source_rec
     //bool _enabled[static_cast<int>(LoggerSource::__Max_Value)];
@@ -204,7 +209,7 @@ private:
 
     bool setFilename(const LoggerSource source, const std::string filename);
 
-    bool setSyslogLevel(const LoggerSource source, const std::string filename);
+    bool setSyslogLevel(const LoggerSource source, const std::string level);
 
 
 };
@@ -217,6 +222,10 @@ extern Logger e2logger;
 #define E2LOGGER_info(...)  \
   if (e2logger.isEnabled(LoggerSource::info)) \
      e2logger.vlog(LoggerSource::info,  __func__, __FILE__,__LINE__, __VA_ARGS__)
+
+#define E2LOGGER_warn(...)  \
+  if (e2logger.isEnabled(LoggerSource::warning)) \
+     e2logger.vlog(LoggerSource::warning,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
 #define E2LOGGER_error(...) \
   if (e2logger.isEnabled(LoggerSource::error)) \
@@ -268,10 +277,10 @@ extern Logger e2logger;
 #else
   #define DEBUG_icap(...)
   #define DEBUG_avscan(...)
-#define DEBUG_auth(...)
-#define DEBUG_dwload(...)
-#define DEBUG_proxy(...)
-#define DEBUG_thttps(...)
+  #define DEBUG_auth(...)
+  #define DEBUG_dwload(...)
+  #define DEBUG_proxy(...)
+  #define DEBUG_thttps(...)
 #endif
 
 
@@ -306,19 +315,19 @@ extern Logger e2logger;
      e2logger.vlog(LoggerSource::content,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
 #else
-#define DEBUG_debug(...)
-#define DEBUG_trace(...)
-#define DEBUG_network(...)
-#define DEBUG_regexp(...)
-#define DEBUG_story(...)
-#define DEBUG_config(...)
-#define DEBUG_content(...)
-#define DEBUG_low_icap(...)
-#define DEBUG_low_avscan(...)
-#define DEBUG_low_auth(...)
-#define DEBUG_low_dwload(...)
-#define DEBUG_low_proxy(...)
-#define DEBUG_low_thttps(...)
+  #define DEBUG_debug(...)
+  #define DEBUG_trace(...)
+  #define DEBUG_network(...)
+  #define DEBUG_regexp(...)
+  #define DEBUG_story(...)
+  #define DEBUG_config(...)
+  #define DEBUG_content(...)
+  #define DEBUG_low_icap(...)
+  #define DEBUG_low_avscan(...)
+  #define DEBUG_low_auth(...)
+  #define DEBUG_low_dwload(...)
+  #define DEBUG_low_proxy(...)
+  #define DEBUG_low_thttps(...)
 #endif
 
 
