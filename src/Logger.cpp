@@ -19,8 +19,6 @@
 #include <cstdio>
 #include "Logger.hpp"
 
-extern bool is_daemonised;
-
 // -------------------------------------------------------------
 // --- Global Logger
 // -------------------------------------------------------------
@@ -55,8 +53,7 @@ Logger::~Logger() {
     if (!Files.empty()) {
         for (std::vector<FileRec *>::iterator i = Files.begin(); i != Files.end(); i++) {
             if (*i != nullptr) {
-                if ((*i)->open)
-                    fclose((*i)->file_stream);
+                (*i)->close();
                 delete *i;
             }
         }
@@ -93,18 +90,40 @@ struct Logger::Helper {
     }
 };
 
+// -------------------------------------------------------------
+// --- FileRec 
+// -------------------------------------------------------------
+
+FileRec::FileRec(std::string filename, bool unbuffered) {
+    this->filename = filename;
+    this->unbuffered = unbuffered;
+    this->link_count = 1;
+}    
+FileRec::~FileRec() {
+    close();
+}       
+
+bool FileRec::open() {
+    mode_t old_umask = umask(S_IWGRP | S_IWOTH);
+    file_stream = fopen(filename.c_str(), "a");
+    umask(old_umask);
+    if (!file_stream) {
+        std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)"
+                    << std::endl;
+        return false;
+    }
+    if (unbuffered)
+        setvbuf(file_stream, NULL, _IONBF, 0);
+    return true;
+}
+
 bool FileRec::write(std::string &msg) {
     if (file_stream == nullptr) {
         std::cerr << "file_stream is null" << std::endl;
+        return false;
     } else {
-//        std::cerr << "file_stream is not null" << std::endl;
-        if (fprintf(file_stream, "%s\n", msg.c_str()) < 0) {
-            //std::cerr << "log write to " << filename << " failed";
-            return false;
-        }
-//        std::cerr << "log write to " << filename << " OK";
+        return (fprintf(file_stream, "%s\n", msg.c_str()) >= 0);
     }
-    return true;
 }
 bool FileRec::flush() {
     if(file_stream == nullptr)
@@ -116,21 +135,26 @@ bool FileRec::flush() {
 bool FileRec::rotate() {   // this must only be called by a single thread which controls all output to this file
     if(file_stream == nullptr)
         return false;
-    std::string rfn = filename;
-    mode_t old_umask;
-    old_umask = umask(S_IWGRP | S_IWOTH);
-    rfn += ".old";
-    if(link(filename.c_str(), rfn.c_str()) == 0) {
-        unlink(filename.c_str());
-        fclose(file_stream);
-        file_stream = fopen(filename.c_str(),"a");
-        umask(old_umask);
-        return true;
-    }
-    umask(old_umask);
-    return false;
 
+    flush();
+    close();
+    std::string rfn = filename;
+    rfn += ".old";
+    if (link(filename.c_str(), rfn.c_str()) == 0) {
+        unlink(filename.c_str());
+        return open();
+    }
+    return false;
 }
+
+bool FileRec::close() {
+    if(file_stream == nullptr)
+        return false;
+    int rc = fclose(file_stream);
+    file_stream = nullptr;
+    return (rc == 0);
+}    
+
 
 // -------------------------------------------------------------
 // --- static Functions
@@ -164,7 +188,7 @@ std::string Logger::dest2string(LoggerDestination dest) {
 // -------------------------------------------------------------
 
 void Logger::setSyslogName(const std::string logname) {
-    _logname = logname;
+    _syslogname = logname;
     closelog();
     openlog(logname.c_str(), LOG_PID | LOG_CONS, LOG_USER);
 };
@@ -194,7 +218,7 @@ bool Logger::isEnabled(const char *source) {
 }
 
 bool Logger::rotate(const LoggerSource source) { // this must only be called by a single thread which controls all output to this file
-    if(sourceRecs[static_cast<int>(source)].destination != LoggerDestination::file)
+    if(sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file)
         return false;
     if(sourceRecs[static_cast<int>(source)].fileRec ==  nullptr)
         return false;
@@ -211,12 +235,14 @@ bool Logger::flush(const LoggerSource source) { // this must only be called by a
 
 bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination destination, const std::string filename,
                           const bool alsoEnable) {
+
+    if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) {  // unlink file if previously set
+        rmFileLink(sourceRecs[static_cast<int>(source)].fileRec);
+        sourceRecs[static_cast<int>(source)].fileRec = nullptr;
+    }
     if (destination == LoggerDestination::file) {
         if (!setFilename(source, filename))
             return false;
-    } else if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) {  // unlink file if previously set
-        rmFileLink(sourceRecs[static_cast<int>(source)].fileRec);
-        sourceRecs[static_cast<int>(source)].fileRec = nullptr;
     }
 
     if (destination == LoggerDestination::syslog)
@@ -260,61 +286,35 @@ void Logger::deleteFileEntry(std::string filename) {
     if (!Files.empty()) {
         for (std::vector<FileRec*>::iterator i = Files.begin(); i != Files.end(); i++) {
             if ((*i)->filename == filename) {
-                if ((*i)->file_stream != nullptr) {
-                    fclose((*i)->file_stream);
-                }
-                delete *i;
                 Files.erase(i);
+                delete *i;
                 return;
             }
         }
     }
 }
 
-FileRec *Logger::addFile(std::string filename) {
+FileRec *Logger::addFile(std::string filename, bool unbuffered) {
     FileRec *fileRec = findFileRec(filename);
     if (fileRec == nullptr) {        // new unique filename - add to Files and open
-        FileRec* fileRec1 = new FileRec;
-        fileRec1->filename = filename;
-        fileRec1->link_count = 1;
-        Files.push_back(fileRec1);
-        fileRec = findFileRec(filename);
-        if (fileRec == nullptr) {
-            std::cerr << "failure to find new Files record for " << filename << std::endl;
-            return nullptr;
-        }
-        mode_t old_umask;
-        old_umask = umask(S_IWGRP | S_IWOTH);
-        fileRec->file_stream = fopen(filename.c_str(), "a");
-        if (!fileRec->file_stream) {
-            std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)"
-                      << std::endl;
-            deleteFileEntry(filename);
-            umask(old_umask);
-            return nullptr;
-        }
-        umask(old_umask);
-        //std::cerr << "Opened new file: " << filename << std::endl;
-        //std::cerr << "Opened new filename in record : " << fileRec->filename << std::endl;
-        fileRec->open = true;
-        //std::cerr << "File link count is " << fileRec->link_count << std::endl;
+        fileRec = new FileRec(filename, unbuffered);
+        fileRec->open();
+        Files.push_back(fileRec);
     } else {
         fileRec->link_count++;
-        //std::cerr << "File link count is " << fileRec->link_count << std::endl;
     }
     return fileRec;
 };
 
 void Logger::rmFileLink(FileRec *fileRec) {
+    
     if (fileRec->link_count > 1) {
         fileRec->link_count--;
-    //std::cerr << "rmFileLink File link count is " << fileRec->link_count << std::endl;
-        return;
+    } else {
+        // link count will now be zero, close file, delete stream and remove record
+        fileRec->close();
+        deleteFileEntry(fileRec->filename);
     }
-    // link count will now be zero, close file, delete stream and remove record
-    //std::cerr << "Close and delete " << fileRec->filename << std::endl;
-    fclose(fileRec->file_stream);
-    deleteFileEntry(fileRec->filename);
 }
 
 void Logger::setDockerMode() {
@@ -335,22 +335,13 @@ void Logger::log(const LoggerSource source, std::string message) {
     log(source,(const std::string)"",(const std::string)"",(int)0,  message);
 }
 
-    void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
+void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
     SourceRec *sourceRec = &(sourceRecs[static_cast<int>(source)]);
-    if (sourceRec->no_format && sourceRec->destination == LoggerDestination::file) {
-        if (sourceRec->fileRec == nullptr ) {
-            std::cerr << "Error: in Log: filename is nullptr" << std::endl;
-        } else {
-        }
-        //std::cerr << "in Log: filename is " << sourceRec->fileRec->filename << std::endl;
-        sendMessage(source, message);
-    } else {
-        std::string tag;
-        std::string msg;
-        tag = source2string(source);
-        msg = Helper::build_message(sourceRec, tag, func, file, line, message);
-        sendMessage(source, msg);
-    }
+    std::string tag;
+    std::string msg;
+    tag = source2string(source);
+    msg = Helper::build_message(sourceRec, tag, func, file, line, message);
+    sendMessage(source, msg);
 };
 
 
@@ -361,8 +352,6 @@ void Logger::log(const LoggerSource source, std::string message) {
 void Logger::sendMessage(const LoggerSource source, std::string &message) {
     SourceRec *srec = &(sourceRecs[static_cast<int>(source)]);
     LoggerDestination destination = srec->destination;
-
-    //std::cerr << "sendMessage  source " << source2string(source) << " dest " << dest2string(destination) << std::endl;
 
     switch (destination) {
         case LoggerDestination::none:
@@ -379,17 +368,7 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
             syslog(srec->syslog_flag, "%s", message.c_str());
             break;
         case LoggerDestination::file:
-            if (srec->fileRec == nullptr) {
-                std::cerr << "dest fileRec is nullptr" << std::endl;
-            } else {
-                if (!srec->fileRec->open )
-                    std::cerr << "Log file output stream is closed";
-                else {
-                   std::cerr << "Log filename is " << srec->fileRec->filename << std::endl;
-                   std::cerr << "log msg: " << message << std::endl;
-                    srec->fileRec->write(message);
-                }
-            }
+            srec->fileRec->write(message);
             break;
         case LoggerDestination::__Max_Value:
             break;
@@ -401,25 +380,25 @@ void Logger::setDestination(const LoggerSource source, const LoggerDestination d
     sourceRecs[static_cast<int>(source)].destination = destination;
 }
 
-bool Logger::setSyslogLevel(const LoggerSource source, const std::string filename) {
+bool Logger::setSyslogLevel(const LoggerSource source, const std::string level) {
 
     int loglevel = LOG_INFO;
 
-    if (filename == "LOG_ERR")
+    if (level == "LOG_ERR")
         loglevel = LOG_ERR;
-    else if (filename == "LOG_WARNING")
+    else if (level == "LOG_WARNING")
         loglevel = LOG_WARNING;
-    else if (filename == "LOG_INFO")
+    else if (level == "LOG_INFO")
         loglevel = LOG_INFO;
-    else if (filename == "LOG_DEBUG")
+    else if (level == "LOG_DEBUG")
         loglevel = LOG_DEBUG;
-    else if (filename == "LOG_ALERT")
+    else if (level == "LOG_ALERT")
         loglevel = LOG_ALERT;
-    else if (filename == "LOG_CRIT")
+    else if (level == "LOG_CRIT")
         loglevel = LOG_CRIT;
-    else if (filename == "LOG_NOTICE")
+    else if (level == "LOG_NOTICE")
         loglevel = LOG_NOTICE;
-    else if (filename == "LOG_EMERG")
+    else if (level == "LOG_EMERG")
         loglevel = LOG_EMERG;
 
     sourceRecs[static_cast<int>(source)].syslog_flag = loglevel;
@@ -438,20 +417,21 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     else        // relative to __LOGLOCATION
         name = std::string(__LOGLOCATION) + filename;
 
-    if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) { //
-        rmFileLink(sourceRecs[static_cast<int>(source)].fileRec);
-        sourceRecs[static_cast<int>(source)].fileRec = nullptr;
+    bool unbuffered = false;
+    std::size_t pos = name.find_last_of(':');
+    if ( pos > 0 ) {
+        if (name.length() > pos+1 )
+            unbuffered = name.at(pos+1) == 'u';
+        name = name.substr(0, pos);
     }
 
-    FileRec *file_rec = addFile(name);
+    FileRec *file_rec = addFile(name, unbuffered);
     if (file_rec == nullptr) {
         std::cerr << "Null returned from addFile()" << std::endl;
         return false;
     }
 
     sourceRecs[static_cast<int>(source)].fileRec = file_rec;
-//    std::cerr << "Lookup filename after added to source_dests is " <<
-  //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
 
     return true;
 }
