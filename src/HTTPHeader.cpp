@@ -275,9 +275,11 @@ std::string HTTPHeader::getAuthData()
     if (pproxyauthorization != NULL) {
         String line(pproxyauthorization->after(" ").after(" "));
         //line.chop();
-        DEBUG_auth(("pauth string size:"),line.length());
+        DEBUG_auth(("pauth string size:"),line.length()," ", line);
         String ret = decodeb64(line);
+        DEBUG_auth(("pauth after decodeb64:"), ret);
         ret.removeChar('\0');
+        DEBUG_auth(("returning:"), ret);
         return ret; // it's base64 MIME encoded
     }
     return "";
@@ -1475,7 +1477,6 @@ std::string HTTPHeader::decodeb64(const String &line)
         d = (four & 0xFF00) >> 8;
         if (d > 0) {            // if d is 0 = padding so do not put ^@ in string!
           result += (char)d;
-          return result;
         }
         d = four & 0xFF;
         if (d > 0) result += (char)d;           // if d is 0 = padding so do not put ^@ in string!
