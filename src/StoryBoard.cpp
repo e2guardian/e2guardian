@@ -508,6 +508,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_TRUE:
                 state_result = true;
                 break;
+            default:
+                state_result = false;
+                std::cerr << "unknown SB state number " << i->state << std::endl;
+                break;
         }
 #ifdef SBDEBUG
         std::cerr << "SB state " << F->getState(i->state) << " target " << target << " target2 " << target2
