@@ -284,6 +284,7 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
+    std::deque<String> findoptionMD(const char *option, const char *delim);
 
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
 };
