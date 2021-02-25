@@ -1237,10 +1237,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                         } else {
-			   if(!ismitm) {
-                            writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
-                            //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
-			   }
+                            if (!ismitm) {
+                                writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
+                                //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                            }
                         }
                         persistPeer = false;
                         persistProxy = false;
@@ -1597,6 +1597,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
 #ifdef E2DEBUG
         std::cerr << thread_id << " -Building raw log data string... ";
+        std::cerr << thread_id << " - cm.listen_port: " << cm.listen_port << "flags:" << flags << std::endl;
 #endif
 
         data = String(isexception) + cr;
@@ -3659,6 +3660,15 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
     } else {
         char res[INET_ADDRSTRLEN];
         checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
+        // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
+        if (o.check_ip.size() > 0) {
+            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                if (*it == checkme.orig_ip) {
+                    checkme.orig_ip = "";
+                    return false;
+                }
+            }
+        }
         checkme.orig_port = ntohs(origaddr.sin_port);
         checkme.got_orig_ip = true;
         return true;

@@ -42,6 +42,7 @@ class NaughtyFilter
     // bad certificat
     bool badcert = false;
     int listen_port = 0;    // listening port
+     String listen_ip;    // listening port
     struct auth_rec *authrec = nullptr;
 
     // return true or false?

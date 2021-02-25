@@ -1077,11 +1077,12 @@ bool NaughtyFilter::isIPHostnameStrip(String url)
 }
 
 String NaughtyFilter::getFlags() {
-    String flags = listen_port;
+    String flags;
+    flags += String(listen_port);
     flags += ":";
     if (!(authrec == nullptr)) {
         if (authrec->is_transparent)
-            flags = "T";
+            flags += "T";
         else if (authrec->is_icap)
             flags += "I";
         else
