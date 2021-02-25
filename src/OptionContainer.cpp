@@ -627,14 +627,14 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
         // multiple listen IP support
-        filter_ip = findoptionM("filterip");
+        filter_ip = findoptionMD("filterip",":");
         if (filter_ip.empty()) filter_ip.push_back("");
         if (filter_ip.size() > 127) {
             E2LOGGER_error("Can not listen on more than 127 IPs");
             return false;
         }
         // multiple check IP support - used for loop checking
-        check_ip = findoptionM("checkip");
+        check_ip = findoptionMD("checkip",":");
         if (check_ip.size() > 127) {
             E2LOGGER_error("Can not check on more than 127 IPs");
             return false;
@@ -644,7 +644,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             check_ip.push_back(t);
         }
 
-        filter_ports = findoptionM("filterports");
+        filter_ports = findoptionMD("filterports",":");
         if (filter_ports.empty())
             filter_ports.push_back("8080");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
@@ -657,7 +657,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
-        TLS_filter_ports = findoptionM("tlsfilterports");
+        TLS_filter_ports = findoptionMD("tlsfilterports",":");
         TLSproxyCN = findoptionS("tlsproxycn");
         if (TLSproxyCN.empty())
             TLSproxyCN = server_name;
@@ -1176,12 +1176,17 @@ std::string OptionContainer::findoptionS(const char *option) {
     return "";
 }
 
-std::deque <String> OptionContainer::findoptionM(const char *option) {
+std::deque<String> OptionContainer::findoptionM(const char *option) {
     // findoptionS returns all the matching options
+    return findoptionMD(option, nullptr);
+}
+
+std::deque<String> OptionContainer::findoptionMD(const char *option, const char *delim) {
+    // findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
     String temp;
     String temp2;
     String o(option);
-    std::deque <String> results;
+    std::deque<String> results;
 
     for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
         if ((*i).empty())
@@ -1204,6 +1209,14 @@ std::deque <String> OptionContainer::findoptionM(const char *option) {
             }
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
+            }
+            if (delim != nullptr) {
+                while (temp.contains(delim)) {
+                    String t = temp.before(delim);
+                    DEBUG_config(o, "=", t);
+                    results.push_back(t);
+                    temp = temp.after(delim);
+                }
             }
             DEBUG_config(o, "=", temp);
             results.push_back(temp);
