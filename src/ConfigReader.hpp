@@ -46,6 +46,7 @@ class ConfigReader
     bool readConfig(const Path &filename, const Path &list_pwd);
 
     std::deque<String>* findoptionM(const char *option);
+    std::deque<String> findoptionMD(const char *option, const char *delim);
     std::string findoptionS(const char *option);
     bool findoptionB(const char *option);
     long int findoptionI(const char *option);

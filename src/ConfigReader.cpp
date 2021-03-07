@@ -18,10 +18,8 @@
 #include "String.hpp"
 
 // IMPLEMENTATION
-const char* DELIMITER1 = "=";  // delimites option  and value e.g option = value
-const char* DELIMITER2 = ":";  // delimits multiple values e.g. value1 : value2 : value3
+const char DELIMITER = '=';
 
-#pragma region  ConfigReaderImpl
 class ConfigReaderImpl
 {
   public:
@@ -29,28 +27,40 @@ class ConfigReaderImpl
     std::deque<String> * getOption(std::string optionName);
 
   private:
-    std::map<std::string, std::deque<String>> options;
+    std::map<std::string, std::deque<String> > options;
     std::deque<String> empty;
-    void add(String option, String value);
+
 };
 
 
 
 void ConfigReaderImpl::addOption(String line) 
 {
-  String name = line.before(DELIMITER1);
-  String values = line.after(DELIMITER1);
+  String name = line.before(&DELIMITER);
+  String value = line.after(&DELIMITER);
 
   while (name.endsWith(" ")) { // get rid of tailing spaces before =
       name.chop();
   }
   if ( name.empty() ) return;
-  while (values.contains(DELIMITER2)) {
-    String t = values.before(DELIMITER2);
-    add(name, t);
-    values = values.after(DELIMITER2);
+
+  while (value.startsWith(" ")) { // get rid of heading spaces
+      value.lop();
   }
-  add(name, values);
+  if (value.startsWith("'")) { // inverted commas
+      value.lop();
+  }
+  while (value.endsWith(" ")) { // get rid of tailing spaces
+      value.chop();
+  }
+  if (value.endsWith("'")) { // inverted commas
+      value.chop();
+  }
+
+  std::deque<String> entry = options[name.c_str()];
+  entry.push_back(value.c_str());
+  options[name.c_str()] = entry;
+
 }
 
 std::deque<String> * ConfigReaderImpl::getOption(std::string optionName) 
@@ -65,30 +75,6 @@ std::deque<String> * ConfigReaderImpl::getOption(std::string optionName)
   }
   
 }
-
-void ConfigReaderImpl::add(String option, String value)
-{
-  while (value.startsWith(" ")) { // get rid of heading spaces
-      value.lop();
-  }
-  if (value.startsWith("'")) { // inverted commas
-      value.lop();
-  }
-  while (value.endsWith(" ")) { // get rid of tailing spaces
-      value.chop();
-  }
-  if (value.endsWith("'")) { // inverted commas
-      value.chop();
-  }
-  if (value.empty()) return;
-
-  std::deque<String> entry = options[option.c_str()];
-  entry.push_back(value.c_str());
-  options[option.c_str()] = entry;
-}
-
-#pragma endregion
-
 
 // PUBLIC
 
@@ -172,6 +158,28 @@ std::deque<String>* ConfigReader::findoptionM(const char *option)
 {
   return pImpl->getOption(option);
 }
+
+// findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
+std::deque<String> ConfigReader::findoptionMD(const char *option, const char *delim) {
+  std::deque<String>* values = findoptionM(option);
+  std::deque<String> results;
+  String temp;
+
+  for (std::deque<String>::iterator i = values->begin(); i != values->end(); i++)
+  {
+    temp = (*i).c_str();
+    if (delim != nullptr) {
+      while (temp.contains(delim)) {
+        String t = temp.before(delim);
+        results.push_back(t);
+        temp = temp.after(delim);
+      }
+    }
+    results.push_back(temp);
+  }
+  return results;
+}
+
 
 std::string ConfigReader::findoptionS(const char *option)
 {

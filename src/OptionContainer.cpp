@@ -685,7 +685,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     net.map_auth_to_ports = cr.findoptionB("mapauthtoports");  // to be removed in v5.5
 
     // multiple listen IP support
-    net.filter_ip = *cr.findoptionM("filterip");
+    net.filter_ip = cr.findoptionMD("filterip",":");
     if (net.filter_ip.empty()) 
         net.filter_ip.push_back("");
     if (net.filter_ip.size() > 127) {
@@ -693,7 +693,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         return false;
     }
     // multiple check IP support - used for loop checking
-    net.check_ip = *cr.findoptionM("checkip");
+    net.check_ip = cr.findoptionMD("checkip", ":");
     if (net.check_ip.size() > 127) {
         E2LOGGER_error("Can not check on more than 127 IPs");
         return false;
@@ -702,7 +702,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         net.check_ip.push_back("127.0.0.1");
     }
 
-    net.filter_ports = *cr.findoptionM("filterports");
+    net.filter_ports = cr.findoptionMD("filterports", ":");
     if (net.filter_ports.empty())
         net.filter_ports.push_back("8080");
     if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
@@ -715,7 +715,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         return false;
     }
 
-    net.TLS_filter_ports = *cr.findoptionM("tlsfilterports");
+    net.TLS_filter_ports = cr.findoptionMD("tlsfilterports", ":");
     net.TLSproxyCN = cr.findoptionS("tlsproxycn");
     if (net.TLSproxyCN.empty())
         net.TLSproxyCN = net.server_name;
