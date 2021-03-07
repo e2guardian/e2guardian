@@ -14,9 +14,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
+#include <string.h>
 #include <syslog.h>
 #include <cstdio>
+#include <sys/socket.h>
+#include <netdb.h>
 #include "Logger.hpp"
 
 // -------------------------------------------------------------
@@ -90,8 +92,50 @@ struct Logger::Helper {
     }
 };
 
+class Logger::Udp {
+public:
+    static void send_message(std::string host, std::string port, std::string message)
+    {
+        int sockfd=0; 
+        struct addrinfo hints= {}, *addrs, *addr;
+  
+        hints.ai_family = AF_INET;
+        hints.ai_protocol = SOCK_DGRAM;
+        hints.ai_protocol = IPPROTO_UDP;
+
+        int status = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrs);
+        if (status != 0)
+        {
+            std::cerr << "can not find host " << host << std::endl;
+            return;
+        }
+
+        for (addr = addrs; addr != nullptr; addr = addr->ai_next)
+        {
+            sockfd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+            if (sockfd == 0)
+                continue;
+            else
+                break;
+        }
+        if ( addr != NULL)
+        {
+            int numbytes = sendto(sockfd, message.c_str(), message.length(), 0, addr->ai_addr, addr->ai_addrlen);
+            if (numbytes < 0)
+                std::cerr << "can not send udp message" << std::endl;
+        }
+        else
+        {
+            std::cerr << "can not open socket to " << host << std::endl;
+        }        
+
+        freeaddrinfo(addrs);
+        close(sockfd);
+    }    
+};
+
 // -------------------------------------------------------------
-// --- FileRec 
+// --- FileRec : handling open/write/rotate/close of files
 // -------------------------------------------------------------
 
 FileRec::FileRec(std::string filename, bool unbuffered) {
@@ -245,6 +289,11 @@ bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
             return false;
     }
 
+    if (destination == LoggerDestination::udp) {
+        if (!setUdpDestination(source, filename))
+            return false;
+    }
+
     if (destination == LoggerDestination::syslog)
         setSyslogLevel(source, filename);
 
@@ -370,6 +419,8 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
         case LoggerDestination::file:
             srec->fileRec->write(message);
             break;
+        case LoggerDestination::udp:
+            Udp::send_message(srec->host, srec->port, message);
         case LoggerDestination::__Max_Value:
             break;
     }
@@ -436,3 +487,23 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     return true;
 }
 
+bool Logger::setUdpDestination(const LoggerSource source, const std::string udp_destination) {
+
+    std::string host="";
+    std::string port="";
+
+    std::size_t pos = udp_destination.find_last_of(':');
+    if ( pos > 0 ) {
+        host = udp_destination.substr(0,pos);
+        port = udp_destination.substr(pos+1);
+    }
+    if (host.empty() || port.empty())
+    {
+        std::cerr << "missing host and port for UDP destination " << udp_destination << std::endl;
+        return false;
+    }
+    
+    sourceRecs[static_cast<int>(source)].host = host;
+    sourceRecs[static_cast<int>(source)].port = port;
+    return true;
+}
