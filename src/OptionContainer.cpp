@@ -97,114 +97,6 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
         //     monitor_helper_flag = true;
         // }
 
-        monitor_flag_prefix = cr.findoptionS("monitorflagprefix");
-        if (monitor_flag_prefix == "") {
-            monitor_flag_flag = false;
-        } else {
-            monitor_flag_flag = true;
-        }
-
-
-
-
-        if (findoptionS("usecustombannedimage") == "off") {
-            use_custom_banned_image = false;
-        } else {
-            use_custom_banned_image = true;
-            custom_banned_image_file = findoptionS("custombannedimagefile");
-            if (custom_banned_image_file.empty()) {
-                custom_banned_image_file = __DATADIR;
-                custom_banned_image_file += "/transparent1x1.gif";
-            }
-            banned_image.read(custom_banned_image_file.c_str());
-        }
-
-        if (findoptionS("usecustombannedflash") == "off") {
-            use_custom_banned_flash = false;
-        } else {
-            use_custom_banned_flash = true;
-            custom_banned_flash_file = findoptionS("custombannedflashfile");
-
-            if (custom_banned_flash_file.empty()) {
-                custom_banned_flash_file = __DATADIR;
-                custom_banned_flash_file += "/blockedflash.swf";
-            }
-            banned_flash.read(custom_banned_flash_file.c_str());
-        }
-
-
-        if (!no_proxy) {
-            proxy_port = findoptionI("proxyport");
-            if (proxy_port == 0) proxy_port = 3128;
-            if (!realitycheck(proxy_port, 1, 65535, "proxyport")) {
-                return false;
-            } // etc
-        }
-
-        // multiple listen IP support
-        filter_ip = findoptionMD("filterip",":");
-        if (filter_ip.empty()) filter_ip.push_back("");
-        if (filter_ip.size() > 127) {
-            E2LOGGER_error("Can not listen on more than 127 IPs");
-            return false;
-        }
-        // multiple check IP support - used for loop checking
-        check_ip = findoptionMD("checkip",":");
-        if (check_ip.size() > 127) {
-            E2LOGGER_error("Can not check on more than 127 IPs");
-            return false;
-        }
-        if (check_ip.empty()) {
-            String t = "127.0.0.1";
-            check_ip.push_back(t);
-        }
-
-        filter_ports = findoptionMD("filterports",":");
-        if (filter_ports.empty())
-            filter_ports.push_back("8080");
-        if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
-            E2LOGGER_error("filterports (", filter_ports.size(), ") must match number of filterips (", filter_ip.size(),
-                           ")");
-            return false;
-        }
-        filter_port = filter_ports[0].toInteger();
-        if (!realitycheck(filter_port, 1, 65535, "filterport[0]")) {
-            return false;
-        }
-
-        TLS_filter_ports = findoptionMD("tlsfilterports",":");
-        TLSproxyCN = findoptionS("tlsproxycn");
-        if (TLSproxyCN.empty())
-            TLSproxyCN = server_name;
-        {
-            String temp = TLSproxyCN;
-            int tno = temp.before(".").toInteger();
-            if ( tno > 0 && tno < 256 ) {
-                TLSproxyCN_is_ip = true;
-            }
-        }
-
-        transparenthttps_port = findoptionI("transparenthttpsport");
-        if (!realitycheck(transparenthttps_port, 0, 65535, "transparenthttpsport")) {
-            return false;
-        }
-
-        icap_port = findoptionI("icapport");
-        if (!realitycheck(filter_port, 0, 65535, "icapport")) {
-            return false;
-        }
-
-        if (icap_port > 0) {   // add non-plugin auth for ICAP
-            SB_entry_map sen;
-            sen.entry_function = "auth_icap";
-            sen.entry_id = ENT_STORYA_AUTH_ICAP;
-            auth_entry_dq.push_back(sen);
-        }
-
-        icap_reqmod_url = findoptionS("icapreqmodurl");
-        if (icap_reqmod_url == "")
-            icap_reqmod_url = "request";
-
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
         per_room_directory_location = cr.findoptionS("perroomdirectory");
 
@@ -793,7 +685,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     net.map_auth_to_ports = cr.findoptionB("mapauthtoports");  // to be removed in v5.5
 
     // multiple listen IP support
-    net.filter_ip = *cr.findoptionM("filterip");
+    net.filter_ip = cr.findoptionMD("filterip",":");
     if (net.filter_ip.empty()) 
         net.filter_ip.push_back("");
     if (net.filter_ip.size() > 127) {
@@ -801,7 +693,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         return false;
     }
     // multiple check IP support - used for loop checking
-    net.check_ip = *cr.findoptionM("checkip");
+    net.check_ip = cr.findoptionMD("checkip", ":");
     if (net.check_ip.size() > 127) {
         E2LOGGER_error("Can not check on more than 127 IPs");
         return false;
@@ -810,7 +702,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         net.check_ip.push_back("127.0.0.1");
     }
 
-    net.filter_ports = *cr.findoptionM("filterports");
+    net.filter_ports = cr.findoptionMD("filterports", ":");
     if (net.filter_ports.empty())
         net.filter_ports.push_back("8080");
     if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
@@ -823,7 +715,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         return false;
     }
 
-    net.TLS_filter_ports = *cr.findoptionM("tlsfilterports");
+    net.TLS_filter_ports = cr.findoptionMD("tlsfilterports", ":");
     net.TLSproxyCN = cr.findoptionS("tlsproxycn");
     if (net.TLSproxyCN.empty())
         net.TLSproxyCN = net.server_name;
@@ -984,115 +876,6 @@ bool OptionContainer::findStoryBoardOptions(ConfigReader &cr)
     return true;
 }
 
-
-std::string OptionContainer::findoptionS(const char *option) {
-    // findoptionS returns a found option stored in the deque
-    String temp;
-    String temp2;
-    String o(option);
-
-    for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
-        if ((*i).empty())
-            continue;
-        temp = (*i).c_str();
-        temp2 = temp.before("=");
-        while (temp2.endsWith(" ")) { // get rid of tailing spaces before =
-            temp2.chop();
-        }
-        if (o == temp2) {
-            temp = temp.after("=");
-            while (temp.startsWith(" ")) { // get rid of heading spaces
-                temp.lop();
-            }
-            if (temp.startsWith("'")) { // inverted commas
-                temp.lop();
-            }
-            while (temp.endsWith(" ")) { // get rid of tailing spaces
-                temp.chop();
-            }
-            if (temp.endsWith("'")) { // inverted commas
-                temp.chop();
-            }
-            DEBUG_config(o, "=", temp);
-            return temp.toCharArray();
-        }
-    }
-    return "";
-}
-
-std::deque<String> OptionContainer::findoptionM(const char *option) {
-    // findoptionS returns all the matching options
-    return findoptionMD(option, nullptr);
-}
-
-std::deque<String> OptionContainer::findoptionMD(const char *option, const char *delim) {
-    // findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
-    String temp;
-    String temp2;
-    String o(option);
-    std::deque<String> results;
-
-    for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
-        if ((*i).empty())
-            continue;
-        temp = (*i).c_str();
-        temp2 = temp.before("=");
-        while (temp2.endsWith(" ")) { // get rid of tailing spaces before =
-            temp2.chop();
-        }
-        if (o == temp2) {
-            temp = temp.after("=");
-            while (temp.startsWith(" ")) { // get rid of heading spaces
-                temp.lop();
-            }
-            if (temp.startsWith("'")) { // inverted commas
-                temp.lop();
-            }
-            while (temp.endsWith(" ")) { // get rid of tailing spaces
-                temp.chop();
-            }
-            if (temp.endsWith("'")) { // inverted commas
-                temp.chop();
-            }
-            if (delim != nullptr) {
-                while (temp.contains(delim)) {
-                    String t = temp.before(delim);
-                    DEBUG_config(o, "=", t);
-                    results.push_back(t);
-                    temp = temp.after(delim);
-                }
-            }
-            DEBUG_config(o, "=", temp);
-            results.push_back(temp);
-        }
-    }
-    return results;
-}
-
-bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage) {
-    // realitycheck checks an amount for certain expected criteria
-    // so we can spot problems in the conf files easier
-    if ((l < minl) || ((maxl > 0) && (l > maxl))) {
-        E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l, " should be >= ", minl, " <=",
-                       maxl, ")");
-        return false;
-    }
-    return true;
-}
-
-// realitycheckWithDefault gets an option value, checks for minl and maxl bounds and defaults to defaultl if no value was found
-long int OptionContainer::realitycheckWithDefault(const char *option, long int minl, long int maxl, long int defaultl) {
-    std::string s = findoptionS(option);
-    if ( s == "" ) return defaultl;
-    long int value = String(s).toLong();
-
-    if ((value < minl) || ((maxl > 0) && (value > maxl))) {
-        E2LOGGER_error("Config problem; check allowed values for ", option, "( ", value , " should be >= ", minl, " <=", maxl, ")",
-                    "we are using default value:", defaultl);        
-        return defaultl;
-    }
-    return value;
-}
 
 #pragma region Plugins
 bool PluginOptions::loadDMPlugins(ConfigReader &cr) {
@@ -1381,9 +1164,9 @@ std::shared_ptr <LOptionContainer> OptionContainer::currentLists() {
     return current_LOC;
 }
 
+// realitycheck checks an amount for certain expected criteria
+// so we can spot problems in the conf files easier
 bool OptionContainer::realitycheck(long int l, long int minl, long int maxl, const char *emessage) {
-    // realitycheck checks an amount for certain expected criteria
-    // so we can spot problems in the conf files easier
     if ((l < minl) || ((maxl > 0) && (l > maxl))) {
         E2LOGGER_error("Config problem; check allowed values for ", emessage, "( ", l, " should be >= ", minl, " <=",
                        maxl, ")");

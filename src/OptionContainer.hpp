@@ -396,9 +396,8 @@ class OptionContainer
     bool findProcOptions(ConfigReader &cr);
     bool findStoryBoardOptions(ConfigReader &cr);
 
-   // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
-    std::deque<String> findoptionM(const char *option);
-    std::deque<String> findoptionMD(const char *option, const char *delim);
+    bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
+   // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);   
 
 };
 

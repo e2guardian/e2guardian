@@ -153,10 +153,33 @@ bool ConfigReader::readConfig(const Path &filename, const Path &list_pwd) {
     return true;
 }
 
+// findoptionM returns all instances of an option 
 std::deque<String>* ConfigReader::findoptionM(const char *option)
 {
   return pImpl->getOption(option);
 }
+
+// findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
+std::deque<String> ConfigReader::findoptionMD(const char *option, const char *delim) {
+  std::deque<String>* values = findoptionM(option);
+  std::deque<String> results;
+  String temp;
+
+  for (std::deque<String>::iterator i = values->begin(); i != values->end(); i++)
+  {
+    temp = (*i).c_str();
+    if (delim != nullptr) {
+      while (temp.contains(delim)) {
+        String t = temp.before(delim);
+        results.push_back(t);
+        temp = temp.after(delim);
+      }
+    }
+    results.push_back(temp);
+  }
+  return results;
+}
+
 
 std::string ConfigReader::findoptionS(const char *option)
 {
@@ -183,6 +206,7 @@ long int ConfigReader::findoptionI(const char *option)
     return 0;  
 }
 
+// findoptionIWithDefault gets an option value, checks for minl and maxl bounds and defaults to defaultl if no value was found
 long int ConfigReader::findoptionIWithDefault(const char * option, long int minl, long int maxl, long int defaultl)
 {
     std::string s = findoptionS(option);

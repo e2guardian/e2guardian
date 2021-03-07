@@ -3465,8 +3465,8 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
         char res[INET_ADDRSTRLEN];
         checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
         // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
-        if (o.check_ip.size() > 0) {
-            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+        if (o.net.check_ip.size() > 0) {
+            for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                 if (*it == checkme.orig_ip) {
                     checkme.orig_ip = "";
                     return false;
