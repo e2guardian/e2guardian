@@ -1155,41 +1155,7 @@ std::deque<String> OptionContainer::findoptionM(const char *option) {
     return findoptionMD(option, nullptr);
 }
 
-#ifdef NOTDEF
-{
-    String temp;
-    String temp2;
-    String o(option);
-    std::deque<String> results;
 
-    for (std::deque<std::string>::iterator i = conffile.begin(); i != conffile.end(); i++) {
-        if ((*i).empty())
-            continue;
-        temp = (*i).c_str();
-        temp2 = temp.before("=");
-        while (temp2.endsWith(" ")) { // get rid of tailing spaces before =
-            temp2.chop();
-        }
-        if (o == temp2) {
-            temp = temp.after("=");
-            while (temp.startsWith(" ")) { // get rid of heading spaces
-                temp.lop();
-            }
-            if (temp.startsWith("'")) { // inverted commas
-                temp.lop();
-            }
-            while (temp.endsWith(" ")) { // get rid of tailing spaces
-                temp.chop();
-            }
-            if (temp.endsWith("'")) { // inverted commas
-                temp.chop();
-            }
-            results.push_back(temp);
-        }
-    }
-    return results;
-}
-#endif
 
 std::deque<String> OptionContainer::findoptionMD(const char *option, const char *delim) {
     // findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
@@ -1223,11 +1189,11 @@ std::deque<String> OptionContainer::findoptionMD(const char *option, const char 
             if (delim != nullptr) {
                 while (temp.contains(delim)) {
                     String t = temp.before(delim);
-                    results.push_back(t);
+                    if(!t.empty()) results.push_back(t);
                     temp = temp.after(delim);
                 }
             }
-            results.push_back(temp);
+            if(!temp.empty()) results.push_back(temp);
         }
     }
     return results;
