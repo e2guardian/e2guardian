@@ -1684,8 +1684,8 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
-        data += cr;  // data += String((theend).tv_sec) + cr;
-        data += cr;  // data += String((theend).tv_usec) + cr;
+        data += String((*thestart).tv_sec) + cr;
+        data += String((*thestart).tv_usec) + cr;
         data += l_clienthost + cr;
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
@@ -1696,6 +1696,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
         data += flags + cr;
+        data += cr;     //cm.search_terms not known yet
         data += cr;
 
         DEBUG_debug(" -...built");

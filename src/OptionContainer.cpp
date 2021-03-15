@@ -1213,13 +1213,19 @@ std::deque<String> OptionContainer::findoptionMD(const char *option, const char 
             if (delim != nullptr) {
                 while (temp.contains(delim)) {
                     String t = temp.before(delim);
+                    while (t.startsWith(" ")) { // get rid of heading spaces
+                        t.lop();
+                    }
+                    while (t.endsWith(" ")) { // get rid of tailing spaces
+                        t.chop();
+                    }
                     DEBUG_config(o, "=", t);
-                    results.push_back(t);
+                    if(!t.empty()) results.push_back(t);
                     temp = temp.after(delim);
                 }
             }
             DEBUG_config(o, "=", temp);
-            results.push_back(temp);
+            if(!temp.empty()) results.push_back(temp);
         }
     }
     return results;
