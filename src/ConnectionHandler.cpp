@@ -2815,7 +2815,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!checkme.nocheckcert) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
                 checkme.badcert = checkme.isItNaughty;
-		justLog = true;
+		//justLog = true;
             }
         }
     }
