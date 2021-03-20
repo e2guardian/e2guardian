@@ -111,7 +111,7 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
         E2LOGGER_error(e.what());
         return false;
     }
-    DEBUG_config("Done: read Configfile: ", filename);
+    DEBUG_config("Done: read Configfile: ", filename.fullPath());
     return true;
 }
 
