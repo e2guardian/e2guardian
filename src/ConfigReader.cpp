@@ -194,7 +194,7 @@ std::string ConfigReader::findoptionS(const char *option)
 bool ConfigReader::findoptionB(const char *option)
 {
   std::string ok = findoptionS(option);
-  if (ok=="ok" || ok == "yes") return true;
+  if (ok=="on" || ok == "yes") return true;
   return false;
 } 
 
