@@ -94,16 +94,18 @@ int main(int argc,char *argv[])
     }
 
 
-    if (o.config.total_block_list && !o.readinStdin()) {
-        E2LOGGER_error("Error on reading total_block_list");
-    } 
-    else 
-    {
-        DEBUG_debug("Total block lists read OK from stdin.");
+    if (o.config.total_block_list) {
+        if (o.readinStdin()) {
+            DEBUG_debug("Total block lists read OK from stdin.");
+        } 
+        else 
+        {
+            E2LOGGER_error("Error on reading total_block_list");
+        }
     }
 
     DEBUG_trace("create Lists");
-    if(!o.createLists(0))  {
+    if (!o.createLists(0))  {
         E2LOGGER_error("Error reading filter group conf file(s).");
         return 1;
     }
