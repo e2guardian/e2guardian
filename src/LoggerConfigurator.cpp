@@ -95,21 +95,21 @@ bool LoggerConfigurator::debuglevel(const std::string option) {
 
     if (types.contains("ALL")) {
         String temp = types.before("ALL");
-        temp += "icap,network,avscan,regexp,proxy,config,error,debug,trace,story,auth,dwload,thttps,content";
+        temp += "HIGH,LOW";
         temp += types.after("ALL");
         types = temp;
     }
 
     if (types.contains("HIGH")) {
         String temp = types.before("HIGH");
-        temp += "icap,avscan,proxy,config,auth,dwload,thttps";
+        temp += "icap,avscan,auth,dwload,proxy,thttps";
         temp += types.after("HIGH");
         types = temp;
     }
 
     if (types.contains("LOW")) {
         String temp = types.before("LOW");
-        temp += "network,regexp,debug,trace,story,content";
+        temp += "debug,trace,network,regexp,story,config,content";
         temp += types.after("LOW");
         types = temp;
     }
