@@ -704,6 +704,11 @@ void log_listener(std::string log_location, bool is_RQlog, bool logsyslog, Queue
 #endif
             delete logfile;
             return; // return with error
+        } else {
+#ifdef E2DEBUG
+            std::cerr << thread_id << "log file opened OK: " << log_location << std::endl;
+#endif
+
         }
     }
 

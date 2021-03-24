@@ -520,6 +520,9 @@ void HTTPHeader::setURL(String &url)
 {
     String hostname;
     bool https = (url.before("://") == "https");
+    if(requestType() == "CONNECT"){
+        https = true;
+    }
     int port = (https ? 443 : 80);
 
     if (!url.after("://").contains("/")) {
@@ -577,6 +580,18 @@ void HTTPHeader::setURL(String &url)
     // bypass all that.
     //cachedurl = url.toCharArray();
     cachedurl = "";   // blank cachedurl so that getUrl will re-generate it
+}
+
+void HTTPHeader::setConnect(String &con_site) {
+    if (requestType() != "CONNECT") return;
+    header.front() = header.front().before(" ") + " " + con_site + ":" + String(port) + " " + header.front().after(" ").after(" ");
+    //remove all other headers
+    if (header.size() > 1) {
+        header.erase(header.begin()+1, header.end());
+    }
+    if (phost != NULL) {
+        phost = nullptr;
+    }
 }
 
 // Does a regexp search and replace.
@@ -923,7 +938,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
         if(!tp.headerVal())
             pcontentlength = NULL;
         else {
-            contentlength = tp.toInteger();
+            contentlength = tp.toOffset();
         }
 #ifdef E2DEBUG
         std::cerr << thread_id << "tp =" << tp << " Contentlen.int =" << contentlength << std::endl;

@@ -284,7 +284,7 @@ bool CertificateAuthority::writeCertificate(const char *commonname, X509 *newCer
 }
 
 //generate a certificate for a given hostname
-X509 *CertificateAuthority::generateCertificate(const char *commonname, struct ca_serial *cser)
+X509 *CertificateAuthority::generateCertificate(const char *commonname, struct ca_serial *cser, bool is_ip)
 {
     //create a blank cert
     ERR_clear_error();
@@ -398,7 +398,13 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         return NULL;
     }
     {
-    String temp1 = "DNS:";
+    String temp1;
+
+    if (is_ip)
+        temp1 = "IP:";
+    else
+        temp1 = "DNS:";
+
     String temp2 = commonname;
     temp1 = temp1 + temp2;
     char    *value = (char*) temp1.toCharArray();
@@ -427,7 +433,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
 
 //sets cert to the certificate for commonname
 //returns true if the cert was loaded from cache / false if it was generated
-bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **cert, struct ca_serial *caser)
+bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **cert, struct ca_serial *caser, bool is_ip)
 {
 
     getSerial(commonname, caser);
@@ -466,7 +472,7 @@ bool CertificateAuthority::getServerCertificate(const char *commonname, X509 **c
 #endif
 
         //generate a certificate
-        *cert = generateCertificate(commonname, caser);
+        *cert = generateCertificate(commonname, caser, is_ip);
         return false;
     }
 }

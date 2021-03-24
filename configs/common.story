@@ -248,7 +248,8 @@ function(icapsslrequestcheck)
 if(true) returnif hook_icapsslrequestcheck
 if(true) returnif icapsquidbump
 if(true) returnif sslexceptioncheck
-if(true) sslreplace
+# Squid ignores sslreplace and throws error so comment out for now
+#t configif(true) sslreplace
 if(sitein, banned) return setblock
 
 # Blanket block

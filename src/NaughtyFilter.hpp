@@ -42,6 +42,7 @@ class NaughtyFilter
     // bad certificat
     bool badcert = false;
     int listen_port = 0;    // listening port
+     String listen_ip;    // listening port
     struct auth_rec *authrec = nullptr;
 
     // return true or false?
@@ -68,7 +69,8 @@ class NaughtyFilter
     bool has_deep_urls = false;
     std::deque<url_rec> deep_urls;
 
-    bool anon_log = false;
+    bool anon_user = false;
+    bool anon_url = false;
     // flags from ConnectionHandler
     bool upfailure = false;  //set when problem with upstream connection (site or proxy)
     bool waschecked = false;
@@ -133,6 +135,9 @@ class NaughtyFilter
     String realuser; // real or authed user name
     String lastmatch;
     String result;
+
+    String get_lastmatch();
+    String get_logUrl();
 
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;

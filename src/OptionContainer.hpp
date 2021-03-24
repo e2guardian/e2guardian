@@ -132,17 +132,11 @@ class OptionContainer
     bool auth_needs_proxy_in_plugin = false;
     bool use_original_ip_port = false;   // only for tranparent and no upstream proxy
 
-    bool prefer_cached_lists = false;
     std::string languagepath;
     std::string filter_groups_list_location;
-    //std::string banned_ip_list_location;
-    //std::string exception_ip_list_location;
     std::string log_location;
     std::string RQlog_location;
     bool log_requests = false;
-    std::string ipc_filename;
-    std::string urlipc_filename;
-    std::string ipipc_filename;
     std::string pid_filename;
     std::string blocked_content_store;
     std::string monitor_helper;
@@ -159,6 +153,10 @@ class OptionContainer
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
+
+    // internal test urls
+    std::string internal_test_url;
+    std::string internal_status_url;
 
     bool no_daemon = false;
     bool e2_front_log = false;
@@ -286,6 +284,7 @@ class OptionContainer
     bool realitycheck(long int l, long int minl, long int maxl, const char *emessage);
    // bool readAnotherFilterGroupConf(const char *filename, const char *groupname, bool &need_html);
     std::deque<String> findoptionM(const char *option);
+    std::deque<String> findoptionMD(const char *option, const char *delim);
 
 //    bool inIPList(const std::string *ip, ListContainer &list, std::string *&host);
 };

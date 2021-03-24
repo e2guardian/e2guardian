@@ -1,10 +1,11 @@
 # e2guardian 3 messages file in Spanish
 # Translated by Roberto Quiroga, adapted for Unicode by Peter Vollmar
-"0","Message number absent"    # needs translation
+# Translated by Leonardo Yanes Batista
+"0","Número de mensaje ausente"
 "1","Acceso Denegado"
 "10","IP limit exceeded.  There is a  "    # needs translation
 "11"," IP limit set."    # needs translation
-"50"," in "    # needs translation
+"50"," en "
 "51","TRUSTED"    # needs translation
 "52","DENIED"    # needs translation
 "53","INFECTED"    # needs translation
@@ -16,51 +17,51 @@
 "59","NETERROR"    # needs translation
 "70","SSL SITE"    # needs translation
 "71","IP Limit"    # needs translation
-"72","Content scanning"    # needs translation
+"72","Analizando contenido"
 "100","Su dirección IP no está autorizada a visitar: "
 "101","Su dirección IP no está autorizada a navegar."
 "102","El usuario no está autorizado a visitar: "
-"103","Banned Client IP"    # needs translation
-"104","Banned Location"    # needs translation
-"105","Banned User"    # needs translation
-"110","Proxy authentication error"    # needs translation
-"121","Only limited access allowed from your location"    # needs translation
-"122","You not allowed access at this time of day"    # needs translation
-"150","Certificate supplied by server was not valid"    # needs translation
-"151","Could not open ssl connection"     # needs translation
-"152","Failed to get ssl certificate"    # needs translation
-"153","Failed to load ssl private key"    # needs translation
-"154","Failed to negotiate ssl connection to client"    # needs translation
-"155","No SSL certificate supplied by server"    # needs translation
-"156","Server's SSL certificate does not match domain name"    # needs translation
-"157","Unable to create tunnel through local proxy"    # needs translation
-"158","Opening tunnel failed"    # needs translation
-"159","Could not connect to proxy server"    # needs translation
-"160","Failed to nogotiate ssl connection to server"    # needs translation
+"103","IP de cliente no permitida"
+"104","Ubicación no permitida"
+"105","Usuario no permitido"
+"110","Error de autenticación de proxy"
+"121","Solo se permite el acceso limitado desde su ubicación"
+"122","Usted no está autorizado a acceder en este horario del día"
+"150","El certificado proporcionado por el servidor no era válido"
+"151","No se pudo abrir la conexión SSL"
+"152","No se pudo obtener el certificado SSL"
+"153","No se pudo cargar la clave privada SSL"
+"154","No se pudo negociar la conexión SSL con el cliente"
+"155","El servidor no proporcionó un certificado SSL"
+"156","El certificado SSL del servidor no coincide con el nombre de dominio"
+"157","No se puede crear un túnel a través del proxy local"
+"158","Error al abrir el túnel"
+"159","No se pudo conectar al servidor proxy"
+"160","No se pudo negociar la conexión SSL con el servidor"
 "200","La URL solicitada está mal formada."
-"201","Unable to get response from upstream proxy (timeout)"    # needs translation
-"202","Unable to get response from upstream proxy (error)"    # needs translation
-"203","The site requested is not responding"    # needs translation
-"204"," - Please try again later"    # needs translation
-"205","Upstream proxy is not responding (network error)"    # needs translation
-"206"," - Please try again later"    # needs translation
-"207","The site requested does not exist"    # needs translation
-"208","The site requested does not have an IPv4 address"    # needs translation
-"209","Temporary DNS service failure - please try again"    # needs translation
-"210","DNS service failure - please try again later"    # needs translation
-"212","Loop request blocked"    # needs translation
+"201","No se pudo obtener respuesta del proxy superior (timeout)"
+"202","No se pudo obtener respuesta del proxy superior (error)"
+"203","El sitio solicitado no responde"
+"204","- Por favor, inténtelo de nuevo más tarde"
+"205","El proxy superior no responde (error de red)"
+"206","- Por favor, inténtelo de nuevo más tarde"
+"207","El sitio solicitado no existe"
+"208","El sitio solicitado no tiene una dirección IPv4"
+"209","Fallo temporal del servicio DNS - inténtelo de nuevo"
+"210","Fallo del servicio DNS - inténtelo de nuevo más tarde"
+"212","Solicitud de bucle bloqueada"
 "300","Se encontró la frase no permitida: "
-"301","Se encontró una frase no permitida"
+"301","Se encontró una frase no permitida."
 "400","Combinación de frases no permitida: "
 "401","Combinación de frases no permitida."
 "402","Límite de ponderación de frases de "
 "403","Límite de ponderación de frases excedido"
-"450","Banned search term found: "    # needs translation
-"451","Banned search term found."    # needs translation
-"452","Banned combination search term found: "    # needs translation
-"453","Banned combination search term found."    # needs translation
-"454","Weighted search term limit of "    # needs translation
-"455","Weighted search term limit exceeded."    # needs translation
+"450","Se encontró un término de búsqueda prohibido: "
+"451","Se encontró un término de búsqueda prohibido."
+"452","Se encontró un término de búsqueda combinado prohibido: "
+"453","Se encontró un término de búsqueda combinado prohibido."
+"454","Límite de término de búsqueda ponderado de "
+"455","Se superó el límite de términos de búsqueda ponderado."
 "456","Exception combination search term found: "    # needs translation
 "457","Exception search term found: "    # needs translation
 "500","Sitio no permitido: "
@@ -71,18 +72,18 @@
 "505","Bloqueo general de IP está activo y la dirección deseada consiste únicamente en IP."
 "506","HTTPS access is only allowed to trusted sites."    # needs translation
 "507","HTTPS access by IP address is not allowed."    # needs translation
-"508","Access not allowed using this browser (or app): "    # needs translation
-"509","Access not allowed using this browser (or app)."    # needs translation
+"508","No se permite el acceso mediante este navegador (o aplicación): "
+"509","No se permite el acceso mediante este navegador (o aplicación)."
 "510","Blocked IP site "    # needs translation
-"511","Tranparent https connection is not TLS: "    # needs translation
-"512","Tranparent https connection does not have SNI: "    # needs translation
-"520","Blocked HTTPS site: "    # needs translation
-"521","Banned Search Words: "    # needs translation
-"522","Blocked User-Agent: "    # needs translation
-"560","Blocked site (local): "    # needs translation
-"561","Blocked URL (local): "    # needs translation
-"580","Blocked HTTPS site (local): "    # needs translation
-"581","Banned Search Words (local): "    # needs translation
+"511","La conexión https transparente no es TLS: "
+"512","La conexión https transparente no tiene SNI: "
+"520","Sitio HTTPS bloqueado: "
+"521","Palabras de búsqueda prohibidas: "
+"522","Navegador bloqueado: "
+"560","Sitio bloqueado (local): "
+"561","URL bloqueada (local): "
+"580","Sitio HTTPS bloqueado (local): "
+"581","Palabras de búsqueda prohibidas (local): "
 "600","Dirección IP del cliente presente en la lista de excepciones."
 "601","Usuario presente en la lista de excepciones."
 "602","Sitio presente en la lista de excepciones."
@@ -98,8 +99,8 @@
 "630","URL match in "    # needs translation
 "631"," location allow list"    # needs translation
 "632","Location overide allow list matched"    # needs translation
-"662","Site (local)."    # needs translation
-"663","URL (local)."    # needs translation
+"662","Sitio (local)."
+"663","URL (local)."
 "700","La subida está bloqueada."
 "701","Límite de subida excedido."
 "750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
@@ -107,14 +108,14 @@
 "800","Clase MIME bloqueada: "
 "900","Extensión bloqueada: "
 "1000","Clasificación PICS excedida en el sitio indicado."
-"1100","Virus or bad content detected."
-"1101","Advert blocked"
-"1200","Please wait - downloading to be scanned..."
-"1201","Warning: file too large to scan. If you suspect that this file is larger than "    # needs translation
-"1202",", then refresh this page to download directly."    # needs translation
-"1203","WARNING: Could not perform content scan!"    # needs translation
-"1210","Download Complete.  Starting scan..."
-"1220","Scan complete.</p><p>Click here to download: "
-"1221","Download complete; file not scanned.</p><p>Click here to download: "    # needs translation
-"1222","File too large to cache.</p><p>Click here to re-download, bypassing scan: "    # needs translation
-"1230","File no longer available"
+"1100","Virus o mal contenido detectado."
+"1101","Anuncio bloqueado"
+"1200","Espere, descargando para ser analizado..."
+"1201","Advertencia: archivo demasiado grande para analizar. Si sospecha que este archivo es mayor que "
+"1202",", luego actualice esta página para descargar directamente."
+"1203","ADVERTENCIA: ¡No se pudo realizar el análisis de contenido!"
+"1210","Descarga completada.  Comenzando el análisis..."
+"1220","Análisis completado.</p><p>Haga click aquí para descargar: "
+"1221","Descarga completa; el archivo no se ha analizado.</p><p>Haga click aquí para descargar: "
+"1222","Archivo demasiado grande para almacenar en caché.</p><p>Haga clic aquí para volver a descargar, sin pasar por el análisis de contenido :"
+"1230","El archivo ya no está disponible"

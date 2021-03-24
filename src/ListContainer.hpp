@@ -76,7 +76,9 @@ public:
     String group;
     int operator<(const datamap &a) const
     {
-        return key.compare(a.key);
+        if (key.compare(a.key) < 0)
+            return 1;
+        return 0;
     };
     int operator==(const String &a) const
     {
@@ -145,6 +147,7 @@ class ListContainer
     char *findStartsWith(const char *string, String &lastcategory);
     char *findStartsWithPartial(const char *string, String &lastcategory);
     String searchIPMap(int a, int s, const uint32_t &ip);
+    String searchDataMap(int a, int s, const String  &key);
     String inSubnetMap(const uint32_t &ip);
     String inIPRangeMap(const uint32_t &ip);
 
@@ -236,7 +239,7 @@ class ListContainer
     std::list<rangestruct> ipmaprangelist;
     std::list<subnetstruct> ipmapsubnetlist;
     //std::list<datamap> datamaplist;
-    std::deque<datamap> datamaplist;
+    std::vector<datamap> datamaplist;
 
     //timelists
     std::vector<TimeLimit> timelist;
@@ -256,7 +259,7 @@ class ListContainer
     void addToIPList(String &line);
     void addToIPMap(String &line);
     void addToDataMap(String &line);
-    void addToTimeList(String &line);
+    bool addToTimeList(String &line);
     int greaterThanEWF(const char *a, const char *b); // full match
     int greaterThanEW(const char *a, const char *b); // partial ends with
     int greaterThanSWF(const char *a, const char *b); // full match

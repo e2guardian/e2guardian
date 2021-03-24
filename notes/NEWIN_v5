@@ -1,4 +1,4 @@
-This is the v5.4.2 near-stable version
+This is the v5.4.3r table version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -48,7 +48,7 @@ ICAP SERVER
 
 DIRECT UPSTREAM ACCESS I.e. not via proxy.  
 
-    To implement globaly comment out 'proxyip =' in e2guardian.conf.
+    To implement globally comment out 'proxyip =' in e2guardian.conf.
 
     The storyboard action setgodirect can be used within checkrequest functions 
     to enable selected protocols/site/urls to godirect.

@@ -76,7 +76,7 @@ class dnsauthinstance : public AuthPlugin
     };
 
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec);
-    int determineGroup(std::string &user, int &fg, ListContainer &uglc);
+    int determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm);
 
     int init(void *args);
     int quit();
@@ -207,7 +207,7 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
     }
 }
 
-int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
+int dnsauthinstance::determineGroup(std::string &user, int &fg, StoryBoard & story, NaughtyFilter &cm)
 {
     fg = userst.group;
 #ifdef E2DEBUG

@@ -600,7 +600,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
         // multiple listen IP support
-        filter_ip = findoptionM("filterip");
+        filter_ip = findoptionMD("filterip",":");
         if( filter_ip.empty()) filter_ip.push_back("");
         if (filter_ip.size() > 127) {
             if (!is_daemonised) {
@@ -610,7 +610,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
         // multiple check IP support - used for loop checking
-        check_ip = findoptionM("checkip");
+        check_ip = findoptionMD("checkip",":");
         if (check_ip.size() > 127) {
             if (!is_daemonised) {
                 std::cerr << "Can not check on more than 127 IPs" << std::endl;
@@ -623,7 +623,7 @@ bool OptionContainer::read(std::string &filename, int type) {
                 check_ip.push_back(t);
         }
 
-        filter_ports = findoptionM("filterports");
+        filter_ports = findoptionMD("filterports",":");
         if (filter_ports.empty())
             filter_ports.push_back("8080");
         if (map_ports_to_ips and filter_ports.size() != filter_ip.size()) {
@@ -886,6 +886,14 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         }
 
+        if ((internal_test_url = findoptionS("internaltesturl")).empty()) {
+            internal_test_url = "internal.test.e2guardian.org";
+        }
+
+        if ((internal_status_url = findoptionS("internalstatusurl")).empty()) {
+            internal_status_url = "internal.status.e2guardian.org";
+        }
+
         if (!loadDMPlugins()) {
             if (!is_daemonised) {
                 std::cerr << "Error loading DM plugins" << std::endl;
@@ -1144,6 +1152,13 @@ std::string OptionContainer::findoptionS(const char *option) {
 
 std::deque<String> OptionContainer::findoptionM(const char *option) {
     // findoptionS returns all the matching options
+    return findoptionMD(option, nullptr);
+}
+
+
+
+std::deque<String> OptionContainer::findoptionMD(const char *option, const char *delim) {
+    // findoptionMD returns all instances of an option & allows multiple entries on a line separated by delim
     String temp;
     String temp2;
     String o(option);
@@ -1171,7 +1186,14 @@ std::deque<String> OptionContainer::findoptionM(const char *option) {
             if (temp.endsWith("'")) { // inverted commas
                 temp.chop();
             }
-            results.push_back(temp);
+            if (delim != nullptr) {
+                while (temp.contains(delim)) {
+                    String t = temp.before(delim);
+                    if(!t.empty()) results.push_back(t);
+                    temp = temp.after(delim);
+                }
+            }
+            if(!temp.empty()) results.push_back(temp);
         }
     }
     return results;

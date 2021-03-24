@@ -1,5 +1,31 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.4.3r
+
+September 2020 to March 2021
+
+Fixes
+  Fix for #672 Cert error status page not showing
+  Fix bug #670 request log not being written to
+  Fix #666 - port missing from log flags
+  Fix #667 Loop when useoriginalip is on and transparent traffic redirected to e2g ip/port
+  Fix bug #664 seg fault when dnsauth enabled
+  Fix for #642 - but squid ignores - so action removed from storyboard
+  Fix for #646 - datamaplists of more that 16 lines crash e2g
+  Fix #642 sslreplace not working in ICAP mode
+  Fix #641 ipmap not always matching
+  Fix #639 crash with IP auth and https transparent
+  Fix #640 Large downloads not working
+  Fix bug #639  - IP auth causing crash in https transparent mode
+  Fix double space and other issues with #time directives #633
+  Fix rasp package version
+  Fix #628 mimetype not showing in log
+  Update INSTALL doc #662 refers
+
+New features
+  Add multiple entries on single line for filterports, checkip and filterip
+    options
+
 version 5.4.2
 
 April to August 2020

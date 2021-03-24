@@ -716,3 +716,19 @@ String String::CN() {
  //       return true;
   //  return false;
 //}
+
+String String::anonimise() {
+    std::string temp;
+    unsigned char t;
+    unsigned int l = this->length();
+    for (unsigned int i = 0; i < l; i++) {
+        t = (*this)[i];
+        if (!(t < '/' || t == ':' || t == ';' || t == '=' || t == '?' || t == '@' || (t > 90 && t < 97))) {
+            t = 'x'; // convert all alphanumeric to 'x'
+        }
+        temp += t;
+        continue;
+    }
+    String ts = temp;
+    return ts;
+}

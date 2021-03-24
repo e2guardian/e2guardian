@@ -36,9 +36,9 @@ class CertificateAuthority
         time_t caEnd);
 
     ~CertificateAuthority();
-    X509 *generateCertificate(const char *commonname, struct ca_serial *cser);
+    X509 *generateCertificate(const char *commonname, struct ca_serial *cser, bool is_ip = false);
     bool getSerial(const char *commonname, struct ca_serial *cser);
-    bool getServerCertificate(const char *commonname, X509 **cert, struct ca_serial *cser);
+    bool getServerCertificate(const char *commonname, X509 **cert, struct ca_serial *cser,bool is_ip = false);
     bool writeCertificate(const char *hostname, X509 *newCert, struct ca_serial *cser);
     EVP_PKEY *getServerPkey();
     bool free_ca_serial(struct ca_serial *cs);

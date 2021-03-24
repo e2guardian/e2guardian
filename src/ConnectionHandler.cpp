@@ -862,7 +862,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             // TODO this needs moving is proxy operation is still to be tested
-            if (checkme.urldomain == "internal.test.e2guardian.org") {
+            if (checkme.urldomain == o.internal_test_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                 peerconn.writeString("</BODY></HTML>\n");
@@ -1047,6 +1047,32 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 #endif
 
+            if (checkme.urldomain == o.internal_status_url) {
+                peerconn.writeString(
+                        "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal status</TITLE></HEAD><BODY><H1>e2guardian internal status OK</H1> ");
+                String temp = "User: ";
+                temp += clientuser;
+                temp += "<br>";
+                temp += "IP: ";
+                temp += ip;
+                temp += "<br>";
+                temp += "Filtergroup: ";
+                temp += ldl->fg[filtergroup]->name;
+                temp += "<br>";
+                temp += "Flags: ";
+                temp += checkme.getFlags();
+                temp += "<br>";
+                temp += "e2g version: ";
+                temp += PACKAGE_VERSION;
+                temp += "<br>";
+                temp += "Server: ";
+                temp += o.server_name;
+                temp += "<br>";
+                peerconn.writeString(temp);
+                peerconn.writeString("</BODY></HTML>\n");
+                proxysock.close(); // close connection to proxy
+                break;
+            }
             //
             // Start of by pass
             //
@@ -1211,10 +1237,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
                             writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
                         } else {
-			   if(!ismitm) {
-                            writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
-                            //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
-			   }
+                            if (!ismitm) {
+                                writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
+                                //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                            }
                         }
                         persistPeer = false;
                         persistProxy = false;
@@ -1450,7 +1476,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     struct timeval theend;
     gettimeofday(&theend, NULL);
     String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
+    String where = cm.get_logUrl();
     unsigned int port = cm.request_header->port;
     std::string what;
 
@@ -1473,7 +1499,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
     int code = (cm.response_header->returnCode());
     if (isnaughty) code = 403;
-    std::string mimetype = cm.mimetype;
+    std::string mimetype = cm.response_header->getContentType();
     bool wasinfected = cm.wasinfected;
     bool wasscanned = cm.wasscanned;
     int naughtiness = cm.naughtiness;
@@ -1509,7 +1535,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_log) {
+        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
 #ifdef E2DEBUG
             std::cerr << "logclienthostnames enabled but reverseclientiplookups disabled; lookup forced." << std::endl;
 #endif
@@ -1560,7 +1586,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         std::string l_clienthost;
         l_clienthost = cm.clienthost;
 
-        if (cm.anon_log) {
+        if (cm.anon_user) {
             l_who = "";
             l_from = "0.0.0.0";
             l_clienthost = "";
@@ -1571,6 +1597,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
 #ifdef E2DEBUG
         std::cerr << thread_id << " -Building raw log data string... ";
+        std::cerr << thread_id << " - cm.listen_port: " << cm.listen_port << "flags:" << flags << std::endl;
 #endif
 
         data = String(isexception) + cr;
@@ -1599,7 +1626,6 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String((theend).tv_sec) + cr;
         data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
-
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
@@ -1709,6 +1735,8 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(mimetype) + cr;
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
+        data += String((*thestart).tv_sec) + cr;
+        data += String((*thestart).tv_usec) + cr;
         data += l_clienthost + cr;
         if (o.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
@@ -1719,6 +1747,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String(message_no) + cr;
         data += String(headeradded) + cr;
         data += flags + cr;
+        data += cr;     //cm.search_terms not known yet
         data += cr;
 
 #ifdef E2DEBUG
@@ -1974,7 +2003,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 			//
 			// DISPLAYING TEMPLATE
 
-			String fullurl = checkme->logurl;
+			String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
 			ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
@@ -2682,7 +2711,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 //requesting lots of places that dont exist causing the disk to fill
 //up / run out of inodes
         certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
-                                                   &caser);
+                                                   &caser, checkme.isiphost);
 #ifdef E2DEBUG
         if (caser.asn == NULL) {
                                 std::cerr << "caser.asn is NULL" << std::endl;
@@ -2786,7 +2815,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (!checkme.nocheckcert) {
                 checkCertificate(checkme.urldomain, &proxysock, &checkme);
                 checkme.badcert = checkme.isItNaughty;
-		justLog = true;
+		//justLog = true;
             }
         }
     }
@@ -3190,9 +3219,12 @@ void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
 
 void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
                                       std::deque<CSPlugin *> &responsescanners) {
-    if (((cm.response_header->isContentType("text", ldl->fg[filtergroup]) ||
-          cm.response_header->isContentType("-", ldl->fg[filtergroup])) && !cm.isexception) ||
-        !responsescanners.empty()) {
+    if (!responsescanners.empty() ||
+        (
+                (cm.response_header->isContentType("text", ldl->fg[filtergroup]) ||
+                    cm.response_header->isContentType("-", ldl->fg[filtergroup])
+                ) && !cm.isexception
+        )) {
         cm.waschecked = true;
         if (!responsescanners.empty()) {
 #ifdef E2DEBUG
@@ -3238,9 +3270,10 @@ int ConnectionHandler::handleTHTTPSConnection(Socket &peerconn, String &ip, Sock
     HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
     HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
 
-    NaughtyFilter checkme(header, docheader);
+    NaughtyFilter checkme(header, docheader, SBauth);
     checkme.listen_port = peerconn.getPort();
-    checkme.reset();
+    checkme.isconnect = true;
+    //checkme.reset();
 
 
     std::string clientip(ip.toCharArray()); // hold the clients ip
@@ -3366,6 +3399,9 @@ std::cerr << thread_id << " -got peer connection - clientip is " << clientip << 
             if (o.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
             }
+
+            checkme.clientip = clientip;
+            checkme.isconnect = true;
 
             filtergroup = o.default_trans_fg;
 
@@ -3626,7 +3662,17 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
     } else {
         char res[INET_ADDRSTRLEN];
         checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
+        // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
+        if (o.check_ip.size() > 0) {
+            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                if (*it == checkme.orig_ip) {
+                    checkme.orig_ip = "";
+                    return false;
+                }
+            }
+        }
         checkme.orig_port = ntohs(origaddr.sin_port);
+        checkme.got_orig_ip = true;
         return true;
     }
 #else   // TODO: BSD code needs adding - depends on firewall being used
@@ -4161,6 +4207,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
     }
 
+
     //check for redirect
     // URL regexp search and edirect
     if (checkme.urlredirect) {
@@ -4180,6 +4227,15 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     if (!done && !checkme.isdone && checkme.isGrey && checkme.isSearch)
         check_search_terms(checkme);  // will set isItNaughty if needed
 
+
+    // check for CONNECT redirect
+    if ((icaphead.HTTPrequest.requestType() == "CONNECT") && checkme.urlmodified) {
+        // DEBUG_debug("is CONNECT logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
+        if (checkme.connect_site != checkme.urldomain) {
+            icaphead.HTTPrequest.setConnect(checkme.connect_site);
+            // DEBUG_debug("after setURL logurl:", checkme.logurl, " conn site:", checkme.connect_site, " fullurl:", checkme.baseurl, " urldomain:", checkme.urldomain);
+        }
+    }
 
     // TODO V5 call POST scanning code New NaughtyFilter function????
 
