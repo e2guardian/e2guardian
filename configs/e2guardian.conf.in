@@ -64,13 +64,15 @@ language = 'ukenglish'
 #
 # For loop prevention purposes list all IPs e2g can be reached on
 # Include all e2g host server IPs and any VIP used when when in an array.
-# Specify each IP on an individual checkip line.
+# Specify each IP on an individual checkip line or multiple IP on a single line separated by ':'
 #
 
 #checkip = 127.0.0.1
 #checkip = ip_of_server
 #checkip = 2nd ip of server
 #checkip = VIP of server
+# or
+#checkip = 127.0.0.1:ip_of_server:2nd IP of server:VIP
 #
 # Defaults: Not set - only loop prevention for 127.0.0.1 requests
 #
@@ -170,14 +172,14 @@ languagedir = '@E2DATADIR@/languages'
 # listen on all IPs.  That would include all NICs, loopback, modem, etc.
 # Normally you would have your firewall protecting this, but if you want
 # you can limit it to a certain IP. To bind to multiple interfaces,
-# specify each IP on an individual filterip line.
+# specify each IP on an individual filterip line or separate IPs with ':' on a single line
 # default "" - listen on all IPs
 
 #filterports = 8080
 #filterports = 8081
 #
 # The port(s) that e2guardian listens to for proxy traffic.
-# Specify one line per port used for standard explict proxy.
+# Specify one line per port used for standard explict proxy or separate ports with ':' on a single line
 # These ports can also be used for redirected tranparent HTTP
 # Default is to listen on 8080 for proxy traffic
 
