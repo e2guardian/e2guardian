@@ -119,7 +119,7 @@ void NaughtyFilter::setURL(String &sni) {
 
 void NaughtyFilter::reset()
 {
-    anon_user = o.anonymise_logs;
+    anon_user = o.log.anonymise_logs;
     anon_url = false;
     logurl = "";
     isItNaughty = false;
@@ -176,7 +176,7 @@ void NaughtyFilter::reset()
     urlredirect = false;
     logcategory = false;
     upfailure = false;
-    isdirect = o.no_proxy;  // always set if no proxy defined
+    isdirect = o.net.no_proxy;  // always set if no proxy defined
     //            authed = false;
     //            isbanneduser = false;
     mimetype = "-";
@@ -211,7 +211,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     // Do this now, as it's not especially case-sensitive,
     // and the case alteration should modify case post-decoding
     // Search terms are already hex decoded, as they need to be to strip URL decoding
-    if (!searchterms && o.hex_decode_content) { // Mod suggested by AFN Tue 8th April 2003
+    if (!searchterms && o.naughty.hex_decode_content) { // Mod suggested by AFN Tue 8th April 2003
         DEBUG_content("Hex decoding is enabled");
         char *hexdecoded_buf = new char[rawbodylen + 128 + 1];
         memset(hexdecoded_buf, 0, rawbodylen + 128 + 1);
@@ -253,11 +253,11 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 
     // scan twice, with & without case conversion (if desired) - aids support for exotic char encodings
     // TODO: move META/title sentinel location outside this loop, as they are not case sensitive operations
-    bool preserve_case = o.preserve_case;
+    bool preserve_case = (o.naughty.preserve_case != 0);
     bool do_raw = false;
     bool do_nohtml = false;
 
-    if (o.preserve_case == 2) {
+    if (o.naughty.preserve_case == 2) {
         // scanning twice *is* desired
         // first time round the loop, don't preserve case (non-exotic encodings)
         DEBUG_content("Filtering with/without case preservation is enabled");
@@ -273,16 +273,16 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
     // Store for the tag-stripped data
     // Don't bother tag stripping search terms
     char *bodynohtml = NULL;
-    if (!searchterms && (o.phrase_filter_mode == 1 || o.phrase_filter_mode == 2)) {
+    if (!searchterms && (o.naughty.phrase_filter_mode == 1 || o.naughty.phrase_filter_mode == 2)) {
         do_nohtml = true;
         bodynohtml = new char[hexdecodedlen + 128 + 1];
         memset(bodynohtml, 0, hexdecodedlen + 128 + 1);
     }
 
-    if ((o.phrase_filter_mode == 0 || o.phrase_filter_mode == 2 || o.phrase_filter_mode == 3))
+    if ((o.naughty.phrase_filter_mode == 0 || o.naughty.phrase_filter_mode == 2 || o.naughty.phrase_filter_mode == 3))
         do_raw = true;
 
-    for (int loop = 0; loop < (o.preserve_case == 2 ? 2 : 1); loop++) {
+    for (int loop = 0; loop < (o.naughty.preserve_case == 2 ? 2 : 1); loop++) {
         DEBUG_content("Preserve case: ", preserve_case );
 
         off_t i, j;
@@ -292,7 +292,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
         // use the one that's been hex decoded, but not stripped
         // make a copy of the document lowercase char by char
         if (preserve_case) {
-            if (do_nohtml || o.phrase_filter_mode == 3) {
+            if (do_nohtml || o.naughty.phrase_filter_mode == 3) {
                 for (i = 0; i < hexdecodedlen; i++) {
                     c = hexdecoded[i];
                     //				if (c == 13 || c == 9 || c == 10) {
@@ -313,7 +313,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
             }
         } else {
             DEBUG_content("Not preserving case of raw content");
-            if (do_nohtml || o.phrase_filter_mode == 3) {
+            if (do_nohtml || o.naughty.phrase_filter_mode == 3) {
                 for (i = 0; i < hexdecodedlen; i++) {
                     c = hexdecoded[i];
                     if (c >= 'A' && c <= 'Z') {
@@ -348,7 +348,7 @@ void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String 
 
         // filter meta tags & title only
         // based on idea from Nicolas Peyrussie
-        if (!searchterms && (o.phrase_filter_mode == 3)) {
+        if (!searchterms && (o.naughty.phrase_filter_mode == 3)) {
             DEBUG_content("Filtering META/title");
             bool addit = false; // flag if we should copy this char to filtered version
             bool needcheck = false; // flag if we actually find anything worth filtering
@@ -872,7 +872,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
                 }
             }
 
-            if (o.show_weighted_found) {
+            if (o.naughty.show_weighted_found) {
                 if (weightedphrase.length() > 0) {
                     weightedphrase += "+";
                 }
@@ -940,7 +940,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         return;
     }
 
-    bool log_it = o.show_all_weighted_found;
+    bool log_it = o.naughty.show_all_weighted_found;
     auto mno = searchterms ? 454 : 402;
 
     if (weighting > limit) {
@@ -957,7 +957,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         whatIsNaughtyLog += String(limit).toCharArray();
         whatIsNaughtyLog += " : ";
         whatIsNaughtyLog += String(weighting).toCharArray();
-        if (o.show_weighted_found) {
+        if (o.naughty.show_weighted_found) {
             whatIsNaughtyLog += " (";
             whatIsNaughtyLog += weightedphrase;
             whatIsNaughtyLog += ")";

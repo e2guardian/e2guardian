@@ -104,20 +104,20 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     // buffer size for streaming downloads
     off_t blocksize = 32768;
     // set to a sensible minimum
-    if (!wantall && (blocksize > o.max_content_filter_size))
-        blocksize = o.max_content_filter_size;
-    else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
-        blocksize = o.max_content_ramcache_scan_size;
+    if (!wantall && (blocksize > o.content.max_content_filter_size))
+        blocksize = o.content.max_content_filter_size;
+    else if (wantall && (blocksize > o.content.max_content_ramcache_scan_size))
+        blocksize = o.content.max_content_ramcache_scan_size;
 
     DEBUG_dwload("blocksize: ", blocksize);
 
     while ((d->bytes_toget  > 0) || d->geteverything) {
         DEBUG_dwload("toget:", d->bytes_toget, "geteverything", d->geteverything);
         // send x-header keep-alive here
-        if (o.trickle_delay > 0) {
+        if (o.content.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
-            if (d->doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.trickle_delay :
-                nowadays.tv_sec - themdays.tv_sec > o.initial_trickle_delay) {
+            if (d->doneinitialdelay ? nowadays.tv_sec - themdays.tv_sec > o.content.trickle_delay :
+                nowadays.tv_sec - themdays.tv_sec > o.content.initial_trickle_delay) {
                 themdays.tv_sec = nowadays.tv_sec;
                 d->doneinitialdelay = true;
                 if ((*headersent) < 1) {

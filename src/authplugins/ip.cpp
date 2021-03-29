@@ -127,12 +127,12 @@ int ipinstance::quit()
 // plugin init - read in ip melange list
 int ipinstance::init(void *args)
 {
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYA_AUTH_IP;
         story_entry = sen.entry_id;
-        o.auth_entry_dq.push_back(sen);
+        o.story.auth_entry_dq.push_back(sen);
 	    read_def_fg();
         return 0;
     } else {
@@ -151,10 +151,10 @@ int ipinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::
     bool use_xforwardedfor;
     use_xforwardedfor = false;
     if (o.use_xforwardedfor == 1) {
-        if (o.xforwardedfor_filter_ip.size() > 0) {
+        if (o.net.xforwardedfor_filter_ip.size() > 0) {
             const char *ip = peercon.getPeerIP().c_str();
-            for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                if (strcmp(ip, o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+            for (unsigned int i = 0; i < o.net.xforwardedfor_filter_ip.size(); i++) {
+                if (strcmp(ip, o.net.xforwardedfor_filter_ip[i].c_str()) == 0) {
                     use_xforwardedfor = true;
                     break;
                 }

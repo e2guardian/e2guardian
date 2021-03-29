@@ -919,7 +919,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
    //     if ((o.log_header_value.size() != 0) && outgoing && (plogheadervalue == NULL) && i->startsWithLower(o.log_header_value)) {
     //        plogheadervalue = &(*i);
      //   }
-        if ((o.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.ident_header_value)) {
+        if ((o.header.ident_header_value.size() != 0) && outgoing && (pheaderident == NULL) && i->startsWithLower(o.header.ident_header_value)) {
             pheaderident = &(*i);
         }
 
@@ -1617,7 +1617,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                         E2LOGGER_error( "Proxy connection broken (1); trying to re-establish...");
                         reconnect = false;
                         sock->reset();
-                        int rc = sock->connect(o.proxy_ip, o.proxy_port);
+                        int rc = sock->connect(o.net.proxy_ip, o.net.proxy_port);
                         if (rc)
                             return false;
                             // throw std::exception();
@@ -1650,7 +1650,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
         }
 
     }
-    if (!is_response && o.forwarded_for && !isdirect)  {
+    if (!is_response && o.header.forwarded_for && !isdirect)  {
         std::string line("X-Forwarded-For: ");
         line.append(s_clientip).append("\r\n");
         DEBUG_debug("Adding Header: ", line);
@@ -1670,7 +1670,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
                 E2LOGGER_error("Proxy connection broken (2); trying to re-establish...");
                 reconnect = false;
                 sock->reset();
-                int rc = sock->connect(o.proxy_ip, o.proxy_port);
+                int rc = sock->connect(o.net.proxy_ip, o.net.proxy_port);
                 if (rc)
                     return false;
                //     throw std::exception();
@@ -1812,7 +1812,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > o.header.max_header_lines) {
     	    E2LOGGER_error("header:size too big: %lu, see maxheaderlines", header.size());
 	        dbshowheader(false);
             ispersistent = false;
@@ -1831,7 +1831,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         // check first line header
             if (!(line.length() > 11 && line.startsWith("HTTP/") && (line.after(" ").before(" ").toInteger() > 99)))
             {
-                if(o.logconerror)
+                if(o.conn.logconerror)
                     E2LOGGER_error("Returning from header:in Server did not respond with HTTP ");
 #ifdef DEBUG_LOW
                 dbshowheader(false);

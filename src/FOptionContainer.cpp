@@ -257,18 +257,18 @@ bool FOptionContainer::read(const char *filename) {
 
 
         if (findoptionS("sslcheckcert") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_check_cert = true;
-                } else {
-                    E2LOGGER_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
-                    ssl_check_cert = false;
-                }
+            } else {
+                E2LOGGER_error("Warning: To use sslcheckcert, enablessl in e2guardian.conf must be on");
+                ssl_check_cert = false;
+            }
         } else {
             ssl_check_cert = false;
         }
 
         if (findoptionS("sslmitm") == "on") {
-            if(o.enable_ssl) {
+            if(o.cert.enable_ssl) {
                 ssl_mitm = true;
 
                 if (findoptionS("automitm") == "off") {
@@ -369,7 +369,7 @@ bool FOptionContainer::read(const char *filename) {
 #endif
         // override default reporting level
         if (findoptionS("reportinglevel").empty()) {   //uses value from e2guardian.conf if empty
-            reporting_level = o.reporting_level;
+            reporting_level = o.block.reporting_level;
         } else {
             reporting_level = findoptionI("reportinglevel");
             if (!realitycheck(reporting_level, -1, 3, "reportinglevel")) {
@@ -430,14 +430,14 @@ bool FOptionContainer::read(const char *filename) {
             // override default banned page
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
-                html_template = o.languagepath + html_template;
+                html_template = o.config.languagepath + html_template;
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
-                html_template = o.languagepath + "template.html";
+                html_template = o.config.languagepath + "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
@@ -447,7 +447,7 @@ bool FOptionContainer::read(const char *filename) {
 
             String neterr_template(findoptionS("neterrtemplate"));
             if (neterr_template != "") {
-                neterr_template = o.languagepath + neterr_template;
+                neterr_template = o.config.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
@@ -455,7 +455,7 @@ bool FOptionContainer::read(const char *filename) {
                     // HTML template file
                 }
             } else {  // if blank will default to HTML template file
-                neterr_template = o.languagepath + "neterr_template.html";
+                neterr_template = o.config.languagepath + "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);
@@ -471,7 +471,7 @@ bool FOptionContainer::read(const char *filename) {
         }
 
         // grab group name (if not using external group names file)
-        if (!o.use_group_names_list) {
+        if (!o.filter.use_group_names_list) {
 	        if (findoptionS("groupname").length() > 0) {
             	name = findoptionS("groupname");
 	    } else {
@@ -653,17 +653,17 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         }
 
-        if((o.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
+        if((o.net.transparenthttps_port > 0) && !StoryB.setEntry(ENT_STORYB_THTTPS_REQUEST,"thttps-checkrequest")) {
             E2LOGGER_error("Required storyboard entry function 'thttps-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_REQMOD,"icap-checkrequest")) {
             E2LOGGER_error("Required storyboard entry function 'icap-checkrequest' is missing");
             return false;
         }
 
-        if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
             E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
             return false;
         }
@@ -671,22 +671,22 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         } // precompiled reg exps for speed
 
-    if((o.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
+        if((o.net.icap_port > 0) && !StoryB.setEntry(ENT_STORYB_ICAP_RESMOD,"icap-checkresponse")) {
            E2LOGGER_error("Required storyboard entry function 'icap-checkresponse' is missing");
            return false;
-    }
+        }
 
-    if (o.dm_entry_dq.size() > 0)  {
-            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.dm_entry_dq.begin(); i != o.dm_entry_dq.end(); ++i) {
+        if (o.story.dm_entry_dq.size() > 0)  {
+            for (std::deque<struct StoryBoardOptions::SB_entry_map>::const_iterator i = o.story.dm_entry_dq.begin(); i != o.story.dm_entry_dq.end(); ++i) {
                 if (!StoryB.setEntry(i->entry_id, i->entry_function)) {
                     E2LOGGER_error("Required DM storyboard entry function", i->entry_function, " is missing from pre_auth.stoary" );
                 }
             }
         }
     
-    if (!precompileregexps()) {
-        return false;
-    } // precompiled reg exps for speed
+        if (!precompileregexps()) {
+            return false;
+        } // precompiled reg exps for speed
 
         cgi_bypass = (findoptionS("cgibypass")== "on" );
         cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");

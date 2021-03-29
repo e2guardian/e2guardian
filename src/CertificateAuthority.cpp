@@ -33,7 +33,7 @@ extern OptionContainer o;
 
 void log_ssl_errors(const char *mess, const char *site) {
     //E2LOGGER_debugnet(mess, site);
-    if( o.log_ssl_errors ) {
+    if( o.logger.log_ssl_errors ) {
         E2LOGGER_error("SSL Error: ", mess, " at: ", site);
         unsigned long e;
         char buff[512];

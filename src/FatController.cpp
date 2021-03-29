@@ -140,17 +140,17 @@ void stat_rec::start(bool firsttime = true) {
     if (firsttime) {
         clear();
         start_int = time(NULL);
-        end_int = start_int + o.dstat_interval;
+        end_int = start_int + o.dstat.dstat_interval;
         maxusedfd = 0;
     }
 
-    if (o.dstat_log_flag) {
+    if (o.dstat.dstat_log_flag) {
         // now opened by Logger
         //mode_t old_umask;
         //old_umask = umask(S_IWGRP | S_IWOTH);
         //fs = fopen(o.dstat_location.c_str(), "a");
         std::string outmess;
-        if (o.stats_human_readable) {
+        if (o.dstat.stats_human_readable) {
             outmess = "time		        httpw	busy	httpwQ	logQ	conx	conx/s	 reqs	reqs/s	maxfd	LCcnt";
         } else {
             outmess = "time		httpw	busy	httpwQ	logQ	conx	conx/s	reqs	reqs/s	maxfd	LCcnt";
@@ -170,12 +170,12 @@ void stat_rec::reset() {
     int LC = o.LC_cnt;
     // clear and reset stats now so that stats are less likely to be missed
     clear();
-    if ((end_int + o.dstat_interval) > now)
+    if ((end_int + o.dstat.dstat_interval) > now)
         start_int = end_int;
     else
         start_int = now;
 
-    end_int = start_int + o.dstat_interval;
+    end_int = start_int + o.dstat.dstat_interval;
 
     if (rotate_dstat) {
         e2logger.rotate(LoggerSource::dstatslog);
@@ -187,19 +187,19 @@ void stat_rec::reset() {
 
     long cps = cnx / period;
     long rqs = rqx / period;
-    if (o.stats_human_readable) {
+    if (o.dstat.stats_human_readable) {
         struct tm *timeinfo;
         time(&now);
         timeinfo = localtime(&now);
         char buffer[50];
         strftime(buffer, 50, "%Y-%m-%d %H:%M", timeinfo);
         snprintf(outbuff, 100, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
-                 o.http_workers,
-                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+                 o.proc.http_workers,
+                 bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
         snprintf(outbuff, 100, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
-                 o.http_workers,
-                 bc, o.http_worker_Q.size(), o.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
+                 o.proc.http_workers,
+                 bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
     std::string outs(outbuff);
     E2LOGGER_dstatslog(outs);
@@ -234,7 +234,7 @@ Socket *peersock(NULL); // the socket which will contain the connection
 
 void monitor_flag_set(bool action) {
 
-    String fulink = o.monitor_flag_prefix;
+    String fulink = o.monitor.monitor_flag_prefix;
     String ftouch = fulink;
     if (action) {
         fulink += "paused";
@@ -250,7 +250,7 @@ void monitor_flag_set(bool action) {
     FILE *fs = fopen(ftouch.c_str(), "w");
     if (!fs) {
         E2LOGGER_error("Unable to open monitor_flag ", ftouch, " for writing");
-        o.monitor_flag_flag = false;
+        o.monitor.monitor_flag_flag = false;
     }
     fclose(fs);
     if (unlink(fulink.c_str()) == -1) {
@@ -301,12 +301,12 @@ bool drop_priv_completely() {
     // Suggested fix by Lawrence Manning Tue 25th February 2003
     //
 
-    int rc = seteuid(o.root_user); // need to be root again to drop properly
+    int rc = seteuid(o.proc.root_user); // need to be root again to drop properly
     if (rc == -1) {
         E2LOGGER_error("Unable to seteuid(suid)");
         return false; // setuid failed for some reason so exit with error
     }
-    rc = setuid(o.proxy_user);
+    rc = setuid(o.proc.proxy_user);
     if (rc == -1) {
         E2LOGGER_error("Unable to setuid()");
         return false; // setuid failed for some reason so exit with error
@@ -316,7 +316,7 @@ bool drop_priv_completely() {
 
 // Fork ourselves off into the background
 bool daemonise() {
-    if (o.no_daemon) {
+    if (o.proc.no_daemon) {
         return true;
     }
 #ifdef DEBUG_LOW
@@ -392,7 +392,7 @@ void handle_connections(int tindex) {
 
                 String peersockip = peersock->getPeerIP();
                 if (peersock->getFD() < 0 || peersockip.length() < 7) {
-//            if (o.logconerror)
+//            if (o.conn.logconerror)
                     E2LOGGER_info("Error accepting. (Ignorable)");
                     continue;
                 }
@@ -422,6 +422,8 @@ void handle_connections(int tindex) {
 // *
 // *
 
+
+#ifdef REMOVE_IN_55
 void tell_monitor(bool active) //may not be needed
 {
 
@@ -443,7 +445,7 @@ void tell_monitor(bool active) //may not be needed
     };
 
     if (childid == 0) { // Am the child
-        int rc = seteuid(o.root_user);
+        int rc = seteuid(o.proc.root_user);
         if (rc != -1) {
             int systemreturn = execl(buff.c_str(), buff.c_str(), buff1.c_str(),
                                      (char *) NULL); // should not return from call
@@ -473,6 +475,7 @@ void tell_monitor(bool active) //may not be needed
         };
     };
 };
+#endif
 
 #ifdef NOTDEF
 void wait_for_proxy()
@@ -566,8 +569,8 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
 
         String server("");
         // Get server name - only needed for formats 5 & 7
-        if ((o.log_file_format == 5) || (o.log_file_format == 7)) {
-            server = o.server_name;
+        if ((o.log.log_file_format == 5) || (o.log.log_file_format == 7)) {
+            server = o.net.server_name;
         }
 
         std::string exception_word = o.language_list.getTranslation(51);
@@ -590,7 +593,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         neterr_word = "*" + neterr_word + "* ";
         std::string blank_str;
 
-        if (o.use_dash_for_blanks)
+        if (o.log.use_dash_for_blanks)
             blank_str = "-";
         else
             blank_str = "";
@@ -627,9 +630,9 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 // Loop around reading in data, because we might have huge URLs
                 std::string s;
 
-                if (o.use_dash_for_blanks && logline == "") {
+                if (o.log.use_dash_for_blanks && logline == "") {
                     s = "-";
-                } else if (!o.use_dash_for_blanks && logline == "-") {
+                } else if (!o.log.use_dash_for_blanks && logline == "-") {
                     s = "";
                 } else {
                     s = logline;
@@ -689,7 +692,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                         break;
                     case 17:
                         filtergroup = atoi(logline.c_str());
-                        if (filtergroup < 0 || filtergroup > o.numfg) filtergroup = 0;
+                        if (filtergroup < 0 || filtergroup > o.filter.numfg) filtergroup = 0;
                         break;
                     case 18:
                         code = atoi(logline.c_str());
@@ -795,7 +798,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                     what = neterr_word + what;
                 else
                     what = denied_word + stype + "* " + what;
-            } else if (isexception && (o.log_exception_hits == 2)) {
+            } else if (isexception && (o.log.log_exception_hits == 2)) {
                 what = exception_word + what;
             }
 
@@ -820,8 +823,8 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
 
             // create a string representation of UNIX timestamp if desired
-            if (o.log_timestamp || (o.log_file_format == 3)
-                || (o.log_file_format > 4)) {
+            if (o.log.log_timestamp || (o.log.log_file_format == 3)
+                || (o.log.log_file_format > 4)) {
                 String temp((int) (endtv_usec / 1000));
                 while (temp.length() < 3) {
                     temp = "0" + temp;
@@ -835,7 +838,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             }
 
 
-            if ((o.log_file_format <= 2) || (o.log_file_format == 4)) {
+            if ((o.log.log_file_format <= 2) || (o.log.log_file_format == 4)) {
                 // "when" not used in format 3, and not if logging timestamps instead in formats 5-8
                 //time_t now = time(NULL);
                 time_t now = endtv_sec;
@@ -844,12 +847,12 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", tm);
                 when = date;
                 // append timestamp if desired
-                if (o.log_timestamp)
+                if (o.log.log_timestamp)
                     when += " " + utime;
             }
 
             // blank out IP, hostname and username if desired
-            if (o.anonymise_logs) {
+            if (o.log.anonymise_logs) {
                 who = "";
                 from = "0.0.0.0";
                 clienthost.clear();
@@ -871,16 +874,16 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 }
             }
 
-            switch (o.log_file_format) {
+            switch (o.log.log_file_format) {
                 case 4:
                     builtline = when + "\t" + who + "\t" + from + "\t" + where + "\t" + what + "\t" + how
                                 + "\t" + ssize + "\t" + sweight + "\t" + cat + "\t" + stringgroup + "\t"
                                 + stringcode + "\t" + mimetype + "\t" + clienthost + "\t" + groupname
                                 #ifdef SG_LOGFORMAT
-                                + "\t" + useragent + "\t\t" + o.logid_1 + "\t" + o.prod_id + "\t"
-                    + params + "\t" + o.logid_2 + "\t" + postdata;
+                                + "\t" + useragent + "\t\t" + o.log.logid_1 + "\t" + o.log.prod_id + "\t"
+                    + params + "\t" + o.log.logid_2 + "\t" + postdata;
                                 #else
-                                + "\t" + useragent + "\t" + params + "\t" + o.logid_1 + "\t" + o.logid_2 + "\t" +
+                                + "\t" + useragent + "\t" + params + "\t" + o.log.logid_1 + "\t" + o.log.logid_2 + "\t" +
                                 postdata;
 #endif
                     break;
@@ -909,7 +912,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                         }
                     }
                     hier = "DEFAULT_PARENT/";
-                    hier += o.proxy_ip;
+                    hier += o.net.proxy_ip;
                     builtline =
                             utime + " " + duration + " " + ((clienthost.length() > 0) ? clienthost : from) + " " +
                             hitmiss +
@@ -924,14 +927,14 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                             "\",\""
                             + stringcode + "\",\"" + mimetype + "\",\"" + clienthost + "\",\"" +
                             groupname + "\",\""
-                            + useragent + "\",\"" + params + "\",\"" + o.logid_1 + "\",\"" + o.logid_2 + "\",\"" +
+                            + useragent + "\",\"" + params + "\",\"" + o.log.logid_1 + "\",\"" + o.log.logid_2 + "\",\"" +
                             postdata + "\"";
                     break;
                 case 1:
                     builtline = when + " " + who + " " + from + " " + where + " " + what + " "
                                 + how + " " + ssize + " " + sweight + " " + cat + " " + stringgroup + " "
                                 + stringcode + " " + mimetype + " " + clienthost + " " + groupname + " "
-                                + useragent + " " + params + " " + o.logid_1 + " " + o.logid_2 + " " + postdata;
+                                + useragent + " " + params + " " + o.log.logid_1 + " " + o.log.logid_2 + " " + postdata;
                     break;
                 case 5:
                 case 6:
@@ -949,7 +952,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                     builtline = utime + "\t"
                                 + server + "\t"
                                 + who + "\t";
-                    if (o.log_client_host_and_ip) {
+                    if (o.log.log_client_host_and_ip) {
                         builtline += from + "\t";
                         builtline += clienthost + "\t";
                     } else {
@@ -963,7 +966,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                  + stringcode + "\t"
                                  + ssize + "\t"
                                  + mimetype + "\t"
-                                 + (o.log_user_agent ? useragent : blank_str) + "\t"
+                                 + (o.log.log_user_agent ? useragent : blank_str) + "\t"
                                  + blank_str + "\t" // squid result code
                                  + duration + "\t"
                                  + blank_str + "\t" // squid peer code
@@ -974,7 +977,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                                  + groupname + "\t"
                                  + stringgroup;
             }
-            if (o.log_file_format > 6) {
+            if (o.log.log_file_format > 6) {
                 builtline += "\t";
                 builtline += searchterms;
                 builtline += "\t";
@@ -1176,7 +1179,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
     }
     if (!e2logger_ttg) {
         E2LOGGER_error("log_listener exiting with error");
-    } else if (o.logconerror) {
+    } else if (o.conn.logconerror) {
         E2LOGGER_error("log_listener exiting");
     }
 
@@ -1243,7 +1246,7 @@ void accept_connections(int index) // thread to listen on a single listening soc
     } catch (...) {
         E2LOGGER_error("listener thread caught unexpected exception exiting");
     }
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("listener thread exiting");
     }
 }
@@ -1273,20 +1276,20 @@ int fc_controlit()   //
     thread_id = "master: ";
 
     // allocate & create our server sockets
-        if (o.filter_ip.size() > 0) {
-            serversocketcount = o.filter_ip.size() * o.filter_ports.size();
-            if (!o.TLS_filter_ports.empty()) {
-                serversocketcount += (o.filter_ip.size() * o.TLS_filter_ports.size());
+        if (o.net.filter_ip.size() > 0) {
+            serversocketcount = o.net.filter_ip.size() * o.net.filter_ports.size();
+            if (!o.net.TLS_filter_ports.empty()) {
+                serversocketcount += (o.net.filter_ip.size() * o.net.TLS_filter_ports.size());
             }
         } else {
-            serversocketcount = o.filter_ports.size() + o.TLS_filter_ports.size();
+            serversocketcount = o.net.filter_ports.size() + o.net.TLS_filter_ports.size();
         }
 
     int serversocktopproxy = serversocketcount;
 
-    if (o.transparenthttps_port > 0)
+    if (o.net.transparenthttps_port > 0)
         ++serversocketcount;
-    if (o.icap_port > 0)
+    if (o.net.icap_port > 0)
         ++serversocketcount;
 
     serversockets.reset(serversocketcount);
@@ -1302,20 +1305,14 @@ int fc_controlit()   //
     }
 
     DEBUG_trace("seteuiding for low port binding/pidfile creation");
-
-#ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.root_user);
-#else
-    rc = seteuid(o.root_user);
-#endif
-    if (rc == -1) {
+     if (!o.proc.become_root_user()) {
         E2LOGGER_error("Unable to seteuid() to bind filter port.");
         delete[] serversockfds;
         return 1;
     }
 
     // we have to open/create as root before drop privs
-    int pidfilefd = sysv_openpidfile(o.pid_filename);
+    int pidfilefd = sysv_openpidfile(o.proc.pid_filename);
     if (pidfilefd < 0) {
         E2LOGGER_error("Error creating/opening pid file.");
         delete[] serversockfds;
@@ -1324,15 +1321,15 @@ int fc_controlit()   //
 
     int ss_index = 0;
     // we expect to find a valid filter ip 0 specified in conf if multiple IPs are in use.
-    if (o.filter_ip[0].length() > 6) {
-        if (serversockets.bindAll(o.filter_ip, o.filter_ports,ss_index,CT_PROXY)) {
+    if (o.net.filter_ip[0].length() > 6) {
+        if (serversockets.bindAll(o.net.filter_ip, o.net.filter_ports,ss_index,CT_PROXY)) {
             E2LOGGER_error("Error binding HTTP proxy server socket (is something else running on the filter port and ip?");
             close(pidfilefd);
             delete[] serversockfds;
             return 1;
         }
-        if (!o.TLS_filter_ports.empty()) {
-            if (serversockets.bindAll(o.filter_ip, o.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
+        if (!o.net.TLS_filter_ports.empty()) {
+            if (serversockets.bindAll(o.net.filter_ip, o.net.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
                 E2LOGGER_error(
                         "Error binding TLS proxy server socket (is something else running on the filter port and ip?");
                 close(pidfilefd);
@@ -1342,13 +1339,13 @@ int fc_controlit()   //
         }
     } else {
         // listen/bind to a port (or ports) on any interface
-            if (serversockets.bindSingleM(o.filter_ports, ss_index, CT_PROXY)) {
+            if (serversockets.bindSingleM(o.net.filter_ports, ss_index, CT_PROXY)) {
                 E2LOGGER_error("Error binding HTTP proxy server sockets: (", strerror(errno), ")");
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
             }
-        if (serversockets.bindSingleM(o.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
+        if (serversockets.bindSingleM(o.net.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
             E2LOGGER_error("Error binding TLS proxy server sockets: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -1356,8 +1353,8 @@ int fc_controlit()   //
         }
     }
 
-    if (o.transparenthttps_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy++, o.transparenthttps_port, CT_THTTPS)) {
+    if (o.net.transparenthttps_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy++, o.net.transparenthttps_port, CT_THTTPS)) {
             E2LOGGER_error("Error binding server thttps socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -1365,8 +1362,8 @@ int fc_controlit()   //
         }
     };
 
-    if (o.icap_port > 0) {
-        if (serversockets.bindSingle(serversocktopproxy, o.icap_port, CT_ICAP)) {
+    if (o.net.icap_port > 0) {
+        if (serversockets.bindSingle(serversocktopproxy, o.net.icap_port, CT_ICAP)) {
             E2LOGGER_error("Error binding server icap socket: (", strerror(errno), ")");
             close(pidfilefd);
             delete[] serversockfds;
@@ -1377,9 +1374,9 @@ int fc_controlit()   //
 // Made unconditional for same reasons as above
 //if (needdrop)
 #ifdef HAVE_SETREUID
-    rc = setreuid((uid_t)-1, o.proxy_user);
+    rc = setreuid((uid_t)-1, o.proc.proxy_user);
 #else
-    rc = seteuid(o.proxy_user); // become low priv again
+    rc = seteuid(o.proc.proxy_user); // become low priv again
 #endif
     if (rc == -1) {
         E2LOGGER_error("%sUnable to re-seteuid()");
@@ -1408,10 +1405,10 @@ int fc_controlit()   //
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_digests();
-    if (o.use_openssl_conf) {
-        if (o.have_openssl_conf) {
-            if (CONF_modules_load_file(o.openssl_conf_path.c_str(), nullptr, 0) != 1) {
-                E2LOGGER_error("Error reading openssl config file ", o.openssl_conf_path.c_str());
+    if (o.cert.use_openssl_conf) {
+        if (o.cert.have_openssl_conf) {
+            if (CONF_modules_load_file(o.cert.openssl_conf_path.c_str(), nullptr, 0) != 1) {
+                E2LOGGER_error("Error reading openssl config file ", o.cert.openssl_conf_path.c_str());
                 return false;
             }
         } else {
@@ -1445,14 +1442,14 @@ int fc_controlit()   //
     // and an array of worker threads to deal with the work.
     //if (!o.no_logger) {
     if (e2logger.isEnabled(LoggerSource::accesslog)) {
-        std::thread log_thread(log_listener, o.log_Q, false);
+        std::thread log_thread(log_listener, o.log.log_Q, false);
         log_thread.detach();
         DEBUG_trace("log_listener thread created");
     }
 
     //if(o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
-        std::thread RQlog_thread(log_listener, o.RQlog_Q, true);
+        std::thread RQlog_thread(log_listener, o.log.RQlog_Q, true);
         RQlog_thread.detach();
         DEBUG_trace("RQlog_listener thread created");
     }
@@ -1493,10 +1490,10 @@ int fc_controlit()   //
 
     // worker thread generation
     std::vector <std::thread> http_wt;
-    http_wt.reserve(o.http_workers);
+    http_wt.reserve(o.proc.http_workers);
 
     int i;
-    for (i = 0; i < o.http_workers; i++) {
+    for (i = 0; i < o.proc.http_workers; i++) {
         http_wt.push_back(std::thread(handle_connections, i));
     }
     for (auto &i : http_wt) {
@@ -1538,11 +1535,11 @@ int fc_controlit()   //
     reloadconfig = false;
 
     if (is_starting) {
-        if (o.monitor_flag_flag)
+        if (o.monitor.monitor_flag_flag)
             monitor_flag_set(true);
-        if (o.monitor_helper_flag) {
-            tell_monitor(true);
-        }
+        // if (o.monitor_helper_flag) {
+        //     tell_monitor(true);
+        // }
         is_starting = false;
     }
 
@@ -1594,7 +1591,7 @@ int fc_controlit()   //
                     setitimer(ITIMER_REAL, &timeout, NULL);
 
                     DEBUG_debug("signal:", String(rc);
-                    if (o.logconerror) {
+                    if (o.conn.logconerror) {
                         E2LOGGER_info("sigtimedwait() signal recd:", String(rsig) );
                     }
                 }
@@ -1619,7 +1616,7 @@ int fc_controlit()   //
                 gentlereload = true;
 
             DEBUG_debug("signal: ", String(rc));
-            if (o.logconerror) {
+            if (o.conn.logconerror) {
                 E2LOGGER_info("ssigtimedwait() signal recd:", String(rc));
             }
         }
@@ -1628,15 +1625,15 @@ int fc_controlit()   //
         int q_size = o.http_worker_Q.size();
         DEBUG_debug("busychildren:", String(dystat->busychildren),
                     " worker Q size:", q_size);
-        if (o.dstat_log_flag) {
+        if (o.dstat.dstat_log_flag) {
             if (q_size > 10) {
-                E2LOGGER_info("Warning: all ", o.http_workers, " http_worker threads are busy and ",
+                E2LOGGER_info("Warning: all ", o.proc.http_workers, " http_worker threads are busy and ",
                               q_size, " connections are waiting in the queue.");
             }
         } else {
             int busy_child = dystat->busychildren;
-            if (busy_child > (o.http_workers - 10))
-                E2LOGGER_info("Warning system is full : max httpworkers: ", o.http_workers, " Used: ",
+            if (busy_child > (o.proc.http_workers - 10))
+                E2LOGGER_info("Warning system is full : max httpworkers: ", o.proc.http_workers, " Used: ",
                               busy_child);
         }
 
@@ -1645,7 +1642,7 @@ int fc_controlit()   //
         time_t now = time(NULL);
 
 
-        if (o.dstat_log_flag && (now >= dystat->end_int))
+        if (o.dstat.dstat_log_flag && (now >= dystat->end_int))
             dystat->reset();
     }
 
@@ -1657,19 +1654,19 @@ int fc_controlit()   //
 
     E2LOGGER_info("Stopping");
 
-    if (o.monitor_flag_flag)
+    if (o.monitor.monitor_flag_flag)
         monitor_flag_set(false);
-    if (o.monitor_helper_flag)
-        tell_monitor(false); // tell monitor that we are not accepting any more connections
+    // if (o.monitor_helper_flag)
+    //     tell_monitor(false); // tell monitor that we are not accepting any more connections
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("sending null socket to http_workers to stop them");
     }
     Socket *NS = NULL;
     LQ_rec rec;
     rec.sock = NS;
     rec.ct_type = CT_PROXY;
-    for (i = 0; i < o.http_workers; i++) {
+    for (i = 0; i < o.proc.http_workers; i++) {
         o.http_worker_Q.push(rec);
     }
     // dystat->reset();    // remove this line for production version
@@ -1678,27 +1675,27 @@ int fc_controlit()   //
     //E2LOGGER_info("2nd wait complete");
     e2logger_ttg = true;
     std::string nullstr("");
-    o.log_Q->push(nullstr);
+    o.log.log_Q->push(nullstr);
     //if (o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
-        o.RQlog_Q->push(nullstr);
+        o.log.RQlog_Q->push(nullstr);
     }
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("stopping any remaining connections");
     }
     serversockets.self_connect();   // stop accepting connections
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("connections stopped");
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    if (o.dstat_log_flag) dystat->close();
+    if (o.dstat.dstat_log_flag) dystat->close();
 
     delete[] serversockfds;
 
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         E2LOGGER_info("Main thread exiting.");
     }
     return 0;

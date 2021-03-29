@@ -70,12 +70,12 @@ int trickledm::init(void *args)
 {
     DMPlugin::init(args);
 
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYB_DM_TRICKLE;
         story_entry = sen.entry_id;
-        o.dm_entry_dq.push_back(sen);
+        o.story.dm_entry_dq.push_back(sen);
         return 0;
     } else {
         E2LOGGER_error("No story_function defined in trickle DM plugin config");
@@ -129,15 +129,15 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     // buffer size for streaming downloads
     off_t blocksize = 32768;
     // set to a sensible minimum
-    if (!wantall && (blocksize > o.max_content_filter_size))
-        blocksize = o.max_content_filter_size;
-    else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
-        blocksize = o.max_content_ramcache_scan_size;
+    if (!wantall && (blocksize > o.content.max_content_filter_size))
+        blocksize = o.content.max_content_filter_size;
+    else if (wantall && (blocksize > o.content.max_content_ramcache_scan_size))
+        blocksize = o.content.max_content_ramcache_scan_size;
     DEBUG_dwload("blocksize: ",  blocksize);
 
     while ((d->bytes_toget > 0) || d->geteverything) {
         // send keep-alive bytes here
-        if (o.trickle_delay > 0) {
+        if (o.content.trickle_delay > 0) {
             themdays.tv_sec = nowadays.tv_sec;
             d->doneinitialdelay = true;
             if ((*headersent) < 1) {

@@ -45,7 +45,7 @@ class LOptionContainer
 
     // all our options
 
-    std::string name_suffix;
+    std::string name_suffix;   // Unused ???
 
     HTMLTemplate html_template;
     ListContainer filter_groups_list;
@@ -89,7 +89,7 @@ class LOptionContainer
     const char *inSiteList(String &url, ListContainer *lc, bool swsort, bool ip);
     char *inURLList(String &url, ListContainer *lc, bool swsort, bool ip);
 
-    String ISTag() {
+    String ISTag() {  // unused ??
         return start_time;
     }
 

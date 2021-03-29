@@ -80,12 +80,12 @@ int fancydm::init(void *args)
     // call inherited init
     DMPlugin::init(args);
 
-    OptionContainer::SB_entry_map sen;
+    StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYB_DM_FANCY;
         story_entry = sen.entry_id;
-        o.dm_entry_dq.push_back(sen);
+        o.story.dm_entry_dq.push_back(sen);
     } else {
         E2LOGGER_error("No story_function defined in fancy DM plugin config");
         return -1;
@@ -93,7 +93,7 @@ int fancydm::init(void *args)
 
     // read in absolute max download limit
     upperlimit = cv["maxdownloadsize"].toOffset() * 1024;
-    if (upperlimit <= o.max_content_filecache_scan_size)
+    if (upperlimit <= o.content.max_content_filecache_scan_size)
         upperlimit = 0;
 
     DEBUG_dwload("Upper download limit: ", upperlimit);
@@ -101,7 +101,7 @@ int fancydm::init(void *args)
     String fname(cv["template"]);
     if (fname.length() > 0) {
         // read the template file, and return OK on success, error on failure.
-        fname = o.languagepath + fname;
+        fname = o.config.languagepath + fname;
         return progresspage.readTemplateFile(fname.toCharArray(), "-FILENAME-|-FILESIZE-|-SERVERIP-") ? 0 : -1;
     } else {
         // eek! there's no template option in our config.
@@ -129,7 +129,7 @@ bool fancydm::sendLink(Socket &peersock, String &linkurl, String &prettyurl)
     if(!peersock.writeString("</body></html>\n")) return false;
     if (toobig_notdownloaded) {
         // add URL to clean cache (for all groups)
-        addToClean(prettyurl, o.filter_groups + 1);
+        addToClean(prettyurl, o.filter.filter_groups + 1);
     }
     return true;
 }
@@ -195,10 +195,10 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
     // buffer size for streaming downloads
     off_t blocksize = 32768;
     // set to a sensible minimum
-    if (!wantall && (blocksize > o.max_content_filter_size))
-        blocksize = o.max_content_filter_size;
-    else if (wantall && (blocksize > o.max_content_ramcache_scan_size))
-        blocksize = o.max_content_ramcache_scan_size;
+    if (!wantall && (blocksize > o.content.max_content_filter_size))
+        blocksize = o.content.max_content_filter_size;
+    else if (wantall && (blocksize > o.content.max_content_ramcache_scan_size))
+        blocksize = o.content.max_content_ramcache_scan_size;
     DEBUG_dwload("blocksize: ", blocksize);
 
     // determine downloaded filename
@@ -214,11 +214,11 @@ int fancydm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeader 
 
     while ((bytesgot < expectedsize) || d->geteverything) {
         // send text header to show status
-        if (o.trickle_delay > 0) {
+        if (o.content.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
             timeelapsed = nowadays.tv_sec - starttime.tv_sec;
-            if ((!initialsent && timeelapsed > o.initial_trickle_delay) ||
-                (initialsent && nowadays.tv_sec - themdays.tv_sec > o.trickle_delay)) {
+            if ((!initialsent && timeelapsed > o.content.initial_trickle_delay) ||
+                (initialsent && nowadays.tv_sec - themdays.tv_sec > o.content.trickle_delay)) {
                 initialsent = true;
                 bytessec = bytesgot / timeelapsed;
                 themdays.tv_sec = nowadays.tv_sec;

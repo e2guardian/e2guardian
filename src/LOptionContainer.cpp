@@ -42,49 +42,49 @@ LOptionContainer::LOptionContainer(int load_id)
     loaded_ok = true;
 
     {
-        DEBUG_config("iplist size is ", o.iplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IP, o.iplist_dq))
+        DEBUG_config("iplist size is ", o.lists.iplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IP, o.lists.iplist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("sitelist size is ", o.sitelist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_SITE, o.sitelist_dq))
+        DEBUG_config("sitelist size is ", o.lists.sitelist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_SITE, o.lists.sitelist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("ipsitelist size is ", o.ipsitelist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IPSITE, o.ipsitelist_dq))
+        DEBUG_config("ipsitelist size is ", o.lists.ipsitelist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IPSITE, o.lists.ipsitelist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("urllist size is ", o.urllist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_URL, o.urllist_dq))
+        DEBUG_config("urllist size is ", o.lists.urllist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_URL, o.lists.urllist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("regexpboollist size is ", o.regexpboollist_dq.size());;
-        if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.regexpboollist_dq))
+        DEBUG_config("regexpboollist size is ", o.lists.regexpboollist_dq.size());;
+        if(!LMeta.load_type(LIST_TYPE_REGEXP_BOOL, o.lists.regexpboollist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("maplist size is ", o.maplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_MAP, o.maplist_dq))
+        DEBUG_config("maplist size is ", o.lists.maplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_MAP, o.lists.maplist_dq))
             loaded_ok = false;
     }
 
     {
-        DEBUG_config("ipmaplist size is ", o.ipmaplist_dq.size());
-        if(!LMeta.load_type(LIST_TYPE_IPMAP, o.ipmaplist_dq))
+        DEBUG_config("ipmaplist size is ", o.lists.ipmaplist_dq.size());
+        if(!LMeta.load_type(LIST_TYPE_IPMAP, o.lists.ipmaplist_dq))
             loaded_ok = false;
     }
 
-    DEBUG_config("read Storyboard: ", o.storyboard_location);
-    if (!StoryA.readFile(o.storyboard_location.c_str(), LMeta, true)) {
+    DEBUG_config("read Storyboard: ", o.story.storyboard_location);
+    if (!StoryA.readFile(o.story.storyboard_location.c_str(), LMeta, true)) {
         E2LOGGER_error("Storyboard not loaded OK");
         loaded_ok = false;
     }
@@ -94,12 +94,12 @@ LOptionContainer::LOptionContainer(int load_id)
         loaded_ok = false;
     }
 
-    if (loaded_ok && (o.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
+    if (loaded_ok && (o.net.transparenthttps_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_THTTPS,"thttps-pre-authcheck")) {
         E2LOGGER_error("Required storyboard entry function 'thttps-pre-authcheck' is missing");
         loaded_ok = false;
     }
 
-    if (loaded_ok && (o.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
+    if (loaded_ok && (o.net.icap_port > 0) && !StoryA.setEntry(ENT_STORYA_PRE_AUTH_ICAP,"icap-pre-authcheck")) {
         E2LOGGER_error("Required storyboard entry function 'icap-pre-authcheck' is missing");
         loaded_ok = false;
     }
@@ -112,23 +112,23 @@ LOptionContainer::LOptionContainer(int load_id)
  //   }
 
     DEBUG_trace("");
-    if (loaded_ok && o.auth_entry_dq.size() > 0)  {
-            for (std::deque<struct OptionContainer::SB_entry_map>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
+    if (loaded_ok && o.story.auth_entry_dq.size() > 0)  {
+            for (std::deque<struct StoryBoardOptions::SB_entry_map>::const_iterator i = o.story.auth_entry_dq.begin(); i != o.story.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
                     E2LOGGER_error("Required auth storyboard entry function", i->entry_function,
-                                " is missing from pre_auth.stoary");
+                                " is missing from pre_auth.story");
                     loaded_ok = false;
                 }
             }
     }
 
-    if(loaded_ok && (!readFilterGroupConf() || (o.abort_on_missing_list && o.config_error)))  {
+    if(loaded_ok && (!readFilterGroupConf() || (o.lists.abort_on_missing_list && o.config_error)))  {
         loaded_ok = false;
         E2LOGGER_error("Error in reading filter group files");
     }
     reload_id = load_id;
     ++o.LC_cnt;
-    if (load_id == 0)    o.numfg = numfg;   // do this on first load only
+    if (load_id == 0)    o.filter.numfg = numfg;   // do this on first load only
 }
 
 
@@ -627,7 +627,7 @@ bool LOptionContainer::realitycheck(long int l, long int minl, long int maxl, co
 
 bool LOptionContainer::readFilterGroupConf()
 {
-    String prefix(o.conffilename);
+    String prefix(o.config.configfile);
     prefix = prefix.before(".conf");
     prefix += "f";
     String file;
@@ -636,18 +636,18 @@ bool LOptionContainer::readFilterGroupConf()
     bool need_html = false;
 
     DEBUG_config("read FilterGroups");
-    if (o.use_group_names_list) {
+    if (o.filter.use_group_names_list) {
         int result = groupnamesfile.readVar(group_names_list_location.c_str(), "=");
         if (result != 0) {
             E2LOGGER_error("Error opening group names file: ", group_names_list_location);
             return false;
         }
     }
-    for (int i = 1; i <= o.filter_groups; i++) {
+    for (int i = 1; i <= o.filter.filter_groups; i++) {
         file = prefix;
         file += String(i);
         file += ".conf";
-        if (o.use_group_names_list) {
+        if (o.filter.use_group_names_list) {
             std::ostringstream groupnum;
             groupnum << i;
             groupname = groupnamesfile[groupnum.str().c_str()];
@@ -684,9 +684,9 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
     DEBUG_debug("added filter group: ", numfg, " ", filename);
 
     // pass all the vars from OptionContainer needed
-    (*fg[numfg]).weighted_phrase_mode = o.weighted_phrase_mode;
-    (*fg[numfg]).force_quick_search = o.force_quick_search;
-    (*fg[numfg]).reverse_lookups = o.reverse_lookups;
+    (*fg[numfg]).weighted_phrase_mode = o.naughty.weighted_phrase_mode;
+    (*fg[numfg]).force_quick_search = o.lists.force_quick_search;
+    (*fg[numfg]).reverse_lookups = o.story.reverse_lookups;
 
     // pass in the group name
     (*fg[numfg]).name = groupname;
@@ -711,7 +711,7 @@ bool LOptionContainer::readAnotherFilterGroupConf(const char *filename, const ch
 }
 
 int LOptionContainer::getFgFromName(String &name) {
-    for (int i = 0; i < o.numfg ; i++) {
+    for (int i = 0; i < o.filter.numfg ; i++) {
         if (name == (*fg[i]).name)
             return i;
     }

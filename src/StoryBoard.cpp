@@ -545,7 +545,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                    continue;
                 if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
                     continue;
-                if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
+                if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.lists.search_sitelist_for_ip)
                     continue;
 
                 // DEBUG_story("checking ", j->name, " type ", String(j->type));
@@ -591,7 +591,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         continue;
                     if (!(u->site_is_ip) && j->type == LIST_TYPE_IPSITE)
                         continue;
-                    if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.search_sitelist_for_ip)
+                    if ((u->site_is_ip) && j->type == LIST_TYPE_SITE && !o.lists.search_sitelist_for_ip)
                         continue;
 
                     DEBUG_story("checking ", j->name, " type ", j->type, "Target ", t);
@@ -775,7 +775,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     if (cm.result.size() > 0) {
                         int g = cm.result.toInteger();
-                        if (g > 0 && g <= o.numfg) {
+                        if (g > 0 && g <= o.filter.numfg) {
                             cm.filtergroup = --g;
                             cm.authrec->group_source = i->list_name;
                             action_return = true;
@@ -903,7 +903,7 @@ std::deque<url_rec> StoryBoard::ipToHostname(NaughtyFilter &cm) {
 }
 
 bool StoryBoard::has_reverse_hosts(std::deque<url_rec> &urec, NaughtyFilter &cm) {
-    if (!(cm.isiphost && o.reverse_lookups))
+    if (!(cm.isiphost && o.story.reverse_lookups))
         return false;
     if (!cm.reverse_checked) {
         cm.reversedURLs = ipToHostname(cm);

@@ -1620,7 +1620,7 @@ void ListContainer::addToIPMap(String &line) {
         return;
     }
     DEBUG_debug("key: ", key, " value: ", value);
-    if ((value.toInteger() < 1) || (value.toInteger() > o.filter_groups)) {
+    if ((value.toInteger() < 1) || (value.toInteger() > o.filter.filter_groups)) {
         E2LOGGER_error("Filter group out of range; entry ", line, " in ", sourcefile);
         //warn = true;
         return;

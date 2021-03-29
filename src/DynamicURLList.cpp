@@ -198,7 +198,7 @@ bool DynamicURLList::inURLList(const char *url, const int fg)
         // o.filter_groups + 1 is a special case, meaning clean for all groups
         std::string lookfor;
         lookfor += (char)fg;
-        lookfor += (char)o.filter_groups + 1;
+        lookfor += (char)o.filter.filter_groups + 1;
         if (groups[index[pos]].find_first_of(lookfor) == std::string::npos) {
 #ifdef DEBUG_LOW
             std::stringstream ss;

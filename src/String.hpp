@@ -26,6 +26,9 @@ class String : public std::string
     // constructor from c-string
     String(const char *bs)
         : std::string(bs){};
+    // construct from c++ string
+    String(const std::string &s)
+        : std::string(s){};
     // copy constructor
     String(const String &s)
         : std::string(s){};
@@ -48,10 +51,8 @@ class String : public std::string
         : std::string(bs, len){};
     String(const char *bs, int start, int len)
         : std::string(bs + start, len){};
-    // construct from c++ string
-    String(const std::string &s)
-        : std::string(s){};
 
+    // operators
     String operator+(const int &i)
     {
         return (*this) + String(i);
@@ -95,10 +96,12 @@ class String : public std::string
     int indexOf(const char *s) const;
     // does it contain this text?
     bool contains(const char *s) const;
-    // chop to base dir (for file paths)
+
+    // chop to base dir (for file paths)    
     void baseDir();
     // convert relative path filename to fully pathed
     void fullPath(String &base_dir);
+
     // index operator mark 2
     unsigned char charAt(int index)
     {
@@ -112,8 +115,7 @@ class String : public std::string
     // search & replace
     void replaceall(const char *what, const char *with);
 
-// return header value (after ':' and any leading whitespace) - assumes header finishes with '\r'
-
+    // return header value (after ':' and any leading whitespace) - assumes header finishes with '\r'
     bool headerVal();
 
     // remove character from end/beginning
@@ -127,6 +129,7 @@ class String : public std::string
     void removePTP();
     // get hostname from string as url
     String getHostname();
+
     // truncate to given length
     int limitLength(unsigned int l);
     // remove all occurrences of char from String
@@ -145,7 +148,8 @@ class String : public std::string
 
     // get CN name that is oK for cert from url
     String CN();
- //   bool isNull();
+    
+    //   bool isNull();
 
     // redact string/url
     String anonimise();

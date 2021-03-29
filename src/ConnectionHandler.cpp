@@ -91,7 +91,7 @@ void addToClean(String &url, const int fg) {
 //
 
 void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
         //int peerport = peersock.getPeerSourcePort();
         std::string peer_ip = peersock.getPeerIP();
         int err = peersock.getErrno();
@@ -115,7 +115,7 @@ void ConnectionHandler::peerDiag(const char *message, Socket &peersock) {
 }
 
 void ConnectionHandler::upstreamDiag(const char *message, Socket &proxysock) {
-    if (o.logconerror) {
+    if (o.conn.logconerror) {
 
         int err = proxysock.getErrno();
         if (proxysock.isTimedout()) {
@@ -403,7 +403,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     int lerr_mess = 0;
     int retry = -1;
     bool may_be_loop = false;
-    for (auto it = o.filter_ports.begin(); it != o.filter_ports.end(); it++) {
+    for (auto it = o.net.filter_ports.begin(); it != o.net.filter_ports.end(); it++) {
         if (*it == sport) {
             may_be_loop = true;
             break;
@@ -411,10 +411,10 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     }
     DEBUG_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
 
-    while (++retry < o.connect_retries) {
+    while (++retry < o.net.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
-            if (o.logconerror)
+            if (o.conn.logconerror)
                 E2LOGGER_info("retry ", retry, " to connect to ", cm.urldomain);
             if (!sock.isTimedout())
                 usleep(1000);       // don't hammer upstream
@@ -424,14 +424,14 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
             String des_ip;
             if (cm.isiphost)
                 des_ip = cm.urldomain;
-            if(o.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
+            if(o.conn.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
                 des_ip = cm.orig_ip;
 
             if(des_ip.length() > 0) {
                 if (may_be_loop) {  // check check_ip list
                     bool do_break = false;
-                    if (o.check_ip.size() > 0) {
-                        for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                    if (o.net.check_ip.size() > 0) {
+                        for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                             if (*it == des_ip) {
                                 do_break = true;
                                 lerr_mess = 212;
@@ -443,7 +443,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     may_be_loop = false;
                 }
 
-                sock.setTimeout(o.connect_timeout);
+                sock.setTimeout(o.net.connect_timeout);
 
                 DEBUG_debug("Connecting to IP ", des_ip, " port ", String(port));
 
@@ -501,8 +501,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
                     if (may_be_loop) {  // check check_ip list
                         bool do_break = false;
-                        if (o.check_ip.size() > 0) {
-                            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+                        if (o.net.check_ip.size() > 0) {
+                            for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                                 if (*it == t) {
                                     do_break = true;
                                     lerr_mess = 212;
@@ -528,8 +528,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                 continue;
             }
         } else {  //is via proxy
-            sock.setTimeout(o.proxy_timeout);
-            int rc = sock.connect(o.proxy_ip, o.proxy_port);
+            sock.setTimeout(o.net.proxy_timeout);
+            int rc = sock.connect(o.net.proxy_ip, o.net.proxy_port);
             if (rc < 0) {
                 if (sock.isTimedout())
                     lerr_mess = 201;
@@ -595,7 +595,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
     gettimeofday(&thestart, NULL);
 
     //peerconn.setTimeout(o.proxy_timeout);
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
     DEBUG_proxy("down_stream thread ",peerconn.down_thread_id);
 
     // ldl = o.currentLists();
@@ -605,8 +605,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
     // set a timeout as we don't want blocking 4 eva
     // this also sets how long a peerconn will wait for other requests
-    header.setTimeout(o.pcon_timeout);
-    docheader.setTimeout(o.exchange_timeout);
+    header.setTimeout(o.net.pcon_timeout);
+    docheader.setTimeout(o.net.exchange_timeout);
 
 
     //int bypasstimestamp = 0;
@@ -670,7 +670,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
         bool firsttime = true;
         if (!header.in(&peerconn, true)) {     // get header from client, allowing persistency
-            if (o.logconerror) {
+            if (o.conn.logconerror) {
                 if (peerconn.getFD() > -1) {
 
                     int err = peerconn.getErrno();
@@ -702,7 +702,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             NaughtyFilter checkme(header, docheader, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
-            docbody.setTimeout(o.exchange_timeout);
+            docbody.setTimeout(o.net.exchange_timeout);
             FDTunnel fdt;
 
             if (firsttime) {
@@ -784,7 +784,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             // TODO this needs moving is proxy operation is still to be tested
-            if (checkme.urldomain == o.internal_test_url) {
+            if (checkme.urldomain == o.conn.internal_test_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal test</TITLE></HEAD><BODY><H1>e2guardian internal test OK</H1> ");
                 peerconn.writeString("</BODY></HTML>\n");
@@ -798,7 +798,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             persistOutgoing = header.isPersistent();
             // now check if in input proxy mode and direct upstream if upstream needs closing
             if (persistProxy && last_isdirect &&
-            ((last_domain_port != checkme.urldomainport)|| !o.no_proxy)) {
+            ((last_domain_port != checkme.urldomainport)|| !o.net.no_proxy)) {
                 proxysock.close();
                 persistProxy = false;
             }
@@ -824,10 +824,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             if (!ismitm && o.use_xforwardedfor) {
                 bool use_xforwardedfor;
-                if (o.xforwardedfor_filter_ip.size() > 0) {
+                if (o.net.xforwardedfor_filter_ip.size() > 0) {
                     use_xforwardedfor = false;
-                    for (unsigned int i = 0; i < o.xforwardedfor_filter_ip.size(); i++) {
-                        if (strcmp(clientip.c_str(), o.xforwardedfor_filter_ip[i].c_str()) == 0) {
+                    for (unsigned int i = 0; i < o.net.xforwardedfor_filter_ip.size(); i++) {
+                        if (strcmp(clientip.c_str(), o.net.xforwardedfor_filter_ip[i].c_str()) == 0) {
                             use_xforwardedfor = true;
                             break;
                         }
@@ -848,7 +848,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             checkme.clientip = clientip;
 
             // Look up reverse DNS name of client if needed
-            if (o.reverse_client_ip_lookups) {
+            if (o.conn.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(),checkme.clienthost);
            //     std::unique_ptr<std::deque<String> > hostnames;
            //     hostnames.reset(ipToHostname(clientip.c_str()));
@@ -903,22 +903,22 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!persistent_authed) {
                 bool only_ip_auth;
                 if (header.isProxyRequest) {
-                    filtergroup = o.default_fg;
+                    filtergroup = o.filter.default_fg;
                     SBauth.is_proxy = true;
                     if(!peerconn.down_thread_id.empty())
                         SBauth.is_tlsproxy = true;
                     only_ip_auth = false;
                 } else {
-                    filtergroup = o.default_trans_fg;
+                    filtergroup = o.filter.default_trans_fg;
                     SBauth.is_transparent = true;
                     only_ip_auth = true;
                 }
                 SBauth.group_source = "def";
                 DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
                             " only_ip_auth is ", String(only_ip_auth),
-                            " needs proxy for auth plugin is ", String(o.auth_needs_proxy_in_plugin) );
+                            " needs proxy for auth plugin is ", String(o.plugins.auth.auth_needs_proxy_in_plugin) );
 
-                if (!persistProxy && o.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
+                if (!persistProxy && o.plugins.auth.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
                 {
                     if (connectUpstream(proxysock, checkme, header.port) < 0) {
                         if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
@@ -972,7 +972,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 checkme.automitm = false;
             }
 
-            if (checkme.urldomain == o.internal_status_url) {
+            if (checkme.urldomain == o.conn.internal_status_url) {
                 peerconn.writeString(
                         "HTTP/1.1 200 \nContent-Type: text/html\n\n<HTML><HEAD><TITLE>e2guardian internal status</TITLE></HEAD><BODY><H1>e2guardian internal status OK</H1> ");
                 String temp = "User: ";
@@ -991,7 +991,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 temp += PACKAGE_VERSION;
                 temp += "<br>";
                 temp += "Server: ";
-                temp += o.server_name;
+                temp += o.net.server_name;
                 temp += "<br>";
                 peerconn.writeString(temp);
                 peerconn.writeString("</BODY></HTML>\n");
@@ -1017,7 +1017,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!(checkme.isdone || checkme.isconnect || checkme.ishead)    //  can't scan connect or head or not yet authed
                 && !(checkme.isBlocked)  // or already blocked
                 && authed   // and is authed
-                && (o.csplugins.size() > 0)            //  and we have scan plugins
+                && (o.plugins.csplugins.size() > 0)            //  and we have scan plugins
                 && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
                 && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
                 // and not exception unless scan exceptions enabled
@@ -1052,7 +1052,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (checkme.isdirect) {
                 header.setDirect();
                 last_isdirect = true;
-                if(!o.no_proxy) {    // we are in mixed mode proxy and direct
+                if(!o.net.no_proxy) {    // we are in mixed mode proxy and direct
                     if(persistProxy) {  // if upstream socket is open close it
                         proxysock.close();
                         persistProxy = false;
@@ -1128,7 +1128,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 if (!persistProxy) // open upstream connection
                 {
                     int out_port = header.port;
-                    if (o.use_original_ip_port && checkme.got_orig_ip &&
+                    if (o.conn.use_original_ip_port && checkme.got_orig_ip &&
                         !header.isProxyRequest)
                         out_port = checkme.orig_port;
                     if (connectUpstream(proxysock, checkme, out_port) < 0) {
@@ -1144,7 +1144,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 }
                 if (!checkme.upfailure) {
-                    if (!proxysock.readyForOutput(o.proxy_timeout)) {
+                    if (!proxysock.readyForOutput(o.net.proxy_timeout)) {
                         upstreamDiag("Unable to write upstream", proxysock);
                         break;
                     }
@@ -1188,7 +1188,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             checkme.isconnect = false;
                             checkme.isexception = true;
                         } else if (!authed && checkme.request_header->isProxyRequest
-                                   && o.auth_needs_proxy_in_plugin && !checkme.isexception) {
+                                   && o.plugins.auth.auth_needs_proxy_in_plugin && !checkme.isexception) {
                             checkme.isItNaughty = true;
                             checkme.message_no =  110;
                         }
@@ -1269,7 +1269,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
 
                 if (!checkme.noviruscheck) {
-                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                    for (std::deque<Plugin *>::iterator i = o.plugins.csplugins_begin; i != o.plugins.csplugins_end; ++i) {
                         int csrc = ((CSPlugin *) (*i))->willScanRequest(header.getUrl(), clientuser.c_str(),
                                                                         ldl->fg[filtergroup], clientip.c_str(), false,
                                                                         false, checkme.isexception, checkme.isbypass);
@@ -1400,7 +1400,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
         }
     } catch (std::exception &e) {
         DEBUG_proxy(" -connection handler caught an exception: ", e.what());
-        if (o.logconerror)
+        if (o.conn.logconerror)
             E2LOGGER_error("-connection handler caught an exception %s", e.what());
 
         // close connection to proxy
@@ -1479,9 +1479,9 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
     // or if it's an exception and exception logging is disabled
     if (
-            (o.ll == 0) || ((cat != NULL) && !o.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
-            ((o.log_exception_hits == 0) && isexception)) {
-        if (o.ll != 0) {
+            (o.log.log_level == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
+            ((o.log.log_exception_hits == 0) && isexception)) {
+        if (o.log.log_level != 0) {
             if (isexception) {
                 DEBUG_debug(" -Not logging exceptions");
             } else {
@@ -1493,13 +1493,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
     std::string data, cr("\n");
 
-    if ((isexception && (o.log_exception_hits == 2))
-        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) {
+    if ((isexception && (o.log.log_exception_hits == 2))
+        || isnaughty || o.log.log_level == 3 || (o.log.log_level == 2 && istext)) {
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
         // and we don't have a straight IP match agaisnt the banned or exception IP lists.
-        if (o.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
+        if (o.log.log_client_hostnames && (cm.clienthost == "") && !matchedip && !cm.anon_user) {
             DEBUG_debug("logclienthostnames enabled but reverseclientiplookups disabled; lookup forced.");
             getClientFromIP(from.c_str(),cm.clienthost);
         }
@@ -1521,13 +1521,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if ((cat != NULL) && (cat->length() > o.max_logitem_length))
-            cat->resize(o.max_logitem_length);
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
+        if ((cat != NULL) && (cat->length() > o.log.max_logitem_length))
+            cat->resize(o.log.max_logitem_length);
+        if (what.length() > o.log.max_logitem_length)
+            what.resize(o.log.max_logitem_length);
+        if (where.length() > o.log.max_logitem_length)
+            where.limitLength(o.log.max_logitem_length);
+        if (o.log.dns_user_logging() && !is_real_user) {
             String user;
             if (getdnstxt(from, user)) {
                 who = who + ":" + user;
@@ -1579,7 +1579,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += String((theend).tv_usec) + cr;
         data += l_clienthost + cr;
 
-        if (o.log_user_agent)
+        if (o.log.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
             data += cr;
@@ -1595,7 +1595,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
         //delete newcat;
         // push on log queue
-        o.log_Q->push(data);
+        o.log.log_Q->push(data);
         // connect to dedicated logging proc
     }
 }
@@ -1642,11 +1642,11 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if (what.length() > o.max_logitem_length)
-            what.resize(o.max_logitem_length);
-        if (where.length() > o.max_logitem_length)
-            where.limitLength(o.max_logitem_length);
-        if (o.dns_user_logging && !is_real_user) {
+        if (what.length() > o.log.max_logitem_length)
+            what.resize(o.log.max_logitem_length);
+        if (where.length() > o.log.max_logitem_length)
+            where.limitLength(o.log.max_logitem_length);
+        if (o.log.dns_user_logging() && !is_real_user) {
             String user;
             if (getdnstxt(from, user)) {
                 who = who + ":" + user;
@@ -1687,7 +1687,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += String((*thestart).tv_sec) + cr;
         data += String((*thestart).tv_usec) + cr;
         data += l_clienthost + cr;
-        if (o.log_user_agent)
+        if (o.log.log_user_agent)
             data += (reqheader ? reqheader->userAgent() + cr : cr);
         else
             data += cr;
@@ -1703,7 +1703,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
 
         //delete newcat;
         // push on log queue
-        o.RQlog_Q->push(data);
+        o.log.RQlog_Q->push(data);
         // connect to dedicated logging proc
     }
 }
@@ -1785,7 +1785,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
                 bool replaceflash = false;
-                if (o.use_custom_banned_image) {
+                if (o.block.use_custom_banned_image) {
 
                     // It would be much nicer to do a mime comparison
                     // and see if the type is image/* but the header
@@ -1804,7 +1804,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     }
                 }
 
-                if (o.use_custom_banned_flash) {
+                if (o.block.use_custom_banned_flash) {
                     String lurl((*url));
                     lurl.toLower();
                     if (lurl.endsWith(".swf") ||
@@ -1819,12 +1819,12 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_image.display_hb(eheader, ebody);
+                    o.block.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
                     }
-                    o.banned_flash.display_hb(eheader, ebody);
+                    o.block.banned_flash.display_hb(eheader, ebody);
                 } else {
                     // advanced ad blocking - if category contains ADs, wrap ad up in an "ad blocked" message,
                     // which provides a link to the original URL if you really want it. primarily
@@ -2069,7 +2069,7 @@ bool ConnectionHandler::denyAccess(Socket *peerconn, Socket *proxysock, HTTPHead
 
     // we blocked the request, so flush the client connection & close the proxy connection.
     if ((*checkme).isItNaughty) {
-        (*peerconn).readyForOutput(o.proxy_timeout); //as best a flush as I can
+        (*peerconn).readyForOutput(o.net.proxy_timeout); //as best a flush as I can
         (*proxysock).close(); // close connection to proxy
         // we said no to the request, so return true, indicating exit the connhandler
         return true;
@@ -2133,7 +2133,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
         // fixed to obey maxcontentramcachescansize
         if (!responsescanners.empty() &&
-            (isfile ? dblen <= o.max_content_filecache_scan_size : dblen <= o.max_content_ramcache_scan_size)) {
+            (isfile ? dblen <= o.content.max_content_filecache_scan_size : dblen <= o.content.max_content_ramcache_scan_size)) {
             int csrc = 0;
             int k = 0;
 
@@ -2204,7 +2204,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
             DEBUG_debug(" -content length large so skipping content scanning (virus) filtering");
         }
 //        rc = system("date");
-        if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.max_content_filter_size)
+        if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.content.max_content_filter_size)
             && !docheader->authRequired() && (docheader->isContentType("text", ldl->fg[filtergroup]) ||
                                               docheader->isContentType("-", ldl->fg[filtergroup]))) {
             DEBUG_debug(" -Start content filtering: ");
@@ -2216,7 +2216,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
         else {
             DEBUG_debug(" -Skipping content filtering: ");
-            if (dblen > o.max_content_filter_size) {
+            if (dblen > o.content.max_content_filter_size) {
                 DEBUG_debug(" -Content too large");
             } else if (checkme->isException) {
                 DEBUG_debug(" -Is flagged as an exception");
@@ -2239,7 +2239,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         return;
     }
 
-    if ((dblen <= o.max_content_filter_size) && !checkme->isItNaughty &&
+    if ((dblen <= o.content.max_content_filter_size) && !checkme->isItNaughty &&
         docheader->isContentType("text", ldl->fg[filtergroup])) {
         contentmodified = docbody->contentRegExp(ldl->fg[filtergroup]);
         // content modifying uses global variable
@@ -2247,7 +2247,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
 
     else {
         DEBUG_debug(" -Skipping content modification: ");
-        if (dblen > o.max_content_filter_size) {
+        if (dblen > o.content.max_content_filter_size) {
           DEBUG_debug(" -Content too large");
         } else if (!docheader->isContentType("text",ldl->fg[filtergroup])) {
             DEBUG_debug(" -Not text");
@@ -2287,7 +2287,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     //somewhere to hold the header from the proxy
     HTTPHeader header(__HEADER_RESPONSE);
     //header.setTimeout(o.pcon_timeout);
-    header.setTimeout(o.proxy_timeout);
+    header.setTimeout(o.net.proxy_timeout);
 
     if (!(sock->writeString(connect_request.c_str()) && header.in(sock, true))) {
 
@@ -2514,12 +2514,12 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     //generate the cert
     DEBUG_debug(" -Getting ssl certificate for client connection");
 
-    pkey = o.ca->getServerPkey();
+    pkey = o.cert.ca->getServerPkey();
 
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
+    certfromcache = o.cert.ca->getServerCertificate(checkme.urldomain.CN().c_str(), &cert,
                                                    &caser, checkme.isiphost);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
@@ -2567,7 +2567,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             }
         }
 
-        if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
+        if (peerconn.startSslServer(cert, pkey, o.cert.set_cipher_list) < 0) {
 //make sure the ssl stuff is shutdown properly so we display the old ssl blockpage
             peerconn.stopSsl();
 
@@ -2592,7 +2592,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
         if (!checkme.isItNaughty) {
             DEBUG_debug(" -Going SSL on upstream connection ");
-            std::string certpath = std::string(o.ssl_certificate_path);
+            std::string certpath = std::string(o.cert.ssl_certificate_path);
             if (proxysock.startSslClient(certpath, checkme.urldomain)) {
                 checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to negotiate ssl connection to server";
@@ -2618,7 +2618,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     if ((!checkme.isItNaughty) && (!checkme.upfailure)) {
         bool writecert = true;
         if (!certfromcache) {
-            writecert = o.ca->writeCertificate(checkme.urldomain.c_str(), cert,
+            writecert = o.cert.ca->writeCertificate(checkme.urldomain.c_str(), cert,
                                                &caser);
         }
 
@@ -2636,7 +2636,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         handleConnection(peerconn, ip, true, proxysock, dystat);
         DEBUG_debug(" -Handling connections inside ssl tunnel: done");
     }
-    o.ca->free_ca_serial(&caser);
+    o.cert.ca->free_ca_serial(&caser);
 
 //stopssl on the proxy connection
 //if it was marked as naughty then show a deny page and close the connection
@@ -2685,14 +2685,14 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
     DEBUG_debug(" -Not got persistent credentials for this connection - querying auth plugins");
     bool dobreak = false;
     rc = 0;
-    if (o.authplugins.size() != 0) {
+    if (o.plugins.authplugins.size() != 0) {
         // We have some auth plugins load
        // int authloop = 0;
         rc = 0;
         String tmp;
         int p = peerconn.getPort();
 
-        for (std::deque<Plugin *>::iterator i = o.authplugins_begin; i != o.authplugins_end; i++) {
+        for (std::deque<Plugin *>::iterator i = o.plugins.authplugins_begin; i != o.plugins.authplugins_end; i++) {
             DEBUG_debug(" -Querying next auth plugin...");
             // try to get the username & parse the return value
             auth_plugin = (AuthPlugin *) (*i);
@@ -2772,7 +2772,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 clientuser = "";
                 continue;
             } else if (rc == E2AUTH_NOGROUP) {
-                if (o.auth_requires_user_and_group || !is_real_user) {
+                if (o.plugins.auth.auth_requires_user_and_group || !is_real_user) {
                     clientuser = "";
                     SBauth.user_source = "";
                     continue;
@@ -2794,7 +2794,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             return false;
         //break;
 
-        if ((!authed) || (filtergroup < 0) || (filtergroup >= o.numfg)) {
+        if ((!authed) || (filtergroup < 0) || (filtergroup >= o.filter.numfg)) {
 #ifdef DEBUG_LOW
             if (!authed) {
                 DEBUG_auth(" -No identity found; using defaults");
@@ -2809,9 +2809,9 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // actually controls is whether or not the query should be forwarded to the
             // proxy (without pre-emptive blocking); we don't want this for 'ident' or
             // 'ip', because Squid isn't necessarily going to return 'auth required'.
-            authed = !o.auth_needs_proxy_query;
-            if (!o.auth_needs_proxy_query)
-                DEBUG_auth(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
+            authed = !o.plugins.auth.auth_needs_proxy_query;
+            if (!o.plugins.auth.auth_needs_proxy_query)
+                DEBUG_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
 
             clientuser = "-";
             //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
@@ -2864,7 +2864,7 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
             DEBUG_debug(" -Original filename: ", checkme.tempfiledis);
             String rtype(header.requestType());
             checkme.tempfilemime = checkme.tempfilemime.before("&D=");
-            checkme.tempfilename = o.download_dir + "/tf" + checkme.tempfilename.before("&M=");
+            checkme.tempfilename = o.content.download_dir + "/tf" + checkme.tempfilename.before("&M=");
             return true;
         }
         DEBUG_debug(" -About to check for bypass...");
@@ -2947,7 +2947,7 @@ bool ConnectionHandler::sendScanFile(Socket &peerconn, NaughtyFilter &checkme, b
 
         doLog(clientuser, checkme.clientip, checkme);
 
-        if (o.delete_downloaded_temp_files) {
+        if (o.content.delete_downloaded_temp_files) {
             unlink(checkme.tempfilename.toCharArray());
         }
     } catch (
@@ -3019,7 +3019,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
 
     X509 *cert = NULL;
     struct ca_serial caser;
@@ -3033,13 +3033,13 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     //generate the cert
     DEBUG_debug(" -Getting ssl certificate for client TLS proxy connection");
 
-    pkey = o.ca->getServerPkey();
+    pkey = o.cert.ca->getServerPkey();
 
     //generate the certificate but dont write it to disk (avoid someone
     //requesting lots of places that dont exist causing the disk to fill
     //up / run out of inodes
-    certfromcache = o.ca->getServerCertificate(o.TLSproxyCN.c_str(), &cert,
-                                               &caser, o.TLSproxyCN_is_ip);
+    certfromcache = o.cert.ca->getServerCertificate(o.net.TLSproxyCN.c_str(), &cert,
+                                               &caser, o.net.TLSproxyCN_is_ip);
     if (caser.asn == NULL) {
         DEBUG_debug("caser.asn is NULL");                            }
         //				std::cerr << "serials are: " << (char) *caser.asn << " " < caser.charhex  << std::endl;
@@ -3050,7 +3050,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             return 1;
         }
 
-        if (peerconn.startSslServer(cert, pkey, o.set_cipher_list) < 0) {
+        if (peerconn.startSslServer(cert, pkey, o.cert.set_cipher_list) < 0) {
             peerconn.stopSsl();
             if(cert != NULL) {
                 X509_free(cert);
@@ -3060,7 +3060,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         }
 
         if(!certfromcache)
-            o.ca->writeCertificate(o.TLSproxyCN.c_str(), cert, &caser);
+            o.cert.ca->writeCertificate(o.net.TLSproxyCN.c_str(), cert, &caser);
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
         int socks[2];
@@ -3102,7 +3102,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         struct timeval thestart;
         gettimeofday(&thestart, NULL);
 
-        peerconn.setTimeout(o.pcon_timeout);
+        peerconn.setTimeout(o.net.pcon_timeout);
 
         HTTPHeader docheader(__HEADER_RESPONSE); // to hold the returned page header from proxy
         HTTPHeader header(__HEADER_REQUEST); // to hold the incoming client request headeri(ldl)
@@ -3157,7 +3157,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
        if(checkme.isTLS) {
             rc = peerconn.readFromSocket(buff, toread, (MSG_PEEK ), 10000);
             if (rc < 1 ) {     // get header from client, allowing persistency
-                if (o.logconerror) {
+                if (o.conn.logconerror) {
                     if (peerconn.getFD() > -1) {
 
                         int err = peerconn.getErrno();
@@ -3216,11 +3216,11 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
 
 
             // Look up reverse DNS name of client if needed
-            if (o.reverse_client_ip_lookups) {
+            if (o.conn.reverse_client_ip_lookups) {
                 getClientFromIP(clientip.c_str(), checkme.clienthost);
             }
 
-            filtergroup = o.default_trans_fg;
+            filtergroup = o.filter.default_trans_fg;
 
             //if(o.log_requests) {
             if (e2logger.isEnabled(LoggerSource::requestlog)) {
@@ -3326,7 +3326,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             //now send upstream and get response
             if (!checkme.isItNaughty && !persistProxy) {
                 int out_port;
-                if(checkme.got_orig_ip && o.use_original_ip_port)
+                if(checkme.got_orig_ip && o.conn.use_original_ip_port)
                     out_port = checkme.orig_port;
                 else
                     out_port = 443;
@@ -3392,7 +3392,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
         } catch (std::exception & e)
         {
         DEBUG_thttps(" - THTTPS connection handler caught an exception: ", e.what() );
-        if(o.logconerror)
+        if(o.conn.logconerror)
             E2LOGGER_error(" - THTTPS connection handler caught an exception %s" , e.what());
 
         // close connection to proxy
@@ -3465,8 +3465,8 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
         char res[INET_ADDRSTRLEN];
         checkme.orig_ip = inet_ntop(AF_INET,&origaddr.sin_addr,res,sizeof(res));
         // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
-        if (o.check_ip.size() > 0) {
-            for (auto it = o.check_ip.begin(); it != o.check_ip.end(); it++) {
+        if (o.net.check_ip.size() > 0) {
+            for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
                 if (*it == checkme.orig_ip) {
                     checkme.orig_ip = "";
                     return false;
@@ -3502,7 +3502,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
     struct timeval thestart;
     gettimeofday(&thestart, NULL);
 
-    peerconn.setTimeout(o.pcon_timeout);
+    peerconn.setTimeout(o.net.pcon_timeout);
 
     std::string clientip(ip.toCharArray()); // hold the ICAP clients ip
 
@@ -3539,7 +3539,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             NaughtyFilter checkme(icaphead.HTTPrequest, icaphead.HTTPresponse, SBauth);
             checkme.listen_port = peerconn.getPort();
             DataBuffer docbody;
-            docbody.setTimeout(o.exchange_timeout);
+            docbody.setTimeout(o.net.exchange_timeout);
             docbody.setICAP(true);
             FDTunnel fdt;
             String wline = "";
@@ -3799,7 +3799,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     checkme.clientip = clientip;
 
     // Look up reverse DNS name of client if needed
-    if (o.reverse_client_ip_lookups) {
+    if (o.conn.reverse_client_ip_lookups) {
         getClientFromIP(clientip.c_str(),checkme.clienthost);
         //     std::unique_ptr<std::deque<String> > hostnames;
         //     hostnames.reset(ipToHostname(clientip.c_str()));
@@ -4061,7 +4061,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         doRQLog(clientuser, clientip, checkme, fnt);
     }
     // Look up reverse DNS name of client if needed
-    if (o.reverse_client_ip_lookups) {
+    if (o.conn.reverse_client_ip_lookups) {
         getClientFromIP(clientip.c_str(), checkme.clienthost);
     }
 
@@ -4074,11 +4074,11 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
                         " content_scan_exceptions: ", ldl->fg[filtergroup]->content_scan_exceptions,
                         " checkme.isBlocked: ", checkme.isBlocked,
                         " disable_content_scan: ", ldl->fg[filtergroup]->disable_content_scan,
-                        " csplugins: ", o.csplugins.size() );
+                        " csplugins: ", o.plugins.csplugins.size() );
 
     if (icaphead.res_body_flag    //  can only  scan if  body present
         && !(checkme.isBlocked)  // or not already blocked
-        && (o.csplugins.size() > 0)            //  and we have scan plugins
+        && (o.plugins.csplugins.size() > 0)            //  and we have scan plugins
         && !ldl->fg[filtergroup]->disable_content_scan    // and is not disabled
         && !(checkme.isexception && !ldl->fg[filtergroup]->content_scan_exceptions)
         && !checkme.isvirusbypass   // and is not virus bypass
@@ -4137,7 +4137,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
    if (!done && !checkme.isItNaughty) {
            if(!checkme.noviruscheck)
                 {
-                    for (std::deque<Plugin *>::iterator i = o.csplugins_begin; i != o.csplugins_end; ++i) {
+                    for (std::deque<Plugin *>::iterator i = o.plugins.csplugins_begin; i != o.plugins.csplugins_end; ++i) {
                         int csrc = ((CSPlugin *)(*i))->willScanRequest(checkme.url, clientuser.c_str(), ldl->fg[filtergroup], clientip.c_str(), false, false, checkme.isexception, checkme.isbypass);
                         if (csrc > 0)
                             responsescanners.push_back((CSPlugin *)(*i));

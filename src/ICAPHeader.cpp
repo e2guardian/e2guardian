@@ -523,7 +523,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
 
         }
 
-        if (header.size() > o.max_header_lines) {
+        if (header.size() > o.header.max_header_lines) {
             DEBUG_icap("ICAP header:size too big =  ", header.size() );
 	        E2LOGGER_info(" header:size too big: ", header.size(),  ", see maxheaderlines");
             ispersistent = false;
@@ -543,7 +543,7 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
             if (is_response) {
                 if (!(line.length() > 11 && line.startsWith("ICAP/") &&
                       (line.after(" ").before(" ").toInteger() > 99))) {
-                    if (o.logconerror)
+                    if (o.conn.logconerror)
                         E2LOGGER_error("Server did not respond with ICAP");
                         DEBUG_icap("Returning from header:in Server did not respond with ICAP length: ", line.length(), " content: ", line );
                     return false;
@@ -561,9 +561,9 @@ bool ICAPHeader::in(Socket *sock, bool allowpersistent)
                     return false;
                 }
                 t = t.after("//").after("/");
-                if (t == o.icap_reqmod_url) {
+                if (t == o.icap.icap_reqmod_url) {
                     icap_reqmod_service = true;
-                } else if (t == o.icap_resmod_url) {
+                } else if (t == o.icap.icap_resmod_url) {
                     icap_resmod_service = true;
                 } else {
                     icap_error = "404 ICAP Service not found";

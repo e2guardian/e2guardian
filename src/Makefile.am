@@ -93,6 +93,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        md5.cpp md5.hpp \
                        DownloadManager.cpp DownloadManager.hpp \
                        ConfigVar.cpp ConfigVar.hpp \
+                       ConfigReader.cpp ConfigReader.hpp \
                        ContentScanner.cpp ContentScanner.hpp \
 		       SocketArray.cpp SocketArray.hpp \
                        e2guardian.cpp \ Plugin.hpp \
@@ -102,13 +103,15 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        Logger.hpp Logger.cpp \
                        LoggerConfigurator.hpp LoggerConfigurator.cpp \
 		       Auth.cpp Auth.hpp \
+           Utils/Path.hpp, Utils/Path.cpp \
+           \
 		       $(ICAPSCAN_SOURCE) \
-                       $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
-                       $(AVASTDSCAN_SOURCE) \
-                       $(COMMANDLINE_SOURCE) \
-                       $(DEFAULTDM_SOURCE) $(FANCYDM_SOURCE) \
-                       $(TRICKLEDM_SOURCE)  \
-                       $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
-                       $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
+           $(KAVDSCAN_SOURCE) $(CLAMDSCAN_SOURCE) \
+           $(AVASTDSCAN_SOURCE) \
+           $(COMMANDLINE_SOURCE) \
+           $(DEFAULTDM_SOURCE) $(FANCYDM_SOURCE) \
+           $(TRICKLEDM_SOURCE)  \
+           $(IDENTAUTH_SOURCE) $(IPAUTH_SOURCE) \
+           $(DNSAUTH_SOURCE) $(PORTAUTH_SOURCE) \
 		       $(BEARERBASICAUTH_SOURCE) \
 		       $(HEADERAUTH_SOURCE) $(PFBASICAUTH_SOURCE)

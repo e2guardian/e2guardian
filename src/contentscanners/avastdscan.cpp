@@ -142,7 +142,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
     try {
         // After connecting, the daemon sends the following welcome message:
         // 220 Welcome to avast! Virus scanning daemon x.x (VPS yy-yy dd.mm.yyyy)
-        rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
+        rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content.content_scanner_timeout);
         DEBUG_avscan("Got from avastd: ", encode(buffer));
 
         if (strncmp(buffer, "220 ", 4) != 0) {
@@ -166,7 +166,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         //         451 Engine error %d
         //         200 OK
 
-        rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout);
+        rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content.content_scanner_timeout);
         DEBUG_avscan("Got from avastd: ", encode(buffer));
 
         if (strncmp(buffer, scanreturncode.toCharArray(), 4) != 0) {
@@ -189,10 +189,10 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
         // Following these lines there is a blank line which signals the end of data
         // transter from the daemon side.
 
-        for (rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, NULL, &truncated);
+        for (rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content.content_scanner_timeout, NULL, &truncated);
              rc > 0 && !truncated && buffer[0] != '\r';
 
-             rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content_scanner_timeout, NULL, &truncated)) {
+             rc = stripedsocks.getLine(buffer, sizeof(buffer), o.content.content_scanner_timeout, NULL, &truncated)) {
             DEBUG_avscan("Got from avastd: ", encode(buffer));
             // If a line can't fit in our buffer, we're probably dealing with a zip bomb or
             // something similarly nasty. Let's consider it an error, whatever archivewarn says.
