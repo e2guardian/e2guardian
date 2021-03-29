@@ -2,11 +2,13 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.3.5
 
-February 2020 to April 2020
+February 2020 to August 2020
 
-- Fix #585 - based on bmuel suggestions on by-pass
-- Fix #590 - Storyboard line not being passed when trailing comment present
+- Fix bug #619 x-forwarded wrong IP in MITM requests
+- Fix #607 - exceptionmimetypes not working
 - Fix #592 - last line of config file(s) not being read
+- Fix #590 - Storyboard line not being parsed when trailing comment present
+- Fix #585 - based on bmuel suggestions on by-pass
 - Fix #520 - bypass cookie generation and checks do not match
 
 - Add note re amending site.story for virus exceptions #577
