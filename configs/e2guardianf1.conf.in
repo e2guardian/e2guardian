@@ -114,7 +114,7 @@ sitelist = 'name=localexception,messageno=662,path=@DGCONFDIR@/lists/localexcept
 # Uncomment the two lines below if want to only allow extentions/mime types in these lists
 # You will also need to uncomment the checkfiletype function in site.story to enable this
 #fileextlist = 'name=exceptionextension,path=@DGCONFDIR@/lists/exceptionextensionlist'
-#mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionmimelist'
+#mimelist = 'name=exceptionmime,path=@DGCONFDIR@/lists/exceptionmimetypelist'
 #
 # Use the following lists to block specific kinds of file downloads.
 #
@@ -165,6 +165,7 @@ regexpboollist = 'name=exceptionheader,path=@DGCONFDIR@/lists/exceptionregexphea
 regexpreplacelist = 'name=addheader,path=@DGCONFDIR@/lists/addheaderregexplist'
 
 #Virus checking exceptions - matched urls will not be virus checked
+#Note that you also need to amend site.story in order for this to work.
 #mimelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusmimetypelist'
 #fileextlist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirusextensionlist'
 #sitelist = 'name=exceptionvirus,path=@DGCONFDIR@/lists/contentscanners/exceptionvirussitelist'

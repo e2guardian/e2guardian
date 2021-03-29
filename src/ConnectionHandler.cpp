@@ -206,8 +206,8 @@ String ConnectionHandler::hashedCookie(String *url, const char *magic, std::stri
     String timecode(bypasstimestamp);
     String data(magic);
     data += clientip->c_str();
-    if(ldl->fg[filtergroup]->bypass_v2)
-            data += clientuser;
+//    if(ldl->fg[filtergroup]->bypass_v2)
+    data += clientuser;
     data += timecode;
 #ifdef DGDEBUG
     std::cerr << thread_id << " -generate Bypass hashedCookie data " << clientip->c_str() << " " << *url << " " << clientuser << " " << timecode << std::endl;
@@ -882,7 +882,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 
             // is this user banned?
             //isbanneduser = false;
-            if (o.use_xforwardedfor) {
+            if (o.use_xforwardedfor && !ismitm) {  // don't do this for mitm
                 bool use_xforwardedfor;
                 if (o.xforwardedfor_filter_ip.size() > 0) {
                     use_xforwardedfor = false;
@@ -899,6 +899,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     std::string xforwardip(header.getXForwardedForIP());
                     if (xforwardip.length() > 6) {
                         clientip = xforwardip;
+                        ip = clientip;
+                        header.setClientIP(ip);
                     }
 #ifdef DGDEBUG
                     std::cerr << thread_id << " -using x-forwardedfor:" << clientip << std::endl;
@@ -1162,7 +1164,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 outhead += ud;
                 outhead += "\r\n";
                 outhead += "Location: ";
-                outhead += header.getUrl(true);
+                //outhead += header.getUrl(true);
+                        outhead += checkme.logurl.before("GBYPASS=");
+                        outhead.chop();
                 outhead += "\r\n";
                 outhead += "\r\n";
                 peerconn.writeString(outhead.c_str());
@@ -3084,10 +3088,10 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         std::cerr << thread_id << " -About to check for bypass..." << std::endl;
 #endif
         if (ldl->fg[filtergroup]->bypass_mode != 0)
-            checkme.bypasstimestamp = isBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(),
+            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
                                                          clientip.c_str(), NULL, clientuser);
         if ((checkme.bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
-            checkme.bypasstimestamp = isBypassURL(checkme.url, ldl->fg[filtergroup]->imagic.c_str(),
+            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->imagic.c_str(),
                                                          clientip.c_str(), &checkme.isvirusbypass,
                                                          clientuser);
         if (checkme.bypasstimestamp > 0) {
@@ -3107,7 +3111,11 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                 checkme.log_message_no = 606;
             }
         } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
-            if (header.isBypassCookie(checkme.urldomain, ldl->fg[filtergroup]->cookie_magic.c_str(),
+            String ud(checkme.urldomain);
+            if (ud.startsWith("www.")) {
+                ud = ud.after("www.");
+            }
+            if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
                                       clientip.c_str(), clientuser.c_str())) {
 #ifdef DGDEBUG
                 std::cerr << thread_id << " -Bypass cookie match" << std::endl;

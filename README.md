@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org) 
 
-This is the v5 production version - v5.3.4 
+This is the final maintenance release for v5.3 production version - v5.3.5
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in this release.
@@ -27,8 +27,8 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	v5develop is used to develop new features
-*	Bugfixes primarily occurs in the version branch 
+*	current development version i.e. v5.5.dev is used to develop new features
+*	Bug fixes primarily occurs in the version '.dev' branch
 
 ## Bugs and Feature Requests
 

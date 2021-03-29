@@ -5,7 +5,7 @@ AC_DEFINE([__SSLMITM],[""],[Define to enable SSL MITM])
 AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SETSIZE])
 
 AC_PREREQ(2.57)
-AC_INIT(e2guardian, 5.3.4)
+AC_INIT(e2guardian, 5.3.5)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -686,6 +686,7 @@ data/scripts/logrotation
 data/scripts/solaris-init
 data/scripts/systemv-init
 data/scripts/e2guardian.service
+data/scripts/e2guardianrasp.service
 doc/Makefile
 configs/e2guardian.conf
 configs/e2guardianf1.conf
