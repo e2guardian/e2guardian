@@ -36,7 +36,7 @@ extern authcreate_t dnsauthcreate;
 // IMPLEMENTATION
 
 AuthPlugin::AuthPlugin(ConfigVar &definition)
-    : is_connection_based(false), needs_proxy_query(false)
+    : is_connection_based(false)
 {
     cv = definition;
     pluginName = cv["plugname"];

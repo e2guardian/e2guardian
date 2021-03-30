@@ -29,7 +29,6 @@ class pf_basic_instance : public AuthPlugin
     pf_basic_instance(ConfigVar &definition)
         : AuthPlugin(definition)
     {
-        needs_proxy_query = false;
         client_ip_based = false;
     };
     int identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user, auth_rec &authrec,NaughtyFilter &cm);

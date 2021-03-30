@@ -60,14 +60,17 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
         if (!cr.readConfig(filename, list_pwd))
             return false;
 
-        if (!findProcOptions(cr)) return false;
-        if (!findLoggerOptions(cr)) return false;
-        if (!findAccessLogOptions(cr)) return false;        
+        if ((proc.pid_filename = cr.findoptionS("pidfilename")) == "") {
+            proc.pid_filename = std::string(__PIDDIR) + "/e2guardian.pid";
+        }
 
         if (!readFullConfig) {     // pid_filename is the only thing needed to send signals
             return true;
         }
 
+        if (!findProcOptions(cr)) return false;
+        if (!findLoggerOptions(cr)) return false;
+        if (!findAccessLogOptions(cr)) return false;
         if (!findConfigOptions(cr)) return false;
         if (!findDStatOptions(cr)) return false;
         if (!findCertificateOptions(cr)) return false;
@@ -187,7 +190,6 @@ bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 {
 
     log.dns_user_logging_domain = cr.findoptionS("dnsuserloggingdomain");
-    log.log_header_value = cr.findoptionS("logheadervalue");
 
     // default of unlimited no longer allowed as could cause buffer overflow
     log.max_logitem_length = cr.findoptionIWithDefault("maxlogitemlength", 10, 32000, 2000);
@@ -681,9 +683,6 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     net.exchange_timeout_sec = cr.findoptionIWithDefault("proxyexchange", 5, 300, 61);
     net.exchange_timeout = net.exchange_timeout_sec * 1000;
 
-    net.map_ports_to_ips = cr.findoptionB("mapportstoips");    // to be removed in v5.5
-    net.map_auth_to_ports = cr.findoptionB("mapauthtoports");  // to be removed in v5.5
-
     // multiple listen IP support
     net.filter_ip = cr.findoptionMD("filterip",":");
     if (net.filter_ip.empty()) 
@@ -705,17 +704,13 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     net.filter_ports = cr.findoptionMD("filterports",":");
     if (net.filter_ports.empty())
         net.filter_ports.push_back("8080");
-    if (net.map_ports_to_ips and net.filter_ports.size() != net.filter_ip.size()) {
-        E2LOGGER_error("filterports (", net.filter_ports.size(), ") must match number of filterips (", net.filter_ip.size(),
-                        ")");
-        return false;
-    }
+
     net.filter_port = net.filter_ports[0].toInteger();
     if (!realitycheck(net.filter_port, 1, 65535, "filterport[0]")) {
         return false;
     }
 
-    net.TLS_filter_ports = cr.findoptionMD("tlsfilterports");
+    net.TLS_filter_ports = cr.findoptionMD("tlsfilterports",":");
     net.TLSproxyCN = cr.findoptionS("tlsproxycn");
     if (net.TLSproxyCN.empty())
         net.TLSproxyCN = net.server_name;
@@ -800,9 +795,6 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
         e2logger.setDockerMode();
     }
 
-    if ((proc.pid_filename = cr.findoptionS("pidfilename")) == "") {
-        proc.pid_filename = std::string(__PIDDIR) + "/e2guardian.pid";
-    }
 
     if ((proc.daemon_user_name = cr.findoptionS("daemonuser")) == "") {
         proc.daemon_user_name = __PROXYUSER;
@@ -832,7 +824,7 @@ bool OptionContainer::findStoryBoardOptions(ConfigReader &cr)
 }
 
 
-#pragma region Plugins
+//#pragma region Plugins
 bool PluginOptions::loadDMPlugins(ConfigReader &cr) {
     DEBUG_config("load Download manager plugins");
     std::deque<String> dq = *cr.findoptionM("downloadmanager");
@@ -908,9 +900,6 @@ bool PluginOptions::loadAuthPlugins(ConfigReader &cr) {
         return true; // to have one is optional
     }
 
-    // Assume no auth plugins need an upstream proxy query (NTLM, BASIC) until told otherwise
-    auth.auth_needs_proxy_query = false;
-
     if ( cr.findoptionB("authrequiresuserandgroup") && (authplugins.size() > 1))
         auth.auth_requires_user_and_group = true;
 
@@ -933,14 +922,6 @@ bool PluginOptions::loadAuthPlugins(ConfigReader &cr) {
             E2LOGGER_error("Auth plugin init returned warning value: ", rc);
         }
 
-        if (app->needs_proxy_query) {
-            auth.auth_needs_proxy_query = true;
-            DEBUG_debug("Auth plugin relies on querying parent proxy");
-        }
-        if (app->needs_proxy_access_in_plugin) {
-            auth.auth_needs_proxy_in_plugin = true;
-            DEBUG_debug("Auth plugin relies on querying parent proxy within plugin");
-        }
         authplugins.push_back(app);
     }
 
@@ -960,7 +941,7 @@ void PluginOptions::deletePlugins(std::deque<Plugin *> &list) {
     }
     list.clear();
 }
-#pragma endregion
+//#pragma endregion
 
 bool OptionContainer::createLists(int load_id) {
     DEBUG_config("create Lists: ", load_id);
@@ -972,7 +953,7 @@ bool OptionContainer::createLists(int load_id) {
     return false;
 }
 
-#pragma region ProcessOptions
+//#pragma region ProcessOptions
 bool ProcessOptions::find_user_ids()
 {
 
@@ -1094,7 +1075,7 @@ bool ProcessOptions::daemonise()
 
     return true;
 }
-#pragma endregion
+//#pragma endregion
 
 bool CertificateOptions::generate_ca_certificate()
 {

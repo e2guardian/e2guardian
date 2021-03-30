@@ -54,11 +54,14 @@ RegExp absurl_re, relurl_re;
 #endif
 
 // DECLARATIONS
-int readCommandlineOptions(int argc, char *argv[]);
+int readCommandlineOptions(int &ret, int argc, char *argv[]);
 int startDaemon();
 int runBenchmarks();
 bool check_enough_filedescriptors();
 void prepareRegExp();
+
+#define E2_LOAD   1
+#define E2_EXIT   2
 
 // IMPLEMENTATION
 
@@ -66,6 +69,7 @@ int main(int argc,char *argv[])
 {
     g_is_starting = true;
     thread_id = "";
+    int ret = 0;
 
     o.config.prog_name = PACKAGE;
     o.config.configfile = __CONFFILE;
@@ -85,7 +89,8 @@ int main(int argc,char *argv[])
 #endif
 
     DEBUG_trace("read CommandLineOptions");
-    readCommandlineOptions(argc, argv);
+    int rc = readCommandlineOptions(ret, argc, argv);
+    if (rc == E2_EXIT) return ret;
     
     DEBUG_trace("read Configfile: ", o.config.configfile);
     if (!o.read_config(o.config.configfile)) {
@@ -117,7 +122,7 @@ int main(int argc,char *argv[])
 }
 
 
-int readCommandlineOptions(int argc, char *argv[])
+int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT or E2_LOAD
 {
     bool needreset = false;
     std::string debugoptions;
@@ -136,7 +141,8 @@ int readCommandlineOptions(int argc, char *argv[])
                             dobreak = true;
                         } else {
                             std::cerr << "No config file specified!" << std::endl;
-                            return 1;
+                            ret = 1;
+                            return E2_EXIT;
                         }
                         break;
                 }
@@ -154,7 +160,8 @@ int readCommandlineOptions(int argc, char *argv[])
                 switch (option) {
                 case 'q':
                     o.read_config(o.config.configfile, false);
-                    return sysv_kill(o.proc.pid_filename,true);
+                    ret = sysv_kill(o.proc.pid_filename,true);
+                    return E2_EXIT;
                 case 'Q':
                     o.read_config(o.config.configfile, false);
                     sysv_kill(o.proc.pid_filename, false);
@@ -167,19 +174,23 @@ int readCommandlineOptions(int argc, char *argv[])
                     break;
                 case 's':
                     o.read_config(o.config.configfile, false);
-                    return sysv_showpid(o.proc.pid_filename);
+                    ret = sysv_showpid(o.proc.pid_filename);
+                    return E2_EXIT;
                 case 'r':
                 case 'g':
                     o.read_config(o.config.configfile, false);
-                    return sysv_hup(o.proc.pid_filename);
+                    ret = sysv_hup(o.proc.pid_filename);
+                    return E2_EXIT;
                 case 't':
                     o.read_config(o.config.configfile, false);
-                    return sysv_usr1(o.proc.pid_filename);
+                    ret = sysv_usr1(o.proc.pid_filename);
+                        return E2_EXIT;
                 case 'v':
                     std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
                               << std::endl
                               << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
-                    return 0;
+                    ret = 0;
+                        return E2_EXIT;
                 case 'N':
                     o.proc.no_daemon = true;
                     break;
@@ -213,7 +224,8 @@ int readCommandlineOptions(int argc, char *argv[])
                     std::cout << "  -t  rotate logs (Issues a USR1)" << std::endl;
                     std::cout << "  -d  allows you to specify a debuglevel" << std::endl;
                     std::cout << "  -i read lists from stdin" << std::endl;
-                    return 0;
+                    ret = 0;
+                    return E2_EXIT;
                 }
                 if (dobreak)
                     break; // skip to the next argument
@@ -231,7 +243,7 @@ int readCommandlineOptions(int argc, char *argv[])
         loggerConfig.debuglevel(debugoptions);
     }
     
-    return 0;
+    return E2_LOAD;
 
 }    
 
@@ -308,11 +320,12 @@ bool check_enough_filedescriptors()
 {
     // calc the number of listening processes
     int no_listen_fds;
-    if (o.net.map_ports_to_ips) {
-        no_listen_fds = o.net.filter_ip.size();
-    } else {
+//    if (o.net.map_ports_to_ips) {
+//        no_listen_fds = o.net.filter_ip.size();
+//    } else {
         no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
-    }
+        // TODO: Add in icap httptrans and httpproxy ports
+//    }
 
     struct rlimit rlim;
     if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {

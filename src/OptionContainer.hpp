@@ -45,7 +45,7 @@ struct AccessLogOptions
 
     bool log_requests = false;
     bool log_client_hostnames = false;
-    bool log_client_host_and_ip = false;  // TODO: unused ???
+    bool log_client_host_and_ip = false;  // todo: unused - this IS used - PP
     bool anonymise_logs = false;
     bool log_ad_blocks = false;
     bool log_timestamp = false;
@@ -57,8 +57,6 @@ struct AccessLogOptions
     std::string dns_user_logging_domain;  // TODO: not documented ??
     bool dns_user_logging() { return !dns_user_logging_domain.empty(); };
 
-    std::string log_header_value;
-
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
@@ -67,8 +65,6 @@ struct AccessLogOptions
 
 struct AuthPluginOptions 
 {
-    bool auth_needs_proxy_query = false;
-    bool auth_needs_proxy_in_plugin = false;
     bool auth_requires_user_and_group = false;
 
     std::map<int, String> auth_map;
@@ -217,9 +213,6 @@ struct NetworkOptions
     std::string TLSproxyCN;
     bool TLSproxyCN_is_ip = false;
 
-    bool map_ports_to_ips = false;
-    bool map_auth_to_ports = false;
-
     std::deque<String> filter_ip;
     std::deque<String> check_ip;
     std::deque<String> xforwardedfor_filter_ip;
@@ -354,12 +347,6 @@ class OptionContainer
 
     std::string per_room_directory_location;  // not used but in LOptionContainer ??
 
-    //int max_ips = 0;                // unused ??
-    //int url_cache_number = 0;       // unused ??
-    //int url_cache_age = 0;          // unused ??
-    //bool recheck_replaced_urls;     // unused ??
-    //std::string blocked_content_store; // unused ??
-    
     OptionContainer();
     ~OptionContainer();
 

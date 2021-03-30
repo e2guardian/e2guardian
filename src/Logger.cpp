@@ -306,6 +306,8 @@ FileRec *Logger::addFile(std::string filename) {
 };
 
 void Logger::rmFileLink(FileRec *fileRec) {
+    if(fileRec == nullptr)
+        return;
     if (fileRec->link_count > 1) {
         fileRec->link_count--;
     //std::cerr << "rmFileLink File link count is " << fileRec->link_count << std::endl;

@@ -915,23 +915,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
                 SBauth.group_source = "def";
                 DEBUG_proxy("isProxyRequest is ", String(header.isProxyRequest),
-                            " only_ip_auth is ", String(only_ip_auth),
-                            " needs proxy for auth plugin is ", String(o.plugins.auth.auth_needs_proxy_in_plugin) );
-
-                if (!persistProxy && o.plugins.auth.auth_needs_proxy_in_plugin && header.isProxyRequest) // open upstream connection early if required for ntml auth
-                {
-                    if (connectUpstream(proxysock, checkme, header.port) < 0) {
-                        if (checkme.isconnect && ldl->fg[filtergroup]->ssl_mitm && ldl->fg[filtergroup]->automitm &&
-                            checkme.upfailure)
-                        {
-                            checkme.gomitm = true;   // so that we can deliver a status message to user over half MITM
-                        } else {
-                            //checkme.gomitm = false;   // if not automitm
-                        }
-                    } else {
-                        persistProxy = true;
-                    }
-                }
+                            " only_ip_auth is ", String(only_ip_auth) );
 
                 if (!doAuth(checkme.auth_result, authed, filtergroup, auth_plugin, peerconn, proxysock, header, checkme,
                             only_ip_auth,
@@ -947,7 +931,6 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         break;
                     }
                 }
-                //checkme.filtergroup = filtergroup;
             } else {
                 DEBUG_proxy(" -Already got credentials for this connection - not querying auth plugins");
                 authed = true;
@@ -1187,16 +1170,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                             // treat connect like normal get
                             checkme.isconnect = false;
                             checkme.isexception = true;
-                        } else if (!authed && checkme.request_header->isProxyRequest
-                                   && o.plugins.auth.auth_needs_proxy_in_plugin && !checkme.isexception) {
-                            checkme.isItNaughty = true;
-                            checkme.message_no =  110;
                         }
                         if (checkme.isconnect) {
                             if (rcode == 200) {
                                 persistProxy = false;
                                 persistPeer = false;
-                            } else {        // some sort of problem or needs proxy auth - pass back to client
+                            } else {        // some sort of problem
                                 checkme.ismitmcandidate = false;  // only applies to connect
                                 checkme.tunnel_rest = true;
                                 checkme.tunnel_2way = false;
@@ -2393,7 +2372,7 @@ bool ConnectionHandler::getdnstxt(std::string &clientip, String &user) {
     } response;
     int responseLen;
     ns_msg handle; /* handle for response message */
-    responseLen = res_querydomain(ippath.c_str(), o.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
+    responseLen = res_querydomain(ippath.c_str(), o.log.dns_user_logging_domain.c_str(), ns_c_in, ns_t_txt, (u_char *)&response, sizeof(response));
     if (responseLen < 0) {
         DEBUG_debug("DNS query returned error ", dns_error(h_errno));
         return false;
@@ -2779,7 +2758,6 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                 }
                 DEBUG_auth("Auth plugin found username \"", clientuser, "\" but no associated group; not querying remaining plugins");
 
-                //filtergroup = 0; // default now set before call to doAuth
                 authed = true;
                 break;
             } else if (rc < 0) {
@@ -2809,12 +2787,9 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             // actually controls is whether or not the query should be forwarded to the
             // proxy (without pre-emptive blocking); we don't want this for 'ident' or
             // 'ip', because Squid isn't necessarily going to return 'auth required'.
-            authed = !o.plugins.auth.auth_needs_proxy_query;
-            if (!o.plugins.auth.auth_needs_proxy_query)
-                DEBUG_debug(" -No loaded auth plugins require parent proxy queries; enabling pre-emptive blocking despite lack of authentication");
-
+            // All proxy-auths have been removed in v5.5 so set this to 'true'
+            authed =  true;
             clientuser = "-";
-            //filtergroup = 0; //default group - one day configurable? - default now set before call to doAuth
         } else {
             DEBUG_auth(" -Identity found; caching username & group");
             if (auth_plugin->is_connection_based && !overide_persist) {

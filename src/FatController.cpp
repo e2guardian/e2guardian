@@ -1331,7 +1331,7 @@ int fc_controlit()   //
         if (!o.net.TLS_filter_ports.empty()) {
             if (serversockets.bindAll(o.net.filter_ip, o.net.TLS_filter_ports, ss_index, CT_PROXY_TLS)) {
                 E2LOGGER_error(
-                        "Error binding TLS proxy server socket (is something else running on the filter port and ip?");
+                        "Error binding TLS proxy server socket (is something else running on the filter port and ip?)");
                 close(pidfilefd);
                 delete[] serversockfds;
                 return 1;
