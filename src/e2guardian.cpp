@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+
 #include "FatController.hpp"
 #include "SysV.hpp"
 #include "Queue.hpp"
@@ -55,9 +56,13 @@ RegExp absurl_re, relurl_re;
 
 // DECLARATIONS
 int readCommandlineOptions(int &ret, int argc, char *argv[]);
+
 int startDaemon();
+
 int runBenchmarks();
+
 bool check_enough_filedescriptors();
+
 void prepareRegExp();
 
 #define E2_LOAD   1
@@ -65,8 +70,7 @@ void prepareRegExp();
 
 // IMPLEMENTATION
 
-int main(int argc,char *argv[])
-{
+int main(int argc, char *argv[]) {
     g_is_starting = true;
     thread_id = "";
     int ret = 0;
@@ -91,10 +95,10 @@ int main(int argc,char *argv[])
     DEBUG_trace("read CommandLineOptions");
     int rc = readCommandlineOptions(ret, argc, argv);
     if (rc == E2_EXIT) return ret;
-    
+
     DEBUG_trace("read Configfile: ", o.config.configfile);
     if (!o.read_config(o.config.configfile)) {
-        E2LOGGER_error( "Error parsing the e2guardian.conf file or other e2guardian configuration files");
+        E2LOGGER_error("Error parsing the e2guardian.conf file or other e2guardian configuration files");
         exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
     }
 
@@ -102,15 +106,13 @@ int main(int argc,char *argv[])
     if (o.config.total_block_list) {
         if (o.readinStdin()) {
             DEBUG_debug("Total block lists read OK from stdin.");
-        } 
-        else 
-        {
+        } else {
             E2LOGGER_error("Error on reading total_block_list");
         }
     }
 
     DEBUG_trace("create Lists");
-    if (!o.createLists(0))  {
+    if (!o.createLists(0)) {
         E2LOGGER_error("Error reading filter group conf file(s).");
         return 1;
     }
@@ -158,80 +160,83 @@ int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT
                 char option = argv[i][j];
                 bool dobreak = false;
                 switch (option) {
-                case 'q':
-                    o.read_config(o.config.configfile, false);
-                    ret = sysv_kill(o.proc.pid_filename,true);
-                    return E2_EXIT;
-                case 'Q':
-                    o.read_config(o.config.configfile, false);
-                    sysv_kill(o.proc.pid_filename, false);
-                    // give the old process time to die
-                    while (sysv_amirunning(o.proc.pid_filename))
-                        sleep(1);
-                    unlink(o.proc.pid_filename.c_str());
-                    // remember to reset config before continuing
-                    needreset = true;
-                    break;
-                case 's':
-                    o.read_config(o.config.configfile, false);
-                    ret = sysv_showpid(o.proc.pid_filename);
-                    return E2_EXIT;
-                case 'r':
-                case 'g':
-                    o.read_config(o.config.configfile, false);
-                    ret = sysv_hup(o.proc.pid_filename);
-                    return E2_EXIT;
-                case 't':
-                    o.read_config(o.config.configfile, false);
-                    ret = sysv_usr1(o.proc.pid_filename);
+                    case 'q':
+                        o.read_config(o.config.configfile, false);
+                        ret = sysv_kill(o.proc.pid_filename, true);
                         return E2_EXIT;
-                case 'v':
-                    std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
-                              << std::endl
-                              << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
-                    ret = 0;
+                    case 'Q':
+                        o.read_config(o.config.configfile, false);
+                        sysv_kill(o.proc.pid_filename, false);
+                        // give the old process time to die
+                        while (sysv_amirunning(o.proc.pid_filename))
+                            sleep(1);
+                        unlink(o.proc.pid_filename.c_str());
+                        // remember to reset config before continuing
+                        needreset = true;
+                        break;
+                    case 's':
+                        o.read_config(o.config.configfile, false);
+                        ret = sysv_showpid(o.proc.pid_filename);
                         return E2_EXIT;
-                case 'N':
-                    o.proc.no_daemon = true;
-                    break;
-                case 'c':   // already processed this - so skip
-                    skip_next = true;
-                    break;
-                case 'i':
-                    o.config.total_block_list = true;
-                    break;
-                case 'd':
-                    if ((i + 1) < argc) {
-                        debugoptions = argv[i+1];
-                        i++;
-                        dobreak = true;
-                    };
-                    break;
+                    case 'r':
+                    case 'g':
+                        o.read_config(o.config.configfile, false);
+                        ret = sysv_hup(o.proc.pid_filename);
+                        return E2_EXIT;
+                    case 't':
+                        o.read_config(o.config.configfile, false);
+                        ret = sysv_usr1(o.proc.pid_filename);
+                        return E2_EXIT;
+                    case 'v':
+                        std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
+                                  << std::endl
+                                  << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
+                        ret = 0;
+                        return E2_EXIT;
+                    case 'N':
+                        o.proc.no_daemon = true;
+                        break;
+                    case 'c':   // already processed this - so skip
+                        skip_next = true;
+                        break;
+                    case 'i':
+                        o.config.total_block_list = true;
+                        break;
+                    case 'd':
+                        if ((i + 1) < argc) {
+                            debugoptions = argv[i + 1];
+                            i++;
+                            dobreak = true;
+                        };
+                        break;
 
-                case 'h':
-                default:
-                    std::cout << "Usage: " << argv[0] << " [-c ConfigFileName|-v|-h|-N|-q|-Q|-s|-r|-g|-i] [-d debuglevel]" << std::endl;
-                    std::cout << "  -v gives the version number and build options." << std::endl;
-                    std::cout << "  -h gives this message." << std::endl;
-                    std::cout << "  -c allows you to specify a different configuration file location." << std::endl;
-                    std::cout << "  -N Do not go into the background." << std::endl;
-                    std::cout << "  -q causes e2guardian to kill any running copy." << std::endl;
-                    std::cout << "  -Q kill any running copy AND start a new one with current options." << std::endl;
-                    std::cout << "  -s shows the parent process PID and exits." << std::endl;
-                    std::cout << "  -r reloads lists and group config files by issuing a HUP," << std::endl;
-                    std::cout << "     but this does not reset the httpworkers option (amongst others)." << std::endl;
-                    std::cout << "  -g  same as -r  (Issues a HUP)" << std::endl;
-                    std::cout << "  -t  rotate logs (Issues a USR1)" << std::endl;
-                    std::cout << "  -d  allows you to specify a debuglevel" << std::endl;
-                    std::cout << "  -i read lists from stdin" << std::endl;
-                    ret = 0;
-                    return E2_EXIT;
+                    case 'h':
+                    default:
+                        std::cout << "Usage: " << argv[0]
+                                  << " [-c ConfigFileName|-v|-h|-N|-q|-Q|-s|-r|-g|-i] [-d debuglevel]" << std::endl;
+                        std::cout << "  -v gives the version number and build options." << std::endl;
+                        std::cout << "  -h gives this message." << std::endl;
+                        std::cout << "  -c allows you to specify a different configuration file location." << std::endl;
+                        std::cout << "  -N Do not go into the background." << std::endl;
+                        std::cout << "  -q causes e2guardian to kill any running copy." << std::endl;
+                        std::cout << "  -Q kill any running copy AND start a new one with current options."
+                                  << std::endl;
+                        std::cout << "  -s shows the parent process PID and exits." << std::endl;
+                        std::cout << "  -r reloads lists and group config files by issuing a HUP," << std::endl;
+                        std::cout << "     but this does not reset the httpworkers option (amongst others)."
+                                  << std::endl;
+                        std::cout << "  -g  same as -r  (Issues a HUP)" << std::endl;
+                        std::cout << "  -t  rotate logs (Issues a USR1)" << std::endl;
+                        std::cout << "  -d  allows you to specify a debuglevel" << std::endl;
+                        std::cout << "  -i read lists from stdin" << std::endl;
+                        ret = 0;
+                        return E2_EXIT;
                 }
                 if (dobreak)
                     break; // skip to the next argument
             }
         }
-        if(skip_next) i++;
+        if (skip_next) i++;
     }
 
     if (needreset) {
@@ -242,14 +247,13 @@ int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT
     if (!debugoptions.empty()) {
         loggerConfig.debuglevel(debugoptions);
     }
-    
+
     return E2_LOAD;
 
-}    
+}
 
 
-int startDaemon()
-{
+int startDaemon() {
     DEBUG_trace("prepare Start");
     if (sysv_amirunning(o.proc.pid_filename)) {
         E2LOGGER_error("I seem to be running already!");
@@ -293,7 +297,7 @@ int startDaemon()
         }
 
         if (o.proc.is_daemonised)
-        	return 0; // exit without error
+            return 0; // exit without error
         if (rc > 0) {
             E2LOGGER_error("Exiting with error");
             return rc; // exit returning the error number
@@ -303,8 +307,7 @@ int startDaemon()
 
 }
 
-void prepareRegExp()
-{
+void prepareRegExp() {
     urldecode_re.comp("%[0-9a-fA-F][0-9a-fA-F]"); // regexp for url decoding
 
 #ifdef HAVE_PCRE
@@ -316,31 +319,33 @@ void prepareRegExp()
 
 }
 
-bool check_enough_filedescriptors()
-{
+bool check_enough_filedescriptors() {
     // calc the number of listening processes
     int no_listen_fds;
-//    if (o.net.map_ports_to_ips) {
-//        no_listen_fds = o.net.filter_ip.size();
-//    } else {
-        no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
-        // TODO: Add in icap httptrans and httpproxy ports
-//    }
+    no_listen_fds = o.net.filter_ports.size() * o.net.filter_ip.size();
+    if (!o.net.TLS_filter_ports.empty()) {
+        no_listen_fds += o.net.TLS_filter_ports.size() * o.net.filter_ip.size();
+    }
+    if (o.net.transparenthttps_port > 0)
+        no_listen_fds++;
+    if (o.net.icap_port > 0)
+        no_listen_fds++;
 
     struct rlimit rlim;
     if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-        E2LOGGER_error( "getrlimit call returned error: ", errno);
+        E2LOGGER_error("getrlimit call returned error: ", errno);
         return false;
     }
 
     // enough fds needed for listening_fds + logger + ipcs + stdin/out/err
     // in addition to two for each worker thread
     int max_free_fds = rlim.rlim_cur - (no_listen_fds + 6);
-    int fd_needed = (o.proc.http_workers *2) + no_listen_fds + 6;
+    int fd_needed = (o.proc.http_workers * 2) + no_listen_fds + 6;
 
-    if (((o.proc.http_workers * 2) ) > max_free_fds) {
-        E2LOGGER_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (", rlim.rlim_cur, ")" );
-        E2LOGGER_error("httpworkers ", o.proc.http_workers,  " must not exceed 50% of ", max_free_fds);
+    if (((o.proc.http_workers * 2)) > max_free_fds) {
+        E2LOGGER_error("httpworkers option in e2guardian.conf has a value too high for current file id limit (",
+                       rlim.rlim_cur, ")");
+        E2LOGGER_error("httpworkers ", o.proc.http_workers, " must not exceed 50% of ", max_free_fds);
         E2LOGGER_error("in this configuration.");
         E2LOGGER_error("Reduce httpworkers ");
         E2LOGGER_error("Or increase the filedescriptors available with ulimit -n to at least=", fd_needed);
