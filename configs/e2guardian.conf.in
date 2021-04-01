@@ -639,23 +639,23 @@ enablessl = off
 #Path to the CA certificate to use as a signing certificate for 
 #generated certificates.
 # default is blank - required if ssl_mitm is enabled.
-#cacertificatepath = '/home/e2/e2install/ca.pem'
+cacertificatepath = '@DGCONFDIR@/private/ca.pem'
 
 #CA private key path
 #path to the private key that matches the public key in the CA certificate.
 # default is blank - required if ssl_mitm is enabled.
-#caprivatekeypath = '/home/e2/e2install/ca.key'
+caprivatekeypath = '@DGCONFDIR@/private/ca.key'
 
 #Cert private key path
 #The public / private key pair used by all generated certificates
 # default is blank - required if ssl_mitm is enabled.
-#certprivatekeypath = '/home/e2/e2install/cert.key'
+certprivatekeypath = '@DGCONFDIR@/private/cert.key'
 
 #Generated cert path
 #The location where generated certificates will be saved for future use.
 #(must be writable by the dg user)
 # default is blank - required if ssl_mitm is enabled.
-#generatedcertpath = '/home/e2/e2install/generatedcerts/'
+generatedcertpath = '@DGCONFDIR@/private/generatedcerts/'
 
 #Warning: if you change the cert start/end time from default on a running 
 #         system you will need to clear the generated certificate 
