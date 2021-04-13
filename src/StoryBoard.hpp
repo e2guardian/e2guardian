@@ -84,6 +84,7 @@ class StoryBoard
     std::deque<url_rec> deep_urls(String & url, NaughtyFilter &cm);
     std::deque<url_rec>  ipToHostname(NaughtyFilter &cm);
     bool has_reverse_hosts(std::deque<url_rec> & urec, NaughtyFilter &cm);
+    void update_messages(NaughtyFilter &cm, ListMeta::list_result &res);
 };
 
 //#endif
