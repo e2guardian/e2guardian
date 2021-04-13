@@ -332,6 +332,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         bool isHeaderCheck = false;
         HTTPHeader *targetheader = nullptr;
         bool state_result = false;
+        ListMeta::list_result res;
         String target;
         String target2;
         String targetful;
@@ -499,7 +500,6 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                // String t = *u;
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {
-                    ListMeta::list_result res;
                     DEBUG_story("checking ", j->name, " type ", j->type);
 
                     if (LMeta->inList(*j, *u, res)) {  //found
@@ -531,7 +531,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
         if (isListCheck) {
             DEBUG_story("ListCheck:", i->list_name, " size:", i->list_id_dq.size());
             for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin(); j != i->list_id_dq.end(); j++) {
-                ListMeta::list_result res;
+                //ListMeta::list_result res;
                 String t;
                 if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
                     t = target2;
@@ -553,16 +553,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 if (LMeta->inList(*j, t, res)) {  //found
                     state_result = true;
                     if (i->isif) {
-                        cm.lastcategory = res.category;
-                        cm.whatIsNaughtyCategories = res.category;
-                        cm.message_no = res.mess_no;
-                        cm.log_message_no = res.log_mess_no;
-                        cm.lastmatch = res.match;
                         cm.result = res.result;
-                        if (res.anon_log) {
-                            cm.anon_user = true;
-                            cm.anon_url = true;
-                        }
                     }
 
                     DEBUG_story("ListCheck lc", cm.lastcategory, " mess_no ", cm.message_no,
@@ -578,7 +569,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {
-                    ListMeta::list_result res;
+                    //ListMeta::list_result res;
                     String t;
                     if ((j->type >= LIST_TYPE_SITE) && (j->type < LIST_TYPE_URL)) {
                         t = u->urldomain;
@@ -598,16 +589,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     if (LMeta->inList(*j, t, res)) {  //found
                         state_result = true;
                         if (i->isif) {
-                            cm.lastcategory = res.category;
-                            cm.whatIsNaughtyCategories = res.category;
-                            cm.message_no = res.mess_no;
-                            cm.log_message_no = res.log_mess_no;
-                            cm.lastmatch = res.match;
                             cm.result = res.result;
-                            if (res.anon_log) {
-                                cm.anon_user = true;
-                                cm.anon_url = true;
-                            }
                         }
 
                         DEBUG_story("SB lc", cm.lastcategory, " mess_no ", cm.message_no, " log_mess ",
@@ -661,6 +643,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isexception = true;
                     cm.isGrey = false;
                     cm.isBlocked = false;
+                    update_messages(cm,res);
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
@@ -678,6 +661,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isBlocked = true;
                     cm.isGrey = false;
                     cm.isexception = false;
+                    update_messages(cm,res);
                     if( cm.message_no == 503)
                         cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) ;
                     else
@@ -711,6 +695,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETLOGCAT:
                     cm.logcategory = true;
+                    update_messages(cm,res);
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
                         cm.whatIsNaughtyLog = cm.whatIsNaughty;
@@ -915,3 +900,16 @@ bool StoryBoard::has_reverse_hosts(std::deque<url_rec> &urec, NaughtyFilter &cm)
     }
     return false;
 }
+
+void StoryBoard::update_messages(NaughtyFilter &cm, ListMeta::list_result &res) {
+        cm.lastcategory = res.category;
+        cm.whatIsNaughtyCategories = res.category;
+        cm.message_no = res.mess_no;
+        cm.log_message_no = res.log_mess_no;
+        cm.lastmatch = res.match;
+        cm.result = res.result;
+        if (res.anon_log) {
+            cm.anon_user = true;
+            cm.anon_url = true;
+        }
+    }
