@@ -939,7 +939,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             ldl->StoryA.runFunctEntry(ENT_STORYA_PRE_AUTH, checkme);
 #ifdef E2DEBUG
             std::cerr << "After StoryA pre-authcheck" << checkme.isexception << " mess_no "
-                      << checkme.message_no << std::endl;
+                      << checkme.message_no
+                      << " cat " << checkme.whatIsNaughtyCategories << std::endl;
 #endif
             checkme.isItNaughty = checkme.isBlocked;
             bool isbannedip = checkme.isBlocked;
@@ -1028,6 +1029,11 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 #ifdef E2DEBUG
             std::cerr << thread_id << " -username: " << clientuser << std::endl;
             std::cerr << thread_id << " -filtergroup: " << filtergroup << std::endl;
+#endif
+#ifdef E2DEBUG
+            std::cerr << "After auth" << checkme.isexception << " mess_no "
+                      << checkme.message_no
+                      << " cat " << checkme.whatIsNaughtyCategories << std::endl;
 #endif
 //
 //
