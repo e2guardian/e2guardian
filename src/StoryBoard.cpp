@@ -671,8 +671,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
         action_return = true;
 
-        if (i->mess_no > 0) cm.message_no = i->mess_no;
-        if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
+     //   if (i->mess_no > 0) cm.message_no = i->mess_no;
+//        if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
 #ifdef SBDEBUG
         std::cerr << "lc" << cm.lastcategory << " mess_no " << cm.message_no << " log_mess " << cm.log_message_no
                   << " match " << cm.whatIsNaughty << " actionis " << i->action_id << std::endl;
@@ -685,6 +685,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isGrey = false;
                     cm.isBlocked = false;
                     update_messages(cm,res);
+                    if (i->mess_no > 0) cm.message_no = i->mess_no;
+                    if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
@@ -703,6 +705,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isGrey = false;
                     cm.isexception = false;
                     update_messages(cm,res);
+                    if (i->mess_no > 0) cm.message_no = i->mess_no;
+                    if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     if( cm.message_no == 503)
                         cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) ;
                     else
@@ -755,6 +759,8 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETLOGCAT:
                     cm.logcategory = true;
                     update_messages(cm,res);
+                    if (i->mess_no > 0) cm.message_no = i->mess_no;
+                    if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
                         cm.whatIsNaughtyLog = cm.whatIsNaughty;
