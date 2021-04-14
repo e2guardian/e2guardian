@@ -74,9 +74,9 @@ class ListMeta
         String match;      // to hold match from list
         String category; // holds list category
         String result;   // to hold any modified Sting
-        int mess_no;
-        int log_mess_no;
-        bool anon_log;
+        int mess_no = 0;
+        int log_mess_no = 0;
+        bool anon_log = false;
     };
 
     std::vector<list_info> list_vec;
