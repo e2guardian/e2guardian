@@ -302,6 +302,7 @@ int startDaemon() {
             E2LOGGER_error("Exiting with error");
             return rc; // exit returning the error number
         }
+        return 0;
 
     }
 
