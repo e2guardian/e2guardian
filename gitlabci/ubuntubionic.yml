@@ -71,15 +71,15 @@ test:bionic:
     - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* 
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
-    - sed -i "s/^sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
+    - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian ${CERT_DIR}
-    - echo "qwant.com" >> /etc/e2guardian/lists/bannedsitelist
+    - echo "qwant.com" >> /etc/e2guardian/lists/example.group/bannedsitelist
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 
     - curl -k -o /tmp/test https://www.google.com 
-    - curl -k https://www.qwant.com | grep -i uardian 
+    - curl -k https://www.qwant.com | grep -i e2guardian 
     - unset https_proxy
     - mkdir -p "${CI_COMMIT_BRANCH}"
     - mv e2"$OS"_package.deb ${CI_COMMIT_BRANCH}/e2"$OS"_"$VERSION"_V"$VFULL"_$(date +%Y%m%d).deb
