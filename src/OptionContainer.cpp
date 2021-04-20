@@ -151,6 +151,10 @@ bool OptionContainer::read(std::string &filename, int type) {
                 pid_filename += "/e2guardian.pid";
             }
 
+            if (findoptionS("dockermode") == "on") {
+                dockermode = true;
+            };
+
             if (findoptionS("logsyslog") == "on") {
                 log_syslog = true;
                 if ((name_suffix = findoptionS("namesuffix")) == "") {
@@ -218,8 +222,7 @@ bool OptionContainer::read(std::string &filename, int type) {
             no_daemon = false;
         }
 
-        if (findoptionS("dockermode") == "on") {
-            dockermode = true;
+        if (dockermode) {
             no_daemon = true;
             e2_front_log = true;
         } else {
