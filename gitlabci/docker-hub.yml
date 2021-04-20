@@ -1,0 +1,40 @@
+docker-hub-build:
+  stage: Docker-hub-build
+  image: docker:dind
+  before_script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
+  script:
+    - cd /builds/fredbcode/e2guardian/ && cp gitlabci/docker-ci/Dockerfile ./
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --pull -t $CONTAINER_BUILD_NOPROD_NAME .
+    - docker push $CONTAINER_BUILD_NOPROD_NAME
+
+variables:
+  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH 
+  CONTAINER_CLIENT_IMAGE: debian:buster      
+  CONTAINER_TEST_NAME: e2guardian
+  CONTAINER_BUILD_NOPROD_NAME: $HUB_REGISTRY_IMAGE:build-noprod
+
+.services:
+  services:
+    - name: $CONTAINER_BUILD_NOPROD_NAME
+      alias: e2guardian
+  image: $CONTAINER_CLIENT_IMAGE
+
+docker-hub-test:
+  stage: Docker-hub-test
+  extends: .services
+  script:
+    - apt update && apt install -y curl
+    - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
+  variables:
+    HOSTNAME: e2pipeline
+
+push-docker-hub:
+  stage: Docker-hub-pushtag
+  image: docker:dind
+  before_script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME
+    - docker tag $CONTAINER_BUILD_NOPROD_NAME $CONTAINER_PROD_IMAGE 
+    - docker push $CONTAINER_PROD_IMAGE
