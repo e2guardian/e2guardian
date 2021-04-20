@@ -54,6 +54,7 @@ class OptionContainer
     int filter_groups = 0;
     int log_exception_hits = 0;
     bool config_error = false;
+    bool dockermode = false;
     bool non_standard_delimiter;
     int log_file_format = 0;
     std::string log_header_value;

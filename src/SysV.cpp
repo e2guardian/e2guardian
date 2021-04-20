@@ -41,7 +41,8 @@ bool confirmname(pid_t p);
 pid_t getpid(std::string pidfile)
 {
     pid_t p = getpidfromfile(pidfile);
-    if (p > 1) {
+    int safe_pid = o.dockermode ? 0 : 1;
+    if (p > safe_pid) {
         if (confirmname(p)) { // is that pid really E2 and running?
             return p; // it is so return it
         }
@@ -104,7 +105,8 @@ bool confirmname(pid_t p)
 int sysv_kill(std::string pidfile, bool dounlink)
 {
     pid_t p = getpid(pidfile);
-    if (p > 1) {
+    int safe_pid = o.dockermode ? 0 : 1;
+    if (p > safe_pid) {
         int rc = ::kill(p, SIGTERM);
         if (rc == -1) {
             std::cerr << "Error trying to kill pid:" << p << std::endl;
@@ -126,7 +128,8 @@ int sysv_kill(std::string pidfile, bool dounlink)
 int sysv_hup(std::string pidfile)
 {
     pid_t p = getpid(pidfile);
-    if (p > 1) {
+    int safe_pid = o.dockermode ? 0 : 1;
+    if (p > safe_pid) {
         int rc = ::kill(p, SIGHUP);
         if (rc == -1) {
             std::cerr << "Error trying to hup pid:" << p << std::endl;
@@ -145,7 +148,8 @@ int sysv_hup(std::string pidfile)
 int sysv_usr1(std::string pidfile)
 {
     pid_t p = getpid(pidfile);
-    if (p > 1) {
+    int safe_pid = o.dockermode ? 0 : 1;
+    if (p > safe_pid) {
         int rc = ::kill(p, SIGUSR1);
         if (rc == -1) {
             std::cerr << "Error trying to sig1 pid:" << p << std::endl;
@@ -164,7 +168,8 @@ int sysv_usr1(std::string pidfile)
 int sysv_showpid(std::string pidfile)
 {
     pid_t p = getpid(pidfile);
-    if (p > 1) {
+    int safe_pid = o.dockermode ? 0 : 1;
+    if (p > safe_pid) {
         std::cout << "Parent e2guardian pid:" << p << std::endl;
         return 0;
     }

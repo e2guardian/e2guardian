@@ -219,6 +219,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         }
 
         if (findoptionS("dockermode") == "on") {
+            dockermode = true;
             no_daemon = true;
             e2_front_log = true;
         } else {
