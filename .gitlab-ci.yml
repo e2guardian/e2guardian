@@ -1,16 +1,26 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH 
+
 cache:
   key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+
 stages:
 # At first debian : init variables
 - build-debian
 - create-debian-package
 - test-publish-debian
-###
+- Docker-hub-build
+- Docker-hub-test
+- Docker-hub-pushtag
+
+### All
 - build
 - create-package
 - test-publish
 
 include:
+  - 'gitlabci/docker-hub.yml'
   - 'gitlabci/debianbuster.yml'
   - 'gitlabci/ubuntubionic.yml'
   - 'gitlabci/raspbianbuster.yml'
