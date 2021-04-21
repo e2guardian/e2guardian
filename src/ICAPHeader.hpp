@@ -27,46 +27,46 @@ class ICAPHeader
     HTTPHeader HTTPrequest;
     HTTPHeader HTTPresponse;
     String icap_error;
-    bool service_options;
-    bool service_reqmod;
-    bool service_resmod;
-    bool icap_reqmod_service;
-    bool icap_resmod_service;
+    bool service_options = false;
+    bool service_reqmod = false;
+    bool service_resmod = false;
+    bool icap_reqmod_service = false;
+    bool icap_resmod_service = false;
 
-    bool req_hdr_flag;
-    bool res_hdr_flag;
-    bool req_body_flag;
-    bool res_body_flag;
-    bool opt_body_flag;
-    bool null_body_flag;
-    bool out_req_hdr_flag;
-    bool out_res_hdr_flag;
+    bool req_hdr_flag = false;
+    bool res_hdr_flag = false;
+    bool req_body_flag = false;
+    bool res_body_flag = false;
+    bool opt_body_flag = false;
+    bool null_body_flag = false;
+    bool out_req_hdr_flag = false;
+    bool out_res_hdr_flag = false;
     String out_req_header;
     String out_res_header;
-    bool out_req_body_flag;
-    bool out_res_body_flag;
+    bool out_req_body_flag = false;
+    bool out_res_body_flag = false;
     String out_req_body;
     String out_res_body;
-    int size_req_body;
-    int size_res_body;
+    int size_req_body = 0;
+    int size_res_body = 0;
     String ISTag;
     String username;
     String clientip;
 
 
-    int req_hdr;
-    int res_hdr;
-    int req_body;
-    int res_body;
-    int opt_body;
-    int null_body;
+    int req_hdr = 0;
+    int res_hdr = 0;
+    int req_body = 0;
+    int res_body = 0;
+    int opt_body = 0;
+    int null_body = 0;
 
     bool allow_204 = false;
     bool allow_206 = false;
 
     struct encap_rec {
         String name;
-        int value;
+        int value = 0;
     };
 
     std::deque<encap_rec> encap_recs;
@@ -74,9 +74,9 @@ class ICAPHeader
     struct icap_com_rec {
         String user;
         String EBG;
-        int filtergroup;
-        int mess_no;
-        int log_mess_no;
+        int filtergroup = 0;
+        int mess_no = 0;
+        int log_mess_no = 0;
         String mess_string;
     };
 
