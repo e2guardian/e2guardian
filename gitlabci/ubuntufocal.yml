@@ -4,9 +4,9 @@ build:focal:
   artifacts:
    expire_in: 30 minutes
    paths:
-    - /builds/fredbcode/e2guardian
+    - $CI_PROJECT_DIR 
   script:
-    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt-get -y upgrade
@@ -15,9 +15,9 @@ build:focal:
       libevent-pthreads-2.1-7 libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
-    - cd /builds/fredbcode/e2guardian && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 package:focal:
   stage: create-package
@@ -26,13 +26,13 @@ package:focal:
     - build:focal
   artifacts:
    paths:
-    - /builds/fredbcode/e2guardian  
+    - $CI_PROJECT_DIR
   variables:
-    PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    PACKPATH: "$CI_PROJECT_DIR"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
   script:
-    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
@@ -59,14 +59,14 @@ test:focal:
     - package:focal
   artifacts:
    paths:
-    - /builds/fredbcode/e2guardian
+    - $CI_PROJECT_DIR
   variables:
-    PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2ubuntu_package"
+    PACKPATH: "$CI_PROJECT_DIR"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
     CERT_DIR: "/etc/e2guardian/private/"
     OS: "ubuntu"
   script:
-    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y curl openssl git lsb-release libevent-pthreads-2.1-7 libtommath1 
@@ -91,4 +91,4 @@ test:focal:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +

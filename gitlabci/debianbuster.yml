@@ -3,7 +3,7 @@ Build debian package:
   artifacts:
    expire_in: 30 minutes
    paths:
-    - /builds/fredbcode/e2guardian
+    - $CI_PROJECT_DIR 
   image: amd64/debian:stable
   variables:
     OS: "debian"
@@ -15,19 +15,19 @@ Build debian package:
       libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
       libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
-    - cd /builds/fredbcode/e2guardian && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 Create Debian Package:
   stage: create-debian-package
   image: amd64/debian:stable
   artifacts:
    paths:
-    - /builds/fredbcode/e2guardian
+    - $CI_PROJECT_DIR 
   variables:
-    PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2debian_package"
+    PACKPATH: "$CI_PROJECT_DIR"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
     OS: "debian"
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
@@ -44,9 +44,9 @@ Create Debian Package:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - echo "export VFULL=$VFULL" >> /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 Test and publish Debian:
   stage: test-publish-debian
@@ -54,14 +54,14 @@ Test and publish Debian:
   artifacts:
    name: builddebian
    paths:
-    - /builds/fredbcode/e2guardian 
+    - $CI_PROJECT_DIR 
   variables:
-    PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package"
+    PACKPATH: "$CI_PROJECT_DIR"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package"
     CERT_DIR: "/etc/e2guardian/private/"
     OS: "debian"
   script:
-    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
@@ -86,4 +86,4 @@ Test and publish Debian:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +

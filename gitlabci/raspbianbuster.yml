@@ -4,11 +4,11 @@ build:raspbian:
   artifacts:
    expire_in: 30 minutes
    paths:
-    - /builds/fredbcode/e2guardian   
+    - $CI_PROJECT_DIR   
   variables:
     OS: "raspbian" 
   script:
-   - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+   - source $CI_PROJECT_DIR/scripts/debian_package/variables
    - echo $VFULL
    - apt update 
    - apt-get -y upgrade 
@@ -18,12 +18,12 @@ build:raspbian:
    - apt-get update 
    - apt-get install -y build-essential crossbuild-essential-armhf 
    - apt-get build-dep -y -a armhf e2guardian 
-   - cd /builds/fredbcode/e2guardian && make clean  
+   - cd $CI_PROJECT_DIR && make clean  
    - ./autogen.sh
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make ARCH=arm-linux-gnueabihf 
    - file src/e2guardian | grep "ARM, EABI5"
-   - find /builds/ -name ".git" -exec rm -r "{}" +
+   - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 package:raspbian:
   stage: create-package
@@ -32,13 +32,13 @@ package:raspbian:
     - build:raspbian
   artifacts:
    paths:
-    - /builds/fredbcode/e2guardian   
+    - $CI_PROJECT_DIR   
   variables:
-    PACKPATH: "/builds/fredbcode/e2guardian"
-    PACKDST: "/builds/fredbcode/e2guardian/scripts/debian_package/e2raspbian_package"
+    PACKPATH: "$CI_PROJECT_DIR"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2raspbian_package"
     OS: "raspbian"
   script:
-    - source /builds/fredbcode/e2guardian/scripts/debian_package/variables
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - apt update
     - apt install -y curl git lsb-release binutils
     - echo $VFULL
@@ -64,4 +64,4 @@ package:raspbian:
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
