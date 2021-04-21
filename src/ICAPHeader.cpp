@@ -89,6 +89,8 @@ void ICAPHeader::reset()
         res_hdr_flag = false;
         out_req_hdr_flag = false;
         out_res_hdr_flag = false;
+        out_req_body_flag = false;
+        out_res_body_flag = false;
         req_body_flag = false;
         res_body_flag = false;
         opt_body_flag = false;
