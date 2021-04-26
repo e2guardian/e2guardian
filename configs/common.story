@@ -1,7 +1,7 @@
 # Storyboard library file
 
 # For ease of upgrade DO NOT CHANGE THIS library file 
-# Make your function changes by iusing user 'hook' functions
+# Make your function changes by using user 'hook' functions
 # or by overriding functions
 # in the site.story file - for site wide changes.
 # 
@@ -17,8 +17,8 @@
 #
 # The entry point in v5 for standard filtering is 'checkrequest'
 #
-# Entry function called by proxy module to check http 
-# and https proxy requests
+# Entry function called by standard proxy module to check http,
+#   https proxy and transparent http requests
 # It is also called within a MITM session
 function(checkrequest)
 if(true) returnif hook_checkrequest
@@ -184,9 +184,14 @@ if(urlin, grey) return setgrey
 function(bannedcheck)
 if(true) returnif checkblanketblock
 if(urlin, banned) return setblock
-if(urlin,bannedextension) return setblock
+ifnot(urlin,exceptionfile) returnif checkurlextension
 if(useragentin, banneduseragent) return setblock
 if(headerin, bannedheader) return setblock
+
+# Checks url for banned extensions
+#  returns true on match
+function(checkurlextension)
+if(urlin,bannedextension) return setblock
 
 # Local SSL list(s) check
 #  returns true on match
