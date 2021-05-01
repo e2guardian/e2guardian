@@ -1074,7 +1074,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 temp += "Server: ";
                 temp += o.server_name;
                 temp += "<br>";
-                peerconn.writeString(temp);
+                peerconn.writeString(temp.c_str());
                 peerconn.writeString("</BODY></HTML>\n");
                 proxysock.close(); // close connection to proxy
                 break;
