@@ -176,6 +176,7 @@ int bearer_basic_instance::identify(Socket &peercon, Socket &proxycon, HTTPHeade
 
 int bearer_basic_instance::init(void *args)
 {
+    AuthPlugin::init(args);
     bearer_secret = cv["bearersecret"];
     if (bearer_secret.empty()) {
         E2LOGGER_error("No bearersecret supplied in authplugin/BearerBasic.conf");

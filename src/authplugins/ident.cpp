@@ -128,13 +128,13 @@ int identinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, st
 
 int identinstance::init(void *args)
 {
+    AuthPlugin::init(args);
     StoryBoardOptions::SB_entry_map sen;
     sen.entry_function = cv["story_function"];
     if (sen.entry_function.length() > 0) {
         sen.entry_id = ENT_STORYA_AUTH_IDENT;
         story_entry = sen.entry_id;
         o.story.auth_entry_dq.push_back(sen);
-	    read_def_fg();
         return 0;
     } else {
         E2LOGGER_error("No story_function defined in ident auth plugin config");

@@ -179,6 +179,7 @@ void AuthPlugin::read_def_fg() {
 
 void AuthPlugin::read_ports() {
     String t = cv["ports"];
+  //  DEBUG_auth("ports = ",t);
     if (t.empty()) return;
     while (t.contains(",")) {
         String p = t.before(",");
@@ -188,12 +189,14 @@ void AuthPlugin::read_ports() {
     }
     int pn = t.toInteger();
     portlist.push_back(pn);
+    //DEBUG_auth("portlist pushto = ",pn);
 }
 
 
 bool AuthPlugin::port_matched(int &port) {
     if (portlist.empty()) return true;
     for (auto rec : portlist) {
+        DEBUG_auth(" port is ", port, " list is ", rec);
         if (rec == port) return true;
     }
     return false;

@@ -112,6 +112,7 @@ int dnsauthinstance::quit()
 // plugin init - read in vars
 int dnsauthinstance::init(void *args)
 {
+    AuthPlugin::init(args);
     basedomain = cv["basedomain"];
     authurl = cv["authurl"];
     authprefix = cv["prefix_auth"];
@@ -134,6 +135,7 @@ int dnsauthinstance::init(void *args)
         E2LOGGER_error("No prefix_auth defined in DNS auth plugin config");
         return -1;
     }
+    read_def_fg();
 
     DEBUG_auth( "basedomain is ", basedomain, " authurl is ", authurl);
     return 0;
