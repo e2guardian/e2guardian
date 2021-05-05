@@ -1820,7 +1820,7 @@ String ListContainer::inIPRangeMap(const uint32_t &ip) {
 
 String ListContainer::inIPMap(const uint32_t &ip) {
     if (ipmaplist.size() > 0) {
-        return searchIPMap(0, ipmaplist.size(), ip);
+        return searchIPMap(0, ipmaplist.size() - 1, ip);
     }
     return "";
 }
@@ -1854,7 +1854,7 @@ String ListContainer::searchDataMap(int a, int s, const String  &key) {
 String ListContainer::getMapData(String &key) {
     if(datamaplist.empty())
         return "";
-    return  searchDataMap(0,datamaplist.size(),key);
+    return  searchDataMap(0,datamaplist.size() - 1,key);
 }
 
 String ListContainer::getIPMapData(std::string &ip) {

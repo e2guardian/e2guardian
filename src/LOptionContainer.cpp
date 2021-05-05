@@ -132,7 +132,7 @@ LOptionContainer::LOptionContainer(int load_id)
             for (std::deque<struct OptionContainer::auth_entry>::const_iterator i = o.auth_entry_dq.begin(); i != o.auth_entry_dq.end(); ++i) {
                 if (!StoryA.setEntry(i->entry_id, i->entry_function)) {
                     std::cerr << thread_id << "Required auth storyboard entry function" << i->entry_function.c_str()
-                              << " is missing from pre_auth.stoary" << std::endl;
+                              << " is missing from pre_auth.story" << std::endl;
                     loaded_ok = false;
                 }
             }
