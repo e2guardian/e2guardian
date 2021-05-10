@@ -3714,6 +3714,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //
     // don't have credentials for this connection yet? get some!
     overide_persist = false;
+    filtergroup = o.filter.default_icap_fg;
     DEBUG_icap("filtergroup set to ICAP default ", filtergroup);
     clientuser = icaphead.username;
 
@@ -3724,7 +3725,6 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     int rc = E2AUTH_NOUSER;
-    filtergroup = o.default_icap_fg;
     if (!(clientuser.empty() || clientuser == "-")) {
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
