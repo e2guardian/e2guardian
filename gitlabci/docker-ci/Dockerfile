@@ -20,7 +20,9 @@ RUN cd /tmp/e2guardian \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* && rm -Rf /tmp/* 
 
+COPY --chown=e2guardian:root run.sh /
+RUN chmod +x /run.sh
 HEALTHCHECK CMD curl localhost:8080 || exit 1
 USER e2guardian
 EXPOSE 8080
-CMD ["e2guardian", "-N"]
+ENTRYPOINT ["/run.sh"]
