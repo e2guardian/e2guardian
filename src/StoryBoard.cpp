@@ -428,6 +428,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 break;
             case SB_STATE_USERIN:
                 isListCheck = true;
+                cm.user.toLower();
                 target = cm.user;
                 target2 = cm.clienthost;
                 break;
