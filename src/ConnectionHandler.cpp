@@ -4032,6 +4032,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     }
 
     int rc = E2AUTH_NOUSER;
+    filtergroup = o.default_icap_fg;
     if (!(clientuser.empty() || clientuser == "-")) {
         SBauth.user_name = clientuser;
         SBauth.user_source = "icaph";
