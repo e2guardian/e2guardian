@@ -131,10 +131,10 @@ public:
     std::string dest2string(LoggerDestination dest);
 
     void setFormat(const LoggerSource source, bool no_format, bool show_tag = false, bool show_func = false,
-                   bool func_last = true, bool show_thread_id = true);
+                   bool func_last = true, bool show_thread_id = true, bool show_timestamp = true);
 
     void setMultiFormat(std::vector <LoggerSource> *source_list, bool no_format, bool show_tag, bool show_func,
-                        bool func_last, bool show_thread_id = true);
+                        bool func_last, bool show_thread_id = true, bool show_timestamp = true);
 
     // Variable Args
     template<typename T>
@@ -176,6 +176,8 @@ private:
         bool show_source_category = false;
         bool show_thread_id = true;
         bool no_format = false;
+        bool show_timestamp = true;
+        bool show_timestamp_active = true;
     };
 
     SourceRec sourceRecs[static_cast<int>(LoggerSource::__Max_Value)];

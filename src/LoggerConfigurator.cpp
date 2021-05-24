@@ -157,22 +157,22 @@ bool LoggerConfigurator::debuglevel(const std::string option) {
 void LoggerConfigurator::debugformat(int fmt) {
     switch (fmt) {
         case 1:
-            _logger->setMultiFormat(&_logger->debug_messages, false, false, true, true);
+            _logger->setMultiFormat(&_logger->debug_messages, false, false, true, true, true);
             break;
         case 2:
-            _logger->setMultiFormat(&_logger->debug_messages, false, false, true, false);
+            _logger->setMultiFormat(&_logger->debug_messages, false, false, true, false, true);
             break;
         case 3:
-            _logger->setMultiFormat(&_logger->debug_messages, false, false, false, false);
+            _logger->setMultiFormat(&_logger->debug_messages, false, false, false, false, true);
             break;
         case 4:
-            _logger->setMultiFormat(&_logger->debug_messages, false, true, true, true);
+            _logger->setMultiFormat(&_logger->debug_messages, false, true, true, true, true);
             break;
         case 5:
-            _logger->setMultiFormat(&_logger->debug_messages, false, true, true, false);
+            _logger->setMultiFormat(&_logger->debug_messages, false, true, true, false, true);
             break;
         case 6:
-            _logger->setMultiFormat(&_logger->debug_messages, false, true, false, false);
+            _logger->setMultiFormat(&_logger->debug_messages, false, true, false, false, true);
             break;
     }
 }

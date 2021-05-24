@@ -1864,9 +1864,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 			//
 			// DISPLAYING TEMPLATE
 
-			String fullurl = checkme->get_logUrl();
+                        String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
-			ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
+                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
                                                                                               (*checkme).whatIsNaughtyLog,
@@ -1875,13 +1875,14 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                                                                                ? checkme->whatIsNaughtyDisplayCategories
                                                                                                : checkme->whatIsNaughtyCategories),
                                                                                               clientuser, clientip,
-                                                                                              &(checkme->clienthost), filtergroup,
+                                                                                              &(checkme->clienthost),
+                                                                                              filtergroup,
                                                                                               ldl->fg[filtergroup]->name,
-                                                                                              hashed, localip, flags );
+                                                                                              hashed, localip, flags);
                     }
                 }
             }
-	}
+        }
             // the user is using the CGI rather than the HTML template - so issue a redirect with parameters filled in on GET string
         else if (reporting_level > 0) {
             // grab either the full category list or the thresholded list

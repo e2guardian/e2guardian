@@ -34,11 +34,11 @@ Logger::Logger() {
     setSyslogName(PACKAGE);
     // set up default output formats
     // bools are no_format, show_tag, show_func, func_last
-    setMultiFormat(&working_logs,true,false,false,false,false);
-    setMultiFormat(&working_messages,false,false,false,false, true);
-    setMultiFormat(&debug_messages,false,false,true, true, true);   // this can be overwritten by the debuglevel option
+    setMultiFormat(&working_logs,true,false,false,false,false,false);
+    setMultiFormat(&working_messages,false,false,false,false, true, true);
+    setMultiFormat(&debug_messages,false,false,true, true, true, true);   // this can be overwritten by the debuglevel option
 
-    setFormat(LoggerSource::storytrace,false,false,false,false,true);
+    setFormat(LoggerSource::storytrace,false,false,false,false,true, true);
 
     setLogOutput(LoggerSource::info, LoggerDestination::syslog, "LOG_INFO");
     setLogOutput(LoggerSource::error, LoggerDestination::syslog, "LOG_ERR");
@@ -68,15 +68,15 @@ Logger::~Logger() {
 // -------------------------------------------------------------
 
 struct Logger::Helper {
-    static std::string build_message(
-            SourceRec *rec,
-            std::string &prepend,
-            const std::string &func,
-            const std::string &file,
-            const int &line,
-            std::string what) {
-
+    static std::string build_message(SourceRec *rec, std::string &prepend, const std::string &func,
+                                     const std::string &file, const int &line, std::string what) {
+        // TODO: add time properly in separate commit PIP
         std::string message;
+        if (rec->show_timestamp_active) {
+            time_t t = time(NULL);
+            message = (std::to_string((long)t));
+            message += " ";
+        }
         if (rec->show_source_category) {
             ((message = "(") += prepend) += ") ";
         }
@@ -219,8 +219,14 @@ bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
         sourceRecs[static_cast<int>(source)].fileRec = nullptr;
     }
 
-    if (destination == LoggerDestination::syslog)
+    if (destination == LoggerDestination::syslog) {
         setSyslogLevel(source, filename);
+        sourceRecs[static_cast<int>(source)].show_timestamp_active = false;
+    } else {
+        if (sourceRecs[static_cast<int>(source)].show_timestamp) {
+            sourceRecs[static_cast<int>(source)].show_timestamp_active = true;
+        }
+    };
 
     setDestination(source, destination);
 
@@ -231,18 +237,19 @@ bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
     return true;
 }
 
-void Logger::setFormat(const LoggerSource source, bool no_format, bool show_tag, bool show_func, bool func_last, bool show_thread_id) {
+void Logger::setFormat(const LoggerSource source, bool no_format, bool show_tag, bool show_func, bool func_last, bool show_thread_id, bool show_timestamp) {
     sourceRecs[static_cast<int>(source)].no_format = no_format;  // used for logs that do not required any further formating
     sourceRecs[static_cast<int>(source)].show_source_category = show_tag;
     sourceRecs[static_cast<int>(source)].show_funct_line = show_func;
     sourceRecs[static_cast<int>(source)].funct_line_last = func_last;
-    sourceRecs[static_cast<int>(source)].funct_line_last = show_thread_id;
+    sourceRecs[static_cast<int>(source)].show_thread_id = show_thread_id;
+    sourceRecs[static_cast<int>(source)].show_timestamp = show_timestamp;
 };
 
 void Logger::setMultiFormat(std::vector <LoggerSource> *source_list, bool no_format, bool show_tag, bool show_func,
-                            bool func_last, bool show_thread_id) {
+                            bool func_last, bool show_thread_id, bool show_timestamp) {
     for (std::vector<LoggerSource>::iterator i = source_list->begin(); i != source_list->end(); i++) {
-        setFormat(*i, no_format, show_tag, show_func, func_last, show_thread_id);
+        setFormat(*i, no_format, show_tag, show_func, func_last, show_thread_id, show_timestamp);
     }
 }
 

@@ -535,8 +535,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
     loggerConf.debugformat(logger.debug_format);
 
     if (cr.findoptionB("tag_logs")) {
-        e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false);
-        e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false);
+        e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false, false);
     }
 
     {
@@ -757,7 +757,7 @@ bool OptionContainer::findDStatOptions(ConfigReader &cr)
     dstat.stats_human_readable = cr.findoptionB("statshumanreadable");
 
     if (cr.findoptionB("tag_dstatlog")) {
-        e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false);
+        e2logger.setFormat(LoggerSource::dstatslog, false, true, false, false, false, false);
     }
 
     return true;
