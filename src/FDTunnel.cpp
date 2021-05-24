@@ -267,7 +267,7 @@ bool FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targe
 
         if (sf_write_wait || st_write_wait || sf_read_wait || st_read_wait) {
 
-            if ((throughput < targetthroughput) && (targetthroughput > -1)) {
+            if ((targetthroughput == -1) || (throughput < targetthroughput)) {
                 // 5th set up and do poll
 
                 twayfds[0].events = 0;
