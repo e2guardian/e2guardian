@@ -66,9 +66,9 @@ language = 'ukenglish'
 #
 # For loop prevention purposes list all IPs e2g can be reached on
 # Include all e2g host server IPs and any VIP used when when in an array.
-# Specify each IP on an individual checkip line.
+# If squid in front then add ip of squid server and squid port in extracheckports
+# Specify each IP on an individual checkip line or multiple IP on a single line separated by ':'
 #
-
 #checkip = 127.0.0.1
 #checkip = ip_of_server
 #checkip = 2nd ip of server
@@ -76,6 +76,12 @@ language = 'ukenglish'
 #
 # Defaults: Not set - only loop prevention for 127.0.0.1 requests
 #
+#extracheckports = 3128
+#
+# by default e2g will loop protect for all ports defined in filterports
+# If you are using squid in front or other device which re-assigns ports
+# then add the user-facing port(s) to extracheckports
+# Specify each port on an individual extracheckports line or multiple ports on a single line separated by ':'
 
 #transparenthttpsport = 8443
 #
@@ -273,7 +279,7 @@ generatedcertpath = '@E2CONFDIR@/private/generatedcerts/'
 #Generated cert start time (in unix time) - optional
 # defaults to 1417872951 = 6th Dec 2014
 
-# genratedcertend =
+# generatedcertend =
 #
 #Generated cert end time (in unix time) - optional
 # defaults to generatedcertstart + 10 years
