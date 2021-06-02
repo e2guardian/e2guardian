@@ -51,7 +51,6 @@ struct AccessLogOptions
     bool log_timestamp = false;
     bool log_user_agent = false;
     bool use_dash_for_blanks = true;
-  
     unsigned int max_logitem_length = 2000;
 
     std::string dns_user_logging_domain;  // TODO: not documented ??
@@ -217,6 +216,7 @@ struct NetworkOptions
     std::deque<String> check_ip;
     std::deque<String> xforwardedfor_filter_ip;
     std::deque<String> filter_ports;
+    std::deque<String> check_ports;
     std::deque<String> TLS_filter_ports;
 
     int filter_port = 0;

@@ -709,6 +709,12 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     if (!realitycheck(net.filter_port, 1, 65535, "filterport[0]")) {
         return false;
     }
+        
+    net.check_ports = cr.findoptionMD("extracheckports", ":");
+    // now add filter_ports to check_ports
+    for (auto pt : net.filter_ports) {
+        net.check_ports.push_back(pt);
+    }
 
     net.TLS_filter_ports = cr.findoptionMD("tlsfilterports",":");
     net.TLSproxyCN = cr.findoptionS("tlsproxycn");
