@@ -100,6 +100,7 @@ class OptionContainer
     std::string proxy_ip;
     std::deque<String> filter_ip;
     std::deque<String> check_ip;
+    std::deque<String> check_ports;
     std::deque<String> filter_ports;
     std::map<int, String> auth_map;
     bool abort_on_missing_list = false;

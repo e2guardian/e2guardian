@@ -462,7 +462,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     int lerr_mess = 0;
     int retry = -1;
     bool may_be_loop = false;
-    for (auto it = o.filter_ports.begin(); it != o.filter_ports.end(); it++) {
+    for (auto it = o.check_ports.begin(); it != o.check_ports.end(); it++) {
         if (*it == sport) {
             may_be_loop = true;
             break;

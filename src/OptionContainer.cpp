@@ -643,6 +643,12 @@ bool OptionContainer::read(std::string &filename, int type) {
             return false;
         } // check its a reasonable value
 
+        check_ports = findoptionMD("extracheckports", ":");
+        // now add filter_ports to check_ports
+        for (auto pt : filter_ports) {
+            check_ports.push_back(pt);
+        }
+
         transparenthttps_port = findoptionI("transparenthttpsport");
         if (!realitycheck(transparenthttps_port, 0, 65535, "transparenthttpsport")) {
             return false;
