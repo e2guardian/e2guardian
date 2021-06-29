@@ -25,7 +25,8 @@
 class FileRec {
 public:
     std::string filename;
-    FILE *file_stream;
+ //   FILE *file_stream;
+    std::ofstream *file_stream = nullptr;
     int link_count = 0;
     bool open = false;
 

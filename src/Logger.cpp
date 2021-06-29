@@ -55,8 +55,10 @@ Logger::~Logger() {
     if (!Files.empty()) {
         for (std::vector<FileRec *>::iterator i = Files.begin(); i != Files.end(); i++) {
             if (*i != nullptr) {
-                if ((*i)->open)
-                    fclose((*i)->file_stream);
+                if ((*i)->open) {
+                    ((*i)->file_stream)->close();
+                    delete ((*i)->file_stream);
+                }
                 delete *i;
             }
         }
@@ -98,7 +100,8 @@ bool FileRec::write(std::string &msg) {
         std::cerr << "file_stream is null" << std::endl;
     } else {
 //        std::cerr << "file_stream is not null" << std::endl;
-        if (fprintf(file_stream, "%s\n", msg.c_str()) < 0) {
+        *file_stream << msg << std::endl;
+        if (file_stream->fail()) {
             //std::cerr << "log write to " << filename << " failed";
             return false;
         }
@@ -109,7 +112,7 @@ bool FileRec::write(std::string &msg) {
 bool FileRec::flush() {
     if(file_stream == nullptr)
         return false;
-    fflush(file_stream);
+    file_stream->flush();
     return true;
 }
 
@@ -122,8 +125,10 @@ bool FileRec::rotate() {   // this must only be called by a single thread which 
     rfn += ".old";
     if(link(filename.c_str(), rfn.c_str()) == 0) {
         unlink(filename.c_str());
-        fclose(file_stream);
-        file_stream = fopen(filename.c_str(),"a");
+        file_stream->close();
+        delete file_stream;
+        //file_stream = fopen(filename.c_str(),"a");
+        file_stream = new std::ofstream(filename.c_str(), std::ios::app);
         umask(old_umask);
         return true;
     }
@@ -268,7 +273,9 @@ void Logger::deleteFileEntry(std::string filename) {
         for (std::vector<FileRec*>::iterator i = Files.begin(); i != Files.end(); i++) {
             if ((*i)->filename == filename) {
                 if ((*i)->file_stream != nullptr) {
-                    fclose((*i)->file_stream);
+                    ((*i)->file_stream)->close();
+                    delete (*i)->file_stream;
+                    (*i)->file_stream = nullptr;
                 }
                 delete *i;
                 Files.erase(i);
@@ -292,7 +299,8 @@ FileRec *Logger::addFile(std::string filename) {
         }
         mode_t old_umask;
         old_umask = umask(S_IWGRP | S_IWOTH);
-        fileRec->file_stream = fopen(filename.c_str(), "a");
+ //       fileRec->file_stream = fopen(filename.c_str(), "a");
+        fileRec->file_stream = new std::ofstream(filename.c_str(), std::ios::app);
         if (!fileRec->file_stream) {
             std::cerr << "Failed to open/create logfile: " << filename << " (check ownership and access rights)"
                       << std::endl;
@@ -322,7 +330,12 @@ void Logger::rmFileLink(FileRec *fileRec) {
     }
     // link count will now be zero, close file, delete stream and remove record
     //std::cerr << "Close and delete " << fileRec->filename << std::endl;
-    fclose(fileRec->file_stream);
+    //fclose(fileRec->file_stream);
+    if (fileRec->file_stream != nullptr) {
+        fileRec->file_stream->close();
+        delete fileRec->file_stream;
+        fileRec->file_stream = nullptr;
+    }
     deleteFileEntry(fileRec->filename);
 }
 
