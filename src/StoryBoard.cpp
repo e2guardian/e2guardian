@@ -441,6 +441,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_EXCEPTIONSET:
                 state_result = cm.isexception;
                 break;
+            case SB_STATE_SEMIEXCEPTIONSET:
+                state_result = cm.issemiexception;
+                break;
             case SB_STATE_GREYSET:
                 state_result = cm.isGrey;
                 break;
@@ -642,6 +645,23 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             switch (i->action_id) {
                 case SB_FUNC_SETEXCEPTION:
                     cm.isexception = true;
+                    cm.issemiexception = false;
+                    cm.isGrey = false;
+                    cm.isBlocked = false;
+                    update_messages(cm,res);
+                    if (i->mess_no > 0) cm.message_no = i->mess_no;
+                    if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
+                    //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
+                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    if (cm.log_message_no == 0)
+                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                    else
+                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                    cm.exceptioncat = cm.lastcategory;
+                    break;
+                case SB_FUNC_SETSEMIEXCEPTION:
+                    cm.issemiexception = true;
+                    cm.isexception = false;
                     cm.isGrey = false;
                     cm.isBlocked = false;
                     update_messages(cm,res);
@@ -658,12 +678,14 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 case SB_FUNC_SETGREY:
                     cm.isGrey = true;
                     cm.isexception = false;
+                    cm.issemiexception = false;
                     cm.isBlocked = false;
                     break;
                 case SB_FUNC_SETBLOCK:
                     cm.isBlocked = true;
                     cm.isGrey = false;
                     cm.isexception = false;
+                    cm.issemiexception = false;
                     update_messages(cm,res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;

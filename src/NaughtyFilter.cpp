@@ -151,6 +151,7 @@ void NaughtyFilter::reset()
     waschecked = false; // flags
     wasrequested = false;
     isexception = false;
+    issemiexception = false;
     isourwebserver = false;
     wasclean = false;
     isbypass = false;

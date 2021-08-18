@@ -156,27 +156,38 @@ sitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsitelist'
 ### END of URL_FILTERING section 
 
 
-### URL_MAINLISTS section
+### URL_MAIN_LISTS section
 ###
 ### Most of the site/ipsite/url lists in this section are used for
 ### switching on/off standard list categories
 ###
 ### It is best to use the LOCAL lists for your own lists of sites/urls
-### As these override the main ones.
+### as these have priority over the main ones.
 
 ## For info on the format of list definitions see notes/V5_list_definition
 
 ## Order of checking is broadly as follows:-
 ##
-## 1. If in Local Exception lists - allow with no further checking
-## 2. If in Local Grey lists - retrieve page and content-check
-## 3. If in Local Banned lists - block with no further checking
-## 4. If in Main Exception lists - allow with no further checking
-## 5. If in Main Grey lists - retrieve page and content-check
-## 6. If in Main Banned lists (or blanket blocked) - block with no further checking
-## 7. If gets here  - retrieve page and content-check
-## 8. Check blocked/exception file/mime types.
-## 9. Content-check page
+## 1. If in Local Semi Exception lists - set semiexception flag - jump to 4
+## 2. If in Local Exception lists - allow with no further checking
+## 3. If in Local Grey lists - retrieve page and content-check
+## 4. If in Local Banned lists - block with no further checking
+## 5. If semiexception flag still set - allow with no further checking
+## 6. If in Main Semi Exception lists - set semiexception flag - jump to 9
+## 7. If in Main Exception lists - allow with no further checking
+## 8. If in Main Grey lists - retrieve page and content-check
+## 9. If in Main Banned lists (or blanket blocked) - block with no further checking
+## 10. If semiexception flag still set - allow with no further checking
+## 11. If gets here  - retrieve page and content-check
+## 12. Check blocked/exception file/mime types.
+## 13. Content-check page
+
+## Semi Exception (make exception if not in block lists) Lists
+
+# Just sites in these lists
+sitelist = 'name=semiexception,messageno=602,path=__LISTDIR__/semiexceptionsitelist'
+ipsitelist = 'name=semiexception,messageno=602,path=__LISTDIR__/semiexceptionsiteiplist'
+
 
 ## Exception lists
 
@@ -214,6 +225,12 @@ regexpboollist = 'name=banned,messageno=503,path=__LISTDIR__/bannedregexpurllist
 ### then comment out (or remove) all the list entries in this section and
 ### make adjustments to site.story
 ###
+
+## Local Semi Exception (make exception if not in blocked list) Lists
+
+# Just sites in these lists
+sitelist = 'name=localsemiexception,messageno=602,path=__LISTDIR__/localsemiexceptionsitelist'
+ipsitelist = 'name=localsemiexception,messageno=602,path=__LISTDIR__/localsemiexceptionsiteiplist'
 
 
 ## Local Exception lists

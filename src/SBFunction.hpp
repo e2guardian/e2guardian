@@ -65,8 +65,9 @@
 #define SB_STATE_BYPASSSET  31
 #define SB_STATE_BYPASSALLOWEDSET  32
 #define SB_STATE_INFECTIONBYPASSALLOWEDSET  33
+#define SB_STATE_SEMIEXCEPTIONSET	34
 
-#define SB_STATE_MAP_SIZE  33
+#define SB_STATE_MAP_SIZE  34
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -97,9 +98,10 @@
 #define  SB_FUNC_SETAUTOMITM	5023
 #define  SB_FUNC_UNSETAUTOMITM	5024
 #define  SB_FUNC_SETGROUP	5025
+#define SB_FUNC_SETSEMIEXCEPTION	    5026
 
 
-#define SB_FUNC_MAP_SIZE  25
+#define SB_FUNC_MAP_SIZE  26
 
 
 // DECLARATIONS
@@ -140,7 +142,8 @@ class SBFunction
 			 "viruscheckset",
 			 "bypassset",
 			"bypassallowset",
-			 "infectionbypassallowset"
+			 "infectionbypassallowset",
+			 "semiexceptionset"
 			};
 
    String command_map[4] = { "function",
@@ -174,7 +177,8 @@ class SBFunction
 			 "setnomitm",
 			 "setautomitm",
 			 "unsetautomitm",
-			 "setgroup"
+			 "setgroup",
+			 "setsemiexception"
     };
 
   public:

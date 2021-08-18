@@ -75,6 +75,7 @@ class NaughtyFilter
     bool waschecked = false;
     bool wasrequested = false;
     bool isexception = false;
+    bool issemiexception = false;
     bool isourwebserver = false;
     bool wasclean = false;
     bool cachehit = false;

@@ -64,6 +64,8 @@ localgreysslsiteiplist \
 localgreysslsitelist \
 localgreyurllist \
 logregexpurllist \
+localsemiexceptionsiteiplist \
+localsemiexceptionsitelist \
 logsiteiplist \
 logsitelist \
 logurllist \
@@ -73,6 +75,8 @@ refererexceptionsiteiplist \
 refererexceptionsitelist \
 refererexceptionurllist \
 responseheaderregexplist \
+semiexceptionsiteiplist \
+semiexceptionsitelist \
 sslsiteregexplist \
 urlredirectregexplist \
 urlregexplist \
