@@ -168,7 +168,6 @@ if(urlin, localexception) return setexception
 function(exceptioncheck)
 if(sitein, semiexception) setsemiexception
 if(returnset) return false
-function(exceptioncheck)
 if(urlin, exception) return setexception
 if(refererin,refererexception) return setexception
 if(headerin, exceptionheader) return setexception
