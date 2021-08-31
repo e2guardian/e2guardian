@@ -645,19 +645,20 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             switch (i->action_id) {
                 case SB_FUNC_SETEXCEPTION:
                     cm.isexception = true;
-                    cm.issemiexception = false;
                     cm.isGrey = false;
                     cm.isBlocked = false;
-                    update_messages(cm,res);
-                    if (i->mess_no > 0) cm.message_no = i->mess_no;
-                    if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
-                    //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
-                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
-                    if (cm.log_message_no == 0)
-                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
-                    else
-                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
-                    cm.exceptioncat = cm.lastcategory;
+                    if (!cm.issemiexception) {   // don't overwrite semi exception messages
+                        update_messages(cm, res);
+                        if (i->mess_no > 0) cm.message_no = i->mess_no;
+                        if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
+                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                        if (cm.log_message_no == 0)
+                            cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                        else
+                            cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                        cm.exceptioncat = cm.lastcategory;
+                    }
+                    cm.issemiexception = false;
                     break;
                 case SB_FUNC_SETSEMIEXCEPTION:
                     cm.issemiexception = true;
@@ -674,6 +675,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     else
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                     cm.exceptioncat = cm.lastcategory;
+                    break;
+                case SB_FUNC_UNSETSEMIEXCEPTION:
+                    cm.issemiexception = false;
                     break;
                 case SB_FUNC_SETGREY:
                     cm.isGrey = true;

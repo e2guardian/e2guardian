@@ -48,7 +48,7 @@ if(true) setgrey
 function(checkresponse)
 if(true) returnif hook_checkresponse
 if(exceptionset) return false
-if(responseheaderin,reponseheadermods) setmodheader
+if(responseheaderin,responseheadermods) setmodheader
 if(viruscheckset) checknoscantypes
 if(urlin,exceptionfile) return false
 if(true) return checkfiletype
@@ -125,8 +125,7 @@ function(localsslrequestcheck)
 if(true) returnif hook_localsslrequestcheck
 if(true) returnif sslchecktimesblocked
 if(sitein, localsemiexception) setsemiexception
-if(semiexceptionset) sslcheckmitm
-if(semiexceptionset) return true
+if(semiexceptionset) returnif sslcheckmitm
 if(sitein, localexception) return setexception
 if(sitein, localgreyssl) returnif sslcheckmitm
 if(sitein, localbanned) true
@@ -178,9 +177,9 @@ if(embeddedin,refererexception) return setexception
 # SSL Exception check
 #  returns true on match
 function(sslexceptioncheck)
-if(sitein, localsemiexception) setsemiexception
-if(semiexceptionset) sslcheckmitm
-if(semiexceptionset) return true
+if(sitein, semiexception) setsemiexception
+if(semiexceptionset) returnif sslcheckmitm
+if(semiexceptionset) unsetsemiexception
 if(sitein, exception) return setexception
 if(headerin, exceptionheader) return setexception
 if(useragentin, exceptionuseragent) return setexception
@@ -210,8 +209,8 @@ if(urlin,bannedextension) return setblock
 function(localsslcheckrequest)
 if(true) returnif hook_localsslcheckrequest
 if(sitein, localsemiexception) setsemiexception
-if(semiexceptionset) sslcheckmitm
-if(semiexceptionset) return true
+if(semiexceptionset) returnif sslcheckmitm
+if(semiexceptionset) unsetsemiexception
 if(sitein, localexception) return setexception
 #if(sitein, localbanned) return setblock
 

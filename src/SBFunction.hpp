@@ -99,9 +99,10 @@
 #define  SB_FUNC_UNSETAUTOMITM	5024
 #define  SB_FUNC_SETGROUP	5025
 #define SB_FUNC_SETSEMIEXCEPTION	    5026
+#define SB_FUNC_UNSETSEMIEXCEPTION	    5027
 
 
-#define SB_FUNC_MAP_SIZE  26
+#define SB_FUNC_MAP_SIZE  27
 
 
 // DECLARATIONS
@@ -178,7 +179,8 @@ class SBFunction
 			 "setautomitm",
 			 "unsetautomitm",
 			 "setgroup",
-			 "setsemiexception"
+			 "setsemiexception",
+			 "unsetsemiexception"
     };
 
   public:
