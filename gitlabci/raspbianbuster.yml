@@ -1,6 +1,6 @@
 build:raspbian:
   stage: build
-  image: amd64/debian:stable
+  image: amd64/debian:10
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -27,7 +27,7 @@ build:raspbian:
 
 package:raspbian:
   stage: create-package
-  image: amd64/debian:stable
+  image: amd64/debian:10
   dependencies:
     - build:raspbian
   artifacts:

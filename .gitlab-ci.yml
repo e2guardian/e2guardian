@@ -21,7 +21,7 @@ stages:
 
 include:
   - 'gitlabci/docker-hub.yml'
-  - 'gitlabci/debianbuster.yml'
+  - 'gitlabci/debianlatest.yml'
   - 'gitlabci/ubuntubionic.yml'
   - 'gitlabci/raspbianbuster.yml'
   - 'gitlabci/ubuntufocal.yml'
