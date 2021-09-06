@@ -1,5 +1,32 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.5.1
+
+December 2020 to August 2021
+
+Fixes
+  - fix #646 - datmaplist of more than 16 lines crash e2g
+  - fix #649 - set got_orig_ip in get_origianl_ip_port (by Raifeg)
+  - Fix #660 - revert to use of iostream for log files - fixes delay due to buffer issue in logger
+  - Fix #670 - request log not being written
+  - Fix #672 - Cart error not giving status page
+  - Fix #677 - exceptionfile test in wrong place
+  - Fix #683 - ports ignored in authplugin conf files
+  - Fix #684 - crash when only one entry in a maplist
+  - Fix #685 - uppercase domain in username never matches
+  - Fix #687 - slowness on browsing some sites - issue with new duplex tunnelling
+
+New features
+  Add extracheckports option to allow loop checking when cache if front.
+  Add new semi exception lists and flag - allows reverse logic for selected sites
+     i.e. Trust a site - but block some urls within site.
+     Note: semiexceptionsitelist and blockurllist must be of the same type to work
+        so if site is in localsemiexceptionsitelist then block of url will only work if in localblockurllist
+        or if in semiexceptionsitelist the block of url will only work if in blockurllist
+
+Refactoring
+  OptionContainer variables reorganised (by KDGundermann)
+
 version 5.5.0
 
 October to November 2020
