@@ -44,7 +44,7 @@
 ###   Copy examplef1.story to group1.story
 ### In list directory:-
 ###   Create a group1 directory
-###   Copy the lists in lists/sample.group into this directory
+###   Copy the lists in lists/example.group into this directory
 ###	and edit them to your requirements
 ### Comment out .define.., and storyboard = lines below.
 ###
