@@ -1,4 +1,4 @@
-FROM debian:buster 
+FROM debian:latest 
 
 LABEL commit.e2guardian=$COMMIT build_date.e2guardian=$BUILD_DATE
 COPY . /tmp/e2guardian
@@ -20,9 +20,7 @@ RUN cd /tmp/e2guardian \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* && rm -Rf /tmp/* 
 
-COPY --chown=e2guardian:root run.sh /
-RUN chmod +x /run.sh
 HEALTHCHECK CMD curl localhost:8080 || exit 1
 USER e2guardian
 EXPOSE 8080
-ENTRYPOINT ["/run.sh"]
+CMD ["e2guardian", "-N"]
