@@ -110,7 +110,7 @@ bannedtimelist
 blankettimelist
 
 
-### These lists are useful for allowing/blocking apps or browsers based 
+### These lists are useful for allowing/blocking apps or browsers based
 ### on the user-agent
 bannedregexpuseragentlist
 exceptionregexpuseragentlist
@@ -128,8 +128,8 @@ urlregexplist
 
 # Replace target connection site for a ssl connection request
 # Note: this does not change the url in any way. It just changes
-# where the request is sent upstream and the new target must accept 
-# the original url. 
+# where the request is sent upstream and the new target must accept
+# the original url.
 sslsiteregexplist
 
 # Used to redirect browser to different site and or url

@@ -1,6 +1,6 @@
 #Banned extension list
 
-# File extensions with executable code 
+# File extensions with executable code
 
 # The following file extensions can contain executable code.
 # This means they can potentially carry a virus to infect your computer.
@@ -15,7 +15,7 @@
 .cmd  # Microsoft Windows NT Command script
 .com  # Microsoft MS-DOS program
 .cpl  # Control Panel extension
-.crt  # Security certificate 
+.crt  # Security certificate
 .dll  # Windows system file
 .exe  # Program
 .hlp  # Help file
@@ -27,12 +27,12 @@
 # .js   # JScript file - often needed in web pages
 # .jse  # Jscript Encoded Script file - often needed in web pages
 .lnk  # Windows Shortcut
-.mda  # Microsoft Access add-in program 
+.mda  # Microsoft Access add-in program
 .mdb  # Microsoft Access program
 .mde  # Microsoft Access MDE database
-.mdt  # Microsoft Access workgroup information 
-.mdw  # Microsoft Access workgroup information 
-.mdz  # Microsoft Access wizard program 
+.mdt  # Microsoft Access workgroup information
+.mdw  # Microsoft Access workgroup information
+.mdz  # Microsoft Access wizard program
 .msc  # Microsoft Common Console document
 .msi  # Microsoft Windows Installer package
 .msp  # Microsoft Windows Installer patch
@@ -57,7 +57,7 @@
 .wsf  # Windows Script file
 .wsh  # Windows Script Host Settings file
 .otf  # Font file - can be used to instant reboot 2k and xp
-.ops  # Office XP settings 
+.ops  # Office XP settings
 
 
 

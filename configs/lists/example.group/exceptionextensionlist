@@ -3,7 +3,7 @@
 # to override a blanket download block.
 # (blockdownloads = on)
 #
-# DOES NOT override content/virus scanning or site/URL bans. 
+# DOES NOT override content/virus scanning or site/URL bans.
 #
 # Default list:
 # Unblock web pages & graphics

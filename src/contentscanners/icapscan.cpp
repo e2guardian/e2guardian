@@ -195,7 +195,7 @@ int icapinstance::init(void *args)
                 if (line.contains("X-Infection-Found")) {
                     supportsXIF = true;
                 }
-	    // Dr web bug ICAP response header without suportXIF 
+	    // Dr web bug ICAP response header without suportXIF
             } else if (line.startsWith("Service: Dr.Web")) {
                     supportsXIF = true;
                 }
@@ -220,7 +220,7 @@ int icapinstance::init(void *args)
 
 #ifndef NEWDEBUG_OFF
         if(o.myDebug->ICAPC)
-        {       
+        {
     	    if (usepreviews){
             	std::ostringstream oss (std::ostringstream::out);
             	oss << thread_id << "Message previews enabled; size: " << previewsize << std::endl;
@@ -231,7 +231,7 @@ int icapinstance::init(void *args)
                 oss << thread_id << "Message previews enabled; size: disabled" << std::endl;
                 o.myDebug->Debug("ICAPC",oss.str());
                 std::cerr << thread_id << "Message previews enabled; size: disabled" << std::endl;
-	    }	
+	    }
         }
 #endif
 
@@ -260,7 +260,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             	oss << thread_id << "Sending memory date to icap preview first" << std::endl;
             	o.myDebug->Debug("ICAPC",oss.str());
             	std::cerr << thread_id << "Sending memory date to icap preview first" << std::endl;
-	   }	
+	   }
     	}
 #endif
 
@@ -316,7 +316,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             std::ostringstream oss (std::ostringstream::out);
             oss << thread_id << "total sent to icap: " << objectsize << std::endl;
             o.myDebug->Debug("ICAPC",oss.str());
-            std::cerr << thread_id << "total sent to icap: " << objectsize << std::endl; 
+            std::cerr << thread_id << "total sent to icap: " << objectsize << std::endl;
         }
 #endif
 
@@ -327,7 +327,7 @@ int icapinstance::scanMemory(HTTPHeader *requestheader, HTTPHeader *docheader, c
             std::ostringstream oss (std::ostringstream::out);
             oss << thread_id << "memory was sent to icap" << std::endl;
             o.myDebug->Debug("ICAPC",oss.str());
-            std::cerr << thread_id << "memory was sent to icap" << std::endl; 
+            std::cerr << thread_id << "memory was sent to icap" << std::endl;
         }
 #endif
 
@@ -496,7 +496,7 @@ int icapinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, con
             		oss << thread_id << "error reading icap file so throwing exception" << std::endl;
             		o.myDebug->Debug("ICAPC",oss.str());
             		std::cerr << thread_id << "error reading icap file so throwing exception" << std::endl;
-        	}	
+        	}
 #endif
 
                 throw std::runtime_error("could not read from file");
@@ -763,11 +763,11 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
                 if(o.myDebug->ICAPC)
                 {
                         std::ostringstream oss (std::ostringstream::out);
-                        oss << thread_id << "Comparing original return code to modified:" 
+                        oss << thread_id << "Comparing original return code to modified:"
                           << docheader->header.front() << std::endl
                           << line << std::endl;
                         o.myDebug->Debug("ICAPC",oss.str());
-                        std::cerr << thread_id <<  "Comparing original return code to modified:" 
+                        std::cerr << thread_id <<  "Comparing original return code to modified:"
                           << docheader->header.front() << std::endl
                           << line << std::endl;
                 }
@@ -824,9 +824,9 @@ int icapinstance::doScan(Socket &icapsock, HTTPHeader *docheader, const char *ob
 #ifndef NEWDEBUG_OFF
                 if(o.myDebug->ICAPC)
                 {
-                   std::ostringstream oss (std::ostringstream::out); 
+                   std::ostringstream oss (std::ostringstream::out);
                    oss << thread_id << "ICAP says clean! (body byte comparison)" << std::endl;
-                   o.myDebug->Debug("ICAPC",oss.str()); 
+                   o.myDebug->Debug("ICAPC",oss.str());
                    std::cerr << thread_id << "ICAP says clean! (body byte comparison)" << std::endl;
                 }
 #endif

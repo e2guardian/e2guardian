@@ -1,10 +1,10 @@
 #
-# Phraselists to block sports sites 
+# Phraselists to block sports sites
 # Originally created by Fernand Jonker
 # Greatly improved by David Burkholder in 2007
 #
 # Please send feedback to phrasemaster@dansguardian.org
-# 
+#
 
 #listcategory: "Sport"
 
@@ -131,7 +131,7 @@
 <anderson joes><30>
 <angelópolis tigres><30>
 <arkansas travelers><30>
-<arizona league><30> 
+<arizona league><30>
 #following teams caught by <arizona league> no overblock so far
 #<arizona league angels><30>
 #<arizona league athletics><30>

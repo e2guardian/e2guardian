@@ -8,7 +8,7 @@ PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
 		forums rta conspiracy domainsforsale idtheft safelabel \
 		travel upstreamfilter secretsocieties translation music
 
-install-data-local: 
+install-data-local:
 	for l in $(PHRASELISTS); do \
 		$(mkinstalldirs) $(DESTDIR)$(E2DATADIR)/$$l && \
 		for f in $(srcdir)/$$l/weighted* $(srcdir)/$$l/exception* $(srcdir)/$$l/banned*; do \
@@ -38,4 +38,4 @@ dist-hook:
 	      fi; \
 	    done; \
 	  fi; \
-	done		
+	done

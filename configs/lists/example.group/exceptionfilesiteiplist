@@ -5,7 +5,7 @@
 #
 # DOES NOT override content/virus scanning or site/URL bans.
 
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

@@ -1,4 +1,4 @@
-# e2guardian messages file in Russian KOI8-R 
+# e2guardian messages file in Russian KOI8-R
 "0","Message number absent"    # needs translation
 "1","Доступ запрещён"
 "10","IP limit exceeded.  There is a  " # needs translation
@@ -26,7 +26,7 @@
 "121","С вашей локации разрешен только ограниченный доступ"
 "122","You not allowed access at this time of day"    # needs translation
 "150","Сертификат сервера не является действительным"
-"151","Невозможно открыть SSL соединение" 
+"151","Невозможно открыть SSL соединение"
 "152","Не удалось получить SSL сертификат"
 "153","Не удалось загрузить приватный ключ сертификата"
 "154","Не удалось согласовать SSL соединение с клиентом"

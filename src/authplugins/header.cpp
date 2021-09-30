@@ -7,12 +7,12 @@
 // INCLUDES
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
-#include "../OptionContainer.hpp" 
+#include "../OptionContainer.hpp"
 #endif
 
 #include "../Auth.hpp"
 
-#include "../OptionContainer.hpp" 
+#include "../OptionContainer.hpp"
 #include <syslog.h>
 
 // DECLARATIONS
@@ -55,7 +55,7 @@ AuthPlugin *headercreate(ConfigVar &definition)
 // proxy auth header username extraction
 int headerinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, std::string &string, bool &is_real_user,auth_rec &authrec)
 {
-    if (fname.length() < 0) 
+    if (fname.length() < 0)
    	return E2AUTH_NOMATCH;
 
     string = h.getAuthHeader();

@@ -7,7 +7,7 @@
 # Use with caution!
 # Ignored if mitmcheckcert is 'off'
 
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

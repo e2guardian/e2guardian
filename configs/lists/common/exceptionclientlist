@@ -9,7 +9,7 @@
 # out blocked sites should be
 # put here.
 #
-# To work you must 
+# To work you must
 # cater for reverse DNS lookups
 # on your LAN and enable the
 # "reverseclientiplookups" option in

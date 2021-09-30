@@ -1,9 +1,9 @@
 #
-# Phraselists to block news sites 
+# Phraselists to block news sites
 # Originally created by Fernand Jonker
 # Modified by David Burkholder
 #
-# 
+#
 
 <cnn.com><100>
 <local news><30>

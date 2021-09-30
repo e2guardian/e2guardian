@@ -26,7 +26,7 @@ struct stat_rec {
     time_t start_int; // time of start of this stat interval
     time_t end_int; // target end time of stat interval
     std::atomic<int> maxusedfd; // max fd reached
-    std::atomic<int> busychildren; 
+    std::atomic<int> busychildren;
     FILE *fs; // file stream
     void reset();
     void start();

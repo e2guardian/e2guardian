@@ -9,7 +9,7 @@
 # out blocked sites should be
 # put here.
 #
-# Hostnames are NOT allowed here, 
+# Hostnames are NOT allowed here,
 # put these in exceptionclientlist and
 # enable the reverseclientlookups option.
 #

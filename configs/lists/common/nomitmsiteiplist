@@ -1,4 +1,4 @@
-#IP in nomitmsiteiplist 
+#IP in nomitmsiteiplist
 
 #This list is to stop any attempt to mitm these sites,
 # including trying to MITM to client to deliver an error message

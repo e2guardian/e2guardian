@@ -1,6 +1,6 @@
 #URL modifying Regular Expressions
 #
-#This list applies to the full URL for HTTP sites, and if configured 
+#This list applies to the full URL for HTTP sites, and if configured
 #for SSL MITM, also HTTPS urls.
 #
 # The format is: "extended regular expression"->"replacement straight string"

@@ -31,13 +31,13 @@
 
 ### QUICK_START section
 ###
-### e2guardian will work using examplef1.story 
+### e2guardian will work using examplef1.story
 ### and the example.group sub-directory of the lists directory
 ### without you making any changes to this file.
 ###
-### The items you are likely to need to change in production are 
+### The items you are likely to need to change in production are
 ### in this section.
-### 
+###
 ### To set up for production:-
 ###
 ### In config directory:-
@@ -71,12 +71,12 @@ storyboard = '@E2CONFDIR@/examplef1.story'   # comment out for production
 #
 # defaults to '@E2CONFDIR@/group1.story' where 1 is the group number
 
-.Define LISTDIR <@E2CONFDIR@/lists/example.group>  # comment out for production 
+.Define LISTDIR <@E2CONFDIR@/lists/example.group>  # comment out for production
 # The directory path for list files for this group
 # This path replaces __LISTDIR__ wherever it occurs below or in included files.
 # See INFO section for full details
 # defaults (initialized) as <@E2CONFDIR@/lists/group1> where 1 is the group number
- 
+
 #naughtynesslimit = 60
 #
 # Naughtiness limit
@@ -89,13 +89,13 @@ storyboard = '@E2CONFDIR@/examplef1.story'   # comment out for production
 # default 60
 
 ###
-### END of QUICK_START section 
+### END of QUICK_START section
 
 
 ### MITM section
 ###
 
-# NOTE to enable SSL MITM 
+# NOTE to enable SSL MITM
 # enablessl must be defined as 'on' in e2guardian.conf
 
 #sslmitm = on
@@ -138,7 +138,7 @@ sitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsitelist'
 #ipsitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsiteiplist'
 
 ###
-### END of MITM section 
+### END of MITM section
 
 
 ### URL_FILTERING section
@@ -153,7 +153,7 @@ sitelist = 'name=localgreyssl,path=__LISTDIR__/localgreysslsitelist'
 # (on|off) default = off
 
 ###
-### END of URL_FILTERING section 
+### END of URL_FILTERING section
 
 
 ### URL_MAINLISTS section
@@ -205,7 +205,7 @@ regexpboollist = 'name=banned,messageno=503,path=__LISTDIR__/bannedregexpurllist
 #ipsitelist = 'name=bannedssl,messageno=520,path=__LISTDIR__/bannedsslsiteiplist'
 
 ###
-### END of URL_MAINLISTS section 
+### END of URL_MAINLISTS section
 
 
 ### URL_LOCAL_LISTS section
@@ -239,7 +239,7 @@ urllist = 'name=localbanned,messageno=561,path=__LISTDIR__/localbannedurllist'
 #ipsitelist = 'name=localbannedssl,messageno=580,path=__LISTDIR__/localbannedsslsiteiplist'
 
 ###
-### END of URL_LOCAL_LISTS section 
+### END of URL_LOCAL_LISTS section
 
 ### FILE_TYPES section
 ###
@@ -264,7 +264,7 @@ ipsitelist = 'name=exceptionfile,path=__LISTDIR__/exceptionfilesiteiplist'
 urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
 
 ###
-### END of FILE_TYPES section 
+### END of FILE_TYPES section
 
 ### TIMES section
 ###
@@ -278,11 +278,11 @@ urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
 #timelist = 'name=blankettimes,messageno=122,path=__LISTDIR__/blankettimelist'
 
 ###
-### END of TIMES section 
+### END of TIMES section
 
 ### APPS section
 ###
-### These lists are useful for allowing/blocking apps or browsers based 
+### These lists are useful for allowing/blocking apps or browsers based
 ### on the user-agent
 
 regexpboollist = 'name=banneduseragent,messageno=522,path=__LISTDIR__/bannedregexpuseragentlist'
@@ -290,7 +290,7 @@ regexpboollist = 'name=banneduseragent,messageno=522,path=__LISTDIR__/bannedrege
 regexpboollist = 'name=exceptionuseragent,messageno=610,path=__LISTDIR__/exceptionregexpuseragentlist'
 
 ###
-### END of APPS section 
+### END of APPS section
 
 ### REFERER section
 ###
@@ -304,7 +304,7 @@ urllist = 'name=refererexception,messageno=620,path=__LISTDIR__/refererexception
 
 # Some sites have the referering url in their url. Put these url in these
 # lists and e2g will extract the embeded url and then check this againist
-# the refererexception lists.  
+# the refererexception lists.
 # For best results be as specific as possible
 
 sitelist = 'name=embededreferer,path=__LISTDIR__/../common/embededreferersitelist'
@@ -313,7 +313,7 @@ urllist = 'name=embededreferer,path=__LISTDIR__/../common/embededrefererurllist'
 
 
 ###
-### END of REFERER section 
+### END of REFERER section
 
 ### URL_MOD section
 ###
@@ -325,12 +325,12 @@ regexpreplacelist = 'name=change,path=__LISTDIR__/urlregexplist'
 
 # Replace target connection site for a ssl connection request
 # Note: this does not change the url in any way. It just changes
-# where the request is sent upstream and the new target must accept 
-# the original url. 
+# where the request is sent upstream and the new target must accept
+# the original url.
 regexpreplacelist = 'name=sslreplace,path=__LISTDIR__/sslsiteregexplist'
 
 ###
-### END of URL_MOD section 
+### END of URL_MOD section
 
 
 ### REDIRECT section
@@ -340,7 +340,7 @@ regexpreplacelist = 'name=sslreplace,path=__LISTDIR__/sslsiteregexplist'
 regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
 
 ###
-### END of REDIRECT section 
+### END of REDIRECT section
 
 
 ### LOG_ONLY section
@@ -357,7 +357,7 @@ regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
 #regexpboollist = 'name=log,path=__LISTDIR__/logregexpurllist'
 
 ###
-### END of LOG_ONLY section 
+### END of LOG_ONLY section
 
 
 ### POST section
@@ -378,7 +378,7 @@ regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
 # default -1
 
 ###
-### END of POST section 
+### END of POST section
 
 
 ### ACCESS_LOG section
@@ -394,7 +394,7 @@ regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
 fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 
 ###
-### END of ACCESS_LOG section 
+### END of ACCESS_LOG section
 
 
 ### PHRASES section
@@ -434,7 +434,7 @@ exceptionphraselist = '__LISTDIR__/exceptionphraselist'
 #exceptionphraselist = '__LISTDIR__/oldexceptionphraselist'
 
 ###
-### END of PHRASES section 
+### END of PHRASES section
 
 
 ### SEARCH section
@@ -503,7 +503,7 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 #exceptionsearchtermlist = '__LISTDIR__/exceptionsearchtermlist'
 
 ###
-### END of SEARCH section 
+### END of SEARCH section
 
 
 ### AV_SCANNERS section
@@ -543,7 +543,7 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 #urllist = 'name=exceptionvirus,path=__LISTDIR__/../contentscanners/exceptionvirusurllist'
 
 ###
-### END of AV_SCANNERS section 
+### END of AV_SCANNERS section
 
 
 ### HEADER section
@@ -574,7 +574,7 @@ regexpreplacelist = 'name=addheader,path=__LISTDIR__/addheaderregexplist'
 regexpreplacelist = 'name=reponseheadermods,path=__LISTDIR__/responseheaderregexplist'
 
 ###
-### END of HEADER section 
+### END of HEADER section
 
 
 ### BLOCK_PAGE section
@@ -631,17 +631,17 @@ regexpreplacelist = 'name=reponseheadermods,path=__LISTDIR__/responseheaderregex
 # <languagedir>/<language>/<htmltemplate>
 # e.g. @E2DATADIR@/languages/ukenglish/custom.html
 
-#neterrtemplate = 'custom_neterr_template.html' 
+#neterrtemplate = 'custom_neterr_template.html'
 #
 #Template for use to report network issues and sites which are not responding
 # The default template file path is <languagedir>/<language>/neterr_template.html
-# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using 
+# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using
 # 'ukenglish' language.
 
 
 
 ###
-### END of BLOCK_PAGE section 
+### END of BLOCK_PAGE section
 
 
 ### BYPASS section
@@ -722,7 +722,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 
 
 ###
-### END of BYPASS section 
+### END of BYPASS section
 
 
 ### EMAILER section
@@ -791,11 +791,11 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 #
 # this is in seconds. If 'violations' occur in 'threshold' seconds, then
 # a notification is made.
-# if this is set to 0, then whenever the set number of violations are made a 
+# if this is set to 0, then whenever the set number of violations are made a
 # notifaction will be sent.
 
 ###
-### END of EMAILER section 
+### END of EMAILER section
 
 
 ### OBSOLETE section
@@ -850,7 +850,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 # not yet implemented in v5
 
 ###
-### END of OBSOLETE section 
+### END of OBSOLETE section
 
 
 

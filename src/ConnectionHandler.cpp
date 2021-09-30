@@ -1121,7 +1121,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 		if (ldl->fg[filtergroup]->reporting_level != -1){
                 	checkme.isItNaughty = checkme.isBlocked;
 		} else {
-			checkme.isItNaughty = false; 
+			checkme.isItNaughty = false;
 		        checkme.isBlocked = false;
 		}
             }
@@ -1339,7 +1339,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 		if (ldl->fg[filtergroup]->reporting_level != -1){
                 	checkme.isItNaughty = checkme.isBlocked;
 		} else {
-			checkme.isItNaughty = false; 
+			checkme.isItNaughty = false;
 		        checkme.isBlocked = false;
 		        checkme.isGrey = true;
 		}
@@ -1691,7 +1691,7 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
     std::string data, cr("\n");
 
 //    if ((isexception && (o.log_exception_hits == 2))
-//        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) 
+//        || isnaughty || o.ll == 3 || (o.ll == 2 && istext))
     if(true) {
 
         // Item length limit put back to avoid log listener
@@ -1896,9 +1896,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
             {
-        // Block ssl website    
+        // Block ssl website
         // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
-	// Connections still opened after a refresh 
+	// Connections still opened after a refresh
 	// 403 requests made ICAP error with high load
 		eheader = "HTTP/1.1 302 Redirect";
 		eheader += "\r\nLocation: http://internal.test.e2guardian.org";
@@ -2059,9 +2059,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             if ((*header).requestType().startsWith("CONNECT"))
 #endif
 		{
-        // Block ssl website    
+        // Block ssl website
         // Buggy with FF < 65 https://bugzilla.mozilla.org/show_bug.cgi?id=1522093
-	// Connections still opened after a refresh 
+	// Connections still opened after a refresh
 	// 403 requests made ICAP error with high load
 		eheader = "HTTP/1.1 302 Redirect";
 		eheader += "\r\nLocation: http://internal.test.e2guardian.org";
@@ -3773,7 +3773,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         //send error response
                             wline = "ICAP/1.0 408 Request timeout\r\n";
                             wline += "Service: ";
-			    wline += PACKAGE_STRING; 
+			    wline += PACKAGE_STRING;
 			    wline  += "\r\n";
                             wline += "Encapsulated: null-body=0\r\n";
                             wline += "\r\n";
@@ -3872,7 +3872,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: REQMOD\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
+		wline += PACKAGE_STRING;
 		wline  += "\r\n";
                 wline += "ISTag: \"";
                 wline += ldl->ISTag();
@@ -3896,7 +3896,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 wline = "ICAP/1.0 200 OK\r\n";
                 wline += "Methods: RESPMOD\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
+		wline += PACKAGE_STRING;
 		wline  += "\r\n";
                 wline += "ISTag:";
                 wline += ldl->ISTag();
@@ -3919,7 +3919,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 (icaphead.service_resmod && !icaphead.icap_resmod_service)) {
                 wline = "ICAP/1.0 405 Method not allowed for service\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
+		wline += PACKAGE_STRING;
 		wline  += "\r\n";
                 wline += "Encapsulated: null-body=0\r\n";
                 wline += "\r\n";
@@ -3937,7 +3937,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 //send error response
                 wline = "ICAP/1.0 400 Bad request\r\n";
                 wline += "Service: ";
-		wline += PACKAGE_STRING; 
+		wline += PACKAGE_STRING;
 		wline  += "\r\n";
                 peerconn.writeString(wline.toCharArray());
 #ifndef NEWDEBUG_OFF
@@ -4153,7 +4153,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
 	if (ldl->fg[filtergroup]->reporting_level != -1){
                	checkme.isItNaughty = checkme.isBlocked;
 	} else {
-		checkme.isItNaughty = false; 
+		checkme.isItNaughty = false;
 	        checkme.isBlocked = false;
 	}
     }
@@ -4298,7 +4298,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     {
         String wline = "ICAP/1.0 418 Bad composition - X-ICAP-E2G header not present\r\n";
         wline += "Service: ";
-	wline += PACKAGE_STRING; 
+	wline += PACKAGE_STRING;
 	wline  += "\r\n";
         wline += "Encapsulated: null-body=0\r\n";
         wline += "\r\n";
@@ -4413,7 +4413,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
 	   if (ldl->fg[filtergroup]->reporting_level != -1){
                	checkme.isItNaughty = checkme.isBlocked;
 	   } else {
-		checkme.isItNaughty = false; 
+		checkme.isItNaughty = false;
 	        checkme.isBlocked = false;
 	   }
     }

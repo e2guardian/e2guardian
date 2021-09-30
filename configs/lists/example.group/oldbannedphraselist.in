@@ -36,7 +36,7 @@
 
 #listcategory: "Banned Phrases"
 
-# The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.  
+# The following banned phraselists enable Website Content Labeling systems.  These are enabled by default, but may also be activated using phraselists.
 
 .Include<@E2CONFDIR@/lists/oldphraselists/safelabel/banned>
 #.Include<@E2CONFDIR@/lists/oldphraselists/rta/banned_portuguese>

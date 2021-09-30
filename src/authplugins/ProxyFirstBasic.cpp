@@ -1,6 +1,6 @@
 // ProxyFirstBasic auth plugin
 //
-// Plugin for use where e2g is behind squid and squid sends user in basic 
+// Plugin for use where e2g is behind squid and squid sends user in basic
 // format
 
 // For all support, instructions and copyright go to:

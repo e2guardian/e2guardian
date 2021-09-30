@@ -60,7 +60,7 @@ nologurllist
 nologregexpurllist
 nologextensionlist
 
-# Search engine regular expression list 
+# Search engine regular expression list
 # List of regular expressions for matching search engine URLs.  It is assumed
 # that the search terms themselves will be contained in the
 # of output of each expression.

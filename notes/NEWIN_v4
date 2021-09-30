@@ -1,42 +1,42 @@
-New in v4 (v4.1).  
+New in v4 (v4.1).
 
-The v4 is written in c++11 and so to compile it you will need gcc v5.4 
-or later. (or another complier that supports the c++11 std::thread library).  
+The v4 is written in c++11 and so to compile it you will need gcc v5.4
+or later. (or another complier that supports the c++11 std::thread library).
 Note that the target systems may also need an c++11 library update.
 
 REVISED PROCESS MODEL
 
-The parent children process model (which does not scale for very large numbers 
+The parent children process model (which does not scale for very large numbers
 of connections) is replaced with a queue/threads based model.
 
-The main thread now only deals with set-up of the logging, listener, and worker 
-threads, the input (and reinput) of the lists, signals and statistics.  
+The main thread now only deals with set-up of the logging, listener, and worker
+threads, the input (and reinput) of the lists, signals and statistics.
 
-The treads communicate via fi-fo queues within memory and so there is no need 
+The treads communicate via fi-fo queues within memory and so there is no need
 for ipc pipes.
 
-A listener thread is set up for each ip/port combination. They listen for a 
-connection, accept it and then push the new connection socket on the 
+A listener thread is set up for each ip/port combination. They listen for a
+connection, accept it and then push the new connection socket on the
 appropriate worker queue.
 
-The worker threads pop connections from the worker queue and deal with the 
+The worker threads pop connections from the worker queue and deal with the
 connection.
 
-When a worker wants to log a request it pushes the logging data onto the log 
-queue. The logging thread will pop the data from the queue, format it and 
-write it to the log. 
+When a worker wants to log a request it pushes the logging data onto the log
+queue. The logging thread will pop the data from the queue, format it and
+write it to the log.
 
-Most of the above logic is in FatControler.cpp.  The logic is now much simpler 
+Most of the above logic is in FatControler.cpp.  The logic is now much simpler
 and has reduced the amount of code in FatControler by over 50%.
 
-Socket classes have been extensively modified to remove interrupt handling (for 
-list reload etc) and all select calls are removed.  So there is no longer a 
+Socket classes have been extensively modified to remove interrupt handling (for
+list reload etc) and all select calls are removed.  So there is no longer a
 need to modify FD_SETSIZE.
 
-New LOptionContainer class has been written to hold list and filter group 
-setings.   On gentle restart a new LOptionContainer object is created and 
-loaded with filter group and list settings.   Once fully read in a global 
-shared pointer is switched from the old list to the new, making actioning 
+New LOptionContainer class has been written to hold list and filter group
+setings.   On gentle restart a new LOptionContainer object is created and
+loaded with filter group and list settings.   Once fully read in a global
+shared pointer is switched from the old list to the new, making actioning
 list changes immediate an with no interruption to service.
 
 TODO - for next release (v5).
@@ -77,6 +77,6 @@ New e2guardian.conf options
 
 Please note the new format for the dstats log. See notes/dstat_format
 
-Philip Pearce 12 July 2017 
+Philip Pearce 12 July 2017
 
 

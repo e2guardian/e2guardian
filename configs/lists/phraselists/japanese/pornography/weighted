@@ -1,23 +1,23 @@
 #listcategory: "Pornography (Japanese)"
 #
 # Phraselists to block japanese pornographic and explicit sites.
-# Originally Created by Fernand Jonker 
+# Originally Created by Fernand Jonker
 # Sponsored by Eric Duveau
 #
-# Some words and meanings from 
+# Some words and meanings from
 # http://en.wikipedia.org/wiki/List_of_Japanese_sex_terms
 # http://en.wikipedia.org/wiki/Pornography_in_Japan
 #
-# Note that all phrases are in UFT-8, EUC-JP and SHIFT_JIS character sets. 
+# Note that all phrases are in UFT-8, EUC-JP and SHIFT_JIS character sets.
 
 #noconvert
 
- 
+
 
 #Block Un-filtered character sets
 #<x-sjis><250>	#New character set - not used much
 #<ISO-2022-JP><250>	#Used primarily for email
-#<CP932><250>		#Unknown 
+#<CP932><250>		#Unknown
 
 #######################################
 #Shift_JIS

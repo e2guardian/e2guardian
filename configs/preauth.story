@@ -21,16 +21,16 @@ function(icap-pre-authcheck)
 # Each auth plugin that uses a list has its own entry function
 # and returns true if filtergroup is matched and set and false if not found.
 
-# Currently auth plugins which used the filtergrouplist in pre-v5.4 are set 
+# Currently auth plugins which used the filtergrouplist in pre-v5.4 are set
 # to use the default filtergrouplist so as to be backward compatible.
 
-# However, now each plugin can have it's own list.  To do this, define 
+# However, now each plugin can have it's own list.  To do this, define
 # a new maplist in e2guardian.conf named as say 'basicmap' and then replace
-#       'if(userin,defaultusermap) return setgroup' 
-#  with 'if(userin,basicmap) return setgroup'.  
+#       'if(userin,defaultusermap) return setgroup'
+#  with 'if(userin,basicmap) return setgroup'.
 
 # More complex logic is now possible if required.
-# For example to use ipmap to determine group where user is not in 
+# For example to use ipmap to determine group where user is not in
 # defaultusermap, but retain authed user name:-
 #
 #function(auth_sample)

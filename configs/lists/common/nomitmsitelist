@@ -1,4 +1,4 @@
-#domains in nomitmsitelist 
+#domains in nomitmsitelist
 #Don't bother with the www. or the http://
 
 #This list is to stop any attempt to mitm these sites,

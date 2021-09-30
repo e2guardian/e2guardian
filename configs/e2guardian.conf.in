@@ -13,7 +13,7 @@
 ### MITM 		- SSL MITM settings
 ### ICAP_SERVICE 	- ICAP server mode settings
 ### TRANSPARENT 	- Transparent proxy settings
-### AUTH		- Authentication (user and group assignment) 
+### AUTH		- Authentication (user and group assignment)
 ###				settings and lists
 ### ACCESS_LOG		- Access log settings
 ### MONITORING		- Monitoring settings
@@ -36,11 +36,11 @@
 ### e2guardian will work as a normal http/s proxy server
 ### listening on port 8080
 ### without you making any changes to this file.
-### 
+###
 ### This section contains settings that you may want to
 ### change, e.g language, dockermode, to set ICAP mode or enable SSL MITM
 ### support
-### 
+###
 
 # language to use from languagedir.
 language = 'ukenglish'
@@ -88,7 +88,7 @@ language = 'ukenglish'
 #port for transparent https
 #NOTE: To make work firewall will need to redirect tcp port 443 on routed
 # packets to this port and ssl must be enabled with enablessl = on
-# default 0 - i.e. disabled 
+# default 0 - i.e. disabled
 
 #icapport = 1344
 #
@@ -103,9 +103,9 @@ language = 'ukenglish'
 
 #filtergroups = 1
 #
-# filtergroups sets the number of filter groups. 
-# A filter group is a set of content filtering options you can apply to a 
-# group of users.  
+# filtergroups sets the number of filter groups.
+# A filter group is a set of content filtering options you can apply to a
+# group of users.
 # The value must be 1 or more.
 # e2guardian will automatically look for e2guardianfN.conf where N is the filter
 # group.
@@ -319,7 +319,7 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 # When enabled the upstream request will be directed at the original ip and port
 # and no DNS lookup will be performed.
 # This solves the 'snapchat' issue and also should increase speed of connection.
-# Currently this ONLY works on linux systems.  
+# Currently this ONLY works on linux systems.
 # BSD developers, PLEASE HELP fix this for BSD, pfsense etc!
 # default = on (linux) ignored (bsd)
 
@@ -338,15 +338,15 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 # Auth plugins
 #
 # Handle the extraction of client usernames and groups from various sources,
-# enabling requests to be handled according to the settings of the user's 
+# enabling requests to be handled according to the settings of the user's
 # filter group.
 #
 
 ## There are five ways that e2g can be deployed and this affects the auth
 ## plugins available
-## 
 ##
-## 'Standalone' - e2g handles client and upstream traffic 
+##
+## 'Standalone' - e2g handles client and upstream traffic
 ##
 ## 'Proxy-First' - client is logged in by proxy (squid)
 ##		   and proxy passes e2g the user name in a 'basic' proxy
@@ -355,7 +355,7 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ## 'Proxy-After' - client points to e2g which then uses upstream proxy
 ##		   This is the method used by dg/e2g until v5.
 ##                 If authentication is enabled on proxy, then
-##                 sslreplace, 'Transparent' or IP auth will not work. 
+##                 sslreplace, 'Transparent' or IP auth will not work.
 ##
 ## 'Transparent' - 80/443 requests are redirected to e2g on gateway
 ##	           Can be used with Standalone or Proxy-After mode
@@ -368,15 +368,15 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 ##                 ICAP server.
 ## ICAP has built in auth as username is supplied in the ICAP header
 ## by squid. The user is checked against the filtergroupslist to get the
-## group.  To cater for the situation where user is missing ip based 
+## group.  To cater for the situation where user is missing ip based
 ## plugins such as 'ip' can be used as fall back.
 ##
-## Note that e2g can support multiple methods at the same time, 
+## Note that e2g can support multiple methods at the same time,
 ## e.g. Standalone, Transparent and ICAP server
 
 
 ## There are three types of plugin
-## 'Native', 'Proxy-first' and 'Proxy-after' 
+## 'Native', 'Proxy-first' and 'Proxy-after'
 
 ## 'Native' plugins - these do not require use of a proxy
 
@@ -396,7 +396,7 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 
 # HELP - more native plugins needed!  'basic' etc.
 
-## 'Proxy-first' plugin - requires a proxy in front to do the user 
+## 'Proxy-first' plugin - requires a proxy in front to do the user
 ##  authentication.
 
 # Use pf-basic.conf where proxy is doing auth in front of e2g
@@ -432,10 +432,10 @@ ipsitelist = 'name=nomitm,path=__LISTDIR__/nomitmsiteiplist'
 
 
 ## Auth mapping files - Map users (or client IPs) to filter groups
-## Note that from v5.4 lists used by auth plugins are defined here and 
+## Note that from v5.4 lists used by auth plugins are defined here and
 ## not in auth *.conf files
 
-# Generic user to group mapping - used by default by basic, digest, ntlm, 
+# Generic user to group mapping - used by default by basic, digest, ntlm,
 # ident & icap plugins
 maplist = 'name=defaultusermap, path=__LISTDIR__/../authplugins/filtergroupslist'
 # for ip auth
@@ -606,7 +606,7 @@ nologger = off
 # on|off (defaults to on)
 
 #logtimestamp = off
-# Add unix timestamp to time field so that date/time in readable format 
+# Add unix timestamp to time field so that date/time in readable format
 # and unix timestamp - applies only to log formats 1,2 and 4
 # default off
 
@@ -650,7 +650,7 @@ dstatlocation = '@E2LOGLOCATION@/dstats.log'
 # Maximum 3600 (= 1 hour)
 
 #statshumanreadable = off
-# Time format for dstat is epoch GMT+0 by default | statshumanreadable 
+# Time format for dstat is epoch GMT+0 by default | statshumanreadable
 # change to local zone
 # default off
 
@@ -663,10 +663,10 @@ dstatlocation = '@E2LOGLOCATION@/dstats.log'
 # Used by loadbalancers and monitoring software (e.g. smokeping)
 # to detect if e2g is functioning.
 #
-# It is tested for after connection is successful and a worker thread is 
+# It is tested for after connection is successful and a worker thread is
 # assigned, but before user auth and group assignment is made.
 #
-# This has been built in to e2g since v3, but this option allows the 
+# This has been built in to e2g since v3, but this option allows the
 # url to be changed.
 #
 # default 'internal.test.e2guardian.org'
@@ -685,7 +685,7 @@ dstatlocation = '@E2LOGLOCATION@/dstats.log'
 # It is tested for after user auth and group assignment is made, but
 # before any filtering is performed.
 
-# New in v5.4.3, this option allows the 
+# New in v5.4.3, this option allows the
 # url to be changed.
 #
 # default 'internal.status.e2guardian.org'
@@ -723,7 +723,7 @@ reverseaddresslookups = off
 ### LIST_SETTINGS section
 ###
 
-# abortiflistmissing = off  
+# abortiflistmissing = off
 # Abort if a list is missing or unreadable
 # default is to warn but then ignore missing lists
 # To abort on missing list set to on
@@ -760,7 +760,7 @@ reverseaddresslookups = off
 #@ICAPSUPPORT@contentscanner = '@E2CONFDIR@/contentscanners/icapscan.conf'
 
 # Warning: The commandlinescan plugin uses 'fork()' which does not work well
-#  in a large multi-threaded program like e2g. It can cause unpredictable 
+#  in a large multi-threaded program like e2g. It can cause unpredictable
 #  crashes.
 # On a small scale system (home user) it may work ok, but not recommended for
 #  larger scale systems.  The more active threads, the more likely a crash is.
@@ -958,7 +958,7 @@ weightedphrasemode = 2
 # CPU usage can be effectively halved by using setting 0 or 1 compared to 2
 # 0 = raw only
 # 1 = smart only
-# 2 = both of the above 
+# 2 = both of the above
 # 3 = meta/title
 # default 2
 
@@ -1140,7 +1140,7 @@ weightedphrasemode = 2
 ## Things that will only work if specifically compliled
 
 ## 'NEW' debug system (generaly compliled in release systems)
-## Note that this is only partialy implimented and only works for ICAP, CLAMAV 
+## Note that this is only partialy implimented and only works for ICAP, CLAMAV
 ## and ICAPC
 ## and so 'ALL' = 'ICAP,CLAMAV,ICAPC' only.
 ## To debug other areas of code re-compiling in debug mode is required
@@ -1205,7 +1205,7 @@ weightedphrasemode = 2
 # It is not usually advantageous to do this.
 # on|off (defaults to off)
 
-#@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'   
+#@EMAILSUPPORT@mailer = '/usr/sbin/sendmail -t'
 #
 # Mail program
 # Path (sendmail-compatible) email program, with options.
@@ -1213,7 +1213,7 @@ weightedphrasemode = 2
 ## Note that this is experimental in v5 - no support from maintainers
 #
 # Warning: This option uses 'fork()' which does not work well
-#  in a large multi-threaded program like e2g. It can cause unpredictable 
+#  in a large multi-threaded program like e2g. It can cause unpredictable
 #  crashes.
 # On a small scale system (home user) it may work ok, but not recommended for
 #  larger scale systems.  The more active threads, the more likely a crash is.
@@ -1246,10 +1246,10 @@ originalip = off
 # low case only
 # only used with logs: 1,5 and 6
 
-#statlocation = "" 
+#statlocation = ""
 #  url cache/stats no  longer in use
 
-#blockedcontentstore = "" 
+#blockedcontentstore = ""
 #  no  longer in use
 
 #softrestart = off
@@ -1322,10 +1322,10 @@ originalip = off
 # The scope of LISTDIR is in the rest of file it is defined in and all
 # .Include<> files or list files in that portion of the file.
 
-# It should be noted that re-definitions of single-line directives will 
+# It should be noted that re-definitions of single-line directives will
 # over write any earlier ones.
 
-# The same is true of list definitions.  Later unique definitions will 
+# The same is true of list definitions.  Later unique definitions will
 # override earlier ones. A unique list definition is formed from the
 # list type and the name.
 #

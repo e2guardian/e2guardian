@@ -1,6 +1,6 @@
 #
 # Phraselists to block forum sites
-# Originally Created by Fernand Jonker 
+# Originally Created by Fernand Jonker
 #
 #listcategory: "Forums"
 
@@ -62,5 +62,5 @@
 #Mailgust
 <Powered by Mailgust><100>
 
-#php Bulletin Board 
+#php Bulletin Board
 <Bulletin Board Group><40>

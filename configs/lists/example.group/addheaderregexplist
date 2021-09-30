@@ -1,13 +1,13 @@
 #Add header where url matches
 #
-## to enable restricted YouTube 
-#"(^http://www\.youtube\.com/.*$)"->"YouTube-Restrict: Strict" 
-#"(^http://m\.youtube\.com/.*$)"->"YouTube-Restrict: Strict" 
-#"(^http://youtubei\.googleapis\.com/.*$)"->"YouTube-Restrict: Strict" 
-#"(^http://youtube\.googleapis\.com/.*$)"->"YouTube-Restrict: Strict" 
-#"(^http://www\.youtube-nocookie\.com/.*$)"->"YouTube-Restrict: Strict" 
-#"(^http://www\.youtube\.com$)"->"YouTube-Restrict: Strict" 
-#"(^http://m\.youtube\.com$)"->"YouTube-Restrict: Strict" 
-#"(^http://youtubei\.googleapis\.com$)"->"YouTube-Restrict: Strict" 
-#"(^http://youtube\.googleapis\.com$)"->"YouTube-Restrict: Strict" 
-#"(^http://www\.youtube-nocookie\.com$)"->"YouTube-Restrict: Strict" 
+## to enable restricted YouTube
+#"(^http://www\.youtube\.com/.*$)"->"YouTube-Restrict: Strict"
+#"(^http://m\.youtube\.com/.*$)"->"YouTube-Restrict: Strict"
+#"(^http://youtubei\.googleapis\.com/.*$)"->"YouTube-Restrict: Strict"
+#"(^http://youtube\.googleapis\.com/.*$)"->"YouTube-Restrict: Strict"
+#"(^http://www\.youtube-nocookie\.com/.*$)"->"YouTube-Restrict: Strict"
+#"(^http://www\.youtube\.com$)"->"YouTube-Restrict: Strict"
+#"(^http://m\.youtube\.com$)"->"YouTube-Restrict: Strict"
+#"(^http://youtubei\.googleapis\.com$)"->"YouTube-Restrict: Strict"
+#"(^http://youtube\.googleapis\.com$)"->"YouTube-Restrict: Strict"
+#"(^http://www\.youtube-nocookie\.com$)"->"YouTube-Restrict: Strict"

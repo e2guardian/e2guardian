@@ -25,7 +25,7 @@ class DebugManager
 		void LoadParam();
 		void CheckFlag(bool flag);
 		bool Filter (std::string s);
-	public:	
+	public:
 		bool ICAP = false;
 		bool ICAPC = false;
 		bool CLAMAV = false;

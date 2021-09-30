@@ -55,11 +55,11 @@
 "301","Frasa larangan dikesan."
 # Banned phrase found.
 "400","Kombinasi frasa larangan dikesan: "
-# Banned combination phrase found: 
+# Banned combination phrase found:
 "401","Kombinasi frasa larangan dikesan."
 # Banned combination phrase found.
 "402","Had beban frasa oleh "
-# Weighted phrase limit of 
+# Weighted phrase limit of
 "403","Melebihi had beban frasa."
 # Weighted phrase limit exceeded.
 "450","Banned search term found: "    # needs translation
@@ -71,12 +71,12 @@
 "456","Exception combination search term found: "    # needs translation
 "457","Exception search term found: "    # needs translation
 "500","Laman larangan: "
-# Banned site: 
+# Banned site:
 "501","URL larangan: "
-# Banned URL: 
+# Banned URL:
 "502","Blok Blanket adalah aktif dan laman tersebut tidak tersenarai dalam white atau grey list." # Blanket Block is active and that site is not on the white or grey list.
-"503","URL Ekspresi Biasa larangan: " 
-# Banned Regular Expression URL: 
+"503","URL Ekspresi Biasa larangan: "
+# Banned Regular Expression URL:
 "504","URL Ekspresi Biasa larangan dikesan."
 # Banned Regular Expression URL found.
 "505","Blok Blanket IP adalah aktif dan alamat tersebut hanyalah alamat IP."
@@ -104,9 +104,9 @@
 "603","URL pengecualian sepadan."
 # Exception URL match.
 "604","Frasa pengecualian sepadan: "
-# Exception phrase found: 
+# Exception phrase found:
 "605","Kombinasi frasa pengecualian sepadan: "
-# Combination exception phrase found: 
+# Combination exception phrase found:
 "606","URL pintasan sepadan."
 # Bypass URL exception.
 "607","Cookie pintasan sepadan."
@@ -127,9 +127,9 @@
 "750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
 "751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
 "800","Jenis MIME larangan: "
-# Banned MIME Type: 
+# Banned MIME Type:
 "900","Extension larangan: "
-# Banned extension: 
+# Banned extension:
 "1000","Penglabelan PICS melebihi peringkat pada laman di atas."
 # PICS labeling level exceeded on the above site.
 "1100","Virus or bad content detected."

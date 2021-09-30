@@ -1,8 +1,8 @@
-DISTCLEANFILES = Makefile.in 
+DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists/common
 
-SUBDIRS = . 
+SUBDIRS = .
 
 WLISTS = authexceptioniplist \
 authexceptionsitelist \
@@ -25,10 +25,10 @@ nomitmsitelist \
 searchregexplist \
 searchexceptionregexplist \
 README
- 
-EXTRA_DIST = 
 
-install-data-local: 
+EXTRA_DIST =
+
+install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 		for l in $(WLISTS) ; do \
 		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \

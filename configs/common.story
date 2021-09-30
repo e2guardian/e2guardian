@@ -1,14 +1,14 @@
 # Storyboard library file
 
-# For ease of upgrade DO NOT CHANGE THIS library file 
+# For ease of upgrade DO NOT CHANGE THIS library file
 # Make your function changes by using user 'hook' functions
 # or by overriding functions
 # in the site.story file - for site wide changes.
-# 
+#
 # and in filtergroup specific story file - see examplef1.story
 #
 # This library is built to largely duplicate the logic in V4
-# 
+#
 # Many e2guardian[f1].conf flags are replaced by overiding
 # library functions - see site.story and examplef1.story
 #
@@ -25,7 +25,7 @@ function(checkrequest)
 if(true) returnif hook_checkrequest
 if(viruscheckset) checknoscanlists
 if(bypassallowset) checknobypasslists
-if(exceptionset) return true 
+if(exceptionset) return true
 #if(fullurlin,searchterms) setsearchterm
 if(true) is_search_term
 ifnot(greyset) returnif localcheckrequest
@@ -120,7 +120,7 @@ if(searchin,localbanned) return setblock
 
 
 # Local SSL checks
-#  returns true if matches local exception 
+#  returns true if matches local exception
 function(localsslrequestcheck)
 if(true) returnif hook_localsslrequestcheck
 if(true) returnif sslchecktimesblocked
@@ -250,7 +250,7 @@ function(checknobypasslists)
 if(urlin,bannedbypass) return unsetbypassallow
 
 # ICAP SSL request check
-#  returns true if exception 
+#  returns true if exception
 function(icapsslrequestcheck)
 if(true) returnif hook_icapsslrequestcheck
 if(true) returnif icapsquidbump
@@ -276,13 +276,13 @@ function(icapsquidbump)
 # File type blocking
 #  returns true if blocking
 # Default uses banned lists and allows all others
-# Overide in site.story or fn.story if only types in exception file type lists 
+# Overide in site.story or fn.story if only types in exception file type lists
 # are to be allowed
 function(checkfiletype)
 if(mimein, bannedmime) return setblock
 if(extensionin, bannedextension) return setblock
 
-# SNI checking - determines default action when no SNI or TSL is present on a 
+# SNI checking - determines default action when no SNI or TSL is present on a
 #    THTTPS connection
 # Default blocks all requests with TLS or SNI absent that are not ip site exceptions
 function(checksni)
