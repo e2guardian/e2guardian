@@ -36,7 +36,7 @@
 // allow access to http[s] based auth system, but with no persitance
 #define E2AUTH_OK_NOPERSIST 9
 
-// auth plugin found a partial or incomplet answer (Eg NTLM): just break ident loop for this request  
+// auth plugin found a partial or incomplet answer (Eg NTLM): just break ident loop for this request
 #define E2AUTH_NOIDENTPART 5
 
 // any < 0 return code signifies error

@@ -1,6 +1,6 @@
 # Embeded referer IP sites
 #  sites which may contain embeded exception referer sites in the url
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

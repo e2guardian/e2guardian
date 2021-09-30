@@ -1,6 +1,6 @@
 # No Log URL list
 #
-# This acts as a list of URLs which, when found, will 
+# This acts as a list of URLs which, when found, will
 # not be logged
 
 www.google.com/complete

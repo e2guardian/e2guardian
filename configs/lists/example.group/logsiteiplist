@@ -11,7 +11,7 @@
 # categories you would like to log.  Included list files must contain a
 # "#listcategory" directive.
 
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

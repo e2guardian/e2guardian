@@ -523,7 +523,7 @@ bool FOptionContainer::read(const char *filename) {
                     syslog(LOG_ERR, "Error reading default HTML and NetErr Template file: %s", html_template.toCharArray());
                     return false;
 	        }
-	    } 
+	    }
         }
 
         if (findoptionS("nonstandarddelimiter") == "off") {
@@ -707,7 +707,7 @@ bool FOptionContainer::read(const char *filename) {
                     }
                 }
             }
-	    
+
 	std::string content_regexp_list_location(findoptionS("contentregexplist"));
 	if (content_regexp_list_location.length() > 1) {
 		unsigned int content_regexp_list;
@@ -715,7 +715,7 @@ bool FOptionContainer::read(const char *filename) {
              		return false;
 		} else {
 			content_regexp_flag = true;
-		} 
+		}
 	} else {
 			content_regexp_flag = false;
 	}

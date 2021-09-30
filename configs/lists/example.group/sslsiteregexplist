@@ -9,7 +9,7 @@
 # This is used to 'cname' ssl sites and avoids having to adjust DNS
 # and allows option of switching off/on depending on filter group.
 
-# This list applies to the site only (not full URL) for 
+# This list applies to the site only (not full URL) for
 #   HTTPS sites (regardless of SSL MITM configuration).
 
 # Do not use patterns with full urls in this list as they can never

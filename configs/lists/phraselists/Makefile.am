@@ -1,14 +1,14 @@
-DISTCLEANFILES = Makefile.in 
+DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists/phraselists
 
-MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanese malay norwegian polish portuguese russian-1251 russian-koi8-r spanish swedish ukenglish 
+MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanese malay norwegian polish portuguese russian-1251 russian-koi8-r spanish swedish ukenglish
 
 
 #WLISTS = README
- 
 
-#install-data-local: 
+
+#install-data-local:
 #	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 #		for l in $(WLISTS) ; do \
 #		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \
@@ -24,10 +24,10 @@ MYSUBDIRS = chinesebig5 chinesegb2312 danish dutch french german italian japanes
 PHRASELISTS = badwords chat drugadvocacy gambling games goodphrases \
 		gore illegaldrugs intolerance \
 		nudism personals pornography \
-		proxies violence warezhacking weapons 
-		
+		proxies violence warezhacking weapons
 
-install-data-local: 
+
+install-data-local:
 	for lang in $(MYSUBDIRS); do \
 	for l in $(PHRASELISTS); do \
 		if test -d $(srcdir)/$$lang/$$l ; then \
@@ -40,7 +40,7 @@ install-data-local:
 		done \
 		fi \
 	done \
-	done 
+	done
 
 uninstall-local:
 	for lang in $(MYSUBDIRS); do \
@@ -65,6 +65,6 @@ dist-hook:
 	    done; \
 	  fi; \
 	done \
-	done		
+	done
 
 

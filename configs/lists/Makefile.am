@@ -1,4 +1,4 @@
-DISTCLEANFILES = Makefile.in 
+DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists
 
@@ -12,10 +12,10 @@ SUBDIRS += downloadmanagers
 endif
 
 WLISTS = README
- 
-EXTRA_DIST = 
 
-install-data-local: 
+EXTRA_DIST =
+
+install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 		for l in $(WLISTS) ; do \
 		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \

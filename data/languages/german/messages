@@ -37,7 +37,7 @@
 "157","Es konnte kein Verbindung zum lokalen Proxy hergestellt werden"
 "158","Verbindungsaufbau fehlgeschlagen"
 "159","Es konnte kein Verbindung zum Proxy-Server aufgebaut werden"
-"160","Die SSL-Verbindung zum Server konnte nicht hergestellt werden" 
+"160","Die SSL-Verbindung zum Server konnte nicht hergestellt werden"
 "200","Die angeforderte URL ist ungültig"
 "201","Antwort vom Upstream-Proxy nicht möglich (Zeitüberschreitung)"
 "202","Antwort vom Upstream-Proxy nicht möglich (Fehler)"

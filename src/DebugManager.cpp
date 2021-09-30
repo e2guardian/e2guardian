@@ -36,10 +36,10 @@ DebugManager::~DebugManager()
 void DebugManager::Debug(std::string value, std::string output,...)
 {
 	if (value != "" && m_e2debug == true)
-	{	
+	{
 		std::string v = value;
 		std::vector<std::string> liste;
-		std::string result = "";	
+		std::string result = "";
 		if(v.find(",") != std::string::npos)
 		{
 			while(v.find(",") != std::string::npos)
@@ -49,18 +49,18 @@ void DebugManager::Debug(std::string value, std::string output,...)
 			}
 		}
 		liste.push_back(v);
-	
+
 		for(unsigned int i = 0; i < liste.size(); i++)
 		{
 			if(m_debuglevel.find("ALL,") == 0 && (m_debuglevel.find("," + liste[i]) == std::string::npos || !Filter(liste[i])))
 			{
-				result = liste[i];		
+				result = liste[i];
 			}
 			else if(m_debuglevel == "ALL" || m_debuglevel == liste[i])
-	                {       
-        	         	result = liste[i];       
+	                {
+        	         	result = liste[i];
 	                }
-			else if(m_debuglevel.find("ALL") == std::string::npos && (m_debuglevel.find(liste[i]) != std::string::npos || Filter(liste[i])))          
+			else if(m_debuglevel.find("ALL") == std::string::npos && (m_debuglevel.find(liste[i]) != std::string::npos || Filter(liste[i])))
                 	{
 	                    	result = liste[i];
                  	}
@@ -72,12 +72,12 @@ void DebugManager::Debug(std::string value, std::string output,...)
 			{
 				std::ostringstream oss (std::ostringstream::out);
 				oss << thread_id << time(NULL) << " " << result << " debug : ";
-				
+
 				int i=0;
 				unsigned int j=0;
 				va_list ap;
 				va_start(ap,output);
-				char * p = new char[output.length()+1]; 
+				char * p = new char[output.length()+1];
 				strcpy(p,output.c_str());
 				char buff[2000];
 				char * v = buff;
@@ -86,15 +86,15 @@ void DebugManager::Debug(std::string value, std::string output,...)
 				{
 					switch(*(p+i))
 					{
-						case '%': 
+						case '%':
 							i++;
 							if(*(p+i)=='c')
 							{
 								oss << va_arg(ap,int);
 							}
 
-							if(*(p+i)=='d')	
-							{ 
+							if(*(p+i)=='d')
+							{
 								n = va_arg(ap,int);
 								std::stringstream ss;
 								ss << n;
@@ -107,7 +107,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 								}
 							}
 							if(*(p+i)=='s')
-							{ 
+							{
 								v = va_arg(ap,char *);
 								for(j=0;j<strlen(v);j++)
 								{
@@ -116,7 +116,7 @@ void DebugManager::Debug(std::string value, std::string output,...)
 							}
 							break;
 						default :
-							oss << *(p+i); 
+							oss << *(p+i);
 							break;
 					}
 					i++;
@@ -177,7 +177,7 @@ void DebugManager::LoadParam()
 				PROXY = false;
 			}
 			CheckFlag(checkall);
-			checkall = true;	
+			checkall = true;
 		}
 		if(liste[i].find("FILTER") != std::string::npos)
 		{
@@ -197,7 +197,7 @@ void DebugManager::LoadParam()
 			}
 			CheckFlag(checkfilter);
 			checkfilter = true;
-		}	
+		}
 		if(liste[i].find("ICAP") != std::string::npos)
 		{
 			if(liste[i].find("-") == std::string::npos)

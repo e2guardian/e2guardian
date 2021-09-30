@@ -1,4 +1,4 @@
-// SBFunction class 
+// SBFunction class
 
 // For all support, instructions and copyright go to:
 // http://e2guardian.org/
@@ -17,7 +17,7 @@
 #include "RegExp.hpp"
 #include "ListMeta.hpp"
 
-// commands 
+// commands
 #define  SB_COM_STARTFUNCTION	1
 #define  SB_COM_ENDFUNCTION	2
 #define  SB_COM_IF		3

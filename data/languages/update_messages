@@ -13,7 +13,7 @@ for l in `cat ${master}|tr " " "^"`
 do
   #echo ${l}
 
-  if [ "${l:0:1}" = '"' ] 
+  if [ "${l:0:1}" = '"' ]
   then
     n=`echo ${l}|cut -f1 -d,|tr -d '"'`
     d=`echo ${l}|cut -f2- -d,|tr "^" " "`
@@ -79,6 +79,6 @@ do
   fi
 
 done
-	
+
 exit 0
 

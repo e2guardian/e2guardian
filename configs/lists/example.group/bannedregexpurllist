@@ -6,7 +6,7 @@
 
 #Banned URLs based on Regular Expressions
 
-#These examples should be used with extreme caution 
+#These examples should be used with extreme caution
 # as most regexp url patterns tend to overblock
 # Be as specific as possible as this helps avoid this
 
@@ -51,7 +51,7 @@
 #(picsearch.com\/is)
 
 #Block images and video on google
-#(images.google)+.*(\.jpg|\.wmv|\.mpg|\.mpeg|\.gif|\.mov) 
+#(images.google)+.*(\.jpg|\.wmv|\.mpg|\.mpeg|\.gif|\.mov)
 #(google.com\/video) #block all video
 #(google.com\/ThumbnailServer) #block video thumbnails
 #(google.com\/videoplay) #block only playing the video

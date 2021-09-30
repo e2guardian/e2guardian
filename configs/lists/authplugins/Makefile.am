@@ -8,7 +8,7 @@ WLISTS = ipgroups portgroups filtergroupslist
 
 EXTRA_DIST = $(WLISTS)
 
-install-data-local: 
+install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \
 	for l in $(WLISTS) ; do \
 		echo "$(INSTALL_DATA) $$l $(DESTDIR)$(E2DATADIR)/$$l"; \

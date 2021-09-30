@@ -1,7 +1,7 @@
 #listcategory: "Adult"
 
 #
-# Phraselists to block nudism/naturaism sites 
+# Phraselists to block nudism/naturaism sites
 #
 < clothes-free ><30>
 < clothing optional ><30>

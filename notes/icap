@@ -4,7 +4,7 @@ ICAP REQMOD and RESPMOD now enabled
 
 REQMOD service does url checking and any url modification and logs blocked requests.
 
-RESPMOD service does content checking where REQMOD has not identified request 
+RESPMOD service does content checking where REQMOD has not identified request
 as an exception, and logs request.
 
 Possible modes are:-

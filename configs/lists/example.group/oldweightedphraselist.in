@@ -3,7 +3,7 @@
 # New in v5.2 - per cent feature
 
 # If weighting is a % then that % of the naughtynesslimit is used as the weight
-# e.g.  
+# e.g.
 # < slut ><10%>
 # - If naughtynesslimit is 200 will add 20 to the count against the word 'slut'
 #
@@ -13,7 +13,7 @@
 #
 # Examples:
 #
-# <slut><10>			
+# <slut><10>
 # - Adds 10 to the count against the string 'slut'.   ie. sluts, slut!, abslutxyz.
 #
 # < slut ><10>
@@ -33,10 +33,10 @@
 # Extra weighted-list files to include
 # .Include<@E2CONFDIR@/lists/oldphraselists/weightedphraselist.topic>
 #
-# Help by contributing customised lists and/or new keyword lists. 
+# Help by contributing customised lists and/or new keyword lists.
 # Email: pornmastergeneral@e2guardian.org or phrasemaster@e2guardian.org
 #
-# NOTE: New lists are commented out as ALPHA or BETA depending on how much the 
+# NOTE: New lists are commented out as ALPHA or BETA depending on how much the
 # lists have been tested.
 # ALPHA - Brand new and/or incomplete - little testing has been done
 # BETA - Relatively new - tested in several locations
@@ -44,7 +44,7 @@
 
 #listcategory: "Weighted Phrases"
 
-#To enable several non-PICS self-labelling and self-rating systems.  
+#To enable several non-PICS self-labelling and self-rating systems.
 #Enabled as a bannedsitelist by default.  Disable there before enabling as a phraselist.
 ##.Include<@E2CONFDIR@/lists/oldphraselists/safelabel/weighted>
 
@@ -78,7 +78,7 @@
 .Include<@E2CONFDIR@/lists/oldphraselists/nudism/weighted>
 
 #Bad Words - swearing
-.Include<@E2CONFDIR@/lists/oldphraselists/badwords/weighted_dutch> 
+.Include<@E2CONFDIR@/lists/oldphraselists/badwords/weighted_dutch>
 .Include<@E2CONFDIR@/lists/oldphraselists/badwords/weighted_french>
 .Include<@E2CONFDIR@/lists/oldphraselists/badwords/weighted_german> #ALPHA#
 .Include<@E2CONFDIR@/lists/oldphraselists/badwords/weighted_portuguese> #ALPHA#
@@ -106,7 +106,7 @@
 
 #Webmail
 #.Include<@E2CONFDIR@/lists/oldphraselists/webmail/weighted>
-#Note that if you enable the webmail weighted list you should also disable 
+#Note that if you enable the webmail weighted list you should also disable
 #the "exception_email" list in the exceptionphraselist file.
 
 #Forums
@@ -135,7 +135,7 @@
 .Include<@E2CONFDIR@/lists/oldphraselists/warezhacking/weighted>
 #.Include<@E2CONFDIR@/lists/oldphraselists/peer2peer/weighted>
 
-#Miscellaneous	
+#Miscellaneous
 #.Include<@E2CONFDIR@/lists/oldphraselists/conspiracy/weighted>
 #.Include<@E2CONFDIR@/lists/oldphraselists/secretsocieties/weighted>
 

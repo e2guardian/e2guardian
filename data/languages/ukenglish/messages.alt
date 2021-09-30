@@ -25,7 +25,7 @@
 "105","Banned User"
 
 "150","Certificate supplied by server was not valid"
-"151","Could not open ssl connection" 
+"151","Could not open ssl connection"
 "152","Failed to get ssl certificate"
 "153","Failed to load ssl private key"
 "154","Failed to negotiate ssl connection to client"

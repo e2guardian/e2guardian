@@ -1,4 +1,4 @@
-// StoryBoard class 
+// StoryBoard class
 
 // For all support, instructions and copyright go to:
 // http://e2guardian.org/

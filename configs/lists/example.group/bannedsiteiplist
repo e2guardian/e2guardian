@@ -2,7 +2,7 @@
 
 #The bannedsiteiplist is for blocking ALL of an IP site
 
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

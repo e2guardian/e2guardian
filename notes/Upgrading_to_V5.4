@@ -3,15 +3,15 @@ Upgrading to V5.4 from e2guardian v5.3
 If you are upgrading from v4 please read notes/Upgrading_to_V5 first.
 
 There are changes to both the configuration files, mainly in the definition
-of auth plugins, 
+of auth plugins,
 
-Both the e2guardian.conf and e2guardianf1.conf contain some new list definitions.  
+Both the e2guardian.conf and e2guardianf1.conf contain some new list definitions.
 
 Some new list types are introduced, including maplist, ipmaplist and mapport all
 of which are used to map users/ip/ports to filter groups
-Details of the new list types definition are in notes/V5_list_definition.pdf. 
+Details of the new list types definition are in notes/V5_list_definition.pdf.
 
-A number of settings have been moved into Storyboard config files. 
+A number of settings have been moved into Storyboard config files.
 These are noted in the example e2guardian.conf and e2guardianf1.conf files.
 
 For details on Storyboard syntax see notes/V5_Storyboard.pdf
@@ -125,10 +125,10 @@ Storyboards
 
 Replace the old common.story with the new v5.4 version.
 
-Replace the old preauth.story with the new one.  Note that group assignment is 
+Replace the old preauth.story with the new one.  Note that group assignment is
 now storyboarded in this file allowing more flexible group assignment.
 
-Using the new v5.4 examplef1.story as a template create a new fn.story for each filtergroup, 
+Using the new v5.4 examplef1.story as a template create a new fn.story for each filtergroup,
 actioning any blanket block required and refering to your old fn.story file(s).
 
 Remove the line 'function(checknobypasslists)' from your site.story file.
@@ -136,10 +136,10 @@ Remove the line 'function(checknobypasslists)' from your site.story file.
 Lists
 -----
 
-You may wish to reorganize your existing lists along along the same lines as 
+You may wish to reorganize your existing lists along along the same lines as
 suggested in the list/README, but this is optional.
 
-Copy the following list files (new or revised in v5.4) into your working 
+Copy the following list files (new or revised in v5.4) into your working
 directory(ies) and then edit them to your requirements:-
 
 common/nomitmsitelist

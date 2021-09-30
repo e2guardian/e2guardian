@@ -1,4 +1,4 @@
-# e2guardian messages file 
+# e2guardian messages file
 # Polish version by Piotr Kapczuk <piotr.kapczuk@hoop.pl>
 # charset=iso-8859-2
 "0","Message number absent"    # needs translation
@@ -55,7 +55,7 @@
 "400","Znaleziono zakazan kombinacj fraz: "
 "401","Znaleziono zakazan kombinacj fraz."
 "402","Limit fraz liczonych wagowo "
-"403","Przekroczono limit fraz liczonych wagowo." 
+"403","Przekroczono limit fraz liczonych wagowo."
 "450","Banned search term found: "    # needs translation
 "451","Banned search term found."    # needs translation
 "452","Banned combination search term found: "    # needs translation
@@ -108,7 +108,7 @@
 "751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
 "800","Zakazany typ MIME: "
 "900","Zakazane rozszerzenie: "
-"1000","Wedle etykietowania PICS przekroczono dopuszczalny poziom zakazanych treci." 
+"1000","Wedle etykietowania PICS przekroczono dopuszczalny poziom zakazanych treci."
 "1100","Virus or bad content detected."
 "1101","Advert blocked"
 "1200","Please wait - downloading to be scanned..."

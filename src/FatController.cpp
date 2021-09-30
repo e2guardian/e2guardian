@@ -1654,7 +1654,7 @@ int fc_controlit()   //
     sigaddset(&signal_set, SIGUSR1);
 
 #ifdef __OpenBSD__
-    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
+    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
     // set up timer for main loop
     struct itimerval timeout;
     timeout.it_interval.tv_sec = 0;
@@ -1759,7 +1759,7 @@ int fc_controlit()   //
             continue;        //  OK to continue even if gentle failed - just continue to use previous lists
         }
 #ifdef __OpenBSD__
-    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM 
+    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
         timeout.it_value.tv_sec = 5;
         setitimer(ITIMER_REAL, &timeout, NULL);
         int rsig;

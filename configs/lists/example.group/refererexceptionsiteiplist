@@ -1,7 +1,7 @@
 # Exception referer IP sites
 #  sites which are refered to by these sites will be made exceptions
 
-# IP site addresses 
+# IP site addresses
 #
 # Single IPs, ranges and subnets can be used,
 # e.g.

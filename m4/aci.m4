@@ -1,5 +1,5 @@
 dnl
-dnl ACI (autoconf interactif) mechanism. 
+dnl ACI (autoconf interactif) mechanism.
 dnl  for now, it's not interactif, but one day, the user will be able to
 dnl  select which packages he wants from the available list
 dnl
@@ -52,7 +52,7 @@ AC_DEFUN([ACI_PACKAGE],[
   	pushdef([aci_header],      [$5])
 	pushdef([aci_if_yes],      [$6])
 	pushdef([aci_if_no],       [$7])
-	
+
 	ACI_D("[BEGINING OF ACI-PACKAGE($1,$2,$3,$4,$5,$6,$7]")
         aci_module_desc_$1="$2"
         aci_packages="$aci_packages $1"
@@ -73,12 +73,12 @@ AC_DEFUN([ACI_PACKAGE],[
 	   CFLAGS_$1="-I$withval/include $CFLAGS_$1"
 	   LIBS_$1="-L$withval/lib $LIBS_$1"
 	  ])
-	
+
 	AC_ARG_WITH([$1-includes],
           AC_HELP_STRING([--with-$1-includes=DIR],
             [specify exact include dir for aci_help headers]),
           [CFLAGS_$1="-I$withval $CFLAGS_$1"])
-	
+
 	AC_ARG_WITH([$1-libdir],
           AC_HELP_STRING([--with-$1-libdir=DIR],
 	     [specify exact library dir for aci_help library]
@@ -88,14 +88,14 @@ AC_DEFUN([ACI_PACKAGE],[
           AC_HELP_STRING([--with-$1-extra=ARG],
 	     [specify extra args to pass to the linker to get the aci_help library]
           ),[LIBS_$1="$withval $LIBS_$1"])
-	
+
         dnl
         dnl Search the lib
         dnl
 	OLD_LDFLAGS=$LDFLAGS
 	OLD_CFLAGS=$CFLAGS
 	OLD_CPPFLAGS=$CPPFLAGS
-	
+
         dnl make sure there is no newline in paths
         i=`echo aci_paths|wc -l`
         if test $i != 1 && test $i != 0 ; then
@@ -107,7 +107,7 @@ AC_DEFUN([ACI_PACKAGE],[
         ac_func_search_save_this_LIBS="$LIBS_$1"
         aci_found="no"
         AC_MSG_CHECKING([for aci_name. Can I access aci_func without new libs])
-        AC_TRY_LINK_FUNC(aci_func, 
+        AC_TRY_LINK_FUNC(aci_func,
                          [AC_MSG_RESULT([yes])
                           aci_found="yes"],
                          [AC_MSG_RESULT([no])] )
@@ -122,7 +122,7 @@ AC_DEFUN([ACI_PACKAGE],[
           fi
         done
         LIBS="$ac_func_search_save_LIBS"
- 
+
         dnl
         dnl search for the header (only if the lib was found)
         dnl
@@ -133,7 +133,7 @@ AC_DEFUN([ACI_PACKAGE],[
 	fi
 	if test "x$aci_found" = "xno" ; then
 	dnl Something where not found.
-        dnl If the caller specified what to do in this case, do it. 
+        dnl If the caller specified what to do in this case, do it.
         dnl Else, complain.
 	   ifelse(aci_if_no, ,
                   [AC_MSG_ERROR(Can't find the package $1. Please install it[,] or if it is installed[,] tell me where with the --with-$1 argument (see ./configure --help=short).)],
@@ -148,9 +148,9 @@ AC_DEFUN([ACI_PACKAGE],[
           LIBS_$1=""
         fi
         dnl AC_SUBST what should be
-        AC_SUBST(HAVE_$1) 
-        AC_SUBST(CFLAGS_$1) 
-        AC_SUBST(LIBS_$1) 
+        AC_SUBST(HAVE_$1)
+        AC_SUBST(CFLAGS_$1)
+        AC_SUBST(LIBS_$1)
 
         dnl restore the old settings
 	LDFLAGS=$OLDLDFLAGS
@@ -189,9 +189,9 @@ AC_DEFUN([ACI_PACKAGE_SAVED],[
     ifelse($5, ,echo >/dev/null,$5)
   fi
   dnl AC_SUBST what should be
-  AC_SUBST(HAVE_$1) 
-  AC_SUBST(CFLAGS_$1) 
-  AC_SUBST(LIBS_$1) 
+  AC_SUBST(HAVE_$1)
+  AC_SUBST(CFLAGS_$1)
+  AC_SUBST(LIBS_$1)
 ])
 dnl ACI_MODULE: defines a module (ie, a part of the code we are building)
 dnl  1=abbrev
@@ -224,7 +224,7 @@ AC_DEFUN([ACI_MODULE],[
         )
 ])
 
-dnl ACI_MODULES_VERIFY: verify which module can be satisfied 
+dnl ACI_MODULES_VERIFY: verify which module can be satisfied
 dnl  (place for future interactivity)
 dnl  export $1_MODULES to Makefiles, init'ed to the list of modules to build
 dnl   1: the name of this group of modules
@@ -232,7 +232,7 @@ dnl   1: the name of this group of modules
 AC_DEFUN([ACI_MODULES_VERIFY],[
   dnl Check the dependencies of everyone
   for aci_module in $aci_modules_possible
-  do 
+  do
     aci_mod_bad=""
     ACI_D("Look module $aci_module")
     for aci_mod_dep in `eval echo '$aci_module_dep_'"$aci_module"`
@@ -263,7 +263,7 @@ AC_DEFUN([ACI_MODULES_VERIFY],[
   dnl Build the list of submodules to build
   ACI_D("Build the submodules lists")
   for aci_module in $aci_modules_possible
-  do 
+  do
     ACI_D($ECHO_N "  Look for $aci_module: ")
     for aci_mod_sub in `eval echo '$aci_module_sub_'"$aci_module"`
     do
@@ -284,7 +284,7 @@ dnl  1: Name of the root of modules (can be a space separated list)
 AC_DEFUN([ACI_MODULES_SUMMARY],[
   if test "x$aci_modules" != "x"; then
     echo "The following modules will be builded: "
-    for aci_module in $aci_modules 
+    for aci_module in $aci_modules
     do
       echo "  - $aci_module: "`eval echo '$aci_module_desc_'"$aci_module"`
       if "`echo "\$MODULES_$aci_module"`" ; then
@@ -330,7 +330,7 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
   # the file conftests.nexts is a file containing the modules we still have to
   # handle. Each line have the form "level nb module", defining at which
   # <level> <module> is defined. It is the <nb>th at this level
-  
+
   ###
   # Initializations
   ###
@@ -339,7 +339,7 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
   ACI_ECHO(["Summary of the configuration for $name"])
   aci_sum_more="no"     # If there is more modules to handle
   rm -f conftest.nexts conftest.nexts.new
-  
+
     # initialize aci_sum_nexts and aci_sum_more from the given argument
   aci_sum_nb=9
   for aci_sum_tmp in $1
@@ -398,10 +398,10 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
       # compute the status of this module
       if echo $aci_modules_disabled|grep -q $aci_sum_this ; then
         aci_sum_status="(DISABLED)"
-      else  
+      else
         if test `eval echo '"x$aci_module_misdep_'"$aci_sum_this\""` = x ; then
           aci_sum_status="(OK)"
-        else        
+        else
           aci_sum_status="(BROKEN)"
         fi
       fi
@@ -413,7 +413,7 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
         aci_sum_header="$aci_sum_header  "
         aci_sum_lvl=`expr $aci_sum_lvl - 1`
       done
-  
+
       changequote([, ])dnl back to normality, there is no regexp afterward
     ACI_ECHO("$aci_sum_header"'>'" $aci_sum_this$aci_sum_status: "`eval echo '$aci_module_desc_'"$aci_sum_this"`)
 
@@ -423,15 +423,15 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
       if test "x$aci_sum_tmp" != x ; then
         ACI_ECHO("$aci_sum_head_dep Optional submodules to build: "`eval echo '$'"MODULES_$aci_sum_this"`)
       fi
-      
-      
+
+
       # outputs the dependencies of this module
       aci_sum_deps=""
       aci_sum_dep_some="no"
       for aci_sum_dep in `eval echo '$aci_module_dep_'"$aci_sum_this"`
       do
         if echo $aci_packages|grep -q $aci_sum_dep ||\
-           echo `eval echo '$aci_module_misdep_'"$aci_sum_this"`|grep -q $aci_sum_dep; then 
+           echo `eval echo '$aci_module_misdep_'"$aci_sum_this"`|grep -q $aci_sum_dep; then
           aci_sum_deps="$aci_sum_deps $aci_sum_dep"
           aci_sum_dep_some="yes"
         fi
@@ -443,7 +443,7 @@ AC_DEFUN([ACI_MODULES_SUMMARY_FANCY],[
           # compute the status of this package
           if test `eval echo 'x$'"HAVE_$aci_sum_dep"` = xyes ; then
             aci_sum_pkg_status="(FOUND)"
-          else  
+          else
             aci_sum_pkg_status="(NOT FOUND)"
           fi
 

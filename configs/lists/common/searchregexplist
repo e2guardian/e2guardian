@@ -1,7 +1,7 @@
 # This defines sites which will be search term checked
 #
 # The format is: "extended regular expression"->"search words"
-# 
+#
 #   left is the site matching pattern
 #   right is the search words
 
