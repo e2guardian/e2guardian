@@ -25,8 +25,7 @@ hadolint:
   before_script:
     - cd $CI_PROJECT_DIR 
   script:
-    - ls -la
-    - hadolint gitlabci/docker-ci/Dockerfile 
+    - hadolint --ignore DL3018 gitlabci/docker-ci/Dockerfile 
   stage: quality
 
 include:
