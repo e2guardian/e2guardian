@@ -35,6 +35,8 @@ Dive:
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME
     - dive $CONTAINER_BUILD_NOPROD_NAME
+  variables:
+    CI: "true"
 
 push-docker-hub:
   stage: Docker-hub-pushtag
