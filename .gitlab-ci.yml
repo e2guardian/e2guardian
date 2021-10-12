@@ -12,6 +12,7 @@ stages:
 - create-debian-package
 - test-publish-debian
 - Docker-hub-build
+- inspect
 - Docker-hub-test
 - Docker-hub-pushtag
 
@@ -25,7 +26,7 @@ hadolint:
   before_script:
     - cd $CI_PROJECT_DIR 
   script:
-    - hadolint --ignore DL3018 gitlabci/docker-ci/Dockerfile 
+    - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
   stage: quality
 
 include:

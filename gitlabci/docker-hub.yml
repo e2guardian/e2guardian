@@ -29,6 +29,12 @@ docker-hub-test:
   variables:
     HOSTNAME: e2pipeline
 
+Dive:
+  image: dive/dive:latest
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME
+    - dive $CONTAINER_BUILD_NOPROD_NAME
+
 push-docker-hub:
   stage: Docker-hub-pushtag
   image: docker:dind
