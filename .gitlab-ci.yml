@@ -12,7 +12,6 @@ stages:
 - create-debian-package
 - test-publish-debian
 - Docker-hub-build
-- inspect
 - Docker-hub-test
 - Docker-hub-pushtag
 
