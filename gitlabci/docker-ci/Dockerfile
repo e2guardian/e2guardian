@@ -1,4 +1,4 @@
-FROM debian:latest-slim 
+FROM debian:stable-slim 
 
 LABEL commit.e2guardian=$COMMIT build_date.e2guardian=$BUILD_DATE
 COPY . /tmp/e2guardian
