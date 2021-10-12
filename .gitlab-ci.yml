@@ -8,9 +8,9 @@ cache:
 stages:
 # At first debian : init variables
 
+- valid
 - build-debian
 - create-debian-package
-- valid
 - test-publish-debian
 - Docker-hub-build
 - Docker-hub-test
@@ -26,7 +26,7 @@ lint:hadolint:
   only:
     refs:
       - branches
-  script: hadolint Dockerfile
+  script: hadolint gitlabci/docker-ci/Dockerfile 
   stage: valid
 
 include:
