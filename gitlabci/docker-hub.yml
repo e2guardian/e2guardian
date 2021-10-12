@@ -31,7 +31,7 @@ docker-hub-test:
 
 Dive:
   image: wagoodman/dive:latest
-  entrypoint: [""]
+    entrypoint: [""]
   stage: Docker-hub-test
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME
