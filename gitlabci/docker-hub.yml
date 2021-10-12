@@ -29,7 +29,7 @@ docker-hub-test:
   variables:
     HOSTNAME: e2pipeline
 
-Dive:
+dive:
   image: 
     name: wagoodman/dive:latest
     entrypoint: [""]
