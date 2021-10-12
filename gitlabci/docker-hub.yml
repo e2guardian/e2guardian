@@ -9,8 +9,8 @@ docker-hub-build:
     - docker push $CONTAINER_BUILD_NOPROD_NAME
 
 variables:
-  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH 
-  CONTAINER_CLIENT_IMAGE: debian:buster      
+  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+  CONTAINER_CLIENT_IMAGE: debian:buster
   CONTAINER_TEST_NAME: e2guardian
   CONTAINER_BUILD_NOPROD_NAME: $HUB_REGISTRY_IMAGE:build-noprod
 
@@ -30,7 +30,8 @@ docker-hub-test:
     HOSTNAME: e2pipeline
 
 Dive:
-  image: wagoodman/dive:latest
+  image: 
+    name: wagoodman/dive:latest
     entrypoint: [""]
   stage: Docker-hub-test
   script:
@@ -46,5 +47,5 @@ push-docker-hub:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME
-    - docker tag $CONTAINER_BUILD_NOPROD_NAME $CONTAINER_PROD_IMAGE 
+    - docker tag $CONTAINER_BUILD_NOPROD_NAME $CONTAINER_PROD_IMAGE
     - docker push $CONTAINER_PROD_IMAGE
