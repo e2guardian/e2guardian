@@ -30,7 +30,7 @@ docker-hub-test:
     HOSTNAME: e2pipeline
 
 Dive:
-  image: dive/dive:latest
+  image: wagoodman/dive:latest
   stage: Docker-hub-test
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME
