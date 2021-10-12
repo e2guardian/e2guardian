@@ -3,7 +3,7 @@ FROM debian:stable-slim
 LABEL commit.e2guardian=$COMMIT build_date.e2guardian=$BUILD_DATE
 COPY . /tmp/e2guardian
 RUN cd /tmp/e2guardian \
-    && apt-get update && apt-get install --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates \
+    && apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \
     && chmod +x /usr/sbin/e2guardian \     
