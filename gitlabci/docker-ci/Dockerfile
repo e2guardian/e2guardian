@@ -1,4 +1,4 @@
-FROM debian:satble-slim AS build
+FROM alpine AS build
 COPY . /tmp/e2guardian
 # exclude /tmp/e2guardian from first layer (reduce size)
 
