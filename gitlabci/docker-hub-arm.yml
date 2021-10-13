@@ -1,5 +1,5 @@
 docker-hub-build-arm:
-  stage: Docker-hub-build
+  stage: Docker-hub-build-arm
   image: docker:19.03.8-dind 
   tags:
     - arm
