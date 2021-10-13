@@ -1,4 +1,4 @@
-FROM alpine:stable AS build
+FROM alpine:3.13 AS build
 COPY . /tmp/e2guardian
 # exclude /tmp/e2guardian from first layer (reduce size)
 
