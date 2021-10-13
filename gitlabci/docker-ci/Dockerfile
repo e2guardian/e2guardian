@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* && rm -rf /tmp/* 
+    && rm -rf /var/lib/apt/* \
+    && rm -rf /tmp/* 
 
 HEALTHCHECK CMD curl localhost:8080 || exit 1
 USER e2guardian
