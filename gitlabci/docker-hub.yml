@@ -6,7 +6,7 @@ docker-hub-build:
   script:
     - cd $CI_PROJECT_DIR && cp gitlabci/docker-ci/Dockerfile ./
     - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
-    - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD_64
+    - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD64
 
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH

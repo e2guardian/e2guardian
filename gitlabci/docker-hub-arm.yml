@@ -1,6 +1,6 @@
 docker-hub-build-arm:
   stage: Docker-hub-build
-  image: docker:dind
+  image: docker:19.03.8-dind 
   tags:
     - arm
   before_script:
