@@ -11,7 +11,7 @@ RUN apt-get update \
     libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar \
     libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch \
     libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools \
-    && ./autogen.sh && ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var  --with-piddir=/run/e2guardian --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --mandir=/usr/share/man --infodir=/usr/share/info --enable-pcre=yes --enable-sslmitm=yes "CPPFLAGS=-mno-sse2 -g -O2" \
+    && ./autogen.sh && ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes \
     && make \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \

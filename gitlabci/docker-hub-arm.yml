@@ -23,7 +23,7 @@ variables:
   image: $CONTAINER_CLIENT_IMAGE
 
 docker-hub-test-arm:
-  stage: Docker-hub-test
+  stage: Docker-hub-test-arm
   tags:
     - arm
   extends: .services
@@ -34,7 +34,7 @@ docker-hub-test-arm:
     HOSTNAME: e2pipeline
 
 push-docker-hub-arm:
-  stage: Docker-hub-pushtag
+  stage: Docker-hub-pushtag-arm
   tags:
     - arm
   image: docker:dind
