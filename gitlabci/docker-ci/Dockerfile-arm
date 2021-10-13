@@ -1,4 +1,10 @@
-FROM debian:stable-slim 
+FROM alpine:3.13 AS build
+COPY . /tmp/e2guardian
+# exclude /tmp/e2guardian from first layer (reduce size)
+
+FROM debian:stable-slim
+COPY --from=build /tmp/e2guardian /tmp/e2guardian
+WORKDIR: /tmp/e2guardian
 RUN apt-get update \
     && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake \
     coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base \
@@ -23,7 +29,7 @@ RUN apt-get update \
     && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /builds 
+    && rm -rf /tmp/* 
 
 HEALTHCHECK CMD curl localhost:8080 || exit 1
 USER e2guardian
