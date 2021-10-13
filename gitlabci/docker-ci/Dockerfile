@@ -1,5 +1,4 @@
 FROM debian:stable-slim 
-COPY . /tmp/e2guardian
 WORKDIR /tmp/e2guardian 
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
