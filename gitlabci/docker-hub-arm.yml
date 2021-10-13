@@ -1,4 +1,4 @@
-docker-hub-build:
+docker-hub-build-arm:
   stage: Docker-hub-build
   image: docker:dind
   tags:
@@ -22,7 +22,7 @@ variables:
       alias: e2guardian
   image: $CONTAINER_CLIENT_IMAGE
 
-docker-hub-test:
+docker-hub-test-arm:
   stage: Docker-hub-test
   tags:
     - arm
@@ -33,7 +33,7 @@ docker-hub-test:
   variables:
     HOSTNAME: e2pipeline
 
-push-docker-hub:
+push-docker-hub-arm:
   stage: Docker-hub-pushtag
   tags:
     - arm
