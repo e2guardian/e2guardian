@@ -1,0 +1,33 @@
+FROM debian:stable-slim 
+COPY . /tmp/e2guardian
+WORKDIR /tmp/e2guardian/src
+RUN apt-get update \
+    && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake \
+    coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base \
+    libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar \
+    libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch \
+    libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools \
+    && ./autogen.sh && ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var  --with-piddir=/run/e2guardian --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --mandir=/usr/share/man --infodir=/usr/share/info --enable-pcre=yes --enable-sslmitm=yes "CPPFLAGS=-mno-sse2 -g -O2" \
+    && make \
+    && adduser --no-create-home --uid 1161 --group --system e2guardian \
+    && cp src/e2guardian /usr/sbin/e2guardian \
+    && chmod +x /usr/sbin/e2guardian \     
+    && cp -Rf configs /etc/e2guardian \
+    && mkdir -p /usr/share/e2guardian/languages \
+    && mkdir -p /run/e2guardian \
+    && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /etc/e2guardian && chown -R e2guardian /run/e2guardian \
+    && cp -Rf data/languages /usr/share/e2guardian/ \
+    && cp data/*.gif /usr/share/e2guardian/ \
+    && cp data/*swf /usr/share/e2guardian/ \
+    && rm -Rf /tmp/* \
+    && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
+    && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
+    && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* 
+
+HEALTHCHECK CMD curl localhost:8080 || exit 1
+USER e2guardian
+EXPOSE 8080
+CMD ["e2guardian", "-N"]
