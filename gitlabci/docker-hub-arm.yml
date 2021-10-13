@@ -1,5 +1,5 @@
 docker-hub-build-arm:
-  stage: Docker-hub-build-arm
+  stage: Docker-hub-build
   image: docker:19.03.8-dind 
   tags:
     - arm
@@ -23,7 +23,7 @@ variables:
   image: $CONTAINER_CLIENT_IMAGE
 
 docker-hub-test-arm:
-  stage: Docker-hub-test-arm
+  stage: Docker-hub-test
   tags:
     - arm
   extends: .services
@@ -34,7 +34,7 @@ docker-hub-test-arm:
     HOSTNAME: e2pipeline
 
 push-docker-hub-arm:
-  stage: Docker-hub-pushtag-arm
+  stage: Docker-hub-pushtag
   tags:
     - arm
   image: docker:dind
