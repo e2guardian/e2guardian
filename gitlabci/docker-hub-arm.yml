@@ -12,7 +12,7 @@ docker-hub-build-arm:
 
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
-  CONTAINER_CLIENT_IMAGE: debian:latest
+  CONTAINER_CLIENT_IMAGE: debian:bullseye
   CONTAINER_TEST_NAME: e2guardian
   CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
 
@@ -21,6 +21,8 @@ variables:
     - name: $CONTAINER_BUILD_NOPROD_NAME_ARM
       alias: e2guardian
   image: $CONTAINER_CLIENT_IMAGE
+  tags:
+    - arm
 
 docker-hub-test-arm:
   stage: Docker-hub-test
@@ -42,5 +44,5 @@ push-docker-hub-arm:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
-    - docker tag $CONTAINER_BUILD_NOPROD_NAME $CONTAINER_PROD_IMAGE:arm
-    - docker push $CONTAINER_PROD_IMAGE_ARM:arm
+    - docker tag $CONTAINER_BUILD_NOPROD_NAME $CONTAINER_PROD_IMAGE:arm64
+    - docker push $CONTAINER_PROD_IMAGE_ARM:arm64
