@@ -24,7 +24,6 @@ services-amd64:
 
 docker-hub-test:
   stage: Docker-hub-test
-  extends: .services
   script:
     - apt update && apt install -y curl
     - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr

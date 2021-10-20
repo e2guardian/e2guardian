@@ -29,7 +29,6 @@ docker-hub-test-arm:
   stage: Docker-hub-test
   tags:
     - arm
-  extends: .services
   script:
     - apt update && apt install -y curl
     - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
