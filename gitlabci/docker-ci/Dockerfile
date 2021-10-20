@@ -1,5 +1,6 @@
 FROM alpine:3.13 AS build
 # exclude /tmp/e2guardian from first layer (reduce size)
+COPY . /tmp/e2guardian
 
 FROM debian:stable-slim
 COPY --from=build /tmp/e2guardian /tmp/e2guardian
@@ -19,8 +20,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/* \
-    && rm -rf /tmp/*
+    && rm -Rf /var/lib/apt/* \
+    && rm -Rf /tmp/*
 
 HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
 USER e2guardian

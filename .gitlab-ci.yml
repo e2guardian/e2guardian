@@ -27,12 +27,12 @@ stages:
 
 hadolint:
   image: hadolint/hadolint:latest-debian
+  stage: quality
   before_script:
     - cd $CI_PROJECT_DIR 
   script:
-    - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
     - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile-arm 
-  stage: quality
+    - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
 
 include:
   - 'gitlabci/docker-hub-arm.yml'
