@@ -10,25 +10,15 @@ docker-hub-build:
 
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
-  CONTAINER_CLIENT_IMAGE: debian:latest
-  CONTAINER_TEST_NAME: e2guardian
   CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
 
-
-services-amd64:
-  stage: Docker-hub-test
-  services:
-    - name: $CONTAINER_BUILD_NOPROD_NAME_AMD64
-      alias: e2guardian
-  image: $CONTAINER_CLIENT_IMAGE
-
 docker-hub-test:
+  image: $CONTAINER_BUILD_NOPROD_NAME_AMD64
   stage: Docker-hub-test
   script:
+    - e2guardian -N
     - apt update && apt install -y curl
-    - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
-  variables:
-    HOSTNAME: e2pipeline
+    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 dive:
   image: 

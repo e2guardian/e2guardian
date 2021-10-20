@@ -12,28 +12,19 @@ docker-hub-build-arm:
 
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
-  CONTAINER_CLIENT_IMAGE: debian:bullseye
-  CONTAINER_TEST_NAME: e2guardian-arm
   CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
 
-services-arm:
-  services:
-    - name: $CONTAINER_BUILD_NOPROD_NAME_ARM
-      alias: e2guardian-arm
-  image: $CONTAINER_CLIENT_IMAGE
-  stage: Docker-hub-test
-  tags:
-    - arm
+variables:
+  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
+  CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
 
-docker-hub-test-arm:
+docker-hub-test:
+  image: $CONTAINER_BUILD_NOPROD_NAME_ARM
   stage: Docker-hub-test
-  tags:
-    - arm
   script:
+    - e2guardian -N
     - apt update && apt install -y curl
-    - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
-  variables:
-    HOSTNAME: e2pipeline
+    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 push-docker-hub-arm:
   stage: Docker-hub-pushtag
