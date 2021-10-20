@@ -28,7 +28,8 @@ RUN apt-get update \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
     && apt-get autoremove -y \
-    && rm -Rf /var/lib/apt/lists \
+    && apt-get clean \
+    && rm -Rf /var/lib/apt/lists/* \
     && rm -Rf /tmp/* 
 
 HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
