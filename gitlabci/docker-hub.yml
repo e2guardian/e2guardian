@@ -16,9 +16,8 @@ docker-hub-test:
   image: $CONTAINER_BUILD_NOPROD_NAME_AMD64
   stage: Docker-hub-test
   script:
-    - e2guardian -N
-    - apt update && apt install -y curl
-    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 dive:
   image: 

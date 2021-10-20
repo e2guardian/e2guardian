@@ -1,6 +1,6 @@
 docker-hub-build-arm:
   stage: Docker-hub-build
-  image: docker:19.03.8-dind 
+  image: docker:dind 
   tags:
     - arm
   before_script:
@@ -14,17 +14,12 @@ variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
   CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
 
-variables:
-  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
-  CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
-
 docker-hub-test:
   image: $CONTAINER_BUILD_NOPROD_NAME_ARM
   stage: Docker-hub-test
   script:
-    - e2guardian -N
-    - apt update && apt install -y curl
-    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
+    - e2guardian -N & 
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 push-docker-hub-arm:
   stage: Docker-hub-pushtag

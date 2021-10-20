@@ -5,7 +5,7 @@ COPY . /tmp/e2guardian
 FROM debian:stable-slim
 COPY --from=build /tmp/e2guardian /tmp/e2guardian
 WORKDIR /tmp/e2guardian
-RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates \
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \
     && chmod +x /usr/sbin/e2guardian \     
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && rm -rf /var/lib/apt/* \
     && rm -rf /tmp/*
 
-HEALTHCHECK CMD curl localhost:8080 || exit 1
+HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
 USER e2guardian
 EXPOSE 8080
 CMD ["e2guardian", "-N"]
