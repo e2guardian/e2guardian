@@ -13,13 +13,13 @@ docker-hub-build-arm:
 variables:
   CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH
   CONTAINER_CLIENT_IMAGE: debian:bullseye
-  CONTAINER_TEST_NAME: e2guardian
+  CONTAINER_TEST_NAME: e2guardian-arm
   CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
 
 .services-arm:
   services:
     - name: $CONTAINER_BUILD_NOPROD_NAME_ARM
-      alias: e2guardian
+      alias: e2guardian-arm
   image: $CONTAINER_CLIENT_IMAGE
   tags:
     - arm
