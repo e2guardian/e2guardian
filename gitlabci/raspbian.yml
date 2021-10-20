@@ -1,6 +1,6 @@
 build:raspbian:
   stage: build
-  image: amd64/debian:10
+  image: amd64/debian:bullesye
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -13,7 +13,7 @@ build:raspbian:
    - apt update 
    - apt-get -y upgrade 
    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils lsb-release 
-   - echo "deb-src http://deb.debian.org/debian buster main contrib non-free" >> /etc/apt/sources.list 
+   - echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list 
    - dpkg --add-architecture armhf 
    - apt-get update 
    - apt-get install -y build-essential crossbuild-essential-armhf 
@@ -27,7 +27,7 @@ build:raspbian:
 
 package:raspbian:
   stage: create-package
-  image: amd64/debian:10
+  image: amd64/debian:bullseye
   dependencies:
     - build:raspbian
   artifacts:

@@ -4,7 +4,7 @@ Build debian package:
    expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
-  image: amd64/debian:stable
+  image: amd64/debian:bullseye
   variables:
     OS: "debian"
   script:
@@ -21,7 +21,7 @@ Build debian package:
 
 Create Debian Package:
   stage: create-debian-package
-  image: amd64/debian:stable
+  image: amd64/debian:bullseye
   artifacts:
    paths:
     - $CI_PROJECT_DIR 
@@ -50,7 +50,7 @@ Create Debian Package:
 
 Test and publish Debian:
   stage: test-publish-debian
-  image: amd64/debian:stable
+  image: amd64/debian:bullseye
   artifacts:
    name: builddebian
    paths:
