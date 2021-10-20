@@ -11,10 +11,11 @@ stages:
 - build-debian
 - create-debian-package
 - test-publish-debian
+# AMD64 docker
 - Docker-hub-build
 - Docker-hub-test
 - Docker-hub-pushtag
-# ARM
+# ARM docker
 - Docker-hub-build-arm
 - Docker-hub-test-arm
 - Docker-hub-pushtag-arm
