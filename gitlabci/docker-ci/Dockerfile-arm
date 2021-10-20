@@ -1,5 +1,6 @@
 FROM alpine:3.13 AS build
 # exclude /tmp/e2guardian from first layer (reduce size)
+RUN chmod +x src/e2guardian && chown -Rf src    
 COPY . /tmp/e2guardian
 
 FROM debian:stable-slim
