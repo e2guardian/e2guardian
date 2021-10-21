@@ -1,5 +1,12 @@
+FROM alpine:3.13 AS build
+# exclude /tmp/e2guardian from first layer (reduce size)
+COPY . /tmp/e2guardian
+RUN chmod +x /tmp/e2guardian/src/e2guardian && chown -Rf 1161 /tmp/e2guardian/src    
+
 FROM debian:stable-slim
-RUN ls -la && ls -la / && apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
+COPY --from=build /tmp/e2guardian /tmp/e2guardian
+WORKDIR /tmp/e2guardian
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \
     && cp -Rf configs /etc/e2guardian \
@@ -9,13 +16,13 @@ RUN ls -la && ls -la / && apt-get update && apt-get install --no-upgrade --no-in
     && cp -Rf data/languages /usr/share/e2guardian/ \
     && cp data/*.gif /usr/share/e2guardian/ \
     && cp data/*swf /usr/share/e2guardian/ \
+    && rm -Rf /tmp/* \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
     && apt-get autoremove -y \
     && apt-get clean \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /tmp/*
+    && rm -Rf /var/lib/apt/lists/* 
 
 HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
 USER e2guardian

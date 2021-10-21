@@ -1,10 +1,10 @@
-FROM alpine:3.13 AS build
+FROM alpine:3.13 AS buildarm
 # exclude /tmp/e2guardian from first layer (reduce size)
-RUN chmod +x src/e2guardian && chown -Rf src    
 COPY . /tmp/e2guardian
+RUN chmod +x /tmp/e2guardian/src/e2guardian && chown -Rf 1161 /tmp/e2guardian/src    
 
 FROM debian:stable-slim
-COPY --from=build /tmp/e2guardian /tmp/e2guardian
+COPY --from=buildarm /tmp/e2guardian /tmp/e2guardian
 WORKDIR /tmp/e2guardian
 RUN apt-get update \
     && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake \
@@ -16,7 +16,6 @@ RUN apt-get update \
     && make \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \
-    && chmod +x /usr/sbin/e2guardian \     
     && cp -Rf configs /etc/e2guardian \
     && mkdir -p /usr/share/e2guardian/languages \
     && mkdir -p /run/e2guardian \
@@ -30,8 +29,7 @@ RUN apt-get update \
     && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
     && apt-get autoremove -y \
     && apt-get clean \
-    && rm -Rf /var/lib/apt/lists/* \
-    && rm -Rf /tmp/* 
+    && rm -Rf /var/lib/apt/lists/* 
 
 HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
 USER e2guardian
