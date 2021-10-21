@@ -1,14 +1,13 @@
 FROM debian:stable-slim
 WORKDIR /tmp/e2guardian
-COPY src/e2guardian /usr/sbin/e2guardian 
-COPY configs /etc/e2guardian 
-COPY data/languages /usr/share/e2guardian/ 
-COPY data/*swf /usr/share/e2guardian/
+COPY --chown=1161 src/e2guardian /usr/sbin/e2guardian 
+COPY --chown=1161 configs /etc/e2guardian 
+COPY --chown=1161 data/languages /usr/share/e2guardian/ 
+COPY --chown=1161 data/*swf /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
-    && mkdir -p /usr/share/e2guardian/languages \
     && mkdir -p /run/e2guardian \
-    && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /etc/e2guardian && chown -R e2guardian /run/e2guardian \
+    && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
     && rm -Rf /tmp/* \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
