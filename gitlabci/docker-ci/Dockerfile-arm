@@ -22,7 +22,6 @@ RUN apt-get update \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
-    && chmod +x src/e2guardian && chown -Rf 1161 e2guardian/src \ 
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* 
