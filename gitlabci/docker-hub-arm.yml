@@ -24,6 +24,18 @@ docker-hub-test-arm:
   tags:
     - arm
 
+dive-arm:
+  image: 
+    name: wagoodman/dive:latest
+    entrypoint: [""]
+  dependencies: []
+  stage: Docker-hub-test
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
+    - dive $CONTAINER_BUILD_NOPROD_NAME_ARM
+  variables:
+    CI: "true"
+
 push-docker-hub-arm:
   stage: Docker-hub-pushtag
   image: docker:dind
