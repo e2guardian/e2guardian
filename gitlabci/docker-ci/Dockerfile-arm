@@ -18,7 +18,6 @@ RUN apt-get update \
     && cp -Rf data/languages /usr/share/e2guardian/ \
     && cp data/*.gif /usr/share/e2guardian/ \
     && cp data/*swf /usr/share/e2guardian/ \
-    && rm -Rf /tmp/* \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && export DEBIAN_FRONTEND="noninteractive" && apt-get remove -y --allow-remove-essential --purge libc-dev-bin libtommath-dev man-db libc6-dev libc-dev linux-libc-dev gcc unzip g++ make libevent-dev dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev cpp m4 automake \
