@@ -1,12 +1,6 @@
-FROM alpine:3.13 AS build
-# exclude /tmp/e2guardian from first layer (reduce size)
-RUN chmod +x src/e2guardian && chown -Rf src    
-COPY . /tmp/e2guardian
-
 FROM debian:stable-slim
 COPY --from=build /tmp/e2guardian /tmp/e2guardian
-WORKDIR /tmp/e2guardian
-RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
+RUN ls -la && ls -la / && apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && cp src/e2guardian /usr/sbin/e2guardian \
     && cp -Rf configs /etc/e2guardian \
