@@ -1,9 +1,9 @@
 FROM debian:stable-slim
 WORKDIR /tmp/e2guardian
-COPY --chown=1161 src/e2guardian /usr/sbin/e2guardian 
-COPY --chown=1161 configs /etc/e2guardian 
-COPY --chown=1161 data/languages /usr/share/e2guardian/languages 
-COPY --chown=1161 data/*swf /usr/share/e2guardian/
+#COPY --chown=1161 src/e2guardian /usr/sbin/e2guardian 
+#COPY --chown=1161 configs /etc/e2guardian 
+#COPY --chown=1161 data/languages /usr/share/e2guardian/languages 
+#COPY --chown=1161 data/*swf /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
