@@ -14,10 +14,10 @@ RUN apt-get update \
     && rm -Rf /var/lib/apt/lists/* 
 
 FROM debian:stable-slim
-COPY --from=buildarm --chown=1161 ${PACKDST}/data/usr/sbin/e2guardian /usr/sbin/e2guardian
-COPY --from=buildarm --chown=1161 ${PACKDST}/data/etc/e2guardian /etc/e2guardian
-COPY --from=buildarm --chown=1161 ${PACKDST}/data/usr/share/e2guardian/languages /usr/share/e2guardian
-COPY --from=buildarm --chown=1161 ${PACKDST}/data/usr/share/e2guardian/*swf /usr/share/e2guardian/
+COPY --from=buildarm --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
+COPY --from=buildarm --chown=1161 ${DOCKER_DST}/data/etc/e2guardian /etc/e2guardian
+COPY --from=buildarm --chown=1161 ${DOCKER_DST}/data/usr/share/e2guardian/languages /usr/share/e2guardian
+COPY --from=buildarm --chown=1161 ${DOCKER_DST}/data/usr/share/e2guardian/*swf /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && find /etc -type f -name "Makefil*" -delete \
     && find /usr/share -type f -name "Makefil*" -delete \
