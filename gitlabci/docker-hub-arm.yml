@@ -45,6 +45,6 @@ push-docker-hub-arm:
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
     - docker tag $CONTAINER_BUILD_NOPROD_NAME_ARM $CONTAINER_PROD_IMAGE
-    - docker push $CONTAINER_PROD_IMAGE_ARM
+    - docker push $CONTAINER_PROD_IMAGE
   tags:
     - arm
