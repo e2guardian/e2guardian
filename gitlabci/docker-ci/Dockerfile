@@ -9,12 +9,6 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && mkdir -p /run/e2guardian \
     && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
     && rm -Rf /tmp/* \
-    && find /etc -type f -name "Makefil*" -delete \
-    && find /etc -type f -name "*.in" -delete \
-    && find /etc -type f -name "*.am" -delete \
-    && find /usr/share -type f -name "Makefil*" -delete \
-    && find /usr/share -type f -name "*.in" -delete \
-    && find /usr/share -type f -name "*.am" -delete \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
