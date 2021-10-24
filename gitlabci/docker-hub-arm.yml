@@ -1,6 +1,8 @@
 docker-hub-build-arm:
   stage: Docker-hub-build
   image: docker:dind 
+  variables:
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
   tags:
     - arm
   before_script:
