@@ -1,10 +1,13 @@
+FROM debian:stable-slim as buildamd
+COPY . /tmp/e2guardian
+
 FROM debian:stable-slim
 WORKDIR /tmp/e2guardian
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
-COPY --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
-COPY --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
-COPY --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
-COPY --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
