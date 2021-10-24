@@ -11,7 +11,6 @@ RUN apt-get update \
     && make \
     && apt-get autoremove -y \
     && apt-get clean \
-    && ls -la /tmp/e2guardian/ \
     && rm -Rf /var/lib/apt/lists/* 
 
 FROM debian:stable-slim
@@ -21,11 +20,7 @@ COPY --from=buildarm --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
 COPY --from=buildarm --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
 COPY --from=buildarm --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
 COPY --from=buildarm --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
-RUN ls -la /usr/share/e2guardian && apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
-    && find /etc -type f -name "Makefil*" -delete \
-    && find /usr/share -type f -name "Makefil*" -delete \
-    && find /etc -type f -name "*.in" -delete \
-    && find /usr/share -type f -name "*.in" -delete \
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
     && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
