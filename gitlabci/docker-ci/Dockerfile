@@ -4,6 +4,7 @@ COPY . /tmp/e2guardian
 FROM debian:stable-slim
 WORKDIR /tmp/e2guardian
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
+COPY --from=buildamd --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
 COPY --from=buildamd --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
 COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
 COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
