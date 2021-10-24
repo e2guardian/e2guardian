@@ -11,6 +11,10 @@ stages:
 - build-debian
 - create-debian-package
 - test-publish-debian
+### All
+- build
+- create-package
+- test-publish
 # AMD64 docker
 - Docker-hub-build
 - Docker-hub-test
@@ -19,11 +23,6 @@ stages:
 - Docker-hub-build-arm
 - Docker-hub-test-arm
 - Docker-hub-pushtag-arm
-
-### All
-- build
-- create-package
-- test-publish
 
 hadolint:
   image: hadolint/hadolint:latest-debian
