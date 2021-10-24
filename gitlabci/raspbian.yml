@@ -1,6 +1,7 @@
+# Cross compil on Nostromo for horsepower
 build:raspbian:
   stage: build
-  image: amd64/debian:bullesye
+  image: amd64/debian:bullseye
   artifacts:
    expire_in: 30 minutes
    paths:
