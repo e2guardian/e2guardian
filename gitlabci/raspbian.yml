@@ -1,7 +1,6 @@
-# Cross compil on Nostromo for horsepower
 build:raspbian:
   stage: build
-  image: amd64/debian:bullseye
+  image: debian:bullseye
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -13,22 +12,18 @@ build:raspbian:
    - echo $VFULL
    - apt update 
    - apt-get -y upgrade 
-   - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd pkg-config bash coreutils debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base tar git bsdutils lsb-release 
    - echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list 
-   - dpkg --add-architecture armhf 
-   - apt-get update 
-   - apt-get install -y build-essential crossbuild-essential-armhf 
-   - apt-get build-dep -y -a armhf e2guardian 
+   - apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools curl 
    - cd $CI_PROJECT_DIR && make clean  
    - ./autogen.sh
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
-   - make ARCH=arm-linux-gnueabihf 
+   - make  
    - file src/e2guardian | grep "ARM, EABI5"
    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 package:raspbian:
   stage: create-package
-  image: amd64/debian:bullseye
+  image: debian:bullseye
   dependencies:
     - build:raspbian
   artifacts:
@@ -58,6 +53,8 @@ package:raspbian:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  tags:
+     - arm
 
 Test on arm infra and publish Debian:
   stage: test-publish
