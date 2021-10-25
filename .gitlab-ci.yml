@@ -9,7 +9,7 @@ stages:
 # At first debian : init variables
 - quality 
 - build-debian
-- create-debian-package
+- create-package-debian
 - test-publish-debian
 ### All
 - build
