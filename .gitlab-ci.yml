@@ -8,15 +8,14 @@ cache:
 stages:
 # At first debian : init variables
 - quality 
-  #- build-debian
-  #- create-debian-package
-  #- test-publish-debian
+- build-debian
+- create-debian-package
+- test-publish-debian
 ### All
 - build
 - create-package
 - test-publish
-  
-  # AMD64 docker
+# AMD64 docker
 - Docker-hub-build
 - Docker-hub-test
 - Docker-hub-pushtag
