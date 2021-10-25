@@ -20,6 +20,8 @@ build:raspbian:
    - make  
    - file src/e2guardian | grep "ARM, EABI5"
    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  tags:
+     - arm
 
 package:raspbian:
   stage: create-package
