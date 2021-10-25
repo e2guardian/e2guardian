@@ -1,4 +1,4 @@
-build:raspbian:
+build:arm:
   stage: build
   image: debian:bullseye
   artifacts:
