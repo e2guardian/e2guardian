@@ -60,7 +60,7 @@ package:raspbian:
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
 Test on arm infra and publish Debian:
-  stage: test-publish-debian
+  stage: test-publish
   image: debian:bullseye
   artifacts:
    name: builddebian
