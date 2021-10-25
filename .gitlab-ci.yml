@@ -38,5 +38,5 @@ include:
   - 'gitlabci/docker-hub.yml'
   - 'gitlabci/debianlatest.yml'
   - 'gitlabci/ubuntubionic.yml'
-  - 'gitlabci/raspbian.yml'
+  - 'gitlabci/armdebian.yml'
   - 'gitlabci/ubuntufocal.yml'
