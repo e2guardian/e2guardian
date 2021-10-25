@@ -32,7 +32,7 @@ package:debarm:
     - $CI_PROJECT_DIR   
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
-    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2raspbian_package"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian-arm64_package"
     OS: "debian-arm64"
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
@@ -68,7 +68,7 @@ test:debianarm:
     - $CI_PROJECT_DIR 
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
-    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2raspbian_package"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian-arm64_package"
     CERT_DIR: "/etc/e2guardian/private/"
     OS: "debian-arm64"
   script:
