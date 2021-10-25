@@ -8,10 +8,15 @@ cache:
 stages:
 # At first debian : init variables
 - quality 
-- build-debian
-- create-debian-package
-- test-publish-debian
-# AMD64 docker
+  #- build-debian
+  #- create-debian-package
+  #- test-publish-debian
+### All
+- build
+- create-package
+- test-publish
+  
+  # AMD64 docker
 - Docker-hub-build
 - Docker-hub-test
 - Docker-hub-pushtag
@@ -19,11 +24,6 @@ stages:
 - Docker-hub-build-arm
 - Docker-hub-test-arm
 - Docker-hub-pushtag-arm
-
-### All
-- build
-- create-package
-- test-publish
 
 hadolint:
   image: hadolint/hadolint:latest-debian

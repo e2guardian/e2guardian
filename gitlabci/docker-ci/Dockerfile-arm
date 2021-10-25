@@ -1,4 +1,4 @@
-FROM debian:stable-slim as buildarm
+FROM debian:bullseye-slim as buildarm
 COPY . /tmp/e2guardian
 WORKDIR /tmp/e2guardian
 RUN apt-get update \
@@ -13,7 +13,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* 
 
-FROM debian:stable-slim
+FROM debian:bullseye-slim
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
 COPY --from=buildarm --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
 COPY --from=buildarm --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
