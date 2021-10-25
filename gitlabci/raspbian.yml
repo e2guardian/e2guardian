@@ -18,7 +18,6 @@ build:raspbian:
    - ./autogen.sh
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
    - make  
-   - file src/e2guardian | grep "ARM, EABI5"
    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
   tags:
      - arm
