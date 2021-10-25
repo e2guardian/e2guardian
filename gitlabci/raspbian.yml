@@ -68,9 +68,9 @@ Test on arm infra and publish Debian:
     - $CI_PROJECT_DIR 
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
-    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2raspbian_package"
     CERT_DIR: "/etc/e2guardian/private/"
-    OS: "debian"
+    OS: "raspbian"
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
