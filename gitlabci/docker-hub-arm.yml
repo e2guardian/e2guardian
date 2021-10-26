@@ -1,6 +1,8 @@
 docker-hub-build-arm:
   stage: Docker-hub-build
   image: docker:dind 
+  dependencies:
+    - package:debarm
   variables:
     DOCKER_DST: "/tmp/e2guardian/scripts/debian_package/e2debian_package"
   tags:

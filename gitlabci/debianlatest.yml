@@ -1,4 +1,4 @@
-Build debian package init & qualif:
+build:debian:
   stage: build-debian
   artifacts:
    expire_in: 30 minutes
@@ -19,7 +19,7 @@ Build debian package init & qualif:
     - make
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-Create Debian Package init & qualif:
+package:debian:
   stage: create-package-debian
   image: amd64/debian:bullseye
   artifacts:
@@ -48,7 +48,7 @@ Create Debian Package init & qualif:
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-Test and publish Debian init & qualif:
+test:debian:
   stage: test-publish-debian
   image: amd64/debian:bullseye
   artifacts:
