@@ -1,18 +1,31 @@
-FROM debian:stable-slim
+FROM debian:bullseye-slim as buildamd
+COPY . /tmp/e2guardian
 WORKDIR /tmp/e2guardian
-COPY --chown=1161 src/e2guardian /usr/sbin/e2guardian 
-COPY --chown=1161 configs /etc/e2guardian 
-COPY --chown=1161 data/languages /usr/share/e2guardian/languages 
-COPY --chown=1161 data/*swf /usr/share/e2guardian/
+RUN apt-get update \
+    && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake \
+    coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base \
+    libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar \
+    libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch \
+    libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools curl \
+    && ./autogen.sh && ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes \
+    && make \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -Rf /var/lib/apt/lists/* 
+
+FROM debian:bullseye-slim
+WORKDIR /tmp/e2guardian
+ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
+COPY --from=buildamd --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
     && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
     && rm -Rf /tmp/* \
-    && find /etc -type f -name "Makefil*" -delete \
-    && find /usr/share -type f -name "Makefil*" -delete \
-    && find /etc -type f -name "*.in" -delete \
-    && find /usr/share -type f -name "*.in" -delete \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \

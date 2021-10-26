@@ -1,37 +1,47 @@
-Build debian package init & qualif:
-  stage: build-debian
+build:arm:
+  stage: build
+  image: debian:bullseye
   artifacts:
    expire_in: 30 minutes
    paths:
-    - $CI_PROJECT_DIR 
-  image: amd64/debian:bullseye
+    - $CI_PROJECT_DIR   
   variables:
-    OS: "debian"
+    OS: "raspbian" 
   script:
-    - apt update
-    - apt-get -y upgrade
-    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
-      bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
-      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
-      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
-      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
-    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
-    - make
-    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+   - source $CI_PROJECT_DIR/scripts/debian_package/variables
+   - echo $VFULL
+   - apt update 
+   - apt-get -y upgrade 
+   - echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list 
+   - apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools curl 
+   - cd $CI_PROJECT_DIR && make clean  
+   - ./autogen.sh
+   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
+   - make  
+   - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  tags:
+     - arm
 
-Create Debian Package init & qualif:
-  stage: create-package-debian
-  image: amd64/debian:bullseye
+package:debarm:
+  stage: create-package
+  image: debian:bullseye
+  dependencies:
+    - build:arm
   artifacts:
    paths:
-    - $CI_PROJECT_DIR 
+    - $CI_PROJECT_DIR   
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
-    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
-    OS: "debian"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian-arm64_package"
+    OS: "debian-arm64"
   script:
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
-    - git clone https://github.com/fredbcode/scripts
+    - source $CI_PROJECT_DIR/scripts/debian_package/variables
+    - apt update
+    - apt install -y curl git lsb-release binutils
+    - echo $VFULL
+    - VERSION=`lsb_release -cs`
+    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
@@ -42,31 +52,32 @@ Create Debian Package init & qualif:
     - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
-    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  tags:
+     - arm
 
-Test and publish Debian init & qualif:
-  stage: test-publish-debian
-  image: amd64/debian:bullseye
+test:debianarm:
+  stage: test-publish
+  image: debian:bullseye
+  dependencies:
+    - package:debarm
   artifacts:
    name: builddebian
    paths:
     - $CI_PROJECT_DIR 
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
-    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package"
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian-arm64_package"
     CERT_DIR: "/etc/e2guardian/private/"
-    OS: "debian"
+    OS: "debian-arm64"
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
     - VERSION=`lsb_release -cs`
-    - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
+    - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
@@ -87,3 +98,5 @@ Test and publish Debian init & qualif:
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  tags:
+     - arm

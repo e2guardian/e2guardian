@@ -9,8 +9,12 @@ stages:
 # At first debian : init variables
 - quality 
 - build-debian
-- create-debian-package
+- create-package-debian
 - test-publish-debian
+### All
+- build
+- create-package
+- test-publish
 # AMD64 docker
 - Docker-hub-build
 - Docker-hub-test
@@ -19,11 +23,6 @@ stages:
 - Docker-hub-build-arm
 - Docker-hub-test-arm
 - Docker-hub-pushtag-arm
-
-### All
-- build
-- create-package
-- test-publish
 
 hadolint:
   image: hadolint/hadolint:latest-debian
@@ -39,5 +38,5 @@ include:
   - 'gitlabci/docker-hub.yml'
   - 'gitlabci/debianlatest.yml'
   - 'gitlabci/ubuntubionic.yml'
-  - 'gitlabci/raspbian.yml'
+  - 'gitlabci/armdebian.yml'
   - 'gitlabci/ubuntufocal.yml'

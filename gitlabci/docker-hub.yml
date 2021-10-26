@@ -1,6 +1,8 @@
 docker-hub-build:
   stage: Docker-hub-build
   image: docker:dind
+  variables:
+    PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
   before_script:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
