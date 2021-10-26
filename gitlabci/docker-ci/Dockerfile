@@ -1,17 +1,6 @@
 FROM debian:bullseye-slim as buildamd
 COPY . /tmp/e2guardian
 WORKDIR /tmp/e2guardian
-#RUN apt-get update \
-#    && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake \
-#    coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base \
-#    libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar \
-#    libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch \
-#    libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools curl \
-#    && ./autogen.sh && ./configure --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes \
-#    && make \
-#    && apt-get autoremove -y \
-#    && apt-get clean \
-#    && rm -Rf /var/lib/apt/lists/* 
 
 FROM debian:bullseye-slim
 WORKDIR /tmp/e2guardian
