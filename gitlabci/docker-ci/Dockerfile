@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* 
 
-HEALTHCHECK CMD curl http://localhost:8080/internal.test.e2guardian.org | grep "e2guardian" || exit 1
+HEALTHCHECK CMD curl --proxy "http://127.0.0.1:8080" http://internal.test.e2guardian.org | grep "e2guardian internal test OK" || exit 1
 USER e2guardian
 EXPOSE 8080
 CMD ["e2guardian", "-N"]
