@@ -25,4 +25,5 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
 HEALTHCHECK CMD curl --proxy "http://127.0.0.1:8080" http://internal.test.e2guardian.org | grep "e2guardian internal test OK" || exit 1
 USER e2guardian
 EXPOSE 8080
-CMD ["e2guardian", "-N"]
+#Shell will take up PID 1, and e2guardian will be its child proces
+CMD ["/bin/sh", "-c","e2guardian", "-N"]
