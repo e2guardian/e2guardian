@@ -1033,7 +1033,7 @@ weightedphrasemode = 2
 # The size is in Kibibytes - eg 2048 = 2Mb
 # default 2048
 
-#maxcontentramcachescansize = 2000
+#maxcontentramcachescansize = 2048
 #
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
@@ -1043,7 +1043,7 @@ weightedphrasemode = 2
 # The size is in Kibibytes - eg 10240 = 10Mb
 # use 0 to set it to maxcontentfilecachescansize
 # This option may be ignored by the configured download manager.
-# default 2000
+# default 2048
 
 #maxcontentfilecachescansize = 20000
 #
