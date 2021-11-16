@@ -437,7 +437,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         max_content_filter_size *= 1024;
 
         if(findoptionS("maxcontentramcachescansize").empty()) {
-            max_content_filecache_scan_size = 2000;
+            max_content_ramcache_scan_size = 2048;
         } else {
             max_content_ramcache_scan_size = findoptionI("maxcontentramcachescansize");
         }
