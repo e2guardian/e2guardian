@@ -735,7 +735,7 @@ reverseaddresslookups = off
 # and normally e2g will no longer check site lists for ip's
 # If you want to keep backward list compatablity then set this to
 # 'on' - but note this incurs an overhead - putting IP in ipsitelists
-# and setting this to off gives the fastest implimentation.
+# and setting this to off gives the fastest implementation.
 # default is 'on'
 
 ###
@@ -1140,7 +1140,7 @@ weightedphrasemode = 2
 ## Things that will only work if specifically compliled
 
 ## 'NEW' debug system (generaly compliled in release systems)
-## Note that this is only partialy implimented and only works for ICAP, CLAMAV 
+## Note that this is only partialy implemented and only works for ICAP, CLAMAV 
 ## and ICAPC
 ## and so 'ALL' = 'ICAP,CLAMAV,ICAPC' only.
 ## To debug other areas of code re-compiling in debug mode is required

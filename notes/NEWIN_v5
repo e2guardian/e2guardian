@@ -103,7 +103,7 @@ HTTP/1.1
 
 ANTI-VIRUS PLUGINS
 
-    Anti-virus plugins implimented for proxy, trans and ICAP 
+    Anti-virus plugins implemented for proxy, trans and ICAP 
 
 INCLUDE FILES IN e2guardianf1.conf
 
@@ -220,7 +220,7 @@ WISHLIST
     Support for authenticaion helpers to allow ntlm, basic etc auth
          without using squid proxy.
 
-    Re-impliment mailing option.
+    Re-implement mailing option.
 
     Per-user exceptions/blocks.
 
