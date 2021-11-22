@@ -1,15 +1,15 @@
-FROM debian:bullseye-slim as build
+FROM debian:bullseye-slim as builddocker
 COPY $CI_PROJECT_DIR /tmp/e2guardian
-RUN ls -la /tmp/
+RUN ls -la /tmp/e2guardian/src
 
 FROM debian:bullseye-slim
 WORKDIR /tmp/e2guardian
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
-COPY --from=build --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
-COPY --from=build --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
-COPY --from=build --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
-COPY --from=build --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
-COPY --from=build --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
+COPY --from=builddocker --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
+COPY --from=builddocker --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
+COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
+COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
+COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
 RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl inotify-tools \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
