@@ -28,7 +28,6 @@ EXPOSE 8080
 COPY --chown=e2guardian:root run.sh /
 COPY --chown=e2guardian:root inotify.sh /
 RUN chmod +x /inotify.sh /run.sh
-HEALTHCHECK CMD curl localhost:8080 || exit 1
 USER e2guardian
 EXPOSE 8080
 ENTRYPOINT ["/run.sh"]
