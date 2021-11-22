@@ -1,6 +1,7 @@
 FROM debian:bullseye-slim as builddocker
+RUN ls -la /tmp/e2guardian
 COPY $CI_PROJECT_DIR /tmp/e2guardian
-RUN ls -la /tmp/e2guardian/src
+RUN ls -la /tmp/e2guardian
 
 FROM debian:bullseye-slim
 WORKDIR /tmp/e2guardian
