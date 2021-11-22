@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim as build
 COPY $CI_PROJECT_DIR /tmp/e2guardian
-WORKDIR /tmp/e2guardian
+RUN ls -la /tmp/
 
 FROM debian:bullseye-slim
 WORKDIR /tmp/e2guardian
