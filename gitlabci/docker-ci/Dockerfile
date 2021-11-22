@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
+    && find /etc -type f -name "Makefil*" -delete \
+    && find /etc -type f -name "*.in" -delete \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* 
