@@ -1,5 +1,5 @@
 FROM debian:bullseye-slim as build
-COPY . /tmp/e2guardian
+COPY $CI_PROJECT_DIR /tmp/e2guardian
 WORKDIR /tmp/e2guardian
 
 FROM debian:bullseye-slim
