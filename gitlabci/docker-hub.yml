@@ -9,7 +9,7 @@ docker-hub-build:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
     - cd gitlabci/docker-ci/
-    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg CI_PROJECT_DIR="$CI_BUILDS_DIR" --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR="$CI_BUILDS_DIR" --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD64
 
 variables:
