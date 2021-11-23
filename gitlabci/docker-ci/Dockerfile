@@ -1,6 +1,6 @@
 FROM debian:bullseye-slim as builddocker
 ARG PROJECT_DIR
-RUN echo $PROJECT_DIR
+RUN ls -la $PROJECT_DIR
 COPY $PROJECT_DIR /tmp/e2guardian
 
 FROM debian:bullseye-slim
