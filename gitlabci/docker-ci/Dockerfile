@@ -28,8 +28,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
 HEALTHCHECK CMD curl --proxy "http://127.0.0.1:8080" http://internal.test.e2guardian.org | grep "e2guardian internal test OK" || exit 1
 USER e2guardian
 EXPOSE 8080
-COPY --chown=e2guardian:root run.sh /
-COPY --chown=e2guardian:root inotify.sh /
+COPY --chown=e2guardian:root $DOCKER_BUILD/gitlabci/docker-ci/run.sh /
+COPY --chown=e2guardian:root $DOCKER_BUILD/gitlabci/docker-ci/inotify.sh /
 RUN chmod +x /inotify.sh /run.sh
 USER e2guardian
 EXPOSE 8080
