@@ -377,6 +377,10 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
     //fcntl(this->getFD() ,F_SETFL, O_NONBLOCK); // blocking mode used currently
     SSL_set_fd(ssl, this->getFD());
     SSL_set_tlsext_host_name(ssl, hostname.c_str());
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#else
+  X509_VERIFY_PARAM_set1_host(SSL_get0_param(ssl),hostname.c_str(),0);
+#endif
 
     //make io non blocking as select wont tell us if we can do a read without blocking
     //BIO_set_nbio(SSL_get_rbio(ssl),1l);  // blocking mode used currently
