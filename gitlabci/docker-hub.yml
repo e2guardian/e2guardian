@@ -22,7 +22,6 @@ docker-hub-test:
   stage: Docker-hub-test
   dependencies: []
   script:
-    - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 dive:
