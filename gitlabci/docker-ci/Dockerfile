@@ -5,6 +5,8 @@ COPY . /tmp/e2guardian
 
 FROM debian:bullseye-slim
 WORKDIR /tmp/e2guardian
+ARG PROJECT_DIR
+RUN echo $PROJECT_DIR
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
 COPY --from=builddocker --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
@@ -28,8 +30,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
 HEALTHCHECK CMD curl --proxy "http://127.0.0.1:8080" http://internal.test.e2guardian.org | grep "e2guardian internal test OK" || exit 1
 USER e2guardian
 EXPOSE 8080
-COPY --from=builddocker --chown=1161 $DOCKER_BUILD/gitlabci/docker-ci/run.sh /
-COPY --from=builddocker --chown=1161 $DOCKER_BUILD/gitlabci/docker-ci/inotify.sh /
+COPY --from=builddocker --chown=1161 $PROJECT_DIR/gitlabci/docker-ci/run.sh /
+COPY --from=builddocker --chown=1161 $PROJECT_DIR/gitlabci/docker-ci/inotify.sh /
 RUN chmod +x /inotify.sh /run.sh
 USER e2guardian
 EXPOSE 8080
