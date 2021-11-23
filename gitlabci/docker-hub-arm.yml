@@ -5,13 +5,14 @@ docker-hub-build-arm:
     - package:debarm
   variables:
     DOCKER_DST: "/tmp/e2guardian/scripts/debian_package/e2debian_package"
+    PROJECT_DIR: "$CI_PROJECT_DIR"
   tags:
     - arm
   before_script:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
     - cd gitlabci/docker-ci/
-    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg CI_PROJECT_DIR="$CI_PROJECT_DIR" --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg $PROJECT_DIR --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_ARM
 
 variables:
