@@ -1,0 +1,54 @@
+docker-hub-build-arm:
+  stage: Docker-hub-build
+  image: docker:dind 
+  dependencies:
+    - package:debarm
+  variables:
+    DOCKER_DST: "/tmp/e2guardian/scripts/debian_package/e2debian_package"
+  tags:
+    - arm
+  before_script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
+  script:
+    - cd $CI_PROJECT_DIR && cp gitlabci/docker-ci/Dockerfile ./Dockerfile
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
+    - docker push $CONTAINER_BUILD_NOPROD_NAME_ARM
+
+variables:
+  CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
+  CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
+
+docker-hub-test-arm:
+  image: $CONTAINER_BUILD_NOPROD_NAME_ARM
+  stage: Docker-hub-test
+  dependencies: []
+  script:
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
+  tags:
+    - arm
+
+dive-arm:
+  image: 
+    name: wagoodman/dive:latest
+    entrypoint: [""]
+  dependencies: []
+  stage: Docker-hub-test
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
+    - dive $CONTAINER_BUILD_NOPROD_NAME_ARM
+  variables:
+    CI: "true"
+
+push-docker-hub-arm:
+  stage: Docker-hub-pushtag
+  image: docker:dind
+  dependencies: []
+  before_script:
+    - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
+    - docker tag $CONTAINER_BUILD_NOPROD_NAME_ARM $CONTAINER_PROD_IMAGE_ARM
+    - docker push $CONTAINER_PROD_IMAGE_ARM
+  tags:
+    - arm

@@ -7,21 +7,35 @@ cache:
 
 stages:
 # At first debian : init variables
+- quality 
 - build-debian
-- create-debian-package
+- create-package-debian
 - test-publish-debian
-- Docker-hub-build
-- Docker-hub-test
-- Docker-hub-pushtag
-
 ### All
 - build
 - create-package
 - test-publish
+# AMD64 docker
+- Docker-hub-build
+- Docker-hub-test
+- Docker-hub-pushtag
+# ARM docker
+- Docker-hub-build-arm
+- Docker-hub-test-arm
+- Docker-hub-pushtag-arm
+
+hadolint:
+  image: hadolint/hadolint:latest-debian
+  stage: quality
+  before_script:
+    - cd $CI_PROJECT_DIR 
+  script:
+    - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
 
 include:
+  - 'gitlabci/docker-hub-arm.yml'
   - 'gitlabci/docker-hub.yml'
-  - 'gitlabci/debianbuster.yml'
+  - 'gitlabci/debianlatest.yml'
   - 'gitlabci/ubuntubionic.yml'
-  - 'gitlabci/raspbianbuster.yml'
+  - 'gitlabci/armdebian.yml'
   - 'gitlabci/ubuntufocal.yml'

@@ -735,7 +735,7 @@ reverseaddresslookups = off
 # and normally e2g will no longer check site lists for ip's
 # If you want to keep backward list compatablity then set this to
 # 'on' - but note this incurs an overhead - putting IP in ipsitelists
-# and setting this to off gives the fastest implimentation.
+# and setting this to off gives the fastest implementation.
 # default is 'on'
 
 ###
@@ -1033,7 +1033,7 @@ weightedphrasemode = 2
 # The size is in Kibibytes - eg 2048 = 2Mb
 # default 2048
 
-#maxcontentramcachescansize = 2000
+#maxcontentramcachescansize = 2048
 #
 # Max content ram cache scan size
 # This is only used if you use a content scanner plugin such as AV
@@ -1043,7 +1043,7 @@ weightedphrasemode = 2
 # The size is in Kibibytes - eg 10240 = 10Mb
 # use 0 to set it to maxcontentfilecachescansize
 # This option may be ignored by the configured download manager.
-# default 2000
+# default 2048
 
 #maxcontentfilecachescansize = 20000
 #
@@ -1140,7 +1140,7 @@ weightedphrasemode = 2
 ## Things that will only work if specifically compliled
 
 ## 'NEW' debug system (generaly compliled in release systems)
-## Note that this is only partialy implimented and only works for ICAP, CLAMAV 
+## Note that this is only partialy implemented and only works for ICAP, CLAMAV 
 ## and ICAPC
 ## and so 'ALL' = 'ICAP,CLAMAV,ICAPC' only.
 ## To debug other areas of code re-compiling in debug mode is required

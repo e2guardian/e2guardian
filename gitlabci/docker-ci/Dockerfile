@@ -1,28 +1,29 @@
-FROM debian:buster 
-
-LABEL commit.e2guardian=$COMMIT build_date.e2guardian=$BUILD_DATE
+FROM debian:bullseye-slim as buildamd
 COPY . /tmp/e2guardian
-RUN cd /tmp/e2guardian \
-    && apt-get update && apt-get install --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates \
+WORKDIR /tmp/e2guardian
+
+FROM debian:bullseye-slim
+WORKDIR /tmp/e2guardian
+ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
+COPY --from=buildamd --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
+COPY --from=buildamd --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y sed libevent-pthreads-* libssl1.1 ca-certificates curl \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
-    && cp src/e2guardian /usr/sbin/e2guardian \
-    && chmod +x /usr/sbin/e2guardian \     
-    && cp -Rf configs /etc/e2guardian \
-    && mkdir -p /usr/share/e2guardian/languages \
     && mkdir -p /run/e2guardian \
-    && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /etc/e2guardian && chown -R e2guardian /run/e2guardian \
-    && cp -Rf data/languages /usr/share/e2guardian/ \
-    && cp data/*.gif /usr/share/e2guardian/ \
-    && cp data/*swf /usr/share/e2guardian/ \
+    && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
+    && rm -Rf /tmp/* \
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* && rm -Rf /tmp/* 
+    && apt-get clean \
+    && rm -Rf /var/lib/apt/lists/* 
 
-COPY --chown=e2guardian:root run.sh /
-RUN chmod +x /run.sh
-HEALTHCHECK CMD curl localhost:8080 || exit 1
+HEALTHCHECK CMD curl --proxy "http://127.0.0.1:8080" http://internal.test.e2guardian.org | grep "e2guardian internal test OK" || exit 1
 USER e2guardian
 EXPOSE 8080
-ENTRYPOINT ["/run.sh"]
+#Shell will take up PID 1, and e2guardian will be its child proces
+CMD ["/bin/sh", "-c","e2guardian", "-N"]
