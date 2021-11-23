@@ -5,8 +5,6 @@ docker-hub-build-arm:
     - package:debarm
   variables:
     DOCKER_DST: "/tmp/e2guardian/scripts/debian_package/e2debian_package"
-  paths:
-    - $CI_PROJECT_DIR 
   tags:
     - arm
   before_script:
