@@ -12,7 +12,7 @@ docker-hub-build-arm:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
     - cd gitlabci/docker-ci/
-    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg $PROJECT_DIR --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR=$PROJECT_DIR --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_ARM
 
 variables:
