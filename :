@@ -1,8 +1,3 @@
-variables:
-  CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
-  CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
-  CONTAINER_CLIENT_IMAGE: debian:latest      
-
 docker-hub-build-arm:
   stage: Docker-hub-build
   image: docker:dind 
@@ -20,31 +15,19 @@ docker-hub-build-arm:
     - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR="$PROJECT_DIR" -f gitlabci/docker-ci/Dockerfile --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_ARM
 
-.services:
-  services:
-    - name: $CONTAINER_BUILD_NOPROD_NAME_ARM
-      alias: e2guardian 
-  image: $CONTAINER_CLIENT_IMAGE
-  tags:
-    - arm
+variables:
+  CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
+  CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
 
-docker-hub-test:
+docker-hub-test-arm:
+  image: $CONTAINER_BUILD_NOPROD_NAME_ARM
   stage: Docker-hub-test
-  extends: .services
+  dependencies: []
   script:
-    - apt update && apt install -y curl
-    - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
-  variables:
-    HOSTNAME: e2pipeline
-  needs: ["docker-hub-build"]
+    - e2guardian -N &
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
   tags:
     - arm
-
-dive:
-  image: 
-    name: wagoodman/dive:latest
-    entrypoint: [""]
-
 
 dive-arm:
   image: 
