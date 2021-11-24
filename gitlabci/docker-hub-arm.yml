@@ -41,13 +41,7 @@ docker-hub-test:
   tags:
     - arm
 
-dive:
-  image: 
-    name: wagoodman/dive:latest
-    entrypoint: [""]
-  tags:
-    - arm
-
+# Working on amd64 only
 dive-arm:
   image: 
     name: wagoodman/dive:latest
@@ -59,8 +53,6 @@ dive-arm:
     - dive $CONTAINER_BUILD_NOPROD_NAME_ARM
   variables:
     CI: "true"
-  tags:
-    - arm
 
 push-docker-hub-arm:
   stage: Docker-hub-pushtag
