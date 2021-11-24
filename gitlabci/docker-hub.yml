@@ -19,7 +19,8 @@ docker-hub-build:
     - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD64
 
 docker-hub-test:
-  image: $CONTAINER_BUILD_NOPROD_NAME_AMD64
+  image: 
+    name: $CONTAINER_BUILD_NOPROD_NAME_AMD64
     entrypoint: [""]
   stage: Docker-hub-test
   dependencies: []
