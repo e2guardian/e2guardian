@@ -1,12 +1,9 @@
 FROM debian:bullseye-slim as builddocker
 ARG PROJECT_DIR
-RUN echo $PROJECT_DIR
 COPY . /tmp/e2guardian
 
 FROM debian:bullseye-slim
-WORKDIR /tmp/e2guardian
 ARG PROJECT_DIR
-RUN echo $PROJECT_DIR
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
 COPY --from=builddocker --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardian
@@ -21,6 +18,10 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
+    && echo "# Docker log #" >> /etc/e2guardian/e2guardian.conf \
+    && echo "set_error = 'stdout:LOG_ERR'" >> /etc/e2guardian/e2guardian.conf \
+    && echo "set_info = 'stdout:LOG_INFO'" >> /etc/e2guardian/e2guardian.conf \
+    && echo "set_warning = 'stdout:LOG_WARNING'" >> /etc/e2guardian/e2guardian.conf \
     && find /etc -type f -name "Makefil*" -delete \
     && find /etc -type f -name "*.in" -delete \
     && apt-get autoremove -y \
