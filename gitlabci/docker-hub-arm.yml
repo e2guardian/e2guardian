@@ -20,23 +20,12 @@ docker-hub-build-arm:
   tags:
     - arm
 
-.services:
-  services:
-    - name: $CONTAINER_BUILD_NOPROD_NAME_ARM
-      alias: e2guardian 
-  image: $CONTAINER_CLIENT_IMAGE
-  tags:
-    - arm
-
-docker-hub-test:
+docker-hub-test-arm:
+  image: $CONTAINER_BUILD_NOPROD_NAME_ARM
   stage: Docker-hub-test
-  extends: .services
+  dependencies: []
   script:
-    - apt update && apt install -y curl
-    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
-  variables:
-    HOSTNAME: e2pipeline
-  needs: ["docker-hub-build"]
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
   tags:
     - arm
 

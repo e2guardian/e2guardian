@@ -18,21 +18,12 @@ docker-hub-build:
     - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR="$PROJECT_DIR" -f gitlabci/docker-ci/Dockerfile --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD64
 
-.services:
-  services:
-    - name: $CONTAINER_BUILD_NOPROD_NAME_AMD64
-      alias: e2guardian 
-  image: $CONTAINER_CLIENT_IMAGE
-
 docker-hub-test:
+  image: $CONTAINER_BUILD_NOPROD_NAME_AMD64
   stage: Docker-hub-test
-  extends: .services
+  dependencies: []
   script:
-    - apt update && apt install -y curl
-    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
-  variables:
-    HOSTNAME: e2pipeline
-  needs: ["docker-hub-build"]
+    - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
 dive:
   image: 
