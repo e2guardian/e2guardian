@@ -2,7 +2,6 @@ variables:
   CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
   CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
   CONTAINER_CLIENT_IMAGE: debian:latest      
-  CONTAINER_TEST_NAME: e2guardian 
 
 docker-hub-build-arm:
   stage: Docker-hub-build
@@ -34,7 +33,7 @@ docker-hub-test:
   extends: .services
   script:
     - apt update && apt install -y curl
-    - export https_proxy=http://$CONTAINER_TEST_NAME:8080 && curl -k https://www.google.fr
+    - export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
   variables:
     HOSTNAME: e2pipeline
   needs: ["docker-hub-build"]
