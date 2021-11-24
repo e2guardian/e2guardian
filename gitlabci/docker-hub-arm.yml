@@ -22,9 +22,11 @@ docker-hub-build-arm:
 
 docker-hub-test-arm:
   image: $CONTAINER_BUILD_NOPROD_NAME_ARM
+  entrypoint: [""]
   stage: Docker-hub-test
   dependencies: []
   script:
+    - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
   tags:
     - arm
