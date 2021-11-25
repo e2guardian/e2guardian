@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && echo "# Docker log #" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_error = 'stdout:LOG_ERR'" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_warning = 'stdout:LOG_WARNING'" >> /etc/e2guardian/e2guardian.conf \
-    && find /etc -type f -name "Makefil*" -delete \
-    && find /etc -type f -name "*.in" -delete \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -Rf /var/lib/apt/lists/* 
