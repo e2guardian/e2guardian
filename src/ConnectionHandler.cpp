@@ -472,6 +472,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     std::cerr << thread_id << "May_be_loop = " << may_be_loop << " "  << " port " << port << std::endl;
 #endif
 
+    sock.setTimeout(o.connect_timeout);
+
     while (++retry < o.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
@@ -504,7 +506,6 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     may_be_loop = false;
                 }
 
-                sock.setTimeout(o.connect_timeout);
 #ifdef E2DEBUG
                 std::cerr << thread_id << "Connecting to IP " << des_ip << " port " << port << std::endl;
 #endif

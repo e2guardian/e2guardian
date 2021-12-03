@@ -98,7 +98,7 @@ void BaseSocket::baseReset()
         infds[0].fd = -1;
         outfds[0].fd = -1;
     }
-    timeout = 5000;
+   // timeout = 5000;  // this line overwrites connecttimeout setting so leave out for now.
     buffstart = 0;
     bufflen = 0;
     isclosing = false;
