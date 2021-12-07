@@ -610,8 +610,10 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     // only get here if failed
     cm.upfailure = true;
     cm.message_no = lerr_mess;
-    cm.whatIsNaughty = "";
-    cm.whatIsNaughtyLog = "";
+    cm.whatIsNaughty = o.language_list.getTranslation(lerr_mess);
+    cm.whatIsNaughtyLog = cm.whatIsNaughty;
+    cm.whatIsNaughtyCategories = "";
+    cm.whatIsNaughtyDisplayCategories = "";
     cm.isItNaughty = true;
     cm.blocktype = 3;
     cm.isexception = false;
