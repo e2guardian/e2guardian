@@ -59,7 +59,7 @@ void DataBuffer::reset()
     compresseddata = nullptr;
     data_length = 0;
     buffer_length = 0;
-    compressed_buffer_length = 0;
+    compressed_buffer_data_length = 0;
 
     if (tempfilefd > -1) {
         close(tempfilefd);
@@ -106,13 +106,13 @@ void DataBuffer::set_current_config (FOptionContainer *newfgc) {
 // if body was decompressed but not modified, this can save bandwidth
 void DataBuffer::swapbacktocompressed()
 {
-    if (compresseddata != nullptr && compressed_buffer_length > 0) {
+    if (compresseddata != nullptr && compressed_buffer_data_length> 0) {
         delete[] data;
-        data_length = compressed_buffer_length;
+        data_length = compressed_buffer_data_length;
         data = compresseddata;
 
         compresseddata = nullptr;
-        compressed_buffer_length = 0;
+        compressed_buffer_data_length = 0;
         DEBUG_network("Compressed data size ", data_length);
     }
 }
@@ -457,7 +457,7 @@ void DataBuffer::zlibinflate(bool header)
     if (data_length < 12) {
         return; // it can't possibly be zlib'd
     }
-    DEBUG_debug("compressed size:", buffer_length);
+    DEBUG_debug("compressed size:", data_length);
 
 #if ZLIB_VERNUM < 0x1210
 #warning ************************************
@@ -547,9 +547,9 @@ void DataBuffer::zlibinflate(bool header)
     }
 
     compresseddata = data;
-    compressed_buffer_length = buffer_length;
+    compressed_buffer_data_length = data_length;  // change from buffer_length
     buffer_length = bytesgot;
-    DEBUG_debug("decompressed size: ", buffer_length);
+    DEBUG_debug("decompressed size: ", data_length);
     data = new char[bytesgot + 1];
     data[bytesgot] = '\0';
     memcpy(data, block, bytesgot);

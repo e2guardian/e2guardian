@@ -71,6 +71,20 @@ class Socket : public BaseSocket
     void resetChunk();
     short int get_wait_flag(bool write_flag);
 
+    //flags for use with ssl only
+    bool s_read_wants_read = false;
+    bool s_read_wants_write = false;
+    bool s_write_wants_read = false;
+    bool s_write_wants_write = false;
+    bool s_shutdown_wants_read = false;
+    bool s_shutdown_wants_write = false;
+    int s_pending = 0;
+    bool s_has_pending = false;
+    bool s_prev_has_pending = false;
+
+    bool s_checkPending();
+    int s_checkShutdown();
+
     bool chunkError;
 
     //use this socket as an ssl server

@@ -1014,7 +1014,7 @@ void HTTPHeader::checkheader(bool allowpersistent)
 if(!icap) {
     // force the headers to reflect whether or not persistency is allowed
     // (modify pproxyconnection or add connection close/keep-alive - Client version, of course)
-    if (allowpersistent) {
+    if (allowpersistent ) {
         if (pproxyconnection == NULL) {
             DEBUG_debug("CheckHeader: Adding our own Proxy-Connection: Keep-Alive");
             header.push_back("Connection: keep-alive\r");

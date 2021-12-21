@@ -5,11 +5,11 @@ version 5.5.1
 December 2020 to August 2021
 
 Fixes
-  - fix #646 - datmaplist of more than 16 lines crash e2g
+  - fix #646 - data maplist of more than 16 lines crash e2g
   - fix #649 - set got_orig_ip in get_origianl_ip_port (by Raifeg)
   - Fix #660 - revert to use of iostream for log files - fixes delay due to buffer issue in logger
   - Fix #670 - request log not being written
-  - Fix #672 - Cart error not giving status page
+  - Fix #672 - Cert error not giving status page
   - Fix #677 - exceptionfile test in wrong place
   - Fix #683 - ports ignored in authplugin conf files
   - Fix #684 - crash when only one entry in a maplist

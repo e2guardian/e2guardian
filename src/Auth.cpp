@@ -194,10 +194,15 @@ void AuthPlugin::read_ports() {
 
 
 bool AuthPlugin::port_matched(int &port) {
-    if (portlist.empty()) return true;
+    if (portlist.empty()) {
+        DEBUG_auth("`Port list empty - true");
+        return true;
+    }
     for (auto rec : portlist) {
         DEBUG_auth(" port is ", port, " list is ", rec);
-        if (rec == port) return true;
+        if (rec == port) {
+            return true;
+        }
     }
     return false;
 

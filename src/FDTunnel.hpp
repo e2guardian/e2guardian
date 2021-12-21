@@ -12,6 +12,8 @@
 // INCLUDES
 
 #include "Socket.hpp"
+#include <fcntl.h>
+#include <cstdbool>
 
 // DECLARATIONS
 
@@ -34,6 +36,15 @@ private:
     struct pollfd fromoutfds[1];
     struct pollfd tooutfds[1];
     struct pollfd twayfds[2];
+    int timeout = 120000;
+    char sfbuff[32768]; // buffer for the input
+
+    bool nots2nots_tunnel(Socket &sockfrom, Socket &sockto, int &fdto, int &fdfrom, bool twoway, off_t targetthroughput,
+                              bool ignore);
+    bool iss2nots_tunnel(Socket &sockfrom, Socket &sockto, int &fdto, int &fdfrom, bool twoway, off_t targetthroughput,
+                          bool ignore);
+    bool iss2iss_tunnel(Socket &sockfrom, Socket &sockto, int &fdto, int &fdfrom, bool twoway, off_t targetthroughput,
+                         bool ignore);
 };
 
 #endif

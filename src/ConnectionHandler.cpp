@@ -411,6 +411,8 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     }
     DEBUG_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
 
+    sock.setTimeout(o.net.connect_timeout);
+
     while (++retry < o.net.connect_retries) {
         lerr_mess = 0;
         if (retry > 0) {
@@ -443,7 +445,6 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                     may_be_loop = false;
                 }
 
-                sock.setTimeout(o.net.connect_timeout);
 
                 DEBUG_debug("Connecting to IP ", des_ip, " port ", String(port));
 
@@ -544,8 +545,10 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     // only get here if failed
     cm.upfailure = true;
     cm.message_no = lerr_mess;
-    cm.whatIsNaughty = "";
-    cm.whatIsNaughtyLog = "";
+    cm.whatIsNaughty = o.language_list.getTranslation(lerr_mess);
+    cm.whatIsNaughtyLog = cm.whatIsNaughty;
+    cm.whatIsNaughtyCategories = "";
+    cm.whatIsNaughtyDisplayCategories = "";
     cm.isItNaughty = true;
     cm.blocktype = 3;
     cm.isexception = false;
@@ -3040,10 +3043,11 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
 
         // Now create a pipe - push one end onto normal proxy queue and then tunnel between other end and the ssled peerconn
         int socks[2];
-        if (socketpair(AF_UNIX,SOCK_STREAM|SOCK_NONBLOCK, 0, socks) != 0) {
-            E2LOGGER_error("Unable to create socket pair");
-            return 1;
-        }
+    //if (socketpair(AF_UNIX,SOCK_STREAM|SOCK_NONBLOCK, 0, socks) != 0)
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, socks) != 0) {
+        E2LOGGER_error("Unable to create socket pair");
+        return 1;
+    }
     Socket *s_inside = new Socket(socks[0]);
         Socket s_outside(socks[1]);
         s_inside->setClientAddr(peerconn.getPeerIP(),peerconn.getPeerSourcePort());

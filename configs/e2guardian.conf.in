@@ -61,6 +61,16 @@ language = 'ukenglish'
 #
 # Also sets info, error and warning messages to stderr 
 # Default: off
+#
+# This option is retained for backward compatibility
+# Setting this 'on' is the same as making the following settings:
+#
+# nodaemon = on
+# set_info = 'stderr'
+# set_error = 'stderr'
+# set_warning = 'stderr'
+# set_accesslog = 'stdout'
+
 
 # loop prevention
 #

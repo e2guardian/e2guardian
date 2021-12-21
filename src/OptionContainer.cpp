@@ -482,6 +482,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 {
     LoggerConfigurator loggerConf(&e2logger);
 
+    logger.log_ssl_errors = cr.findoptionB("logsslerrors");
+
     {
         std::string temp = cr.findoptionS("set_info");
         if (!temp.empty()) {

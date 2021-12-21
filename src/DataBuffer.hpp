@@ -27,7 +27,7 @@ class DataBuffer
     off_t data_length = 0;
     off_t buffer_length = 0;
     char *compresseddata= nullptr;
-    off_t compressed_buffer_length = 0;
+    off_t compressed_buffer_data_length = 0;
     off_t tempfilesize = 0;
     String tempfilepath;
     bool dontsendbody = false; // used for fancy download manager for example

@@ -78,23 +78,26 @@ class BaseSocket
     // read from socket, returning number of bytes read
     int readFromSocket(char *buff, int len, unsigned int flags, int timeout, bool ret_part = false);
     short int get_wait_flag(bool write_flag);
+    bool timedout = false;
+    bool isNoBlock = false;
+    bool doCheck = true;
+    int buffstart = 0;
+    int bufflen = 0;
+    char buffer[SCK_READ_BUFF_SIZE];
 
     protected:
     // socket-wide timeout
-    int timeout;
-    int s_errno;
+    int timeout = 5000;
+    int s_errno = 0;
     // length of address of other end of socket (e.g. size of sockaddr_in or sockaddr_un)
     socklen_t peer_adr_length;
     // socket FD
-    int sck;
-    bool isclosing;
+    int sck = -1;
+    bool isclosing = false;
     //bool ishup;
     bool sockerr;
-    bool timedout;
+    //bool timedout;
     // internal buffer
-    char buffer[SCK_READ_BUFF_SIZE];
-    int buffstart;
-    int bufflen;
     struct pollfd infds[1];
     struct pollfd outfds[1];
 

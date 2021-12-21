@@ -11,7 +11,6 @@ SUBDIRS = .
 WLISTS = addheaderregexplist \
 bannedsearchoveridelist \
 bannedextensionlist \
-bannediplist \
 bannedmimetypelist \
 bannedphraselist \
 oldbannedphraselist \
