@@ -671,8 +671,8 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
 
     net.connect_retries = cr.findoptionIWithDefault("connectretries", 1, 100, 1);
 
-    net.proxy_ip = cr.findoptionI("proxyip");
-    net.no_proxy = (net.proxy_ip == 0);
+    net.proxy_ip = cr.findoptionS("proxyip");
+    net.no_proxy = (net.proxy_ip == "");
     if (!net.no_proxy) {
         net.proxy_port = cr.findoptionIWithDefault("proxyport", 1, 65535, 3128);
     }
