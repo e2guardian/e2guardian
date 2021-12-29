@@ -207,7 +207,7 @@ struct NetworkOptions
     std::string server_name;
 
     std::string proxy_ip;
-    bool no_proxy = ( proxy_ip == "");
+    bool no_proxy = true;
 
     std::string TLSproxyCN;
     bool TLSproxyCN_is_ip = false;
