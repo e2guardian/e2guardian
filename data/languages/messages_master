@@ -46,7 +46,7 @@
 "157","Unable to create tunnel through local proxy"
 "158","Opening tunnel failed"
 "159","Could not connect to proxy server"
-"160","Failed to nogotiate ssl connection to server"
+"160","Failed to negotiate ssl connection to server"
 
 "200","The requested URL is malformed."
 "201","Unable to connect to upstream proxy (timeout)"
