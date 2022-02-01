@@ -33,9 +33,9 @@ hadolint:
     - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
 
 include:
+  - 'gitlabci/debianlatest.yml'
   - 'gitlabci/docker-hub-arm.yml'
   - 'gitlabci/docker-hub.yml'
-  - 'gitlabci/debianlatest.yml'
   - 'gitlabci/ubuntubionic.yml'
   - 'gitlabci/armdebian.yml'
   - 'gitlabci/ubuntufocal.yml'

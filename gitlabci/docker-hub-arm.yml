@@ -1,3 +1,8 @@
+variables:
+  CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
+  CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
+  CONTAINER_CLIENT_IMAGE: debian:latest      
+
 docker-hub-build-arm:
   stage: Docker-hub-build
   image: docker:dind 
@@ -5,21 +10,20 @@ docker-hub-build-arm:
     - package:debarm
   variables:
     DOCKER_DST: "/tmp/e2guardian/scripts/debian_package/e2debian_package"
-  tags:
-    - arm
+    PROJECT_DIR: "$CI_PROJECT_DIR"
   before_script:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
-    - cd $CI_PROJECT_DIR && cp gitlabci/docker-ci/Dockerfile ./Dockerfile
-    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
+    - cd $PROJECT_DIR  
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR="$PROJECT_DIR" -f gitlabci/docker-ci/Dockerfile --pull -t $CONTAINER_BUILD_NOPROD_NAME_ARM .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_ARM
-
-variables:
-  CONTAINER_PROD_IMAGE_ARM: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-arm
-  CONTAINER_BUILD_NOPROD_NAME_ARM: $HUB_REGISTRY_IMAGE:build-noprod-arm
+  tags:
+    - arm
 
 docker-hub-test-arm:
-  image: $CONTAINER_BUILD_NOPROD_NAME_ARM
+  image: 
+    name: $CONTAINER_BUILD_NOPROD_NAME_ARM
+    entrypoint: [""]
   stage: Docker-hub-test
   dependencies: []
   script:
@@ -28,6 +32,7 @@ docker-hub-test-arm:
   tags:
     - arm
 
+# Working on amd64 only
 dive-arm:
   image: 
     name: wagoodman/dive:latest

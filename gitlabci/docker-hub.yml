@@ -1,3 +1,8 @@
+variables:
+  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-amd64
+  CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
+  CONTAINER_CLIENT_IMAGE: debian:latest      
+
 docker-hub-build:
   stage: Docker-hub-build
   image: docker:dind
@@ -5,19 +10,18 @@ docker-hub-build:
     - package:debian
   variables:
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
+    PROJECT_DIR: "$CI_PROJECT_DIR"
   before_script:
     - docker login -u "$DOCKER_HUB_USER" -p "$DOCKER_HUB_TOKEN" $DOCKER_HUB_REGISTRY
   script:
-    - cd $CI_PROJECT_DIR && cp gitlabci/docker-ci/Dockerfile ./
-    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
+    - cd $PROJECT_DIR  
+    - docker build --build-arg E2_VERSION="$CI_COMMIT_BRANCH" --build-arg PROJECT_DIR="$PROJECT_DIR" -f gitlabci/docker-ci/Dockerfile --pull -t $CONTAINER_BUILD_NOPROD_NAME_AMD64 .
     - docker push $CONTAINER_BUILD_NOPROD_NAME_AMD64
 
-variables:
-  CONTAINER_PROD_IMAGE: $HUB_REGISTRY_IMAGE:$CI_COMMIT_BRANCH-amd64
-  CONTAINER_BUILD_NOPROD_NAME_AMD64: $HUB_REGISTRY_IMAGE:build-noprod-amd64
-
 docker-hub-test:
-  image: $CONTAINER_BUILD_NOPROD_NAME_AMD64
+  image: 
+    name: $CONTAINER_BUILD_NOPROD_NAME_AMD64
+    entrypoint: [""]
   stage: Docker-hub-test
   dependencies: []
   script:
