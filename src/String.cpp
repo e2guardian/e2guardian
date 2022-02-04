@@ -615,6 +615,7 @@ String String::md5()
 
 String String::sort_search()
 {
+    this->toLower();
     int ln = this->length();
     if (ln < 3) {
         return (*this);
