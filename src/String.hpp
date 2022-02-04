@@ -74,7 +74,7 @@ class String : public std::string
     long int toLong();
     off_t toOffset();
     // return integer from hex string
-    int hexToInteger();
+    long int hexToInteger();
     // case conversions
     void toLower();
     void toUpper();
