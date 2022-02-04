@@ -194,14 +194,14 @@ long int String::toLong()
 }
 
 // return integer from hex string
-int String::hexToInteger()
+long int String::hexToInteger()
 {
     int n = 0; // position in string
     int m = 0; // position in digit[] to shift
     int count; // loop index
-    int intValue = 0; // integer value of hex string
-    int digit[10]; // hold values to convert
-    while (n < 9) {
+    long int intValue = 0; // integer value of hex string
+    int digit[15]; // hold values to convert
+    while (n < 14) {
         if ((*this)[n] == '\0')
             break;
         if ((*this)[n] >= '0' && (*this)[n] <= '9')
@@ -615,6 +615,7 @@ String String::md5()
 
 String String::sort_search()
 {
+    this->toLower();
     int ln = this->length();
     if (ln < 3) {
         return (*this);
