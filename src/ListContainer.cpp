@@ -914,11 +914,11 @@ struct lessThanEWF : public std::binary_function<const size_t &, const size_t &,
         size_t apos = alen - 1;
         size_t bpos = blen - 1;
         for (size_t maxlen = ((alen < blen) ? alen : blen); maxlen > 0; apos--, bpos--, maxlen--)
-            if (a[apos] < b[bpos])
+            if (a[apos] > b[bpos])
                 return true;
-            else if (a[apos] > b[bpos])
+            else if (a[apos] < b[bpos])
                 return false;
-        if (alen <= blen)
+        if (alen > blen)
             return true;
         else //if (alen < blen)
             return false;
@@ -935,14 +935,15 @@ struct lessThanSWF : public std::binary_function<const size_t &, const size_t &,
         size_t blen = strlen(b);
         size_t maxlen = (alen < blen) ? alen : blen;
         for (size_t i = 0; i < maxlen; i++)
-            if (a[i] < b[i])
+            if (a[i] > b[i])
                 return true;
-            else if (a[i] > b[i])
+            else if (a[i] < b[i])
                 return false;
-        if (alen <= blen)
+        if (alen > blen)
             return true;
-        else //if (alen > blen)
+        else //if (alen < blen)
             return false;
+        //return true;  // both equal
     };
     char *data;
 };

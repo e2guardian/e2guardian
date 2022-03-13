@@ -184,6 +184,7 @@ void Socket::reset() {
     peer_adr_length = sizeof(struct sockaddr_in);
     infds[0].fd = sck;
     outfds[0].fd = sck;
+
     chunkError = false;
     chunk_to_read = 0;
 
