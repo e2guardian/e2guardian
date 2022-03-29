@@ -446,7 +446,7 @@ bool DataBuffer::out(Socket *sock)
                     return false;
             }
         }
-        DEBUG_debug("Sent ", buffer_length - bytesalreadysent," bytes from RAM (", buffer_length);
+        DEBUG_debug("Sent ", data_length - bytesalreadysent," bytes from RAM (", buffer_length);
     }
     return true;
 }

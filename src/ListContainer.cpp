@@ -2176,3 +2176,9 @@ const char *ListContainer::hIPtoChar(uint32_t ip) {
     addr.s_addr = htonl(ip);
     return inet_ntoa(addr);
 }
+
+void ListContainer::dump_data() {
+  for (std::vector<size_t>::const_iterator i = list.begin(); i != list.end(); ++i) {
+      DEBUG_debug("LD:",*i);
+  }
+}

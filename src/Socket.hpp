@@ -62,7 +62,7 @@ class Socket : public BaseSocket
 
     // Chunked i/o
     String chunked_trailer;
-    int chunk_to_read;
+    long int chunk_to_read;
     bool writeChunk( char *buffout, int len, int timeout);
     bool writeChunkTrailer( String &trailer);
     int readChunk( char *buffout, int maxlen, int timeout);

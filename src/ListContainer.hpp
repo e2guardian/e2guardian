@@ -142,6 +142,7 @@ class ListContainer
     bool inListStartsWith(const char *string, String &lastcategory);
 
     const char *findInList(const char *string, String &lastcategory);
+    void dump_data();
 
     char *findEndsWith(const char *string, String &lastcategory);
     char *findStartsWith(const char *string, String &lastcategory);
@@ -162,7 +163,7 @@ class ListContainer
 
     void doSort(const bool startsWith);
 
-    bool createCacheFile();
+    //bool createCacheFile();
     bool makeGraph(bool fqs);
 
     bool previousUseItem(const char *filename, bool startswith, int filters);
@@ -180,10 +181,10 @@ class ListContainer
     bool checkTimeAt(unsigned int index);
     bool checkTimeAtD(int index);
 
-    bool blanketblock;
-    bool blanket_ip_block;
-    bool blanketsslblock;
-    bool blanketssl_ip_block;
+    //bool blanketblock;
+    //bool blanket_ip_block;
+    //bool blanketsslblock;
+    //bool blanketssl_ip_block;
 
     private:
     bool sourceisexception = false;

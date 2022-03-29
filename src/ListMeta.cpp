@@ -197,6 +197,9 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
                 break;
             case LIST_METHOD_READF_SWS :
                 if (readFile(fpath.toCharArray(), pwd.toCharArray(), &rec.list_ref, true, nm.toCharArray())) {
+                    // test dump
+                    //DEBUG_debug(fpath, " read ");
+                    //o.lm.l[rec.list_ref]->dump_data();  // temp test only
                     list_vec.push_back(rec);
                 } else {
                     E2LOGGER_error("Unable to read ", fpath);
