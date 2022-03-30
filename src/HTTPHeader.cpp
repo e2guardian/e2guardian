@@ -240,6 +240,29 @@ bool HTTPHeader::isContentType(const String &t, FOptionContainer* &foc)
    return false;
 }
 
+bool HTTPHeader::OKtoFilterMime(FOptionContainer* &foc)
+{
+    String mime = getContentType();
+
+    // check stop list
+    std::deque<std::string> text_mime =  foc->text_mime_stop;
+    int size = (int) text_mime.size();
+    int i;
+    for (i = 0; i < size; i++) {
+        if (mime.startsWith(text_mime[i])) {
+            DEBUG_debug( "mimes match stop: ", text_mime[i]);
+            return false;
+        }
+        else {
+            DEBUG_debug("mimes check stop: ", text_mime[i]);
+        }
+    }
+
+    //check if 'text'
+    if(isContentType("text",foc) || isContentType("-",foc)) return true;
+    return false;
+}
+
 // grab contents of X-Forwarded-For header
 // Modification based on a submitted patch by
 // Jimmy Myrick (jmyrick@tiger1.tiger.org)

@@ -2070,7 +2070,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                                       bool *wasscanned, bool isbypass,
                                       String &url, String &domain, bool *scanerror, bool &contentmodified,
                                       String *csmessage) {
-    //int rc = 0;
+
 
     //proxysock->bcheckForInput(120000);
     bool compressed = docheader->isCompressed();
@@ -2151,7 +2151,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     (*scanerror) = false;
                     break;
                 }
-                    //if its not clean / we errored then treat it as infected
+                    //if its not clean / we error then treat it as infected
                 else if (csrc != E2CS_CLEAN) {
                     if (csrc < 0) {
                         E2LOGGER_error("Unknown return code from content scanner: ", csrc);
@@ -2164,13 +2164,9 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                     } else {
                         E2LOGGER_error("scanFile/Memory returned error: ", csrc);
                     }
-                    //TODO: have proper error checking/reporting here?
-                    //at the very least, integrate with the translation system.
-                    //checkme->whatIsNaughty = "WARNING: Could not perform content scan!";
                     checkme->message_no = 1203;
                     checkme->whatIsNaughty = o.language_list.getTranslation(1203);
                     checkme->whatIsNaughtyLog = (*i)->getLastMessage().toCharArray();
-                    //checkme->whatIsNaughtyCategories = "Content scanning";
                     checkme->whatIsNaughtyCategories = o.language_list.getTranslation(72);
                     checkme->isItNaughty = true;
                     checkme->isException = false;
@@ -2188,8 +2184,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
         }
 //        rc = system("date");
         if (!checkme->isItNaughty && !checkme->isException && !isbypass && (dblen <= o.content.max_content_filter_size)
-            && !docheader->authRequired() && (docheader->isContentType("text", ldl->fg[filtergroup]) ||
-                                              docheader->isContentType("-", ldl->fg[filtergroup]))) {
+            && !docheader->authRequired() && (docheader->OKtoFilterMime(ldl->fg[filtergroup]))) {
             DEBUG_debug(" -Start content filtering: ");
             checkme->checkme(docbody->data, docbody->buffer_length, &url, &domain,
                              ldl->fg[filtergroup], ldl->fg[filtergroup]->banned_phrase_list,
@@ -2963,9 +2958,8 @@ void ConnectionHandler::check_search_terms(NaughtyFilter &cm) {
 
 void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, Socket &proxysock, Socket &peerconn,
                                       std::deque<CSPlugin *> &responsescanners) {
-    if (((cm.response_header->isContentType("text", ldl->fg[filtergroup]) ||
-          cm.response_header->isContentType("-", ldl->fg[filtergroup])) && !cm.isexception) ||
-        !responsescanners.empty()) {
+    if ((cm.response_header->OKtoFilterMime(ldl->fg[filtergroup])
+           && !cm.isexception) || !responsescanners.empty()) {
         cm.waschecked = true;
         if (!responsescanners.empty()) {
             DEBUG_debug(" -Filtering with expectation of a possible csmessage");;

@@ -427,6 +427,13 @@ fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 #
 # Phrase filter additional mime types (by default just text/*)
 
+# stoptextmimetypes = 'text/javascript'
+#
+# Stop list of text mime types 
+#  Text mime types that should not be filtered 
+#  e.g. text/javascript which is scripting and not relevant text.
+# default ''
+
 categorydisplaythreshold = 0
 #
 # Category display threshold

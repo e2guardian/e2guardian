@@ -255,6 +255,24 @@ bool FOptionContainer::read(const char *filename) {
 #endif
         }
 
+        String mimestop = findoptionS("stoptextmimetypes");
+        if (mimestop != "") {
+            size_t comma = mimestop.find(',');
+            while (comma != std::string::npos) {
+                text_mime_stop.push_back(mimestop.substr(0, comma));
+                mimes = mimestop.substr(comma + 1);
+                comma = mimestop.find(',');
+            }
+            text_mime_stop.push_back(mimestop.substr(0, comma));
+            mimestop = mimestop.substr(comma + 1);
+#ifdef DEBUG_HIGH
+            int size = (int) text_mime_stop.size();
+            int i;
+            for (i = 0; i < size; i++) {
+                DEBUG_debug("mimes filtering : ", text_mime_stop[i]);
+            }
+#endif
+        }
 
         if (findoptionS("sslcheckcert") == "on") {
             if(o.cert.enable_ssl) {

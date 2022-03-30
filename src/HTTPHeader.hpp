@@ -78,6 +78,7 @@ class HTTPHeader
     // get content length - returns -1 if undetermined
     off_t contentLength();
     String getContentType();
+    bool OKtoFilterMime(FOptionContainer* &foc);
     String getMIMEBoundary();
     // check received content type against given content type
     //bool isContentType(const String &t,int filtergroup);

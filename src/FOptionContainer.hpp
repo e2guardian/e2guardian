@@ -140,6 +140,7 @@ public:
     // get HTML template for this group
     HTMLTemplate *getHTMLTemplate(bool upfail);
     std::deque<std::string> text_mime;
+    std::deque<std::string> text_mime_stop;   // used to exclude text/ mime type from standard e2g phrase scan
 
     private:
     // HTML template - if it overrides the default
