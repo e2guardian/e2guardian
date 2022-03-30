@@ -30,7 +30,7 @@ hadolint:
   before_script:
     - cd $CI_PROJECT_DIR 
   script:
-    - hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
+    - /hadolint/hadolint --ignore DL3008 gitlabci/docker-ci/Dockerfile 
 
 include:
   - 'gitlabci/debianlatest.yml'
