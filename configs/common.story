@@ -114,7 +114,7 @@ if(connect) return localsslrequestcheck
 if(true) checktimesblocked
 if(returnset) return setblock
 ifnot(greyset) returnif localexceptioncheck
-ifnot(greyset) localgreycheck
+ifnot(greyset) returnif localgreycheck
 ifnot(greyset) returnif localbannedcheck
 if(searchin,localbanned) return setblock
 
@@ -126,6 +126,7 @@ if(true) returnif hook_localsslrequestcheck
 if(true) returnif sslchecktimesblocked
 if(sitein, localexception) return setexception
 if(sitein, localgreyssl) returnif sslcheckmitm
+if(sitein, localgrey) returnif sslcheckmitm
 if(sitein, localbanned) true
 ifnot(returnset) return false
 if(true) returnif sslcheckmitm
