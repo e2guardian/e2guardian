@@ -547,7 +547,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
     try {
         DEBUG_trace("log listener started");
 
-#ifdef ENABLE_EMAIL
+#ifdef ENABLE_EMAIL  // no longer needed - replace with some sort of external script reading alert log??
         // Email notification patch by J. Gauthier
         std::map<std::string, int> violation_map;
         std::map<std::string, int> timestamp_map;
@@ -562,6 +562,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
         std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
         std::string stype, postdata, flags, searchterms;
         int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
+        int do_access_log = 0, do_alert_log =0;
         int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
         long tv_sec = 0, tv_usec = 0, endtv_sec = 0, endtv_usec = 0;
         int contentmodified = 0, urlmodified = 0, headermodified = 0;
@@ -738,6 +739,12 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                         break;
                     case 32:
                         searchterms = s;
+                        break;
+                    case 33:
+                        do_access_log = atoi(logline.c_str());
+                        break;
+                    case 34:
+                        do_alert_log = atoi(logline.c_str());
                         error = false;
                         break;
                 }
@@ -989,7 +996,13 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             if (is_RQlog) {
                 E2LOGGER_requestlog(builtline);
             } else {
-                E2LOGGER_accesslog(builtline);
+                if(do_access_log) {
+                    E2LOGGER_accesslog(builtline);
+                }
+                if(do_alert_log) {
+                    E2LOGGER_alertlog(builtline);
+                }
+                E2LOGGER_responselog(builtline);  // Will only work if responselog is enabled.
             }
 
 
@@ -1453,6 +1466,17 @@ int fc_controlit()   //
         RQlog_thread.detach();
         DEBUG_trace("RQlog_listener thread created");
     }
+
+   // if (e2logger.isEnabled(LoggerSource::responselog)) {
+   //     std::thread RSlog_thread(log_listener, o.log.RSlog_Q, false, true, false);
+   //     RSlog_thread.detach();
+   //     DEBUG_trace("RSlog_listener thread created");
+   // }
+   // if (e2logger.isEnabled(LoggerSource::alertlog)) {
+   //     std::thread ALlog_thread(log_listener, o.log.ALlog_Q, false, false, true);
+   //     ALlog_thread.detach();
+   //     DEBUG_trace("ALlog_listener thread created");
+   // }
 
     // I am the main thread here onwards.
     DEBUG_trace("Master thread created threads");

@@ -1214,6 +1214,19 @@ weightedphrasemode = 2
 # Retained for backward compatiblity
 # Ignored if set_requestlog is defined
 
+#set_responselog = 'none'
+#set_responselog = 'file:@E2LOGLOCATION@/response.log'
+# Set optional response log output
+# This is for useful for debug purposes to log all responses - unlike access.log all responses are logged
+# default is 'none'
+
+#set_alertlog = 'none'
+#set_alertlog = 'file:@E2LOGLOCATION@/alert.log'
+# Set optional alert log output
+# Output log entries which need an alert, so that external process can generate alerts on user activity
+# default is 'none'
+
+
 ## The new debug system uses a extended format
 ## but is backward compatible with the "NewDebug" system.
 

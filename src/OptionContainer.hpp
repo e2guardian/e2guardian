@@ -32,6 +32,8 @@ struct AccessLogOptions
 {
     std::string log_location;
     std::string RQlog_location;
+    std::string RSlog_location;
+    std::string ALlog_location;
 
     Queue<std::string>* log_Q;
     Queue<std::string>* RQlog_Q;
@@ -44,6 +46,8 @@ struct AccessLogOptions
     int log_exception_hits = 0;
 
     bool log_requests = false;
+    bool log_responses = false;
+    bool log_alerts = false;
     bool log_client_hostnames = false;
     bool log_client_host_and_ip = false;  // todo: unused - this IS used - PP
     bool anonymise_logs = false;

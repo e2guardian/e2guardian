@@ -39,7 +39,7 @@ public:
 enum class LoggerSource {
     none,
     // used in production:
-            info, error, warning, accesslog, requestlog, storytrace, dstatslog,
+            info, error, warning, accesslog, requestlog, storytrace, dstatslog, responselog, alertlog,
     // only usable when compiled with DEBUG_LOW:
             debug, trace, network, story, regexp, config, content,
     // only usable when compiled with DEBUG_HIGH:
@@ -86,7 +86,7 @@ public:
 
     // Conversion Enum <-> string
     std::vector <std::string> Sources = {"none",
-                                         "info", "error", "warning", "accesslog", "requestlog", "storytrace", "dstatslog",
+                                         "info", "error", "warning", "accesslog", "requestlog", "storytrace", "dstatslog", "responselog", "alertlog",
             // only usable when compiled with DEBUG_LOW:
                                          "debug", "trace", "network", "story", "regexp", "config", "content",
             // only usable when compiled with DEBUG_HIGH:
@@ -104,6 +104,8 @@ public:
             LoggerSource::accesslog,
             LoggerSource::requestlog,
             LoggerSource::dstatslog,
+            LoggerSource::responselog,
+            LoggerSource::alertlog,
     };
 
     std::vector <LoggerSource> debug_messages = {
@@ -232,6 +234,14 @@ extern Logger e2logger;
 #define E2LOGGER_requestlog(STR) \
     if (e2logger.isEnabled(LoggerSource::requestlog)) \
       e2logger.log(LoggerSource::requestlog, STR)
+
+#define E2LOGGER_alertlog(STR)  \
+  if (e2logger.isEnabled(LoggerSource::alertlog)) \
+     e2logger.log(LoggerSource::alertlog, STR)
+
+#define E2LOGGER_responselog(STR)  \
+  if (e2logger.isEnabled(LoggerSource::responselog)) \
+     e2logger.log(LoggerSource::responselog, STR)
 
 #define E2LOGGER_dstatslog(STR) \
     if (e2logger.isEnabled(LoggerSource::dstatslog)) \

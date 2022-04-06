@@ -51,7 +51,7 @@ bool LoggerConfigurator::configure(LoggerSource source, const std::string option
 
     DEBUG_config("LoggerConfig:", " source:", _logger->source2string(source), " destination:", destination, " filename:", filename);
 
-    return _logger->setLogOutput(source, dst, filename);
+    return _logger->setLogOutput(source, dst, filename,true);
 }
 
 bool LoggerConfigurator::configure(const std::string option) {

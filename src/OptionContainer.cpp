@@ -539,6 +539,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
     if (cr.findoptionB("tag_logs")) {
         e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false, false);
         e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::responselog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::alertlog, false, true, false, false, false, false);
     }
 
     {
@@ -555,6 +557,28 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
                 if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, log.RQlog_location))
                     return false;
             }
+        }
+    }
+
+    {
+        String temp = cr.findoptionS("set_responselog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::responselog, temp))
+                return false;
+            log.log_responses = true;
+        } else {
+                log.log_responses = false;
+        }
+    }
+
+    {
+        String temp = cr.findoptionS("set_alertlog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::alertlog, temp))
+                return false;
+            log.log_alerts = true;
+        } else {
+                log.log_alerts = false;
         }
     }
 

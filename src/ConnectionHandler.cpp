@@ -1366,9 +1366,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             }
 
             //Log
-            if (!checkme.isourwebserver) { // don't log requests to the web server
-                doLog(clientuser, clientip, checkme);
-            }
+            doLog(clientuser, clientip, checkme);
 
 
             if (!persistProxy)
@@ -1419,31 +1417,46 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
 
     DEBUG_trace("who: ", who, " from: ", from );
 
+    if (cm.isourwebserver) cm.nolog = true;
+
     struct timeval theend;
     gettimeofday(&theend, NULL);
     String rtype = cm.request_header->requestType();
     String where = cm.get_logUrl();
     unsigned int port = cm.request_header->port;
+    bool isexception = cm.isexception;
+    std::string *cat = &cm.whatIsNaughtyCategories;
     std::string what;
 
-    ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
-    if(cm.nolog) return;
+    // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
+    // or if it's an exception and exception logging is disabled
+    if (
+            (o.log.log_level == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
+            ((o.log.log_exception_hits == 0) && isexception)) {
+        if (o.log.log_level != 0) {
+            if (isexception) {
+                DEBUG_debug(" -Not logging exceptions");
+            } else {
+                DEBUG_debug(" -Not logging 'ADs' blocks");
+            }
+        }
+        cm.nolog = true;
+    }
 
-    // if(o.log_requests) {
+    if(!cm.nolog) ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
+    //if(cm.nolog) return;
+
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
         what = thread_id;
     }
     what += cm.whatIsNaughtyLog;
     String how = rtype;
     off_t size = cm.docsize;
-    std::string *cat = &cm.whatIsNaughtyCategories;
     bool isnaughty = cm.isItNaughty;
     int naughtytype = cm.blocktype;
-    bool isexception = cm.isexception;
     bool istext = cm.is_text;
     struct timeval *thestart = &cm.thestart;
     bool cachehit = false;
-    //int code = (cm.wasrequested ? cm.response_header->returnCode() : 200);  //cm.wasrequested is never set anywhere!!
     int code = (cm.response_header->returnCode());
     if (isnaughty) code = 403;
     std::string mimetype = cm.response_header->getContentType();
@@ -1458,25 +1471,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     bool headermodified = cm.headermodified;
     bool headeradded = cm.headeradded;
 
-    // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
-    // or if it's an exception and exception logging is disabled
-    if (
-            (o.log.log_level == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
-            ((o.log.log_exception_hits == 0) && isexception)) {
-        if (o.log.log_level != 0) {
-            if (isexception) {
-                DEBUG_debug(" -Not logging exceptions");
-            } else {
-                DEBUG_debug(" -Not logging 'ADs' blocks");
-            }
-        }
-        return;
-    }
 
     std::string data, cr("\n");
 
-    if ((isexception && (o.log.log_exception_hits == 2))
-        || isnaughty || o.log.log_level == 3 || (o.log.log_level == 2 && istext)) {
+    if (!((isexception && (o.log.log_exception_hits == 2)) || isnaughty || o.log.log_level == 3 || (o.log.log_level == 2 && istext)))
+        cm.nolog = true;
+
+    if(!cm.nolog || (cm.alert && e2logger.isEnabled(LoggerSource::alertlog)) || e2logger.isEnabled(LoggerSource::responselog)){
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
@@ -1572,10 +1573,11 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += flags + cr;
         data += cm.search_terms;
         data += cr;
+        data += String(!cm.nolog) + cr;
+        data += String(cm.alert) + cr;
 
         DEBUG_debug(" -...built");
 
-        //delete newcat;
         // push on log queue
         o.log.log_Q->push(data);
         // connect to dedicated logging proc
@@ -3354,13 +3356,9 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             // it is not possible to send splash page on Thttps without MITM so do not try!
 
             //Log
-            if (!checkme.isourwebserver) { // don't log requests to the web server
-                doLog(clientuser, clientip, checkme);
-            }
+            doLog(clientuser, clientip, checkme);
 
-
-                proxysock.close(); // close connection to proxy
-
+            proxysock.close(); // close connection to proxy
 
         }
         } catch (std::exception & e)
@@ -3956,9 +3954,8 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
         }
     }
     //Log
-    if (checkme.logcategory || !(checkme.isourwebserver || checkme.nolog)) { // don't log requests to the web server
         doLog(clientuser, clientip, checkme);
-    }
+
     return 0;
 }
 
@@ -4152,11 +4149,15 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
         }
 
             //Log
-    if (!checkme.isourwebserver && checkme.isItNaughty) { // don't log requests to the web server & and normal response
+    if (checkme.isItNaughty) { // don't log requests to the web server & and normal response
         checkme.whatIsNaughtyLog = "ICAP Response filtering: ";
         checkme.whatIsNaughtyLog += checkme.whatIsNaughty;
-        doLog(clientuser, clientip, checkme);
+    } else {
+        checkme.nolog = true;
     }
+
+    doLog(clientuser, clientip, checkme);
+
     if (persistPeer)
         return 0;
     else
