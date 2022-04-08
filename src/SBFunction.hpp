@@ -41,33 +41,34 @@
 #define SB_STATE_USERIN			 13
 #define SB_STATE_LISTEN_PORTIN			 14
 #define SB_STATE_RESHEADERIN	15
+#define SB_STATE_CATEGORYIN		16
 
-#define SB_STATE_TOPIN      16   // all below this require a valid list
+#define SB_STATE_TOPIN      17   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	16
-#define SB_STATE_POST			17
-#define SB_STATE_GET				18
-#define SB_STATE_SITEISIP       19
-#define SB_STATE_TLS				20
+#define SB_STATE_CONNECT	17
+#define SB_STATE_POST			18
+#define SB_STATE_GET				19
+#define SB_STATE_SITEISIP       20
+#define SB_STATE_TLS				21
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	21
-#define SB_STATE_GREYSET	22
-#define SB_STATE_BLOCKSET	23
-#define SB_STATE_MITMSET        24
-#define SB_STATE_DONESET       25
-#define SB_STATE_RETURNSET       26
-#define SB_STATE_TRUE				27
-#define SB_STATE_HASSNI			28
-#define SB_STATE_REDIRECTSET 29
-#define SB_STATE_VIRUSCHECKSET 30
-#define SB_STATE_BYPASSSET  31
-#define SB_STATE_BYPASSALLOWEDSET  32
-#define SB_STATE_INFECTIONBYPASSALLOWEDSET  33
-#define SB_STATE_SEMIEXCEPTIONSET	34
+#define SB_STATE_EXCEPTIONSET	22
+#define SB_STATE_GREYSET	23
+#define SB_STATE_BLOCKSET	24
+#define SB_STATE_MITMSET        25
+#define SB_STATE_DONESET       26
+#define SB_STATE_RETURNSET       27
+#define SB_STATE_TRUE				28
+#define SB_STATE_HASSNI			29
+#define SB_STATE_REDIRECTSET 30
+#define SB_STATE_VIRUSCHECKSET 31
+#define SB_STATE_BYPASSSET  32
+#define SB_STATE_BYPASSALLOWEDSET  33
+#define SB_STATE_INFECTIONBYPASSALLOWEDSET  34
+#define SB_STATE_SEMIEXCEPTIONSET	35
 
-#define SB_STATE_MAP_SIZE  34
+#define SB_STATE_MAP_SIZE  35
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -89,20 +90,21 @@
 #define SB_FUNC_SETMODHEADER   5014
 #define  SB_FUNC_SETGODIRECT	    5015
 #define  SB_FUNC_SETNOLOG				5016
-#define  SB_FUNC_UNSETVIRUSCHECK		5017
-#define  SB_FUNC_UNSETBYPASS       5018
-#define SB_FUNC_SETCONNECTSITE 5019
-#define SB_FUNC_UNSETBYPASSALLOW 5020
-#define SB_FUNC_UNSETINFECTIONBYPASSALLOW 5021
-#define  SB_FUNC_SETNOMITM	5022
-#define  SB_FUNC_SETAUTOMITM	5023
-#define  SB_FUNC_UNSETAUTOMITM	5024
-#define  SB_FUNC_SETGROUP	5025
-#define SB_FUNC_SETSEMIEXCEPTION	    5026
-#define SB_FUNC_UNSETSEMIEXCEPTION	    5027
+#define  SB_FUNC_SETALERT				5017
+#define  SB_FUNC_UNSETVIRUSCHECK		5018
+#define  SB_FUNC_UNSETBYPASS       5019
+#define SB_FUNC_SETCONNECTSITE 5020
+#define SB_FUNC_UNSETBYPASSALLOW 5021
+#define SB_FUNC_UNSETINFECTIONBYPASSALLOW 5022
+#define  SB_FUNC_SETNOMITM	5023
+#define  SB_FUNC_SETAUTOMITM	5024
+#define  SB_FUNC_UNSETAUTOMITM	5025
+#define  SB_FUNC_SETGROUP	5026
+#define SB_FUNC_SETSEMIEXCEPTION	    5027
+#define SB_FUNC_UNSETSEMIEXCEPTION	    5028
 
 
-#define SB_FUNC_MAP_SIZE  27
+#define SB_FUNC_MAP_SIZE  28
 
 
 // DECLARATIONS
@@ -126,6 +128,7 @@ class SBFunction
 			 "userin",
 			 "listenportin",
              "responseheaderin",
+			 "categoryin",
 			"connect",
 			 "post",
 			 "get",
@@ -170,6 +173,7 @@ class SBFunction
 			 "setmodheader",
 			 "setgodirect",
 			 "setnolog",
+			 "setalert",
 			 "unsetviruscheck",
 			 "unsetbypass",
 			 "setconnectsite",

@@ -318,6 +318,7 @@ function(checktimesblocked)
 function(checklogging)
 if(urlin,nolog) setnolog
 if(returnset) return false
+if(categoryin,alert) setalert
 if(true) return true
 
 function(is_search_term)

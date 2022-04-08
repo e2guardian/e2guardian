@@ -141,6 +141,7 @@ class NaughtyFilter
 
     String get_lastmatch();
     String get_logUrl();
+    String main_category();
 
     std::string exceptionreason; // to hold the reason for not blocking
     std::string exceptioncat;

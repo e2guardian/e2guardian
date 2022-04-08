@@ -1068,3 +1068,13 @@ String NaughtyFilter::get_logUrl() {
     return logurl;
 }
 
+String NaughtyFilter::main_category() {
+    String temp = whatIsNaughtyCategories;
+    if (temp.contains(",")) {
+        temp = temp.before(",");
+    }
+    if (temp == "-") temp = "";
+    temp.toLower();
+    return temp;
+}
+

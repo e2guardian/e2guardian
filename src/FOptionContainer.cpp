@@ -604,6 +604,12 @@ bool FOptionContainer::read(const char *filename) {
             if(!LMeta.load_type(LIST_TYPE_REGEXP_REP, dq)) return false;
         }
 
+        {
+            std::deque<String> dq = findoptionM("categorylist");
+            DEBUG_debug("categorylist deque is size ", String(dq.size()) );
+            if(!LMeta.load_type(LIST_TYPE_CATEGORY, dq)) return false;
+        }
+
 
 #ifdef PRT_DNSAUTH
         auth_exception_url_flag = true;

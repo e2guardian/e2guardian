@@ -413,6 +413,17 @@ fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 ###
 ### END of ACCESS_LOG section 
 
+### ALERT_LOG section
+###
+
+# Categories to log into alert.log in addition to access.log
+#    This can be monitored by a separate process to provide real time alerts via email etc
+#
+
+categorylist = 'name=alert,path=__LISTDIR__/alertcategorylist'
+
+###
+### END of ALERT_LOG section
 
 ### PHRASES section
 ###
@@ -430,7 +441,7 @@ fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 # stoptextmimetypes = 'text/javascript'
 #
 # Stop list of text mime types 
-#  Text mime types that should not be filtered 
+#  Text mime types that should not be filtered lertc
 #  e.g. text/javascript which is scripting and not relevant text.
 # default ''
 

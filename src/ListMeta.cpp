@@ -97,6 +97,9 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         case LIST_TYPE_IPMAP:
             method_type = LIST_METHOD_IPMAP;
             break;
+        case LIST_TYPE_CATEGORY:
+            method_type = LIST_METHOD_READF_SWS;
+            break;
             // PhraseList types to be added
     }
     bool errors = false;
@@ -399,6 +402,7 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_MIME:
+        case LIST_TYPE_CATEGORY:
             match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
             if (match == NULL) {
                 return false;

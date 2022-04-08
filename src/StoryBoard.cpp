@@ -242,6 +242,9 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     case SB_STATE_LISTEN_PORTIN:
                         types = {LIST_TYPE_MAP};
                         break;
+                    case SB_STATE_CATEGORYIN:
+                        types = {LIST_TYPE_CATEGORY};
+                        break;
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
@@ -426,6 +429,13 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_MIMEIN:
                 target = cm.response_header->getContentType();
                 if (target.length() > 4)
+                    isListCheck = true;
+                target2 = "";
+                break;
+            case SB_STATE_CATEGORYIN:
+                target = cm.main_category();
+                DEBUG_debug("CAT target is ", target);
+                if (target.length() > 2)
                     isListCheck = true;
                 target2 = "";
                 break;
@@ -788,6 +798,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     break;
                 case SB_FUNC_SETNOLOG:
                     cm.nolog = true;
+                    break;
+                case SB_FUNC_SETALERT:
+                    cm.alert = true;
                     break;
                 case SB_FUNC_SETGROUP:
                     action_return = false;
