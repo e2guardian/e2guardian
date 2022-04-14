@@ -220,6 +220,7 @@ class ListContainer
     //time-limited lists - only items (sites, URLs), not phrases
     TimeLimit listtimelimit;
     bool istimelimited = false;
+    bool self_check();
 
     //categorised lists - both phrases & items
     std::vector<String> listcategory;

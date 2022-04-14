@@ -913,12 +913,13 @@ struct lessThanEWF : public std::binary_function<const size_t &, const size_t &,
         size_t blen = strlen(b);
         size_t apos = alen - 1;
         size_t bpos = blen - 1;
-        for (size_t maxlen = ((alen < blen) ? alen : blen); maxlen > 0; apos--, bpos--, maxlen--)
+        for (size_t maxlen = ((alen < blen) ? alen : blen); maxlen > 0; apos--, bpos--, maxlen--) {
             if (a[apos] > b[bpos])
                 return true;
             else if (a[apos] < b[bpos])
                 return false;
-        if (alen > blen)
+        }
+        if (alen >= blen)
             return true;
         else //if (alen < blen)
             return false;
@@ -934,12 +935,13 @@ struct lessThanSWF : public std::binary_function<const size_t &, const size_t &,
         size_t alen = strlen(a);
         size_t blen = strlen(b);
         size_t maxlen = (alen < blen) ? alen : blen;
-        for (size_t i = 0; i < maxlen; i++)
+        for (size_t i = 0; i < maxlen; i++) {
             if (a[i] > b[i])
                 return true;
             else if (a[i] < b[i])
                 return false;
-        if (alen > blen)
+        }
+        if (alen >= blen)
             return true;
         else //if (alen < blen)
             return false;
@@ -977,6 +979,9 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
     }
     isSW = startsWith;
     issorted = true;
+#ifdef E2DEBUG
+    self_check();
+#endif
     return;
 }
 
@@ -2300,4 +2305,36 @@ const char *ListContainer::hIPtoChar(uint32_t ip) {
     struct in_addr addr;
     addr.s_addr = htonl(ip);
     return inet_ntoa(addr);
+}
+
+
+bool ListContainer::self_check() {
+    int ok_cnt = 0, cnt = 0;
+
+    if (list.size() > 0) {
+        for (std::vector<size_t>::const_iterator i = list.begin(); i != list.end(); ++i) {
+            int r;
+            if (isSW) {
+                r = search(&ListContainer::greaterThanSWF, 0, items - 1, data + *i);
+            } else {
+                r = search(&ListContainer::greaterThanEWF, 0, items - 1, data + *i);
+            }
+            if (r >= 0) {
+                ok_cnt++;
+            }
+            cnt++;
+        }
+        if (ok_cnt < cnt) {
+#ifdef E2DEBUG
+            std::cerr << thread_id << "LC: NOTOK " << ok_cnt << "/" << cnt << std::endl;
+#endif
+            return true;
+        } else {
+#ifdef E2DEBUG
+            std::cerr << thread_id << "LC: OK " << ok_cnt << "/" << cnt << std::endl;
+#endif
+            return false;
+        }
+    }
+    return true;
 }
