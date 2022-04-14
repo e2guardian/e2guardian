@@ -857,6 +857,8 @@ bool ListContainer::checkTimeAtD(int index) {
     return isNow(index);
 }
 
+// The following comparator function will result in sort in descending order - which is counter-intuitive!!!
+// Sorts backwards within string - used for site lists which are more significant to the right
 struct lessThanEWF : public std::binary_function<const size_t &, const size_t &, bool> {
     bool operator()(const size_t &aoff, const size_t &boff) {
         const char *a = data + aoff;
@@ -865,12 +867,13 @@ struct lessThanEWF : public std::binary_function<const size_t &, const size_t &,
         size_t blen = strlen(b);
         size_t apos = alen - 1;
         size_t bpos = blen - 1;
-        for (size_t maxlen = ((alen < blen) ? alen : blen); maxlen > 0; apos--, bpos--, maxlen--)
-            if (a[apos] < b[bpos])
+        for (size_t maxlen = ((alen < blen) ? alen : blen); maxlen > 0; apos--, bpos--, maxlen--) {
+            if (a[apos] > b[bpos])
                 return true;
-            else if (a[apos] > b[bpos])
+            else if (a[apos] < b[bpos])
                 return false;
-        if (alen <= blen)
+        }
+        if (alen >= blen)
             return true;
         else //if (alen < blen)
             return false;
@@ -879,6 +882,8 @@ struct lessThanEWF : public std::binary_function<const size_t &, const size_t &,
     char *data;
 };
 
+// The following comparator function will result in sort in descending order - which is counter-intuitive!!!
+// Sorts forwards within string - used for url and other lists which are more significant to the left
 struct lessThanSWF : public std::binary_function<const size_t &, const size_t &, bool> {
     bool operator()(const size_t &aoff, const size_t &boff) {
         const char *a = data + aoff;
@@ -886,16 +891,16 @@ struct lessThanSWF : public std::binary_function<const size_t &, const size_t &,
         size_t alen = strlen(a);
         size_t blen = strlen(b);
         size_t maxlen = (alen < blen) ? alen : blen;
-        for (size_t i = 0; i < maxlen; i++)
-            if (a[i] < b[i])
+        for (size_t i = 0; i < maxlen; i++) {
+            if (a[i] > b[i])
                 return true;
-            else if (a[i] > b[i])
+            else if (a[i] < b[i])
                 return false;
-        if (alen <= blen)
+        }
+        if (alen >= blen)
             return true;
-        else //if (alen < blen)
+        else //if (alen > blen)
             return false;
-        //return true;  // both equal
     };
     char *data;
 };
@@ -929,6 +934,9 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
     }
     isSW = startsWith;
     issorted = true;
+#ifdef DEBUG_LOW
+    self_check();
+#endif
     return;
 }
 
@@ -1806,7 +1814,7 @@ String ListContainer::getIPMapData(std::string &ip) {
     return "";
 }
 
-
+// Note: searches a reverse ordered (descending) list
 int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p) {
     if (a > s)
         return (-1 - a);
@@ -1821,6 +1829,7 @@ int ListContainer::search(int (ListContainer::*comparitor)(const char *a, const 
     return search(comparitor, a, m - 1, p);
 }
 
+// The following comparator function will result in a search within a list sorted in descending order - which is counter-intuitive!!!
 int ListContainer::greaterThanEWF(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
@@ -1838,6 +1847,7 @@ int ListContainer::greaterThanEWF(const char *a, const char *b) {
     return 0; // both equal
 }
 
+// The following comparator function will result in a search within a list sorted in descending order - which is counter-intuitive!!!
 int ListContainer::greaterThanSWF(const char *a, const char *b) {
     int alen = strlen(a);
     int blen = strlen(b);
@@ -2185,4 +2195,33 @@ void ListContainer::dump_data() {
           DEBUG_debug("LD:",data + *i);
       }
   }
+}
+
+bool ListContainer::self_check() {
+    DEBUG_debug("List size is ", list.size());
+    int ok_cnt = 0, cnt = 0;
+
+    if (list.size() > 0) {
+        for (std::vector<size_t>::const_iterator i = list.begin(); i != list.end(); ++i) {
+            DEBUG_debug("LD:", data + *i);
+            int r;
+            if (isSW) {
+                r = search(&ListContainer::greaterThanSWF, 0, items - 1, data + *i);
+            } else {
+                r = search(&ListContainer::greaterThanEWF, 0, items - 1, data + *i);
+            }
+            if (r >= 0) {
+                ok_cnt++;
+            }
+            cnt++;
+        }
+        if (ok_cnt < cnt) {
+            DEBUG_config("LC: NOTOK ", ok_cnt, "/", cnt);
+            return true;
+        } else {
+            DEBUG_config("LC: OK ", ok_cnt, "/", cnt);
+            return false;
+        }
+    }
+    return true;
 }
