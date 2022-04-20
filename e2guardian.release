@@ -1,8 +1,10 @@
-This the v5.4.dev branch - developing v5.4
--------------------------------------------
+This the v5.4 stable branch 
+---------------------------
 
 See notes/NEWIN_v5 for details of development progress and
 target new features and improvements.
+
+See ./README.md for delails of this release.
 
 Changed and Added features in e2guardian 5.0 
 --------------------------------------------
@@ -15,7 +17,7 @@ HTTPS transparent proxy, optional upstream proxy and ICAP server modes now suppo
 
 Please see notes/NEWIN_v5 and revised example configuration files for details.
 
-If upgrading from a previous version see also notes/Upgrading_to_V5
+If upgrading from a previous version see also notes/Upgrading_to_V5.4
 
 
 
