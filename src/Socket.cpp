@@ -325,8 +325,36 @@ int Socket::startSslClient(const std::string &certificate_path, String hostname)
         return -2;
     }
 
+ // X509_V_FLAG_TRUSTED_FIRST is set by default in ossl v1.1 and above - so no need for this check
+    //ERR_clear_error();
+    //if (!X509_VERIFY_PARAM_set_flags(x509_param, X509_V_FLAG_TRUSTED_FIRST)) {
+        //log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
+        //X509_VERIFY_PARAM_free(x509_param);
+        //SSL_CTX_free(ctx);
+        //ctx = NULL;
+        //return -2;
+    //}
+
+   // ERR_clear_error();
+   // X509_VERIFY_PARAM *param = X509_VERIFY_PARAM_new();
+   // X509_VERIFY_PARAM_set_hostflags(param,X509_CHECK_FLAG_MULTI_LABEL_WILDCARDS );
+
+    // moved from checkCertValid
+
+    // kulge to check theory in use of illegal char in dns name
+    //{
+        //String t = hostname;
+        //if (t.contains("_")) {
+            //t.swapChar('_','-');
+            //hostname = t;
+        //}
+    //}
+
+    DEBUG_debug("Adding hostname to check:",hostname,":");
+
+    // moved from checkCertValid
     ERR_clear_error();
-    if (!X509_VERIFY_PARAM_set_flags(x509_param, X509_V_FLAG_TRUSTED_FIRST)) {
+    if (!X509_VERIFY_PARAM_set1_host(x509_param, hostname.c_str(), hostname.length())) {
         log_ssl_errors("couldnt add validation params for %s", hostname.c_str());
         X509_VERIFY_PARAM_free(x509_param);
             SSL_CTX_free(ctx);
@@ -515,11 +543,12 @@ long Socket::checkCertValid(String &hostname)
     }
     X509_free(peerCert);
 
-    X509_VERIFY_PARAM *param;
-    param = X509_VERIFY_PARAM_new() ;
-    X509_VERIFY_PARAM_set1_host(param,hostname.c_str(), hostname.length());
-    SSL_CTX_set1_param(ctx,param);
-    X509_VERIFY_PARAM_free(param);
+// Moved to startSslClient
+//    X509_VERIFY_PARAM *param;
+    //param = X509_VERIFY_PARAM_new() ;
+    //X509_VERIFY_PARAM_set1_host(param,hostname.c_str(), hostname.length());
+    //SSL_CTX_set1_param(ctx,param);
+    //X509_VERIFY_PARAM_free(param);
     return SSL_get_verify_result(ssl);
 }
 

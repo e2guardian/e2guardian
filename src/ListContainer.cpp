@@ -2203,7 +2203,7 @@ bool ListContainer::self_check() {
 
     if (list.size() > 0) {
         for (std::vector<size_t>::const_iterator i = list.begin(); i != list.end(); ++i) {
-            DEBUG_debug("LD:", data + *i);
+  //          DEBUG_debug("LD:", data + *i);
             int r;
             if (isSW) {
                 r = search(&ListContainer::greaterThanSWF, 0, items - 1, data + *i);
