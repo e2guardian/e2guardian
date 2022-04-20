@@ -1,4 +1,4 @@
-This is the v5.4.3r table version
+This is the v5.4.4r stable version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -179,20 +179,16 @@ TESTING -
 
     Please prefix all bug reports with "v5.4: "
 
-TO DO IN NEXT RELEASE
----------------------
+IN NEXT RELEASE
+---------------
 
     Reduce unnecessary memory usage on in DataBuffer
 
-    Make sockets non-blocking so time-out works with MITM
+    Make time-out work with MITM
 
     Option for output file for storyboard trace
 
     Revised 'Logger' system for debugging (by KDGunermann).
-
-    Create 'output-filter' plug-in system for content modification
-
-    POST content filtering
 
 
 TODO - for later releases.
@@ -205,6 +201,10 @@ TODO - for later releases.
     Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
         no log option)
 
+    Create 'output-filter' plug-in system for content modification
+    
+    POST content filtering
+    
     Remove duplicate list/storyboard warnings with a DRY system and add no warn
         option.
 
@@ -232,6 +232,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 10th August 2020
+Philip Pearce 19 April 2022
 
 

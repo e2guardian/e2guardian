@@ -1,5 +1,47 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.4.4r
+
+April 2021 to April 2022
+
+Fixes
+
+    Fix bug #727 - some lists not being sorted correctly
+    Fix #725 - Local grey match not overriding main exception match
+    Fix #720 - Upper case search terms not blocked
+    Update spelling in message 160
+    Fix bug #712 - Upstream connect failure message wrong
+    Fix #695 and fix #711 - connecttimeout being ignored
+    Fix #695 bannediplist missing
+    Fix bug #707 cert hostnames not being checked
+    - only happens when openssl v1.1 is used
+    Fix spelling of 'implement' (and derived words).
+    configure.ac: Don't expand AM_INIT_AUTOMAKE multiple times.
+    Fix default size of maxcontentramcachescansize option in configs/e2guardian.conf.in
+    {configs/e2guardian.conf.in,src/OptionContainer.cpp}: Make sure values of maxcontentfiltersize and maxcontentramcachesize obey to the requirements in the (inline) documentation.
+    src/OptionContainer.cpp: Fix default non-initialized default for max_content_ramcache_scan_size.
+    Update gitlab-ci: Remove unused makefile file in docker images
+    Update gitlab-ci: test for finding data path
+    Fix typo in comments of e2guardianf1.conf.in
+    Fix c string conversion compiler error
+    Correct miss spelling in conf file #691
+    Fix #686 icap default filtergroup is not set.
+    Fix #685 - uppercase domain in user never matches
+    Fix pid error at start
+    Fix bug #684 - crash when only one entry in a maplist
+    Fix c string conversion compiler error
+    Fix #677 exceptionfile not checked when checking request before checking
+        file extension
+    Fix #679 SQUID+ICAP protocol error / timeout/no response: out_res_body_flag was not reseted
+    Add official docker hub image
+    Possible fix for #676  - Added conditional pid check
+    Fix #678 -N reloading instead of quiting with e2guardian -q
+    Fix #675 Logs user, url being anonimised at random, messages in storyboard no longer being honoured
+    Fix #674 messages and categories set in pre-auth.story are blanked.
+
+New feature
+    #692 - add extracheckports option to allow loop checking when squid in front
+
 version 5.4.3r
 
 September 2020 to March 2021

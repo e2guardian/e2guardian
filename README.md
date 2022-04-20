@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the stable version - v5.4.3r 
+This is the stable version - v5.4.4r 
 
 Note that there are significant changes to the configuration files in this 
 release and the sample lists have been re-organized into sub-directories.
@@ -27,7 +27,7 @@ Read the INSTALL for installation instructions.
 
 Github: https://github.com/e2guardian
 
-*	Bugfixes primarily occurs in the v5.4.dev branch 
+*	Bugfixes primarily occurs in the v5.4 branch 
 
 ## Bugs and Feature Requests
 
@@ -47,7 +47,7 @@ Codacy Badge:
 
 ## License
 
-Copyright 2021, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2022, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
