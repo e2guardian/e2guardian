@@ -193,8 +193,9 @@ void NaughtyFilter::reset()
 void NaughtyFilter::checkme(const char *rawbody, off_t rawbodylen, const String *url,
     const String *domain, FOptionContainer* &foc, unsigned int phraselist, int limit, bool searchterms)
 {
-    if (searchterms)
+    if (searchterms) {
         DEBUG_content("Content flagged as search terms - disabling hex decoding, META/TITLE extraction & HTML removal");
+    }
 
 
     if (foc->weighted_phrase_mode == 0) {

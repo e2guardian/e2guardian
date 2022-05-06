@@ -113,7 +113,7 @@ if(connect) return localsslrequestcheck
 if(true) checktimesblocked
 if(returnset) return setblock
 ifnot(greyset) returnif localexceptioncheck
-ifnot(semiexceptionset) localgreycheck
+ifnot(semiexceptionset) returnif localgreycheck
 ifnot(greyset) returnif localbannedcheck
 if(semiexceptionset) return setexception
 if(searchin,localbanned) return setblock
@@ -128,6 +128,7 @@ if(sitein, localsemiexception) setsemiexception
 if(semiexceptionset) returnif sslcheckmitm
 if(sitein, localexception) return setexception
 if(sitein, localgreyssl) returnif sslcheckmitm
+if(sitein, localgrey) returnif sslcheckmitm
 if(sitein, localbanned) true
 ifnot(returnset) return false
 if(true) returnif sslcheckmitm
@@ -316,10 +317,13 @@ function(checktimesblocked)
 # returns true if log entry is to be made
 # This can be overriden in site.story (or fn.story) to log all for testing.
 function(checklogging)
-if(urlin,nolog) setnolog
-if(returnset) return false
+if(true) nologcheck
+ifnot(returnset) return true
+
+function(nologcheck)
+if(extensionin,nolog) return setnolog
+if(urlin,nolog) return setnolog
 if(categoryin,alert) setalert
-if(true) return true
 
 function(is_search_term)
 if(urlin,searchtermexceptions) return false
