@@ -1,6 +1,6 @@
-build:bionic:
+build:jammy:
   stage: build 
-  image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:22.04
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -19,11 +19,11 @@ build:bionic:
     - make 
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-package:bionic:
+package:jammy:
   stage: create-package
-  image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:22.04
   dependencies:
-    - build:bionic
+    - build:jammy
   artifacts:
    paths:
     - $CI_PROJECT_DIR  
@@ -51,11 +51,11 @@ package:bionic:
     - rm -rf .git
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-test:bionic:
+test:jammy:
   stage: test-publish 
-  image: amd64/ubuntu:18.04
+  image: amd64/ubuntu:22.04
   dependencies:
-    - package:bionic
+    - package:jammy
   artifacts:
    paths:
     - $CI_PROJECT_DIR 
