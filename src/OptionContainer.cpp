@@ -443,7 +443,7 @@ bool OptionContainer::findHeaderOptions(ConfigReader &cr)
         header.forwarded_for = true;
     }
 
-    header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 250, 50);
+    header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 2500, 50);
 
     return true;
 }
