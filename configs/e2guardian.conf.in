@@ -813,7 +813,7 @@ usexforwardedfor = off
 #
 # Limit number of http header lines in a request/response
 # (to guard against attacks)
-# Minimum 10 max 250
+# Minimum 10 max 2500
 # default 50
 
 ###

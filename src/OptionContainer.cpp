@@ -352,7 +352,7 @@ bool OptionContainer::read(std::string &filename, int type) {
         max_header_lines = findoptionI("maxheaderlines");
         if (max_header_lines == 0)
             max_header_lines = 50;
-        if (!realitycheck(max_header_lines, 10, 250, "maxheaderlines")) {
+        if (!realitycheck(max_header_lines, 10, 2500, "maxheaderlines")) {
             return false;
         }
 
