@@ -418,7 +418,7 @@ fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
 
 # Categories to log into alert.log in addition to access.log
 #    This can be monitored by a separate process to provide real time alerts via email etc
-#
+#    set_alertlog must be enabled in e2guardian.conf for this to work.
 
 categorylist = 'name=alert,path=__LISTDIR__/alertcategorylist'
 
@@ -441,7 +441,7 @@ categorylist = 'name=alert,path=__LISTDIR__/alertcategorylist'
 # stoptextmimetypes = 'text/javascript'
 #
 # Stop list of text mime types 
-#  Text mime types that should not be filtered lertc
+#  Text mime types that should not be filtered
 #  e.g. text/javascript which is scripting and not relevant text.
 # default ''
 
@@ -587,13 +587,13 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 #used with DM plug-ins story_function to determine if a download manager will be
 #   invoked
 
-#For trickle DM
+#For trickle DM  - this is new and experimental - use with caution!
 regexpboollist = 'name=trickleuseragent,path=@E2CONFDIR@/lists/downloadmanagers/trickleregexpuseragentlist'
-#mimelist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/tricklemimetypelist'
-#fileextlist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/trickleexttypelist'
+mimelist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/tricklemimetypelist'
+fileextlist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/trickleexttypelist'
 
-#For fancy DM
-regexpboollist = 'name=fancyuseragent,path=@E2CONFDIR@/lists/downloadmanagers/fancyregexpuseragentlist'
+#For fancy DM - do not use this - it is not yet operational
+#regexpboollist = 'name=fancyuseragent,path=@E2CONFDIR@/lists/downloadmanagers/fancyregexpuseragentlist'
 #mimelist = 'name=fancyallow,path=@E2CONFDIR@/lists/downloadmanagers/fancymimetypelist'
 #fileextlist = 'name=fancyallow,path=@E2CONFDIR@/lists/downloadmanagers/fancyexttypelist'
 
@@ -621,12 +621,12 @@ regexpreplacelist = 'name=addheader,path=__LISTDIR__/addheaderregexplist'
 
 # Response HTTP header rules:
 # Lists for modification or removal of HTTP response headers.
-# Format for reponseheaderregexplist is one rule per line, similar to
+# Format for responseheaderregexplist is one rule per line, similar to
 # content/URL modifications.
 # Headers are matched/replaced on a line-by-line basis, not as a contiguous
 # block.
 # Use for example, to remove protocol upgrade requests.
-regexpreplacelist = 'name=reponseheadermods,path=__LISTDIR__/responseheaderregexplist'
+regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderregexplist'
 
 ###
 ### END of HEADER section 

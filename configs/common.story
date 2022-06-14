@@ -342,9 +342,11 @@ if(extensionin,trickleallow) return true
 
 #fancyDM
 function(use_fancy_dm)
-ifnot(useragentin,fancyuseragent) return false
-if(mimein,fancyallow) return true
-if(extensionin,fancyallow) return true
+# not yet functional so just return false for now
+if(true) return false
+#ifnot(useragentin,fancyuseragent) return false
+#if(mimein,fancyallow) return true
+#if(extensionin,fancyallow) return true
 
 # Placeholder functions for user hooks
 # Allow user code to be actioned at the start of key functions

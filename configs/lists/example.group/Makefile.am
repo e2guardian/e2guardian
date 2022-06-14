@@ -9,6 +9,7 @@ E2DATADIR = $(E2CONFDIR)/lists/example.group
 SUBDIRS = . 
 
 WLISTS = addheaderregexplist \
+alertcategorylist \
 bannedsearchoveridelist \
 bannedextensionlist \
 bannedmimetypelist \

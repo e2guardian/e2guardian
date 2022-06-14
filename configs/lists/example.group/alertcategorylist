@@ -1,0 +1,6 @@
+# Categories to log into alert.log in addition to access.log
+#    This can be monitored by a separate process to provide real time alerts via email etc
+#    set_alertlog must be enabled in e2guardian.conf for this to work.
+#
+# one category per line - case is ignored
+#

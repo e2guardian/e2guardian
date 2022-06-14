@@ -1,0 +1,15 @@
+# Reg Exp to check user-agent shows request is from a browser
+#
+# The format is: "extended regular expression"
+
+(Firefox/)
+(Chrome/)
+(MSIE/)
+(Opera/)
+(Safari/)
+(Edge/)
+
+# curl and wget are not browsers - but are often used for testing
+# so are included below
+(curl/)
+(wget/)

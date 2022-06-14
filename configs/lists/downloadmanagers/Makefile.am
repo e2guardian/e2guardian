@@ -4,7 +4,13 @@ E2DATADIR = $(E2CONFDIR)/lists/downloadmanagers
 
 SUBDIRS = .
 
-WLISTS = managedmimetypelist managedextensionlist
+WLISTS = managedmimetypelist managedextensionlist \
+trickleregexpuseragentlist \
+fancyregexpuseragentlist \
+tricklemimetypelist \
+fancymimetypelist \
+trickleexttypelist \
+fancyexttypelist 
 
 EXTRA_DIST = $(WLISTS)
 
