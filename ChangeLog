@@ -1,5 +1,11 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.4.5r
+
+Fixes
+
+    Fix #713 max value for maxheaderlines increased to 2500
+
 Version 5.4.4r
 
 April 2021 to April 2022
