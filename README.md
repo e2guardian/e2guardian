@@ -47,7 +47,7 @@ Codacy Badge:
 
 ## Packages/Docker
 
-Packages for Debian/Ubuntu: https://e2guardian.numsys.eu/v5.4/
+Packages for Debian/Ubuntu: https://e2guardian.numsys.eu
 
 Official Images on Docker Hub: https://hub.docker.com/r/fredbcode/e2guardian
 
