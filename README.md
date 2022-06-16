@@ -47,6 +47,14 @@ Codacy Badge:
 
 *	Helpful information can be found in the [Wiki](https://github.com/e2guardian/e2guardian/wiki).
 
+## Packages/Docker
+
+Packages for Debian/Ubuntu: https://e2guardian.numsys.eu
+
+Official Images on Docker Hub: https://hub.docker.com/r/fredbcode/e2guardian
+
+Container image for Squid proxy server, Docker Hub: https://hub.docker.com/r/fredbcode/squid (no support here !)
+
 ## License
 
 Copyright 2020, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
