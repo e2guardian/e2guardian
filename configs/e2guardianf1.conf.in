@@ -584,6 +584,7 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 ###
 
 #Download manager activation lists
+#
 #used with DM plug-ins story_function to determine if a download manager will be
 #   invoked
 

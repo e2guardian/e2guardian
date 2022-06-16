@@ -443,7 +443,7 @@ bool OptionContainer::findHeaderOptions(ConfigReader &cr)
         header.forwarded_for = true;
     }
 
-    header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 2500, 50);
+    header.max_header_lines = cr.findoptionIWithDefault("maxheaderlines", 10, 2500, 2000);
 
     return true;
 }
@@ -690,7 +690,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
         }
     }
 
-    net.connect_timeout_sec = cr.findoptionIWithDefault("connecttimeout", 1, 100, 5);
+    net.connect_timeout_sec = cr.findoptionIWithDefault("connecttimeout", 1, 100, 10);
     net.connect_timeout = net.connect_timeout_sec * 1000;
 
     net.connect_retries = cr.findoptionIWithDefault("connectretries", 1, 100, 1);

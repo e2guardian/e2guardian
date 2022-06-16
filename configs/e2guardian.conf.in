@@ -869,12 +869,12 @@ usexforwardedfor = off
 # xforwardedforfilterip line.
 # default no entries
 
-# maxheaderlines = 50
+# maxheaderlines = 2000
 #
 # Limit number of http header lines in a request/response
 # (to guard against attacks)
 # Minimum 10 max 2500
-# default 50
+# default 2000
 
 ###
 ### END of HEADER section
@@ -1124,14 +1124,15 @@ weightedphrasemode = 2
 # Min 5 - Max 100
 # default 5
 
-#connecttimeout = 5
+#connecttimeout = 10
 #
 # Connect timeout
 # Set tcp timeout between the e2guardian and upstream service (proxy or target host)
  # This is a connection timeout
- # For remote sites you may need to increase this to 10 or more.
+ # For slow remote sites you may need to increase this to 10 or more.
+ # if always using a local proxy decrease this setting to 5
 # Min 1 - Max 100
-# default 5
+# default 10
 
 # connectretries = 1
 #
@@ -1152,7 +1153,7 @@ weightedphrasemode = 2
 #pcontimeout = 55
 #
 # Pconn timeout
-# how long a persistent connection will wait for other requests
+# how long a persistent connection will wait for another request before closing
 # Min 5 - Max 300
 # default 55
 
