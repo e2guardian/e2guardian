@@ -1,8 +1,9 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the near-stable version - v5.5.1pre
+This is the development version - v5.6.0
 
-Development of v5.5 is now frozen - just bug-fixes will be applied in v5.5 branch.
+** This version is work in progress **
+
 
 Note: Some configuration files in this version are not fully backward compatible
 with v5.4 configuration files.
