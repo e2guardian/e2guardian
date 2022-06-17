@@ -2,10 +2,12 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.5.1
 
-September 2021 to April 2022
+September 2021 to June 2022
 
 Fixes
-
+    Update default values for connecttimeout & maxheaderslines
+    Fix #713 - raise upper limit to 2500 for maxheaderlines
+    Remove bionic (18.04) add jammy (22.04)
     Fix bug #727 also added list test function self_check()
     Fix bug in set_accesslog
     Fix bug #720 - upper case search terms not blocked

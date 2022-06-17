@@ -1,13 +1,8 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the development version - v5.5.1
+This is the near-stable version - v5.5.1pre
 
-Warning - this version is work in progress!!! 
-
-Note that there are significant changes to the configuration files in this 
-releasei.
-For details see e2guardian.conf, e2guardianf1.conf and the README files in
-configs/lists configs/lists/common and config/lists/example.group
+Development of v5.5 is now frozen - just bug-fixes will be applied in v5.5 branch.
 
 Note: Some configuration files in this version are not fully backward compatible
 with v5.4 configuration files.
@@ -57,7 +52,7 @@ Container image for Squid proxy server, Docker Hub: https://hub.docker.com/r/fre
 
 ## License
 
-Copyright 2020, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2022, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
