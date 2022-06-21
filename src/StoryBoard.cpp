@@ -210,7 +210,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_REFERERIN:
-                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL, LIST_TYPE_REGEXP_REP};
                         break;
                     case SB_STATE_FULLURLIN:
                         types = {LIST_TYPE_REGEXP_REP};
