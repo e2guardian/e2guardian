@@ -18,6 +18,7 @@ Fixes
     Fix bug #712 - message wrong when upstream connection fails
 
 New features
+    Add regexpreplacelist to available lists for refererin state (SB)
     Mime type stop feature - to prevent scanning of non-relevant mime types.
     Category lists - category can be checked against category list
       - new list type categorylist added 
