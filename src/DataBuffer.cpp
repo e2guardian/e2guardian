@@ -162,6 +162,9 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
         if (size > (buffer_length - data_length)) {
             if(!increase_buffer(size - (buffer_length - data_length))) {
                 size = (buffer_length - data_length);
+                if (size == 0) {
+                    return true;    // it is too big
+                }
             }
         }
             if (chunked) {
