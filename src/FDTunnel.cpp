@@ -50,6 +50,7 @@ FDTunnel::tunnel(Socket &sockfrom, Socket &sockto, bool twoway, off_t targetthro
             total_rd += rd;
         }
         sockto.writeChunkTrailer(sockfrom.chunked_trailer);
+        DEBUG_network("tunnelled chunked data.", total_rd, " bytes");
         throughput = total_rd;
         return true;
     }
