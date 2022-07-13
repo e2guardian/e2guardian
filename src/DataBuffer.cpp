@@ -163,7 +163,8 @@ int DataBuffer::readInFromSocket(Socket *sock, int size, bool wantall, int &resu
             if(!increase_buffer(size - (buffer_length - data_length))) {
                 size = (buffer_length - data_length);
                 if (size == 0) {
-                    return true;    // it is too big
+                    result = DB_TOBIG;
+                    return -1;    // it is too big
                 }
             }
         }
@@ -434,8 +435,7 @@ bool DataBuffer::out(Socket *sock)
                 }
                 sent += block_len;
             }
-            //if (chunked && got_all)
-            if (chunked ) {
+            if (chunked && got_all) {
                 String n;
                 if (!sock->writeChunkTrailer(n))
                     return false;
