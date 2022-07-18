@@ -490,7 +490,7 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
 
     if (is_iplist) {
         if (is_map) {
-            std::sort(ipmaplist.begin(), ipmaplist.end());
+            std::stable_sort(ipmaplist.begin(), ipmaplist.end());
             issorted = true;
             // temp code for testing
             if (false) {
@@ -567,12 +567,12 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
                 }
             }
         } else {
-            std::sort(iplist.begin(), iplist.end());
+            std::stable_sort(iplist.begin(), iplist.end());
             issorted = true;
 
         }
     } else if (is_map) {
-        std::sort(datamaplist.begin(), datamaplist.end());
+        std::stable_sort(datamaplist.begin(), datamaplist.end());
         issorted = true;
         if(false) {   // make true for testing
             for (auto item : datamaplist) {
@@ -951,13 +951,14 @@ struct lessThanSWF : public std::binary_function<const size_t &, const size_t &,
 };
 
 void ListContainer::doSort(const bool startsWith) { // sort by ending of line
+    //std::cerr << "Sorting: " << sourcefile << std::endl;
     for (size_t i = 0; i < morelists.size(); i++)
         (*o.lm.l[morelists[i]]).doSort(startsWith);
     if (is_iplist) {
         if (is_map)
-            std::sort(ipmaplist.begin(), ipmaplist.end());
+            std::stable_sort(ipmaplist.begin(), ipmaplist.end());
         else
-            std::sort(iplist.begin(), iplist.end());
+            std::stable_sort(iplist.begin(), iplist.end());
 
         return;
     }
@@ -971,11 +972,11 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
     if (startsWith) {
         lessThanSWF lts;
         lts.data = data;
-        std::sort(list.begin(), list.end(), lts);
+        std::stable_sort(list.begin(), list.end(), lts);
     } else {
         lessThanEWF lte;
         lte.data = data;
-        std::sort(list.begin(), list.end(), lte);
+        std::stable_sort(list.begin(), list.end(), lte);
     }
     isSW = startsWith;
     issorted = true;
