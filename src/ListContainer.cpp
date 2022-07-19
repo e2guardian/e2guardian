@@ -54,8 +54,8 @@ ListContainer::~ListContainer() {
 
 // for both types of list - clear & reset all values
 void ListContainer::reset() {
-    free(data);
-    if (graphused)
+    if (data != nullptr) free(data);
+    if (graphused && realgraphdata != nullptr)
         free(realgraphdata);
     // dereference this and included lists
     // - but not if the reason we're being
@@ -150,7 +150,10 @@ bool ListContainer::readPhraseList(const char *filename, bool isexception, int c
         // just return
     }
     filedate = getFileDate(filename);
-    increaseMemoryBy(len + 2); // Allocate some memory to hold file
+    if (!increaseMemoryBy(len + 2)) { // Allocate some memory to hold file
+        E2LOGGER_error("Memory allocation failed");
+        return false;
+    };
     std::ifstream listfile(filename, std::ios::in); // open the file for reading
     if (!listfile.good()) {
         E2LOGGER_error("Error opening file (does it exist?): ", filename);
@@ -353,7 +356,10 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
     if (filters != 32)
         DEBUG_config("Converting to lowercase");
 
-    increaseMemoryBy(len + 2); // Allocate some memory to hold file
+    if (!increaseMemoryBy(len + 2)) {
+        E2LOGGER_error("Memory allocation failed");
+        return false;
+    }; // Allocate some memory to hold file
     String temp, inc, hostname, url;
     //char linebuffer[2048];
     char linebuffer[20000];    // increased to allow checking of line length
@@ -457,8 +463,12 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
             } else if (is_map) {
                 addToDataMap(temp);
             } else {
-                if (mem_used > data_memory)
-                    increaseMemoryBy(2048);
+                if (mem_used > data_memory) {
+                    if(!increaseMemoryBy(20000)) {
+                        E2LOGGER_error("Memory allocation error");
+                        return false;
+                    };
+                }
                 addToItemList(temp.toCharArray(), temp.length()); // add to unsorted list
             }
         }
@@ -466,7 +476,7 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
 
     if (is_iplist) {
         if (is_map) {
-            std::sort(ipmaplist.begin(), ipmaplist.end());
+            std::stable_sort(ipmaplist.begin(), ipmaplist.end());
             issorted = true;
             // temp code for testing
             if (false) {
@@ -548,7 +558,7 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
 
         }
     } else if (is_map) {
-        std::sort(datamaplist.begin(), datamaplist.end());
+        std::stable_sort(datamaplist.begin(), datamaplist.end());
         issorted = true;
         if(false) {   // make true for testing
             for (auto item : datamaplist) {
@@ -560,6 +570,12 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
             std::cerr << "Search for philip got " << tg.c_str() << std::endl;
         }
     }
+    if ((mem_used + 20) < data_memory) {  // free up unused memory
+        data = (char *) realloc(data, (mem_used + 20) * sizeof(char));
+        if (data == nullptr)
+            return false;
+    }
+
     return true; // sucessful read
 }
 
@@ -642,7 +658,10 @@ bool ListContainer::readStdinItemList(bool startswith, int filters) {
     re.comp("^.*\\:[0-9]+\\/.*");
     RegResult Rre;
     size_t len = 2046;
-    increaseMemoryBy(2048); // Allocate some memory to hold list
+    if (!increaseMemoryBy(20000)) { // Allocate some memory to hold list
+        E2LOGGER_error("Memory allocation failed");
+        return false;
+    };
     if (!std::cin.good()) {
         E2LOGGER_error("Error reading stdin: ");
         return false;
@@ -910,14 +929,14 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
         (*o.lm.l[morelists[i]]).doSort(startsWith);
     if (is_iplist) {
         if (is_map)
-            std::sort(ipmaplist.begin(), ipmaplist.end());
+            std::stable_sort(ipmaplist.begin(), ipmaplist.end());
         else
-            std::sort(iplist.begin(), iplist.end());
+            std::stable_sort(iplist.begin(), iplist.end());
 
         return;
     }
     if (is_map) {     // deal with datamaplist
-        std::sort(datamaplist.begin(), datamaplist.end());
+        std::stable_sort(datamaplist.begin(), datamaplist.end());
         return;
     }
 
@@ -926,11 +945,11 @@ void ListContainer::doSort(const bool startsWith) { // sort by ending of line
     if (startsWith) {
         lessThanSWF lts;
         lts.data = data;
-        std::sort(list.begin(), list.end(), lts);
+        std::stable_sort(list.begin(), list.end(), lts);
     } else {
         lessThanEWF lte;
         lte.data = data;
-        std::sort(list.begin(), list.end(), lte);
+        std::stable_sort(list.begin(), list.end(), lte);
     }
     isSW = startsWith;
     issorted = true;
@@ -1905,16 +1924,22 @@ int ListContainer::greaterThanEW(const char *a, const char *b) {
     return 0; // both equal
 }
 
-void ListContainer::increaseMemoryBy(size_t bytes) {
+bool ListContainer::increaseMemoryBy(size_t bytes) {
     if (data_memory > 0) {
         data = (char *) realloc(data, (data_memory + bytes) * sizeof(char));
+        if (data == nullptr)
+            return false;
         memset(data + data_memory, 0, bytes * sizeof(char));
         data_memory += bytes;
     } else {
         free(data);
         data = (char *) calloc(bytes, sizeof(char));
+        if (data == nullptr)
+            return false;
+        memset(data + data_memory, 0, bytes * sizeof(char));
         data_memory = bytes;
     }
+    return true;
 }
 
 size_t getFileLength(const char *filename) {

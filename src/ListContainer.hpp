@@ -267,7 +267,7 @@ class ListContainer
     int greaterThanSWF(const char *a, const char *b); // full match
     int greaterThanSW(const char *a, const char *b); // partial starts with
     int search(int (ListContainer::*comparitor)(const char *a, const char *b), int a, int s, const char *p);
-    void increaseMemoryBy(size_t bytes);
+    bool increaseMemoryBy(size_t bytes);
     //categorised & time-limited lists support
     bool readTimeTag(String *tag, TimeLimit &tl);
     bool readTimeBand(String &tag, TimeLimit &tl);
