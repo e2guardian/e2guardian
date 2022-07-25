@@ -34,11 +34,6 @@
 #include <sys/wait.h>
 #include <sys/select.h>
 
-//#ifdef ENABLE_SEGV_BACKTRACE
-//#include <execinfo.h>
-//#include <ucontext.h>
-//#endif
-
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
@@ -221,9 +216,6 @@ void stat_rec::close() {
 
 //bool gentle_in_progress = false;
 int top_child_fds; // cross platform maxchildren position in children array
-#ifdef HAVE_SYS_EPOLL_H
-//int serversockfd; // added PIP - may need to change
-#endif
 int failurecount;
 int serversocketcount;
 SocketArray serversockets; // the sockets we will listen on for connections

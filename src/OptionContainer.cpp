@@ -1063,7 +1063,7 @@ bool ProcessOptions::daemonise()
     if (no_daemon) {
         return true;
     }
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
     return true; // if debug mode is enabled we don't want to detach
 #endif
 

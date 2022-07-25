@@ -33,7 +33,8 @@ COMMANDLINE_SOURCE =
 endif
 
 DEFAULTDM_SOURCE = downloadmanagers/default.cpp
-FANCYDM_SOURCE = downloadmanagers/fancy.cpp
+#FANCYDM_SOURCE = d$downloadmanagers/fancy.cpp
+FANCYDM_SOURCE = 
 TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
 
 IDENTAUTH_SOURCE = authplugins/ident.cpp
