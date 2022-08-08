@@ -35,3 +35,6 @@
 "^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*/search\?q=([^&]*).*"->"\1"
 "^http://[0-9a-z]+\.bing\.com[-/%.0-9a-z]*\&q=([^&]*).*"->"\1"
 
+"^http://www.kiddle.co/s.php\?q=([^&]*)\&.*"->"\1"
+"^http://www.kiddle.co/s.php\?q=([^&]*)"->"\1"
+
