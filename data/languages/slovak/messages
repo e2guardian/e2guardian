@@ -106,6 +106,7 @@
 "701","Limit pre odosielanie na web bol prekročený."
 "750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
 "751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Zakázaný obsah súboru (MIME): "
 "900","Zakázaná prípona súboru: "
 "1000","Na tejto webovej doméne bola prekročená úroveň označovania PICS."

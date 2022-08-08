@@ -123,6 +123,7 @@
 
 "750","Blanket file download is active and this MIME type is not on the white list: "
 "751","Blanket file download is active and this file is not matched by the white lists."
+"752","Site has a TLD that is not allowed by default"
 
 "800","Banned MIME file type: "
 

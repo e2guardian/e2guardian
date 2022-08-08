@@ -101,14 +101,21 @@ exceptionfilesitelist
 exceptionfilesiteiplist
 exceptionfileurllist
 
-# NEW in v5.4 bannedtimelist - times when no access is allowed
+# bannedtimelist - times when no access is allowed
 # To activate a storyboard change is required - see examplef1.story
 bannedtimelist
 
-# NEW in v5.4 blankettimelist - times when blanket block is applied
+# blankettimelist - times when blanket block is applied
 # To activate a storyboard change is required - see examplef1.story
 blankettimelist
 
+#allowedtldlist - blanket block if NOT in this list
+# To activate a storyboard change is required - see examplef1.story
+allowedtldlist
+
+#blanketblocktldlist - blanket block if IS in this list
+# To activate a storyboard change is required - see examplef1.story
+blanketblocktldlist
 
 ### These lists are useful for allowing/blocking apps or browsers based 
 ### on the user-agent

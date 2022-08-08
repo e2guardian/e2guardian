@@ -105,6 +105,7 @@
 "701","Viršytas nusiuntimo (upload) limitas."
 "750","Aktyvus Blanket failų atsiuntimas ir šis MIME tipas nėra 'baltame' sąraše: "
 "751","Aktyvus Blanket failų atsiuntimas ir šis failas netinka pagal 'baltus' sąrašus."
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Uždraustas MIME tipas: "
 "900","Uždraustas praplėtimas: "
 "1000","Viršytas šio tinklalapio PICS vertinimo kriterijus."

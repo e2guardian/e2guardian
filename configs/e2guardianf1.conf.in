@@ -10,6 +10,7 @@
 ### URL_MAIN_LISTS	- URL/SITE lists - for downloaded lists(?)
 ### URL_LOCAL_LISTS	- URL/SITE lists - local
 ### FILE_TYPES		- Lists that control download filetype access
+### BLANKET         - Lists that control blanket block
 ### TIMES		- Time based lists
 ### APPS		- Lists to control apps/browsers
 ### REFERER		- Lists to allow exceptions based on referer site/url
@@ -283,19 +284,35 @@ urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
 ###
 ### END of FILE_TYPES section 
 
-### TIMES section
+### BLANKET section
 ###
 
-# NEW in v5.4 bannedtimelist - times when no access is allowed
-# To activate a storyboard change is required - see examplef1.story
-#timelist = 'name=bannedtimes,messageno=122,path=__LISTDIR__/bannedtimelist'
-
-# NEW in v5.4 blankettimelist - times when blanket block is applied
+# blankettimelist - times when blanket block is applied
 # To activate a storyboard change is required - see examplef1.story
 #timelist = 'name=blankettimes,messageno=122,path=__LISTDIR__/blankettimelist'
 
+# NEW in v5.5 - allowedtld - blanket block tld that are NOT in this list
+# To activate a storyboard change is required - see examplef1.story
+# Note that this can overriden by entries in exception and grey sites/urls lists
+#sitelist = 'name=allowedtld,path=__LISTDIR__/allowedtldlist'
+
+# NEW in v5.5 - blanketblocktld - blanket block tld that are in this list
+# To activate a storyboard change is required - see examplef1.story
+# Note that this can overriden by entries in exception and grey sites/urls lists
+#sitelist = 'name=blanketblocktld,messageno=752,path=__LISTDIR__/blanketblocktldlist'
+
 ###
-### END of TIMES section 
+### END of BLANKET section
+
+### TIMES section
+###
+
+# bannedtimelist - times when no access is allowed
+# To activate a storyboard change is required - see examplef1.story
+#timelist = 'name=bannedtimes,messageno=122,path=__LISTDIR__/bannedtimelist'
+
+###
+### END of TIMES section
 
 ### APPS section
 ###

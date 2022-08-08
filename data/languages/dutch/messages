@@ -105,6 +105,7 @@
 "701","Web upload limiet overschreden."
 "750","Bestands-download is geblokkeerd en dit MIME type komt niet voor op de goedkeuringslijst: "
 "751","Bestands-download is geblokkeerd en dit bestand komt niet voor op de goedkeuringslijsten: "
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Geblokkeerd MIME Type: "
 "900","Geblokkeerd bestandstype: "
 "1000","'PICS labeling' niveau overschrijding op bovenvermelde site."

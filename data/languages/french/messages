@@ -108,6 +108,7 @@
 "701","Dépassement de la limite d`upload Web."
 "750","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce type MIME n`est pas dans la liste blanche : "
 "751","Le mode liste blanche de téléchargement (Blanket file download) est actif et ce fichier n`est pas dans la liste blanche."
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Type MIME interdit: "
 "900","Type de fichier interdit : "
 "1000","Niveau PICS depassé sur le site entier."
