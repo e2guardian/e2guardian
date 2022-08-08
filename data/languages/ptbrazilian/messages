@@ -107,6 +107,7 @@
 "701","Upload excedeu o limite."
 "750","Download de arquivos restrito está ativado e este MIME type não está nas listas de exceções: "
 "751","Download de arquivos restrito está ativado e este arquivo não confere com as listas de exceções."
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","MIME Type Proibido: "
 "900","Extensão Proibida: "
 "1000","Nível de rotulagem PICS excedido no sítio acima."

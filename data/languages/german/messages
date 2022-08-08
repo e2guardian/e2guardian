@@ -105,6 +105,7 @@
 "701","Web-Upload-Schwellwert erreicht"
 "750","Globale Datei-Download Überprüfung ist aktiv und dieser Datei-Typ (MIME type) ist nicht auf der Erlaubt-Liste: "
 "751","Globale Datei-Download Überprüfung ist aktiv und diese Datei ist nicht auf der Erlaubt-Liste"
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Verbotener Datei-Typ (MIME Type): "
 "900","Verbotene Datei-Erweiterung: "
 "1000","PICS-Kennzeichnungsschwellwert überschritten"

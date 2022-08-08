@@ -106,6 +106,7 @@
 "701","El archivo que intenta enviar excede el tama&ntilde;o permitido."
 "750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
 "751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Clase MIME no permitida: "
 "900","Extensi&oacute;n de archivo bloqueada: "
 "1000","Las etiquetas del sitio exceden el nivel PICS."

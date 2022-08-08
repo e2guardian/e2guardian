@@ -10,10 +10,12 @@ SUBDIRS = .
 
 WLISTS = addheaderregexplist \
 alertcategorylist \
+allowedtldlist \
 bannedsearchoveridelist \
 bannedextensionlist \
 bannedmimetypelist \
 bannedphraselist \
+blanketblocktldlist \
 oldbannedphraselist \
 bannedregexpheaderlist \
 bannedregexpurllist \

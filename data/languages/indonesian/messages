@@ -107,6 +107,7 @@
 "701","Batas untuk web upload terlewati."
 "750","Blanket file download is active and this MIME type is not on the white list: "    # needs translation
 "751","Blanket file download is active and this file is not matched by the white lists."    # needs translation
+"752","Site has a TLD that is not allowed by default"    # needs translation
 "800","Tipe MIME yang ditolak: "
 "900","Ekstensi yang ditolak: "
 "1000","Level Label PICS terlewati pada situs di atas."

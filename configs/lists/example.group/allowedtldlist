@@ -1,0 +1,13 @@
+# TLD allowed - used with blanket block to block all TLDs NOT in this list
+#
+# Does NOT override exception lists
+
+#.tld so for example you can match .gov for example
+# can also be used for SLD e.g. sch.uk
+
+.com
+.uk
+.org
+.edu
+.io
+.gov

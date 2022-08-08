@@ -1,0 +1,8 @@
+# TLD blanket block - used with blanket block to block all TLDs IN this list
+#
+# Does NOT override exception lists
+
+#.tld so for example you can match .xxx for example
+# can also be used for SLD e.g. .co.uk
+
+.xxx
