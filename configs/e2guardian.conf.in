@@ -946,7 +946,9 @@ usexforwardedfor = off
 # one is forced to match as the default, regardless of user agent
 # and other matching mechanisms.
 #
-#downloadmanager = '@E2CONFDIR@/downloadmanagers/fancy.conf'
+# NOTE FOR v5.5 - ONLY default download manager is supported
+#		- trickle should be regarded as experimental
+#		- coding for fancy is incomplete and DOES NOT work
 #downloadmanager = '@E2CONFDIR@/downloadmanagers/trickle.conf'
 downloadmanager = '@E2CONFDIR@/downloadmanagers/default.conf'
 
