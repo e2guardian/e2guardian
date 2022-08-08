@@ -334,8 +334,11 @@ if(returnset) return true
 # Returns false is no match
 # or true for match to attivate download manager
 
-#trickleDM
+#trickleDM  experimental 
 function(use_trickle_dm)
+# not yet functional so just return false for now
+# to test comment out next line
+if(true) return false
 ifnot(useragentin,trickleuseragent) return false
 if(mimein,trickleallow) return true
 if(extensionin,trickleallow) return true
