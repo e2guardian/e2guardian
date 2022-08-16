@@ -195,7 +195,7 @@ bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
     log.max_logitem_length = cr.findoptionIWithDefault("maxlogitemlength", 10, 32000, 2000);
 
     log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
-    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 1, 8, 1);
+    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 1, 8, 8);
 
     log.anonymise_logs = cr.findoptionB("anonymizelogs");
     log.log_ad_blocks = cr.findoptionB("logadblocks");
