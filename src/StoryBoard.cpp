@@ -528,8 +528,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             if(j->type == LIST_TYPE_REGEXP_REP) {
                                 *u = res.result;
                             }
-                            if (res.anon_log) {
+                            if(o.log.anonymise_logs)
                                 cm.anon_user = true;
+                            if (res.anon_log) {
                                 cm.anon_url = true;
                             }
                         }
