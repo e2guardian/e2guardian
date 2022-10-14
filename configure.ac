@@ -6,10 +6,9 @@ AC_DEFINE([FD_SETSIZE_OVERIDE],[""],[Define to allow DANS_MAXFD to exceed FD_SET
 
 AC_PREREQ(2.57)
 AC_INIT(e2guardian, 5.3.5)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS([dgconfig.h])
 AC_CONFIG_MACRO_DIR([m4])
-AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_CACHE_LOAD
 
