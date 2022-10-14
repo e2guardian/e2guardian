@@ -48,7 +48,7 @@ enum class LoggerSource {
 };
 
 enum class LoggerDestination {
-  none, stdout, stderr, syslog, file,
+  none, stdout, stderr, syslog, file, udp,
   __Max_Value
 };
 
@@ -92,7 +92,7 @@ public:
             // only usable when compiled with DEBUG_HIGH:
                                          "icap", "avscan", "auth", "dwload", "proxy", "thttps"};
 
-    std::vector <std::string> Destinations = {"none", "stdout", "stderr", "syslog", "file"};
+    std::vector <std::string> Destinations = {"none", "stdout", "stderr", "syslog", "file", "udp"};
 
     std::vector <LoggerSource> working_messages = {
             LoggerSource::info,
@@ -173,6 +173,8 @@ private:
         bool enabled = false;
         LoggerDestination destination = LoggerDestination::none;
         FileRec *fileRec = nullptr;
+        std::string host = "";
+        std::string port = "";
         int syslog_flag = LOG_INFO;
         bool show_funct_line = false;
         bool funct_line_last = true;
@@ -203,11 +205,15 @@ private:
 
     struct Helper;
 
+    class Udp;
+
     void sendMessage(const LoggerSource source, std::string &message);
 
     void setDestination(const LoggerSource source, const LoggerDestination destination);
 
     bool setFilename(const LoggerSource source, const std::string filename);
+
+    bool setUdpDestination(const LoggerSource source, const std::string udp_destination);
 
     bool setSyslogLevel(const LoggerSource source, const std::string filename);
 
