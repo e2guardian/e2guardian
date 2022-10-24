@@ -15,6 +15,7 @@
 "57","HEADER MODIFIZIERT"
 "58","HEADER HINZUGEFÜGT"
 "59","NETZWERKFEHLER"
+"60","SEMI-TRUSTED"    # needs translation
 "70","SSL SEITE"
 "71","IP-Limit"
 "72","Inhalt überprüfen"
