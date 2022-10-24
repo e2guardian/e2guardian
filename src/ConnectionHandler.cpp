@@ -1573,6 +1573,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += cr;
         data += String(!cm.nolog) + cr;
         data += String(cm.alert) + cr;
+        data += String(cm.issemiexception) + cr;
 
         DEBUG_debug(" -...built");
 

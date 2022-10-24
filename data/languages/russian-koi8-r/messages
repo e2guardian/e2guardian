@@ -13,6 +13,7 @@
 "57","HEADERMOD"
 "58","HEADERADD"
 "59","NETERROR"
+"60","SEMI-TRUSTED"    # needs translation
 "70","SSL САЙТ"
 "71","IP Limit"
 "72","Сканирование контента"
