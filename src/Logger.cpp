@@ -270,6 +270,14 @@ bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
     }
 
     if (destination == LoggerDestination::udp) {
+        if (!setU(source, filename))
+            return false;
+    } else if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) {  // unlink file if previously set
+        rmFileLink(sourceRecs[static_cast<int>(source)].fileRec);
+        sourceRecs[static_cast<int>(source)].fileRec = nullptr;
+    }
+
+    if (destination == LoggerDestination::udp) {
         if (!setUdpDestination(source, filename))
             return false;
     }
@@ -526,6 +534,37 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     sourceRecs[static_cast<int>(source)].fileRec = file_rec;
 //    std::cerr << "Lookup filename after added to source_dests is " <<
   //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
+
+    return true;
+}
+
+bool Logger::setUdpname(const LoggerSource source, const std::string filename) {
+
+    std::string host="";
+    String port;
+    String temp = filename;
+
+
+    if (filename.empty()) {
+        return false;
+    }
+    host = temp.before(':');
+    port = temp.after(':');
+
+    if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::udp) { //
+        rmUdpLink(sourceRecs[static_cast<int>(source)].udpRec);
+        sourceRecs[static_cast<int>(source)].udpRec = nullptr;
+    }
+
+    UdpRec *udp_rec = addUdp(host, port.toInteger());
+    if (udp_rec == nullptr) {
+        std::cerr << "Null returned from addUdp()" << std::endl;
+        return false;
+    }
+
+    sourceRecs[static_cast<int>(source)].udpRec = udp_rec;
+//    std::cerr << "Lookup filename after added to source_dests is " <<
+    //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
 
     return true;
 }
