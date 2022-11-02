@@ -17,7 +17,7 @@ explicit and transparent proxy mode or as a ICAP server mode.
 More information can be found in the "notes" subdirectory of the distribution, 
 and the comments in the configuration and list files themselves.
 
-e2guardian is a fork of [DansGuardian](http://dansguardian.org) and the 
+e2guardian is a fork of [DansGuardian](https://en.wikipedia.org/wiki/DansGuardian) and the 
 maintainers fully acknowledge the work carried out by and the copyright 
 of Daniel Baron and other contributors to the Dansguardian project.
 
