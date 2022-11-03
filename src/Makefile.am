@@ -75,6 +75,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        RegExp.cpp RegExp.hpp \
 		       BaseSocket.cpp BaseSocket.hpp \
                        Socket.cpp Socket.hpp \
+                       UdpSocket.cpp UdpSocket.hpp \
                        FatController.cpp FatController.hpp \
                        UDSocket.cpp UDSocket.hpp \
                        SysV.cpp SysV.hpp \

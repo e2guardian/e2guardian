@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include "String.hpp"
+#include "UdpSocket.hpp"
 
 // only C++14 : using namespace std::string_literals;
 
@@ -40,11 +41,11 @@ public:
     std::string host = "";
     int port = 0;
     std::string ip = "";
-    int socket = -1;
+    UdpSocket *socket = nullptr;
     int link_count = 0;
     bool open = false;
 
-    bool write(std::string &msg);
+    bool send(std::string &msg);
 };
 
 
@@ -210,13 +211,13 @@ private:
 
     void deleteFileEntry(std::string filename);
 
-    UdpRec *findUdpRec(std::string ip, int port);
+    UdpRec *findUdpRec(std::string host, int port);
 
     UdpRec *addUdp(std::string host, int port);
 
     void rmUdpLink(UdpRec *udpRec);
 
-    void deleteUdpEntry(std::string ip, int port);
+    void deleteUdpEntry(std::string host, int port);
 
     std::string _logname;
 
