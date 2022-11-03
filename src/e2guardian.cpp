@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
     DEBUG_debug("Running in debug_low mode...");
 
 #endif
+
+
+#ifdef NOT_DEF // bespoke test code to be removed later - PIP
     UdpSocket test_udp;
     test_udp.connect("192.168.1.102", 33001);
     std::string line = "this is a test of upd logging";
@@ -101,6 +104,7 @@ int main(int argc, char *argv[]) {
     } else {
         std::cerr << "upd write ok" << std::endl;
     }
+#endif
 
     DEBUG_trace("read CommandLineOptions");
     int rc = readCommandlineOptions(ret, argc, argv);

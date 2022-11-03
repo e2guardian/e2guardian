@@ -1,5 +1,7 @@
 // UdpSocket class - implements BaseSocket for INET domain sockets
 
+// Note:  This class is only tested for UDP send at present other functions (such as listen, read etc may not currently work!!! PIP
+
 // For all support, instructions and copyright go to:
 // http://e2guardian.org/
 // Released under the GPL v2, with the OpenSSL exception described in the README file.
@@ -147,6 +149,7 @@ int UdpSocket::connect(const std::string &ip, int port) {
     {
         return -1;
     }
+    bind(39000); // otherwise source port allocated on each send confusing destination server. f/w etc
 
     int len = sizeof my_adr;
     peer_adr.sin_port = htons(port);
@@ -247,13 +250,8 @@ void UdpSocket::close()
 // write line to socket
 bool UdpSocket::writeString(std::string line)
 {
-    char str[4000];
-    strcpy(str, line.c_str());
-    int l = strlen(str) + 1;
-
-    sendto(sck, str,l,0,(struct sockaddr *) &peer_adr,peer_adr_length);
-    //return writeToSocket(line.c_str(), l, 0, timeout);
-            return true;
+    int l = line.length();
+    return writeToSocket(line.c_str(), l, 0, timeout);
 }
 
 // write data to socket

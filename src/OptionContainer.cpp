@@ -508,6 +508,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         }
     }
 
+    logger.udp_source_port = cr.findoptionIWithDefault("udp_source_port",6000,64000,39000);
+
     {
         if (cr.findoptionB("logsyslog")) {
             if ((logger.name_suffix = cr.findoptionS("namesuffix")) == "") {

@@ -65,6 +65,17 @@ Logger::~Logger() {
             }
         }
     }
+    if (!Udps.empty()) {
+        for (std::vector<UdpRec *>::iterator i = Udps.begin(); i != Udps.end(); i++) {
+            if (*i != nullptr) {
+                if ((*i)->open) {
+                    ((*i)->socket)->close();
+                    delete ((*i)->socket);
+                }
+                delete *i;
+            }
+        }
+    }
 }
 
 // -------------------------------------------------------------
@@ -93,62 +104,28 @@ struct Logger::Helper {
         if (rec->show_funct_line && rec->funct_line_last) {
             message.append(" ").append(func).append("():").append(file).append(":").append(std::to_string(line));
         }
+        if( rec->destination == LoggerDestination::udp) {
+            message.append("\n");
+        }
         return message;
     }
 };
 
 class Logger::Udp {
 public:
-    static void send_message(std::string host, std::string port, std::string message)
-    {
-        int sockfd=0;
-        struct addrinfo hints= {}, *addrs, *addr;
 
-        hints.ai_family = AF_INET;
-        hints.ai_protocol = SOCK_DGRAM;
-        hints.ai_protocol = IPPROTO_UDP;
-
-        int status = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrs);
-        if (status != 0)
-        {
-            std::cerr << "can not find host " << host << std::endl;
-            return;
-        }
-
-        for (addr = addrs; addr != nullptr; addr = addr->ai_next)
-        {
-            sockfd = socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol);
-            if (sockfd == 0)
-                continue;
-            else
-                break;
-        }
-        if ( addr != NULL)
-        {
-            int numbytes = sendto(sockfd, message.c_str(), message.length(), 0, addr->ai_addr, addr->ai_addrlen);
-            if (numbytes < 0)
-                std::cerr << "can not send udp message" << std::endl;
-        }
-        else
-        {
-            std::cerr << "can not open socket to " << host << std::endl;
-        }
-
-        freeaddrinfo(addrs);
-        close(sockfd);
-    }
 };
 
 bool UdpRec::send(std::string &msg) {
     if (socket == nullptr) {
         std::cerr << "socket is null" << std::endl;
     } else {
-        std::cerr << "socket is not null" << std::endl;
+        //std::cerr << "socket is not null" << std::endl;
         if (!socket->writeString(msg)) {
             std::cerr << "udp write to " << host << " failed";
             return false;
         };
-        std::cerr << "udp write to " << host << " OK";
+        //std::cerr << "udp write to " << host << " OK";
     }
     return true;
 }
@@ -185,7 +162,6 @@ bool FileRec::rotate() {   // this must only be called by a single thread which 
         unlink(filename.c_str());
         file_stream->close();
         delete file_stream;
-        //file_stream = fopen(filename.c_str(),"a");
         file_stream = new std::ofstream(filename.c_str(), std::ios::app);
         umask(old_umask);
         return true;
@@ -290,10 +266,10 @@ bool Logger::setLogOutput(const LoggerSource source, const LoggerDestination des
         sourceRecs[static_cast<int>(source)].udpRec = nullptr;
     }
 
-    if (destination == LoggerDestination::udp) {
-        if (!setUdpDestination(source, filename))
-            return false;
-    }
+   // if (destination == LoggerDestination::udp) {
+   //     if (!setUdpDestination(source, filename))
+   //         return false;
+  //  }
 
     if (destination == LoggerDestination::syslog) {
         setSyslogLevel(source, filename);
@@ -489,9 +465,9 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
             if (srec->udpRec == nullptr) {
                 std::cerr << "dest udpRec is nullptr" << std::endl;
             } else {
-                std::cerr << "Log udp is " << srec->udpRec->host << std::endl;
+               // std::cerr << "Log udp is " << srec->udpRec->host << std::endl;
                 if(srec->udpRec->send(message)) {
-                    std::cerr << "udp message sent"  << std::endl;
+                 //   std::cerr << "udp message sent"  << std::endl;
                 } else {
                     std::cerr << "udp message failed" << std::endl;
                 }
@@ -592,7 +568,7 @@ bool Logger::setUdpname(const LoggerSource source, const std::string filename) {
 
     return true;
 }
-
+#ifdef NOT_DEF
 bool Logger::setUdpDestination(const LoggerSource source, const std::string udp_destination) {
 
     std::string host="";
@@ -613,6 +589,7 @@ bool Logger::setUdpDestination(const LoggerSource source, const std::string udp_
     sourceRecs[static_cast<int>(source)].port = port;
     return true;
 }
+#endif
 
 
 UdpRec *Logger::addUdp(std::string host, int port) {
@@ -631,11 +608,11 @@ UdpRec *Logger::addUdp(std::string host, int port) {
         int rc = -1;
         String shost(host);
         if (shost.isIp()) {
-            std::cerr << "host is an ip" << std::endl;
+          //  std::cerr << "host is an ip" << std::endl;
             udpRec->socket = new UdpSocket;
             rc = udpRec->socket->connect(host, port);
         } else { // do dns lookup
-            std::cerr << "host is NOT an ip" << std::endl;
+          // std::cerr << "host is NOT an ip" << std::endl;
             struct addrinfo hints, *addrs, *addr;
             memset(&hints, 0, sizeof(addrinfo));
 
@@ -669,12 +646,12 @@ UdpRec *Logger::addUdp(std::string host, int port) {
             deleteUdpEntry(host, port);
             return nullptr;
         }
-        std::cerr << "Opened new udpname in record : " << udpRec->host << " port " <<udpRec->port << std::endl;
+        //std::cerr << "Opened new udpname in record : " << udpRec->host << " port " <<udpRec->port << std::endl;
         udpRec->open = true;
-        std::cerr << "Udp link count is " << udpRec->link_count << std::endl;
+        //std::cerr << "Udp link count is " << udpRec->link_count << std::endl;
     } else {
         udpRec->link_count++;
-        std::cerr << "Udp link count is " << udpRec->link_count << std::endl;
+        //std::cerr << "Udp link count is " << udpRec->link_count << std::endl;
     };
     return udpRec;
 }

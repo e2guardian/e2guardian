@@ -197,6 +197,7 @@ struct LoggerOptions
 
     bool log_ssl_errors = false;
     bool SB_trace = false;
+    int  udp_source_port = 39000;
 
     std::string name_suffix;    // for SyslogName, where configured ??
 
