@@ -554,9 +554,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     t = target2;
                 } else if (j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP) {
                     t = targetful;
+                } else if ((j->type == LIST_TYPE_FILE_EXT) && target.contains("?")) {
+                    t = target.before("?");    // remove cgi part of url
                 } else {
                     t = target;
                 }
+
                 DEBUG_story("ListCheck ", j->name, "(type ", j->type, ")", " for ", t);
                 if (cm.issiteonly && (j->type == LIST_TYPE_URL || j->type == LIST_TYPE_FILE_EXT))
                     continue;
