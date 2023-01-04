@@ -175,6 +175,7 @@ languagedir = '@E2DATADIR@/languages'
 # and optionaly site and url lists
 # Think of it as bannediplist and/or exceptions on crack
 
+# Output of Error, Warning, Info messages
 # set_error = 'stderr'
 # set_info = 'stdout'
 # set_warning = 'stderr'
@@ -1168,13 +1169,20 @@ weightedphrasemode = 2
 
 # Configure standard logging (see notes/HOWTO_Logger.md)
 #   format:
-#     log_{source}={destination}[:{filename}]
+#     set_{source}={destination}[:{filename}]
 #   example:
-#     log_debug=stdout
+#     set_debug=stdout
 #   defaults:
-#     log_info=stdout
-#     log_error=stderr
-#     log_access=file,access.log
+#     set_info=stdout
+#     set_error=stderr
+#     set_access=file,access.log
+
+# udp_source_port = 39000
+# Source port for UDP logging
+# currently hard coded to 39000
+# You need to know this in order to set firewall rules etc
+# Will be able to be changed in a future release
+
 
 ## Things that can used on production binaries
 
@@ -1238,7 +1246,7 @@ weightedphrasemode = 2
 ##
 
 ## format is:
-## debuglevel = 'debugtypes[:destination[:filename|sysloglevel]]'
+## debuglevel = 'debugtypes[:destination[:filename|sysloglevel|host:udp_port]]'
 ##
 ## debugtypes can be single type or muliple types separated by ','
 ##   'ALL' can be used to enable all debug types available
@@ -1251,6 +1259,7 @@ weightedphrasemode = 2
 ##   stderr - output to stderr
 ##   syslog - output to syslog at sysloglevel
 ##   file - output to filename
+##   udp - output to host on udp_port
 ##
 ## if destination is omitted then output will be to the default debug 
 ## destination or whatever is defined in the last debuglevel.

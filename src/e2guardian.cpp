@@ -13,6 +13,7 @@
 #include "Queue.hpp"
 #include "Logger.hpp"
 #include "LoggerConfigurator.hpp"
+#include "UdpSocket.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -90,6 +91,19 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG_LOW
     e2logger.enable(LoggerSource::debug);
     DEBUG_debug("Running in debug_low mode...");
+
+#endif
+
+
+#ifdef NOT_DEF // bespoke test code to be removed later - PIP
+    UdpSocket test_udp;
+    test_udp.connect("192.168.1.102", 33001);
+    std::string line = "this is a test of upd logging";
+    if(test_udp.writeString(line)) {
+        std::cerr <<  "upd write ok" << std::endl;
+    } else {
+        std::cerr << "upd write ok" << std::endl;
+    }
 #endif
 
     DEBUG_trace("read CommandLineOptions");

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <sys/types.h>
+#include "RegExp.hpp"
 
 // DECLARATIONS
 
@@ -153,6 +154,8 @@ class String : public std::string
 
     // redact string/url
     String anonimise();
+
+    bool isIp();
 };
 
 #endif

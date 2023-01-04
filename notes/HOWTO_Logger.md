@@ -23,6 +23,7 @@ Working Logs
 - accesslog: access log , default output access.log in __LOGLOCATION
 - dstatslog: dynamic statisics log,  default is no destination
 - requestlog: optional request log,  default is no destination
+- alertlog: optional alert log,  default is no destination
 
 Storyboard tracing
 - storytrace: storyboard tracing
@@ -56,6 +57,7 @@ Log messages can be sent to the following DESTINATIONS:
 - stderr
 - syslog
 - file
+- udp
 - none (= disable logging)
 
 ## LoggerConfigurator
@@ -65,17 +67,18 @@ With the LoggerConfigurator it is possible to configure the logger, either by us
 To configure the output for working messages, working logs or storytrace sources use the following
  syntax in e2guardian.conf:
 
-- `set_{source} = '{destination}[:[filename|sysloglevel]'`
+- `set_{source} = '{destination}[:[filename|sysloglevel|host:upd_port]'`
 
 e.g.
 
 - for sending error messages to stderr use  set_error = 'stderr' 
 - for sending error messages to syslog at level LOG_ERR use  set_error = 'syslog:LOG_ERR'  
 - for sending the access logs to a file use set_accesslog = 'file:/var/log/e2guardian/access.log'
+- for sending the access logs to a fila udp use set_accesslog = 'udp:my_log_collector_host:upd_port'
 
 To configure debug use the following syntax in e2guardian.conf or after -d on invocking e2guardian:
 
-- debuglevel = 'type1,type2[:destination[:filename|sysloglevel]]
+- debuglevel = 'type1,type2[:destination[:filename|sysloglevel|host:udp_port]]
 
 e.g 
 
@@ -202,6 +205,6 @@ The new Logger obsoletes/replaces the following:
 ## TODOs
 
 - Logger Output to Email ??
-- Logger Output sending to GrayLog, LogStash ??
+- Logger Output sending to GrayLog, LogStash ?? // may covered by udp destination
 
-(last edit: 08.09.2020)
+(last edit: 03.11.2022)

@@ -733,3 +733,19 @@ String String::anonimise() {
     String ts = temp;
     return ts;
 }
+
+bool String::isIp() {
+    // Regex expression for validating IPv4
+    RegExp ipv4;
+    ipv4.comp("(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])");
+
+    RegResult rs;
+
+    if(ipv4.match((*this).c_str(), rs))
+        return true;
+
+    return false;
+
+    // Regex expression for validating IPv6
+   // regex ipv6("((([0-9a-fA-F]){1,4})\\:){7}([0-9a-fA-F]){1,4}");
+}

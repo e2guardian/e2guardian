@@ -97,6 +97,8 @@ add_executable(v5_0
         src/String.hpp
         src/SysV.cpp
         src/SysV.hpp
+        src/UdpSocket.cpp
+        src/UdpSocket.hpp
         src/UDSocket.cpp
         src/UDSocket.hpp
         src/UrlRec.hpp
