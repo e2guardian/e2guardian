@@ -74,7 +74,7 @@ e.g.
 - for sending error messages to stderr use  set_error = 'stderr' 
 - for sending error messages to syslog at level LOG_ERR use  set_error = 'syslog:LOG_ERR'  
 - for sending the access logs to a file use set_accesslog = 'file:/var/log/e2guardian/access.log'
-- for sending the access logs to a fila udp use set_accesslog = 'udp:my_log_collector_host:upd_port'
+- for sending the access logs via udp use set_accesslog = 'udp:my_log_collector_host:upd_port'
 
 To configure debug use the following syntax in e2guardian.conf or after -d on invocking e2guardian:
 
@@ -207,4 +207,4 @@ The new Logger obsoletes/replaces the following:
 - Logger Output to Email ??
 - Logger Output sending to GrayLog, LogStash ?? // may covered by udp destination
 
-(last edit: 03.11.2022)
+(last edit: 04.01.2023)
