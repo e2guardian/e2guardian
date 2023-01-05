@@ -1,4 +1,4 @@
-This is the v5.5.0 development version
+This is the v5.5.2 near-stable version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files in v5.
@@ -98,11 +98,13 @@ INCLUDE FILES IN e2guardianf1.conf
     Syntax is same as list includes  -
     .include<full_path_to_file>
 
+OPTION processing
+
     Where single options and list defines with the same name are 
     repeated only the last one read will be actioned.  This differs 
     from pre-v5 versions where the first single option was actioned and any 
     repeats ignored.  This allows the overwriting of single options and 
-    re-definion of lists in a structured way.
+    re-definition of lists in a structured way.
 
 LIST INPUT VIA STDIN
 
@@ -120,11 +122,10 @@ OPENSSL v1.1 SUPPORT
     
 Code amended so that -Wall compile option gives no warnings 
 
-Amended code so that -Wall compile option gives no warnings 
-
 BETTER HANDLING OF TRANSPARENT HTTPS REQUESTS
 
 Requests without SNI and those not TLS no longer tried for MITM.
+
 New option to use original ip & port (currently Linux only)
 
 RELATIVE PATHS IN .Includes and list definition
@@ -156,17 +157,18 @@ As each group's lists are now in a different directory
 the e2guardianf1.conf files will be able to be copied into a new group .conf 
 with minimal changes.
 
-V5.5 
-NEW LOGGER and DEBUG system for logging, messages and debuging.
+V5.5
+
+NEW LOGGER and DEBUG system for logging, messages and debugging.
 
 Thanks to KDGunermann for all his work on this!
 
 This replaces the legacy and 'NEWDEBUG' with a unified logging system.
 
-Note that the --with-e2debug configure option is replaceed by two debug 'levels'
---with-debug_high intended for high level debuging (similar to NEWDEBUG, but covering the whole
+Note that the --with-e2debug configure option is replaced by two debug 'levels'
+--with-debug_high intended for high level debugging (similar to NEWDEBUG, but covering the whole
 product)
- and --with-debug_low for low level code debuging
+ and --with-debug_low for low level code debugging
 
 See notes/HOWTO_Logger.md and example e2guardian.conf for more details
 
@@ -181,44 +183,47 @@ SECURE PROXY
 Secure (TLS) Proxy is now supported.
 
 See NETWORK section in e2guardian.conf for more information.
- 
+
+OTHER enhancements
+
+ Made sockets non-blocking so time-out works with MITM - completed but using blocking i/o
+
+ Reduce unnecessary memory usage on in DataBuffer & DMplugins
+
+ Remove broken mapauthtoports option/logic.
+
+ New Bearer over basic token-based auth plugin.
+
+ Integrate DMplugins with storyboards for plugins.
+
+ Option for output file for storyboard trace (part of new logging system)
+
+ Storyboard action by category added
+
+ alert.log option to enable reporting of key category violations by external email alert and reporting systems
+
+
 
 TESTING -  
 ---------
 
     Please prefix all bug reports with "v5.5: "
 
+
 TO DO IN THIS RELEASE
 ---------------------
-
-    Make sockets non-blocking so time-out works with MITM - complete
-
-    Reduce unnecessary memory usage on in DataBuffer & DMplugins - complete
-
-    Create replacement for mapauthtoports.
-
-    Bearer over basic token-based auth plugin.
-
-    Integrate DMplugins with storyboards for plugin match. - in progress
-
-    Re-implement fancy download manager - in progress
-
-    Option for output file for storyboard trace - complete as part of Logger
-
-    Create 'output-filter' plug-in system for content modification
-
-    POST content filtering
 
 
 TODO - for later releases.
 -----------------------
 
+    Create 'output-filter' plug-in system for content modification
+
+    POST content filtering
+
     Re-look at MITM certificate generation.
     
     Implement a "learning" mode,  test the rules effects without block  
-
-    Storyboard action by filter category (e.g. to replace hard-coded 'ADs' 
-        no log option)
 
     Remove duplicate list/storyboard warnings with a DRY system.
 
@@ -234,8 +239,6 @@ WISHLIST
     Support for authenticaion helpers to allow ntlm, basic etc auth
          without using squid proxy.
 
-    Re-impliment mailing option.
-
     Per-user exceptions/blocks.
 
     Per-room blocks.
@@ -246,6 +249,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 8th September 2020
+Philip Pearce 5th january 2023
 
 

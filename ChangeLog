@@ -1,5 +1,36 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.5.2
+
+July 2022 to January 2023
+
+Fixes
+    Fix bug #756 extension checking requires removal of cgi from url
+    Correct HOWTO_Logger.md
+    Re-add google translate site/url checking (translate.goog)
+    Merge pull request #748 from meyertime/v5.5buildfix
+       Fix build error AM_INIT_AUTOMAKE expanded multiple times
+    List definition option anonlog now only blanks URL
+    Fix bug #743 - logfileformat defaulting to 1 instead of 8 as documented
+    Comment out fancy and trickle download managers as these are not
+       supported in v5.5
+    Obsolete define terms removed from code and clean-up and autoupdate of
+       configure.ac
+    Partial work towards issue #731
+    Fix obscure bug with some lists - replace sort() with stable_sort()
+       and improve memory handling for lists
+    Fix bug #730 - large downloads in chunked format not completing
+
+New features
+    UDP logging option added (based on code/idea by KDG)
+    Add SEMI-TRUSTED flag to logs
+    Add kiddle search terms extractor #739 refers
+    Add storyboarding, list definitions, message for TLD allowed
+       as suggested by Dalacor #733.
+       Note I have used allowedtldlist rather than exceptiontld.  Exceptions
+       generally override everything but this list is used in blanketblock and
+       so will be overridden by exception site urls etc.
+
 version 5.5.1
 
 September 2021 to June 2022
