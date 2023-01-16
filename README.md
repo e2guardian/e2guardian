@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the stable version - v5.4.5r 
+This is the stable version - v5.4.6r 
 
 Note that there are significant changes to the configuration files in this 
 release and the sample lists have been re-organized into sub-directories.

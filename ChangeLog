@@ -1,5 +1,18 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.4.6r
+
+June to September 2022
+
+Fixes
+    reduce artifact ttl: new gitlab limit of 5GB
+    Fix odd memory issue with some lists 
+       - replace std::sort with std::stable_sort
+    Update README.md
+    Remove specific link to v5.4
+    Add packages links
+
+
 Version 5.4.5r
 
 Fixes
