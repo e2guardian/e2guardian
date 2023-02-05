@@ -96,7 +96,7 @@
 "609","Exception regular expression URL match: "
 "610","User-Agent pattern match: "    # needs translation
 "620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
+"630","URL coincide en: "
 "631"," location allow list"    # needs translation
 "632","Location overide allow list matched"    # needs translation
 "662","Sitio (local)."
