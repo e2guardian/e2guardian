@@ -71,7 +71,7 @@
 "504","URL bloqueada por expresión regular."
 "505","Bloqueo general de IP está activo y la dirección deseada consiste únicamente en IP."
 "506","HTTPS access is only allowed to trusted sites."    # needs translation
-"507","HTTPS access by IP address is not allowed."    # needs translation
+"507","No se permite el acceso HTTPS mediante direcciones IP."
 "508","No se permite el acceso mediante este navegador (o aplicación): "
 "509","No se permite el acceso mediante este navegador (o aplicación)."
 "510","Blocked IP site "    # needs translation
