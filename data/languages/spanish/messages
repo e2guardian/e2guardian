@@ -74,7 +74,7 @@
 "507","No se permite el acceso HTTPS mediante direcciones IP."
 "508","No se permite el acceso mediante este navegador (o aplicación): "
 "509","No se permite el acceso mediante este navegador (o aplicación)."
-"510","Blocked IP site "    # needs translation
+"510","El sitio IP se encuentra bloqueado "
 "511","La conexión https transparente no es TLS: "
 "512","La conexión https transparente no tiene SNI: "
 "520","Sitio HTTPS bloqueado: "
