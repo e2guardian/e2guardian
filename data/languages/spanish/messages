@@ -4,7 +4,7 @@
 "0","Número de mensaje ausente"
 "1","Acceso Denegado"
 "10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
+"11"," Límite de IP establecido."
 "50"," en "
 "51","TRUSTED"    # needs translation
 "52","DENIED"    # needs translation
