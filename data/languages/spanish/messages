@@ -4,7 +4,7 @@
 "0","Número de mensaje ausente"
 "1","Acceso Denegado"
 "10","IP limit exceeded.  There is a  "    # needs translation
-"11"," IP limit set."    # needs translation
+"11"," Límite de IP establecido."
 "50"," en "
 "51","TRUSTED"    # needs translation
 "52","DENIED"    # needs translation
@@ -70,11 +70,11 @@
 "503","URL bloqueada por expresión regular: "
 "504","URL bloqueada por expresión regular."
 "505","Bloqueo general de IP está activo y la dirección deseada consiste únicamente en IP."
-"506","HTTPS access is only allowed to trusted sites."    # needs translation
-"507","HTTPS access by IP address is not allowed."    # needs translation
+"506","El acceso mediante HTTPS solo está permitido a sitios de confianza."
+"507","No se permite el acceso HTTPS mediante direcciones IP."
 "508","No se permite el acceso mediante este navegador (o aplicación): "
 "509","No se permite el acceso mediante este navegador (o aplicación)."
-"510","Blocked IP site "    # needs translation
+"510","El sitio IP se encuentra bloqueado "
 "511","La conexión https transparente no es TLS: "
 "512","La conexión https transparente no tiene SNI: "
 "520","Sitio HTTPS bloqueado: "
@@ -96,7 +96,7 @@
 "609","Exception regular expression URL match: "
 "610","User-Agent pattern match: "    # needs translation
 "620","Referer match: "    # needs translation
-"630","URL match in "    # needs translation
+"630","URL coincide en: "
 "631"," location allow list"    # needs translation
 "632","Location overide allow list matched"    # needs translation
 "662","Sitio (local)."
