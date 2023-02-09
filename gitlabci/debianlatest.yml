@@ -22,8 +22,6 @@ build:debian:
 package:debian:
   stage: create-package-debian
   image: amd64/debian:bullseye
-  artifacts:
-   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
