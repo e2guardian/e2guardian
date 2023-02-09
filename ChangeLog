@@ -2,9 +2,10 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.5.2
 
-July 2022 to January 2023
+July 2022 to February 2023
 
 Fixes
+    Amend Spanish translations
     Fix bug #756 extension checking requires removal of cgi from url
     Correct HOWTO_Logger.md
     Re-add google translate site/url checking (translate.goog)

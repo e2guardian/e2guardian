@@ -1,7 +1,7 @@
 This is the v5.5.2 near-stable version
 
 Note that large sections of the code has been re-written and there are
-significant changes to the configuration files in v5.
+significant changes to the configuration files since v4.
 
 V5 is written in c++11 and so to compile it you will need gcc v5.4 
 or later. (or another complier that supports the full c++11).  
