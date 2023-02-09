@@ -25,7 +25,6 @@ package:jammy:
   dependencies:
     - build:jammy
   artifacts:
-   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR  
   variables:
@@ -60,7 +59,6 @@ test:jammy:
   dependencies:
     - package:jammy
   artifacts:
-   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
