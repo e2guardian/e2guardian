@@ -1370,7 +1370,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!persistProxy)
                 proxysock.close(); // close connection to proxy
 
-            if (persistPeer) {
+            if (persistPeer && !checkme.isconnect) {
                 continue;
             }
 
