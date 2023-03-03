@@ -286,8 +286,8 @@ extern Logger e2logger;
 
 #ifdef DEBUG_HIGH
   #define DEBUG_icap(...) \
-     if (e2logger.isEnabled(LoggerSource::icap)) \
-       e2logger.vlog(LoggerSource::icap,  __func__, __FILE__,__LINE__, __VA_ARGS__)
+    if (e2logger.isEnabled(LoggerSource::icap)) \
+      e2logger.vlog(LoggerSource::icap,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
   #define DEBUG_avscan(...) \
     if (e2logger.isEnabled(LoggerSource::avscan)) \
@@ -312,10 +312,10 @@ extern Logger e2logger;
 #else
   #define DEBUG_icap(...)
   #define DEBUG_avscan(...)
-#define DEBUG_auth(...)
-#define DEBUG_dwload(...)
-#define DEBUG_proxy(...)
-#define DEBUG_thttps(...)
+  #define DEBUG_auth(...)
+  #define DEBUG_dwload(...)
+  #define DEBUG_proxy(...)
+  #define DEBUG_thttps(...)
 #endif
 
 

@@ -390,6 +390,7 @@ void Logger::rmFileLink(FileRec *fileRec) {
 void Logger::setDockerMode() {
     // docker stdout/stderr are not in sync
     // so for debugging send everything to stderr (unbuffered)
+    std::cerr << "setDockerMode " << std::endl;
     setDestination(LoggerSource::info, LoggerDestination::stderr);
     setDestination(LoggerSource::error, LoggerDestination::stderr);
     setDestination(LoggerSource::warning, LoggerDestination::stderr);
@@ -405,14 +406,9 @@ void Logger::log(const LoggerSource source, std::string message) {
     log(source,(const std::string)"",(const std::string)"",(int)0,  message);
 }
 
-    void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
+void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
     SourceRec *sourceRec = &(sourceRecs[static_cast<int>(source)]);
     if (sourceRec->no_format && sourceRec->destination == LoggerDestination::file) {
-        if (sourceRec->fileRec == nullptr ) {
-            std::cerr << "Error: in Log: filename is nullptr" << std::endl;
-        } else {
-        }
-        //std::cerr << "in Log: filename is " << sourceRec->fileRec->filename << std::endl;
         sendMessage(source, message);
     } else {
         std::string tag;
@@ -455,8 +451,8 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
                 if (!srec->fileRec->open )
                     std::cerr << "Log file output stream is closed";
                 else {
-                   std::cerr << "Log filename is " << srec->fileRec->filename << std::endl;
-                   std::cerr << "log msg: " << message << std::endl;
+                    // std::cerr << "Log filename is " << srec->fileRec->filename << std::endl;
+                    // std::cerr << "log msg: " << message << std::endl;
                     srec->fileRec->write(message);
                 }
             }
@@ -481,6 +477,7 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
 
 void Logger::setDestination(const LoggerSource source, const LoggerDestination destination) {
     sourceRecs[static_cast<int>(source)].destination = destination;
+    // std::cerr << "Logger::setDestination " << source2string(source) << " -> " << dest2string(destination) << std::endl;
 }
 
 bool Logger::setSyslogLevel(const LoggerSource source, const std::string filename) {
@@ -515,12 +512,13 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     if (filename.empty()) {
         return false;
     }
+
     if (filename.front() == '/')    // absolute path
         name = filename;
     else        // relative to __LOGLOCATION
         name = std::string(__LOGLOCATION) + filename;
 
-    if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) { //
+    if (sourceRecs[static_cast<int>(source)].destination == LoggerDestination::file) { 
         rmFileLink(sourceRecs[static_cast<int>(source)].fileRec);
         sourceRecs[static_cast<int>(source)].fileRec = nullptr;
     }
@@ -532,8 +530,8 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     }
 
     sourceRecs[static_cast<int>(source)].fileRec = file_rec;
-//    std::cerr << "Lookup filename after added to source_dests is " <<
-  //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
+    // std::cerr << "Lookup filename after added to source_dests is " 
+    //           << sourceRecs[static_cast<int>(source)].fileRec->filename << std::endl;
 
     return true;
 }
@@ -563,8 +561,8 @@ bool Logger::setUdpname(const LoggerSource source, const std::string filename) {
     }
 
     sourceRecs[static_cast<int>(source)].udpRec = udp_rec;
-//    std::cerr << "Lookup filename after added to source_dests is " <<
-    //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
+    //    std::cerr << "Lookup filename after added to source_dests is " 
+    //              << source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
 
     return true;
 }
