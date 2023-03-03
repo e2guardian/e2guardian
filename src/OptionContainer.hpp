@@ -30,10 +30,6 @@
 // DECLARATIONS
 struct AccessLogOptions
 {
-    std::string log_location;
-    std::string RQlog_location;
-    std::string RSlog_location;
-    std::string ALlog_location;
 
     Queue<std::string>* log_Q;
     Queue<std::string>* RQlog_Q;
@@ -45,6 +41,7 @@ struct AccessLogOptions
     int log_file_format = 0;
     int log_exception_hits = 0;
 
+    bool log_access = false;
     bool log_requests = false;
     bool log_responses = false;
     bool log_alerts = false;
@@ -368,7 +365,7 @@ class OptionContainer
     
 
     private:
-
+    void setDefaults();
     bool findAccessLogOptions(ConfigReader &cr);
     bool findBlockPageOptions(ConfigReader &cr);
     bool findCertificateOptions(ConfigReader &cr);
