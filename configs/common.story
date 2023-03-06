@@ -337,11 +337,11 @@ if(returnset) return true
 #trickleDM  experimental 
 function(use_trickle_dm)
 # not yet functional so just return false for now
-# to test comment out next line
+# to test comment out next line and uncomment the remaining lines in function
 if(true) return false
-ifnot(useragentin,trickleuseragent) return false
-if(mimein,trickleallow) return true
-if(extensionin,trickleallow) return true
+#ifnot(useragentin,trickleuseragent) return false
+#if(mimein,trickleallow) return true
+#if(extensionin,trickleallow) return true
 
 #fancyDM
 function(use_fancy_dm)
