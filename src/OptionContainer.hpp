@@ -289,6 +289,7 @@ struct ProcessOptions
 
     bool no_daemon = false;
     bool is_daemonised = false;
+    bool is_dockermode = false;
 
     bool find_user_ids();
     bool become_root_user();

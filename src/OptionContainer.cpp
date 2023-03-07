@@ -524,7 +524,7 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
-        } else {
+        } else if (!proc.is_dockermode) {
                 log.log_location = cr.findoptionS("loglocation");
                 if (log.log_location.empty()) {
                     log.log_location = __LOGLOCATION;
@@ -826,6 +826,7 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
     proc.no_daemon = cr.findoptionB("nodaemon");
 
     if (cr.findoptionB("dockermode")) {
+        proc.is_dockermode = true;
         proc.no_daemon = true;
         e2logger.setDockerMode();
     }
