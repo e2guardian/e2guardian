@@ -258,6 +258,10 @@ extern Logger e2logger;
   if (e2logger.isEnabled(LoggerSource::error)) \
      e2logger.vlog(LoggerSource::error,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
+#define E2LOGGER_warning(...) \
+  if (e2logger.isEnabled(LoggerSource::warning)) \
+     e2logger.vlog(LoggerSource::warning,  __func__, __FILE__,__LINE__, __VA_ARGS__)
+
 #define E2LOGGER_accesslog(STR)  \
   if (e2logger.isEnabled(LoggerSource::accesslog)) \
      e2logger.log(LoggerSource::accesslog, STR)

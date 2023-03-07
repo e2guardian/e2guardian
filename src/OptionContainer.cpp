@@ -608,21 +608,26 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             if (!loggerConf.configure(LoggerSource::storytrace, temp))
                 return false;
         }
-    }
+    }   // unlike other set_* this does not enable output -
+        // this has to be done with storyboardtrace
+        // as this is not a source code trace
+        // but a trace of the storyboard logic
 
     {
         if (cr.findoptionB("storyboardtrace")) {
             logger.SB_trace = true;
             e2logger.enable(LoggerSource::storytrace);
+            E2LOGGER_warning("Storyboard tracing enabled!!");
         } else {
             logger.SB_trace = false;
         }
     }
 
-    if ( logger.SB_trace ) {
-        DEBUG_config("Enable Storyboard tracing !!");
-        e2logger.enable(LoggerSource::story);
-    }
+    // Not sure why this was here - prob for debuging - PIP
+    //if ( logger.SB_trace ) {
+    //   DEBUG_config("Enable Storyboard tracing !!");
+    //   e2logger.enable(LoggerSource::story);
+    //}
 
 
     {

@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     // setting all debug features should be done in e2guardian.conf with the debuglevel setting
 
     // DEBUG_LOW mode is not suitable for production use so warn the user that is switched on
-    E2LOGGER_info("Running in debug_low mode...");
+    E2LOGGER_warning("Running in debug_low mode...");
 #endif
 
 
