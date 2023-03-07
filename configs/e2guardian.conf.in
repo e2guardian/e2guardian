@@ -186,7 +186,6 @@ languagedir = '@E2DATADIR@/languages'
 # set_info = 'syslog:LOG_INFO'
 # set_warning = 'syslog:LOG_WARNING'
 #
-# If dockermode is set then any setting here will be overridden by dockermode settings 
 ###
 ### END of NAMES_PATHS section
 
@@ -1189,10 +1188,15 @@ weightedphrasemode = 2
 # storyboardtrace = on
 #
 # Storyboard tracing
-# Warning - produces verbose output - do not use in production
-# Output goes to syslog (or stderr when compiled with E2DEBUG defined)
+# Warning - produces very verbose output - must not be used in production
+# By default output goes to syslog  - destination can be changed by using set_storytrace
 # default off
 # Use to debug storyboard logic flow
+
+#set_storytrace = "file:/tmp/storytrace.txt"
+
+# Output for storyboard tracing
+# Note this does not enable storyboardtrace but only changes the destination from the standard syslog.
 
 #logsslerrors = on
 #
@@ -1270,7 +1274,7 @@ weightedphrasemode = 2
 
 
 #debuglevel = 'icap:file:/var/log/e2guardian/icap.log'
-#Enable ICAP debug informations only in specified file
+#Enable ICAP debug information only in specified file
 #
 #debuglevel = 'ALL:syslog,LOG_DEBUG'
 # enable all debugs available and output to syslog LOG_DEBUG level
