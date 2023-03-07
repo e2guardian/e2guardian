@@ -287,39 +287,38 @@ extern Logger e2logger;
     e2logger.vlog(LoggerSource::storytrace, (const std::string) "", (const std::string) "", (int) 0,  __VA_ARGS__)
 
 
-
 #ifdef DEBUG_HIGH
-  #define DEBUG_icap(...) \
-     if (e2logger.isEnabled(LoggerSource::icap)) \
+ #define DEBUG_icap(...) \
+    if (e2logger.isEnabled(LoggerSource::icap)) \
        e2logger.vlog(LoggerSource::icap,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_avscan(...) \
+ #define DEBUG_avscan(...) \
     if (e2logger.isEnabled(LoggerSource::avscan)) \
       e2logger.vlog(LoggerSource::avscan,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_auth(...) \
+ #define DEBUG_auth(...) \
     if (e2logger.isEnabled(LoggerSource::auth)) \
       e2logger.vlog(LoggerSource::auth,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_dwload(...) \
+ #define DEBUG_dwload(...) \
     if (e2logger.isEnabled(LoggerSource::dwload)) \
       e2logger.vlog(LoggerSource::dwload,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_proxy(...) \
+ #define DEBUG_proxy(...) \
     if (e2logger.isEnabled(LoggerSource::proxy)) \
       e2logger.vlog(LoggerSource::proxy,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_thttps(...) \
+ #define DEBUG_thttps(...) \
     if (e2logger.isEnabled(LoggerSource::thttps)) \
       e2logger.vlog(LoggerSource::thttps,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
 #else
-  #define DEBUG_icap(...)
-  #define DEBUG_avscan(...)
-#define DEBUG_auth(...)
-#define DEBUG_dwload(...)
-#define DEBUG_proxy(...)
-#define DEBUG_thttps(...)
+ #define DEBUG_icap(...)
+ #define DEBUG_avscan(...)
+ #define DEBUG_auth(...)
+ #define DEBUG_dwload(...)
+ #define DEBUG_proxy(...)
+ #define DEBUG_thttps(...)
 #endif
 
 

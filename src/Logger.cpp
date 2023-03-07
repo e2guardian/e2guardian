@@ -405,13 +405,16 @@ void Logger::log(const LoggerSource source, std::string message) {
     log(source,(const std::string)"",(const std::string)"",(int)0,  message);
 }
 
-    void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
+void Logger::log(const LoggerSource source, const std::string func, const std::string file, const int line, std::string message) {
     SourceRec *sourceRec = &(sourceRecs[static_cast<int>(source)]);
     if (sourceRec->no_format && sourceRec->destination == LoggerDestination::file) {
-        if (sourceRec->fileRec == nullptr ) {
-            std::cerr << "Error: in Log: filename is nullptr" << std::endl;
-        } else {
-        }
+
+    // following check is dane in sendMessage so remove
+    //    if (sourceRec->fileRec == nullptr ) {
+    //        std::cerr << "Error: in Log: filename is nullptr" << std::endl;
+    //   } else {
+    //   }
+
         //std::cerr << "in Log: filename is " << sourceRec->fileRec->filename << std::endl;
         sendMessage(source, message);
     } else {
@@ -455,8 +458,8 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
                 if (!srec->fileRec->open )
                     std::cerr << "Log file output stream is closed";
                 else {
-                   std::cerr << "Log filename is " << srec->fileRec->filename << std::endl;
-                   std::cerr << "log msg: " << message << std::endl;
+                   //std::cerr << "Log filename is " << srec->fileRec->filename << std::endl;
+                   //std::cerr << "log msg: " << message << std::endl;
                     srec->fileRec->write(message);
                 }
             }
@@ -481,6 +484,7 @@ void Logger::sendMessage(const LoggerSource source, std::string &message) {
 
 void Logger::setDestination(const LoggerSource source, const LoggerDestination destination) {
     sourceRecs[static_cast<int>(source)].destination = destination;
+    // std::cerr << "Logger::setDestination " << source2string(source) << " -> " << dest2string(destination) << std::endl;
 }
 
 bool Logger::setSyslogLevel(const LoggerSource source, const std::string filename) {
@@ -515,6 +519,7 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     if (filename.empty()) {
         return false;
     }
+
     if (filename.front() == '/')    // absolute path
         name = filename;
     else        // relative to __LOGLOCATION
@@ -532,8 +537,8 @@ bool Logger::setFilename(const LoggerSource source, const std::string filename) 
     }
 
     sourceRecs[static_cast<int>(source)].fileRec = file_rec;
-//    std::cerr << "Lookup filename after added to source_dests is " <<
-  //                                                                 source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
+    // std::cerr << "Lookup filename after added to source_dests is "
+    //           << source_dests[static_cast<int>(source)].fileRec->filename << std::endl;
 
     return true;
 }
