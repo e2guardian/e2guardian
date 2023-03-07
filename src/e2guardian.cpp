@@ -76,22 +76,41 @@ int main(int argc, char *argv[]) {
     thread_id = "";
     int ret = 0;
 
-    o.config.prog_name = PACKAGE;
-    o.config.configfile = __CONFFILE;
-
     srand(time(NULL));
 
     // Set current locale for proper character conversion
     setlocale(LC_ALL, "");
+
+    o.config.prog_name = PACKAGE;
+    o.config.configfile = __CONFFILE;
 
     e2logger.setSyslogName(o.config.prog_name);
 
 //    E2LOGGER_info("Start ", prog_name );  // No we are not starting here - we may be stopping, reloading etc
 
 #ifdef DEBUG_LOW
-    e2logger.enable(LoggerSource::debug);
-    DEBUG_debug("Running in debug_low mode...");
+    // enable the desired outputs
+    e2logger.setLogOutput(LoggerSource::debug,   LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::trace,   LoggerDestination::stderr);
+    // e2logger.setLogOutput(LoggerSource::network, LoggerDestination::stderr);
+    // e2logger.setLogOutput(LoggerSource::story,   LoggerDestination::stderr);
+    // e2logger.setLogOutput(LoggerSource::regexp,  LoggerDestination::stderr);
+    // e2logger.setLogOutput(LoggerSource::config,  LoggerDestination::stderr);
+    // e2logger.setLogOutput(LoggerSource::content, LoggerDestination::stderr);
 
+    DEBUG_debug("Running in debug_low mode...");
+#endif
+
+#ifdef DEBUG_HIGH
+    // enable the desired outputs
+    e2logger.setLogOutput(LoggerSource::icap,   LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::avscan, LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::auth,   LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::dwload, LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::proxy,  LoggerDestination::stderr);
+    e2logger.setLogOutput(LoggerSource::thttps, LoggerDestination::stderr);
+    
+    DEBUG_debug("Running in debug_high mode...");
 #endif
 
 

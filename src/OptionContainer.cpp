@@ -68,6 +68,8 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
             return true;
         }
 
+        setDefaults();
+
         if (!findProcOptions(cr)) return false;
         if (!findLoggerOptions(cr)) return false;
         if (!findAccessLogOptions(cr)) return false;
@@ -185,6 +187,12 @@ bool OptionContainer::readinStdin() {
 }
 
 // PRIVATE 
+
+void OptionContainer::setDefaults()
+{
+    e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, "access.log", true);
+    log.log_access = true;
+}
 
 bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 {
@@ -482,12 +490,18 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 {
     LoggerConfigurator loggerConf(&e2logger);
 
-    logger.log_ssl_errors = cr.findoptionB("logsslerrors");
-
     {
         std::string temp = cr.findoptionS("set_info");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::info, temp))
+                return false;
+        }
+    }
+
+    {
+        std::string temp = cr.findoptionS("set_warning");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::warning, temp))
                 return false;
         }
     }
@@ -501,14 +515,80 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
     }
 
     {
-        std::string temp = cr.findoptionS("set_warning");
+        std::string temp = cr.findoptionS("set_accesslog");
         if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::warning, temp))
+            if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
+            log.log_access = true;
+        } else {
+            std::string file = cr.findoptionS("loglocation");
+            if (!file.empty()) {
+                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, file))
+                    return false;
+                log.log_access = true;
+            }
         }
     }
 
-    logger.udp_source_port = cr.findoptionIWithDefault("udp_source_port",6000,64000,39000);
+    {
+        std::string temp = cr.findoptionS("set_requestlog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::requestlog, temp))
+                return false;
+            log.log_requests = true;
+        } else {
+            std::string file = cr.findoptionS("rqloglocation");
+            if (!file.empty()) {
+                if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, file))
+                    return false;
+                log.log_requests = true;
+            }
+        }
+    }
+
+    {
+        std::string temp = cr.findoptionS("set_responselog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::responselog, temp))
+                return false;
+            log.log_responses = true;
+        } else {
+            log.log_responses = false;
+        }
+    }
+
+    {
+        std::string temp = cr.findoptionS("set_alertlog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::alertlog, temp))
+                return false;
+            log.log_alerts = true;
+        } else {
+            log.log_alerts = false;
+        }
+    }
+
+    if (cr.findoptionB("tag_logs")) {
+        e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::responselog, false, true, false, false, false, false);
+        e2logger.setFormat(LoggerSource::alertlog, false, true, false, false, false, false);
+    }
+
+    {        
+        String temp = cr.findoptionS("set_dstatslog");
+        if (!temp.empty()) {
+            if (!loggerConf.configure(LoggerSource::dstatslog, temp))
+                return false;
+            dstat.dstat_log_flag = true;
+        } else {
+            if ((dstat.dstat_location = cr.findoptionS("dstatlocation")) != "") {
+                if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat.dstat_location))
+                    return false;
+                dstat.dstat_log_flag = true;
+            }
+        }
+    }
 
     {
         if (cr.findoptionB("logsyslog")) {
@@ -519,94 +599,14 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         }     
     }
 
-    {
-        String temp = cr.findoptionS("set_accesslog");
-        if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::accesslog, temp))
-                return false;
-        } else {
-                log.log_location = cr.findoptionS("loglocation");
-                if (log.log_location.empty()) {
-                    log.log_location = __LOGLOCATION;
-                    log.log_location += "/access.log";
-                }
-                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
-                    return false;
-            }
-    }
-
-    logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
-    loggerConf.debugformat(logger.debug_format);
-
-    if (cr.findoptionB("tag_logs")) {
-        e2logger.setFormat(LoggerSource::accesslog, false, true, false, false, false, false);
-        e2logger.setFormat(LoggerSource::requestlog, false, true, false, false, false, false);
-        e2logger.setFormat(LoggerSource::responselog, false, true, false, false, false, false);
-        e2logger.setFormat(LoggerSource::alertlog, false, true, false, false, false, false);
-    }
-
-    {
-        String temp = cr.findoptionS("set_requestlog");
-        if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::requestlog, temp))
-                return false;
-            log.log_requests = true;
-        } else {
-            if ((log.RQlog_location = cr.findoptionS("rqloglocation")) == "") {
-                log.log_requests = false;
-            } else {
-                log.log_requests = true;
-                if (!e2logger.setLogOutput(LoggerSource::requestlog, LoggerDestination::file, log.RQlog_location))
-                    return false;
-            }
-        }
-    }
-
-    {
-        String temp = cr.findoptionS("set_responselog");
-        if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::responselog, temp))
-                return false;
-            log.log_responses = true;
-        } else {
-                log.log_responses = false;
-        }
-    }
-
-    {
-        String temp = cr.findoptionS("set_alertlog");
-        if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::alertlog, temp))
-                return false;
-            log.log_alerts = true;
-        } else {
-                log.log_alerts = false;
-        }
-    }
-
-    {
-        dstat.dstat_log_flag = false;
-        String temp = cr.findoptionS("set_dstatslog");
-        if (!temp.empty()) {
-            if (!loggerConf.configure(LoggerSource::dstatslog, temp))
-                return false;
-            dstat.dstat_log_flag = true;
-        } else {
-            if ((dstat.dstat_location = cr.findoptionS("dstatlocation")) == "") {
-                dstat.dstat_log_flag = false;
-            } else {
-                dstat.dstat_log_flag = true;
-                if (!e2logger.setLogOutput(LoggerSource::dstatslog, LoggerDestination::file, dstat.dstat_location))
-                    return false;
-            }
-        }
-    }
 
     {
         std::string temp = cr.findoptionS("set_storytrace");
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::storytrace, temp))
                 return false;
+            logger.SB_trace = true;
+            e2logger.enable(LoggerSource::storytrace);
         }
     }
 
@@ -625,6 +625,9 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
     }
 
 
+    logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
+    loggerConf.debugformat(logger.debug_format);
+
     {
         std::deque<String> *temp = cr.findoptionM("debuglevel");
         if ( temp && !temp->empty()) {
@@ -633,6 +636,11 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             }
         }
     }
+
+
+    logger.udp_source_port = cr.findoptionIWithDefault("udp_source_port",6000,64000,39000);
+    logger.log_ssl_errors = cr.findoptionB("logsslerrors");
+
 
     return true;
 
