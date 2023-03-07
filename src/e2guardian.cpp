@@ -89,9 +89,11 @@ int main(int argc, char *argv[]) {
 //    E2LOGGER_info("Start ", prog_name );  // No we are not starting here - we may be stopping, reloading etc
 
 #ifdef DEBUG_LOW
-    e2logger.enable(LoggerSource::debug);
-    DEBUG_debug("Running in debug_low mode...");
+    e2logger.enable(LoggerSource::debug);  // This is only for backward compatibilty with previous version
+    // setting all debug features should be done in e2guardian.conf with the debuglevel setting
 
+    // DEBUG_LOW mode is not suitable for production use so warn the user that is switched on
+    E2LOGGER_info("Running in debug_low mode...");
 #endif
 
 
