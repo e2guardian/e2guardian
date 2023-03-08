@@ -707,6 +707,15 @@ int Socket::startSslServer(X509 *x, EVP_PKEY *privKey, std::string &set_cipher_l
         return -1;
     }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    if (SSL_CTX_set_ecdh_auto(ctx, 1) <= 0) {
+#ifdef NETDEBUG
+        std::cout << thread_id << "SSL_CTX_set_ecdh_auto returned error" << std::endl;
+#endif
+        log_ssl_errors("SSL_CTX_set_ecdh_auto returned error", "");
+    }
+#endif
+ 
     //set the timeout to match firefox
     if (SSL_CTX_set_timeout(ctx, 130l) < 1) {
         cleanSsl();
