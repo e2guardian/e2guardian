@@ -132,7 +132,7 @@ LOptionContainer::LOptionContainer(int load_id)
 }
 
 
-const char *LOptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl)
+bool LOptionContainer::inSiteList(String &url, ListContainer *lc, bool ip, bool ssl, String &match)
 {
     String lastcategory;
     url.removeWhiteSpace(); // just in case of weird browser crap
@@ -141,30 +141,33 @@ const char *LOptionContainer::inSiteList(String &url, ListContainer *lc, bool ip
     if (url.contains("/")) {
         url = url.before("/"); // chop off any path after the domain
     }
-    const char *i;
+    //const char *i;
+    bool i;
+    String result;
     //bool isipurl = isIPHostname(url);
     while (url.contains(".")) {
-        i = lc->findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
+        i = lc->findInList(url.toCharArray(), lastcategory, match, result);
+        if (i ) {
             return i; // exact match
         }
         url = url.after("."); // check for being in higher level domains
     }
     if (url.length() > 1) { // allows matching of .tld
         url = "." + url;
-        i = lc->findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
+        i = lc->findInList(url.toCharArray(), lastcategory, match, result);
+        if (i ) {
             return i; // exact match
         }
     }
-    return NULL; // and our survey said "UUHH UURRGHH"
+    return false; // and our survey said "UUHH UURRGHH"
 }
 
 // look in given URL list for given URL
-char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool ssl)
+bool LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool ssl, String &match)
 {
     unsigned int fl;
-    char *i;
+    //char *i;
+    bool i = false;
     String lastcategory;
     String foundurl;
 
@@ -186,51 +189,33 @@ char *LOptionContainer::inURLList(String &url, ListContainer *lc, bool ip, bool 
 
     DEBUG_debug("inURLList (processed): ", url);
     while (url.before("/").contains(".")) {
-        i = lc->findStartsWith(url.toCharArray(), lastcategory);
-        if (i != NULL) {
-            foundurl = i;
+        i = lc->findStartsWith(url.toCharArray(), lastcategory, match);
+        if (i) {
+            foundurl = match;
             fl = foundurl.length();
             DEBUG_debug("foundurl: ", foundurl, ":", foundurl.length());
             DEBUG_debug("url: ", url, ":", fl);
             if (url.length() > fl) {
                 if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                    return i; // matches /blah/ or /blah/foo but not /blahfoo
+                    return true; // matches /blah/ or /blah/foo but not /blahfoo
                 }
             } else {
-                return i; // exact match
+                return true; // exact match
             }
         }
         url = url.after("."); // check for being in higher level domains
     }
-    return NULL;
+    return false;
 }
 
-#ifdef NOTDEF
-bool LOptionContainer::doReadItemList(const char *filename, ListContainer *lc, const char *fname, bool swsort)
-{
-    bool result = lc->readItemList(filename, false, 0);
-    if (!result) {
-        E2LOGGER_error("Error opening ", fname);
-        return false;
-    }
-    if (swsort)
-        lc->doSort(true);
-    else
-        lc->doSort(false);
-    return true;
-}
-#endif
 
-bool LOptionContainer::inExceptionIPList(const std::string *ip, std::string *&host)
-{
-    return exception_ip_list.inList(*ip, host);
-}
 
 // TODO: Filter rules should migrate to FOptionContainer.cpp ?  -- No, these are not filtergroup rules but nmaybe to their own cpp??
 
 bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::string *host, bool *block, bool *part_block, bool *isexception, String url)
 {
     String temp;
+    String match;
     for (std::list<struct room_item>::const_iterator i = rooms.begin(); i != rooms.end(); ++i) {
         if (i->iplist->inList(ip, host)) {
             DEBUG_debug(" IP is in room: ", i->name);
@@ -238,7 +223,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
             ListContainer *lc;
             if (i->sitelist) {
                 lc = i->sitelist;
-                if (inSiteList(temp, lc, false, false)) {
+                if (inSiteList(temp, lc, false, false, match)) {
                     DEBUG_debug(" room site exception found: ");
                     *isexception = true;
                     room = i->name;
@@ -246,7 +231,7 @@ bool LOptionContainer::inRoom(const std::string &ip, std::string &room, std::str
                 }
             }
             temp = url;
-            if (i->urllist && inURLList(temp, i->urllist, false, false)) {
+            if (i->urllist && inURLList(temp, i->urllist, false, false, match)) {
                 DEBUG_debug(" room url exception found: ");
                 *isexception = true;
                 room = i->name;

@@ -561,12 +561,13 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
         std::stable_sort(datamaplist.begin(), datamaplist.end());
         issorted = true;
         if(false) {   // make true for testing
+            String match, result;
             for (auto item : datamaplist) {
                 std::cerr << item.key << " mapped to " << item.group << std::endl;
             }
             std::cerr << "End of list" << std::endl;
             String t = "philip";
-            String tg = getMapData(t);
+            String tg = getMapData(t, match, result);
             std::cerr << "Search for philip got " << tg.c_str() << std::endl;
         }
     }
@@ -688,7 +689,8 @@ bool ListContainer::readAnotherItemList(const char *filename, const char *list_p
 
 // for item lists - is this item in the list?
 bool ListContainer::inList(const char *string, String &lastcategory) {
-    if (findInList(string, lastcategory) != NULL) {
+    String match, result;
+    if (findInList(string, lastcategory, match, result)) {
         return true;
     }
     return false;
@@ -737,24 +739,28 @@ bool ListContainer::inListStartsWith(const char *string, String &lastcategory) {
 }
 
 // find pointer to the part of the data array containing this string
-const char *ListContainer::findInList(const char *string, String &lastcategory) {
+bool ListContainer::findInList(const char *string, String &lastcategory, String &match, String &result) {
     if (isNow()) {
         if (is_iplist) {
             if (is_map) {
                 std::string sstring = string;
                 String rcs = getIPMapData(sstring);
-                if (rcs != "")
-                    return rcs.toCharArray();
-            } else if (inIPList(string) != NULL) {
+                if (rcs != "") {
+                    result = rcs;
+                    return true;
+                }
+            } else if (inIPList(string, match)) {
                 lastcategory = category;
-                return "";    //TODO return IP/IPblock/IPrange matched
+                //match = "";    //TODO return IP/IPblock/IPrange matched
+                return true;
             }
         } else if (is_map) {
             String sstring;
             sstring = string;
-            String rcs = getMapData(sstring);
-            if (rcs != "")
-                return rcs.c_str();
+            auto rcs = getMapData(sstring, match, result);
+            if (rcs)  {
+                return true;
+            }
         } else if (items > 0) {
             int r;
             if (isSW) {
@@ -764,83 +770,59 @@ const char *ListContainer::findInList(const char *string, String &lastcategory) 
             }
             if (r >= 0) {
                 lastcategory = category;
-                return (data + list[r]);
+                match = (data + list[r]);
+                return true;
             }
         }
-        const char *rc;
+        bool rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findInList(string, lastcategory);
-            if (rc != NULL) {
+            rc = (*o.lm.l[morelists[i]]).findInList(string, lastcategory, match, result);
+            if (rc) {
                 //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
                 return rc;
             }
         }
     }
-    return NULL;
+    return false;
 }
 
 // find an item in the list which starts with this
-char *ListContainer::findStartsWith(const char *string, String &lastcategory) {
+bool ListContainer::findStartsWith(const char *string, String &lastcategory, String &match) {
     if (isNow()) {
         if (items > 0) {
             int r = search(&ListContainer::greaterThanSW, 0, items - 1, string);
             if (r >= 0) {
                 lastcategory = category;
-                return (data + list[r]);
+                match = (data + list[r]);
+                return true;
             }
         }
-        char *rc;
+        bool rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findStartsWith(string, lastcategory);
-            if (rc != NULL) {
-                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+            rc = (*o.lm.l[morelists[i]]).findStartsWith(string, lastcategory, match);
+            if (rc) {
                 return rc;
             }
         }
     }
-    return NULL;
+    return false;
 }
 
-char *ListContainer::findStartsWithPartial(const char *string, String &lastcategory) {
-    if (isNow()) {
-        if (items > 0) {
-            int r = search(&ListContainer::greaterThanSW, 0, items - 1, string);
-            if (r >= 0) {
-                lastcategory = category;
-                return (data + list[r]);
-            }
-            if (r < -1) {
-                r = 0 - r - 2;
-                lastcategory = category;
-                return (data + list[r]); // nearest match
-            }
-        }
-        char *rc;
-        for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findStartsWithPartial(string, lastcategory);
-            if (rc != NULL) {
-                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
-                return rc;
-            }
-        }
-    }
-    return NULL;
-}
 
-char *ListContainer::findEndsWith(const char *string, String &lastcategory) {
+bool ListContainer::findEndsWith(const char *string, String &lastcategory, String &match) {
     if (isNow()) {
         if (items > 0) {
             int r = search(&ListContainer::greaterThanEW, 0, items - 1, string);
             if (r >= 0) {
                 lastcategory = category;
+                match = (data + list[r]);
                 return (data + list[r]);
             }
         }
-        char *rc;
+        bool rc;
         for (unsigned int i = 0; i < morelists.size(); i++) {
-            rc = (*o.lm.l[morelists[i]]).findEndsWith(string, lastcategory);
-            if (rc != NULL) {
-                //lastcategory = (*o.lm.l[morelists[i]]).lastcategory;
+            rc = (*o.lm.l[morelists[i]]).findEndsWith(string, lastcategory, match);
+            if (rc) {
                 return rc;
             }
         }
@@ -1798,10 +1780,11 @@ String ListContainer::searchDataMap(int a, int s, const String  &key) {
     }
 }
 
-String ListContainer::getMapData(String &key) {
+bool ListContainer::getMapData(String &key, String &match, String &result) {
     if(datamaplist.empty())
-        return "";
-    return  searchDataMap(0,datamaplist.size() - 1,key);
+        return false;
+    result = searchDataMap(0,datamaplist.size() - 1,key);
+    return true;
 }
 
 String ListContainer::getIPMapData(std::string &ip) {
@@ -2165,7 +2148,8 @@ String ListContainer::getListCategoryAtD(unsigned int index) {
 
 
 // search for IP in list of individual IPs, ranges, subnets
-const char *ListContainer::inIPList(const std::string &ipstr) {
+bool ListContainer::inIPList(const std::string &ipstr, String &match) {
+//    const char *ListContainer::inIPList(const std::string &ipstr) {
     struct in_addr addr;
     inet_aton(ipstr.c_str(), &addr);
     uint32_t ip = ntohl(addr.s_addr);
@@ -2173,7 +2157,7 @@ const char *ListContainer::inIPList(const std::string &ipstr) {
     // start with individual IPs
     if ((iplist.size() > 0) && std::binary_search(iplist.begin(), iplist.end(), ip)) {
         // only return a hostname if that's what we matched against
-        return "";
+        return true;
     }
 
     // ranges
@@ -2183,8 +2167,8 @@ const char *ListContainer::inIPList(const std::string &ipstr) {
                 String ret = hIPtoChar(i->startaddr);
                 ret += "-";
                 ret += hIPtoChar(i->endaddr);
-//            return ret;
-                return "";
+                match = ret;
+                return true;
             }
         }
     }
@@ -2196,14 +2180,14 @@ const char *ListContainer::inIPList(const std::string &ipstr) {
                 String ret = hIPtoChar(i->maskedaddr);
                 ret += "/";
                 ret += hIPtoChar(i->mask);
-                //return ret;
-                return "";
+                match = ret;
+                return true;
             }
         }
     }
 
     DEBUG_debug("inIPList ", category, " no match for ", ipstr);
-    return NULL;
+    return false;
 }
 
 const char *ListContainer::hIPtoChar(uint32_t ip) {

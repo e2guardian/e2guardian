@@ -141,12 +141,12 @@ class ListContainer
     bool inListEndsWith(const char *string, String &lastcategory);
     bool inListStartsWith(const char *string, String &lastcategory);
 
-    const char *findInList(const char *string, String &lastcategory);
+    bool findInList(const char *string, String &lastcategory, String &match, String &result);
     void dump_data();
 
-    char *findEndsWith(const char *string, String &lastcategory);
-    char *findStartsWith(const char *string, String &lastcategory);
-    char *findStartsWithPartial(const char *string, String &lastcategory);
+    bool findEndsWith(const char *string, String &lastcategory, String &match);
+    bool findStartsWith(const char *string, String &lastcategory, String &match);
+    char *findStartsWithPartial(const char *string, String &lastcategory, String &match);
     String searchIPMap(int a, int s, const uint32_t &ip);
     String searchDataMap(int a, int s, const String  &key);
     String inSubnetMap(const uint32_t &ip);
@@ -272,11 +272,11 @@ class ListContainer
     bool readTimeTag(String *tag, TimeLimit &tl);
     bool readTimeBand(String &tag, TimeLimit &tl);
     int getCategoryIndex(String *lcat);
-    const char *inIPList(const std::string &ipstr );
+    bool inIPList(const std::string &ipstr ,String &match);
     String getIPMapData(std::string &ip);
     const char *hIPtoChar(uint32_t ip);
     String inIPMap(const uint32_t &ip);
-    String getMapData(String &key);
+    bool getMapData(String &key, String &match, String &result);
 };
 
 #endif
