@@ -323,6 +323,8 @@ ifnot(returnset) return true
 function(nologcheck)
 if(extensionin,nolog) return setnolog
 if(urlin,nolog) return setnolog
+# Only set alerts for blocked urls
+ifnot(blockset) return false
 if(categoryin,alert) setalert
 
 function(is_search_term)
