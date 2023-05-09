@@ -9,6 +9,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+#include <cstdint>
 
 #include <syslog.h>
 #include <algorithm>
@@ -27,7 +28,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <list>
-#include <cstdint>
+
 
 // GLOBALS
 
