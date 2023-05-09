@@ -17,6 +17,7 @@
 #include "String.hpp"
 #include "RegExp.hpp"
 #include "IPList.hpp"
+#include <cstdint>
 
 // DECLARATIONS
 
