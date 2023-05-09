@@ -8,6 +8,7 @@
 // INCLUDES
 
 #include <list>
+#include <cstdint>
 
 // DECLARATIONS
 
