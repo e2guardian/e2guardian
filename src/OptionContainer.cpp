@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+#include <cstdint>
 
 #include "ConfigVar.hpp"
 #include "OptionContainer.hpp"
