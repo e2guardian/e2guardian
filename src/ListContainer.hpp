@@ -26,18 +26,6 @@ struct TimeLimit {
     String days, timetag;
 };
 
-#ifndef __HPP_IPLIST      // only needed if IPList.hpp is gone
-// convenience structs for subnets and IP ranges
-struct ipl_subnetstruct {
-    uint32_t maskedaddr;
-    uint32_t mask;
-};
-
-struct ipl_rangestruct {
-    uint32_t startaddr;
-    uint32_t endaddr;
-}
-#endif
 
 // class for linking IPs to filter groups, complete with comparison operators
 // allowing standard C++ sort to work
@@ -88,16 +76,23 @@ public:
 };
 
 // structs linking subnets and IP ranges to filter groups
-struct subnetstruct {
-    uint32_t maskedaddr;
-    uint32_t mask;
-    String group;
-};
+//struct subnetstruct {
+    //uint32_t maskedaddr;
+    //uint32_t mask;
+    //String group;
+//};
 
-struct rangestruct {
+class rangestruct {
+public:
     uint32_t startaddr;
     uint32_t endaddr;
     String group;
+    int operator<(const rangestruct &a) const
+    {
+       if (startaddr < a.startaddr)
+           return 1;
+       return 0;
+    }
 };
 
 time_t getFileDate(const char *filename);
@@ -149,7 +144,7 @@ class ListContainer
     char *findStartsWithPartial(const char *string, String &lastcategory, String &match);
     String searchIPMap(int a, int s, const uint32_t &ip);
     String searchDataMap(int a, int s, const String  &key);
-    String inSubnetMap(const uint32_t &ip);
+   // String inSubnetMap(const uint32_t &ip);
     String inIPRangeMap(const uint32_t &ip);
 
     int getListLength()
@@ -235,11 +230,11 @@ class ListContainer
 
     //iplists
     std::vector<uint32_t> iplist;
-    std::list<ipl_rangestruct> iprangelist;
-    std::list<ipl_subnetstruct> ipsubnetlist;
+    std::vector<ipl_rangestruct> iprangelist;
+    //std::list<ipl_subnetstruct> ipsubnetlist;
     std::vector<ipmap> ipmaplist;
-    std::list<rangestruct> ipmaprangelist;
-    std::list<subnetstruct> ipmapsubnetlist;
+    std::vector<rangestruct> ipmaprangelist;
+   // std::list<subnetstruct> ipmapsubnetlist;
     //std::list<datamap> datamaplist;
     std::vector<datamap> datamaplist;
 

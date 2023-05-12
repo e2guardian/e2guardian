@@ -110,7 +110,7 @@ void ListContainer::reset() {
     if (is_iplist) {
         iplist.clear();
         iprangelist.clear();
-        ipsubnetlist.clear();
+    //    ipsubnetlist.clear();
     }
 }
 
@@ -239,7 +239,8 @@ void ListContainer::readPhraseListHelper(String line, bool isexception, int cati
     if (weighting != 0) {
         // this is a weighted phrase
         type = 1;
-        line = line.before("><") + ">";
+        line = line.before("><");
+        line += ">";
     } else {
         if (isexception) {
             // this is an exception phrase
@@ -477,6 +478,7 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
     if (is_iplist) {
         if (is_map) {
             std::stable_sort(ipmaplist.begin(), ipmaplist.end());
+            std::stable_sort(ipmaprangelist.begin(), ipmaprangelist.end());
             issorted = true;
             // temp code for testing
             if (false) {
@@ -553,7 +555,8 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
                 }
             }
         } else {
-            std::sort(iplist.begin(), iplist.end());
+            std::stable_sort(iplist.begin(), iplist.end());
+            std::stable_sort(iprangelist.begin(), iprangelist.end());
             issorted = true;
 
         }
@@ -1532,7 +1535,7 @@ void ListContainer::addToIPList(String &line) {
 
     RegResult Rre;
 
-    // store the IP address (numerically, not as a string) and filter group in either the IP list, subnet list or range list
+    // store the IP address (numerically, not as a string) and filter group in either the IP list or range list
     if (matchIP.match(line.toCharArray(), Rre)) {
         struct in_addr address;
         if (inet_aton(line.toCharArray(), &address)) {
@@ -1545,12 +1548,11 @@ void ListContainer::addToIPList(String &line) {
         String subnet(line.before("/"));
         String mask(line.after("/"));
         if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-            ipl_subnetstruct s;
-            uint32_t addr = ntohl(address.s_addr);
-            s.mask = ntohl(addressmask.s_addr);
-            // pre-mask the address for quick comparison
-            s.maskedaddr = addr & s.mask;
-            ipsubnetlist.push_back(s);
+            ipl_rangestruct s;
+            s.startaddr = ntohl(address.s_addr);
+            uint32_t imask = ntohl(addressmask.s_addr);
+            s.endaddr = s.startaddr | ~imask;
+            iprangelist.push_back(s);
         }
     } else if (matchCIDR.match(line.toCharArray(), Rre)) {
         struct in_addr address;
@@ -1562,12 +1564,11 @@ void ListContainer::addToIPList(String &line) {
         if (host_part > -1) {
             String mask = (0xFFFFFFFF << host_part);
             if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-                ipl_subnetstruct s;
-                uint32_t addr = ntohl(address.s_addr);
-                s.mask = ntohl(addressmask.s_addr);
-                // pre-mask the address for quick comparison
-                s.maskedaddr = addr & s.mask;
-                ipsubnetlist.push_back(s);
+                ipl_rangestruct s;
+                s.startaddr = ntohl(address.s_addr);
+                uint32_t imask = ntohl(addressmask.s_addr);
+                s.endaddr = s.startaddr | ~imask;
+                iprangelist.push_back(s);
             }
         }
     } else if (matchRange.match(line.toCharArray(), Rre)) {
@@ -1652,13 +1653,12 @@ void ListContainer::addToIPMap(String &line) {
         String subnet(key.before("/"));
         String mask(key.after("/"));
         if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-            subnetstruct s;
-            int addr = ntohl(address.s_addr);
-            s.mask = ntohl(addressmask.s_addr);
-            // pre-mask the address for quick comparison
-            s.maskedaddr = addr & s.mask;
+            rangestruct s;
+            s.startaddr = ntohl(address.s_addr);
+            uint32_t imask = ntohl(addressmask.s_addr);
+            s.endaddr = s.startaddr | ~imask;
             s.group = value;
-            ipmapsubnetlist.push_back(s);
+            ipmaprangelist.push_back(s);
         }
     } else if (matchCIDR.match(key.toCharArray(), Rre)) {
 //        std::cerr << "Is CIDR " << key << std::endl;
@@ -1671,13 +1671,12 @@ void ListContainer::addToIPMap(String &line) {
         if (host_part > -1) {
             String mask = (0xFFFFFFFF << host_part);
             if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-                subnetstruct s;
-                uint32_t addr = ntohl(address.s_addr);
-                s.mask = ntohl(addressmask.s_addr);
-                // pre-mask the address for quick comparison
-                s.maskedaddr = addr & s.mask;
+                rangestruct s;
+                s.startaddr = ntohl(address.s_addr);
+                uint32_t imask = ntohl(addressmask.s_addr);
+                s.endaddr = s.startaddr | ~imask;
                 s.group = value;
-                ipmapsubnetlist.push_back(s);
+                ipmaprangelist.push_back(s);
             }
         }
     } else if (matchRange.match(key.toCharArray(), Rre)) {
@@ -1728,21 +1727,33 @@ String ListContainer::searchIPMap(int a, int s, const uint32_t &ip) {
 }
 
 // search subnet list for given IP & return filter group or -1
-String ListContainer::inSubnetMap(const uint32_t &ip) {
-    for (std::list<subnetstruct>::const_iterator i = ipmapsubnetlist.begin(); i != ipmapsubnetlist.end(); ++i) {
-        if (i->maskedaddr == (ip & i->mask)) {
-            return i->group;
-        }
-    }
-    return "";
-}
+//String ListContainer::inSubnetMap(const uint32_t &ip) {
+    //for (std::list<subnetstruct>::const_iterator i = ipmapsubnetlist.begin(); i != ipmapsubnetlist.end(); ++i) {
+        //if (i->maskedaddr == (ip & i->mask)) {
+            //return i->group;
+        //}
+    //}
+    //return "";
+//}
 
 // search range list for a range containing given IP & return filter group or -1
 String ListContainer::inIPRangeMap(const uint32_t &ip) {
-    for (std::list<rangestruct>::const_iterator i = ipmaprangelist.begin(); i != ipmaprangelist.end(); ++i) {
-        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-            return i->group;
-        }
+    if (!ipmaprangelist.empty())
+            {
+                        rangestruct t;
+                        t.startaddr = ip;
+                        auto one_above = std::upper_bound(ipmaprangelist.begin(), ipmaprangelist.end(),t);
+                        if (one_above != ipmaprangelist.begin()) {
+                            auto i = one_above;
+                            i--;  // move pointer to record which is the highest value that is less or equal to ip.
+                            if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+                                return i->group;
+                            }
+                        }
+    //for (std::list<rangestruct>::const_iterator i = ipmaprangelist.begin(); i != ipmaprangelist.end(); ++i) {
+        //if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+            //return i->group;
+        //}
     }
     return "";
 }
@@ -1800,12 +1811,12 @@ String ListContainer::getIPMapData(std::string &ip) {
         DEBUG_debug("Matched IP ", ip, " to straight IP list");
         return rfg;
     }
-    fgs = inSubnetMap(addr);
-    if (fgs != "") {
-        rfg = fgs;
-        DEBUG_debug("Matched IP ", ip, " to subnet");
-        return rfg;
-    }
+    //fgs = inSubnetMap(addr);
+    //if (fgs != "") {
+        //rfg = fgs;
+        //DEBUG_debug("Matched IP ", ip, " to subnet");
+        //return rfg;
+    //}
     fgs = inIPRangeMap(addr);
     if (fgs != "") {
         rfg = fgs;
@@ -2162,7 +2173,7 @@ bool ListContainer::inIPList(const std::string &ipstr, String &match) {
 
     // ranges
     if (iprangelist.size() > 0) {
-        for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+        for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
             if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
                 String ret = hIPtoChar(i->startaddr);
                 ret += "-";
@@ -2174,17 +2185,17 @@ bool ListContainer::inIPList(const std::string &ipstr, String &match) {
     }
 
     // subnets
-    if (ipsubnetlist.size() > 0) {
-        for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
-            if (i->maskedaddr == (ip & i->mask)) {
-                String ret = hIPtoChar(i->maskedaddr);
-                ret += "/";
-                ret += hIPtoChar(i->mask);
-                match = ret;
-                return true;
-            }
-        }
-    }
+    //if (ipsubnetlist.size() > 0) {
+        //for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
+            //if (i->maskedaddr == (ip & i->mask)) {
+                //String ret = hIPtoChar(i->maskedaddr);
+                //ret += "/";
+                //ret += hIPtoChar(i->mask);
+                //match = ret;
+                //return true;
+            //}
+        //}
+    //}
 
     DEBUG_debug("inIPList ", category, " no match for ", ipstr);
     return false;
