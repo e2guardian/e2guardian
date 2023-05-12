@@ -9,6 +9,7 @@
 
 // INLCUDES
 
+#include <cstdint>
 #include <vector>
 #include <deque>
 #include <map>
