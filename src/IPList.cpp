@@ -51,11 +51,26 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
     }
 
     // ranges
-    for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
-        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-            delete host;
-            host = NULL;
-            return true;
+    //for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+        //if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+            //delete host;
+            //host = NULL;
+            //return true;
+        //}
+    //}
+    if (!iprangelist.empty())
+    {
+        ipl_rangestruct t;
+        t.startaddr = ip;
+        auto one_above = std::upper_bound(iprangelist.begin(), iprangelist.end(),t);
+        if (one_above != iprangelist.begin()) {
+            auto i = one_above;
+            i--;  // move pointer to record which is the highest value that is less or equal to ip.
+            if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+                delete host;
+                host = NULL;
+                return true;
+            }
         }
     }
 

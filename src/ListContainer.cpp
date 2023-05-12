@@ -754,7 +754,6 @@ bool ListContainer::findInList(const char *string, String &lastcategory, String 
                 }
             } else if (inIPList(string, match)) {
                 lastcategory = category;
-                //match = "";    //TODO return IP/IPblock/IPrange matched
                 return true;
             }
         } else if (is_map) {
@@ -1750,10 +1749,6 @@ String ListContainer::inIPRangeMap(const uint32_t &ip) {
                                 return i->group;
                             }
                         }
-    //for (std::list<rangestruct>::const_iterator i = ipmaprangelist.begin(); i != ipmaprangelist.end(); ++i) {
-        //if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-            //return i->group;
-        //}
     }
     return "";
 }
@@ -2168,21 +2163,38 @@ bool ListContainer::inIPList(const std::string &ipstr, String &match) {
     // start with individual IPs
     if ((iplist.size() > 0) && std::binary_search(iplist.begin(), iplist.end(), ip)) {
         // only return a hostname if that's what we matched against
+        match = hIPtoChar(ip);
         return true;
     }
 
     // ranges
-    if (iprangelist.size() > 0) {
-        for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+    if (!iprangelist.empty())
+    {
+        ipl_rangestruct t;
+        t.startaddr = ip;
+        auto one_above = std::upper_bound(iprangelist.begin(), iprangelist.end(),t);
+        if (one_above != iprangelist.begin()) {
+            auto i = one_above;
+            i--;  // move pointer to record which is the highest value that is less or equal to ip.
             if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-                String ret = hIPtoChar(i->startaddr);
-                ret += "-";
-                ret += hIPtoChar(i->endaddr);
-                match = ret;
+                match = hIPtoChar(i->startaddr);
+                match += "-";
+                match += hIPtoChar(i->endaddr);
                 return true;
             }
         }
     }
+    //if (iprangelist.size() > 0) {
+        //for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+            //if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+                //String ret = hIPtoChar(i->startaddr);
+                //ret += "-";
+                //ret += hIPtoChar(i->endaddr);
+                //match = ret;
+                //return true;
+            //}
+        //}
+    //}
 
     // subnets
     //if (ipsubnetlist.size() > 0) {
