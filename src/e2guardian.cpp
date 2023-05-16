@@ -207,6 +207,12 @@ int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT
                         std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
                                   << std::endl
                                   << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
+                        // temporary check code
+                        //{
+                            //unsigned int ilen = 0;
+                            //ilen = ~ilen;
+                            //std::cout << " max int  is " << ilen << std::endl;
+                        //}
                         ret = 0;
                         return E2_EXIT;
                     case 'N':

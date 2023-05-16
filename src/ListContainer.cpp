@@ -448,7 +448,9 @@ ListContainer::ifsreadItemList(std::istream *input, String basedir, const char *
                     if (re.match(temp.toCharArray(), Rre)) {
                         hostname = temp.before(":");
                         url = temp.after("/");
-                        temp = hostname + "/" + url;
+                        temp = hostname;
+                        temp += "/";
+                        temp += url;
                     }
                 }
             }
