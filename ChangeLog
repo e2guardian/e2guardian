@@ -1,6 +1,30 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-version 5.5.3
+version 5.5.3pre
+
+March to May 2023
+
+    Fix #773 - when blocking match is on an individual IP, match is 
+       returned blank.
+    Add binary IP search to rooms feature
+    Merge pull request #772 from Arjow/v5.5
+       fixing error with uint32_t
+    Convert iprange and iprangemap lists to binary sort/search, remove 
+       ip mask lists, convert IP subnet and CIDR to internal rangelist.
+    Fix #770 - only write blocked url to alert.log
+    Fix #768 - findInList() (and other search functions) may return 
+       illegal address
+    Add rsync to docker image
+    Amend template config file to add missing set_storytrace and cover 
+       issues raised in #761
+    Comment out debug lines and tidy Logger code
+       Based on pull request #763 by KDGundermann
+    Add missing E2LOGGER_warning macro
+    Tidy storyboardtrace logic in OptionContainer
+    Fix #761 - dockermode settings for access.log overwritten when 
+       set_accesslog and loglocation missing from config file
+    Minor changes to e2guardian.cpp to clarify DEBUG_LOW usage
+    Fix #762 Inconsistent references to downloadmanagers
 
 February 2023
 
