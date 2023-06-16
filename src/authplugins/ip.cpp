@@ -88,8 +88,8 @@ class ipinstance : public AuthPlugin
 
     private:
     //std::vector<ip> iplist;
-    std::list<subnetstruct> ipsubnetlist;
-    std::list<rangestruct> iprangelist;
+    //std::list<subnetstruct> ipsubnetlist;
+    std::vector<rangestruct> iprangelist;
 
     int readIPMelangeList(const char *filename);
     int searchList(int a, int s, const uint32_t &ip);

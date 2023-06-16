@@ -34,11 +34,6 @@
 #include <sys/wait.h>
 #include <sys/select.h>
 
-//#ifdef ENABLE_SEGV_BACKTRACE
-//#include <execinfo.h>
-//#include <ucontext.h>
-//#endif
-
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/conf.h>
@@ -221,9 +216,6 @@ void stat_rec::close() {
 
 //bool gentle_in_progress = false;
 int top_child_fds; // cross platform maxchildren position in children array
-#ifdef HAVE_SYS_EPOLL_H
-//int serversockfd; // added PIP - may need to change
-#endif
 int failurecount;
 int serversocketcount;
 SocketArray serversockets; // the sockets we will listen on for connections
@@ -561,7 +553,7 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
 
         std::string where, what, how, cat, clienthost, from, who, mimetype, useragent, ssize, sweight, params, message_no;
         std::string stype, postdata, flags, searchterms;
-        int port = 80, isnaughty = 0, isexception = 0, code = 200, naughtytype = 0;
+        int port = 80, isnaughty = 0, isexception = 0, issemiexception = 0, code = 200, naughtytype = 0;
         int do_access_log = 0, do_alert_log =0;
         int cachehit = 0, wasinfected = 0, wasscanned = 0, filtergroup = 0;
         long tv_sec = 0, tv_usec = 0, endtv_sec = 0, endtv_usec = 0;
@@ -574,6 +566,8 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
             server = o.net.server_name;
         }
 
+        std::string semiexception_word = o.language_list.getTranslation(51);
+        semiexception_word = "*" + semiexception_word + "* ";
         std::string exception_word = o.language_list.getTranslation(51);
         exception_word = "*" + exception_word + "* ";
         std::string denied_word = o.language_list.getTranslation(52);
@@ -745,6 +739,9 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                         break;
                     case 34:
                         do_alert_log = atoi(logline.c_str());
+                        break;
+                    case 35:
+                        issemiexception = atoi(logline.c_str());
                         error = false;
                         break;
                 }
@@ -806,7 +803,11 @@ void log_listener(Queue<std::string> *log_Q, bool is_RQlog) {
                 else
                     what = denied_word + stype + "* " + what;
             } else if (isexception && (o.log.log_exception_hits == 2)) {
-                what = exception_word + what;
+                if (issemiexception) {
+                    what = semiexception_word + what;
+                } else {
+                    what = exception_word + what;
+                }
             }
 
             if (wasinfected)

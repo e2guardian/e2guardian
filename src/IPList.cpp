@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+#include <cstdint>
 #include "OptionContainer.hpp"
 #include "FOptionContainer.hpp"
 #include "Logger.hpp"
@@ -32,7 +33,7 @@ void IPList::reset()
 {
     iplist.clear();
     iprangelist.clear();
-    ipsubnetlist.clear();
+  //  ipsubnetlist.clear();
     hostlist.clear();
 }
 
@@ -51,22 +52,37 @@ bool IPList::inList(const std::string &ipstr, std::string *&host) const
     }
 
     // ranges
-    for (std::list<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
-        if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
-            delete host;
-            host = NULL;
-            return true;
+    //for (std::vector<ipl_rangestruct>::const_iterator i = iprangelist.begin(); i != iprangelist.end(); ++i) {
+        //if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+            //delete host;
+            //host = NULL;
+            //return true;
+        //}
+    //}
+    if (!iprangelist.empty())
+    {
+        ipl_rangestruct t;
+        t.startaddr = ip;
+        auto one_above = std::upper_bound(iprangelist.begin(), iprangelist.end(),t);
+        if (one_above != iprangelist.begin()) {
+            auto i = one_above;
+            i--;  // move pointer to record which is the highest value that is less or equal to ip.
+            if ((ip >= i->startaddr) && (ip <= i->endaddr)) {
+                delete host;
+                host = NULL;
+                return true;
+            }
         }
     }
 
     // subnets
-    for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
-        if (i->maskedaddr == (ip & i->mask)) {
-            delete host;
-            host = NULL;
-            return true;
-        }
-    }
+    //for (std::list<ipl_subnetstruct>::const_iterator i = ipsubnetlist.begin(); i != ipsubnetlist.end(); ++i) {
+        //if (i->maskedaddr == (ip & i->mask)) {
+            //delete host;
+            //host = NULL;
+            //return true;
+        //}
+    //}
 
     // hostnames
     // TODO - take in a suggested hostname, look up only if not supplied, and return suggestion if found
@@ -145,12 +161,12 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
             String subnet(line.before("/"));
             String mask(line.after("/"));
             if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-                ipl_subnetstruct s;
+                ipl_rangestruct s;
                 uint32_t addr = ntohl(address.s_addr);
-                s.mask = ntohl(addressmask.s_addr);
-                // pre-mask the address for quick comparison
-                s.maskedaddr = addr & s.mask;
-                ipsubnetlist.push_back(s);
+                uint32_t imask = ntohl(addressmask.s_addr);
+                s.startaddr = addr;
+                s.endaddr = addr | ~imask;
+                iprangelist.push_back(s);
             }
         } else if (matchCIDR.match(line.toCharArray(),Rre)) {
             struct in_addr address;
@@ -162,12 +178,12 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
             if (host_part > -1) {
                 String mask = (0xFFFFFFFF << host_part);
                 if (inet_aton(subnet.toCharArray(), &address) && inet_aton(mask.toCharArray(), &addressmask)) {
-                    ipl_subnetstruct s;
+                    ipl_rangestruct s;
                     uint32_t addr = ntohl(address.s_addr);
-                    s.mask = ntohl(addressmask.s_addr);
-                    // pre-mask the address for quick comparison
-                    s.maskedaddr = addr & s.mask;
-                    ipsubnetlist.push_back(s);
+                    uint32_t imask = ntohl(addressmask.s_addr);
+                    s.startaddr = addr;
+                    s.endaddr = addr | ~imask;
+                    iprangelist.push_back(s);
                 }
             }
         } else if (matchRange.match(line.toCharArray(),Rre)) {
@@ -191,30 +207,31 @@ bool IPList::ifsreadIPMelangeList(std::ifstream *input, bool checkendstring, con
     }
     DEBUG_trace("starting sort");
     std::sort(iplist.begin(), iplist.end());
+    std::sort(iprangelist.begin(), iprangelist.end());
     std::sort(hostlist.begin(), hostlist.end());
     DEBUG_trace("sort complete");
 #ifdef DEBUG_LOW
     DEBUG_debug("ip list dump:");
     std::vector<uint32_t>::iterator i = iplist.begin();
-    while (i != iplist.end()) {
+    while (i < iplist.end()) {
         DEBUG_debug("IP: ", String(*i));
         ++i;
     }
-    DEBUG_debug("subnet list dump:");
-    std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
-    while (j != ipsubnetlist.end()) {
-        DEBUG_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
-        ++j;
-    }
+    //DEBUG_debug("subnet list dump:");
+    //std::list<ipl_subnetstruct>::iterator j = ipsubnetlist.begin();
+    //while (j != ipsubnetlist.end()) {
+    //    DEBUG_debug("Masked IP: ", String(j->maskedaddr), " Mask: ", String(j->mask));
+    //    ++j;
+   // }
     DEBUG_debug("range list dump:");
-    std::list<ipl_rangestruct>::iterator k = iprangelist.begin();
-    while (k != iprangelist.end()) {
+    std::vector<ipl_rangestruct>::iterator k = iprangelist.begin();
+    while (k < iprangelist.end()) {
         DEBUG_debug("Start IP: ", String(k->startaddr), " End IP: ", String(k->endaddr));
         ++k;
     }
     DEBUG_debug("host list dump:");
     std::vector<String>::iterator l = hostlist.begin();
-    while (l != hostlist.end()) {
+    while (l < hostlist.end()) {
         DEBUG_debug("Hostname: ", *l );
         ++l;
     }

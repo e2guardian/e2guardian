@@ -316,15 +316,16 @@ bool ListMeta::inList(list_info &info, std::deque<String> &header, list_result &
 bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
     if (info.name == "") return false;
     int type = info.type;
-    const char *match;
+    //const char *match;
+    bool match;
    // String match;
     switch (type) {
         case LIST_TYPE_IP:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
-            if (match == NULL) {
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+               // res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -333,11 +334,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             break;
         case LIST_TYPE_IPMAP:
         case LIST_TYPE_MAP:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
-            if (match == NULL) {
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.result = match;
+              //  res.result = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -354,11 +355,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             return false;
             break;
         case LIST_TYPE_IPSITE:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
-            if (match == NULL) {
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+                //res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -366,11 +367,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_SITE :
-            match = inSiteList(tofind, info.list_ref, res.category,info.site_wild);
-            if (match == NULL) {
+            match = inSiteList(tofind, info.list_ref, res.category,info.site_wild, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+                //res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -378,11 +379,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_URL:
-            match = inURLList(tofind, info.list_ref, res.category,info.site_wild);
-            if (match == NULL) {
+            match = inURLList(tofind, info.list_ref, res.category,info.site_wild, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+                //res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -390,11 +391,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_SEARCH :
-            match = inSearchList(tofind, info.list_ref, res.category);
-            if (match == NULL) {
+            match = inSearchList(tofind, info.list_ref, res.category, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+              //  res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -403,11 +404,11 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             break;
         case LIST_TYPE_MIME:
         case LIST_TYPE_CATEGORY:
-            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category);
-            if (match == NULL) {
+            match = o.lm.l[info.list_ref]->findInList(tofind.toCharArray(), res.category, res.match, res.result);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
+              //  res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -415,11 +416,10 @@ bool ListMeta::inList(list_info &info, String &tofind, list_result &res) {
             }
             break;
         case LIST_TYPE_FILE_EXT:
-            match = o.lm.l[info.list_ref]->findEndsWith(tofind.toCharArray(), res.category);
-            if (match == NULL) {
+            match = o.lm.l[info.list_ref]->findEndsWith(tofind.toCharArray(), res.category, res.match);
+            if (!match) {
                 return false;
             } else {
-                res.match = match;
                 res.mess_no = info.mess_no;
                 res.log_mess_no = info.log_mess_no;
                 res.anon_log = info.anon_log;
@@ -486,14 +486,14 @@ bool ListMeta::readFile(const char *filename, const char *pwd, unsigned int *whi
 }
 
 
-const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory, bool &site_wild) {
+bool ListMeta::inSiteList(String &urlp, unsigned int list, String &lastcategory, bool &site_wild, String &match, String &result) {
 
     String url = urlp;
-    const char *i;
+    bool i;
     if (site_wild) {
         while (url.contains(".")) {
-            i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-            if (i != NULL) {
+            i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory, match, result);
+            if (i) {
                 return i; // exact match
             }
             url = url.after("."); // check for being in higher level domains
@@ -504,28 +504,29 @@ const char *ListMeta::inSiteList(String &urlp, unsigned int list, String &lastca
     }
     if(url.length() > 2)
     {
-        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory);
-        if (i != NULL) {
+        i = (*o.lm.l[list]).findInList(url.toCharArray(), lastcategory, match, result);
+        if (i) {
             return i; // exact match
         }
     }
-    return NULL; // and our survey said "UUHH UURRGHH"
+    return false;
 }
 
-const char *ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory) {
-    const char *i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory);
-    if (i != NULL) {
+bool ListMeta::inSearchList(String &words, unsigned int list, String &lastcategory, String &match, String &result) {
+    bool i = (*o.lm.l[list]).findInList(words.toCharArray(), lastcategory, match, result);
+    if (i) {
         return i; // exact match
     }
-    return NULL;
+    return false;
 }
 
 
 // look in given URL list for given URL
-char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &site_wild) {
+bool ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &site_wild, String &match, String &result) {
     String url = urlp;
     unsigned int fl;
-    char *i;
+    //char *i;
+    bool i;
     String foundurl;
     DEBUG_debug("inURLList: ", url);
 //    url.removeWhiteSpace(); // just in case of weird browser crap
@@ -546,25 +547,25 @@ char *ListMeta::inURLList(String &urlp, unsigned int list, String &lc, bool &sit
     DEBUG_debug("inURLList (processed): ", url);
 
         while (url.before("/").contains(".")) {
-            i = (*o.lm.l[list]).findStartsWith(url.toCharArray(), lc);
-            if (i != NULL) {
-                foundurl = i;
+            i = (*o.lm.l[list]).findStartsWith(url.c_str(), lc, match);
+            if (i) {
+                foundurl = match;
                 fl = foundurl.length();
                 DEBUG_debug("foundurl: ", foundurl, foundurl.length());
                 DEBUG_debug("url: ", url, fl);
                 if (url.length() > fl) {
                     if (url[fl] == '/' || url[fl] == '?' || url[fl] == '&' || url[fl] == '=') {
-                        return i; // matches /blah/ or /blah/foo but not /blahfoo
+                        return true; // matches /blah/ or /blah/foo but not /blahfoo
                     }
                 } else {
-                    return i; // exact match
+                    return true;// exact match
                 }
            }
             if (!site_wild)
                 break;
             url = url.after("."); // check for being in higher level domains
         }
-    return NULL;
+    return false;
 }
 
 bool ListMeta::isIPHostname(String url) {

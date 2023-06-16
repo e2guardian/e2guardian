@@ -1,5 +1,69 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.5.3pre
+
+March to May 2023
+
+    Fix #773 - when blocking match is on an individual IP, match is 
+       returned blank.
+    Add binary IP search to rooms feature
+    Merge pull request #772 from Arjow/v5.5
+       fixing error with uint32_t
+    Convert iprange and iprangemap lists to binary sort/search, remove 
+       ip mask lists, convert IP subnet and CIDR to internal rangelist.
+    Fix #770 - only write blocked url to alert.log
+    Fix #768 - findInList() (and other search functions) may return 
+       illegal address
+    Add rsync to docker image
+    Amend template config file to add missing set_storytrace and cover 
+       issues raised in #761
+    Comment out debug lines and tidy Logger code
+       Based on pull request #763 by KDGundermann
+    Add missing E2LOGGER_warning macro
+    Tidy storyboardtrace logic in OptionContainer
+    Fix #761 - dockermode settings for access.log overwritten when 
+       set_accesslog and loglocation missing from config file
+    Minor changes to e2guardian.cpp to clarify DEBUG_LOW usage
+    Fix #762 Inconsistent references to downloadmanagers
+
+February 2023
+
+Fixes
+    #759 Segmentation fault - Corrupted TEMPLATE returns  
+    Possible Fix for #760
+
+version 5.5.2
+
+July 2022 to February 2023
+
+Fixes
+    Amend Spanish translations
+    Fix bug #756 extension checking requires removal of cgi from url
+    Correct HOWTO_Logger.md
+    Re-add google translate site/url checking (translate.goog)
+    Merge pull request #748 from meyertime/v5.5buildfix
+       Fix build error AM_INIT_AUTOMAKE expanded multiple times
+    List definition option anonlog now only blanks URL
+    Fix bug #743 - logfileformat defaulting to 1 instead of 8 as documented
+    Comment out fancy and trickle download managers as these are not
+       supported in v5.5
+    Obsolete define terms removed from code and clean-up and autoupdate of
+       configure.ac
+    Partial work towards issue #731
+    Fix obscure bug with some lists - replace sort() with stable_sort()
+       and improve memory handling for lists
+    Fix bug #730 - large downloads in chunked format not completing
+
+New features
+    UDP logging option added (based on code/idea by KDG)
+    Add SEMI-TRUSTED flag to logs
+    Add kiddle search terms extractor #739 refers
+    Add storyboarding, list definitions, message for TLD allowed
+       as suggested by Dalacor #733.
+       Note I have used allowedtldlist rather than exceptiontld.  Exceptions
+       generally override everything but this list is used in blanketblock and
+       so will be overridden by exception site urls etc.
+
 version 5.5.1
 
 September 2021 to June 2022
@@ -18,6 +82,7 @@ Fixes
     Fix bug #712 - message wrong when upstream connection fails
 
 New features
+    Add regexpreplacelist to available lists for refererin state (SB)
     Mime type stop feature - to prevent scanning of non-relevant mime types.
     Category lists - category can be checked against category list
       - new list type categorylist added 

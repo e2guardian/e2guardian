@@ -8,6 +8,7 @@
 // INCLUDES
 
 #include <list>
+#include <cstdint>
 
 // DECLARATIONS
 
@@ -18,8 +19,15 @@ struct ipl_subnetstruct {
 };
 
 struct ipl_rangestruct {
+public:
     uint32_t startaddr;
     uint32_t endaddr;
+    int operator<(const ipl_rangestruct &a) const
+    {
+        if (startaddr < a.startaddr)
+            return 1;
+        return 0;
+    }
 };
 
 // IP subnet/range/mask & hostname list
@@ -34,8 +42,8 @@ class IPList
     private:
     std::vector<uint32_t> iplist;
     std::vector<String> hostlist;
-    std::list<ipl_rangestruct> iprangelist;
-    std::list<ipl_subnetstruct> ipsubnetlist;
+    std::vector<ipl_rangestruct> iprangelist;
+    //std::list<ipl_subnetstruct> ipsubnetlist;
 };
 
 #endif

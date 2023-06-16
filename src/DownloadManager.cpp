@@ -190,10 +190,12 @@ DMPlugin *dm_plugin_load(const char *pluginConfigPath)
         return defaultdmcreate(cv);
     }
 
+#ifdef FANCY_READY      // Plug-in not working yet
     if (plugname == "fancy") {
         DEBUG_dwload("Enabling fancy DM plugin");
         return fancydmcreate(cv);
     }
+#endif
 
     if (plugname == "trickle") {
         DEBUG_dwload("Enabling trickle DM plugin");

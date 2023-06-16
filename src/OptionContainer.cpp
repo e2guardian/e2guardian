@@ -7,6 +7,7 @@
 #ifdef HAVE_CONFIG_H
 #include "e2config.h"
 #endif
+#include <cstdint>
 
 #include "ConfigVar.hpp"
 #include "OptionContainer.hpp"
@@ -508,6 +509,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         }
     }
 
+    logger.udp_source_port = cr.findoptionIWithDefault("udp_source_port",6000,64000,39000);
+
     {
         if (cr.findoptionB("logsyslog")) {
             if ((logger.name_suffix = cr.findoptionS("namesuffix")) == "") {
@@ -522,7 +525,7 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         if (!temp.empty()) {
             if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
-        } else {
+        } else if (!proc.is_dockermode) {
                 log.log_location = cr.findoptionS("loglocation");
                 if (log.log_location.empty()) {
                     log.log_location = __LOGLOCATION;
@@ -606,21 +609,26 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             if (!loggerConf.configure(LoggerSource::storytrace, temp))
                 return false;
         }
-    }
+    }   // unlike other set_* this does not enable output -
+        // this has to be done with storyboardtrace
+        // as this is not a source code trace
+        // but a trace of the storyboard logic
 
     {
         if (cr.findoptionB("storyboardtrace")) {
             logger.SB_trace = true;
             e2logger.enable(LoggerSource::storytrace);
+            E2LOGGER_warning("Storyboard tracing enabled!!");
         } else {
             logger.SB_trace = false;
         }
     }
 
-    if ( logger.SB_trace ) {
-        DEBUG_config("Enable Storyboard tracing !!");
-        e2logger.enable(LoggerSource::story);
-    }
+    // Not sure why this was here - prob for debuging - PIP
+    //if ( logger.SB_trace ) {
+    //   DEBUG_config("Enable Storyboard tracing !!");
+    //   e2logger.enable(LoggerSource::story);
+    //}
 
 
     {
@@ -824,6 +832,7 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
     proc.no_daemon = cr.findoptionB("nodaemon");
 
     if (cr.findoptionB("dockermode")) {
+        proc.is_dockermode = true;
         proc.no_daemon = true;
         e2logger.setDockerMode();
     }
@@ -1063,7 +1072,7 @@ bool ProcessOptions::daemonise()
     if (no_daemon) {
         return true;
     }
-#ifdef E2DEBUG
+#ifdef DEBUG_LOW
     return true; // if debug mode is enabled we don't want to detach
 #endif
 

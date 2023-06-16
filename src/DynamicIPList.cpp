@@ -18,6 +18,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string>
+#include <cstdint>
 
 // GLOBALS
 extern thread_local std::string thread_id;

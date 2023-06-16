@@ -197,6 +197,7 @@ struct LoggerOptions
 
     bool log_ssl_errors = false;
     bool SB_trace = false;
+    int  udp_source_port = 39000;
 
     std::string name_suffix;    // for SyslogName, where configured ??
 
@@ -288,6 +289,7 @@ struct ProcessOptions
 
     bool no_daemon = false;
     bool is_daemonised = false;
+    bool is_dockermode = false;
 
     bool find_user_ids();
     bool become_root_user();

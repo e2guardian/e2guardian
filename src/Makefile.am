@@ -33,7 +33,8 @@ COMMANDLINE_SOURCE =
 endif
 
 DEFAULTDM_SOURCE = downloadmanagers/default.cpp
-FANCYDM_SOURCE = downloadmanagers/fancy.cpp
+#FANCYDM_SOURCE = d$downloadmanagers/fancy.cpp
+FANCYDM_SOURCE = 
 TRICKLEDM_SOURCE = downloadmanagers/trickle.cpp
 
 IDENTAUTH_SOURCE = authplugins/ident.cpp
@@ -74,6 +75,7 @@ e2guardian_SOURCES = String.cpp String.hpp \
                        RegExp.cpp RegExp.hpp \
 		       BaseSocket.cpp BaseSocket.hpp \
                        Socket.cpp Socket.hpp \
+                       UdpSocket.cpp UdpSocket.hpp \
                        FatController.cpp FatController.hpp \
                        UDSocket.cpp UDSocket.hpp \
                        SysV.cpp SysV.hpp \

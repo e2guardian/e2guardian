@@ -13,6 +13,7 @@
 #include "Queue.hpp"
 #include "Logger.hpp"
 #include "LoggerConfigurator.hpp"
+#include "UdpSocket.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -88,8 +89,23 @@ int main(int argc, char *argv[]) {
 //    E2LOGGER_info("Start ", prog_name );  // No we are not starting here - we may be stopping, reloading etc
 
 #ifdef DEBUG_LOW
-    e2logger.enable(LoggerSource::debug);
-    DEBUG_debug("Running in debug_low mode...");
+    e2logger.enable(LoggerSource::debug);  // This is only for backward compatibilty with previous version
+    // setting all debug features should be done in e2guardian.conf with the debuglevel setting
+
+    // DEBUG_LOW mode is not suitable for production use so warn the user that is switched on
+    E2LOGGER_warning("Running in debug_low mode...");
+#endif
+
+
+#ifdef NOT_DEF // bespoke test code to be removed later - PIP
+    UdpSocket test_udp;
+    test_udp.connect("192.168.1.102", 33001);
+    std::string line = "this is a test of upd logging";
+    if(test_udp.writeString(line)) {
+        std::cerr <<  "upd write ok" << std::endl;
+    } else {
+        std::cerr << "upd write ok" << std::endl;
+    }
 #endif
 
     DEBUG_trace("read CommandLineOptions");
@@ -191,6 +207,12 @@ int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT
                         std::cout << "e2guardian " << PACKAGE_VERSION << std::endl
                                   << std::endl
                                   << "Built with: " << E2_CONFIGURE_OPTIONS << std::endl;
+                        // temporary check code
+                        //{
+                            //unsigned int ilen = 0;
+                            //ilen = ~ilen;
+                            //std::cout << " max int  is " << ilen << std::endl;
+                        //}
                         ret = 0;
                         return E2_EXIT;
                     case 'N':

@@ -1298,9 +1298,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         String secret(ldl->fg[filtergroup]->magic.c_str());
                         String magic(ip + checkme.url + tempfilename + tempfilemime + tempfiledis + secret);
                         String hashed(magic.md5());
-#ifdef DGDEBUG
-                        std::cout << dbgPeerPort << " -sending magic link to client: " << ip << " " << url << " " << tempfilename << " " << tempfilemime << " " << tempfiledis << " " << secret << " " << hashed << std::endl;
-#endif
+                        DEBUG_proxy(" -sending magic link to client: ", ip, " ", checkme.url, " ", tempfilename, " ", tempfilemime, " ", tempfiledis, " ", secret, " ", hashed );
                         String sendurl(checkme.url);
                         if (!sendurl.after("://").contains("/")) {
                             sendurl += "/";
@@ -1372,7 +1370,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (!persistProxy)
                 proxysock.close(); // close connection to proxy
 
-            if (persistPeer) {
+            if (persistPeer && !checkme.isconnect) {
                 continue;
             }
 
@@ -1575,6 +1573,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
         data += cr;
         data += String(!cm.nolog) + cr;
         data += String(cm.alert) + cr;
+        data += String(cm.issemiexception) + cr;
 
         DEBUG_debug(" -...built");
 

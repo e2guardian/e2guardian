@@ -606,9 +606,9 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 #   invoked
 
 #For trickle DM  - this is new and experimental - use with caution!
-regexpboollist = 'name=trickleuseragent,path=@E2CONFDIR@/lists/downloadmanagers/trickleregexpuseragentlist'
-mimelist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/tricklemimetypelist'
-fileextlist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/trickleexttypelist'
+#regexpboollist = 'name=trickleuseragent,path=@E2CONFDIR@/lists/downloadmanagers/trickleregexpuseragentlist'
+#mimelist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/tricklemimetypelist'
+#fileextlist = 'name=trickleallow,path=@E2CONFDIR@/lists/downloadmanagers/trickleexttypelist'
 
 #For fancy DM - do not use this - it is not yet operational
 #regexpboollist = 'name=fancyuseragent,path=@E2CONFDIR@/lists/downloadmanagers/fancyregexpuseragentlist'

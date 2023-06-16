@@ -19,20 +19,33 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "String.hpp"
+#include "UdpSocket.hpp"
 
 // only C++14 : using namespace std::string_literals;
 
 class FileRec {
 public:
     std::string filename;
- //   FILE *file_stream;
     std::ofstream *file_stream = nullptr;
     int link_count = 0;
     bool open = false;
-
     bool write(std::string &msg);
     bool rotate();
     bool flush();
+};
+
+
+class UdpRec {
+public:
+    std::string host = "";
+    int port = 0;
+    std::string ip = "";
+    UdpSocket *socket = nullptr;
+    int link_count = 0;
+    bool open = false;
+
+    bool send(std::string &msg);
 };
 
 
@@ -48,7 +61,7 @@ enum class LoggerSource {
 };
 
 enum class LoggerDestination {
-  none, stdout, stderr, syslog, file,
+  none, stdout, stderr, syslog, file, udp,
   __Max_Value
 };
 
@@ -92,7 +105,7 @@ public:
             // only usable when compiled with DEBUG_HIGH:
                                          "icap", "avscan", "auth", "dwload", "proxy", "thttps"};
 
-    std::vector <std::string> Destinations = {"none", "stdout", "stderr", "syslog", "file"};
+    std::vector <std::string> Destinations = {"none", "stdout", "stderr", "syslog", "file", "udp"};
 
     std::vector <LoggerSource> working_messages = {
             LoggerSource::info,
@@ -168,11 +181,15 @@ public:
 private:
 
     std::vector <FileRec*> Files;
+    std::vector <UdpRec*> Udps;
 
     struct SourceRec {
         bool enabled = false;
         LoggerDestination destination = LoggerDestination::none;
         FileRec *fileRec = nullptr;
+        UdpRec *udpRec = nullptr;
+        std::string host = "";
+        std::string port = "";
         int syslog_flag = LOG_INFO;
         bool show_funct_line = false;
         bool funct_line_last = true;
@@ -194,6 +211,14 @@ private:
 
     void deleteFileEntry(std::string filename);
 
+    UdpRec *findUdpRec(std::string host, int port);
+
+    UdpRec *addUdp(std::string host, int port);
+
+    void rmUdpLink(UdpRec *udpRec);
+
+    void deleteUdpEntry(std::string host, int port);
+
     std::string _logname;
 
     // arrays below replaced with array of source_rec
@@ -203,11 +228,17 @@ private:
 
     struct Helper;
 
+    class Udp;
+
     void sendMessage(const LoggerSource source, std::string &message);
 
     void setDestination(const LoggerSource source, const LoggerDestination destination);
 
     bool setFilename(const LoggerSource source, const std::string filename);
+
+    bool setUdpname(const LoggerSource source, const std::string filename);
+
+    bool setUdpDestination(const LoggerSource source, const std::string udp_destination);
 
     bool setSyslogLevel(const LoggerSource source, const std::string filename);
 
@@ -226,6 +257,10 @@ extern Logger e2logger;
 #define E2LOGGER_error(...) \
   if (e2logger.isEnabled(LoggerSource::error)) \
      e2logger.vlog(LoggerSource::error,  __func__, __FILE__,__LINE__, __VA_ARGS__)
+
+#define E2LOGGER_warning(...) \
+  if (e2logger.isEnabled(LoggerSource::warning)) \
+     e2logger.vlog(LoggerSource::warning,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
 #define E2LOGGER_accesslog(STR)  \
   if (e2logger.isEnabled(LoggerSource::accesslog)) \
@@ -252,39 +287,38 @@ extern Logger e2logger;
     e2logger.vlog(LoggerSource::storytrace, (const std::string) "", (const std::string) "", (int) 0,  __VA_ARGS__)
 
 
-
 #ifdef DEBUG_HIGH
-  #define DEBUG_icap(...) \
-     if (e2logger.isEnabled(LoggerSource::icap)) \
+ #define DEBUG_icap(...) \
+    if (e2logger.isEnabled(LoggerSource::icap)) \
        e2logger.vlog(LoggerSource::icap,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_avscan(...) \
+ #define DEBUG_avscan(...) \
     if (e2logger.isEnabled(LoggerSource::avscan)) \
       e2logger.vlog(LoggerSource::avscan,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_auth(...) \
+ #define DEBUG_auth(...) \
     if (e2logger.isEnabled(LoggerSource::auth)) \
       e2logger.vlog(LoggerSource::auth,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_dwload(...) \
+ #define DEBUG_dwload(...) \
     if (e2logger.isEnabled(LoggerSource::dwload)) \
       e2logger.vlog(LoggerSource::dwload,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_proxy(...) \
+ #define DEBUG_proxy(...) \
     if (e2logger.isEnabled(LoggerSource::proxy)) \
       e2logger.vlog(LoggerSource::proxy,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
-  #define DEBUG_thttps(...) \
+ #define DEBUG_thttps(...) \
     if (e2logger.isEnabled(LoggerSource::thttps)) \
       e2logger.vlog(LoggerSource::thttps,  __func__, __FILE__,__LINE__, __VA_ARGS__)
 
 #else
-  #define DEBUG_icap(...)
-  #define DEBUG_avscan(...)
-#define DEBUG_auth(...)
-#define DEBUG_dwload(...)
-#define DEBUG_proxy(...)
-#define DEBUG_thttps(...)
+ #define DEBUG_icap(...)
+ #define DEBUG_avscan(...)
+ #define DEBUG_auth(...)
+ #define DEBUG_dwload(...)
+ #define DEBUG_proxy(...)
+ #define DEBUG_thttps(...)
 #endif
 
 

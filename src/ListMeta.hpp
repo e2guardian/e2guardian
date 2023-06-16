@@ -9,6 +9,7 @@
 
 // INLCUDES
 
+#include <cstdint>
 #include <vector>
 #include <deque>
 #include <map>
@@ -132,9 +133,9 @@ class ListMeta
 
 private:
 
-    char *inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
-    const char *inSiteList(String &url, unsigned int list,  String &lastcategory, bool &site_wild);
-    const char *inSearchList(String &words, unsigned int list,String &lastcategory);
+    bool inURLList(String &url, unsigned int list,  String &lastcategory, bool &site_wild, String &match, String &result);
+    bool inSiteList(String &url, unsigned int list,  String &lastcategory, bool &site_wild, String &match, String &result);
+    bool inSearchList(String &words, unsigned int list,String &lastcategory, String &match, String &result);
     int   inRegExpURLList(String &url, std::deque<RegExp> &list_comp, std::deque<unsigned int> &list_ref, unsigned int list, String &lastcategory);
 bool regExp(String &line, std::deque<RegExp> &regexp_list, std::deque<String> &replacement_list);
     bool headerRegExpReplace(ListMeta::list_info &listi, std::deque<String> &header, list_result &res );

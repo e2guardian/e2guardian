@@ -135,7 +135,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             if ((oldf = getFunctID(temp)) > 0) {
                 if (oldf > SB_BI_FUNC_BASE) {   // overloadng buildin action
                     E2LOGGER_error("SB: error - reserved word used a function name - ", filename,
-                                " word ", temp );
+                                   " word ", temp);
                     return false;
                 } else {
                     fnt_id = oldf;
@@ -174,8 +174,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     }
 
     DEBUG_debug("Read storyboard file ", filename, " finished. ",
-            " function vect size is ", String(funct_vec.size()),
-            " is_top ", String(is_top) );
+                " function vect size is ", String(funct_vec.size()),
+                " is_top ", String(is_top));
 
     if (!is_top) return true;
 
@@ -190,7 +190,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         " actionid ", String(j->action_id),
                         " listname ", j->list_name,
                         " function ", i->name,
-                        " id ", String(i->fn_id) );
+                        " id ", String(i->fn_id));
 
             // check condition
             if (j->state < SB_STATE_TOPIN) {   // is an *in condition and requires a list
@@ -210,7 +210,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_REFERERIN:
-                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL, LIST_TYPE_REGEXP_REP};
+                        types = {LIST_TYPE_IPSITE, LIST_TYPE_SITE, LIST_TYPE_URL, LIST_TYPE_REGEXP_BOOL,
+                                 LIST_TYPE_REGEXP_REP};
                         break;
                     case SB_STATE_FULLURLIN:
                         types = {LIST_TYPE_REGEXP_REP};
@@ -222,7 +223,7 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                         types = {LIST_TYPE_REGEXP_REP, LIST_TYPE_REGEXP_BOOL};
                         break;
                     case SB_STATE_CLIENTIN:
-                        types = {LIST_TYPE_IP, LIST_TYPE_SITE, LIST_TYPE_IPMAP };
+                        types = {LIST_TYPE_IP, LIST_TYPE_SITE, LIST_TYPE_IPMAP};
                         break;
                     case SB_STATE_USERIN:
                         types = {LIST_TYPE_IPMAP, LIST_TYPE_MAP};
@@ -267,8 +268,8 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                 if (!found) {
                     // warning message
                     E2LOGGER_error("SB warning: Undefined list ", j->list_name,
-                                " used at line ", j->file_lineno,
-                                " of ", i->file_name, " (", filename, ")");
+                                   " used at line ", j->file_lineno,
+                                   " of ", i->file_name, " (", filename, ")");
                 } else {
                     DEBUG_story("SB ", j->list_name, " matches ", String(j->list_id_dq.size()), " types");
                 }
@@ -278,22 +279,23 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
             if ((j->action_id = getFunctID(j->action_name)) == 0) {
                 // warning message
                 E2LOGGER_error("StoryBoard error: Action ", j->action_name,
-                            " not defined: ", filename,
-                            " at line ", String(j->file_lineno),
-                            " of ", i->file_name);
+                               " not defined: ", filename,
+                               " at line ", String(j->file_lineno),
+                               " of ", i->file_name);
             }
             DEBUG_story("Line ", String(j->file_lineno),
                         " state is ", String(j->state),
                         " actionid ", String(j->action_id),
                         " listname ", j->list_name);
+        }
     }
-}
 // check for required functions
 
 
     for (std::vector<ListMeta::list_info>::iterator j = LMeta->list_vec.begin(); j != LMeta->list_vec.end(); j++) {
         if (!j->used) {
-            E2LOGGER_error("SB warning: Defined list ", LMeta->list_type(j->type), ":", j->name, " is not referenced in the storyboard ", filename);
+            E2LOGGER_error("SB warning: Defined list ", LMeta->list_type(j->type), ":", j->name,
+                           " is not referenced in the storyboard ", filename);
         }
     }
 
@@ -301,14 +303,14 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
 }
 
 unsigned int StoryBoard::getFunctID(String &fname) {
-unsigned int i = 0;
+    unsigned int i = 0;
 // check built in functions first
-if (!funct_vec.empty()) {
-    i = funct_vec[0].getBIFunctID(fname);
-    if (i > 0) return i;
+    if (!funct_vec.empty()) {
+        i = funct_vec[0].getBIFunctID(fname);
+        if (i > 0) return i;
     }
     // check StoryBoard defined functions
-   // std::cerr << "Looking for function " << fname << std::endl;;
+    // std::cerr << "Looking for function " << fname << std::endl;;
     for (std::vector<SBFunction>::iterator j = funct_vec.begin(); j != funct_vec.end(); j++) {
         if (j->name == fname)
             return j->fn_id;
@@ -327,7 +329,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
     bool action_return = false;
 
     E2LOGGER_storytrace("SB:Entering ", F->getName(),
-                    " line: ", F->file_lineno, " of ", F->file_name );
+                        " line: ", F->file_lineno, " of ", F->file_name);
 
     for (std::deque<SBFunction::com_rec>::iterator i = F->comm_dq.begin(); i != F->comm_dq.end(); i++) {
         bool isListCheck = false;
@@ -423,7 +425,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             case SB_STATE_EXTENSIONIN:
                 target = cm.response_header->disposition();
                 if (target.length() > 4)
-                     isListCheck = true;
+                    isListCheck = true;
                 target2 = "";
                 break;
             case SB_STATE_MIMEIN:
@@ -511,7 +513,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             DEBUG_trace("HeaderCheck");
             for (std::deque<String>::iterator u = targetheader->header.begin();
                  u != targetheader->header.end(); u++) {
-               // String t = *u;
+                // String t = *u;
                 for (std::deque<ListMeta::list_info>::iterator j = i->list_id_dq.begin();
                      j != i->list_id_dq.end(); j++) {
                     DEBUG_story("checking ", j->name, " type ", j->type);
@@ -525,21 +527,21 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                             cm.log_message_no = res.log_mess_no;
                             cm.lastmatch = res.match;
                             cm.result = res.result;
-                            if(j->type == LIST_TYPE_REGEXP_REP) {
+                            if (j->type == LIST_TYPE_REGEXP_REP) {
                                 *u = res.result;
                             }
-                            if(o.log.anonymise_logs)
+                            if (o.log.anonymise_logs)
                                 cm.anon_user = true;
                             if (res.anon_log) {
                                 cm.anon_url = true;
                             }
                         }
                         DEBUG_story("SB lc", cm.lastcategory, " mess_no ", cm.message_no,
-                                    " log_mess ", cm.log_message_no, " match ",res.match);
+                                    " log_mess ", cm.log_message_no, " match ", res.match);
                         break;
                     }
                 }
-                if(state_result)
+                if (state_result)
                     break;
             }
         }
@@ -552,12 +554,15 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     t = target2;
                 } else if (j->type == LIST_TYPE_REGEXP_BOOL || j->type == LIST_TYPE_REGEXP_REP) {
                     t = targetful;
+                } else if ((j->type == LIST_TYPE_FILE_EXT) && target.contains("?")) {
+                    t = target.before("?");    // remove cgi part of url
                 } else {
                     t = target;
                 }
-                DEBUG_story("ListCheck ", j->name, "(type ", j->type, ")", " for ", t );
+
+                DEBUG_story("ListCheck ", j->name, "(type ", j->type, ")", " for ", t);
                 if (cm.issiteonly && (j->type == LIST_TYPE_URL || j->type == LIST_TYPE_FILE_EXT))
-                   continue;
+                    continue;
                 if (!(cm.isiphost) && j->type == LIST_TYPE_IPSITE)
                     continue;
                 if ((cm.isiphost) && j->type == LIST_TYPE_SITE && !o.lists.search_sitelist_for_ip)
@@ -572,7 +577,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
 
                     DEBUG_story("ListCheck lc", cm.lastcategory, " mess_no ", cm.message_no,
-                                    " log_mess ", cm.log_message_no, " match ", res.match);
+                                " log_mess ", cm.log_message_no, " match ", res.match);
                     break;
                 }
             }
@@ -608,7 +613,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         }
 
                         DEBUG_story("SB lc", cm.lastcategory, " mess_no ", cm.message_no, " log_mess ",
-                                  cm.log_message_no, " match ", res.match);
+                                    cm.log_message_no, " match ", res.match);
                         break;
                     }
                 }
@@ -628,10 +633,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     " state_result: ", String(state_result));
 
         E2LOGGER_storytrace("SB: ", i->file_lineno,
-                        ( i->isif ? " if(" : " ifnot(" ),
-                        F->getState(i->state), ",",        
-                        i->list_name, ") is ",
-                        (state_result ? "true" : "false" ) );
+                            (i->isif ? " if(" : " ifnot("),
+                            F->getState(i->state), ",",
+                            i->list_name, ") is ",
+                            (state_result ? "true" : "false"));
 
         if (!state_result) {
             action_return = false;
@@ -642,7 +647,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
 
         action_return = true;
 
-     //   if (i->mess_no > 0) cm.message_no = i->mess_no;
+        //   if (i->mess_no > 0) cm.message_no = i->mess_no;
 //        if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
 
         DEBUG_story("ACTION ",
@@ -650,7 +655,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     " mess_no: ", String(cm.message_no),
                     " log_mess: ", String(cm.log_message_no),
                     " match: ", cm.whatIsNaughty,
-                    " action_id: ", F->getBIFunct(i->action_id) );
+                    " action_id: ", F->getBIFunct(i->action_id));
 
         if (i->action_id > SB_BI_FUNC_BASE) {     // is built-in action
             switch (i->action_id) {
@@ -676,7 +681,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isexception = false;
                     cm.isGrey = false;
                     cm.isBlocked = false;
-                    update_messages(cm,res);
+                    update_messages(cm, res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
@@ -701,11 +706,11 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.isGrey = false;
                     cm.isexception = false;
                     cm.issemiexception = false;
-                    update_messages(cm,res);
+                    update_messages(cm, res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
-                    if( cm.message_no == 503)
-                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) ;
+                    if (cm.message_no == 503)
+                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no);
                     else
                         cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.get_lastmatch();
                     if (cm.log_message_no == 0)
@@ -726,18 +731,18 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.urld = cm.request_header->decode(cm.url);
                     cm.urldomain = cm.url.getHostname();
                     cm.urldomain.toLower();
-                    cm.connect_site = cm.urldomain;                    
-                    DEBUG_story("SB: URL modified to ", cm.url);                    
+                    cm.connect_site = cm.urldomain;
+                    DEBUG_story("SB: URL modified to ", cm.url);
                     break;
                 case SB_FUNC_SETCONNECTSITE:
                     cm.urlmodified = true;
                     cm.logurl = cm.result;
                     cm.connect_site = cm.result.getHostname();
-                    DEBUG_story("SB: connect site changed to ", cm.connect_site);                    
+                    DEBUG_story("SB: connect site changed to ", cm.connect_site);
                     break;
                 case SB_FUNC_SETLOGCAT:
                     cm.logcategory = true;
-                    update_messages(cm,res);
+                    update_messages(cm, res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
@@ -756,7 +761,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     }
                     break;
                 case SB_FUNC_SETGOMITM:
-                    if(cm.ismitmcandidate && !cm.nomitm) {
+                    if (cm.ismitmcandidate && !cm.nomitm) {
                         cm.gomitm = true;
                     } else {
                         action_return = false;
@@ -768,7 +773,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.automitm = false;
                     break;
                 case SB_FUNC_SETAUTOMITM:
-                    if(!cm.nomitm) cm.automitm = true;
+                    if (!cm.nomitm) cm.automitm = true;
                     break;
                 case SB_FUNC_UNSETAUTOMITM:
                     cm.automitm = false;
@@ -818,7 +823,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     cm.noviruscheck = true;
                     break;
                 case SB_FUNC_UNSETBYPASS:
-                    cm.isbypass= false;
+                    cm.isbypass = false;
                     cm.iscookiebypass = false;
                     cm.isscanbypass = false;
                     cm.isvirusbypass = false;
@@ -842,12 +847,12 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     action_return = false;
                     break;
             }
-           // DEBUG_story("SB-ACTION: ", F->name, " : ", F->getBIFunct(i->action_id), " ", (action_return? "true" : "false" ));
+            // DEBUG_story("SB-ACTION: ", F->name, " : ", F->getBIFunct(i->action_id), " ", (action_return? "true" : "false" ));
         } else {      // is SB defined function
 
             if (i->action_id > 0) {
                 action_return = runFunct(i->action_id, cm);
-                E2LOGGER_storytrace("SB:Resuming ", F->name, " in ", F->file_name );
+                E2LOGGER_storytrace("SB:Resuming ", F->name, " in ", F->file_name);
             }
 
         }
@@ -858,7 +863,7 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
             break;
     }
 
-    E2LOGGER_storytrace( "SB:Exiting ", F->getName(), " returned ", (action_return ? "true" : "false"));
+    E2LOGGER_storytrace("SB:Exiting ", F->getName(), " returned ", (action_return ? "true" : "false"));
 
     return action_return;
 }
@@ -883,6 +888,47 @@ bool StoryBoard::runFunctEntry(unsigned int index, NaughtyFilter &cm) {
 std::deque<url_rec> StoryBoard::deep_urls(String &urld, NaughtyFilter &cm) {
     std::deque<url_rec> temp;
     String durl = urld;
+
+// Google web site translate checking
+    // Format is domain with '.' replaced with '-' and '-' with '--' ending with .translate.goo
+    // so  www.merriam-webster.com  ->  www-merriam--webster-com.translate.goog
+
+    if (cm.urldomain.endsWith(".translate.goog")) {
+   //     E2LOGGER_info("Found translate.goog ", durl );
+        String tem_dom = cm.urldomain.before(".");
+        String new_url;
+
+        while (tem_dom.contains("-")) {
+            new_url += tem_dom.before("-");
+            tem_dom = tem_dom.after("-");
+            if (tem_dom.startsWith("-")) {   // is a '--' so replace with '-'
+                new_url += "-";
+                tem_dom = tem_dom.after("-");
+            } else {
+                new_url += ".";    // is a '-' so replace with '.'
+            }
+    //        E2LOGGER_info(" GT embedd url is ", new_url);
+        }
+        new_url += tem_dom;
+     //   E2LOGGER_info(" GT embedd url is ", new_url);
+
+        if (!cm.issiteonly) {  //replace url part if needed
+            new_url += "/";
+            new_url += urld.after("/");
+        }
+      //  E2LOGGER_info(" GT embedd url is ", new_url);
+       // E2LOGGER_info(" GT tem_dom is ", tem_dom);
+        url_rec t;
+        t.baseurl = new_url;
+        t.fullurl = new_url;
+        t.urldomain = t.baseurl.getHostname();
+        if (t.baseurl == t.urldomain)
+            t.is_siteonly = true;
+        if (cm.isIPHostnameStrip(t.urldomain))
+            t.site_is_ip = true;
+        temp.push_back(t);
+    }
+
     while (durl.contains(":")) {
         durl = durl.after(":");
         if (!durl.contains("."))
@@ -949,14 +995,14 @@ bool StoryBoard::has_reverse_hosts(std::deque<url_rec> &urec, NaughtyFilter &cm)
 }
 
 void StoryBoard::update_messages(NaughtyFilter &cm, ListMeta::list_result &res) {
-        cm.lastcategory = res.category;
-        cm.whatIsNaughtyCategories = res.category;
-        cm.message_no = res.mess_no;
-        cm.log_message_no = res.log_mess_no;
-        cm.lastmatch = res.match;
-        cm.result = res.result;
-        if (res.anon_log) {
-            cm.anon_user = true;
-            cm.anon_url = true;
-        }
+    cm.lastcategory = res.category;
+    cm.whatIsNaughtyCategories = res.category;
+    cm.message_no = res.mess_no;
+    cm.log_message_no = res.log_mess_no;
+    cm.lastmatch = res.match;
+    cm.result = res.result;
+    if (res.anon_log) {
+        cm.anon_user = true;
+        cm.anon_url = true;
     }
+}

@@ -82,10 +82,14 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
             push(line);
         }
     }
-    if (html.size() < 0) {
+    if (html.size() < 1) {
 	    E2LOGGER_error("Unable to parse template file: ", filename);
         return false;
     }
+
+    // add space as last line - to make safe i+1 and size -1 logic in display_hb
+    line = " ";
+    push(line);
 
     templatefile.close();
     return true;
@@ -107,7 +111,10 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
 
     String line;
     bool newline;
-    unsigned int sz = html.size() - 1; // the last line can have no thingy. erm... carriage return?
+    unsigned int sz = html.size();
+    if (sz < 1)   //template is empty
+        return;
+    sz--;           //ignore last space line added by read function
     String safeurl(*url); // Take a copy of the URL so we can encode it to stop XSS
     bool safe = false;
     String servername("");
@@ -205,8 +212,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             ebody += "\n";
         }
     }
-    ebody += html[sz].toCharArray();
-    ebody += "\n";
+    //ebody += html[sz].toCharArray();   - no longer needed as html[sz] is added as padding
+    //ebody += "\n";
 }
 
 #ifdef NOTDEF
