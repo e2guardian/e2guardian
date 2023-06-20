@@ -21,10 +21,11 @@ class LogFormat {
     bool use_dash_for_blanks = false;
     enum F {
         blank,
-        utime,
+        endutime,      // unix time in secs since 1/1/1970
+        endltime,      // local time in human-readable format
         server,
-        user,      // was 'who'
-        clientip,
+        user,      // was 'who' in log_listener
+        clientip,  // was 'from' in log_listener
         clientHost,
         clientHostOrIp,
         where,   // = full url
@@ -33,19 +34,22 @@ class LogFormat {
         ssize,
         mimetype,
         useragent,  // replace with header spec???
-        durationms,
+        durationms, // time taken to service request
         message_no,
-        what,       // ???
-        sweight,     // ??
+        what,       // actionWord(s) + what_is_naughty
+        mimetype,
+        naughtiness,     // was sweight
         category,
         groupName,
         groupNo,
         searchTerms,
-        flags,
-        params,   // ??
-        logid_1,  // ??
-        logid_2,  // ??
-        postdata,  // ??
+        start_utime,  // tv_sec
+        start_ltime,  // tv_sec
+        extflags,
+        params,   // ??  does not seem to do anything - remove
+        logid_1,  // ?? Only used in log type 4
+        logid_2,  // ?? Only used in log type 4
+        postdata,  // ??  Not implimented in v5 so far
         proxyIp,       // Upstream proxy IP - was 'heir'
         reqh,    // request header  - not sure if needed here as special case
         resh,    // response header  - not sure if needed here as special case
