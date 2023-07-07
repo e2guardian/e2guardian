@@ -28,6 +28,7 @@
 "110","Proxy authentication error"    # needs translation
 "121","Von Ihrer Lokation aus ist nur ein begrenzter Zugriff möglich"
 "122","You not allowed access at this time of day"    # needs translation
+"123","Geolocation of site is not allowed"    # needs translation
 "150","Das vom Server ausgelieferte Zertifikat ist ungültig"
 "151","Es konnte keine SSL-Verbindung aufgebaut werden"
 "152","Es wurde kein Zertifikat gefunden"

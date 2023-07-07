@@ -301,6 +301,12 @@ urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
 # Note that this can overriden by entries in exception and grey sites/urls lists
 #sitelist = 'name=blanketblocktld,messageno=752,path=__LISTDIR__/blanketblocktldlist'
 
+# NEW in v5.6 - geolocation allow - blanket destination ip that are NOT in this
+# list
+# To activate a storyboard change is required - see examplef1.story
+# Note that this can overriden by entries in exception and grey sites/urls lists
+#iplist = 'name=allowedgeo,path=__LISTDIR__/../common/geolocation_allow_ip_list'
+
 ###
 ### END of BLANKET section
 
@@ -426,6 +432,7 @@ ipsitelist = 'name=nolog,path=__LISTDIR__//../common/nologsiteiplist'
 urllist = 'name=nolog,path=__LISTDIR__//../common/nologurllist'
 regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
 fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
+codelist = 'name=nolog,path=__LISTDIR__//../common/nolog_response_code_list'
 
 ###
 ### END of ACCESS_LOG section 

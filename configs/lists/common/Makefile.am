@@ -16,8 +16,10 @@ embededreferersitelist \
 embededrefererurllist \
 exceptionclientlist \
 exceptioniplist \
+geolocation_ip_allow_list \
 nologextensionlist \
 nologregexpurllist \
+nolog_response_code_list \
 nologsiteiplist \
 nologsitelist \
 nologurllist \

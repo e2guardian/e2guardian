@@ -35,7 +35,8 @@
 "105","Banned User"
 "110","Proxy authentication error"
 "121","Only limited access allowed from your location"
-"122","You not allowed access at this time of day"
+"122","You are not allowed access at this time of day"
+"123","Geolocation of site is not allowed"
 
 "150","Certificate supplied by server was not valid"
 "151","Could not open ssl connection" 

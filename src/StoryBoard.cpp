@@ -246,6 +246,12 @@ bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
                     case SB_STATE_CATEGORYIN:
                         types = {LIST_TYPE_CATEGORY};
                         break;
+                    case SB_STATE_DESTIPIN:
+                        types = {LIST_TYPE_IP};
+                        break;
+                    case SB_STATE_RESPONSECODEIN:
+                        types = {LIST_TYPE_CODE};
+                        break;
                 }
                 bool found = false;
                 for (std::deque<int>::iterator k = types.begin(); k != types.end(); k++) {
@@ -439,6 +445,29 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                 DEBUG_debug("CAT target is ", target);
                 if (target.length() > 2)
                     isListCheck = true;
+                target2 = "";
+                break;
+            case SB_STATE_DESTIPIN:
+                cm.check_destIP();   // needed to load IP from DNS if needed
+                if( !cm.destIPs_dq.empty()) {
+                    target = cm.destIPs_dq[0];
+                } else {
+                    target = "";
+                }
+                if (target.length() > 2) {
+                    isListCheck = true;
+                } else {
+                    state_result = false;
+                }
+                target2 = "";
+                break;
+            case SB_STATE_RESPONSECODEIN:
+                if( !(cm.response_header == nullptr)) {
+                    target = cm.response_header->returncode;
+                    isListCheck = true;
+                } else {
+                    state_result = false;
+                }
                 target2 = "";
                 break;
             case SB_STATE_CONNECT:

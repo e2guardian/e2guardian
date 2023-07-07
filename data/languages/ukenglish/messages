@@ -26,6 +26,7 @@
 "110","Proxy authentication error"    
 "121","Only limited access allowed from your location"
 "122","You not allowed access at this time of day"
+"123","Geolocation of site is not allowed"
 "150","Certificate supplied by server was not valid"
 "151","Could not open ssl connection" 
 "152","Failed to get ssl certificate"
@@ -104,7 +105,7 @@
 "701","Web upload limit exceeded."
 "750","Blanket file download is active and this MIME type is not on the white list: "
 "751","Blanket file download is active and this file is not matched by the white lists."
-"752","Site has a TLD that is not allowed by default"    # needs translation
+"752","Site has a TLD that is not allowed by default"
 "800","Banned MIME file type: "
 "900","Banned file extension: "
 "1100","Virus or bad content detected."
