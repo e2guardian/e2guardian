@@ -81,7 +81,7 @@ class dnsauthinstance : public AuthPlugin
 
     private:
     userstruct userst;
-    bool getdnstxt(String &ippath);
+    bool getdnstxt(String &ippath, auth_rec &authrec, int &result_code);
     String dns_error(int herror);
     bool inAuthByPassLists(HTTPHeader &h);
 };
@@ -147,6 +147,7 @@ int dnsauthinstance::init(void *args)
 int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, /*int &fg,*/ std::string &string, bool &is_real_user,auth_rec &authrec,NaughtyFilter &cm)
 {
     String p1, p2, ippath;
+    int result_code = 0;
 
     p1 = peercon.getPeerIP();
 
@@ -167,13 +168,13 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
     // change '.' to '-'
     ippath.swapChar('.', '-');
     DEBUG_auth("IPPath is ", ippath);
-    if (getdnstxt(ippath)) {
-        string = userst.user;
+    if (getdnstxt(ippath,authrec, result_code )) {
+        //string = userst.user;
         is_real_user = true;
-        authrec.user_name = string;
-        authrec.filter_group = userst.group;
+        //authrec.user_name = string;
+        //authrec.filter_group = userst.group;
         authrec.user_source = "dnsa";
-        return E2AUTH_OK_GOT_GROUP;
+        return result_code;
     } else {
         // redirect code
         if (redirect_to_auth) { // used to force log-in
@@ -181,8 +182,8 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
             // check if this is request to authurl or in authexception lists
             if (h.url().startsWith(authprefix) || inAuthByPassLists(h)) {
                 string = "::auth::";
-                userst.user = string;
-                userst.group = 0;
+                authrec.user_name = string;
+                authrec.filter_group = 0;
                 return E2AUTH_OK_NOPERSIST;
             } else {
                 string = authurl + "=" + h.URLEncode();
@@ -195,14 +196,14 @@ int dnsauthinstance::identify(Socket &peercon, Socket &proxycon, HTTPHeader &h, 
     }
 }
 
-int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)
+int dnsauthinstance::determineGroup(std::string &user, int &fg, ListContainer &uglc)  // todo: is this now needed???
 {
     fg = userst.group;
     DEBUG_auth("Matched user", user, " to group ", fg, " in cached DNS record");
     return E2AUTH_OK;
 }
 
-bool dnsauthinstance::getdnstxt(String &ippath)
+bool dnsauthinstance::getdnstxt(String &ippath, auth_rec &authrec, int &return_code)
 {
     // get info from DNS
     union {
@@ -244,8 +245,16 @@ bool dnsauthinstance::getdnstxt(String &ippath)
                 p[j] = '\0';
                 DEBUG_auth("ns_rr_data returned ", p);
                 String dnstxt(p);
-                userst.user = dnstxt.before(",");
-                userst.group = (dnstxt.after(",")).toInteger() - 1;
+                authrec.user_name = dnstxt.before(",");
+                String group = dnstxt.after(",");
+                int gno = group.toInteger();
+                if (gno > 0)  {    // is old-style group number
+                    authrec.filter_group = --gno;
+                    return_code = E2AUTH_OK_GOT_GROUP;
+                } else {           // is new style group name
+                    authrec.fg_name = group.before(",");
+                    return_code = E2AUTH_OK_GOT_GROUP_NAME;
+                }
                 return true;
             }
         }
