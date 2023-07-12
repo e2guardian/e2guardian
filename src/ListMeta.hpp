@@ -34,8 +34,9 @@
 #define LIST_TYPE_MAP                                   14
 #define LIST_TYPE_IPMAP                                   15
 #define LIST_TYPE_CATEGORY                              16
-#define LIST_TYPE_ERROR                                   17
-#define LIST_TYPE_TOP                                   18
+#define LIST_TYPE_CODE                                  17
+#define LIST_TYPE_ERROR                                   18
+#define LIST_TYPE_TOP                                   19
 
 #define LIST_METHOD_READF_SWS                             1
 #define LIST_METHOD_READF_EWS                             2
@@ -102,6 +103,7 @@ class ListMeta
             "maplist",
             "ipmaplist",
             "categorylist",
+            "codelist",
             "unknown list"
     };
 

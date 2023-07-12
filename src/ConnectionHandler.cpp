@@ -411,6 +411,11 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
     }
     DEBUG_debug("May_be_loop = ", may_be_loop, " ", " port ", port);
 
+
+    cm.check_destIP();   // this loads cm.destIPs_dq from DNS if required if this has not already been done
+    if (cm.upfailure && cm.isdirect)  // Has check_destIP detected a failure?
+        return -1;
+
     sock.setTimeout(o.net.connect_timeout);
 
     while (++retry < o.net.connect_retries) {
@@ -423,88 +428,13 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
         }
         cm.upfailure = false;
         if (cm.isdirect) {
-            String des_ip;
-            if (cm.isiphost)
-                des_ip = cm.urldomain;
-            if(o.conn.use_original_ip_port && cm.got_orig_ip && (cm.connect_site == cm.urldomain))
-                des_ip = cm.orig_ip;
-
-            if(des_ip.length() > 0) {
-                if (may_be_loop) {  // check check_ip list
-                    bool do_break = false;
-                    if (o.net.check_ip.size() > 0) {
-                        for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
-                            if (*it == des_ip) {
-                                do_break = true;
-                                lerr_mess = 212;
-                                break;
-                            }
-                        }
-                    }
-                    if (do_break) break;
-                    may_be_loop = false;
-                }
-
-
-                DEBUG_debug("Connecting to IP ", des_ip, " port ", String(port));
-
-                int rc = sock.connect(des_ip, port);
-                if (rc < 0) {
-                    lerr_mess = 203;
-                    continue;
-                }
-                return rc;
-            } else {
-                //dns lookup
-                struct addrinfo hints, *infoptr;
-                memset(&hints, 0, sizeof(addrinfo));
-                hints.ai_family = AF_INET;
-                hints.ai_socktype = SOCK_STREAM;
-                hints.ai_flags = 0;
-                hints.ai_protocol = 0;
-                hints.ai_canonname = NULL;
-                hints.ai_addr = NULL;
-                hints.ai_next = NULL;
-                int rc = getaddrinfo(cm.connect_site.toCharArray(), NULL, &hints, &infoptr);
-                if (rc)  // problem
-                {
-                    DEBUG_debug("connectUpstream: getaddrinfo returned ", String(rc),
-                                " for ", cm.connect_site, " ", gai_strerror(rc) );
-
-                    bool rt = false;
-                    switch (rc) {
-                        case EAI_NONAME:
-                            lerr_mess = 207;
-                            break;
-#ifdef EAI_NODATA
-                        case EAI_NODATA:
-                            lerr_mess = 208;
-                            break;
-#endif
-                        case EAI_AGAIN:
-                            lerr_mess = 209;
-                            rt = true;
-                            break;
-                        case EAI_FAIL:
-                            lerr_mess = 210;
-                            break;
-                        default:
-                            lerr_mess = 210;  //TODO this should have it's own message??
-                            break;
-                    }
-                    sock.close();
-                    if (rt) continue;
-                    else break;
-                }
-                char t[256];
-                struct addrinfo *p;
-                for (p = infoptr; p != NULL; p = p->ai_next) {
-                    getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+            for (auto des_ip = cm.destIPs_dq.begin(); des_ip < cm.destIPs_dq.end();des_ip++) {
+                if (des_ip->length() > 0) {
                     if (may_be_loop) {  // check check_ip list
                         bool do_break = false;
                         if (o.net.check_ip.size() > 0) {
                             for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
-                                if (*it == t) {
+                                if (*it == *des_ip) {
                                     do_break = true;
                                     lerr_mess = 212;
                                     break;
@@ -515,19 +445,18 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
                         may_be_loop = false;
                     }
 
-                    DEBUG_debug("Connecting to IP ", t, " port ", String(port));
-                    int rc = sock.connect(t, port);
-                    if (rc == 0) {
-                        freeaddrinfo(infoptr);
-                        DEBUG_debug("Got connection upfailure is ", String(cm.upfailure) );
-                        return 0;
+
+                    DEBUG_debug("Connecting to IP ", *des_ip, " port ", String(port));
+
+                    int rc = sock.connect(*des_ip, port);
+                    if (rc < 0) {
+                        lerr_mess = 203;
+                        continue;
                     }
+                    return rc;
                 }
-                freeaddrinfo(infoptr);
-                if (may_be_loop) break;
-                lerr_mess = 203;
-                continue;
             }
+
         } else {  //is via proxy
             sock.setTimeout(o.net.proxy_timeout);
             int rc = sock.connect(o.net.proxy_ip, o.net.proxy_port);
@@ -1870,7 +1799,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 
                         String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
-                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
+                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure,checkme->main_category())->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
                                                                                               (*checkme).whatIsNaughtyLog,

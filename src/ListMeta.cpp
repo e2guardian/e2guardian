@@ -100,6 +100,9 @@ bool ListMeta::load_type(int type, std::deque<String> &list) {
         case LIST_TYPE_CATEGORY:
             method_type = LIST_METHOD_READF_SWS;
             break;
+        case LIST_TYPE_CODE:
+            method_type = LIST_METHOD_READF_SWS;
+            break;
             // PhraseList types to be added
     }
     bool errors = false;

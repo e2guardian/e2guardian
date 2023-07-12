@@ -42,33 +42,35 @@
 #define SB_STATE_LISTEN_PORTIN			 14
 #define SB_STATE_RESHEADERIN	15
 #define SB_STATE_CATEGORYIN		16
+#define SB_STATE_DESTIPIN			17
+#define SB_STATE_RESPONSECODEIN  18
 
-#define SB_STATE_TOPIN      17   // all below this require a valid list
+#define SB_STATE_TOPIN      19   // all below this require a valid list
 
 // Check type of request
-#define SB_STATE_CONNECT	17
-#define SB_STATE_POST			18
-#define SB_STATE_GET				19
-#define SB_STATE_SITEISIP       20
-#define SB_STATE_TLS				21
+#define SB_STATE_CONNECT	19
+#define SB_STATE_POST			20
+#define SB_STATE_GET				21
+#define SB_STATE_SITEISIP       22
+#define SB_STATE_TLS				23
 
 // xSET check setting of flag x
-#define SB_STATE_EXCEPTIONSET	22
-#define SB_STATE_GREYSET	23
-#define SB_STATE_BLOCKSET	24
-#define SB_STATE_MITMSET        25
-#define SB_STATE_DONESET       26
-#define SB_STATE_RETURNSET       27
-#define SB_STATE_TRUE				28
-#define SB_STATE_HASSNI			29
-#define SB_STATE_REDIRECTSET 30
-#define SB_STATE_VIRUSCHECKSET 31
-#define SB_STATE_BYPASSSET  32
-#define SB_STATE_BYPASSALLOWEDSET  33
-#define SB_STATE_INFECTIONBYPASSALLOWEDSET  34
-#define SB_STATE_SEMIEXCEPTIONSET	35
+#define SB_STATE_EXCEPTIONSET	24
+#define SB_STATE_GREYSET	25
+#define SB_STATE_BLOCKSET	26
+#define SB_STATE_MITMSET        27
+#define SB_STATE_DONESET       28
+#define SB_STATE_RETURNSET       29
+#define SB_STATE_TRUE				30
+#define SB_STATE_HASSNI			31
+#define SB_STATE_REDIRECTSET 32
+#define SB_STATE_VIRUSCHECKSET 33
+#define SB_STATE_BYPASSSET  34
+#define SB_STATE_BYPASSALLOWEDSET  35
+#define SB_STATE_INFECTIONBYPASSALLOWEDSET  36
+#define SB_STATE_SEMIEXCEPTIONSET	37
 
-#define SB_STATE_MAP_SIZE  35
+#define SB_STATE_MAP_SIZE  37
 
 // Storyboard defined functions IDs start at 1 - Built-in actions at 5001
 #define SB_BI_FUNC_BASE		5000
@@ -129,6 +131,8 @@ class SBFunction
 			 "listenportin",
              "responseheaderin",
 			 "categoryin",
+			 "destipin",
+			 "responsecodein",
 			"connect",
 			 "post",
 			 "get",

@@ -2,7 +2,7 @@ DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists/common
 
-SUBDIRS = . 
+SUBDIRS = . category_block_templates.d
 
 WLISTS = authexceptionsiteiplist \
 authexceptioniplist \
@@ -16,8 +16,10 @@ embededreferersitelist \
 embededrefererurllist \
 exceptionclientlist \
 exceptioniplist \
+geolocation_ip_allow_list \
 nologextensionlist \
 nologregexpurllist \
+nolog_response_code_list \
 nologsiteiplist \
 nologsitelist \
 nologurllist \

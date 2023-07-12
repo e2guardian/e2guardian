@@ -349,9 +349,9 @@ class OptionContainer
     std::string mailer;
 #endif
 
-    HTMLTemplate html_template; // unused ?? never set, not mentioned in e2guardian.conf but used in FOptionContainer::getHTMLTemplate
+  //  HTMLTemplate html_template; // unused ?? never set, not mentioned in e2guardian.conf but used in FOptionContainer::getHTMLTemplate
 
-    std::string per_room_directory_location;  // not used but in LOptionContainer ??
+    std::string per_room_directory_location;  // todo: not used but in LOptionContainer ??
 
     OptionContainer();
     ~OptionContainer();

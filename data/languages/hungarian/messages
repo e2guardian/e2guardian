@@ -26,6 +26,7 @@
 "110","Proxy authentication error"    # needs translation
 "121","Only limited access allowed from your location"    # needs translation
 "122","You not allowed access at this time of day"    # needs translation
+"123","Geolocation of site is not allowed"    # needs translation
 "150","Certificate supplied by server was not valid"    # needs translation
 "151","Could not open ssl connection"     # needs translation
 "152","Failed to get ssl certificate"    # needs translation

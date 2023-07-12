@@ -28,6 +28,7 @@
 "110","Error de autenticación de proxy"
 "121","Solo se permite el acceso limitado desde su ubicación"
 "122","You not allowed access at this time of day"    # needs translation
+"123","Geolocation of site is not allowed"    # needs translation
 "150","El certificado proporcionado por el servidor no era válido"
 "151","No se pudo abrir la conexión SSL"
 "152","No se pudo obtener el certificado SSL"

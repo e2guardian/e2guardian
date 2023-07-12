@@ -42,7 +42,7 @@ void HTMLTemplate::push(String s)
 }
 
 // read in HTML template and find URL, reason, category etc. placeholders
-bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholders)
+bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholders,std::deque<String> *categories)
 {
     std::string linebuffer;
     RegExp re;
@@ -61,6 +61,20 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     while (!templatefile.eof()) {
         std::getline(templatefile, linebuffer);
         line = linebuffer.c_str();
+        if (line.startsWith("#categor")) {    // has a category(ies)
+            if(categories) {
+
+                String cats = line.after("\"").before("\"");
+                cats.toLower();
+                while (cats.contains(",")) {
+                    String temp = cats.before(",");
+                    categories->push_back(temp);
+                    cats = cats.after(",");
+                }
+                categories->push_back(cats);
+            }
+            continue;
+        }
         // look for placeholders
         re.match(line.toCharArray(),Rre);
         while (Rre.numberOfMatches() > 0) {

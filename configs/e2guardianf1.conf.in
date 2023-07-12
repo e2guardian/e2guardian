@@ -301,6 +301,12 @@ urllist = 'name=exceptionfile,path=__LISTDIR__/exceptionfileurllist'
 # Note that this can overriden by entries in exception and grey sites/urls lists
 #sitelist = 'name=blanketblocktld,messageno=752,path=__LISTDIR__/blanketblocktldlist'
 
+# NEW in v5.6 - geolocation allow - blanket destination ip that are NOT in this
+# list
+# To activate a storyboard change is required - see examplef1.story
+# Note that this can overriden by entries in exception and grey sites/urls lists
+#iplist = 'name=allowedgeo,path=__LISTDIR__/../common/geolocation_allow_ip_list'
+
 ###
 ### END of BLANKET section
 
@@ -426,6 +432,7 @@ ipsitelist = 'name=nolog,path=__LISTDIR__//../common/nologsiteiplist'
 urllist = 'name=nolog,path=__LISTDIR__//../common/nologurllist'
 regexpboollist = 'name=nolog,path=__LISTDIR__//../common/nologregexpurllist'
 fileextlist = 'name=nolog,path=__LISTDIR__//../common/nologextensionlist'
+codelist = 'name=nolog,path=__LISTDIR__//../common/nolog_response_code_list'
 
 ###
 ### END of ACCESS_LOG section 
@@ -693,8 +700,7 @@ regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderrege
 #
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
-# filter group, overriding the global setting in e2guardian.conf. This is
-# only used in reporting level 3.
+# filter group. This is only used in reporting level 3.
 #
 # The default template file path is <languagedir>/<language>/template.html
 # e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
@@ -703,6 +709,13 @@ regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderrege
 # This option generates a file path of the form:
 # <languagedir>/<language>/<htmltemplate>
 # e.g. @E2DATADIR@/languages/ukenglish/custom.html
+
+#htmltemplatedir = '__LIST_DIR__/../common/category_block_templates.d'
+#
+# NEW in v5.6
+# Categories can have their own block page templates. These are
+#  defined in this directory. See README in 
+#  lists/common/category_block_templates.d for details.
 
 #neterrtemplate = 'custom_neterr_template.html' 
 #

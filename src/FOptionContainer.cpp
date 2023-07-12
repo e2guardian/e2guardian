@@ -73,6 +73,12 @@ void FOptionContainer::reset()
         delete banned_page;
         banned_page = nullptr;
     }
+    cat2templateMap.clear();
+    for (auto i = HTMLTemplateArr.begin();i < HTMLTemplateArr.end();i++) {
+        if(*i != nullptr)
+        delete *i;
+    }
+    HTMLTemplateArr.clear();
     resetJustListData();
 }
 
@@ -94,13 +100,17 @@ void FOptionContainer::resetJustListData()
 }
 
 // grab this FG's HTML template
-HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail)
+HTMLTemplate *FOptionContainer::getHTMLTemplate(bool upfail, String category)
 {
     if(upfail && neterr_page)
         return neterr_page;
-    if (banned_page)
+    if (!category.empty()) {
+        for ( auto i = cat2templateMap.begin(); i < cat2templateMap.end();i++) {
+            if (i->category == category)
+                        return i->btemplate;
+        }
+    }
         return banned_page;
-    return &(o.html_template);
 }
 
 
@@ -445,7 +455,7 @@ bool FOptionContainer::read(const char *filename) {
                 E2LOGGER_error("Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
                 return false;
             }
-            // override default banned page
+            // get default banned page for this profile
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
                 html_template = o.config.languagepath + html_template;
@@ -461,6 +471,13 @@ bool FOptionContainer::read(const char *filename) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
                     return false;
                 }
+            }
+
+            // get category specific banned templates
+            String banned_template_dir(findoptionS("htmltemplatedir"));
+            if(!banned_template_dir.empty())
+            {
+                read_template_dir(banned_template_dir);
             }
 
             String neterr_template(findoptionS("neterrtemplate"));
@@ -924,4 +941,69 @@ bool FOptionContainer::isOurWebserver(String url)
         }
     }
     return false;
+}
+
+bool FOptionContainer::read_template_dir(String &directory) {
+    DIR *dir;
+    dirent *entry;
+    struct stat info;
+
+    dir = opendir(directory.c_str());
+
+    if(!dir)
+    {
+       E2LOGGER_error("Error: htmltemplatedir ", directory, " does not exist or can not be opened (check permissions are correct)");
+       return false;
+    }
+std::deque<String> matched_files;
+    while ((entry = readdir(dir)) != NULL) {
+        String name(entry->d_name);
+        if (name.startsWith(".") || name.startsWith("README"))
+            continue;
+        if (!name.endsWith(".html"))
+            continue;
+        String path = directory;
+        path += "/";
+        path += name;
+        stat(path.c_str(), &info);
+        if (S_ISDIR(info.st_mode)) {
+            continue;
+        }
+        matched_files.push_back(path);
+    }
+    closedir(dir);
+
+    std::sort(matched_files.begin(),matched_files.end());
+
+    for (auto f = matched_files.begin(); f < matched_files.end(); f++) {
+        HTMLTemplate *temp;
+        temp = new HTMLTemplate;
+        std::deque<String> cats;
+        temp->readTemplateFile((*f).c_str(), nullptr, &cats);
+        if (!cats.empty()) {
+            HTMLTemplateArr.push_back(temp);
+            bool found = false;
+            for (auto i = cats.begin(); i < cats.end(); i++) {
+                // first see if already exists - if so override
+                for (auto e = cat2templateMap.begin(); e < cat2templateMap.end(); e++) {
+                    if (e->category == *i) {
+                        found = true;
+                        e->btemplate = temp;
+                        break;
+                    }
+                }
+                if (!found) {  // then add it to the end
+                    Cat2Template n;
+                    n.btemplate = temp;
+                    n.category = *i;
+                    cat2templateMap.push_back(n);
+                }
+            }
+        } else {   // template file has no categories in it - so discard
+            E2LOGGER_warning("Block page template ", *f, " ignored as it does not have any categories defined");
+            delete temp;
+            continue;
+        }
+    }
+    return true;
 }

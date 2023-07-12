@@ -16,6 +16,8 @@
 
 #include <cstring>
 #include <algorithm>
+#include <netdb.h>
+
 
 // GLOBALS
 
@@ -185,6 +187,8 @@ void NaughtyFilter::reset()
     orig_ip = "";
     orig_port = 0;
     got_orig_ip = false;
+    destIPs_dq.clear();
+    destIP.clear();
 
 }
 
@@ -1079,3 +1083,90 @@ String NaughtyFilter::main_category() {
     return temp;
 }
 
+void NaughtyFilter::check_destIP() {
+    if (!destIPs_dq.empty())
+        return;
+    if (!isdirect)
+        return;
+
+    int lerr_mess = 0;
+    String des_ip;
+    if (isiphost)
+        des_ip = urldomain;
+    if (o.conn.use_original_ip_port && got_orig_ip && (connect_site == urldomain))
+        des_ip = orig_ip;
+
+    if (!des_ip.empty()) {
+
+        destIPs_dq.push_back(des_ip);
+        destIP = des_ip;
+        return;
+
+    } else {
+        //dns lookup
+        struct addrinfo hints, *infoptr = nullptr;
+        memset(&hints, 0, sizeof(addrinfo));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags = 0;
+        hints.ai_protocol = 0;
+        hints.ai_canonname = NULL;
+        hints.ai_addr = NULL;
+        hints.ai_next = NULL;
+        bool rt = true;
+        while (rt) {
+            rt = false;
+            int rc = getaddrinfo(connect_site.toCharArray(), NULL, &hints, &infoptr);
+            if (rc)  // problem
+            {
+                DEBUG_debug(" getaddrinfo returned ", String(rc),
+                            " for ", connect_site, " ", gai_strerror(rc));
+
+                switch (rc) {
+                    case EAI_NONAME:
+                        lerr_mess = 207;
+                        break;
+#ifdef EAI_NODATA
+                    case EAI_NODATA:
+                        lerr_mess = 208;
+                        break;
+#endif
+                    case EAI_AGAIN:
+                        lerr_mess = 209;
+                        rt = true;
+                        break;
+                    case EAI_FAIL:
+                        lerr_mess = 210;
+                        break;
+                    default:
+                        lerr_mess = 210;  //TODO this should have it's own message??
+                        break;
+                }
+                //if (rt) continue;
+                //else break;
+            }
+        }
+        if (lerr_mess != 0) {
+            upfailure = true;
+            message_no = lerr_mess;
+            whatIsNaughty = o.language_list.getTranslation(lerr_mess);
+            whatIsNaughtyLog = whatIsNaughty;
+            whatIsNaughtyCategories = "";
+            whatIsNaughtyDisplayCategories = "";
+            isItNaughty = true;
+            blocktype = 3;
+            isexception = false;
+            isbypass = false;
+            DEBUG_debug("Upstream dns failure error is ", lerr_mess);
+        } else {
+            char t[256];
+            struct addrinfo *p;
+            for (p = infoptr; p != NULL; p = p->ai_next) {
+                getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
+                destIPs_dq.push_back(String(t));
+            }
+            DEBUG_debug("list of ", destIPs_dq.size(), "IPs found");
+        }
+        freeaddrinfo(infoptr);
+    }
+}

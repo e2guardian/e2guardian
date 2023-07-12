@@ -173,6 +173,8 @@ class NaughtyFilter
     std::string whatIsNaughtyDisplayCategories;
     std::string clienthost;
     std::string clientip;
+    std::deque<String> destIPs_dq;
+    String destIP;
 
     NaughtyFilter();
     NaughtyFilter(HTTPHeader &request, HTTPHeader &response);
@@ -191,6 +193,8 @@ class NaughtyFilter
     // both phrase filtering passes (smart/raw)
     int naughtiness = 0;
     String lastcategory;
+
+    void check_destIP();
 
     private:
     // check the banned, weighted & exception lists

@@ -1,0 +1,8 @@
+# geolocation_ip_allow_list
+#
+# this can be used in blanket block mode to only allow content check in certain 
+# geolocations
+#
+# The lists used need to be generated from the geo ip lists to put them in
+# e2g iplist format
+#
