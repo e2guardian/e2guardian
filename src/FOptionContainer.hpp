@@ -17,6 +17,9 @@
 #include "LanguageContainer.hpp"
 #include "ImageContainer.hpp"
 #include "RegExp.hpp"
+#include <dirent.h>
+#include <sys/stat.h>
+#include <algorithm>
 //#include "HTTPHeader.hpp"
 //#include "NaughtyFilter.hpp"
 #include "StoryBoard.hpp"
@@ -138,14 +141,23 @@ public:
     StoryBoard StoryB;
 
     // get HTML template for this group
-    HTMLTemplate *getHTMLTemplate(bool upfail);
+    HTMLTemplate *getHTMLTemplate(bool upfail, String category);
     std::deque<std::string> text_mime;
     std::deque<std::string> text_mime_stop;   // used to exclude text/ mime type from standard e2g phrase scan
 
     private:
-    // HTML template - if it overrides the default
+    // HTML template
     HTMLTemplate *banned_page = nullptr;
     HTMLTemplate *neterr_page = nullptr;
+    std::deque<HTMLTemplate*> HTMLTemplateArr;
+    struct Cat2Template {
+        String category;
+        HTMLTemplate *btemplate = nullptr;
+    };
+    std::deque<Cat2Template> cat2templateMap;
+
+    bool read_template_dir(String &directory);
+
 
     ListMeta LMeta;
 

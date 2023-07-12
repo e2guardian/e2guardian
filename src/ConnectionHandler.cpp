@@ -1799,7 +1799,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 
                         String fullurl = checkme->get_logUrl();
                         String localip = peerconn.getLocalIP();
-                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure)->display_hb(ebody,
+                        ldl->fg[filtergroup]->getHTMLTemplate(checkme->upfailure,checkme->main_category())->display_hb(ebody,
                                                                                               &fullurl,
                                                                                               (*checkme).whatIsNaughty,
                                                                                               (*checkme).whatIsNaughtyLog,

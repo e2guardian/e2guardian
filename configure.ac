@@ -582,6 +582,7 @@ configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
 configs/lists/common/Makefile
+configs/lists/common/category_block_templates.d/Makefile
 configs/lists/example.group/Makefile
 configs/lists/phraselists/Makefile
 configs/lists/oldphraselists/Makefile

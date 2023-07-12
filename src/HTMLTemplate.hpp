@@ -30,7 +30,7 @@ class HTMLTemplate
 
     // load in a template from the given file, looking for placeholder strings (reason, URL, category etc.)
     // optionally, provide your own set of placeholders
-    bool readTemplateFile(const char *filename, const char *placeholders = NULL);
+    bool readTemplateFile(const char *filename, const char *placeholders = NULL, std::deque<String> *categories = nullptr);
 
 #ifdef NOTDEF
     // fill in the template with the given info and send it to the client over the given socket

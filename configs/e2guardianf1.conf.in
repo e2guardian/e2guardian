@@ -700,8 +700,7 @@ regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderrege
 #
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
-# filter group, overriding the global setting in e2guardian.conf. This is
-# only used in reporting level 3.
+# filter group. This is only used in reporting level 3.
 #
 # The default template file path is <languagedir>/<language>/template.html
 # e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
@@ -710,6 +709,13 @@ regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderrege
 # This option generates a file path of the form:
 # <languagedir>/<language>/<htmltemplate>
 # e.g. @E2DATADIR@/languages/ukenglish/custom.html
+
+#htmltemplatedir = '__LIST_DIR__/../common/category_block_templates.d'
+#
+# NEW in v5.6
+# Categories can have their own block page templates. These are
+#  defined in this directory. See README in 
+#  lists/common/category_block_templates.d for details.
 
 #neterrtemplate = 'custom_neterr_template.html' 
 #

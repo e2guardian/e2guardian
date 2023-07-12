@@ -1104,7 +1104,7 @@ void NaughtyFilter::check_destIP() {
 
     } else {
         //dns lookup
-        struct addrinfo hints, *infoptr;
+        struct addrinfo hints, *infoptr = nullptr;
         memset(&hints, 0, sizeof(addrinfo));
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
@@ -1113,14 +1113,15 @@ void NaughtyFilter::check_destIP() {
         hints.ai_canonname = NULL;
         hints.ai_addr = NULL;
         hints.ai_next = NULL;
-        while (true) {
+        bool rt = true;
+        while (rt) {
+            rt = false;
             int rc = getaddrinfo(connect_site.toCharArray(), NULL, &hints, &infoptr);
             if (rc)  // problem
             {
                 DEBUG_debug(" getaddrinfo returned ", String(rc),
                             " for ", connect_site, " ", gai_strerror(rc));
 
-                bool rt = false;
                 switch (rc) {
                     case EAI_NONAME:
                         lerr_mess = 207;
@@ -1141,28 +1142,30 @@ void NaughtyFilter::check_destIP() {
                         lerr_mess = 210;  //TODO this should have it's own message??
                         break;
                 }
-                if (rt) continue;
-                else break;
+                //if (rt) continue;
+                //else break;
             }
+        }
+        if (lerr_mess != 0) {
+            upfailure = true;
+            message_no = lerr_mess;
+            whatIsNaughty = o.language_list.getTranslation(lerr_mess);
+            whatIsNaughtyLog = whatIsNaughty;
+            whatIsNaughtyCategories = "";
+            whatIsNaughtyDisplayCategories = "";
+            isItNaughty = true;
+            blocktype = 3;
+            isexception = false;
+            isbypass = false;
+            DEBUG_debug("Upstream dns failure error is ", lerr_mess);
+        } else {
             char t[256];
             struct addrinfo *p;
             for (p = infoptr; p != NULL; p = p->ai_next) {
                 getnameinfo(p->ai_addr, p->ai_addrlen, t, sizeof(t), NULL, 0, NI_NUMERICHOST);
                 destIPs_dq.push_back(String(t));
             }
-            if (lerr_mess > 0) {
-                upfailure = true;
-                message_no = lerr_mess;
-                whatIsNaughty = o.language_list.getTranslation(lerr_mess);
-                whatIsNaughtyLog = whatIsNaughty;
-                whatIsNaughtyCategories = "";
-                whatIsNaughtyDisplayCategories = "";
-                isItNaughty = true;
-                blocktype = 3;
-                isexception = false;
-                isbypass = false;
-            }
-            break;
+            DEBUG_debug("list of ", destIPs_dq.size(), "IPs found");
         }
         freeaddrinfo(infoptr);
     }
