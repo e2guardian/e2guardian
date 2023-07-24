@@ -499,7 +499,7 @@ String String::getHostname()
 // limit string to given length
 int String::limitLength(unsigned int l)
 {
-    *this = this->substr(0, l);
+   if(this->length() > l) *this = this->substr(0, l);
     return this->length();
 }
 

@@ -75,6 +75,9 @@ add_executable(v5_6
         src/ListMeta.cpp
         src/ListMeta.hpp
         src/LogFormat.hpp
+        src/LogFormat.cpp
+        src/LogTransfer.hpp
+        src/LogTransfer.cpp
         src/Logger.cpp
         src/Logger.hpp
         src/LoggerConfigurator.cpp

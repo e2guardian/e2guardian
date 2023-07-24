@@ -24,7 +24,7 @@
 #include "IPList.hpp"
 #include "Queue.hpp"
 #include <atomic>
-
+#include "LogTransfer.hpp"
 
 
 // DECLARATIONS
@@ -35,14 +35,17 @@ struct AccessLogOptions
     std::string RSlog_location;
     std::string ALlog_location;
 
-    Queue<std::string>* log_Q;
-    Queue<std::string>* RQlog_Q;
+    Queue<LogTransfer*>* log_Q;
+    Queue<LogTransfer*>* RQlog_Q;
 
     //Queue<AccessLogger::LogRecord*> log_Q;
     //Queue<AccessLogger::LogRecord*> RQlog_Q;
 
     int log_level = 0;
     int log_file_format = 0;
+    LogFormat request_log_format;
+    LogFormat response_log_format;
+
     int log_exception_hits = 0;
 
     bool log_requests = false;
@@ -63,7 +66,7 @@ struct AccessLogOptions
     // Hardware/organisation/etc. IDs
     std::string logid_1;
     std::string logid_2;
-    std::string prod_id;
+    std::string prod_id;    // not used?? Is it needed for logs?? - Yes is in OptionContainer - option to add in logs
 };
 
 struct AuthPluginOptions 
@@ -339,7 +342,8 @@ class OptionContainer
     ListManager             lm;
 
     Queue<LQ_rec> http_worker_Q;
-    
+    LogFormat access_log_format;
+
     bool config_error = false;
 
     bool use_xforwardedfor = false;

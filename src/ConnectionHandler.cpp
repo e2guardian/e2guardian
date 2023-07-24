@@ -15,6 +15,7 @@
 #include "Queue.hpp"
 #include "ImageContainer.hpp"
 #include "Logger.hpp"
+#include "LogTransfer.hpp"
 
 #include <signal.h>
 #include <arpa/nameser.h>
@@ -697,7 +698,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 else if(header.isProxyRequest) {
                     fnt = "PROXY";
                 } else fnt = "TRANS";
-                doRQLog(clientuser, clientip, checkme, fnt);
+                doLog(clientuser, clientip, checkme, true);
             }
 
             if(!header.isProxyRequest)  // is transparent http proxy
@@ -1340,71 +1341,92 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
 }
 
 
-void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm) {
+void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter &cm, bool is_RQlog, std::string fmt) {
 
-    DEBUG_trace("who: ", who, " from: ", from );
+    DEBUG_trace("who: ", who, " from: ", from);
 
-    if (cm.isourwebserver) cm.nolog = true;
+    if (!is_RQlog && cm.isourwebserver) cm.nolog = true;
+
 
     struct timeval theend;
     gettimeofday(&theend, NULL);
-    String rtype = cm.request_header->requestType();
-    String where = cm.get_logUrl();
-    unsigned int port = cm.request_header->port;
-    bool isexception = cm.isexception;
-    std::string *cat = &cm.whatIsNaughtyCategories;
     std::string what;
-
-    // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
-    // or if it's an exception and exception logging is disabled
-    if (
-            (o.log.log_level == 0) || ((cat != NULL) && !o.log.log_ad_blocks && (strstr(cat->c_str(), "ADs") != NULL)) ||
-            ((o.log.log_exception_hits == 0) && isexception)) {
-        if (o.log.log_level != 0) {
-            if (isexception) {
-                DEBUG_debug(" -Not logging exceptions");
-            } else {
-                DEBUG_debug(" -Not logging 'ADs' blocks");
+    if (!is_RQlog) {
+        // don't log if logging disabled entirely, or if it's an ad block and ad logging is disabled,
+        // or if it's an exception and exception logging is disabled
+        if (
+                (o.log.log_level == 0) || ((!cm.whatIsNaughtyCategories.empty()) && !o.log.log_ad_blocks &&
+                                           (strstr(cm.whatIsNaughtyCategories.c_str(), "ADs") != NULL)) ||
+                ((o.log.log_exception_hits == 0) && cm.isexception)) {
+            if (o.log.log_level != 0) {
+                if (cm.isexception) {
+                    DEBUG_debug(" -Not logging exceptions");
+                } else {
+                    DEBUG_debug(" -Not logging 'ADs' blocks");
+                }
             }
+            cm.nolog = true;
         }
-        cm.nolog = true;
+        if (!((cm.isexception && (o.log.log_exception_hits == 2)) || cm.isItNaughty|| o.log.log_level == 3 ||
+              (o.log.log_level == 2 && cm.is_text)))
+            cm.nolog = true;
+        if (!cm.nolog) ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
+        if (cm.nolog && !e2logger.isEnabled(LoggerSource::responselog)) {
+            return;
+        }
     }
 
-    if(!cm.nolog) ldl->fg[filtergroup]->StoryB.runFunctEntry(ENT_STORYB_LOG_CHECK, cm);
-    //if(cm.nolog) return;
-
-    if (e2logger.isEnabled(LoggerSource::requestlog)) {
-        what = thread_id;
+    LogTransfer *Tr = new LogTransfer;
+    LogFormat *Fm;
+    if (is_RQlog) {
+        Fm = &o.log.request_log_format;
+    } else {
+        Fm = &(o.access_log_format);
     }
-    what += cm.whatIsNaughtyLog;
-    String how = rtype;
-    off_t size = cm.docsize;
-    bool isnaughty = cm.isItNaughty;
-    int naughtytype = cm.blocktype;
-    bool istext = cm.is_text;
-    struct timeval *thestart = &cm.thestart;
-    bool cachehit = false;
-    int code = (cm.response_header->returnCode());
-    if (isnaughty) code = 403;
-    std::string mimetype = cm.response_header->getContentType();
-    bool wasinfected = cm.wasinfected;
-    bool wasscanned = cm.wasscanned;
-    int naughtiness = cm.naughtiness;
-    int filtergroup = cm.filtergroup;
-    HTTPHeader *reqheader = cm.request_header;
-    int message_no = cm.message_no;
-    bool contentmodified = cm.contentmodified;
-    bool urlmodified = cm.urlmodified;
-    bool headermodified = cm.headermodified;
-    bool headeradded = cm.headeradded;
+    DEBUG_trace("Type of format_type is ",Fm->format_type );
+    Tr->end_time = theend;
+    Tr->rqtype = cm.request_header->requestType();
+    Tr->url = cm.get_logUrl();
+    Tr->port = cm.request_header->port;
+    Tr->is_exception = cm.isexception;
+    Tr->thread_id = thread_id;
+    Tr->filtergroup = cm.filtergroup;
+    Tr->start_time = cm.thestart;
+if(!is_RQlog) {
+    Tr->upfailure = cm.upfailure;
+    Tr->categories = cm.whatIsNaughtyCategories;
+    Tr->categories.limitLength(o.log.max_logitem_length);
+    if (Fm->present[Fm->WHATISNAUGHTY]) Tr->what_is_naughty += cm.whatIsNaughtyLog;
+    if (Fm->present[Fm->USERAGENT]) Tr->useragent = cm.request_header->userAgent();
+    Tr->docsize = cm.docsize;
+    Tr->is_naughty = cm.isItNaughty;
+    Tr->block_type = cm.blocktype;
+    Tr->is_text = cm.is_text;
+    Tr->rscode = (cm.response_header->returnCode());
+    if (Tr->is_naughty) Tr->rscode = 403;      // is this right???
+    if (Fm->present[Fm->MIMETYPE]) Tr->mime_type = cm.response_header->getContentType();
+    Tr->was_infected = cm.wasinfected;
+    Tr->was_scanned = cm.wasscanned;
+    Tr->naughtiness = cm.naughtiness;
+    Tr->message_no = cm.message_no;
+    Tr->content_modified = cm.contentmodified;
+    Tr->url_modified = cm.urlmodified;
+    Tr->header_modified = cm.headermodified;
+    Tr->header_added = cm.headeradded;
+    if (Fm->present[Fm->SEARCHTERMS])
+        Tr->search_terms = cm.search_terms;
+    Tr->do_access_log = !cm.nolog;
+    Tr->do_alert_log = (cm.alert && e2logger.isEnabled(LoggerSource::alertlog));
+    Tr->is_semi_exception = cm.issemiexception;
+}
 
-
-    std::string data, cr("\n");
-
-    if (!((isexception && (o.log.log_exception_hits == 2)) || isnaughty || o.log.log_level == 3 || (o.log.log_level == 2 && istext)))
-        cm.nolog = true;
-
-    if(!cm.nolog || (cm.alert && e2logger.isEnabled(LoggerSource::alertlog)) || e2logger.isEnabled(LoggerSource::responselog)){
+if(!is_RQlog && cm.nolog ) {
+    //if(!is_RQlog && (cm.nolog || !e2logger.isEnabled(LoggerSource::responselog))) {
+    delete Tr;
+    return;
+}
+//    if(!cm.nolog || (cm.alert && Tr->do_alert_log) || e2logger.isEnabled(LoggerSource::responselog))
+        //{
         // put client hostname in log if enabled.
         // for banned & exception IP/hostname matches, we want to output exactly what was matched against,
         // be it hostname or IP - therefore only do lookups here when we don't already have a cached hostname,
@@ -1414,29 +1436,13 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             getClientFromIP(from.c_str(),cm.clienthost);
         }
 
-        // Build up string describing POST data parts, if any
-        std::ostringstream postdata;
-        for (std::list<postinfo>::iterator i = postparts.begin(); i != postparts.end(); ++i) {
-            // Replace characters which would break log format with underscores
-            std::string::size_type loc = 0;
-            while ((loc = i->filename.find_first_of(",;\t ", loc)) != std::string::npos)
-                i->filename[loc] = '_';
-            // Build up contents of log column
-            postdata << i->mimetype << "," << i->filename << "," << i->size
-                     << "," << i->blocked << "," << i->storedname << "," << i->bodyoffset << ";";
-        }
-        postdata << std::flush;
 
         // Formatting code moved into log_listener in FatController.cpp
 
         // Item length limit put back to avoid log listener
         // overload with very long urls Philip Pearce Jan 2014
-        if ((cat != NULL) && (cat->length() > o.log.max_logitem_length))
-            cat->resize(o.log.max_logitem_length);
-        if (what.length() > o.log.max_logitem_length)
-            what.resize(o.log.max_logitem_length);
-        if (where.length() > o.log.max_logitem_length)
-            where.limitLength(o.log.max_logitem_length);
+        Tr->url.limitLength(o.log.max_logitem_length);
+
         if (o.log.dns_user_logging() && !is_real_user) {
             String user;
             if (getdnstxt(from, user)) {
@@ -1446,179 +1452,41 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
             };
             is_real_user = true;    // avoid looping on persistent connections
         };
-        std::string l_who = who;
-        std::string l_from = from;
-        std::string l_clienthost;
-        l_clienthost = cm.clienthost;
+        if (cm.authrec->is_authed)
+            Tr->is_authed = true;
+        Tr->user = who;
+        Tr->client_ip = from;
+        Tr->clientHost = cm.clienthost;
 
         if (cm.anon_user) {
-            l_who = "";
-            l_from = "0.0.0.0";
-            l_clienthost = "";
+            Tr->user = "";
+            Tr->client_ip = "0.0.0.0";
+            Tr->clientHost= "";
         }
 
         // populate flags field
-        String flags = cm.getFlags();
+        if(Fm->present[Fm->EXTFLAGS])
+        Tr->extflags = cm.getFlags();
 
-        DEBUG_debug(" -Building raw log data string... ");
+        if(Fm->present[Fm->REQHEADER]) {
+            for (auto it : Fm->reqh_needed_list) {
+                String h = cm.request_header->findHeader(it);
+                Tr->reqh_needed_list.push_back(it);
+            }
+        }
 
-        data = String(isexception) + cr;
-        data += (cat ? (*cat) + cr : cr);
-        data += String(isnaughty) + cr;
-        data += String(naughtytype) + cr;
-        data += String(naughtiness) + cr;
-        data += where + cr;
-        data += what + cr;
-        data += how + cr;
-        data += l_who + cr;
-        data += l_from + cr;
-        data += String(port) + cr;
-        data += String(wasscanned) + cr;
-        data += String(wasinfected) + cr;
-        data += String(contentmodified) + cr;
-        data += String(urlmodified) + cr;
-        data += String(headermodified) + cr;
-        data += String(size) + cr;
-        data += String(filtergroup) + cr;
-        data += String(code) + cr;
-        data += String(cachehit) + cr;
-        data += String(mimetype) + cr;
-        data += String((*thestart).tv_sec) + cr;
-        data += String((*thestart).tv_usec) + cr;
-        data += String((theend).tv_sec) + cr;
-        data += String((theend).tv_usec) + cr;
-        data += l_clienthost + cr;
 
-        if (o.log.log_user_agent)
-            data += (reqheader ? reqheader->userAgent() + cr : cr);
-        else
-            data += cr;
-        data += urlparams + cr;
-        data += postdata.str().c_str() + cr;
-        data += String(message_no) + cr;
-        data += String(headeradded) + cr;
-        data += flags + cr;
-        data += cm.search_terms;
-        data += cr;
-        data += String(!cm.nolog) + cr;
-        data += String(cm.alert) + cr;
-        data += String(cm.issemiexception) + cr;
-
-        DEBUG_debug(" -...built");
-
+    DEBUG_trace(" item_list size is ",Fm->item_list.size());
         // push on log queue
-        o.log.log_Q->push(data);
-        // connect to dedicated logging proc
-    }
+            if(is_RQlog) {
+                o.log.RQlog_Q->push(Tr);
+        } else {
+                o.log.log_Q->push(Tr);
+        }
+        DEBUG_trace("Log record pushed to queue");
+        return;
 }
 
-void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct) {
-    DEBUG_trace("who: ", who, " from: ", from, "funct: ", funct);
-    String rtype = cm.request_header->requestType();
-    String where = cm.logurl;
-    unsigned int port = cm.request_header->port;
-    std::string what = thread_id;
-    what += funct;
-    if (cm.isTLS)
-        what += "_TLS";
-    if (cm.hasSNI)
-        what += "_SNI";
-    if (cm.ismitm)
-        what += "_MITM";
-    String how = rtype;
-    off_t size = cm.docsize;
-    std::string *cat = nullptr;  //&cm.whatIsNaughtyCategories;
-    bool isnaughty = cm.isItNaughty;
-    int naughtytype = cm.blocktype;
-    bool isexception = cm.isexception;
-    struct timeval *thestart = &cm.thestart;
-    bool cachehit = false;
-    int code = 0;
-    std::string mimetype = "";  //cm.mimetype;
-    bool wasinfected = false;  //cm.wasinfected;
-    bool wasscanned = false;  //cm.wasscanned;
-    int naughtiness = 0;  //cm.naughtiness;
-    int filtergroup = cm.filtergroup;
-    HTTPHeader *reqheader = cm.request_header;
-    int message_no = cm.message_no;
-    bool contentmodified = false; //cm.contentmodified;
-    bool urlmodified = false; //cm.urlmodified;
-    bool headermodified = false; //cm.headermodified;
-    bool headeradded = false; //cm.headeradded;
-
-    std::string data, cr("\n");
-
-//    if ((isexception && (o.log_exception_hits == 2))
-//        || isnaughty || o.ll == 3 || (o.ll == 2 && istext)) 
-    if(true) {
-
-        // Item length limit put back to avoid log listener
-        // overload with very long urls Philip Pearce Jan 2014
-        if (what.length() > o.log.max_logitem_length)
-            what.resize(o.log.max_logitem_length);
-        if (where.length() > o.log.max_logitem_length)
-            where.limitLength(o.log.max_logitem_length);
-        if (o.log.dns_user_logging() && !is_real_user) {
-            String user;
-            if (getdnstxt(from, user)) {
-                who = who + ":" + user;
-            };
-            is_real_user = true;    // avoid looping on persistent connections
-        };
-        std::string l_who = who;
-        std::string l_from = from;
-        std::string l_clienthost;
-        l_clienthost = cm.clienthost;
-        String flags = cm.getFlags();
-
-        DEBUG_debug(" -Building raw log data string... ");
-
-        data = String(isexception) + cr;
-        data += (cat ? (*cat) + cr : cr);
-        data += String(isnaughty) + cr;
-        data += String(naughtytype) + cr;
-        data += String(naughtiness) + cr;
-        data += where + cr;
-        data += what + cr;
-        data += how + cr;
-        data += l_who + cr;
-        data += l_from + cr;
-        data += String(port) + cr;
-        data += String(wasscanned) + cr;
-        data += String(wasinfected) + cr;
-        data += String(contentmodified) + cr;
-        data += String(urlmodified) + cr;
-        data += String(headermodified) + cr;
-        data += String(size) + cr;
-        data += String(filtergroup) + cr;
-        data += String(code) + cr;
-        data += String(cachehit) + cr;
-        data += String(mimetype) + cr;
-        data += String((*thestart).tv_sec) + cr;
-        data += String((*thestart).tv_usec) + cr;
-        data += String((*thestart).tv_sec) + cr;
-        data += String((*thestart).tv_usec) + cr;
-        data += l_clienthost + cr;
-        if (o.log.log_user_agent)
-            data += (reqheader ? reqheader->userAgent() + cr : cr);
-        else
-            data += cr;
-        data += urlparams + cr;
-        data += cr;
-        data += String(message_no) + cr;
-        data += String(headeradded) + cr;
-        data += flags + cr;
-        data += cr;     //cm.search_terms not known yet
-        data += cr;
-
-        DEBUG_debug(" -...built");
-
-        //delete newcat;
-        // push on log queue
-        o.log.RQlog_Q->push(data);
-        // connect to dedicated logging proc
-    }
-}
 
 
 
@@ -3129,7 +2997,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             //if(o.log_requests) {
             if (e2logger.isEnabled(LoggerSource::requestlog)) {
                 std::string fnt = "THTTPS";
-                doRQLog(clientuser, clientip, checkme, fnt);
+                doLog(clientuser, clientip, checkme, true, fnt);
             }
 
             checkme.clientip = clientip;
@@ -3646,7 +3514,7 @@ int ConnectionHandler::handleICAPreqmod(Socket &peerconn, String &ip, NaughtyFil
     //if(o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::string fnt = "REQMOD";
-        doRQLog(clientuser, clientip, checkme, fnt);
+        doLog(clientuser, clientip, checkme, true, fnt);
     }
 
     int rc = E2AUTH_NOUSER;
@@ -3958,7 +3826,7 @@ int ConnectionHandler::handleICAPresmod(Socket &peerconn, String &ip, NaughtyFil
     //if(o.log_requests) {
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::string fnt = "RESPMOD";
-        doRQLog(clientuser, clientip, checkme, fnt);
+        doLog(clientuser, clientip, checkme,true, fnt);
     }
     // Look up reverse DNS name of client if needed
     if (o.conn.reverse_client_ip_lookups) {

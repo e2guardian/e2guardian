@@ -1,0 +1,42 @@
+# logformat5 - log format definition file for old logformat 5.
+
+# first type of format
+
+#format: "tsv"
+
+# use_dash_for_blanks replaces usedashforblanks in .conf file
+# replace blank strings with "-" for easier readablity
+
+#use_dash_for_blanks
+
+# add_quotes_to_strings adds '"' round strings
+
+# add_header will add csv style header line at start.
+
+# List field names required in order, one per line.
+
+# Just field name (and name will also be used as label)
+# or  label.field to use label instead of field in header
+
+end_utime
+server
+user
+client_ip
+client_host
+url
+rqtype
+rscode
+bsize
+mimetype
+useragent
+blank
+durationms
+blank
+message_no
+whatCombi
+naughtiness
+category
+groupName
+groupNo
+
+

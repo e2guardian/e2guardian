@@ -827,6 +827,19 @@ void HTTPHeader::dbshowheader(String *url, const char *clientip)
     }
 }
 
+String HTTPHeader::findHeader(String &label) {
+    String ret;
+    if (header.size() > 0) {
+        for (auto e : header) {
+            if (e.startsWithLower(label)) {
+                ret = e;
+                return ret;
+            }
+        }
+    }
+    return ret;
+}
+
 void HTTPHeader::dbshowheader(bool outgoing)
 {
     return;   // temporally disable

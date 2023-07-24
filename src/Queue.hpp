@@ -11,6 +11,7 @@
 #include <condition_variable>
 #include <deque>
 #include <queue>
+#include "LogTransfer.hpp"
 
 template <typename T>
 class Queue {

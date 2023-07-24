@@ -104,8 +104,7 @@ class ConnectionHandler
   //      bool urlmodified = false, bool headermodified = false,
    //     bool headeradded = false);
 
-    void doLog(std::string &who, std::string &from, NaughtyFilter &cm);
-    void doRQLog(std::string &who, std::string &from, NaughtyFilter &cm, std::string &funct);
+    void doLog(std::string &who, std::string &from, NaughtyFilter &cm, bool do_RQlog = false, std::string func = "");
 
     bool  goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &peerconn,bool &persistProxy,  bool &authed, bool &persistent_authed, String &ip, stat_rec* &dystat, std::string &clientip, bool transparent = false);
 

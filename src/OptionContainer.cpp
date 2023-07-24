@@ -30,8 +30,8 @@
 // IMPLEMENTATION
 
 OptionContainer::OptionContainer() {
-    log.log_Q = new Queue<std::string>;
-    log.RQlog_Q = new Queue<std::string>;
+    log.log_Q = new Queue<LogTransfer*>;
+    log.RQlog_Q = new Queue<LogTransfer*>;
 }
 
 
@@ -197,6 +197,29 @@ bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 
     log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
     log.log_file_format = cr.findoptionIWithDefault("logfileformat", 1, 8, 8);
+    String temp;
+    temp = cr.findoptionS("accesslogformatconfig");
+    if (!temp.empty()) {
+        if (access_log_format.readfile(temp)) {
+            E2LOGGER_error("item_list size ", access_log_format.item_list.size());
+            LogFormat *F = &access_log_format;
+            E2LOGGER_error("item_list size fron pointer ", F->item_list.size());
+        } else {
+            DEBUG_debug("LogFormat.readfile(",temp,") returned false");
+            return false;
+        }
+
+    }
+    temp = cr.findoptionS("requestlogformatconfig");
+    if (!temp.empty()) {
+        if (!log.request_log_format.readfile(temp))
+            return false;
+    }
+    temp = cr.findoptionS("responselogformatconfig");
+    if (!temp.empty()) {
+        if (!log.response_log_format.readfile(temp))
+            return false;
+    }
 
     log.anonymise_logs = cr.findoptionB("anonymizelogs");
     log.log_ad_blocks = cr.findoptionB("logadblocks");
@@ -217,12 +240,10 @@ bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
     if (log.logid_2.empty())
         log.logid_2 = "-";
 
-#ifdef SG_LOGFORMAT
     log.prod_id = cr.findoptionS("productid");
     if (log.prod_id.empty())
         // SG '08
         log.prod_id = "2";
-#endif
 
     return true;
 }
