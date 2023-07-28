@@ -533,12 +533,11 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
         F = &(o.log.request_log_format);
     } else {
         thread_id = "log: ";
-        DEBUG_trace("item_list size is ",o.access_log_format.item_list.size());
-        F = &(o.access_log_format);
+        DEBUG_trace("item_list size is ",o.log.access_log_format.item_list.size());
+        F = &(o.log.access_log_format);
     }
     DEBUG_trace("Type of format_type is ",F->format_type );
     DEBUG_trace("item_list size is ",F->item_list.size());
-    DEBUG_trace("Size of item_list from function list_size() is ", F->list_size());
 
     try {
         DEBUG_trace("log listener ", thread_id, " started");
@@ -555,7 +554,7 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
         std::string exception_word = o.language_list.getTranslation(51);
         exception_word = "*" + exception_word + "* ";
         std::string denied_word = o.language_list.getTranslation(52);
-        denied_word = "*" + denied_word;
+        denied_word = "*" + denied_word + "* ";
         std::string infected_word = o.language_list.getTranslation(53);
         infected_word = "*" + infected_word + "* ";
         std::string scanned_word = o.language_list.getTranslation(54);
@@ -583,7 +582,9 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
                 if (i > F->item_list.begin()) {
                    line += F->delimiter;
                 }
+                if(F->add_quotes_to_strings) line += "\"";
                 line += i->name;
+                if(F->add_quotes_to_strings) line += "\"";
             }
             DEBUG_trace("Log line is ", line);
             if (is_RQlog) {
@@ -641,7 +642,10 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
                     full_url += ":";
                     full_url += String((int) port);
                 }
+            } else {
+                full_url = T->url;
             }
+            DEBUG_trace("Full_url is ",full_url);
 
             String groupname;
             String stringcode(T->rscode);
@@ -660,8 +664,13 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
 
             std::string builtline, year, month, day, hour, min, sec, when, vbody, utime;
             std::string quotes;
+            long durationsecs, durationusecs;
 	    String section;
-DEBUG_trace(" item_list size is ",F->item_list.size());
+	    String temp1, temp2, temp3;
+            char date[32];
+            struct tm tm, *ptm;
+	    DEBUG_trace("Log record do_access_log is ",T->do_access_log);
+DEBUG_trace("Building log line..." );
             for (auto i = F->item_list.begin(); i < F->item_list.end(); i++) {
                 if (i > F->item_list.begin()) {
                     builtline += F->delimiter;
@@ -676,7 +685,7 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                             if (T->upfailure)
                                 section += neterr_word;
                             else
-                                section += denied_word += "* ";
+                                section += denied_word;
                         } else if (T->is_exception) {
                             if (T->is_semi_exception) {
                                 section += semiexception_word;
@@ -685,7 +694,7 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                             }
                         }
                         if (T->was_infected)
-                            section += infected_word += "* ";
+                            section += infected_word;
                         else if (T->was_scanned)
                             section += scanned_word;
                         if (T->content_modified) {
@@ -702,8 +711,12 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                         }
                         section += what;
                         break;
+                    case LogFormat::AUTHROUTE:
+                        section = T->extflags.after(":").after(":");
+                        break;
                     case LogFormat::BSIZE:
-                        section += T->docsize;
+                        temp1 = T->docsize;
+                        section += temp1;
                         break;
                     case LogFormat::CATEGORY:
                         section += T->categories;
@@ -712,39 +725,36 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                         section += T->clientHost;
                         break;
                     case LogFormat::CLIENTHOSTORIP:
-                        section += T->clientHost;  // needs changing??
+                        if (T->clientHost.empty()) {
+                            section += T->client_ip;
+                        } else {
+                            section += T->clientHost;
+                        }
                         break;
                     case LogFormat::CLIENTIP:
                         section += T->client_ip;
                         break;
-                    case LogFormat::DURATIONMS: {
-                        long durationsecs, durationusecs;
+                    case LogFormat::DURATIONMS:
                         durationsecs = (T->end_time.tv_sec - T->start_time.tv_sec);
                         durationusecs = T->end_time.tv_usec - T->start_time.tv_usec;
                         durationusecs = (durationusecs / 1000) + durationsecs * 1000;
-                        String temp((int) durationusecs);
-                        section += temp;
-                    };
+                        temp1 = durationusecs;
+                        section += temp1;
                         break;
                     case LogFormat::END_LTIME:
-                        {
-                        char date[32];
-                        struct tm tm, *ptm;
                         ptm = localtime_r(&T->end_time.tv_sec, &tm);
                         strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", ptm);
                         section = date;
-                    }
                         break;
-                    case LogFormat::END_UTIME: {
-                        String temp2((int) T->end_time.tv_usec / 1000);
-                        String temp3((int) T->end_time.tv_sec);
+                    case LogFormat::END_UTIME:
+                        temp2 = T->end_time.tv_usec / 1000;
+                        temp3 = T->end_time.tv_sec;
                         if (temp2.length() < 3) {
                             temp2.insert(0, 3 - temp2.length(), '0');  // pad to 3 digits
                         }
-                        temp2.insert(0, 1 - temp2.length(), '.');
+                        temp2.insert(0, 1 , '.');
                         section += temp3;
                         section += temp2;
-                    }
                         break;
                     case LogFormat::EXTFLAGS:
                         section += T->extflags;
@@ -753,7 +763,11 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                         section += groupname;
                         break;
                     case LogFormat::GROUP_NO:
-                        section += T->filtergroup;
+                        temp1 = T->filtergroup;
+                        section += temp1;
+                        break;
+                    case LogFormat::LISTENINGPORT:
+                        section = T->extflags.before(":");
                         break;
                     case LogFormat::LOGID_1:
                         section += o.log.logid_1;
@@ -768,7 +782,8 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                         section += T->mime_type;
                         break;
                     case LogFormat::NAUGTHTINESS:
-                        section += T->naughtiness;
+                        temp1 = T->naughtiness;
+                        section += temp1;
                         break;
                     case LogFormat::PRODUCTID:
                         section += o.log.prod_id;
@@ -776,11 +791,15 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                     case LogFormat::PROXYIP:
                         section += o.net.proxy_ip;
                         break;
+                    case LogFormat::PROXYSERVICE:
+                        section = T->extflags.after(":").before(":");
+                        break;
                     case LogFormat::RQTYPE:
                         section += T->rqtype;
                         break;
                     case LogFormat::RSCODE:
-                        section += T->rscode;
+                        temp1 = T->rscode;
+                        section += temp1;
                         break;
                     case LogFormat::SEARCHTERMS:
                         section += T->search_terms;
@@ -789,24 +808,19 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                         section += server;
                         break;
                     case LogFormat::START_LTIME:
-                    {
-                        char date[32];
-                        struct tm tm, *ptm;
                         ptm = localtime_r(&T->start_time.tv_sec, &tm);
                         strftime(date, sizeof date, "%Y.%m.%d %H:%M:%S", ptm);
                         section = date;
-                    }
                         break;
-                    case LogFormat::START_UTIME: {
-                        String temp2((int) T->start_time.tv_usec / 1000);
-                        String temp3((int) T->start_time.tv_sec);
+                    case LogFormat::START_UTIME:
+                        temp2 = T->start_time.tv_usec / 1000;
+                        temp3 = T->start_time.tv_sec;
                         if (temp2.length() < 3) {
                             temp2.insert(0, 3 - temp2.length(), '0');  // pad to 3 digits
                         }
-                        temp2.insert(0, 1 - temp2.length(), '.');
+                        temp2.insert(0, 1 , '.');
                         section += temp3;
                         section += temp2;
-                    }
                         break;
                     case LogFormat::URL:
                         section += full_url;
@@ -824,26 +838,27 @@ DEBUG_trace(" item_list size is ",F->item_list.size());
                                 break;
                             }
                         }
-                        break;
+                            break;
                     case LogFormat::RESHEADER:
                         for (auto p : T->resh_needed_list) {
                             if (p.startsWithLower(i->header_name)) {
                                 section = p.after(":");
                                 break;
                             }
+                            break;
                         }
-                        break;
                     default:
                         E2LOGGER_error("Internal error - storage for field code ",i->code, " not defined");
+                        section = "";
                         break;
                 }
+                DEBUG_trace("Log section is after switch", section);
                 if (F->use_dash_for_blanks && section.empty())   // numerics will never be empty so we don't need to test if string field
                     section = "-";
                 if( F->add_quotes_to_strings && F->is_string[i->code]) {
                     section.insert(0,1,'"');
                     section.append("\"");
                 }
-                DEBUG_trace("Log section is ", section);
                 builtline += section;
 
             }
@@ -1200,13 +1215,13 @@ int fc_controlit()   //
     DEBUG_trace("http_worker threads created");
 
     if (e2logger.isEnabled(LoggerSource::accesslog)) {
-    DEBUG_trace("item_list before tread start is ", o.access_log_format.item_list.size());
+    DEBUG_trace("item_list before tread start is ", o.log.access_log_format.item_list.size());
         std::thread log_thread(log_listener, o.log.log_Q, false);
         log_thread.detach();
         DEBUG_trace("log_listener thread created");
     }
 
-    //if(o.log_requests) {
+    //if(o.log_requests)
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
         std::thread RQlog_thread(log_listener, o.log.RQlog_Q, true);
         RQlog_thread.detach();
@@ -1387,7 +1402,7 @@ int fc_controlit()   //
     e2logger_ttg = true;
     std::string nullstr("");
     o.log.log_Q->push(nullptr);
-    //if (o.log_requests) {
+    //if (o.log_requests)
     if (e2logger.isEnabled(LoggerSource::requestlog)) {
         o.log.RQlog_Q->push(nullptr);
     }

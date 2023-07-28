@@ -93,8 +93,8 @@ public:
 
     bool present[LogFormat::TOP];  // set present[F] to true if field output required
 
-    std::deque<String> reqh_needed_list;  // list of request headers needed for log
-    std::deque<String> resh_needed_list;   // list of response headers needed for log
+    std::vector<String> reqh_needed_list;  // list of request headers needed for log
+    std::vector<String> resh_needed_list;   // list of response headers needed for log
 
 };
 

@@ -71,6 +71,7 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
 
         if (!findProcOptions(cr)) return false;
         if (!findLoggerOptions(cr)) return false;
+        DEBUG_trace(" looger oopts read");
         if (!findAccessLogOptions(cr)) return false;
         if (!findConfigOptions(cr)) return false;
         if (!findDStatOptions(cr)) return false;
@@ -88,24 +89,8 @@ bool OptionContainer::read_config(const Path &filename, bool readFullConfig) {
         if (!findPluginOptions(cr)) return false;
         if (!findStoryBoardOptions(cr)) return false;
 
-#ifdef ENABLE_EMAIL
-        // Email notification patch by J. Gauthier
-        mailer = cr.findoptionS("mailer");
-#endif
-
-        // to remove in v5.5
-        // monitor_helper = findoptionS("monitorhelper");
-        // if (monitor_helper == "") {
-        //     monitor_helper_flag = false;
-        // } else {
-        //     monitor_helper_flag = true;
-        // }
-
         use_xforwardedfor = cr.findoptionB("usexforwardedfor");
         per_room_directory_location = cr.findoptionS("perroomdirectory");
-
-        // recheck_replaced_urls = cr.findoptionB("recheckreplacedurls");
-        // soft_restart = (findoptionS("softrestart") == "on"); // Unused
 
         if (cert.enable_ssl) {
             if (!cert.generate_ca_certificate()) return false;
@@ -189,37 +174,18 @@ bool OptionContainer::readinStdin() {
 
 bool OptionContainer::findAccessLogOptions(ConfigReader &cr)
 {
-
+DEBUG_config("Loading AccessLogOptions...");
     log.dns_user_logging_domain = cr.findoptionS("dnsuserloggingdomain");
 
     // default of unlimited no longer allowed as could cause buffer overflow
     log.max_logitem_length = cr.findoptionIWithDefault("maxlogitemlength", 10, 32000, 2000);
 
     log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
-    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 1, 8, 8);
-    String temp;
-    temp = cr.findoptionS("accesslogformatconfig");
-    if (!temp.empty()) {
-        if (access_log_format.readfile(temp)) {
-            E2LOGGER_error("item_list size ", access_log_format.item_list.size());
-            LogFormat *F = &access_log_format;
-            E2LOGGER_error("item_list size fron pointer ", F->item_list.size());
-        } else {
-            DEBUG_debug("LogFormat.readfile(",temp,") returned false");
-            return false;
-        }
+    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 0, 8, 0);
+    if (log.log_file_format > 0) {
+        E2LOGGER_warning("Redundant option 'logfileformat' ignored - this is replaced by accesslogformat");
+    }
 
-    }
-    temp = cr.findoptionS("requestlogformatconfig");
-    if (!temp.empty()) {
-        if (!log.request_log_format.readfile(temp))
-            return false;
-    }
-    temp = cr.findoptionS("responselogformatconfig");
-    if (!temp.empty()) {
-        if (!log.response_log_format.readfile(temp))
-            return false;
-    }
 
     log.anonymise_logs = cr.findoptionB("anonymizelogs");
     log.log_ad_blocks = cr.findoptionB("logadblocks");
@@ -555,6 +521,22 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
                 if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
                     return false;
             }
+            temp = cr.findoptionS("accesslogformatconfig");
+            DEBUG_config("accesslogformatconfig is ", temp);
+            if (!temp.empty()) {
+                if (log.access_log_format.readfile(temp)) {
+                    DEBUG_config("item_list size ", log.access_log_format.item_list.size());
+                    LogFormat *F = &log.access_log_format;
+                    DEBUG_config("item_list size fron pointer ", F->item_list.size());
+                } else {
+                    DEBUG_config("LogFormat.readfile(", temp, ") returned false");
+                    return false;
+                }
+            } else {
+
+                E2LOGGER_error("accesslogformatconfig is missing - it must be present");
+                return false;
+            }
     }
 
     logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
@@ -582,6 +564,17 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
                     return false;
             }
         }
+        if (log.log_requests) {
+                String temp = cr.findoptionS("requestlogformatconfig");
+                if (!temp.empty()) {
+                    if (!log.request_log_format.readfile(temp))
+                        return false;
+                } else {
+                    E2LOGGER_error("requestlogformatconfig setting is missing - it must be present when request log is enabled");
+                    return false;
+                }
+            }
+
     }
 
     {

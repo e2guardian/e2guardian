@@ -4,39 +4,38 @@
 
 #format: "csv"
 
-# use_dash_for_blanks replaces usedashforblanks in .conf file
+# use_dash_for_blanks: replaces usedashforBlanks in .conf file
 # replace blank strings with "-" for easier readablity
 
-#use_dash_for_blanks
+#use_dash_for_Blanks:
 
 # add_quotes_to_strings adds '"' round strings
-#add_quotes_to_strings
+#add_quotes_to_strings:
 
-# add_header will add csv style header line at start.
+# add_header: will add csv style header line at start.
 
 # List field names required in order, one per line.
 
 # Just field name (and name will also be used as label)
 # or  label.field to use label instead of field in header
 
-end_ltime
-user
-client_ip
-url
-whatCombi
-rqtype
-bsize
-naughtiness
-category
-groupNo
-rscode
-mimetype
+EndLtime
+User
+ClientIP
+Url
+WhatCombi
+ReqType
+BodySize
+Naughtiness
+Category
+GroupNo
+ResCode
+MimeType
 client_host
-groupName
-useragent
-params.blank
-logid_1
-logid_2
-postdata.blank
-
+GroupName
+UserAgent
+params.Blank
+LogId1
+LogId2
+postdata.Blank
 

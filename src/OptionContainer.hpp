@@ -43,8 +43,9 @@ struct AccessLogOptions
 
     int log_level = 0;
     int log_file_format = 0;
+    LogFormat access_log_format;
     LogFormat request_log_format;
-    LogFormat response_log_format;
+    //LogFormat response_log_format;   // not implimented response take access_log_format
 
     int log_exception_hits = 0;
 
@@ -342,7 +343,6 @@ class OptionContainer
     ListManager             lm;
 
     Queue<LQ_rec> http_worker_Q;
-    LogFormat access_log_format;
 
     bool config_error = false;
 

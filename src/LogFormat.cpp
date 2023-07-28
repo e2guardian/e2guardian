@@ -111,7 +111,7 @@ bool LogFormat::readfile(String &filename) {
         }
 
         bool has_params = false;
-        String check_key;
+        String check_key = line;
         if (check_key.contains(":")) {
             check_key = line.before(":");
             has_params = true;
@@ -130,15 +130,32 @@ bool LogFormat::readfile(String &filename) {
         if (has_params) {
             line = line.after(":");
             il.header_name = line;
+            line.toLower();
             if (il.code == REQHEADER){
+                DEBUG_trace("pushing to reqh list ",line);
                 reqh_needed_list.push_back(line);
             } else if(il.code == RESHEADER) {
+                DEBUG_trace("pushing to resh list ",line);
                 resh_needed_list.push_back(line);
             } else {
                 E2LOGGER_warning("Log field type ", check_key, " does not allow parameters - parameters ignored - from format file ", filename);
             }
         }
         present[il.code] = true;
+
+        // add extra presents for items needed by combi and 'or' codes
+        if (il.code == WHAT_COMBI) {
+            present[WHATISNAUGHTY] = true;
+            present[ACTIONWORD] = true;
+        }
+        if (il.code == CLIENTHOSTORIP) {
+            present[CLIENTIP] = true;
+            present[CLIENTHOST] = true;
+        }
+        if ((il.code == AUTHROUTE) || (il.code == LISTENINGPORT) | (il.code == PROXYSERVICE) ) {
+            present[EXTFLAGS] = true;
+        }
+
         item_list.push_back(il);
     };
     DEBUG_trace("Type of format_type is ",format_type );

@@ -1381,7 +1381,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     if (is_RQlog) {
         Fm = &o.log.request_log_format;
     } else {
-        Fm = &(o.access_log_format);
+        Fm = &(o.log.access_log_format);
     }
     DEBUG_trace("Type of format_type is ",Fm->format_type );
     Tr->end_time = theend;
@@ -1468,12 +1468,24 @@ if(!is_RQlog && cm.nolog ) {
         if(Fm->present[Fm->EXTFLAGS])
         Tr->extflags = cm.getFlags();
 
-        if(Fm->present[Fm->REQHEADER]) {
-            for (auto it : Fm->reqh_needed_list) {
-                String h = cm.request_header->findHeader(it);
-                Tr->reqh_needed_list.push_back(it);
+    if (Fm->present[Fm->REQHEADER]) {
+        for (auto it : Fm->reqh_needed_list) {
+            String h = cm.request_header->findHeader(it);
+            if (!h.empty()) {
+                h.chop();
+                Tr->reqh_needed_list.push_back(h);
             }
         }
+    }
+    if (Fm->present[Fm->RESHEADER]) {
+        for (auto it : Fm->resh_needed_list) {
+            String h = cm.response_header->findHeader(it);
+            if (!h.empty()) {
+                h.chop();
+                Tr->reqh_needed_list.push_back(h);
+            }
+        }
+    }
 
 
     DEBUG_trace(" item_list size is ",Fm->item_list.size());

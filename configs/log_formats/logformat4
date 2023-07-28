@@ -1,0 +1,41 @@
+# logformat4 - log format definition file for old logformat 4.
+
+# first type of format
+
+#format: "tsv"
+
+# use_dash_for_blanks: replaces usedashforBlanks in .conf file
+# replace Blank strings with "-" for easier readablity
+
+#use_dash_for_blanks:
+
+# add_quotes_to_strings: adds '"' round strings
+
+# add_header: will add csv style header line at start.
+
+# List field names required in order, one per line.
+
+# Just field name (and name will also be used as label)
+# or  label.field to use label instead of field in header
+
+EndLtime
+User
+ClientIP
+Url
+WhatCombi
+ReqType
+BodySize
+Naughtiness
+Category
+GroupNo
+ResCode
+MimeType
+ClientHost
+GroupName
+UserAgent.Blank
+params.Blank
+LogId1
+LogId2
+postdata.Blank
+
+

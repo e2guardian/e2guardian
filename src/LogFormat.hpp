@@ -39,40 +39,43 @@ public:
 
 #undef X
 #define FENUM \
-        X(BLANK, "blank"," empty column",true), \
-        X(ACTIONWORD,"actionWord"," actionWord(s) *DENIED*, *EXCEPTION, etc",true), \
-        X(BSIZE,"bsize"," size of body in bytes",false), \
-        X(CATEGORY,"category","Category",true),  \
-        X(CLIENTHOST,"clientHost","Client hostname",true),  \
-        X(CLIENTHOSTORIP,"clientHostOrIp"," client host (from reverse DNS) if unavailable the client IP",true), \
-        X(CLIENTIP,"clientip"," was 'from' in log_listener",true), \
-        X(DURATIONMS,"durationms"," time taken to service request in ms (= end_utime - start_utime)",false), \
-        X(END_LTIME,"end_ltime"," end timestamp local time in human-readable format",true), \
-        X(END_UTIME,"end_utime"," end timestamp in utime format",false), \
-        X(EXTFLAGS,"extflags", "Extended Flags",true),  \
-        X(GROUP_NAME,"groupName", "Group Name",true),  \
-        X(GROUP_NO,"groupNo", "Group Number",false), \
-        X(LOGID_1,"logid_1","  Only used in log type 4 - but keep",true), \
-        X(LOGID_2,"logid_2","  Only used in log type 4 - keep",true), \
-        X(MESSAGE_NO,"message_no"," e2g message_no or 200 if OK",false), \
-        X(MIMETYPE,"mimetype", "mime type",true),  \
-        X(NAUGTHTINESS,"naughtiness"," was sweight",false), \
-        X(PRODUCTID,"product_id","  Only used in log type 4 - keep",true), \
-        X(PROXYIP,"proxyIp"," Upstream proxy IP - was 'heir'",true), \
-        X(REQHEADER,"reqh"," request header  - not sure if needed here as special case",true), \
-        X(RESHEADER,"resh"," response header  - not sure if needed here as special case",true), \
-        X(RQTYPE,"rqtype"," request type ('GET' etc) was 'how'",true), \
-        X(RSCODE,"rscode","      response code",false), \
-        X(SEARCHTERMS,"searchTerms", "Search Terms",true),  \
-        X(SERVER,"server","Server name",true),  \
-        X(START_LTIME,"start_ltime"," start timestamp local time in human-readable format",true), \
-        X(START_UTIME,"start_utime"," start timestamp unix time in secs since 1/1/1970",false), \
-        X(TREADID,"thread_id","Thread_id of the worker",true), \
-        X(URL,"url"," = full url - was 'where'",true), \
-        X(USER,"user"," was 'who' in log_listener",true), \
-        X(USERAGENT,"useragent"," replace with header spec???",true), \
-        X(WHATISNAUGHTY,"whats_naughty","What is naughty",true), \
-        X(WHAT_COMBI,"whatCombi"," actionWord(s) + what_is_naughty - was 'what'",true), \
+        X(BLANK, "Blank"," empty column",true), \
+        X(ACTIONWORD,"ActionWord"," actionWord(s) *DENIED*, *EXCEPTION, etc",true), \
+        X(AUTHROUTE,"AuthRoute","How this has been authenticated ",true), \
+        X(BSIZE,"BodySize"," size of body in bytes",false), \
+        X(CATEGORY,"Category","Category",true),  \
+        X(CLIENTHOST,"ClientHost","Client hostname",true),  \
+        X(CLIENTHOSTORIP,"ClientHostOrIP"," client host (from reverse DNS) if unavailable the client IP",true), \
+        X(CLIENTIP,"ClientIP"," was 'from' in log_listener",true), \
+        X(DURATIONMS,"DurationMs"," time taken to service request in ms (= end_utime - start_utime)",false), \
+        X(END_LTIME,"EndLtime"," end timestamp local time in human-readable format",true), \
+        X(END_UTIME,"EndUtime"," end timestamp in utime format",false), \
+        X(EXTFLAGS,"ExtFlags", "Extended Flags",true),  \
+        X(GROUP_NAME,"GroupName", "Group Name",true),  \
+        X(GROUP_NO,"GroupNo", "Group Number",false), \
+        X(LISTENINGPORT,"ListenPort", "E2g port that accepted the connection",false), \
+        X(LOGID_1,"LogId1","  Only used in log type 4 - but keep",true), \
+        X(LOGID_2,"LogId2","  Only used in log type 4 - keep",true), \
+        X(MESSAGE_NO,"MessageNo"," e2g message_no or 200 if OK",false), \
+        X(MIMETYPE,"MimeType", "mime type",true),  \
+        X(NAUGTHTINESS,"Naughtiness"," was sweight",false), \
+        X(PRODUCTID,"ProductId","  Only used in log type 4 - keep",true), \
+        X(PROXYIP,"ProxyIP"," Upstream proxy IP - was 'heir'",true), \
+        X(PROXYSERVICE,"ProxyService","Type of proxy service flag - T= tranparent, P= explict proxy, M= MITM",true), \
+        X(REQHEADER,"ReqHeader"," requestheader  ",true), \
+        X(RESHEADER,"ResHeader"," response header",true), \
+        X(RQTYPE,"ReqType"," request type ('GET' etc) was 'how'",true), \
+        X(RSCODE,"ResCode","      response code",false), \
+        X(SEARCHTERMS,"SearchTerms", "Search Terms",true),  \
+        X(SERVER,"Server","Server name",true),  \
+        X(START_LTIME,"StartLtime"," start timestamp local time in human-readable format",true), \
+        X(START_UTIME,"StartUtime"," start timestamp unix time in secs since 1/1/1970",false), \
+        X(TREADID,"ThreadId","Thread_id of the worker",true), \
+        X(URL,"Url"," = full url - was 'where'",true), \
+        X(USER,"User"," was 'who' in log_listener",true), \
+        X(USERAGENT,"UserAgent"," replace with header spec???",true), \
+        X(WHATISNAUGHTY,"WhatsNaughty","What is naughty",true), \
+        X(WHAT_COMBI,"WhatCombi"," actionWord(s) + what_is_naughty - was 'what'",true), \
         X(TOP, "top", "top of array",false)
 
 #define X(key, name, comment, isstring) key
@@ -137,8 +140,8 @@ X(LOG_FORMAT_TOP, "top", "top of array")
 
     bool present[TOP];  // set present[F] to true if field output required
 
-    std::deque<String> reqh_needed_list;  // list of request headers needed for log
-    std::deque<String> resh_needed_list;   // list of response headers needed for log
+    std::vector<String> reqh_needed_list;  // list of request headers needed for log
+    std::vector<String> resh_needed_list;   // list of response headers needed for log
 
     bool readfile(String &filename);
 };
