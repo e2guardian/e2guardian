@@ -31,9 +31,9 @@ Category
 GroupNo
 ResCode
 MimeType
-client_host
+ClientHost
 GroupName
-UserAgent
+UserAgent.Blank    # To show UserAgent remove '.Blank'
 params.Blank
 LogId1
 LogId2

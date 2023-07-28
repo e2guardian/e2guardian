@@ -32,7 +32,7 @@ ResCode
 MimeType
 ClientHost
 GroupName
-UserAgent.Blank
+UserAgent.Blank    # To show UserAgent remove '.Blank'
 params.Blank
 LogId1
 LogId2

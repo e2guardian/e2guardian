@@ -4,8 +4,8 @@
 
 #format: "tsv"
 
-# use_dash_for_Blanks replaces usedashforBlanks in .conf file
-# replace Blank strings with "-" for easier readablity
+# use_dash_for_blanks replaces usedashforBlanks in .conf file
+# replace blank strings with "-" for easier readablity
 
 #use_dash_for_blanks:
 
@@ -28,7 +28,7 @@ ReqType
 ResCode
 BodySize
 MimeType
-UserAgent
+UserAgent.Blank    # To show UserAgent remove the '.Blank'
 Blank
 DurationMs
 Blank
@@ -40,5 +40,4 @@ GroupName
 GroupNo
 SearchTerms
 ExtFlags
-
 

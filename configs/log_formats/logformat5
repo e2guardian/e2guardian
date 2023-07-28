@@ -28,7 +28,7 @@ ReqType
 ResCode
 BodySize
 MimeType
-UserAgent
+UserAgent.Blank    # To show UserAgent remove '.Blank'
 Blank
 DurationMs
 Blank
