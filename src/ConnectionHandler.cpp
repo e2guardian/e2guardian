@@ -2723,7 +2723,6 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
                     SBauth.filter_group = filtergroup;
                     authed = true;
                     break;      // got user and group so break
-                }
             } else if (rc == E2AUTH_407_SENT)  {
                 DEBUG_auth("Auth plugin  has sent 407 so break");
                 dobreak = true;
