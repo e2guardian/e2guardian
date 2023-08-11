@@ -2528,13 +2528,13 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             } else if (rc == E2AUTH_OK_GOT_GROUP_NAME)  {
                 DEBUG_auth("Auth plugin  returned OK_GOT_GROUP_NAME ");
                 filtergroup = ldl->getFgFromName(SBauth.fg_name);
-                if (filtergroup > -1) {
+                if (filtergroup < 0) {   // lookup failed
+                    filtergroup = o.filter.default_fg;
+                    DEBUG_auth("Group ",SBauth.fg_name, " not known - setting to default");
+                }
                     SBauth.filter_group = filtergroup;
                     authed = true;
                     break;      // got user and group so break
-                } else {
-                    rc = E2AUTH_OK;  // just got user so change status flag to that effect
-                }
             } else if (rc == E2AUTH_407_SENT)  {
                 DEBUG_auth("Auth plugin  has sent 407 so break");
                 dobreak = true;
