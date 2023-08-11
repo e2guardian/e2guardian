@@ -641,8 +641,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
-                gettimeofday(&thestart, NULL);
-                checkme.thestart = thestart;
+                checkme.set_starttime();
+                thestart = checkme.thestart;
 
                 // quick trick for the very first connection :-)
                 if (!ismitm)
@@ -658,8 +658,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 ++dystat->reqs;
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
-                gettimeofday(&thestart, NULL);
-                checkme.thestart = thestart;
+                //gettimeofday(&thestart, NULL);
+                //checkme.thestart = thestart;
+                checkme.set_starttime();
+                thestart = checkme.thestart;
 
                 checkme.bypasstimestamp = 0;
 
@@ -1392,6 +1394,7 @@ void ConnectionHandler::doLog(std::string &who, std::string &from, NaughtyFilter
     Tr->thread_id = thread_id;
     Tr->filtergroup = cm.filtergroup;
     Tr->start_time = cm.thestart;
+    if(Fm->present[Fm->REQUESTID]) Tr->request_id = request_id;
 if(!is_RQlog) {
     Tr->upfailure = cm.upfailure;
     Tr->categories = cm.whatIsNaughtyCategories;
@@ -3326,8 +3329,10 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
             if (firsttime) {
                 // reset flags & objects next time round the loop
                 firsttime = false;
-                gettimeofday(&thestart, NULL);
-                checkme.thestart = thestart;
+                //gettimeofday(&thestart, NULL);
+                //checkme.thestart = thestart;
+                checkme.set_starttime();
+                thestart = checkme.thestart;
             }
 
             {
@@ -3359,8 +3364,10 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                 checkme.clientip = ip;
 
                 // we will actually need to do *lots* of resetting of flags etc. here for pconns to work
-                gettimeofday(&thestart, NULL);
-                checkme.thestart = thestart;
+                //gettimeofday(&thestart, NULL);
+                //checkme.thestart = thestart;
+                checkme.set_starttime();
+                thestart = checkme.thestart;
 
                 //authed = false;
                 //isbanneduser = false;

@@ -794,6 +794,9 @@ DEBUG_trace("Building log line..." );
                     case LogFormat::PROXYSERVICE:
                         section = T->extflags.after(":").before(":");
                         break;
+                    case LogFormat::REQUESTID:
+                        section += T->request_id;
+                        break;
                     case LogFormat::RQTYPE:
                         section += T->rqtype;
                         break;

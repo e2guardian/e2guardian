@@ -65,6 +65,7 @@ public:
         X(REQHEADER,"ReqHeader"," requestheader  ",true), \
         X(RESHEADER,"ResHeader"," response header",true), \
         X(RQTYPE,"ReqType"," request type ('GET' etc) was 'how'",true), \
+        X(REQUESTID,"RequestId"," request ID - is thread_id + startUtime",true), \
         X(RSCODE,"ResCode","      response code",false), \
         X(SEARCHTERMS,"SearchTerms", "Search Terms",true),  \
         X(SERVER,"Server","Server name",true),  \

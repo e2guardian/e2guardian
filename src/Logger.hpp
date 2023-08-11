@@ -246,6 +246,7 @@ private:
 };
 
 extern thread_local std::string thread_id;
+extern thread_local std::string request_id;
 extern std::atomic<bool> g_is_starting;
 
 extern Logger e2logger;

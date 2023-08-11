@@ -58,6 +58,7 @@ public:
     int block_type = 0;
 
     String thread_id;
+    String request_id;
     String what_is_naughty;
     String user;
     String useragent;

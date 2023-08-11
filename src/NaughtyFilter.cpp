@@ -22,6 +22,8 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
+extern thread_local std::string request_id;
 
 #ifdef HAVE_PCRE
 extern RegExp absurl_re, relurl_re;
@@ -1169,4 +1171,20 @@ void NaughtyFilter::check_destIP() {
         }
         freeaddrinfo(infoptr);
     }
+}
+
+
+void NaughtyFilter::set_starttime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    thestart = tv;
+    String temp2 = tv.tv_usec / 1000;
+    String temp3 = tv.tv_sec;
+    if (temp2.length() < 3) {
+        temp2.insert(0, 3 - temp2.length(), '0');  // pad to 3 digits
+    }
+    temp2.insert(0, 1 , '.');
+    request_id = thread_id;
+    request_id += temp3;
+    request_id += temp2;
 }

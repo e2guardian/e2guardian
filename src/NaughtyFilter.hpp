@@ -7,13 +7,14 @@
 
 // INCLUDES
 
-//#include "String.hpp"
+#include "String.hpp"
 //#include "OptionContainer.hpp"
 //#include "DataBuffer.hpp"
 #include "HTTPHeader.hpp"
 //#include "FOptionContainer.hpp"
 #include "UrlRec.hpp"
 #include "Auth.hpp"
+#include <sys/time.h>
 
 class FOptionContainer;
 
@@ -120,6 +121,7 @@ class NaughtyFilter
     String search_terms;
     struct timeval thestart;
 
+
     // 0=none,1=first line,2=all
     int headersent = 0;
 
@@ -195,6 +197,8 @@ class NaughtyFilter
     String lastcategory;
 
     void check_destIP();
+
+    void set_starttime();
 
     private:
     // check the banned, weighted & exception lists
