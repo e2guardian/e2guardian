@@ -1,11 +1,9 @@
-NOTE: Change release 3.1.0 onwards
-----------------------------------
-Due to differences in release levels of the GNU autotools on different 
-platforms we are no longer including the configure script as part 
-of the distribution.
 
 NOTE: For v5 - please read notes/NEWIN_v5 first!
 ------------------------------------------------
+
+NOTE: A Linux port is recommended - features are limited on FreeBSD.
+      Other ports are not tested! 
 
 HOW TO BUILD:
 -------------
@@ -24,7 +22,6 @@ configuration options.
 
 *** Debian and Ubuntu users, please read the Debian section first. ***
 
-*** OS X / Darwin users, please read the OS X section first. ***
 
 1.	  Run the ./autogen.sh script to generate the configure script.
 	If an error occurs in running autogen.sh or ./configure then
@@ -56,7 +53,6 @@ configuration options.
 ** You can often use "make -j 2" or "make -j 5" to compile DG faster,
    especially on multiple CPU computers.  As a general rule of thumb,
    use the number of CPUs/cores plus one.
-   With Solaris and others you may need "gmake" instead of "make".
    
 
 
@@ -126,9 +122,6 @@ Optional Features:
                           Enable static linking of zlib
   --enable-pcre[=yes]
                           Enable support for the PCRE library
-  --enable-segv-backtrace[=no]
-                          Enable logging a backtrace when a segmentation fault
-                          occurs
   --enable-lfs[=yes]
                           Enable large file support on 32 bit systems
   --enable-orig-ip[=no]
@@ -206,7 +199,7 @@ it to find libraries and programs with nonstandard names/locations.
 See ./configure --help for more details.
 
 
-MACOSX:
+MACOSX:    - Note MACOS is not currently supported in V5
 -------
 
 *** Note in order to do any compiling in OS X you need to install ***
