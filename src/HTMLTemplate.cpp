@@ -183,7 +183,11 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             }
         } else if (line == "-BYPASS-") {
             if (hashed.length() > 0) {
-                line = *url;
+                if (!safe) {
+                    makeURLSafe(safeurl);
+                    safe = true;
+                }
+                line = safeurl;
                 if (!(url->after("://").contains("/"))) {
                     line += "/";
                 }
