@@ -1,5 +1,11 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+Version 5.4.7r
+
+August 2023
+
+Fix possible XSS in bypass url - issue #782
+
 Version 5.4.6r
 
 February 2023
