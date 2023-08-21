@@ -1,6 +1,17 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
-version 5.5.3pre
+version 5.6.0
+
+August 2023 (from v5.5.4r)
+
+ Fix possible XSS in bypass url - issue #782
+  Correct INSTALL file - issue #781
+  Fix bug #780 - e2g crashes if invalid group name is provided via BearerBasic
+      auth plugin
+  Update Italian messages - pull request #778 from albanobattistella
+  Update Italian block templalte.html
+
+version 5.5.3r
 
 March to May 2023
 
