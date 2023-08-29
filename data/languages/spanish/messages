@@ -27,7 +27,7 @@
 "105","Usuario no permitido"
 "110","Error de autenticación de proxy"
 "121","Solo se permite el acceso limitado desde su ubicación"
-"122","Usted no está autorizado a acceder a esta hora del día "
+"122","Usted no está autorizado a acceder a esta hora del día"
 "150","El certificado proporcionado por el servidor no era válido"
 "151","No se pudo abrir la conexión SSL"
 "152","No se pudo obtener el certificado SSL"
