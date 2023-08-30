@@ -70,7 +70,7 @@ public:
 
     bool reverse_lookups;
     bool force_quick_search;
-    int bypass_mode;
+    int bypass_mode = 0;
     bool bypass_v2 = false;
     bool cgi_bypass_v2 = false;
     int bypass_version = 2;

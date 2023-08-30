@@ -712,6 +712,8 @@ bool FOptionContainer::read(const char *filename) {
             return false;
         } // precompiled reg exps for speed
 
+        bypass_mode = findoptionI("bypass");
+
         cgi_bypass = (findoptionS("cgibypass")== "on" );
         cgi_infection_bypass = (findoptionS("cgiinfectionbypass") == "on");
 
