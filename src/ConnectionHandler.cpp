@@ -886,9 +886,10 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                     if (checkme.isexception) {
                         // do reason codes etc
-                        checkme.exceptionreason = o.language_list.getTranslation(630);
-                        checkme.exceptionreason.append(room);
-                        checkme.exceptionreason.append(o.language_list.getTranslation(631));
+                        checkme.whatIsNaughty = o.language_list.getTranslation(630);
+                        checkme.whatIsNaughty.append(room);
+                        checkme.whatIsNaughty.append(o.language_list.getTranslation(631));
+                        checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
                         checkme.message_no = 632;
                     }
                 }
@@ -2817,101 +2818,83 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
     checkme.isbypassallowed = (ldl->fg[filtergroup]->bypass_mode != 0);
     checkme.isinfectionbypassallowed = (ldl->fg[filtergroup]->infection_bypass_mode != 0);
     checkme.isscanbypassallowed = (ldl->fg[filtergroup]->scan_bypass);
-//    if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed || checkme.isscanbypassallowed))
-//        return false;
+    if (!(checkme.isbypassallowed || checkme.isinfectionbypassallowed))
+        return false;
 
-    if ((checkme.url).contains("BYPASS=") && ((checkme.url).length() > 45))  // may be url by-pass
-    {
-        // int bypasstimestamp = 0;
-        if (checkme.isscanbypassallowed &&
-            isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
-            DEBUG_debug(" -Scan Bypass URL match");
-            checkme.isscanbypass = true;
-            checkme.isbypass = true;
-            checkme.message_no = 608;
-            checkme.log_message_no = 608;
-            checkme.exceptionreason = o.language_list.getTranslation(608);
-            //we need to decode the URL and send the temp file with the
-            //correct header to the client then delete the temp file
-            checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
-            checkme.tempfilemime = (checkme.tempfilename.after("&M="));
-            checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
-            DEBUG_debug(" -Original filename: ", checkme.tempfiledis);
-            String rtype(header.requestType());
-            checkme.tempfilemime = checkme.tempfilemime.before("&D=");
-            checkme.tempfilename = o.content.download_dir + "/tf" + checkme.tempfilename.before("&M=");
-            return true;
-        }
+    // int bypasstimestamp = 0;
+    if (isScanBypassURL(checkme.url, ldl->fg[filtergroup]->magic.c_str(), clientip.c_str())) {
+        DEBUG_debug(" -Scan bypass URL match");
+        checkme.isscanbypass = true;
+        checkme.isbypass = true;
+        checkme.message_no = 608;
+        checkme.log_message_no = 608;
+        checkme.whatIsNaughty= o.language_list.getTranslation(608);
+    } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
         DEBUG_debug(" -About to check for bypass...");
-        if (checkme.isscanbypass) {
+        if (ldl->fg[filtergroup]->bypass_mode != 0)
             checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
-                                                  clientip.c_str(), "GBYPASS=", clientuser);
-            if (checkme.bypasstimestamp > 0) {
-                header.chopBypass(checkme.logurl, "GBYPASS=");
-                if (checkme.bypasstimestamp > 1) {
-                    checkme.exceptionreason = o.language_list.getTranslation(606);
-                    checkme.message_no = 606;
-                }
-                DEBUG_debug(" -Filter bypass URL match");
-            }
-        }
-
-        if ((checkme.bypasstimestamp == 0) && (checkme.isinfectionbypassallowed)) {
+                                                         clientip.c_str(), "GBYPASS=", clientuser);
+        if ((checkme.bypasstimestamp == 0) && (ldl->fg[filtergroup]->infection_bypass_mode != 0))
             checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->imagic.c_str(),
-                                                  clientip.c_str(), "GIBYPASS=", clientuser);
-            if (checkme.bypasstimestamp > 0) {
-                header.chopBypass(checkme.logurl, "GIBYPASS=");
-                if (checkme.bypasstimestamp > 1) {
-                    checkme.exceptionreason = o.language_list.getTranslation(608);
-                    checkme.message_no = 608;
-                }
+                                                         clientip.c_str(), "GIBYPASS=",
+                                                         clientuser);
+        if (checkme.bypasstimestamp > 0) {
+            if (checkme.isvirusbypass) {
                 DEBUG_debug(" -Infection bypass URL match");
+                header.chopBypass(checkme.logurl, "GIBYPASS=");
+            } else {
+                DEBUG_debug(" -Filter bypass URL match");
+                header.chopBypass(checkme.logurl, "GBYPASS=");
+            }
+            if (checkme.bypasstimestamp > 1) { // not expired
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                // checkme: need a TR string for virus bypass
+                checkme.whatIsNaughty = o.language_list.getTranslation(606);
+                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                checkme.message_no = 606;
+                checkme.log_message_no = 606;
+            }
+        } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
+            String ud(checkme.urldomain);
+            if (ud.startsWith("www.")) {
+                ud = ud.after("www.");
+            }
+            if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
+                                      clientip.c_str(), clientuser.c_str())) {
+                DEBUG_debug(" -Bypass cookie match");
+                checkme.iscookiebypass = true;
+                checkme.isbypass = true;
+                checkme.isexception = true;
+                checkme.whatIsNaughty = o.language_list.getTranslation(607);
+                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             }
         }
-
-        if ((checkme.bypasstimestamp == 0) && (checkme.istoobigbypassallowed)) {
-            checkme.bypasstimestamp = isBypassURL(checkme.logurl, ldl->fg[filtergroup]->magic.c_str(),
-                                                  clientip.c_str(), "GOSBYPASS=", clientuser);
-            if (checkme.bypasstimestamp > 0) {
-                header.chopBypass(checkme.logurl, "GOSBYPASS=");
-                if (checkme.bypasstimestamp > 1) {
-                    checkme.exceptionreason = o.language_list.getTranslation(608);
-                    checkme.message_no = 608;
-                }
-                DEBUG_debug(" -Too big to scan bypass URL match");
-            }
-        }
+        DEBUG_debug(" -Finished bypass checks.");
     }
-
-    if (checkme.bypasstimestamp > 0) {
-        if (checkme.bypasstimestamp > 1) { // not expired
-            checkme.isbypass = true;
-            checkme.isexception = true;
-            checkme.log_message_no = checkme.message_no;
-        }
-    } else if (checkme.isbypassallowed) {  // no bypass in url so check for by pass cookie
-        String ud(checkme.urldomain);
-        if (ud.startsWith("www.")) {
-            ud = ud.after("www.");
-        }
-        if (header.isBypassCookie(ud, ldl->fg[filtergroup]->cookie_magic.c_str(),
-                                    clientip.c_str(), clientuser.c_str())) {
-            DEBUG_debug(" -Bypass cookie match");
-            checkme.iscookiebypass = true;
-            checkme.isbypass = true;
-            checkme.isexception = true;
-            checkme.exceptionreason = o.language_list.getTranslation(607);
-        }
-    }
-    DEBUG_debug(" -Finished bypass checks.");
 
     if (checkme.isbypass) {
-        DEBUG_debug(" -bypass activated!");
+        DEBUG_debug(" -bypass activated:");
     }
     //
-    // End of bypass
-    //
-    return false;    // checkme.isbypass should be checked for success - only returns true if is a scanned by-pass
+// End of bypass
+//
+// Start of scan by pass
+//
+
+    if (checkme.isscanbypass) {
+//we need to decode the URL and send the temp file with the
+        //correct header to the client then delete the temp file
+        checkme.tempfilename = (checkme.url.after("GSBYPASS=").after("&N="));
+        checkme.tempfilemime = (checkme.tempfilename.after("&M="));
+        checkme.tempfiledis = (header.decode(checkme.tempfilemime.after("&D="), true));
+        DEBUG_debug(" -Original filename: " );
+        String rtype(header.requestType());
+        checkme.tempfilemime = checkme.tempfilemime.before("&D=");
+        checkme.tempfilename = o.content.download_dir + "/tf" + checkme.tempfilename.before("&M=");
+        return true;
+    }
+    return false;
 }
 
 bool ConnectionHandler::sendScanFile(Socket &peerconn, NaughtyFilter &checkme, bool is_icap, ICAPHeader *icaphead) {
@@ -2972,7 +2955,7 @@ void ConnectionHandler::check_content(NaughtyFilter &cm, DataBuffer &docbody, So
                           cm.contentmodified, &csmessage);
             if (csmessage.length() > 0) {
                 DEBUG_debug(" -csmessage found: ", csmessage);;
-                cm.exceptionreason = csmessage.toCharArray();
+                cm.whatIsNaughty = csmessage.toCharArray();
             }
         } else {
             DEBUG_debug(" -Calling contentFilter ");;
