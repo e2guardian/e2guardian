@@ -45,7 +45,9 @@ std::atomic<bool> g_is_starting;
 thread_local std::string request_id;
 
 LoggerConfigurator loggerConfig(&e2logger);
+
 bool is_daemonised;
+bool force_nodeamon = false;
 
 // regexp used during URL decoding by HTTPHeader
 // we want it compiled once, not every time it's used, so do so on startup
@@ -61,7 +63,7 @@ int readCommandlineOptions(int &ret, int argc, char *argv[]);
 
 int startDaemon();
 
-int runBenchmarks();
+//int runBenchmarks();
 
 bool check_enough_filedescriptors();
 
@@ -113,12 +115,15 @@ int main(int argc, char *argv[]) {
     int rc = readCommandlineOptions(ret, argc, argv);
     if (rc == E2_EXIT) return ret;
 
+
     DEBUG_trace("read Configfile: ", o.config.configfile);
     if (!o.read_config(o.config.configfile)) {
         E2LOGGER_error("Error parsing the e2guardian.conf file or other e2guardian configuration files");
         exit(1); // OptionContainer class had an error reading the conf or other files so exit with error
     }
 
+    if(force_nodeamon)
+        o.proc.no_daemon = true;
 
     if (o.config.total_block_list) {
         if (o.readinStdin()) {
@@ -217,7 +222,7 @@ int readCommandlineOptions(int &ret, int argc, char *argv[])  // returns E2_EXIT
                         ret = 0;
                         return E2_EXIT;
                     case 'N':
-                        o.proc.no_daemon = true;
+                        force_nodeamon = true;
                         break;
                     case 'c':   // already processed this - so skip
                         skip_next = true;
