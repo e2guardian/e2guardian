@@ -689,8 +689,8 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
             // do this normalisation etc just the once at the start.
             checkme.setURL(ismitm);
 
-            //if(o.log_requests) {
-            if (e2logger.isEnabled(LoggerSource::requestlog)) {
+            if(o.log.log_requests) {
+            //if (e2logger.isEnabled(LoggerSource::requestlog)) {
                 std::string fnt;
                 if(ismitm)
                     fnt = "MITM";
@@ -1611,6 +1611,9 @@ void ConnectionHandler::doRQLog(std::string &who, std::string &from, NaughtyFilt
         data += flags + cr;
         data += cr;     //cm.search_terms not known yet
         data += cr;
+        data += cr;     // nolog
+        data += cr;     // alert
+        data += cr;     // semiexception
 
         DEBUG_debug(" -...built");
 
