@@ -483,6 +483,15 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 {
     LoggerConfigurator loggerConf(&e2logger);
 
+    {
+        std::deque<String> *temp = cr.findoptionM("debuglevel");
+        if ( temp && !temp->empty()) {
+            for (std::deque<String>::iterator i = temp->begin(); i != temp->end(); i++) {
+                loggerConf.debuglevel(*i);
+            }
+        }
+    }
+
     logger.log_ssl_errors = cr.findoptionB("logsslerrors");
 
     {
@@ -631,14 +640,6 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
     //}
 
 
-    {
-        std::deque<String> *temp = cr.findoptionM("debuglevel");
-        if ( temp && !temp->empty()) {
-            for (std::deque<String>::iterator i = temp->begin(); i != temp->end(); i++) {
-                loggerConf.debuglevel(*i);
-            }
-        }
-    }
 
     return true;
 
