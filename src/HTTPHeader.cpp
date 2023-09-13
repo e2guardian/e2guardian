@@ -83,6 +83,8 @@ void HTTPHeader::reset()
         contentlength = -1;
         requesttype = "";
         returncode  = 0;
+        first_line_sent = false;
+        header_all_sent = false;
 
         dirty = false;
 
@@ -1610,9 +1612,12 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 {
     String l; // for amalgamating to avoid conflict with the Nagel algorithm
 
-    if (sendflag == __E2HEADER_SENDALL || sendflag == __E2HEADER_SENDFIRSTLINE) {
+    if (header_all_sent) return true;
+
+    if ((sendflag == __E2HEADER_SENDALL || sendflag == __E2HEADER_SENDFIRSTLINE) && !first_line_sent) {
         if (header.size() > 0) {
             l = header.front() + "\n";
+            first_line_sent = true;
 
             if(is_response)  {
                 DEBUG_debug("response headerout:", l);
@@ -1726,6 +1731,7 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
 #ifdef DEBUG_LOW
     dbshowheader(true);
 #endif
+    header_all_sent = true;
     return true;
 }
 
