@@ -1204,7 +1204,7 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                 }
             }
 
-            //send response header to client
+            //send response header to client(yments
             if ((!checkme.isItNaughty) && (!checkme.upfailure) && !(checkme.isconnect && checkme.isdirect)) {
                 if (!docheader.out(NULL, &peerconn, __E2HEADER_SENDALL, false)) {
                     peerDiag("Unable to send return header to client", peerconn);
@@ -1255,6 +1255,9 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                         persistOutgoing = false;
 //#endif
                     } else {
+                        if (!docheader.header_all_sent) {
+                            docheader.out(NULL,&peerconn,__E2HEADER_SENDALL,false);
+                        }
                         if (!docbody.out(&peerconn)) {
                             DEBUG_network(" docbody.out returned error");
                             checkme.pausedtoobig = false;

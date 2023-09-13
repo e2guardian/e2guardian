@@ -35,6 +35,8 @@ class HTTPHeader
     unsigned int port;
     bool is_response = false;
     bool icap;
+    bool first_line_sent = false;
+    bool header_all_sent = false;
     String redirect;
     String useragent;
     String contenttype;

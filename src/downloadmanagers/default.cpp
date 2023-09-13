@@ -112,7 +112,7 @@ int dminstance::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHead
     DEBUG_dwload("blocksize: ", blocksize);
 
     while ((d->bytes_toget  > 0) || d->geteverything) {
-        DEBUG_dwload("toget:", d->bytes_toget, "geteverything", d->geteverything);
+        DEBUG_dwload("toget:", d->bytes_toget, " geteverything ", d->geteverything);
         // send x-header keep-alive here
         if (o.content.trickle_delay > 0) {
             gettimeofday(&nowadays, NULL);
