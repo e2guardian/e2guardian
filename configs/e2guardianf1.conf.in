@@ -406,7 +406,7 @@ regexpreplacelist = 'name=redirect,path=__LISTDIR__/urlredirectregexplist'
 # use 0 for a complete block
 # use higher (e.g. 512 = 512Kbytes) for limiting
 # use -1 for no blocking
-# NOTE: POST PROTECTION IS NOT YET IMPLIMENTED IN V5
+# NOTE: POST PROTECTION IS NOT YET IMPLEMENTED IN V5
 #maxuploadsize = 512
 #maxuploadsize = 0
 # default -1
@@ -931,17 +931,17 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 ###
 ### No settings just info on new features etc
 
-# New in v5.4.2:- relative paths
+# Relative paths (from v5.4.2)
 # Relative paths can used in .Include<> and list files.
 #       The directory of current file will be insert where the file name
 #       does not start with '/'
 
 
-# Also NEW in v5.4.2 - LISTDIR 'variable' definition
+# LISTDIR 'variable' definition (from v5.4.2)
 # LISTDIR can be defined in .conf files.
 # This allows for more readable configuration and for templating.
 # This works similarly to a shell environment variable
-# The text between <> will replace occurances of __LISTDIR__ in .conf and
+# The text between <> will replace occurrences of __LISTDIR__ in .conf and
 #       list files.
 # Note: Currently only LISTDIR may be defined.
 #
