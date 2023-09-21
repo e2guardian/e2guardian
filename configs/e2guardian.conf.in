@@ -10,23 +10,23 @@
 ### QUICK_START 	- Items to check to get you started
 ### NAMES_PATHS 	- Names & Path settings
 ### NETWORK 		- Network settings
-### MITM 		- SSL MITM settings
+### MITM 		    - SSL MITM settings
 ### ICAP_SERVICE 	- ICAP server mode settings
 ### TRANSPARENT 	- Transparent proxy settings
-### AUTH		- Authentication (user and group assignment) 
-###				settings and lists
+### AUTH		    - Authentication (user and group assignment)
+###				        settings and lists
 ### ACCESS_LOG		- Access log settings
 ### MONITORING		- Monitoring settings
 ### URL_FILTERING	- URL filtering settings
 ### LIST_SETTINGS	- Settings on how lists are handled
 ### AV_SCANNERS		- AV scanner settings and lists
-### HEADER		- HTTP Header handling
+### HEADER		    - HTTP Header handling
 ### BLOCK_PAGE		- Block Page formats and handling
 ### DOWNLOAD_MANAGER	- Download manager settings
-### PHRASES		- Content phrase settings
-### TUNING		- Tuning parameters
-### DEBUG		- Debug settings
-### PROCESS		- e2guardian process settings
+### PHRASES		    - Content phrase settings
+### TUNING		    - Tuning parameters
+### DEBUG		    - Debug settings
+### PROCESS		    - e2guardian process settings
 ### OBSOLETE		- Obsolete settings
 ### INFO		- Info on new features etc
 ###
@@ -46,9 +46,9 @@
 language = 'ukenglish'
 
 #.Define LISTDIR <@E2CONFDIR@/lists/common>
-# NEW in v5.4.2 - LISTDIR 'variable' definition
+# LISTDIR 'variable' definition
 # This works similarly to a shell environment variable
-# The text between <> will replace occurances of __LISTDIR__ in .conf and
+# The text between <> will replace occurrences of __LISTDIR__ in .conf and
 #       list files.
 # See INFO section for more details
 # default LISTDIR value for e2guardian.conf is E2CONFDIR/lists/commom
@@ -56,7 +56,7 @@ language = 'ukenglish'
 #dockermode = off
 #
 # Container mode
-# the process will not fork into the background AND log in stdout
+# the process will not fork into the background AND will log in stdout
 # In this mode systemd service is disabled !
 #
 # Also sets info, error and warning messages to stderr 
@@ -110,6 +110,12 @@ language = 'ukenglish'
 #
 # the ip of upstream proxy - optional - if blank e2g will go direct to sites.
 # default is "" i.e. no proxy
+
+#proxyport = 3128
+#
+# the port e2guardian connects to any upstream proxy on
+# default 3128
+# Is ignored if proxyip is blank.
 
 #filtergroups = 1
 #
@@ -199,22 +205,25 @@ languagedir = '@E2DATADIR@/languages'
 # listen on all IPs.  That would include all NICs, loopback, modem, etc.
 # Normally you would have your firewall protecting this, but if you want
 # you can limit it to a certain IP. To bind to multiple interfaces,
-# specify each IP on an individual filterip line.
+# specify each IP on an individual filterip line or specify multiple ips
+# on a single line separated by ':'
 # default "" - listen on all IPs
 
 #filterports = 8080
-#filterports = 8081
+#filterports = 8080:8081:8082
 #
 # The port(s) that e2guardian listens to for http proxy traffic.
-# Specify one line per port used for standard explict proxy.
-# These ports can also be used for redirected tranparent HTTP
+# Specify one line per port used for standard explict proxy or specify multiple ports
+# on a single line separated by ':'
+# These ports can also be used for redirected transparent HTTP
 # Default is to listen on 8080 for proxy traffic
 
 #tlsfilterports = 8090
-#tlsfilterports = 8091
+#tlsfilterports = 8090:9091
 #
 # The port(s) that e2guardian listens to for TLS (secure) proxy traffic.
-# Specify one line per port used for secure explict proxy.
+# Specify one line per port used for secure explict proxy or
+#  specify multiple ports on a single line separated by ':'
 # Note that using TLS proxy consumes double the number of file descriptors (4)
 #     and httpsworker threads (2) per session
 # The MITM root CA must also be installed on the client even when not using
@@ -1439,14 +1448,14 @@ originalip = off
 
 ### INFO section
 ###
-### No settings just info on new features etc
+### No settings just info on new(ish) features etc
 
-# New in v5.4.2:- relative paths
+# Relative paths (from v5.4.2)
 # Relative paths can used in .Include<> and list files.
 #       The directory of current file will be inserted where the file name
 #       does not start with '/'
 
-# Also NEW in v5.4.2 - LISTDIR 'variable' definition
+# LISTDIR 'variable' definition (from v5.4.2)
 # LISTDIR can be defined in .conf files.
 # This allows for more readable configuration and for templating.
 # This works similarly to a shell environment variable
