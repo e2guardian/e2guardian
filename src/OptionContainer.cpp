@@ -522,30 +522,31 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
             if (!loggerConf.configure(LoggerSource::accesslog, temp))
                 return false;
         } else if (!proc.is_dockermode) {
-                log.log_location = cr.findoptionS("loglocation");
-                if (log.log_location.empty()) {
-                    log.log_location = __LOGLOCATION;
-                    log.log_location += "/access.log";
-                }
-                if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
-                    return false;
+            log.log_location = cr.findoptionS("loglocation");
+            if (log.log_location.empty()) {
+                log.log_location = __LOGLOCATION;
+                log.log_location += "/access.log";
             }
-            temp = cr.findoptionS("accesslogformatconfig");
-            DEBUG_config("accesslogformatconfig is ", temp);
-            if (!temp.empty()) {
-                if (log.access_log_format.readfile(temp)) {
-                    DEBUG_config("item_list size ", log.access_log_format.item_list.size());
-                    LogFormat *F = &log.access_log_format;
-                    DEBUG_config("item_list size fron pointer ", F->item_list.size());
-                } else {
-                    DEBUG_config("LogFormat.readfile(", temp, ") returned false");
-                    return false;
-                }
-            } else {
+            if (!e2logger.setLogOutput(LoggerSource::accesslog, LoggerDestination::file, log.log_location))
+                return false;
+        }
 
-                E2LOGGER_error("accesslogformatconfig is missing - it must be present");
+        temp = cr.findoptionS("accesslogformatconfig");
+        DEBUG_config("accesslogformatconfig is ", temp);
+        if (!temp.empty()) {
+            if (log.access_log_format.readfile(temp)) {
+                DEBUG_config("item_list size ", log.access_log_format.item_list.size());
+                LogFormat *F = &log.access_log_format;
+                DEBUG_config("item_list size from pointer ", F->item_list.size());
+            } else {
+                DEBUG_config("LogFormat.readfile(", temp, ") returned false");
                 return false;
             }
+        } else {
+
+            E2LOGGER_error("accesslogformatconfig is missing - it must be present");
+            return false;
+        }
     }
 
     logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
