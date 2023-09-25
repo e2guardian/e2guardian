@@ -482,7 +482,7 @@ bool FOptionContainer::read(const char *filename) {
 
             String neterr_template(findoptionS("neterrtemplate"));
             if (neterr_template != "") {
-                neterr_template = o.config.languagepath + neterr_template;
+               neterr_template = o.config.languagepath + neterr_template;
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
