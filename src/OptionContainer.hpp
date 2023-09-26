@@ -113,6 +113,7 @@ struct ConfigOptions
 {
     std::string prog_name;   // (default e2guardian)
     std::string configfile;  // Main Configfile (default ${e2sysconfdir}/e2guardian.conf)
+    std::string language_dir; // added to allow for different language per group
     std::string languagepath;   
 
     char benchmark = '\0';

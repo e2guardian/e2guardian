@@ -63,7 +63,9 @@ FOptionContainer::~FOptionContainer()
 
 void FOptionContainer::reset()
 {
+    language_path = o.config.languagepath; // inherit main config setting as default
     conffile.clear();
+    have_group_language = false;
     if (neterr_page != nullptr)
     {
         delete neterr_page;
@@ -450,6 +452,20 @@ bool FOptionContainer::read(const char *filename) {
                 }
             }
         }
+
+        String language(findoptionS("language"));  //todo: group language is not yet implemented
+        if (! language.empty()) {
+            language_path = o.config.language_dir;
+            language_path += language;
+            language_path += "/";
+            std::string language_list_location(language_path);
+            language_list_location += "messages";
+            if (!language_list.readLanguageList(language_list_location.c_str())) {
+                return false;
+            } // messages language file
+            have_group_language = true;
+        }
+
         if (reporting_level == 3) {
             if (access_denied_domain.length() > 1) {
                 E2LOGGER_error("Warning accessdeniedaddress setting appears to be wrong in reportinglevel 3");
@@ -458,14 +474,20 @@ bool FOptionContainer::read(const char *filename) {
             // get default banned page for this profile
             String html_template(findoptionS("htmltemplate"));
             if (html_template != "") {
-                html_template = o.config.languagepath + html_template;
+                if (html_template.contains("__LANGDIR__")) {
+                    html_template.replaceall("__LANGDIR__",language_path.c_str());
+                }
+                if (!html_template.startsWith("/")) {   // to allow backward compatibility
+                    html_template = language_path.c_str() + html_template;
+                }
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
                     return false;
                 }
             } else {
-                html_template = o.config.languagepath + "template.html";
+                html_template = language_path;
+                html_template += "template.html";
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML Template file: ", html_template);
@@ -477,20 +499,32 @@ bool FOptionContainer::read(const char *filename) {
             String banned_template_dir(findoptionS("htmltemplatedir"));
             if(!banned_template_dir.empty())
             {
+                if (banned_template_dir.contains("__LANGDIR__")) {
+                    banned_template_dir.replaceall("__LANGDIR__",language_path.c_str());
+                }
+                if (!banned_template_dir.startsWith("/")) {   // to allow backward compatibility
+                    banned_template_dir = language_path.c_str() + banned_template_dir;
+                }
                 read_template_dir(banned_template_dir);
             }
 
             String neterr_template(findoptionS("neterrtemplate"));
             if (neterr_template != "") {
-               neterr_template = o.config.languagepath + neterr_template;
+                if (neterr_template.contains("__LANGDIR__")) {
+                    neterr_template.replaceall("__LANGDIR__",language_path.c_str());
+                }
+                if (!neterr_template.startsWith("/")) {   // to allow backward compatibility
+                    neterr_template = language_path.c_str() + neterr_template;
+                }
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading NetErr HTML Template file: ", neterr_template);
                     return false;
                     // HTML template file
                 }
-            } else {  // if blank will default to HTML template file
-                neterr_template = o.config.languagepath + "neterr_template.html";
+            } else {
+                neterr_template = language_path;
+                neterr_template += "neterr_template.html";
                 neterr_page = new HTMLTemplate;
                 if (!(neterr_page->readTemplateFile(neterr_template.toCharArray()))) {
                     E2LOGGER_error("Error reading default HTML and NetErr Template file: ", html_template);

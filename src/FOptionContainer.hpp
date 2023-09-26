@@ -51,6 +51,9 @@ public:
     off_t max_upload_size;
     int filtergroup;
     bool non_standard_delimiter;
+    String language_path;
+    LanguageContainer       language_list;
+    bool have_group_language = false;
 
     //SSL certificate checking
     bool ssl_check_cert = false;

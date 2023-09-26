@@ -47,7 +47,7 @@
 ###   Create a group1 directory
 ###   Copy the lists in lists/sample.group into this directory
 ###	and edit them to your requirements
-### Comment out .define.., and storyboard = lines below.
+### Comment out .Define.., and storyboard = lines below.
 ###
 ### To add group two:-
 ###
@@ -65,6 +65,13 @@
 # Used to fill in the -FILTERGROUP -placeholder in the HTML template file, and to
 # name the group in the access logs
 # Default 'group1' where 1 is the group number
+
+#language = 'french'
+#
+# Optional - default is ""
+# language for this group (overrides e2guardian.conf setting for block page messages for this group's users)
+# All log entries will remain in global language
+# NB: This is not yet functional and setting is currently ignored.
 
 storyboard = '@E2CONFDIR@/examplef1.story'   # comment out for production
 #
@@ -588,7 +595,7 @@ searchlist = 'name=localbanned,messageno=581,path=__LISTDIR__/localbannedsearchl
 #contentscanexceptions = off
 #
 # If 'on' exception sites, urls, users etc will be scanned
-# This is probably not desirable behavour as exceptions are
+# This is probably not desirable behaviour as exceptions are
 # supposed to be trusted and will increase load.
 # Correct use of grey lists are a better idea.
 # (on|off) default = off
@@ -696,32 +703,44 @@ regexpreplacelist = 'name=responseheadermods,path=__LISTDIR__/responseheaderrege
 # place of "=".
 # Default is enabled, but to go back to the standard mode, disable it.
 
-#htmltemplate = 'custom.html'
+# NEW in v5.6
+# Templates have always been assumed to be in the language directory
+# From v5.6 they can be anywhere on the file system - making them consistent
+# with other file path entries.
+# A read-only '__LANGDIR__' is available which is the current language directory
+# i.e. <languagedir>/<language>/
+
+#htmltemplate = '__LANGDIR__/custom.html'
 #
 # HTML Template override
 # If defined, this specifies a custom HTML template file for members of this
 # filter group. This is only used in reporting level 3.
 #
-# The default template file path is <languagedir>/<language>/template.html
+# The default template file path is __LANGDIR__/template.html
 # e.g. @E2DATADIR@/languages/ukenglish/template.html when using 'ukenglish'
 # language.
 #
-# This option generates a file path of the form:
+# If the resulting path does not start with a '/' then for backward compatibility
+# A file path of the form:
 # <languagedir>/<language>/<htmltemplate>
 # e.g. @E2DATADIR@/languages/ukenglish/custom.html
+# Note: This is likely to be withdrawn in future versions, so please use the
+#    __LANGDIR__/custom.html in your configuration.
 
-#htmltemplatedir = '__LIST_DIR__/../common/category_block_templates.d'
+#htmltemplatedir = '__LANGDIR__/category_block_templates.d'
 #
 # NEW in v5.6
-# Categories can have their own block page templates. These are
-#  defined in this directory. See README in 
-#  lists/common/category_block_templates.d for details.
+# Categories can now have their own block page templates. These are
+#  defined in this directory. See
+#  notes/per_category_block_forms for details.
+#
+# Default is "" = not used
 
-#neterrtemplate = 'custom_neterr_template.html' 
+#neterrtemplate = '__LANGDIR__/custom_neterr_template.html'
 #
 #Template for use to report network issues and sites which are not responding
-# The default template file path is <languagedir>/<language>/neterr_template.html
-# e.g. @E2DATADIR@/languages/ukenglish/neterr_template.html when using 
+# The default template file path is __LANGDIR__/neterr_template.html
+# i.e. @E2DATADIR@/languages/ukenglish/neterr_template.html when using
 # 'ukenglish' language.
 
 

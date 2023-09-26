@@ -45,7 +45,7 @@
 # language to use from languagedir.
 language = 'ukenglish'
 
-#.Define LISTDIR <@E2CONFDIR@/lists/common>
+.Define LISTDIR <@E2CONFDIR@/lists/common>
 # LISTDIR 'variable' definition
 # This works similarly to a shell environment variable
 # The text between <> will replace occurrences of __LISTDIR__ in .conf and
@@ -1461,15 +1461,17 @@ originalip = off
 ### No settings just info on new(ish) features etc
 
 # Relative paths (from v5.4.2)
+#
 # Relative paths can used in .Include<> and list files.
 #       The directory of current file will be inserted where the file name
 #       does not start with '/'
 
 # LISTDIR 'variable' definition (from v5.4.2)
+#
 # LISTDIR can be defined in .conf files.
 # This allows for more readable configuration and for templating.
 # This works similarly to a shell environment variable
-# The text between <> will replace occurances of __LISTDIR__ in .conf and
+# The text between <> will replace occurrences of __LISTDIR__ in .conf and
 #       list files.
 # Note: Currently only LISTDIR may be defined.
 #
@@ -1478,6 +1480,7 @@ originalip = off
 #
 # The scope of LISTDIR is in the rest of file it is defined in and all
 # .Include<> files or list files in that portion of the file.
+
 
 # It should be noted that re-definitions of single-line directives will 
 # over write any earlier ones.
