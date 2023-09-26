@@ -338,7 +338,8 @@ bool OptionContainer::findConfigOptions(ConfigReader &cr)
         t = __DATADIR;
         t += "/languages";
     }
-    config.languagepath = t + "/" + cr.findoptionS("language") + "/";
+    config.language_dir = t.append("/");
+    config.languagepath = config.language_dir + cr.findoptionS("language") + "/";
 
     std::string language_list_location(config.languagepath + "messages");
     if (!language_list.readLanguageList(language_list_location.c_str())) {

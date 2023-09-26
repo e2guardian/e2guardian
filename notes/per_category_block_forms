@@ -1,0 +1,40 @@
+
+Category Block Page feature - new in v5.6
+
+Allows a different block template for a category or list of categories.
+
+A different message or guidance can be given to user depending on 
+ the main block category.
+
+In e2guardianfN.conf add an 'htmltemplatedir' entry:
+
+  htmltemplatedir = '__LANGDIR__/category_block_templates.d'
+
+All files in this directory with the suffix .html are considered templates.
+
+They are processed in alphabetical order.
+
+Template format:
+
+Each template is in the same format as the standard template.html (in the 
+ language directory) with the addition of a first line added:-
+
+#category: "category_name"
+or
+#category: "category1,category2,..."
+
+Filter Blocks that have a main category which matches category_name will have 
+ block page formated from this template.
+
+If a category is also in a later template file then the later one wins.
+
+If a category is not in any of the template files then the standard template 
+ will be used.  
+
+The location of this directory is defined in the e2guardianfn.conf file by
+ the 'htmltemplatedir' setting.
+So if different templates are required for a filter group then a similar 
+ directory can be setup within the filtergroup's list directory and the 
+ 'htmltemplatedir' setting adjusted accordingly.
+
+PIP 26 Sept 2023
