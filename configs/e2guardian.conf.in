@@ -571,6 +571,10 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 
 #logfileformat = 8
 # Depreciated - use accesslogformat instead
+# Note that the configs/log_formats directory contains
+#  logformats that correspond to the old style numbers
+#  So use logformat1 to get output like old format 1.
+#
 # Log File Format
 # 1 = Dansguardian format (space delimited)
 # 2 = CSV-style format
@@ -590,11 +594,17 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 
 accesslogformatconfig = '__LISTDIR__/../../log_formats/logformat8'
 #
-# Flexible log format definition file replaces logfileformat in v5.6 on.
-# This format setting is used for access.log, response.log and alert.log
+# Flexible log format definition file(s) replaces logfileformat in v5.6 on.
+# see notes/LogFormatFiles for details on how to modify or create these logformat files
+# Note that some format settings such as usedashforblank hnd loguseragent ave been moved
+#   fron this file into these files.
+#
+# The accesslogformatconfig setting is used for access.log, response.log and alert.log
 
 requestlogformatconfig = '__LISTDIR__/../../log_formats/requestlogformat'
 #
+# Log format setting for request log
+# This setting is ignored if the request log is not enabled
 
 #anonymizelogs = off
 # anonymize logs (blank out client usernames & IPs)
@@ -680,7 +690,8 @@ requestlogformatconfig = '__LISTDIR__/../../log_formats/requestlogformat'
 # But can be turned off if this causes a problem with log analysis
 
 #logtimestamp = off
-# Add unix timestamp to time field so that date/time in readable format 
+# Depreciated option is now in format file
+# Add unix timestamp to time field so that date/time in readable format
 # and unix timestamp - applies only to log formats 1,2 and 4
 # default off
 
