@@ -825,6 +825,9 @@ DEBUG_trace("Building log line..." );
                         section += temp3;
                         section += temp2;
                         break;
+                    case LogFormat::THREADID:
+                        section += T->thread_id;
+                        break;
                     case LogFormat::URL:
                         section += full_url;
                         break;

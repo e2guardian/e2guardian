@@ -1184,7 +1184,9 @@ void NaughtyFilter::set_starttime() {
         temp2.insert(0, 3 - temp2.length(), '0');  // pad to 3 digits
     }
     temp2.insert(0, 1 , '.');
-    request_id = thread_id;
+    String temp4(thread_id);
+    request_id = temp4.before(":");
+    request_id += ":";
     request_id += temp3;
     request_id += temp2;
 }

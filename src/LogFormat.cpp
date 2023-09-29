@@ -62,7 +62,7 @@ bool LogFormat::readfile(String &filename) {
         line = linebuffer.c_str();
         if (line.empty()) continue;
         if (line.startsWith("#")) {
-        if (line.startsWith("#format:")) {    // has a category(ies)
+        if (line.startsWith("#format:")) {
             String type = line.after("\"").before("\"");
             int f = get_format_key(type);
             if (f < 0) {

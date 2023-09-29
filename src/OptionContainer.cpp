@@ -183,7 +183,7 @@ DEBUG_config("Loading AccessLogOptions...");
     log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
     log.log_file_format = cr.findoptionIWithDefault("logfileformat", 0, 8, 0);
     if (log.log_file_format > 0) {
-        E2LOGGER_warning("Redundant option 'logfileformat' ignored - this is replaced by accesslogformat");
+        E2LOGGER_warning("Redundant option 'logfileformat' ignored - this is replaced by accesslogformatconfig");
     }
 
 
@@ -324,9 +324,11 @@ bool OptionContainer::findConfigOptions(ConfigReader &cr)
     if (t == "/") {
         t = __DATADIR;
         t += "/languages";
+        t.append("/");
     }
-    config.language_dir = t.append("/");
+    config.language_dir = t;
     config.languagepath = config.language_dir + cr.findoptionS("language") + "/";
+    DEBUG_config("language_dir is ",config.language_dir, " languagepath is ", config.languagepath);
 
     std::string language_list_location(config.languagepath + "messages");
     if (!language_list.readLanguageList(language_list_location.c_str())) {

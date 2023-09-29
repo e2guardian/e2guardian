@@ -71,7 +71,7 @@ public:
         X(SERVER,"Server","Server name",true),  \
         X(START_LTIME,"StartLtime"," start timestamp local time in human-readable format",true), \
         X(START_UTIME,"StartUtime"," start timestamp unix time in secs since 1/1/1970",false), \
-        X(TREADID,"ThreadId","Thread_id of the worker",true), \
+        X(THREADID,"ThreadId","Thread_id of the worker",true), \
         X(URL,"Url"," = full url - was 'where'",true), \
         X(USER,"User"," was 'who' in log_listener",true), \
         X(USERAGENT,"UserAgent"," replace with header spec???",true), \

@@ -588,12 +588,13 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 # 8 = Same as 7, but with server field blanked
 # Default is 8
 
-accesslogformat = '__LISTDIR__/../../log_formats/logformat8'
+accesslogformatconfig = '__LISTDIR__/../../log_formats/logformat8'
+#
+# Flexible log format definition file replaces logfileformat in v5.6 on.
+# This format setting is used for access.log, response.log and alert.log
 
-# Replaces logfileformat in v5.6 on.
-#requestlogformat = '__LISTDIR__/../../log_formats/logformat8'
-# Default made = to accesslogformat
-# Replaces logfileformat in v5.6 on.
+requestlogformatconfig = '__LISTDIR__/../../log_formats/requestlogformat'
+#
 
 #anonymizelogs = off
 # anonymize logs (blank out client usernames & IPs)

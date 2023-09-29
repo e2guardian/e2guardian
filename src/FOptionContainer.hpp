@@ -125,7 +125,9 @@ public:
 
     FOptionContainer()
             :  searchterm_flag(false), banned_page(NULL)
-               {};
+               {
+                   reset();
+               };
 
     ~FOptionContainer();
     bool read(const char *filename);
