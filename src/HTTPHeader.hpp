@@ -90,6 +90,7 @@ class HTTPHeader
     // Content-Disposition
     String disposition();
     String userAgent();
+    String findHeader(String &label);
     // grab contents of X-Forwarded-For
     std::string getXForwardedForIP();
     // check HTTP message code to see if it's a redirect

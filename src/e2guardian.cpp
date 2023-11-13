@@ -42,6 +42,7 @@
 OptionContainer o;
 thread_local std::string thread_id;
 std::atomic<bool> g_is_starting;
+thread_local std::string request_id;
 
 LoggerConfigurator loggerConfig(&e2logger);
 

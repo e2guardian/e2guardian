@@ -1,0 +1,72 @@
+The new logformat configuration files enable flexible log outputs that can be easily
+customised and formatted in various ways.
+
+At the top of the file are a number of directives which affect the format.
+
+#format:"format"  - format may be:-
+                    'csv' - comma separated values
+                    'tsv' - tab separated values
+                    'ssv' - space separated values
+                    default is 'tsv'
+                    other formats may be added in the future
+
+#add_header:      - if present a header line of labels will be output at startup (to emulate full csv format)
+
+#add_quotes_to_strings:   - if present adds quotes round string fields
+
+#use_dash_for_blanks:     - replace any blank strings with '-' for easier readability
+
+Then add fields you require, in the format below, and in the order required:-
+
+    [label.]field[:parameter]
+
+    where
+       label = your choice of label - this will be output in any header - only A-Z, a-z and 0-9 will be used
+          if absent defaults to field.
+       field = one of the fields defined below
+       parameter - only ReqHeader and ResHeader require parameters
+
+Fields available:-
+
+Blank		        Empty column
+ActionWord      	ActionWord(s) (*DENIED*, *EXCEPTION, etc)
+AuthRoute		    How this has been authenticated (auth_method:how_selected)
+BodySize 		    Size of body in bytes
+Category		    Category(ises)
+ClientHost		    Client hostname (from reverse DNS)
+ClientHostOrIP 		ClientHost, or if unavailable the ClientIP
+ClientIP 		    Client IP
+DurationMs 		    Time taken to service request in ms
+EndLtime 		    End timestamp local time in human-readable format
+EndUtime 		    End timestamp in utime format
+ExtFlags 		    Extended Flags = ListenPort:ProxyServce:AuthRoute (see notes/New_log_fields_in_logformat7-8.pdf)
+GroupName 		    Filter group Name
+GroupNo 		    Filter group Number
+ListenPort 		    E2g port that accepted the connection
+LogId1  		    As defined in e2guardian.conf
+LogId2  		    As defined in e2guardian.conf
+MessageNo 		    e2g Message Number
+MimeType 		    Mime type
+Naughtiness 		Naughtiness score
+ProductId  		    As defined in e2guardian.conf
+ProxyIP 		    Upstream proxy IP if used
+ProxyService		Type of e2g service flags
+                        1st character - T= tranparent, P= explict proxy or I= ICAP
+                        2nd character - H= HTTP, S= HTTPS or CONNECT, or M= MITM (http request inside https connection)
+ReqHeader:param     Request header of param type
+ResHeader:param 	Response header of param type
+ReqType 		    request type ('GET','PUT','POST' etc)
+RequestId 		    unique request ID (= ThreadId + StartUtime)
+ResCode      		HTML Response Code
+SearchTerms 		Detected Search Terms
+Server			    Server name
+StartLtime 		    Start timestamp local time in human-readable format
+StartUtime 		    Start timestamp unix time in secs since 1/1/1970
+ThreadId		    Thread_id of the worker logging this request/response
+Url 			    Url of request
+User 			    User name
+UserAgent 		    UserAgent in request
+WhatsNaughty		What is naughty
+WhatCombi 		    ActionWord(s) + WhatsNaughty
+
+See examples in configs/log_formats

@@ -570,6 +570,11 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 # Default is blank
 
 #logfileformat = 8
+# Depreciated - use accesslogformat instead
+# Note that the configs/log_formats directory contains
+#  logformats that correspond to the old style numbers
+#  So use logformat1 to get output like old format 1.
+#
 # Log File Format
 # 1 = Dansguardian format (space delimited)
 # 2 = CSV-style format
@@ -586,6 +591,20 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 #     See notes/New_log_fileds_in_log_format7-8.pdf for details
 # 8 = Same as 7, but with server field blanked
 # Default is 8
+
+accesslogformatconfig = '__LISTDIR__/../../log_formats/logformat8'
+#
+# Flexible log format definition file(s) replaces logfileformat in v5.6 on.
+# see notes/LogFormatFiles for details on how to modify or create these logformat files
+# Note that some format settings such as usedashforblank hnd loguseragent ave been moved
+#   fron this file into these files.
+#
+# The accesslogformatconfig setting is used for access.log, response.log and alert.log
+
+requestlogformatconfig = '__LISTDIR__/../../log_formats/requestlogformat'
+#
+# Log format setting for request log
+# This setting is ignored if the request log is not enabled
 
 #anonymizelogs = off
 # anonymize logs (blank out client usernames & IPs)
@@ -645,11 +664,13 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 # is, enabling this option does not incur any additional DNS requests.
 
 #loguseragent = off
+# Depreciated option is now in format file
 # Enable logging of client User-Agent
 # Some browsers will cause a *lot* of extra information on each line!
 # on|off (defaults to off)
 
 #logclientnameandip = on
+# Depreciated option is now in format file
 # Enable logging of both client hostname and its IP
 # If off the hostname will be logged instead of IP
 # Applies only to log formats 5, 6, 7 & 8.
@@ -663,13 +684,14 @@ regexpboollist = 'name=browser,path=__LISTDIR__/browserregexplist'
 ## Log formating options
 
 #usedashforblank = on
+# Depreciated option is now in format file
 # use dash ('-') instead of blank fields in log
 # This is essential for space delimited log formats, and makes all log types easier to read
 # But can be turned off if this causes a problem with log analysis
-# on|off (defaults to on)
 
 #logtimestamp = off
-# Add unix timestamp to time field so that date/time in readable format 
+# Depreciated option is now in format file
+# Add unix timestamp to time field so that date/time in readable format
 # and unix timestamp - applies only to log formats 1,2 and 4
 # default off
 

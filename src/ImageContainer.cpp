@@ -59,10 +59,12 @@ bool ImageContainer::display(Socket *s)
 
 
 bool ImageContainer::display_hb(String &eheader, String &ebody) {
+    ebody = image;
     eheader += "Content-type: " ;
     eheader +=   mimetype.toCharArray();
-    eheader +=  "\n\n";
-    ebody = image;
+    eheader += "\r\nContent-Length: ";
+    eheader += std::to_string(ebody.size());
+    eheader +=  "\r\n\r\n";
     return true;
 }
 

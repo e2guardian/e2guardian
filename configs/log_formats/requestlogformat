@@ -1,0 +1,44 @@
+# requestlogformat - log format definition file for irequest log 
+#  based on old logformat 8.
+
+# first type of format
+
+#format: "tsv"
+
+# use_dash_for_blanks replaces usedashforBlanks in .conf file
+# replace blank strings with "-" for easier readablity
+
+#use_dash_for_blanks:
+
+# add_quotes_to_strings: adds '"' round strings
+
+# add_header: will add csv style header line at start.
+
+# List field names required in order, one per line.
+
+# Just field name (and name will also be used as label)
+# or  label.field to use label instead of field in header
+
+StartUtime
+Server.Blank
+User
+ClientIP
+ClientHostOrIP
+Url
+ReqType
+Blank
+BodySize.Blank
+MimeType.Blank
+UserAgent.Blank    # To show UserAgent remove the '.Blank'
+Blank
+DurationMs.Blank
+Blank
+MessageNo.Blank
+RequestId
+Naughtiness.Blank
+Category.Blank
+GroupName
+GroupNo
+SearchTerms
+ExtFlags
+

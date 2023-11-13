@@ -104,6 +104,8 @@ e2guardian_SOURCES = String.cpp String.hpp \
 		       Queue.hpp, UrlRec.hpp, \
                        Logger.hpp Logger.cpp \
                        LoggerConfigurator.hpp LoggerConfigurator.cpp \
+			LogFormat.hpp LogFormat.cpp \
+			LogTransfer.hpp LogTransfer.cpp \
 		       Auth.cpp Auth.hpp \
            Utils/Path.hpp, Utils/Path.cpp \
            \

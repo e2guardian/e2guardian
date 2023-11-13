@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
-project(v5_0)
+project(v5_6)
 
 set(CMAKE_CXX_STANDARD 11)
 
 include_directories(.)
 include_directories(src)
+include_directories(src/Utils)
 
-add_executable(v5_0
+add_executable(v5_6
+        src/authplugins/BearerBasic.cpp
         src/authplugins/dnsauth.cpp
         src/authplugins/header.cpp
         src/authplugins/ident.cpp
         src/authplugins/ip.cpp
         src/authplugins/port.cpp
         src/authplugins/ProxyFirstBasic.cpp
-        src/authplugins/BearerBasic.cpp
         src/contentscanners/avastdscan.cpp
         src/contentscanners/clamdscan.cpp
         src/contentscanners/commandlinescan.cpp
@@ -22,6 +23,8 @@ add_executable(v5_0
         src/downloadmanagers/default.cpp
         src/downloadmanagers/fancy.cpp
         src/downloadmanagers/trickle.cpp
+        src/Utils/Path.cpp
+        src/Utils/Path.hpp
         src/Auth.cpp
         src/Auth.hpp
         src/BackedStore.cpp
@@ -30,6 +33,8 @@ add_executable(v5_0
         src/BaseSocket.hpp
         src/CertificateAuthority.cpp
         src/CertificateAuthority.hpp
+        src/ConfigReader.cpp
+        src/ConfigReader.hpp
         src/ConfigVar.cpp
         src/ConfigVar.hpp
         src/ConnectionHandler.cpp
@@ -69,11 +74,16 @@ add_executable(v5_0
         src/ListManager.hpp
         src/ListMeta.cpp
         src/ListMeta.hpp
+        src/LogFormat.hpp
+        src/LogFormat.cpp
+        src/LogTransfer.hpp
+        src/LogTransfer.cpp
         src/Logger.cpp
         src/Logger.hpp
+        src/LoggerConfigurator.cpp
+        src/LoggerConfigurator.hpp
         src/LOptionContainer.cpp
         src/LOptionContainer.hpp
-        src/Makefile
         src/md5.cpp
         src/md5.hpp
         src/NaughtyFilter.cpp
@@ -102,4 +112,4 @@ add_executable(v5_0
         src/UDSocket.cpp
         src/UDSocket.hpp
         src/UrlRec.hpp
-        dgconfig.h)
+        e2config.h)

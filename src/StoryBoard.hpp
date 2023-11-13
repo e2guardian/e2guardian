@@ -18,6 +18,7 @@
 #include "SBFunction.hpp"
 #include "ListMeta.hpp"
 #include "UrlRec.hpp"
+#include "LanguageContainer.hpp"
 
 // #include "NaughtyFilter.hpp"
 
@@ -67,6 +68,7 @@ class StoryBoard
 
     int fnt_cnt;
     ListMeta* LMeta;
+    LanguageContainer* LangCont;
 
     std::vector<SBFunction> funct_vec;
 
@@ -76,6 +78,8 @@ class StoryBoard
     void reset();
 
    bool readFile(const char *filename, ListMeta & LMeta, bool is_top = true);
+   bool readTopFile(const char *filename, ListMeta & LMeta, LanguageContainer *lc);
+
    unsigned int getFunctID(String &fname);
 
     bool runFunct(String &fname, NaughtyFilter &cm);

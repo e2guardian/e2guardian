@@ -22,6 +22,8 @@
 // GLOBALS
 
 extern OptionContainer o;
+extern thread_local std::string thread_id;
+extern thread_local std::string request_id;
 
 #ifdef HAVE_PCRE
 extern RegExp absurl_re, relurl_re;
@@ -928,7 +930,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         whatIsNaughtyLog += combifound;
         // Banned combination phrase found.
         // Banned combination search term found.
-        whatIsNaughty = o.language_list.getTranslation(message_no );
+        whatIsNaughty = foc->getTranslation(message_no );
         whatIsNaughtyCategories = bannedcategory.toCharArray();
         return;
     }
@@ -941,7 +943,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         whatIsNaughtyLog += bannedphrase;
         // Banned phrase found.
         // Banned search term found.
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 451 : 301);
+        whatIsNaughty = foc->getTranslation(searchterms ? 451 : 301);
         whatIsNaughtyCategories = bannedcategory.toCharArray();
         return;
     }
@@ -953,7 +955,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         log_it = true;
         isItNaughty = true;
         message_no = mno;
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 455 : 403);
+        whatIsNaughty = foc->getTranslation(searchterms ? 455 : 403);
     }
 
     if(log_it) {
@@ -1170,3 +1172,43 @@ void NaughtyFilter::check_destIP() {
         freeaddrinfo(infoptr);
     }
 }
+
+
+void NaughtyFilter::set_starttime() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    thestart = tv;
+    String temp2 = tv.tv_usec / 1000;
+    String temp3 = tv.tv_sec;
+    if (temp2.length() < 3) {
+        temp2.insert(0, 3 - temp2.length(), '0');  // pad to 3 digits
+    }
+    temp2.insert(0, 1 , '.');
+    String temp4(thread_id);
+    request_id = temp4.before(":");
+    request_id += ":";
+    request_id += temp3;
+    request_id += temp2;
+}
+
+
+void NaughtyFilter::doTranslation(FOptionContainer &fgc, int mess_no,  int log_mess_no) {
+    message_no = mess_no;
+    log_message_no = log_mess_no;
+    if (fgc.have_group_language) {   // group language is different to main language
+        whatIsNaughty = fgc.language_list.getTranslation(mess_no);
+        if (log_mess_no == 0) {
+            whatIsNaughtyLog = o.language_list.getTranslation(mess_no);
+        } else {
+            whatIsNaughtyLog = o.language_list.getTranslation(log_mess_no);
+        }
+    } else {   // default case - using main language
+        whatIsNaughty = o.language_list.getTranslation(mess_no);
+        if (log_mess_no == 0) {
+            whatIsNaughtyLog = whatIsNaughty;
+        } else {
+            whatIsNaughtyLog = o.language_list.getTranslation(log_mess_no);
+        }
+    }
+}
+

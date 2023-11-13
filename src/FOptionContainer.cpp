@@ -56,6 +56,7 @@ void getClientFromIP(const char *ip, std::string &clienthost)
     }
 }
 
+
 FOptionContainer::~FOptionContainer()
 {
     reset();
@@ -64,6 +65,8 @@ FOptionContainer::~FOptionContainer()
 void FOptionContainer::reset()
 {
     language_path = o.config.languagepath; // inherit main config setting as default
+            DEBUG_config(" language_path is ", language_path);
+    DEBUG_config(" main languagepath is ", o.config.languagepath);
     conffile.clear();
     have_group_language = false;
     if (neterr_page != nullptr)
@@ -464,6 +467,9 @@ bool FOptionContainer::read(const char *filename) {
                 return false;
             } // messages language file
             have_group_language = true;
+            lang_list_ptr = &language_list;
+        } else {
+            lang_list_ptr = & o.language_list;
         }
 
         if (reporting_level == 3) {
@@ -473,13 +479,18 @@ bool FOptionContainer::read(const char *filename) {
             }
             // get default banned page for this profile
             String html_template(findoptionS("htmltemplate"));
+            DEBUG_config(" language_path is ", language_path);
+            DEBUG_config(" html_tempale is ", html_template);
             if (html_template != "") {
                 if (html_template.contains("__LANGDIR__")) {
                     html_template.replaceall("__LANGDIR__",language_path.c_str());
+                    DEBUG_config(" html_tempale after replace is ", html_template);
                 }
                 if (!html_template.startsWith("/")) {   // to allow backward compatibility
                     html_template = language_path.c_str() + html_template;
+                    DEBUG_config(" html_tempale after non-full path is ", html_template);
                 }
+                DEBUG_config(" html_tempale is ", html_template);
                 banned_page = new HTMLTemplate;
                 if (!(banned_page->readTemplateFile(html_template.toCharArray()))) {
                     E2LOGGER_error("Error reading HTML Template file: ", html_template);
@@ -709,7 +720,7 @@ bool FOptionContainer::read(const char *filename) {
         DEBUG_trace("Lists in memory");
 
         DEBUG_trace("Read Storyboard");
-        if (!StoryB.readFile(storyboard_location.c_str(), LMeta, true))
+        if (!StoryB.readTopFile(storyboard_location.c_str(), LMeta,lang_list_ptr))
             return false;
 
 
@@ -1042,4 +1053,8 @@ std::deque<String> matched_files;
         }
     }
     return true;
+}
+
+std::string FOptionContainer::getTranslation(unsigned const int index) {
+    return lang_list_ptr->getTranslation(index);
 }
