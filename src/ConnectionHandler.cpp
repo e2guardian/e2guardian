@@ -474,9 +474,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 
     // only get here if failed
     cm.upfailure = true;
-    cm.message_no = lerr_mess;
-    cm.whatIsNaughty = o.language_list.getTranslation(lerr_mess);
-    cm.whatIsNaughtyLog = cm.whatIsNaughty;
+    cm.doTranslation(*ldl->fg[filtergroup],lerr_mess,0) ;
     cm.whatIsNaughtyCategories = "";
     cm.whatIsNaughtyDisplayCategories = "";
     cm.isItNaughty = true;
@@ -818,10 +816,12 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                     if (checkme.isexception) {
                         // do reason codes etc
-                        checkme.whatIsNaughty = o.language_list.getTranslation(630);
+                        checkme.whatIsNaughty = ldl->fg[filtergroup]->getTranslation(630);
                         checkme.whatIsNaughty.append(room);
-                        checkme.whatIsNaughty.append(o.language_list.getTranslation(631));
-                        checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                        checkme.whatIsNaughty.append(ldl->fg[filtergroup]->getTranslation(631));
+                        checkme.whatIsNaughtyLog = o.language_list.getTranslation(630);
+                        checkme.whatIsNaughtyLog.append(room);
+                        checkme.whatIsNaughtyLog.append(o.language_list.getTranslation(631));
                         checkme.message_no = 632;
                     }
                 }
@@ -1520,13 +1520,13 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
     int reporting_level = ldl->fg[filtergroup]->reporting_level;
     DEBUG_debug(" -reporting level is ", reporting_level);
     if (checkme->whatIsNaughty == "" && checkme->message_no > 0) {
-        checkme->whatIsNaughty = o.language_list.getTranslation(checkme->message_no);
+        checkme->whatIsNaughty = ldl->fg[filtergroup]->getTranslation(checkme->message_no);
     }
     if (checkme->whatIsNaughtyLog == "") {
         if (checkme->log_message_no > 0) {
             checkme->whatIsNaughtyLog = o.language_list.getTranslation(checkme->log_message_no);
         } else {
-            checkme->whatIsNaughtyLog = checkme->whatIsNaughty;
+            checkme->whatIsNaughtyLog = o.language_list.getTranslation(checkme->message_no);
         }
     }
 
@@ -1579,7 +1579,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
 		eheader += "\r\nLocation: http://internal.test.e2guardian.org";
 		eheader += "\r\nServer: e2guardian";
 		eheader += "\r\nConnection: close";
-		eheader += "\r\n\r\n";
+		eheader += "\r\n";
+                //eheader += "\r\n\r\n";
 	    } else {
                 // we're dealing with a non-SSL'ed request, and have the option of using the custom banned image/page directly
                 bool replaceimage = false;
@@ -1617,11 +1618,13 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 if (replaceimage) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
+                        eheader = "Cache-Control: no-store\r\n";
                     }
                     o.block.banned_image.display_hb(eheader, ebody);
                 } else if (replaceflash) {
                     if (headersent == 0) {
                         eheader = "HTTP/1.1 200 OK\r\n";
+                        eheader = "Cache-Control: no-store\r\n";
                     }
                     o.block.banned_flash.display_hb(eheader, ebody);
                 } else {
@@ -1631,14 +1634,15 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                     // ad images still get image-replaced.)
                     if (strstr(checkme->whatIsNaughtyCategories.c_str(), "ADs") != NULL) {
                         eheader = "HTTP/1.1 200 \r\n";
-                        eheader += o.language_list.getTranslation(1101); // advert blocked
+                        eheader = "Cache-Control: no-store\r\n";
+                        //eheader += ldl->fg[filtergroup]->getTranslation(1101); // advert blocked
                         eheader += "\r\nContent-Type: text/html\r\n";
                         ebody = "<HTML><HEAD><TITLE>E2guardian - ";
-                        ebody += o.language_list.getTranslation(1101); // advert blocked
+                        ebody += ldl->fg[filtergroup]->getTranslation(1101); // advert blocked
                         ebody += "</TITLE></HEAD><BODY><CENTER><FONT SIZE=\"-1\"><A HREF=\"";
                         ebody += (*url);
                         ebody += "\" TARGET=\"_BLANK\">";
-                        ebody += o.language_list.getTranslation(1101); // advert blocked
+                        ebody += ldl->fg[filtergroup]->getTranslation(1101); // advert blocked
                         ebody += "</A></FONT></CENTER></BODY></HTML>\r\n";
                         eheader += "Content-Length: ";
                         eheader += std::to_string(ebody.size());
@@ -1673,7 +1677,7 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                             eheader = "HTTP/1.1 200 \r\n";
                         }
                         if (headersent < 2) {
-                            eheader += "Content-type: text/html\r\n\r\n";
+                            eheader += "Content-type: text/html\r\n";
                         }
                         // if the header has been sent then likely displaying the
                         // template will break the download, however as this is
@@ -1699,6 +1703,10 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                                                                                               filtergroup,
                                                                                               ldl->fg[filtergroup]->name,
                                                                                               hashed, localip, flags);
+                        eheader += "Cache-Control: no-store\r\n";
+                        eheader += "Content-Length: ";
+                        eheader += std::to_string(ebody.size());
+                        eheader += "\r\n\r\n";
                     }
                 }
             }
@@ -1835,9 +1843,9 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
             eheader = "HTTP/1.1 200 OK\r\n";
             eheader += "Content-type: text/html\r\n";
             ebody = "<HTML><HEAD><TITLE>e2guardian - ";
-            ebody += o.language_list.getTranslation(1); // access denied
+            ebody += ldl->fg[filtergroup]->getTranslation(1);  // access denied
             ebody += "</TITLE></HEAD><BODY><CENTER><H1>e2guardian - ";
-            ebody += o.language_list.getTranslation(1); // access denied
+            ebody += ldl->fg[filtergroup]->getTranslation(1);  // access denied
             ebody += "</H1></CENTER></BODY></HTML>\r\n";
             eheader += "Content-Length: ";
             eheader += std::to_string(ebody.size());
@@ -1982,7 +1990,7 @@ void ConnectionHandler::contentFilter(HTTPHeader *docheader, HTTPHeader *header,
                         E2LOGGER_error("scanFile/Memory returned error: ", csrc);
                     }
                     checkme->message_no = 1203;
-                    checkme->whatIsNaughty = o.language_list.getTranslation(1203);
+                    checkme->whatIsNaughty = ldl->fg[filtergroup]->getTranslation(1203);
                     checkme->whatIsNaughtyLog = (*i)->getLastMessage().toCharArray();
                     checkme->whatIsNaughtyCategories = o.language_list.getTranslation(72);
                     checkme->isItNaughty = true;
@@ -2088,9 +2096,7 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
 
         DEBUG_debug(" -Error creating tunnel through proxy", strerror(errno) );
         //(*checkme).whatIsNaughty = "Unable to create tunnel through local proxy";
-        checkme->message_no = 157;
-        (*checkme).whatIsNaughty = o.language_list.getTranslation(157);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+        checkme->doTranslation(*(ldl->fg[filtergroup]),157,0);
         (*checkme).isItNaughty = true;
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
 
@@ -2100,9 +2106,9 @@ int ConnectionHandler::sendProxyConnect(String &hostname, Socket *sock, NaughtyF
     if (header.returnCode() != 200) {
         //connection failed
         //(*checkme).whatIsNaughty = "Opening tunnel failed";
-        checkme->message_no = 158;
-        (*checkme).whatIsNaughty = o.language_list.getTranslation(158);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + " with error code " + String(header.returnCode());
+        checkme->doTranslation(*(ldl->fg[filtergroup]),158,0);
+        checkme->whatIsNaughtyLog += " with error code ";
+        checkme->whatIsNaughtyLog += String(header.returnCode());
         (*checkme).isItNaughty = true;
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
 
@@ -2126,18 +2132,21 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
             return;
         checkme->isItNaughty = true;
         //(*checkme).whatIsNaughty = "No SSL certificate supplied by server";
-        checkme->message_no = 155;
-        (*checkme).whatIsNaughty = o.language_list.getTranslation(155);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+        checkme->doTranslation(*(ldl->fg[filtergroup]),155,0);
+        //checkme->message_no = 155;
+        //(*checkme).whatIsNaughty = o.language_list.getTranslation(155);
+        //(*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
         return;
     } else if (rc != X509_V_OK) {
         //something was wrong in the certificate
         checkme->isItNaughty = true;
         //		(*checkme).whatIsNaughty = "Certificate supplied by server was not valid";
-        checkme->message_no = 150;
-        (*checkme).whatIsNaughty = o.language_list.getTranslation(150);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty + ": " + X509_verify_cert_error_string(rc);
+        checkme->doTranslation(*(ldl->fg[filtergroup]),150,0);
+        //checkme->message_no = 150;
+        //(*checkme).whatIsNaughty = o.language_list.getTranslation(150);
+        (*checkme).whatIsNaughtyLog +=  ": ";
+        (*checkme).whatIsNaughtyLog += X509_verify_cert_error_string(rc);
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
         return;
     }
@@ -2149,9 +2158,7 @@ void ConnectionHandler::checkCertificate(String &hostname, Socket *sslsock, Naug
         //hostname was not matched by the certificate
         checkme->isItNaughty = true;
         //(*checkme).whatIsNaughty = "Server's SSL certificate does not match domain name";
-        checkme->message_no = 156;
-        (*checkme).whatIsNaughty = o.language_list.getTranslation(156);
-        (*checkme).whatIsNaughtyLog = (*checkme).whatIsNaughty;
+        checkme->doTranslation(*(ldl->fg[filtergroup]),156,0);
         (*checkme).whatIsNaughtyCategories = o.language_list.getTranslation(70);
         return;
     }
@@ -2263,9 +2270,9 @@ ConnectionHandler::gen_error_mess(Socket &peerconn, NaughtyFilter &cm, String &e
         ebody += mess;
         ebody += "</H1>";
         if (mess_no1 > 0)
-            ebody += o.language_list.getTranslation(mess_no1);
+            ebody += ldl->fg[filtergroup]->getTranslation(mess_no1);
         if (mess_no2 > 0)
-            ebody += o.language_list.getTranslation(mess_no2);
+            ebody += ldl->fg[filtergroup]->getTranslation(mess_no2);
         ebody += "</BODY></HTML>\r\n";
     }
     return true;
@@ -2324,17 +2331,13 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
         if (cert == NULL) {
             checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to get ssl certificate";
-            checkme.message_no = 151;
-            checkme.whatIsNaughty = o.language_list.getTranslation(151);
-            checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+            checkme.doTranslation(*(ldl->fg[filtergroup]),151,0);
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
         } else if (pkey == NULL) {
             checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to load ssl private key";
-            checkme.message_no = 153;
-            checkme.whatIsNaughty = o.language_list.getTranslation(153);
-            checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+            checkme.doTranslation(*(ldl->fg[filtergroup]),153,0);
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
             X509_free(cert);
@@ -2368,9 +2371,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
 
             checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to negotiate ssl connection to client";
-            checkme.message_no = 154;
-            checkme.whatIsNaughty = o.language_list.getTranslation(154);
-            checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+            checkme.doTranslation(*(ldl->fg[filtergroup]),154,0);
             checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             justLog = true;
             if(cert != NULL) {
@@ -2391,9 +2392,7 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
             if (proxysock.startSslClient(certpath, checkme.urldomain)) {
                 checkme.isItNaughty = true;
 //checkme.whatIsNaughty = "Failed to negotiate ssl connection to server";
-                checkme.message_no = 160;
-                checkme.whatIsNaughty = o.language_list.getTranslation(160);
-                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                checkme.doTranslation(*(ldl->fg[filtergroup]),160,0);
                 checkme.whatIsNaughtyCategories = o.language_list.getTranslation(70);
             }
         }
@@ -2641,9 +2640,10 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
         DEBUG_debug(" -Scan bypass URL match");
         checkme.isscanbypass = true;
         checkme.isbypass = true;
-        checkme.message_no = 608;
-        checkme.log_message_no = 608;
-        checkme.whatIsNaughty= o.language_list.getTranslation(608);
+        //checkme.message_no = 608;
+        //checkme.log_message_no = 608;
+       checkme.doTranslation(*ldl->fg[filtergroup],608,608) ;
+      //  checkme.whatIsNaughty= o.language_list.getTranslation(608);
     } else if ((ldl->fg[filtergroup]->bypass_mode != 0) || (ldl->fg[filtergroup]->infection_bypass_mode != 0)) {
         DEBUG_debug(" -About to check for bypass...");
         if (ldl->fg[filtergroup]->bypass_mode != 0)
@@ -2665,10 +2665,11 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                 checkme.isbypass = true;
                 checkme.isexception = true;
                 // checkme: need a TR string for virus bypass
-                checkme.whatIsNaughty = o.language_list.getTranslation(606);
-                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
-                checkme.message_no = 606;
-                checkme.log_message_no = 606;
+                checkme.doTranslation(*ldl->fg[filtergroup],606,606) ;
+              //  checkme.whatIsNaughty = o.language_list.getTranslation(606);
+              //  checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+              //  checkme.message_no = 606;
+              //  checkme.log_message_no = 606;
             }
         } else if (ldl->fg[filtergroup]->bypass_mode != 0) {
             String ud(checkme.urldomain);
@@ -2681,8 +2682,9 @@ bool ConnectionHandler::checkByPass(NaughtyFilter &checkme, std::shared_ptr<LOpt
                 checkme.iscookiebypass = true;
                 checkme.isbypass = true;
                 checkme.isexception = true;
-                checkme.whatIsNaughty = o.language_list.getTranslation(607);
-                checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
+                checkme.doTranslation(*ldl->fg[filtergroup],607,0) ;
+            //    checkme.whatIsNaughty = o.language_list.getTranslation(607);
+            //    checkme.whatIsNaughtyLog = checkme.whatIsNaughty;
             }
         }
         DEBUG_debug(" -Finished bypass checks.");
@@ -3981,4 +3983,7 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &st
     fg = cm.filtergroup;
     return E2AUTH_OK;
 }
+
+
+
 

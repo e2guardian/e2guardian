@@ -53,7 +53,9 @@ public:
     bool non_standard_delimiter;
     String language_path;
     LanguageContainer       language_list;
+    LanguageContainer       *lang_list_ptr;
     bool have_group_language = false;
+    std::string getTranslation(unsigned const int);
 
     //SSL certificate checking
     bool ssl_check_cert = false;

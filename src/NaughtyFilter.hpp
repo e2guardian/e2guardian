@@ -200,6 +200,8 @@ class NaughtyFilter
 
     void set_starttime();
 
+    void doTranslation(FOptionContainer &fgc, int mess_no,  int log_mess_no);  // sets message_no log_message_no as well as whatIsNaughty and whatIsNaughtyLog
+
     private:
     // check the banned, weighted & exception lists
     // pass in both URL & domain to activate embedded URL checking

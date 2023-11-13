@@ -84,7 +84,7 @@ LOptionContainer::LOptionContainer(int load_id)
     }
 
     DEBUG_config("read Storyboard: ", o.story.storyboard_location);
-    if (!StoryA.readFile(o.story.storyboard_location.c_str(), LMeta, true)) {
+    if (!StoryA.readTopFile(o.story.storyboard_location.c_str(), LMeta, &o.language_list)) {
         E2LOGGER_error("Storyboard not loaded OK");
         loaded_ok = false;
     }

@@ -51,6 +51,10 @@ StoryBoard::~StoryBoard() {
 void StoryBoard::reset() {
 }
 
+ bool StoryBoard::readTopFile(const char *filename, ListMeta &LMeta, LanguageContainer *lc) {
+    LangCont = lc;
+    return readFile(filename,LMeta,true);
+}
 
 bool StoryBoard::readFile(const char *filename, ListMeta &LM, bool is_top) {
     if (strlen(filename) < 3) {
@@ -696,9 +700,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                         update_messages(cm, res);
                         if (i->mess_no > 0) cm.message_no = i->mess_no;
                         if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
-                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                        cm.whatIsNaughty = LangCont->getTranslation(cm.message_no) + cm.lastmatch;
                         if (cm.log_message_no == 0)
-                            cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                            cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                         else
                             cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                         cm.exceptioncat = cm.lastcategory;
@@ -714,9 +718,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
                     //cm.exceptionreason = o.language_list.getTranslation(cm.message_no);
-                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    cm.whatIsNaughty = LangCont->getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
-                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
+                    cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
                     else
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                     cm.exceptioncat = cm.lastcategory;
@@ -738,10 +742,9 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     update_messages(cm, res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
-                    if (cm.message_no == 503)
-                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no);
-                    else
-                        cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.get_lastmatch();
+                        cm.whatIsNaughty = LangCont->getTranslation(cm.message_no);
+                    if (cm.message_no != 503)
+                        cm.whatIsNaughty += cm.get_lastmatch();
                     if (cm.log_message_no == 0)
                         cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.message_no) + cm.get_lastmatch();
                     else
@@ -774,11 +777,10 @@ bool StoryBoard::runFunct(unsigned int fID, NaughtyFilter &cm) {
                     update_messages(cm, res);
                     if (i->mess_no > 0) cm.message_no = i->mess_no;
                     if (i->log_mess_no > 0) cm.log_message_no = i->log_mess_no;
-                    cm.whatIsNaughty = o.language_list.getTranslation(cm.message_no) + cm.lastmatch;
+                    cm.whatIsNaughty = LangCont->getTranslation(cm.message_no) + cm.lastmatch;
                     if (cm.log_message_no == 0)
-                        cm.whatIsNaughtyLog = cm.whatIsNaughty;
-                    else
-                        cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
+                        cm.log_message_no = cm.message_no;
+                    cm.whatIsNaughtyLog = o.language_list.getTranslation(cm.log_message_no) + cm.lastmatch;
                     cm.whatIsNaughtyCategories = cm.lastcategory;
                     break;
                 case SB_FUNC_SETREDIRECT:

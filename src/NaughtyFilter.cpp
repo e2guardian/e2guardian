@@ -930,7 +930,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         whatIsNaughtyLog += combifound;
         // Banned combination phrase found.
         // Banned combination search term found.
-        whatIsNaughty = o.language_list.getTranslation(message_no );
+        whatIsNaughty = foc->getTranslation(message_no );
         whatIsNaughtyCategories = bannedcategory.toCharArray();
         return;
     }
@@ -943,7 +943,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         whatIsNaughtyLog += bannedphrase;
         // Banned phrase found.
         // Banned search term found.
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 451 : 301);
+        whatIsNaughty = foc->getTranslation(searchterms ? 451 : 301);
         whatIsNaughtyCategories = bannedcategory.toCharArray();
         return;
     }
@@ -955,7 +955,7 @@ void NaughtyFilter::checkphrase(char *file, off_t filelen, const String *url, co
         log_it = true;
         isItNaughty = true;
         message_no = mno;
-        whatIsNaughty = o.language_list.getTranslation(searchterms ? 455 : 403);
+        whatIsNaughty = foc->getTranslation(searchterms ? 455 : 403);
     }
 
     if(log_it) {
@@ -1190,3 +1190,25 @@ void NaughtyFilter::set_starttime() {
     request_id += temp3;
     request_id += temp2;
 }
+
+
+void NaughtyFilter::doTranslation(FOptionContainer &fgc, int mess_no,  int log_mess_no) {
+    message_no = mess_no;
+    log_message_no = log_mess_no;
+    if (fgc.have_group_language) {   // group language is different to main language
+        whatIsNaughty = fgc.language_list.getTranslation(mess_no);
+        if (log_mess_no == 0) {
+            whatIsNaughtyLog = o.language_list.getTranslation(mess_no);
+        } else {
+            whatIsNaughtyLog = o.language_list.getTranslation(log_mess_no);
+        }
+    } else {   // default case - using main language
+        whatIsNaughty = o.language_list.getTranslation(mess_no);
+        if (log_mess_no == 0) {
+            whatIsNaughtyLog = whatIsNaughty;
+        } else {
+            whatIsNaughtyLog = o.language_list.getTranslation(log_mess_no);
+        }
+    }
+}
+
