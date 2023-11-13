@@ -1,0 +1,45 @@
+Communicating with the E2G ICAP Server - Brief notes for ICAP 
+Client developers.
+
+Developers should comply with RFC 3507.
+
+Allow 204 is implimented in E2G.
+
+However, as of version v5.5, Preview and Allow 206 are not yet implimented.
+(These are likely to be implimented in a future version)
+
+In addition to the standard ICAP headers, clients must 
+supply the following ICAP headers:
+
+x-client-ip:  (The ip of the browser making the request)
+x-client-username: (the username of the user)
+
+These are used by E2G to determine the filter group (see notes/icap)
+
+When E2G receives a REQMOD request it will respond with an ICAP x-icap-e2g: 
+header which should be included in any associated RESPMOD request.
+
+It consists of six comma-delimited fields, which provides context information
+to the E2G respmod process.
+
+The fields are:   username,
+		  flag,   - letter denoting current classification of filtering
+		  Filter_group_number,
+		  message_no,
+		  log_message_no, 
+		  message_string
+
+If E2G reqmod responds with 204 then the client request should be passed to the 
+target host without modification and the target host response sent directly to 
+the client. (Note squid does not seem able to do this and so with squid 
+implimentation every request and response has to be sent to E2G).
+
+Wher E2G reqmod responds with 200 and a response header/body (a block or 
+status message) this should be sent to client to complete the request.
+
+If there is not a response header this should leave those requests which need
+content-scanning (indicated by 'G' in the second field of the  x-icap-e2g) then
+any revised header should be used in the request to the target host and 
+the target host response submitted to E2G respmod.
+
+Philip Pearce 13 Nov 2023
