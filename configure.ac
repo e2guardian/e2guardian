@@ -606,7 +606,6 @@ configs/authplugins/Makefile
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
 notes/Makefile
-scripts/Makefile
 src/Makefile
 ])
 
