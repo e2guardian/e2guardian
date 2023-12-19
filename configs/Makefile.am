@@ -3,7 +3,7 @@ e2guardian.conf \
 e2guardianf1.conf \
 examplef1.story 
 
-SUBDIRS = lists downloadmanagers authplugins .
+SUBDIRS = lists downloadmanagers authplugins log_formats .
 
 if NEED_CSCONFIGS
 SUBDIRS += contentscanners

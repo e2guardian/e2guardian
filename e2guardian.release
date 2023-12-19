@@ -1,52 +1,55 @@
-This the v5.4.dev branch - developing v5.4
+This the v5.6.dev branch - developing v5.6
 -------------------------------------------
 
 See notes/NEWIN_v5 for details of development progress and
 target new features and improvements.
 
-Changed and Added features in e2guardian 5.0 
+Changed and Added features in e2guardian 5.6
 --------------------------------------------
 
-Complete change to list handling and logic control.
+    Per filtergroup language support (user messages in language
+    different to language defined in e2guardian.conf)
 
-Many new and changed configuration options and files.
+    Per category block templates.
+    See data/languages/ukenglish/category_block_templates.d/README
 
-HTTPS transparent proxy, optional upstream proxy and ICAP server modes now supported.
+    New storyboard functions destipin and responsecodein added for
+    Geolocation filtering and testing of results codes.
+    See notes/GeoLocation and notes/V5_Storyboard.pdf
 
-Please see notes/NEWIN_v5 and revised example configuration files for details.
+    Logic changed so that destination IP DNS lookup can be made earlier when
+    required for Geolocation lookup.
 
-If upgrading from a previous version see also notes/Upgrading_to_V5
+    Logformat configuration files replace hard-coded logformat numbers.  Provides for
+    flexible logging including reporting on specific request and response headers.
+    This implements a number of feature requests that have been outstanding for some
+    time.
+    See notes/LogFormatFiles
+
+    New RequestID (consisting of ThreadID + StartUtime) can be used in logs to
+     uniquely identify a request. Also can be used in block pages via -REQUESTID-
+     variable.  Updated list of template variables in notes/template_variables.
+
+    Amend dnsauth to accept fg group names as well as fg group numbers.
 
 
-
-
-Changed and Added features in e2guardian 4.0.0
-----------------------------------------------
-
-Major internal rewrite to improve code quality, stability and performance
-The main advantage is the engine itself. It is more faster and powerful than before and tuning FD_SETSIZE is not needed anymore 
-
-
-Tuning settings introduced/changed in v4.0.0:- 
+Tuning settings introduced/changed in v5.6.0:-
 --------------------------------------------
 
 e2guardian.conf
 
-- httpworkers added - specifies number of worker threads to start
-
-- enablessl added - global enablement of SSL Cert checking and/or MITM
-  If this is off then sslmitm options in e2guardianfn.conf files will be ignored
-
-- authrequiresuserandgroup - If on it a user without group is considered like unauthenfied
-
 Options removed from e2guardian.conf -
 
-proxyfailureloginterval, urlcachenumber, urlcacheage, scancleancache,
-createlistcachefiles, prefercachedlists, maxchildren, minchildren,
-minsparechildren, preforkchildren, maxsparechildren, maxagechildren,
-gentlechunk, maxips, ipcfilename, urlipcfilename, ipipcfilename,
-mailer, monitorhelper, monitorstart
+usedashforblank - this option is now contained within the logformat configuration files and is specific to that log.
 
-If present in the e2guardian.conf file removed options are silently ignored.
+logfileformat - this is replaced by
+                    accesslogformatconfig = 'logformatpath'  (for access.log, response.log and alert.log)
+                and requestlogformatpath = 'logformatpath' (for request.log).
 
-See notes/NEWIN_v4 for more information on changed logic etc.
+                Example format configs to match the old numbered formats are in configs/log_formats,
+                so use aqcesslogformatconfig = 'path_to_log_formats_parent_dir/log_formats/logformat8'
+                instead of logfileformat = 8
+
+
+
+

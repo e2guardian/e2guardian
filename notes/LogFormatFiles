@@ -51,7 +51,7 @@ Naughtiness 		Naughtiness score
 ProductId  		    As defined in e2guardian.conf
 ProxyIP 		    Upstream proxy IP if used
 ProxyService		Type of e2g service flags
-                        1st character - T= tranparent, P= explict proxy or I= ICAP
+                        1st character - T= transparent, P= explict proxy or I= ICAP
                         2nd character - H= HTTP, S= HTTPS or CONNECT, or M= MITM (http request inside https connection)
 ReqHeader:param     Request header of param type
 ResHeader:param 	Response header of param type

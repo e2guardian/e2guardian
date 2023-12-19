@@ -49,8 +49,8 @@ class ConfigReader
     std::deque<String> findoptionMD(const char *option, const char *delimiter);
     std::string findoptionS(const char *option);
     bool findoptionB(const char *option);
-    long int findoptionI(const char *option);
-    long int findoptionIWithDefault(const char * option, long int minl, long int maxl, long int defaultl);
+    int findoptionI(const char *option);
+    int findoptionIWithDefault(const char * option, int minl, int maxl, int defaultl);
 
 
   private:

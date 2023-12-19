@@ -561,7 +561,7 @@ AC_FINALIZE_VAR(E2DATADIR,"${datadir}/${PACKAGE_NAME}")
 AC_SUBST(E2DATADIR)
 AC_FINALIZE_VAR(E2CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf")
 AC_SUBST(E2CONFFILE)
-#AC_DEFINE_UNQUOTED(__CONFDIR,"${e2sysconfdir}","")
+AC_DEFINE_UNQUOTED(__CONFDIR,"${e2sysconfdir}","")
 AC_DEFINE_UNQUOTED([__DATADIR],["${E2DATADIR}"],["Data directory path"])
 AC_DEFINE_UNQUOTED(__CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf","Configure file path")
 
@@ -582,22 +582,18 @@ configs/examplef1.story
 configs/Makefile
 configs/lists/Makefile
 configs/lists/common/Makefile
-configs/lists/common/category_block_templates.d/Makefile
 configs/lists/example.group/Makefile
 configs/lists/phraselists/Makefile
-configs/lists/oldphraselists/Makefile
 configs/lists/rooms/Makefile
 configs/lists/contentscanners/Makefile
 configs/lists/example.group/bannedphraselist
-configs/lists/example.group/oldbannedphraselist
 configs/lists/example.group/bannedurllist
 configs/lists/example.group/bannedsitelist
 configs/lists/example.group/domainsnobypass
 configs/lists/example.group/urlnobypass
 configs/lists/example.group/exceptionphraselist
 configs/lists/example.group/weightedphraselist
-configs/lists/example.group/oldexceptionphraselist
-configs/lists/example.group/oldweightedphraselist
+configs/log_formats/Makefile
 configs/downloadmanagers/Makefile
 configs/downloadmanagers/default.conf
 configs/contentscanners/Makefile
@@ -609,6 +605,8 @@ configs/contentscanners/commandlinescan.conf
 configs/authplugins/Makefile
 configs/lists/authplugins/Makefile
 configs/lists/downloadmanagers/Makefile
+notes/Makefile
+scripts/Makefile
 src/Makefile
 ])
 

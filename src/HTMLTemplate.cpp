@@ -48,7 +48,7 @@ bool HTMLTemplate::readTemplateFile(const char *filename, const char *placeholde
     RegExp re;
     // compile regexp for matching supported placeholders
     // allow optional custom placeholder string
-    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-");
+    re.comp(placeholders ? placeholders : "-URL-|-REASONGIVEN-|-REASONLOGGED-|-USER-|-IP-|-HOST-|-FILTERGROUP-|-RAWFILTERGROUP-|-BYPASS-|-CATEGORIES-|-SHORTURL-|-SERVERIP-|-EXTFLAGS-|-SERVERNAME-|-REQUESTID-");
     RegResult Rre;
     unsigned int offset;
     String result;
@@ -215,6 +215,8 @@ void HTMLTemplate::display_hb(String &ebody, String *url, std::string &reason, s
             }
         } else if (line == "-EXTFLAGS-") {
 	        line = extflags;
+        } else if (line == "-REQUESTID-") {
+            line = request_id;
         } else {
             // if this line wasn't a placeholder, and neither is the
             // next line, then output a newline, thus preserving line breaks

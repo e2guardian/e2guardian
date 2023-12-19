@@ -9,6 +9,9 @@
 #include <iostream>
 #include <fstream>
 #include "LogFormat.hpp"
+#include "OptionContainer.hpp"
+
+extern OptionContainer o;
 
 
 int LogFormat::get_key(String &name) {
@@ -158,6 +161,11 @@ bool LogFormat::readfile(String &filename) {
 
         item_list.push_back(il);
     };
+
+    if(present[CLIENTHOST]) {
+        o.log.log_client_hostnames = true;
+        o.conn.reverse_client_ip_lookups = true;
+    }
     DEBUG_trace("Type of format_type is ",format_type );
     DEBUG_trace("Size of item_list is ", item_list.size());
     DEBUG_trace("Size of item_list from function list_size() is ", list_size());

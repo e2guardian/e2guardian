@@ -330,6 +330,7 @@ void md5_process_block(const void *buffer, size_t len, struct md5_ctx *ctx)
         a += b;                                 \
     } while (0)
 
+
         /* Round 2.  */
         OP(FG, A, B, C, D, 1, 5, 0xf61e2562);
         OP(FG, D, A, B, C, 6, 9, 0xc040b340);

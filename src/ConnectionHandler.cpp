@@ -1793,6 +1793,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 }
                 eheader += "::EXTFLAGS==";
                 eheader += flags.toCharArray();
+                eheader += "::REQUESTID==";
+                eheader += request_id;
                 eheader += "::REASON==";
             } else {
                 eheader += "?DENIEDURL=";
@@ -1829,6 +1831,8 @@ bool ConnectionHandler::genDenyAccess(Socket &peerconn, String &eheader, String 
                 }
                 eheader += "&EXTFLAGS=";
                 eheader += flags.toCharArray();
+                eheader += "&REQUESTID=";
+                eheader += request_id;
                 eheader += "&REASON=";
             }
             if (reporting_level == 1) {

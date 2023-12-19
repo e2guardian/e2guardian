@@ -10,6 +10,8 @@ LANGUAGES = 	czech   hebrew      turkish \
 
 EXTRA_DIST= ReadMe
 
+EXTRA_DIR= ukenglish/category_block_templates.d
+
 install-data-local: 
 	@for l in $(LANGUAGES); do \
 		$(mkinstalldirs) $(DESTDIR)$(LANGDIR)/$$l && \
@@ -17,10 +19,14 @@ install-data-local:
 			echo "$(INSTALL_DATA) $$f $(DESTDIR)$(LANGDIR)/$$l"; \
 			$(INSTALL_DATA) $$f $(DESTDIR)$(LANGDIR)/$$l; \
 		done \
-	done
+	done 
+	@$(mkinstalldirs) $(DESTDIR)$(LANGDIR)/$(EXTRA_DIR) && \
+			echo "$(INSTALL_DATA) $(EXTRA_DIR)/README $(DESTDIR)$(LANGDIR)/$(EXTRA_DIR)"; \
+			$(INSTALL_DATA) $(EXTRA_DIR)/README $(DESTDIR)$(LANGDIR)/$(EXTRA_DIR); 
 
 uninstall-local:
-	@for l in $(LANGUAGES); do \
+	@rm -f $(DESTDIR)/$(EXTRA_DIR)/README ; \
+		for l in $(LANGUAGES); do \
 		for f in $(srcdir)/$$l/messages $(srcdir)/$$l/template.html $(srcdir)/$$l/neterr_template.html $(srcdir)/$$l/fancydmtemplate.html; do \
 	        	rm -f $(DESTDIR)$(LANGDIR)/$$l/`basename $$f`; \
 		done \

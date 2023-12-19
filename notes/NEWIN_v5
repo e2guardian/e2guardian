@@ -1,4 +1,4 @@
-This is the v5.5.3 stable version
+This is the v5.6.0 development version
 
 Note that large sections of the code has been re-written and there are
 significant changes to the configuration files since v4.
@@ -86,7 +86,7 @@ HTTP/1.1
 
 ANTI-VIRUS PLUGINS
 
-    Anti-virus plugins implimented for proxy, trans and ICAP 
+    Anti-virus plugins implemented for proxy, trans and ICAP
 
 INCLUDE FILES IN e2guardianf1.conf
 
@@ -202,17 +202,53 @@ OTHER enhancements
 
  alert.log option to enable reporting of key category violations by external email alert and reporting systems
 
+ V5.6
+
+ FLEXIBLE LOG FORMATTING
+
+     Logformat configuration files replace hard-coded logformat numbers.  Provides for
+     flexible logging including reporting on specific request and response headers.
+     This implements a number of feature requests that have been outstanding for some time.
+     See notes/LogFormatFiles
+
+ MULTIPLE LANGUAGE SUPPORT
+
+     Per filtergroup language support (user messages in language
+     different to language defined in e2guardian.conf)
+
+ CATEGORY SPECIFIC BLOCK PAGES
+
+     Per category block templates.
+     See data/languages/ukenglish/category_block_templates.d/README
+
+ GEOLOCATION SUPPORT
+
+     New storyboard functions destipin and responsecodein added for
+     Geolocation filtering and testing of results codes.
+     See notes/GeoLocation and notes/V5_Storyboard.pdf
+
+     Logic changed so that destination IP DNS lookup can be made earlier when
+     required for Geolocation lookup.
+
+  OTHER enhancements
+
+     New RequestID (consisting of ThreadID + StartUtime) can be used in logs to
+      uniquely identify a request. Also can be used in block pages via -REQUESTID-
+      variable.  Updated list of template variables in notes/template_variables
+
+     Amend dnsauth to accept fg group names as well as fg group nummbers
 
 
 TESTING -  
 ---------
 
-    Please prefix all bug reports with "v5.5: "
+    Please prefix all bug reports with "v5.6: "
 
 
 TO DO IN THIS RELEASE
 ---------------------
 
+    Re-look at MITM certificate generation.
 
 TODO - for later releases.
 -----------------------
@@ -221,8 +257,6 @@ TODO - for later releases.
 
     POST content filtering
 
-    Re-look at MITM certificate generation.
-    
     Implement a "learning" mode,  test the rules effects without block  
 
     Remove duplicate list/storyboard warnings with a DRY system.
@@ -239,16 +273,12 @@ WISHLIST
     Support for authenticaion helpers to allow ntlm, basic etc auth
          without using squid proxy.
 
-    Per-user exceptions/blocks.
-
-    Per-room blocks.
-
-    Rate-limiting feature 
+    Rate-limiting feature
 
     HTTP/2 support (v6)
 
     IPv6 support (v6)
 
-Philip Pearce 5th january 2023
+Philip Pearce 13 December 2023
 
 

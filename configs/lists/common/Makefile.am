@@ -2,7 +2,7 @@ DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists/common
 
-SUBDIRS = . category_block_templates.d
+SUBDIRS = . 
 
 WLISTS = authexceptionsiteiplist \
 authexceptioniplist \

@@ -2,14 +2,8 @@ DISTCLEANFILES = Makefile.in
 
 E2DATADIR = $(E2CONFDIR)/lists
 
-SUBDIRS = oldphraselists phraselists . authplugins rooms common example.group
-
-if NEED_CSLISTS
-SUBDIRS += contentscanners
-endif
-if NEED_DMLISTS
-SUBDIRS += downloadmanagers
-endif
+SUBDIRS = phraselists . authplugins rooms common example.group contentscanners \
+	downloadmanagers
 
 WLISTS = README
  

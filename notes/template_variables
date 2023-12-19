@@ -1,0 +1,25 @@
+The template .html files used for block pages
+can use any of the following variables and e2g
+will insert the corresponding data.
+
+The available variables are as follows:
+-URL- gives the URL the user was trying to get to
+-REASONGIVEN- gives the nice reason (i.e. not quoting the banned phrase)
+-REASONLOGGED- gives the reason that gets logged including full details
+-USER- gives the username if known
+-IP- gives the originating (client) IP
+-HOST- gives the client hostname if available
+-FILTERGROUP- gives the group name
+-RAWFILTERGROUP- gives the group number
+-BYPASS- Allows an admin with with bypass access to bypass the block
+-CATEGORIES- Block categories
+-SHORTURL- URL truncated to 40 characters
+-SERVERIP- Server IP
+-EXTFLAGES- Extended Flags - see notes/New_log_fields_in_log_format7-8.pdf
+-SERVERNAME- The name of the server
+-REQUESTID-  The unique request ID for this request
+
+If a cgi call is being used instead then of the template the same variable 
+names are used in the cgi call.
+
+Philip Pearce 12 Dec 2023

@@ -17,7 +17,6 @@ group1		 - lists for group 1
 group2		 - lists for group 2
 ...
 groupn		 - lists for group n
-oldphraselists	 - old style format phraselists
 phraselists	 - lists of phrases
 rooms      	 - location (ip) based block/allow
 

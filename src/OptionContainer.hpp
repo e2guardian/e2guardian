@@ -32,36 +32,39 @@ struct AccessLogOptions
 {
     std::string log_location;
     std::string RQlog_location;
-    std::string RSlog_location;
-    std::string ALlog_location;
+   // std::string RSlog_location;
+   // std::string ALlog_location;
 
     Queue<LogTransfer*>* log_Q;
     Queue<LogTransfer*>* RQlog_Q;
 
-    //Queue<AccessLogger::LogRecord*> log_Q;
-    //Queue<AccessLogger::LogRecord*> RQlog_Q;
 
     int log_level = 0;
     int log_file_format = 0;
     LogFormat access_log_format;
     LogFormat request_log_format;
-    //LogFormat response_log_format;   // not implimented response take access_log_format
+    //LogFormat response_log_format;   // not implemented response uses access_log_format
 
     int log_exception_hits = 0;
 
     bool log_requests = false;
     bool log_responses = false;
     bool log_alerts = false;
-    bool log_client_hostnames = false;
-    bool log_client_host_and_ip = false;  // todo: unused - this IS used - PP
     bool anonymise_logs = false;
+
     bool log_ad_blocks = false;
-    bool log_timestamp = false;
-    bool log_user_agent = false;
-    bool use_dash_for_blanks = true;
+
     unsigned int max_logitem_length = 2000;
 
-    std::string dns_user_logging_domain;  // TODO: not documented ??
+    bool log_client_hostnames = false;   // todo: check if this is still needed
+
+            // following all replaced by fields or options in LogFormat config file
+    //bool log_client_host_and_ip = false;
+    //bool log_timestamp = false;
+    //bool log_user_agent = false;
+    //bool use_dash_for_blanks = true;
+
+    std::string dns_user_logging_domain;  // TODO: not documented - used with dns-lookup user from IP for logs only
     bool dns_user_logging() { return !dns_user_logging_domain.empty(); };
 
     // Hardware/organisation/etc. IDs

@@ -33,6 +33,7 @@
 #function(checkblanketblock)
 #if(true,,502) return setblock  # = ** total blanket
 #if(siteisip,,505) return setblock  # = *ip ip blanket
+#ifnot(sitein,allowedtld,752) return setblock # only allows TLD's explicitly set
 #ifnot(destipin,allowedgeo,123) return setblock  # geolocation blanket
 # To use timed blanket block 
 # define times in blankettimelist,
@@ -45,6 +46,8 @@
 #function(sslcheckblanketblock)
 #if(true,,506) return setblock  # = **s total blanket
 #if(siteisip,,507) return setblock  # = **ips ip blanket
+#ifnot(sitein,allowedtld,752) return setblock # only allows TLD's explicitly set
+#ifnot(destipin,allowedgeo,123) return setblock  # geolocation blanket
 
 # To limit MITM to sslgreylist
 # replaces onlymitmsslgrey e2guardianf1.conf option

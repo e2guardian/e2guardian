@@ -1,4 +1,55 @@
 
-Notes on new GeoLocation blanket blocking
+Notes on GeoLocation blanket blocking - v5.6 onwards
 
-(to be completed)
+Please see https://github.com/e2guardian/e2guardian/issues/733 for the background to this development, which is the
+result of ideas from Dalacor.
+
+In order for sites to be able make exceptions based on site names the geo lists of IP ranges need to loaded into
+e2guardian, rather than using IPtables.
+
+Although IPtables IP filtering may still be deployed in order to filter
+non-web based traffic, it is important that the upstream e2g traffic is not IPtables filtered.
+
+Steps to set up GeoLocation filtering:-
+
+  1.  Lists are available at https://db-ip.com/. Download the IPtoCountry in .csv format.  A 'Lite' version is available
+      FOC for testing purposes.
+
+      The file has the format startIP, EndIP,  ISO 3166-1 alpha-2 country code.
+      It will contain IPv4 and IPv6 ranges - we only need V4 as e2g does not yet support IPv6.
+
+      To limit memory we only need to use the IP ranges for allowed countries.
+
+      So for each country code we need we create a list in e2g iplist format:
+
+      A sample script to do this is provided in ./scripts/generate_geo_lists.sh
+
+      This will result in a directory with an iplist for each country code.
+
+   2.  Edit lists/common/geolocation_ip_allow_list so that .Includes point to the
+       country codes lists you require.  Then uncomment the line that references
+       this file in all the e2guardiafn.conf files where you want geo_location blanket block active.
+
+       If you want different selection for different groups then copy this file to
+       the group lists directories and modify to suite group. Also uncomment and change the path in
+       e2guardianfn.conf.
+
+   3. Edit the group storybook files uncommenting the lines in the checkblanketblock and sslcheckblanketblock functions
+       as below:
+
+   # To create blanket block for http (and MITM https)
+   # uncomment next line and one condition line.
+   function(checkblanketblock)
+   #if(true,,502) return setblock  # = ** total blanket
+   #if(siteisip,,505) return setblock  # = *ip ip blanket
+   ifnot(destipin,allowedgeo,123) return setblock  # geolocation blanket
+   # To use timed blanket block
+
+
+   # To create blanket block for SSL
+   # uncomment next line and one condition line.
+   function(sslcheckblanketblock)
+   #if(true,,506) return setblock  # = **s total blanket
+   #if(siteisip,,507) return setblock  # = **ips ip blanket
+   #ifnot(sitein,allowedtld,752) return setblock # only allows TLD's explicitly set
+   ifnot(destipin,allowedgeo,123) return setblock  # geolocation blanket

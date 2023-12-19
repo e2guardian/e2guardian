@@ -596,15 +596,17 @@ accesslogformatconfig = '__LISTDIR__/../../log_formats/logformat8'
 #
 # Flexible log format definition file(s) replaces logfileformat in v5.6 on.
 # see notes/LogFormatFiles for details on how to modify or create these logformat files
-# Note that some format settings such as usedashforblank hnd loguseragent ave been moved
-#   fron this file into these files.
+# Note that some format settings such as usedashforblank and loguseragent have been moved
+#   from this file into these files.
 #
 # The accesslogformatconfig setting is used for access.log, response.log and alert.log
+# default is @E2CONFDIR@/log_formats/logformat8
 
 requestlogformatconfig = '__LISTDIR__/../../log_formats/requestlogformat'
 #
 # Log format setting for request log
 # This setting is ignored if the request log is not enabled
+# default is @E2CONFDIR@/log_formats/requestlogformat
 
 #anonymizelogs = off
 # anonymize logs (blank out client usernames & IPs)

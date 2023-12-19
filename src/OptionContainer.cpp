@@ -181,34 +181,46 @@ DEBUG_config("Loading AccessLogOptions...");
     log.max_logitem_length = cr.findoptionIWithDefault("maxlogitemlength", 10, 32000, 2000);
 
     log.log_level = cr.findoptionIWithDefault("loglevel", 0, 3, 3);
-    log.log_file_format = cr.findoptionIWithDefault("logfileformat", 0, 8, 0);
-    if (log.log_file_format > 0) {
+
+    if ( !cr.findoptionS("logfileformat").empty() ) {
         E2LOGGER_warning("Redundant option 'logfileformat' ignored - this is replaced by accesslogformatconfig");
     }
 
 
     log.anonymise_logs = cr.findoptionB("anonymizelogs");
     log.log_ad_blocks = cr.findoptionB("logadblocks");
-    log.log_timestamp = cr.findoptionB("logtimestamp");
-    log.log_user_agent = cr.findoptionB("loguseragent");
-    log.use_dash_for_blanks = cr.findoptionB("usedashforblank");
-    log.log_client_host_and_ip = cr.findoptionB("logclientnameandip");
-
     log.log_exception_hits = cr.findoptionIWithDefault("logexceptionhits", 0, 2, 2);
 
-    log.log_client_hostnames = cr.findoptionB("logclienthostnames");
-    conn.reverse_client_ip_lookups = log.log_client_hostnames;  // TODO: reverse_client_ip_lookups could be done in log thread
+  //  log.log_timestamp = cr.findoptionB("logtimestamp"); // redundant
+    if(cr.findoptionB("logtimestamp")) { // redundant
+        E2LOGGER_warning("Redundant option 'logtimestamp' ignored - this is replaced by field specification in logformat file ");
+}
+   if ( cr.findoptionB("loguseragent")) {
+       E2LOGGER_warning("Redundant option 'loguseragent' ignored - this is replaced by field specification UserAgent in logformat file ");
+    };
+    if( cr.findoptionB("usedashforblank")) {
+        E2LOGGER_warning("Redundant option 'usedashforblank' ignored - this is replaced by #usedashforblank option in logformat file ");
+    };
+    if( cr.findoptionB("logclientnameandip") ) {
+        E2LOGGER_warning("Redundant option 'logclientnameandip' ignored - this is replaced by field specification ClientHostOrIp in logformat file ");
+    };
+
+
+    if (cr.findoptionB("logclienthostnames")) {
+        E2LOGGER_warning("Redundant option 'logclienthostnames' ignored - this is replaced by field specification ClientHost in logformat file ");
+
+    }
+    //conn.reverse_client_ip_lookups = log.log_client_hostnames;
 
     log.logid_1 = cr.findoptionS("logid1");
-    if (log.logid_1.empty())
-        log.logid_1 = "-";
+    //if (log.logid_1.empty())  // Not needed as usedashforblank is now a flag in LogFormat
+    //    log.logid_1 = "-";
     log.logid_2 = cr.findoptionS("logid2");
-    if (log.logid_2.empty())
-        log.logid_2 = "-";
+    //if (log.logid_2.empty()) // Not needed as usedashforblank is now a flag in LogFormat
+    //    log.logid_2 = "-";
 
     log.prod_id = cr.findoptionS("productid");
     if (log.prod_id.empty())
-        // SG '08
         log.prod_id = "2";
 
     return true;
@@ -536,20 +548,21 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
 
         temp = cr.findoptionS("accesslogformatconfig");
         DEBUG_config("accesslogformatconfig is ", temp);
-        if (!temp.empty()) {
+        if (temp.empty()) {
+            temp = __CONFDIR;
+            temp += "/log_formats/logformat8";
+        }
             if (log.access_log_format.readfile(temp)) {
                 DEBUG_config("item_list size ", log.access_log_format.item_list.size());
+#ifdef DEBUG_LOW
                 LogFormat *F = &log.access_log_format;
+#endif
                 DEBUG_config("item_list size from pointer ", F->item_list.size());
             } else {
                 DEBUG_config("LogFormat.readfile(", temp, ") returned false");
+                E2LOGGER_error("Error in reading accesslogformatconfig at ", temp);
                 return false;
             }
-        } else {
-
-            E2LOGGER_error("accesslogformatconfig is missing - it must be present");
-            return false;
-        }
     }
 
     logger.debug_format = cr.findoptionIWithDefault("debugformat", 1, 6, 1);
@@ -569,7 +582,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
                 return false;
             log.log_requests = true;
         } else {
-            if ((log.RQlog_location = cr.findoptionS("rqloglocation")) == "") {
+            log.RQlog_location = cr.findoptionS("rqloglocation");
+            if (log.RQlog_location.empty()) {
                 log.log_requests = false;
             } else {
                 log.log_requests = true;
@@ -579,14 +593,23 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         }
         if (log.log_requests) {
                 String temp = cr.findoptionS("requestlogformatconfig");
-                if (!temp.empty()) {
-                    if (!log.request_log_format.readfile(temp))
-                        return false;
-                } else {
-                    E2LOGGER_error("requestlogformatconfig setting is missing - it must be present when request log is enabled");
-                    return false;
-                }
+            DEBUG_config("requestlogformatconfig is ", temp);
+            if (temp.empty()) {
+                temp = __CONFDIR;
+                temp += "/log_formats/requestlogformat";
             }
+            if (log.request_log_format.readfile(temp)) {
+                DEBUG_config("item_list size ", log.request_log_format.item_list.size());
+#ifdef DEBUG_LOW
+                LogFormat *F = &log.request_log_format;
+#endif
+                DEBUG_config("item_list size from pointer ", F->item_list.size());
+            } else {
+                DEBUG_config("LogFormat.readfile(", temp, ") returned false");
+                E2LOGGER_error("Error in reading requestlogformatconfig at ", temp);
+                return false;
+            }
+        }
 
     }
 
@@ -620,7 +643,8 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
                 return false;
             dstat.dstat_log_flag = true;
         } else {
-            if ((dstat.dstat_location = cr.findoptionS("dstatlocation")) == "") {
+            dstat.dstat_location = cr.findoptionS("dstatlocation");
+                if (dstat.dstat_location.empty() ) {
                 dstat.dstat_log_flag = false;
             } else {
                 dstat.dstat_log_flag = true;
@@ -651,11 +675,10 @@ bool OptionContainer::findLoggerOptions(ConfigReader &cr)
         }
     }
 
-    // Not sure why this was here - prob for debuging - PIP
-    //if ( logger.SB_trace ) {
-    //   DEBUG_config("Enable Storyboard tracing !!");
-    //   e2logger.enable(LoggerSource::story);
-    //}
+    if ( logger.SB_trace ) {
+       DEBUG_config("Enable Storyboard tracing !!");
+       e2logger.enable(LoggerSource::storytrace);
+    }
 
 
 
@@ -674,7 +697,7 @@ bool OptionContainer::findMonitorOptions(ConfigReader &cr)
     // }
 
     monitor.monitor_flag_prefix = cr.findoptionS("monitorflagprefix");
-    monitor.monitor_flag_flag = (monitor.monitor_flag_prefix != "");
+    monitor.monitor_flag_flag = !monitor.monitor_flag_prefix.empty();
 
     return true;
 }
@@ -723,7 +746,7 @@ bool OptionContainer::findNetworkOptions(ConfigReader &cr)
     net.connect_retries = cr.findoptionIWithDefault("connectretries", 1, 100, 1);
 
     net.proxy_ip = cr.findoptionS("proxyip");
-    net.no_proxy = (net.proxy_ip == "");
+    net.no_proxy = (net.proxy_ip.empty());
     if (!net.no_proxy) {
         net.proxy_port = cr.findoptionIWithDefault("proxyport", 1, 65535, 3128);
     }
@@ -857,11 +880,13 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
     }
 
 
-    if ((proc.daemon_user_name = cr.findoptionS("daemonuser")) == "") {
+    proc.daemon_user_name = cr.findoptionS("daemonuser");
+    if (proc.daemon_user_name.empty()) {
         proc.daemon_user_name = __PROXYUSER;
     }
 
-    if ((proc.daemon_group_name = cr.findoptionS("daemongroup")) == "") {
+    proc.daemon_group_name = cr.findoptionS("daemongroup");
+    if (proc.daemon_group_name.empty()) {
         proc.daemon_group_name = __PROXYGROUP;
     }
 

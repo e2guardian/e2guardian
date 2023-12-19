@@ -185,7 +185,7 @@ std::deque<String> ConfigReader::findoptionMD(const char *option, const char *de
 std::string ConfigReader::findoptionS(const char *option)
 {
   std::deque<String>* values = findoptionM(option);
-  if ( values && values->size() > 0 )
+  if ( values && !values->empty()  )
     return values->back();
   else
     return "";  
@@ -198,21 +198,21 @@ bool ConfigReader::findoptionB(const char *option)
   return false;
 } 
 
-long int ConfigReader::findoptionI(const char *option)
+int ConfigReader::findoptionI(const char *option)
 {
   std::string number = findoptionS(option);
-  if ( number != "")
-    return std::stol(number);
+  if ( !number.empty() )
+    return std::stoi(number);
   else
     return 0;  
 }
 
 // findoptionIWithDefault gets an option value, checks for minl and maxl bounds and defaults to defaultl if no value was found
-long int ConfigReader::findoptionIWithDefault(const char * option, long int minl, long int maxl, long int defaultl)
+int ConfigReader::findoptionIWithDefault(const char * option, int minl, int maxl, int defaultl)
 {
     std::string s = findoptionS(option);
-    if ( s == "" ) return defaultl;
-    long int value = std::stol(s);
+    if ( s.empty() ) return defaultl;
+    int value = std::stoi(s);
 
     if ((value < minl) || ((maxl > 0) && (value > maxl))) {
         E2LOGGER_error("Config problem; check allowed values for ", option, "( ", value , " should be >= ", minl, " <=", maxl, ")",

@@ -2,6 +2,43 @@ About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Ais
 
 version 5.6.0
 
+August to Novemebr 2023
+
+New features
+
+    Per filtergroup language support (user messages in language
+    different to language defined in e2guardian.conf)
+
+    Per category block templates.
+    See data/languages/ukenglish/category_block_templates.d/README
+
+    New storyboard functions destipin and responsecodein added for
+    Geolocation filtering and testing of results codes.
+    See notes/GeoLocation and notes/V5_Storyboard.pdf
+
+    Logic changed so that destination IP DNS lookup can be made earlier when
+    required for Geolocation lookup.
+
+    Logformat files replace hard-coded logformat numbers.  Provides for 
+    flexible reporting including reporting on request and response headers.
+    See notes/LogFormatFiles
+
+    New RequestID (consisting of TreadID + StartUtime) can be used in logs to
+     uniquely identify a request.
+
+    Amend dnsauth to accept fg group names as well as fg group nummbers
+
+Bug fixes
+
+    Fix #788 Rest of header not being output when keep-alive triggered
+    Move debuglevel to be read earlier - so that log settings can be debuged
+    Fix #786 - request log not writing
+    Fix #783 - command line option -N being ignored
+
+    Add ICAP client notes
+    Add Spanish translation for message: 122
+    
+
 August 2023 (from v5.5.4r)
 
  Fix possible XSS in bypass url - issue #782
@@ -9,7 +46,7 @@ August 2023 (from v5.5.4r)
   Fix bug #780 - e2g crashes if invalid group name is provided via BearerBasic
       auth plugin
   Update Italian messages - pull request #778 from albanobattistella
-  Update Italian block templalte.html
+  Update Italian block template.html
 
 version 5.5.3r
 

@@ -1,8 +1,6 @@
 DISTCLEANFILES = Makefile.in \
 		bannedphraselist bannedsitelist bannedurllist \
-		exceptionphraselist weightedphraselist \
-		oldbannedphraselist \
-		oldexceptionphraselist oldweightedphraselist
+		exceptionphraselist weightedphraselist 
 
 E2DATADIR = $(E2CONFDIR)/lists/example.group
 
@@ -16,7 +14,6 @@ bannedextensionlist \
 bannedmimetypelist \
 bannedphraselist \
 blanketblocktldlist \
-oldbannedphraselist \
 bannedregexpheaderlist \
 bannedregexpurllist \
 bannedregexpuseragentlist \
@@ -38,7 +35,6 @@ exceptionfileurllist \
 exceptionclientlist \
 exceptionmimetypelist \
 exceptionphraselist \
-oldexceptionphraselist \
 exceptionregexpurllist \
 exceptionregexpuseragentlist \
 exceptionsiteiplist \
@@ -86,19 +82,15 @@ ipnobypass \
 domainsnobypass \
 urlnobypass \
 weightedphraselist \
-oldweightedphraselist \
 README
  
 EXTRA_DIST = bannedphraselist.in \
-oldbannedphraselist.in \
 bannedsitelist.in \
 bannedurllist.in \
 exceptionphraselist.in \
-oldexceptionphraselist.in \
 domainsnobypass.in \
 urlnobypass.in \
-weightedphraselist.in \
-oldweightedphraselist.in
+weightedphraselist.in 
 
 install-data-local: 
 	$(mkinstalldirs) $(DESTDIR)$(E2DATADIR) && \

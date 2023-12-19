@@ -6,3 +6,6 @@
 # The lists used need to be generated from the geo ip lists to put them in
 # e2g iplist format
 #
+#.Include<@E2CONFDIR@/lists/geo_iplists/GB>
+#.Include<@E2CONFDIR@/lists/geo_iplists/US>
+
