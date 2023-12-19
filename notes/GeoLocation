@@ -22,7 +22,7 @@ Steps to set up GeoLocation filtering:-
 
       So for each country code we need we create a list in e2g iplist format:
 
-      A sample script to do this is provided in ./scripts/generate_geo_lists.sh
+      A sample script to do this is provided in ./data/scripts/generate_geo_lists.sh
 
       This will result in a directory with an iplist for each country code.
 
