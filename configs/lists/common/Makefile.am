@@ -4,8 +4,7 @@ E2DATADIR = $(E2CONFDIR)/lists/common
 
 SUBDIRS = . 
 
-WLISTS = authexceptionsiteiplist \
-authexceptioniplist \
+WLISTS = authexceptioniplist \
 authexceptionsitelist \
 authexceptionurllist \
 bannedclientlist \
