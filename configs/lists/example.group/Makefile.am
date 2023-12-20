@@ -35,7 +35,6 @@ exceptionvirusextensionlist \
 exceptionfilesiteiplist \
 exceptionfilesitelist \
 exceptionfileurllist \
-exceptionclientlist \
 exceptionmimetypelist \
 exceptionphraselist \
 oldexceptionphraselist \
