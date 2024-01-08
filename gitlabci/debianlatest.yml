@@ -23,6 +23,7 @@ package:debian:
   stage: create-package-debian
   image: amd64/debian:bookworm-slim
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
@@ -53,6 +54,7 @@ test:debian:
   image: amd64/debian:bookworm-slim
   artifacts:
    name: builddebian
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
