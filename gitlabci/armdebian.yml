@@ -1,6 +1,6 @@
 build:arm:
   stage: build
-  image: debian:bullseye
+  image: debian:bookworm-slim
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -24,7 +24,7 @@ build:arm:
 
 package:debarm:
   stage: create-package
-  image: debian:bullseye
+  image: debian:bookworm-slim
   dependencies:
     - build:arm
   artifacts:
@@ -59,7 +59,7 @@ package:debarm:
 
 test:debianarm:
   stage: test-publish
-  image: debian:bullseye
+  image: debian:bookworm-slim
   dependencies:
     - package:debarm
   artifacts:
