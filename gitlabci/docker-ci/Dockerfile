@@ -10,7 +10,7 @@ COPY --from=builddocker --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardia
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
-RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y rsync sed libevent-pthreads-* libssl1.1 ca-certificates curl inotify-tools \
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y rsync sed libevent-pthreads-* ca-certificates curl inotify-tools \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
     && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
