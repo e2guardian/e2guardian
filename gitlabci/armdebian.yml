@@ -37,7 +37,7 @@ package:debarm:
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - apt update
-    - apt install -y curl git lsb-release binutils curl ca-certificates util-linux binutils libpcre3 lbssl1.3
+    - apt install -y curl git lsb-release binutils curl ca-certificates util-linux binutils libpcre3 lbssl3
     - echo $VFULL
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
