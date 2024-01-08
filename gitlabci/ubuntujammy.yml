@@ -25,6 +25,7 @@ package:jammy:
   dependencies:
     - build:jammy
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR  
   variables:
@@ -59,6 +60,7 @@ test:jammy:
   dependencies:
     - package:jammy
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
@@ -93,4 +95,3 @@ test:jammy:
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
-     

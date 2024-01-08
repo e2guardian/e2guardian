@@ -28,6 +28,7 @@ package:debarm:
   dependencies:
     - build:arm
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR   
   variables:
@@ -63,6 +64,7 @@ test:debianarm:
   dependencies:
     - package:debarm
   artifacts:
+   expire_in: 30 minutes
    name: builddebian
    paths:
     - $CI_PROJECT_DIR 
