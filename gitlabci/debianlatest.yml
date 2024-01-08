@@ -30,7 +30,7 @@ package:debian:
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
     OS: "debian"
   script:
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre3 
     - git clone https://github.com/fredbcode/scripts
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
