@@ -1,8 +1,8 @@
-FROM debian:bullseye-slim as builddocker
+FROM debian:bookworm-slim as builddocker
 ARG PROJECT_DIR
 COPY . /tmp/e2guardian
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 ARG PROJECT_DIR
 ENV DOCKER_BUILD=/tmp/e2guardian/scripts/debian_package/e2debian_package/data
 COPY --from=builddocker --chown=1161 /tmp/e2guardian/src/e2guardian /usr/sbin/e2guardian
