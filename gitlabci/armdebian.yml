@@ -1,6 +1,6 @@
 build:arm:
   stage: build
-  image: debian:bullseye
+  image: debian:bookworm-slim
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -13,7 +13,7 @@ build:arm:
    - apt update 
    - apt-get -y upgrade 
    - echo "deb-src http://deb.debian.org/debian bullseye main contrib non-free" >> /etc/apt/sources.list 
-   - apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 ca-certificates lsb-release inotify-tools curl 
+   - apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev ca-certificates lsb-release inotify-tools curl 
    - cd $CI_PROJECT_DIR && make clean  
    - ./autogen.sh
    - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-ntlm=yes --enable-pcre=yes --enable-sslmitm=yes 
@@ -24,10 +24,11 @@ build:arm:
 
 package:debarm:
   stage: create-package
-  image: debian:bullseye
+  image: debian:bookworm-slim
   dependencies:
     - build:arm
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR   
   variables:
@@ -37,7 +38,7 @@ package:debarm:
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - apt update
-    - apt install -y curl git lsb-release binutils
+    - apt install -y curl git lsb-release binutils curl ca-certificates util-linux binutils libpcre3 libssl3
     - echo $VFULL
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
@@ -59,10 +60,11 @@ package:debarm:
 
 test:debianarm:
   stage: test-publish
-  image: debian:bullseye
+  image: debian:bookworm-slim
   dependencies:
     - package:debarm
   artifacts:
+   expire_in: 30 minutes
    name: builddebian
    paths:
     - $CI_PROJECT_DIR 
@@ -75,7 +77,7 @@ test:debianarm:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
-    - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* 
+    - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre3 libssl3 
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
