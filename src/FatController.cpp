@@ -178,7 +178,7 @@ void stat_rec::reset() {
         rotate_dstat = false;
     }
 
-    char outbuff[101];
+    char outbuff[201];
 
     long cps = cnx / period;
     long rqs = rqx / period;
@@ -188,11 +188,11 @@ void stat_rec::reset() {
         timeinfo = localtime(&now);
         char buffer[50];
         strftime(buffer, 50, "%Y-%m-%d %H:%M", timeinfo);
-        snprintf(outbuff, 100, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
+        snprintf(outbuff, 200, "%s	%d	%d	%d	%d	%ld	%ld	%ld	 %ld	%d	 %d", buffer,
                  o.proc.http_workers,
                  bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     } else {
-        snprintf(outbuff, 100, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
+        snprintf(outbuff, 200, "%ld	%d	%d	%d	%d	%ld	%ld	%ld	%ld	%d	%d", now,
                  o.proc.http_workers,
                  bc, o.http_worker_Q.size(), o.log.log_Q->size(), cnx, cps, rqx, rqs, mfd, LC);
     }
