@@ -1880,8 +1880,9 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 // End of while
     }
 
-    if (header.size() == 0) {
-        DEBUG_debug("header:size = 0 ");
+    // At this point there should be at least two header lines including the final blank line - should fix #
+    if (header.size() < 2) {
+        DEBUG_debug("header:size < 2 - incomplete ");
         return false;
     }
 
