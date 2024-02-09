@@ -1076,7 +1076,7 @@ weightedphrasemode = 2
 ### TUNING section
 ###
 
-#httpworkers = 500
+#httpworkers = @HTTP_WORKERS@
 #
 #sets the number of worker threads to use
 #
@@ -1087,7 +1087,7 @@ weightedphrasemode = 2
 # On 32-bit systems reduce this to 300 to avoid exceeding the <4GB
 # virtual memory limit and on Linux decrease the thread stack size from
 # 10MB to 2MB (ulimit -s 2048)
-# default 500
+# default @HTTP_WORKERS@
 
 #maxcontentfiltersize = 2048
 #
