@@ -52,7 +52,7 @@ WISHLIST
 
 ICAP server mode.
 
-Re-impliment mailing option.
+Re-implement mailing option.
 
 Per-user exceptions/blocks.
 
@@ -62,9 +62,9 @@ All pics support has been removed
 
 Mail option not yet implemented.
 
-Url cache not implimented
+Url cache not implemented
 
-IP cache not implimented
+IP cache not implemented
 
 Auth plugins - tested and working
 

@@ -17,7 +17,7 @@
 ### URL_MOD		- Lists to modify url and ssl site target
 ### REDIRECT		- Redirection list
 ### LOG_ONLY		- Categorise and log but do not filter lists
-### POST		- Post filtering - not implimented yet in v5
+### POST		- Post filtering - not implemented yet in v5
 ### PHRASES             - Content phrase settings and lists
 ### SEARCH		- Search term filtering settings and lists
 ### AV_SCANNERS         - AV scanner settings and lists
@@ -882,7 +882,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 # Enable legacy (E2) ssl logic
 # The option is replaced by storyboard logic
 
-#sslcertcheck = off - NOT implimented in V5 yet
+#sslcertcheck = off - NOT implemented in V5 yet
 #SSL certificate checking
 # Check that ssl certificates for servers on https connections are valid
 # and signed by a ca in the configured path
@@ -895,7 +895,7 @@ sitelist = 'name=bannedbypass,messageno=500,path=__LISTDIR__/domainsnobypass'
 # option is replaced by storyboard logic
 
 #embeddedurlweight = 0
-#  - NOT implimented in v5
+#  - NOT implemented in v5
 # Embedded URL weighting
 # When set to something greater than zero, this option causes URLs embedded within a
 # page's HTML (from links, image tags, etc.) to be extracted and checked against the
