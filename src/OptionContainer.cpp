@@ -372,7 +372,7 @@ bool OptionContainer::findContentScannerOptions(ConfigReader &cr)
     content.max_content_filecache_scan_size = cr.findoptionIWithDefault("maxcontentfilecachescansize", 0, 0, 20000);
     content.max_content_filecache_scan_size *= 1024;
 
-    content.max_content_ramcache_scan_size = cr.findoptionIWithDefault("maxcontentramcachescansize", 0, 0, 2000);
+    content.max_content_ramcache_scan_size = cr.findoptionIWithDefault("maxcontentramcachescansize", 0, 0, 2048);
     content.max_content_ramcache_scan_size *= 1024;
     if (content.max_content_ramcache_scan_size == 0) {
         content.max_content_ramcache_scan_size = content.max_content_filecache_scan_size;
