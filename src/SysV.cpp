@@ -180,11 +180,11 @@ int sysv_openpidfile(std::string pidfile)
 }
 
 // write pid to file & close it
-int sysv_writepidfile(int pidfilefd)
+int sysv_writepidfile(int pidfilefd, pid_t pid = 0)
 {
-    pid_t p = getpid();
+    if(pid == 0) pid = getpid();
     char pidbuff[32];
-    sprintf(pidbuff, "%d", (int)p); // Messy, but it works!
+    sprintf(pidbuff, "%d", (int)pid); // Messy, but it works!
     int len = strlen(pidbuff) + 1;
     pidbuff[len - 1] = '\n';
     int rc = write(pidfilefd, pidbuff, len);

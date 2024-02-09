@@ -125,6 +125,8 @@ extern std::atomic<bool> g_is_starting;
 extern OptionContainer o;
 extern bool is_daemonised;
 
+pid_t master_pid = 0;
+
 void stat_rec::clear() {
     conx = 0;
     reqs = 0;
@@ -273,7 +275,7 @@ extern "C" {
 void log_listener(Queue<std::string> *log_Q, bool is_RQlog);
 
 // fork off into background
-bool daemonise();
+bool daemonise(int pidfilefd);
 // create specified amount of child threads
 
 //void handle_connections(int tindex);  // needs changing to be threadish
@@ -307,18 +309,7 @@ bool drop_priv_completely() {
 }
 
 // Fork ourselves off into the background
-bool daemonise() {
-    if (o.proc.no_daemon) {
-        return true;
-    }
-#ifdef DEBUG_LOW
-    return true; // if debug mode is enabled we don't want to detach
-#endif
-
-    if (is_daemonised) {
-        return true; // we are already daemonised so this must be a
-        // reload caused by a HUP
-    }
+bool daemonise(int pidfileid) {
 
     int nullfd = -1;
     if ((nullfd = open("/dev/null", O_WRONLY, 0)) == -1) {
@@ -331,10 +322,14 @@ bool daemonise() {
         // Error!!
         close(nullfd);
         return false;
-    } else if (pid != 0) {
-        // parent goes...
+    } else if (pid != 0) {// parent goes...A
+        master_pid = pid;
         if (nullfd != -1) {
             close(nullfd);
+        }
+        int rc = sysv_writepidfile(pidfileid, master_pid);
+        if (rc != 0) {
+            E2LOGGER_error("Error writing to the e2guardian.pid file: ", strerror(errno));
         }
         // bye-bye
         exit(0);
@@ -1407,13 +1402,17 @@ int fc_controlit()   //
         return 1;
     }
 
-    if (!daemonise()) {
-        // detached daemon
-        E2LOGGER_error("Error daemonising");
-        close(pidfilefd);
-        delete[] serversockfds;
-        return 1;
+#ifndef DEBUG_LOW      // remain in foreground when in low debug mode
+    if (!(is_daemonised||o.proc.no_daemon)) {
+        if (!daemonise(pidfilefd)) {
+            // detached daemon
+            E2LOGGER_error("Error daemonising");
+            close(pidfilefd);
+            delete[] serversockfds;
+            return 1;
+        }
     }
+#endif
 
     //init open ssl
     SSL_load_error_strings();
@@ -1434,13 +1433,16 @@ int fc_controlit()   //
     }
     SSL_library_init();
 
-    // this has to be done after daemonise to ensure we get the correct PID.
-    rc = sysv_writepidfile(pidfilefd); // also closes the fd
-    if (rc != 0) {
-        E2LOGGER_error("Error writing to the e2guardian.pid file: ", strerror(errno));
-        delete[] serversockfds;
-        return false;
+    // only done now if not daemonised as pidfile must be written from parent when forking - required so that systemd will pick up master pid from pidfile
+    if (!is_daemonised) {
+        rc = sysv_writepidfile(pidfilefd, 0); // also closes the fd
+        if (rc != 0) {
+            E2LOGGER_error("Error writing to the e2guardian.pid file: ", strerror(errno));
+            delete[] serversockfds;
+            return false;
+        }
     }
+
     // We are now a daemon so all errors need to go in the syslog, rather
     // than being reported on screen as we've detached from the console and
     // trying to write to stdout will not be nice.

@@ -26,7 +26,7 @@ bool sysv_amirunning(std::string pidfile);
 // delete any existing file with this name, and create a new one with relevant mode flags
 int sysv_openpidfile(std::string pidfile);
 // write our pid to the given file & close it
-int sysv_writepidfile(int pidfilefd);
+int sysv_writepidfile(int pidfilefd,pid_t master_pid);
 
 // send HUP or USR1 to the process in the pidfile
 int sysv_hup(std::string pidfile);
