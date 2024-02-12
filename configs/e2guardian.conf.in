@@ -804,7 +804,7 @@ reverseaddresslookups = off
 # and normally e2g will no longer check site lists for ip's
 # If you want to keep backward list compatablity then set this to
 # 'on' - but note this incurs an overhead - putting IP in ipsitelists
-# and setting this to off gives the fastest implimentation.
+# and setting this to off gives the fastest implementation.
 # default is 'on'
 
 ###
