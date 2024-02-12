@@ -63,6 +63,7 @@ e2guardian_CPPFLAGS = -D__CONFFILE='"$(E2CONFFILE)"' \
 			-D__PROXYUSER='"$(E2PROXYUSER)"' \
 			-D__PROXYGROUP='"$(E2PROXYGROUP)"' \
 			-D__CONFDIR='"$(E2CONFDIR)"' \
+			-D__HTTPWORKERS='$(HTTP_WORKERS)' \
 			$(AM_CPPFLAGS)
 e2guardian_SOURCES = String.cpp String.hpp \
                        FDTunnel.cpp FDTunnel.hpp \

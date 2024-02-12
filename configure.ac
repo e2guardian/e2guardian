@@ -565,6 +565,14 @@ AC_SUBST(E2CONFFILE)
 AC_DEFINE_UNQUOTED([__DATADIR],["${E2DATADIR}"],["Data directory path"])
 AC_DEFINE_UNQUOTED(__CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf","Configure file path")
 
+AC_CHECK_SIZEOF([void *])
+if test $ac_cv_sizeof_void_p = 8; then
+    httpworkers=500
+else
+    httpworkers=300
+fi
+AC_SUBST([HTTP_WORKERS], [$httpworkers])
+
 AC_CONFIG_FILES([Makefile
 data/Makefile
 data/languages/Makefile
