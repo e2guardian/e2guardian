@@ -15,7 +15,7 @@ build:debian:
       libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
       libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev git ca-certificates lsb-release libpcre2-posix3
-    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--with-httpworkers=16384' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--with-httpworkers=16384' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
@@ -31,7 +31,7 @@ package:debian:
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
     OS: "debian"
   script:
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre3 
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-posix3 
     - git clone https://github.com/fredbcode/scripts
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      

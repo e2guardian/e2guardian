@@ -15,7 +15,7 @@ build:focal:
       libevent-pthreads-2.1-7 libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
       libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release libpcre2-posix3
-    - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' '--with-httpworkers=16384' 'CPPFLAGS=-mno-sse2 -g -O2'
+    - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' '--with-httpworkers=16384' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
