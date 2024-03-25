@@ -38,4 +38,3 @@ include:
   - 'gitlabci/docker-hub.yml'
   - 'gitlabci/ubuntujammy.yml'
   - 'gitlabci/armdebian.yml'
-  - 'gitlabci/ubuntufocal.yml'
