@@ -16,7 +16,7 @@ build:arm:
    - apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y curl unzip automake coreutils debianutils diffutils e2fsprogs findutils grep unzip ncurses-base libevent-pthreads-* libevent-dev ncurses-bin login sysvinit-utils tar libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev ca-certificates lsb-release inotify-tools curl libpcre2-posix3 
    - cd $CI_PROJECT_DIR && make clean  
    - ./autogen.sh
-   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-pcre=yes --enable-sslmitm=yes --with-httpworkers=16384 
+   - ./configure --host=arm-linux-gnueabihf --prefix=/usr --enable-clamd=yes --with-proxyuser=e2guardian --with-proxygroup=e2guardian --sysconfdir=/etc --localstatedir=/var --enable-icap=yes --enable-commandline=yes --enable-email=yes --enable-pcre=yes --enable-sslmitm=yes --with-httpworkers=4096 
    - make  
    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
   tags:
