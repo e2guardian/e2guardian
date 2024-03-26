@@ -55,7 +55,7 @@ package:debarm:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
-    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 2048/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
+    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
   tags:
      - arm
 
