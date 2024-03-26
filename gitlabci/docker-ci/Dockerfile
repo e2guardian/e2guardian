@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
-    && sed -i "s/^#httpworkers.*$/httpworkers\ =\ 2048/" /etc/e2guardian/e2guardian.conf \
+    # Check and set user limits with ulimit command
+    && sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" /etc/e2guardian/e2guardian.conf \
     && echo "# Docker log #" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_error = 'stdout:LOG_ERR'" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_warning = 'stdout:LOG_WARNING'" >> /etc/e2guardian/e2guardian.conf \
