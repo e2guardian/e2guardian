@@ -33,6 +33,8 @@ package:debian:
   script:
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-posix3 
     - git clone https://github.com/fredbcode/scripts
+    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 1024/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
+    - mkdir -p ${CERT_DIR}generatedcerts
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
