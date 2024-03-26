@@ -14,8 +14,8 @@ build:debian:
       bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
       libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
-      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev git ca-certificates lsb-release
-    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
+      libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev git ca-certificates lsb-release libpcre2-posix3
+    - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--with-httpworkers=16384' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
@@ -31,8 +31,10 @@ package:debian:
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
     OS: "debian"
   script:
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre3 
+    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-posix3 
     - git clone https://github.com/fredbcode/scripts
+    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 1024/" ${PACKPATH}/configs/e2guardian.conf
+    - mkdir -p ${CERT_DIR}generatedcerts
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
@@ -66,10 +68,10 @@ test:debian:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
-    - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre3 libssl3 
+    - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre2-posix3 libssl3 
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
-    - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
+    - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf && sed -i "s/^#httpworkers.*$/httpworkers\ =\ 1024/" /etc/e2guardian/e2guardian.conf
     - mkdir -p ${CERT_DIR}generatedcerts
     - openssl genrsa 4096 > "${CERT_DIR}ca.key" && openssl req -subj "/C=US" -new -x509 -days 3650 -key "${CERT_DIR}ca.key" -out "${CERT_DIR}ca.pem" && openssl genrsa 4096 > "${CERT_DIR}cert.key"
     - chown --recursive e2guardian:e2guardian ${CERT_DIR}

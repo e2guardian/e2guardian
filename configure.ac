@@ -235,7 +235,8 @@ AC_MSG_RESULT(yes)
 )
 
 if test "x$pcre" = "xtrue"; then
-PKG_CHECK_MODULES([PCRE],[libpcre2-posix >= 10.42])
+# Ubuntu 22.04 = 10.39
+PKG_CHECK_MODULES([PCRE],[libpcre2-posix >= 10.39])
 AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
 else
 AC_CHECK_FUNCS([regcomp])
@@ -566,10 +567,22 @@ AC_DEFINE_UNQUOTED(__CONFFILE,"${e2sysconfdir}/${PACKAGE_NAME}.conf","Configure 
 
 AC_CHECK_SIZEOF([void *])
 if test $ac_cv_sizeof_void_p = 8; then
-    httpworkers=500
+    AC_MSG_RESULT(64 bits system)
+    httpworkers=1024
 else
+    AC_MSG_RESULT(32 Bits system)
     httpworkers=300
 fi
+AC_SUBST([HTTP_WORKERS], [$httpworkers])
+
+AC_MSG_CHECKING(Checking workers option)
+AC_ARG_WITH(httpworkers,
+[AS_HELP_STRING([with-httpworkers=XX], [fix max workers number])],
+[if test "x$withval" != "x"; then
+httpworkers=$withval
+fi],
+[AC_MSG_RESULT(httpworkers limit are not defined)])
+
 AC_SUBST([HTTP_WORKERS], [$httpworkers])
 
 AC_CONFIG_FILES([Makefile

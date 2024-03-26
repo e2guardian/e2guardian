@@ -10,7 +10,7 @@ COPY --from=builddocker --chown=1161 $DOCKER_BUILD/etc/e2guardian /etc/e2guardia
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/languages /usr/share/e2guardian/languages
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*swf /usr/share/e2guardian/
 COPY --from=builddocker --chown=1161 $DOCKER_BUILD/usr/share/e2guardian/*gif /usr/share/e2guardian/
-RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y rsync sed libevent-pthreads-* ca-certificates curl inotify-tools libpcre3 libssl3 \
+RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-install-suggests -y rsync sed libevent-pthreads-* ca-certificates curl inotify-tools libpcre2-posix3 libssl3 \
     && adduser --no-create-home --uid 1161 --group --system e2guardian \
     && mkdir -p /run/e2guardian \
     && mkdir -p /var/log/e2guardian && chown -R e2guardian /var/log/e2guardian && chown -R e2guardian /run/e2guardian \
@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install --no-upgrade --no-install-recommends --no-
     && sed -i "s/^#dockermode.*$/dockermode\ =\ on/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#pidfilename.*$/pidfilename\ =\ \/run\/e2guardian\/e2.pid/" /etc/e2guardian/e2guardian.conf \
     && sed -i "s/^#icapport.*$/icapport\ =\ 1344/" /etc/e2guardian/e2guardian.conf \
+    # Check and set user limits with ulimit command
+    && sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" /etc/e2guardian/e2guardian.conf \
     && echo "# Docker log #" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_error = 'stdout:LOG_ERR'" >> /etc/e2guardian/e2guardian.conf \
     && echo "set_warning = 'stdout:LOG_WARNING'" >> /etc/e2guardian/e2guardian.conf \
