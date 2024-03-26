@@ -235,7 +235,8 @@ AC_MSG_RESULT(yes)
 )
 
 if test "x$pcre" = "xtrue"; then
-PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+# Ubuntu 22.04 = 10.39
+PKG_CHECK_MODULES([PCRE],[libpcre2-posix >= 10.39])
 AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
 else
 AC_CHECK_FUNCS([regcomp])
