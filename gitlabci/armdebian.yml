@@ -43,6 +43,7 @@ package:debarm:
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control
+    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
@@ -55,7 +56,6 @@ package:debarm:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
-    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
   tags:
      - arm
 
