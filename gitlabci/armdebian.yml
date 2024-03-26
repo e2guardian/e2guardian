@@ -43,7 +43,7 @@ package:debarm:
     - VERSION=`lsb_release -cs`
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control
-    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" ${PACKDST}/data/etc/e2guardian/e2guardian.conf
+    - sed -i "s/^#httpworkers.*$/httpworkers\ =\ 500/" ${PACKDST}/configs/e2guardian.conf
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
     - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
