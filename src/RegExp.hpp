@@ -13,7 +13,7 @@
 #include <sys/types.h> // needed for size_t used in regex.h
 
 #ifdef HAVE_PCRE
-#include <pcre2posix.h>
+#include <pcreposix.h>
 #else
 #include <regex.h>
 #endif
