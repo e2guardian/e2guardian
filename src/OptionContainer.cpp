@@ -847,7 +847,7 @@ bool OptionContainer::findProcOptions(ConfigReader &cr)
         proc.daemon_group_name = __PROXYGROUP;
     }
 
-    proc.http_workers = cr.findoptionIWithDefault("httpworkers", 20, 20000, __HTTPWORKERS);
+    proc.http_workers = cr.findoptionIWithDefault("httpworkers", 20, 20000, 500);
 
     return true;
 
