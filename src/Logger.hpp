@@ -15,6 +15,12 @@
 #include <fstream>
 #include <sstream>
 #include <cstdio>
+#ifdef stdout
+#undef stdout
+#endif
+#ifdef stderr
+#undef stderr
+#endif
 #include <atomic>
 #include <syslog.h>
 #include <unistd.h>
