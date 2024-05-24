@@ -3096,6 +3096,8 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             bool authed = false;
             bool isbanneduser = false;
             bool firsttime = true;
+            String sni;
+            bool is_ech = false;
 
             AuthPlugin *auth_plugin = NULL;
 
@@ -3111,10 +3113,22 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             unsigned int toread = 0;
             if (rc == 6) {
                 if (buff[0] == 22 && buff[1] == 3 && buff[2] > 0 && buff[2] < 4 &&
-                    buff[5] == 1)   // has TLS client hello signature
-                    checkme.isTLS = true;
+                    buff[5] == 1) {  // has TLS client hello signature
+                    toread = two_bytes_to_short((unsigned char*)&(buff[3]));
 
-                toread = (buff[3] << (8 * 1) | buff[4]) + 5;
+                  //  unsigned int t3 = buff[4];
+                  //  toread = (toread * 256) + t3;
+                    if (toread <= CLIENT_HELLO_MAX_SIZE) {
+                        checkme.isTLS = true;
+                        toread += 5;
+                    }
+#ifdef DEBUG_HIGH
+                    else {
+                        DEBUG_thttps("Oversized clienthello detected");
+                    }
+#endif
+                    //toread = (buff[3] << (8 * 1) | buff[4]) + 5;
+                }
             }
 
             DEBUG_thttps("hello length is ", toread, " magic is ", buff[0], buff[1], buff[2], " isTLS is ",
@@ -3124,7 +3138,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
                 char buff2[CLIENT_HELLO_MAX_SIZE + 6 ];
                 //char *buff2 = new char[(toread + 1)];
                 rc = peerconn.readFromSocket(buff2, toread, (MSG_PEEK), 10000);
-                if (rc < 1) {     // get header from client, allowing persistency
+                if (rc < 1) {
                     if (o.conn.logconerror) {
                         if (peerconn.getFD() > -1) {
 
@@ -3134,7 +3148,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
                             if (peerconn.isTimedout()) {
                                 DEBUG_thttps("Connection timed out");
                             }
-                            E2LOGGER_error("No header recd from client - errno: ", err);
+                            E2LOGGER_error("No TLS header recd from client - errno: ", err);
                         } else {
                             E2LOGGER_info("Client connection closed early - no TLS header received");
                         }
@@ -3143,9 +3157,9 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
                     //persistPeer = false;
                 } else {
                     DEBUG_thttps("bytes peeked ", rc);
-                    char *ret = get_TLS_SNI(buff2, rc);
-                    if (ret != nullptr) {
-                        checkme.url = ret;
+                    bool ret = get_TLS_SNI(buff2, rc, sni, is_ech);
+                    if (ret) {
+                        checkme.url = sni;
                         checkme.hasSNI = true;
                     }
                     ++dystat->reqs;
@@ -3366,55 +3380,89 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
     }
 
 
-char *get_TLS_SNI(char *inbytes, int len) {
+bool ConnectionHandler::get_TLS_SNI(char *inbytes, int len, String &r_sni, bool &is_ech) {
     auto bytes = reinterpret_cast<unsigned char *>(inbytes);
     unsigned char *curr;
     unsigned char *ebytes;
-    if (len < 44) return nullptr;
+    char sni[256];
+    std::memset(sni,0,256);
+    bool got_sni = false;
+    if (len < 44) return false;
     ebytes = bytes + len;
     unsigned short int sid_len = bytes[43];
     curr = bytes + 1 + 43 + sid_len;        // skip past session id
-    if (curr > ebytes) return nullptr;
-    unsigned short cslen = ntohs(*(unsigned short*)curr);
+    if (curr > ebytes) return false;
+    unsigned short cslen = two_bytes_to_short(curr); ntohs(*(unsigned short*)curr);
     curr += 2 + cslen;                      // skip past Cipher Suites
-    if (curr > ebytes) return nullptr;
+    if (curr > ebytes) return false;
     unsigned short cmplen = *curr;
     curr += 1 + cmplen;                     // skip past Compression methods
-    if (curr > ebytes) return nullptr;
-    unsigned char *maxchar = curr + 2 + ntohs(*(unsigned short*)curr);  // get pointer to end of extensions + 1
+    if (curr > ebytes) return false;
+    unsigned char *maxchar = curr + 2 + two_bytes_to_short(curr); ntohs(*(unsigned short*)curr);  // get pointer to end of extensions + 1
     curr += 2;
     unsigned short ext_type = 1;
     unsigned short ext_len;
-    while(curr < maxchar && ext_type != 0)
+    unsigned short ext_found = 0;
+    while(curr < maxchar && ext_found < 2)
+        //while(curr < maxchar && ext_type != 0)
     {
-        if (curr > ebytes) return nullptr;
+        if (curr > ebytes) break;
         //if (maxchar > ebytes) return nullptr;
         ext_type = ntohs(*(unsigned short*)curr);
         curr += 2;
-        if (curr > ebytes) return nullptr;
+        if (curr > ebytes) break;
         ext_len = ntohs(*(unsigned short*)curr);
         curr += 2;                      // pointing at start of extension data
-        if(ext_type == 0)               // Is Server name extension
-        {
-            unsigned short list_len = ntohs(*(unsigned short*)curr);
-            curr += 2;
-            if(list_len < 8 ) return nullptr;
-            unsigned char *list_end = curr + list_len;
-            if(*curr != 0) return nullptr;      // check list entry type is DNS hostname i.e == 0
-            curr += 1;                  // pointing at length of DNS hostname
-            if (curr > ebytes) return nullptr;
-            unsigned short namelen = ntohs(*(unsigned short*)curr);
-            curr += 2;                  // pointing at DNS hostname
-            unsigned char *name_end = curr + namelen;
-            if (name_end > list_end) return nullptr;
-            if (name_end > ebytes) return nullptr;
-            *(name_end) = (char)0;     // add null char to terminate string
-            return (char*)curr;
-        }
-        else curr += ext_len;
+                switch (ext_type) {
+                    case 0:             // Is Server name extension
+                    {
+                        unsigned short list_len = two_bytes_to_short(curr);
+                        curr += 2;
+                        if (list_len < 8) break;
+                        unsigned char *list_end = curr + list_len;
+                        if (*curr != 0) break;      // check list entry type is DNS hostname i.e == 0
+                        curr += 1;                  // pointing at length of DNS hostname
+                        if (curr > ebytes) break;
+                        unsigned short namelen = two_bytes_to_short(curr);
+                        curr += 2;                  // pointing at DNS hostname
+                        unsigned char *name_end = curr + namelen;
+                        if (name_end > list_end) break;
+                        if (name_end > ebytes) break;
+                        std::memcpy(sni, curr, (size_t) namelen);
+                        got_sni = true;
+                        ext_found++;
+                        curr = name_end;
+                    }
+                        break;
+                        //*(name_end) = (char)0;     // add null char to terminate string
+                    case 65037:   // has encrypted client hello
+                        is_ech = true;
+                        ext_found++;
+                    default:
+                        curr += ext_len;
+                        break;
+                }
     }
-    //if (curr != maxchar) throw std::exception("incomplete SSL Client Hello");
-    return nullptr; //SNI was not present
+    if ( got_sni) {
+        r_sni = sni;
+        bool b = r_sni.is_valid_domain();
+        if(b && ext_found == 1) return true;    // i.e no ECH
+        if (!b) {
+#ifdef DEBUG_HIGH
+            if (!is_ech) {
+                DEBUG_thttps("Invalid SNI received: ", r_sni);
+            }
+#endif
+            r_sni = "";                     // blank SNI as it is invalid
+        }
+    }
+#ifdef DEBUG_HIGH
+    if (is_ech) {
+        DEBUG_thttps("SNI is encyrpted: dummy SNI in outer CH is not reliable", r_sni);
+    }
+#endif
+
+    return false; //SNI was not present or present but with ECH so unreliable
 }
 
 
@@ -4177,3 +4225,9 @@ int ConnectionHandler::determineGroup(std::string &user, int &fg, StoryBoard &st
     return E2AUTH_OK;
 }
 
+unsigned short ConnectionHandler::two_bytes_to_short(unsigned char *bytes) {
+    unsigned short local_res = (*bytes);
+    unsigned short two = *(bytes + 1);
+    local_res = (local_res * 256) + two;
+    return local_res;
+}

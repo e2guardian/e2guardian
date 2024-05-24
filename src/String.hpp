@@ -156,6 +156,7 @@ class String : public std::string
     String anonimise();
 
     bool isIp();
+    bool is_valid_domain();
 };
 
 #endif

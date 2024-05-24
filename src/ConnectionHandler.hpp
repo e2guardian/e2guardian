@@ -166,9 +166,10 @@ class ConnectionHandler
 
     int determineGroup(std::string &user, int &fg, StoryBoard & uglc, NaughtyFilter &checkme, int story_entry);
     int connectUpstream(Socket &sock, NaughtyFilter &cm,int port);
+    unsigned short two_bytes_to_short(unsigned char *bytes);
+    bool get_TLS_SNI(char *bytes, int len, String &sni,bool &is_ech);
 };
 
-char *get_TLS_SNI(char *bytes, int len);
 
 #endif
 

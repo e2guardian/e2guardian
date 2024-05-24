@@ -749,3 +749,16 @@ bool String::isIp() {
     // Regex expression for validating IPv6
    // regex ipv6("((([0-9a-fA-F]){1,4})\\:){7}([0-9a-fA-F]){1,4}");
 }
+
+bool String::is_valid_domain() {
+    unsigned int l = this->length();
+    const char *d = this->c_str();
+    if ((d[0] == '-')||(d[l - 1] == '-')) return false;  // hyphens are not allowed at start or end of domain
+    for (unsigned int i = 0; i < l; i++) {
+        if (!((d[i] >= '0' && d[i] <= '9') || (d[i] >= 'A' && d[i] <= 'Z') || (d[i] >= 'a' && d[i] <= 'z') ||
+              (d[i] == '-')||(d[i] == '.'))) {
+            return false;
+        }
+    }
+    return true;
+}
