@@ -270,6 +270,8 @@ else
 	fi
 fi
 ]
+
+CXXFLAGS="${CXXFLAGS} -funsigned-char"
   
 # ask user if they want large file support on 32 bit systems
 AC_MSG_CHECKING([for large file support])
