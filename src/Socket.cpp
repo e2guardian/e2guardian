@@ -867,10 +867,10 @@ int Socket::readFromSocket(char *buff, int len, unsigned int flags, int timeout,
             return len;
     }
 
-#ifdef DEBUG_LOW
-    int pend_stat = SSL_has_pending(ssl);
-    DEBUG_network("has_pending returns ", pend_stat);
-#endif
+//#ifdef DEBUG_LOW
+ //   int pend_stat = SSL_has_pending(ssl);
+ //   DEBUG_network("has_pending returns ", pend_stat);
+//#endif
     bool has_buffer = checkForInput(timeout);
 
     int rc;
@@ -1189,10 +1189,12 @@ bool Socket::s_checkPending() {
     }
     s_pending = SSL_pending(ssl);
     DEBUG_network("SSL_pending gives ", s_pending);
+#ifndef  LIBRESSL_VERSION_NUMBER
     s_prev_has_pending = s_has_pending;
     s_has_pending = SSL_has_pending(ssl);
     DEBUG_network("SSL_has_pending gives ", s_has_pending);
     s_pending = s_pending || (s_has_pending && !s_prev_has_pending);
+#endif
     DEBUG_network("Returning ", s_pending);
     return s_pending;
 }

@@ -1617,7 +1617,7 @@ int fc_controlit()   //
                     //timer_settime(timerid,0,&timeout, NULL);
                     setitimer(ITIMER_REAL, &timeout, NULL);
 
-                    DEBUG_debug("signal:", String(rc);
+                    DEBUG_debug("signal:", String(rc));
                     if (o.conn.logconerror) {
                         E2LOGGER_info("sigtimedwait() signal recd:", String(rsig) );
                     }
