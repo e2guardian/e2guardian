@@ -1452,6 +1452,36 @@ int fc_controlit()   //
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
 
+        sigset_t signal_set;
+        sigemptyset(&signal_set);
+        sigaddset(&signal_set, SIGHUP);
+        sigaddset(&signal_set, SIGPIPE);
+        sigaddset(&signal_set, SIGTERM);
+        sigaddset(&signal_set, SIGUSR1);
+
+#ifdef __OpenBSD__
+        // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
+        // set up timer for main loop
+        struct itimerval timeout;
+        timeout.it_interval.tv_sec = 0;
+        timeout.it_interval.tv_usec = (suseconds_t) 0;
+        timeout.it_value.tv_usec = (suseconds_t) 0;
+        sigaddset(&signal_set, SIGALRM);
+#else
+        struct timespec timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_nsec = (long) 0;
+#endif
+        int stat;
+        stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
+        if (stat != 0) {
+            E2LOGGER_error("Error setting sigmask");
+            return 1;
+        }
+
+        DEBUG_trace("sig handlers done");
+
+
     // Now start creating threads so main thread can just handle signals, list reloads and stats
     // This removes need for select and/or epoll greatly simplifying the code
     // Threads are created for logger, a separate thread for each listening port
@@ -1470,48 +1500,6 @@ int fc_controlit()   //
         DEBUG_trace("RQlog_listener thread created");
     }
 
-   // if (e2logger.isEnabled(LoggerSource::responselog)) {
-   //     std::thread RSlog_thread(log_listener, o.log.RSlog_Q, false, true, false);
-   //     RSlog_thread.detach();
-   //     DEBUG_trace("RSlog_listener thread created");
-   // }
-   // if (e2logger.isEnabled(LoggerSource::alertlog)) {
-   //     std::thread ALlog_thread(log_listener, o.log.ALlog_Q, false, false, true);
-   //     ALlog_thread.detach();
-   //     DEBUG_trace("ALlog_listener thread created");
-   // }
-
-    // I am the main thread here onwards.
-    DEBUG_trace("Master thread created threads");
-
-    sigset_t signal_set;
-    sigemptyset(&signal_set);
-    sigaddset(&signal_set, SIGHUP);
-    sigaddset(&signal_set, SIGPIPE);
-    sigaddset(&signal_set, SIGTERM);
-    sigaddset(&signal_set, SIGUSR1);
-
-#ifdef __OpenBSD__
-    // OpenBSD does not support posix sig_timed_wait, so have to use timer and SIGALRM
-    // set up timer for main loop
-    struct itimerval timeout;
-    timeout.it_interval.tv_sec = 0;
-    timeout.it_interval.tv_usec = (suseconds_t) 0;
-    timeout.it_value.tv_usec = (suseconds_t) 0;
-    sigaddset(&signal_set, SIGALRM);
-#else
-    struct timespec timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_nsec = (long) 0;
-#endif
-    int stat;
-    stat = pthread_sigmask(SIG_BLOCK, &signal_set, NULL);
-    if (stat != 0) {
-        E2LOGGER_error("Error setting sigmask");
-        return 1;
-    }
-
-    DEBUG_trace("sig handlers done");
 
     dystat->busychildren = 0; // to keep count of our children
 
@@ -1541,6 +1529,9 @@ int fc_controlit()   //
 
     DEBUG_trace("listen  threads created");
 
+    // I am the main thread here onwards.
+    DEBUG_trace("Master thread created threads");
+
     time_t tmaxspare;
 
     time(&tmaxspare);
@@ -1557,7 +1548,7 @@ int fc_controlit()   //
         E2LOGGER_info("Reconfiguring E2guardian: done");
     } else {
         E2LOGGER_info("Started successfully.");
-        dystat->start();
+        dystat->start(true);
     }
     reloadconfig = false;
 
