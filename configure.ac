@@ -1,7 +1,7 @@
 # Autoconf script
 
 AC_PREREQ(2.63)
-AC_INIT([e2guardian],[5.5.6)
+AC_INIT([e2guardian],[5.5.6])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS([e2config.h])
 AC_CONFIG_MACRO_DIR([m4])
