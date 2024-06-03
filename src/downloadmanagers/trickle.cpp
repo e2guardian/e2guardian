@@ -122,9 +122,9 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     d->swappedtodisk = false;
     d->doneinitialdelay = false;
 
-    struct timeval themdays;
-    struct timeval nowadays;
-    gettimeofday(&themdays, NULL);
+   // struct timeval themdays;
+   // struct timeval nowadays;
+   // gettimeofday(&themdays, NULL);
 
     // buffer size for streaming downloads
     off_t blocksize = 32768;
@@ -138,7 +138,7 @@ int trickledm::in(DataBuffer *d, Socket *sock, Socket *peersock, class HTTPHeade
     while ((d->bytes_toget > 0) || d->geteverything) {
         // send keep-alive bytes here
         if (o.content.trickle_delay > 0) {
-            themdays.tv_sec = nowadays.tv_sec;
+     //       themdays.tv_sec = nowadays.tv_sec;
             d->doneinitialdelay = true;
             if ((*headersent) < 1) {
                 DEBUG_dwload("sending header first");
