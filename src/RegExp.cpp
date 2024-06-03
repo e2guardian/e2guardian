@@ -141,6 +141,11 @@ bool RegExp::comp(const char *exp)
 // match the given text against the pre-compiled expression
 bool RegExp::match(const char *text, RegResult &rs)
 {
+    rs.results.clear();
+    rs.offsets.clear();
+    rs.lengths.clear();
+    rs.imatched = false;
+
     if (!wascompiled) {
         return false; // need exception?
     }
@@ -150,10 +155,6 @@ bool RegExp::match(const char *text, RegResult &rs)
 
     char *pos = (char *)text;
     int i;
-    rs.results.clear();
-    rs.offsets.clear();
-    rs.lengths.clear();
-    rs.imatched = false;
     unsigned int num_sub_expressions = MAX_SUB_EXPRESSIONS;
     if (reg.re_nsub < num_sub_expressions)
         num_sub_expressions = reg.re_nsub;
