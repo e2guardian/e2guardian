@@ -3582,6 +3582,7 @@ int ConnectionHandler::handleICAPConnection(Socket &peerconn, String &ip, Socket
                         wline += "Encapsulated: null-body=0\r\n";
                         wline += "\r\n";
                         peerconn.writeString(wline.toCharArray());
+                        break;
                     } else {
 
                         DEBUG_icap( " -ICAP Persistent connection closed");
