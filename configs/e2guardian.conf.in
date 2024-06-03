@@ -232,11 +232,14 @@ languagedir = '@E2DATADIR@/languages'
 
 #tlsproxycn = 192.168.1.25
 #tlsproxycn = mye2g.anydomain
+#tlsproxycn = 192.168.1.25:mye2g.anydomain:mye2g.internal.domain  # v5.5.6 onwards
 #
 # The common name (CN) to be used to generate the server certificate for 
 # TLS proxy.  Can be IP or DNS name but must match entry used in clients
 # proxy settings.  
 # default is system name.
+#
+# From v5.5.6 multiple multiple DNS names and/or IP can be can be defined separated by ':'
 
 #proxyport = 3128
 #

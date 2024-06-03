@@ -358,16 +358,40 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         X509_free(newCert);
         return NULL;
     }
-    {
+
     String temp1;
 
-    if (is_ip)
-        temp1 = "IP:";
-    else
-        temp1 = "DNS:";
-
+   // E2LOGGER_error("common name is ",commonname);
     String temp2 = commonname;
-    temp1 = temp1 + temp2;
+    if(temp2.contains(":")) {
+        bool not_first_one = false;
+        temp2 += ":";
+  //      E2LOGGER_error("temp2 is ",temp2);
+        while (!temp2.empty()) {
+            String temp3 = temp2.before(":");
+            temp2 = temp2.after(":");
+            if (not_first_one) {
+                temp1 += ", ";
+            }
+            not_first_one = true;
+            if (temp3.isIp())
+                temp1 += "IP:";
+            else
+                temp1 += "DNS:";
+            temp1 += temp3;
+        }
+ //       E2LOGGER_error("alt_name string is ",temp1);
+        char    *value = (char*) temp1.toCharArray();
+        if( !addExtension(newCert, NID_subject_alt_name, value))
+            log_ssl_errors("Error adding subjectAltName to the request", commonname);
+
+    } else {
+        if (is_ip)
+            temp1 = "IP:";
+        else
+            temp1 = "DNS:";
+    temp1 += temp2;
+//        E2LOGGER_error("alt_name string is ",temp1);
     char    *value = (char*) temp1.toCharArray();
      if( !addExtension(newCert, NID_subject_alt_name, value))
         log_ssl_errors("Error adding subjectAltName to the request", commonname);
