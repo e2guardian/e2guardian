@@ -3157,15 +3157,16 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
                     //persistPeer = false;
                 } else {
                     DEBUG_thttps("bytes peeked ", rc);
-                    bool ret = get_TLS_SNI(buff2, rc, sni, is_ech);
-                    if (ret) {
+                    get_TLS_SNI(buff2, rc, sni, is_ech);
+                    if (!sni.empty()) {
                         checkme.url = sni;
                         checkme.hasSNI = true;
+                    }
+                    checkme.hasECH = is_ech;
                     }
                     ++dystat->reqs;
                 }
                 //delete[] buff2;
-            }
 
             get_original_ip_port(peerconn, checkme);
 
@@ -3176,8 +3177,10 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             }
 
             DEBUG_thttps("hasSNI = ", checkme.hasSNI, " SNI is ", checkme.url, " Orig IP ", checkme.orig_ip,
+                         " hasECH = ", checkme.hasECH,
                          " Orig port ", checkme.orig_port);
-            //
+            //                        checkme.url = sni;
+                        checkme.hasSNI = true;
             // End of set-up section
 
             while (firsttime)    // do just the once
