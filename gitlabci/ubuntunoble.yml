@@ -1,32 +1,35 @@
-build:focal:
+build:noble:
   stage: build 
-  image: amd64/ubuntu:20.04
+  image: amd64/ubuntu:24.04
+  resource_group: buildub24
   artifacts:
    expire_in: 30 minutes
    paths:
-    - $CI_PROJECT_DIR 
+    - $CI_PROJECT_DIR  
   script:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
     - apt-get -y upgrade
-    - export DEBIAN_FRONTEND="noninteractive" && apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
+    - apt install --no-install-recommends --no-install-suggests -y curl unzip base-files automake base-passwd
       bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
-      libevent-pthreads-2.1-7 libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
-      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf dpatch
-      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl1.1 git ca-certificates lsb-release
+      libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
+      mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
+      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl3t64 git ca-certificates lsb-release
     - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
-    - make
+    - make 
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-package:focal:
+package:noble:
   stage: create-package
-  image: amd64/ubuntu:20.04
+  image: amd64/ubuntu:24.04
+  resource_group: buildub24
   dependencies:
-    - build:focal
+    - build:noble
   artifacts:
+   expire_in: 30 minutes
    paths:
-    - $CI_PROJECT_DIR
+    - $CI_PROJECT_DIR  
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
@@ -36,6 +39,7 @@ package:focal:
     - echo $VFULL
     - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control
     - sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control
     - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
     - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
@@ -49,17 +53,19 @@ package:focal:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - cat ${PACKDST}/control/control
     - rm -rf .git
-    - find /builds/ -name ".git" -exec rm -r "{}" +
+    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
-test:focal:
+test:noble:
   stage: test-publish 
-  image: amd64/ubuntu:20.04
+  image: amd64/ubuntu:24.04
   dependencies:
-    - package:focal
+    - package:noble
   artifacts:
+   expire_in: 30 minutes
    paths:
-    - $CI_PROJECT_DIR
+    - $CI_PROJECT_DIR 
   variables:
     PACKPATH: "$CI_PROJECT_DIR"
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
@@ -69,7 +75,7 @@ test:focal:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
-    - apt install -y curl openssl git lsb-release libevent-pthreads-2.1-7 libtommath1 
+    - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* libssl3t64 libpcre3
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf

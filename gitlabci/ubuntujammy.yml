@@ -1,6 +1,7 @@
 build:jammy:
   stage: build 
   image: amd64/ubuntu:22.04
+  resource_group: buildub
   artifacts:
    expire_in: 30 minutes
    paths:
@@ -22,9 +23,11 @@ build:jammy:
 package:jammy:
   stage: create-package
   image: amd64/ubuntu:22.04
+  resource_group: buildub
   dependencies:
     - build:jammy
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR  
   variables:
@@ -50,6 +53,7 @@ package:jammy:
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    - cat ${PACKDST}/control/control
     - rm -rf .git
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
 
@@ -59,6 +63,7 @@ test:jammy:
   dependencies:
     - package:jammy
   artifacts:
+   expire_in: 30 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
@@ -93,4 +98,3 @@ test:jammy:
     - ssh-add <(echo "$SSH_NOSTROMO_KEY")
     - scp -P 822 -r ${CI_COMMIT_BRANCH} e2git@e2guardian.numsys.eu:/datas/e2/html 
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
-     

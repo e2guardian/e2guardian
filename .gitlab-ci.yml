@@ -37,5 +37,5 @@ include:
   - 'gitlabci/docker-hub-arm.yml'
   - 'gitlabci/docker-hub.yml'
   - 'gitlabci/ubuntujammy.yml'
+  - 'gitlabci/ubuntunoble.yml'
   - 'gitlabci/armdebian.yml'
-  - 'gitlabci/ubuntufocal.yml'
