@@ -707,7 +707,7 @@ bool HTTPHeader::addHeader(String &newheader) {
 
 void HTTPHeader::setPostData(const char *data, size_t len)
 {
-    delete postdata;
+    if(postdata != nullptr) delete postdata;
     postdata = new char[len];
     memcpy(postdata, data, len);
     postdata_len = len;
@@ -889,7 +889,8 @@ void HTTPHeader::checkheader(bool allowpersistent)
                  puseragent = NULL;
         } else if (outgoing && i->startsWithLower("accept-encoding:")) {
             (*i) = "Accept-Encoding:" + i->after(":");
-            (*i) = modifyEncodings(*i) + "\r";
+            (*i) = modifyEncodings(*i);
+            (*i) += "\r";
         } else if ((!outgoing) && (pcontentencoding == NULL) && i->startsWithLower("content-encoding:")) {
             pcontentencoding = &(*i);
         } else if ((!outgoing) && (pkeepalive == NULL) && i->startsWithLower("keep-alive:")) {
@@ -951,34 +952,17 @@ void HTTPHeader::checkheader(bool allowpersistent)
         DEBUG_debug("Header value from client: ", *i);
     }
 }
-
-    //if its http1.1
-    bool onepointone = false;
-    if (header.front().after("HTTP/").startsWith("1.1")) {
-        DEBUG_debug("CheckHeader: HTTP/1.1 detected");
-        onepointone = true;
+    //checkfirstheaderline(allowpersistent);
+    if (outgoing && !requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
+    {
+        DEBUG_debug("zero contentlength on request due to not POST/PUT ");
+        contentlength = 0;
     }
 
-    if (outgoing) {        // set request Type
-        requesttype = header.front().before(" ");
-        if (!requesttype.startsWith("P"))   // is not POST or PUT no body is allowed
-        {
-            DEBUG_debug("zero contentlength on request due to not POST/PUT ");
-            contentlength = 0;
-        }
-        if(header.front().after(" ").startsWith("/"))
-            isProxyRequest = false;
-        else
-            isProxyRequest = true;
-    } else {                    // set status code
-        tp = header.front().after(" ").before(" ");
-        tp.removeWhiteSpace();
-        returncode = tp.toInteger();
-        if ((returncode < 200) || (returncode == 204) || (returncode == 304))    // no content body allowed
-        {
-            DEBUG_debug("zero contentlength on response due to returncode ", String(returncode) );
-            contentlength = 0;
-        }
+    if (is_response && ((returncode < 200) || (returncode == 204) || (returncode == 304)))    // no content body allowed
+    {
+        DEBUG_debug("zero contentlength on response due to returncode ", String(returncode) );
+        contentlength = 0;
     }
 
     //work out if we should explicitly close this connection after this request
@@ -1065,6 +1049,38 @@ if(!icap) {
         String newurl(getUrl(true));
         setURL(newurl);
     }
+}
+
+bool HTTPHeader::checkfirstheaderline() {
+
+    if(!header.front().contains("HTTP/")) {
+        DEBUG_debug("CheckfirstHeader: not HTTP!");
+        return false;
+    }
+    //if its http1.1
+    onepointone = false;
+    if (header.front().after("HTTP/").startsWith("1.1")) {
+        DEBUG_debug("CheckHeader: HTTP/1.1 detected");
+        onepointone = true;
+    }
+
+    if (!is_response) {        // i.e. is request - set request Type
+        requesttype = header.front().before(" ");
+        if(header.front().after(" ").startsWith("/"))
+            isProxyRequest = false;
+        else
+            isProxyRequest = true;
+    } else {                    // is response - set status code
+        String tp = header.front().after(" ").before(" ");
+        tp.removeWhiteSpace();
+        returncode = tp.toInteger();
+        if (returncode < 100 || returncode == 102) {
+           DEBUG_debug("responsecode not valid ",returncode);
+           returncode = 0;
+           return false;
+        }
+    }
+    return true;
 }
 
 String HTTPHeader::getLogUrl(bool withport, bool isssl)
@@ -1721,10 +1737,10 @@ bool HTTPHeader::out(Socket *peersock, Socket *sock, int sendflag, bool reconnec
             //throw std::exception();
             return false;
         }
-    } else if ((peersock != NULL) && (!requestType().startsWith("HTTP")) && (pcontentlength != NULL)) {
+    } else if (!is_response && (peersock != nullptr) && ((contentlength > 0) || chunked) && !expects_100) {
         DEBUG_debug("Opening tunnel for POST data");
         FDTunnel fdt;
-        if (!fdt.tunnel(*peersock, *sock, false, contentLength(), true) )
+        if (!fdt.tunnel(*peersock, *sock, false, contentLength(), true, chunked) )
             return false;
     }
     DEBUG_debug("Returning from header:out ");
@@ -1764,21 +1780,25 @@ void HTTPHeader::setDirect() {
 }
 
 bool HTTPHeader::in_handle_100(Socket *sock, bool allowpersistent, bool expect_100) {
-    int max_100s = 4;
+    int max_100s = 10;
     while( max_100s > 0)
     {
         if( in(sock,allowpersistent)) {
-            if (!expect_100 && returncode == 100) // discard 100 continue header and get next header
-            {
+            if (returncode == 100) {
+                if (expect_100) {
+                    return true;
+                }
+                // discard 100 continue header and get next header
                 max_100s--;
                 continue;
-            } else {
+            } else {   // all other return codes
                 return true;
             }
         } else {
             return false;
         }
     }
+    DEBUG_debug("Too many repeat 100 continues");
     return false;
 }
 
@@ -1814,7 +1834,7 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         bool truncated = false;
         int rc;
         if (firsttime) {
-            DEBUG_debug("header:in before getLine - timeout:", timeout );
+            DEBUG_debug("header:in firsttime before getLine - timeout:", timeout );
             rc = sock->getLine(buff, 32768, timeout,  NULL, &truncated);
             DEBUG_debug("firstime: header:in after getLine ");
            if (rc < 0 || truncated) {
@@ -1825,11 +1845,20 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
 #endif
                 return false;
             }
+            line = buff;
+            header.push_back(line); // stick the line in the deque that holds the header
+            if(!checkfirstheaderline()) {
+                DEBUG_debug("firstime: checkfirstheaerline returned false ", header.front(), "pad " );
+                header.clear();
+                return false;
+            }
+            // Take this out as it appears that 100 continue can have other header lines and is terminated with a blank line like other status returns
+           // if(is_response && returncode == 100) {
+                //DEBUG_debug("firstime: return code is 100" );
+               // return true;
+            //}
         } else {
-        //rc = sock->getLine(buff, 32768, 100, firsttime ? honour_reloadconfig : false, NULL, &truncated);   // timeout reduced to 100ms for lines after first
-        // this does not work for sites who are slow to send Content-Lenght so revert to standard
-        // timeout
-            rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);   // timeout reduced to 100ms for lines after first
+            rc = sock->getLine(buff, 32768, timeout, NULL, &truncated);
             if (rc < 0 || truncated) {
                 ispersistent = false;
                 DEBUG_debug("not firstime header:in after getLine: rc: ", rc, " truncated: ", truncated );
@@ -1870,13 +1899,17 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
         }
         // ignore crap left in buffer from old pconns (in particular, the IE "extra CRLF after POST" bug)
         discard = false;
-        if (not(firsttime && line.length() <= 3)) {
-            header.push_back(line); // stick the line in the deque that holds the header
+        //if ((firsttime && line.length() <= 3)) {
+        //    discard = true;
+        //    DEBUG_debug("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
+        //} else {
+        //    header.push_back(line); // stick the line in the deque that holds the header
+       // }
+        if(firsttime) {
+            firsttime = false;
         } else {
-            discard = true;
-            DEBUG_debug("Discarding unwanted bytes at head of request (pconn closed or IE multipart POST bug)");
+            header.push_back(line); // stick the line in the deque that holds the header
         }
-        firsttime = false;
 // End of while
     }
 
@@ -1889,8 +1922,9 @@ bool HTTPHeader::in(Socket *sock, bool allowpersistent)
     header.pop_back(); // remove the final blank line of a header
 
     DEBUG_debug("header:size =  ", header.size());
-    if (header.size() > 0)
+    if (header.size() > 0) {
         DEBUG_debug("first line =  ", header[0]);
+    }
 
     checkheader(allowpersistent); // sort out a few bits in the header
 
