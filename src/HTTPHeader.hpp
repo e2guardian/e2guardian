@@ -75,7 +75,8 @@ class HTTPHeader
     String requestType();
     String requesttype;
     int returnCode();
-    int returncode;
+    int returncode = 0;
+    bool onepointone = false;
 
     // get content length - returns -1 if undetermined
     off_t contentLength();
@@ -265,7 +266,7 @@ private:
 
     // replacement POST data for sending during ::out
     char *postdata;
-    size_t postdata_len;
+    size_t postdata_len = 0;
 
     bool ispersistent, waspersistent;
 
@@ -275,6 +276,7 @@ private:
 
     // check & fix headers from servers that don't obey standards
     void checkheader(bool allowpersistent);
+    bool checkfirstheaderline();
 
     // convert %xx back to original character
     static String hexToChar(const String &n, bool all = false);

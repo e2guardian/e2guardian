@@ -1076,21 +1076,37 @@ int ConnectionHandler::handleConnection(Socket &peerconn, String &ip, bool ismit
                     }
                 } else if (!checkme.upfailure)  // in all other cases send header upstream and get response
                 {
-                    if (!(header.out(&peerconn, &proxysock, __E2HEADER_SENDALL, true) // send proxy the request
-                          && (docheader.in_handle_100(&proxysock, persistOutgoing, header.expects_100)))) {
-                        if (proxysock.isTimedout()) {
+                    // this is the case when there is no request body or rather when there is no expect_100
+           //         if(!(header.chunked || header.contentLength() > 0))
+                    if(!header.expects_100)  // if has body is sent as part of header.out
+                    {
+                        if (!(header.out(&peerconn, &proxysock, __E2HEADER_SENDALL, true) // send proxy the request
+                              && (docheader.in_handle_100(&proxysock, persistOutgoing, false)))) {
+                            if (proxysock.isTimedout()) {
 //                            writeback_error(checkme, peerconn, 203, 204, "408 Request Time-out");
-                            writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
-                        } else {
-			                if(!ismitm) {
                                 writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
-                                //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
-			                }
+                            } else {
+                                if (!ismitm) {
+                                    writeback_error(checkme, peerconn, 0, 0, "408 Request Time-out");
+                                    //writeback_error(checkme, peerconn, 205, 206, "502 Gateway Error");
+                                }
+                            }
+                            persistPeer = false;
+                            persistProxy = false;
+                            break;
                         }
-                        persistPeer = false;
-                        persistProxy = false;
-                        break;
-                    }
+                    } else {  // has expects_100
+                            if (docheader.in_handle_100(&proxysock,persistOutgoing,header.expects_100)&& docheader.returncode == 100) {
+                                docheader.out(&proxysock, &peerconn, __E2HEADER_SENDALL, true);
+                                FDTunnel tpost;
+                                tpost.tunnel(peerconn, proxysock, false, header.contentLength(), false, header.chunked);
+                                if (docheader.in_handle_100(&proxysock, persistOutgoing, false) &&
+                                    docheader.returncode == 100) { // get response header
+                                    DEBUG_proxy(
+                                            "somethig whent wroung with expoect 100 logic");  // should be now proper return header!!!
+                                }
+                            }
+                        }
                     persistProxy = docheader.isPersistent();
                     persistPeer = persistOutgoing && docheader.wasPersistent();
 
