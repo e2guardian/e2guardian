@@ -672,6 +672,7 @@ DEBUG_trace("Building log line..." );
                 };
                 section.clear();
                 String what;
+                what.clear();
                 switch(i->code) {
                     case LogFormat::WHAT_COMBI:
                         what = T->what_is_naughty;
