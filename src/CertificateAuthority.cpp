@@ -106,11 +106,15 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
         }
         #endif
 
-        if( !checkValidNotBefore(caStart)) {
-            E2LOGGER_warning("generated_cert_start is too early for CA root cert - adjusted to match CA Root cert notBefore ",caStart);
+        if (!checkValidNotBefore(caStart)) {
+            E2LOGGER_warning(
+                    "generated_cert_start is too early for CA root cert - adjusted to match CA Root cert notBefore ",
+                    caStart);
         }
-        if( !checkValidNotAfter(caEnd)) {
-            E2LOGGER_warning("generated_cert_end is too late for CA root cert - adjusted to match CA Root cert notAfter ",caEnd);
+        if (!checkValidNotAfter(caEnd)) {
+            E2LOGGER_warning(
+                    "generated_cert_end is too late for CA root cert - adjusted to match CA Root cert notAfter ",
+                    caEnd);
         }
 
     }
@@ -178,20 +182,23 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
      DEBUG_config("modifing hash is: ", cert_start_stop_hash);
 }
 
-void CertificateAuthority::ans1_time_to_time_t(ASN1_TIME *a_time, time_t *t_time) {
+void CertificateAuthority::ans1_time_to_time_t(ASN1_TIME *a_time, time_t *t_time) {    // Sets t_time to 0 on failure
     int days = 0, secs = 0;
     ASN1_TIME *aepoch = ASN1_TIME_set(nullptr,0);
-    ASN1_TIME_diff(&days,&secs,aepoch,a_time);
-    if ( days > 0) {
-        *t_time = (days * 60 * 60 * 24) + secs;
-    }
+    if(ASN1_TIME_diff(&days,&secs,aepoch,a_time) == 1) {
+        if ( days > 0) {
+            *t_time = (days * 60 * 60 * 24) + secs;
+            return;
+        }
+    };
+    *t_time = (time_t) 0;
     return;
 }
 
 bool CertificateAuthority::checkValidNotAfter(time_t &end) {
     time_t notAfter_t = 0;
     ans1_time_to_time_t(X509_get_notAfter(_caCert), &notAfter_t);
-    if (notAfter_t < end) {
+    if ((notAfter_t > 0) && (notAfter_t < end)) {
         end = notAfter_t;
         return false;
     }
@@ -201,7 +208,7 @@ bool CertificateAuthority::checkValidNotAfter(time_t &end) {
 bool CertificateAuthority::checkValidNotBefore(time_t &start) {
     time_t notBefore_t = 0;
     ans1_time_to_time_t(X509_get_notBefore(_caCert), &notBefore_t);
-    if (notBefore_t > start) {
+    if ((notBefore_t > 0) && (notBefore_t > start)) {
         start = notBefore_t;
         return false;
     }
