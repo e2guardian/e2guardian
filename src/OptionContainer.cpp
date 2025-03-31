@@ -312,6 +312,8 @@ bool OptionContainer::findCertificateOptions(ConfigReader &cr)
         time_t ten_years = 315532800;
         time_t one_year = 31553280;
 
+        //E2LOGGER_info("sizeof time_t is ", sizeof(time_t));
+
         String temp = cr.findoptionS("generatedcertstart");
         if (temp.empty() || temp == "auto") {
             cert.generated_auto_start_end = true;
