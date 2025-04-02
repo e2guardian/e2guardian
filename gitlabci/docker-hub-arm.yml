@@ -33,8 +33,8 @@ docker-hub-test-arm:
 
 # Working on amd64 only
 dive-arm:
-  image: 
-   name: wagoodman/dive:latest
+  image:
+    name: wagoodman/dive:latest
     entrypoint: [""]
   dependencies: []
   stage: Docker-hub-test
