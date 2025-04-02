@@ -36,7 +36,7 @@ dive-arm:
   image: 
    name: wagoodman/dive:latest
     entrypoint: [""]
- dependencies: []
+  dependencies: []
   stage: Docker-hub-test
   script:
     - docker pull $CONTAINER_BUILD_NOPROD_NAME_ARM
