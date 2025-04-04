@@ -1,6 +1,6 @@
 # [E2Guardian](http://e2guardian.org)
 
-This is the stable v5.5 version - v5.5.5r
+This is the stable v5.5 version - v5.5.8r
 
 Development of v5.5 is now frozen - just bug-fixes will be applied in v5.5 branch.
 

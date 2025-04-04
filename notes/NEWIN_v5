@@ -202,7 +202,8 @@ OTHER enhancements
 
  alert.log option to enable reporting of key category violations by external email alert and reporting systems
 
-
+ 'Auto' MITM certificate generation implimented
+    
 
 TESTING -  
 ---------
@@ -221,8 +222,6 @@ TODO - for later releases.
 
     POST content filtering
 
-    Re-look at MITM certificate generation.
-    
     Implement a "learning" mode,  test the rules effects without block  
 
     Remove duplicate list/storyboard warnings with a DRY system.
@@ -249,6 +248,6 @@ WISHLIST
 
     IPv6 support (v6)
 
-Philip Pearce 5th january 2023
+Philip Pearce 4th April 2025
 
 
