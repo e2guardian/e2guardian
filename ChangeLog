@@ -6,8 +6,8 @@ December 2024 to April 2025
 
     Fix bug #841 - generated cert dates validaition produces 1970 end date with CA root notAfterDate greater than 2k38.
     
-    Temporary fix dive arm
-    Temporary fix dive x86
+    Fix dive arm
+    Fix dive x86
 
     Add corrected 100 continue logic
 
