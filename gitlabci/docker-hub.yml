@@ -27,17 +27,17 @@ docker-hub-test:
     - e2guardian -N &
     - sleep 5 && export https_proxy=http://localhost:8080 && curl -k https://www.google.fr
 
-#dive:
-#  image: 
-#    name: wagoodman/dive:latest
-#    entrypoint: [""]
-#  dependencies: []
-#  stage: Docker-hub-test
-#  script:
-#    - docker pull $CONTAINER_BUILD_NOPROD_NAME_AMD64
-#    - dive $CONTAINER_BUILD_NOPROD_NAME_AMD64
-#  variables:
-#    CI: "true"
+dive:
+  image: 
+    name: wagoodman/dive:latest
+    entrypoint: [""]
+  dependencies: []
+  stage: Docker-hub-test
+  script:
+    - docker pull $CONTAINER_BUILD_NOPROD_NAME_AMD64
+    - dive $CONTAINER_BUILD_NOPROD_NAME_AMD64
+  variables:
+    CI: "true"
 
 push-docker-hub:
   stage: Docker-hub-pushtag
