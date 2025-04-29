@@ -329,7 +329,7 @@ bool OptionContainer::findCertificateOptions(ConfigReader &cr)
             time_t now;
             time(&now);
             struct tm *timeinfo;
-            timeinfo = localtime(&now);
+            timeinfo = gmtime(&now);     // Note: gmtime may not be thread safe - but this is OK as no other threads have been started yet
             if (timeinfo->tm_mon > 5) {
                 timeinfo->tm_mon = 6;
             } else {
@@ -338,7 +338,7 @@ bool OptionContainer::findCertificateOptions(ConfigReader &cr)
             timeinfo->tm_hour = 0;
             timeinfo->tm_min = 0;
             timeinfo->tm_sec = 0;
-            timeinfo->tm_mday = 0;
+            timeinfo->tm_mday = 1;
             cert.gen_cert_start = mktime(timeinfo);
             cert.gen_cert_end = cert.gen_cert_start + one_year;
         }
