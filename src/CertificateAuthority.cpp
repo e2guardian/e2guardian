@@ -444,6 +444,31 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
         return NULL;
     }
 
+    // set authority_key_id to subject_key_id of the CA
+    ERR_clear_error();
+    const ASN1_OCTET_STRING *auth_key_id = X509_get0_subject_key_id(_caCert);
+    if (auth_key_id == NULL) {
+        log_ssl_errors("get_subject_key_id on ca_cert failed for %s", commonname);
+        X509_free(newCert);
+        return NULL;
+    }
+
+    ERR_clear_error();
+    AUTHORITY_KEYID *akid = AUTHORITY_KEYID_new();
+    akid->keyid = ASN1_OCTET_STRING_new();
+    ASN1_OCTET_STRING_set(akid->keyid,auth_key_id->data,auth_key_id->length);
+    X509_EXTENSION *ext = NULL;
+    ext = X509V3_EXT_i2d(NID_authority_key_identifier,0,akid);
+    if( !X509_add_ext(newCert,ext, -1 )) {
+        log_ssl_errors("Error adding authority_key_id to the request", commonname);
+        AUTHORITY_KEYID_free(akid);
+        X509_EXTENSION_free(ext);
+        X509_free(newCert);
+        return NULL;
+    }
+    X509_EXTENSION_free(ext);
+    AUTHORITY_KEYID_free(akid);
+
     String temp1;
 
    // E2LOGGER_error("common name is ",commonname);
@@ -465,7 +490,7 @@ X509 *CertificateAuthority::generateCertificate(const char *commonname, struct c
                 temp1 += "DNS:";
             temp1 += temp3;
         }
- //       E2LOGGER_error("alt_name string is ",temp1);
+ //       E2LOGGER_error("alt_name string is ",tem:p1);
         char    *value = (char*) temp1.toCharArray();
         if( !addExtension(newCert, NID_subject_alt_name, value))
             log_ssl_errors("Error adding subjectAltName to the request", commonname);
