@@ -24,6 +24,7 @@ stages:
 hadolint:
   image: hadolint/hadolint:latest-debian
   stage: quality
+  resource_group: builddeb
   before_script:
     - cd $CI_PROJECT_DIR 
   script:
