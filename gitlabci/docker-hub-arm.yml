@@ -33,7 +33,7 @@ docker-hub-test-arm:
 
 # Working on amd64 only
 dive-arm:
-  image: 
+  image:
     name: wagoodman/dive:latest
     entrypoint: [""]
   dependencies: []
