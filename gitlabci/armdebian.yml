@@ -3,7 +3,7 @@ build:arm:
   image: debian:bookworm-slim
   resource_group: builddarm
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR   
   variables:
@@ -30,7 +30,7 @@ package:debarm:
   dependencies:
     - build:arm
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR   
   variables:
@@ -67,7 +67,7 @@ test:debianarm:
   dependencies:
     - package:debarm
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    name: builddebian
    paths:
     - $CI_PROJECT_DIR 

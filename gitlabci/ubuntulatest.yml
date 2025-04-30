@@ -3,7 +3,7 @@ build:noble:
   image: amd64/ubuntu:24.04
   resource_group: buildub24
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR  
   script:
@@ -27,7 +27,7 @@ package:noble:
   dependencies:
     - build:noble
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR  
   variables:
@@ -63,7 +63,7 @@ test:noble:
   dependencies:
     - package:noble
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:

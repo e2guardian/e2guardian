@@ -2,7 +2,7 @@ build:debian:
   stage: build-debian
   resource_group: builddeb
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR 
   image: $CONTAINER_CLIENT_IMAGE
@@ -25,7 +25,7 @@ package:debian:
   stage: create-package-debian
   image: $CONTAINER_CLIENT_IMAGE
   artifacts:
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
@@ -57,7 +57,7 @@ test:debian:
   image: $CONTAINER_CLIENT_IMAGE
   artifacts:
    name: builddebian
-   expire_in: 60 minutes
+   expire_in: 90 minutes
    paths:
     - $CI_PROJECT_DIR 
   variables:
