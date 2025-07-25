@@ -1,3 +1,16 @@
+UPDATE July 2025
+================
+
+The document below is included just for completeness.
+
+As the last version of dansguardian was released over 10 years ago,
+it is now unlikely that it is being still used.
+
+So many improvements have been made over the years to e2guardian (including the default location of list files) that the best approach if do now wish to upgradeis to install e2guardian on a recent Linux distribution and then study closely the help comments in the default e2guardian.conf and e2guardianf1.conf on seting up. Do not try using your old dansguardian .conf files as it will not work!
+
+Note that you no longer need a separate proxy for e2guardian to work.
+
+
 HOW TO UPGRADE FROM DansGuardian
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
