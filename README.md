@@ -51,7 +51,7 @@ Container image for Squid proxy server, Docker Hub: https://hub.docker.com/r/fre
 
 ## License
 
-Copyright 2022, [Frederic Bourgeois](http://numsys.eu), [E2BN Protex](http://protex.e2bn.org) Ltd and others.
+Copyright 2025, [Frederic Bourgeois](http://numsys.eu), [Philip Pearce] and others.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as
