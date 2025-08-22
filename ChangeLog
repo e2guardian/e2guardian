@@ -1,5 +1,17 @@
 About "Bug" tags show "https://github.com/e2guardian/e2guardian/issues?q=is%3Aissue+is%3Aclosed" 
 
+version 5.5.9r
+
+April 2025 to August 2025
+
+    License change and documentation tidy up.
+
+    Gitlab - Update expire artifacts
+    Gitlab - Reduce simultaneous compilation
+
+    Fix #845 correct auto-gen start/end cert dates to use UCT.
+    Fix #844 Authority Key Identifier now generated for server certificate
+
 version 5.5.8r
 
 December 2024 to April 2025
