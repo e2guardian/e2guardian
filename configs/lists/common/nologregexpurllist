@@ -2,3 +2,7 @@
 #
 # This acts as a list of URL regexes which, if matched, will 
 # not be logged
+
+# Do not want incomplete searches logged so include below
+.Include<searchexceptionregexplist>
+
