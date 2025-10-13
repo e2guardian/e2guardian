@@ -121,10 +121,12 @@ language = 'ukenglish'
 #
 # filtergroups sets the number of filter groups. 
 # A filter group is a set of content filtering options you can apply to a 
-# group of users.  
+# group of users.
+# You must have at least one group.
 # The value must be 1 or more.
-# e2guardian will automatically look for e2guardianfN.conf where N is the filter
-# group.
+# e2guardian will automatically look for a configuration file for each group
+# in the same directory as e2guardian.conf
+# named e2guardianfN.conf where N is the filter group number.
 # default 1
 
 #defaultfiltergroup = 1;
@@ -138,6 +140,10 @@ language = 'ukenglish'
 # This must be present to enable MITM and Cert checking
 # If on you must also check the MITM section.
 # default is off
+
+# PLEASE NOTE: The default settings are for a home or small office set-up.
+# For larger sites please increase the httpworkers value in the TUNING section
+# Please see the TUNING section for further information
 
 ###
 ### END of QUICK_START section
@@ -1129,7 +1135,7 @@ weightedphrasemode = 2
 # This figure is the maximum number of concurrent connections.
 # If more connections are made, connections will queue until a worker thread is free.
 # On large site you might want to try 5000 (max value 20000)
-# 500 is the default suitable for home or samll office use on 64-bit systems
+# 500 is the default suitable for home or small office use on 64-bit systems
 # On 32-bit systems reduce this to 300 to avoid exceeding the <4GB
 # virtual memory limit and on Linux decrease the thread stack size from
 # 10MB to 2MB (ulimit -s 2048)
