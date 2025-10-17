@@ -220,7 +220,7 @@ int avastdinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *docheader, c
                 switch (result[-3]) {
                 case '+':
                     // Clean!
-                    DEBUG_avscan("avastd result: ", encode(buffer) "\tclean!");
+                    DEBUG_avscan("avastd result: ", encode(buffer), "\tclean!");
                     break;
 
                 case 'L':
