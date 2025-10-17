@@ -616,30 +616,56 @@ void log_listener(Queue<LogTransfer*> *log_Q, bool is_RQlog) {
 
                     String full_url = T->url;
 
-            if (port != 0 && port != 80) {
-                // put port numbers of non-standard HTTP requests into the logged URL
-                String newwhere(T->url);
-                if (newwhere.after("://").contains("/")) {
-                    String proto, host, path;
-                    proto = newwhere.before("://");
-                    host = newwhere.after("://");
-                    path = host.after("/");
-                    host = host.before("/");
-                    newwhere = proto;
-                    newwhere += "://";
-                    newwhere += host;
-                    newwhere += ":";
-                    newwhere += String((int) T->port);
-                    newwhere += "/";
-                    newwhere += path;
-                    full_url = newwhere;
-                } else {
-                    full_url += ":";
-                    full_url += String((int) port);
-                }
-            } else {
-                full_url = T->url;
-            }
+             String newwhere(T->url);
+             String proto, host, path;
+             proto = newwhere.before("://");
+             host = newwhere.after("://");
+             if (host.contains("/")) {
+                 path = host.after("/");
+                 host = host.before("/");
+                 if (port != 0 && port != 80) {
+                     newwhere = proto;
+                     newwhere += "://";
+                     newwhere += host;
+                     newwhere += ":";
+                     newwhere += String((int) T->port);
+                     newwhere += "/";
+                     newwhere += path;
+                     full_url = newwhere;
+                 } else {
+                     full_url = T->url;
+                 }
+             } else if (port != 0 && port != 80) {
+                 full_url += ":";
+                 full_url += String((int) port);
+             } else {
+                 full_url = T->url;
+             }
+
+//            if (port != 0 && port != 80) {
+//                // put port numbers of non-standard HTTP requests into the logged URL
+//                String newwhere(T->url);
+//                if (newwhere.after("://").contains("/")) {
+//                    String proto, path;
+//                    proto = newwhere.before("://");
+//                    host = newwhere.after("://");
+//                    path = host.after("/");
+//                    host = host.before("/");
+//                    newwhere = proto;
+//                    newwhere += "://";
+//                    newwhere += host;
+//                    newwhere += ":";
+//                    newwhere += String((int) T->port);
+//                    newwhere += "/";
+//                    newwhere += path;
+//                    full_url = newwhere;
+//                } else {
+//                    full_url += ":";
+//                    full_url += String((int) port);
+//                }
+//            } else {
+//                full_url = T->url;
+//            }
             DEBUG_trace("Full_url is ",full_url);
 
             String groupname;
@@ -842,6 +868,13 @@ DEBUG_trace("Building log line..." );
                         break;
                     case LogFormat::THREADID:
                         section += T->thread_id;
+                        break;
+                    case LogFormat::TLD:
+                        temp2 = host;
+                        while (temp2.contains(".")) {
+                            temp2 = temp2.after(".");
+                        };
+                        section += temp2;
                         break;
                     case LogFormat::URL:
                         section += full_url;

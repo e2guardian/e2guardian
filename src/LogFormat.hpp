@@ -61,7 +61,7 @@ public:
         X(NAUGTHTINESS,"Naughtiness"," was sweight",false), \
         X(PRODUCTID,"ProductId","  Only used in log type 4 - keep",true), \
         X(PROXYIP,"ProxyIP"," Upstream proxy IP - was 'heir'",true), \
-        X(PROXYSERVICE,"ProxyService","Type of proxy service flag - T= tranparent, P= explict proxy, M= MITM",true), \
+        X(PROXYSERVICE,"ProxyService","Type of proxy service flag - T= transparent, P= explict proxy, M= MITM",true), \
         X(REQHEADER,"ReqHeader"," requestheader  ",true), \
         X(REQUESTID,"RequestId"," request ID - is thread_id + startUtime",true), \
         X(RESHEADER,"ResHeader"," response header",true), \
@@ -72,6 +72,7 @@ public:
         X(START_LTIME,"StartLtime"," start timestamp local time in human-readable format",true), \
         X(START_UTIME,"StartUtime"," start timestamp unix time in secs since 1/1/1970",false), \
         X(THREADID,"ThreadId","Thread_id of the worker",true), \
+        X(TLD,"TLD","Top Level Domain",true), \
         X(URL,"Url"," = full url - was 'where'",true), \
         X(USER,"User"," was 'who' in log_listener",true), \
         X(USERAGENT,"UserAgent"," replace with header spec???",true), \

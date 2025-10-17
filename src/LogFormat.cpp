@@ -158,6 +158,9 @@ bool LogFormat::readfile(String &filename) {
         if ((il.code == AUTHROUTE) || (il.code == LISTENINGPORT) | (il.code == PROXYSERVICE) ) {
             present[EXTFLAGS] = true;
         }
+        if (il.code == TLD) {
+            present[URL] = true;
+        }
 
         item_list.push_back(il);
     };
