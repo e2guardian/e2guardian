@@ -36,6 +36,7 @@ AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h  sys/resource.h])
 AC_CHECK_HEADERS([pwd.h grp.h])
 AC_CHECK_HEADERS([byteswap.h])
 
+
 # Check system endianness
 AC_C_BIGENDIAN
 
@@ -141,34 +142,34 @@ fi], [
 
 AC_MSG_CHECKING(for proxy user)
 AC_ARG_WITH(proxyuser,
-[AS_HELP_STRING([--with-proxyuser@<:@=nobody@:>@],[name of proxy user])],
+[AS_HELP_STRING([--with-proxyuser@<:@=e2guardian@:>@],[name of proxy user])],
 [if test "x${withval}" != "x" ; then
   AC_MSG_RESULT(yes)
   proxyuser=${withval}
 else
   AC_MSG_RESULT(no)
-  proxyuser=nobody
+  proxyuser=e2guardian
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
-  proxyuser=nobody
+  proxyuser=e2guardian
 ])
 AC_SUBST(E2PROXYUSER, "$proxyuser")
 AC_DEFINE_UNQUOTED(__PROXYUSER,"$proxyuser","User to run as")
 
 AC_MSG_CHECKING(for proxy group)
 AC_ARG_WITH(proxygroup,
-[AS_HELP_STRING([--with-proxygroup@<:@=nobody@:>@],[name of proxy group])],
+[AS_HELP_STRING([--with-proxygroup@<:@=e2guardian@:>@],[name of proxy group])],
 [if test "x${withval}" != "x" ; then
   AC_MSG_RESULT(yes)
   proxygroup=${withval}
 else
   AC_MSG_RESULT(no)
-  proxygroup=nobody
+  proxygroup=e2guardian
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
-  proxygroup=nobody
+  proxygroup=e2guardian
 ])
 AC_SUBST(E2PROXYGROUP, "$proxygroup")
 AC_DEFINE_UNQUOTED(__PROXYGROUP,"$proxygroup","Group to run as")
