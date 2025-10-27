@@ -83,7 +83,7 @@ CertificateAuthority::CertificateAuthority(const char *caCert,
         }
         rc = X509_cmp_current_time(X509_get_notAfter(_caCert));
         if (rc == -1) {
-            E2LOGGER_error("CA root Certificate has expiredi - I need a new certificate");
+            E2LOGGER_error("CA root Certificate has expired - I need a new certificate");
             exit(1);
         }
         if (rc == 0) {
