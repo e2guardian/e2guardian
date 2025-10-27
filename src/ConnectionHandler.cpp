@@ -2943,7 +2943,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             //bool direct = false;
 
             char buff[7];
-            rc = peerconn.readFromSocket(buff, 6, (MSG_PEEK), 20000, true);
+            rc = peerconn.readFromSocket(buff, 6, (MSG_PEEK|MSG_WAITALL), 20000, true);
             DEBUG_thttps("bytes peeked ", rc);
             unsigned int toread = 0;
             if (rc == 6) {
@@ -2973,7 +2973,7 @@ int ConnectionHandler::handleProxyTLSConnection(Socket &peerconn, String &ip, So
             if (checkme.isTLS) {
                 char buff2[CLIENT_HELLO_MAX_SIZE + 6 ];
                 //char *buff2 = new char[(toread + 1)];
-                rc = peerconn.readFromSocket(buff2, toread, (MSG_PEEK), 10000);
+                rc = peerconn.readFromSocket(buff2, toread, (MSG_PEEK|MSG_WAITALL), 10000);
                 if (rc < 52) {
                     if (o.conn.logconerror) {
                         if (peerconn.getFD() > -1) {
