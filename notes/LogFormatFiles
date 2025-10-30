@@ -63,6 +63,7 @@ Server			    Server name
 StartLtime 		    Start timestamp local time in human-readable format
 StartUtime 		    Start timestamp unix time in secs since 1/1/1970
 ThreadId		    Thread_id of the worker logging this request/response
+TLD			Top Level Domain
 Url 			    Url of request
 User 			    User name
 UserAgent 		    UserAgent in request
