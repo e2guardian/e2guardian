@@ -557,7 +557,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 }
 
 // pass data between proxy and client, filtering as we go.
-// this is one of the few public functions of ConnectionHandler
+// this is only public function of ConnectionHandler
 int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dystat, unsigned int lc_type) {
     persistent_authed = false;
     is_real_user = false;
