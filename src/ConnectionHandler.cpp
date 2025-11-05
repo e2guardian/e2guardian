@@ -485,7 +485,7 @@ ConnectionHandler::connectUpstream(Socket &sock, NaughtyFilter &cm, int port = 0
 }
 
 // pass data between proxy and client, filtering as we go.
-// this is the only public function of ConnectionHandler
+// this is one of the few public functions of ConnectionHandler
 int ConnectionHandler::handlePeer(Socket &peerconn, String &ip, stat_rec *&dystat, unsigned int lc_type) {
     persistent_authed = false;
     is_real_user = false;
@@ -2461,9 +2461,12 @@ ConnectionHandler::goMITM(NaughtyFilter &checkme, Socket &proxysock, Socket &pee
     if (checkme.isItNaughty || checkme.upfailure) {
         DEBUG_debug(" -SSL Interception failed ", checkme.whatIsNaughty, " nf ", checkme.isItNaughty, " upfail ", checkme.upfailure);
 
+        checkme.upfailure = true;  // flag to ensure Neterr page is displayed and not block page
+        
         doLog(clientuser, clientip, checkme);
 
-        if(!justLog)
+        if(!justLog) {
+        }
         	denyAccess(&peerconn, &proxysock, header, docheader, &checkme.logurl, &checkme, &clientuser,
                    &clientip, filtergroup, checkme.ispostblock, checkme.headersent, checkme.wasinfected,
                    checkme.scanerror, checkme.badcert);
