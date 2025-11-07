@@ -640,7 +640,9 @@ String String::sort_search()
         return (*this);
     };
     // split into words and index
-    char *p[c + 1];
+    static int maxwords = 128;
+    if (c > maxwords) c = maxwords;
+    char *p[maxwords + 1];
     i = 0;
     int j = 0;
     char *ind = temp.get();
