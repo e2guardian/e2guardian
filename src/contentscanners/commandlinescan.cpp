@@ -284,7 +284,7 @@ int commandlineinstance::scanFile(HTTPHeader *requestheader, HTTPHeader *dochead
     close(scannerstderr[0]);
 
     // wait for scanner to quit & retrieve exit status
-    int returncode;
+    int returncode = 0;
     returncode = WEXITSTATUS(returncode);
 
     if (waitpid(f, &returncode, 0) == -1) {

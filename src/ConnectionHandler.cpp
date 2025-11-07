@@ -2714,7 +2714,7 @@ bool ConnectionHandler::doAuth(int &rc, bool &authed, int &filtergroup, AuthPlug
             //       fixed mapping
             //
 
-                rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth, cm);
+            rc = auth_plugin->identify(peerconn, proxysock, header, clientuser, is_real_user, SBauth, cm);
 
             if (rc == E2AUTH_NOMATCH) {
                 DEBUG_auth("Auth plugin did not find a match; querying remaining plugins");
