@@ -320,19 +320,21 @@ generatedcertpath = '@E2CONFDIR@/private/generatedcerts/'
 # and where needed adjusted to fit the root cert dates.  A warning is 
 # issued when this happens.
 
-#useopensslconf = off
+useopensslconf = on
 #
 # Use openssl configuration file
 # switch this on if you want e2g to read in openssl configuration
 # This is useful if you want to use a hardware acceleration engine.
+# And for improving CloudFlare 'human' ratings.
 # default is off
 
-# opensslconffile = '@E2CONFDIR@/openssl.conf'
+opensslconffile = '@E2CONFDIR@/openssl.conf'
 #
 # Alternate openssl configuration file
 # only used if useopensslconf = on
 # default is to use standard openssl configuration file
-# only use this if an alternate openssl configuration file is used for e2g
+# use this if an alternate openssl configuration file is used for e2g
+# Use release openssl.conf file to fix issues with cloudflare - see issue 860 
 
 # setcipherlist = "HIGH:!ADH:!MD5:!RC4:!SRP:!PSK:!DSS"
 #
