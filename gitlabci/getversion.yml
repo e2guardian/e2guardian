@@ -1,0 +1,11 @@
+getsquid_vars:
+  stage: build
+  image:
+    name: $CONTAINER_CLIENT_IMAGE
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - variables.env
+      - version_changed
+  script:
+    - echo noop

@@ -1,0 +1,72 @@
+chatgpt_analysis:
+  stage: Chatgtp
+  image: 
+    name: $CONTAINER_CLIENT_IMAGE
+  allow_failure: true
+  artifacts:
+    expire_in: 1 month
+    paths:
+      - $CI_PROJECT_DIR/chatgpt_analysis*
+  before_script:
+    - apt update && apt install curl git jq ca-certificates pandoc openssh-client -y --no-upgrade --no-install-recommends --no-install-suggests
+    - source variables.env || true
+    - if [ -f version_changed ]; then source version_changed; fi
+    - if [ "${version_changed:-0}" = "0" ]; then echo "No project version change detected; skipping ChatGPT analysis."; exit 0; fi
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+
+    # Contenu à analyser
+    - CONTENT="Please provide an in-depth explanation of the following GitLab CI/CD jobs with the following details, follow the order of jobs in the 'stages' section of the .gitlab-ci.yml file. Use Markdown format with headings for each job, include code blocks for commands or scripts, and bullet points for additional clarity. Make sure the response is well-structured, with line breaks separating each section and explanations for each command, making sure to format your response with clear sections and appropriate line breaks:"
+    - JOBS_CONTENT=$(cat .gitlab-ci.yml gitlabci/*.yml)
+    - LAST_COMMIT=$(git log -1 --pretty=format:"%h %s%n%b")
+
+    # Découper CONTENT en plusieurs parties pour éviter d'atteindre la limite de tokens
+    - PART1="1) At first add a line with \"E2guardian ${CI_COMMIT_BRANCH} ChatGPT Analysis\" and Job List with Brief Description:- List all jobs in the pipeline in the same order as defined in the 'stages' section of the .gitlab-ci.yml file. Provide a brief description of each job, summarizing its purpose and what it does in the pipeline Jobs content:"
+    - PART2="1) Purpose of each job-Explain the specific purpose and objective of each job in the pipeline in the same order as defined in the 'stages' section of the .gitlab-ci.yml file with a step-by-step breakdown-Provide a very detailed explanation of each command or action used in the job. For example, explain the purpose of any shell commands, scripts, or Docker commands used, and how they interact with the pipeline Jobs content:"
+    - PART3="1) Parameters, environment variables, and file references-Describe any parameters, environment variables, or files referenced in the job, Follow the order of jobs in the 'stages' section of the .gitlab-ci.yml file (e.g., paths to files, configuration files, environment variables, etc.). Explain how these are used by the job and how they influence the pipeline execution Jobs content:"
+    - PART4="1) Dependencies between jobs or stages-Explain how jobs are dependent on each other in the same order as defined in the 'stages' section of the .gitlab-ci.yml file. If jobs are linked through dependencies or triggers, provide an explanation of how these dependencies affect job execution Jobs content:"
+    - PART5="1) Expected outcomes or artifacts-Explain the output of the job (e.g., artifacts, build results, logs, test reports) and how they are used or passed to subsequent jobs in the pipeline. Include any artifacts or logs that should be stored or passed to the next job Jobs content:"
+    - PART6="1) Include a detailed explanation of the latest commit, including its purpose and impact on the pipeline for context:$LAST_COMMIT, do not provide an explanation of the following GitLab CI/CD jobs. at the end of the text add a line with \"Project:$CI_PROJECT_URL Pipeline:$CI_PIPELINE_URL ChatgptCI:https://gitlab.com/fredbcode/chatgpt-ci Docker images:https://hub.docker.com/r/fredbcode\":"
+
+    # Liste des parties à envoyer
+    - PARTS=("$PART1" "$PART2" "$PART3" "$PART4" "$PART5" "$PART6")
+
+    # Initialise la réponse complète
+    - FULL_RESPONSE=""
+
+    # Envoyer chaque partie et collecter les réponses, sleep pour calmer le TPM
+    - |
+      for PART in "${PARTS[@]}"; do
+        RESPONSE=$(curl -s -X POST https://api.openai.com/v1/chat/completions \
+          -H "Authorization: Bearer $CHATGPT_API_KEY" \
+          -H "Content-Type: application/json" \
+          -d "$(jq -n --arg model "gpt-4" --arg content "$CONTENT $PART $JOBS_CONTENT" '{model: $model, messages: [{role: "user", content: $content}]}')")     
+         RESPONSE_TEXT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+        if [ -n "$RESPONSE_TEXT" ]; then
+          FULL_RESPONSE="$FULL_RESPONSE\n$RESPONSE_TEXT";
+      # Afficher la réponse partielle pour débogage
+          echo "PARTIAL_REQUEST: $PART"
+          echo "PARTIAL_ANSWER: $RESPONSE_TEXT"
+          sleep 30;
+        else
+          echo "PARTIAL: No response (null) DEBUG: Full API response was: $RESPONSE";
+        fi
+      done
+
+    # Sauvegarder la réponse complète dans un fichier Markdown
+    - echo -e "$FULL_RESPONSE" > chatgpt_analysis_$(date +%Y%m%d).md
+
+    # Optionnel : conversion en HTML avec Pandoc
+    - pandoc -s --from=markdown+smart --to=html --metadata=encoding=UTF-8 -o chatgpt_analysis_$(date +%Y%m%d)-${CI_COMMIT_BRANCH}.html chatgpt_analysis_$(date +%Y%m%d).md
+
+    # Une fois tout le contenu traité, enregistre la réponse complète
+    - echo -e "$FULL_RESPONSE" > chatgpt_analysis_$(date +%Y%m%d).md
+    - echo "$FULL_RESPONSE"
+
+    # Effectue les étapes suivantes comme nécessaire
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ssh-add <(echo "$SSH_NOSTROMO_KEY")
+    - scp -P 822 -r chatgpt_analysis*.html e2git@e2guardian.numsys.eu:/datas/e2/html/e2-ci/
+    - echo "!!! See Artifact for explanations or https://e2guardian.numsys.eu !!!"
