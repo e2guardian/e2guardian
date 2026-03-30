@@ -1,0 +1,20 @@
+getsquid_vars:
+  stage: build
+  image:
+    name: $CONTAINER_CLIENT_IMAGE
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - variables.env
+      - version_changed
+  script:
+    - apt update && apt install git curl ca-certificates -y --no-upgrade --no-install-recommends --no-install-suggests
+    - export PROJECT_VERSION=$(curl -LsXGET https://github.com/e2guardian/e2guardian/releases/latest | grep -m 1 "tag_name" | sed -E 's/.*"tag_name": "([^"]+)".*//')
+    - echo "PROJECT_VERSION=$PROJECT_VERSION" > variables.env
+    - mkdir -p ci || true
+    - if [ -f ci/last_project_version.txt ]; then LAST_KNOWN=$(cat ci/last_project_version.txt); else LAST_KNOWN=""; fi
+    - if [ "$LAST_KNOWN" != "$PROJECT_VERSION" ]; then echo "$PROJECT_VERSION" > ci/last_project_version.txt; echo "version_changed=1" > version_changed; git add ci/last_project_version.txt || true; else echo "version_changed=0" > version_changed; fi
+    - git config user.email "agent@traceroot.fr"
+    - git config user.name "iafred-bot"
+    - git add ci/last_project_version.txt || true
+    - git commit -m "ci: update last_project_version [skip ci]" || true
