@@ -1,6 +1,6 @@
 build:arm:
   stage: build
-  image: debian:bookworm-slim
+  image: debian:13-slim
   resource_group: builddarm
   artifacts:
    expire_in: 90 minutes
@@ -26,7 +26,7 @@ build:arm:
 
 package:debarm:
   stage: create-package
-  image: debian:bookworm-slim
+  image: debian:13-slim
   dependencies:
     - build:arm
   artifacts:
@@ -63,7 +63,7 @@ package:debarm:
 
 test:debianarm:
   stage: test-publish
-  image: debian:bookworm-slim
+  image: debian:13-slim
   dependencies:
     - package:debarm
   artifacts:
