@@ -46,6 +46,8 @@ package:debian:
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
+    - sed -i "s/libssl1.1/libssl3/g" ${PACKDST}/control/control || true
+    - sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cat ${PACKDST}/control/control
     - echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables
