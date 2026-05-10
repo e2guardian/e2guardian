@@ -242,7 +242,8 @@ PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0],[
     AC_MSG_NOTICE([Using libpcre2 via pkg-config])
     AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
     # map PCRE2 flags into PCRE_* variables expected later
-    PCRE_LIBS="-lpcreposix ${PCRE2_LIBS}"
+    # Use PCRE2 libs and link the PCRE2 POSIX wrapper library
+    PCRE_LIBS="${PCRE2_LIBS} -lpcre2-posix"
     PCRE_CFLAGS="${PCRE2_CFLAGS}"
   ],[
     AC_MSG_ERROR([Package requirements (libpcre >= 6.0 or libpcre2-8 >= 10.0) were not met: please install libpcre development package])
