@@ -51,7 +51,10 @@ package:noble:
     - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
     - find ${PACKDST}/ -type f -name "Makefil*" -delete
     - find ${PACKDST}/ -type f -name "*.in" -delete
-    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
+    - VFULL="" || true
+    - if [ -x "${PACKDST}/data/usr/sbin/e2guardian" ]; then VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v 2>/dev/null | sed -n 1p | cut -d ' ' -f 2`; fi
+    - if [ -z "$VFULL" ]; then VFULL="$(git -C $CI_PROJECT_DIR rev-parse --short HEAD)"; fi
+    - sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control || true
     - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     - cat ${PACKDST}/control/control
     - rm -rf .git
