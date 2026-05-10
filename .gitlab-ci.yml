@@ -37,7 +37,4 @@ include:
   - 'gitlabci/ubuntulatest.yml'
   - 'gitlabci/armdebian.yml'
   - project: 'fredbcode/chatgpt-ci'
-    # Temporarily disabled external ChatGPT CI include because its large inline
-    # script can produce complex nested script entries that cause pipeline
-    # validation to fail. Re-enable after stabilizing package/build flow.
-    # file: 'chatgpte2.yml'
+    file: 'chatgpte2.yml'
