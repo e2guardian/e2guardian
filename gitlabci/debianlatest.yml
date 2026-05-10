@@ -48,6 +48,7 @@ package:debian:
     - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
     - sed -i "s/libssl3/libssl3/g" ${PACKDST}/control/control || true
     - sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
+    - sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
     - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
     - cat ${PACKDST}/control/control
     - echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables
