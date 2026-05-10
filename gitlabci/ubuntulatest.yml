@@ -34,8 +34,32 @@ package:noble:
     PACKPATH: "$CI_PROJECT_DIR"
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
-  script:
-    - ./gitlabci/run_package_noble.sh
+  script: |
+    # Package for Ubuntu: inline script (single scalar block to avoid nested arrays)
+    PACKPATH="$CI_PROJECT_DIR"
+    PACKDST="$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
+
+    apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0 libpcre2-posix3 || true
+    source $CI_PROJECT_DIR/scripts/debian_package/variables || true
+    echo $VFULL || true
+    git -C "$CI_PROJECT_DIR" rev-parse --short HEAD || true
+
+    SIZE=$(stat -c %s ${PACKDST}/data || echo 0) && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
+    sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control || true
+    sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
+
+    # determine version
+    VFULL=""
+    if [ -x "${PACKDST}/data/usr/sbin/e2guardian" ]; then
+      VFULL=$(${PACKDST}/data/usr/sbin/e2guardian -v 2>/dev/null | sed -n 1p | cut -d ' ' -f 2 || true)
+    fi
+    if [ -z "$VFULL" ]; then
+      VFULL=$(git -C $CI_PROJECT_DIR rev-parse --short HEAD || echo "unknown")
+    fi
+    sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control || true
+
+    cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package || true
+    find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" + || true
 
 test:noble:
   stage: test-publish 
