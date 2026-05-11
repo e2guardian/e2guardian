@@ -50,6 +50,11 @@ package:noble:
     sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
     sed -i "s/libpcre2-8-0/libpcre2-8-0, libpcre2-posix3/g" ${PACKDST}/control/control || true
 
+    # ensure the built binary is copied into the package tree and is executable
+    if [ -f "${PACKPATH}/src/e2guardian" ]; then
+      cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
+      chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
+    fi
     # determine version strictly from the binary and run diagnostics if it fails (same as debian)
     echo "DIAGNOSTIC (noble): checking ${PACKDST}/data/usr/sbin/e2guardian"
     ls -l ${PACKDST}/data/usr/sbin/e2guardian || true
