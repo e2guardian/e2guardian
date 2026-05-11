@@ -34,44 +34,68 @@ package:debian:
     OS: "debian"
   script: |
     # Package for Debian: inline script (single scalar block to avoid nested arrays)
+    set -euo pipefail
     PACKPATH="$CI_PROJECT_DIR"
     PACKDST="$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
 
-    apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0 || true
+    apt update
+    apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0
     git clone https://github.com/fredbcode/scripts || true
     # Ensure runtime libs for binary inspection are available
-    apt update && apt install -y libpcre2-posix3 libstdc++6 g++-14 gcc-14 || true
-    cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
-    chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
-    cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian || true
-    mkdir -p ${PACKPATH}/share/e2guardian/languages || true
-    cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/ || true
-    cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/ || true
-    cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/ || true
-    cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system || true
+    apt update
+    apt install -y libpcre2-posix3 libstdc++6 g++-14 gcc-14 libevent-pthreads-2.1-7 libtommath1 || true
+
+    # Copy runtime files into package tree (fail on missing critical files)
+    cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    chmod +x ${PACKDST}/data/usr/sbin/e2guardian
+    cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
+    mkdir -p ${PACKDST}/data/usr/share/e2guardian
+    if [ -d "${PACKPATH}/data/languages" ]; then
+      cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if compgen -G "${PACKPATH}/data/*.gif" > /dev/null; then
+      cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if compgen -G "${PACKPATH}/data/*swf" > /dev/null; then
+      cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if [ -f "${PACKPATH}/data/scripts/e2guardian.service" ]; then
+      mkdir -p ${PACKDST}/data/lib/systemd
+      cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    fi
     find ${PACKDST}/ -type f -name "Makefil*" -delete || true
     find ${PACKDST}/ -type f -name "*.in" -delete || true
-    SIZE=$(stat -c %s ${PACKDST}/data || echo 0) && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
+    SIZE=0
+    if [ -d "${PACKDST}/data" ]; then SIZE=$(stat -c %s ${PACKDST}/data || echo 0); fi
+    echo "Calculated Installed-Size=$SIZE"
+    sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
 
     # replace legacy pcre deps with pcre2
-    sed -i "s/libssl3/libssl3/g" ${PACKDST}/control/control || true
     sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
     sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
     sed -i "s/libpcre2-8-0/libpcre2-8-0, libpcre2-posix3/g" ${PACKDST}/control/control || true
 
-    # determine version
+    # determine version strictly from the built binary (VFULL must be e2guardian -v output)
     VFULL=""
+    TMP_OUT=${CI_PROJECT_DIR}/tmp_e2_v.out
+    TMP_ERR=${CI_PROJECT_DIR}/tmp_e2_v.err
     if [ -x "${PACKDST}/data/usr/sbin/e2guardian" ]; then
-      VFULL=$(${PACKDST}/data/usr/sbin/e2guardian -v 2>/dev/null | sed -n 1p | cut -d ' ' -f 2 || true)
+      "${PACKDST}/data/usr/sbin/e2guardian" -v > "$TMP_OUT" 2> "$TMP_ERR" || true
+      VFULL=$(sed -n '1p' "$TMP_OUT" | awk '{print $2}' || true)
     fi
-    if [ -z "$VFULL" ]; then
-      VFULL=$(git -C $CI_PROJECT_DIR rev-parse --short HEAD || echo "unknown")
+    # Fail hard if VFULL is empty or does not start with a digit
+    if [ -z "$VFULL" ] || ! printf "%s" "$VFULL" | grep -qE '^[0-9]'; then
+      echo "ERROR: VFULL validation failed. Contents of $TMP_OUT and $TMP_ERR:" >&2
+      echo "--- STDOUT ---" >&2; sed -n '1,200p' "$TMP_OUT" >&2 || true
+      echo "--- STDERR ---" >&2; sed -n '1,200p' "$TMP_ERR" >&2 || true
+      exit 1
     fi
-    sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control || true
-    cat ${PACKDST}/control/control || true
-    echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables || true
 
-    cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package || true
+    sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control
+    cat ${PACKDST}/control/control
+    echo "export VFULL=$VFULL" > $CI_PROJECT_DIR/scripts/debian_package/variables
+
+    cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
     find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" + || true
 
 test:debian:
@@ -103,6 +127,19 @@ test:debian:
       readelf -h "$BIN" 2>/dev/null || true
       ldd "$BIN" 2>/dev/null || true
       "$BIN" -v > ${CI_PROJECT_DIR}/tmp_e2_v.out 2> ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+      # Enforce that VFULL comes strictly from e2guardian -v and starts with a digit
+      if [ ! -s ${CI_PROJECT_DIR}/tmp_e2_v.out ]; then
+        echo "ERROR: ${BIN} -v produced no output" >&2
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err >&2 || true
+        exit 1
+      fi
+      VOUT=$(sed -n '1p' ${CI_PROJECT_DIR}/tmp_e2_v.out | awk '{print $2}' || true)
+      if ! printf "%s" "$VOUT" | grep -qE '^[0-9]'; then
+        echo "ERROR: e2guardian -v output invalid: $VOUT" >&2
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out >&2 || true
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err >&2 || true
+        exit 1
+      fi
       echo "--- E2GUARDIAN -v STDOUT ---"
       sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out || true
       echo "--- E2GUARDIAN -v STDERR ---"
