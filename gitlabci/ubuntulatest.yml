@@ -44,6 +44,17 @@ package:noble:
     echo $VFULL || true
     git -C "$CI_PROJECT_DIR" rev-parse --short HEAD || true
 
+    # copy runtime files into package tree (match debian packaging)
+    cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
+    chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
+    cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian || true
+    mkdir -p ${PACKPATH}/share/e2guardian/languages || true
+    cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system || true
+    find ${PACKDST}/ -type f -name "Makefil*" -delete || true
+    find ${PACKDST}/ -type f -name "*.in" -delete || true
     SIZE=$(stat -c %s ${PACKDST}/data || echo 0) && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
     sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control || true
     sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
