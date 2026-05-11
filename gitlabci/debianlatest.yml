@@ -92,6 +92,19 @@ test:debian:
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre2-8-0 libssl3 
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre2-8-0 libpcre2-posix3 libssl3 
     - VERSION=`lsb_release -cs`
+    # Diagnostic: show binary and run -v before installing package to capture runtime output
+    - |
+      BIN="${PACKDST}/e2${OS}_package/data/usr/sbin/e2guardian"
+      echo "DIAGNOSTIC: checking binary at $BIN"
+      ls -l "$BIN" || true
+      file "$BIN" || true
+      readelf -h "$BIN" 2>/dev/null || true
+      ldd "$BIN" 2>/dev/null || true
+      "$BIN" -v > ${CI_PROJECT_DIR}/tmp_e2_v.out 2> ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+      echo "--- E2GUARDIAN -v STDOUT ---"
+      sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out || true
+      echo "--- E2GUARDIAN -v STDERR ---"
+      sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err || true
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
