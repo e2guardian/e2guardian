@@ -39,6 +39,8 @@ package:debian:
 
     apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0 || true
     git clone https://github.com/fredbcode/scripts || true
+    # Ensure runtime libs for binary inspection are available
+    apt update && apt install -y libpcre2-posix3 libstdc++6 g++-14 gcc-14 || true
     cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
     chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
     cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian || true
