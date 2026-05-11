@@ -79,7 +79,7 @@ test:noble:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
-    - apt install -y curl openssl git lsb-release libpcre2-8-0
+    - apt install -y curl openssl git lsb-release libpcre2-8-0 libevent-pthreads-2.1-7 libpcre3 libtommath1
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
