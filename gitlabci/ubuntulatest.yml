@@ -47,14 +47,24 @@ package:noble:
     SIZE=$(stat -c %s ${PACKDST}/data || echo 0) && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
     sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control || true
     sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre2-8-0/libpcre2-8-0, libpcre2-posix3/g" ${PACKDST}/control/control || true
 
-    # determine version
-    VFULL=""
-    if [ -x "${PACKDST}/data/usr/sbin/e2guardian" ]; then
-      VFULL=$(${PACKDST}/data/usr/sbin/e2guardian -v 2>/dev/null | sed -n 1p | cut -d ' ' -f 2 || true)
-    fi
+    # determine version strictly from the binary and run diagnostics if it fails (same as debian)
+    echo "DIAGNOSTIC (noble): checking ${PACKDST}/data/usr/sbin/e2guardian"
+    ls -l ${PACKDST}/data/usr/sbin/e2guardian || true
+    file ${PACKDST}/data/usr/sbin/e2guardian || true
+    readelf -h ${PACKDST}/data/usr/sbin/e2guardian 2>/dev/null || true
+    ldd ${PACKDST}/data/usr/sbin/e2guardian 2>/dev/null || true
+    ${PACKDST}/data/usr/sbin/e2guardian -v > ${CI_PROJECT_DIR}/tmp_e2_v.out 2> ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+    echo "--- E2GUARDIAN -v STDOUT (noble) ---"
+    sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out || true
+    echo "--- E2GUARDIAN -v STDERR (noble) ---"
+    sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+    VFULL=$(sed -n '1p' ${CI_PROJECT_DIR}/tmp_e2_v.out | cut -d ' ' -f 2 || true)
     if [ -z "$VFULL" ]; then
-      VFULL=$(git -C $CI_PROJECT_DIR rev-parse --short HEAD || echo "unknown")
+      echo "ERROR: VFULL is empty for noble — binary did not produce version output. Failing packaging step." >&2
+      exit 1
     fi
     sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control || true
 
