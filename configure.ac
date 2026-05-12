@@ -1,7 +1,7 @@
 # Autoconf script
 
 AC_PREREQ(2.63)
-AC_INIT(e2guardian, 5.6.0)
+AC_INIT(e2guardian, 5.6.1)
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS([e2config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -35,6 +35,7 @@ AC_CHECK_HEADERS([string.h sys/socket.h sys/time.h syslog.h unistd.h locale.h])
 AC_CHECK_HEADERS([sys/types.h sys/un.h sys/poll.h  sys/resource.h])
 AC_CHECK_HEADERS([pwd.h grp.h])
 AC_CHECK_HEADERS([byteswap.h])
+
 
 # Check system endianness
 AC_C_BIGENDIAN
@@ -141,34 +142,34 @@ fi], [
 
 AC_MSG_CHECKING(for proxy user)
 AC_ARG_WITH(proxyuser,
-[AS_HELP_STRING([--with-proxyuser@<:@=nobody@:>@],[name of proxy user])],
+[AS_HELP_STRING([--with-proxyuser@<:@=e2guardian@:>@],[name of proxy user])],
 [if test "x${withval}" != "x" ; then
   AC_MSG_RESULT(yes)
   proxyuser=${withval}
 else
   AC_MSG_RESULT(no)
-  proxyuser=nobody
+  proxyuser=e2guardian
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
-  proxyuser=nobody
+  proxyuser=e2guardian
 ])
 AC_SUBST(E2PROXYUSER, "$proxyuser")
 AC_DEFINE_UNQUOTED(__PROXYUSER,"$proxyuser","User to run as")
 
 AC_MSG_CHECKING(for proxy group)
 AC_ARG_WITH(proxygroup,
-[AS_HELP_STRING([--with-proxygroup@<:@=nobody@:>@],[name of proxy group])],
+[AS_HELP_STRING([--with-proxygroup@<:@=e2guardian@:>@],[name of proxy group])],
 [if test "x${withval}" != "x" ; then
   AC_MSG_RESULT(yes)
   proxygroup=${withval}
 else
   AC_MSG_RESULT(no)
-  proxygroup=nobody
+  proxygroup=e2guardian
 fi], [
   # disable by default
   AC_MSG_RESULT(no)
-  proxygroup=nobody
+  proxygroup=e2guardian
 ])
 AC_SUBST(E2PROXYGROUP, "$proxygroup")
 AC_DEFINE_UNQUOTED(__PROXYGROUP,"$proxygroup","Group to run as")
@@ -232,9 +233,22 @@ AC_MSG_RESULT(yes)
 )
 
 if test "x$pcre" = "xtrue"; then
-PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
-AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
-PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+# Try libpcre first, fall back to libpcre2 if libpcre is not available via pkg-config
+PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0],[
+  AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
+  PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+],[
+  PKG_CHECK_MODULES([PCRE2],[libpcre2-8 >= 10.0],[
+    AC_MSG_NOTICE([Using libpcre2 via pkg-config])
+    AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
+    # map PCRE2 flags into PCRE_* variables expected later
+    # Use PCRE2 libs and link the PCRE2 POSIX wrapper library
+    PCRE_LIBS="${PCRE2_LIBS} -lpcre2-posix"
+    PCRE_CFLAGS="${PCRE2_CFLAGS}"
+  ],[
+    AC_MSG_ERROR([Package requirements (libpcre >= 6.0 or libpcre2-8 >= 10.0) were not met: please install libpcre development package])
+  ])
+])
 else
 AC_CHECK_FUNCS([regcomp])
 fi
@@ -270,6 +284,8 @@ else
 	fi
 fi
 ]
+
+CXXFLAGS="${CXXFLAGS} -funsigned-char"
   
 # ask user if they want large file support on 32 bit systems
 AC_MSG_CHECKING([for large file support])
