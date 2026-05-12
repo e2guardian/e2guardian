@@ -3,7 +3,7 @@ workflow:
     - if: $CI_COMMIT_BRANCH 
 
 variables:
-  CONTAINER_CLIENT_IMAGE: amd64/debian:bookworm-slim    
+  CONTAINER_CLIENT_IMAGE: amd64/debian:13-slim    
 
 stages:
 - quality 

@@ -221,8 +221,8 @@ log rotation script.  Alternatively stick with the default
 DEBIAN:
 -------
 
-Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, libevent_pthreads, libevent-dev, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre3-dev, zlib1g-dev, pkg-config, libssl-dev, libssl1.1 (can be also compiled with libssl1.0)
-Other packages related to E2guardian : adduser, perl, libbz2, libc6, libgcc1, libpcre3, libstdc++, libtommath0, zlib1g
+Build-Depends: base-files, base-passwd, bash, coreutils, dash, debianutils, diffutils, dpkg, e2fsprogs, findutils, grep, gzip, hostname, ncurses-base, libevent_pthreads, libevent-dev, ncurses-bin, perl-base, sed, login, sysvinit-utils, sysvinit, tar, bsdutils, mount, util-linux, libc6-dev , libc-dev, gcc , g++ , make, dpkg-dev , autotools-dev, debhelper , dh-autoreconf, dpatch , libclamav-dev , libpcre2-dev, zlib1g-dev, pkg-config, libssl-dev, libssl3
+Other packages related to E2guardian : adduser, perl, libbz2, libc6, libgcc1, libpcre2-8-0, libstdc++, libtommath0, zlib1g
 Other Packages suggests to E2guardian: squid, clamav, clamav-freshclam
 Autogen is needed !
 
@@ -331,6 +331,5 @@ list available for those that do not find the answers to their questions
 from the url above. The mailing list can be found at the url.  Please
 DO NOT email the authors for support as you will be just directed at the
 mailing list.
-
 
 
