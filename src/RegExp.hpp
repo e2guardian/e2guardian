@@ -12,7 +12,11 @@
 
 #include <sys/types.h> // needed for size_t used in regex.h
 
+#ifdef HAVE_PCRE
+#include <pcreposix.h>
+#else
 #include <regex.h>
+#endif
 
 #include <string>
 #include <deque>
