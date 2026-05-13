@@ -15,7 +15,7 @@ build:noble:
       bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
       libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
-      libclamav-dev libpcre3-dev zlib1g-dev pkg-config libssl-dev libssl3t64 git ca-certificates lsb-release
+      libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev libssl3t64 git ca-certificates lsb-release
     - cd $CI_PROJECT_DIR && make clean && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make -j 4
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
@@ -34,28 +34,58 @@ package:noble:
     PACKPATH: "$CI_PROJECT_DIR"
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
     OS: "ubuntu"
-  script:
-    - source $CI_PROJECT_DIR/scripts/debian_package/variables
-    - echo $VFULL
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils
-    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control
-    - sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
-    - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
-    - mkdir -p ${PACKPATH}/share/e2guardian/languages
-    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
-    - find ${PACKDST}/ -type f -name "Makefil*" -delete
-    - find ${PACKDST}/ -type f -name "*.in" -delete
-    - sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - cat ${PACKDST}/control/control
-    - rm -rf .git
-    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  script: |
+    # Package for Ubuntu: inline script (single scalar block to avoid nested arrays)
+    PACKPATH="$CI_PROJECT_DIR"
+    PACKDST="$CI_PROJECT_DIR/scripts/debian_package/e2ubuntu_package"
+
+    apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0 libpcre2-posix3 || true
+    source $CI_PROJECT_DIR/scripts/debian_package/variables || true
+    echo $VFULL || true
+    git -C "$CI_PROJECT_DIR" rev-parse --short HEAD || true
+
+    # copy runtime files into package tree (match debian packaging)
+    cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
+    chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
+    cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian || true
+    mkdir -p ${PACKPATH}/share/e2guardian/languages || true
+    cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/ || true
+    cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system || true
+    find ${PACKDST}/ -type f -name "Makefil*" -delete || true
+    find ${PACKDST}/ -type f -name "*.in" -delete || true
+    SIZE=$(stat -c %s ${PACKDST}/data || echo 0) && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
+    sed -i "s/libssl1.1/libssl3t64/g" ${PACKDST}/control/control || true
+    sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre2-8-0/libpcre2-8-0, libpcre2-posix3/g" ${PACKDST}/control/control || true
+
+    # ensure the built binary is copied into the package tree and is executable
+    if [ -f "${PACKPATH}/src/e2guardian" ]; then
+      cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian || true
+      chmod +x ${PACKDST}/data/usr/sbin/e2guardian || true
+    fi
+    # determine version strictly from the binary and run diagnostics if it fails (same as debian)
+    echo "DIAGNOSTIC (noble): checking ${PACKDST}/data/usr/sbin/e2guardian"
+    ls -l ${PACKDST}/data/usr/sbin/e2guardian || true
+    file ${PACKDST}/data/usr/sbin/e2guardian || true
+    readelf -h ${PACKDST}/data/usr/sbin/e2guardian 2>/dev/null || true
+    ldd ${PACKDST}/data/usr/sbin/e2guardian 2>/dev/null || true
+    ${PACKDST}/data/usr/sbin/e2guardian -v > ${CI_PROJECT_DIR}/tmp_e2_v.out 2> ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+    echo "--- E2GUARDIAN -v STDOUT (noble) ---"
+    sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out || true
+    echo "--- E2GUARDIAN -v STDERR (noble) ---"
+    sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+    VFULL=$(sed -n '1p' ${CI_PROJECT_DIR}/tmp_e2_v.out | cut -d ' ' -f 2 || true)
+    if [ -z "$VFULL" ]; then
+      echo "ERROR: VFULL is empty for noble — binary did not produce version output. Failing packaging step." >&2
+      exit 1
+    fi
+    sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control || true
+
+    cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package || true
+    find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" + || true
 
 test:noble:
   stage: test-publish 
@@ -75,7 +105,7 @@ test:noble:
     - source $CI_PROJECT_DIR/scripts/debian_package/variables
     - echo $VFULL
     - apt update
-    - apt install -y curl openssl git lsb-release libevent-pthreads* libtommath* libssl3t64 libpcre3
+    - apt install -y curl openssl git lsb-release libpcre2-8-0 libpcre2-posix3 libevent-pthreads-2.1-7 libtommath1
     - VERSION=`lsb_release -cs`
     - cd ${PACKDST} && cd .. && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf

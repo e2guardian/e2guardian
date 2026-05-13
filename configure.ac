@@ -233,9 +233,22 @@ AC_MSG_RESULT(yes)
 )
 
 if test "x$pcre" = "xtrue"; then
-PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0])
-AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
-PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+# Try libpcre first, fall back to libpcre2 if libpcre is not available via pkg-config
+PKG_CHECK_MODULES([PCRE],[libpcre >= 6.0],[
+  AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
+  PCRE_LIBS="-lpcreposix ${PCRE_LIBS}"
+],[
+  PKG_CHECK_MODULES([PCRE2],[libpcre2-8 >= 10.0],[
+    AC_MSG_NOTICE([Using libpcre2 via pkg-config])
+    AC_DEFINE([HAVE_PCRE],[],[Define to enable PCRE support])
+    # map PCRE2 flags into PCRE_* variables expected later
+    # Use PCRE2 libs and link the PCRE2 POSIX wrapper library
+    PCRE_LIBS="${PCRE2_LIBS} -lpcre2-posix"
+    PCRE_CFLAGS="${PCRE2_CFLAGS}"
+  ],[
+    AC_MSG_ERROR([Package requirements (libpcre >= 6.0 or libpcre2-8 >= 10.0) were not met: please install libpcre development package])
+  ])
+])
 else
 AC_CHECK_FUNCS([regcomp])
 fi

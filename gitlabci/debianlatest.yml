@@ -15,7 +15,7 @@ build:debian:
       bash coreutils dash debianutils diffutils dpkg e2fsprogs findutils grep gzip hostname ncurses-base
       libevent-pthreads-* libevent-dev ncurses-bin perl-base sed login sysvinit-utils tar bsdutils
       mount util-linux libc6-dev libc-dev gcc g++ make dpkg-dev autotools-dev debhelper dh-autoreconf
-      libclamav-dev libpcre3-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev git ca-certificates lsb-release
+      libclamav-dev libpcre2-dev zlib1g-dev pkg-config libssl-dev git ca-certificates lsb-release
     - cd $CI_PROJECT_DIR && ./autogen.sh && ./configure  '--prefix=/usr' '--enable-clamd=yes' '--with-proxyuser=e2guardian' '--with-proxygroup=e2guardian' '--sysconfdir=/etc' '--localstatedir=/var' '--enable-icap=yes' '--enable-commandline=yes' '--enable-email=yes' '--enable-ntlm=yes' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--enable-pcre=yes' '--enable-sslmitm=yes' 'CPPFLAGS=-mno-sse2 -g -O2'
     - make -j 4
     - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
@@ -32,27 +32,71 @@ package:debian:
     PACKPATH: "$CI_PROJECT_DIR"
     PACKDST: "$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
     OS: "debian"
-  script:
-    - apt update && apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0 
-    - git clone https://github.com/fredbcode/scripts
-    - cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
-    - chmod +x ${PACKDST}/data/usr/sbin/e2guardian      
-    - cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
-    - mkdir -p ${PACKPATH}/share/e2guardian/languages
-    - cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
-    - cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
-    - find ${PACKDST}/ -type f -name "Makefil*" -delete
-    - find ${PACKDST}/ -type f -name "*.in" -delete
-    - SIZE=`stat -c %s ${PACKDST}/data` && echo $SIZE && sed -i "s/Installed-Size:.*$/Installed-Size:\ $SIZE/g" ${PACKDST}/control/control
-    - sed -i "s/libssl3/libssl3/g" ${PACKDST}/control/control || true
-    - sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
-    - VFULL=`${PACKDST}/data/usr/sbin/e2guardian -v | sed -n 1p | cut -d ' ' -f 2` && sed -i "s/Version:.*$/Version:\ $VFULL/g" ${PACKDST}/control/control 
-    - cat ${PACKDST}/control/control
-    - echo "export VFULL=$VFULL" >> $CI_PROJECT_DIR/scripts/debian_package/variables
-    - cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
-    - find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" +
+  script: |
+    # Package for Debian: inline script (single scalar block to avoid nested arrays)
+    set -euo pipefail
+    PACKPATH="$CI_PROJECT_DIR"
+    PACKDST="$CI_PROJECT_DIR/scripts/debian_package/e2debian_package"
+
+    apt update
+    apt install --no-install-recommends --no-install-suggests -y curl git ca-certificates util-linux binutils libpcre2-8-0
+    git clone https://github.com/fredbcode/scripts || true
+    # Ensure runtime libs for binary inspection are available
+    apt update
+    apt install -y libpcre2-posix3 libstdc++6 g++-14 gcc-14 libevent-pthreads-2.1-7 libtommath1 || true
+
+    # Copy runtime files into package tree (fail on missing critical files)
+    cp ${PACKPATH}/src/e2guardian ${PACKDST}/data/usr/sbin/e2guardian
+    chmod +x ${PACKDST}/data/usr/sbin/e2guardian
+    cp -Rf ${PACKPATH}/configs ${PACKDST}/data/etc/e2guardian
+    mkdir -p ${PACKDST}/data/usr/share/e2guardian
+    if [ -d "${PACKPATH}/data/languages" ]; then
+      cp -Rf ${PACKPATH}/data/languages ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if compgen -G "${PACKPATH}/data/*.gif" > /dev/null; then
+      cp ${PACKPATH}/data/*.gif ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if compgen -G "${PACKPATH}/data/*swf" > /dev/null; then
+      cp ${PACKPATH}/data/*swf ${PACKDST}/data/usr/share/e2guardian/
+    fi
+    if [ -f "${PACKPATH}/data/scripts/e2guardian.service" ]; then
+      mkdir -p ${PACKDST}/data/lib/systemd
+      cp ${PACKPATH}/data/scripts/e2guardian.service ${PACKDST}/data/lib/systemd/system
+    fi
+    find ${PACKDST}/ -type f -name "Makefil*" -delete || true
+    find ${PACKDST}/ -type f -name "*.in" -delete || true
+    SIZE=0
+    if [ -d "${PACKDST}/data" ]; then SIZE=$(stat -c %s ${PACKDST}/data || echo 0); fi
+    echo "Calculated Installed-Size=$SIZE"
+    sed -i "s/Installed-Size:.*$/Installed-Size: $SIZE/g" ${PACKDST}/control/control || true
+
+    # replace legacy pcre deps with pcre2
+    sed -i "s/libevent-pthreads-2.1-6/libevent-pthreads-2.1-7/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre3/libpcre2-8-0/g" ${PACKDST}/control/control || true
+    sed -i "s/libpcre2-8-0/libpcre2-8-0, libpcre2-posix3/g" ${PACKDST}/control/control || true
+
+    # determine version strictly from the built binary (VFULL must be e2guardian -v output)
+    VFULL=""
+    TMP_OUT=${CI_PROJECT_DIR}/tmp_e2_v.out
+    TMP_ERR=${CI_PROJECT_DIR}/tmp_e2_v.err
+    if [ -x "${PACKDST}/data/usr/sbin/e2guardian" ]; then
+      "${PACKDST}/data/usr/sbin/e2guardian" -v > "$TMP_OUT" 2> "$TMP_ERR" || true
+      VFULL=$(sed -n '1p' "$TMP_OUT" | awk '{print $2}' || true)
+    fi
+    # Fail hard if VFULL is empty or does not start with a digit
+    if [ -z "$VFULL" ] || ! printf "%s" "$VFULL" | grep -qE '^[0-9]'; then
+      echo "ERROR: VFULL validation failed. Contents of $TMP_OUT and $TMP_ERR:" >&2
+      echo "--- STDOUT ---" >&2; sed -n '1,200p' "$TMP_OUT" >&2 || true
+      echo "--- STDERR ---" >&2; sed -n '1,200p' "$TMP_ERR" >&2 || true
+      exit 1
+    fi
+
+    sed -i "s/Version:.*$/Version: $VFULL/g" ${PACKDST}/control/control
+    cat ${PACKDST}/control/control
+    echo "export VFULL=$VFULL" > $CI_PROJECT_DIR/scripts/debian_package/variables
+
+    cd ${PACKDST} && cd .. && ./rebuild.sh e2"$OS"_package
+    find $CI_PROJECT_DIR -name ".git" -exec rm -r "{}" + || true
 
 test:debian:
   stage: test-publish-debian
@@ -72,7 +116,34 @@ test:debian:
     - echo $VFULL
     - apt update
     - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre2-8-0 libssl3 
+    - apt install -y openssl curl git lsb-release libevent-pthreads* libtommath* libpcre2-8-0 libpcre2-posix3 libssl3 
     - VERSION=`lsb_release -cs`
+    # Diagnostic: show binary and run -v before installing package to capture runtime output
+    - |
+      BIN="${PACKDST}/e2${OS}_package/data/usr/sbin/e2guardian"
+      echo "DIAGNOSTIC: checking binary at $BIN"
+      ls -l "$BIN" || true
+      file "$BIN" || true
+      readelf -h "$BIN" 2>/dev/null || true
+      ldd "$BIN" 2>/dev/null || true
+      "$BIN" -v > ${CI_PROJECT_DIR}/tmp_e2_v.out 2> ${CI_PROJECT_DIR}/tmp_e2_v.err || true
+      # Enforce that VFULL comes strictly from e2guardian -v and starts with a digit
+      if [ ! -s ${CI_PROJECT_DIR}/tmp_e2_v.out ]; then
+        echo "ERROR: ${BIN} -v produced no output" >&2
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err >&2 || true
+        exit 1
+      fi
+      VOUT=$(sed -n '1p' ${CI_PROJECT_DIR}/tmp_e2_v.out | awk '{print $2}' || true)
+      if ! printf "%s" "$VOUT" | grep -qE '^[0-9]'; then
+        echo "ERROR: e2guardian -v output invalid: $VOUT" >&2
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out >&2 || true
+        sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err >&2 || true
+        exit 1
+      fi
+      echo "--- E2GUARDIAN -v STDOUT ---"
+      sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.out || true
+      echo "--- E2GUARDIAN -v STDERR ---"
+      sed -n '1,200p' ${CI_PROJECT_DIR}/tmp_e2_v.err || true
     - cd ${PACKDST} && dpkg -i e2"$OS"_package.deb 
     - sed -i "s/^#sslmitm.*$/sslmitm\ =\ on/" /etc/e2guardian/e2guardianf1.conf && sed -i "s/^#enablessl.*$/enablessl\ =\ on/" /etc/e2guardian/e2guardian.conf && sed -i "s/^RANDFILE\s*=\s*\\\$ENV/#RANDFILE\ =\ \$ENV/" /etc/ssl/openssl.cnf
     - mkdir -p ${CERT_DIR}generatedcerts
