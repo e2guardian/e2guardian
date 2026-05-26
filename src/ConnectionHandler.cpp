@@ -41,10 +41,10 @@
 #include <sstream>
 #include <memory>
 
-#ifdef ENABLE_ORIG_IP
-#include <linux/types.h>
-#include <linux/netfilter_ipv4.h>
-#endif
+//#ifdef ENABLE_ORIG_IP
+//#include <linux/types.h>
+//#include <linux/netfilter_ipv4.h>
+//#endif
 
 #include "openssl/ssl.h"
 #include "openssl/x509v3.h"
@@ -53,6 +53,11 @@
 // GLOBALS
 extern OptionContainer o;
 extern std::atomic<bool> ttg;
+
+#ifdef ENABLE_PFFW
+#include <net/pfvar.h>
+extern int pf_fileid;
+#endif
 
 // IMPLEMENTATION
 
@@ -3352,9 +3357,43 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
 #else   // TODO: BSD code needs adding - depends on firewall being used
         // assign checkme.orig_ip and checkme.orig_port and return true
         // or return false on error
+#ifdef ENABLE_PFFW
+    //sockaddr_in origaddr;
+    //socklen_t origaddrlen(sizeof(sockaddr_in));
 
+    struct pfioc_natlook pnl;
+    memset(&pnl, 0, sizeof pnl);
+    pnl.direction = PF_OUT;
+    pnl.af = AF_INET;
+    pnl.proto = IPPROTO_TCP;
+    pnl.saddr.v4 = inet_hston(checkme.ip.c_str());
+    memcpy(&pnl.daddr.v4 = &peercon->my_adr.sin_addr.s_addr, sizeof pnl.saddr.v4);
+    pnl.sport = &peercon->peer_addr.sin_port;
+    pnl.dport = &peercon->my_adr.sin_port;
+
+    if (ioctl(pf_fileid, DIOCNATLOOK, &pnl) == -1) {
+        E2LOGGER_error("Failed to get client's original destination IP: ", strerror(errno));
+        return false;
+        } else {
+        char res[INET_ADDRSTRLEN];
+        checkme.orig_ip = inet_ntop(AF_INET,pnl.rdaddr.v4,res,sizeof(res));
+        // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
+        if (o.net.check_ip.size() > 0) {
+            for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
+                if (*it == checkme.orig_ip) {
+                    checkme.orig_ip = "";
+                    return false;
+                }
+            }
+        }
+        checkme.orig_port = ntohs(pnl.rdport);
+        checkme.got_orig_ip = true;
+        return true;
+    }
+#else
         // return false until BSD code added
         return false;
+#endif
 #endif
 }
 

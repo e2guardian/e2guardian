@@ -121,6 +121,11 @@ extern std::atomic<bool> g_is_starting;
 extern OptionContainer o;
 extern bool is_daemonised;
 
+#ifdef ENABLE_PFFW
+extern int pf_fileid;
+#endif
+
+
 pid_t master_pid = 0;
 
 void stat_rec::clear() {
@@ -1029,6 +1034,14 @@ int fc_controlit()   //
 
     o.lm.garbageCollect();
     thread_id = "master: ";
+
+#ifdef ENABLE_PFFW
+    pf_fileid = open(/dev/pf);
+    if( pf_fileid < 0) {
+        // error open /dev/pf - exit
+        E2LOGGER_warning("Unable to open /dev/pf - I will not be able to determine the original IP and port on redirects - errno ", errno);
+    };
+#endif
 
     // allocate & create our server sockets
         if (o.net.filter_ip.size() > 0) {

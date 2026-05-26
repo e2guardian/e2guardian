@@ -13,6 +13,10 @@
 #include <string>
 #include <atomic>
 
+#ifdef ENABLE_PFFW
+#include <net/pfvar.h>
+#endif
+
 // DECLARATIONS
 
 // program main loop - pass in FD of pidfile
