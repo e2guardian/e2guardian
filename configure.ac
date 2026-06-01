@@ -520,6 +520,29 @@ AC_MSG_RESULT(no)
 ])
 AC_SUBST(EMAILSUPPORT)
 
+# asking the user if they want support for pf firewall
+AC_MSG_CHECKING(for pf firewall support)
+AC_ARG_ENABLE(
+pf_fw,
+[AS_HELP_STRING([--enable-pf_fw@<:@=no@:>@],[Enable support for PF firewall])],
+[ if test "x$enableval" = "xyes"; then
+pf_fw=true
+PFFWSUPPORT=""
+AC_MSG_RESULT(yes)
+AC_DEFINE([ENABLE_PFFW],[],[Define to enable pf_fw reporting])
+else
+pf_fw=false
+PFFWSUPPORT="#!! Not compiled !!"
+AC_MSG_RESULT(no)
+fi],
+[
+pf_fw=false
+PFFWSUPPORT="#!! Not compiled !!"
+AC_MSG_RESULT(no)
+])
+AC_SUBST(PFFWSUPPORT)
+
+
 AC_DEFINE_UNQUOTED([E2_CONFIGURE_OPTIONS], ["$ac_configure_args"], [Record configure-time options])
 
 libdir="${libdir}/${PACKAGE_NAME}"

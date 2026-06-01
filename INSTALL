@@ -124,11 +124,6 @@ Optional Features:
                           Enable support for the PCRE library
   --enable-lfs[=yes]
                           Enable large file support on 32 bit systems
-  --enable-orig-ip[=no]
-                          Enable support for checking the client's original
-                          destination IP address against HTTP request details
-                          when deployed as a transparent proxy (US-CERT
-                          VU#435052). Currently only works on Linux.
   --enable-clamd[=no]
                           Enable support for the ClamD content scanner
   --enable-avastd[=no]
@@ -140,18 +135,11 @@ Optional Features:
                           scanner
   --enable-commandline[=no]
                           Enable support for command-line content scanners
-  --enable-fancydm[=yes]
-                          Enable support for the fancy download manager
-  --enable-totalblocklist[=no]
-                          Enable support for total block list
-  --enable-trickledm[=no]
-                          Enable support for the trickle download manager
-  --enable-ntlm[=no]
-                          Enable support for the NTLM auth plugin
   --enable-dnsauth[=no]
                           Enable support for the DNS auth plugin
   --enable-email[=no]
                           Enable support for email reporting functionality
+  --enable-pf_fw[=no]     Enable support for PF firewall
 
 Optional Packages:
   --with-PACKAGE[=ARG]    
