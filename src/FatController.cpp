@@ -1038,7 +1038,8 @@ int fc_controlit()   //
 #ifdef ENABLE_PFFW
     pf_fileid = open("/dev/pf",O_RDWR|O_NONBLOCK);
     if( pf_fileid < 0) {
-        E2LOGGER_warning("Unable to open /dev/pf - I will not be able to determine the original IP and port on redirects - errno ", errno);
+        E2LOGGER_warning("Unable to open /dev/pf - I will not be able to determine the original IP and port on",
+                         " redirects - errno ", errno);
     };
 #endif
 

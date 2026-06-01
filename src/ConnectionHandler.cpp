@@ -3379,7 +3379,11 @@ getsockopt(peerconn.getFD(), SOL_IP, SO_ORIGINAL_DST, &origaddr, &origaddrlen ) 
         return false;
         } else {
         char res[INET_ADDRSTRLEN];
-        checkme.orig_ip = inet_ntop(AF_INET,&pnl.rdaddr.v4,res,sizeof(res));
+        if(inet_ntop(AF_INET,&pnl.rdaddr.v4,res,sizeof(res)) == NULL) {
+            E2LOGGER_warning("ioctl returned bad IP address - errno ", errno);
+            return false;
+            };
+        checkme.orig_ip = res;
         // if orig_ip == one of our box ip's it is not true transparent so return false so that dns lookup is enabled
         if (o.net.check_ip.size() > 0) {
             for (auto it = o.net.check_ip.begin(); it != o.net.check_ip.end(); it++) {
